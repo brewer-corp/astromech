@@ -1,6 +1,6 @@
 [package]
 name = "astromech-core"
-description = "astromech core process: composition root (tray, voice, overlay, API server)"
+description = "astromech core process: game state pipeline, binds health check, push-to-talk voice commands"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -22,8 +22,21 @@ astromech-status.workspace = true
 astromech-gamestate.workspace = true
 astromech-keybinds.workspace = true
 astromech-input.workspace = true
+astromech-intent.workspace = true
 astromech-voice.workspace = true
 astromech-policy.workspace = true
 astromech-tools.workspace = true
-astromech-overlay.workspace = true
 astromech-store.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+clap = { version = "4.6", features = ["derive"] }
+notify = "8.2"
+toml = "0.9"
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi"] }

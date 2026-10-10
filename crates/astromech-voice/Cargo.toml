@@ -26,9 +26,16 @@ anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 hound = "3.5"
+sha2 = "0.10"
+ureq = "2"
+bzip2 = "0.5"
+tar = "0.4"
+flate2 = "1"
 
 # Windows: static-MT prebuilt (no DLLs). Elsewhere: shared libraries (reference runs only).
 [target.'cfg(windows)'.dependencies]
+cpal = "0.18"
+windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_Media_Audio"] }
 sherpa-onnx = { version = "=1.13.8", default-features = false, features = ["static"], optional = true }
 
 [target.'cfg(not(windows))'.dependencies]

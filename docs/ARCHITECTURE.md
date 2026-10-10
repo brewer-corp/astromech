@@ -1,6 +1,6 @@
-# astromech, an Elite Dangerous copilot: architecture (v0.10 draft)
+# astromech, an Elite Dangerous copilot: architecture (v0.11 draft)
 
-*Revised 10 Oct 2026, 5:45 PM ET (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
+*Revised 10 Oct 2026, 6:45 PM ET (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
 
 **Project name.** **astromech** (v0.10; it replaces the earlier `helm` placeholder). Crates are `astromech-*`. Repo: https://github.com/spadaval/astromech.
 
@@ -48,6 +48,7 @@
   - EDRefCard is parked. Middleman input apps are out of scope.
   - Diagrams: 01 updated; new 08 (app processes, replacing 06) and 09 (modules/domain).
 - **v0.10 (10 Oct, 5:45 PM ET):** Codename **astromech** replaces `helm`; all crate names are now `astromech-*`. The repo is scaffolded (§4). Name changes from earlier drafts: `helm-binds`→`astromech-keybinds`, `helm-state`→`astromech-gamestate`, `helm-ingest`→`astromech-journal` + `astromech-status`, `helm-types`→`astromech-proto`, `helm-controls`→`astromech-input::listen`, `helm-ui`/`helm-vr`→`astromech-overlay`, `apps/helm`→`astromech-core`, and the app window→`astromech-shell`.
+- **v0.11 (10 Oct, evening):** the first vertical slice, "gear down" end to end (branch `slice/gear-down`). New crate `astromech-intent` (the §5.12 matcher, implemented); `astromech-core` now runs the journal/Status pipeline, the binds health check and the PTT voice path. Implementation notes and divergences are in §17.8; §4 and §5.12 updated to match.
 - **v0.9 (10 Oct, 5:05 PM ET):** **S7 done** on Sumeet's PC with `s7-input-listener` (§17.7). With Elite focused, a Raw Input `RIDEV_INPUTSINK` listener got joystick, keyboard and mouse input. Elite does not take exclusive input from it. Mouse side buttons (4/5) were not tested.
 - **v0.8 (10 Oct, 4:10 PM ET):** **S9 done** on Sumeet's PC (§17.6).
   - Release to transcript: median 85 ms. Kokoro first audio: median 446 ms. 4 inference threads by default.
@@ -203,7 +204,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo. Crates not listed (nav, vision, data, capi, intent, announce, api, web, gamedata, history, ship, engineering, materials, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, materials, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -218,13 +219,16 @@ astromech/
                          ("doctor"; seeded from k0-binds-doctor with its tests)
     astromech-input/     listen: Raw Input INPUTSINK + XInput tap, event tracker (seeded from s7-input-listener)
                          exec:   scancode table, SendInput executor, focus + UIPI check (seeded from S5)
-    astromech-voice/     STT/TTS worker protocol + fuzzy grammar matching; sherpa-onnx worker
-                         behind the off-by-default "sherpa" feature (seeded from S9)
+    astromech-voice/     STT/TTS worker protocol + client, model finder/downloader, mic (cpal) and
+                         playback on Windows; sherpa-onnx worker behind the off-by-default
+                         "sherpa" feature (seeded from S9)
+    astromech-intent/    closed command grammar + fuzzy matching, §5.12 thresholds (no deps)
     astromech-policy/    tiers, confirmation, rate limits, kill switch: the ONLY path to the executor
     astromech-tools/     typed tool registry (depends on policy, never on input)
     astromech-overlay/   egui panels for the VR overlay (stub)
     astromech-store/     SQLite (rusqlite, bundled) config + migrations
-    astromech-core/      composition-root binary (tray, single-instance, tracing; stub)
+    astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
+                         check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
   app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)
   scripts/check-deps.py  CI dependency-rule check
@@ -235,6 +239,8 @@ astromech/
 **Dependency rules** (enforced in CI by `scripts/check-deps.py`):
 - `astromech-proto` depends on nothing internal.
 - `astromech-voice` and `astromech-tools` never depend on `astromech-input` directly. Every action passes through `astromech-policy`.
+- `astromech-intent` depends on nothing internal (it only maps text to command ids).
+- `astromech-core`, as composition root, does depend on `astromech-input`: it constructs the platform (`WinPlatform`) that it hands to the policy, and runs `input::listen` for the PTT/kill buttons. It never calls `send_key` itself; presses happen only through `astromech_policy::Ticket::press`.
 - Only `astromech-input` (and later `astromech-vision`) may use `windows` crate features that touch input or capture.
 - `astromech-realtime` (later) doesn't depend on `astromech-input`. It's behind the `cloud-voice` cargo feature, which is off by default and absent from MVP builds.
 
@@ -519,7 +525,8 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
        - Below 0.60: "Didn't catch that".
        - T2 actions always confirm anyway.
        - Starting values; tune on S9's recorded WAVs plus new ones.
-     - **How the four S9 misses resolve** (expected; to be checked by a unit test on the recorded transcripts):
+     - **v0.11, implemented** in `astromech-intent` (unit test `s9_mic_misses`). Measured scores: "What route to Seoul?" → plot route to Sol **0.775, ask**; "Definitely hard points." → deploy hardpoints **0.650, ask** (runner-up retract 0.600); "Request stocking." → request docking **0.875, execute**; "Retrapped hard point." → retract hardpoints **0.778, ask** (so the last row resolves to "ask"). Margin needed to execute: **0.08** over the best *different* command. The phonetic key is a crude consonant-class key, not Double Metaphone. Run `cargo run -p astromech-intent --example rank -- "<transcript>"` to see a score.
+     - **How the four S9 misses resolve** (the v0.8 expectation):
 
        | Heard | Resolves to | Why |
        |---|---|---|
@@ -1496,6 +1503,21 @@ Full write-up: `spikes/s1-ui/RESULTS.md`. Code: `spikes/s1-ui/` (MIT). Windows d
 - **Benign artefact:** Alt+Tab produces a Tab key-up with no key-down, because Windows swallows the down. This is not dropped input, and 0.1.1 no longer flags it.
 - **Still unverified:** mouse side buttons; the elevated-game (UIPI) case.
 - **Consequence:** the listener's code is the seed of `astromech-input` and of the key tester (KEYBINDS.md §6.4).
+
+### 17.8 The gear-down slice (v0.11, 10 Oct 2026; not yet run on the real game)
+
+The first end-to-end slice: PTT → Parakeet → `astromech-intent` → `astromech-tools` → `astromech-policy` → SendInput → background verification against Status.json, with the journal/Status pipeline and the binds health check in `astromech-core`. Tested with unit tests, a fake-game integration test (real file notifications, 0–1000 ms delays), and under Wine against the extended S5 mock game window (real SendInput, real ReadDirectoryChangesW, real Parakeet/Kokoro worker). **Not yet run against Elite.**
+
+Implementation notes and divergences from the design above:
+- **Policy owns the executor.** `Policy::authorize` returns a `Ticket` (tier, origin, rate limit 8 per 10 s, duplicate block); `Ticket::press` does the focus and UIPI checks and the 50 ms hold. The ticket lives until verification ends, so "in flight" covers the whole verify/retry window; the 3 s window from the start applies on top.
+- **Kill switch:** press = kill (cancels tickets, cuts a running hold short and releases every held key, refuses all T1+). **Hold it ≥ 1 s (`rearm_hold_ms`) to re-arm.** Console `!kill` / `!rearm` do the same.
+- **Retry:** before the single retry the flag is re-read, so a change that lands just after the 2 s timeout isn't toggled back. If the game is slower than 2 s *and* changes between the re-read and the retry, the retry would undo it; S5's max was ~1 s, so this is accepted for now.
+- **State rules:** gear, hardpoints and cargo scoop refuse when not in the main ship, docked or landed; gear and hardpoints also refuse in supercruise (cargo scoop doesn't). Lights and night vision work in ship or SRV, docked included. Already-in-state answers press nothing. Without any Status.json Flags (main menu), everything refuses.
+- **No keyboard binding:** the health check reports each voice tool's action without a pressable keyboard bind (a Keyboard slot whose modifiers are also keyboard keys), and the tool refuses with a spoken hint ("…has no keyboard binding, only a controller one. Add a keyboard key to LandingGearToggle as its secondary binding.").
+- **Journal pipeline:** notifications only (no polling). On startup the current journal is replayed from byte 0 to rebuild state; the saved position in `astromech-store` (`journal_files`) tells how much is new since the last run. Rollover: a notification for a newer `Journal.*.log` drains the old file and switches. ⚠ Because Windows may not report appends to a file the game holds open, every Status.json notification also reads the journal tail. Unverified on the real game whether that's ever needed.
+- **Confirmation:** optimistic Kokoro line on `Sent` ("Landing gear down."), failure spoken only ("Landing gear didn't respond."). Fixed phrases are pre-rendered into a WAV cache at startup. Without models, replies are printed.
+- **"Did you mean …?"** is answered by saying "yes"/"confirm" or "no"/"cancel" on the next PTT within 5 s. The confirm *button* isn't wired yet.
+- **Not in the slice:** the tray, the app window/API, a confirm button, SRV-specific lights, `request docking` and `plot route` (recognised, answered "isn't available yet").
 
 ## 18. The app window and module architecture (v0.7)
 

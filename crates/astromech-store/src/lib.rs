@@ -41,6 +41,23 @@ impl Store {
         )?;
         Ok(())
     }
+    /// Saved read position of a journal file: (size when saved, byte offset).
+    pub fn journal_offset(&self, path: &str) -> Result<Option<(u64, u64)>> {
+        let mut st = self.conn.prepare("SELECT size, offset FROM journal_files WHERE path = ?1")?;
+        let mut rows = st.query([path])?;
+        Ok(match rows.next()? {
+            Some(r) => Some((r.get::<_, i64>(0)? as u64, r.get::<_, i64>(1)? as u64)),
+            None => None,
+        })
+    }
+    pub fn set_journal_offset(&self, path: &str, size: u64, offset: u64) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO journal_files(path, size, offset) VALUES (?1, ?2, ?3)
+             ON CONFLICT(path) DO UPDATE SET size = ?2, offset = ?3",
+            (path, size as i64, offset as i64),
+        )?;
+        Ok(())
+    }
     pub fn get(&self, key: &str) -> Result<Option<String>> {
         let mut st = self.conn.prepare("SELECT value FROM settings WHERE key = ?1")?;
         let mut rows = st.query([key])?;
@@ -62,5 +79,9 @@ mod tests {
         s.set("voice.threads", "6").unwrap();
         assert_eq!(s.get("voice.threads").unwrap().as_deref(), Some("6"));
         assert_eq!(s.get("missing").unwrap(), None);
+        assert_eq!(s.journal_offset("J.log").unwrap(), None);
+        s.set_journal_offset("J.log", 10, 5).unwrap();
+        s.set_journal_offset("J.log", 20, 20).unwrap();
+        assert_eq!(s.journal_offset("J.log").unwrap(), Some((20, 20)));
     }
 }

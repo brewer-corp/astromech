@@ -1,0 +1,35 @@
+# astromech.toml: put this next to astromech-core.exe (or pass --config <file>).
+# Button names use Elite's own naming: the device is "Keyboard", "Mouse", "GamePad" or an Elite
+# device ID (VIDPID, e.g. 231D3201 for a VKB Omni Throttle left stick); keys are Joy_N,
+# Key_..., Mouse_N. Run `astromech-core --listen` to see what your buttons are called.
+
+data_dir = ""                 # empty: astromech-data next to the exe
+
+[game]
+journal_dir = ""              # empty: %USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous
+bindings_dir = ""             # empty: %LOCALAPPDATA%\Frontier Developments\Elite Dangerous\Options\Bindings
+game_dir = ""                 # optional: game install folder (built-in presets, DeviceMappings.xml)
+
+[controls]
+# Push-to-talk: hold, speak, release.
+ptt = { device = "231D3201", key = "Joy_4" }
+# Kill switch: press to cancel everything, release held keys and stop all actions.
+# Hold it for rearm_hold_ms to re-arm. Pick a button Elite doesn't use.
+kill_switch = { device = "Keyboard", key = "Key_ScrollLock" }
+rearm_hold_ms = 1000
+
+[voice]
+models_dir = ""               # empty: "models" next to the exe; or the s9 tool's models folder
+worker = ""                   # empty: astromech-voice-worker.exe next to the exe
+threads = 4                   # S9: 4 was fastest on a Ryzen 9 7900X
+tts = true                    # speak confirmations with Kokoro; false = print only
+speaker_id = 0
+speed = 1.0
+pre_roll_ms = 150
+post_roll_ms = 200
+
+[actions]
+hold_ms = 50                  # S5: 50 ms holds were reliable
+verify_timeout_ms = 2000      # wait this long for Status.json to confirm
+retries = 1                   # press again once if nothing changed
+dry_run = false               # true: log key presses, don't send them

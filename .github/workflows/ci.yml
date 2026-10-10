@@ -82,6 +82,15 @@ jobs:
         run: cargo build --workspace --locked
       - name: tests
         run: cargo test --workspace --locked
+      - name: gear-down end-to-end vs the mock game window (best effort; SendInput needs a desktop session)
+        continue-on-error: true
+        shell: bash
+        env:
+          RUN: ""
+          TARGET_DIR: target/debug
+        run: |
+          cargo build -p astromech-core --bin astromech-core --example mockgame --locked
+          scripts/e2e-gear-down.sh
       - uses: pnpm/action-setup@v4
         with:
           package_json_file: app/package.json

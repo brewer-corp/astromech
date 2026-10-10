@@ -17,9 +17,19 @@ pub struct GameState {
     pub gear_down: bool,
     pub supercruise: bool,
     pub status_flags: u64,
+    /// False until a Status.json with Flags has been read (main menu / game not running).
+    pub status_seen: bool,
+    pub gui_focus: Option<u64>,
+    /// Journal file currently followed.
+    pub journal_file: Option<String>,
 }
 
 impl GameState {
+    /// Flags for planning, `None` if no Status.json has been seen.
+    pub fn flags(&self) -> Option<u64> {
+        self.status_seen.then_some(self.status_flags)
+    }
+
     pub fn apply_journal(&mut self, ev: &JournalEvent) {
         match ev {
             JournalEvent::LoadGame { commander, ship } => {
@@ -45,6 +55,8 @@ impl GameState {
     }
     pub fn apply_status(&mut self, s: &StatusSnap) {
         self.status_flags = s.flags;
+        self.status_seen = true;
+        self.gui_focus = s.gui_focus;
         self.gear_down = s.flags & FLAG_GEAR != 0;
         self.supercruise = s.flags & FLAG_SUPERCRUISE != 0;
         self.docked = s.flags & FLAG_DOCKED != 0;

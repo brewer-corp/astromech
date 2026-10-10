@@ -2,6 +2,8 @@
 
 *Draft v0.6, 10 Oct 2026, 5:45 PM ET (America/New_York). Companion to ARCHITECTURE.md v0.10 (§5.4 `astromech-keybinds`, §18 app window and module architecture).*
 
+**v0.7 changes (10 Oct, gear-down slice):** the Health check (§7.6) now runs inside `astromech-core`, **at startup and on every Bindings-folder change** (device plug/unplug, before-launch and on-import triggers come with the app window). It adds one copilot rule: each voice tool's action must have a pressable keyboard bind (a Keyboard slot whose modifiers are keyboard keys too), otherwise the tool refuses with a spoken hint. New module `astromech_keybinds::active` resolves the active preset per context (StartPreset, your files first, then built-ins) and builds the action → binding index; `astromech-input::listen::binds_index` now uses it. Results go to the console and `astromech-data/health.json`/`.html`.
+
 **v0.6 changes (10 Oct):** the project is now **astromech**. `helm-binds` is `astromech-keybinds` (crates/astromech-keybinds, seeded from `k0-binds-doctor` with its tests). The listener lives in `astromech-input::listen`. Profile files use an `astromech_` prefix, and profile exports are `.astromechprofile.zip`.
 
 **v0.5 changes (10 Oct):** the S7 listener is the seed of the key tester (§6.4). The duplicate-PresetName "DualVKB" on Sumeet's PC is recorded as a real-world health-check case (§7.6).
