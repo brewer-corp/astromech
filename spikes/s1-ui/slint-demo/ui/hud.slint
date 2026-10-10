@@ -1,0 +1,329 @@
+// S1 UI spike: Slint ship status panel. Same design as the egui version.
+import { ListView } from "std-widgets.slint";
+import "../../assets/fonts/Rajdhani-SemiBold.ttf";
+import "../../assets/fonts/Rajdhani-Bold.ttf";
+import "../../assets/fonts/Barlow-Regular.ttf";
+import "../../assets/fonts/Barlow-Medium.ttf";
+import "../../assets/fonts/ShareTechMono-Regular.ttf";
+
+export struct LogItem { time: string, speaker: int, text: string }
+export struct Tog { on: bool, pending: bool }
+
+global Pal {
+    out property <color> accent: #FF8C1A;
+    out property <color> accent-dim: #8A4A0C;
+    out property <color> bg: #07090D;
+    out property <color> panel: #0E1219;
+    out property <color> panel-hi: #161C26;
+    out property <color> line: #262F3D;
+    out property <color> text: #E6E9EE;
+    out property <color> text-dim: #8A94A6;
+    out property <color> cyan: #3DD6F5;
+    out property <color> green: #4AE08A;
+    out property <color> red: #FF4D4D;
+    out property <string> display: "Rajdhani";
+    out property <string> body: "Barlow";
+    out property <string> mono: "Share Tech Mono";
+}
+
+// The chamfered "Elite" panel: cut top-left and bottom-right corners.
+component Chamfer inherits Rectangle {
+    in property <color> fill: Pal.panel.with-alpha(0.92);
+    in property <color> stroke: Pal.line;
+    in property <length> cut: 10px;
+    Path {
+        x: 0; y: 0; width: root.width; height: root.height;
+        viewbox-x: 0; viewbox-y: 0;
+        viewbox-width: root.width / 1px; viewbox-height: root.height / 1px;
+        fill: root.fill; stroke: root.stroke; stroke-width: 1px;
+        MoveTo { x: root.cut / 1px; y: 0.5; }
+        LineTo { x: root.width / 1px - 0.5; y: 0.5; }
+        LineTo { x: root.width / 1px - 0.5; y: (root.height - root.cut) / 1px; }
+        LineTo { x: (root.width - root.cut) / 1px; y: root.height / 1px - 0.5; }
+        LineTo { x: 0.5; y: root.height / 1px - 0.5; }
+        LineTo { x: 0.5; y: root.cut / 1px; }
+        Close { }
+    }
+    @children
+}
+
+component SectionTitle inherits Rectangle {
+    in property <string> text;
+    height: 20px;
+    Rectangle { x: 0; y: 3px; width: 3px; height: 12px; background: Pal.accent; }
+    t := Text {
+        x: 10px; y: 0; text: root.text; color: Pal.text-dim;
+        font-family: Pal.display; font-weight: 700; font-size: 15px;
+    }
+    Rectangle { x: t.x + t.width + 10px; y: 9px; width: 50px; height: 1px; background: Pal.accent.with-alpha(0.4); }
+}
+
+component SegBar inherits Rectangle {
+    in property <float> value;
+    in property <color> bar-color;
+    in property <int> segments: 24;
+    property <length> gap: 2px;
+    property <length> seg-w: (self.width - self.gap * (self.segments - 1)) / self.segments;
+    property <float> lit: clamp(self.value, 0, 1) * self.segments;
+    for i in root.segments: Rectangle {
+        x: i * (root.seg-w + root.gap); y: 0;
+        width: root.seg-w; height: root.height;
+        border-radius: 1px;
+        background: i < floor(root.lit) ? root.bar-color : (i < root.lit ? root.bar-color.with-alpha(0.55) : Pal.line.with-alpha(0.7));
+    }
+}
+
+component Meter inherits Rectangle {
+    in property <string> label;
+    in property <string> value-text;
+    in property <float> value;
+    in property <color> bar-color;
+    height: 34px;
+    Text { x: 0; y: 0; text: root.label; color: Pal.text-dim; font-family: Pal.display; font-weight: 700; font-size: 14px; }
+    Text { x: root.width - self.width; y: 0; text: root.value-text; color: Pal.text; font-family: Pal.mono; font-size: 14px; }
+    SegBar { x: 0; y: 20px; width: root.width; height: root.height - 20px; value: root.value; bar-color: root.bar-color; }
+}
+
+component ToggleTile inherits Chamfer {
+    in property <string> label;
+    in property <string> on-text;
+    in property <string> off-text;
+    in property <Tog> state;
+    cut: 8px;
+    fill: state.on ? Pal.accent.with-alpha(0.10) : Pal.panel-hi.with-alpha(0.9);
+    stroke: state.on ? Pal.accent.with-alpha(0.7) : Pal.line;
+    accessible-role: text;
+    accessible-label: label + ": " + (state.on ? on-text : off-text);
+    Rectangle { x: 0; y: 12px; width: 3px; height: root.height - 24px; background: root.state.on ? Pal.accent : Pal.line; }
+    Text { x: 14px; y: 9px; text: root.label; color: Pal.text-dim; font-family: Pal.display; font-weight: 700; font-size: 13px; }
+    Text {
+        x: 14px; y: root.height - 9px - self.height;
+        text: root.state.on ? root.on-text : root.off-text;
+        color: root.state.on ? Pal.accent : Pal.text;
+        font-family: Pal.display; font-weight: 700; font-size: 22px;
+    }
+    if root.state.pending: Text {
+        x: root.width - 12px - self.width; y: 9px; text: "VERIFYING";
+        color: Pal.cyan; font-family: Pal.display; font-weight: 700; font-size: 11px;
+    }
+    if !root.state.pending && root.state.on: Rectangle {
+        x: root.width - 14px - 8px; y: 15px - 8px; width: 16px; height: 16px; border-radius: 8px;
+        background: Pal.accent.with-alpha(0.18);
+    }
+    if !root.state.pending: Rectangle {
+        x: root.width - 14px - 4px; y: 15px - 4px; width: 8px; height: 8px; border-radius: 4px;
+        background: root.state.on ? Pal.accent : Pal.text-dim.with-alpha(0.4);
+    }
+}
+
+component HeaderCol inherits VerticalLayout {
+    in property <string> key;
+    in property <string> value;
+    in property <string> sub;
+    spacing: 0px;
+    Text { text: root.key; color: Pal.accent-dim; font-family: Pal.display; font-weight: 700; font-size: 12px; }
+    Text { text: root.value; color: Pal.text; font-family: Pal.display; font-weight: 700; font-size: 22px; }
+    Text { text: root.sub; color: Pal.text-dim; font-family: Pal.body; font-size: 13px; }
+}
+
+component LogRow inherits Rectangle {
+    in property <LogItem> item;
+    property <color> tag-col: item.speaker == 0 ? Pal.accent : item.speaker == 1 ? Pal.cyan : Pal.text-dim;
+    accessible-role: text;
+    accessible-label: (item.speaker == 0 ? "Commander" : item.speaker == 1 ? "Copilot" : "System") + ": " + item.text;
+    HorizontalLayout {
+        padding-bottom: 8px;
+        spacing: 8px;
+        VerticalLayout {
+            alignment: start;
+            padding-top: 2px;
+            Rectangle {
+                width: 42px; height: 15px; border-radius: 2px;
+                background: root.tag-col.with-alpha(0.14);
+                border-width: 1px; border-color: root.tag-col.with-alpha(0.7);
+                Text { text: item.speaker == 0 ? "CMDR" : item.speaker == 1 ? "HELM" : "SYS"; color: root.tag-col; font-family: Pal.display; font-weight: 700; font-size: 11px; }
+            }
+        }
+        VerticalLayout {
+            padding-top: 2px;
+            Text { text: item.time; color: Pal.text-dim; font-family: Pal.mono; font-size: 12px; }
+            Text {
+                text: item.text; wrap: word-wrap;
+                color: item.speaker == 2 ? Pal.text-dim : Pal.text;
+                font-family: Pal.body; font-size: 15px;
+            }
+        }
+    }
+}
+
+export component Hud inherits Window {
+    title: "helm S1 · Slint ship status";
+    preferred-width: 1024px; preferred-height: 768px;
+    min-width: 800px; min-height: 600px;
+    background: Pal.bg;
+    default-font-family: Pal.body;
+
+    in property <string> commander: "CMDR SUMEET";
+    in property <string> ship-type: "PYTHON MK II";
+    in property <string> ship-sub: "Kestrel's Due · SP-07";
+    in property <string> system: "Shinrarta Dezhra";
+    in property <string> body: "Jameson Memorial";
+    in property <string> clock: "20:14:00";
+    in property <Tog> gear; in property <Tog> lights; in property <Tog> hardpoints;
+    in property <Tog> scoop; in property <Tog> night-vision; in property <Tog> fa;
+    in property <string> fsd-label: "READY";
+    in property <int> fsd-kind; // 0 ready 1 charging/jump 2 cooldown 3 masslocked
+    in property <float> fsd-frac;
+    in property <float> fuel; in property <string> fuel-text;
+    in property <float> reservoir; in property <float> shields; in property <float> hull; in property <float> heat;
+    in property <int> ptt; // 0 idle 1 listening 2 thinking
+    in property <string> ptt-label: "PUSH TO TALK";
+    in property <float> mic-level;
+    in property <float> pulse;
+    in property <[LogItem]> log;
+    in property <string> footer-note;
+
+    public function scroll-bottom() {
+        lv.content-y = min(0px, lv.visible-height - lv.content-height);
+    }
+
+    // Background grid + warm glow.
+    for i in ceil(root.width / 32px): Rectangle { x: i * 32px; y: 0; width: 1px; height: root.height; background: Pal.line.with-alpha(0.22); }
+    for i in ceil(root.height / 32px): Rectangle { x: 0; y: i * 32px; width: root.width; height: 1px; background: Pal.line.with-alpha(0.22); }
+    Rectangle { x: 0; y: 0; width: root.width; height: 220px; background: @linear-gradient(180deg, Pal.accent.with-alpha(0.10) 0%, Pal.accent.with-alpha(0) 100%); }
+
+    VerticalLayout {
+        padding: 16px;
+        spacing: 12px;
+
+        // ---------- Header ----------
+        Chamfer {
+            height: 70px;
+            stroke: Pal.accent.with-alpha(0.55);
+            Rectangle { x: 0; y: parent.height - 1.5px; width: parent.width * 0.4; height: 2px; background: Pal.accent; }
+            HorizontalLayout {
+                padding-left: 22px; padding-right: 20px; padding-top: 8px; padding-bottom: 8px;
+                spacing: 40px;
+                HeaderCol { key: "COMMANDER"; value: root.commander; sub: "Elite · Combat: Dangerous"; }
+                HeaderCol { key: "SHIP"; value: root.ship-type; sub: root.ship-sub; }
+                HeaderCol { key: "LOCATION"; value: root.system; sub: root.body; }
+                Rectangle { horizontal-stretch: 1; }
+                VerticalLayout {
+                    alignment: start; spacing: 4px;
+                    Text { horizontal-alignment: right; text: root.clock; color: Pal.accent; font-family: Pal.mono; font-size: 24px; }
+                    HorizontalLayout {
+                        alignment: end;
+                        Rectangle {
+                            width: 108px; height: 16px; border-radius: 2px;
+                            background: Pal.green.with-alpha(0.10); border-width: 1px; border-color: Pal.green.with-alpha(0.5);
+                            Rectangle { x: 6px; y: 5px; width: 6px; height: 6px; border-radius: 3px; background: Pal.green; }
+                            Text { x: 17px; text: "JOURNAL LIVE"; color: Pal.green; font-family: Pal.display; font-weight: 700; font-size: 11px; }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ---------- Body ----------
+        HorizontalLayout {
+            spacing: 12px;
+            vertical-stretch: 1;
+            Chamfer {
+                horizontal-stretch: 56;
+                VerticalLayout {
+                    padding: 16px; padding-top: 14px;
+                    spacing: 8px;
+                    SectionTitle { text: "SHIP SYSTEMS"; }
+                    GridLayout {
+                        spacing: 10px;
+                        Row {
+                            ToggleTile { height: 64px; label: "LANDING GEAR"; on-text: "DEPLOYED"; off-text: "RETRACTED"; state: root.gear; }
+                            ToggleTile { height: 64px; label: "SHIP LIGHTS"; on-text: "ON"; off-text: "OFF"; state: root.lights; }
+                            ToggleTile { height: 64px; label: "HARDPOINTS"; on-text: "DEPLOYED"; off-text: "STOWED"; state: root.hardpoints; }
+                        }
+                        Row {
+                            ToggleTile { height: 64px; label: "CARGO SCOOP"; on-text: "OPEN"; off-text: "CLOSED"; state: root.scoop; }
+                            ToggleTile { height: 64px; label: "NIGHT VISION"; on-text: "ON"; off-text: "OFF"; state: root.night-vision; }
+                            ToggleTile { height: 64px; label: "FLIGHT ASSIST"; on-text: "ON"; off-text: "OFF"; state: root.fa; }
+                        }
+                    }
+                    Rectangle { height: 10px; }
+                    // FSD tile
+                    Chamfer {
+                        height: 62px; cut: 8px; fill: Pal.panel-hi.with-alpha(0.9);
+                        property <color> fsd-col: root.fsd-kind == 0 ? Pal.green : root.fsd-kind == 1 ? Pal.accent : root.fsd-kind == 2 ? Pal.cyan : Pal.red;
+                        accessible-role: text;
+                        accessible-label: "Frame shift drive: " + root.fsd-label;
+                        Text { x: 14px; y: 9px; text: "FRAME SHIFT DRIVE"; color: Pal.text-dim; font-family: Pal.display; font-weight: 700; font-size: 13px; }
+                        Text { x: 14px; y: parent.height - 9px - self.height; text: root.fsd-label; color: parent.fsd-col; font-family: Pal.display; font-weight: 700; font-size: 22px; }
+                        Text { x: parent.width - 14px - self.width; y: 10px; text: round(root.fsd-frac * 100) + "%"; color: Pal.text-dim; font-family: Pal.mono; font-size: 13px; }
+                        SegBar { x: parent.width / 2 - 20px; y: 30px; width: parent.width / 2 + 6px; height: parent.height - 44px; value: root.fsd-frac; bar-color: parent.fsd-col; segments: 30; }
+                    }
+                    Rectangle { height: 10px; }
+                    SectionTitle { text: "VITALS"; }
+                    GridLayout {
+                        spacing-horizontal: 16px; spacing-vertical: 14px;
+                        Row {
+                            Meter { label: "FUEL"; value-text: root.fuel-text; value: root.fuel; bar-color: Pal.accent; }
+                            Meter { label: "RESERVOIR"; value-text: round(root.reservoir * 100) + "%"; value: root.reservoir; bar-color: Pal.accent.with-alpha(0.7); }
+                        }
+                        Row {
+                            Meter { label: "SHIELDS"; value-text: round(root.shields * 100) + "%"; value: root.shields; bar-color: Pal.cyan; }
+                            Meter { label: "HULL"; value-text: round(root.hull * 100) + "%"; value: root.hull; bar-color: Pal.green; }
+                        }
+                        Row {
+                            Meter { label: "HEAT"; value-text: round(root.heat * 100) + "%"; value: root.heat; bar-color: root.heat > 0.6 ? Pal.red : Pal.accent; }
+                            Rectangle { }
+                        }
+                    }
+                    Rectangle { vertical-stretch: 1; }
+                }
+            }
+            Chamfer {
+                horizontal-stretch: 44;
+                SectionTitle { x: 16px; y: 14px; width: parent.width - 32px; text: "COMMS"; }
+                Text { x: parent.width - 16px - self.width; y: 16px; text: root.log.length + " entries"; color: Pal.text-dim; font-family: Pal.mono; font-size: 12px; }
+                lv := ListView {
+                    x: 14px; y: 44px; width: parent.width - 22px; height: parent.height - 54px;
+                    // "stick to bottom": egui has this built in; here we follow content growth by hand.
+                    changed content-height => { root.scroll-bottom(); }
+                    for item in root.log: LogRow { item: item; }
+                }
+            }
+        }
+
+        // ---------- Footer: push-to-talk ----------
+        Chamfer {
+            height: 64px;
+            stroke: root.ptt != 0 ? Pal.accent.with-alpha(0.55) : Pal.line;
+            property <color> ptt-col: root.ptt == 1 ? Pal.accent : root.ptt == 2 ? Pal.cyan : Pal.text-dim;
+            accessible-role: text;
+            accessible-label: "Push to talk: " + root.ptt-label;
+            // pulsing ring
+            if root.ptt == 1: Rectangle {
+                property <length> r: 14px + 12px * root.pulse;
+                x: 36px - self.r; y: parent.height / 2 - self.r; width: 2 * self.r; height: 2 * self.r;
+                border-radius: self.r; border-width: 2px; border-color: parent.ptt-col.with-alpha(1 - root.pulse);
+            }
+            Rectangle {
+                x: 20px; y: parent.height / 2 - 16px; width: 32px; height: 32px; border-radius: 16px;
+                background: parent.ptt-col.with-alpha(0.18); border-width: 1.5px; border-color: parent.ptt-col;
+                Rectangle { x: 12.5px; y: 7px; width: 7px; height: 12px; border-radius: 3.5px; background: parent.border-color; }
+                Rectangle { x: 15.25px; y: 21px; width: 1.5px; height: 4px; background: parent.border-color; }
+            }
+            Text { x: 66px; y: parent.height / 2 - 10px - self.height / 2; text: root.ptt-label; color: parent.ptt-col; font-family: Pal.display; font-weight: 700; font-size: 20px; }
+            Text { x: 66px; y: parent.height / 2 + 11px - self.height / 2; text: "Hold JOY 14 (or Caps Lock) to talk · offline STT"; color: Pal.text-dim; font-family: Pal.body; font-size: 13px; }
+            for i in 28: Rectangle {
+                property <length> h: max(3px, (4px + 20px * (0.5 + 0.5 * sin((i / 28 * 9 + root.pulse * 6.28) * 1rad)) * root.mic-level));
+                x: 380px + i * (220px / 28); y: parent.height / 2 - self.h / 2; width: 4px; height: self.h; border-radius: 1px;
+                background: root.mic-level > 0 ? Pal.accent.with-alpha(0.4 + 0.6 * root.mic-level) : Pal.line.with-alpha(0.8);
+            }
+            Rectangle {
+                x: parent.width - 200px; y: parent.height / 2 - 14px; width: 180px; height: 28px; border-radius: 2px;
+                background: Pal.red.with-alpha(0.08); border-width: 1px; border-color: Pal.red.with-alpha(0.6);
+                Text { text: "KILL SWITCH ARMED"; color: Pal.red; font-family: Pal.display; font-weight: 700; font-size: 14px; }
+            }
+        }
+    }
+    Text { x: root.width - 18px - self.width; y: root.height - 2px - self.height; text: root.footer-note; color: #5a5a5a; font-family: Pal.mono; font-size: 10px; }
+}

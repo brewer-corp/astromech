@@ -1,0 +1,19 @@
+[package]
+name = "s9-voice-worker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+s79-common = { path = "../common" }
+serde_json = "1"
+anyhow = "1"
+hound = "3.5"
+# Windows: link sherpa-onnx + onnxruntime statically (static-MT prebuilt) so the worker
+# needs no DLLs at all. Linux (reference runs only): shared libraries.
+[target.'cfg(windows)'.dependencies]
+sherpa-onnx = { version = "=1.13.8", default-features = false, features = ["static"] }
+
+[target.'cfg(not(windows))'.dependencies]
+sherpa-onnx = { version = "=1.13.8", default-features = false, features = ["shared"] }

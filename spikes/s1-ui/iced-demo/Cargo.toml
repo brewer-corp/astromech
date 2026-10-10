@@ -1,0 +1,17 @@
+[package]
+name = "iced-demo"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "helm-s1-iced"
+path = "src/main.rs"
+
+[dependencies]
+hud-model = { path = "../hud-model" }
+iced = { version = "=0.14.0", default-features = false, features = ["wgpu", "tiny-skia", "canvas", "advanced", "x11", "wayland", "thread-pool", "crisp", "web-colors"] }
+iced_runtime = "=0.14.0"
+iced_graphics = "=0.14.0"
+pollster = "0.4"
+png = "0.18"

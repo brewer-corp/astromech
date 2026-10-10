@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Custom" MajorVersion="4" MinorVersion="2">
+	<KeyboardLayout>en-US</KeyboardLayout>
+	<MouseXMode Value="Bindings_MouseRoll" />
+	<ShipSpotLightToggle>
+		<Primary Device="231D0200" Key="Joy_5" />
+		<Secondary Device="Keyboard" Key="Key_N">
+			<Modifier Device="Keyboard" Key="Key_LeftAlt" />
+			<Modifier Device="Keyboard" Key="Key_RightControl" />
+		</Secondary>
+	</ShipSpotLightToggle>
+	<NightVisionToggle>
+		<Primary Device="Keyboard" Key="Key_Numpad_Enter" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</NightVisionToggle>
+	<LandingGearToggle>
+		<Primary Device="Mouse" Key="Mouse_4" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</LandingGearToggle>
+	<HardpointsToggle>
+		<Primary Device="Keyboard" Key="Key_U">
+			<Modifier Device="231D0200" Key="Joy_1" />
+		</Primary>
+		<Secondary Device="{NoDevice}" Key="" />
+	</HardpointsToggle>
+	<CargoScoop>
+		<Primary Device="Keyboard" Key="Key_Pause" />
+		<Secondary Device="Keyboard" Key="Key_ä" />
+	</CargoScoop>
+	<UI_Up>
+		<Primary Device="Keyboard" Key="Key_UpArrow" />
+		<Secondary Device="Keyboard" Key="Key_Hash" />
+	</UI_Up>
+	<ToggleFlightAssist>
+		<Primary Device="Keyboard" Key="Key_Z" />
+		<Secondary Device="{NoDevice}" Key="" />
+		<ToggleOn Value="1" />
+	</ToggleFlightAssist>
+</Root>

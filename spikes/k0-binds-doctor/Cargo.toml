@@ -1,0 +1,40 @@
+[package]
+name = "k0-binds-doctor"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Spike K0: read-only inspector for Elite Dangerous keybinding files and connected game controllers"
+publish = false
+
+[[bin]]
+name = "k0-binds-doctor"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+clap = { version = "4.6", features = ["derive"] }
+roxmltree = "0.21"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.151"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Devices_HumanInterfaceDevice",
+  "Win32_Devices_DeviceAndDriverInstallation",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Registry",
+  "Win32_System_LibraryLoader",
+  "Win32_UI_Input_XboxController",
+] }
+
+[dev-dependencies]
+tempfile = "3.27"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

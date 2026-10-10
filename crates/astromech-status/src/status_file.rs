@@ -1,0 +1,82 @@
+//! Status.json and journal helpers.
+
+use std::path::{Path, PathBuf};
+
+pub const FLAG_DOCKED: u64 = 1 << 0;
+pub const FLAG_LANDED: u64 = 1 << 1;
+pub const FLAG_GEAR: u64 = 1 << 2;
+pub const FLAG_SUPERCRUISE: u64 = 1 << 4;
+pub const FLAG_LIGHTS: u64 = 1 << 8;
+pub const FLAG_IN_MAIN_SHIP: u64 = 1 << 24;
+pub const FLAG_IN_SRV: u64 = 1 << 26;
+pub const FLAG_NIGHT_VISION: u64 = 1 << 28;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StatusSnap {
+    pub flags: u64,
+    pub gui_focus: Option<u64>,
+}
+
+/// Parse Status.json contents. Returns None for partial/invalid writes or when there are no Flags
+/// (e.g. at the main menu).
+pub fn parse_status(bytes: &[u8]) -> Option<StatusSnap> {
+    let v: serde_json::Value = serde_json::from_slice(bytes).ok()?;
+    let flags = v.get("Flags")?.as_u64()?;
+    let gui_focus = v.get("GuiFocus").and_then(|g| g.as_u64());
+    Some(StatusSnap { flags, gui_focus })
+}
+
+/// Read + parse; any error (sharing violation, partial write) -> None.
+pub fn read_status(path: &Path) -> Option<StatusSnap> {
+    let bytes = std::fs::read(path).ok()?;
+    parse_status(&bytes)
+}
+
+/// Read with a few quick retries (used after a change notification).
+pub fn read_status_retry(path: &Path, tries: u32) -> Option<StatusSnap> {
+    for i in 0..tries {
+        if let Some(s) = read_status(path) {
+            return Some(s);
+        }
+        if i + 1 < tries {
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
+    }
+    None
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct GameBuild {
+    pub journal: PathBuf,
+    pub gameversion: Option<String>,
+    pub build: Option<String>,
+}
+
+/// Newest Journal.*.log (by modified time) and its Fileheader.
+pub fn latest_fileheader(dir: &Path) -> Option<GameBuild> {
+    let mut journals = vec![];
+    for e in std::fs::read_dir(dir).ok()? {
+        let e = e.ok()?;
+        let n = e.file_name().to_string_lossy().to_string();
+        if n.starts_with("Journal.") && n.ends_with(".log") {
+            let m = e.metadata().and_then(|m| m.modified()).ok();
+            journals.push((m, n, e.path()));
+        }
+    }
+    journals.sort();
+    let (_, _, path) = journals.pop()?;
+    let text = std::fs::read(&path).ok()?;
+    let text = String::from_utf8_lossy(&text);
+    for line in text.lines().take(5) {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(line) {
+            if v.get("event").and_then(|e| e.as_str()) == Some("Fileheader") {
+                return Some(GameBuild {
+                    journal: path.clone(),
+                    gameversion: v.get("gameversion").and_then(|x| x.as_str()).map(str::to_string),
+                    build: v.get("build").and_then(|x| x.as_str()).map(|s| s.trim().to_string()),
+                });
+            }
+        }
+    }
+    Some(GameBuild { journal: path, gameversion: None, build: None })
+}

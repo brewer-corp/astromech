@@ -1,0 +1,4 @@
+{"controllers":[
+ {"vid":"231D","pid":"3201","product":"VKB-Sim Omni Throttle EVO L","manufacturer":"VKB-Sim © Alex Oz 2025","usage":4,"buttons":32,"axes":["X","Y","Z","RX","RY","U"],"hats":2},
+ {"vid":"231D","pid":"0200","product":"VKB-Sim Gladiator EVO R","manufacturer":"VKB-Sim © Alex Oz 2025","usage":4,"buttons":128,"axes":["X","Y","Z","RX","RY","RZ"],"hats":2}],
+ "keyboards":[{"vid":"046D","pid":"C33F","product":"Keyboard"}],"mice":[{"vid":"046D","pid":"C08B","product":"Mouse"}],"xinput_slots":[]}

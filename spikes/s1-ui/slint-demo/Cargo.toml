@@ -1,0 +1,24 @@
+[package]
+name = "slint-demo"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "helm-s1-slint"
+path = "src/main.rs"
+
+[dependencies]
+hud-model = { path = "../hud-model" }
+slint = { version = "~1.18.1", default-features = false, features = ["std", "compat-1-2", "accessibility", "backend-winit", "renderer-femtovg-wgpu", "renderer-software", "software-renderer-path", "unstable-wgpu-30"] }
+wgpu = "30"
+# Internal Slint crates, pinned exactly: only needed for the "desktop window + offscreen VR
+# panel in one process" hybrid platform. Not a stable API.
+i-slint-backend-winit = { version = "=1.18.1", default-features = false, features = ["renderer-femtovg-wgpu", "accessibility", "x11", "wayland"] }
+i-slint-core = "=1.18.1"
+pollster = "0.4"
+png = "0.18"
+
+[build-dependencies]
+slint-build = "~1.18.1"

@@ -1,0 +1,15 @@
+[workspace]
+resolver = "3"
+members = ["hud-model", "egui-demo", "slint-demo", "iced-demo"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+version = "0.1.0"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+strip = true
+panic = "abort"

@@ -1,0 +1,38 @@
+[package]
+name = "astromech-voice"
+description = "Local speech: worker protocol, transcript scoring, and the sherpa-onnx STT/TTS worker"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+# Off by default: the sherpa-onnx crate downloads prebuilt native libraries at build time, and
+# the prebuilt 1.x libraries include espeak-ng (GPL-3.0). See NOTICE.md.
+sherpa = ["dep:sherpa-onnx"]
+
+[[bin]]
+name = "astromech-voice-worker"
+path = "src/bin/astromech-voice-worker.rs"
+required-features = ["sherpa"]
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+hound = "3.5"
+
+# Windows: static-MT prebuilt (no DLLs). Elsewhere: shared libraries (reference runs only).
+[target.'cfg(windows)'.dependencies]
+sherpa-onnx = { version = "=1.13.8", default-features = false, features = ["static"], optional = true }
+
+[target.'cfg(not(windows))'.dependencies]
+sherpa-onnx = { version = "=1.13.8", default-features = false, features = ["shared"], optional = true }
+
+[dev-dependencies]
+tempfile.workspace = true

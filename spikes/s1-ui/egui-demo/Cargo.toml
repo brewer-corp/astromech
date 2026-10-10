@@ -1,0 +1,18 @@
+[package]
+name = "egui-demo"
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[[bin]]
+name = "helm-s1-egui"
+path = "src/main.rs"
+
+[dependencies]
+hud-model = { path = "../hud-model" }
+eframe = { version = "=0.36.2", default-features = false, features = ["wgpu", "accesskit", "default_fonts", "x11", "wayland"] }
+egui = "=0.36.2"
+egui-wgpu = "=0.36.2"
+wgpu = "30"
+pollster = "0.4"
+png = "0.18"

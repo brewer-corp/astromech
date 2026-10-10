@@ -1,0 +1,29 @@
+[package]
+name = "astromech-core"
+description = "astromech core process: composition root (tray, voice, overlay, API server)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "astromech-core"
+path = "src/main.rs"
+
+[dependencies]
+astromech-proto.workspace = true
+astromech-journal.workspace = true
+astromech-status.workspace = true
+astromech-gamestate.workspace = true
+astromech-keybinds.workspace = true
+astromech-input.workspace = true
+astromech-voice.workspace = true
+astromech-policy.workspace = true
+astromech-tools.workspace = true
+astromech-overlay.workspace = true
+astromech-store.workspace = true

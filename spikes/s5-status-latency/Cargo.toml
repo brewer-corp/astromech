@@ -1,0 +1,42 @@
+[package]
+name = "s5-status-latency"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Spike S5: measure how long Elite Dangerous takes to reflect a simulated keypress in Status.json"
+publish = false
+
+[dependencies]
+anyhow = "1.0.104"
+clap = { version = "4.6", features = ["derive"] }
+roxmltree = "0.21"
+serde_json = "1.0.151"
+notify = "8.2"
+ctrlc = "3.5"
+fastrand = "2.5"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_System_Threading",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Media",
+] }
+
+[dev-dependencies]
+tempfile = "3.27"
+roxmltree = "0.21"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "unwind"
+
+# Only for examples/mockgame.rs (a Windows test harness, not shipped).
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging", "Win32_Foundation"] }

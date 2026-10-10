@@ -1,0 +1,28 @@
+[package]
+name = "astromech-shell"
+description = "astromech app window: Tauri v2 shell around the Svelte app (app/)"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+repository = "https://github.com/spadaval/astromech"
+publish = false
+
+# Own workspace: Tauri needs webkit2gtk on Linux, so the root workspace (and Linux CI) skips it.
+[workspace]
+
+[[bin]]
+name = "astromech-shell"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: 1
+
+jobs:
+  linux:
+    name: Linux (fmt, clippy, tests, deny, deps, frontend)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      # rust-toolchain.toml pins the version and components; rustup installs it on first use.
+      - name: Rust toolchain
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+      - name: clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: tests
+        run: cargo test --workspace --locked
+      - name: dependency rules
+        run: python3 scripts/check-deps.py
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - name: cargo-deny
+        run: cargo deny check
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - name: frontend install
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+      - name: frontend lint
+        working-directory: app
+        run: pnpm lint
+      - name: frontend typecheck
+        working-directory: app
+        run: pnpm check
+      - name: frontend build
+        working-directory: app
+        run: pnpm build
+
+  windows:
+    name: Windows (MSVC build + tests, app shell)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            . -> target
+            app/src-tauri -> target
+      - name: clippy (Windows-only code paths)
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: build
+        run: cargo build --workspace --locked
+      - name: tests
+        run: cargo test --workspace --locked
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - name: frontend build (for the shell)
+        working-directory: app
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+      - name: app shell (Tauri) build
+        working-directory: app/src-tauri
+        run: cargo build --locked

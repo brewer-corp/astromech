@@ -1,0 +1,4 @@
+{"controllers":[
+ {"vid":"231D","pid":"0200","product":"VKB-Sim Gladiator EVO R","buttons":31,"axes":["X","Y","Z","RZ"],"hats":1},
+ {"vid":"231D","pid":"0200","product":"VKB-Sim Gladiator EVO L","buttons":31,"axes":["X","Y","Z","RZ"],"hats":1},
+ {"vid":"044F","pid":"B10A","product":"T.16000M","buttons":16,"axes":["X","Y","Z","RZ","U"],"hats":1}],"xinput_slots":[0]}

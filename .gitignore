@@ -1,0 +1,13 @@
+/target/
+**/target/
+node_modules/
+app/dist/
+app/src-tauri/gen/
+*.pdb
+# Spike/tool outputs: never commit personal results (device paths, window titles)
+results/
+*-report-*.html
+*-report-*.json
+.DS_Store
+.vscode/
+.idea/

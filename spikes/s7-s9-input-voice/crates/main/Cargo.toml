@@ -1,0 +1,42 @@
+[package]
+name = "s7-s9-input-voice"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+description = "Spikes S7 (controller input while Elite is focused) and S9 (local STT/TTS speed)"
+
+[dependencies]
+s79-common = { path = "../common" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+clap = { version = "4.6", features = ["derive"] }
+fastrand = "2"
+hound = "3.5"
+
+[target.'cfg(windows)'.dependencies]
+cpal = "0.18"
+windows-sys = { version = "0.61", features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Gdi",
+  "Win32_Security",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Threading",
+  "Win32_System_Console",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Performance",
+  "Win32_System_Registry",
+  "Win32_System_SystemInformation",
+  "Win32_Devices_HumanInterfaceDevice",
+  "Win32_UI_Input",
+  "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_Input_XboxController",
+  "Win32_UI_WindowsAndMessaging",
+  "Win32_Media",
+  "Win32_Media_Audio",
+] }
+
+[dev-dependencies]
+tempfile = "3"

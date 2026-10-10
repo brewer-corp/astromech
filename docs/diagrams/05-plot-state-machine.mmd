@@ -1,0 +1,36 @@
+stateDiagram-v2
+  [*] --> Preflight
+  Preflight --> Resolve : binds OK, in ship or SRV, not in station services
+  Preflight --> Failed : missing binds or bad context
+  Resolve --> Confirm : ambiguous or tier 2 policy
+  Resolve --> AlreadyPlotted : NavRoute already ends at target
+  Resolve --> Normalize : unique id64 resolved
+  Confirm --> Normalize : "confirm" via PTT + local STT, or bound confirm button
+  Confirm --> Cancelled : no or timeout
+  Normalize --> OpenMap : GuiFocus == 0
+  Normalize --> Abort : still not 0 after 3 x UI_Back (1.5 s each)
+  OpenMap --> Settle : GuiFocus == 6 within 6 s (Status.json ~1 s cycle)
+  OpenMap --> Recover : timeout
+  Settle --> FocusSearch : settle delay elapsed, optional screen check map loaded
+  FocusSearch --> EnterText : search field active (screen check, optional)
+  EnterText --> SelectResult : OCR text matches or check skipped
+  EnterText --> Recover : OCR mismatch
+  SelectResult --> Plot : system selected (screen check, optional)
+  Plot --> AwaitRoute : plot keypress sent
+  AwaitRoute --> CloseMap : NavRoute event after start, last system == target
+  AwaitRoute --> Recover : timeout (3 s + 1 s per 1000 ly, max 25 s)
+  CloseMap --> Success : GuiFocus == 0 within 3 s
+  Recover --> Normalize : attempt 1 of 2
+  Recover --> Fallback : attempts exhausted
+  Fallback --> Failed : partial plot (map left on system) or clipboard plus spoken hint
+  AlreadyPlotted --> Success
+  Success --> [*]
+  Failed --> [*]
+  Cancelled --> [*]
+  Abort --> Failed
+  note right of Abort
+    Any state goes to Abort on kill switch,
+    focus loss, unexpected GuiFocus change,
+    or game exit. Abort releases held keys
+    and backs out to GuiFocus 0.
+  end note

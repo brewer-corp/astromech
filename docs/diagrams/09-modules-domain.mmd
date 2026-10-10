@@ -1,0 +1,40 @@
+flowchart TB
+  subgraph FRONT["Frontend modules (app/modules/*, Svelte + TS)"]
+    direction LR
+    MK["Keybinds"]
+    MS["Ship & loadout"]
+    ME["Engineering & materials"]
+    MH["Logbook & history"]
+    MR["Route planner"]
+    MT["Trading & market"]
+    MX["Exploration / exobio"]
+  end
+  subgraph CONSUMERS["Other API consumers"]
+    direction LR
+    VRO["egui VR overlay"]
+    DSH["Web dashboard"]
+    VT["Voice tool registry<br/>(astromech-tools)"]
+  end
+  API["astromech-api: typed Query / Command / Subscription<br/>(astromech-proto types, policy tiers on commands)"]
+  subgraph SERVICES["Domain services (Rust crates)"]
+    direction LR
+    GS["game state<br/>(astromech-gamestate)"]
+    JH["journal history<br/>(astromech-history)"]
+    SH["ship & loadout<br/>(astromech-ship)"]
+    EN["engineering & blueprints<br/>(astromech-engineering)"]
+    MA["materials inventory<br/>(astromech-materials)"]
+    MKT["market & trade<br/>(astromech-market)"]
+    RT["route planning<br/>(astromech-nav + astromech-route)"]
+    KB["keybinds<br/>(astromech-keybinds)"]
+  end
+  subgraph DATA["Data layer"]
+    direction LR
+    SQL[("SQLite (rusqlite)<br/>events, ledgers, caches")]
+    GD[("game data pack<br/>FDevIDs + coriolis-data derived,<br/>separate data licence")]
+    FILES[("Journal + companion JSON,<br/>Options/Bindings")]
+    REM[["Remote, opt-in:<br/>EDDN, Spansh, EDSM, Inara"]]
+  end
+  FRONT --> API
+  CONSUMERS --> API
+  API --> SERVICES
+  SERVICES --> DATA

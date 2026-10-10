@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.binds text eol=crlf
+*.start text eol=crlf
+*.png binary
+*.ico binary
+*.icns binary

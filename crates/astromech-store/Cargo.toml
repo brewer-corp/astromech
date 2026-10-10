@@ -1,0 +1,15 @@
+[package]
+name = "astromech-store"
+description = "Local persistence: SQLite config, history and migrations"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rusqlite = { version = "0.40", features = ["bundled"] }

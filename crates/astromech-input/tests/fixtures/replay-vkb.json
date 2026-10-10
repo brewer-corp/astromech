@@ -1,0 +1,1803 @@
+{
+ "devices": [
+  {
+   "key": "hid:vkb-l",
+   "kind": "hid",
+   "vid": 8989,
+   "pid": 12801,
+   "product": "VKBsim Gladiator EVO OT L",
+   "usage": 4,
+   "buttons_declared": 128,
+   "axes_declared": [
+    "X",
+    "Y",
+    "Z",
+    "RX",
+    "RY",
+    "RZ"
+   ],
+   "hats_declared": 1
+  },
+  {
+   "key": "hid:vkb-r",
+   "kind": "hid",
+   "vid": 8989,
+   "pid": 512,
+   "product": "VKBsim Gladiator EVO R",
+   "usage": 4,
+   "buttons_declared": 128,
+   "axes_declared": [
+    "X",
+    "Y",
+    "Z",
+    "RX",
+    "RY",
+    "RZ"
+   ],
+   "hats_declared": 1
+  },
+  {
+   "key": "xinput:0",
+   "kind": "xinput",
+   "product": "XInput controller #1",
+   "usage": 5,
+   "buttons_declared": 16
+  },
+  {
+   "key": "keyboard:k",
+   "kind": "keyboard",
+   "product": "Keyboard",
+   "usage": 6
+  }
+ ],
+ "samples": [
+  {
+   "t_ms": 0,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 0,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 1000,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     4
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 1200,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     4,
+     12
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 1300,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     4
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 1500,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 2000,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     1
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 2100,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 2500,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     33
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 2600,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 3000,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     0
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 3100,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     1
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 3200,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4000,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4050,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.54
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4100,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.58
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4150,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.62
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4200,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.66
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4250,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.7
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4300,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.74
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4350,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.78
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4400,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.8200000000000001
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4450,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.86
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4500,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.9
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4550,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.94
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4600,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.94
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4650,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.94
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4700,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.94
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 4750,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.94
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5000,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5040,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.46
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5080,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.42
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5120,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.38
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5160,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.33999999999999997
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5200,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.3
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5240,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.26
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5280,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.21999999999999997
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5320,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.18
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5360,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.14
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 5400,
+   "dev": "hid:vkb-r",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 6000,
+   "dev": "hid:vkb-r",
+   "fg": "Discord",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     2
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 6100,
+   "dev": "hid:vkb-r",
+   "fg": "Discord",
+   "data": {
+    "type": "hid",
+    "buttons": [],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 7000,
+   "dev": "hid:vkb-l",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "hid",
+    "buttons": [
+     7
+    ],
+    "hats": [
+     null
+    ],
+    "axes": [
+     [
+      "X",
+      0.5
+     ],
+     [
+      "Y",
+      0.5
+     ],
+     [
+      "Z",
+      0.0
+     ],
+     [
+      "RX",
+      0.5
+     ],
+     [
+      "RY",
+      0.5
+     ],
+     [
+      "RZ",
+      0.5
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 7500,
+   "dev": "xinput:0",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "xinput",
+    "buttons": 0,
+    "axes": [
+     [
+      "LT",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 7600,
+   "dev": "xinput:0",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "xinput",
+    "buttons": 4096,
+    "axes": [
+     [
+      "LT",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 7700,
+   "dev": "xinput:0",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "xinput",
+    "buttons": 0,
+    "axes": [
+     [
+      "LT",
+      0.9
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 8300,
+   "dev": "xinput:0",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "xinput",
+    "buttons": 0,
+    "axes": [
+     [
+      "LT",
+      0.0
+     ]
+    ]
+   }
+  },
+  {
+   "t_ms": 8500,
+   "dev": "keyboard:k",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "key",
+    "vkey": 32,
+    "scan": 57,
+    "down": true,
+    "name": "key Space"
+   }
+  },
+  {
+   "t_ms": 8600,
+   "dev": "keyboard:k",
+   "fg": "Elite - Dangerous (CLIENT)",
+   "data": {
+    "type": "key",
+    "vkey": 32,
+    "scan": 57,
+    "down": false,
+    "name": "key Space"
+   }
+  }
+ ],
+ "focus": [
+  [
+   0,
+   "Elite - Dangerous (CLIENT)"
+  ],
+  [
+   5800,
+   "Discord"
+  ],
+  [
+   6500,
+   "Elite - Dangerous (CLIENT)"
+  ]
+ ],
+ "duration_ms": 10000
+}

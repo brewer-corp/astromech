@@ -1,0 +1,16 @@
+[package]
+name = "astromech-tools"
+description = "Typed tool registry for voice and later cloud callers"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-proto.workspace = true
+astromech-policy.workspace = true

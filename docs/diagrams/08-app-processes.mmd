@@ -1,0 +1,26 @@
+flowchart TB
+  START["Start menu / desktop shortcut"]
+  TRAY["Tray icon (core)"]
+  subgraph CLIENTS["UI clients (one Svelte + TS frontend)"]
+    direction LR
+    APP["astromech-shell.exe (app window)<br/>Tauri v2 + WebView2<br/>opens on launch; close = exit window only"]
+    BROWSER["System browser<br/>fallback"]
+    TABLET["Second screen / tablet<br/>dashboard modules, opt-in LAN"]
+  end
+  subgraph CORE["astromech.exe (core process: starts with Windows or with the app, runs while you play)"]
+    direction LR
+    WEB["astromech-web<br/>127.0.0.1 WS API + assets<br/>per-launch token"]
+    API["astromech-api<br/>query / command registry"]
+    DOM["domain services"]
+    VOICE["voice + tools + policy"]
+    VR["astromech-vr (egui)<br/>SteamVR overlay"]
+  end
+  WORKER["s9-voice-worker.exe<br/>(STT/TTS, static sherpa-onnx)"]
+  START -->|"starts core if needed,<br/>then opens window"| APP
+  TRAY -->|"Open"| APP
+  CLIENTS <==>|"typed JSON over WS"| WEB
+  WEB --- API
+  API --- DOM
+  VOICE --- API
+  VR --- API
+  VOICE <-->|stdio| WORKER

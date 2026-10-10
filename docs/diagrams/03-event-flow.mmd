@@ -1,0 +1,21 @@
+flowchart LR
+  F1["Journal.*.log<br/>append"] -->|notify + tail offset| P1["line framer<br/>(complete lines only)"]
+  F2["Status.json<br/>rewrite"] -->|notify, debounce 0-20 ms,<br/>retry on partial JSON| P2["status diff<br/>(Flags/Flags2/GuiFocus/...)"]
+  F3["NavRoute / Cargo /<br/>Market / ... .json"] -->|notify + parse| P3["file snapshot parser"]
+  P1 --> E["typed GameEvent<br/>(+ Unknown passthrough)"]
+  P2 --> E
+  P3 --> E
+  E --> R["state reducer<br/>(pure fn: state, event -> state, derived)"]
+  R --> SNAP[("watch: Arc GameState")]
+  R --> BUS(("broadcast: GameEvent + Derived"))
+  BUS --> ANN["announce rules<br/>(deterministic)"]
+  BUS --> AUTO["automation rules<br/>(opt-in, policy-gated)"]
+  BUS --> UIQ["UI / SteamVR overlay / web<br/>invalidate + redraw"]
+  BUS -.-> CTX["cloud context feeder<br/>(later, optional)"]
+  SNAP --> VER["input verifier<br/>(wait_until predicates)"]
+  SNAP --> UIQ
+  ANN --> SQ["speech queue<br/>(priority, dedupe, barge-in)"]
+  AUTO -->|proposal| POL["policy layer"]
+  POL -->|confirm prompt| SQ
+  SQ --> TTS["local Kokoro TTS / earcons"]
+  CTX -.-> RT["VoiceSession (cloud)"]

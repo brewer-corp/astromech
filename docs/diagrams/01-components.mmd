@@ -1,0 +1,80 @@
+flowchart TB
+  subgraph GAME["Elite Dangerous (Windows, separate process - never touched)"]
+    J[("Journal.*.log")]
+    S[("Status.json, NavRoute.json,<br/>Cargo, Market, ...")]
+    B[("Options/Bindings<br/>StartPreset + .binds")]
+    W["Game window<br/>(foreground)"]
+  end
+
+  DEV[["Any keyboard key, mouse button,<br/>HOTAS / joystick / gamepad button"]]
+  MIC[["Mic + headset"]]
+
+  subgraph CORE["astromech core (Rust process, MIT-licensed source)"]
+    ING["astromech-journal<br/>journal tail + file watch"]
+    ST["astromech-gamestate<br/>reducer + snapshot store"]
+    BUS(("event bus<br/>broadcast"))
+    BIND["astromech-keybinds<br/>parse / audit / edit / backup"]
+    CTL["astromech-input::listen<br/>Raw Input sink: PTT, kill switch,<br/>confirm / cancel buttons"]
+    INP["astromech-input<br/>executor + verifier"]
+    NAV["astromech-nav<br/>plot / panel state machines"]
+    VIS["astromech-vision (optional)<br/>WGC capture + OCR"]
+    DATA["astromech-data<br/>Spansh / EDSM / Ardent / EDDN"]
+    CAPI["astromech-capi (later)<br/>OAuth2 PKCE + cAPI"]
+    POL["astromech-policy<br/>tiers / confirm / rate limit / kill switch"]
+    TOOLS["astromech-tools<br/>typed tool registry"]
+    INT["astromech-intent<br/>local command grammar"]
+    ANN["astromech-announce<br/>event rules + phrases"]
+    VOICE["astromech-voice<br/>PTT capture, Parakeet STT,<br/>Kokoro TTS, earcons, mixer"]
+    RT["astromech-realtime (later, optional, opt-in)<br/>VoiceSession trait: gpt-live-1 / Realtime / Gemini Live"]
+    DOM["domain services<br/>ship / engineering / materials /<br/>market / history / route / keybinds"]
+    API["astromech-api<br/>typed queries + commands"]
+    VR["astromech-vr (egui)<br/>OpenVR overlay (SteamVR only)"]
+    WEB["astromech-web<br/>axum WS API + app assets"]
+    STORE["astromech-store<br/>config, SQLite history, keyring"]
+  end
+
+  CLOUD[["Cloud voice model<br/>(user's own API key, off by default)"]]
+  EXT[["Spansh / EDSM / Ardent / EDDN / Frontier cAPI"]]
+  STEAMVR[["SteamVR compositor"]]
+  APPW[["App window (separate process)<br/>Tauri v2 + Svelte/TS modules"]]
+  DASH[["Browser / second-screen dashboard<br/>(same frontend, optional)"]]
+
+  J --> ING
+  S --> ING
+  B --> BIND
+  ING --> ST --> BUS
+  DEV -->|WM_INPUT, background| CTL
+  CTL -->|PTT down/up| VOICE
+  CTL -->|kill switch, confirm| POL
+  MIC --> VOICE
+  BUS --> ANN --> VOICE
+  BUS --> DOM
+  ING --> STORE
+  BIND --- DOM
+  DOM --> API
+  API --> WEB
+  API --> VR
+  TOOLS -->|read-only queries| API
+  WEB <--> APPW
+  WEB <--> DASH
+  VOICE --> INT -->|intents| TOOLS
+  BUS -.-> RT
+  VOICE -.-> RT
+  RT -.-> CLOUD
+  RT -.->|tool calls| TOOLS
+  TOOLS --> POL
+  POL --> INP
+  POL --> NAV
+  POL --> DATA
+  NAV --> INP
+  NAV --> VIS
+  BIND --> INP
+  BIND -->|PTT bind clash check| CTL
+  INP -->|SendInput scancodes| W
+  ST -.->|verification| INP
+  ST -.-> NAV
+  DATA <--> EXT
+  CAPI <--> EXT
+  VR --> STEAMVR
+  STORE --- DATA
+  STORE --- POL

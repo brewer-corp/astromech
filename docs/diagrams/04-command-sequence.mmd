@@ -1,0 +1,59 @@
+sequenceDiagram
+  autonumber
+  actor U as Commander
+  participant C as astromech-input::listen (Raw Input)
+  participant V as astromech-voice (mic, Parakeet, Kokoro)
+  participant I as astromech-intent
+  participant T as astromech-tools
+  participant P as astromech-policy
+  participant B as astromech-keybinds
+  participant X as astromech-input executor
+  participant G as Game window
+  participant S as astromech-gamestate (Status.json)
+
+  U->>C: presses PTT (any key / mouse / HOTAS / pad button)
+  C->>V: PttDown: start capturing mic frames
+  U->>V: "gear down"
+  U->>C: releases PTT
+  C->>V: PttUp: end of utterance
+  V->>V: Parakeet transcribe (local, sherpa-onnx)
+  V->>I: Transcript("gear down")
+  I->>I: normalise + grammar / fuzzy match, context gate
+  alt no confident match
+    I-->>V: say "Didn't catch that" (pre-rendered clip)
+  else matched
+    I->>T: ToolCall(set_landing_gear, {state: down}, origin=voice_local)
+    T->>T: deserialize + schema-validate args
+    T->>P: evaluate(tool, args, state snapshot)
+    P->>S: read snapshot (InMainShip, !Docked, gear=up?)
+    alt already down (idempotent)
+      P-->>T: NoOp(observed gear=down)
+      T-->>V: speak "Gear already down"
+    else blocked (tier, rate limit, kill switch, precondition)
+      P-->>T: Denied(reason)
+      T-->>V: failure earcon + short reason
+    else allowed (tier 1)
+      P->>B: resolve(LandingGearToggle)
+      B-->>P: KeyChord(scancode, ext, modifiers)
+      P->>X: Plan[FocusCheck, Tap(chord, 50 ms), Verify(gear==down, 2 s, retry once)]
+      X->>X: check foreground = game, integrity level OK
+      X->>G: SendInput keydown / keyup (scancodes)
+      X-->>T: Sent(t0): keys delivered to the focused game
+      T-->>V: speak "Gear down" immediately (optimistic, pre-rendered)
+      Note over X,S: Background verification, silent on success.<br/>The game rewrites Status.json about once a second,<br/>so the flag appears 0-1 s after the press (S5)
+      G-->>S: next Status.json rewrite (Flags bit 2)
+      S-->>X: watch update -> predicate true
+      alt seen within 2 s
+        X-->>T: Verified(latency_ms), logged only
+      else not seen after 2 s
+        X->>X: re-read snapshot, unchanged -> press once more, wait 2 s
+        alt seen after the retry
+          X-->>T: Verified(retried), logged only
+        else still unchanged
+          X-->>T: Unverified(observed gear=up)
+          T-->>V: failure earcon + "Correction: gear is still up"
+        end
+      end
+    end
+  end
+  Note over I,T: Later optional cloud path enters at astromech-tools with origin=cloud,<br/>same policy, executor and verification

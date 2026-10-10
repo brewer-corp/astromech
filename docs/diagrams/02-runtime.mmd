@@ -1,0 +1,42 @@
+flowchart TB
+  subgraph MAIN["Main thread"]
+    WL["winit event loop<br/>desktop window + UI frame"]
+  end
+  subgraph TOKIO["tokio multi-thread runtime (async tasks)"]
+    A1["ingest task"]
+    A2["state reducer task<br/>(single writer)"]
+    A3["announce task"]
+    A4["tool dispatcher + policy"]
+    A5["nav state machines"]
+    A7["data clients (reqwest)"]
+    A8["web server (axum, optional)"]
+    A6["realtime session task<br/>(later, optional)"]
+  end
+  subgraph OS["Dedicated OS threads"]
+    T0["controls thread<br/>message-only window, Raw Input<br/>RIDEV_INPUTSINK (kbd, mouse, HID)"]
+    T1["cpal input callback<br/>(gated by PTT, ringbuf SPSC)"]
+    T2["cpal output callback<br/>mixer pulls from ringbuf"]
+    T3["STT worker<br/>(sherpa-onnx Parakeet, blocking)"]
+    T4["TTS worker<br/>(Kokoro + pre-rendered clips)"]
+    T5["input executor thread<br/>(SendInput, 1 ms timer)"]
+    T6["VR overlay thread<br/>(OpenVR, up to 30 Hz)"]
+  end
+  A1 -->|mpsc RawEvent| A2
+  A2 -->|"watch Arc&lt;GameState&gt;"| A3
+  A2 -->|"broadcast Arc&lt;GameEvent&gt;"| A3
+  A2 --> WL
+  A2 --> T6
+  A2 --> A8
+  T0 -->|"PTT down / up"| T1
+  T0 -->|"kill switch (priority channel)"| A4
+  T0 -->|"kill switch: release-all"| T5
+  T1 -->|"ringbuf, utterance on PTT up"| T3
+  T3 -->|mpsc Transcript| A4
+  T1 -.->|ringbuf| A6
+  A6 -.->|mpsc ToolCall| A4
+  A4 -->|mpsc Plan + oneshot reply| T5
+  A4 --> A5 --> T5
+  T5 -->|"wait_until on watch"| A2
+  A3 -->|SpeechJob| T4 --> T2
+  A4 -->|confirmation clip| T4
+  A6 -.->|PCM16 deltas| T2

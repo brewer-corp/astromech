@@ -1,0 +1,18 @@
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> Checking: user picks profile / game launch detected
+  Checking --> Blocked: game running
+  Blocked --> Checking: game exits
+  Checking --> DeviceMismatch: profile needs a device that is not connected
+  DeviceMismatch --> Checking: device plugged in / user picks another profile
+  DeviceMismatch --> Writing: user accepts "write anyway"
+  Checking --> Writing: all devices present
+  Writing --> Snapshot: snapshot current Bindings folder
+  Snapshot --> Apply: write .binds + StartPreset.4.start (temp + rename)
+  Apply --> Verify: re-read and hash-compare
+  Verify --> Active
+  Verify --> Rollback: mismatch
+  Rollback --> Idle
+  Active --> FallbackDetected: game log shows "Missing devices" or StartPreset no longer names our preset
+  FallbackDetected --> Active: user quits game, astromech restores from snapshot
+  Active --> Idle
