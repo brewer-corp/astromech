@@ -11,5 +11,7 @@ astromech depends on open-source Rust crates and npm packages, each under its ow
   which contain espeak-ng (GPL-3.0). See `NOTICE.md`.
 - **Frontend (app/):** Svelte (MIT), Vite (MIT), Tauri (MIT OR Apache-2.0) and their
   dependencies; see `app/pnpm-lock.yaml`.
+- **UI checks (scripts/browser):** puppeteer-core (Apache-2.0); talks to a local Google Chrome
+  / Chromium, not shipped in the product.
 - **Speech models** (downloaded at runtime, not distributed here): Parakeet TDT 0.6B v2
   (CC-BY-4.0), Kokoro-82M (Apache-2.0), espeak-ng-data (GPL-3.0).
