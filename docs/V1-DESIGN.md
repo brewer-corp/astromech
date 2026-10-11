@@ -708,6 +708,35 @@ Total about **11 weeks**.
 - Crash restart: the window's watchdog restarts the core if `core.json` exists but the core
   doesn't answer (a clean Quit removes the file, so it stays off).
 
+### 7.11 As built in M1 (11 Oct 2026)
+- **Where the keybinds code runs.** The app window reads and edits presets itself, through
+  `astromech-keybinds` (`api`, `profile`, `edit`, `catalog`), and listens to sticks and keys with
+  the same read-only listener as the core (`astromech-input`, Raw Input with INPUTSINK + XInput).
+  The core keeps its own health watch on the Bindings folder. Nothing goes over the control API.
+- **The only writer is `edit.rs`.** Before any write it copies the file to
+  `Bindings\astromech-backups\<file>.<time>.bak` (a subfolder, so the game ignores it), writes a
+  temp file and renames it over. A slot edit replaces only that slot element's text; every other
+  byte stays as it was (tested). Built-in presets are never written: the first edit makes a named
+  copy and makes it active wherever the original was. UTF-16 files and files outside the Bindings
+  folder are refused. Presets → Restore puts a backup back (backing up the current file first).
+- **Catalogue.** `data/catalog/controls.json` (420 actions; EDRefCard's list, MIT, labels in
+  sentence case with clearer names for the common ones) and `data/catalog/activities.json`
+  (generated from §3.3). The list groups are ours (Flight, Ship systems, Weapons and combat,
+  Scanners, SRV driving, …), not the game's, because EDRefCard doesn't record the game's groups.
+- **Health in the list.** No keyboard key (for the actions voice presses), `Joy_33`+ ignored,
+  device not connected, and "same control as" (info only, and only inside one mode: FSS, galaxy
+  map and menus reuse flight buttons on purpose). Per preset: duplicate names, XML errors, missing
+  devices, and the VKB PID-mismatch warning (reflash or set the PID back in VKBDevCfg; astromech
+  doesn't rewrite device IDs).
+- **Remapped sticks.** A press the factory map doesn't know asks "Which control did you just
+  press?"; the answer goes in `data\device-overrides.json` and replaces that one control's number.
+- **Key tester** is on the Diagnostics page (with the connected controllers).
+- **Modifiers.** Press-to-bind writes a single control. Existing modifier combos are shown and kept;
+  making a new combo is left to the game's own menu for now.
+- **Browser preview.** Outside Tauri the window serves `app/src/lib/fixtures/sample.json` (made by
+  `cargo run -p astromech-keybinds --example fixture` from `data/samples/Example DualVKB.4.2.binds`,
+  generated example data) and keeps edits in memory. `scripts/app-shots.sh` screenshots every screen.
+
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:
 1. **Default screen:** the window opens on **Activities**.

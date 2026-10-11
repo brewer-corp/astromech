@@ -3,9 +3,9 @@ import type { ModuleManifest } from "../../lib/modules";
 const manifest: ModuleManifest = {
   id: "activities",
   title: "Activities",
-  summary: "Activities",
+  summary: "Your sticks with one activity's actions lit, what's not bound yet, and Bind this",
   order: 0,
-  api: [],
+  api: ["binds"],
   load: () => import("./View.svelte"),
 };
 

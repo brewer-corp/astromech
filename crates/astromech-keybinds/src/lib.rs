@@ -9,12 +9,18 @@
 //!   `Joy_33+` binds, `BindingLoadingErrors.log`.
 //! - [`report`]: console/HTML rendering and username redaction.
 //!
-//! Seeded from the `k0-binds-doctor` spike (spikes/k0-binds-doctor). **Read-only**: nothing
-//! here writes to game folders.
+//! - [`catalog`], [`profile`]: the action catalogue and the app's preset list and list view;
+//! - [`edit`]: the only writer: slot edits, copies, StartPreset, always with backups.
+//!
+//! Seeded from the `k0-binds-doctor` spike (spikes/k0-binds-doctor).
 
 pub mod active;
+pub mod api;
 pub mod binds;
+pub mod catalog;
 pub mod devices;
 pub mod doctor;
+pub mod edit;
 pub mod game;
+pub mod profile;
 pub mod report;

@@ -99,6 +99,141 @@ fn watchdog(app: tauri::AppHandle) {
     }
 }
 
+// ---- Keybinds (M1). The window reads and edits presets itself through astromech-keybinds
+// (every write backs up first); the core reloads on its own Bindings-folder watch.
+
+struct Binds(std::sync::Mutex<Option<astromech_keybinds::api::Api>>);
+
+#[derive(Deserialize, Default)]
+struct GameCfg {
+    #[serde(default)]
+    bindings_dir: String,
+    #[serde(default)]
+    game_dir: String,
+}
+#[derive(Deserialize, Default)]
+struct Cfg {
+    #[serde(default)]
+    game: GameCfg,
+}
+
+fn make_api() -> Result<astromech_keybinds::api::Api, String> {
+    let cfg: Cfg = std::fs::read_to_string(app_dir().join("astromech.toml"))
+        .ok()
+        .and_then(|t| toml::from_str(&t).ok())
+        .unwrap_or_default();
+    let opt = |s: &str| (!s.trim().is_empty()).then(|| PathBuf::from(s.trim()));
+    astromech_keybinds::api::Api::discover(
+        opt(&cfg.game.bindings_dir),
+        opt(&cfg.game.game_dir).as_deref(),
+        app_dir(),
+    )
+    .map_err(|e| format!("{e:#}"))
+}
+
+fn with_api<T>(b: &tauri::State<Binds>, f: impl FnOnce(&mut astromech_keybinds::api::Api) -> anyhow::Result<T>) -> Result<T, String> {
+    let mut g = b.0.lock().map_err(|_| "busy".to_string())?;
+    if g.is_none() {
+        *g = Some(make_api()?);
+    }
+    f(g.as_mut().unwrap()).map_err(|e| format!("{e:#}"))
+}
+
+#[tauri::command]
+fn binds_state(b: tauri::State<Binds>) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.state())?))
+}
+
+#[tauri::command]
+fn binds_refresh_devices(b: tauri::State<Binds>) -> Result<Value, String> {
+    with_api(&b, |a| {
+        a.refresh_devices();
+        Ok(serde_json::to_value(a.state())?)
+    })
+}
+
+#[tauri::command]
+fn binds_view(b: tauri::State<Binds>, path: PathBuf) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.view(&path)?)?))
+}
+
+#[tauri::command]
+fn binds_set_slot(b: tauri::State<Binds>, edit: astromech_keybinds::api::SlotEdit) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.set_slot(&edit)?)?))
+}
+
+#[tauri::command]
+fn binds_copy(b: tauri::State<Binds>, src: PathBuf, name: String) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.copy_preset(&src, &name)?)?))
+}
+
+#[tauri::command]
+fn binds_set_active(b: tauri::State<Binds>, name: String, contexts: Vec<usize>) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.set_active(&name, &contexts)?)?))
+}
+
+#[tauri::command]
+fn binds_restore(b: tauri::State<Binds>, backup: PathBuf) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.restore(&backup)?)?))
+}
+
+#[tauri::command]
+fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, joy: Option<String>) -> Result<Value, String> {
+    with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
+}
+
+/// Presses from every stick, pad and key, for "press a control to find it", the key tester
+/// and press-to-bind. Read-only (Raw Input with INPUTSINK + XInput polling, like the core).
+#[cfg(windows)]
+fn start_input(app: tauri::AppHandle) {
+    use astromech_input::listen::{tracker::Processor, win};
+    std::thread::spawn(move || {
+        let start = std::time::Instant::now();
+        let (tx, rx) = std::sync::mpsc::channel();
+        let _ = win::rawinput::start(tx.clone(), start);
+        let _ = win::xinput::start(tx, start);
+        let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
+        for d in win::rawinput::list_devices() {
+            p.add_device(d);
+        }
+        loop {
+            let evs = match rx.recv_timeout(Duration::from_millis(50)) {
+                Ok(win::Msg::Device(d)) => {
+                    p.add_device(d);
+                    continue;
+                }
+                Ok(win::Msg::Sample(s)) => p.process(&s),
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => p.tick(start.elapsed().as_secs_f64() * 1000.0),
+                Err(_) => break,
+            };
+            p.events.clear();
+            for e in evs {
+                let device = match e.kind.as_str() {
+                    "key" => "Keyboard".to_string(),
+                    "mouse" => "Mouse".to_string(),
+                    "xinput" => "GamePad".to_string(),
+                    _ => e.elite_id.clone().unwrap_or_default(),
+                };
+                let Some(key) = e.elite_name.clone() else { continue };
+                if e.kind != "axis" && e.down != Some(true) && e.down != Some(false) {
+                    continue;
+                }
+                let _ = app.emit(
+                    "input",
+                    serde_json::json!({
+                        "device": device,
+                        "key": key,
+                        "kind": e.kind,
+                        "down": e.down,
+                        "device_name": e.device,
+                        "t_ms": e.t_ms,
+                    }),
+                );
+            }
+        }
+    });
+}
+
 #[tauri::command]
 fn core_status() -> Option<Value> {
     call("status").ok()
@@ -155,7 +290,21 @@ fn main() {
                 let _ = app.emit("route", r);
             }
         }))
-        .invoke_handler(tauri::generate_handler![core_status, core_call, shell_info, open_external])
+        .manage(Binds(std::sync::Mutex::new(None)))
+        .invoke_handler(tauri::generate_handler![
+            core_status,
+            core_call,
+            shell_info,
+            open_external,
+            binds_state,
+            binds_refresh_devices,
+            binds_view,
+            binds_set_slot,
+            binds_copy,
+            binds_set_active,
+            binds_restore,
+            binds_set_override
+        ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App(hash.into()))
@@ -170,6 +319,8 @@ fn main() {
             }
             let h = app.handle().clone();
             std::thread::spawn(move || watchdog(h));
+            #[cfg(windows)]
+            start_input(app.handle().clone());
             Ok(())
         })
         .run(tauri::generate_context!())

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import KeyTester from "./KeyTester.svelte";
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
 
   const RELEASES = "https://github.com/spadaval/astromech/releases/latest";
@@ -48,8 +49,8 @@
     <button onclick={() => openUrl(RELEASES)}>Check for updates</button>
   </div>
   {#if note}<p class="note">{note}</p>{/if}
-  <p class="later">Key tester, device list and the full health report arrive in M4.</p>
 </section>
+<KeyTester />
 
 <style>
   section { padding: 28px 0; max-width: 60rem; }
@@ -64,5 +65,4 @@
   button:not(:disabled):hover { color: var(--text-hi); }
   .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }
   .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); }
-  .later { color: var(--text-lo); margin-top: 32px; }
 </style>
