@@ -25,3 +25,8 @@ docs/ARCHITECTURE.md §17). Consequences:
   Parakeet TDT 0.6B (NVIDIA, CC-BY-4.0), Kokoro-82M (Apache-2.0; its `espeak-ng-data` is GPL-3.0).
 
 Third-party Rust and npm dependency licences: see `THIRD_PARTY.md`.
+
+## Fonts (app UI)
+Bundled from the `@fontsource` packages, all under the SIL Open Font License 1.1:
+Michroma (Vernon Adams), Saira Semi Condensed (Omnibus-Type), Share Tech Mono (Carrois Apostrophe).
+No fonts or other assets from Elite Dangerous or Frontier Developments are used.

@@ -1,0 +1,78 @@
+/* astromech design tokens (docs/V1-DESIGN.md §3). Elite-like, built from scratch: no Frontier
+   assets. Colours are the *default* HUD palette; hud.ts can re-tint them with the player's
+   GraphicsConfigurationOverride.xml colour matrix. */
+@import "@fontsource/michroma/400.css";
+@import "@fontsource/saira-semi-condensed/400.css";
+@import "@fontsource/saira-semi-condensed/500.css";
+@import "@fontsource/saira-semi-condensed/600.css";
+@import "@fontsource/share-tech-mono/400.css";
+
+:root {
+  color-scheme: dark;
+
+  /* Primary: HUD orange and its ramp */
+  --am-orange: #ff7a00;
+  --am-orange-bright: #ffa040;
+  --am-orange-dim: #b85700;
+  --am-orange-faint: rgb(255 122 0 / 0.14);
+  --am-orange-line: rgb(255 122 0 / 0.45);
+  --am-orange-glow: 0 0 12px rgb(255 122 0 / 0.35);
+
+  /* Secondary / semantic (never colour alone: always paired with an icon or word) */
+  --am-blue: #4ab6ff; /* info, "your" items, selection */
+  --am-blue-faint: rgb(74 182 255 / 0.14);
+  --am-red: #ff3b2f; /* danger, kill switch, errors */
+  --am-red-faint: rgb(255 59 47 / 0.16);
+  --am-amber: #ffd23f; /* warning */
+  --am-green: #7bd88f; /* OK; paired with ✓ (colour-blind safe with the blue/orange set) */
+
+  /* Surfaces: warm near-black, like the cockpit glass */
+  --am-bg: #070504;
+  --am-bg-2: #0d0906;
+  --am-panel: #120c07;
+  --am-panel-2: #1a120a;
+  --am-scan: repeating-linear-gradient(0deg, rgb(255 122 0 / 0.025) 0 1px, transparent 1px 3px);
+
+  /* Text */
+  --am-text: #ffd9b0; /* warm off-white, 15.3:1 on --am-bg */
+  --am-text-strong: #fff1e0;
+  --am-muted: #b08a66; /* 6.5:1 on --am-bg */
+  --am-disabled: #6b5340;
+
+  /* Type */
+  --am-font-display: "Michroma", "Eurostile", "Segoe UI", sans-serif;
+  --am-font-ui: "Saira Semi Condensed", "Bahnschrift", "Segoe UI", sans-serif;
+  --am-font-mono: "Share Tech Mono", "Consolas", monospace;
+  --am-size-xs: 11px;
+  --am-size-s: 13px;
+  --am-size-m: 15px;
+  --am-size-l: 19px;
+  --am-size-xl: 26px;
+  --am-track-caps: 0.12em;
+
+  /* Shape */
+  --am-chamfer: 10px;
+  --am-chamfer-s: 6px;
+  --am-border: 1px solid var(--am-orange-line);
+  --am-gap: 12px;
+  --am-pad: 16px;
+
+  /* Motion: short, linear-ish, like HUD panels sliding in. Respect reduced motion. */
+  --am-fast: 90ms;
+  --am-med: 180ms;
+  --am-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --am-fast: 0ms; --am-med: 0ms; }
+}
+
+/* Chamfered panel: top-left and bottom-right corners cut, like the game's panels. */
+.am-chamfer {
+  clip-path: polygon(var(--am-chamfer) 0, 100% 0, 100% calc(100% - var(--am-chamfer)),
+    calc(100% - var(--am-chamfer)) 100%, 0 100%, 0 var(--am-chamfer));
+}
+.am-caps {
+  text-transform: uppercase;
+  letter-spacing: var(--am-track-caps);
+}
