@@ -1,7 +1,7 @@
 {
   "name": "astromech-app",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -34,5 +34,8 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.12.3"
   }
 }

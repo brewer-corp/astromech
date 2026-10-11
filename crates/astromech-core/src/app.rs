@@ -1,0 +1,492 @@
+//! The always-running core (M0, docs/V1-DESIGN.md §7): tray icon, single instance, start with
+//! Windows, game detection with idle/active, the app window launched from the tray, crash
+//! marker and diagnostics. [`run`] is what `astromech-core.exe` does when started without a
+//! console option (and with `--background` from the Run key).
+
+use crate::config::Config;
+use crate::control::{self, Request};
+use crate::gamewatch::{self, Change, Game};
+use crate::logging::log;
+use crate::session::{self, Session};
+use anyhow::Result;
+use serde_json::{json, Value};
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+pub const RELEASES_URL: &str = "https://github.com/spadaval/astromech/releases/latest";
+pub const SHELL_EXE: &str = if cfg!(windows) { "astromech-shell.exe" } else { "astromech-shell" };
+
+#[derive(Debug, Clone, Default)]
+pub struct Opts {
+    /// Started by the Run key: tray only, no window.
+    pub background: bool,
+    /// Route for the window when a second start asks the first to open it.
+    pub route: Option<String>,
+    pub config: Option<PathBuf>,
+    pub session: session::Opts,
+}
+
+/// Messages to the UI thread (the tray).
+#[derive(Debug, Clone, PartialEq)]
+pub enum Ui {
+    Refresh,
+    Quit,
+}
+
+/// Shared state; the tray reads it, the watcher and control API write it.
+pub struct Core {
+    pub app_dir: PathBuf,
+    pub config_path: PathBuf,
+    pub cfg: Config,
+    pub config_note: Option<String>,
+    pub game: Mutex<Game>,
+    pub session: Mutex<Option<Session>>,
+    /// While a session loads (models take a few seconds).
+    pub starting: AtomicBool,
+    pub voice: Mutex<String>,
+    pub crash: Mutex<Option<String>>,
+    pub models: Mutex<Option<String>>,
+    pub ui: Mutex<Sender<Ui>>,
+    pub opts: Opts,
+}
+
+impl Core {
+    pub fn notify(&self) {
+        let _ = self.ui.lock().unwrap().send(Ui::Refresh);
+    }
+
+    pub fn active(&self) -> bool {
+        self.session.lock().unwrap().is_some()
+    }
+
+    /// The tray's one status line.
+    pub fn status_line(&self) -> String {
+        let game = *self.game.lock().unwrap();
+        let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
+            (_, _, true) => "astromech · starting voice…".to_string(),
+            (Game::Running, true, _) => format!("astromech · active · {}", self.voice.lock().unwrap()),
+            (Game::Launcher, true, _) => format!("astromech · launcher open · {}", self.voice.lock().unwrap()),
+            (Game::Running, false, _) => "astromech · Elite running · voice failed (see logs)".to_string(),
+            _ => "astromech · idle · waiting for Elite".to_string(),
+        };
+        if let Some(m) = self.models.lock().unwrap().as_ref() {
+            s = format!("{s} · {m}");
+        }
+        if let Some(n) = &self.config_note {
+            s = format!("{s} · {n}");
+        }
+        s
+    }
+
+    pub fn status_json(&self) -> Value {
+        let killed = self.session.lock().unwrap().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+        json!({
+            "ok": true,
+            "version": env!("CARGO_PKG_VERSION"),
+            "pid": std::process::id(),
+            "game": *self.game.lock().unwrap(),
+            "active": self.active(),
+            "starting": self.starting.load(Ordering::SeqCst),
+            "voice": *self.voice.lock().unwrap(),
+            "voice_paused": session::VOICE_PAUSED.load(Ordering::SeqCst),
+            "killed": killed,
+            "autostart": crate::autostart::is_enabled(),
+            "crash_pending": self.crash.lock().unwrap().is_some(),
+            "status_line": self.status_line(),
+            "app_dir": self.app_dir.display().to_string(),
+            "log_dir": self.app_dir.join("logs").display().to_string(),
+            "config": self.config_path.display().to_string(),
+            "config_note": self.config_note,
+        })
+    }
+
+    pub fn save_diagnostics(&self) -> Result<PathBuf> {
+        let log_dir = crate::logging::dir().unwrap_or_else(|| self.app_dir.join("logs"));
+        let data = self.cfg.data_dir();
+        let p = crate::diagnostics::save(&crate::diagnostics::Inputs {
+            app_dir: &self.app_dir,
+            data_dir: &data,
+            log_dir: &log_dir,
+            config: Some(&self.config_path),
+            status: serde_json::to_string_pretty(&self.status_json()).unwrap_or_default(),
+        })?;
+        log(&format!("diagnostics saved: {}", p.display()));
+        if self.crash.lock().unwrap().take().is_some() {
+            crate::crash::acknowledge(&self.app_dir);
+        }
+        self.notify();
+        Ok(p)
+    }
+
+    pub fn kill_switch(&self) {
+        if let Some(s) = self.session.lock().unwrap().as_ref() {
+            if s.runner.policy.is_killed() {
+                s.runner.policy.rearm();
+                s.speaker.say("Re-armed.");
+            } else {
+                s.runner.policy.kill();
+                s.speaker.say("Kill switch on. All actions stopped.");
+            }
+        }
+        self.notify();
+    }
+
+    fn activate(self: &Arc<Self>, why: &str) {
+        if self.active() || self.starting.swap(true, Ordering::SeqCst) {
+            return;
+        }
+        log(&format!("{why}: going active (loading the binds check, game state and voice)"));
+        self.notify();
+        let t0 = Instant::now();
+        let r = Session::start(&self.cfg, &self.opts.session).and_then(|mut s| {
+            s.start_buttons(&self.cfg, &self.opts.session)?;
+            Ok(s)
+        });
+        match r {
+            Ok(s) => {
+                log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
+                *self.voice.lock().unwrap() = s.voice.clone();
+                *self.session.lock().unwrap() = Some(s);
+            }
+            Err(e) => {
+                log(&format!("couldn't go active: {e:#}"));
+                *self.voice.lock().unwrap() = format!("error: {e}");
+            }
+        }
+        self.starting.store(false, Ordering::SeqCst);
+        // If the game went away while we were loading, unload again.
+        if *self.game.lock().unwrap() == Game::NotRunning {
+            self.deactivate("the game exited while loading");
+        }
+        self.notify();
+    }
+
+    fn deactivate(&self, why: &str) {
+        if !self.starting.load(Ordering::SeqCst) {
+            *self.voice.lock().unwrap() = "voice not loaded".into();
+        }
+        if let Some(s) = self.session.lock().unwrap().take() {
+            log(&format!("{why}: going idle (unloading voice, closing the microphone)"));
+            drop(s);
+        }
+        self.notify();
+    }
+
+    /// Launch (or focus) the app window at `route`.
+    pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
+        let exe =
+            std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| Config::exe_dir().join(SHELL_EXE));
+        if !exe.is_file() {
+            let m = format!("the app window ({}) isn't installed next to the core", exe.display());
+            log(&m);
+            return Err(m);
+        }
+        let mut c = std::process::Command::new(&exe);
+        if let Some(r) = route {
+            c.arg("--route").arg(r);
+        }
+        match c.spawn() {
+            Ok(_) => {
+                log(&format!("opened the app window{}", route.map(|r| format!(" at {r}")).unwrap_or_default()));
+                Ok(())
+            }
+            Err(e) => {
+                let m = format!("couldn't open the app window: {e}");
+                log(&m);
+                Err(m)
+            }
+        }
+    }
+
+    pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
+        match r.cmd.as_str() {
+            "status" => self.status_json(),
+            "open_window" => match self.open_window(r.route.as_deref()) {
+                Ok(()) => json!({"ok": true}),
+                Err(e) => json!({"ok": false, "error": e}),
+            },
+            "save_diagnostics" => match self.save_diagnostics() {
+                Ok(p) => {
+                    reveal(&p);
+                    json!({"ok": true, "path": p.display().to_string()})
+                }
+                Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+            },
+            "ack_crash" => {
+                self.crash.lock().unwrap().take();
+                crate::crash::acknowledge(&self.app_dir);
+                self.notify();
+                json!({"ok": true})
+            }
+            "quit" => {
+                let _ = self.ui.lock().unwrap().send(Ui::Quit);
+                json!({"ok": true})
+            }
+            c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
+        }
+    }
+}
+
+/// Open a URL or folder with the default handler.
+pub fn open_path(target: &str) {
+    #[cfg(windows)]
+    let r = std::process::Command::new("explorer.exe").arg(target).spawn();
+    #[cfg(not(windows))]
+    let r = std::process::Command::new("xdg-open").arg(target).spawn();
+    if let Err(e) = r {
+        log(&format!("couldn't open {target}: {e}"));
+    }
+}
+
+/// Show a file in Explorer (selected).
+pub fn reveal(p: &Path) {
+    #[cfg(windows)]
+    {
+        let _ = std::process::Command::new("explorer.exe").arg(format!("/select,{}", p.display())).spawn();
+    }
+    #[cfg(not(windows))]
+    open_path(&p.parent().unwrap_or(p).display().to_string());
+}
+
+/// Create the config from the sample if it doesn't exist, then open it in the editor.
+pub fn open_config(path: &Path) {
+    if !path.exists() {
+        if let Some(d) = path.parent() {
+            let _ = std::fs::create_dir_all(d);
+        }
+        let _ = std::fs::write(path, crate::config::SAMPLE);
+        log(&format!("wrote a sample config to {}; edit [controls], then quit and restart astromech", path.display()));
+    }
+    #[cfg(windows)]
+    let r = std::process::Command::new("notepad.exe").arg(path).spawn();
+    #[cfg(not(windows))]
+    let r = std::process::Command::new("xdg-open").arg(path).spawn();
+    if let Err(e) = r {
+        log(&format!("couldn't open {}: {e}", path.display()));
+    }
+}
+
+/// Download the speech models in the background, showing progress in the status line.
+pub fn download_models(core: &Arc<Core>) {
+    if core.models.lock().unwrap().is_some() {
+        return;
+    }
+    *core.models.lock().unwrap() = Some("downloading speech models…".into());
+    core.notify();
+    let c = core.clone();
+    let _ = std::thread::Builder::new().name("models".into()).spawn(move || {
+        use astromech_voice::{download, models};
+        let base = c.cfg.models_dir();
+        let root = base.parent().map(Path::to_path_buf).unwrap_or_else(|| ".".into());
+        let mut err = None;
+        for a in [models::STT, models::TTS] {
+            if models::model_root(&base, &a).is_dir() {
+                continue;
+            }
+            let mut last = u64::MAX;
+            let r = download::ensure(&root, &a, &mut |p| {
+                let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
+                if pct != last {
+                    last = pct;
+                    *c.models.lock().unwrap() = Some(format!("{} {:?} {pct}%", a.label, p.phase));
+                    c.notify();
+                }
+            });
+            if let Err(e) = r {
+                err = Some(format!("{e:#}"));
+                break;
+            }
+        }
+        match err {
+            None => log(&format!("speech models ready in {}", base.display())),
+            Some(e) => log(&format!("speech model download failed: {e}")),
+        }
+        *c.models.lock().unwrap() = None;
+        c.notify();
+    });
+}
+
+pub fn models_missing(cfg: &Config) -> bool {
+    use astromech_voice::models;
+    let m = cfg.models_dir();
+    models::stt_paths(&models::model_root(&m, &models::STT)).is_err() || models::find_tts(&m).is_err()
+}
+
+fn watch_game(core: Arc<Core>) {
+    let mut w = gamewatch::Watcher::default();
+    let jdir = core.cfg.journal_dir();
+    let mut journal_seen = jdir.as_deref().and_then(gamewatch::newest_journal).map(|(_, t)| t);
+    loop {
+        let names = gamewatch::process_names();
+        let change = w.poll(&names);
+        *core.game.lock().unwrap() = w.game;
+        match change {
+            Some(Change::LauncherOpened) => {
+                log("Elite launcher (EDLaunch.exe) opened");
+                let c = core.clone();
+                std::thread::spawn(move || c.activate("pre-warming for the launcher"));
+            }
+            Some(Change::GameStarted) => {
+                log(&format!("Elite started ({})", gamewatch::GAME_EXE));
+                let c = core.clone();
+                std::thread::spawn(move || c.activate("Elite running"));
+            }
+            Some(Change::GameExited) => {
+                log("Elite exited");
+                core.deactivate("Elite exited");
+            }
+            Some(Change::LauncherClosed) => {
+                log("Elite launcher closed without starting the game");
+                core.deactivate("launcher closed");
+            }
+            None => {}
+        }
+        if w.game == Game::Running {
+            if let Some((p, t)) = jdir.as_deref().and_then(gamewatch::newest_journal) {
+                if journal_seen.is_none_or(|s| t > s) {
+                    if journal_seen.is_none_or(|s| s < t - Duration::from_secs(60)) {
+                        log(&format!(
+                            "journal active ({}): game session confirmed",
+                            p.file_name().unwrap_or_default().to_string_lossy()
+                        ));
+                    }
+                    journal_seen = Some(t);
+                }
+            }
+        }
+        if change.is_some() {
+            core.notify();
+        }
+        std::thread::sleep(gamewatch::POLL);
+    }
+}
+
+/// Run the core until "Quit". Returns the exit code.
+pub fn run(opts: Opts) -> i32 {
+    let app_dir = Config::app_dir();
+    let _ = std::fs::create_dir_all(&app_dir);
+    let log_dir =
+        if Config::portable() { Config::exe_dir().join("astromech-data").join("logs") } else { app_dir.join("logs") };
+    crate::logging::init(&log_dir, false);
+    crate::crash::install(&app_dir);
+
+    // Single instance: a second start opens the window of the first, then exits.
+    let Some(_guard) = crate::instance::acquire(&app_dir) else {
+        if !opts.background {
+            match control::call(&app_dir, "open_window", opts.route.as_deref()) {
+                Ok(_) => log("already running: asked it to open the window"),
+                Err(e) => log(&format!("already running, but it didn't answer: {e:#}")),
+            }
+        }
+        return 0;
+    };
+    log(&format!(
+        "astromech-core {} starting{} (pid {})",
+        env!("CARGO_PKG_VERSION"),
+        if opts.background { " in the background" } else { "" },
+        std::process::id()
+    ));
+
+    let config_path = opts.config.clone().unwrap_or_else(Config::default_path);
+    let (mut cfg, config_note) = if config_path.is_file() {
+        match Config::load(&config_path) {
+            Ok(c) => {
+                log(&format!("config: {}", config_path.display()));
+                (c, None)
+            }
+            Err(e) => {
+                log(&format!("config error, using defaults: {e:#}"));
+                (Config::default(), Some("config error (see logs)".to_string()))
+            }
+        }
+    } else {
+        log(&format!("config: {} not found; using defaults (tray → Open config file)", config_path.display()));
+        (Config::default(), None)
+    };
+    if opts.session.dry_run {
+        cfg.actions.dry_run = true;
+    }
+    let config_note = config_note.or_else(|| cfg.controls.ptt.is_none().then(|| "push-to-talk not set".to_string()));
+
+    if !Config::portable() {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(m) = crate::autostart::apply_default(&app_dir, &exe) {
+                log(&m);
+            }
+        }
+    }
+
+    let crash = crate::crash::pending(&app_dir);
+    if crash.is_some() {
+        log("astromech crashed last time; the tray offers Save diagnostics");
+    }
+
+    let (ui_tx, ui_rx) = channel();
+    let core = Arc::new(Core {
+        app_dir: app_dir.clone(),
+        config_path,
+        cfg,
+        config_note,
+        game: Mutex::new(Game::NotRunning),
+        session: Mutex::new(None),
+        starting: AtomicBool::new(false),
+        voice: Mutex::new("voice not loaded".into()),
+        crash: Mutex::new(crash),
+        models: Mutex::new(None),
+        ui: Mutex::new(ui_tx),
+        opts: opts.clone(),
+    });
+
+    let c = core.clone();
+    let _server = match control::serve(&app_dir, Arc::new(move |r: &Request| c.handle(r))) {
+        Ok(s) => {
+            log(&format!("control API on 127.0.0.1:{}", s.endpoint.port));
+            Some(s)
+        }
+        Err(e) => {
+            log(&format!("control API unavailable: {e:#}"));
+            None
+        }
+    };
+
+    let c = core.clone();
+    std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
+
+    if !opts.background && !Config::portable() {
+        let _ = core.open_window(opts.route.as_deref());
+    }
+
+    let code = ui_loop(core.clone(), ui_rx);
+    log("quitting");
+    core.deactivate("quit");
+    code
+}
+
+#[cfg(windows)]
+fn ui_loop(core: Arc<Core>, rx: Receiver<Ui>) -> i32 {
+    match crate::tray::run(core.clone(), &rx) {
+        Ok(()) => 0,
+        Err(e) => {
+            log(&format!("tray icon failed: {e:#}; running without it until Quit (via the app window)"));
+            headless(&rx)
+        }
+    }
+}
+
+#[cfg(not(windows))]
+fn ui_loop(_core: Arc<Core>, rx: Receiver<Ui>) -> i32 {
+    log("no tray on this platform; running headless (quit via the control API or Ctrl+C)");
+    headless(&rx)
+}
+
+fn headless(rx: &Receiver<Ui>) -> i32 {
+    while let Ok(m) = rx.recv() {
+        if m == Ui::Quit {
+            break;
+        }
+    }
+    0
+}

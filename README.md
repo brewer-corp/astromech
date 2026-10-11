@@ -62,6 +62,18 @@ libraries and makes the binary GPL-3.0 (see NOTICE.md):
 Windows binaries can be cross-built from Linux with `cargo xwin build --target x86_64-pc-windows-msvc`.
 They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 
+## Install (M0 preview)
+Download `astromech_<version>_x64-setup.exe` from the latest
+[Release build](https://github.com/spadaval/astromech/actions/workflows/release.yml) run (or a
+GitHub Release once tagged). It installs per-user to `%LOCALAPPDATA%\astromech`, no admin. The
+build is **unsigned**: SmartScreen says "Windows protected your PC" → More info → Run anyway.
+
+astromech then runs in the tray and starts with Windows (untick "Start with Windows" in the tray
+menu to stop that). It stays idle until Elite (or its launcher) starts, then loads voice. Your
+config is `%LOCALAPPDATA%\astromech\data\astromech.toml` (tray → Open config file); speech
+models go in `data\models` (tray → Download speech models). Logs: `data\logs`, or tray → Save
+diagnostics. Updates are manual: run a newer installer.
+
 ## Try the gear-down slice
 
 A Windows console preview of the first vertical slice: hold push-to-talk, say **"gear down"**,

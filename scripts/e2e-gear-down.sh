@@ -26,7 +26,7 @@ ptt = { device = "231D3201", key = "Joy_15" }
 X
 # A mis-named config must stop the app with a message naming the look-alike.
 mkdir -p "$W/misnamed" && cp "$T/astromech-core.exe" "$W/misnamed/" && cp "$W/astromech.toml" "$W/misnamed/astromech.toml.txt"
-if echo quit | $RUN "$W/misnamed/astromech-core.exe" --no-voice > "$W/misnamed.txt" 2>&1; then
+if echo quit | $RUN "$W/misnamed/astromech-core.exe" --console --no-voice > "$W/misnamed.txt" 2>&1; then
   echo "E2E FAIL: started without a config"; exit 1
 fi
 grep -q 'astromech.toml.txt' "$W/misnamed.txt" || { cat "$W/misnamed.txt"; echo "E2E FAIL: look-alike not named"; exit 1; }
@@ -42,7 +42,7 @@ sleep 3
   echo "gear up"                 # duplicate while in flight
   sleep 4; echo "!kill"; echo "gear down"; echo "!rearm"
   sleep 1; echo "quit"
-} | $RUN "$T/astromech-core.exe" --no-voice --config "$(winpath "$W/astromech.toml")" | tee "$W/out.txt"
+} | $RUN "$T/astromech-core.exe" --console --no-voice --config "$(winpath "$W/astromech.toml")" | tee "$W/out.txt"
 wait $MOCK || true
 echo "---- mock keys.log"; cat "$W/journal/keys.log"
 fail() { echo "E2E FAIL: $1"; exit 1; }

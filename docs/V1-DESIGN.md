@@ -607,12 +607,12 @@ Still noisier than the game (and what I changed):
 
 ### 7.2 Packaging
 - **Tauri bundler, NSIS installer, `installMode: "currentUser"`** → installs to
-  `%LOCALAPPDATA%\Programs\astromech`, no admin, no UAC prompt. One installer carries
+  `%LOCALAPPDATA%\astromech` (Tauri's per-user default; M0 note: the template has no install-dir option, so user data moved to its `data\` subfolder), no admin, no UAC prompt. One installer carries
   `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe` (as Tauri
   `externalBin`/resources) and the OFL fonts. Speech models download on first run (≈ 700 MB,
   SHA-256 checked, as now) so the installer stays small.
 - WebView2: use the bootstrapper (`webviewInstallMode: downloadBootstrapper`); Windows 11 already has it.
-- Uninstall removes the program; user data (`%LOCALAPPDATA%\astromech`) stays unless the
+- Uninstall removes the program; user data (`%LOCALAPPDATA%\astromech\data`) stays unless the
   "remove my data" box is ticked.
 
 ### 7.3 Updates (manual only)
@@ -656,7 +656,7 @@ Still noisier than the game (and what I changed):
   installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
   next start the tray offers "astromech crashed last time · Save diagnostics". The voice worker is
   already a supervised child (restarted by the core).
-- **Logs:** rolling files in `%LOCALAPPDATA%\astromech\logs` (7 days, 10 MB each), the same lines
+- **Logs:** rolling files in `%LOCALAPPDATA%\astromech\data\logs` (7 days, 10 MB each), the same lines
   as the preview console; usernames redacted. **Diagnostics bundle** (§1.5 #2) from the tray or
   settings.
 
@@ -693,6 +693,20 @@ Rough effort for one developer working with an agent; Sumeet tests at each miles
 Total about **11 weeks**.
 
 ---
+
+### 7.10 As built in M0 (11 Oct 2026)
+- `astromech-core.exe` with no options is the tray app; `--background` (Run key) skips the window;
+  `--console` is the old console preview (the e2e uses it); `--quit` asks a running core to exit
+  (the installer uses it). One-shot options (`--listen`, `--health`, …) still work.
+- The window ↔ core link in M0 is a small local control API (JSON lines on 127.0.0.1, port and a
+  per-run token in `data\core.json`): status, open window, save diagnostics, quit. The full
+  WebSocket API replaces it as modules need it.
+- Active = launcher or game running (the launcher pre-warms); idle after the game has been gone
+  for two polls (6 s). The Raw Input listener starts at the first activation and stays.
+- Tray extras until Settings/onboarding exist: "Start with Windows" toggle, "Open config file",
+  "Download speech models" (only when missing).
+- Crash restart: the window's watchdog restarts the core if `core.json` exists but the core
+  doesn't answer (a clean Quit removes the file, so it stays off).
 
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:
