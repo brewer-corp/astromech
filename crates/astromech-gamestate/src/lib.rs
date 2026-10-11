@@ -82,7 +82,7 @@ impl GameState {
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
             }
-            JournalEvent::Location { star_system, body, docked } => {
+            JournalEvent::Location { star_system, body, docked, .. } => {
                 self.system = Some(star_system.clone());
                 self.body = body.clone();
                 self.docked = *docked;
@@ -92,10 +92,12 @@ impl GameState {
                 self.body = Some(body.clone());
             }
             JournalEvent::LeaveBody { .. } => self.body = None,
-            JournalEvent::FsdJump { star_system, .. } => {
+            JournalEvent::FsdJump { star_system, from_carrier, .. } => {
                 self.system = Some(star_system.clone());
-                self.station = None;
-                self.body = None;
+                if !from_carrier {
+                    self.station = None;
+                    self.body = None;
+                }
             }
             JournalEvent::Docked { station_name, star_system } => {
                 self.station = Some(station_name.clone());
@@ -172,5 +174,14 @@ mod tests {
             .event,
         );
         assert_eq!(g.materials.count("iron"), 4);
+        g.apply_journal(
+            &astromech_journal::parse_line(
+                r#"{"timestamp":"t","event":"CarrierJump","StarSystem":"Alioth","SystemAllegiance":"Alliance"}"#,
+            )
+            .unwrap()
+            .event,
+        );
+        assert_eq!(g.system.as_deref(), Some("Alioth"));
+        assert_eq!(g.station.as_deref(), Some("Jameson Memorial"));
     }
 }

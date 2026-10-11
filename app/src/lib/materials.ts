@@ -5,6 +5,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/materials.json";
 
+export interface SourceNote {
+  kind: "hge" | "not_hge" | string;
+  summary: string;
+  hint: string;
+}
+
 export interface Cell {
   id: string;
   name: string;
@@ -15,6 +21,24 @@ export interface Cell {
   count: number;
   capacity: number;
   trader: boolean;
+  sources?: SourceNote[];
+}
+
+export interface Here {
+  system: string;
+  allegiance: string;
+  population: number;
+  hge_signal: boolean;
+  pool: { id: string; name: string }[];
+  line: string;
+}
+
+export interface FarmLine {
+  id: string;
+  name: string;
+  count: number;
+  capacity: number;
+  summary: string;
 }
 
 export interface GroupView {
@@ -37,6 +61,8 @@ export interface Inventory {
   snapshot_ts: string | null;
   kinds: KindView[];
   other: Cell[];
+  here?: Here | null;
+  farm?: FarmLine[];
 }
 
 export async function loadMaterials(): Promise<Inventory> {

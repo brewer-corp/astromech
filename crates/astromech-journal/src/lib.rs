@@ -47,6 +47,9 @@ pub enum JournalEvent {
         star_system: String,
         body: Option<String>,
         docked: bool,
+        allegiance: String,
+        population: i64,
+        factions: Vec<FactionSnap>,
     },
     ApproachBody {
         star_system: String,
@@ -59,6 +62,16 @@ pub enum JournalEvent {
     FsdJump {
         star_system: String,
         jump_dist: f64,
+        allegiance: String,
+        population: i64,
+        factions: Vec<FactionSnap>,
+        /// True for `CarrierJump` (stay docked; do not clear station).
+        from_carrier: bool,
+    },
+    /// FSS signal in the current system (`FSSSignalDiscovered`).
+    FssSignal {
+        uss_type: String,
+        high_grade: bool,
     },
     Docked {
         station_name: String,
@@ -91,6 +104,16 @@ pub struct MaterialStack {
     pub name_localised: Option<String>,
     pub count: i64,
     pub category: Option<String>,
+}
+
+/// One minor faction on `Location` / `FSDJump` / `CarrierJump`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FactionSnap {
+    pub name: String,
+    pub allegiance: String,
+    pub state: String,
+    pub influence: f64,
+    pub active_states: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -165,13 +188,28 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             star_system: s(&raw, "StarSystem"),
             body: opt_s(&raw, "Body"),
             docked: raw.get("Docked").and_then(|x| x.as_bool()).unwrap_or(false),
+            allegiance: system_allegiance(&raw),
+            population: population(&raw),
+            factions: factions(&raw),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
-        "FSDJump" => JournalEvent::FsdJump {
+        "FSDJump" | "CarrierJump" => JournalEvent::FsdJump {
             star_system: s(&raw, "StarSystem"),
             jump_dist: raw.get("JumpDist").and_then(|x| x.as_f64()).unwrap_or(0.0),
+            allegiance: system_allegiance(&raw),
+            population: population(&raw),
+            factions: factions(&raw),
+            from_carrier: event == "CarrierJump",
         },
+        "FSSSignalDiscovered" => {
+            let uss_type = opt_s(&raw, "USSType")
+                .or_else(|| opt_s(&raw, "SignalType"))
+                .or_else(|| opt_s(&raw, "SignalName"))
+                .unwrap_or_default();
+            let localised = opt_s(&raw, "USSType_Localised").or_else(|| opt_s(&raw, "SignalType_Localised"));
+            JournalEvent::FssSignal { high_grade: is_high_grade(&uss_type, localised.as_deref()), uss_type }
+        }
         "Docked" => JournalEvent::Docked { station_name: s(&raw, "StationName"), star_system: s(&raw, "StarSystem") },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
         "Materials" => JournalEvent::Materials {
@@ -206,6 +244,44 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         _ => JournalEvent::Other { event, raw },
     };
     Ok(JournalLine { timestamp, event: ev })
+}
+
+fn system_allegiance(v: &serde_json::Value) -> String {
+    opt_s(v, "SystemAllegiance").or_else(|| opt_s(v, "Allegiance")).unwrap_or_default()
+}
+
+fn population(v: &serde_json::Value) -> i64 {
+    opt_i(v, "Population").unwrap_or(0)
+}
+
+fn factions(v: &serde_json::Value) -> Vec<FactionSnap> {
+    v.get("Factions")
+        .and_then(|x| x.as_array())
+        .map(|a| {
+            a.iter()
+                .map(|f| {
+                    let active_states = f
+                        .get("ActiveStates")
+                        .and_then(|x| x.as_array())
+                        .map(|st| st.iter().filter_map(|s| opt_s(s, "State")).collect())
+                        .unwrap_or_default();
+                    FactionSnap {
+                        name: s(f, "Name"),
+                        allegiance: s(f, "Allegiance"),
+                        state: s(f, "FactionState"),
+                        influence: opt_f(f, "Influence").unwrap_or(0.0),
+                        active_states,
+                    }
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn is_high_grade(uss_type: &str, localised: Option<&str>) -> bool {
+    let blob = format!("{} {}", uss_type, localised.unwrap_or("")).to_ascii_lowercase();
+    let compact: String = blob.chars().filter(|c| c.is_ascii_alphanumeric()).collect();
+    compact.contains("highgradeemission")
 }
 
 fn empty_stack() -> MaterialStack {
@@ -344,7 +420,17 @@ mod tests {
             r#"{ "timestamp":"2026-10-10T20:00:00Z", "event":"FSDJump", "StarSystem":"Sol", "JumpDist":8.5 }"#,
         )
         .unwrap();
-        assert_eq!(l.event, JournalEvent::FsdJump { star_system: "Sol".into(), jump_dist: 8.5 });
+        assert_eq!(
+            l.event,
+            JournalEvent::FsdJump {
+                star_system: "Sol".into(),
+                jump_dist: 8.5,
+                allegiance: String::new(),
+                population: 0,
+                factions: vec![],
+                from_carrier: false,
+            }
+        );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
         assert!(matches!(l.event, JournalEvent::Other { ref event, .. } if event == "SomethingNew"));
         assert!(parse_line("{ truncated").is_err());
@@ -433,5 +519,36 @@ mod tests {
         )
         .unwrap();
         assert_eq!(r.systems, vec!["Sol", "Barnard's Star"]);
+    }
+
+    #[test]
+    fn jump_carries_factions_and_hge_signal() {
+        let l = parse_line(
+            r#"{ "timestamp":"t", "event":"FSDJump", "StarSystem":"Shinrarta Dezhra", "SystemAllegiance":"Federation", "Population":85262351, "JumpDist":12.1, "Factions":[{"Name":"The Pilots Federation","Allegiance":"Federation","FactionState":"None","Influence":0.61,"ActiveStates":[]},{"Name":"Empire Cutters","Allegiance":"Empire","FactionState":"Boom","Influence":0.12,"ActiveStates":[{"State":"Boom"}]}] }"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::FsdJump { star_system, allegiance, population, factions, .. } => {
+                assert_eq!(star_system, "Shinrarta Dezhra");
+                assert_eq!(allegiance, "Federation");
+                assert_eq!(population, 85262351);
+                assert_eq!(factions[0].allegiance, "Federation");
+                assert_eq!(factions[1].active_states, vec!["Boom"]);
+            }
+            _ => panic!("expected FSDJump"),
+        }
+        let l = parse_line(
+            r#"{ "timestamp":"t", "event":"FSSSignalDiscovered", "USSType":"$USS_Type_HighGradeEmissions;", "USSType_Localised":"High Grade Emissions" }"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::FssSignal { high_grade, .. } => assert!(high_grade),
+            _ => panic!("expected FSS"),
+        }
+        let l = parse_line(
+            r#"{ "timestamp":"t", "event":"CarrierJump", "StarSystem":"Alioth", "SystemAllegiance":"Alliance", "Population":1000 }"#,
+        )
+        .unwrap();
+        assert!(matches!(l.event, JournalEvent::FsdJump { from_carrier: true, ref star_system, .. } if star_system == "Alioth"));
     }
 }

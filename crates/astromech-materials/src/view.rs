@@ -1,7 +1,9 @@
 //! Trader-style grids for the app window.
 
 use crate::catalog::{self, Kind, Spec};
+use crate::hge::{self, Here, SourceNote};
 use crate::ledger::Ledger;
+use astromech_journal::{JournalEvent, JournalLine};
 use serde::Serialize;
 use std::path::Path;
 
@@ -11,6 +13,19 @@ pub struct Inventory {
     pub snapshot_ts: Option<String>,
     pub kinds: Vec<KindView>,
     pub other: Vec<Cell>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub here: Option<Here>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub farm: Vec<FarmLine>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct FarmLine {
+    pub id: String,
+    pub name: String,
+    pub count: i64,
+    pub capacity: i64,
+    pub summary: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -41,6 +56,8 @@ pub struct Cell {
     pub count: i64,
     pub capacity: i64,
     pub trader: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<SourceNote>,
 }
 
 impl Cell {
@@ -55,12 +72,13 @@ impl Cell {
             count: ledger.count(s.id),
             capacity: catalog::capacity(s.grade),
             trader: s.on_trader,
+            sources: hge::sources_for(s),
         }
     }
 }
 
 pub fn trader_view(ledger: &Ledger, source: impl Into<String>) -> Inventory {
-    let kinds =
+    let kinds: Vec<KindView> =
         [Kind::Raw, Kind::Manufactured, Kind::Encoded].into_iter().map(|kind| kind_view(ledger, kind)).collect();
     let mut other: Vec<Cell> = catalog::catalog()
         .iter()
@@ -79,10 +97,33 @@ pub fn trader_view(ledger: &Ledger, source: impl Into<String>) -> Inventory {
             count: n,
             capacity: catalog::capacity(1),
             trader: false,
+            sources: vec![],
         });
     }
     other.sort_by(|a, b| a.group.cmp(&b.group).then_with(|| a.name.cmp(&b.name)));
-    Inventory { source: source.into(), snapshot_ts: ledger.snapshot_ts.clone(), kinds, other }
+    let farm = farm_lines(&kinds);
+    Inventory { source: source.into(), snapshot_ts: ledger.snapshot_ts.clone(), kinds, other, here: None, farm }
+}
+
+fn farm_lines(kinds: &[KindView]) -> Vec<FarmLine> {
+    let Some(man) = kinds.iter().find(|k| k.id == "manufactured") else { return vec![] };
+    let mut lines: Vec<FarmLine> = man
+        .groups
+        .iter()
+        .flat_map(|g| g.cells.iter())
+        .filter(|c| c.grade >= 4 && c.count < c.capacity)
+        .filter_map(|c| {
+            let summary = c.sources.iter().find(|n| n.kind == "hge")?.summary.clone();
+            Some(FarmLine { id: c.id.clone(), name: c.name.clone(), count: c.count, capacity: c.capacity, summary })
+        })
+        .collect();
+    lines.sort_by(|a, b| {
+        let fa = a.count as f64 / a.capacity.max(1) as f64;
+        let fb = b.count as f64 / b.capacity.max(1) as f64;
+        fa.partial_cmp(&fb).unwrap_or(std::cmp::Ordering::Equal).then_with(|| a.name.cmp(&b.name))
+    });
+    lines.truncate(8);
+    lines
 }
 
 fn kind_view(ledger: &Ledger, kind: Kind) -> KindView {
@@ -121,5 +162,30 @@ pub fn from_journal_dir(dir: &Path) -> Inventory {
         Some(ts) => format!("journal snapshot {ts}"),
         None => format!("no Materials event in {}", dir.display()),
     };
-    trader_view(&ledger, source)
+    let mut v = trader_view(&ledger, source);
+    v.here = here_from_journal_dir(dir);
+    v
+}
+
+fn is_system_event(ev: &JournalEvent) -> bool {
+    matches!(ev, JournalEvent::Location { .. } | JournalEvent::FsdJump { .. })
+}
+
+/// Last `Location` / `FSDJump` / `CarrierJump` plus later FSS cues. Newest journal first.
+fn here_from_journal_dir(dir: &Path) -> Option<hge::Here> {
+    let mut logs = astromech_journal::journal_logs(dir);
+    logs.reverse();
+    let mut after: Vec<JournalLine> = vec![];
+    for p in logs {
+        let lines = astromech_journal::parse_file(&p);
+        if let Some(i) = lines.iter().rposition(|l| is_system_event(&l.event)) {
+            let mut suffix = lines[i..].to_vec();
+            suffix.extend(after);
+            return hge::here_from_lines(&suffix);
+        }
+        let mut combined = lines;
+        combined.extend(after);
+        after = combined;
+    }
+    hge::here_from_lines(&after)
 }

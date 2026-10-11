@@ -428,7 +428,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak.",
+                  "hint": "Independent or Alliance systems in Outbreak, population about a million or more."
+                }
+              ]
             }
           ]
         },
@@ -488,7 +495,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO."
+                }
+              ]
             }
           ]
         },
@@ -548,7 +562,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                }
+              ]
             }
           ]
         },
@@ -608,7 +629,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "not_hge",
+                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader.",
+                  "hint": "Trade up at a manufactured trader, or look at mission rewards."
+                }
+              ]
             }
           ]
         },
@@ -668,7 +696,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest.",
+                  "hint": "Independent or Alliance systems in Civil Unrest. Check Contacts → INFO."
+                }
+              ]
             }
           ]
         },
@@ -728,7 +763,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO."
+                }
+              ]
             }
           ]
         },
@@ -788,7 +830,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Empire faction.",
+                  "hint": "Prefer high-population Empire systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                }
+              ]
             }
           ]
         },
@@ -837,7 +886,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by a Federation faction.",
+                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                }
+              ]
             },
             {
               "id": "fedcorecomposites",
@@ -848,7 +904,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by a Federation faction.",
+                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                }
+              ]
             }
           ]
         },
@@ -908,7 +971,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "not_hge",
+                  "summary": "Not at High Grade Emissions. Missions or a manufactured trader.",
+                  "hint": "Trade up at a manufactured trader, or look at mission rewards."
+                }
+              ]
             }
           ]
         },
@@ -957,7 +1027,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                }
+              ]
             },
             {
               "id": "protoradiolicalloys",
@@ -968,7 +1045,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "hge",
+                  "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                }
+              ]
             }
           ]
         }
@@ -1353,5 +1437,80 @@
       "capacity": 6000
     }
   ],
-  "other": []
+  "other": [],
+  "here": {
+    "system": "Shinrarta Dezhra",
+    "allegiance": "Federation",
+    "population": 85262351,
+    "hge_signal": true,
+    "pool": [
+      {
+        "id": "fedproprietarycomposites",
+        "name": "Proprietary Composites"
+      },
+      {
+        "id": "fedcorecomposites",
+        "name": "Core Dynamics Composites"
+      }
+    ],
+    "line": "Shinrarta Dezhra · Federation · pop 85M · HGEs here: Proprietary Composites / Core Dynamics Composites · High Grade Emissions on the scanner"
+  },
+  "farm": [
+    {
+      "id": "fedcorecomposites",
+      "name": "Core Dynamics Composites",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by a Federation faction."
+    },
+    {
+      "id": "imperialshielding",
+      "name": "Imperial Shielding",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by an Empire faction."
+    },
+    {
+      "id": "improvisedcomponents",
+      "name": "Improvised Components",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest."
+    },
+    {
+      "id": "militarygradealloys",
+      "name": "Military Grade Alloys",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+    },
+    {
+      "id": "militarysupercapacitors",
+      "name": "Military Supercapacitors",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by a faction in War or Civil War."
+    },
+    {
+      "id": "pharmaceuticalisolators",
+      "name": "Pharmaceutical Isolators",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
+    },
+    {
+      "id": "fedproprietarycomposites",
+      "name": "Proprietary Composites",
+      "count": 0,
+      "capacity": 150,
+      "summary": "High Grade Emissions spawned by a Federation faction."
+    },
+    {
+      "id": "protoheatradiators",
+      "name": "Proto Heat Radiators",
+      "count": 0,
+      "capacity": 100,
+      "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom."
+    }
+  ]
 }

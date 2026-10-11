@@ -50,6 +50,9 @@
       Reading the journal…
     {/if}
   </p>
+  {#if kindId === "manufactured" && inv?.here}
+    <p class="sub here">{inv.here.line}</p>
+  {/if}
 
   {#if kindId === "other" && inv}
     <div class="other">
@@ -63,6 +66,7 @@
       {/each}
     </div>
   {:else if kind}
+    <div class="main">
     <div class="grid" style:--cols={kind.grades.length}>
       <div class="corner"></div>
       {#each kind.grades as g (g)}
@@ -78,6 +82,18 @@
         {/each}
       {/each}
     </div>
+    {#if kindId === "manufactured" && inv?.farm && inv.farm.length}
+      <ul class="farm">
+        {#each inv.farm as f (f.id)}
+          <li>
+            <button class:on={selId === f.id} onclick={() => pick(f.id)}>{f.name}</button>
+            <span class="q">{f.count}/{f.capacity}</span>
+            <span class="lo">{f.summary}</span>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+    </div>
   {/if}
 
   <aside class="about">
@@ -86,6 +102,12 @@
       <p>Grade {sel.grade} · {sel.rarity}</p>
       <p>{sel.kind === "raw" ? "Raw" : sel.kind === "encoded" ? "Encoded" : "Manufactured"} · {sel.group}</p>
       <p class="qty">{sel.count} / {sel.capacity}</p>
+      {#if sel.sources?.length}
+        {#each sel.sources as s, i (i)}
+          <p>{s.summary}</p>
+          <p class="lo">{s.hint}</p>
+        {/each}
+      {/if}
       <p class="lo">{sel.trader ? "Shown on the matching material trader." : "Not traded at material traders."}</p>
     {:else}
       <h3>{kind?.title ?? "Materials"}</h3>
@@ -104,6 +126,12 @@
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
+  .here { margin-top: -8px; color: var(--text); }
+  .main { min-width: 0; }
+  .farm { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .farm li { display: grid; grid-template-columns: 12rem 5rem 1fr; gap: 10px; align-items: baseline; font-size: var(--fs-s); }
+  .farm button { color: var(--text); }
+  .farm button:hover, .farm .on { color: var(--accent); }
   .grid { display: grid; grid-template-columns: 11rem repeat(var(--cols), minmax(7.5rem, 1fr)); gap: var(--gap); align-content: start; }
   .gh, .rh, .corner { min-height: var(--row); display: flex; align-items: center; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .gh { justify-content: center; }
