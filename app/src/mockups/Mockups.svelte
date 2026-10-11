@@ -6,7 +6,8 @@
   import Settings from "./Settings.svelte";
   import TrayMenu from "./TrayMenu.svelte";
   import ActivityView from "./ActivityView.svelte";
-  const pages = { activities: ActivityView, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
+  import ShipDiagram from "./ShipDiagram.svelte";
+  const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
   window.addEventListener("hashchange", () => (id = read()));

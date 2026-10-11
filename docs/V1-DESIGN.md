@@ -5,6 +5,12 @@ the gear-down CLI preview (PR #1, 93687e5), Sumeet's real-game rounds, his revie
 revision 1, `ARCHITECTURE.md` v0.13 and `KEYBINDS.md` v0.7. This document decides what v1 *is*;
 the architecture doc stays the reference for how the pieces work inside.
 
+**Revision 4 (10 Oct, 11:59 PM ET).**
+- The VKB sheets are recoloured to the app's dark palette by a build script, so they no longer
+  glare. The stick photo is cut out automatically and gets a thin outline (§3.2).
+- Ship part diagrams are planned for after v1: a ship drawing with lines from its parts to their
+  bindings, as another way to view each activity. Plan and a concept sketch in §3.4.
+
 **Revision 3 (10 Oct, 11:30 PM ET).** Sumeet's notes on revision 2:
 - Use VKB's reference sheets directly. They're made for players to use, and this is a
   non-commercial hobby project. We bundle them with credit.
@@ -106,6 +112,7 @@ those problems; see §3 for why this beats a pictorial main view.
 ### 1.3 Later (with the reason)
 | Item | Why not v1 |
 |---|---|
+| Ship, SRV and suit part diagrams (§3.4) | Wanted, and planned. Needs original line art and a label layout engine; Activities on the sticks covers discovery for v1. |
 | Full binds editor (drag-to-rebind any action, conflict resolution, curves/deadzones) | The viewer + health check + "add keyboard key" covers the pain; a full editor needs much more testing against Elite's file quirks. |
 | Tier-2 voice (FSD, docking request, heat sink, plotting) | Needs the confirm flow, more game-behaviour measurement, and has EULA questions for anything automated. |
 | Second-screen web dashboard | The window covers it. |
@@ -238,6 +245,19 @@ sheets** (`data/devices/vkb/`, credited to VKB Gaming and the sheet designer, Un
 write into VKB's own boxes. The box positions come from the PDF itself (its form fields), so
 labels land exactly where VKB put the boxes.
 
+**Recoloured to match the app.** `scripts/recolour-sheets.py` runs at build time and writes the
+PNGs the app shows (`app/public/devices/vkb/`). For each bundled PDF it:
+1. Renders the page at a fixed **150 DPI**, so one PDF point is 150/72 px. The app places labels
+   using page points, so the form-field boxes from the device maps stay valid at any size.
+2. Cuts out the stick photo with **rembg** (the `isnet-general-use` model, CPU, about 3 s per
+   sheet). It keeps the largest blob, which drops stray text and lines.
+3. Recolours the rest by layer: white page → window black; grey table headers → the dark option
+   cell; empty boxes → the dark unbound cell; black text and lines → light grey; red leader lines
+   → muted orange; the blue Discord link → grey.
+4. Lifts the photo's shadows so the black stick reads on black, and draws a 2 px grey outline
+   round it.
+The PDFs stay in the repo unchanged, with VKB's credit. Rerun the script whenever a sheet changes.
+
 **Stock button numbers.** VKB sticks ship with a factory profile, so the numbers are known. We
 ship them as built-in maps:
 - `data/devices/vkb/gladiator-evo-r.231D0200.json`
@@ -358,6 +378,64 @@ really unbound in his preset is unknown until we read the whole file.
 
 ---
 
+### 3.4 Later: ship, SRV and suit diagrams
+**What it is.** A drawing of the ship with thin lines from its parts to boxes showing their
+bindings: lights, landing gear, hardpoints, cargo scoop, FSD, thrusters, shields, sensors,
+cockpit panels. The same for the SRV and the suit. It's how people think ("how do I lower the
+gear?"), it's the most game-like view, and pictures help people find controls faster than lists.
+
+**How it fits.** Each activity gets a second view: **Sticks · Ship** (or SRV / Suit for those
+activities). Same actions, same "not bound yet" list, same "Bind this". Sticks shows *where your
+hands go*; Ship shows *what it does*. Not every action has a part (galaxy map, panels): those sit
+in a plain "Cockpit" box near the canopy.
+
+**Art.**
+- Our own line art, not Frontier's models or screenshots. One **generic hull** first, then the
+  SRV (Scarab) and a suit, all generic. Per-hull drawings (Cobra, Krait, …) come later, only if
+  people want them.
+- SVG, three-quarter view from above, so the belly, top and sides all show.
+- Each drawing has an **anchor file**: part id → point on the drawing, plus which side its label
+  should go. Example: `landing_gear: {at: [352, 352], side: "left"}`. Each action in the
+  catalogue lists the part it belongs to (`LandingGearToggle → landing_gear`).
+
+**Label layout.**
+1. Put each label on its preferred side (left or right of the hull, or above/below).
+2. Sort each side by the anchor's height and push labels apart to a minimum gap (one pass, like
+   the game's own lists). Keep them as close to their anchor's height as possible.
+3. Draw each leader as two straight segments: from the part dot to a bend 24 px from the box, then
+   level into the box. No curves.
+4. If two leaders cross, swap their labels and redo step 2. Repeat a few times. With 10–20 labels
+   this is instant.
+5. Labels never cover the hull. If a side is full, overflow goes above or below.
+
+**Interaction.**
+- Pressing a control highlights its part: the dot fills, the leader turns orange, the box gets an
+  outline.
+- Clicking a part (or its box) selects that action; "Bind this" then waits for a press.
+- Unbound important actions: hollow dot, dashed orange leader, box says "Not bound · Bind this".
+
+**Style.** Elite's stock orange only. Hull lines in orange at full strength for the outline and dim
+orange for panel lines; a very faint orange fill, like the game's hologram ship panels. Leaders in
+grey; part dots in orange. Boxes are the same filled cells as the list. No glow, no animation
+beyond the highlight.
+
+**Effort (after v1).**
+| Work | Effort |
+|---|---|
+| Diagram component: SVG, anchor file, layout and crossing fix, highlight and bind | ~1 week |
+| Generic ship line art + anchors for all ship activities | ~1 week |
+| SRV and suit line art + anchors | ~1 week |
+| Part ids in the catalogue, testing at different window sizes | ~3 days |
+| **Total** | **~3.5 weeks** |
+| Each extra per-hull drawing | ~2–3 days |
+
+**Concept sketch:** `docs/design/mockup-ship.png` (`ShipDiagram.svelte`). Docking & landing on a
+generic ship drawn in side view, marked as a concept, with example bindings. It shows lights,
+landing gear (front and rear), top, belly, side and main thrusters, all stop, night vision and
+the left panel (to request docking). The real version would use the three-quarter view.
+
+---
+
 ## 4. Visual system
 
 Derived from the game's Options → Controls screen (colours sampled from Sumeet's screenshot).
@@ -410,6 +488,7 @@ Static Svelte pages (open `#/mockup/<id>`), rendered with `scripts/mockup-shots.
 | Mockup | File | Screenshot |
 |---|---|---|
 | All keybinds (full list) | `app/src/mockups/KeybindsList.svelte` | `docs/design/mockup-keybinds.png` |
+| Concept: Docking & landing ship diagram (after v1) | `ShipDiagram.svelte` | `docs/design/mockup-ship.png` |
 | Activities: Exploration, on his VKB pair | `ActivityView.svelte`, `Sheet.svelte` | `docs/design/mockup-activities.png` |
 | My controller (VKB sheet) | `MyController.svelte`, `Sheet.svelte` | `docs/design/mockup-controller.png` |
 | Settings (one list) | `Settings.svelte` | `docs/design/mockup-settings.png` |
@@ -435,15 +514,20 @@ Still noisier than the game (and what I changed):
 - The tray menu 2a showed "Pause voice" ticked under "voice ready". **Fixed.**
 - Two rows of filter toggles (contexts and All/Issues/Unbound) above the column heads are one
   more line than the game has; kept, because they replace the game's separate context menus.
-- The VKB sheet is a bright paper page inside a dark window. That's a deliberate trade:
-  accuracy over aesthetics; it's VKB's document, shown as VKB made it.
-- Activities (rev 3): the VKB sheets are bright paper pages in a dark window, and VKB's photo
-  and red leader lines are busier than anything else on screen. That's the cost of using the
-  real sheet, and it's worth it: you see your actual stick. **Fixed what we control:** the sheet
-  is dimmed slightly (90% brightness) to cut glare; actions outside the activity are grey, so
-  the orange boxes stand out; no extra frames, legends or colours around the sheets.
-- Rev 3a used light grey text for every binding on the sheet, which was hard to read.
-  **Fixed:** dark text normally, grey only for "not in this activity".
+- Rev 4, sheets recoloured: the white flashbang is gone. Headers, boxes and text now use the
+  list's own cells and greys, so the sheet reads as part of the window. The orange "in this
+  activity" boxes stand out more than before, because nothing else on the sheet is bright.
+- Rev 4a mapped empty boxes to the bound-cell brown. Every box was brown, the sheet looked
+  busy, and bound and empty looked alike. **Fixed:** empty boxes use the darker unbound cell,
+  like the game's empty slots.
+- Rev 4a turned VKB's bold title letters into hollow outlines. **Fixed:** thick strokes now
+  find their background from a wider area.
+- Still busier than the game: VKB's photo and leader lines. Red leader lines *on top of* the
+  photo stay red, because the script can't tell them from the red A2 button. Small; left as is.
+- Ship concept: the drawing is flat and side-on, so it leaves empty space above and below, and
+  some leaders cross. The planned layout pass (§3.4) and a three-quarter view fix both.
+- Binding text on the sheets is light grey on the dark boxes; grey only for "not in this
+  activity".
 - Rev 3a printed hat directions ("Up") in the number box for the ministick. **Fixed:** `P1`
   (POV 1); axes have no number box.
 - Upper-case row labels are copied from the game for familiarity, though they read slower than
@@ -601,7 +685,7 @@ Rough effort for one developer working with an agent; Sumeet tests at each miles
 |---|---|---|---|
 | **M0 Foundation** | Core as tray app (native menu, single instance, autostart, game watcher, idle/active), core↔shell API, shell frame with the visual system, logs, NSIS per-user installer, release CI | ~1.5 weeks | Install without admin; tray at login; voice wakes when Elite starts |
 | **M1 Keybinds list** | All keybinds (groups, search, pressing a control, inline health), about panel, Presets, backups, "assign a key in a copy" | ~3 weeks | He finds any binding in under 10 s and every health issue says how to fix it |
-| **M2 Sheets and activities** | Bundled VKB sheets and stock maps, My controller, Activities with the catalogue, "Bind this", the remapped-control question | ~2 weeks | Both sticks show the right actions in the right boxes with no setup; he finds "Target next system in route" from Exploration |
+| **M2 Sheets and activities** | Bundled VKB sheets (recoloured) and stock maps, My controller, Activities with the catalogue, "Bind this", the remapped-control question | ~2 weeks | Both sticks show the right actions in the right boxes with no setup; he finds "Target next system in route" from Exploration |
 | **M3 Voice v1** | Chosen mic, level correction, calibration step, personal phrase learning, extra T1 commands, status questions, eval harness on clips saved via the Debug setting | ~2–3 weeks | At least 95% correct execute-or-ask on his VR clip set |
 | **M4 Onboarding, Settings, Diagnostics** | Onboarding flow, the settings list, key tester, diagnostics bundle, callouts | ~1.5 weeks | Fresh install to working gear-down by voice in under 5 minutes |
 | **M5 Release** | Polish from testing, README | ~1 week | v1.0 on GitHub Releases |

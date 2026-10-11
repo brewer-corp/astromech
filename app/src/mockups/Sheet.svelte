@@ -30,11 +30,11 @@
 
 <style>
   .sheet { position: relative; }
-  img { width: 100%; height: 100%; display: block; filter: brightness(0.9); }
-  span { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--font); color: #222; }
-  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: #555; }
-  .txt { padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: #2a2a2a; }
-  .txt.dim { color: #767676; }
+  img { width: 100%; height: 100%; display: block; }
+  span { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--font); }
+  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--text-lo); }
+  .txt { padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--text); }
+  .txt.dim { color: var(--text-lo); }
   .txt b { font-weight: 500; }
   .txt i { font-style: normal; margin-left: auto; }
   .txt.hi { background: var(--accent); color: #000; }
