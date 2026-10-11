@@ -96,7 +96,7 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
             crate::update::Status::Checking | crate::update::Status::Downloading | crate::update::Status::Applying
         ));
         if let Some(v) = &snap.latest {
-            install.set_text(&format!("Install update {v}"));
+            install.set_text(format!("Install update {v}"));
         }
         let now = (core.crash.lock().unwrap().is_some(), app::models_missing(&core.cfg), snap.ready);
         if now != *shape {
