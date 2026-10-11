@@ -26,6 +26,7 @@ threads = 4                   # S9: 4 was fastest on a Ryzen 9 7900X
 tts = true                    # speak confirmations with Kokoro; false = print only
 speaker_id = 0
 speed = 1.0
+# colour = "cockpit"          # planned M3 (V1-DESIGN §6.4): natural | cockpit | harsh. Default cockpit.
 pre_roll_ms = 150
 post_roll_ms = 200
 min_hold_ms = 300              # shorter PTT taps are ignored
