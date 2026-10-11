@@ -1,6 +1,6 @@
-# astromech, an Elite Dangerous copilot: architecture (v0.11 draft)
+# astromech, an Elite Dangerous copilot: architecture (v0.14 draft)
 
-*Revised 10 Oct 2026, 6:45 PM ET (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
+*Revised 11 Oct 2026 (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
 
 **Project name.** **astromech** (v0.10; it replaces the earlier `helm` placeholder). Crates are `astromech-*`. Repo: https://github.com/spadaval/astromech.
 
@@ -13,6 +13,7 @@
 - **Decision**: an opinionated call. It can be revisited if a spike says otherwise.
 
 **Revision history**
+- **v0.14 (11 Oct):** **Voice colour.** Spoken replies stay on Kokoro; a cockpit-PA DSP chain (the §5.10 "radio DSP") is the v1 default so they sit in the same register as Elite's COVAS. Product decision in V1-DESIGN.md §6.4. Current playback is still unprocessed `PlaySoundW`; DSP ships in M3.
 - **v0.1 (8 Oct, morning):** first draft.
 - **v0.2 (8 Oct, evening):** applies Sumeet's answers.
   - MVP voice is local only, with push-to-talk and no wake word. Cloud realtime voice becomes a later, opt-in phase.
@@ -66,7 +67,7 @@
 2. **Optional second-screen web dashboard.** The core serves it over a local WebSocket. **The dashboard is never required.** (v0.7: it shows modules of the same Svelte/TS frontend as the app window, §18.)
 3. **The MVP's voice is local only.**
    - Speech-to-text: sherpa-onnx with **Parakeet**.
-   - Speech output: **Kokoro**.
+   - Speech output: **Kokoro**, coloured as a cockpit PA by default (v0.14, V1-DESIGN.md §6.4).
    - Activation: **simple push-to-talk**. There is no wake word or always-on listening in the MVP.
    - Cloud full-duplex voice (`gpt-live-1` or an alternative) is kept as a `VoiceSession` trait for a **later, optional, opt-in phase**. It is never the default, and the user supplies their own API key.
 4. **Controller-agnostic controls.** Push-to-talk, the kill switch and confirm/cancel can be bound to **any keyboard key, mouse button, or HOTAS, joystick or gamepad button**. No specific device is targeted.
@@ -235,7 +236,7 @@ astromech/
   app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)
   scripts/check-deps.py  CI dependency-rule check
   spikes/                source of the spike tools (s1-ui, s5, s6, s7-input-listener, s7-s9, s8, k0)
-  docs/                  this file, KEYBINDS.md, REPORT.md, diagrams/
+  docs/                  this file, KEYBINDS.md, REPORT.md, COMPETITORS.md, diagrams/
 ```
 
 **Dependency rules** (enforced in CI by `scripts/check-deps.py`):
@@ -437,7 +438,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 - **Audio graph:**
   - The `cpal` input callback (48 kHz) pushes into an SPSC `ringbuf` **only while push-to-talk is held**, plus a 200 ms pre-roll buffer so a word started slightly before the press isn't clipped.
   - On release, the utterance is resampled to 16 kHz with `rubato`, trimmed with Silero VAD (sherpa-onnx), and sent to the STT worker.
-  - The output mixer runs in the `cpal` output callback and mixes local TTS and earcons, with priority, ducking, and cutting off TTS on a new push-to-talk press. An optional radio DSP effect is available.
+  - The output mixer runs in the `cpal` output callback and mixes local TTS and earcons, with priority, ducking, and cutting off TTS on a new push-to-talk press. **Voice colour** (the radio DSP) is applied here, and to the pre-rendered confirmation cache, so live and cached lines match. Until M3, the gear-down preview plays raw Kokoro WAVs with `PlaySoundW` and has no mixer.
   - The later cloud phase adds a third mixer input (24 kHz PCM16 model audio) and a 24 kHz uplink. Neither exists in the MVP.
 - **Push-to-talk semantics:**
   - Hold-to-talk by default; toggle mode is optional.
@@ -457,9 +458,15 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - **Packaging:** the STT/TTS engine runs in a **separate worker process** with sherpa-onnx linked **statically** (no runtime DLLs, so no DLL-search problems). One crash-isolated helper keeps the main exe free of native ML code.
 - **TTS worker:**
   - **Kokoro-82M** through sherpa-onnx `OfflineTts`.
-  - **Pre-render** fixed confirmations ("Gear down", "Lights on", "Didn't catch that", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries).
+  - **Pre-render** fixed confirmations ("Landing gear deployed.", "Lights on.", "Didn't catch that.", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries). Cache after colouring.
+  - **Voice colour (v0.14).** Kokoro talks like a person; Elite's COVAS (Verity / Victor) is a treated ship computer. Default colour **Cockpit** so astromech sits in the same register, not as a crewmate and not as a protocol droid. Product write-up: V1-DESIGN.md §6.4.
+    - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus existing `speaker_id` and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
+    - Cockpit chain on the PCM, in order: high-pass ~250 Hz, low-pass ~4 kHz; presence bump ~1.5–2 kHz; compressor; soft saturation (optional 16 kHz downsample/upsample); 1–2 ms comb; then a short two-tone pip (own earcon). Harsh is the same with a ~3.5 kHz cap and more grit. Natural is unprocessed.
+    - Pure Rust, deterministic, unit-tested on a fixture WAV. Cheap compared with Kokoro; keep first-audio inside the existing S9 budget.
+    - Recreate the register. Do not clone Frontier samples or the actors. No vocoder / ring-mod / R2 chirps as default (Star Wars trap, and the product name already leans that way). eSpeak-ng stays G2P only; a "Classic computer" eSpeak preset may come later.
+    - Copy: impersonal present tense, no contractions. M3 retouches the slice strings ("Landing gear down." → "Landing gear deployed.").
   - ⚠ Licence note: the prebuilt sherpa-onnx 1.x libraries contain GPL-3.0 espeak-ng (verified in S8), and Kokoro in 1.x needs the `espeak-ng-data` folder (GPL-3.0 data) at runtime (§16, §17.3).
-- **Earcons:** short success, failure, listening and confirm-needed tones. They're bundled assets licensed CC0 or self-made.
+- **Earcons:** short success, failure, listening and confirm-needed tones, plus the Cockpit pip. They're bundled assets licensed CC0 or self-made. Never game audio.
 - **Echo:** not an issue in the MVP. Push-to-talk is half-duplex by nature, and we stop TTS when push-to-talk is pressed. Speakers are fine.
 
 ### 5.10a `astromech-input::listen` (any input device: PTT, kill switch, confirm/cancel)
@@ -1113,7 +1120,7 @@ The WebSocket plugin API with scoped tokens, the EDMesg bridge (COVAS:NEXT and E
 Resolved on 8 Oct and removed from this list: voice provider and budget (local only for the MVP), HOTAS device (controller-agnostic), echo (push-to-talk makes it moot), licence (MIT, §16.1), Oculus-native support (dropped), elevation (assume not elevated; warn on mismatch), key → Status latency (S5), journal models (S6), the binary licence and espeak-ng question (S8).
 
 **For Sumeet:**
-1. **Project name and persona:** product name, ship-AI persona, and the default Kokoro voice.
+1. **Project name.** Ship-AI *timbre* is decided (v0.14: Cockpit PA on Kokoro). Product name is still open. Which Kokoro `speaker_id` is the flattest announcer is measured in M3.
 2. **Push-to-talk style:** hold (default) or toggle. Should there be a second binding for "repeat last" or a dedicated confirm button?
 3. **Automation appetite vs EULA:** which opt-in rules he actually wants (auto-next-hop, honk-on-arrival). Each one is a grey-zone call.
 4. **cAPI and Inara:** worth registering with Frontier's Developer Zone, or applying for Inara whitelisting? Neither is needed for the MVP.

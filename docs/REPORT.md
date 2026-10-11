@@ -2,6 +2,8 @@
 
 *Prepared 8 Oct 2026 (America/New_York) for Sumeet. Raw notes (`notes/`) and cloned third-party source (`repos/`) stayed in the research workspace and are not in this repository.*
 
+**Later survey.** Tool landscape as of 11 Oct 2026 (EliteIntel 1.1, COVAS 4.3, Directive 47, AURA, CanopyNav, EDMO, and what to copy) is in [COMPETITORS.md](COMPETITORS.md). This report stays the reference for data sources, `SendInput`, plotting, and EDCoPilot internals.
+
 **How to read this report.** Every claim has a source next to it: a URL, or a repo file path for code I read.
 - **(verified)** means I confirmed it today, either from a live request or the current official document.
 - **(inferred)** means it is my reasoning from public evidence.

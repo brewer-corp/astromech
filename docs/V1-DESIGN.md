@@ -5,6 +5,10 @@ the gear-down CLI preview (PR #1, 93687e5), Sumeet's real-game rounds, his revie
 revision 1, `ARCHITECTURE.md` v0.13 and `KEYBINDS.md` v0.7. This document decides what v1 *is*;
 the architecture doc stays the reference for how the pieces work inside.
 
+**Revision 5 (11 Oct 2026).** Spoken replies stay on Kokoro, coloured as a cockpit PA so they
+sit in the same register as Elite's COVAS (Verity / Victor). Default colour **Cockpit**. Do not
+clone Frontier samples or the actors. Details in §6.4; DSP chain in ARCHITECTURE.md §5.10.
+
 **Revision 4 (10 Oct, 11:59 PM ET).**
 - The VKB sheets are recoloured to the app's dark palette by a build script, so they no longer
   glare. The stick photo is cut out automatically and gets a thin outline (§3.2).
@@ -39,6 +43,11 @@ headline features: a **keybinds manager** (activity pictures on your own sticks 
 what you need, plus the game's Controls list made searchable and honest about problems), and an
 **always-on push-to-talk voice assistant** for hands-on-stick ship toggles and read-only status
 questions. Everything is local. It installs per-user without admin.
+
+**Peers (11 Oct).** A cluster of copilots shipped in Aug–Oct 2026 chasing the same jobs. The
+survey, and a ranked list of properties to copy into this v1 (BindForge-style binds edits,
+PTT-as-gate, router-before-model), is [COMPETITORS.md](COMPETITORS.md). This document still
+decides what v1 *is*.
 
 ---
 
@@ -205,7 +214,8 @@ flow, not a tab.
   - **Push-to-talk**: button.
   - **Kill switch**: button, hold-to-re-arm time.
   - **Microphone**: device, live input level, level correction, calibration ("Run again").
-  - **Voice responses**: spoken confirmations, voice, volume, game event callouts.
+  - **Voice responses**: spoken confirmations, voice colour (Natural / Cockpit / Harsh; default
+    Cockpit, §6.4), speaker, speed, volume, game event callouts.
   - **Debug**: save push-to-talk clips (off), log every input event (off), bounce and
     minimum-clip thresholds (tuning knobs most people never touch).
 - **Last commands / transcripts** → Diagnostics (log view), not the tray.
@@ -588,6 +598,62 @@ Still noisier than the game (and what I changed):
 - Second-pass latency on his Ryzen 9 7900X.
 - Whether SteamVR actually switched his default mic (one look at the log line from step 1).
 
+### 6.4 Voice colour (COVAS register)
+
+Kokoro is surprisingly realistic. That is a problem next to Elite's built-in COVAS: Verity and
+Victor are voice actors (Verity Croft, Simon Paisley Day) treated as a ship computer — British,
+clipped, a bit hollow — and the product name already leans droid. A warm neural voice in the
+same headset is a person talking over the PA.
+
+**Decision:** keep Kokoro (local, already in the worker, 446 ms first audio in S9). Colour the
+PCM so replies sit in the same family as COVAS. Recreate the *register*; never clone Frontier
+audio or the actors.
+
+**What that register is.** Impersonal present-tense callouts, helmet/PA bandwidth, little
+warmth, a short pip then the line. A ship system sitting beside COVAS, not a crewmate and not
+a protocol droid.
+
+**Colour presets** (Settings → Voice responses; also `[voice] colour` in the config). Applied
+to live TTS and to the pre-rendered confirmation cache, so they match.
+
+| Preset | What it does | When |
+|---|---|---|
+| **Natural** | Unprocessed Kokoro, `speed = 1.0` | Debug, or anyone who wants the raw model |
+| **Cockpit** (default) | The chain below, `speed ≈ 0.92–0.95` | v1 default |
+| **Harsh** | Narrower band (~3.5 kHz), more grit | If Cockpit still feels too human |
+
+**Cockpit chain** (in order; numbers are a starting point, tuned by A/B in the headset with
+COVAS in the other ear):
+
+1. High-pass ~250 Hz, low-pass ~4 kHz.
+2. Gentle presence bump ~1.5–2 kHz.
+3. Compressor (even level, less human envelope).
+4. Soft saturation. Optional 16 kHz downsample then upsample.
+5. 1–2 ms comb / tiny metallic delay (hollow helmet).
+6. A short two-tone pip before speech (own CC0/self-made earcon, never a game sample).
+
+A small formant shift is a later knob if Cockpit is still too human. Vocoder, ring-mod, and
+R2-style chirps stay out: they push the name into Star Wars.
+
+**Speaker.** Walk Kokoro's English `speaker_id`s on one line ("Landing gear deployed.") and
+keep the flattest announcer as the Cockpit default. `speaker_id` remains a setting.
+
+**Copy.** Official, short, no contractions, no jokes, little "I" in callouts. Prefer
+"Landing gear deployed." / "already deployed." Refusals stay one clause:
+"Landing gear not available: supercruise." The gear-down slice's strings get a pass in M3.
+
+**Rejected for v1 default**
+
+| Option | Why it waits |
+|---|---|
+| eSpeak-ng as the voice | Already in the worker for G2P. Classic formant GPS, more 1998 computer than Verity. Optional later as "Classic computer". |
+| Piper, SAM, DECtalk, SAPI | Extra models or novelty synths. SAM is the droid trap. |
+| A second neural TTS | Timbre is a treatment problem. |
+| Voice-clone of Verity / Victor | Frontier and actor IP. |
+
+**Where it ships.** DSP and copy pass in **M3**; the Settings row in **M4**. Until then the
+preview still plays raw Kokoro through `PlaySoundW`.
+
 ---
 
 ## 7. Infrastructure
@@ -686,7 +752,7 @@ Rough effort for one developer working with an agent; Sumeet tests at each miles
 | **M0 Foundation** | Core as tray app (native menu, single instance, autostart, game watcher, idle/active), core↔shell API, shell frame with the visual system, logs, NSIS per-user installer, release CI | ~1.5 weeks | Install without admin; tray at login; voice wakes when Elite starts |
 | **M1 Keybinds list** | All keybinds (groups, search, pressing a control, inline health), about panel, Presets, backups, "assign a key in a copy" | ~3 weeks | He finds any binding in under 10 s and every health issue says how to fix it |
 | **M2 Sheets and activities** | Bundled VKB sheets (recoloured) and stock maps, My controller, Activities with the catalogue, "Bind this", the remapped-control question | ~2 weeks | Both sticks show the right actions in the right boxes with no setup; he finds "Target next system in route" from Exploration |
-| **M3 Voice v1** | Chosen mic, level correction, calibration step, personal phrase learning, extra T1 commands, status questions, eval harness on clips saved via the Debug setting | ~2–3 weeks | At least 95% correct execute-or-ask on his VR clip set |
+| **M3 Voice v1** | Chosen mic, level correction, calibration step, personal phrase learning, extra T1 commands, status questions, eval harness on clips saved via the Debug setting, **voice colour** (Cockpit PA DSP + copy pass, §6.4) | ~2–3 weeks | At least 95% correct execute-or-ask on his VR clip set; Cockpit replies sit in the same register as in-game COVAS |
 | **M4 Onboarding, Settings, Diagnostics** | Onboarding flow, the settings list, key tester, diagnostics bundle, callouts | ~1.5 weeks | Fresh install to working gear-down by voice in under 5 minutes |
 | **M5 Release** | Polish from testing, README | ~1 week | v1.0 on GitHub Releases |
 
@@ -752,6 +818,8 @@ Settled with Sumeet before implementation started:
    direction, base wheel axis): resolved later with the key tester (M4), one press each.
 7. **No automatic updates** (manual "Check for updates…" only), **unsigned binaries**, and
    **Elite's stock colours** (no custom theming).
+8. **Voice colour:** Kokoro stays; replies are coloured as a **cockpit PA** (default **Cockpit**,
+   §6.4). Natural and Harsh are the other presets. No Frontier-sample clone, no vocoder default.
 
 Still open, not blocking: activity list and catalogue review (§3.3), VR mic choice, second-pass
-model latency budget, product name.
+model latency budget, product name, which Kokoro `speaker_id` is the flattest announcer.
