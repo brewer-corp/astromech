@@ -1,0 +1,839 @@
+{
+ "device_id": "231D3201",
+ "product": "VKBsim Gladiator EVO OT L",
+ "profile": "VKB factory default",
+ "sheet": {
+  "file": "VKB-Gladiator-SCG-OTA-LH-v1.0.pdf",
+  "title": "VKB Gladiator SCG OTA (LH)",
+  "version": "1.0",
+  "page_pt": [
+   792,
+   612
+  ],
+  "sha256": "76cfcded3271c289e6731c53718a227c1e7cf66883e58993bc5efe40c19d064b",
+  "url": "https://www.vkbgaming.com/wp-content/uploads/2026/03/VKB-Gladiator-SCG-OTA-LH-v1.0.pdf",
+  "credit": "VKB Gaming; sheet design by UntoldForce"
+ },
+ "sources": [
+  "EDRefCard bindingsData.py (MIT), github.com/brammmers/edrefcard2 @ f2e91f8, entry 231D3201",
+  "VKB fillable templates page, vkbgaming.com/fillable-templates (control names and sheet boxes)",
+  "Sumeet's s7 listener runs, 9-10 Oct 2026, and his DualVKB.4.2 preset (controls seen)"
+ ],
+ "confidence_key": {
+  "high": "stock map and seen on his device",
+  "medium": "stock map only",
+  "low": "inferred or unknown; confirm by pressing it"
+ },
+ "controls": [
+  {
+   "control": "Main trigger, stage 1",
+   "sheet_field": "MT_A",
+   "joy": "Joy_1",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     555.6,
+     349.4,
+     577.4,
+     365.2
+    ],
+    "txt": [
+     578.4,
+     349.4,
+     755.0,
+     365.2
+    ]
+   }
+  },
+  {
+   "control": "Main trigger, stage 2",
+   "sheet_field": "MT_B",
+   "joy": "Joy_2",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     332.7,
+     577.4,
+     348.4
+    ],
+    "txt": [
+     578.4,
+     332.7,
+     755.0,
+     348.4
+    ]
+   }
+  },
+  {
+   "control": "A2 red button",
+   "sheet_field": "A2_A",
+   "joy": "Joy_3",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     555.6,
+     466.6,
+     577.4,
+     483.8
+    ],
+    "txt": [
+     578.4,
+     466.6,
+     755.0,
+     483.8
+    ]
+   }
+  },
+  {
+   "control": "B1 side button",
+   "sheet_field": "B1_A",
+   "joy": "Joy_4",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     502.6,
+     81.8,
+     519.8
+    ],
+    "txt": [
+     82.8,
+     502.6,
+     259.4,
+     519.8
+    ]
+   }
+  },
+  {
+   "control": "D1 pinky button",
+   "sheet_field": "D1_A",
+   "joy": "Joy_5",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     167.4,
+     577.4,
+     184.6
+    ],
+    "txt": [
+     578.4,
+     167.4,
+     755.0,
+     184.6
+    ]
+   }
+  },
+  {
+   "control": "A3 centre hat, push",
+   "sheet_field": "A3_A",
+   "joy": "Joy_10",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     60.0,
+     349.4,
+     81.8,
+     365.2
+    ],
+    "txt": [
+     82.8,
+     349.4,
+     259.4,
+     365.2
+    ]
+   }
+  },
+  {
+   "control": "A3 centre hat, up",
+   "sheet_field": "A3_B",
+   "joy": "Joy_6",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     332.7,
+     81.8,
+     348.4
+    ],
+    "txt": [
+     82.8,
+     332.7,
+     259.4,
+     348.4
+    ]
+   }
+  },
+  {
+   "control": "A3 centre hat, down",
+   "sheet_field": "A3_C",
+   "joy": "Joy_8",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     316.0,
+     81.8,
+     331.7
+    ],
+    "txt": [
+     82.8,
+     316.0,
+     259.4,
+     331.7
+    ]
+   }
+  },
+  {
+   "control": "A3 centre hat, left",
+   "sheet_field": "A3_D",
+   "joy": "Joy_9",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     299.2,
+     81.8,
+     315.0
+    ],
+    "txt": [
+     82.8,
+     299.2,
+     259.4,
+     315.0
+    ]
+   }
+  },
+  {
+   "control": "A3 centre hat, right",
+   "sheet_field": "A3_E",
+   "joy": "Joy_7",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     282.5,
+     81.8,
+     298.2
+    ],
+    "txt": [
+     82.8,
+     282.5,
+     259.4,
+     298.2
+    ]
+   }
+  },
+  {
+   "control": "A4 top hat, push",
+   "sheet_field": "A4_A",
+   "joy": "Joy_15",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     459.1,
+     81.8,
+     474.9
+    ],
+    "txt": [
+     82.8,
+     459.1,
+     259.4,
+     474.9
+    ]
+   }
+  },
+  {
+   "control": "A4 top hat, up",
+   "sheet_field": "A4_B",
+   "joy": "Joy_11",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     442.4,
+     81.8,
+     458.1
+    ],
+    "txt": [
+     82.8,
+     442.4,
+     259.4,
+     458.1
+    ]
+   }
+  },
+  {
+   "control": "A4 top hat, down",
+   "sheet_field": "A4_C",
+   "joy": "Joy_13",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     425.7,
+     81.8,
+     441.4
+    ],
+    "txt": [
+     82.8,
+     425.7,
+     259.4,
+     441.4
+    ]
+   }
+  },
+  {
+   "control": "A4 top hat, left",
+   "sheet_field": "A4_D",
+   "joy": "Joy_14",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     408.9,
+     81.8,
+     424.7
+    ],
+    "txt": [
+     82.8,
+     408.9,
+     259.4,
+     424.7
+    ]
+   }
+  },
+  {
+   "control": "A4 top hat, right",
+   "sheet_field": "A4_E",
+   "joy": "Joy_12",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     392.2,
+     81.8,
+     407.9
+    ],
+    "txt": [
+     82.8,
+     392.2,
+     259.4,
+     407.9
+    ]
+   }
+  },
+  {
+   "control": "C1 thumb hat, push",
+   "sheet_field": "C1_A",
+   "joy": "Joy_20",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     284.2,
+     577.4,
+     300.0
+    ],
+    "txt": [
+     578.4,
+     284.2,
+     755.0,
+     300.0
+    ]
+   }
+  },
+  {
+   "control": "C1 thumb hat, up",
+   "sheet_field": "C1_B",
+   "joy": "Joy_16",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     555.6,
+     267.5,
+     577.4,
+     283.2
+    ],
+    "txt": [
+     578.4,
+     267.5,
+     755.0,
+     283.2
+    ]
+   }
+  },
+  {
+   "control": "C1 thumb hat, down",
+   "sheet_field": "C1_C",
+   "joy": "Joy_18",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     250.8,
+     577.4,
+     266.5
+    ],
+    "txt": [
+     578.4,
+     250.8,
+     755.0,
+     266.5
+    ]
+   }
+  },
+  {
+   "control": "C1 thumb hat, left",
+   "sheet_field": "C1_D",
+   "joy": "Joy_19",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     234.0,
+     577.4,
+     249.8
+    ],
+    "txt": [
+     578.4,
+     234.0,
+     755.0,
+     249.8
+    ]
+   }
+  },
+  {
+   "control": "C1 thumb hat, right",
+   "sheet_field": "C1_E",
+   "joy": "Joy_17",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     217.3,
+     577.4,
+     233.0
+    ],
+    "txt": [
+     578.4,
+     217.3,
+     755.0,
+     233.0
+    ]
+   }
+  },
+  {
+   "control": "A1 ministick, push",
+   "sheet_field": "A1_A",
+   "joy": null,
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     239.8,
+     81.8,
+     255.5
+    ],
+    "txt": [
+     82.8,
+     239.8,
+     259.4,
+     255.5
+    ]
+   },
+   "note": "EDRefCard has no entry for the ministick push; number unknown."
+  },
+  {
+   "control": "A1 ministick, up (hat mode)",
+   "sheet_field": "A1_B",
+   "joy": "Joy_POV1Up",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     60.0,
+     223.0,
+     81.8,
+     238.8
+    ],
+    "txt": [
+     82.8,
+     223.0,
+     259.4,
+     238.8
+    ]
+   }
+  },
+  {
+   "control": "A1 ministick, down (hat mode)",
+   "sheet_field": "A1_C",
+   "joy": "Joy_POV1Down",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     60.0,
+     206.3,
+     81.8,
+     222.0
+    ],
+    "txt": [
+     82.8,
+     206.3,
+     259.4,
+     222.0
+    ]
+   }
+  },
+  {
+   "control": "A1 ministick, left (hat mode)",
+   "sheet_field": "A1_D",
+   "joy": "Joy_POV1Left",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     189.5,
+     81.8,
+     205.3
+    ],
+    "txt": [
+     82.8,
+     189.5,
+     259.4,
+     205.3
+    ]
+   }
+  },
+  {
+   "control": "A1 ministick, right (hat mode)",
+   "sheet_field": "A1_E",
+   "joy": "Joy_POV1Right",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "num": [
+     60.0,
+     172.8,
+     81.8,
+     188.5
+    ],
+    "txt": [
+     82.8,
+     172.8,
+     259.4,
+     188.5
+    ]
+   }
+  },
+  {
+   "control": "Rapid-fire trigger, up (push)",
+   "sheet_field": "RFT_A",
+   "joy": "Joy_21",
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     416.4,
+     577.4,
+     432.2
+    ],
+    "txt": [
+     578.4,
+     416.4,
+     755.0,
+     432.2
+    ]
+   },
+   "note": "Which of push/pull is the sheet's up arrow is our reading of the sheet."
+  },
+  {
+   "control": "Rapid-fire trigger, down (pull)",
+   "sheet_field": "RFT_B",
+   "joy": "Joy_22",
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     399.7,
+     577.4,
+     415.4
+    ],
+    "txt": [
+     578.4,
+     399.7,
+     755.0,
+     415.4
+    ]
+   },
+   "note": "As RFT_A."
+  },
+  {
+   "control": "En1 base wheel, up",
+   "sheet_field": "EN1_A",
+   "joy": "Joy_23",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     118.9,
+     577.4,
+     134.7
+    ],
+    "txt": [
+     578.4,
+     118.9,
+     755.0,
+     134.7
+    ]
+   }
+  },
+  {
+   "control": "En1 base wheel, down",
+   "sheet_field": "EN1_B",
+   "joy": "Joy_24",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     555.6,
+     102.2,
+     577.4,
+     117.9
+    ],
+    "txt": [
+     578.4,
+     102.2,
+     755.0,
+     117.9
+    ]
+   }
+  },
+  {
+   "control": "Sw1 base switch, up",
+   "sheet_field": "SW1_A",
+   "joy": "Joy_25",
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     52.8,
+     81.8,
+     68.5
+    ],
+    "txt": [
+     82.8,
+     52.8,
+     259.4,
+     68.5
+    ]
+   },
+   "note": "EDRefCard calls Joy_25/26 'En2'; the EVO base has Sw1 there instead. Likely, not confirmed."
+  },
+  {
+   "control": "Sw1 base switch, down",
+   "sheet_field": "SW1_B",
+   "joy": "Joy_26",
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     36.0,
+     81.8,
+     51.8
+    ],
+    "txt": [
+     82.8,
+     36.0,
+     259.4,
+     51.8
+    ]
+   },
+   "note": "As SW1_A."
+  },
+  {
+   "control": "F1 base button",
+   "sheet_field": "BASE_B",
+   "joy": "Joy_27",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     111.6,
+     81.8,
+     127.3
+    ],
+    "txt": [
+     82.8,
+     111.6,
+     259.4,
+     127.3
+    ]
+   }
+  },
+  {
+   "control": "F2 base button",
+   "sheet_field": "BASE_A",
+   "joy": "Joy_28",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     128.3,
+     81.8,
+     144.0
+    ],
+    "txt": [
+     82.8,
+     128.3,
+     259.4,
+     144.0
+    ]
+   }
+  },
+  {
+   "control": "F3 base button",
+   "sheet_field": "BASE_C",
+   "joy": "Joy_29",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "num": [
+     60.0,
+     94.8,
+     81.8,
+     110.6
+    ],
+    "txt": [
+     82.8,
+     94.8,
+     259.4,
+     110.6
+    ]
+   }
+  },
+  {
+   "control": "Stick X",
+   "sheet_field": "AX_X",
+   "joy": "Joy_XAxis",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "txt": [
+     332.3,
+     87.2,
+     509.0,
+     102.9
+    ]
+   }
+  },
+  {
+   "control": "Stick Y",
+   "sheet_field": "AX_Y",
+   "joy": "Joy_YAxis",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "txt": [
+     332.3,
+     70.5,
+     509.0,
+     86.2
+    ]
+   }
+  },
+  {
+   "control": "Twist",
+   "sheet_field": "AX_TWIST",
+   "joy": "Joy_RZAxis",
+   "confidence": "high",
+   "seen_on_device": true,
+   "box": {
+    "txt": [
+     332.3,
+     53.7,
+     509.0,
+     69.5
+    ]
+   }
+  },
+  {
+   "control": "Base throttle wheel",
+   "sheet_field": "AX_THROTTLE",
+   "joy": "Joy_ZAxis",
+   "confidence": "low",
+   "seen_on_device": false,
+   "box": {
+    "txt": [
+     332.3,
+     37.0,
+     509.0,
+     52.7
+    ]
+   },
+   "note": "EDRefCard calls Z 'Throttle'; on the EVO it's the base wheel."
+  },
+  {
+   "control": "A1 ministick X (analogue mode)",
+   "sheet_field": "A1_X",
+   "joy": "Joy_RXAxis",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "txt": [
+     578.3,
+     53.7,
+     755.0,
+     69.5
+    ]
+   }
+  },
+  {
+   "control": "A1 ministick Y (analogue mode)",
+   "sheet_field": "A1_Y",
+   "joy": "Joy_RYAxis",
+   "confidence": "medium",
+   "seen_on_device": false,
+   "box": {
+    "txt": [
+     578.3,
+     37.0,
+     755.0,
+     52.7
+    ]
+   }
+  }
+ ]
+}

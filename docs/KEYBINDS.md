@@ -1,6 +1,17 @@
 # astromech: Keybinds module (in the app window)
 
-*Draft v0.6, 10 Oct 2026, 5:45 PM ET (America/New_York). Companion to ARCHITECTURE.md v0.10 (§5.4 `astromech-keybinds`, §18 app window and module architecture).*
+*Draft v0.8, 10 Oct 2026, 11:30 PM ET (America/New_York). Companion to ARCHITECTURE.md v0.10 (§5.4 `astromech-keybinds`, §18 app window and module architecture).*
+
+**v0.8 changes (10 Oct, V1 design rev 3):**
+- **Device pictures are the maker's own reference sheets**, bundled with credit. For Sumeet's pair:
+  VKB's "Gladiator SCG (RH)" and "Gladiator SCG OTA (LH)" sheets, in `data/devices/vkb/`. Our
+  labels go in the sheet's own form-field boxes. Own SVG line art is only the fallback for
+  devices without a sheet.
+- **Stock button maps ship built in** (`data/devices/vkb/*.json`): each control's factory
+  `Joy_N`, from EDRefCard's MIT device data, checked against Sumeet's real presses.
+- **Calibration is a fallback.** If a press lands somewhere the map doesn't expect, we ask
+  about that one control. No "press every button" wizard.
+- See V1-DESIGN.md §3 for the activity views that use these sheets.
 
 **v0.7 changes (10 Oct, gear-down slice):** the Health check (§7.6) now runs inside `astromech-core`, **at startup and on every Bindings-folder change** (device plug/unplug, before-launch and on-import triggers come with the app window). It adds one copilot rule: each voice tool's action must have a pressable keyboard bind (a Keyboard slot whose modifiers are keyboard keys too), otherwise the tool refuses with a spoken hint. New module `astromech_keybinds::active` resolves the active preset per context (StartPreset, your files first, then built-ins) and builds the action → binding index; `astromech-input::listen::binds_index` now uses it. Results go to the console and `astromech-data/health.json`/`.html`.
 
@@ -228,7 +239,7 @@ So there are **about 31 buttons plus 4 POVs** per device.
 | **bindED** (VoiceAttack plugin) | Reads `.binds` into VoiceAttack variables; per-layout key maps | Original: public domain (Gary Magenheimer licence note). The maintained fork is **GPL-3.0**, so read its docs only and don't copy code |
 | **EDDI**, **COVAS:NEXT** | Read binds to press keys | Licences "Other"/varied; already referenced in ARCHITECTURE §5.4; not reused |
 | **KeepMyKeybinds** (Niceygy) | A small binds-management utility | Repo has no description; not evaluated (⚠) |
-| Vendor tools (VKB DevCfg, Virpil VPC Software, TARGET, Logitech G Hub/X56 software) | Program firmware button numbers, PIDs and virtual buttons | Explain why Joy_N is user-specific on VKB/Virpil. Our device layouts must support **per-user calibration** (§6.2) |
+| Vendor tools (VKB DevCfg, Virpil VPC Software, TARGET, Logitech G Hub/X56 software) | Program firmware button numbers, PIDs and virtual buttons | Can renumber buttons. We ship the factory numbering and fix only the controls that disagree (§6.2) |
 | Star Citizen tools (SC Joystick Mapper, the community "Bindings" card generators) | Similar device-image-plus-hotspot approach | Confirms the layered-image model. No data reused |
 | **SDL GameControllerDB** | Gamepad GUID to standard-button mappings | zlib licence (⚠ check the file header before vendoring). Useful only to *name* pads in the key tester. Elite already maps XInput pads to `Pad_*` |
 
@@ -289,14 +300,14 @@ Layout { id, art: "vkb-gne-r.svg", viewBox: [0,0,1000,1400],
          controls: { "Joy_1": {label:"Trigger stage 1", anchor:[512,380], box:[640,350,300,60], side:"right"},
                      "Joy_XAxis": {label:"Roll", anchor:[...], kind:"axis"} , ... },
          derived_from: "own" | "edrefcard:<template>" }
-UserCalibration { device_instance, layout_id, overrides: {"Joy_17": "Hat2 Up", ...} }  // from the "press each highlighted button" wizard
+UserCalibration { device_instance, layout_id, overrides: {"Joy_17": "Hat2 Up", ...} }  // only for controls that disagree with the stock map
 ```
 - Coordinates are in the SVG `viewBox` space, so they scale with the window. A label box is where text is auto-fitted; the anchor is where the leader line meets the control.
 - **Generic fallback:** any unknown device gets an auto-generated grid layout (buttons 1..N, hats, axes as bars) from its reported capabilities. Every device works on day one; it just isn't pretty.
 - **EDRefCard reuse:**
   - `bindingsData.py` (MIT) has 68 supported devices and 115 layout templates. They map Elite device IDs to templates, with per-control `x`, `y` and `width` in **pixel coordinates on their JPG images** (e.g. `'Joy_1': {'x': 2003, 'y': 557, 'width': 670}`).
   - We can import the **ID-to-model mapping and control lists** with attribution.
-  - The **45–65 JPG images**: the repo's MIT notice formally covers "the Software" files including `res/`, but the drawings may derive from vendor manuals or product art (⚠ UNVERIFIED provenance). **Don't bundle them without the maintainer's confirmation** (§9). Our own SVG line art is the default.
+  - The **45–65 JPG images**: usable as fallback pictures with credit. For VKB we use VKB's own sheets instead (v0.8).
 - **Device inventory at run time** (core): enumerate HID game controllers (VID, PID, product string, button, hat and axis counts) and compute the Elite-style ID `VVVVPPPP`, or the symbolic name via the **user's installed** `DeviceMappings.xml`.
 
 ### 5.3 Profiles (`%APPDATA%\astromech\binds\`)
@@ -340,8 +351,12 @@ Rendering:
 - Labels whose bindings collide get automatic vertical spreading (a simple 1-D force pass).
 - Print uses a print stylesheet; PNG export goes through an offscreen canvas.
 
-### 6.2 Device calibration wizard (for programmable sticks)
-"Press the button highlighted in orange." Each press records `Joy_N` → layout control, and the result is saved as a `UserCalibration`. Any control can be skipped. This fixes VKB/Virpil firmware renumbering without needing a database per firmware profile.
+### 6.2 When a stick has been remapped (fallback only)
+Each built-in device map gives the factory `Joy_N` for every control. Most sticks stay on the
+factory profile, so nothing is asked. If a press arrives that the map doesn't expect (a number
+the map doesn't use, or the user says "that's not where I pressed"), astromech asks about that
+one control: "Which control did you just press?" and the user clicks it on the sheet. The answer
+is saved as a `UserCalibration` override. Nothing else is asked.
 
 ### 6.3 Ship view (F2)
 ```text

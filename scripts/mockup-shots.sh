@@ -8,7 +8,7 @@ pnpm -s exec vite preview --port 4179 --strictPort >/dev/null 2>&1 &
 PREV=$!
 trap 'kill $PREV' EXIT
 sleep 2
-for p in keybinds:1440x900 controller:1440x900 settings:1440x900 tray:640x520; do
+for p in activities:1920x1080 keybinds:1440x900 controller:1440x900 settings:1440x900 tray:640x520; do
   id=${p%%:*}; size=${p#*:}
   "$CHROME" --headless=new --user-data-dir="$(mktemp -d)" --disk-cache-size=1 --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
     --window-size=${size/x/,} --virtual-time-budget=3000 \

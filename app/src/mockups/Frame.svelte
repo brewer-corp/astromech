@@ -4,7 +4,8 @@
   // content, one orange rule, text actions. Navigation is plain text tabs.
   let { active, children, footer }: { active: string; children: Snippet; footer?: Snippet } = $props();
   const tabs = [
-    ["keybinds", "Keybinds"],
+    ["activities", "Activities"],
+    ["keybinds", "All keybinds"],
     ["controller", "My controller"],
     ["presets", "Presets"],
     ["settings", "Settings"],

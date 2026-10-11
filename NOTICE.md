@@ -30,3 +30,10 @@ Third-party Rust and npm dependency licences: see `THIRD_PARTY.md`.
 Bundled from the `@fontsource` packages, all under the SIL Open Font License 1.1:
 Michroma (Vernon Adams), Saira Semi Condensed (Omnibus-Type), Share Tech Mono (Carrois Apostrophe).
 No fonts or other assets from Elite Dangerous or Frontier Developments are used.
+
+## VKB reference sheets and device data
+`data/devices/vkb/VKB-Gladiator-SCG-RH-v1.0.pdf` and `VKB-Gladiator-SCG-OTA-LH-v1.0.pdf` (and
+their PNG renders in `app/public/devices/vkb/`) are VKB Gaming's reference sheets, design by
+UntoldForce, from https://www.vkbgaming.com/fillable-templates/. Included unchanged, with
+credit. Stock button numbers are from EDRefCard (MIT, Copyright (c) 2017 Richard Buckle;
+github.com/brammmers/edrefcard2).

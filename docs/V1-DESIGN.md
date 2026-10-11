@@ -5,6 +5,15 @@ the gear-down CLI preview (PR #1, 93687e5), Sumeet's real-game rounds, his revie
 revision 1, `ARCHITECTURE.md` v0.13 and `KEYBINDS.md` v0.7. This document decides what v1 *is*;
 the architecture doc stays the reference for how the pieces work inside.
 
+**Revision 3 (10 Oct, 11:30 PM ET).** Sumeet's notes on revision 2:
+- Use VKB's reference sheets directly. They're made for players to use, and this is a
+  non-commercial hobby project. We bundle them with credit.
+- VKB sticks ship with a fixed factory profile, so the stock button numbers are known. We ship
+  them as built-in maps. Asking the user to press buttons is only for sticks someone remapped.
+- The full list is good when you know what you want, but not for finding actions you didn't
+  know about. New **Activities** view: one picture per activity (exploration, trading, …) with
+  the actions that matter for it, on your own sticks.
+
 **Revision 2 (10 Oct, 10:30 PM ET).** Sumeet rejected the revision-1 mockups as decoration,
 not design: random colours, cards, icons, boxes and dividers, four equal-weight panels, a
 calibration wizard inside settings and a press log inside the button config. This revision
@@ -20,8 +29,8 @@ starts from the tasks (§2), derives a minimal visual system from the game's own
 - **"Save push-to-talk clips" is a permanent Debug setting** (off by default), not a one-off.
 
 **In one paragraph:** v1 is a Windows tray app that wakes up when Elite starts. It has two
-headline features: a **keybinds manager** (the game's Controls list, made searchable and
-honest about problems, plus the manufacturer's sheet for "my controller"), and an
+headline features: a **keybinds manager** (activity pictures on your own sticks for finding
+what you need, plus the game's Controls list made searchable and honest about problems), and an
 **always-on push-to-talk voice assistant** for hands-on-stick ship toggles and read-only status
 questions. Everything is local. It installs per-user without admin.
 
@@ -46,9 +55,10 @@ those problems; see §3 for why this beats a pictorial main view.
 
 | Feature | What it does | Seed / source |
 |---|---|---|
-| **Keybinds list** (main view) | The game's Controls list, cloned and improved: same categories and expandable groups, primary/secondary columns and an "about this setting" panel, plus search, "press a button to jump to it", larger type, and inline health/conflict markers. | new; data from `astromech-keybinds` |
+| **Activities** (discovery view, opens first) | Pick an activity (exploration, trading, combat, …). See its important actions on your own sticks, using the maker's sheet, plus keyboard bindings and a short "not bound yet" list with "Bind this". | new (§3.3) |
+| **All keybinds** (full reference) | The game's Controls list, cloned and improved: same categories and expandable groups, primary/secondary columns and an "about this setting" panel, plus search, "press a button to jump to it", larger type, and inline health/conflict markers. | new; data from `astromech-keybinds` |
 | **Health check** | Runs on app start, device plug/unplug, Bindings folder changes, before launch and on import. Missing devices / PID drift (wrong-firmware warning with reflash steps), buttons above Joy_32, axes the device doesn't have, keyboard-only presets, actions voice needs that have no keyboard key. Shown **inline** in the list (marker on the row, explanation in the about panel) and as an "Issues" filter, not on a separate dashboard. | k0 + `astromech-core::health` |
-| **My controller** (secondary view) | The manufacturer's own reference sheet for each connected device, with our labels (button number + bound action) overlaid on the sheet's own fields. For VKB: their fillable PDF templates, used from the user's own copy (§3.2). Devices without a sheet get the list filtered to that device. | new |
+| **My controller** | The maker's reference sheet for one device, with every binding in the sheet's own boxes. For VKB: their sheets, bundled with credit, plus built-in stock button maps (§3.2). A device without a sheet gets the list filtered to that device. | new |
 | **Presets** | Every preset in the Bindings folder and which one is active per context (`StartPreset*.start`), duplicate `PresetName`s and file-name mismatches, backups and restore. | `astromech-keybinds::active`, k0 |
 | **Small edits, on a copy** | Exactly one class of edit in v1: **assign a keyboard key to an action's empty slot** (the fix voice needs), plus the manual "replace device ID in a copy" from KEYBINDS §7.3. Always: back up, write a copy, tell the user to reselect the preset. | KEYBINDS §7 |
 | **Key tester** | Live press log (device, Elite name, bound actions, bounce detection), in Diagnostics. Read-only Raw Input, proven in S7 not to disturb the game. The same listener powers "press a button to jump to it". | s7-input-listener |
@@ -136,7 +146,8 @@ Value and effort are relative (S ≈ ≤ 3 days, M ≈ 1–2 weeks, L ≈ 3+ wee
 |---|---|---|
 | Install, find the game, detect devices, bind PTT + kill switch, pick and calibrate the mic, first health check | **Once** (and after a new PC or mic) | Onboarding |
 | Re-calibrate after changing mic or headset | Rare | Settings → Microphone → Calibration: "Run again" (re-opens that onboarding step only) |
-| "What does this button do?" / "Where is X bound?" | **Occasional**, between sessions; very frequent while setting up a new ship or device | Keybinds (search, press-to-jump) |
+| "What should I bind for exploring / trading / mining?" | Occasional; often when starting a new activity | Activities |
+| "What does this button do?" / "Where is X bound?" | **Occasional**, between sessions; very frequent while setting up a new ship or device | All keybinds (search, press a control) |
 | Fix a health issue (missing key for voice, Joy > 32, device drift) | Occasional, prompted by a marker | Keybinds row → about panel |
 | See the whole stick at a glance, print it | Occasional | My controller |
 | Switch / back up / restore a preset | Rare | Presets |
@@ -152,15 +163,27 @@ setup work at a desk: big readable text, one thing at a time.
 | Screen | Single purpose | Deliberately NOT here |
 |---|---|---|
 | **Onboarding** (first run; individual steps re-runnable) | Get from install to "gear down works" in under 5 minutes | Any setting not needed for that; explanations beyond one line per step |
-| **Keybinds** (main window, default tab) | Find and understand any binding; fix what's broken | Device pictures, statistics, voice settings, a separate health dashboard, colour-coded categories |
+| **Activities** (default tab) | Show what matters for one activity and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; activities you didn't pick |
+| **All keybinds** | Find and understand any binding; fix what's broken | Device pictures, statistics, voice settings, a separate health dashboard, colour-coded categories |
 | **My controller** | See one device as its manufacturer drew it, with what each control does | Editing; actions for other devices; anything not on that device |
 | **Presets** | Which preset is active, switch, back up, restore | Bindings themselves |
 | **Settings** | Every voice and control setting in **one list** | Calibration flows, press logs, live transcripts, anything that isn't a setting |
 | **Diagnostics** | Prove what the app sees: key tester (live press log), device list, health report, logs, "Save diagnostics" | Settings (except links to them) |
 | **Tray menu** (native) | Is it running, open the window, pause voice, kill switch, quit | Any status beyond one line; any webview |
 
-Navigation is five plain text tabs in the window header (Keybinds, My controller, Presets,
-Settings, Diagnostics), like the game's top-level options. Onboarding is a separate full-window
+Navigation is six plain text tabs in the window header (Activities, All keybinds, My
+controller, Presets, Settings, Diagnostics), like the game's top-level options.
+
+**How the three binding views fit together.** They show the same bindings three ways:
+- **Activities** answers "what do I need for this?". It's curated and short.
+- **All keybinds** answers "where is everything?". It's complete and searchable.
+- **My controller** answers "what does each control on this stick do?".
+Every action links to the others: "Show in all keybinds", "Show on my controller".
+
+**Pressing a control.** In any of these views, pressing a button, hat or axis on a stick (or a
+key) highlights every action bound to it. On a sheet, its box is outlined. In the list, the view
+scrolls to the first match and marks all of them. Nothing is sent to the game; astromech only
+listens. Onboarding is a separate full-window
 flow, not a tab.
 
 ### 2.3 Where each piece lives
@@ -183,81 +206,155 @@ flow, not a tab.
 
 ---
 
-## 3. The keybinds view
+## 3. The keybinds views
 
-### 3.1 Pictorial main view vs the game's list, honestly
-| | Pictorial (device drawing with callouts) | Game list, cloned and improved |
+### 3.1 Three views, three questions
+| View | Question it answers | Shape |
 |---|---|---|
-| Answers "what does this button do?" | Well, *if* the drawing is accurate for this exact grip and firmware profile | Well, via "press the button → jump to the row" |
-| Answers "where is landing gear bound?" | Poorly: you scan pictures | Well: search, or the group you already know from the game |
-| Coverage | Only devices we have accurate layouts for; keyboard is hopeless as a picture | Every action, every device, keyboard and mouse included |
-| Contexts (ship / SRV / on foot / UI), modifiers, both slots | Crowded: 2 slots × several contexts per control | Natural: rows and columns |
-| Familiarity | New | Same structure as the game (he already knows where things are) |
-| Accuracy risk | High: wrong positions or numbering are worse than none | Low: it's the file |
-| Effort | Large per device | One generic view |
+| **Activities** (opens first) | "What do I need for exploring, trading, …? What am I missing?" | Your sticks (the maker's sheets) with that activity's actions lit up, plus keyboard bindings and a "not bound yet" list |
+| **All keybinds** | "Where is X? What's on this key?" | The game's Controls list, improved |
+| **My controller** | "What does every control on this stick do?" | One sheet, every binding |
 
-**Recommendation: the cloned-and-improved list is the main view**, and "My controller" (the
-manufacturer's sheet with our overlays) is the secondary view for seeing a stick at a glance.
-A pictorial main view only wins for one question and fails the others; the list wins most
-tasks and is never wrong.
+Why not one view? The list is the only view that covers everything (keyboard, every context,
+both slots), and it's never wrong, because it's the file. But you can only find what you
+already know exists. The game buries "Target next system in route" under Targeting, and you'd
+never look there while learning to trade. Activities fixes discovery; the list stays the
+complete reference.
 
-Improvements over the game's list (all in the mockup):
-- A search field at the top ("Search actions, or press any button…"): free text over action
-  names and the game's UI labels, plus press-to-jump via the S7 listener.
-- Larger type (15 px rows vs about 11 px in-game at 1080p), higher contrast, and denser rows
-  (34 px) so a group fits on screen.
-- Context and filter as plain text toggles (Ship · SRV · On foot · General; All · Issues ·
-  Unbound) instead of separate menu trees.
-- Inline markers in a fourth column ("! No keyboard key", "! Joy 33: ignored"), group headers
-  show their issue count, the about panel explains the issue and offers the fix.
-- Device names that say which stick (`L · JOY 3`, `R · POV1 PUSH`) instead of the game's
-  ambiguous joystick glyphs; empty slots are visibly empty.
-- One footer: Undo, Save to a copy…, and the file and last backup time.
+Improvements in All keybinds over the game's list: a search box; pressing a control jumps to it;
+15 px rows (the game is about 11 px at 1080p) and denser rows; plain text filters (Ship · SRV ·
+On foot · General; All · Issues · Unbound); inline markers ("! No keyboard key", "! Joy 33:
+ignored"); issue counts on groups; empty slots that look empty; `L ·` / `R ·` to say which stick.
 
-### 3.2 "My controller": the manufacturer's sheet
-**Findings (VKB, checked 10 Oct 2026):**
-- **Where:** VKB's official site has a "Fillable Templates" page
-  (<https://www.vkbgaming.com/fillable-templates/>) with fillable PDFs for the Gladiator
-  NXT/EVO family, including exactly his pair:
-  - Left: **"VKB Gladiator SCG OTA (LH)" v1.0**,
-    `…/wp-content/uploads/2026/03/VKB-Gladiator-SCG-OTA-LH-v1.0.pdf` (Omni Throttle grip).
-  - Right: **"VKB Gladiator SCG (RH)" v1.0**, `…/VKB-Gladiator-SCG-RH-v1.0.pdf`.
-  - The sheets are credited "Design by UntoldForce v1.0" (a community designer) and published
-    by VKB; one letter-size page (792 × 612 pt) with a product photo and labelled tables.
-- **Numbering:** the sheets name *controls*, not button numbers: B1 (side button), A4 (top
-  hat: push/up/down/left/right), A3 (centre hat), A1 (ministick), A2 (red button), the rapid-fire
-  trigger (up/down), the main trigger (stages 1 and 2), C1 (thumb hat), D1 (pinky), base buttons
-  F1–F3, Sw1 and En1 (up/down), and axes x, y, twist, throttle, A1(x), A1(y). Each control has
-  two form fields: a narrow `…_1` cell for the button number and a wide `…_2` cell for its
-  binding (e.g. `A2_A_1` / `A2_A_2`, `MT_A_1` for trigger stage 1; 76 widgets per sheet). **VKB
-  doesn't print default numbers** because they depend on the firmware profile set in
-  VKBDevCfg (modes, shift layers and the OTA variant all renumber buttons; VKB's older
-  Gladiator manual shows e.g. trigger = 14 in mode 1 and 16 in mode 2). So we must **capture**
-  the numbering from his device rather than assume it.
-- **Licence:** neither the page nor the PDFs carry a licence or redistribution permission, and
-  the photo is VKB product artwork. Treat them as all rights reserved: **we don't put them in
-  the repo or the installer.**
+### 3.2 Maker's sheets and stock button maps
+**VKB's sheets.** VKB publishes reference sheets for its sticks on its Fillable Templates page
+(<https://www.vkbgaming.com/fillable-templates/>). Sumeet's pair:
+- Right: **"VKB Gladiator SCG (RH)" v1.0**.
+- Left: **"VKB Gladiator SCG OTA (LH)" v1.0** (Omni Throttle).
 
-**Chosen approach (legal and accurate):**
-1. In My controller, an unmatched device shows "Get VKB's sheet": it opens VKB's templates page
-   in the browser (or downloads the known URL on the user's click), and the user's own copy is
-   stored under `%LOCALAPPDATA%\astromech\sheets`. "Choose sheet…" accepts any local PDF.
-2. The app renders page 1 with pdf.js (Apache-2.0) and reads the PDF's **own AcroForm field
-   rectangles** at runtime, so overlays land exactly in VKB's boxes and survive layout changes.
-   We ship only a small mapping from field names to controls (`A2_A` → "A2 red button"), which
-   is a list of facts, not VKB's artwork. The file's SHA-256 is recorded; if VKB publishes a
-   new version with different field names, the mapping falls back to "unmapped fields".
-3. **Capture buttons…**: the key tester walks the fields ("Press A2 (red button)"), recording
-   the `Joy_N` / POV / axis each control sends. Skippable per control, re-runnable, stored per
-   device ID and firmware profile name. Then each field shows the number (narrow cell) and the
-   bound Elite action (wide cell); clicking a field jumps to the row in Keybinds, and pressing
-   a control selects its field.
-4. Other manufacturers: the same mechanism for any fillable PDF we add a mapping for; without a
-   sheet, My controller shows the Keybinds list filtered to that device.
+Each is one page: a photo of the stick with leader lines to labelled tables. Each control has
+two boxes: a small one for the button number and a wide one for what it does. We **bundle both
+sheets** (`data/devices/vkb/`, credited to VKB Gaming and the sheet designer, UntoldForce) and
+write into VKB's own boxes. The box positions come from the PDF itself (its form fields), so
+labels land exactly where VKB put the boxes.
 
-The mockup uses a **clearly labelled neutral placeholder** in place of VKB's photo; the table
-boxes are drawn at the PDF's real field rectangles and the control names are VKB's. The button
-numbers in it are an **example capture**, not his real numbering.
+**Stock button numbers.** VKB sticks ship with a factory profile, so the numbers are known. We
+ship them as built-in maps:
+- `data/devices/vkb/gladiator-evo-r.231D0200.json`
+- `data/devices/vkb/gladiator-evo-ot-l.231D3201.json`
+
+Both sticks use the same numbering:
+
+| Control | Joy | | Control | Joy |
+|---|---|---|---|---|
+| Main trigger, stage 1 / 2 | 1 / 2 | | A4 top hat up / right / down / left / push | 11 / 12 / 13 / 14 / 15 |
+| A2 red button | 3 | | C1 thumb hat up / right / down / left / push | 16 / 17 / 18 / 19 / 20 |
+| B1 side button | 4 | | Rapid-fire trigger push / pull | 21 / 22 |
+| D1 pinky button | 5 | | En1 base wheel up / down | 23 / 24 |
+| A3 centre hat up / right / down / left / push | 6 / 7 / 8 / 9 / 10 | | Sw1 base switch up / down | 25 / 26 (low confidence) |
+| A1 ministick (hat mode) | POV1 up / right / down / left | | F1 / F2 / F3 base buttons | 27 / 28 / 29 |
+| A1 ministick push | unknown | | Axes: X, Y, twist, wheel, ministick X / Y | X, Y, RZ, Z, RX, RY |
+
+Where it comes from, and how sure we are:
+- **Source:** EDRefCard's device data (MIT, `brammmers/edrefcard2`), which has entries for exactly
+  these two IDs, `231D0200` and `231D3201`.
+- **Checked against his sticks:** what his devices sent in the s7 runs, and his DualVKB preset,
+  agree. Push-to-talk `Joy_10` is the A3 push on the left. `Joy_1` (the trigger) is bound to the
+  frame shift drive, and `Joy_16` (C1 up) to throttle 100 %. Both ministicks send POV1. The right
+  stick's `Joy_12` / `Joy_14` are A4 right / left.
+- **Confidence per control** is in the JSON: **high** (stock map and seen on his sticks, 10 per
+  stick), **medium** (stock map only, 24), **low** (6: ministick push, Sw1 up/down, which
+  rapid-fire direction the sheet calls "up", and the base wheel axis).
+- Not found: a published VKB list of default numbers, or the VKBDevCfg default profile file.
+  I didn't find an "EliteCustomButtonNames" list either. EDRefCard is the best source we have.
+
+**If a stick was remapped.** Pressing a control should light up the box the map expects. If a
+press lands on a number the map doesn't have, or the user says "that's not where I pressed",
+astromech asks about that one control ("Which control did you just press?") and the user
+clicks it on the sheet. Only controls that disagree are ever asked about.
+
+**Other devices.** The same approach works for any maker's sheet with boxes. EDRefCard's
+pictures are the fallback, then a plain grid of buttons and axes.
+
+### 3.3 Activities
+Each activity shows your sticks with its actions lit up in their boxes. Each lit box shows the
+action and its other slot (often a key). Below the sheets:
+- **Not bound yet:** the activity's important actions with no binding, each with "Bind this".
+  Pressing a free control then binds it, in a copy of the preset.
+- **Elsewhere:** the activity's actions bound only to the keyboard or mouse.
+
+Actions can be in several activities. The catalogue below is a first draft, using Elite's
+binding names. ★ marks the actions that go on the "not bound yet" list if missing.
+
+**Flight basics**
+★ `PitchAxisRaw`, ★ `RollAxisRaw`, ★ `YawAxisRaw`, ★ `ThrottleAxis`, `LateralThrustRaw`,
+`VerticalThrustRaw`, ★ `UseBoostJuice`, ★ `ToggleFlightAssist`, `SetSpeedZero`, `SetSpeed50`,
+`SetSpeed100`, `ToggleReverseThrottleInput`, ★ `LandingGearToggle`, `ShipSpotLightToggle`,
+`NightVisionToggle`, `PlayerHUDModeToggle`, `HeadLookToggle`, `UIFocus`.
+
+**Supercruise & jumps**
+★ `HyperSuperCombination` (or `Supercruise` + `Hyperspace`), ★ `TargetNextRouteSystem`,
+★ `GalaxyMapOpen`, `SystemMapOpen`, ★ `SetSpeed75` (approach), `SetSpeed100`, `SetSpeedZero`,
+`SelectTarget`, `CycleNextTarget`, `FocusLeftPanel`, `OrbitLinesToggle`, `ToggleCargoScoop`
+(silences the scoop), `DeployHeatSink` (fuel scooping), `LandingGearToggle`.
+
+**Exploration (FSS / DSS)**
+★ `ExplorationFSSEnter`, ★ `ExplorationFSSDiscoveryScan`, ★ `ExplorationFSSQuit`,
+★ `ExplorationFSSZoomIn`, ★ `ExplorationFSSZoomOut`, `ExplorationFSSMiniZoomIn`,
+`ExplorationFSSMiniZoomOut`, ★ `ExplorationFSSRadioTuningX_Raw` (or `_Increase` / `_Decrease`),
+`ExplorationFSSTarget`, `ExplorationFSSCameraPitch`, `ExplorationFSSCameraYaw`,
+★ `ExplorationSAAExitThirdPerson`, `ExplorationSAANextGenus`, `ExplorationSAAPreviousGenus`,
+`ExplorationSAAChangeScannedAreaViewToggle`, ★ `PlayerHUDModeToggle`, ★ `TargetNextRouteSystem`,
+★ `HyperSuperCombination`, `GalaxyMapOpen`, `SystemMapOpen`, `OpenCodexGoToDiscovery`.
+
+**Trading**
+★ `GalaxyMapOpen`, ★ `TargetNextRouteSystem`, ★ `HyperSuperCombination`, ★ `FocusLeftPanel`
+(contacts and docking request), `FocusRightPanel`, `CycleNextPanel`, `CyclePreviousPanel`,
+★ `LandingGearToggle`, `SetSpeedZero`, `SetSpeed75`, `UI_Select`, `UI_Back`, `UI_Up`,
+`UI_Down`, `ToggleButtonUpInput` (silent running), `DeployHeatSink`, `ToggleCargoScoop`.
+
+**Mining**
+★ `DeployHardpointToggle`, ★ `PrimaryFire`, ★ `SecondaryFire`, ★ `CycleFireGroupNext`,
+`CycleFireGroupPrevious`, ★ `ToggleCargoScoop`, ★ `PlayerHUDModeToggle`, `SelectTarget`,
+`SetSpeedZero`, `UpThrustButton`, `DownThrustButton`, `ForwardThrustButton`, `EjectAllCargo`,
+`IncreaseSystemsPower`, `IncreaseWeaponsPower`, `ResetPowerDistribution`.
+
+**Combat**
+★ `PrimaryFire`, ★ `SecondaryFire`, ★ `DeployHardpointToggle`, ★ `SelectTarget`,
+★ `SelectHighestThreat`, `CycleNextHostileTarget`, `CycleNextTarget`, `CycleNextSubsystem`,
+★ `IncreaseEnginesPower`, ★ `IncreaseSystemsPower`, ★ `IncreaseWeaponsPower`,
+★ `ResetPowerDistribution`, `CycleFireGroupNext`, ★ `UseBoostJuice`, `ToggleFlightAssist`,
+`DeployHeatSink`, `FireChaffLauncher`, `UseShieldCell`, `ChargeECM`, `OrderFocusTarget`.
+
+**Docking & landing**
+★ `LandingGearToggle`, ★ `FocusLeftPanel` (request docking), `UI_Select`, `UI_Back`,
+★ `SetSpeedZero`, ★ `UpThrustButton`, ★ `DownThrustButton`, `LeftThrustButton`,
+`RightThrustButton`, `ForwardThrustButton`, `BackwardThrustButton`, `VerticalThrust_Landing`,
+`LateralThrust_Landing`, `PitchAxis_Landing`, `YawAxis_Landing`, `RollAxis_Landing`,
+`ShipSpotLightToggle`, `NightVisionToggle`.
+
+**SRV**
+★ `SteeringAxis`, ★ `DriveSpeedAxis` (or `IncreaseSpeedButtonPartial` / `DecreaseSpeedButtonPartial`), ★ `AutoBreakBuggyButton`,
+★ `VerticalThrustersButton`, `ToggleDriveAssist`, `HeadlightsBuggyButton`,
+★ `ToggleBuggyTurretButton`, `BuggyPrimaryFireButton`, `BuggySecondaryFireButton`,
+`ToggleCargoScoop_Buggy`, `RecallDismissShip`, `PlayerHUDModeToggle_Buggy`,
+`GalaxyMapOpen_Buggy`, `SystemMapOpen_Buggy`, `FocusLeftPanel_Buggy`, `NightVisionToggle`.
+
+**On foot**
+★ `HumanoidForwardButton` / walk axes, ★ `HumanoidPrimaryInteractButton`,
+`HumanoidSecondaryInteractButton`, ★ `HumanoidSprintButton`, `HumanoidJumpButton`,
+`HumanoidCrouchButton`, ★ `HumanoidPrimaryFireButton`, `HumanoidZoomButton`,
+`HumanoidReloadButton`, `HumanoidMeleeButton`, `HumanoidThrowGrenadeButton`,
+★ `HumanoidItemWheelButton`, `HumanoidToggleFlashlightButton`,
+`HumanoidToggleNightVisionButton`, `HumanoidSwitchToSuitTool`, `HumanoidToggleToolModeButton`,
+`GalaxyMapOpen_Humanoid`, `SystemMapOpen_Humanoid`.
+
+All names were checked against EDRefCard's control list (420 controls).
+
+The mockup shows Exploration on his VKB pair. Its bindings are **example data in the shape
+of his DualVKB preset**: we only have a few real lines from it (trigger → frame shift drive,
+C1 up → throttle 100 %, A3 push → push-to-talk). Whether "Target next system in route" is
+really unbound in his preset is unknown until we read the whole file.
 
 ---
 
@@ -312,8 +409,9 @@ Static Svelte pages (open `#/mockup/<id>`), rendered with `scripts/mockup-shots.
 
 | Mockup | File | Screenshot |
 |---|---|---|
-| Keybinds list (main view) | `app/src/mockups/KeybindsList.svelte` | `docs/design/mockup-keybinds.png` |
-| My controller (VKB sheet, placeholder) | `MyController.svelte`, `sheet.ts` | `docs/design/mockup-controller.png` |
+| All keybinds (full list) | `app/src/mockups/KeybindsList.svelte` | `docs/design/mockup-keybinds.png` |
+| Activities: Exploration, on his VKB pair | `ActivityView.svelte`, `Sheet.svelte` | `docs/design/mockup-activities.png` |
+| My controller (VKB sheet) | `MyController.svelte`, `Sheet.svelte` | `docs/design/mockup-controller.png` |
 | Settings (one list) | `Settings.svelte` | `docs/design/mockup-settings.png` |
 | Tray menu (native) | `TrayMenu.svelte` | `docs/design/mockup-tray.png` |
 
@@ -339,6 +437,15 @@ Still noisier than the game (and what I changed):
   more line than the game has; kept, because they replace the game's separate context menus.
 - The VKB sheet is a bright paper page inside a dark window. That's a deliberate trade:
   accuracy over aesthetics; it's VKB's document, shown as VKB made it.
+- Activities (rev 3): the VKB sheets are bright paper pages in a dark window, and VKB's photo
+  and red leader lines are busier than anything else on screen. That's the cost of using the
+  real sheet, and it's worth it: you see your actual stick. **Fixed what we control:** the sheet
+  is dimmed slightly (90% brightness) to cut glare; actions outside the activity are grey, so
+  the orange boxes stand out; no extra frames, legends or colours around the sheets.
+- Rev 3a used light grey text for every binding on the sheet, which was hard to read.
+  **Fixed:** dark text normally, grey only for "not in this activity".
+- Rev 3a printed hat directions ("Up") in the number box for the ministick. **Fixed:** `P1`
+  (POV 1); axes have no number box.
 - Upper-case row labels are copied from the game for familiarity, though they read slower than
   mixed case. Open question for Sumeet (§9).
 
@@ -493,20 +600,20 @@ Rough effort for one developer working with an agent; Sumeet tests at each miles
 | Milestone | Contents | Effort | Exit test (Sumeet) |
 |---|---|---|---|
 | **M0 Foundation** | Core as tray app (native menu, single instance, autostart, game watcher, idle/active), core↔shell API, shell frame with the visual system, logs, NSIS per-user installer, release CI | ~1.5 weeks | Install without admin; tray at login; voice wakes when Elite starts |
-| **M1 Keybinds** | The list view (groups, search, press-to-jump, inline health), about panel, Presets, backups, "assign a key in a copy" | ~3 weeks | He finds any binding in under 10 s and every health issue says how to fix it |
-| **M2 My controller** | pdf.js rendering of the user's VKB sheets, field mapping for his two sheets, capture flow | ~1.5 weeks | Both sticks shown with correct numbers and actions after one capture |
+| **M1 Keybinds list** | All keybinds (groups, search, pressing a control, inline health), about panel, Presets, backups, "assign a key in a copy" | ~3 weeks | He finds any binding in under 10 s and every health issue says how to fix it |
+| **M2 Sheets and activities** | Bundled VKB sheets and stock maps, My controller, Activities with the catalogue, "Bind this", the remapped-control question | ~2 weeks | Both sticks show the right actions in the right boxes with no setup; he finds "Target next system in route" from Exploration |
 | **M3 Voice v1** | Chosen mic, level correction, calibration step, personal phrase learning, extra T1 commands, status questions, eval harness on clips saved via the Debug setting | ~2–3 weeks | At least 95% correct execute-or-ask on his VR clip set |
 | **M4 Onboarding, Settings, Diagnostics** | Onboarding flow, the settings list, key tester, diagnostics bundle, callouts | ~1.5 weeks | Fresh install to working gear-down by voice in under 5 minutes |
 | **M5 Release** | Polish from testing, README | ~1 week | v1.0 on GitHub Releases |
 
-Total about **10–11 weeks**.
+Total about **11 weeks**.
 
 ---
 
 ## 9. Decisions for Sumeet
-1. **Main view:** OK with the cloned-and-improved Controls list as the main keybinds view and the VKB sheet as "My controller"?
-2. **Capture:** OK to press each control once (about 40 per stick, skippable) so the sheet shows correct numbers?
-3. **Sheets:** fine to download VKB's two PDFs yourself (one click from the app opens VKB's page), rather than us shipping them?
+1. **Activities:** is the list of activities right (§3.3)? Anything to add or merge?
+2. **Catalogue:** which actions in §3.3 are wrong for how you play, and what's missing?
+3. **Open by default:** should the window open on Activities or on All keybinds?
 4. **Labels:** keep the game's upper-case row labels, or mixed case (easier to read)?
 5. **Edits:** is "assign a keyboard key to an empty slot, in a copy" enough editing for v1?
 6. **New voice commands:** which of flight assist, HUD mode, silent running, maps/panels, SRV toggles and throttle-to-zero do you want in v1?
