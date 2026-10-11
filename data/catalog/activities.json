@@ -1,0 +1,867 @@
+{
+ "source": "docs/V1-DESIGN.md \u00a73.3 (first draft)",
+ "activities": [
+  {
+   "id": "flight-basics",
+   "title": "Flight basics",
+   "actions": [
+    {
+     "id": "PitchAxisRaw",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "RollAxisRaw",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "YawAxisRaw",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ThrottleAxis",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "LateralThrustRaw",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "VerticalThrustRaw",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UseBoostJuice",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleFlightAssist",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeedZero",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeed50",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeed100",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleReverseThrottleInput",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "LandingGearToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ShipSpotLightToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "NightVisionToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "PlayerHUDModeToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HeadLookToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UIFocus",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "supercruise-jumps",
+   "title": "Supercruise & jumps",
+   "actions": [
+    {
+     "id": "HyperSuperCombination",
+     "important": true,
+     "alternatives": [
+      "Supercruise",
+      "Hyperspace"
+     ]
+    },
+    {
+     "id": "TargetNextRouteSystem",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "GalaxyMapOpen",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SystemMapOpen",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeed75",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeed100",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeedZero",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SelectTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "CycleNextTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "FocusLeftPanel",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "OrbitLinesToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleCargoScoop",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "DeployHeatSink",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "LandingGearToggle",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "exploration-fss-dss",
+   "title": "Exploration (FSS / DSS)",
+   "actions": [
+    {
+     "id": "ExplorationFSSEnter",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSDiscoveryScan",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSQuit",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSZoomIn",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSZoomOut",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSMiniZoomIn",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSMiniZoomOut",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSRadioTuningX_Raw",
+     "important": true,
+     "alternatives": [
+      "ExplorationFSSRadioTuningX_Increase",
+      "ExplorationFSSRadioTuningX_Decrease"
+     ]
+    },
+    {
+     "id": "ExplorationFSSTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSCameraPitch",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationFSSCameraYaw",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationSAAExitThirdPerson",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationSAANextGenus",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationSAAPreviousGenus",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ExplorationSAAChangeScannedAreaViewToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "PlayerHUDModeToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "TargetNextRouteSystem",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HyperSuperCombination",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "GalaxyMapOpen",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SystemMapOpen",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "OpenCodexGoToDiscovery",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "trading",
+   "title": "Trading",
+   "actions": [
+    {
+     "id": "GalaxyMapOpen",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "TargetNextRouteSystem",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HyperSuperCombination",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "FocusLeftPanel",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "FocusRightPanel",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "CycleNextPanel",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "CyclePreviousPanel",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "LandingGearToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeedZero",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeed75",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Select",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Back",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Up",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Down",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleButtonUpInput",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "DeployHeatSink",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleCargoScoop",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "mining",
+   "title": "Mining",
+   "actions": [
+    {
+     "id": "DeployHardpointToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "PrimaryFire",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SecondaryFire",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "CycleFireGroupNext",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "CycleFireGroupPrevious",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleCargoScoop",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "PlayerHUDModeToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SelectTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeedZero",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UpThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "DownThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ForwardThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "EjectAllCargo",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "IncreaseSystemsPower",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "IncreaseWeaponsPower",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ResetPowerDistribution",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "combat",
+   "title": "Combat",
+   "actions": [
+    {
+     "id": "PrimaryFire",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SecondaryFire",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "DeployHardpointToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SelectTarget",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "SelectHighestThreat",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "CycleNextHostileTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "CycleNextTarget",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "CycleNextSubsystem",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "IncreaseEnginesPower",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "IncreaseSystemsPower",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "IncreaseWeaponsPower",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ResetPowerDistribution",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "CycleFireGroupNext",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UseBoostJuice",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleFlightAssist",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "DeployHeatSink",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "FireChaffLauncher",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UseShieldCell",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ChargeECM",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "OrderFocusTarget",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "docking-landing",
+   "title": "Docking & landing",
+   "actions": [
+    {
+     "id": "LandingGearToggle",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "FocusLeftPanel",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Select",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "UI_Back",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SetSpeedZero",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "UpThrustButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "DownThrustButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "LeftThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "RightThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ForwardThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "BackwardThrustButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "VerticalThrust_Landing",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "LateralThrust_Landing",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "PitchAxis_Landing",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "YawAxis_Landing",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "RollAxis_Landing",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ShipSpotLightToggle",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "NightVisionToggle",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "srv",
+   "title": "SRV",
+   "actions": [
+    {
+     "id": "SteeringAxis",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "DriveSpeedAxis",
+     "important": true,
+     "alternatives": [
+      "IncreaseSpeedButtonPartial",
+      "DecreaseSpeedButtonPartial"
+     ]
+    },
+    {
+     "id": "AutoBreakBuggyButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "VerticalThrustersButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleDriveAssist",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HeadlightsBuggyButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleBuggyTurretButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "BuggyPrimaryFireButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "BuggySecondaryFireButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "ToggleCargoScoop_Buggy",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "RecallDismissShip",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "PlayerHUDModeToggle_Buggy",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "GalaxyMapOpen_Buggy",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SystemMapOpen_Buggy",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "FocusLeftPanel_Buggy",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "NightVisionToggle",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  },
+  {
+   "id": "on-foot",
+   "title": "On foot",
+   "actions": [
+    {
+     "id": "HumanoidForwardButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidPrimaryInteractButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidSecondaryInteractButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidSprintButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidJumpButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidCrouchButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidPrimaryFireButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidZoomButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidReloadButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidMeleeButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidThrowGrenadeButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidItemWheelButton",
+     "important": true,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidToggleFlashlightButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidToggleNightVisionButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidSwitchToSuitTool",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "HumanoidToggleToolModeButton",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "GalaxyMapOpen_Humanoid",
+     "important": false,
+     "alternatives": []
+    },
+    {
+     "id": "SystemMapOpen_Humanoid",
+     "important": false,
+     "alternatives": []
+    }
+   ],
+   "not_in_catalogue": []
+  }
+ ]
+}

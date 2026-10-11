@@ -1,0 +1,3785 @@
+{
+"source": "EDRefCard controlsData.py (MIT, Copyright (c) 2017 Richard Buckle), github.com/brammmers/edrefcard2",
+"controls": [
+{
+"id": "PitchUpButton",
+"name": "Pitch up",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 3,
+"analogue": false
+},
+{
+"id": "PitchDownButton",
+"name": "Pitch down",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 4,
+"analogue": false
+},
+{
+"id": "RollLeftButton",
+"name": "Roll left",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 7,
+"analogue": false
+},
+{
+"id": "RollRightButton",
+"name": "Roll right",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 8,
+"analogue": false
+},
+{
+"id": "YawLeftButton",
+"name": "Yaw left",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 11,
+"analogue": false
+},
+{
+"id": "YawRightButton",
+"name": "Yaw right",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 12,
+"analogue": false
+},
+{
+"id": "YawToRollButton",
+"name": "Yaw to roll",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 13,
+"analogue": false
+},
+{
+"id": "ThrottleAxis",
+"name": "Throttle",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 14,
+"analogue": true
+},
+{
+"id": "SetSpeed100",
+"name": "Throttle 100%",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 16,
+"analogue": false
+},
+{
+"id": "SetSpeed75",
+"name": "Throttle 75%",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 17,
+"analogue": false
+},
+{
+"id": "SetSpeed50",
+"name": "Throttle 50%",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 18,
+"analogue": false
+},
+{
+"id": "SetSpeed25",
+"name": "Throttle 25%",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 19,
+"analogue": false
+},
+{
+"id": "SetSpeedZero",
+"name": "Throttle 0%",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 20,
+"analogue": false
+},
+{
+"id": "SetSpeedMinus25",
+"name": "25% reverse",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 21,
+"analogue": false
+},
+{
+"id": "SetSpeedMinus50",
+"name": "50% reverse",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 22,
+"analogue": false
+},
+{
+"id": "SetSpeedMinus75",
+"name": "75% reverse",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 23,
+"analogue": false
+},
+{
+"id": "SetSpeedMinus100",
+"name": "100% reverse",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 24,
+"analogue": false
+},
+{
+"id": "AheadThrust",
+"name": "Forward thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 25,
+"analogue": true
+},
+{
+"id": "ForwardKey",
+"name": "Forward thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 26,
+"analogue": false
+},
+{
+"id": "ForwardThrustButton",
+"name": "Forward thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 27,
+"analogue": false
+},
+{
+"id": "BackwardKey",
+"name": "Reverse thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 28,
+"analogue": false
+},
+{
+"id": "BackwardThrustButton",
+"name": "Reverse thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 29,
+"analogue": false
+},
+{
+"id": "VerticalThrustRaw",
+"name": "Vertical thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 31,
+"analogue": true
+},
+{
+"id": "UpThrustButton",
+"name": "Thrust up",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 32,
+"analogue": false
+},
+{
+"id": "DownThrustButton",
+"name": "Thrust down",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 33,
+"analogue": false
+},
+{
+"id": "LateralThrustRaw",
+"name": "Lateral thrust",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 35,
+"analogue": true
+},
+{
+"id": "LeftThrustButton",
+"name": "Thrust left",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 36,
+"analogue": false
+},
+{
+"id": "RightThrustButton",
+"name": "Thrust right",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 37,
+"analogue": false
+},
+{
+"id": "ToggleReverseThrottleInput",
+"name": "Reverse",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 38,
+"analogue": false
+},
+{
+"id": "ToggleFlightAssist",
+"name": "Flight assist",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 39,
+"analogue": false
+},
+{
+"id": "UseBoostJuice",
+"name": "Engine boost",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 40,
+"analogue": false
+},
+{
+"id": "ToggleButtonUpInput",
+"name": "Silent running",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 41,
+"analogue": false
+},
+{
+"id": "ToggleCargoScoop",
+"name": "Cargo scoop",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 42,
+"analogue": false
+},
+{
+"id": "ShipSpotLightToggle",
+"name": "Ship lights",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 43,
+"analogue": false
+},
+{
+"id": "UseAlternateFlightValuesToggle",
+"name": "Alternate controls",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 44,
+"analogue": false
+},
+{
+"id": "PitchAxisAlternate",
+"name": "Pitch (alt)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 45,
+"analogue": true
+},
+{
+"id": "RollAxisAlternate",
+"name": "Roll (alt)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 46,
+"analogue": true
+},
+{
+"id": "YawAxisAlternate",
+"name": "Yaw (alt)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 47,
+"analogue": true
+},
+{
+"id": "VerticalThrustAlternate",
+"name": "Vertical thrust (alt)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 48,
+"analogue": true
+},
+{
+"id": "LateralThrustAlternate",
+"name": "Lateral thrust (alt)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 49,
+"analogue": true
+},
+{
+"id": "YawAxisRaw",
+"name": "Yaw",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 50,
+"analogue": true
+},
+{
+"id": "RollAxisRaw",
+"name": "Roll",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 51,
+"analogue": true
+},
+{
+"id": "PitchAxisRaw",
+"name": "Pitch",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 52,
+"analogue": true
+},
+{
+"id": "GalaxyMapOpen",
+"name": "Galaxy map",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 301,
+"analogue": false
+},
+{
+"id": "SystemMapOpen",
+"name": "System map",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 302,
+"analogue": false
+},
+{
+"id": "HyperSuperCombination",
+"name": "Frame shift drive (supercruise / jump)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 303,
+"analogue": false
+},
+{
+"id": "Hyperspace",
+"name": "Hyperspace jump",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 304,
+"analogue": false
+},
+{
+"id": "EngageSupercruise",
+"name": "Supercruise",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 305,
+"analogue": false
+},
+{
+"id": "Supercruise",
+"name": "Supercruise",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 306,
+"analogue": false
+},
+{
+"id": "TargetNextRouteSystem",
+"name": "Target next system in route",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 307,
+"analogue": false
+},
+{
+"id": "LandingGearToggle",
+"name": "Landing gear",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 601,
+"analogue": false
+},
+{
+"id": "PitchAxis_Landing",
+"name": "Pitch (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 602,
+"analogue": true
+},
+{
+"id": "PitchUpButton_Landing",
+"name": "Pitch up (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 603,
+"analogue": false
+},
+{
+"id": "PitchDownButton_Landing",
+"name": "Pitch down (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 604,
+"analogue": false
+},
+{
+"id": "RollAxis_Landing",
+"name": "Roll (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 605,
+"analogue": true
+},
+{
+"id": "RollLeftButton_Landing",
+"name": "Roll left (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 606,
+"analogue": false
+},
+{
+"id": "RollRightButton_Landing",
+"name": "Roll right (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 607,
+"analogue": false
+},
+{
+"id": "YawAxis_Landing",
+"name": "Yaw",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 608,
+"analogue": true
+},
+{
+"id": "YawLeftButton_Landing",
+"name": "Yaw left (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 609,
+"analogue": false
+},
+{
+"id": "YawRightButton_Landing",
+"name": "Yaw right (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 610,
+"analogue": false
+},
+{
+"id": "AheadThrust_Landing",
+"name": "Forward thrust (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 611,
+"analogue": true
+},
+{
+"id": "ForwardThrustButton_Landing",
+"name": "Forward thrust (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 612,
+"analogue": false
+},
+{
+"id": "BackwardThrustButton_Landing",
+"name": "Reverse thrust (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 613,
+"analogue": false
+},
+{
+"id": "VerticalThrust_Landing",
+"name": "Vertical thrust (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 614,
+"analogue": true
+},
+{
+"id": "UpThrustButton_Landing",
+"name": "Thrust up (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 615,
+"analogue": false
+},
+{
+"id": "DownThrustButton_Landing",
+"name": "Thrust down (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 616,
+"analogue": false
+},
+{
+"id": "LateralThrust_Landing",
+"name": "Lateral thrust (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 617,
+"analogue": true
+},
+{
+"id": "LeftThrustButton_Landing",
+"name": "Thrust left (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 618,
+"analogue": false
+},
+{
+"id": "RightThrustButton_Landing",
+"name": "Thrust right (lndg)",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 619,
+"analogue": false
+},
+{
+"id": "DisableRotationCorrectToggle",
+"name": "Rotational correction",
+"group": "Flight",
+"context": "Ship",
+"group_order": 10,
+"order": 620,
+"analogue": false
+},
+{
+"id": "TargetWingman0",
+"name": "Wingman 1",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 401,
+"analogue": false
+},
+{
+"id": "TargetWingman1",
+"name": "Wingman 2",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 402,
+"analogue": false
+},
+{
+"id": "TargetWingman2",
+"name": "Wingman 3",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 403,
+"analogue": false
+},
+{
+"id": "SelectTargetsTarget",
+"name": "Wingman's target",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 404,
+"analogue": false
+},
+{
+"id": "WingNavLock",
+"name": "Wingman navlock",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 405,
+"analogue": false
+},
+{
+"id": "UIFocus",
+"name": "UI focus",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 501,
+"analogue": false
+},
+{
+"id": "FocusCommsPanel",
+"name": "Comms panel",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 502,
+"analogue": false
+},
+{
+"id": "QuickCommsPanel",
+"name": "Quick comms",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 503,
+"analogue": false
+},
+{
+"id": "FocusLeftPanel",
+"name": "Left panel (navigation, contacts)",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 504,
+"analogue": false
+},
+{
+"id": "FocusRightPanel",
+"name": "Right panel (ship)",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 505,
+"analogue": false
+},
+{
+"id": "FocusRadarPanel",
+"name": "Role panel",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 506,
+"analogue": false
+},
+{
+"id": "PlayerHUDModeToggle",
+"name": "HUD mode (analysis / combat)",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 507,
+"analogue": false
+},
+{
+"id": "EjectAllCargo",
+"name": "Eject all cargo",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 701,
+"analogue": false
+},
+{
+"id": "HeadLookToggle",
+"name": "Toggle headlook",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 702,
+"analogue": false
+},
+{
+"id": "OrbitLinesToggle",
+"name": "Orbit lines",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 703,
+"analogue": false
+},
+{
+"id": "ShowPGScoreSummaryInput",
+"name": "CQC score",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 704,
+"analogue": false
+},
+{
+"id": "MouseReset",
+"name": "Reset mouse",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 705,
+"analogue": false
+},
+{
+"id": "WeaponColourToggle",
+"name": "Weapon colour",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 706,
+"analogue": false
+},
+{
+"id": "EngineColourToggle",
+"name": "Engine colour",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 707,
+"analogue": false
+},
+{
+"id": "BlockMouseDecay",
+"name": "Block mouse decay",
+"group": "Ship systems",
+"context": "Ship",
+"group_order": 20,
+"order": 708,
+"analogue": false
+},
+{
+"id": "SelectTarget",
+"name": "Select target ahead",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 101,
+"analogue": false
+},
+{
+"id": "SelectHighestThreat",
+"name": "Highest threat",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 102,
+"analogue": false
+},
+{
+"id": "CycleNextTarget",
+"name": "Next contact",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 103,
+"analogue": false
+},
+{
+"id": "CyclePreviousTarget",
+"name": "Prev contact",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 104,
+"analogue": false
+},
+{
+"id": "CycleNextHostileTarget",
+"name": "Next hostile",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 105,
+"analogue": false
+},
+{
+"id": "CyclePreviousHostileTarget",
+"name": "Prev hostile",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 106,
+"analogue": false
+},
+{
+"id": "DeployHardpointToggle",
+"name": "Hardpoints",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 107,
+"analogue": false
+},
+{
+"id": "PrimaryFire",
+"name": "Primary fire",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 108,
+"analogue": false
+},
+{
+"id": "SecondaryFire",
+"name": "Secondary fire",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 109,
+"analogue": false
+},
+{
+"id": "CycleFireGroupNext",
+"name": "Next fire group",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 110,
+"analogue": false
+},
+{
+"id": "CycleFireGroupPrevious",
+"name": "Prev fire group",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 111,
+"analogue": false
+},
+{
+"id": "CycleNextSubsystem",
+"name": "Next subsystem",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 112,
+"analogue": false
+},
+{
+"id": "CyclePreviousSubsystem",
+"name": "Prev subsystem",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 113,
+"analogue": false
+},
+{
+"id": "FireChaffLauncher",
+"name": "Chaff",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 114,
+"analogue": false
+},
+{
+"id": "DeployHeatSink",
+"name": "Heat sink",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 116,
+"analogue": false
+},
+{
+"id": "UseShieldCell",
+"name": "SCB",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 117,
+"analogue": false
+},
+{
+"id": "ChargeECM",
+"name": "ECM",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 118,
+"analogue": false
+},
+{
+"id": "TriggerFieldNeutraliser",
+"name": "Field neutraliser",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 119,
+"analogue": false
+},
+{
+"id": "ResetPowerDistribution",
+"name": "Balance power",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 201,
+"analogue": false
+},
+{
+"id": "IncreaseEnginesPower",
+"name": "Power to engines",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 202,
+"analogue": false
+},
+{
+"id": "IncreaseSystemsPower",
+"name": "Power to systems",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 203,
+"analogue": false
+},
+{
+"id": "IncreaseWeaponsPower",
+"name": "Power to weapons",
+"group": "Weapons and combat",
+"context": "Ship",
+"group_order": 30,
+"order": 204,
+"analogue": false
+},
+{
+"id": "ExplorationFSSEnter",
+"name": "Enter FSS",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 1,
+"analogue": false
+},
+{
+"id": "ExplorationFSSCameraPitch",
+"name": "FSS pitch",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 2,
+"analogue": true
+},
+{
+"id": "ExplorationFSSCameraPitchIncreaseButton",
+"name": "FSS pitch up",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 3,
+"analogue": false
+},
+{
+"id": "ExplorationFSSCameraPitchDecreaseButton",
+"name": "FSS pitch down",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 4,
+"analogue": false
+},
+{
+"id": "ExplorationFSSCameraYaw",
+"name": "FSS yaw",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 5,
+"analogue": true
+},
+{
+"id": "ExplorationFSSCameraYawIncreaseButton",
+"name": "FSS yaw right",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 6,
+"analogue": false
+},
+{
+"id": "ExplorationFSSCameraYawDecreaseButton",
+"name": "FSS yaw left",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 7,
+"analogue": false
+},
+{
+"id": "ExplorationFSSZoomIn",
+"name": "Zoom FSS in",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 8,
+"analogue": false
+},
+{
+"id": "ExplorationFSSZoomOut",
+"name": "Zoom FSS out",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 9,
+"analogue": false
+},
+{
+"id": "ExplorationFSSMiniZoomIn",
+"name": "Step zoom FSS in",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 10,
+"analogue": false
+},
+{
+"id": "ExplorationFSSMiniZoomOut",
+"name": "Step zoom FSS out",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 11,
+"analogue": false
+},
+{
+"id": "ExplorationFSSRadioTuningX_Raw",
+"name": "FSS tuning",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 12,
+"analogue": true
+},
+{
+"id": "ExplorationFSSRadioTuningX_Increase",
+"name": "FSS tune right",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 13,
+"analogue": false
+},
+{
+"id": "ExplorationFSSRadioTuningX_Decrease",
+"name": "FSS tune left",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 14,
+"analogue": false
+},
+{
+"id": "ExplorationFSSRadioTuningAbsoluteX",
+"name": "FSS tuning",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 15,
+"analogue": true
+},
+{
+"id": "ExplorationFSSDiscoveryScan",
+"name": "Discovery scan (honk)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 16,
+"analogue": false
+},
+{
+"id": "ExplorationFSSQuit",
+"name": "Leave FSS",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 17,
+"analogue": false
+},
+{
+"id": "ExplorationFSSTarget",
+"name": "Target FSS",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 18,
+"analogue": false
+},
+{
+"id": "ExplorationFSSShowHelp",
+"name": "FSS help",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 19,
+"analogue": false
+},
+{
+"id": "ExplorationSAAChangeScannedAreaViewToggle",
+"name": "Toggle planet front/back",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 20,
+"analogue": false
+},
+{
+"id": "ExplorationSAAExitThirdPerson",
+"name": "Exit DSS",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 21,
+"analogue": false
+},
+{
+"id": "ExplorationSAANextGenus",
+"name": "Next signal (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 22,
+"analogue": false
+},
+{
+"id": "ExplorationSAAPreviousGenus",
+"name": "Prev signal (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 23,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonPitchAxisRaw",
+"name": "Pitch (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 281,
+"analogue": true
+},
+{
+"id": "SAAThirdPersonPitchUpButton",
+"name": "Pitch up (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 282,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonPitchDownButton",
+"name": "Pitch down (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 283,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonYawAxisRaw",
+"name": "DSS yaw",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 284,
+"analogue": true
+},
+{
+"id": "SAAThirdPersonYawLeftButton",
+"name": "Yaw left (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 285,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonYawRightButton",
+"name": "Yaw right (DSS)",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 286,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonFovAxisRaw",
+"name": "DSS field of view",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 287,
+"analogue": true
+},
+{
+"id": "SAAThirdPersonFovOutButton",
+"name": "DSS field of view out",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 288,
+"analogue": false
+},
+{
+"id": "SAAThirdPersonFovInButton",
+"name": "DSS field of view in",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 289,
+"analogue": false
+},
+{
+"id": "ExplorationSAAShowHelp",
+"name": "DSS help",
+"group": "Scanners (FSS, DSS)",
+"context": "Ship",
+"group_order": 40,
+"order": 290,
+"analogue": false
+},
+{
+"id": "HeadLookPitchAxis",
+"name": "Look up/down",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 1,
+"analogue": true
+},
+{
+"id": "HeadLookPitchAxisRaw",
+"name": "Look up/down",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 2,
+"analogue": true
+},
+{
+"id": "HeadLookPitchUp",
+"name": "Look up",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 3,
+"analogue": false
+},
+{
+"id": "HeadLookPitchDown",
+"name": "Look down",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 4,
+"analogue": false
+},
+{
+"id": "HeadLookYawAxis",
+"name": "Look left/right",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 5,
+"analogue": true
+},
+{
+"id": "HeadLookYawAxisRaw",
+"name": "Look left/right",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 6,
+"analogue": true
+},
+{
+"id": "HeadLookYawLeft",
+"name": "Look left",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 7,
+"analogue": false
+},
+{
+"id": "HeadLookYawRight",
+"name": "Look right",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 8,
+"analogue": false
+},
+{
+"id": "HeadLookReset",
+"name": "Reset headlook",
+"group": "Head look",
+"context": "Ship",
+"group_order": 50,
+"order": 9,
+"analogue": false
+},
+{
+"id": "OrderRequestDock",
+"name": "Dock SLF",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 251,
+"analogue": false
+},
+{
+"id": "OrderDefensiveBehaviour",
+"name": "Be defensive",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 252,
+"analogue": false
+},
+{
+"id": "OrderAggressiveBehaviour",
+"name": "Be aggressive",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 253,
+"analogue": false
+},
+{
+"id": "OrderFocusTarget",
+"name": "Attack my target",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 253,
+"analogue": false
+},
+{
+"id": "OrderHoldFire",
+"name": "Hold fire",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 254,
+"analogue": false
+},
+{
+"id": "OrderHoldPosition",
+"name": "Hold position",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 256,
+"analogue": false
+},
+{
+"id": "OrderFollow",
+"name": "Follow",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 257,
+"analogue": false
+},
+{
+"id": "OpenOrders",
+"name": "Crew orders",
+"group": "Fighter orders",
+"context": "Ship",
+"group_order": 60,
+"order": 258,
+"analogue": false
+},
+{
+"id": "MultiCrewToggleMode",
+"name": "Multicrew mode",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 280,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonPitchAxisRaw",
+"name": "Pitch",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 281,
+"analogue": true
+},
+{
+"id": "MultiCrewThirdPersonPitchUpButton",
+"name": "Pitch up",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 282,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonPitchDownButton",
+"name": "Pitch down",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 283,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonYawAxisRaw",
+"name": "Yaw",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 284,
+"analogue": true
+},
+{
+"id": "MultiCrewThirdPersonYawLeftButton",
+"name": "Yaw left",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 285,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonYawRightButton",
+"name": "Yaw right",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 286,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonFovAxisRaw",
+"name": "Field of view",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 287,
+"analogue": true
+},
+{
+"id": "MultiCrewThirdPersonFovOutButton",
+"name": "Field of view out",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 288,
+"analogue": false
+},
+{
+"id": "MultiCrewThirdPersonFovInButton",
+"name": "Field of view in",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 289,
+"analogue": false
+},
+{
+"id": "MultiCrewPrimaryFire",
+"name": "Fire 1",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 290,
+"analogue": false
+},
+{
+"id": "MultiCrewPrimaryUtilityFire",
+"name": "Primary utility",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 292,
+"analogue": false
+},
+{
+"id": "MultiCrewSecondaryFire",
+"name": "Fire 2",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 292,
+"analogue": false
+},
+{
+"id": "MultiCrewSecondaryUtilityFire",
+"name": "Secondary utility",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 293,
+"analogue": false
+},
+{
+"id": "MultiCrewCockpitUICycleForward",
+"name": "UI forward",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 294,
+"analogue": false
+},
+{
+"id": "MultiCrewCockpitUICycleBackward",
+"name": "UI backward",
+"group": "Multicrew",
+"context": "Ship",
+"group_order": 70,
+"order": 295,
+"analogue": false
+},
+{
+"id": "SteeringAxis",
+"name": "SRV steer",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 1,
+"analogue": true
+},
+{
+"id": "SteerLeftButton",
+"name": "Steer left",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 2,
+"analogue": false
+},
+{
+"id": "SteerRightButton",
+"name": "Steer right",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 3,
+"analogue": false
+},
+{
+"id": "DriveSpeedAxis",
+"name": "Speed",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 4,
+"analogue": true
+},
+{
+"id": "IncreaseSpeedButtonPartial",
+"name": "Inc speed",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 5,
+"analogue": false
+},
+{
+"id": "DecreaseSpeedButtonPartial",
+"name": "Dec speed",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 6,
+"analogue": false
+},
+{
+"id": "IncreaseSpeedButtonMax",
+"name": "Maximum speed",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 7,
+"analogue": false
+},
+{
+"id": "DecreaseSpeedButtonMax",
+"name": "Zero speed",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 8,
+"analogue": false
+},
+{
+"id": "BuggyPitchAxis",
+"name": "Pitch",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 9,
+"analogue": true
+},
+{
+"id": "BuggyPitchUpButton",
+"name": "Pitch up",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 11,
+"analogue": false
+},
+{
+"id": "BuggyPitchDownButton",
+"name": "Pitch down",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 12,
+"analogue": false
+},
+{
+"id": "BuggyRollLeft",
+"name": "Roll left",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 13,
+"analogue": false
+},
+{
+"id": "BuggyRollAxisRaw",
+"name": "Roll",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 14,
+"analogue": true
+},
+{
+"id": "BuggyRollLeftButton",
+"name": "Roll left",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 15,
+"analogue": false
+},
+{
+"id": "BuggyRollRight",
+"name": "Roll right",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 16,
+"analogue": false
+},
+{
+"id": "BuggyRollRightButton",
+"name": "Roll right",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 17,
+"analogue": false
+},
+{
+"id": "AutoBreakBuggyButton",
+"name": "Handbrake",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 18,
+"analogue": false
+},
+{
+"id": "BuggyToggleReverseThrottleInput",
+"name": "Reverse",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 19,
+"analogue": false
+},
+{
+"id": "VerticalThrustersButton",
+"name": "Vertical thrusters",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 20,
+"analogue": false
+},
+{
+"id": "ToggleDriveAssist",
+"name": "Drive assist",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 21,
+"analogue": false
+},
+{
+"id": "HeadlightsBuggyButton",
+"name": "Lights",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 22,
+"analogue": false
+},
+{
+"id": "ToggleCargoScoop_Buggy",
+"name": "Cargo scoop",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 23,
+"analogue": false
+},
+{
+"id": "RecallDismissShip",
+"name": "Recall/dismiss ship",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 24,
+"analogue": false
+},
+{
+"id": "GalaxyMapOpen_Buggy",
+"name": "GalMap",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 301,
+"analogue": false
+},
+{
+"id": "SystemMapOpen_Buggy",
+"name": "SysMap",
+"group": "SRV driving",
+"context": "SRV",
+"group_order": 110,
+"order": 302,
+"analogue": false
+},
+{
+"id": "SelectTarget_Buggy",
+"name": "Target ahead",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 101,
+"analogue": false
+},
+{
+"id": "ToggleBuggyTurretButton",
+"name": "Turret mode",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 102,
+"analogue": false
+},
+{
+"id": "BuggyPrimaryFireButton",
+"name": "Primary weapons",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 103,
+"analogue": false
+},
+{
+"id": "BuggySecondaryFireButton",
+"name": "Secondary weapons",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 104,
+"analogue": false
+},
+{
+"id": "BuggyTurretPitchAxisRaw",
+"name": "Turret pitch",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 106,
+"analogue": true
+},
+{
+"id": "BuggyTurretPitchDownButton",
+"name": "Turret down",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 107,
+"analogue": false
+},
+{
+"id": "BuggyTurretPitchUpButton",
+"name": "Turret up",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 108,
+"analogue": false
+},
+{
+"id": "BuggyTurretYawAxisRaw",
+"name": "Turret yaw",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 110,
+"analogue": true
+},
+{
+"id": "BuggyTurretYawLeftButton",
+"name": "Turret left",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 111,
+"analogue": false
+},
+{
+"id": "BuggyTurretYawRightButton",
+"name": "Turret right",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 112,
+"analogue": false
+},
+{
+"id": "BuggyCycleFireGroupNext",
+"name": "Next fire group",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 113,
+"analogue": false
+},
+{
+"id": "BuggyCycleFireGroupPrevious",
+"name": "Prev fire group",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 114,
+"analogue": false
+},
+{
+"id": "ResetPowerDistribution_Buggy",
+"name": "RST",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 201,
+"analogue": false
+},
+{
+"id": "IncreaseEnginesPower_Buggy",
+"name": "ENG",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 202,
+"analogue": false
+},
+{
+"id": "IncreaseSystemsPower_Buggy",
+"name": "SYS",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 203,
+"analogue": false
+},
+{
+"id": "IncreaseWeaponsPower_Buggy",
+"name": "WEP",
+"group": "SRV turret",
+"context": "SRV",
+"group_order": 120,
+"order": 204,
+"analogue": false
+},
+{
+"id": "FocusCommsPanel_Buggy",
+"name": "Comms panel",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 401,
+"analogue": false
+},
+{
+"id": "FocusLeftPanel_Buggy",
+"name": "Nav panel",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 402,
+"analogue": false
+},
+{
+"id": "FocusRadarPanel_Buggy",
+"name": "Role panel",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 403,
+"analogue": false
+},
+{
+"id": "FocusRightPanel_Buggy",
+"name": "Systems panel",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 404,
+"analogue": false
+},
+{
+"id": "QuickCommsPanel_Buggy",
+"name": "Quick comms",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 405,
+"analogue": false
+},
+{
+"id": "UIFocus_Buggy",
+"name": "UI focus",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 406,
+"analogue": false
+},
+{
+"id": "PlayerHUDModeToggle_Buggy",
+"name": "HUD mode",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 407,
+"analogue": false
+},
+{
+"id": "EjectAllCargo_Buggy",
+"name": "Eject all cargo",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 501,
+"analogue": false
+},
+{
+"id": "HeadLookToggle_Buggy",
+"name": "Toggle headlook",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 502,
+"analogue": false
+},
+{
+"id": "OpenCodexGoToDiscovery_Buggy",
+"name": "Codex",
+"group": "SRV systems",
+"context": "SRV",
+"group_order": 130,
+"order": 503,
+"analogue": false
+},
+{
+"id": "HumanoidForwardAxis",
+"name": "Fwd/back",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 4,
+"analogue": true
+},
+{
+"id": "HumanoidForwardButton",
+"name": "Walk forward",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 5,
+"analogue": false
+},
+{
+"id": "HumanoidBackwardButton",
+"name": "Walk backward",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 6,
+"analogue": false
+},
+{
+"id": "HumanoidPitchAxis",
+"name": "Pitch",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 9,
+"analogue": true
+},
+{
+"id": "HumanoidPitchUpButton",
+"name": "Pitch up",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 11,
+"analogue": false
+},
+{
+"id": "HumanoidPitchDownButton",
+"name": "Pitch down",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 12,
+"analogue": false
+},
+{
+"id": "HumanoidStrafeAxis",
+"name": "Strafe",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 13,
+"analogue": true
+},
+{
+"id": "HumanoidStrafeLeftButton",
+"name": "Strafe left",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 14,
+"analogue": false
+},
+{
+"id": "HumanoidStrafeRightButton",
+"name": "Strafe right",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 15,
+"analogue": false
+},
+{
+"id": "HumanoidRotateAxis",
+"name": "Turn",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 16,
+"analogue": true
+},
+{
+"id": "HumanoidRotateLeftButton",
+"name": "Turn left",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 17,
+"analogue": false
+},
+{
+"id": "HumanoidRotateRightButton",
+"name": "Turn right",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 18,
+"analogue": false
+},
+{
+"id": "GalaxyMapOpen_Humanoid",
+"name": "GalMap",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 301,
+"analogue": false
+},
+{
+"id": "SystemMapOpen_Humanoid",
+"name": "SysMap",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 302,
+"analogue": false
+},
+{
+"id": "HumanoidItemWheelButton_XAxis",
+"name": "Item L/R",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 702,
+"analogue": true
+},
+{
+"id": "HumanoidItemWheelButton_XLeft",
+"name": "Item left",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 703,
+"analogue": false
+},
+{
+"id": "HumanoidItemWheelButton_XRight",
+"name": "Item right",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 704,
+"analogue": false
+},
+{
+"id": "HumanoidItemWheelButton_YAxis",
+"name": "Item up/dn",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 705,
+"analogue": true
+},
+{
+"id": "HumanoidItemWheelButton_YDown",
+"name": "Item down",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 706,
+"analogue": false
+},
+{
+"id": "HumanoidItemWheelButton_YUp",
+"name": "Item up",
+"group": "On foot movement",
+"context": "On foot",
+"group_order": 210,
+"order": 707,
+"analogue": false
+},
+{
+"id": "HumanoidPrimaryFireButton",
+"name": "Fire",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 100,
+"analogue": false
+},
+{
+"id": "HumanoidActivateSuitAbilityButton",
+"name": "Suit tool",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 101,
+"analogue": false
+},
+{
+"id": "HumanoidConflictContextualUI",
+"name": "Combat UI",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 102,
+"analogue": false
+},
+{
+"id": "HumanoidConflictContextualUIButton",
+"name": "Combat UI",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 103,
+"analogue": false
+},
+{
+"id": "HumanoidCrouchButton",
+"name": "Crouch",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 104,
+"analogue": false
+},
+{
+"id": "HumanoidHideWeaponButton",
+"name": "Holster",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 105,
+"analogue": false
+},
+{
+"id": "HumanoidJumpButton",
+"name": "Jump",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 106,
+"analogue": false
+},
+{
+"id": "HumanoidMeleeButton",
+"name": "Melee",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 107,
+"analogue": false
+},
+{
+"id": "HumanoidOpenAccessPanelButton",
+"name": "Open access panel",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 108,
+"analogue": false
+},
+{
+"id": "HumanoidPrimaryInteractButton",
+"name": "Interact",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 109,
+"analogue": false
+},
+{
+"id": "HumanoidPulseScanButton",
+"name": "Pulse scan",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 110,
+"analogue": false
+},
+{
+"id": "HumanoidReloadButton",
+"name": "Reload",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 111,
+"analogue": false
+},
+{
+"id": "HumanoidSecondaryInteractButton",
+"name": "Interact 2",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 112,
+"analogue": false
+},
+{
+"id": "HumanoidSelectNextGrenadeTypeButton",
+"name": "Next grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 113,
+"analogue": false
+},
+{
+"id": "HumanoidSelectNextWeaponButton",
+"name": "Next WEP",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 114,
+"analogue": false
+},
+{
+"id": "HumanoidSelectPreviousGrenadeTypeButton",
+"name": "Prev grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 115,
+"analogue": false
+},
+{
+"id": "HumanoidSelectPreviousWeaponButton",
+"name": "Prev WEP",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 116,
+"analogue": false
+},
+{
+"id": "HumanoidSelectPrimaryWeaponButton",
+"name": "WEP 1",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 117,
+"analogue": false
+},
+{
+"id": "HumanoidSelectSecondaryWeaponButton",
+"name": "WEP 2",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 118,
+"analogue": false
+},
+{
+"id": "HumanoidSelectUtilityWeaponButton",
+"name": "Select util",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 119,
+"analogue": false
+},
+{
+"id": "HumanoidSprintButton",
+"name": "Sprint",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 120,
+"analogue": false
+},
+{
+"id": "HumanoidSwitchToCompAnalyser",
+"name": "Comp analyser",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 121,
+"analogue": false
+},
+{
+"id": "HumanoidSwitchToRechargeTool",
+"name": "Recharge tool",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 122,
+"analogue": false
+},
+{
+"id": "HumanoidSwitchToSuitTool",
+"name": "Suit tool",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 123,
+"analogue": false
+},
+{
+"id": "HumanoidSwitchWeapon",
+"name": "Switch WEP",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 124,
+"analogue": false
+},
+{
+"id": "HumanoidThrowGrenadeButton",
+"name": "Throw grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 125,
+"analogue": false
+},
+{
+"id": "HumanoidToggleFlashlightButton",
+"name": "Flashlight",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 126,
+"analogue": false
+},
+{
+"id": "HumanoidToggleJumpAssistModuleButton",
+"name": "Jump assist",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 127,
+"analogue": false
+},
+{
+"id": "HumanoidToggleMissionHelpPanelButton",
+"name": "Mission help",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 128,
+"analogue": false
+},
+{
+"id": "HumanoidToggleNightVisionButton",
+"name": "Night vision",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 129,
+"analogue": false
+},
+{
+"id": "HumanoidToggleShieldBoosterModuleButton",
+"name": "Shield boost",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 130,
+"analogue": false
+},
+{
+"id": "HumanoidToggleShieldsButton",
+"name": "Shields",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 131,
+"analogue": false
+},
+{
+"id": "HumanoidToggleToolModeButton",
+"name": "Tool mode",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 132,
+"analogue": false
+},
+{
+"id": "HumanoidToggleWeaponBoosterModuleButton",
+"name": "Weapon booster",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 134,
+"analogue": false
+},
+{
+"id": "HumanoidZoomButton",
+"name": "Zoom (aim down sights)",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 135,
+"analogue": false
+},
+{
+"id": "HumanoidWalkButton",
+"name": "Walk",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 136,
+"analogue": false
+},
+{
+"id": "HumanoidHealthPack",
+"name": "Health pack",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 137,
+"analogue": false
+},
+{
+"id": "HumanoidBattery",
+"name": "Battery pack",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 138,
+"analogue": false
+},
+{
+"id": "HumanoidSelectFragGrenade",
+"name": "Frag grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 139,
+"analogue": false
+},
+{
+"id": "HumanoidSelectShieldGrenade",
+"name": "Shield grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 140,
+"analogue": false
+},
+{
+"id": "HumanoidSelectEMPGrenade",
+"name": "EMP grenade",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 141,
+"analogue": false
+},
+{
+"id": "HumanoidClearAuthorityLevel",
+"name": "Clear auth lvl",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 142,
+"analogue": false
+},
+{
+"id": "HumanoidResetPowerDistributionButton",
+"name": "RST",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 201,
+"analogue": false
+},
+{
+"id": "HumanoidIncreaseEnginesPowerButton",
+"name": "ENG",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 202,
+"analogue": false
+},
+{
+"id": "HumanoidIncreaseSystemsPowerButton",
+"name": "SYS",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 203,
+"analogue": false
+},
+{
+"id": "HumanoidIncreaseWeaponsPowerButton",
+"name": "WEP",
+"group": "On foot combat",
+"context": "On foot",
+"group_order": 220,
+"order": 204,
+"analogue": false
+},
+{
+"id": "FocusCommsPanel_Humanoid",
+"name": "Comms panel",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 401,
+"analogue": false
+},
+{
+"id": "QuickCommsPanel_Humanoid",
+"name": "Quick comms",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 405,
+"analogue": false
+},
+{
+"id": "HumanoidItemWheelButton",
+"name": "Item wheel",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 701,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteWheelButton",
+"name": "Emote wheel",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 708,
+"analogue": false
+},
+{
+"id": "HumanoidUtilityWheelCycleMode",
+"name": "Utility wheel",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 710,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot1",
+"name": "Emote 1",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 711,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot2",
+"name": "Emote 2",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 712,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot3",
+"name": "Emote 3",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 713,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot4",
+"name": "Emote 4",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 714,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot5",
+"name": "Emote 5",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 715,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot6",
+"name": "Emote 6",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 716,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot7",
+"name": "Emote 7",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 717,
+"analogue": false
+},
+{
+"id": "HumanoidEmoteSlot8",
+"name": "Emote 8",
+"group": "On foot tools and interface",
+"context": "On foot",
+"group_order": 230,
+"order": 718,
+"analogue": false
+},
+{
+"id": "RadarRangeAxis",
+"name": "Sensor range",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 1,
+"analogue": true
+},
+{
+"id": "RadarDecreaseRange",
+"name": "Dec sensor range",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 2,
+"analogue": false
+},
+{
+"id": "RadarIncreaseRange",
+"name": "Inc sensor range",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 3,
+"analogue": false
+},
+{
+"id": "MicrophoneMute",
+"name": "Microphone",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 4,
+"analogue": false
+},
+{
+"id": "HMDReset",
+"name": "Reset HMD",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 5,
+"analogue": false
+},
+{
+"id": "OculusReset",
+"name": "Reset oculus",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 6,
+"analogue": false
+},
+{
+"id": "Pause",
+"name": "Main menu",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 8,
+"analogue": false
+},
+{
+"id": "FriendsMenu",
+"name": "Friends",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 9,
+"analogue": false
+},
+{
+"id": "NightVisionToggle",
+"name": "Night vision",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 14,
+"analogue": false
+},
+{
+"id": "OpenCodexGoToDiscovery",
+"name": "Codex",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 15,
+"analogue": false
+},
+{
+"id": "GalnetAudio_Play_Pause",
+"name": "Play/pause audio",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 16,
+"analogue": false
+},
+{
+"id": "GalnetAudio_SkipForward",
+"name": "Next audio track",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 17,
+"analogue": false
+},
+{
+"id": "GalnetAudio_SkipBackward",
+"name": "Prev audio track",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 18,
+"analogue": false
+},
+{
+"id": "GalnetAudio_ClearQueue",
+"name": "Clear audio queue",
+"group": "General",
+"context": "General",
+"group_order": 300,
+"order": 19,
+"analogue": false
+},
+{
+"id": "UI_Up",
+"name": "UI up",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 1,
+"analogue": false
+},
+{
+"id": "UI_Down",
+"name": "UI down",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 2,
+"analogue": false
+},
+{
+"id": "UI_Left",
+"name": "UI left",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 3,
+"analogue": false
+},
+{
+"id": "UI_Right",
+"name": "UI right",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 4,
+"analogue": false
+},
+{
+"id": "CycleNextPanel",
+"name": "Next panel",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 5,
+"analogue": false
+},
+{
+"id": "CyclePreviousPanel",
+"name": "Prev panel",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 6,
+"analogue": false
+},
+{
+"id": "UI_Select",
+"name": "UI select",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 7,
+"analogue": false
+},
+{
+"id": "UI_Back",
+"name": "UI back",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 8,
+"analogue": false
+},
+{
+"id": "UI_Toggle",
+"name": "UI toggle",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 9,
+"analogue": false
+},
+{
+"id": "CycleNextPage",
+"name": "Next page",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 10,
+"analogue": false
+},
+{
+"id": "CyclePreviousPage",
+"name": "Prev page",
+"group": "Interface",
+"context": "General",
+"group_order": 310,
+"order": 11,
+"analogue": false
+},
+{
+"id": "CamTranslateUp",
+"name": "GalMap up",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 1,
+"analogue": false
+},
+{
+"id": "CamTranslateDown",
+"name": "GalMap down",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 2,
+"analogue": false
+},
+{
+"id": "CamTranslateLeft",
+"name": "GalMap left",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 3,
+"analogue": false
+},
+{
+"id": "CamTranslateRight",
+"name": "GalMap right",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 4,
+"analogue": false
+},
+{
+"id": "CamTranslateForward",
+"name": "GalMap forward",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 5,
+"analogue": false
+},
+{
+"id": "CamTranslateBackward",
+"name": "GalMap backward",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 6,
+"analogue": false
+},
+{
+"id": "CamTranslateXAxis",
+"name": "GalMap X",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 7,
+"analogue": true
+},
+{
+"id": "CamTranslateYAxis",
+"name": "GalMap Y",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 8,
+"analogue": true
+},
+{
+"id": "CamTranslateZAxis",
+"name": "GalMap Z",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 9,
+"analogue": true
+},
+{
+"id": "CamTranslateZHold",
+"name": "GalMap Z hold",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 10,
+"analogue": false
+},
+{
+"id": "CamPitchAxis",
+"name": "GalMap pitch",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 11,
+"analogue": true
+},
+{
+"id": "CamPitchUp",
+"name": "GalMap pitch up",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 12,
+"analogue": false
+},
+{
+"id": "CamPitchDown",
+"name": "GalMap pitch down",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 13,
+"analogue": false
+},
+{
+"id": "CamYawAxis",
+"name": "GalMap yaw",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 14,
+"analogue": true
+},
+{
+"id": "CamYawLeft",
+"name": "GalMap yaw left",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 15,
+"analogue": false
+},
+{
+"id": "CamYawRight",
+"name": "GalMap yaw right",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 16,
+"analogue": false
+},
+{
+"id": "CamZoomAxis",
+"name": "GalMap zoom",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 17,
+"analogue": true
+},
+{
+"id": "CamZoomIn",
+"name": "GalMap zoom in",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 18,
+"analogue": false
+},
+{
+"id": "CamZoomOut",
+"name": "GalMap zoom out",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 19,
+"analogue": false
+},
+{
+"id": "GalaxyMapHome",
+"name": "GalMap home",
+"group": "Galaxy map",
+"context": "General",
+"group_order": 320,
+"order": 20,
+"analogue": false
+},
+{
+"id": "PhotoCameraToggle",
+"name": "External cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 801,
+"analogue": false
+},
+{
+"id": "PhotoCameraToggle_Humanoid",
+"name": "External cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 801,
+"analogue": false
+},
+{
+"id": "PhotoCameraToggle_Buggy",
+"name": "External cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 802,
+"analogue": false
+},
+{
+"id": "ToggleFreeCam",
+"name": "Free cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 803,
+"analogue": false
+},
+{
+"id": "QuitCamera",
+"name": "Exit free cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 804,
+"analogue": false
+},
+{
+"id": "VanityCameraOne",
+"name": "Cam - cockpit front",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 805,
+"analogue": false
+},
+{
+"id": "VanityCameraTwo",
+"name": "Cam - cockpit back",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 806,
+"analogue": false
+},
+{
+"id": "VanityCameraFour",
+"name": "Cam - commander 2",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 808,
+"analogue": false
+},
+{
+"id": "VanityCameraThree",
+"name": "Cam - commander 1",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 808,
+"analogue": false
+},
+{
+"id": "VanityCameraFive",
+"name": "Cam - co-pilot 1",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 809,
+"analogue": false
+},
+{
+"id": "VanityCameraSix",
+"name": "Cam - co-pilot 2",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 810,
+"analogue": false
+},
+{
+"id": "VanityCameraSeven",
+"name": "Cam - front",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 811,
+"analogue": false
+},
+{
+"id": "VanityCameraEight",
+"name": "Cam - back",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 812,
+"analogue": false
+},
+{
+"id": "VanityCameraNine",
+"name": "Cam - low",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 813,
+"analogue": false
+},
+{
+"id": "VanityCameraScrollRight",
+"name": "Next cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 814,
+"analogue": false
+},
+{
+"id": "VanityCameraScrollLeft",
+"name": "Prev cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 815,
+"analogue": false
+},
+{
+"id": "FreeCamToggleHUD",
+"name": "Toggle HUD",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 816,
+"analogue": false
+},
+{
+"id": "FreeCamSpeedInc",
+"name": "Inc cam speed",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 817,
+"analogue": false
+},
+{
+"id": "FreeCamSpeedDec",
+"name": "Dec cam speed",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 818,
+"analogue": false
+},
+{
+"id": "FreeCamZoomIn",
+"name": "Zoom in",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 819,
+"analogue": false
+},
+{
+"id": "FreeCamZoomOut",
+"name": "Zoom out",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 820,
+"analogue": false
+},
+{
+"id": "MoveFreeCamX",
+"name": "Cam X",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 821,
+"analogue": true
+},
+{
+"id": "MoveFreeCamLeft",
+"name": "Cam left",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 822,
+"analogue": false
+},
+{
+"id": "MoveFreeCamRight",
+"name": "Cam right",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 823,
+"analogue": false
+},
+{
+"id": "MoveFreeCamY",
+"name": "Cam Y",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 824,
+"analogue": true
+},
+{
+"id": "MoveFreeCamUp",
+"name": "Cam up",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 825,
+"analogue": false
+},
+{
+"id": "MoveFreeCamDown",
+"name": "Cam down",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 826,
+"analogue": false
+},
+{
+"id": "MoveFreeCamZ",
+"name": "Cam Z",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 827,
+"analogue": true
+},
+{
+"id": "MoveFreeCamForward",
+"name": "Cam forwards",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 828,
+"analogue": false
+},
+{
+"id": "MoveFreeCamBackwards",
+"name": "Cam backwards",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 829,
+"analogue": false
+},
+{
+"id": "PitchCamera",
+"name": "Cam pitch",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 830,
+"analogue": true
+},
+{
+"id": "PitchCameraUp",
+"name": "Cam pitch up",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 831,
+"analogue": false
+},
+{
+"id": "PitchCameraDown",
+"name": "Cam pitch down",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 832,
+"analogue": false
+},
+{
+"id": "RollCamera",
+"name": "Cam roll",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 833,
+"analogue": true
+},
+{
+"id": "RollCameraLeft",
+"name": "Cam roll left",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 834,
+"analogue": false
+},
+{
+"id": "RollCameraRight",
+"name": "Cam roll right",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 835,
+"analogue": false
+},
+{
+"id": "YawCamera",
+"name": "Cam yaw",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 836,
+"analogue": true
+},
+{
+"id": "YawCameraLeft",
+"name": "Cam yaw left",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 837,
+"analogue": false
+},
+{
+"id": "YawCameraRight",
+"name": "Cam yaw right",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 838,
+"analogue": false
+},
+{
+"id": "ToggleRotationLock",
+"name": "Cam rotation lock",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 839,
+"analogue": false
+},
+{
+"id": "ToggleReverseThrottleInputFreeCam",
+"name": "Cam reverse",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 840,
+"analogue": false
+},
+{
+"id": "FixCameraRelativeToggle",
+"name": "Lock to vehicle",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 841,
+"analogue": false
+},
+{
+"id": "FixCameraWorldToggle",
+"name": "Lock to world",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 842,
+"analogue": false
+},
+{
+"id": "ToggleAdvanceMode",
+"name": "Advanced cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 843,
+"analogue": false
+},
+{
+"id": "FStopInc",
+"name": "Inc blur",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 844,
+"analogue": false
+},
+{
+"id": "FStopDec",
+"name": "Dec blur",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 845,
+"analogue": false
+},
+{
+"id": "FocusDistanceInc",
+"name": "Focus further",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 846,
+"analogue": false
+},
+{
+"id": "FocusDistanceDec",
+"name": "Focus nearer",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 847,
+"analogue": false
+},
+{
+"id": "VanityCameraTen",
+"name": "Cam - back low",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 848,
+"analogue": false
+},
+{
+"id": "MoveFreeCamUpAxis",
+"name": "Cam up axis",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 849,
+"analogue": true
+},
+{
+"id": "MoveFreeCamDownAxis",
+"name": "Cam down axis",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 850,
+"analogue": true
+},
+{
+"id": "ToggleVanityCamera",
+"name": "External cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 851,
+"analogue": false
+},
+{
+"id": "ToggleVanityCamera_Buggy",
+"name": "External cam",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 852,
+"analogue": false
+},
+{
+"id": "StoreEnableRotation",
+"name": "Store cam rotation",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 901,
+"analogue": false
+},
+{
+"id": "StorePitchCamera",
+"name": "Store cam pitch",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 902,
+"analogue": true
+},
+{
+"id": "StorePitchCameraUp",
+"name": "Store cam pitch up",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 903,
+"analogue": false
+},
+{
+"id": "StorePitchCameraDown",
+"name": "Store cam pitch down",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 904,
+"analogue": false
+},
+{
+"id": "StoreYawCamera",
+"name": "Store cam yaw",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 905,
+"analogue": true
+},
+{
+"id": "StoreYawCameraLeft",
+"name": "Store cam yaw left",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 906,
+"analogue": false
+},
+{
+"id": "StoreYawCameraRight",
+"name": "Store cam yaw right",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 907,
+"analogue": false
+},
+{
+"id": "StoreCamZoomIn",
+"name": "Store cam zoom in",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 908,
+"analogue": false
+},
+{
+"id": "StoreCamZoomOut",
+"name": "Store cam zoom out",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 909,
+"analogue": false
+},
+{
+"id": "StoreToggle",
+"name": "Store toggle preview",
+"group": "Cameras",
+"context": "General",
+"group_order": 330,
+"order": 910,
+"analogue": false
+},
+{
+"id": "CommanderCreator_Undo",
+"name": "Undo holo-me",
+"group": "Holo-Me",
+"context": "General",
+"group_order": 340,
+"order": 10,
+"analogue": false
+},
+{
+"id": "CommanderCreator_Redo",
+"name": "Redo holo-me",
+"group": "Holo-Me",
+"context": "General",
+"group_order": 340,
+"order": 11,
+"analogue": false
+},
+{
+"id": "CommanderCreator_Rotation_MouseToggle",
+"name": "Toggle holo-me rotation",
+"group": "Holo-Me",
+"context": "General",
+"group_order": 340,
+"order": 12,
+"analogue": false
+},
+{
+"id": "CommanderCreator_Rotation",
+"name": "Rotate holo-me",
+"group": "Holo-Me",
+"context": "General",
+"group_order": 340,
+"order": 13,
+"analogue": false
+}
+]
+}

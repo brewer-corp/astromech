@@ -3,9 +3,9 @@ import type { ModuleManifest } from "../../lib/modules";
 const manifest: ModuleManifest = {
   id: "presets",
   title: "Presets",
-  summary: "Presets",
+  summary: "Every preset, which is active where, health, copies, backups and restore",
   order: 30,
-  api: [],
+  api: ["binds"],
   load: () => import("./View.svelte"),
 };
 

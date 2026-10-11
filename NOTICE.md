@@ -37,4 +37,6 @@ their PNG renders in `app/public/devices/vkb/`) are VKB Gaming's reference sheet
 UntoldForce, from https://www.vkbgaming.com/fillable-templates/. Included unchanged, with
 credit. Stock button numbers are from EDRefCard (MIT, Copyright (c) 2017 Richard Buckle;
 github.com/brammmers/edrefcard2).
+The action catalogue (`data/catalog/controls.json`: binding names, groups, labels) is generated
+from EDRefCard's `controlsData.py` (same MIT licence) by `scripts/gen-catalog.py`.
 The PNGs are recoloured by `scripts/recolour-sheets.py` to match the app; the PDFs are unchanged.

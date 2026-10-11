@@ -5,7 +5,7 @@ const manifest: ModuleManifest = {
   title: "My controller",
   summary: "My controller",
   order: 20,
-  api: [],
+  api: ["binds"],
   load: () => import("./View.svelte"),
 };
 
