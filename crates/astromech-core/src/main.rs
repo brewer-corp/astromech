@@ -69,6 +69,21 @@ struct Args {
     /// Score Debug-saved clips in this folder (JSON sidecars + optional labels.json)
     #[arg(long, value_name = "DIR")]
     eval: Option<PathBuf>,
+    /// Internal: copy a staged update into the install dir (spawned from %TEMP%)
+    #[arg(long)]
+    apply_update: bool,
+    /// Payload directory for --apply-update
+    #[arg(long)]
+    from: Option<PathBuf>,
+    /// Program folder for --apply-update
+    #[arg(long)]
+    install_dir: Option<PathBuf>,
+    /// Wait for this pid to exit before copying
+    #[arg(long)]
+    wait_pid: Option<u32>,
+    /// Relaunch astromech-core --background after a successful copy
+    #[arg(long)]
+    relaunch: bool,
 }
 
 impl Args {
@@ -126,6 +141,11 @@ fn quit_running() -> i32 {
 
 fn main() {
     let args = Args::parse();
+    if args.apply_update {
+        let from = args.from.expect("--apply-update needs --from");
+        let install = args.install_dir.expect("--apply-update needs --install-dir");
+        std::process::exit(astromech_core::update::apply_cli(&from, &install, args.wait_pid, args.relaunch));
+    }
     if args.quit {
         std::process::exit(quit_running());
     }

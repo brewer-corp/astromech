@@ -73,7 +73,8 @@ astromech then runs in the tray and starts with Windows (untick "Start with Wind
 menu to stop that). It stays idle until Elite (or its launcher) starts, then loads voice. Your
 config is `%LOCALAPPDATA%\astromech\data\astromech.toml` (tray → Open config file); speech
 models go in `data\models` (tray → Download speech models). Logs: `data\logs`, or tray → Save
-diagnostics. Updates are manual: run a newer installer.
+diagnostics. After this version, tray → Check for updates downloads a signed zip and Install
+restarts astromech (Elite can keep running). First install is still the NSIS setup.exe.
 
 ## Try the gear-down slice
 

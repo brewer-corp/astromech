@@ -104,6 +104,7 @@ pub struct Config {
     pub controls: Controls,
     pub voice: Voice,
     pub actions: Actions,
+    pub update: crate::update::Settings,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
 }
@@ -301,6 +302,8 @@ mod tests {
         assert_eq!((c.actions.hold_ms, c.actions.verify_timeout_ms, c.actions.retries), (50, 2000, None));
         assert_eq!(c.voice.threads, 4);
         assert_eq!(c.voice.colour, astromech_voice::colour::Colour::Cockpit);
+        assert!(c.update.check);
+        assert_eq!(c.update.apply, crate::update::ApplyWhen::Ask);
         let d: Config = toml::from_str("").unwrap();
         assert!(d.controls.ptt.is_none() && d.voice.tts);
         assert_eq!(d.voice.colour, astromech_voice::colour::Colour::Cockpit);

@@ -32,8 +32,9 @@ starts from the tasks (§2), derives a minimal visual system from the game's own
 - **VR is out of the app entirely.** No overlay, no in-headset UI. Voice still has to work
   while he flies in VR (§6), but nothing on screen needs to.
 - **Releases are unsigned.**
-- **No automatic updates.** No updater plugin, no update channels, no "never while Elite runs"
-  rule. Only a manual "Check for updates…" that opens the GitHub release page.
+- **Signed in-app updates.** The core checks GitHub Releases (`latest.json` + ed25519). Apply
+  quits astromech, overlays the zip, and relaunches; Elite may still be running. First install
+  is still the unsigned NSIS setup.exe.
 - **No colour or theme customisation**, no following the in-game HUD colour: Elite's stock
   orange only.
 - **"Save push-to-talk clips" is a permanent Debug setting** (off by default), not a one-off.
@@ -116,7 +117,7 @@ those problems; see §3 for why this beats a pictorial main view.
 **Shell.**
 - A native tray menu (status, open, pause voice, kill switch, check for updates, quit), one
   settings list, first-run onboarding, Diagnostics (key tester, health report, logs, bundle).
-- Autostart at login, wakes when Elite runs, a manual "check for updates" (§7).
+- Autostart at login, wakes when Elite runs, signed in-app updates from GitHub Releases (§7.3).
 
 ### 1.3 Later (with the reason)
 | Item | Why not v1 |
@@ -125,7 +126,6 @@ those problems; see §3 for why this beats a pictorial main view.
 | Full binds editor (drag-to-rebind any action, conflict resolution, curves/deadzones) | The viewer + health check + "add keyboard key" covers the pain; a full editor needs much more testing against Elite's file quirks. |
 | Tier-2 voice (FSD, docking request, heat sink, plotting) | Needs the confirm flow, more game-behaviour measurement, and has EULA questions for anything automated. |
 | Second-screen web dashboard | The window covers it. |
-| Automatic updates | Decided: none for now. A manual "check for updates" opens the release page (§7.3). |
 | Route, trading, engineering, logbook modules | Separate products in the module roadmap (§18.7). |
 | Per-ship auto-switching of presets | Elite has no API to switch presets; it would mean editing `StartPreset.start` under the game. |
 | Printable reference card / PDF export of binds | Nice, cheap later (the controller view already renders it). |
@@ -220,7 +220,8 @@ flow, not a tab.
   - **Debug**: save push-to-talk clips (off), log every input event (off), bounce and
     minimum-clip thresholds (tuning knobs most people never touch).
 - **Last commands / transcripts** → Diagnostics (log view), not the tray.
-- **Check for updates** → tray menu and Diagnostics; opens the release page.
+- **Check for updates** → tray menu and Diagnostics; downloads a signed zip. **Install update**
+  quits, overlays files, relaunches (Elite may still be running).
 
 ---
 
@@ -682,14 +683,24 @@ keep the flattest announcer as the Cockpit default. `speaker_id` remains a setti
 - Uninstall removes the program; user data (`%LOCALAPPDATA%\astromech\data`) stays unless the
   "remove my data" box is ticked.
 
-### 7.3 Updates (manual only)
-- **No automatic updates in v1**: no Tauri updater plugin, no manifests, no channels, no
-  background checks.
-- "Check for updates…" (tray menu and Diagnostics) opens
-  `https://github.com/spadaval/astromech/releases/latest` in the browser. Diagnostics shows the
-  installed version so it's easy to compare.
-- Installing a new version = running the new installer; NSIS closes the core first (it asks the
-  core to exit cleanly via the local API, which cancels in-flight actions and releases keys).
+### 7.3 Updates
+- The **core** owns check, download and apply. The Tauri updater plugin does not fit: the shell
+  is not the long-lived process.
+- **Channel:** GitHub Releases `v*` tags. Each release ships `latest.json` (version, zip name,
+  SHA-256, notes) and `latest.json.sig` (ed25519 over the exact JSON bytes). The verifying key
+  is baked into the core (`PUBLIC_KEY_HEX`); CI holds the private seed as `ASTROMECH_UPDATE_KEY`.
+- **Payload:** a zip of `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe`
+  and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
+  `data\` (config, logs, models, DB) is never overwritten. `uninstall.exe` stays.
+- **When:** check and download any time, including while Elite is running. Apply drops keys and
+  the session, quits, copies from a helper in `%TEMP%` (the running `astromech-core.exe` is
+  locked), then relaunches. The new process attaches to the running game the same way a mid-session
+  start already does.
+- **Policy** (`[update]` in `astromech.toml`): `check = true` (default) polls about daily;
+  `apply = "ask"` (default) waits for tray/Diagnostics **Install update**; `on_quit` applies when
+  astromech itself quits (no relaunch); `never` does not apply.
+- First install, or a machine that never ran a self-updating build, still uses the NSIS
+  `setup.exe`. NSIS still asks the core to exit cleanly before replacing files.
 
 ### 7.4 Code signing
 - **Releases are unsigned.** Windows SmartScreen shows "Windows protected your PC" on first run
@@ -710,7 +721,8 @@ keep the flattest announcer as the Cockpit default. `speaker_id` remains a setti
   internally; not worth it. **Journal folder activity** (a new `Journal.*.log`) is the second
   signal and confirms the session.
 - **Idle** (game not running): tray, update checks, the window if opened (keybinds work fully,
-  including the key tester). No mic, no PTT listener, no models in memory.
+  including the key tester). No mic, no PTT listener, no models in memory. Update checks also
+  run while active.
 - **Active** (game running): load STT/TTS (≈ 4–6 s in the background), open the mic, start the
   PTT/kill-switch listener and the journal/Status pipeline, run the binds health check. Speak
   "Astromech online" (optional). When the game exits: unload models (free ≈ 1–2 GB), close the
@@ -831,8 +843,8 @@ Settled with Sumeet before implementation started:
    an opt-out in setup and in Settings.
 6. **Six uncertain VKB buttons** (ministick push, both base-switch directions, rapid-fire
    direction, base wheel axis): resolved later with the key tester (M4), one press each.
-7. **No automatic updates** (manual "Check for updates…" only), **unsigned binaries**, and
-   **Elite's stock colours** (no custom theming).
+7. **Signed in-app updates** from GitHub Releases (§7.3), **unsigned binaries** (Authenticode;
+   payload is ed25519), and **Elite's stock colours** (no custom theming).
 8. **Voice colour:** Kokoro stays; replies are coloured as a **cockpit PA** (default **Cockpit**,
    §6.4). Natural and Harsh are the other presets. No Frontier-sample clone, no vocoder default.
 

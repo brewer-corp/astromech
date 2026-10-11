@@ -1221,7 +1221,7 @@ Resolved on 8 Oct and removed from this list: voice provider and budget (local o
    
    The certificate is issued to SignPath Foundation as publisher. ⚠ Their "no malware/PUP" review should be fine for a transparent, documented tool, but approval isn't guaranteed for software that injects input and reads keyboard input. Make the README explicit about what astromech does and doesn't do.
 3. **Alternative: Microsoft Azure Artifact Signing** (formerly Trusted Signing), a paid monthly subscription. A Feb 2026 secondary source says public-trust certificates are available to individual developers in the US and Canada. ⚠ UNVERIFIED current price and eligibility.
-4. **Distribution:** GitHub Releases (zip, and an MSI later), plus a winget manifest. No auto-updater in v1; it would also need signing.
+4. **Distribution:** GitHub Releases (NSIS first install, signed zip for in-app updates). Authenticode stays unsigned; `latest.json` is ed25519-signed with a key baked into the core (V1-DESIGN.md §7.3).
 
 ### 16.4 Alternatives considered (not chosen)
 - **MIT OR Apache-2.0 dual:** adds Apache's patent grant. Still an option (16.1).

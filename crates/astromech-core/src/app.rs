@@ -8,6 +8,7 @@ use crate::control::{self, Request};
 use crate::gamewatch::{self, Change, Game};
 use crate::logging::log;
 use crate::session::{self, Session};
+use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -16,7 +17,6 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-pub const RELEASES_URL: &str = "https://github.com/spadaval/astromech/releases/latest";
 pub const SHELL_EXE: &str = if cfg!(windows) { "astromech-shell.exe" } else { "astromech-shell" };
 
 #[derive(Debug, Clone, Default)]
@@ -49,6 +49,7 @@ pub struct Core {
     pub voice: Mutex<String>,
     pub crash: Mutex<Option<String>>,
     pub models: Mutex<Option<String>>,
+    pub update: Mutex<update::Handle>,
     pub ui: Mutex<Sender<Ui>>,
     pub opts: Opts,
 }
@@ -78,6 +79,12 @@ impl Core {
         if let Some(n) = &self.config_note {
             s = format!("{s} · {n}");
         }
+        let u = self.update.lock().unwrap();
+        if u.snap.ready {
+            if let Some(v) = &u.snap.latest {
+                s = format!("{s} · update {v}");
+            }
+        }
         s
     }
 
@@ -100,6 +107,7 @@ impl Core {
             "log_dir": self.app_dir.join("logs").display().to_string(),
             "config": self.config_path.display().to_string(),
             "config_note": self.config_note,
+            "update": &self.update.lock().unwrap().snap,
         })
     }
 
@@ -171,9 +179,150 @@ impl Core {
         }
         if let Some(s) = self.session.lock().unwrap().take() {
             log(&format!("{why}: going idle (unloading voice, closing the microphone)"));
+            s.speaker.interrupt();
+            s.runner.policy.kill();
             drop(s);
         }
         self.notify();
+    }
+
+    fn set_update(&self, f: impl FnOnce(&mut update::Handle)) {
+        f(&mut self.update.lock().unwrap());
+        self.notify();
+    }
+
+    /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
+    pub fn check_update(self: &Arc<Self>, manual: bool) {
+        {
+            let mut h = self.update.lock().unwrap();
+            if matches!(h.snap.status, UpStatus::Checking | UpStatus::Downloading | UpStatus::Applying) {
+                return;
+            }
+            h.snap.status = UpStatus::Checking;
+            h.snap.error = None;
+        }
+        self.notify();
+        let pk = match update::public_key() {
+            Ok(k) => k,
+            Err(e) => {
+                self.set_update(|h| {
+                    h.snap.status = UpStatus::Error;
+                    h.snap.error = Some(format!("{e:#}"));
+                });
+                log(&format!("update: {e:#}"));
+                return;
+            }
+        };
+        log(if manual { "update: checking (requested)" } else { "update: checking" });
+        let settings = self.cfg.update.clone();
+        match update::fetch_and_verify(&settings, &pk) {
+            Ok((m, _)) => {
+                let installed = update::installed_version();
+                self.set_update(|h| {
+                    h.snap.latest = Some(m.version.clone());
+                    h.snap.notes = m.notes.clone();
+                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                    h.snap.installed = installed.into();
+                });
+                if !update::newer(&m.version, installed) {
+                    self.set_update(|h| {
+                        h.snap.status = UpStatus::Idle;
+                        h.snap.ready = false;
+                        h.payload = None;
+                    });
+                    log(&format!("update: already on {installed}"));
+                    return;
+                }
+                if settings.apply == ApplyWhen::Never {
+                    self.set_update(|h| {
+                        h.snap.status = UpStatus::Available;
+                        h.snap.ready = false;
+                    });
+                    log(&format!("update: {} available (apply = never)", m.version));
+                    return;
+                }
+                self.set_update(|h| h.snap.status = UpStatus::Downloading);
+                let work = self.app_dir.join("updates");
+                match update::stage(&m, &work, |p| log(&format!("update: {p}"))) {
+                    Ok(payload) => {
+                        self.set_update(|h| {
+                            h.payload = Some(payload);
+                            h.snap.ready = true;
+                            h.snap.status = UpStatus::Ready;
+                            h.snap.error = None;
+                        });
+                        log(&format!("update: {} ready to install", m.version));
+                    }
+                    Err(e) => {
+                        self.set_update(|h| {
+                            h.snap.status = UpStatus::Error;
+                            h.snap.error = Some(format!("{e:#}"));
+                            h.snap.ready = false;
+                        });
+                        log(&format!("update: download failed: {e:#}"));
+                    }
+                }
+            }
+            Err(e) => {
+                self.set_update(|h| {
+                    h.snap.status = UpStatus::Error;
+                    h.snap.error = Some(format!("{e:#}"));
+                    h.snap.last_check = Some(chrono::Utc::now().to_rfc3339());
+                });
+                log(&format!("update: check failed: {e:#}"));
+            }
+        }
+    }
+
+    /// Quit, overlay the staged payload, relaunch. Elite may still be running.
+    pub fn install_update(self: &Arc<Self>) -> Value {
+        if self.cfg.update.apply == ApplyWhen::Never {
+            return json!({"ok": false, "error": "updates are set to never apply ([update] apply = \"never\")"});
+        }
+        let payload = {
+            let h = self.update.lock().unwrap();
+            if !h.snap.ready {
+                return json!({"ok": false, "error": h.snap.error.clone().unwrap_or_else(|| "no update ready".into())});
+            }
+            h.payload.clone()
+        };
+        let Some(payload) = payload else {
+            return json!({"ok": false, "error": "update payload missing"});
+        };
+        let install_dir = Config::exe_dir();
+        self.deactivate("installing update");
+        match update::spawn_apply(&payload, &install_dir, true) {
+            Ok(()) => {
+                self.set_update(|h| h.snap.status = UpStatus::Applying);
+                log("update: helper started; quitting so files can be replaced");
+                let _ = self.ui.lock().unwrap().send(Ui::Quit);
+                json!({"ok": true})
+            }
+            Err(e) => {
+                let m = format!("{e:#}");
+                log(&format!("update: couldn't start helper: {m}"));
+                json!({"ok": false, "error": m})
+            }
+        }
+    }
+
+    fn apply_on_quit(&self) {
+        if self.cfg.update.apply != ApplyWhen::OnQuit {
+            return;
+        }
+        let h = self.update.lock().unwrap();
+        if h.snap.status == UpStatus::Applying {
+            return;
+        }
+        if !h.snap.ready {
+            return;
+        }
+        let Some(payload) = h.payload.clone() else { return };
+        drop(h);
+        match update::spawn_apply(&payload, &Config::exe_dir(), false) {
+            Ok(()) => log("update: applying on quit"),
+            Err(e) => log(&format!("update: apply on quit failed: {e:#}")),
+        }
     }
 
     /// Launch (or focus) the app window at `route`.
@@ -226,6 +375,12 @@ impl Core {
                 let _ = self.ui.lock().unwrap().send(Ui::Quit);
                 json!({"ok": true})
             }
+            "check_update" => {
+                let c = self.clone();
+                std::thread::spawn(move || c.check_update(true));
+                json!({"ok": true})
+            }
+            "install_update" => self.install_update(),
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
     }
@@ -437,6 +592,7 @@ pub fn run(opts: Opts) -> i32 {
         voice: Mutex::new("voice not loaded".into()),
         crash: Mutex::new(crash),
         models: Mutex::new(None),
+        update: Mutex::new(update::Handle::new()),
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
     });
@@ -456,6 +612,20 @@ pub fn run(opts: Opts) -> i32 {
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
 
+    if core.cfg.update.check {
+        let c = core.clone();
+        std::thread::Builder::new()
+            .name("update".into())
+            .spawn(move || {
+                std::thread::sleep(update::STARTUP_DELAY);
+                loop {
+                    c.check_update(false);
+                    std::thread::sleep(update::CHECK_EVERY);
+                }
+            })
+            .expect("spawn update checker");
+    }
+
     if !opts.background && !Config::portable() {
         let _ = core.open_window(opts.route.as_deref());
     }
@@ -463,6 +633,7 @@ pub fn run(opts: Opts) -> i32 {
     let code = ui_loop(core.clone(), ui_rx);
     log("quitting");
     core.deactivate("quit");
+    core.apply_on_quit();
     code
 }
 

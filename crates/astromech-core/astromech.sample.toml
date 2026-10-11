@@ -38,3 +38,8 @@ save_clips = false             # Debug: keep gated PTT WAVs + labels under data/
 hold_ms = 50                  # S5: 50 ms holds were reliable
 verify_timeout_ms = 2000      # wait this long for Status.json to confirm
 dry_run = false               # true: log key presses, don't send them
+
+[update]
+check = true                  # poll GitHub for a signed payload (including mid-session)
+apply = "ask"                 # ask | on_quit | never. on_quit = when astromech quits
+feed = ""                     # empty: GitHub latest.json
