@@ -9,3 +9,5 @@
 { "timestamp":"2026-10-02T12:11:00Z", "event":"ScientificResearch", "Name":"iron", "Category":"Raw", "Count":2 }
 { "timestamp":"2026-10-02T12:12:00Z", "event":"EngineerContribution", "Engineer":"Elvira Martuuk", "Type":"Materials", "Material":"iron", "Quantity":3, "TotalQuantity":3 }
 { "timestamp":"2026-10-02T12:13:00Z", "event":"TechnologyBroker", "BrokerType":"Human", "Materials":[{"Name":"vanadium","Count":1,"Category":"Raw"}] }
+{ "timestamp":"2026-10-02T12:14:00Z", "event":"FSDJump", "StarSystem":"Shinrarta Dezhra", "JumpDist":8.2, "SystemAllegiance":"Federation", "Population":85262351, "Factions":[{"Name":"Pilots Federation","Allegiance":"Federation","FactionState":"None","Influence":0.61}] }
+{ "timestamp":"2026-10-02T12:15:00Z", "event":"FSSSignalDiscovered", "USSType":"$USS_Type_HighGradeEmissions;", "USSType_Localised":"High Grade Emissions" }

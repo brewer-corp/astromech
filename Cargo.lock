@@ -144,7 +144,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
 name = "astromech-core"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "astromech-gamestate",
@@ -176,7 +176,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-gamestate"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "astromech-journal",
  "astromech-materials",
@@ -186,7 +186,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-input"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "astromech-keybinds",
@@ -199,11 +199,11 @@ dependencies = [
 
 [[package]]
 name = "astromech-intent"
-version = "0.1.2"
+version = "0.1.3"
 
 [[package]]
 name = "astromech-journal"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "chrono",
  "serde",
@@ -214,7 +214,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-keybinds"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "chrono",
@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-materials"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "astromech-journal",
  "serde",
@@ -237,14 +237,14 @@ dependencies = [
 
 [[package]]
 name = "astromech-overlay"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "egui",
 ]
 
 [[package]]
 name = "astromech-policy"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "astromech-input",
  "astromech-proto",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-proto"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "serde",
  "serde_json",
@@ -260,21 +260,21 @@ dependencies = [
 
 [[package]]
 name = "astromech-status"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "serde_json",
 ]
 
 [[package]]
 name = "astromech-store"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "rusqlite",
 ]
 
 [[package]]
 name = "astromech-tools"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "astromech-gamestate",
  "astromech-policy",
@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-voice"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "bzip2 0.5.2",

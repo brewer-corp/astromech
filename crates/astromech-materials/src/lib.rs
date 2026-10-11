@@ -5,12 +5,14 @@
 //! collect / discard / trade / craft / synthesis / mission / broker events are applied as deltas.
 
 pub mod catalog;
+pub mod hge;
 pub mod ledger;
 pub mod view;
 
 pub use catalog::{capacity, lookup, Kind, Spec};
+pub use hge::{Here, PoolMat, SourceNote};
 pub use ledger::{replay_bytes, replay_journal_dir, replay_lines, replay_path, Ledger};
-pub use view::{from_journal_dir, trader_view, Cell, GroupView, Inventory, KindView};
+pub use view::{from_journal_dir, trader_view, Cell, FarmLine, GroupView, Inventory, KindView};
 
 /// Inventory produced from the crate's fake journal fixtures (app window sample).
 pub fn sample_inventory() -> Inventory {
@@ -102,5 +104,62 @@ mod tests {
         )
         .unwrap();
         assert_eq!(replay_journal_dir(d.path()).count("nickel"), 10);
+    }
+
+    #[test]
+    fn here_predicts_fed_hge_pool() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-11T000000.01.log");
+        std::fs::write(
+            &p,
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"Materials","Raw":[],"Manufactured":[{"Name":"imperialshielding","Count":4}],"Encoded":[]}
+{"timestamp":"2026-10-11T00:01:00Z","event":"FSDJump","StarSystem":"Shinrarta Dezhra","SystemAllegiance":"Federation","Population":85262351,"Factions":[{"Name":"Pilots Federation","Allegiance":"Federation","FactionState":"None","Influence":0.61}]}
+{"timestamp":"2026-10-11T00:02:00Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_HighGradeEmissions;"}
+"#,
+        )
+        .unwrap();
+        let v = from_journal_dir(d.path());
+        let here = v.here.expect("here");
+        assert_eq!(here.system, "Shinrarta Dezhra");
+        assert!(here.hge_signal);
+        assert!(here.pool.iter().any(|p| p.id == "fedcorecomposites"));
+        let shield = v
+            .kinds
+            .iter()
+            .find(|k| k.id == "manufactured")
+            .unwrap()
+            .groups
+            .iter()
+            .find(|g| g.name == "Shielding")
+            .unwrap()
+            .cells
+            .iter()
+            .find(|c| c.id == "imperialshielding")
+            .unwrap();
+        assert_eq!(shield.count, 4);
+        assert!(shield.sources.iter().any(|s| s.kind == "hge" && s.summary.contains("Empire")));
+        assert!(v.farm.iter().any(|f| f.id == "fedcorecomposites"));
+    }
+
+    #[test]
+    fn here_stops_at_last_jump_and_keeps_later_fss() {
+        let d = tempfile::tempdir().unwrap();
+        std::fs::write(
+            d.path().join("Journal.2026-10-10T000000.01.log"),
+            r#"{"timestamp":"2026-10-10T00:00:00Z","event":"FSDJump","StarSystem":"Sol","SystemAllegiance":"Federation","Population":1,"Factions":[{"Name":"Sol Fed","Allegiance":"Federation","FactionState":"None","Influence":0.9}]}
+"#,
+        )
+        .unwrap();
+        std::fs::write(
+            d.path().join("Journal.2026-10-11T000000.01.log"),
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"FSDJump","StarSystem":"Alioth","SystemAllegiance":"Alliance","Population":10000000,"Factions":[{"Name":"Alliance","Allegiance":"Alliance","FactionState":"Boom","Influence":0.5}]}
+{"timestamp":"2026-10-11T00:01:00Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_HighGradeEmissions;"}
+"#,
+        )
+        .unwrap();
+        let here = from_journal_dir(d.path()).here.expect("here");
+        assert_eq!(here.system, "Alioth");
+        assert!(here.hge_signal);
+        assert!(here.pool.iter().any(|p| p.id == "protoheatradiators"));
     }
 }

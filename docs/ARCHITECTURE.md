@@ -1,4 +1,4 @@
-# astromech, an Elite Dangerous copilot: architecture (v0.15 draft)
+# astromech, an Elite Dangerous copilot: architecture (v0.16 draft)
 
 *Revised 11 Oct 2026 (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
 
@@ -14,6 +14,7 @@
 
 **Revision history**
 - **v0.14 (11 Oct):** **Voice colour.** Spoken replies stay on Kokoro; a cockpit-PA DSP chain (the §5.10 "radio DSP") is the v1 default so they sit in the same register as Elite's COVAS. Product decision in V1-DESIGN.md §6.4. Mixer + Cockpit DSP shipped in the M3 output-path slice; remaining M3 (chosen mic, gain, T1 extras, status questions, aliases, eval) in V1-DESIGN.md §7.13.
+- **v0.16 (11 Oct):** **HGE sources.** Manufactured G4–G5 notes name High Grade Emissions by faction allegiance and state (not economy). `FSDJump`/`Location` carry factions; the Materials pane shows a likely pool for the current system.
 - **v0.15 (11 Oct):** **Materials.** `astromech-materials` folds a login `Materials` snapshot plus later journal deltas into a trader-style grid (raw / manufactured / encoded) in the app window.
 - **v0.1 (8 Oct, morning):** first draft.
 - **v0.2 (8 Oct, evening):** applies Sumeet's answers.
