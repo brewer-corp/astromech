@@ -37,11 +37,12 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
     let config = MenuItem::new("Open config file", true, None);
     let models = MenuItem::new("Download speech models (about 800 MB)", true, None);
     let updates = MenuItem::new("Check for updates…", true, None);
+    let install = MenuItem::new("Install update", true, None);
     let diag = MenuItem::new("Save diagnostics…", true, None);
     let quit = MenuItem::new("Quit", true, None);
     let sep = PredefinedMenuItem::separator;
 
-    let build = |crash_pending: bool, models_missing: bool| -> Result<Menu> {
+    let build = |crash_pending: bool, models_missing: bool, update_ready: bool| -> Result<Menu> {
         let m = Menu::new();
         m.append(&status)?;
         if crash_pending {
@@ -53,20 +54,25 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
         if models_missing {
             m.append(&models)?;
         }
-        m.append_items(&[&updates, &diag, &sep(), &quit])?;
+        m.append(&updates)?;
+        if update_ready {
+            m.append(&install)?;
+        }
+        m.append_items(&[&diag, &sep(), &quit])?;
         Ok(m)
     };
-    let mut shape = (core.crash.lock().unwrap().is_some(), app::models_missing(&core.cfg));
+    let mut shape =
+        (core.crash.lock().unwrap().is_some(), app::models_missing(&core.cfg), core.update.lock().unwrap().snap.ready);
     let tray = TrayIconBuilder::new()
         .with_tooltip("astromech")
         .with_icon(icon()?)
-        .with_menu(Box::new(build(shape.0, shape.1)?))
+        .with_menu(Box::new(build(shape.0, shape.1, shape.2)?))
         .with_menu_on_left_click(false)
         .build()
         .context("creating the tray icon")?;
     log("tray icon ready");
 
-    let refresh = |shape: &mut (bool, bool)| -> Result<()> {
+    let refresh = |shape: &mut (bool, bool, bool)| -> Result<()> {
         let line = core.status_line();
         status.set_text(&line);
         let _ = tray.set_tooltip(Some(line.replace("astromech · ", "astromech\n")));
@@ -78,10 +84,24 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
         autostart.set_checked(crate::autostart::is_enabled());
         let downloading = core.models.lock().unwrap().is_some();
         models.set_enabled(!downloading);
-        let now = (core.crash.lock().unwrap().is_some(), app::models_missing(&core.cfg));
+        let snap = core.update.lock().unwrap().snap.clone();
+        updates.set_text(match snap.status {
+            crate::update::Status::Checking => "Checking for updates…",
+            crate::update::Status::Downloading => "Downloading update…",
+            crate::update::Status::Applying => "Installing update…",
+            _ => "Check for updates…",
+        });
+        updates.set_enabled(!matches!(
+            snap.status,
+            crate::update::Status::Checking | crate::update::Status::Downloading | crate::update::Status::Applying
+        ));
+        if let Some(v) = &snap.latest {
+            install.set_text(&format!("Install update {v}"));
+        }
+        let now = (core.crash.lock().unwrap().is_some(), app::models_missing(&core.cfg), snap.ready);
         if now != *shape {
             *shape = now;
-            tray.set_menu(Some(Box::new(build(now.0, now.1)?)));
+            tray.set_menu(Some(Box::new(build(now.0, now.1, now.2)?)));
         }
         Ok(())
     };
@@ -122,7 +142,10 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
             } else if id == models.id() {
                 app::download_models(&core);
             } else if id == updates.id() {
-                app::open_path(app::RELEASES_URL);
+                let c = core.clone();
+                std::thread::spawn(move || c.check_update(true));
+            } else if id == install.id() {
+                let _ = core.install_update();
             } else if id == diag.id() || id == crash.id() {
                 match core.save_diagnostics() {
                     Ok(p) => app::reveal(&p),

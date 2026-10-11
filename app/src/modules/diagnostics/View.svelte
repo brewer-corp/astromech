@@ -24,8 +24,47 @@
     await refresh();
   }
 
+  async function checkUpdate() {
+    note = "Checking…";
+    const r = await coreCall("check_update");
+    if (!r.ok) {
+      note = `Couldn't check: ${String(r.error)}`;
+      return;
+    }
+    for (let i = 0; i < 40; i++) {
+      await new Promise((ok) => setTimeout(ok, 500));
+      await refresh();
+      const st = status?.update?.status;
+      if (st && st !== "checking" && st !== "downloading") break;
+    }
+    const u = status?.update;
+    if (!u) note = "No update status from the core";
+    else if (u.status === "error") note = u.error ?? "Update check failed";
+    else if (u.ready && u.latest) note = `Update ${u.latest} is ready to install`;
+    else if (u.status === "available" && u.latest) note = `Update ${u.latest} is available`;
+    else note = `Installed ${u.installed}`;
+  }
+
+  async function installUpdate() {
+    note = "Installing… astromech will restart.";
+    const r = await coreCall("install_update");
+    note = r.ok ? "Restarting to apply the update…" : `Couldn't install: ${String(r.error)}`;
+  }
+
   const game = (g: CoreStatus["game"]) =>
     g === "running" ? "Running" : g === "launcher" ? "Launcher open" : "Not running";
+
+  function updateLine(s: CoreStatus | null): string {
+    const u = s?.update;
+    if (!u) return "—";
+    if (u.status === "checking") return "Checking…";
+    if (u.status === "downloading") return `Downloading ${u.latest ?? "update"}…`;
+    if (u.status === "applying") return `Installing ${u.latest ?? "update"}…`;
+    if (u.status === "error") return u.error ?? "Check failed";
+    if (u.ready && u.latest) return `${u.latest} ready (installed ${u.installed})`;
+    if (u.status === "available" && u.latest) return `${u.latest} available (installed ${u.installed})`;
+    return `Installed ${u.installed}`;
+  }
 </script>
 
 <section>
@@ -42,11 +81,16 @@
     <dt>Start with Windows</dt><dd>{status ? (status.autostart ? "On" : "Off") : "—"}</dd>
     <dt>Config file</dt><dd class="path">{status?.config ?? "—"}{status?.config_note ? ` · ${status.config_note}` : ""}</dd>
     <dt>Logs</dt><dd class="path">{status?.log_dir ?? "—"}</dd>
+    <dt>Update</dt><dd>{updateLine(status)}</dd>
   </dl>
   <div class="actions">
     <button onclick={save} disabled={!status}>Save diagnostics</button>
     <button onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</button>
-    <button onclick={() => openUrl(RELEASES)}>Check for updates</button>
+    <button onclick={checkUpdate} disabled={!status}>Check for updates</button>
+    {#if status?.update?.ready}
+      <button onclick={installUpdate}>Install update {status.update.latest ?? ""}</button>
+    {/if}
+    <button onclick={() => openUrl(RELEASES)}>Release notes</button>
   </div>
   {#if note}<p class="note">{note}</p>{/if}
 </section>

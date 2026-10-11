@@ -202,6 +202,7 @@ fn journal_dir() -> PathBuf {
         .join("Elite Dangerous")
 }
 
+#[allow(clippy::type_complexity)]
 struct MaterialsCache(std::sync::Mutex<Option<((u64, u64, u64), Value)>>);
 
 fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {

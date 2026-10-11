@@ -26,7 +26,7 @@ pub struct Endpoint {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Request {
     pub token: String,
-    /// "status", "open_window", "save_diagnostics", "ack_crash", "quit"
+    /// "status", "open_window", "save_diagnostics", "ack_crash", "quit", "check_update", "install_update"
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,

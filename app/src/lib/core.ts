@@ -5,6 +5,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
+export interface UpdateStatus {
+  status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
+  installed: string;
+  latest: string | null;
+  notes: string;
+  error: string | null;
+  last_check: string | null;
+  ready: boolean;
+}
+
 export interface CoreStatus {
   ok: boolean;
   version: string;
@@ -22,6 +32,7 @@ export interface CoreStatus {
   log_dir: string;
   config: string;
   config_note: string | null;
+  update?: UpdateStatus;
 }
 
 export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;

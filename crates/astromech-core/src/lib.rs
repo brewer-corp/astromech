@@ -12,7 +12,7 @@
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
 //! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
-//!   [`gamewatch`]: the M0 infrastructure pieces.
+//!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
 
 pub mod actions;
 pub mod app;
@@ -34,3 +34,4 @@ pub mod session;
 pub mod speech;
 #[cfg(windows)]
 pub mod tray;
+pub mod update;

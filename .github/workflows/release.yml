@@ -2,7 +2,10 @@ name: Release build
 
 # docs/V1-DESIGN.md §7.8. Builds the per-user NSIS installer (unsigned, §7.4) on Windows,
 # installs it silently on the runner and smoke-tests it. Every PR and manual run uploads the
-# installer as a workflow artifact; a `v*` tag also publishes a GitHub Release with SHA-256s.
+# installer as a workflow artifact; a `v*` tag also publishes a GitHub Release with SHA-256s
+# and a signed zip (`latest.json` + `.sig`) for in-app updates (§7.3).
+# Signing key: repo secret ASTROMECH_UPDATE_KEY (32-byte ed25519 seed hex). Public key is
+# crates/astromech-core/src/update.rs PUBLIC_KEY_HEX.
 
 on:
   push:
@@ -69,6 +72,33 @@ jobs:
           sha256sum *-setup.exe > SHA256SUMS.txt
           cat SHA256SUMS.txt
           echo "installer=$(ls *-setup.exe)" >> "$GITHUB_OUTPUT"
+      - name: pack update zip + latest.json
+        env:
+          ASTROMECH_UPDATE_KEY: ${{ secrets.ASTROMECH_UPDATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          REL=app/src-tauri/target/release
+          files=()
+          for f in astromech-shell.exe astromech-core.exe astromech-voice-worker.exe \
+                   NOTICE.md COPYING-GPL-3.0.txt THIRD_PARTY.md LICENSE.txt LICENSE; do
+            if [ -f "$REL/$f" ]; then files+=("$REL/$f"); fi
+          done
+          if [ ! -f "$REL/astromech-core.exe" ] && [ -f target/release/astromech-core.exe ]; then
+            files+=(target/release/astromech-core.exe)
+          fi
+          if [ ! -f "$REL/astromech-voice-worker.exe" ] && [ -f target/release/astromech-voice-worker.exe ]; then
+            files+=(target/release/astromech-voice-worker.exe)
+          fi
+          python3 scripts/pack-update.py --out dist-release --notes "See the GitHub release notes." "${files[@]}"
+          if [ -n "${ASTROMECH_UPDATE_KEY:-}" ]; then
+            cargo run -p astromech-core --example sign-update --release --locked -- dist-release/latest.json
+          elif [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "ASTROMECH_UPDATE_KEY is required to publish a signed update on a tag" >&2
+            exit 1
+          else
+            echo "no ASTROMECH_UPDATE_KEY; latest.json is unsigned (PR artifact only)"
+          fi
       - name: smoke test (silent per-user install, start, status, quit, uninstall)
         shell: pwsh
         run: |
@@ -134,7 +164,7 @@ jobs:
         run: |
           {
             echo "Unsigned build: Windows SmartScreen will say \"Windows protected your PC\" (More info → Run anyway)."
-            echo "Per-user install, no admin. Updates are manual: run the newer installer."
+            echo "Per-user install, no admin. First install: run the setup.exe. Later versions: tray → Check for updates, then Install (signed zip, no SmartScreen on each setup.exe)."
             echo
             echo '```'; cat dist-release/SHA256SUMS.txt; echo '```'
           } > notes.md
