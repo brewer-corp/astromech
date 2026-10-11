@@ -26,7 +26,8 @@ SteamVR overlay. Everything lives in one app.
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, crates, roadmap and spike results (§17)
 - [docs/KEYBINDS.md](docs/KEYBINDS.md): the keybinds module and the health check
-- [docs/REPORT.md](docs/REPORT.md): the initial research report (existing tools, data sources, voice)
+- [docs/REPORT.md](docs/REPORT.md): the initial research report (data sources, voice, EDCoPilot/COVAS as of 8 Oct)
+- [docs/COMPETITORS.md](docs/COMPETITORS.md): copilots and companions as of 11 Oct, and what to steal
 - [docs/diagrams/](docs/diagrams/): Mermaid sources and rendered PNGs
 - [spikes/](spikes/): source of the feasibility spikes
 

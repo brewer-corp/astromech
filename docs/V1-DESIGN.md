@@ -44,6 +44,11 @@ what you need, plus the game's Controls list made searchable and honest about pr
 **always-on push-to-talk voice assistant** for hands-on-stick ship toggles and read-only status
 questions. Everything is local. It installs per-user without admin.
 
+**Peers (11 Oct).** A cluster of copilots shipped in Aug–Oct 2026 chasing the same jobs. The
+survey, and a ranked list of properties to copy into this v1 (BindForge-style binds edits,
+PTT-as-gate, router-before-model), is [COMPETITORS.md](COMPETITORS.md). This document still
+decides what v1 *is*.
+
 ---
 
 ## 1. v1 scope
