@@ -285,26 +285,47 @@ fn is_journal_name(n: &str) -> bool {
     n.starts_with("Journal.") && n.ends_with(".log")
 }
 
-/// Journal logs in `dir`, oldest first (file name, then modified time).
+/// Stamp from `Journal.YYYY-MM-DDTHHMMSS.01.log` or the older `Journal.YYMMDDHHMMSS.01.log`.
+fn journal_stamp(name: &str) -> Option<(i64, u32)> {
+    let rest = name.strip_prefix("Journal.")?.strip_suffix(".log")?;
+    let (stamp, part) = rest.rsplit_once('.')?;
+    let part: u32 = part.parse().ok()?;
+    let dt = chrono::NaiveDateTime::parse_from_str(stamp, "%Y-%m-%dT%H%M%S")
+        .ok()
+        .or_else(|| chrono::NaiveDateTime::parse_from_str(stamp, "%y%m%d%H%M%S").ok())?;
+    Some((dt.and_utc().timestamp(), part))
+}
+
+/// Journal logs in `dir`, oldest first by the date in the file name (both naming schemes).
 pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
-    let mut v: Vec<(String, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
+    let mut v: Vec<(i64, u32, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
         .ok()
         .into_iter()
         .flatten()
         .flatten()
         .filter(|e| is_journal_name(&e.file_name().to_string_lossy()))
         .filter_map(|e| {
-            Some((e.file_name().to_string_lossy().into_owned(), e.metadata().ok()?.modified().ok()?, e.path()))
+            let name = e.file_name().to_string_lossy().into_owned();
+            let mtime = e.metadata().ok()?.modified().ok()?;
+            let (ts, part) =
+                journal_stamp(&name).unwrap_or((mtime.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs() as i64, 0));
+            Some((ts, part, mtime, e.path()))
         })
         .collect();
     v.sort();
-    v.into_iter().map(|x| x.2).collect()
+    v.into_iter().map(|x| x.3).collect()
 }
 
-/// The newest `Journal.*.log` in `dir` (by file name, which sorts by date in both naming schemes
-/// used since 2015 only within a scheme; the modified time breaks ties).
+/// The journal file the game is writing: most recently modified `Journal.*.log`.
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
-    journal_logs(dir).pop()
+    let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
+        .ok()?
+        .flatten()
+        .filter(|e| is_journal_name(&e.file_name().to_string_lossy()))
+        .filter_map(|e| Some((e.metadata().ok()?.modified().ok()?, e.path())))
+        .collect();
+    v.sort();
+    v.pop().map(|x| x.1)
 }
 
 /// Parse every complete line in a journal file; skip malformed JSON.
@@ -381,6 +402,22 @@ mod tests {
         let l = parse_line(r#"{"timestamp":"t","event":"EngineerContribution","Type":"Commodity","Commodity":"soontillrelics","Quantity":2}"#)
             .unwrap();
         assert!(matches!(l.event, JournalEvent::Other { .. }));
+    }
+
+    #[test]
+    fn journal_names_order_across_schemes() {
+        let d = tempfile::tempdir().unwrap();
+        // Horizons name "22…" sorts after Odyssey "2026…" as a string; date order is the reverse.
+        std::fs::write(d.path().join("Journal.220315120000.01.log"), "{}\n").unwrap();
+        std::fs::write(d.path().join("Journal.2026-10-02T120000.01.log"), "{}\n").unwrap();
+        let names: Vec<String> = journal_logs(d.path())
+            .iter()
+            .filter_map(|p| p.file_name().map(|n| n.to_string_lossy().into_owned()))
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Journal.220315120000.01.log".to_string(), "Journal.2026-10-02T120000.01.log".to_string()]
+        );
     }
 
     #[test]

@@ -1,17 +1,21 @@
 <script lang="ts">
-  // Trader-style materials (ARCHITECTURE.md §18.5): categories as rows, grades as columns,
-  // count / capacity in each cell. Fed from the journal, not the in-game inventory list.
+  // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
 
   let inv = $state<Inventory | null>(null);
   let kindId = $state("raw");
-  let sel = $state<Cell | null>(null);
+  let selId = $state<string | null>(null);
 
   const kind = $derived(inv?.kinds.find((k) => k.id === kindId) ?? inv?.kinds[0]);
   const tabs = $derived([
     ...(inv?.kinds.map((k) => ({ id: k.id, title: k.title })) ?? []),
     ...(inv && inv.other.length ? [{ id: "other", title: "Other" }] : []),
   ]);
+  const sel = $derived(
+    kindId === "other"
+      ? inv?.other.find((c) => c.id === selId)
+      : kind?.groups.flatMap((g) => g.cells).find((c) => c.id === selId),
+  );
 
   $effect(() => {
     void loadMaterials().then((v) => (inv = v));
@@ -24,15 +28,15 @@
     return `linear-gradient(90deg, var(--cell) ${p * 100}%, var(--cell-empty) ${p * 100}%)`;
   }
 
-  function pick(c: Cell) {
-    sel = c;
+  function pick(id: string) {
+    selId = id;
   }
 </script>
 
 <section>
   <div class="acts">
     {#each tabs as k (k.id)}
-      <button class:on={kindId === k.id} onclick={() => { kindId = k.id; sel = null; }}>{k.title}</button>
+      <button class:on={kindId === k.id} onclick={() => { kindId = k.id; selId = null; }}>{k.title}</button>
     {/each}
   </div>
   <p class="sub">
@@ -50,7 +54,7 @@
   {#if kindId === "other" && inv}
     <div class="other">
       {#each inv.other as c (c.id)}
-        <button class="cell" class:sel={sel?.id === c.id} style:background={fill(c)} onclick={() => pick(c)}>
+        <button class="cell" class:sel={selId === c.id} style:background={fill(c)} onclick={() => pick(c.id)}>
           <span class="n">{c.name}</span>
           <span class="q">{c.count} / {c.capacity}</span>
         </button>
@@ -67,7 +71,7 @@
       {#each kind.groups as g (g.name)}
         <div class="rh">{g.name}</div>
         {#each g.cells as c (c.id)}
-          <button class="cell" class:sel={sel?.id === c.id} class:empty={c.count === 0} style:background={fill(c)} onclick={() => pick(c)}>
+          <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:background={fill(c)} onclick={() => pick(c.id)}>
             <span class="n">{c.name}</span>
             <span class="q">{c.count} / {c.capacity}</span>
           </button>
