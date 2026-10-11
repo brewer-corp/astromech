@@ -694,15 +694,21 @@ Total about **11 weeks**.
 
 ---
 
-## 9. Decisions for Sumeet
-1. **Activities:** is the list of activities right (§3.3)? Anything to add or merge?
-2. **Catalogue:** which actions in §3.3 are wrong for how you play, and what's missing?
-3. **Open by default:** should the window open on Activities or on All keybinds?
-4. **Labels:** keep the game's upper-case row labels, or mixed case (easier to read)?
-5. **Edits:** is "assign a keyboard key to an empty slot, in a copy" enough editing for v1?
-6. **New voice commands:** which of flight assist, HUD mode, silent running, maps/panels, SRV toggles and throttle-to-zero do you want in v1?
-7. **Callouts:** default off, or on with low fuel, interdiction and heat?
-8. **VR mic:** which microphone do you use in VR, and does SteamVR switch the Windows default?
-9. **Second-pass model:** accept up to about 400 ms extra on unsure commands for better accuracy?
-10. **Autostart:** start with Windows by default (tray only, idle until Elite runs), or opt-in?
-11. **Name:** keep "astromech" as the product name?
+## 9. Decided (11 Oct 2026)
+Settled with Sumeet before implementation started:
+1. **Default screen:** the window opens on **Activities**.
+2. **Row labels:** **mixed case**, not the game's all-caps labels.
+3. **v1 voice adds safe toggles:** flight assist, silent running (asks for a **spoken
+   confirmation** first), HUD mode, panels, and throttle to zero.
+4. **Game callouts:** **only a low-fuel warning**, on by default at **25%**, threshold
+   configurable in Settings. No interdiction or heat callouts: the game already alerts those
+   clearly.
+5. **Autostart:** **start with Windows on by default** (tray only, idle until Elite runs), with
+   an opt-out in setup and in Settings.
+6. **Six uncertain VKB buttons** (ministick push, both base-switch directions, rapid-fire
+   direction, base wheel axis): resolved later with the key tester (M4), one press each.
+7. **No automatic updates** (manual "Check for updates…" only), **unsigned binaries**, and
+   **Elite's stock colours** (no custom theming).
+
+Still open, not blocking: activity list and catalogue review (§3.3), VR mic choice, second-pass
+model latency budget, product name.
