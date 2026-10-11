@@ -46,8 +46,8 @@ sleep 3
 wait $MOCK || true
 echo "---- mock keys.log"; cat "$W/journal/keys.log"
 fail() { echo "E2E FAIL: $1"; exit 1; }
-grep -q "Landing gear down." "$W/out.txt" || fail "no confirmation"
-grep -q "Landing gear is already down." "$W/out.txt" || fail "no already-down"
+grep -q "Landing gear deployed." "$W/out.txt" || fail "no confirmation"
+grep -q "Landing gear is already deployed." "$W/out.txt" || fail "no already-down"
 grep -q "Already on it." "$W/out.txt" || fail "no duplicate block"
 grep -q "Kill switch is on" "$W/out.txt" || fail "kill switch didn't block"
 [ "$(grep -c 'not confirmed within' "$W/out.txt")" = 1 ] || fail "expected exactly one unconfirmed press"

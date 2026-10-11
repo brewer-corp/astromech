@@ -78,7 +78,7 @@ diagnostics. Updates are manual: run a newer installer.
 ## Try the gear-down slice
 
 A Windows console preview of the first vertical slice: hold push-to-talk, say **"gear down"**,
-and astromech presses your landing-gear key, says "Landing gear down.", and checks Status.json
+and astromech presses your landing-gear key, says "Landing gear deployed.", and checks Status.json
 to confirm it worked. It also understands lights, hardpoints, cargo scoop and night vision, but
 only presses keys that have a **keyboard** binding in your active ship preset.
 
@@ -111,13 +111,13 @@ an unexpected gear change can't hurt.
    with a hint.) The full report goes to `astromech-data\health.html`.
 5. **Dry run first:** start Elite, get into your ship in normal space, then run
    `astromech-core.exe --dry-run` and switch back to the game. Hold PTT, say "gear down",
-   release. You should hear "Landing gear down." and the console shows the key it *would* have
+   release. You should hear "Landing gear deployed." and the console shows the key it *would* have
    sent. Nothing is pressed, so 2 s later the console logs "set_landing_gear: not confirmed
    within 2.0 s (no retry)". That's expected in a dry run. Nothing is spoken for it.
 6. **Live:** run `astromech-core.exe` (not as administrator, and the game not as
    administrator either), then switch to Elite in normal space.
-   - "gear down": the gear deploys, and you hear "Landing gear down.".
-   - "gear down" again: "Landing gear is already down.", and nothing is pressed.
+   - "gear down": the gear deploys, and you hear "Landing gear deployed.".
+   - "gear down" again: "Landing gear is already deployed.", and nothing is pressed.
    - "gear up": the gear retracts.
    - Press the kill switch, then say "gear down": it's refused. Hold the kill switch for 1 s
      to re-arm.

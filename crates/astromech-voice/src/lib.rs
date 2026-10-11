@@ -6,9 +6,11 @@
 //! - [`proto`]: the worker protocol.
 //! - [`score`]: transcript normalisation and word error rate (S9 accuracy scoring).
 //! - [`wav`]: mono WAV I/O.
+//! - [`colour`]: Cockpit PA treatment of Kokoro PCM (V1-DESIGN.md §6.4).
+//! - [`mixer`]: barge-in output queue (cpal on Windows).
 //! - [`client`]: spawning and talking to the worker; [`models`]/[`catalog`]/[`download`]: the
 //!   model files (S9 layout, SHA-256-verified downloads); `mic` (cpal) and `player`
-//!   (PlaySoundW) on Windows.
+//!   (PlaySoundW fallback) on Windows.
 //!
 //! Defaults from S9: CPU, **4 inference threads**. Fuzzy matching to the command grammar lives
 //! in `astromech-intent` (planned).
@@ -18,9 +20,11 @@
 
 pub mod catalog;
 pub mod client;
+pub mod colour;
 pub mod download;
 #[cfg(windows)]
 pub mod mic;
+pub mod mixer;
 pub mod models;
 #[cfg(windows)]
 pub mod player;

@@ -178,10 +178,11 @@ impl Session {
                 &data,
                 cfg.voice.speaker_id,
                 cfg.voice.speed,
+                cfg.voice.colour,
                 speech::fixed_phrases(),
             ) {
                 Ok(s) => {
-                    log("Kokoro text-to-speech loaded");
+                    log(&format!("Kokoro text-to-speech loaded ({})", cfg.voice.colour.as_str()));
                     Arc::new(s)
                 }
                 Err(e) => {
@@ -381,6 +382,7 @@ fn start_voice(
                 }
                 Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => {}
                 Control::PttDown => {
+                    runner.speaker.interrupt();
                     report_mic(&mut mic);
                     down_at = std::time::Instant::now();
                     log(&format!("PTT down (t={:.3} s) — listening", secs(down_at)));
@@ -429,6 +431,7 @@ fn start_voice(
                 }
                 Control::KillDown => {
                     if !runner.policy.is_killed() {
+                        runner.speaker.interrupt();
                         runner.policy.kill();
                         press_killed = true;
                         runner.speaker.say("Kill switch on. All actions stopped.");

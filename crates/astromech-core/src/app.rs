@@ -127,6 +127,7 @@ impl Core {
                 s.runner.policy.rearm();
                 s.speaker.say("Re-armed.");
             } else {
+                s.speaker.interrupt();
                 s.runner.policy.kill();
                 s.speaker.say("Kill switch on. All actions stopped.");
             }

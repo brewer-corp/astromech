@@ -651,8 +651,8 @@ keep the flattest announcer as the Cockpit default. `speaker_id` remains a setti
 | A second neural TTS | Timbre is a treatment problem. |
 | Voice-clone of Verity / Victor | Frontier and actor IP. |
 
-**Where it ships.** DSP and copy pass in **M3**; the Settings row in **M4**. Until then the
-preview still plays raw Kokoro through `PlaySoundW`.
+**Where it ships.** DSP, mixer barge-in and the copy pass are in the first M3 increment
+(`astromech_voice::colour` / `mixer`; `[voice] colour`). The Settings row is **M4**.
 
 ---
 
@@ -802,6 +802,11 @@ Total about **11 weeks**.
 - **Browser preview.** Outside Tauri the window serves `app/src/lib/fixtures/sample.json` (made by
   `cargo run -p astromech-keybinds --example fixture` from `data/samples/Example DualVKB.4.2.binds`,
   generated example data) and keeps edits in memory. `scripts/app-shots.sh` screenshots every screen.
+
+### 7.12 As built in M3 output-path slice (11 Oct 2026)
+- `[voice] colour = "natural" | "cockpit" | "harsh"` (default **cockpit**). DSP is `astromech_voice::colour`; the confirmation cache is coloured. Cockpit prepends a two-tone pip.
+- Playback is `astromech_voice::mixer`: a new line replaces the queue; PTT down and the kill switch `cut` it (Kokoro cannot leak into the next PTT clip). cpal on Windows; async PlaySoundW if there is no device.
+- Spoken gear lines: "Landing gear deployed." / "already deployed."
 
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:

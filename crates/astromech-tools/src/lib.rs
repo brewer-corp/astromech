@@ -70,7 +70,7 @@ impl Toggle {
         };
         match self {
             Toggle::LandingGear => {
-                s("set_landing_gear", "LandingGearToggle", flags::FLAG_GEAR, "Landing gear", "down", "up")
+                s("set_landing_gear", "LandingGearToggle", flags::FLAG_GEAR, "Landing gear", "deployed", "retracted")
             }
             Toggle::Lights => s("set_lights", "ShipSpotLightToggle", flags::FLAG_LIGHTS, "Lights", "on", "off"),
             Toggle::Hardpoints => {
@@ -196,9 +196,9 @@ mod tests {
         assert!(matches!(plan(gear(Target::On), Some(FLYING)), Plan::Press { expect_set: true, .. }));
         assert_eq!(
             plan(gear(Target::On), Some(FLYING | FLAG_GEAR)),
-            Plan::Already("Landing gear is already down.".into())
+            Plan::Already("Landing gear is already deployed.".into())
         );
-        assert_eq!(plan(gear(Target::Off), Some(FLYING)), Plan::Already("Landing gear is already up.".into()));
+        assert_eq!(plan(gear(Target::Off), Some(FLYING)), Plan::Already("Landing gear is already retracted.".into()));
         assert!(matches!(plan(gear(Target::Toggle), Some(FLYING | FLAG_GEAR)), Plan::Press { expect_set: false, .. }));
         for (f, why) in [(FLAG_DOCKED, "docked"), (FLAG_LANDED, "landed"), (FLAG_SUPERCRUISE, "supercruise")] {
             match plan(gear(Target::On), Some(FLYING | f)) {

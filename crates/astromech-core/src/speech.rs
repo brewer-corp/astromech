@@ -13,6 +13,8 @@ use std::time::Duration;
 /// Something that says short confirmations. Must not block for long.
 pub trait Speaker: Send + Sync {
     fn say(&self, text: &str);
+    /// Stop talking now (push-to-talk barge-in). Default: nothing to cut.
+    fn interrupt(&self) {}
 }
 
 /// Prints instead of speaking.
@@ -85,15 +87,23 @@ impl Stt for WorkerStt {
 }
 
 /// Kokoro through its own worker, on a background thread with a WAV cache, so `say` returns
-/// at once and phrases repeat without re-synthesis. Also prints every line.
+/// at once and phrases repeat without re-synthesis. Playback goes through [`astromech_voice::mixer`]
+/// (coloured, barge-in). Also prints every line.
 pub struct TtsSpeaker {
-    tx: Mutex<Sender<String>>,
+    tx: Mutex<Sender<Job>>,
+    mixer: astromech_voice::mixer::Mixer,
 }
 
-fn cache_name(text: &str) -> String {
+enum Job {
+    Speak(String),
+    Warm(String),
+}
+
+fn cache_name(text: &str, colour: astromech_voice::colour::Colour, sid: i32, speed: f32) -> String {
     // FNV-1a: stable across runs (std's hasher is randomly seeded).
     let mut h: u64 = 0xcbf29ce484222325;
-    for b in text.as_bytes() {
+    let key = format!("{text}\0{}\0{sid}\0{speed:.3}", colour.as_str());
+    for b in key.as_bytes() {
         h ^= *b as u64;
         h = h.wrapping_mul(0x100000001b3);
     }
@@ -108,56 +118,90 @@ impl TtsSpeaker {
         data_dir: &Path,
         sid: i32,
         speed: f32,
+        colour: astromech_voice::colour::Colour,
         prerender: Vec<String>,
     ) -> Result<Self> {
+        use astromech_voice::colour;
         use astromech_voice::models;
         let p = models::find_tts(models_dir)?;
         let cache = data_dir.join("tts-cache");
         std::fs::create_dir_all(&cache)?;
         let mut worker = Worker::spawn(exe, None, &data_dir.join("worker-tts.log"), "text-to-speech")?;
         worker.call_ok(&models::load_tts_req(&p, threads), CALL)?;
-        let (tx, rx) = channel::<String>();
+        let speed = colour::speed(colour, speed);
+        let mixer = astromech_voice::mixer::Mixer::with_default_output();
+        let mix = mixer.clone();
+        let (tx, rx) = channel::<Job>();
         let pre_tx = tx.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
-            let render = |w: &mut Worker, text: &str| -> Option<PathBuf> {
-                let f = cache.join(cache_name(text));
+            let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
+                let f = cache.join(cache_name(text, colour, sid, speed));
                 if f.is_file() {
-                    return Some(f);
+                    return astromech_voice::wav::read_mono_f32(&f).ok().map(|(sr, s)| (sr, s, f));
                 }
-                let req = Request::Tts { text: text.into(), sid, speed, out_wav: f.display().to_string() };
-                match w.call_ok(&req, Duration::from_secs(30)) {
-                    Ok(_) => Some(f),
+                let raw = f.with_extension("raw.wav");
+                let req = Request::Tts { text: text.into(), sid, speed, out_wav: raw.display().to_string() };
+                if let Err(e) = w.call_ok(&req, Duration::from_secs(30)) {
+                    eprintln!("text-to-speech failed: {e:#}");
+                    let _ = std::fs::remove_file(&raw);
+                    return None;
+                }
+                let (sr, samples) = match astromech_voice::wav::read_mono_f32(&raw) {
+                    Ok(v) => v,
                     Err(e) => {
-                        eprintln!("text-to-speech failed: {e:#}");
-                        None
+                        eprintln!("text-to-speech wav: {e:#}");
+                        let _ = std::fs::remove_file(&raw);
+                        return None;
                     }
+                };
+                let _ = std::fs::remove_file(&raw);
+                let out = colour::utterance(&samples, sr, colour);
+                if let Err(e) = astromech_voice::wav::write_mono_i16(&f, sr, &out) {
+                    eprintln!("text-to-speech cache: {e:#}");
                 }
+                Some((sr, out, f))
             };
-            while let Ok(t) = rx.recv() {
-                if let Some(text) = t.strip_prefix('\u{0}') {
-                    // Pre-render only.
-                    render(&mut worker, text);
-                    continue;
-                }
-                if let Some(_f) = render(&mut worker, &t) {
-                    #[cfg(windows)]
-                    if let Err(e) = astromech_voice::player::play_wav(&_f) {
-                        eprintln!("{e:#}");
+            while let Ok(job) = rx.recv() {
+                match job {
+                    Job::Warm(t) => {
+                        let _ = render(&mut worker, &t);
+                    }
+                    Job::Speak(t) => {
+                        let token = mix.token();
+                        if let Some((sr, samples, f)) = render(&mut worker, &t) {
+                            if mix.has_device() {
+                                mix.play(token, &samples, sr);
+                            } else {
+                                #[cfg(windows)]
+                                if let Err(e) = astromech_voice::player::play_wav_async(&f) {
+                                    eprintln!("{e:#}");
+                                }
+                                #[cfg(not(windows))]
+                                {
+                                    let _ = (sr, samples, f);
+                                }
+                            }
+                        }
                     }
                 }
             }
         })?;
         for p in prerender {
-            let _ = pre_tx.send(format!("\u{0}{p}"));
+            let _ = pre_tx.send(Job::Warm(p));
         }
-        Ok(Self { tx: Mutex::new(tx) })
+        Ok(Self { tx: Mutex::new(tx), mixer })
     }
 }
 
 impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
-        let _ = self.tx.lock().unwrap().send(text.to_string());
+        let _ = self.tx.lock().unwrap().send(Job::Speak(text.to_string()));
+    }
+    fn interrupt(&self) {
+        self.mixer.cut();
+        #[cfg(windows)]
+        astromech_voice::player::stop();
     }
 }
 
@@ -188,9 +232,16 @@ pub fn fixed_phrases() -> Vec<String> {
 mod tests {
     #[test]
     fn cache_names_are_stable() {
-        assert_eq!(super::cache_name("Landing gear down."), super::cache_name("Landing gear down."));
-        assert_ne!(super::cache_name("a"), super::cache_name("b"));
-        assert!(super::fixed_phrases().contains(&"Landing gear down.".to_string()));
+        use astromech_voice::colour::Colour;
+        assert_eq!(
+            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94),
+            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94)
+        );
+        assert_ne!(
+            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94),
+            super::cache_name("Landing gear deployed.", Colour::Natural, 0, 1.0)
+        );
+        assert!(super::fixed_phrases().contains(&"Landing gear deployed.".to_string()));
     }
 }
 

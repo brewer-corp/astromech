@@ -70,6 +70,8 @@ pub struct Voice {
     pub tts: bool,
     pub speaker_id: i32,
     pub speed: f32,
+    /// Kokoro colour (V1-DESIGN.md §6.4). Default cockpit.
+    pub colour: astromech_voice::colour::Colour,
     /// Audio kept from before the PTT press, and after release (ms).
     pub pre_roll_ms: u64,
     pub post_roll_ms: u64,
@@ -116,6 +118,7 @@ impl Default for Voice {
             tts: true,
             speaker_id: 0,
             speed: 1.0,
+            colour: astromech_voice::colour::Colour::Cockpit,
             pre_roll_ms: 150,
             post_roll_ms: 200,
             min_hold_ms: 300,
@@ -291,7 +294,9 @@ mod tests {
         assert!(!k.matches(&ev("button", Some("Keyboard"), "Key_RightControl")));
         assert_eq!((c.actions.hold_ms, c.actions.verify_timeout_ms, c.actions.retries), (50, 2000, None));
         assert_eq!(c.voice.threads, 4);
+        assert_eq!(c.voice.colour, astromech_voice::colour::Colour::Cockpit);
         let d: Config = toml::from_str("").unwrap();
         assert!(d.controls.ptt.is_none() && d.voice.tts);
+        assert_eq!(d.voice.colour, astromech_voice::colour::Colour::Cockpit);
     }
 }
