@@ -124,7 +124,7 @@ fn open_output(inner: Arc<Inner>) -> Option<cpal::Stream> {
     let host = cpal::default_host();
     let dev = host.default_output_device()?;
     let sup = dev.default_output_config().ok()?;
-    let rate = sup.sample_rate().0;
+    let rate = sup.sample_rate();
     let ch = sup.channels().max(1) as usize;
     let cfg: cpal::StreamConfig = sup.config();
     inner.sr.store(rate.max(1), Ordering::SeqCst);
