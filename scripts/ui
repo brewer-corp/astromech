@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Headless Chrome via Puppeteer (scripts/browser). See scripts/browser/run.mjs.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/browser" && pwd)"
+if [[ ! -d "$ROOT/node_modules/puppeteer-core" ]]; then
+  echo "scripts/ui: installing puppeteer-core in scripts/browser" >&2
+  (cd "$ROOT" && pnpm install)
+fi
+exec node "$ROOT/run.mjs" "$@"

@@ -1,0 +1,15 @@
+{
+  "name": "astromech-browser",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.34.6",
+  "description": "Headless Chrome via Puppeteer for local UI checks of the Vite app shell",
+  "scripts": {
+    "run": "node run.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.31.0"
+  }
+}

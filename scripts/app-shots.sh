@@ -6,7 +6,11 @@ OUT=${1:-/workspace/m1-screens}
 mkdir -p "$OUT"
 cd "$(dirname "$0")/../app"
 pnpm -s build >/dev/null
-CHROME=${CHROME:-$(command -v google-chrome || command -v chromium || command -v chromium-browser)}
+CHROME=${CHROME:-$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)}
+if [[ -z "${CHROME}" ]]; then
+  echo "scripts/app-shots.sh: Chrome not found (install Google Chrome, or set CHROME). For clicks and waits use scripts/ui." >&2
+  exit 1
+fi
 pnpm -s exec vite preview --port 4180 --strictPort >/dev/null 2>&1 &
 PREV=$!
 trap 'kill $PREV' EXIT

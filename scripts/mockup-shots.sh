@@ -3,7 +3,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/../app"
 pnpm -s build >/dev/null
-CHROME=${CHROME:-$(command -v google-chrome || command -v chromium || command -v chromium-browser)}
+CHROME=${CHROME:-$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)}
+if [[ -z "${CHROME}" ]]; then
+  echo "scripts/mockup-shots.sh: Chrome not found (install Google Chrome, or set CHROME)." >&2
+  exit 1
+fi
 pnpm -s exec vite preview --port 4179 --strictPort >/dev/null 2>&1 &
 PREV=$!
 trap 'kill $PREV' EXIT

@@ -39,7 +39,7 @@ app/        Svelte 5 + TypeScript + Vite app shell (module manifests in src/modu
 app/src-tauri/  astromech-shell, the Tauri v2 window (its own cargo workspace)
 docs/       design documents
 spikes/     spike tools (own code only)
-scripts/    CI helpers (dependency-rule check)
+scripts/    CI helpers (dependency-rule check); `scripts/ui` drives the Vite shell in headless Chrome
 ```
 
 ## Building
