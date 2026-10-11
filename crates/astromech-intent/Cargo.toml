@@ -1,0 +1,14 @@
+[package]
+name = "astromech-intent"
+description = "Closed command grammar and fuzzy transcript matching"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]

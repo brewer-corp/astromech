@@ -25,6 +25,7 @@ astromech-policy = { path = "crates/astromech-policy" }
 astromech-tools = { path = "crates/astromech-tools" }
 astromech-overlay = { path = "crates/astromech-overlay" }
 astromech-store = { path = "crates/astromech-store" }
+astromech-intent = { path = "crates/astromech-intent" }
 anyhow = "1.0.104"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.151"

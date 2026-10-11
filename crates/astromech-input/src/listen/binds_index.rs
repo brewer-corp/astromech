@@ -2,11 +2,9 @@
 //! reverse index (device, key) -> bound Elite actions. Nothing is ever written.
 
 use crate::listen::model::{DevKind, DeviceMeta};
-use astromech_keybinds::binds;
-use astromech_keybinds::game;
 use serde::Serialize;
 use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Default)]
 pub struct BindsIndex {
@@ -89,92 +87,20 @@ pub fn index_xml(text: &str) -> Result<BTreeMap<(String, String), Vec<String>>, 
     Ok(map)
 }
 
-fn read_text(p: &Path) -> Option<String> {
-    std::fs::read(p).ok().map(|b| binds::decode(&b).0)
-}
-
 pub fn load(bindings_dir: &Path, game_dir: Option<&Path>) -> Result<BindsIndex, String> {
-    let mut ix = BindsIndex { context: "Ship".into(), ..Default::default() };
-    let rd = std::fs::read_dir(bindings_dir)
-        .map_err(|e| format!("cannot read Bindings folder {}: {e}", bindings_dir.display()))?;
-    let mut starts = vec![];
-    let mut files: Vec<(PathBuf, Option<String>, Option<(u32, u32)>)> = vec![];
-    for e in rd.flatten() {
-        let p = e.path();
-        if !p.is_file() {
-            continue;
-        }
-        let name = e.file_name().to_string_lossy().to_string();
-        let low = name.to_ascii_lowercase();
-        if low.starts_with("startpreset") && low.ends_with(".start") {
-            if let Some(t) = read_text(&p) {
-                starts.push(binds::parse_start_preset(&name, &t));
-            }
-        } else if let Some(fi) = binds::parse_file_name(&name) {
-            let pn = read_text(&p).and_then(|t| binds::parse_binds(&t).preset_name);
-            files.push((p, pn, fi.suffix));
-        }
-    }
-    starts.sort_by_key(|s| s.number.unwrap_or(0));
-    let sp = starts.pop().ok_or("no StartPreset*.start file in the Bindings folder")?;
-    ix.start_preset_file = sp.file_name.clone();
-    let (ctx, name) = if sp.lines.len() >= 2 {
-        sp.lines[1].clone()
-    } else {
-        sp.lines.first().cloned().ok_or("StartPreset file is empty")?
-    };
-    ix.context = ctx;
-    ix.preset_name = name.clone();
-    let installs = game::locate_installs(game_dir, &mut ix.notes);
-    for g in &installs {
-        if let Some(t) = read_text(&g.product_dir.join("ControlSchemes").join("DeviceMappings.xml")) {
-            if let Ok(m) = binds::parse_device_mappings(&t) {
-                for (n, ids) in m {
-                    for id in ids {
-                        ix.id_to_name.entry(id).or_insert(n.clone());
-                    }
-                }
-                break;
-            }
-        }
-    }
-    let mut mine: Vec<&(PathBuf, Option<String>, Option<(u32, u32)>)> =
-        files.iter().filter(|f| f.1.as_deref() == Some(name.as_str())).collect();
-    mine.sort_by_key(|f| f.2);
-    let path = if let Some(f) = mine.last() {
-        ix.source = "your file".into();
-        if mine.len() > 1 {
-            ix.notes.push(format!("{} files use PresetName \"{name}\"; using the highest version suffix.", mine.len()));
-        }
-        Some(f.0.clone())
-    } else {
-        let mut found = None;
-        for g in &installs {
-            if let Ok(rd) = std::fs::read_dir(g.product_dir.join("ControlSchemes")) {
-                for e in rd.flatten() {
-                    let p = e.path();
-                    if binds::parse_file_name(&e.file_name().to_string_lossy()).is_some()
-                        && read_text(&p).and_then(|t| binds::parse_binds(&t).preset_name).as_deref()
-                            == Some(name.as_str())
-                    {
-                        found = Some(p);
-                        break;
-                    }
-                }
-            }
-            if found.is_some() {
-                break;
-            }
-        }
-        ix.source = "built-in preset".into();
-        found
-    };
-    let path = path.ok_or_else(|| format!("active {} preset \"{name}\" not found among your .binds files or the game's built-in presets (try --game-dir)", ix.context))?;
-    ix.file = path.display().to_string();
-    let text = read_text(&path).ok_or("cannot read preset file")?;
-    ix.map = index_xml(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-    ix.bound_slots = ix.map.values().map(|v| v.len()).sum();
-    Ok(ix)
+    let a = astromech_keybinds::active::resolve(bindings_dir, game_dir, 1)?;
+    let map = index_xml(&a.text).map_err(|e| format!("{}: {e}", a.path.display()))?;
+    Ok(BindsIndex {
+        preset_name: a.preset_name,
+        context: a.context,
+        start_preset_file: a.start_preset_file,
+        source: a.source,
+        file: a.path.display().to_string(),
+        bound_slots: map.values().map(|v| v.len()).sum(),
+        map,
+        id_to_name: a.id_to_name,
+        notes: a.notes,
+    })
 }
 
 #[cfg(test)]

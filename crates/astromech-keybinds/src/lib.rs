@@ -12,6 +12,7 @@
 //! Seeded from the `k0-binds-doctor` spike (spikes/k0-binds-doctor). **Read-only**: nothing
 //! here writes to game folders.
 
+pub mod active;
 pub mod binds;
 pub mod devices;
 pub mod doctor;

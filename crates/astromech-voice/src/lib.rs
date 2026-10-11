@@ -6,6 +6,9 @@
 //! - [`proto`]: the worker protocol.
 //! - [`score`]: transcript normalisation and word error rate (S9 accuracy scoring).
 //! - [`wav`]: mono WAV I/O.
+//! - [`client`]: spawning and talking to the worker; [`models`]/[`catalog`]/[`download`]: the
+//!   model files (S9 layout, SHA-256-verified downloads); `mic` (cpal) and `player`
+//!   (PlaySoundW) on Windows.
 //!
 //! Defaults from S9: CPU, **4 inference threads**. Fuzzy matching to the command grammar lives
 //! in `astromech-intent` (planned).
@@ -13,6 +16,14 @@
 //! **Rule:** this crate never depends on `astromech-input`. Push-to-talk edges arrive from the
 //! core; actions leave through `astromech-tools` → `astromech-policy`.
 
+pub mod catalog;
+pub mod client;
+pub mod download;
+#[cfg(windows)]
+pub mod mic;
+pub mod models;
+#[cfg(windows)]
+pub mod player;
 pub mod proto;
 pub mod score;
 pub mod wav;

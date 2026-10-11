@@ -1,6 +1,6 @@
 [package]
 name = "astromech-tools"
-description = "Typed tool registry for voice and later cloud callers"
+description = "Typed tool registry: ship toggles with state rules, tiers and verification targets"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -14,3 +14,4 @@ workspace = true
 [dependencies]
 astromech-proto.workspace = true
 astromech-policy.workspace = true
+astromech-status.workspace = true

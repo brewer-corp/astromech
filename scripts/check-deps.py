@@ -13,9 +13,10 @@ FORBIDDEN = {
     "astromech-voice": {"astromech-input"},
     "astromech-tools": {"astromech-input"},
     "astromech-overlay": {"astromech-input"},
+    "astromech-intent": {"astromech-input", "astromech-policy"},
 }
 # crates that must not depend on any workspace crate
-LEAVES = {"astromech-proto"}
+LEAVES = {"astromech-proto", "astromech-intent"}
 
 
 def main() -> int:
