@@ -193,3 +193,83 @@ mod tests {
         assert!(super::fixed_phrases().contains(&"Landing gear down.".to_string()));
     }
 }
+
+/// Level statistics of one PTT clip.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ClipStats {
+    pub audio_ms: u64,
+    /// Whole-clip RMS, dBFS.
+    pub rms_dbfs: f32,
+    /// Loudest 30 ms frame, dBFS (the gate uses this: pre-roll silence doesn't dilute it).
+    pub peak_frame_dbfs: f32,
+}
+
+fn dbfs(rms: f64) -> f32 {
+    if rms <= 1e-9 {
+        -120.0
+    } else {
+        (20.0 * rms.log10()) as f32
+    }
+}
+
+pub fn clip_stats(samples: &[f32], rate: u32) -> ClipStats {
+    let rate = rate.max(1);
+    let rms = |s: &[f32]| {
+        if s.is_empty() {
+            0.0
+        } else {
+            (s.iter().map(|&x| (x as f64).powi(2)).sum::<f64>() / s.len() as f64).sqrt()
+        }
+    };
+    let frame = (rate as usize * 30 / 1000).max(1);
+    let peak = samples.chunks(frame).map(rms).fold(0.0, f64::max);
+    ClipStats {
+        audio_ms: samples.len() as u64 * 1000 / rate as u64,
+        rms_dbfs: dbfs(rms(samples)),
+        peak_frame_dbfs: dbfs(peak),
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Gate {
+    Pass,
+    /// PTT held for less than `min_hold_ms`.
+    TooShort,
+    /// Loudest frame below `min_level_dbfs`.
+    TooQuiet,
+}
+
+/// Should this clip go to speech-to-text? Dropped clips are logged, never spoken about.
+pub fn gate(held_ms: u64, st: &ClipStats, min_hold_ms: u64, min_level_dbfs: f32) -> Gate {
+    if held_ms < min_hold_ms {
+        Gate::TooShort
+    } else if st.peak_frame_dbfs < min_level_dbfs {
+        Gate::TooQuiet
+    } else {
+        Gate::Pass
+    }
+}
+
+#[cfg(test)]
+mod gate_tests {
+    use super::*;
+
+    fn tone(ms: u64, amp: f32) -> Vec<f32> {
+        (0..16 * ms).map(|i| amp * (i as f32 * 0.2).sin()).collect()
+    }
+
+    #[test]
+    fn gates_short_quiet_and_passes_speech() {
+        let mut clip = vec![0.0005f32; 16 * 150]; // pre-roll room noise (-66 dBFS)
+        clip.extend(tone(600, 0.1)); // speech-level (-23 dBFS RMS)
+        let st = clip_stats(&clip, 16000);
+        assert_eq!(st.audio_ms, 750);
+        assert!(st.peak_frame_dbfs > -25.0 && st.rms_dbfs < st.peak_frame_dbfs);
+        assert_eq!(gate(600, &st, 300, -45.0), Gate::Pass);
+        // A bounce: ~10 ms held, pre/post-roll only.
+        let quiet = clip_stats(&vec![0.0005f32; 16 * 360], 16000);
+        assert_eq!(gate(10, &quiet, 300, -45.0), Gate::TooShort);
+        assert_eq!(gate(800, &quiet, 300, -45.0), Gate::TooQuiet);
+        assert_eq!(clip_stats(&[], 16000).peak_frame_dbfs, -120.0);
+    }
+}

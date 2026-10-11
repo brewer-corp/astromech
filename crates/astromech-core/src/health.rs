@@ -42,14 +42,24 @@ impl BindsState {
     }
 
     /// Why `action` can't be pressed, in words for speech.
+    /// The spoken refusal when a tool's action has no keyboard key. Uses the name Elite's
+    /// controls screen shows, not the internal action ID (that goes to the console log).
     pub fn missing_reason(&self, action: &str, noun: &str) -> String {
+        let ui = elite_ui_name(action);
         match &self.index {
-            None => format!("{noun}: I couldn't read your active keybindings, so I can't press anything. Check the health report."),
-            Some(ix) if ix.slots(action).is_empty() => {
-                format!("{noun} isn't bound in your active preset. Bind {action} to a keyboard key in Elite's controls.")
-            }
+            None => format!(
+                "I can't switch {}: I couldn't read your Elite keybindings. Check the health report.",
+                noun.to_lowercase()
+            ),
+            Some(ix) if ix.slots(action).is_empty() => format!(
+                "I can't switch {}: it isn't bound to anything in your controls. In Elite, open Options, Controls, \
+                 and give {ui} a keyboard key.",
+                noun.to_lowercase()
+            ),
             Some(_) => format!(
-                "{noun} has no keyboard binding, only a controller one. Add a keyboard key to {action} as its secondary binding."
+                "I can't switch {}: it's only bound to your controller, and I can only press keyboard keys. \
+                 In Elite, open Options, Controls, and give {ui} a keyboard key as its secondary binding.",
+                noun.to_lowercase()
             ),
         }
     }
@@ -199,6 +209,18 @@ pub fn watch(
     Ok(HealthWatch { _watcher: w })
 }
 
+/// Elite's controls-screen label for an action (for spoken hints).
+pub fn elite_ui_name(action: &str) -> &str {
+    match action {
+        "LandingGearToggle" => "Landing Gear",
+        "ShipSpotLightToggle" => "Ship Lights",
+        "DeployHardpointToggle" => "Deploy Hardpoints",
+        "ToggleCargoScoop" => "Cargo Scoop",
+        "NightVisionToggle" => "Night Vision",
+        a => a,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,7 +246,7 @@ mod tests {
             .issues
             .iter()
             .any(|i| i.level == "error" && i.text.starts_with("LandingGearToggle has no keyboard binding")));
-        assert!(st.missing_reason("LandingGearToggle", "Landing gear").contains("only a controller one"));
+        assert!(st.missing_reason("LandingGearToggle", "Landing gear").contains("only bound to your controller"));
         assert!(st.missing_reason("NightVisionToggle", "Night vision").contains("isn't bound"));
         assert!(st.summary().contains("no keyboard binding"));
     }

@@ -78,11 +78,41 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("night_vision.off", &["night vision off", "turn off night vision", "disable night vision"]),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
-    ("request_docking", &["request docking"]),
+    ("request_docking", &["request docking", "request docking permission", "dock"]),
+    (
+        "supercruise",
+        &["supercruise", "engage supercruise", "enter supercruise", "drop out of supercruise", "exit supercruise"],
+    ),
+    (
+        "hyperspace_jump",
+        &["hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system"],
+    ),
     ("plot_route", &["plot route to {system}", "set course for {system}"]),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
+
+/// Commands the grammar recognises but the app can't run (yet). They exist so a request is
+/// answered ("I can't do that yet") instead of "didn't catch that" or a wrong near match.
+pub const UNAVAILABLE: &[&str] = &["request_docking", "plot_route", "supercruise", "hyperspace_jump"];
+
+/// Words a whole transcript can consist of when the mic caught only a noise, breath or
+/// acknowledgement (Parakeet's usual output for a near-empty clip). Ignored silently.
+pub const NOISE_WORDS: &[&str] =
+    &["mm", "mmm", "hmm", "hm", "mhm", "mmhmm", "uh", "um", "uhm", "ah", "oh", "huh", "yeah", "okay", "ok", "uhhuh"];
+
+/// True when a transcript has nothing but noise words ("Mm-hmm.", "Yeah.", "Okay.", "Mm.").
+pub fn is_noise_only(t: &str) -> bool {
+    let s: String = t.to_lowercase().chars().map(|c| if c.is_alphanumeric() { c } else { ' ' }).collect();
+    let w: Vec<&str> = s.split_whitespace().collect();
+    !w.is_empty() && w.iter().all(|w| NOISE_WORDS.contains(w) || *w == "hmm" || *w == "mm")
+}
+
+/// Mishearings of game words seen in real transcripts that are too ambiguous to execute on:
+/// the replacement is scored, but capped below EXECUTE so it becomes "Did you mean …?".
+const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear")];
+/// Score cap for a match that needed a [`MISHEARD`] replacement.
+pub const MISHEARD_CAP: f32 = 0.80;
 
 const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "okay", "ok", "hey"];
 
@@ -98,6 +128,14 @@ pub fn normalise(s: &str) -> Vec<String> {
         let w = std::mem::take(&mut t[i]);
         let next = t.get(i + 1).map(|s| s.as_str());
         let joined = match (w.as_str(), next) {
+            // Game vocabulary (S9/slice transcripts: "Super Cruise", "Engage Super Crews").
+            (
+                "super",
+                Some("cruise" | "crews" | "cruz" | "cruise's" | "cruises" | "cruiser" | "cruse" | "crew" | "screws"),
+            ) => Some("supercruise"),
+            ("frame", Some("shift" | "ship")) => Some("frameshift"),
+            ("hyper", Some("space")) => Some("hyperspace"),
+            ("cargo", Some("scoops")) => Some("cargo scoop"),
             ("hard", Some("points" | "point")) => Some("hardpoints"),
             ("head", Some("lights" | "light")) => Some("headlights"),
             ("night", Some("visions")) => Some("night vision"),
@@ -112,6 +150,10 @@ pub fn normalise(s: &str) -> Vec<String> {
             "hardpoint" => "hardpoints".to_string(),
             "light" => "lights".to_string(),
             "gears" => "gear".to_string(),
+            "superus" | "supercruz" | "supercrews" | "supercruse" | "supercruiser" | "supercruises" | "supercrus" => {
+                "supercruise".to_string()
+            }
+            "you're" => "youre".to_string(),
             _ => w,
         };
         if !FILLER.contains(&w.as_str()) {
@@ -254,13 +296,26 @@ impl Grammar {
     /// All phrases scored, best first.
     pub fn rank(&self, transcript: &str) -> Vec<Match> {
         let u = normalise(transcript);
+        let misheard: Option<Vec<String>> = u.iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w)).then(|| {
+            u.iter()
+                .map(|w| MISHEARD.iter().find(|(h, _)| h == w).map(|(_, r)| r.to_string()).unwrap_or_else(|| w.clone()))
+                .collect()
+        });
         let slot = |w: &str| self.slot_best(w);
         let mut v: Vec<Match> = self
             .phrases
             .iter()
             .map(|(p, toks)| {
                 let mut filled = None;
-                let score = seq_score(&u, toks, &slot, &mut filled);
+                let mut score = seq_score(&u, toks, &slot, &mut filled);
+                if let Some(alt) = &misheard {
+                    let mut f2 = None;
+                    let s2 = seq_score(alt, toks, &slot, &mut f2).min(MISHEARD_CAP);
+                    if s2 > score {
+                        score = s2;
+                        filled = f2;
+                    }
+                }
                 let phrase = match &filled {
                     Some(s) => p.text.replace("{system}", s),
                     None => p.text.to_string(),
@@ -368,6 +423,35 @@ mod tests {
         // Opposites must never execute each other.
         assert_eq!(g.best("lights of").command, "lights.off");
         assert_ne!(g.best("gear up").command, "landing_gear.down");
+    }
+
+    /// Sumeet's real-game transcripts (gear-down preview, 10 Oct).
+    #[test]
+    fn real_game_transcripts() {
+        let g = g();
+        let d = |t: &str| {
+            let m = g.best(t);
+            (m.command, m.decision)
+        };
+        assert_eq!(d("Bunding gear down."), ("landing_gear.down", Decision::Execute));
+        assert_eq!(d("Year down."), ("landing_gear.down", Decision::Execute));
+        assert_eq!(d("Gear down."), ("landing_gear.down", Decision::Execute));
+        assert_eq!(d("You're down."), ("landing_gear.down", Decision::Ask), "too ambiguous to press on");
+        for t in ["Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus."] {
+            assert_eq!(d(t), ("supercruise", Decision::Execute), "{t}");
+        }
+        assert_eq!(d("Hyperspace jump."), ("hyperspace_jump", Decision::Execute));
+        assert_eq!(d("Engage frame shift drive"), ("hyperspace_jump", Decision::Execute));
+    }
+
+    #[test]
+    fn noise_only_transcripts() {
+        for t in ["Mm-hmm.", "Yeah.", "Okay.", "Mm.", "Hmm?", "Uh, um."] {
+            assert!(is_noise_only(t), "{t}");
+        }
+        for t in ["Yes.", "Gear down.", "", "Okay, gear down."] {
+            assert!(!is_noise_only(t), "{t}");
+        }
     }
 
     #[test]

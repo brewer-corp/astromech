@@ -22,6 +22,23 @@ pub struct Recorder {
     name: String,
     pub channels: u16,
     pub format: String,
+    errors: Arc<Mutex<StreamErrors>>,
+    /// Streams rebuilt after a stall or a lost device.
+    pub restarts: u32,
+}
+
+/// Stream errors reported by cpal (e.g. WASAPI's "A buffer underrun or overrun occurred.").
+/// An xrun drops a few ms of audio; the ring buffer stays consistent because positions only
+/// count samples actually delivered, so a PTT window is simply a little shorter.
+#[derive(Debug, Default, Clone)]
+pub struct StreamErrors {
+    pub xruns: u64,
+    pub other: u64,
+    pub last: Option<String>,
+    /// The device went away: the stream must be rebuilt.
+    pub device_lost: bool,
+    /// Errors since the last [`Recorder::take_errors`].
+    pub new: u64,
 }
 
 fn push(ring: &Arc<(Mutex<Ring>, Condvar)>, cap: usize, ch: usize, data: impl Iterator<Item = f32>) {
@@ -54,50 +71,121 @@ impl Recorder {
     }
 
     pub fn start() -> Result<Self> {
-        let host = cpal::default_host();
-        let dev = host.default_input_device().ok_or_else(|| anyhow!("no default microphone (input device) found"))?;
-        let name = dev.description().map(|d| d.name().to_string()).unwrap_or_else(|_| "default input".into());
-        let sup = dev.default_input_config().context("query microphone format")?;
-        let rate = sup.sample_rate();
-        let channels = sup.channels();
-        let format = format!("{:?}", sup.sample_format());
-        let config: cpal::StreamConfig = sup.config();
         let ring = Arc::new((Mutex::new(Ring { buf: VecDeque::new(), total: 0, last_cb: None }), Condvar::new()));
-        let cap = rate as usize * 60;
-        let ch = channels.max(1) as usize;
-        let err = |e| eprintln!("microphone stream error: {e}");
-        let r2 = ring.clone();
-        let stream = match sup.sample_format() {
-            cpal::SampleFormat::F32 => dev.build_input_stream::<f32, _, _>(
-                config,
-                move |d: &[f32], _| push(&r2, cap, ch, d.iter().copied()),
-                err,
-                None,
-            ),
-            cpal::SampleFormat::I16 => dev.build_input_stream::<i16, _, _>(
-                config,
-                move |d: &[i16], _| push(&r2, cap, ch, d.iter().map(|&v| v as f32 / 32768.0)),
-                err,
-                None,
-            ),
-            cpal::SampleFormat::I32 => dev.build_input_stream::<i32, _, _>(
-                config,
-                move |d: &[i32], _| push(&r2, cap, ch, d.iter().map(|&v| v as f32 / 2147483648.0)),
-                err,
-                None,
-            ),
-            cpal::SampleFormat::U16 => dev.build_input_stream::<u16, _, _>(
-                config,
-                move |d: &[u16], _| push(&r2, cap, ch, d.iter().map(|&v| (v as f32 - 32768.0) / 32768.0)),
-                err,
-                None,
-            ),
-            f => return Err(anyhow!("unsupported microphone sample format {f:?}")),
-        }
-        .context("open microphone stream")?;
-        stream.play().context("start microphone stream")?;
-        Ok(Recorder { ring, _stream: stream, rate, name, channels, format })
+        let errors = Arc::new(Mutex::new(StreamErrors::default()));
+        let (stream, rate, name, channels, format) = build(&ring, &errors)?;
+        Ok(Recorder { ring, _stream: stream, rate, name, channels, format, errors, restarts: 0 })
     }
+
+    /// Errors since the last call (for the log).
+    pub fn take_errors(&self) -> Option<StreamErrors> {
+        let mut e = self.errors.lock().unwrap();
+        if e.new == 0 {
+            return None;
+        }
+        let out = e.clone();
+        e.new = 0;
+        Some(out)
+    }
+
+    /// No audio callback for this long while the stream should be running.
+    pub fn stalled(&self, max: Duration) -> bool {
+        let r = self.ring.0.lock().unwrap();
+        match r.last_cb {
+            Some(t) => t.elapsed() > max,
+            None => true,
+        }
+    }
+
+    /// Rebuild the stream if the device was lost or the callbacks stopped. Keeps the same
+    /// ring buffer (positions stay valid). Returns Ok(true) if it restarted.
+    pub fn recover(&mut self) -> Result<bool> {
+        let lost = self.errors.lock().unwrap().device_lost;
+        if !lost && !self.stalled(Duration::from_millis(1500)) {
+            return Ok(false);
+        }
+        let (stream, rate, name, channels, format) = build(&self.ring, &self.errors)?;
+        if rate != self.rate {
+            // A different device rate would make old positions meaningless: start a fresh ring.
+            let mut r = self.ring.0.lock().unwrap();
+            r.buf.clear();
+        }
+        self._stream = stream;
+        self.rate = rate;
+        self.name = name;
+        self.channels = channels;
+        self.format = format;
+        self.errors.lock().unwrap().device_lost = false;
+        self.restarts += 1;
+        Ok(true)
+    }
+}
+
+type Built = (cpal::Stream, u32, String, u16, String);
+
+fn build(ring: &Arc<(Mutex<Ring>, Condvar)>, errors: &Arc<Mutex<StreamErrors>>) -> Result<Built> {
+    let host = cpal::default_host();
+    let dev = host.default_input_device().ok_or_else(|| anyhow!("no default microphone (input device) found"))?;
+    let name = dev.description().map(|d| d.name().to_string()).unwrap_or_else(|_| "default input".into());
+    let sup = dev.default_input_config().context("query microphone format")?;
+    let rate = sup.sample_rate();
+    let channels = sup.channels();
+    let format = format!("{:?}", sup.sample_format());
+    let config: cpal::StreamConfig = sup.config();
+    let cap = rate as usize * 60;
+    let ch = channels.max(1) as usize;
+    let e2 = errors.clone();
+    let err = move |e: cpal::Error| {
+        let mut st = e2.lock().unwrap();
+        let text = e.to_string();
+        if matches!(
+            e.kind(),
+            cpal::ErrorKind::DeviceNotAvailable | cpal::ErrorKind::DeviceChanged | cpal::ErrorKind::StreamInvalidated
+        ) {
+            st.device_lost = true;
+            st.other += 1;
+        } else if e.kind() == cpal::ErrorKind::Xrun
+            || text.to_lowercase().contains("underrun")
+            || text.to_lowercase().contains("overrun")
+        {
+            st.xruns += 1;
+        } else {
+            st.other += 1;
+        }
+        st.new += 1;
+        st.last = Some(text);
+    };
+    let r2 = ring.clone();
+    let stream = match sup.sample_format() {
+        cpal::SampleFormat::F32 => dev.build_input_stream::<f32, _, _>(
+            config,
+            move |d: &[f32], _| push(&r2, cap, ch, d.iter().copied()),
+            err,
+            None,
+        ),
+        cpal::SampleFormat::I16 => dev.build_input_stream::<i16, _, _>(
+            config,
+            move |d: &[i16], _| push(&r2, cap, ch, d.iter().map(|&v| v as f32 / 32768.0)),
+            err,
+            None,
+        ),
+        cpal::SampleFormat::I32 => dev.build_input_stream::<i32, _, _>(
+            config,
+            move |d: &[i32], _| push(&r2, cap, ch, d.iter().map(|&v| v as f32 / 2147483648.0)),
+            err,
+            None,
+        ),
+        cpal::SampleFormat::U16 => dev.build_input_stream::<u16, _, _>(
+            config,
+            move |d: &[u16], _| push(&r2, cap, ch, d.iter().map(|&v| (v as f32 - 32768.0) / 32768.0)),
+            err,
+            None,
+        ),
+        f => return Err(anyhow!("unsupported microphone sample format {f:?}")),
+    }
+    .context("open microphone stream")?;
+    stream.play().context("start microphone stream")?;
+    Ok((stream, rate, name, channels, format))
 }
 
 impl Recorder {
@@ -131,5 +219,28 @@ impl Recorder {
             return vec![];
         }
         r.buf.range((from - start) as usize..(to - start) as usize).copied().collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ring() -> Arc<(Mutex<Ring>, Condvar)> {
+        Arc::new((Mutex::new(Ring { buf: VecDeque::new(), total: 0, last_cb: None }), Condvar::new()))
+    }
+
+    /// Positions stay consistent across wrap-around and across a gap (an xrun just means
+    /// fewer samples were delivered; nothing is shifted or duplicated).
+    #[test]
+    fn ring_positions_survive_wrap_and_gaps() {
+        let r = ring();
+        push(&r, 10, 2, (0..16).map(|i| i as f32)); // 8 mono frames
+        push(&r, 10, 2, (16..24).map(|i| i as f32)); // 4 more: 12 total, cap 10
+        let g = r.0.lock().unwrap();
+        assert_eq!(g.total, 12);
+        assert_eq!(g.buf.len(), 10);
+        assert_eq!(g.buf.front().copied(), Some(4.5)); // frame 2 = (4+5)/2
+        assert_eq!(g.buf.back().copied(), Some(22.5));
     }
 }

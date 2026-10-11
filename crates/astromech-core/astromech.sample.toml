@@ -17,6 +17,7 @@ ptt = { device = "231D3201", key = "Joy_4" }
 # Hold it for rearm_hold_ms to re-arm. Pick a button Elite doesn't use.
 kill_switch = { device = "Keyboard", key = "Key_ScrollLock" }
 rearm_hold_ms = 1000
+debounce_ms = 150              # PTT bounce filter: one push = one clip
 
 [voice]
 models_dir = ""               # empty: "models" next to the exe; or the s9 tool's models folder
@@ -27,6 +28,8 @@ speaker_id = 0
 speed = 1.0
 pre_roll_ms = 150
 post_roll_ms = 200
+min_hold_ms = 300              # shorter PTT taps are ignored
+min_level_dbfs = -45.0         # near-silent clips are ignored (raise toward -40 if noise gets through)
 
 [actions]
 hold_ms = 50                  # S5: 50 ms holds were reliable

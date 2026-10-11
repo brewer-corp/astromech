@@ -116,6 +116,12 @@ an unexpected gear change can't hurt.
    that would press a key is refused ("Elite isn't the active window…"). Typed commands are
    useful for checking state answers and refusals, not for pressing keys.
 
+**Each push is logged:** `PTT down (t=…)` and `PTT up (t=…) — held N ms; clip N ms, RMS … dBFS,
+loudest frame … dBFS; transcribing`. Taps under 300 ms, near-silent clips (loudest frame below
+−45 dBFS) and noise-only transcripts ("Mm-hmm.", "Yeah.") are ignored without a reply. A switch
+bounce shows as `PTT bounce ignored`. If real speech gets ignored as too quiet, lower
+`min_level_dbfs` in `[voice]` (e.g. to −55).
+
 **If PTT does nothing:** start with `astromech-core.exe --debug-input`. Every button press is
 logged with its device ID and Elite name (e.g. `input: button Joy_15 on 231D3201 (...) down ->
 PTT`), and the startup lines show whether the PTT device is connected. Without the flag, the

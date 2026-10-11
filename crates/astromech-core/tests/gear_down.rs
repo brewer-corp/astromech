@@ -220,7 +220,9 @@ fn state_rules_press_nothing() {
 fn no_keyboard_binding_refuses_clearly() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
     let lights = ToolCall { toggle: Toggle::Lights, target: Target::On };
-    assert!(matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("no keyboard binding")));
+    assert!(
+        matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("I can't switch lights"))
+    );
     assert!(r
         .runner
         .binds
@@ -265,6 +267,45 @@ fn did_you_mean_then_yes_executes() {
     assert!(matches!(a2.handle("yes", Origin::Voice), Handled::Ran { outcome: Outcome::Already(_), .. }));
     // A lone 'yes' with nothing pending is not a command.
     assert!(matches!(a2.handle("yes", Origin::Voice), Handled::NotUnderstood));
+}
+
+#[test]
+fn real_game_round_two() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
+    let a = Assistant::new(r.runner.clone());
+    // Noise-only clips are ignored silently.
+    for t in ["Mm-hmm.", "Yeah.", "Okay.", "Mm."] {
+        assert!(matches!(a.handle(t, Origin::Voice), Handled::Ignored), "{t}");
+    }
+    assert!(r.speaker.take().is_empty());
+    // Known but unavailable.
+    for t in ["Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus."] {
+        assert!(matches!(a.handle(t, Origin::Voice), Handled::NotAvailable("supercruise")), "{t}");
+    }
+    assert!(r.speaker.take().iter().all(|s| s.starts_with("I can't do that yet. Supercruise")));
+    // "You're down." asks; "Yeah." confirms it.
+    assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+    match a.handle("Yeah.", Origin::Voice) {
+        Handled::Ran { command: "landing_gear.down", outcome } => {
+            assert!(matches!(sent(outcome), Verified::Confirmed { .. }))
+        }
+        h => panic!("{h:?}"),
+    }
+    assert_eq!(r.speaker.take(), vec!["Did you mean gear down?", "Landing gear down."]);
+    assert_eq!(r.game.presses.load(Ordering::SeqCst), 1);
+}
+
+#[test]
+fn night_vision_without_keyboard_key_is_refused_clearly() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
+    let a = Assistant::new(r.runner.clone());
+    let h = a.handle("night vision on", Origin::Voice);
+    assert!(matches!(h, Handled::Ran { outcome: Outcome::NoBinding(_), .. }), "{h:?}");
+    let said = r.speaker.take();
+    assert_eq!(said.len(), 1);
+    assert!(said[0].starts_with("I can't switch night vision:"), "{said:?}");
+    assert!(said[0].contains("give Night Vision a keyboard key") && !said[0].contains("NightVisionToggle"), "{said:?}");
+    assert_eq!(r.game.presses.load(Ordering::SeqCst), 0);
 }
 
 #[test]

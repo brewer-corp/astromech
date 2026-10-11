@@ -21,6 +21,9 @@ pub enum Control {
 
 /// How many unmatched presses on the PTT device are reported (without --debug-input).
 pub const UNMATCHED_REPORTS: u32 = 5;
+/// Default PTT debounce: a release followed by a press within this window is contact bounce
+/// (or a double report) and is ignored, so one push gives one clip.
+pub const DEBOUNCE_MS: f64 = 150.0;
 
 pub struct Mapper {
     p: Processor,
@@ -31,6 +34,13 @@ pub struct Mapper {
     pub debug: bool,
     unmatched: u32,
     log: Box<dyn Fn(&str) + Send>,
+    /// PTT debounce window (ms).
+    pub debounce_ms: f64,
+    ptt_down: bool,
+    /// Time of a release that hasn't been reported yet (waiting out the debounce window).
+    pending_up: Option<f64>,
+    /// Bounces ignored so far (for the log).
+    pub bounces: u64,
 }
 
 fn device_of(e: &Event) -> String {
@@ -47,7 +57,19 @@ impl Mapper {
         let mut p = Processor::new(astromech_input::ELITE_TITLE, None, true);
         // The first report from an idle joystick is the press itself (see Processor docs).
         p.initial_presses = true;
-        Self { p, ptt, kill, kill_at: None, debug, unmatched: 0, log: Box::new(log) }
+        Self {
+            p,
+            ptt,
+            kill,
+            kill_at: None,
+            debug,
+            unmatched: 0,
+            log: Box::new(log),
+            debounce_ms: DEBOUNCE_MS,
+            ptt_down: false,
+            pending_up: None,
+            bounces: 0,
+        }
     }
 
     pub fn add_device(&mut self, d: DeviceMeta) {
@@ -55,13 +77,47 @@ impl Mapper {
     }
 
     pub fn sample(&mut self, s: &Sample) -> Vec<Control> {
+        let mut out = self.flush(s.t_ms);
         let evs = self.p.process(s);
-        self.handle(evs)
+        out.extend(self.handle(evs));
+        out
     }
 
+    /// Call periodically (and it is called on every sample): reports a release once the
+    /// debounce window has passed with no new press.
     pub fn tick(&mut self, now_ms: f64) -> Vec<Control> {
+        let mut out = self.flush(now_ms);
         let evs = self.p.tick(now_ms);
-        self.handle(evs)
+        out.extend(self.handle(evs));
+        out
+    }
+
+    fn flush(&mut self, now_ms: f64) -> Vec<Control> {
+        match self.pending_up {
+            Some(t) if now_ms - t >= self.debounce_ms => {
+                self.pending_up = None;
+                self.ptt_down = false;
+                vec![Control::PttUp]
+            }
+            _ => vec![],
+        }
+    }
+
+    fn ptt_edge(&mut self, down: bool, t: f64, out: &mut Vec<Control>) {
+        if down {
+            if let Some(up) = self.pending_up.take() {
+                self.bounces += 1;
+                let msg = format!("PTT bounce ignored (released and pressed again within {:.0} ms)", t - up);
+                if self.debug || self.bounces <= UNMATCHED_REPORTS as u64 {
+                    (self.log)(&msg);
+                }
+            } else if !self.ptt_down {
+                self.ptt_down = true;
+                out.push(Control::PttDown);
+            }
+        } else if self.ptt_down && self.pending_up.is_none() {
+            self.pending_up = Some(t);
+        }
     }
 
     fn handle(&mut self, evs: Vec<Event>) -> Vec<Control> {
@@ -91,7 +147,7 @@ impl Mapper {
                 ));
             }
             if is_ptt {
-                out.push(if down { Control::PttDown } else { Control::PttUp });
+                self.ptt_edge(down, e.t_ms, &mut out);
             } else if down && !is_kill {
                 if let Some(p) = &self.ptt {
                     let same_device = device_of(&e).eq_ignore_ascii_case(&p.device);
@@ -148,6 +204,7 @@ pub fn start(
     ptt: Option<Button>,
     kill: Option<Button>,
     debug: bool,
+    debounce_ms: u64,
     tx: std::sync::mpsc::Sender<Control>,
     log: impl Fn(&str) + Send + Clone + 'static,
 ) -> (String, Vec<DeviceMeta>) {
@@ -155,6 +212,7 @@ pub fn start(
     // Enumerate first, then register (same order as s7-input-listener and --listen).
     let devices = win::rawinput::list_devices();
     let mut m = Mapper::new(ptt, kill, debug, log.clone());
+    m.debounce_ms = debounce_ms as f64;
     for d in &devices {
         m.add_device(d.clone());
     }
@@ -257,7 +315,8 @@ mod tests {
     fn first_report_is_the_ptt_press() {
         let (mut m, _) = mapper(false);
         assert_eq!(m.sample(&hid(5000.0, &[15], 0.3)), vec![Control::PttDown]);
-        assert_eq!(m.sample(&hid(5600.0, &[], 0.3)), vec![Control::PttUp]);
+        assert!(m.sample(&hid(5600.0, &[], 0.3)).is_empty(), "release waits out the debounce");
+        assert_eq!(m.tick(5760.0), vec![Control::PttUp]);
     }
 
     #[test]
@@ -267,8 +326,8 @@ mod tests {
         assert!(m.sample(&hid(100.0, &[], 0.7)).is_empty());
         assert_eq!(m.sample(&hid(1000.0, &[15], 0.7)), vec![Control::PttDown]);
         assert!(m.sample(&hid(1200.0, &[15], 0.71)).is_empty(), "held: no repeat");
-        assert_eq!(m.sample(&hid(1500.0, &[], 0.71)), vec![Control::PttUp]);
-        assert_eq!(m.sample(&hid(2000.0, &[16], 0.71)), vec![Control::KillDown]);
+        assert!(m.sample(&hid(1500.0, &[], 0.71)).is_empty());
+        assert_eq!(m.sample(&hid(2000.0, &[16], 0.71)), vec![Control::PttUp, Control::KillDown]);
         assert!(matches!(m.sample(&hid(2100.0, &[], 0.71))[..], [Control::KillUp(_)]));
         // A neighbouring button is reported (a few times), not treated as PTT.
         assert!(m.sample(&hid(3000.0, &[14], 0.71)).is_empty());
@@ -278,6 +337,25 @@ mod tests {
             m.sample(&hid(3105.0 + i as f64 * 10.0, &[14], 0.71));
         }
         assert_eq!(logs.lock().unwrap().len() as u32, UNMATCHED_REPORTS);
+    }
+
+    /// One push with contact bounce (down, up 8 ms later, down again) must give exactly one
+    /// PttDown/PttUp pair, not a short spurious clip followed by the real one.
+    #[test]
+    fn bounce_gives_one_clip() {
+        let (mut m, logs) = mapper(false);
+        m.sample(&hid(0.0, &[], 0.5));
+        let mut got = vec![];
+        for (t, b) in [(1000.0, vec![15]), (1008.0, vec![]), (1016.0, vec![15]), (1030.0, vec![]), (1040.0, vec![15])] {
+            got.extend(m.sample(&hid(t, &b, 0.5)));
+        }
+        got.extend(m.tick(2000.0));
+        got.extend(m.sample(&hid(3000.0, &[], 0.5)));
+        got.extend(m.tick(3100.0));
+        assert_eq!(got, vec![Control::PttDown]);
+        assert_eq!(m.tick(3200.0), vec![Control::PttUp]);
+        assert_eq!(m.bounces, 2);
+        assert!(logs.lock().unwrap()[0].starts_with("PTT bounce ignored"));
     }
 
     #[test]
@@ -308,6 +386,7 @@ mod tests {
         for s in &rf.samples {
             got.extend(m.sample(s));
         }
+        got.extend(m.tick(1e9));
         assert_eq!(&got[..2], &[Control::PttDown, Control::PttUp]);
     }
 

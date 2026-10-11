@@ -449,8 +449,14 @@ fn start_voice(
 ) -> Result<VoiceHandles> {
     use astromech_core::controls::{self, Control};
     let (tx, rx) = std::sync::mpsc::channel();
-    let (status, devices) =
-        controls::start(cfg.controls.ptt.clone(), cfg.controls.kill_switch.clone(), debug_input, tx, log);
+    let (status, devices) = controls::start(
+        cfg.controls.ptt.clone(),
+        cfg.controls.kill_switch.clone(),
+        debug_input,
+        cfg.controls.debounce_ms,
+        tx,
+        log,
+    );
     log(&format!(
         "input listener: {status}{}",
         if debug_input { " (--debug-input: logging every button)" } else { "" }
@@ -487,9 +493,13 @@ fn start_voice(
                 match stt.transcribe(&samples, rate) {
                     Ok(t) if t.is_empty() => a.runner.speaker.say("Didn't catch that."),
                     Ok(t) => {
-                        log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
                         let h = a.handle(&t, Origin::Voice);
-                        log(&format!("  -> {}", short(&h)));
+                        if matches!(h, astromech_core::assistant::Handled::Ignored) {
+                            log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
+                        } else {
+                            log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
+                            log(&format!("  -> {}", short(&h)));
+                        }
                     }
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
                 }
@@ -499,13 +509,48 @@ fn start_voice(
     let pre = cfg.voice.pre_roll_ms;
     let post = Duration::from_millis(cfg.voice.post_roll_ms);
     let rearm_hold = Duration::from_millis(cfg.controls.rearm_hold_ms);
+    let debounce = Duration::from_millis(cfg.controls.debounce_ms);
+    let (min_hold, min_level) = (cfg.voice.min_hold_ms, cfg.voice.min_level_dbfs);
+    let t_start = std::time::Instant::now();
+    let secs = move |t: std::time::Instant| t.duration_since(t_start).as_secs_f64();
     std::thread::Builder::new().name("ptt".into()).spawn(move || {
         let mut from: Option<u64> = None;
+        let mut down_at = std::time::Instant::now();
         let mut press_killed = false;
-        while let Ok(c) = rx.recv() {
+        let mut mic = mic;
+        let report_mic = |mic: &mut Option<astromech_voice::mic::Recorder>| {
+            let Some(m) = mic.as_mut() else { return };
+            if let Some(e) = m.take_errors() {
+                log(&format!(
+                    "microphone: {} stream error(s) ({} under/overruns so far; last: {}). Capture continues; \
+                     at most a few ms of audio were lost",
+                    e.new,
+                    e.xruns,
+                    e.last.unwrap_or_default()
+                ));
+            }
+            match m.recover() {
+                Ok(true) => log(&format!("microphone: stream restarted ({}, {} Hz)", m.device_name(), m.sample_rate())),
+                Ok(false) => {}
+                Err(e) => log(&format!("microphone: restart failed: {e:#}")),
+            }
+        };
+        loop {
+            let c = match rx.recv_timeout(Duration::from_secs(1)) {
+                Ok(c) => c,
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                    if from.is_none() {
+                        report_mic(&mut mic);
+                    }
+                    continue;
+                }
+                Err(_) => break,
+            };
             match c {
                 Control::PttDown => {
-                    log("PTT down — listening");
+                    report_mic(&mut mic);
+                    down_at = std::time::Instant::now();
+                    log(&format!("PTT down (t={:.3} s) — listening", secs(down_at)));
                     if let Some(m) = &mic {
                         let back = m.sample_rate() as u64 * pre / 1000;
                         from = Some(m.position().saturating_sub(back));
@@ -519,14 +564,30 @@ fn start_voice(
                 }
                 Control::PttUp => {
                     if let (Some(m), Some(f)) = (&mic, from.take()) {
-                        std::thread::sleep(post);
+                        // The release reaches us after the debounce window; time it from the
+                        // real release and keep the post-roll measured from there too.
+                        let up_at = std::time::Instant::now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
+                        let held = up_at.duration_since(down_at).as_millis() as u64;
+                        std::thread::sleep(post.saturating_sub(debounce));
                         m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
                         let samples = m.take(f, m.position());
-                        log(&format!(
-                            "PTT up — transcribing ({} ms audio)",
-                            samples.len() as u64 * 1000 / m.sample_rate().max(1) as u64
-                        ));
-                        let _ = jtx.send((samples, m.sample_rate()));
+                        let st = astromech_core::speech::clip_stats(&samples, m.sample_rate());
+                        let head = format!(
+                            "PTT up (t={:.3} s) — held {held} ms; clip {} ms, RMS {:.0} dBFS, loudest frame {:.0} dBFS",
+                            secs(up_at),
+                            st.audio_ms,
+                            st.rms_dbfs,
+                            st.peak_frame_dbfs
+                        );
+                        use astromech_core::speech::{gate, Gate};
+                        match gate(held, &st, min_hold, min_level) {
+                            Gate::Pass => {
+                                log(&format!("{head}; transcribing"));
+                                let _ = jtx.send((samples, m.sample_rate()));
+                            }
+                            Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
+                            Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),
+                        }
                     } else if mic.is_none() {
                         log("PTT up — no speech-to-text or microphone, nothing to transcribe");
                     } else {

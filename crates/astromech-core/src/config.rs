@@ -54,6 +54,8 @@ pub struct Controls {
     pub kill_switch: Option<Button>,
     /// Hold the kill-switch button this long to re-arm after a kill.
     pub rearm_hold_ms: u64,
+    /// A PTT release followed by a press within this window is bounce: one push, one clip.
+    pub debounce_ms: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -71,6 +73,10 @@ pub struct Voice {
     /// Audio kept from before the PTT press, and after release (ms).
     pub pre_roll_ms: u64,
     pub post_roll_ms: u64,
+    /// PTT holds shorter than this are dropped silently (a tap or bounce, not speech).
+    pub min_hold_ms: u64,
+    /// Clips whose loudest 30 ms frame is below this level (dBFS) are dropped silently.
+    pub min_level_dbfs: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -98,7 +104,7 @@ pub struct Config {
 
 impl Default for Controls {
     fn default() -> Self {
-        Self { ptt: None, kill_switch: None, rearm_hold_ms: 1000 }
+        Self { ptt: None, kill_switch: None, rearm_hold_ms: 1000, debounce_ms: 150 }
     }
 }
 impl Default for Voice {
@@ -112,6 +118,8 @@ impl Default for Voice {
             speed: 1.0,
             pre_roll_ms: 150,
             post_roll_ms: 200,
+            min_hold_ms: 300,
+            min_level_dbfs: -45.0,
         }
     }
 }
