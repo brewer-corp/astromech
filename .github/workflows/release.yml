@@ -1,0 +1,141 @@
+name: Release build
+
+# docs/V1-DESIGN.md §7.8. Builds the per-user NSIS installer (unsigned, §7.4) on Windows,
+# installs it silently on the runner and smoke-tests it. Every PR and manual run uploads the
+# installer as a workflow artifact; a `v*` tag also publishes a GitHub Release with SHA-256s.
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  installer:
+    name: Windows installer (build, install, smoke test)
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust toolchain
+        run: rustup toolchain install
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release
+          workspaces: |
+            . -> target
+            app/src-tauri -> target
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - name: core (release)
+        run: cargo build -p astromech-core --bin astromech-core --release --locked
+      - name: voice worker (release, sherpa-onnx; GPL-3.0 binary, see NOTICE.md)
+        run: cargo build -p astromech-voice --features sherpa --bin astromech-voice-worker --release --locked
+      - name: stage sidecars
+        shell: bash
+        run: scripts/stage-sidecars.sh target/release
+      - name: frontend install
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+      - name: tauri build (NSIS, per-user)
+        working-directory: app
+        run: pnpm tauri build --ci -- --locked
+      - name: collect installer + SHA-256
+        id: collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist-release
+          cp app/src-tauri/target/release/bundle/nsis/*-setup.exe dist-release/
+          cp NOTICE.md LICENSE COPYING-GPL-3.0.txt dist-release/
+          cd dist-release
+          sha256sum *-setup.exe > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          echo "installer=$(ls *-setup.exe)" >> "$GITHUB_OUTPUT"
+      - name: smoke test (silent per-user install, start, status, quit, uninstall)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $setup = Get-ChildItem dist-release/*-setup.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList "/S" -Wait
+          $dirs = @("$env:LOCALAPPDATA\astromech", "$env:LOCALAPPDATA\Programs\astromech")
+          $inst = $dirs | Where-Object { Test-Path "$_\astromech-core.exe" } | Select-Object -First 1
+          if (-not $inst) { Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter astromech-core.exe -ErrorAction SilentlyContinue | Select-Object FullName; throw "astromech-core.exe not installed" }
+          Write-Host "installed to $inst"
+          foreach ($f in "astromech-shell.exe","astromech-core.exe","astromech-voice-worker.exe","NOTICE.md","COPYING-GPL-3.0.txt") {
+            if (-not (Test-Path "$inst\$f")) { throw "missing $f" }
+          }
+          $v = (& "$inst\astromech-core.exe" --version | Out-String).Trim()
+          Write-Host "core: $v"
+          if ($v -notmatch "0\.\d+\.\d+") { throw "no version from the core" }
+          Start-Process "$inst\astromech-core.exe" -ArgumentList "--background"
+          $ep = "$env:LOCALAPPDATA\astromech\data\core.json"
+          for ($i = 0; $i -lt 40 -and -not (Test-Path $ep); $i++) { Start-Sleep -Milliseconds 250 }
+          if (-not (Test-Path $ep)) { Get-Content "$env:LOCALAPPDATA\astromech\data\logs\*.log" -ErrorAction SilentlyContinue; throw "core didn't publish its control endpoint" }
+          $e = Get-Content $ep | ConvertFrom-Json
+          $c = [System.Net.Sockets.TcpClient]::new("127.0.0.1", $e.port)
+          $s = $c.GetStream(); $w = [IO.StreamWriter]::new($s); $r = [IO.StreamReader]::new($s)
+          $w.WriteLine((@{ token = $e.token; cmd = "status" } | ConvertTo-Json -Compress)); $w.Flush()
+          $status = $r.ReadLine() | ConvertFrom-Json; $c.Close()
+          Write-Host "status: $($status.status_line)"
+          if (-not $status.ok) { throw "status not ok" }
+          # A second start must not run a second core.
+          Start-Process "$inst\astromech-core.exe" -ArgumentList "--background" -Wait
+          if ((Get-Process astromech-core -ErrorAction SilentlyContinue).Count -ne 1) { throw "single instance failed" }
+          $run = Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name astromech -ErrorAction SilentlyContinue
+          Write-Host "autostart: $($run.astromech)"
+          if (-not $run) { throw "start with Windows wasn't turned on by default" }
+          & "$inst\astromech-core.exe" --quit
+          Start-Sleep -Seconds 2
+          if (Get-Process astromech-core -ErrorAction SilentlyContinue) { throw "core didn't quit" }
+          Get-Content "$env:LOCALAPPDATA\astromech\data\logs\astromech-core.log"
+          Start-Process "$inst\uninstall.exe" -ArgumentList "/S" -Wait
+          Start-Sleep -Seconds 3
+          if (Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name astromech -ErrorAction SilentlyContinue) { throw "uninstall left the Run value" }
+          Write-Host "smoke test OK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astromech-installer-windows-x64
+          path: dist-release/
+          if-no-files-found: error
+
+  publish:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: installer
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: astromech-installer-windows-x64
+          path: dist-release
+      - name: create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Unsigned build: Windows SmartScreen will say \"Windows protected your PC\" (More info → Run anyway)."
+            echo "Per-user install, no admin. Updates are manual: run the newer installer."
+            echo
+            echo '```'; cat dist-release/SHA256SUMS.txt; echo '```'
+          } > notes.md
+          gh release create "$GITHUB_REF_NAME" dist-release/* --repo "$GITHUB_REPOSITORY" --title "astromech $GITHUB_REF_NAME" --notes-file notes.md

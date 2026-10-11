@@ -1,29 +1,41 @@
-//! astromech-core (gear-down preview): console app. See README "Try the gear-down slice".
+//! astromech-core: the always-running core with the tray icon (default), or the console
+//! preview (`--console`, and the one-shot options such as `--listen` and `--health`).
+
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
 
 use anyhow::{bail, Context, Result};
-use astromech_core::actions::Runner;
-use astromech_core::assistant::Assistant;
 use astromech_core::config::{Config, SAMPLE};
-use astromech_core::health::{self, BindsState};
-use astromech_core::hub::StateHub;
-use astromech_core::speech::{self, ConsoleSpeaker, Speaker, Stt};
-use astromech_input::exec::keys::ScanKey;
-use astromech_input::exec::platform::{IntegrityReport, Platform};
-use astromech_policy::Policy;
+use astromech_core::logging::log;
+use astromech_core::session::{self, Session};
 use astromech_proto::Origin;
 use clap::Parser;
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 #[derive(Parser, Debug)]
-#[command(version, about = "astromech core (gear-down preview): push-to-talk ship commands for Elite Dangerous")]
+#[command(
+    version,
+    about = "astromech core: push-to-talk ship commands for Elite Dangerous (tray app; --console for the console)"
+)]
 struct Args {
-    /// Config file (default: astromech.toml next to the exe)
+    /// Start in the background (tray only, no window); what "Start with Windows" uses
+    #[arg(long)]
+    background: bool,
+    /// Open the app window at this page (e.g. keybinds, settings)
+    #[arg(long, value_name = "PAGE")]
+    route: Option<String>,
+    /// Ask the running core to quit (cleanly: cancels actions, releases keys), wait for it, exit
+    #[arg(long)]
+    quit: bool,
+    /// Run in this console instead of the tray: type commands, see the log
+    #[arg(long)]
+    console: bool,
+    /// Config file (default: astromech.toml next to the exe if there is one, else
+    /// %LOCALAPPDATA%\astromech\astromech.toml)
     #[arg(long)]
     config: Option<PathBuf>,
-    /// Write a sample astromech.toml next to the exe and exit
+    /// Write a sample astromech.toml and exit
     #[arg(long)]
     write_config: bool,
     /// Log key presses instead of sending them
@@ -50,61 +62,81 @@ struct Args {
     download_models: bool,
 }
 
-fn log(s: &str) {
-    println!("{}  {s}", chrono::Local::now().format("%H:%M:%S"));
-}
-
-/// Logs presses; forwards focus/integrity to the real platform.
-struct DryRun(Arc<dyn Platform>);
-impl Platform for DryRun {
-    fn foreground_title(&self) -> Option<String> {
-        self.0.foreground_title()
+impl Args {
+    fn console_mode(&self) -> bool {
+        self.console
+            || self.write_config
+            || self.health
+            || self.listen.is_some()
+            || self.transcribe.is_some()
+            || self.download_models
     }
-    fn send_key(&self, k: ScanKey, up: bool) -> Result<(), String> {
-        log(&format!(
-            "[dry run] would send scan code 0x{:02X}{} {}",
-            k.scan,
-            if k.extended { " (extended)" } else { "" },
-            if up { "up" } else { "down" }
-        ));
-        Ok(())
-    }
-    fn integrity(&self) -> IntegrityReport {
-        self.0.integrity()
+    fn session_opts(&self) -> session::Opts {
+        session::Opts { dry_run: self.dry_run, no_voice: self.no_voice, debug_input: self.debug_input }
     }
 }
 
-fn real_platform() -> Arc<dyn Platform> {
-    #[cfg(windows)]
-    {
-        Arc::new(astromech_input::exec::platform::win::WinPlatform)
+/// Release builds are GUI-subsystem (no console window for the tray app); console mode attaches
+/// to the parent console (cmd, PowerShell) or opens one. Pipes passed by the parent are kept.
+/// Returns true if a new console window was opened.
+#[cfg(windows)]
+fn attach_console() -> bool {
+    use windows_sys::Win32::System::Console::{
+        AllocConsole, AttachConsole, GetStdHandle, ATTACH_PARENT_PROCESS, STD_OUTPUT_HANDLE,
+    };
+    unsafe {
+        let h = GetStdHandle(STD_OUTPUT_HANDLE);
+        if !h.is_null() && h != windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE {
+            return false;
+        }
+        if AttachConsole(ATTACH_PARENT_PROCESS) != 0 {
+            return false;
+        }
+        AllocConsole() != 0
     }
-    #[cfg(not(windows))]
-    {
-        Arc::new(astromech_input::exec::platform::NoInputPlatform)
+}
+
+/// `--quit` (used by the installer): 0 if no core runs any more.
+fn quit_running() -> i32 {
+    let dir = Config::app_dir();
+    let file = dir.join(astromech_core::control::FILE);
+    if astromech_core::control::call(&dir, "quit", None).is_err() {
+        return 0;
     }
+    for _ in 0..50 {
+        if !file.exists() {
+            return 0;
+        }
+        std::thread::sleep(Duration::from_millis(100));
+    }
+    1
 }
 
 fn main() {
     let args = Args::parse();
-    if let Err(e) = run(args) {
+    if args.quit {
+        std::process::exit(quit_running());
+    }
+    if !args.console_mode() {
+        let code = astromech_core::app::run(astromech_core::app::Opts {
+            background: args.background,
+            route: args.route.clone(),
+            config: args.config.clone(),
+            session: args.session_opts(),
+        });
+        std::process::exit(code);
+    }
+    #[cfg(windows)]
+    let own_console = attach_console();
+    #[cfg(not(windows))]
+    let own_console = false;
+    if let Err(e) = run_console(args) {
         eprintln!("\nError: {e:#}");
-        if std::env::args().len() == 1 {
+        if own_console {
             eprintln!("Press Enter to close.");
             let _ = std::io::stdin().read_line(&mut String::new());
         }
         std::process::exit(1);
-    }
-}
-
-fn write_health(dir: &Path, st: &BindsState) {
-    let red = astromech_keybinds::report::Redactor::from_env();
-    let _ = std::fs::create_dir_all(dir);
-    let mut v = serde_json::json!({ "summary": st, "doctor": st.doctor });
-    red.apply_json(&mut v);
-    let _ = std::fs::write(dir.join("health.json"), serde_json::to_string_pretty(&v).unwrap_or_default());
-    if let Some(d) = &st.doctor {
-        let _ = std::fs::write(dir.join("health.html"), red.apply(&astromech_keybinds::report::html(d)));
     }
 }
 
@@ -143,8 +175,8 @@ fn download_models(cfg: &Config) -> Result<()> {
     Ok(())
 }
 
-fn run(args: Args) -> Result<()> {
-    let cfg_path = args.config.clone().unwrap_or_else(|| Config::exe_dir().join("astromech.toml"));
+fn run_console(args: Args) -> Result<()> {
+    let cfg_path = args.config.clone().unwrap_or_else(Config::default_path);
     if args.write_config {
         if cfg_path.exists() {
             bail!("{} already exists; not overwriting it", cfg_path.display());
@@ -159,7 +191,10 @@ fn run(args: Args) -> Result<()> {
         log(&format!("config: {}", cfg_path.display()));
         Config::load(&cfg_path)?
     } else {
-        let alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
+        let mut alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
+        if cfg_path.parent() != Some(Config::exe_dir().as_path()) {
+            alike.extend(astromech_core::config::look_alikes(&Config::exe_dir()));
+        }
         let mut msg = format!("config: {} not found.", cfg_path.display());
         if !alike.is_empty() {
             msg += &format!(
@@ -172,7 +207,7 @@ fn run(args: Args) -> Result<()> {
                     .join(", ")
             );
         } else {
-            msg += " Create one with --write-config.";
+            msg += " Create one with --write-config (or from the tray: Open config file).";
         }
         if !exempt {
             bail!("{msg}");
@@ -200,135 +235,30 @@ fn run(args: Args) -> Result<()> {
         return listen(secs);
     }
     println!(
-        "astromech-core {} (gear-down preview). Type a command and press Enter at any time; !help for more.",
+        "astromech-core {} (console). Type a command and press Enter at any time; !help for more.",
         env!("CARGO_PKG_VERSION")
     );
-    let data = cfg.data_dir();
-    std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
-
-    // 1. Binds health check.
-    let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
-    let live = cfg!(windows);
-    let st = health::run_check(&bindings, cfg.game_dir().as_deref(), live);
-    print!("{}", st.summary());
-    write_health(&data, &st);
     if args.health {
+        let data = cfg.data_dir();
+        let bindings = cfg.bindings_dir().context("can't find the Bindings folder; set game.bindings_dir")?;
+        let st = astromech_core::health::run_check(&bindings, cfg.game_dir().as_deref(), cfg!(windows));
+        print!("{}", st.summary());
+        session::write_health(&data, &st);
         println!("Full report: {}", data.join("health.html").display());
         return Ok(());
     }
-    let binds: health::Shared = Arc::new(RwLock::new(st));
-    let data2 = data.clone();
-    let _hw = health::watch(bindings.clone(), cfg.game_dir(), live, binds.clone(), move |s| {
-        log("Bindings folder changed; health check re-run:");
-        print!("{}", s.summary());
-        write_health(&data2, s);
-    })
-    .map_err(|e| log(&format!("not watching the Bindings folder: {e:#}")))
-    .ok();
-
-    // 2. Game state pipeline.
-    let hub = Arc::new(StateHub::new());
-    let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-    let _pipe = astromech_core::pipeline::start(&jdir, hub.clone(), Some(&data.join("astromech.sqlite")), log)
-        .with_context(|| format!("journal folder {}", jdir.display()))?;
-    let g = hub.snapshot();
-    log(&format!(
-        "game state: {} | system {} | status flags {}",
-        g.commander.clone().unwrap_or_else(|| "no commander yet".into()),
-        g.system.clone().unwrap_or_else(|| "?".into()),
-        if g.status_seen { format!("0x{:08X}", g.status_flags) } else { "not seen yet (start the game)".into() }
-    ));
-
-    // 3. Voice.
-    let worker = cfg.worker_exe();
-    let models = cfg.models_dir();
-    let voice_ok = !args.no_voice && worker.is_file();
-    if !args.no_voice {
-        use astromech_voice::models;
-        let stt_ok = models::stt_paths(&models::model_root(&models, &models::STT)).is_ok();
-        let tts_ok = models::find_tts(&models).is_ok();
-        log(&format!(
-            "voice: worker {} ({}); models {}: speech-to-text {}, text-to-speech {}",
-            worker.display(),
-            if worker.is_file() { "found" } else { "MISSING" },
-            models.display(),
-            if stt_ok { "found" } else { "MISSING" },
-            if tts_ok { "found" } else { "MISSING" }
-        ));
-    }
-    if !args.no_voice && !worker.is_file() {
-        log(&format!("voice off: {} not found", worker.display()));
-    }
-    let speaker: Arc<dyn Speaker> = if voice_ok && cfg.voice.tts {
-        match speech::TtsSpeaker::start(
-            &worker,
-            &models,
-            cfg.voice.threads,
-            &data,
-            cfg.voice.speaker_id,
-            cfg.voice.speed,
-            speech::fixed_phrases(),
-        ) {
-            Ok(s) => {
-                log("Kokoro text-to-speech loaded");
-                Arc::new(s)
-            }
-            Err(e) => {
-                log(&format!("speech output off ({e:#}); replies are printed"));
-                Arc::new(ConsoleSpeaker)
-            }
-        }
-    } else {
-        Arc::new(ConsoleSpeaker)
-    };
-    let stt: Option<Box<dyn Stt>> = if voice_ok {
-        match speech::WorkerStt::start(&worker, &models, cfg.voice.threads, &data) {
-            Ok(s) => {
-                log("Parakeet speech-to-text loaded");
-                Some(Box::new(s))
-            }
-            Err(e) => {
-                log(&format!("speech input off ({e:#}); type commands instead (models folder: {})", models.display()));
-                None
-            }
-        }
-    } else {
-        None
-    };
-
-    // 4. Policy + executor.
-    let platform: Arc<dyn Platform> =
-        if cfg.actions.dry_run { Arc::new(DryRun(real_platform())) } else { real_platform() };
-    if cfg.actions.dry_run {
-        log("DRY RUN: key presses are logged, not sent");
-    }
-    match platform.integrity().verdict() {
-        Ok(m) => log(&format!("integrity: {m}")),
-        Err(m) => log(&format!("WARNING integrity: {m}")),
-    }
-    let pcfg = astromech_policy::Config {
-        hold: Duration::from_millis(cfg.actions.hold_ms),
-        skip_window_checks: cfg.actions.dry_run && !cfg!(windows),
-        ..Default::default()
-    };
-    let runner = Arc::new(Runner {
-        policy: Policy::new(platform, pcfg),
-        hub: hub.clone(),
-        binds,
-        speaker: speaker.clone(),
-        verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
-        log: Arc::new(|s: &str| log(s)),
-    });
-    let assistant = Arc::new(Assistant::new(runner.clone()));
+    let opts = args.session_opts();
+    let mut s = Session::start(&cfg, &opts)?;
+    log(&s.voice);
 
     if let Some(wav) = &args.transcribe {
-        let mut stt = stt.context("--transcribe needs the speech models and the voice worker")?;
+        let mut stt = s.stt.take().context("--transcribe needs the speech models and the voice worker")?;
         let (rate, samples) = astromech_voice::wav::read_mono_f32(wav)?;
         let t0 = std::time::Instant::now();
         let text = stt.transcribe(&samples, rate)?;
         log(&format!("heard {text:?} ({} ms)", t0.elapsed().as_millis()));
-        let h = assistant.handle(&text, Origin::Voice);
-        log(&format!("  -> {}", short(&h)));
+        let h = s.assistant.handle(&text, Origin::Voice);
+        log(&format!("  -> {}", session::short(&h)));
         if let astromech_core::assistant::Handled::Ran { outcome: astromech_core::actions::Outcome::Sent(j), .. } = h {
             log(&format!("verification: {:?}", j.join()));
         }
@@ -336,16 +266,9 @@ fn run(args: Args) -> Result<()> {
         return Ok(());
     }
 
-    // 5. Buttons and microphone (Windows).
-    #[cfg(windows)]
-    let _voice = start_voice(&cfg, assistant.clone(), runner.clone(), stt, args.debug_input)?;
-    #[cfg(not(windows))]
-    {
-        drop(stt);
-        log("push-to-talk and the kill switch need Windows; type commands instead");
-    }
+    s.start_buttons(&cfg, &opts)?;
+    let (runner, speaker, hub, assistant) = (s.runner.clone(), s.speaker.clone(), s.hub.clone(), s.assistant.clone());
 
-    // 6. Console commands (also the way to test without a microphone).
     let stdin = std::io::stdin();
     for line in stdin.lock().lines() {
         let line = line?;
@@ -369,26 +292,12 @@ fn run(args: Args) -> Result<()> {
             "!health" => print!("{}", runner.binds.read().unwrap().summary()),
             _ => {
                 let h = assistant.handle(t, Origin::AppWindow);
-                log(&format!("typed {t:?} -> {}", short(&h)));
+                log(&format!("typed {t:?} -> {}", session::short(&h)));
             }
         }
     }
+    drop(s);
     Ok(())
-}
-
-fn short(h: &astromech_core::assistant::Handled) -> String {
-    use astromech_core::actions::Outcome;
-    use astromech_core::assistant::Handled;
-    match h {
-        Handled::Ran { command, outcome } => format!(
-            "{command}: {}",
-            match outcome {
-                Outcome::Sent(_) => "pressed, verifying".to_string(),
-                o => format!("{o:?}"),
-            }
-        ),
-        h => format!("{h:?}"),
-    }
 }
 
 #[cfg(windows)]
@@ -434,185 +343,4 @@ fn listen(secs: u64) -> Result<()> {
 #[cfg(not(windows))]
 fn listen(_secs: u64) -> Result<()> {
     bail!("--listen needs Windows")
-}
-
-#[cfg(windows)]
-struct VoiceHandles;
-
-#[cfg(windows)]
-fn start_voice(
-    cfg: &Config,
-    assistant: Arc<Assistant>,
-    runner: Arc<Runner>,
-    stt: Option<Box<dyn Stt>>,
-    debug_input: bool,
-) -> Result<VoiceHandles> {
-    use astromech_core::controls::{self, Control};
-    let (tx, rx) = std::sync::mpsc::channel();
-    let (status, devices) = controls::start(
-        cfg.controls.ptt.clone(),
-        cfg.controls.kill_switch.clone(),
-        debug_input,
-        cfg.controls.debounce_ms,
-        tx,
-        log,
-    );
-    log(&format!(
-        "input listener: {status}{}",
-        if debug_input { " (--debug-input: logging every button)" } else { "" }
-    ));
-    match &cfg.controls.ptt {
-        Some(b) => log(&controls::describe_button("push-to-talk", b, &devices)),
-        None => log("push-to-talk: NOT SET"),
-    }
-    match &cfg.controls.kill_switch {
-        Some(b) => log(&controls::describe_button("kill switch", b, &devices)),
-        None => log("kill switch: NOT SET (use !kill in the console)"),
-    }
-    let have_stt = stt.is_some();
-    let mic = if stt.is_some() {
-        match astromech_voice::mic::Recorder::start() {
-            Ok(m) => {
-                log(&format!("microphone: {} ({} Hz)", m.device_name(), m.sample_rate()));
-                Some(m)
-            }
-            Err(e) => {
-                log(&format!("microphone unavailable: {e:#}"));
-                None
-            }
-        }
-    } else {
-        None
-    };
-    let (jtx, jrx) = std::sync::mpsc::channel::<(Vec<f32>, u32)>();
-    if let Some(mut stt) = stt {
-        let a = assistant.clone();
-        std::thread::Builder::new().name("stt".into()).spawn(move || {
-            while let Ok((samples, rate)) = jrx.recv() {
-                let t0 = std::time::Instant::now();
-                match stt.transcribe(&samples, rate) {
-                    Ok(t) if t.is_empty() => a.runner.speaker.say("Didn't catch that."),
-                    Ok(t) => {
-                        let h = a.handle(&t, Origin::Voice);
-                        if matches!(h, astromech_core::assistant::Handled::Ignored) {
-                            log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
-                        } else {
-                            log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
-                            log(&format!("  -> {}", short(&h)));
-                        }
-                    }
-                    Err(e) => log(&format!("speech-to-text failed: {e:#}")),
-                }
-            }
-        })?;
-    }
-    let pre = cfg.voice.pre_roll_ms;
-    let post = Duration::from_millis(cfg.voice.post_roll_ms);
-    let rearm_hold = Duration::from_millis(cfg.controls.rearm_hold_ms);
-    let debounce = Duration::from_millis(cfg.controls.debounce_ms);
-    let (min_hold, min_level) = (cfg.voice.min_hold_ms, cfg.voice.min_level_dbfs);
-    let t_start = std::time::Instant::now();
-    let secs = move |t: std::time::Instant| t.duration_since(t_start).as_secs_f64();
-    std::thread::Builder::new().name("ptt".into()).spawn(move || {
-        let mut from: Option<u64> = None;
-        let mut down_at = std::time::Instant::now();
-        let mut press_killed = false;
-        let mut mic = mic;
-        let report_mic = |mic: &mut Option<astromech_voice::mic::Recorder>| {
-            let Some(m) = mic.as_mut() else { return };
-            if let Some(e) = m.take_errors() {
-                log(&format!(
-                    "microphone: {} stream error(s) ({} under/overruns so far; last: {}). Capture continues; \
-                     at most a few ms of audio were lost",
-                    e.new,
-                    e.xruns,
-                    e.last.unwrap_or_default()
-                ));
-            }
-            match m.recover() {
-                Ok(true) => log(&format!("microphone: stream restarted ({}, {} Hz)", m.device_name(), m.sample_rate())),
-                Ok(false) => {}
-                Err(e) => log(&format!("microphone: restart failed: {e:#}")),
-            }
-        };
-        loop {
-            let c = match rx.recv_timeout(Duration::from_secs(1)) {
-                Ok(c) => c,
-                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
-                    if from.is_none() {
-                        report_mic(&mut mic);
-                    }
-                    continue;
-                }
-                Err(_) => break,
-            };
-            match c {
-                Control::PttDown => {
-                    report_mic(&mut mic);
-                    down_at = std::time::Instant::now();
-                    log(&format!("PTT down (t={:.3} s) — listening", secs(down_at)));
-                    if let Some(m) = &mic {
-                        let back = m.sample_rate() as u64 * pre / 1000;
-                        from = Some(m.position().saturating_sub(back));
-                    } else {
-                        runner.speaker.say(if have_stt {
-                            "No microphone found. Check the Windows sound input settings."
-                        } else {
-                            "Voice isn't loaded. Type commands in the console."
-                        });
-                    }
-                }
-                Control::PttUp => {
-                    if let (Some(m), Some(f)) = (&mic, from.take()) {
-                        // The release reaches us after the debounce window; time it from the
-                        // real release and keep the post-roll measured from there too.
-                        let up_at = std::time::Instant::now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
-                        let held = up_at.duration_since(down_at).as_millis() as u64;
-                        std::thread::sleep(post.saturating_sub(debounce));
-                        m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
-                        let samples = m.take(f, m.position());
-                        let st = astromech_core::speech::clip_stats(&samples, m.sample_rate());
-                        let head = format!(
-                            "PTT up (t={:.3} s) — held {held} ms; clip {} ms, RMS {:.0} dBFS, loudest frame {:.0} dBFS",
-                            secs(up_at),
-                            st.audio_ms,
-                            st.rms_dbfs,
-                            st.peak_frame_dbfs
-                        );
-                        use astromech_core::speech::{gate, Gate};
-                        match gate(held, &st, min_hold, min_level) {
-                            Gate::Pass => {
-                                log(&format!("{head}; transcribing"));
-                                let _ = jtx.send((samples, m.sample_rate()));
-                            }
-                            Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
-                            Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),
-                        }
-                    } else if mic.is_none() {
-                        log("PTT up — no speech-to-text or microphone, nothing to transcribe");
-                    } else {
-                        log("PTT up without a PTT down (ignored)");
-                    }
-                }
-                Control::KillDown => {
-                    if !runner.policy.is_killed() {
-                        runner.policy.kill();
-                        press_killed = true;
-                        runner.speaker.say("Kill switch on. All actions stopped.");
-                    }
-                }
-                Control::KillUp(held) => {
-                    if press_killed {
-                        press_killed = false;
-                    } else if runner.policy.is_killed() && held >= rearm_hold {
-                        runner.policy.rearm();
-                        runner.speaker.say("Re-armed.");
-                    } else if runner.policy.is_killed() {
-                        runner.speaker.say("Still killed. Hold the kill switch to re-arm.");
-                    }
-                }
-            }
-        }
-    })?;
-    Ok(VoiceHandles)
 }

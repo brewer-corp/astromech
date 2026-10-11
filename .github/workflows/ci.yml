@@ -104,6 +104,14 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
+      - name: stage the core next to the shell (externalBin)
+        shell: bash
+        env:
+          PLACEHOLDER: "1"
+        run: scripts/stage-sidecars.sh target/debug
       - name: app shell (Tauri) build
         working-directory: app/src-tauri
         run: cargo build --locked
+      - name: app shell clippy
+        working-directory: app/src-tauri
+        run: cargo clippy --locked -- -D warnings
