@@ -45,6 +45,11 @@ pub struct Processor {
     /// Anomalies seen while processing (e.g. key up without down).
     pub anomalies: Vec<String>,
     pub log_keys: bool,
+    /// Report buttons/hats already down in a device's *first* report as presses. Windows
+    /// joysticks usually report only on change, so for a device that has been idle since
+    /// start-up the first report the listener ever sees IS the press (PTT!). The S7 summary
+    /// keeps the conservative default (`false`: first report is only a baseline).
+    pub initial_presses: bool,
 }
 
 impl Processor {
@@ -61,6 +66,7 @@ impl Processor {
             events: vec![],
             anomalies: vec![],
             log_keys,
+            initial_presses: false,
         }
     }
 
@@ -128,6 +134,19 @@ impl Processor {
                             format!("hat {} {}", i + 1, CARDINALS[c].to_lowercase()),
                             Some(pov_name(i, c)),
                             Some(false),
+                        ));
+                    }
+                } else if self.initial_presses {
+                    for b in &cur_b {
+                        out.push(self.button_event(s, *b, true));
+                    }
+                    for &(i, c) in &cur_p {
+                        out.push(self.mk(
+                            s,
+                            "hat",
+                            format!("hat {} {}", i + 1, CARDINALS[c].to_lowercase()),
+                            Some(pov_name(i, c)),
+                            Some(true),
                         ));
                     }
                 } else if !cur_b.is_empty() || !cur_p.is_empty() {

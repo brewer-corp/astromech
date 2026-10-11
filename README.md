@@ -82,7 +82,11 @@ an unexpected gear change can't hurt.
      (it holds `sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8` and `kokoro-en-v0_19`), or set
      `models_dir` in the config to that folder;
    - otherwise run `astromech-core.exe --download-models` (about 800 MB, SHA-256-checked).
-3. **Config:** run `astromech-core.exe --write-config`, then open `astromech.toml`.
+3. **Config:** run `astromech-core.exe --write-config`, then open `astromech.toml`. Keep the
+   name exactly `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech
+   refuses to start and names the file it found. The console's first lines show the config
+   path it used. It also refuses to start without a `ptt` button (except `--listen`,
+   `--health`, `--transcribe` and `--download-models`).
    - `ptt` is preset to `{ device = "231D3201", key = "Joy_4" }` (the Omni Throttle left-stick
      button 4 that worked as PTT in S9).
    - Set `kill_switch` to a spare button. To see a button's name, run
@@ -111,6 +115,13 @@ an unexpected gear change can't hurt.
    `!rearm`, `!state`, `!health`, `quit`. While you type, the console has focus, so anything
    that would press a key is refused ("Elite isn't the active window…"). Typed commands are
    useful for checking state answers and refusals, not for pressing keys.
+
+**If PTT does nothing:** start with `astromech-core.exe --debug-input`. Every button press is
+logged with its device ID and Elite name (e.g. `input: button Joy_15 on 231D3201 (...) down ->
+PTT`), and the startup lines show whether the PTT device is connected. Without the flag, the
+first few presses of *other* buttons on the PTT device are still logged (`Joy_14 on 231D3201
+pressed; PTT is Joy_15`). A working press logs `PTT down — listening` and `PTT up —
+transcribing (N ms audio)`. Note that `--debug-input` also logs keyboard keys.
 
 Without the models (or with `--no-voice`), replies are printed instead of spoken, and only
 typed commands work. Everything astromech writes goes to `astromech-data` next to the exe. It

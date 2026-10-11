@@ -126,6 +126,27 @@ fn opt(s: &str) -> Option<PathBuf> {
     (!s.is_empty()).then(|| PathBuf::from(s))
 }
 
+/// Files next to the exe that look like a mis-named `astromech.toml` (Windows hides
+/// extensions, so Notepad's "astromech.toml.txt" shows as "astromech.toml").
+pub fn look_alikes(dir: &Path) -> Vec<PathBuf> {
+    let Ok(rd) = std::fs::read_dir(dir) else { return vec![] };
+    let mut v: Vec<PathBuf> = rd
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| p.is_file())
+        .filter(|p| {
+            let n = p.file_name().map(|n| n.to_string_lossy().to_lowercase()).unwrap_or_default();
+            n != "astromech.toml"
+                && n != "astromech.sample.toml"
+                && n.starts_with("astromech")
+                && (n.contains(".toml") || n.ends_with(".txt") || n.ends_with(".tml") || !n.contains('.'))
+                && !n.ends_with(".exe")
+        })
+        .collect();
+    v.sort();
+    v
+}
+
 impl Config {
     pub fn load(path: &Path) -> Result<Self> {
         let t = std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
@@ -185,6 +206,25 @@ mod tests {
             actions: vec![],
             note: None,
         }
+    }
+
+    #[test]
+    fn finds_look_alike_config_names() {
+        let d = tempfile::tempdir().unwrap();
+        for n in [
+            "astromech.toml.txt",
+            "astromech.toml.toml",
+            "astromech (1).toml",
+            "astromech",
+            "astromech.sample.toml",
+            "astromech-core.exe",
+            "other.toml",
+        ] {
+            std::fs::write(d.path().join(n), "").unwrap();
+        }
+        let got: Vec<String> =
+            look_alikes(d.path()).iter().map(|p| p.file_name().unwrap().to_string_lossy().to_string()).collect();
+        assert_eq!(got, vec!["astromech", "astromech (1).toml", "astromech.toml.toml", "astromech.toml.txt"]);
     }
 
     #[test]

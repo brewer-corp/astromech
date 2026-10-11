@@ -41,6 +41,10 @@ struct Args {
     /// Test the voice path without a microphone: transcribe this WAV file, act on it, exit
     #[arg(long, value_name = "WAV")]
     transcribe: Option<PathBuf>,
+    /// Log every button/key event with its device ID and Elite name, and whether it matched
+    /// PTT or the kill switch (keyboard keys included, so don't share it if you typed passwords)
+    #[arg(long)]
+    debug_input: bool,
     /// Download the speech models (about 800 MB) into the models folder, then exit
     #[arg(long)]
     download_models: bool,
@@ -149,12 +153,40 @@ fn run(args: Args) -> Result<()> {
         println!("Wrote {}. Edit the [controls] section, then start astromech-core.", cfg_path.display());
         return Ok(());
     }
+    // --listen, --health, --download-models and --transcribe work without a PTT button.
+    let exempt = args.listen.is_some() || args.health || args.download_models || args.transcribe.is_some();
     let mut cfg = if cfg_path.exists() {
+        log(&format!("config: {}", cfg_path.display()));
         Config::load(&cfg_path)?
     } else {
-        log(&format!("no {} (run with --write-config to create one); using defaults", cfg_path.display()));
+        let alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
+        let mut msg = format!("config: {} not found.", cfg_path.display());
+        if !alike.is_empty() {
+            msg += &format!(
+                " Found {} instead: Windows probably added an extension. Rename it to exactly \"astromech.toml\" \
+                 (turn on View > File name extensions in Explorer to see the real name).",
+                alike
+                    .iter()
+                    .map(|p| format!("\"{}\"", p.file_name().unwrap_or_default().to_string_lossy()))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            );
+        } else {
+            msg += " Create one with --write-config.";
+        }
+        if !exempt {
+            bail!("{msg}");
+        }
+        log(&format!("{msg} Using defaults for this mode."));
         Config::default()
     };
+    if !exempt && cfg.controls.ptt.is_none() {
+        bail!(
+            "no push-to-talk button in {}. Add e.g. `ptt = {{ device = \"231D3201\", key = \"Joy_15\" }}` under [controls] \
+             (run `astromech-core --listen 20` to see your buttons' names).",
+            cfg_path.display()
+        );
+    }
     if args.dry_run {
         cfg.actions.dry_run = true;
     }
@@ -208,6 +240,19 @@ fn run(args: Args) -> Result<()> {
     let worker = cfg.worker_exe();
     let models = cfg.models_dir();
     let voice_ok = !args.no_voice && worker.is_file();
+    if !args.no_voice {
+        use astromech_voice::models;
+        let stt_ok = models::stt_paths(&models::model_root(&models, &models::STT)).is_ok();
+        let tts_ok = models::find_tts(&models).is_ok();
+        log(&format!(
+            "voice: worker {} ({}); models {}: speech-to-text {}, text-to-speech {}",
+            worker.display(),
+            if worker.is_file() { "found" } else { "MISSING" },
+            models.display(),
+            if stt_ok { "found" } else { "MISSING" },
+            if tts_ok { "found" } else { "MISSING" }
+        ));
+    }
     if !args.no_voice && !worker.is_file() {
         log(&format!("voice off: {} not found", worker.display()));
     }
@@ -290,7 +335,7 @@ fn run(args: Args) -> Result<()> {
 
     // 5. Buttons and microphone (Windows).
     #[cfg(windows)]
-    let _voice = start_voice(&cfg, assistant.clone(), runner.clone(), stt)?;
+    let _voice = start_voice(&cfg, assistant.clone(), runner.clone(), stt, args.debug_input)?;
     #[cfg(not(windows))]
     {
         drop(stt);
@@ -397,15 +442,25 @@ fn start_voice(
     assistant: Arc<Assistant>,
     runner: Arc<Runner>,
     stt: Option<Box<dyn Stt>>,
+    debug_input: bool,
 ) -> Result<VoiceHandles> {
     use astromech_core::controls::{self, Control};
     let (tx, rx) = std::sync::mpsc::channel();
-    let status = controls::start(cfg.controls.ptt.clone(), cfg.controls.kill_switch.clone(), tx);
+    let (status, devices) =
+        controls::start(cfg.controls.ptt.clone(), cfg.controls.kill_switch.clone(), debug_input, tx, log);
     log(&format!(
-        "buttons: push-to-talk {}, kill switch {} ({status})",
-        cfg.controls.ptt.as_ref().map(|b| b.to_string()).unwrap_or_else(|| "NOT SET".into()),
-        cfg.controls.kill_switch.as_ref().map(|b| b.to_string()).unwrap_or_else(|| "NOT SET (use !kill)".into())
+        "input listener: {status}{}",
+        if debug_input { " (--debug-input: logging every button)" } else { "" }
     ));
+    match &cfg.controls.ptt {
+        Some(b) => log(&controls::describe_button("push-to-talk", b, &devices)),
+        None => log("push-to-talk: NOT SET"),
+    }
+    match &cfg.controls.kill_switch {
+        Some(b) => log(&controls::describe_button("kill switch", b, &devices)),
+        None => log("kill switch: NOT SET (use !kill in the console)"),
+    }
+    let have_stt = stt.is_some();
     let mic = if stt.is_some() {
         match astromech_voice::mic::Recorder::start() {
             Ok(m) => {
@@ -447,11 +502,16 @@ fn start_voice(
         while let Ok(c) = rx.recv() {
             match c {
                 Control::PttDown => {
+                    log("PTT down — listening");
                     if let Some(m) = &mic {
                         let back = m.sample_rate() as u64 * pre / 1000;
                         from = Some(m.position().saturating_sub(back));
                     } else {
-                        runner.speaker.say("Voice isn't loaded. Type commands in the console.");
+                        runner.speaker.say(if have_stt {
+                            "No microphone found. Check the Windows sound input settings."
+                        } else {
+                            "Voice isn't loaded. Type commands in the console."
+                        });
                     }
                 }
                 Control::PttUp => {
@@ -459,7 +519,15 @@ fn start_voice(
                         std::thread::sleep(post);
                         m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
                         let samples = m.take(f, m.position());
+                        log(&format!(
+                            "PTT up — transcribing ({} ms audio)",
+                            samples.len() as u64 * 1000 / m.sample_rate().max(1) as u64
+                        ));
                         let _ = jtx.send((samples, m.sample_rate()));
+                    } else if mic.is_none() {
+                        log("PTT up — no speech-to-text or microphone, nothing to transcribe");
+                    } else {
+                        log("PTT up without a PTT down (ignored)");
                     }
                 }
                 Control::KillDown => {

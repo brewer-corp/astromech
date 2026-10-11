@@ -21,7 +21,15 @@ data_dir = '$(winpath "$W/data")'
 journal_dir = '$(winpath "$W/journal")'
 bindings_dir = '$(winpath "$W/Bindings")'
 game_dir = '$(winpath "$W/nogame")'
+[controls]
+ptt = { device = "231D3201", key = "Joy_15" }
 X
+# A mis-named config must stop the app with a message naming the look-alike.
+mkdir -p "$W/misnamed" && cp "$T/astromech-core.exe" "$W/misnamed/" && cp "$W/astromech.toml" "$W/misnamed/astromech.toml.txt"
+if echo quit | $RUN "$W/misnamed/astromech-core.exe" --no-voice > "$W/misnamed.txt" 2>&1; then
+  echo "E2E FAIL: started without a config"; exit 1
+fi
+grep -q 'astromech.toml.txt' "$W/misnamed.txt" || { cat "$W/misnamed.txt"; echo "E2E FAIL: look-alike not named"; exit 1; }
 # Key_L = scan 0x26; gear = bit 2 (4); delay 0-1000 ms; drop the first press (miss -> retry).
 $RUN "$T/examples/mockgame.exe" "$(winpath "$W/journal")" 26 0 4 0-1000 25 1 &
 MOCK=$!

@@ -16,7 +16,6 @@
 pub mod actions;
 pub mod assistant;
 pub mod config;
-#[cfg(windows)]
 pub mod controls;
 pub mod health;
 pub mod hub;
