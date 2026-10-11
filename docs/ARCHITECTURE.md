@@ -48,6 +48,7 @@
   - EDRefCard is parked. Middleman input apps are out of scope.
   - Diagrams: 01 updated; new 08 (app processes, replacing 06) and 09 (modules/domain).
 - **v0.10 (10 Oct, 5:45 PM ET):** Codename **astromech** replaces `helm`; all crate names are now `astromech-*`. The repo is scaffolded (§4). Name changes from earlier drafts: `helm-binds`→`astromech-keybinds`, `helm-state`→`astromech-gamestate`, `helm-ingest`→`astromech-journal` + `astromech-status`, `helm-types`→`astromech-proto`, `helm-controls`→`astromech-input::listen`, `helm-ui`/`helm-vr`→`astromech-overlay`, `apps/helm`→`astromech-core`, and the app window→`astromech-shell`.
+- **v0.12 (10 Oct, night):** design change from Sumeet: **no verification retry and no spoken failure.** After a press, the Status.json watch still runs for up to `verify_timeout_ms` (2 s), but the outcome is only logged ("confirmed in N ms" / "not confirmed within 2 s"). Nothing is pressed twice and nothing is spoken. Silent state tracking still powers "already down" and the state rules. `[actions] retries` is deprecated and ignored. A future opt-in "tell me when a command didn't take" is noted in §5.5. Also the PTT idle-stick fix (§17.8).
 - **v0.11 (10 Oct, evening):** the first vertical slice, "gear down" end to end (branch `slice/gear-down`). New crate `astromech-intent` (the §5.12 matcher, implemented); `astromech-core` now runs the journal/Status pipeline, the binds health check and the PTT voice path. Implementation notes and divergences are in §17.8; §4 and §5.12 updated to match.
 - **v0.9 (10 Oct, 5:05 PM ET):** **S7 done** on Sumeet's PC with `s7-input-listener` (§17.7). With Elite focused, a Raw Input `RIDEV_INPUTSINK` listener got joystick, keyboard and mouse input. Elite does not take exclusive input from it. Mouse side buttons (4/5) were not tested.
 - **v0.8 (10 Oct, 4:10 PM ET):** **S9 done** on Sumeet's PC (§17.6).
@@ -389,13 +390,14 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - When `SendInput` has delivered the keys to the focused game (focus and integrity checks passed, every key released), the executor reports `Sent(t0)`. The tool speaks the confirmation right away ("Gear down").
   - Verification then runs in the background and is **silent on success**. The press itself is reliable (24/24 in S5). Only the observation is slow, because the game rewrites Status.json about once a second.
   - **Verification timeout: 2.0 s.** S5 measured flips 24–1,003 ms after key-down, spread evenly over one write cycle (median 478 ms, p95 about 950–986 ms, max 1,003 ms). One full cycle covers every observed case. A second cycle of margin covers a late or skipped write (frame hitches, loading) without leaving a wrong state uncorrected for long.
-  - **On timeout:** re-read the snapshot. If the state is still unchanged, press once more (one retry at most) and wait another 2 s. If it's still unchanged after that, speak a correction ("Correction: gear is still up") with the failure earcon. The worst case is a spoken failure about 4.2 s after the first press.
-  - **In-flight actions.** Because the snapshot can be up to about 1 s stale, a toggle sent in the last 2 s is tracked as *in flight* with its expected value. A second command on the same flag while one is in flight is decided against that expected value, not the stale snapshot. For example, "gear down" twice gives "Gear already going down" and no second press. If the user toggles the same thing by hand in that window, verification catches the mismatch and the single retry corrects it.
+  - **On timeout (v0.12):** log "not confirmed within 2 s" and stop. **No retry and no spoken failure.** A second press of a toggle can undo a late change, and a spoken correction for a press that probably landed is noise. The log line (and audit log) keeps the data for diagnosis.
+  - **Possible future opt-in:** a setting "tell me when a command didn't take", which would speak a short notice on `not confirmed`. It would never re-press. Not in the MVP.
+  - **In-flight actions.** Because the snapshot can be up to about 1 s stale, a toggle sent in the last 2 s is tracked as *in flight* with its expected value. A second command on the same flag while one is in flight is decided against that expected value, not the stale snapshot. For example, "gear down" twice gives "Gear already going down" and no second press. If the user toggles the same thing by hand in that window, verification logs the mismatch; nothing is re-pressed.
 - **Journal events as faster signals (⚠ UNVERIFIED).** Where an action also produces a journal event, that event may arrive sooner than the next Status.json rewrite. Examples: `Music` with `MusicTrack: GalaxyMap`/`SystemMap` when a map opens, `FSDTarget`, `NavRoute`, `LaunchSRV`, `DockingRequested`. Predicates accept *either* signal, whichever comes first. S5 measured only Status.json, so journal write latency still needs measuring (a small extension to the S5 tool). Gear, lights, night vision and most T1 toggles have no journal event, so they rely on Status.json alone.
-- **Verification and retries:**
+- **Verification (no retries, v0.12):**
   - Every user-facing action plan **ends with a verification step**, which runs in the background after the optimistic confirmation. Plans without a verifiable signal are refused unless the tool is marked `unverifiable` (none in v1).
-  - Retry policy: at most **one** retry, only if the observed state is still unchanged after the 2 s timeout *and* the action is idempotent-safe. For toggles, re-read the state first, which guards against double toggles.
-- **Output:** `Sent(t0)` as soon as the keys are delivered (it drives the optimistic confirmation), then `ActionReport { plan_id, outcome: Verified{retried} | NoOp | Unverified{observed} | Aborted{reason} | Refused{reason}, timings }`. The report feeds the audit log; the voice speaks it only when it isn't `Verified`.
+  - No retry policy: every command is pressed exactly once. The verification result is logged only.
+- **Output:** `Sent(t0)` as soon as the keys are delivered (it drives the optimistic confirmation), then `ActionReport { plan_id, outcome: Verified{latency_ms} | NoOp | Unverified{observed} | Aborted{reason} | Refused{reason}, timings }`. The report feeds the audit log. After `Sent`, the voice never speaks it (refusals before the press are still spoken).
 
 ### 5.6 `astromech-nav`
 - Explicit `enum` state machines with per-state timeouts and `CancellationToken`.
@@ -764,7 +766,7 @@ sequenceDiagram
     else allowed (tier 1)
       P->>B: resolve(LandingGearToggle)
       B-->>P: KeyChord(scancode, ext, modifiers)
-      P->>X: Plan[FocusCheck, Tap(chord, 50 ms), Verify(gear==down, 2 s, retry once)]
+      P->>X: Plan[FocusCheck, Tap(chord, 50 ms), Verify(gear==down, 2 s, no retry)]
       X->>X: check foreground = game, integrity level OK
       X->>G: SendInput keydown / keyup (scancodes)
       X-->>T: Sent(t0): keys delivered to the focused game
@@ -775,13 +777,7 @@ sequenceDiagram
       alt seen within 2 s
         X-->>T: Verified(latency_ms), logged only
       else not seen after 2 s
-        X->>X: re-read snapshot, unchanged -> press once more, wait 2 s
-        alt seen after the retry
-          X-->>T: Verified(retried), logged only
-        else still unchanged
-          X-->>T: Unverified(observed gear=up)
-          T-->>V: failure earcon + "Correction: gear is still up"
-        end
+        X-->>T: Unverified(observed gear=up), logged only:<br/>"not confirmed within 2 s". No retry, nothing spoken
       end
     end
   end
@@ -790,9 +786,9 @@ sequenceDiagram
 
 **Notes:**
 - **Everything is local.** The path is: push-to-talk (any device) → mic capture → Parakeet → grammar → typed tool → policy → bind lookup → `SendInput` → pre-rendered confirmation → background Status.json verification. No network is involved.
-- **The confirmation is optimistic; verification speaks only on failure (changed in v0.4, S5).** "Gear down" plays as soon as the keys are delivered to the focused game. Waiting for Status.json would add 0–1 s (median about 0.5 s) to every command, and S5 showed the press itself lands reliably. If verification fails after one retry, a spoken correction follows within about 4.2 s. Refusals (policy, preconditions, missing binds, focus, privilege) are still decided *before* any key is pressed, and they're spoken instead of the confirmation.
-- **Failure messages are specific:** `not_foreground`, `privilege_mismatch`, `missing_bind(LandingGearToggle)`, `precondition(Supercruise)`, `not_observed(2000 ms, retried)`, `aborted(kill_switch)`, `not_understood`. Each has a short spoken hint, e.g. "Landing gear has no keyboard bind. Want me to add one?" That leads into the tier-2 binds fix.
-- **Circuit breaker:** 3 consecutive `not_observed` results (each already retried once) pause all input tools and tell the user. The usual causes are focus, privilege or bind mismatch. While paused, there are no optimistic confirmations.
+- **The confirmation is optimistic; verification speaks only on failure (changed in v0.4, S5).** "Gear down" plays as soon as the keys are delivered to the focused game. Waiting for Status.json would add 0–1 s (median about 0.5 s) to every command, and S5 showed the press itself lands reliably. Since v0.12 a failed verification is only logged: no retry, no spoken correction (a future opt-in "tell me when a command didn't take" may speak it). Refusals (policy, preconditions, missing binds, focus, privilege) are still decided *before* any key is pressed, and they're spoken instead of the confirmation.
+- **Failure messages are specific:** `not_foreground`, `privilege_mismatch`, `missing_bind(LandingGearToggle)`, `precondition(Supercruise)`, `not_observed(2000 ms)` (logged only), `aborted(kill_switch)`, `not_understood`. Each has a short spoken hint, e.g. "Landing gear has no keyboard bind. Want me to add one?" That leads into the tier-2 binds fix.
+- **Circuit breaker (deferred with the opt-in notice, v0.12):** 3 consecutive `not_observed` results would pause all input tools and tell the user. The usual causes are focus, privilege or bind mismatch. While paused, there are no optimistic confirmations.
 - **Later cloud phase:** the model's function calls enter at `astromech-tools` with `origin=cloud` and go through the same policy, executor and verification. The model receives the result and speaks it. Its "yes" never counts as a tier-2 confirmation.
 
 ---
@@ -821,9 +817,9 @@ sequenceDiagram
 | `last_action_report` | – | – | n/a | Explains the latest failure in detail |
 
 ### Ship and UI state (T1): execute immediately, always verified
-All T1 tools confirm optimistically on `Sent` and verify in the background, with a 2 s timeout and at most one retry (§5.5). For `open_screen`, a journal `Music` event may confirm sooner than `GuiFocus` (⚠ unverified).
+All T1 tools confirm optimistically on `Sent` and verify in the background, with a 2 s timeout; the result is logged only, never retried or spoken (§5.5, v0.12). For `open_screen`, a journal `Music` event may confirm sooner than `GuiFocus` (⚠ unverified).
 
-| Tool | Args | Preconditions (policy-enforced) | Verification signal | Retry |
+| Tool | Args | Preconditions (policy-enforced) | Verification signal | Retry (none since v0.12) |
 |---|---|---|---|---|
 | `set_landing_gear` | `state: up\|down` | InMainShip (Flags 24), !Docked (0), !Landed (1), !Supercruise (4) ⚠ check game behaviour, game foreground | Flags bit 2 == target within 2 s (§5.5) | once if unchanged |
 | `set_lights` | `state: on\|off` | InMainShip or InSRV | Flags bit 8 | once |
@@ -960,7 +956,7 @@ Revised in v0.4 with the S5 measurements from the real game (§17.1). The STT fi
 | Key-down → flag visible in Status.json | **measured: 24–1,003 ms, median 478, p95 ≈ 950–986, spread evenly** | S5. The game rewrites the file about once a second; hold time made no difference |
 | Notify + parse + predicate true | < 1 ms notify, 5–20 ms total with debounce | S5: notify came 0.07–0.15 ms after a 2 ms poll |
 | **Verification (background, silent on success)** | **within 2 s; typically ≈ 0.5 s, p95 ≈ 1 s** | The 2 s timeout covers one full write cycle plus one cycle of margin |
-| **Misses** | **retried at most once**; a spoken correction comes ≤ about 4.2 s after the first press | Retry only if the state is unchanged after 2 s |
+| **Misses** | logged only ("not confirmed within 2 s"); never re-pressed or spoken (v0.12) | Pressed exactly once |
 | `plot_route` end-to-end | typical 8–15 s, best ≈ 5 s, hard cap 60 s | §10 (recomputed for the 1 s Status cycle). Progress lines every ~5 s |
 | Kill-switch button → all keys released, plans cancelled | ≤ 50 ms | Raw Input → executor priority channel |
 
@@ -1078,7 +1074,7 @@ Revised in v0.4 with the S5 measurements from the real game (§17.1). The STT fi
   - Replay fixtures and the mock game.
   - Open-source repo hygiene: the MIT `LICENSE` file, `NOTICE`, `cargo-deny`, generated third-party notices, and model downloads with SHA-256 verification and licence display.
 - **MVP is done when:**
-  1. With Elite focused, holding the bound push-to-talk (tested on at least keyboard, mouse button 4/5, one HOTAS button and one gamepad button) and saying "gear down" deploys the gear. **Action start** (keypress begins) is ≤ 400 ms p95 after release, and the optimistic spoken confirmation starts with it. **Verification** completes within 2 s. Misses are **retried at most once**, and a remaining failure is spoken as a correction. *(Replaces v0.3's "verified confirmation ≤ 1 s p95", which S5 showed is impossible with a ~1 s Status.json cycle.)*
+  1. With Elite focused, holding the bound push-to-talk (tested on at least keyboard, mouse button 4/5, one HOTAS button and one gamepad button) and saying "gear down" deploys the gear. **Action start** (keypress begins) is ≤ 400 ms p95 after release, and the optimistic spoken confirmation starts with it. **Verification** completes within 2 s. Misses are logged only; nothing is pressed twice or spoken (v0.12). *(Replaces v0.3's "verified confirmation ≤ 1 s p95", which S5 showed is impossible with a ~1 s Status.json cycle.)*
   2. There's ≥ 99% verified success across 200 mock-game trials per tool, and ≥ 95% in the real game with correct binds. Command recognition accuracy is ≥ 95% on the 200-phrase test set.
   3. Zero unintended keypresses in a 4 h soak replay.
   4. The bound kill switch releases all keys and cancels plans within 50 ms, from any supported device.
@@ -1245,12 +1241,12 @@ Spike source code is in [`spikes/`](../spikes/). Raw results from Sumeet's PC ar
 
 **Design consequences (applied in v0.4)**
 1. **Optimistic spoken confirmation** as soon as `SendInput` delivers the keys to the focused game. Background verification is silent on success and speaks only on failure (§5.5, §8, diagram 04).
-2. **Verification timeout 2.0 s.** One full write cycle (the observed max was 1,003 ms) plus one cycle of margin for a late or skipped write. **At most one retry**, so a spoken correction comes within about 4.2 s (§5.5).
+2. **Verification timeout 2.0 s.** One full write cycle (the observed max was 1,003 ms) plus one cycle of margin for a late or skipped write. No retry since v0.12; the outcome is logged only (§5.5).
 3. **File notifications only.** Polling (the 2 ms poll and the planned 250 ms safety poll) is dropped. A watcher error or buffer overflow triggers a single re-read (§5.2).
 4. **Default tap hold 50 ms, range 40–60 ms.** 20 ms worked, but the margin covers low frame rates (VR reprojection at 45 fps is about 22 ms per frame) (§5.5).
 5. **Stale snapshots:** any Status field can be up to about 1 s old. Toggles are tracked "in flight" for 2 s to avoid double presses (§5.5).
 6. **Plotting timeouts lengthened** for the three Status-observed waits. Typical plot ≈ 10–11 s (was ≈ 9–10 s), bad case ≈ 50 s, overall cap 60 s (§10).
-7. **MVP latency targets revised:** action start ≤ 400 ms p95 from PTT release, verification within 2 s, misses retried at most once (§11, §14).
+7. **MVP latency targets revised:** action start ≤ 400 ms p95 from PTT release, verification within 2 s, misses logged only since v0.12 (§11, §14).
 8. **Journal events may confirm sooner** where an action has one (`Music`, `FSDTarget`, `NavRoute`, …). ⚠ UNVERIFIED; extend the S5 tool to timestamp journal lines when convenient (§5.5).
 
 **Caveats**
@@ -1509,13 +1505,13 @@ Full write-up: `spikes/s1-ui/RESULTS.md`. Code: `spikes/s1-ui/` (MIT). Windows d
 The first end-to-end slice: PTT → Parakeet → `astromech-intent` → `astromech-tools` → `astromech-policy` → SendInput → background verification against Status.json, with the journal/Status pipeline and the binds health check in `astromech-core`. Tested with unit tests, a fake-game integration test (real file notifications, 0–1000 ms delays), and under Wine against the extended S5 mock game window (real SendInput, real ReadDirectoryChangesW, real Parakeet/Kokoro worker). **Not yet run against Elite.**
 
 Implementation notes and divergences from the design above:
-- **Policy owns the executor.** `Policy::authorize` returns a `Ticket` (tier, origin, rate limit 8 per 10 s, duplicate block); `Ticket::press` does the focus and UIPI checks and the 50 ms hold. The ticket lives until verification ends, so "in flight" covers the whole verify/retry window; the 3 s window from the start applies on top.
+- **Policy owns the executor.** `Policy::authorize` returns a `Ticket` (tier, origin, rate limit 8 per 10 s, duplicate block); `Ticket::press` does the focus and UIPI checks and the 50 ms hold. The ticket lives until verification ends, so "in flight" covers the whole 2 s verify window; the 3 s window from the start applies on top.
 - **Kill switch:** press = kill (cancels tickets, cuts a running hold short and releases every held key, refuses all T1+). **Hold it ≥ 1 s (`rearm_hold_ms`) to re-arm.** Console `!kill` / `!rearm` do the same.
-- **Retry:** before the single retry the flag is re-read, so a change that lands just after the 2 s timeout isn't toggled back. If the game is slower than 2 s *and* changes between the re-read and the retry, the retry would undo it; S5's max was ~1 s, so this is accepted for now.
+- **No retry (v0.12):** the runner waits up to `verify_timeout_ms` for the flag and logs `<tool>: confirmed in N ms` or `<tool>: not confirmed within 2.0 s (no retry)`. `[actions] retries` is ignored with a deprecation line at startup.
 - **State rules:** gear, hardpoints and cargo scoop refuse when not in the main ship, docked or landed; gear and hardpoints also refuse in supercruise (cargo scoop doesn't). Lights and night vision work in ship or SRV, docked included. Already-in-state answers press nothing. Without any Status.json Flags (main menu), everything refuses.
 - **No keyboard binding:** the health check reports each voice tool's action without a pressable keyboard bind (a Keyboard slot whose modifiers are also keyboard keys), and the tool refuses with a spoken hint ("…has no keyboard binding, only a controller one. Add a keyboard key to LandingGearToggle as its secondary binding.").
 - **Journal pipeline:** notifications only (no polling). On startup the current journal is replayed from byte 0 to rebuild state; the saved position in `astromech-store` (`journal_files`) tells how much is new since the last run. Rollover: a notification for a newer `Journal.*.log` drains the old file and switches. ⚠ Because Windows may not report appends to a file the game holds open, every Status.json notification also reads the journal tail. Unverified on the real game whether that's ever needed.
-- **Confirmation:** optimistic Kokoro line on `Sent` ("Landing gear down."), failure spoken only ("Landing gear didn't respond."). Fixed phrases are pre-rendered into a WAV cache at startup. Without models, replies are printed.
+- **Confirmation:** optimistic Kokoro line on `Sent` ("Landing gear down."), no spoken failure since v0.12 (the outcome is logged). Fixed phrases are pre-rendered into a WAV cache at startup. Without models, replies are printed.
 - **"Did you mean …?"** is answered by saying "yes"/"confirm" or "no"/"cancel" on the next PTT within 5 s. The confirm *button* isn't wired yet.
 - **Fix after the first run on Sumeet's PC (PR #1 follow-up):** pressing PTT did nothing. Windows joysticks report only on change, so for a stick that was idle since start-up, the first HID report the listener saw *was* the PTT press. `Processor` treated a device's first report as a baseline ("already held when first seen"), so the press was swallowed and the release arrived as an up with no down. The core's listener now sets `Processor::initial_presses`, so buttons down in a first report count as presses. The S7 summary keeps the old behaviour. Diagnostics added: the config path is logged, look-alike config names are detected, the app refuses to start without PTT, `--debug-input` logs every button, unmatched presses on the PTT device are logged, and there are PTT down/up lines plus voice/mic status at startup.
 - **Not in the slice:** the tray, the app window/API, a confirm button, SRV-specific lights, `request docking` and `plot route` (recognised, answered "isn't available yet").

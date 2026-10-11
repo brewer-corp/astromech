@@ -11,16 +11,16 @@ use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
+/// Background check after a press. Logged only: never spoken, never retried (a second press
+/// of a toggle could undo a late change).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Verified {
-    /// Status.json showed the expected flag after this many presses.
-    Confirmed { presses: u32 },
-    /// Still unchanged after the retry.
-    Failed,
+    /// Status.json showed the expected flag this long after the press.
+    Confirmed { ms: u64 },
+    /// No change within `verify_timeout`.
+    NotConfirmed,
     /// Kill switch.
     Cancelled,
-    /// The retry press itself failed (focus lost etc.).
-    RetryBlocked(PressError),
 }
 
 #[derive(Debug)]
@@ -40,14 +40,15 @@ pub struct Runner {
     pub binds: Shared,
     pub speaker: Arc<dyn Speaker>,
     pub verify_timeout: Duration,
-    pub retries: u32,
+    /// Where verification outcomes go (the console log).
+    pub log: Arc<dyn Fn(&str) + Send + Sync>,
 }
 
 impl Runner {
     pub fn run(&self, call: ToolCall, origin: Origin) -> Outcome {
         let spec = call.toggle.spec();
         let say = |s: &str| self.speaker.say(s);
-        let (action, flag, expect, confirm, failure) = match plan(call, self.hub.snapshot().flags()) {
+        let (action, flag, expect, confirm) = match plan(call, self.hub.snapshot().flags()) {
             Plan::Already(m) => {
                 say(&m);
                 return Outcome::Already(m);
@@ -56,7 +57,7 @@ impl Runner {
                 say(&m);
                 return Outcome::Refused(m);
             }
-            Plan::Press { action, flag, expect_set, confirm, failure } => (action, flag, expect_set, confirm, failure),
+            Plan::Press { action, flag, expect_set, confirm, .. } => (action, flag, expect_set, confirm),
         };
         let combo = {
             let b = self.binds.read().unwrap();
@@ -84,36 +85,26 @@ impl Runner {
         // Optimistic confirmation.
         say(&confirm);
         let hub = self.hub.clone();
-        let speaker = self.speaker.clone();
+        let log = self.log.clone();
         let timeout = self.verify_timeout;
-        let retries = self.retries;
+        let name = spec.name;
+        let t0 = Instant::now();
         let h = std::thread::spawn(move || {
-            let mut presses = 1;
-            loop {
-                if hub.wait_flag(flag, expect, timeout, &|| ticket.is_cancelled()) {
-                    return Verified::Confirmed { presses };
+            let v = if hub.wait_flag(flag, expect, timeout, &|| ticket.is_cancelled()) {
+                Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
+            } else if ticket.is_cancelled() {
+                Verified::Cancelled
+            } else {
+                Verified::NotConfirmed
+            };
+            log(&match &v {
+                Verified::Confirmed { ms } => format!("{name}: confirmed in {ms} ms"),
+                Verified::NotConfirmed => {
+                    format!("{name}: not confirmed within {:.1} s (no retry)", timeout.as_secs_f64())
                 }
-                if ticket.is_cancelled() {
-                    return Verified::Cancelled;
-                }
-                if presses > retries {
-                    speaker.say(&failure);
-                    return Verified::Failed;
-                }
-                // Toggle actions: re-read right before retrying so a late change isn't undone.
-                let now = hub.snapshot();
-                if now.status_seen && (now.status_flags & flag != 0) == expect {
-                    return Verified::Confirmed { presses };
-                }
-                if let Err(e) = ticket.press(&combo.key, &combo.modifiers) {
-                    if e == PressError::Cancelled {
-                        return Verified::Cancelled;
-                    }
-                    speaker.say(&format!("{failure} {}", e.spoken()));
-                    return Verified::RetryBlocked(e);
-                }
-                presses += 1;
-            }
+                Verified::Cancelled => format!("{name}: verification cancelled (kill switch)"),
+            });
+            v
         });
         Outcome::Sent(h)
     }

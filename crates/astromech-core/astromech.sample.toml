@@ -31,5 +31,4 @@ post_roll_ms = 200
 [actions]
 hold_ms = 50                  # S5: 50 ms holds were reliable
 verify_timeout_ms = 2000      # wait this long for Status.json to confirm
-retries = 1                   # press again once if nothing changed
 dry_run = false               # true: log key presses, don't send them

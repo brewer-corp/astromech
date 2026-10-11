@@ -98,6 +98,7 @@ struct Rig {
     speaker: Arc<RecordingSpeaker>,
     runner: Arc<Runner>,
     hub: Arc<StateHub>,
+    logs: Arc<std::sync::Mutex<Vec<String>>>,
     _pipe: astromech_core::pipeline::Pipeline,
 }
 
@@ -115,16 +116,18 @@ fn rig(flags: u64, delays: &[u64]) -> Rig {
         astromech_core::pipeline::start(&journal, hub.clone(), Some(&dir.path().join("db.sqlite")), |_| {}).unwrap();
     let binds = Arc::new(RwLock::new(health::run_check(&bindings, Some(&dir.path().join("nogame")), false)));
     let speaker = Arc::new(RecordingSpeaker::default());
+    let logs = Arc::new(std::sync::Mutex::new(Vec::<String>::new()));
+    let l2 = logs.clone();
     let runner = Arc::new(Runner {
         policy: Policy::new(game.clone(), Config::default()),
         hub: hub.clone(),
         binds,
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(2000),
-        retries: 1,
+        log: Arc::new(move |s: &str| l2.lock().unwrap().push(s.into())),
     });
     assert!(hub.wait_flag(FLAG_IN_MAIN_SHIP, true, Duration::from_secs(2), &|| false), "initial Status.json read");
-    Rig { _dir: dir, game, speaker, runner, hub, _pipe: pipe }
+    Rig { _dir: dir, game, speaker, runner, hub, logs, _pipe: pipe }
 }
 
 fn sent(o: Outcome) -> Verified {
@@ -139,7 +142,7 @@ fn gear_down_success_across_the_measured_delay_range() {
     for d in [0, 350, 1000] {
         let r = rig(FLAG_IN_MAIN_SHIP, &[d]);
         let v = sent(r.runner.run(GEAR_DOWN, Origin::Voice));
-        assert_eq!(v, Verified::Confirmed { presses: 1 }, "delay {d} ms");
+        assert!(matches!(v, Verified::Confirmed { .. }), "delay {d} ms");
         assert_eq!(r.speaker.take(), vec!["Landing gear down."], "optimistic confirmation only");
         assert!(r.hub.snapshot().status_flags & FLAG_GEAR != 0);
         let log = r.game.log.lock().unwrap().clone();
@@ -148,22 +151,23 @@ fn gear_down_success_across_the_measured_delay_range() {
 }
 
 #[test]
-fn miss_then_retry_succeeds() {
-    let r = rig(FLAG_IN_MAIN_SHIP, &[600]);
-    r.game.drop_presses.store(1, Ordering::SeqCst);
-    let v = sent(r.runner.run(GEAR_DOWN, Origin::Voice));
-    assert_eq!(v, Verified::Confirmed { presses: 2 });
+fn missed_press_is_logged_not_retried_or_spoken() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let logs = r.logs.clone();
+    r.game.drop_presses.store(5, Ordering::SeqCst);
+    assert_eq!(sent(r.runner.run(GEAR_DOWN, Origin::Voice)), Verified::NotConfirmed);
     assert_eq!(r.speaker.take(), vec!["Landing gear down."], "no failure spoken");
-    assert_eq!(r.game.presses.load(Ordering::SeqCst), 2);
+    assert_eq!(r.game.presses.load(Ordering::SeqCst), 1, "never pressed again");
+    assert!(logs.lock().unwrap().iter().any(|l| l.contains("not confirmed within 2.0 s")), "{logs:?}");
 }
 
 #[test]
-fn two_misses_speak_failure() {
-    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
-    r.game.drop_presses.store(5, Ordering::SeqCst);
-    assert_eq!(sent(r.runner.run(GEAR_DOWN, Origin::Voice)), Verified::Failed);
-    assert_eq!(r.speaker.take(), vec!["Landing gear down.", "Landing gear didn't respond."]);
-    assert_eq!(r.game.presses.load(Ordering::SeqCst), 2, "one retry only");
+fn confirmation_is_logged_with_latency() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[600]);
+    let logs = r.logs.clone();
+    let Verified::Confirmed { ms } = sent(r.runner.run(GEAR_DOWN, Origin::Voice)) else { panic!() };
+    assert!((550..1500).contains(&ms), "{ms}");
+    assert!(logs.lock().unwrap()[0].contains("confirmed in"));
 }
 
 #[test]
@@ -172,7 +176,7 @@ fn duplicate_is_suppressed_while_in_flight() {
     let first = r.runner.run(GEAR_DOWN, Origin::Voice);
     let second = r.runner.run(GEAR_DOWN, Origin::Voice);
     assert!(matches!(second, Outcome::Denied(Denial::Duplicate)), "{second:?}");
-    assert_eq!(sent(first), Verified::Confirmed { presses: 1 });
+    assert!(matches!(sent(first), Verified::Confirmed { .. }));
     // After it landed: the gear is down, so a repeat says so and presses nothing.
     let third = r.runner.run(GEAR_DOWN, Origin::Voice);
     assert!(matches!(third, Outcome::Already(_)), "{third:?}");
@@ -188,13 +192,13 @@ fn kill_switch_cancels_and_blocks_until_rearmed() {
     std::thread::sleep(Duration::from_millis(300));
     r.runner.policy.kill();
     assert_eq!(sent(o), Verified::Cancelled);
-    assert_eq!(r.game.presses.load(Ordering::SeqCst), 1, "no retry after kill");
+    assert_eq!(r.game.presses.load(Ordering::SeqCst), 1, "one press only");
     let log = r.game.log.lock().unwrap().clone();
     assert_eq!(log.iter().filter(|e| !e.1).count(), log.iter().filter(|e| e.1).count(), "no key left down");
     assert!(matches!(r.runner.run(GEAR_DOWN, Origin::Voice), Outcome::Denied(Denial::KillSwitch)));
     r.runner.policy.rearm();
     std::thread::sleep(Duration::from_millis(3100)); // past the 3 s duplicate window
-    assert_eq!(sent(r.runner.run(GEAR_DOWN, Origin::Voice)), Verified::Confirmed { presses: 1 });
+    assert!(matches!(sent(r.runner.run(GEAR_DOWN, Origin::Voice)), Verified::Confirmed { .. }));
 }
 
 #[test]
@@ -238,7 +242,7 @@ fn voice_path_with_fake_stt() {
     assert!(matches!(a.handle(&next(), Origin::Voice), Handled::Cancelled));
     match a.handle(&next(), Origin::Voice) {
         Handled::Ran { command: "landing_gear.down", outcome } => {
-            assert_eq!(sent(outcome), Verified::Confirmed { presses: 1 })
+            assert!(matches!(sent(outcome), Verified::Confirmed { .. }))
         }
         h => panic!("{h:?}"),
     }

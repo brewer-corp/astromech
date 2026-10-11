@@ -129,15 +129,15 @@ pub fn describe_button(what: &str, b: &Button, devices: &[DeviceMeta]) -> String
                 };
                 format!("{what}: {b} — device connected: {}{warn}", d.display())
             }
-            None => format!(
-                "{what}: {b} — WARNING: no connected device has ID {}. Connected: {}",
-                b.device,
-                devices
-                    .iter()
-                    .filter_map(|d| d.elite_id().map(|i| format!("{i} ({})", d.product)))
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            ),
+            None => {
+                let ids: Vec<String> =
+                    devices.iter().filter_map(|d| d.elite_id().map(|i| format!("{i} ({})", d.product))).collect();
+                format!(
+                    "{what}: {b} — WARNING: no connected device has ID {}. Connected controllers: {}",
+                    b.device,
+                    if ids.is_empty() { "none".to_string() } else { ids.join(", ") }
+                )
+            }
         },
     }
 }

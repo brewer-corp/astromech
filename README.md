@@ -99,8 +99,8 @@ an unexpected gear change can't hurt.
 5. **Dry run first:** start Elite, get into your ship in normal space, then run
    `astromech-core.exe --dry-run` and switch back to the game. Hold PTT, say "gear down",
    release. You should hear "Landing gear down." and the console shows the key it *would* have
-   sent. Nothing is pressed, so a few seconds later it says "Landing gear didn't respond."
-   That's expected in a dry run.
+   sent. Nothing is pressed, so 2 s later the console logs "set_landing_gear: not confirmed
+   within 2.0 s (no retry)". That's expected in a dry run. Nothing is spoken for it.
 6. **Live:** run `astromech-core.exe` (not as administrator, and the game not as
    administrator either), then switch to Elite in normal space.
    - "gear down": the gear deploys, and you hear "Landing gear down.".

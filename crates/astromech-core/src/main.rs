@@ -180,6 +180,9 @@ fn run(args: Args) -> Result<()> {
         log(&format!("{msg} Using defaults for this mode."));
         Config::default()
     };
+    if cfg.actions.retries.is_some() {
+        log("config: [actions] retries is deprecated and ignored; astromech never presses a command twice");
+    }
     if !exempt && cfg.controls.ptt.is_none() {
         bail!(
             "no push-to-talk button in {}. Add e.g. `ptt = {{ device = \"231D3201\", key = \"Joy_15\" }}` under [controls] \
@@ -314,7 +317,7 @@ fn run(args: Args) -> Result<()> {
         binds,
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
-        retries: cfg.actions.retries,
+        log: Arc::new(|s: &str| log(s)),
     });
     let assistant = Arc::new(Assistant::new(runner.clone()));
 

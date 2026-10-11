@@ -78,7 +78,9 @@ pub struct Voice {
 pub struct Actions {
     pub hold_ms: u64,
     pub verify_timeout_ms: u64,
-    pub retries: u32,
+    /// Deprecated and ignored: commands are never pressed again (see ARCHITECTURE.md §5.5).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub retries: Option<u32>,
     /// Log key presses instead of sending them.
     pub dry_run: bool,
 }
@@ -115,7 +117,7 @@ impl Default for Voice {
 }
 impl Default for Actions {
     fn default() -> Self {
-        Self { hold_ms: 50, verify_timeout_ms: 2000, retries: 1, dry_run: false }
+        Self { hold_ms: 50, verify_timeout_ms: 2000, retries: None, dry_run: false }
     }
 }
 
@@ -238,7 +240,7 @@ mod tests {
         let k = Button { device: "Keyboard".into(), key: "Key_RightControl".into() };
         assert!(k.matches(&ev("key", None, "Key_RightControl")));
         assert!(!k.matches(&ev("button", Some("Keyboard"), "Key_RightControl")));
-        assert_eq!((c.actions.hold_ms, c.actions.verify_timeout_ms, c.actions.retries), (50, 2000, 1));
+        assert_eq!((c.actions.hold_ms, c.actions.verify_timeout_ms, c.actions.retries), (50, 2000, None));
         assert_eq!(c.voice.threads, 4);
         let d: Config = toml::from_str("").unwrap();
         assert!(d.controls.ptt.is_none() && d.voice.tts);
