@@ -1,0 +1,45 @@
+/* astromech visual system (docs/V1-DESIGN.md §4). Derived from the game's Options → Controls
+   screen: neutral near-black, one orange accent, light-grey text, filled value cells, very few
+   lines. No other colours. No Frontier assets; fonts are OFL lookalikes. */
+@import "@fontsource/saira-semi-condensed/400.css";
+@import "@fontsource/saira-semi-condensed/500.css";
+@import "@fontsource/saira-semi-condensed/600.css";
+@import "@fontsource/share-tech-mono/400.css";
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces (sampled from the game screen, neutral not warm) */
+  --bg: #0c0d0f; /* window */
+  --bg-list: #08090b; /* list column, slightly darker */
+  --cell: #3d220f; /* binding cell: orange at ~22% on black, game #42230e */
+  --cell-opt: #2b2d2e; /* option/value cell (game: grey "REGULAR" cells) */
+  --cell-empty: #1c1610; /* unbound slot: same shape, dimmer */
+  --row-hover: #16171a;
+
+  /* The one accent */
+  --accent: #fa6e00; /* game #f56b02–#fd6f03 */
+  --accent-dim: #8a3d00; /* rules, scrollbar track */
+
+  /* Text: three levels only */
+  --text-hi: #ffffff; /* titles (game: "MOUSE X-AXIS") */
+  --text: #e8e8e8; /* rows (game #e8e8e8), 16.4:1 on --bg */
+  --text-lo: #a0a0a0; /* secondary, 7.6:1 on --bg */
+  --on-accent: #0c0d0f; /* text on an orange fill */
+
+  /* Type */
+  --font: "Saira Semi Condensed", "Bahnschrift", "Segoe UI", sans-serif;
+  --mono: "Share Tech Mono", Consolas, monospace;
+  --fs-s: 13px;
+  --fs: 15px; /* rows: larger than the game's ~11 px at 1080p */
+  --fs-l: 18px;
+  --fs-xl: 24px;
+  --caps: 0.06em;
+
+  /* Rhythm */
+  --row: 34px;
+  --gap: 2px; /* between value cells, like the game */
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 var(--fs) var(--font); }
