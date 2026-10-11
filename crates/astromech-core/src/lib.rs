@@ -23,6 +23,7 @@ pub mod control;
 pub mod controls;
 pub mod crash;
 pub mod diagnostics;
+pub mod eval;
 pub mod gamewatch;
 pub mod health;
 pub mod hub;

@@ -41,7 +41,7 @@ pub struct Match {
 #[derive(Debug, Clone)]
 pub struct Phrase {
     pub command: &'static str,
-    pub text: &'static str,
+    pub text: String,
 }
 
 pub struct Grammar {
@@ -76,6 +76,34 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("cargo_scoop.close", &["close cargo scoop", "retract cargo scoop", "cargo scoop close", "cargo scoop in"]),
     ("night_vision.on", &["night vision on", "turn on night vision", "enable night vision"]),
     ("night_vision.off", &["night vision off", "turn off night vision", "disable night vision"]),
+    ("flight_assist.on", &["flight assist on", "enable flight assist", "turn on flight assist"]),
+    ("flight_assist.off", &["flight assist off", "disable flight assist", "turn off flight assist"]),
+    ("silent_running.on", &["silent running on", "enable silent running", "go silent"]),
+    ("silent_running.off", &["silent running off", "disable silent running"]),
+    ("hud.analysis", &["analysis mode", "hud analysis", "switch to analysis"]),
+    ("hud.combat", &["combat mode", "hud combat", "switch to combat"]),
+    ("galaxy_map.open", &["open galaxy map", "galaxy map", "show galaxy map"]),
+    ("system_map.open", &["open system map", "system map", "show system map"]),
+    ("panel.close", &["close panel", "close map", "go back", "back"]),
+    ("panel.left", &["left panel", "open left panel", "navigation panel"]),
+    ("panel.right", &["right panel", "open right panel", "ship panel"]),
+    ("panel.comms", &["comms panel", "open comms", "communications panel"]),
+    ("panel.role", &["role panel", "open role panel"]),
+    ("throttle.zero", &["throttle to zero", "zero throttle", "all stop", "full stop"]),
+    ("srv_handbrake.on", &["handbrake on", "hand brake on"]),
+    ("srv_handbrake.off", &["handbrake off", "hand brake off"]),
+    ("srv_drive_assist.on", &["drive assist on"]),
+    ("srv_drive_assist.off", &["drive assist off"]),
+    ("status.fuel", &["fuel", "how much fuel", "fuel status", "fuel remaining"]),
+    ("status.cargo", &["cargo", "how much cargo", "cargo status"]),
+    ("status.jump_range", &["jump range", "what's my jump range", "max jump"]),
+    ("status.location", &["where am i", "where are we", "current system", "what system"]),
+    ("status.jumps", &["jumps left", "jumps remaining", "next system", "how many jumps"]),
+    ("status.hull", &["hull", "hull health", "how much hull"]),
+    ("status.shields", &["shields", "shield status"]),
+    ("status.credits", &["credits", "how many credits", "rebuy"]),
+    ("status.ship", &["what's my ship", "what ship", "current ship", "ship name"]),
+    ("status.legal", &["legal state", "wanted", "notoriety", "legal status"]),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
     ("request_docking", &["request docking", "request docking permission", "dock"]),
@@ -270,7 +298,7 @@ impl Grammar {
         let mut phrases = vec![];
         for (cmd, ps) in table {
             for p in *ps {
-                phrases.push((Phrase { command: cmd, text: p }, normalise(p)));
+                phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
         Self { phrases, systems: systems.iter().map(|s| s.to_string()).collect() }
@@ -281,8 +309,22 @@ impl Grammar {
     }
 
     /// Canonical phrase for a command (for "Did you mean …?").
-    pub fn canonical(&self, command: &str) -> Option<&'static str> {
-        self.phrases.iter().find(|(p, _)| p.command == command).map(|(p, _)| p.text)
+    pub fn canonical(&self, command: &str) -> Option<&str> {
+        self.phrases.iter().find(|(p, _)| p.command == command).map(|(p, _)| p.text.as_str())
+    }
+
+    /// Intern a command id from the closed grammar (for stored aliases).
+    pub fn intern(command: &str) -> Option<&'static str> {
+        MVP.iter().find(|(c, _)| *c == command).map(|(c, _)| *c)
+    }
+
+    /// Personal alias: this transcript should map to `command` next time (still policy-capped).
+    pub fn add_alias(&mut self, heard: &str, command: &'static str) {
+        let toks = normalise(heard);
+        if toks.is_empty() {
+            return;
+        }
+        self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
     }
 
     fn slot_best(&self, w: &str) -> (f32, String) {
@@ -352,6 +394,115 @@ impl Grammar {
         }
         best
     }
+}
+
+/// One labelled clip or transcript for the M3 eval harness.
+#[derive(Debug, Clone)]
+pub struct EvalItem {
+    pub id: String,
+    pub transcript: String,
+    /// Expected command id, or `"nomatch"`.
+    pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EvalRow {
+    pub id: String,
+    pub transcript: String,
+    pub label: String,
+    pub got: String,
+    pub decision: Decision,
+    pub kind: EvalKind,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EvalKind {
+    /// Execute or Ask on the labelled command (the 95% target).
+    CorrectExecuteOrAsk,
+    /// Said no-match and the label was `nomatch`.
+    CorrectReject,
+    /// Executed a *different* command (must stay near 0).
+    WrongExecute,
+    /// Labelled command, but NoMatch.
+    Miss,
+    /// Asked or executed the wrong command without a wrong-execute (Ask on a different command).
+    WrongAsk,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct EvalReport {
+    pub total: usize,
+    pub correct_execute_or_ask: usize,
+    pub correct_reject: usize,
+    pub wrong_execute: usize,
+    pub miss: usize,
+    pub wrong_ask: usize,
+    pub rows: Vec<EvalRow>,
+}
+
+impl EvalReport {
+    pub fn execute_or_ask_rate(&self) -> f32 {
+        let n = self.correct_execute_or_ask + self.wrong_execute + self.miss + self.wrong_ask;
+        if n == 0 {
+            0.0
+        } else {
+            self.correct_execute_or_ask as f32 / n as f32
+        }
+    }
+    pub fn summary(&self) -> String {
+        format!(
+            "eval: {} clips; execute-or-ask {}/{} ({:.0}%), wrong execute {}, miss {}, reject {}",
+            self.total,
+            self.correct_execute_or_ask,
+            self.total.saturating_sub(self.correct_reject),
+            100.0 * self.execute_or_ask_rate(),
+            self.wrong_execute,
+            self.miss,
+            self.correct_reject
+        )
+    }
+}
+
+/// Score transcripts against labels (no speech models needed).
+pub fn evaluate(grammar: &Grammar, items: &[EvalItem]) -> EvalReport {
+    let mut r = EvalReport { total: items.len(), ..Default::default() };
+    for it in items {
+        let m = grammar.best(&it.transcript);
+        let nomatch_label = it.label == "nomatch" || it.label.is_empty();
+        let kind = if nomatch_label {
+            if m.decision == Decision::NoMatch {
+                EvalKind::CorrectReject
+            } else if m.decision == Decision::Execute {
+                EvalKind::WrongExecute
+            } else {
+                EvalKind::WrongAsk
+            }
+        } else if m.command == it.label && (m.decision == Decision::Execute || m.decision == Decision::Ask) {
+            EvalKind::CorrectExecuteOrAsk
+        } else if m.decision == Decision::Execute && m.command != it.label {
+            EvalKind::WrongExecute
+        } else if m.decision == Decision::NoMatch {
+            EvalKind::Miss
+        } else {
+            EvalKind::WrongAsk
+        };
+        match kind {
+            EvalKind::CorrectExecuteOrAsk => r.correct_execute_or_ask += 1,
+            EvalKind::CorrectReject => r.correct_reject += 1,
+            EvalKind::WrongExecute => r.wrong_execute += 1,
+            EvalKind::Miss => r.miss += 1,
+            EvalKind::WrongAsk => r.wrong_ask += 1,
+        }
+        r.rows.push(EvalRow {
+            id: it.id.clone(),
+            transcript: it.transcript.clone(),
+            label: it.label.clone(),
+            got: m.command.to_string(),
+            decision: m.decision,
+            kind,
+        });
+    }
+    r
 }
 
 #[cfg(test)]
@@ -457,5 +608,55 @@ mod tests {
     #[test]
     fn thresholds_are_the_documented_ones() {
         assert_eq!((EXECUTE, ASK), (0.85, 0.60));
+    }
+
+    #[test]
+    fn v1_t1_and_status_phrases_execute() {
+        let g = g();
+        for (t, c) in [
+            ("flight assist off", "flight_assist.off"),
+            ("silent running on", "silent_running.on"),
+            ("analysis mode", "hud.analysis"),
+            ("open galaxy map", "galaxy_map.open"),
+            ("close panel", "panel.close"),
+            ("left panel", "panel.left"),
+            ("throttle to zero", "throttle.zero"),
+            ("how much fuel", "status.fuel"),
+            ("where am i", "status.location"),
+            ("jumps left", "status.jumps"),
+            ("what's my ship", "status.ship"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        assert_ne!(g.best("close cargo scoop").command, "panel.close");
+        assert_eq!(g.best("close cargo scoop").command, "cargo_scoop.close");
+    }
+
+    #[test]
+    fn personal_alias_executes_next_time() {
+        let mut g = g();
+        let m = g.best("You're down.");
+        assert_eq!(m.command, "landing_gear.down");
+        assert_eq!(m.decision, Decision::Ask);
+        g.add_alias("You're down.", "landing_gear.down");
+        let m = g.best("You're down.");
+        assert_eq!((m.command, m.decision), ("landing_gear.down", Decision::Execute));
+    }
+
+    #[test]
+    fn eval_counts_execute_or_ask() {
+        let g = g();
+        let items = [
+            EvalItem { id: "1".into(), transcript: "Gear down.".into(), label: "landing_gear.down".into() },
+            EvalItem { id: "2".into(), transcript: "You're down.".into(), label: "landing_gear.down".into() },
+            EvalItem { id: "3".into(), transcript: "banana".into(), label: "nomatch".into() },
+            EvalItem { id: "4".into(), transcript: "Gear down.".into(), label: "lights.on".into() },
+        ];
+        let r = evaluate(&g, &items);
+        assert_eq!(r.correct_execute_or_ask, 2);
+        assert_eq!(r.wrong_execute, 1);
+        assert_eq!(r.miss, 0);
+        assert_eq!(r.correct_reject, 1);
     }
 }

@@ -60,6 +60,15 @@ struct Args {
     /// Download the speech models (about 800 MB) into the models folder, then exit
     #[arg(long)]
     download_models: bool,
+    /// List recording devices and exit
+    #[arg(long)]
+    list_mics: bool,
+    /// Calibrate the chosen mic from WAV files: first is silence, rest are speech phrases
+    #[arg(long, value_name = "WAV", num_args = 2..)]
+    calibrate_files: Option<Vec<PathBuf>>,
+    /// Score Debug-saved clips in this folder (JSON sidecars + optional labels.json)
+    #[arg(long, value_name = "DIR")]
+    eval: Option<PathBuf>,
 }
 
 impl Args {
@@ -70,6 +79,9 @@ impl Args {
             || self.listen.is_some()
             || self.transcribe.is_some()
             || self.download_models
+            || self.list_mics
+            || self.calibrate_files.is_some()
+            || self.eval.is_some()
     }
     fn session_opts(&self) -> session::Opts {
         session::Opts { dry_run: self.dry_run, no_voice: self.no_voice, debug_input: self.debug_input }
@@ -186,7 +198,13 @@ fn run_console(args: Args) -> Result<()> {
         return Ok(());
     }
     // --listen, --health, --download-models and --transcribe work without a PTT button.
-    let exempt = args.listen.is_some() || args.health || args.download_models || args.transcribe.is_some();
+    let exempt = args.listen.is_some()
+        || args.health
+        || args.download_models
+        || args.transcribe.is_some()
+        || args.list_mics
+        || args.calibrate_files.is_some()
+        || args.eval.is_some();
     let mut cfg = if cfg_path.exists() {
         log(&format!("config: {}", cfg_path.display()));
         Config::load(&cfg_path)?
@@ -231,6 +249,20 @@ fn run_console(args: Args) -> Result<()> {
     if args.download_models {
         return download_models(&cfg);
     }
+    if args.list_mics {
+        return list_mics();
+    }
+    if let Some(files) = args.calibrate_files {
+        return calibrate_files(&cfg, &files);
+    }
+    if let Some(dir) = args.eval {
+        let r = astromech_core::eval::run(&dir)?;
+        println!("{}", r.summary());
+        for row in &r.rows {
+            println!("  {}  {:?}  label={} got={}", row.id, row.kind, row.label, row.got);
+        }
+        return Ok(());
+    }
     if let Some(secs) = args.listen {
         return listen(secs);
     }
@@ -254,8 +286,10 @@ fn run_console(args: Args) -> Result<()> {
     if let Some(wav) = &args.transcribe {
         let mut stt = s.stt.take().context("--transcribe needs the speech models and the voice worker")?;
         let (rate, samples) = astromech_voice::wav::read_mono_f32(wav)?;
+        let n = astromech_voice::gain::normalise(&samples, rate);
+        log(&format!("clip gain {:+.0} dB (speech peak {:.0} dBFS)", n.gain_db, n.speech_peak_dbfs));
         let t0 = std::time::Instant::now();
-        let text = stt.transcribe(&samples, rate)?;
+        let text = stt.transcribe(&n.samples, rate)?;
         log(&format!("heard {text:?} ({} ms)", t0.elapsed().as_millis()));
         let h = s.assistant.handle(&text, Origin::Voice);
         log(&format!("  -> {}", session::short(&h)));
@@ -298,6 +332,57 @@ fn run_console(args: Args) -> Result<()> {
         }
     }
     drop(s);
+    Ok(())
+}
+
+fn list_mics() -> Result<()> {
+    #[cfg(windows)]
+    {
+        let names = astromech_voice::mic::Recorder::list_names();
+        if names.is_empty() {
+            println!("No recording devices found.");
+        }
+        for n in names {
+            println!("  {n}");
+        }
+        if let Some(d) = astromech_voice::mic::Recorder::default_device_name() {
+            println!("default: {d}");
+        }
+        Ok(())
+    }
+    #[cfg(not(windows))]
+    {
+        bail!("--list-mics needs Windows")
+    }
+}
+
+fn calibrate_files(cfg: &Config, files: &[PathBuf]) -> Result<()> {
+    anyhow::ensure!(files.len() >= 2, "--calibrate-files needs a silent WAV then at least one speech WAV");
+    let (rate, noise) = astromech_voice::wav::read_mono_f32(&files[0])?;
+    let mut speech = vec![];
+    let mut owned = vec![];
+    for p in &files[1..] {
+        let (r, s) = astromech_voice::wav::read_mono_f32(p)?;
+        anyhow::ensure!(r == rate, "{} is {r} Hz, silence was {rate} Hz", p.display());
+        owned.push(s);
+    }
+    for s in &owned {
+        speech.push(s.as_slice());
+    }
+    let c = astromech_voice::gain::calibrate(&noise, &speech, rate);
+    println!(
+        "calibration: noise {:.0} dBFS, speech peak {:.0} dBFS, min_level_dbfs {:.0}, suggested gain {:+.0} dB",
+        c.noise_dbfs, c.speech_peak_dbfs, c.min_level_dbfs, c.gain_db
+    );
+    let name = if cfg.voice.mic.trim().is_empty() { "default" } else { cfg.voice.mic.trim() };
+    let data = cfg.data_dir();
+    std::fs::create_dir_all(&data)?;
+    let st = astromech_store::Store::open(&data.join("astromech.sqlite"))?;
+    st.set(&format!("mic.{name}.min_level_dbfs"), &format!("{:.1}", c.min_level_dbfs))?;
+    st.set(&format!("mic.{name}.noise_dbfs"), &format!("{:.1}", c.noise_dbfs))?;
+    st.set(&format!("mic.{name}.speech_peak_dbfs"), &format!("{:.1}", c.speech_peak_dbfs))?;
+    println!("stored under {} for mic {name}", data.join("astromech.sqlite").display());
+    println!("paste into astromech.toml: min_level_dbfs = {:.1}", c.min_level_dbfs);
     Ok(())
 }
 

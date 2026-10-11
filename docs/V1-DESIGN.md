@@ -808,6 +808,15 @@ Total about **11 weeks**.
 - Playback is `astromech_voice::mixer`: a new line replaces the queue; PTT down and the kill switch `cut` it (Kokoro cannot leak into the next PTT clip). cpal on Windows; async PlaySoundW if there is no device.
 - Spoken gear lines: "Landing gear deployed." / "already deployed."
 
+### 7.13 As built in M3 voice v1 (11 Oct 2026)
+- **Chosen mic:** `[voice] mic` is a name substring; empty uses the Windows default. The device is logged on every PTT clip. `--list-mics` prints devices.
+- **Level correction:** after the gate, `astromech_voice::gain` boosts speech frames toward −6 dBFS (max +30 dB) and leaves frames under the noise floor + 6 dB alone.
+- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI stays M4.
+- **Personal aliases:** a did-you-mean "yes" stores transcript → command (cap 200). Policy still gates the command.
+- **Extra T1:** flight assist (flag bit 5 = FA *off*), HUD analysis/combat, panels and maps (`GuiFocus`), throttle to zero (unverified; refused near a body in supercruise), SRV handbrake / drive assist. Silent running on asks "Silent running produces heat. Confirm?" then presses.
+- **Status questions (T0):** fuel, cargo, jump range, location, jumps left, hull, shields, credits/rebuy, ship, legal state — from Status.json, journal `Loadout`/`LoadGame`, Cargo.json, NavRoute.json.
+- **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`.
+
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:
 1. **Default screen:** the window opens on **Activities**.

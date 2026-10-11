@@ -79,8 +79,10 @@ diagnostics. Updates are manual: run a newer installer.
 
 A Windows console preview of the first vertical slice: hold push-to-talk, say **"gear down"**,
 and astromech presses your landing-gear key, says "Landing gear deployed.", and checks Status.json
-to confirm it worked. It also understands lights, hardpoints, cargo scoop and night vision, but
-only presses keys that have a **keyboard** binding in your active ship preset.
+to confirm it worked. It also understands lights, hardpoints, cargo scoop, night vision, flight assist,
+silent running (asks before turning on), HUD mode, maps and panels, throttle to zero,
+and read-only status questions (fuel, cargo, location, …). It only presses keys that
+have a **keyboard** binding in your active ship preset.
 
 **Safe conditions for the gear test: in normal space only.** Not docked, not landed, not in
 supercruise, not in a fight, ideally hovering or drifting well clear of a station or planet
@@ -99,7 +101,8 @@ an unexpected gear change can't hurt.
    name exactly `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech
    refuses to start and names the file it found. The console's first lines show the config
    path it used. It also refuses to start without a `ptt` button (except `--listen`,
-   `--health`, `--transcribe` and `--download-models`).
+   `--health`, `--transcribe`, `--download-models`, `--list-mics`, `--eval` and
+   `--calibrate-files`).
    - `ptt` is preset to `{ device = "231D3201", key = "Joy_4" }` (the Omni Throttle left-stick
      button 4 that worked as PTT in S9).
    - Set `kill_switch` to a spare button. To see a button's name, run
@@ -133,7 +136,12 @@ an unexpected gear change can't hurt.
 loudest frame … dBFS; transcribing`. Taps under 300 ms, near-silent clips (loudest frame below
 −45 dBFS) and noise-only transcripts ("Mm-hmm.", "Yeah.") are ignored without a reply. A switch
 bounce shows as `PTT bounce ignored`. If real speech gets ignored as too quiet, lower
-`min_level_dbfs` in `[voice]` (e.g. to −55).
+`min_level_dbfs` in `[voice]` (e.g. to −55). Set `mic` to a device-name substring
+if SteamVR stole the Windows default; `--list-mics` lists them. After the gate,
+clips are gain-normalised toward −6 dBFS. `save_clips = true` keeps WAVs under
+`data/clips` for `astromech-core --eval DIR`. `--calibrate-files silent.wav
+gear.wav …` stores a per-device gate. A confirmed "Did you mean …?" is remembered
+as a personal alias.
 
 **If PTT does nothing:** start with `astromech-core.exe --debug-input`. Every button press is
 logged with its device ID and Elite name (e.g. `input: button Joy_15 on 231D3201 (...) down ->

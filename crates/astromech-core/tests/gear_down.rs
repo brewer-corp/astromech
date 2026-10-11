@@ -17,7 +17,7 @@ use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::Duration;
 
-const GEAR_DOWN: ToolCall = ToolCall { toggle: Toggle::LandingGear, target: Target::On };
+const GEAR_DOWN: ToolCall = ToolCall::Toggle { toggle: Toggle::LandingGear, target: Target::On };
 
 fn key(n: &str) -> ScanKey {
     match lookup(n) {
@@ -219,7 +219,7 @@ fn state_rules_press_nothing() {
 #[test]
 fn no_keyboard_binding_refuses_clearly() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
-    let lights = ToolCall { toggle: Toggle::Lights, target: Target::On };
+    let lights = ToolCall::Toggle { toggle: Toggle::Lights, target: Target::On };
     assert!(
         matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("I can't switch lights"))
     );
@@ -282,7 +282,7 @@ fn real_game_round_two() {
     for t in ["Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus."] {
         assert!(matches!(a.handle(t, Origin::Voice), Handled::NotAvailable("supercruise")), "{t}");
     }
-    assert!(r.speaker.take().iter().all(|s| s.starts_with("I can't do that yet. Supercruise")));
+    assert!(r.speaker.take().iter().all(|s| s.starts_with("Supercruise isn't available yet")));
     // "You're down." asks; "Yeah." confirms it.
     assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
     match a.handle("Yeah.", Origin::Voice) {
@@ -338,6 +338,49 @@ fn journal_rollover_and_saved_positions() {
     let lb = std::fs::metadata(&b).unwrap().len();
     assert_eq!(s.journal_offset(&a.display().to_string()).unwrap(), Some((la, la)));
     assert_eq!(s.journal_offset(&b.display().to_string()).unwrap(), Some((lb, lb)));
+}
+
+#[test]
+fn status_questions_are_spoken_not_pressed() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let a = Assistant::new(r.runner.clone());
+    match a.handle("how much fuel", Origin::Voice) {
+        Handled::Ran { command: "status.fuel", outcome: Outcome::Spoken(s) } => {
+            assert!(s.contains("32"), "{s}");
+        }
+        h => panic!("{h:?}"),
+    }
+    assert!(r.game.log.lock().unwrap().is_empty());
+}
+
+#[test]
+fn silent_running_asks_then_runs() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let a = Assistant::new(r.runner.clone());
+    assert!(matches!(
+        a.handle("silent running on", Origin::Voice),
+        Handled::Asked { command: "silent_running.on", .. }
+    ));
+    assert!(r.speaker.take().iter().any(|s| s.contains("heat")));
+    let h = a.handle("yes", Origin::Voice);
+    assert!(matches!(h, Handled::Ran { command: "silent_running.on", outcome: Outcome::NoBinding(_) }), "{h:?}");
+}
+
+#[test]
+fn did_you_mean_yes_learns_alias() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
+    let a = Assistant::new(r.runner.clone());
+    assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+    match a.handle("yes", Origin::Voice) {
+        Handled::Ran { command: "landing_gear.down", outcome } => {
+            assert!(matches!(sent(outcome), Verified::Confirmed { .. }))
+        }
+        h => panic!("{h:?}"),
+    }
+    match a.handle("You're down.", Origin::Voice) {
+        Handled::Ran { command: "landing_gear.down", outcome: Outcome::Already(_) } => {}
+        h => panic!("alias should execute, {h:?}"),
+    }
 }
 
 fn wait(f: impl Fn() -> bool) {

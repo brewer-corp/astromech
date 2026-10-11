@@ -25,6 +25,9 @@ pub struct Recorder {
     errors: Arc<Mutex<StreamErrors>>,
     /// Streams rebuilt after a stall or a lost device.
     pub restarts: u32,
+    wanted: Option<String>,
+    /// Windows default device name when the stream was opened (for the "default changed" warning).
+    pub default_name: Option<String>,
 }
 
 /// Stream errors reported by cpal (e.g. WASAPI's "A buffer underrun or overrun occurred.").
@@ -71,10 +74,22 @@ impl Recorder {
     }
 
     pub fn start() -> Result<Self> {
+        Self::start_named(None)
+    }
+
+    /// `want` is a case-insensitive exact or substring match of the device name. None: default.
+    pub fn start_named(want: Option<&str>) -> Result<Self> {
         let ring = Arc::new((Mutex::new(Ring { buf: VecDeque::new(), total: 0, last_cb: None }), Condvar::new()));
         let errors = Arc::new(Mutex::new(StreamErrors::default()));
-        let (stream, rate, name, channels, format) = build(&ring, &errors)?;
-        Ok(Recorder { ring, _stream: stream, rate, name, channels, format, errors, restarts: 0 })
+        let wanted = want.map(str::trim).filter(|s| !s.is_empty()).map(str::to_string);
+        let (stream, rate, name, channels, format, default_name) = build(&ring, &errors, wanted.as_deref())?;
+        Ok(Recorder { ring, _stream: stream, rate, name, channels, format, errors, restarts: 0, wanted, default_name })
+    }
+
+    pub fn list_names() -> Vec<String> {
+        let host = cpal::default_host();
+        let Ok(devs) = host.input_devices() else { return vec![] };
+        devs.map(|d| device_label(&d)).collect()
     }
 
     /// Errors since the last call (for the log).
@@ -104,7 +119,9 @@ impl Recorder {
         if !lost && !self.stalled(Duration::from_millis(1500)) {
             return Ok(false);
         }
-        let (stream, rate, name, channels, format) = build(&self.ring, &self.errors)?;
+        let (stream, rate, name, channels, format, default_name) =
+            build(&self.ring, &self.errors, self.wanted.as_deref())?;
+        self.default_name = default_name;
         if rate != self.rate {
             // A different device rate would make old positions meaningless: start a fresh ring.
             let mut r = self.ring.0.lock().unwrap();
@@ -121,12 +138,31 @@ impl Recorder {
     }
 }
 
-type Built = (cpal::Stream, u32, String, u16, String);
+type Built = (cpal::Stream, u32, String, u16, String, Option<String>);
 
-fn build(ring: &Arc<(Mutex<Ring>, Condvar)>, errors: &Arc<Mutex<StreamErrors>>) -> Result<Built> {
+fn device_label(dev: &cpal::Device) -> String {
+    dev.description().map(|d| d.name().to_string()).unwrap_or_else(|_| "input".into())
+}
+
+fn pick_device(host: &cpal::Host, want: Option<&str>) -> Result<(cpal::Device, String, Option<String>)> {
+    let default = host.default_input_device();
+    let default_name = default.as_ref().map(device_label);
+    let Some(want) = want.map(str::trim).filter(|s| !s.is_empty()) else {
+        let d = default.ok_or_else(|| anyhow!("no default microphone (input device) found"))?;
+        let n = device_label(&d);
+        return Ok((d, n, default_name));
+    };
+    let devices: Vec<cpal::Device> = host.input_devices().context("list microphones")?.collect();
+    let names: Vec<String> = devices.iter().map(device_label).collect();
+    let picked = crate::gain::pick_name(want, &names)
+        .ok_or_else(|| anyhow!("microphone {want:?} not found; available: {}", names.join(", ")))?;
+    let dev = devices.into_iter().find(|d| device_label(d) == picked).expect("name came from this list");
+    Ok((dev, picked, default_name))
+}
+
+fn build(ring: &Arc<(Mutex<Ring>, Condvar)>, errors: &Arc<Mutex<StreamErrors>>, want: Option<&str>) -> Result<Built> {
     let host = cpal::default_host();
-    let dev = host.default_input_device().ok_or_else(|| anyhow!("no default microphone (input device) found"))?;
-    let name = dev.description().map(|d| d.name().to_string()).unwrap_or_else(|_| "default input".into());
+    let (dev, name, default_name) = pick_device(&host, want)?;
     let sup = dev.default_input_config().context("query microphone format")?;
     let rate = sup.sample_rate();
     let channels = sup.channels();
@@ -185,7 +221,7 @@ fn build(ring: &Arc<(Mutex<Ring>, Condvar)>, errors: &Arc<Mutex<StreamErrors>>) 
     }
     .context("open microphone stream")?;
     stream.play().context("start microphone stream")?;
-    Ok((stream, rate, name, channels, format))
+    Ok((stream, rate, name, channels, format, default_name))
 }
 
 impl Recorder {

@@ -261,6 +261,7 @@ dependencies = [
 name = "astromech-tools"
 version = "0.1.0"
 dependencies = [
+ "astromech-gamestate",
  "astromech-policy",
  "astromech-proto",
  "astromech-status",

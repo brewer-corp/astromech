@@ -79,6 +79,10 @@ pub struct Voice {
     pub min_hold_ms: u64,
     /// Clips whose loudest 30 ms frame is below this level (dBFS) are dropped silently.
     pub min_level_dbfs: f32,
+    /// Input device name (substring). Empty: Windows default recording device.
+    pub mic: String,
+    /// Save gated PTT clips (WAV + sidecar JSON) under `data/clips` for the eval harness.
+    pub save_clips: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -123,6 +127,8 @@ impl Default for Voice {
             post_roll_ms: 200,
             min_hold_ms: 300,
             min_level_dbfs: -45.0,
+            mic: String::new(),
+            save_clips: false,
         }
     }
 }

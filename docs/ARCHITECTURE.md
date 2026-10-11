@@ -13,7 +13,7 @@
 - **Decision**: an opinionated call. It can be revisited if a spike says otherwise.
 
 **Revision history**
-- **v0.14 (11 Oct):** **Voice colour.** Spoken replies stay on Kokoro; a cockpit-PA DSP chain (the §5.10 "radio DSP") is the v1 default so they sit in the same register as Elite's COVAS. Product decision in V1-DESIGN.md §6.4. Current playback is still unprocessed `PlaySoundW`; DSP ships in M3.
+- **v0.14 (11 Oct):** **Voice colour.** Spoken replies stay on Kokoro; a cockpit-PA DSP chain (the §5.10 "radio DSP") is the v1 default so they sit in the same register as Elite's COVAS. Product decision in V1-DESIGN.md §6.4. Mixer + Cockpit DSP shipped in the M3 output-path slice; remaining M3 (chosen mic, gain, T1 extras, status questions, aliases, eval) in V1-DESIGN.md §7.13.
 - **v0.1 (8 Oct, morning):** first draft.
 - **v0.2 (8 Oct, evening):** applies Sumeet's answers.
   - MVP voice is local only, with push-to-talk and no wake word. Cloud realtime voice becomes a later, opt-in phase.
@@ -1537,6 +1537,13 @@ Implementation notes and divergences from the design above:
   - **Mic stream errors.** The WASAPI "A buffer underrun or overrun occurred." is counted and logged, and capture continues. Ring positions count only delivered samples, so an xrun just shortens a clip. A stalled stream (no callback for 1.5 s) or a lost or changed device is rebuilt on the same ring.
   - **Missing keyboard key.** The spoken refusal now uses Elite's control name: "I can't switch night vision: it isn't bound to anything in your controls. In Elite, open Options, Controls, and give Night Vision a keyboard key."
 - **Not in the slice:** the tray, the app window/API, a confirm button, SRV-specific lights, `request docking`, `plot route`, supercruise and jumps (recognised, answered "I can't do that yet").
+
+### 17.9 M3 voice v1 (11 Oct 2026)
+
+On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
+- Chosen input device (`[voice] mic`), per-clip gain normalisation (`astromech_voice::gain`), calibration stored per device, personal aliases from did-you-mean confirms (SQLite, cap 200).
+- Extra T1 tools in `astromech-tools` (flight assist inverted flag, silent running spoken confirm on ON, HUD mode, maps/panels via `GuiFocus`, throttle to zero unverified, SRV toggles). T0 status questions answered from the snapshot (fuel, cargo, route, hull, shields, credits, ship, legal).
+- Debug clip save + `astromech-core --eval` grammar harness (no models required). Settings colour row and onboarding UI remain **M4**.
 
 ## 18. The app window and module architecture (v0.7)
 

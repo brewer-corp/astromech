@@ -5,8 +5,8 @@ use crate::health::Shared;
 use crate::hub::StateHub;
 use crate::speech::Speaker;
 use astromech_policy::{Denial, Policy, PressError};
-use astromech_proto::Origin;
-use astromech_tools::{plan, Plan, ToolCall};
+use astromech_proto::{Origin, Tier};
+use astromech_tools::{authorize_plan, plan_with, tool_name, Plan, ToolCall, Verify};
 use std::sync::Arc;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
@@ -21,6 +21,8 @@ pub enum Verified {
     NotConfirmed,
     /// Kill switch.
     Cancelled,
+    /// No Status.json signal (throttle to zero).
+    Unverified,
 }
 
 #[derive(Debug)]
@@ -32,6 +34,9 @@ pub enum Outcome {
     PressFailed(PressError),
     /// Pressed; the handle resolves when verification ends.
     Sent(JoinHandle<Verified>),
+    Spoken(String),
+    /// Silent running on: spoken warning, nothing pressed yet.
+    NeedsConfirm(String),
 }
 
 pub struct Runner {
@@ -46,9 +51,21 @@ pub struct Runner {
 
 impl Runner {
     pub fn run(&self, call: ToolCall, origin: Origin) -> Outcome {
-        let spec = call.toggle.spec();
+        self.execute(call, origin, false)
+    }
+
+    /// After the user confirmed a spoken warning.
+    pub fn run_confirmed(&self, call: ToolCall, origin: Origin) -> Outcome {
+        self.execute(call, origin, true)
+    }
+
+    fn execute(&self, call: ToolCall, origin: Origin, confirmed: bool) -> Outcome {
         let say = |s: &str| self.speaker.say(s);
-        let (action, flag, expect, confirm) = match plan(call, self.hub.snapshot().flags()) {
+        let mut planned = plan_with(call, &self.hub.snapshot());
+        if confirmed {
+            planned = authorize_plan(planned);
+        }
+        let (action, verify, confirm) = match planned {
             Plan::Already(m) => {
                 say(&m);
                 return Outcome::Already(m);
@@ -57,21 +74,31 @@ impl Runner {
                 say(&m);
                 return Outcome::Refused(m);
             }
-            Plan::Press { action, flag, expect_set, confirm, .. } => (action, flag, expect_set, confirm),
+            Plan::Speak(m) => {
+                say(&m);
+                return Outcome::Spoken(m);
+            }
+            Plan::Confirm { prompt, .. } => {
+                say(&prompt);
+                return Outcome::NeedsConfirm(prompt);
+            }
+            Plan::Press { action, verify, confirm, .. } => (action, verify, confirm),
         };
+        let noun = astromech_tools::action_noun(call);
         let combo = {
             let b = self.binds.read().unwrap();
             match b.keyboard(action) {
                 Some(k) => k,
                 None => {
-                    let m = b.missing_reason(action, spec.noun);
+                    let m = b.missing_reason(action, noun);
                     drop(b);
                     say(&m);
                     return Outcome::NoBinding(m);
                 }
             }
         };
-        let ticket = match self.policy.authorize(spec.name, spec.tier, origin, Instant::now()) {
+        let name = tool_name(call);
+        let ticket = match self.policy.authorize(name, Tier::T1, origin, Instant::now()) {
             Ok(t) => t,
             Err(d) => {
                 say(&d.spoken());
@@ -82,20 +109,32 @@ impl Runner {
             say(&e.spoken());
             return Outcome::PressFailed(e);
         }
-        // Optimistic confirmation.
         say(&confirm);
         let hub = self.hub.clone();
         let log = self.log.clone();
         let timeout = self.verify_timeout;
-        let name = spec.name;
         let t0 = Instant::now();
         let h = std::thread::spawn(move || {
-            let v = if hub.wait_flag(flag, expect, timeout, &|| ticket.is_cancelled()) {
-                Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
-            } else if ticket.is_cancelled() {
-                Verified::Cancelled
-            } else {
-                Verified::NotConfirmed
+            let v = match verify {
+                Verify::None => Verified::Unverified,
+                Verify::Flag { bit, expect_set } => {
+                    if hub.wait_flag(bit, expect_set, timeout, &|| ticket.is_cancelled()) {
+                        Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
+                    } else if ticket.is_cancelled() {
+                        Verified::Cancelled
+                    } else {
+                        Verified::NotConfirmed
+                    }
+                }
+                Verify::GuiFocus(want) => {
+                    if hub.wait_gui(want, timeout, &|| ticket.is_cancelled()) {
+                        Verified::Confirmed { ms: t0.elapsed().as_millis() as u64 }
+                    } else if ticket.is_cancelled() {
+                        Verified::Cancelled
+                    } else {
+                        Verified::NotConfirmed
+                    }
+                }
             };
             log(&match &v {
                 Verified::Confirmed { ms } => format!("{name}: confirmed in {ms} ms"),
@@ -103,6 +142,7 @@ impl Runner {
                     format!("{name}: not confirmed within {:.1} s (no retry)", timeout.as_secs_f64())
                 }
                 Verified::Cancelled => format!("{name}: verification cancelled (kill switch)"),
+                Verified::Unverified => format!("{name}: sent (no status flag)"),
             });
             v
         });
