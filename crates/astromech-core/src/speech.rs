@@ -222,6 +222,18 @@ pub fn fixed_phrases() -> Vec<String> {
         "Kill switch on. All actions stopped.",
         "Re-armed.",
         "Elite isn't the active window, so I didn't press anything.",
+        "Silent running produces heat. Confirm?",
+        "Silent running on.",
+        "Flight assist on.",
+        "Flight assist off.",
+        "HUD analysis mode.",
+        "HUD combat mode.",
+        "Galaxy map open.",
+        "System map open.",
+        "Panel closed.",
+        "Throttle zero.",
+        "No route plotted.",
+        "Didn't catch that.",
     ] {
         v.push(s.into());
     }

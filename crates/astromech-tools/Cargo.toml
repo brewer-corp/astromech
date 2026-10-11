@@ -15,3 +15,4 @@ workspace = true
 astromech-proto.workspace = true
 astromech-policy.workspace = true
 astromech-status.workspace = true
+astromech-gamestate.workspace = true

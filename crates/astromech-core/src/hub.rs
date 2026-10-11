@@ -78,4 +78,23 @@ impl StateHub {
             g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).unwrap().0;
         }
     }
+
+    /// Wait until `GuiFocus` equals `want`.
+    pub fn wait_gui(&self, want: u64, timeout: Duration, cancelled: &dyn Fn() -> bool) -> bool {
+        let end = Instant::now() + timeout;
+        let mut g = self.state.lock().unwrap();
+        loop {
+            if g.0.status_seen && g.0.gui_focus.unwrap_or(0) == want {
+                return true;
+            }
+            if cancelled() {
+                return false;
+            }
+            let now = Instant::now();
+            if now >= end {
+                return false;
+            }
+            g = self.cv.wait_timeout(g, (end - now).min(Duration::from_millis(25))).unwrap().0;
+        }
+    }
 }

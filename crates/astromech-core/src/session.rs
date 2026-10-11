@@ -104,6 +104,7 @@ pub fn short(h: &crate::assistant::Handled) -> String {
             "{command}: {}",
             match outcome {
                 Outcome::Sent(_) => "pressed, verifying".to_string(),
+                Outcome::Spoken(s) => s.clone(),
                 o => format!("{o:?}"),
             }
         ),
@@ -234,7 +235,13 @@ impl Session {
             verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
             log: Arc::new(|s: &str| log(s)),
         });
-        let assistant = Arc::new(Assistant::new(runner.clone()));
+        let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
+            .ok()
+            .map(|s| Arc::new(std::sync::Mutex::new(s)));
+        let assistant = Arc::new(match alias_store {
+            Some(st) => Assistant::new(runner.clone()).with_store(st),
+            None => Assistant::new(runner.clone()),
+        });
 
         let voice = if args.no_voice {
             "voice off (--no-voice)".to_string()
@@ -274,6 +281,26 @@ impl Session {
 }
 
 #[cfg(windows)]
+struct ClipJob {
+    samples: Vec<f32>,
+    rate: u32,
+    sidecar: Option<std::path::PathBuf>,
+    meta: serde_json::Value,
+}
+
+#[cfg(windows)]
+fn write_sidecar(path: &std::path::Path, meta: &serde_json::Value, transcript: &str, command: Option<&str>) {
+    let mut v = meta.clone();
+    if let serde_json::Value::Object(m) = &mut v {
+        m.insert("transcript".into(), transcript.into());
+        if let Some(c) = command {
+            m.insert("command".into(), c.into());
+        }
+    }
+    let _ = std::fs::write(path, serde_json::to_string_pretty(&v).unwrap_or_default());
+}
+
+#[cfg(windows)]
 fn start_voice(
     cfg: &Config,
     assistant: Arc<Assistant>,
@@ -297,10 +324,16 @@ fn start_voice(
         None => log("kill switch: NOT SET (use !kill in the console)"),
     }
     let have_stt = stt.is_some();
+    let want_mic = cfg.voice.mic.trim();
     let mic = if stt.is_some() {
-        match astromech_voice::mic::Recorder::start() {
+        match astromech_voice::mic::Recorder::start_named((!want_mic.is_empty()).then_some(want_mic)) {
             Ok(m) => {
                 log(&format!("microphone: {} ({} Hz)", m.device_name(), m.sample_rate()));
+                if let Some(d) = &m.default_name {
+                    if !d.eq_ignore_ascii_case(&m.device_name()) {
+                        log(&format!("microphone: Windows default is {d}; recording the chosen device instead"));
+                    }
+                }
                 Some(m)
             }
             Err(e) => {
@@ -311,13 +344,13 @@ fn start_voice(
     } else {
         None
     };
-    let (jtx, jrx) = std::sync::mpsc::channel::<(Vec<f32>, u32)>();
+    let (jtx, jrx) = std::sync::mpsc::channel::<ClipJob>();
     if let Some(mut stt) = stt {
         let a = assistant.clone();
         std::thread::Builder::new().name("stt".into()).spawn(move || {
-            while let Ok((samples, rate)) = jrx.recv() {
+            while let Ok(job) = jrx.recv() {
                 let t0 = std::time::Instant::now();
-                match stt.transcribe(&samples, rate) {
+                match stt.transcribe(&job.samples, job.rate) {
                     Ok(t) if t.is_empty() => a.runner.speaker.say("Didn't catch that."),
                     Ok(t) => {
                         let h = a.handle(&t, Origin::Voice);
@@ -326,6 +359,15 @@ fn start_voice(
                         } else {
                             log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
                             log(&format!("  -> {}", short(&h)));
+                        }
+                        if let Some(p) = job.sidecar {
+                            let cmd = match &h {
+                                crate::assistant::Handled::Ran { command, .. }
+                                | crate::assistant::Handled::Asked { command, .. }
+                                | crate::assistant::Handled::NotAvailable(command) => Some(*command),
+                                _ => None,
+                            };
+                            write_sidecar(&p, &job.meta, &t, cmd);
                         }
                     }
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
@@ -337,7 +379,25 @@ fn start_voice(
     let post = Duration::from_millis(cfg.voice.post_roll_ms);
     let rearm_hold = Duration::from_millis(cfg.controls.rearm_hold_ms);
     let debounce = Duration::from_millis(cfg.controls.debounce_ms);
-    let (min_hold, min_level) = (cfg.voice.min_hold_ms, cfg.voice.min_level_dbfs);
+    let min_hold = cfg.voice.min_hold_ms;
+    let mut min_level = cfg.voice.min_level_dbfs;
+    if let Some(m) = &mic {
+        let key = format!("mic.{}.min_level_dbfs", m.device_name());
+        if let Ok(st) = astromech_store::Store::open(&cfg.data_dir().join("astromech.sqlite")) {
+            if let Ok(Some(v)) = st.get(&key) {
+                if let Ok(n) = v.parse::<f32>() {
+                    log(&format!("microphone: using calibrated min_level_dbfs {n:.0} for {}", m.device_name()));
+                    min_level = n;
+                }
+            }
+        }
+    }
+    let save_clips = cfg.voice.save_clips;
+    let clips_dir = cfg.data_dir().join("clips");
+    if save_clips {
+        let _ = std::fs::create_dir_all(&clips_dir);
+        log(&format!("debug: saving PTT clips under {}", clips_dir.display()));
+    }
     let t_start = std::time::Instant::now();
     let secs = move |t: std::time::Instant| t.duration_since(t_start).as_secs_f64();
     std::thread::Builder::new().name("ptt".into()).spawn(move || {
@@ -408,8 +468,9 @@ fn start_voice(
                         let samples = m.take(f, m.position());
                         let st = crate::speech::clip_stats(&samples, m.sample_rate());
                         let head = format!(
-                            "PTT up (t={:.3} s) — held {held} ms; clip {} ms, RMS {:.0} dBFS, loudest frame {:.0} dBFS",
+                            "PTT up (t={:.3} s) — {} held {held} ms; clip {} ms, RMS {:.0} dBFS, loudest frame {:.0} dBFS",
                             secs(up_at),
+                            m.device_name(),
                             st.audio_ms,
                             st.rms_dbfs,
                             st.peak_frame_dbfs
@@ -417,8 +478,27 @@ fn start_voice(
                         use crate::speech::{gate, Gate};
                         match gate(held, &st, min_hold, min_level) {
                             Gate::Pass => {
-                                log(&format!("{head}; transcribing"));
-                                let _ = jtx.send((samples, m.sample_rate()));
+                                let n = astromech_voice::gain::normalise(&samples, m.sample_rate());
+                                log(&format!("{head}; gain {:+.0} dB; transcribing", n.gain_db));
+                                let mut sidecar = None;
+                                let mut meta = serde_json::json!({});
+                                if save_clips {
+                                    let stamp = chrono::Utc::now().format("%Y%m%dT%H%M%S%.3fZ");
+                                    let wav = clips_dir.join(format!("{stamp}.wav"));
+                                    if astromech_voice::wav::write_mono_i16(&wav, m.sample_rate(), &n.samples).is_ok() {
+                                        sidecar = Some(wav.with_extension("json"));
+                                        meta = serde_json::json!({
+                                            "device": m.device_name(),
+                                            "rate": m.sample_rate(),
+                                            "held_ms": held,
+                                            "rms_dbfs": st.rms_dbfs,
+                                            "peak_frame_dbfs": st.peak_frame_dbfs,
+                                            "gain_db": n.gain_db,
+                                            "wav": wav.file_name().map(|x| x.to_string_lossy().to_string()),
+                                        });
+                                    }
+                                }
+                                let _ = jtx.send(ClipJob { samples: n.samples, rate: m.sample_rate(), sidecar, meta });
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
                             Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),

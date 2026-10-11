@@ -174,6 +174,20 @@ impl Tailer {
             self.stats.lock().unwrap().status_reads += 1;
             self.hub.apply_status(&s);
         }
+        self.on_companions();
+    }
+
+    fn on_companions(&mut self) {
+        if let Ok(b) = std::fs::read(self.dir.join("Cargo.json")) {
+            if let Some(c) = astromech_journal::parse_cargo(&b) {
+                self.hub.update(|g| g.apply_cargo(&c));
+            }
+        }
+        if let Ok(b) = std::fs::read(self.dir.join("NavRoute.json")) {
+            if let Some(r) = astromech_journal::parse_nav_route(&b) {
+                self.hub.update(|g| g.apply_route(&r));
+            }
+        }
     }
 }
 
@@ -215,7 +229,8 @@ pub fn start(
                 let mut status = false;
                 let mut journal = false;
                 for p in &ev.paths {
-                    if p.file_name().map(|n| n == "Status.json").unwrap_or(false) {
+                    let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+                    if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
                         status = true;
                     } else if is_journal(p) {
                         journal = true;
@@ -224,7 +239,8 @@ pub fn start(
                 // Coalesce a burst of notifications.
                 while let Ok(Ok(e)) = rx.try_recv() {
                     for p in &e.paths {
-                        if p.file_name().map(|n| n == "Status.json").unwrap_or(false) {
+                        let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
                             status = true;
                         } else if is_journal(p) {
                             journal = true;

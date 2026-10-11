@@ -5,10 +5,18 @@
 
 use rusqlite::{Connection, Result};
 
+pub const MAX_ALIASES: usize = 200;
+
 const MIGRATIONS: &[&str] = &[
     // v1
     "CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
      CREATE TABLE journal_files (path TEXT PRIMARY KEY, size INTEGER NOT NULL, offset INTEGER NOT NULL);",
+    // v2 — personal phrase learning (V1-DESIGN.md §1.5 #4)
+    "CREATE TABLE aliases (
+        transcript TEXT PRIMARY KEY,
+        command TEXT NOT NULL,
+        count INTEGER NOT NULL DEFAULT 1
+     );",
 ];
 
 pub struct Store {
@@ -66,6 +74,39 @@ impl Store {
             None => None,
         })
     }
+
+    pub fn aliases(&self) -> Result<Vec<(String, String)>> {
+        let mut st = self.conn.prepare("SELECT transcript, command FROM aliases ORDER BY count DESC")?;
+        let rows = st.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        rows.collect()
+    }
+
+    /// Remember `transcript` → `command`. Capped at [`MAX_ALIASES`]; oldest (lowest count) drop first.
+    pub fn learn_alias(&self, transcript: &str, command: &str) -> Result<bool> {
+        let t = transcript.trim();
+        if t.is_empty() {
+            return Ok(false);
+        }
+        let n: i64 = self.conn.query_row("SELECT COUNT(*) FROM aliases", [], |r| r.get(0))?;
+        if n >= MAX_ALIASES as i64 {
+            let exists: i64 =
+                self.conn.query_row("SELECT COUNT(*) FROM aliases WHERE transcript = ?1", [t], |r| r.get(0))?;
+            if exists == 0 {
+                self.conn.execute(
+                    "DELETE FROM aliases WHERE transcript = (
+                        SELECT transcript FROM aliases ORDER BY count ASC, transcript ASC LIMIT 1
+                    )",
+                    [],
+                )?;
+            }
+        }
+        self.conn.execute(
+            "INSERT INTO aliases(transcript, command, count) VALUES (?1, ?2, 1)
+             ON CONFLICT(transcript) DO UPDATE SET command = ?2, count = count + 1",
+            (t, command),
+        )?;
+        Ok(true)
+    }
 }
 
 #[cfg(test)]
@@ -83,5 +124,18 @@ mod tests {
         s.set_journal_offset("J.log", 10, 5).unwrap();
         s.set_journal_offset("J.log", 20, 20).unwrap();
         assert_eq!(s.journal_offset("J.log").unwrap(), Some((20, 20)));
+    }
+
+    #[test]
+    fn learns_aliases_and_caps() {
+        let s = Store::in_memory().unwrap();
+        assert!(s.learn_alias("you're down", "landing_gear.down").unwrap());
+        assert!(s.learn_alias("you're down", "landing_gear.down").unwrap());
+        let a = s.aliases().unwrap();
+        assert_eq!(a, vec![("you're down".into(), "landing_gear.down".into())]);
+        for i in 0..MAX_ALIASES {
+            s.learn_alias(&format!("t{i}"), "lights.on").unwrap();
+        }
+        assert_eq!(s.aliases().unwrap().len(), MAX_ALIASES);
     }
 }

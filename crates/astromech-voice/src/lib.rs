@@ -7,6 +7,7 @@
 //! - [`score`]: transcript normalisation and word error rate (S9 accuracy scoring).
 //! - [`wav`]: mono WAV I/O.
 //! - [`colour`]: Cockpit PA treatment of Kokoro PCM (V1-DESIGN.md §6.4).
+//! - [`gain`]: per-clip level correction and mic-name matching (V1-DESIGN.md §6.2).
 //! - [`mixer`]: barge-in output queue (cpal on Windows).
 //! - [`client`]: spawning and talking to the worker; [`models`]/[`catalog`]/[`download`]: the
 //!   model files (S9 layout, SHA-256-verified downloads); `mic` (cpal) and `player`
@@ -22,6 +23,7 @@ pub mod catalog;
 pub mod client;
 pub mod colour;
 pub mod download;
+pub mod gain;
 #[cfg(windows)]
 pub mod mic;
 pub mod mixer;
