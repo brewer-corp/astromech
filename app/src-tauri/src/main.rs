@@ -110,6 +110,8 @@ struct GameCfg {
     bindings_dir: String,
     #[serde(default)]
     game_dir: String,
+    #[serde(default)]
+    journal_dir: String,
 }
 #[derive(Deserialize, Default)]
 struct Cfg {
@@ -180,6 +182,34 @@ fn binds_restore(b: tauri::State<Binds>, backup: PathBuf) -> Result<Value, Strin
 #[tauri::command]
 fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, joy: Option<String>) -> Result<Value, String> {
     with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
+}
+
+fn journal_dir() -> PathBuf {
+    let cfg: Cfg = std::fs::read_to_string(app_dir().join("astromech.toml"))
+        .ok()
+        .and_then(|t| toml::from_str(&t).ok())
+        .unwrap_or_default();
+    let j = cfg.game.journal_dir.trim();
+    if !j.is_empty() {
+        return PathBuf::from(j);
+    }
+    std::env::var_os("USERPROFILE")
+        .or_else(|| std::env::var_os("HOME"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("Saved Games")
+        .join("Frontier Developments")
+        .join("Elite Dangerous")
+}
+
+/// Engineering materials from the journal, laid out like the in-game traders.
+#[tauri::command]
+fn materials_inventory() -> Result<Value, String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    Ok(serde_json::to_value(astromech_materials::from_journal_dir(&dir)).map_err(|e| e.to_string())?)
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -303,7 +333,8 @@ fn main() {
             binds_copy,
             binds_set_active,
             binds_restore,
-            binds_set_override
+            binds_set_override,
+            materials_inventory
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

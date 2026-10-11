@@ -27,6 +27,7 @@ toml = "0.9"
 anyhow = "1"
 astromech-keybinds = { path = "../../crates/astromech-keybinds" }
 astromech-input = { path = "../../crates/astromech-input" }
+astromech-materials = { path = "../../crates/astromech-materials" }
 
 [profile.release]
 opt-level = "s"

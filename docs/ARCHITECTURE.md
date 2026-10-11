@@ -1,4 +1,4 @@
-# astromech, an Elite Dangerous copilot: architecture (v0.14 draft)
+# astromech, an Elite Dangerous copilot: architecture (v0.15 draft)
 
 *Revised 11 Oct 2026 (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
 
@@ -14,6 +14,7 @@
 
 **Revision history**
 - **v0.14 (11 Oct):** **Voice colour.** Spoken replies stay on Kokoro; a cockpit-PA DSP chain (the §5.10 "radio DSP") is the v1 default so they sit in the same register as Elite's COVAS. Product decision in V1-DESIGN.md §6.4. Mixer + Cockpit DSP shipped in the M3 output-path slice; remaining M3 (chosen mic, gain, T1 extras, status questions, aliases, eval) in V1-DESIGN.md §7.13.
+- **v0.15 (11 Oct):** **Materials.** `astromech-materials` folds a login `Materials` snapshot plus later journal deltas into a trader-style grid (raw / manufactured / encoded) in the app window.
 - **v0.1 (8 Oct, morning):** first draft.
 - **v0.2 (8 Oct, evening):** applies Sumeet's answers.
   - MVP voice is local only, with push-to-talk and no wake word. Cloud realtime voice becomes a later, opt-in phase.
@@ -207,7 +208,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, materials, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -230,6 +231,7 @@ astromech/
     astromech-tools/     typed tool registry (depends on policy, never on input)
     astromech-overlay/   egui panels for the VR overlay (stub)
     astromech-store/     SQLite (rusqlite, bundled) config + migrations
+    astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)

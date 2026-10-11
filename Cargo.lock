@@ -176,6 +176,7 @@ name = "astromech-gamestate"
 version = "0.1.0"
 dependencies = [
  "astromech-journal",
+ "astromech-materials",
  "astromech-status",
  "serde",
 ]
@@ -218,6 +219,16 @@ dependencies = [
  "serde_json",
  "tempfile",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "astromech-materials"
+version = "0.1.0"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]

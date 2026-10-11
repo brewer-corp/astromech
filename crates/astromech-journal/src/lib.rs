@@ -67,10 +67,30 @@ pub enum JournalEvent {
     Undocked {
         station_name: String,
     },
+    /// Full ship-materials inventory at login (`Materials`).
+    Materials {
+        raw: Vec<MaterialStack>,
+        manufactured: Vec<MaterialStack>,
+        encoded: Vec<MaterialStack>,
+    },
+    /// Signed counts from collect / discard / trade / craft / synthesis / rewards.
+    MaterialDelta {
+        items: Vec<MaterialStack>,
+    },
     Other {
         event: String,
         raw: serde_json::Value,
     },
+}
+
+/// One material quantity. `count` is absolute in [`JournalEvent::Materials`] and signed in
+/// [`JournalEvent::MaterialDelta`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MaterialStack {
+    pub name: String,
+    pub name_localised: Option<String>,
+    pub count: i64,
+    pub category: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -154,9 +174,82 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         },
         "Docked" => JournalEvent::Docked { station_name: s(&raw, "StationName"), star_system: s(&raw, "StarSystem") },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
+        "Materials" => JournalEvent::Materials {
+            raw: stacks(&raw, "Raw", Some("Raw")),
+            manufactured: stacks(&raw, "Manufactured", Some("Manufactured")),
+            encoded: stacks(&raw, "Encoded", Some("Encoded")),
+        },
+        "MaterialCollected" => JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, 1)] },
+        "MaterialDiscarded" => JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, -1)] },
+        "MaterialTrade" => JournalEvent::MaterialDelta {
+            items: vec![
+                raw.get("Paid").map(|p| stack_signed(p, -1)).unwrap_or_else(empty_stack),
+                raw.get("Received").map(|p| stack_signed(p, 1)).unwrap_or_else(empty_stack),
+            ]
+            .into_iter()
+            .filter(|m| !m.name.is_empty())
+            .collect(),
+        },
+        "EngineerCraft" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Ingredients", -1) },
+        "Synthesis" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
+        "ScientificResearch" => JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, -1)] },
+        "TechnologyBroker" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
+        "MissionCompleted" => JournalEvent::MaterialDelta { items: stacks(&raw, "MaterialsReward", None) },
+        "EngineerContribution" => {
+            let kind = s(&raw, "Type").to_ascii_lowercase();
+            if kind == "materials" || kind == "material" {
+                JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, -1)] }
+            } else {
+                JournalEvent::Other { event, raw }
+            }
+        }
         _ => JournalEvent::Other { event, raw },
     };
     Ok(JournalLine { timestamp, event: ev })
+}
+
+fn empty_stack() -> MaterialStack {
+    MaterialStack { name: String::new(), name_localised: None, count: 0, category: None }
+}
+
+fn stack_name(v: &serde_json::Value) -> String {
+    opt_s(v, "Name").or_else(|| opt_s(v, "Material")).unwrap_or_default()
+}
+
+fn stack_count(v: &serde_json::Value) -> i64 {
+    opt_i(v, "Count").or_else(|| opt_i(v, "Quantity")).unwrap_or(0)
+}
+
+fn stack_one(v: &serde_json::Value, category: Option<&str>) -> MaterialStack {
+    MaterialStack {
+        name: stack_name(v),
+        name_localised: opt_s(v, "Name_Localised").or_else(|| opt_s(v, "Material_Localised")),
+        count: stack_count(v),
+        category: opt_s(v, "Category").or_else(|| category.map(str::to_string)),
+    }
+}
+
+fn stack_signed(v: &serde_json::Value, sign: i64) -> MaterialStack {
+    let mut m = stack_one(v, None);
+    m.count *= sign;
+    m
+}
+
+fn stacks(v: &serde_json::Value, key: &str, category: Option<&str>) -> Vec<MaterialStack> {
+    v.get(key)
+        .and_then(|x| x.as_array())
+        .map(|a| a.iter().map(|it| stack_one(it, category)).filter(|m| !m.name.is_empty()).collect())
+        .unwrap_or_default()
+}
+
+fn stacks_signed(v: &serde_json::Value, key: &str, sign: i64) -> Vec<MaterialStack> {
+    stacks(v, key, None)
+        .into_iter()
+        .map(|mut m| {
+            m.count *= sign;
+            m
+        })
+        .collect()
 }
 
 /// Cargo.json in the journal folder.
@@ -188,20 +281,37 @@ pub fn parse_nav_route(bytes: &[u8]) -> Option<NavRouteSnap> {
     Some(NavRouteSnap { systems })
 }
 
+fn is_journal_name(n: &str) -> bool {
+    n.starts_with("Journal.") && n.ends_with(".log")
+}
+
+/// Journal logs in `dir`, oldest first (file name, then modified time).
+pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
+    let mut v: Vec<(String, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
+        .ok()
+        .into_iter()
+        .flatten()
+        .flatten()
+        .filter(|e| is_journal_name(&e.file_name().to_string_lossy()))
+        .filter_map(|e| {
+            Some((e.file_name().to_string_lossy().into_owned(), e.metadata().ok()?.modified().ok()?, e.path()))
+        })
+        .collect();
+    v.sort();
+    v.into_iter().map(|x| x.2).collect()
+}
+
 /// The newest `Journal.*.log` in `dir` (by file name, which sorts by date in both naming schemes
 /// used since 2015 only within a scheme; the modified time breaks ties).
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
-    let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
-        .ok()?
-        .flatten()
-        .filter(|e| {
-            let n = e.file_name().to_string_lossy().to_string();
-            n.starts_with("Journal.") && n.ends_with(".log")
-        })
-        .filter_map(|e| Some((e.metadata().ok()?.modified().ok()?, e.path())))
-        .collect();
-    v.sort();
-    v.pop().map(|x| x.1)
+    journal_logs(dir).pop()
+}
+
+/// Parse every complete line in a journal file; skip malformed JSON.
+pub fn parse_file(path: &Path) -> Vec<JournalLine> {
+    std::fs::read_to_string(path)
+        .map(|t| t.lines().filter_map(|l| parse_line(l.trim()).ok()).collect())
+        .unwrap_or_default()
 }
 
 #[cfg(test)]
@@ -223,6 +333,54 @@ mod tests {
         )
         .unwrap();
         assert!(matches!(l.event, JournalEvent::LoadGame { credits: Some(123), .. }));
+    }
+
+    #[test]
+    fn materials_snapshot_and_deltas() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"Materials","Raw":[{"Name":"iron","Count":23}],"Encoded":[{"Name":"emissiondata","Count":1}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::Materials { raw, encoded, .. } => {
+                assert_eq!(raw[0].name, "iron");
+                assert_eq!(raw[0].count, 23);
+                assert_eq!(encoded[0].name, "emissiondata");
+            }
+            _ => panic!("expected Materials"),
+        }
+        let l =
+            parse_line(r#"{"timestamp":"t","event":"MaterialCollected","Category":"Raw","Name":"sulphur","Count":2}"#)
+                .unwrap();
+        match l.event {
+            JournalEvent::MaterialDelta { items } => {
+                assert_eq!(items[0].name, "sulphur");
+                assert_eq!(items[0].count, 2);
+            }
+            _ => panic!("expected delta"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"MaterialTrade","Paid":{"Material":"iron","Quantity":6},"Received":{"Material":"vanadium","Quantity":1}}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::MaterialDelta { items } => {
+                assert_eq!(items[0].count, -6);
+                assert_eq!(items[1].count, 1);
+            }
+            _ => panic!("expected trade"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"MissionCompleted","MaterialsReward":[{"Name":"disruptedwakeechoes","Name_Localised":"Atypical Disrupted Wake Echoes","Category":"$MICRORESOURCE_CATEGORY_Encoded;","Count":4}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::MaterialDelta { items } => assert_eq!(items[0].count, 4),
+            _ => panic!("expected reward"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"EngineerContribution","Type":"Commodity","Commodity":"soontillrelics","Quantity":2}"#)
+            .unwrap();
+        assert!(matches!(l.event, JournalEvent::Other { .. }));
     }
 
     #[test]

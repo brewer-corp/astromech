@@ -4,6 +4,7 @@
 //! (ARCHITECTURE.md §5.2). Pure and synchronous so it can be replay-tested.
 
 use astromech_journal::{CargoSnap, JournalEvent, NavRouteSnap};
+use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
 
@@ -37,6 +38,8 @@ pub struct GameState {
     pub route: Vec<String>,
     /// Journal file currently followed.
     pub journal_file: Option<String>,
+    /// Ship engineering materials (login snapshot + later deltas).
+    pub materials: Ledger,
 }
 
 impl GameState {
@@ -102,6 +105,7 @@ impl GameState {
             JournalEvent::Undocked { .. } => self.docked = false,
             _ => {}
         }
+        self.materials.apply("", ev);
     }
     pub fn apply_status(&mut self, s: &StatusSnap) {
         self.status_flags = s.flags;
@@ -160,5 +164,13 @@ mod tests {
         assert!(g.gear_down && !g.docked);
         g.apply_route(&NavRouteSnap { systems: vec!["Shinrarta Dezhra".into(), "Sol".into()] });
         assert_eq!(g.route.len(), 2);
+        g.apply_journal(
+            &astromech_journal::parse_line(
+                r#"{"timestamp":"t","event":"Materials","Raw":[{"Name":"iron","Count":4}],"Manufactured":[],"Encoded":[]}"#,
+            )
+            .unwrap()
+            .event,
+        );
+        assert_eq!(g.materials.count("iron"), 4);
     }
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  // The window frame (docs/V1-DESIGN.md §2.2, §4): title, six plain text tabs, one orange rule,
+  // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs, one orange rule,
   // the page, and a one-line core state. Opens on Activities.
   import { modules, findModule } from "./lib/modules";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
