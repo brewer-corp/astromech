@@ -278,6 +278,7 @@ fn run_console(args: Args) -> Result<()> {
             "quit" | "exit" | "!quit" => break,
             "!help" => println!("  type a voice command (e.g. 'gear down'), or: !kill, !rearm, !state, !health, quit"),
             "!kill" => {
+                speaker.interrupt();
                 runner.policy.kill();
                 speaker.say("Kill switch on. All actions stopped.");
             }

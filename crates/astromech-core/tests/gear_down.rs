@@ -143,7 +143,7 @@ fn gear_down_success_across_the_measured_delay_range() {
         let r = rig(FLAG_IN_MAIN_SHIP, &[d]);
         let v = sent(r.runner.run(GEAR_DOWN, Origin::Voice));
         assert!(matches!(v, Verified::Confirmed { .. }), "delay {d} ms");
-        assert_eq!(r.speaker.take(), vec!["Landing gear down."], "optimistic confirmation only");
+        assert_eq!(r.speaker.take(), vec!["Landing gear deployed."], "optimistic confirmation only");
         assert!(r.hub.snapshot().status_flags & FLAG_GEAR != 0);
         let log = r.game.log.lock().unwrap().clone();
         assert_eq!(log, vec![(key("Key_L"), false), (key("Key_L"), true)]);
@@ -156,7 +156,7 @@ fn missed_press_is_logged_not_retried_or_spoken() {
     let logs = r.logs.clone();
     r.game.drop_presses.store(5, Ordering::SeqCst);
     assert_eq!(sent(r.runner.run(GEAR_DOWN, Origin::Voice)), Verified::NotConfirmed);
-    assert_eq!(r.speaker.take(), vec!["Landing gear down."], "no failure spoken");
+    assert_eq!(r.speaker.take(), vec!["Landing gear deployed."], "no failure spoken");
     assert_eq!(r.game.presses.load(Ordering::SeqCst), 1, "never pressed again");
     assert!(logs.lock().unwrap().iter().any(|l| l.contains("not confirmed within 2.0 s")), "{logs:?}");
 }
@@ -181,7 +181,7 @@ fn duplicate_is_suppressed_while_in_flight() {
     let third = r.runner.run(GEAR_DOWN, Origin::Voice);
     assert!(matches!(third, Outcome::Already(_)), "{third:?}");
     assert_eq!(r.game.presses.load(Ordering::SeqCst), 1);
-    assert_eq!(r.speaker.take(), vec!["Landing gear down.", "Already on it.", "Landing gear is already down."]);
+    assert_eq!(r.speaker.take(), vec!["Landing gear deployed.", "Already on it.", "Landing gear is already deployed."]);
 }
 
 #[test]
@@ -251,7 +251,7 @@ fn voice_path_with_fake_stt() {
     assert!(matches!(a.handle(&next(), Origin::Voice), Handled::NotUnderstood));
     assert_eq!(
         r.speaker.take(),
-        vec!["Did you mean deploy hardpoints?", "Cancelled.", "Landing gear down.", "Didn't catch that."]
+        vec!["Did you mean deploy hardpoints?", "Cancelled.", "Landing gear deployed.", "Didn't catch that."]
     );
 }
 
@@ -291,7 +291,7 @@ fn real_game_round_two() {
         }
         h => panic!("{h:?}"),
     }
-    assert_eq!(r.speaker.take(), vec!["Did you mean gear down?", "Landing gear down."]);
+    assert_eq!(r.speaker.take(), vec!["Did you mean gear down?", "Landing gear deployed."]);
     assert_eq!(r.game.presses.load(Ordering::SeqCst), 1);
 }
 
