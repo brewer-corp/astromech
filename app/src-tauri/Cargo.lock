@@ -60,6 +60,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-journal"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "astromech-keybinds"
 version = "0.1.0"
 dependencies = [
@@ -72,12 +82,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-materials"
+version = "0.1.0"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-shell"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "astromech-input",
  "astromech-keybinds",
+ "astromech-materials",
  "serde",
  "serde_json",
  "tauri",

@@ -34,7 +34,7 @@ SteamVR overlay. Everything lives in one app.
 ## Layout
 
 ```
-crates/     astromech-{proto,journal,status,gamestate,keybinds,input,voice,policy,tools,overlay,store,core}
+crates/     astromech-{proto,journal,status,gamestate,keybinds,input,voice,policy,tools,overlay,store,materials,core}
 app/        Svelte 5 + TypeScript + Vite app shell (module manifests in src/modules/*)
 app/src-tauri/  astromech-shell, the Tauri v2 window (its own cargo workspace)
 docs/       design documents

@@ -110,6 +110,8 @@ struct GameCfg {
     bindings_dir: String,
     #[serde(default)]
     game_dir: String,
+    #[serde(default)]
+    journal_dir: String,
 }
 #[derive(Deserialize, Default)]
 struct Cfg {
@@ -180,6 +182,71 @@ fn binds_restore(b: tauri::State<Binds>, backup: PathBuf) -> Result<Value, Strin
 #[tauri::command]
 fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, joy: Option<String>) -> Result<Value, String> {
     with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
+}
+
+fn journal_dir() -> PathBuf {
+    let cfg: Cfg = std::fs::read_to_string(app_dir().join("astromech.toml"))
+        .ok()
+        .and_then(|t| toml::from_str(&t).ok())
+        .unwrap_or_default();
+    let j = cfg.game.journal_dir.trim();
+    if !j.is_empty() {
+        return PathBuf::from(j);
+    }
+    std::env::var_os("USERPROFILE")
+        .or_else(|| std::env::var_os("HOME"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join("Saved Games")
+        .join("Frontier Developments")
+        .join("Elite Dangerous")
+}
+
+struct MaterialsCache(std::sync::Mutex<Option<((u64, u64, u64), Value)>>);
+
+fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
+    let mut n = 0u64;
+    let mut newest = 0u64;
+    let mut size = 0u64;
+    if let Ok(rd) = std::fs::read_dir(dir) {
+        for e in rd.flatten() {
+            let name = e.file_name();
+            let name = name.to_string_lossy();
+            if !(name.starts_with("Journal.") && name.ends_with(".log")) {
+                continue;
+            }
+            n += 1;
+            if let Ok(m) = e.metadata() {
+                let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
+                if t >= newest {
+                    newest = t;
+                    size = m.len();
+                }
+            }
+        }
+    }
+    (n, newest, size)
+}
+
+/// Engineering materials from the journal, laid out like the in-game traders.
+#[tauri::command]
+fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    let sig = journal_folder_sig(&dir);
+    {
+        let g = cache.0.lock().map_err(|_| "busy".to_string())?;
+        if let Some((s, v)) = &*g {
+            if *s == sig {
+                return Ok(v.clone());
+            }
+        }
+    }
+    let v = serde_json::to_value(astromech_materials::from_journal_dir(&dir)).map_err(|e| e.to_string())?;
+    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
+    Ok(v)
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -291,6 +358,7 @@ fn main() {
             }
         }))
         .manage(Binds(std::sync::Mutex::new(None)))
+        .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
@@ -303,7 +371,8 @@ fn main() {
             binds_copy,
             binds_set_active,
             binds_restore,
-            binds_set_override
+            binds_set_override,
+            materials_inventory
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

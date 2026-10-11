@@ -1,0 +1,1357 @@
+{
+  "source": "Sample journal",
+  "snapshot_ts": "2026-10-02T12:00:00Z",
+  "kinds": [
+    {
+      "id": "raw",
+      "title": "Raw",
+      "trader": "Raw material trader",
+      "grades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "groups": [
+        {
+          "name": "Category 1",
+          "cells": [
+            {
+              "id": "carbon",
+              "name": "Carbon",
+              "kind": "raw",
+              "group": "Category 1",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 89,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "vanadium",
+              "name": "Vanadium",
+              "kind": "raw",
+              "group": "Category 1",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 9,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "niobium",
+              "name": "Niobium",
+              "kind": "raw",
+              "group": "Category 1",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "yttrium",
+              "name": "Yttrium",
+              "kind": "raw",
+              "group": "Category 1",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 2",
+          "cells": [
+            {
+              "id": "phosphorus",
+              "name": "Phosphorus",
+              "kind": "raw",
+              "group": "Category 2",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 4,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "chromium",
+              "name": "Chromium",
+              "kind": "raw",
+              "group": "Category 2",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "molybdenum",
+              "name": "Molybdenum",
+              "kind": "raw",
+              "group": "Category 2",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "technetium",
+              "name": "Technetium",
+              "kind": "raw",
+              "group": "Category 2",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 3",
+          "cells": [
+            {
+              "id": "sulphur",
+              "name": "Sulphur",
+              "kind": "raw",
+              "group": "Category 3",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "manganese",
+              "name": "Manganese",
+              "kind": "raw",
+              "group": "Category 3",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 4,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "cadmium",
+              "name": "Cadmium",
+              "kind": "raw",
+              "group": "Category 3",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "ruthenium",
+              "name": "Ruthenium",
+              "kind": "raw",
+              "group": "Category 3",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 4",
+          "cells": [
+            {
+              "id": "iron",
+              "name": "Iron",
+              "kind": "raw",
+              "group": "Category 4",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 22,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "zinc",
+              "name": "Zinc",
+              "kind": "raw",
+              "group": "Category 4",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "tin",
+              "name": "Tin",
+              "kind": "raw",
+              "group": "Category 4",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "selenium",
+              "name": "Selenium",
+              "kind": "raw",
+              "group": "Category 4",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 5",
+          "cells": [
+            {
+              "id": "nickel",
+              "name": "Nickel",
+              "kind": "raw",
+              "group": "Category 5",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "germanium",
+              "name": "Germanium",
+              "kind": "raw",
+              "group": "Category 5",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 4,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "tungsten",
+              "name": "Tungsten",
+              "kind": "raw",
+              "group": "Category 5",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "tellurium",
+              "name": "Tellurium",
+              "kind": "raw",
+              "group": "Category 5",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 6",
+          "cells": [
+            {
+              "id": "rhenium",
+              "name": "Rhenium",
+              "kind": "raw",
+              "group": "Category 6",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "arsenic",
+              "name": "Arsenic",
+              "kind": "raw",
+              "group": "Category 6",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "mercury",
+              "name": "Mercury",
+              "kind": "raw",
+              "group": "Category 6",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "polonium",
+              "name": "Polonium",
+              "kind": "raw",
+              "group": "Category 6",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Category 7",
+          "cells": [
+            {
+              "id": "lead",
+              "name": "Lead",
+              "kind": "raw",
+              "group": "Category 7",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "zirconium",
+              "name": "Zirconium",
+              "kind": "raw",
+              "group": "Category 7",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "boron",
+              "name": "Boron",
+              "kind": "raw",
+              "group": "Category 7",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "antimony",
+              "name": "Antimony",
+              "kind": "raw",
+              "group": "Category 7",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            }
+          ]
+        }
+      ],
+      "held": 132,
+      "capacity": 6300
+    },
+    {
+      "id": "manufactured",
+      "title": "Manufactured",
+      "trader": "Manufactured material trader",
+      "grades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "groups": [
+        {
+          "name": "Chemical",
+          "cells": [
+            {
+              "id": "chemicalstorageunits",
+              "name": "Chemical Storage Units",
+              "kind": "manufactured",
+              "group": "Chemical",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 40,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "chemicalprocessors",
+              "name": "Chemical Processors",
+              "kind": "manufactured",
+              "group": "Chemical",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "chemicaldistillery",
+              "name": "Chemical Distillery",
+              "kind": "manufactured",
+              "group": "Chemical",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "chemicalmanipulators",
+              "name": "Chemical Manipulators",
+              "kind": "manufactured",
+              "group": "Chemical",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "pharmaceuticalisolators",
+              "name": "Pharmaceutical Isolators",
+              "kind": "manufactured",
+              "group": "Chemical",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Thermic",
+          "cells": [
+            {
+              "id": "temperedalloys",
+              "name": "Tempered Alloys",
+              "kind": "manufactured",
+              "group": "Thermic",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "heatresistantceramics",
+              "name": "Heat Resistant Ceramics",
+              "kind": "manufactured",
+              "group": "Thermic",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "precipitatedalloys",
+              "name": "Precipitated Alloys",
+              "kind": "manufactured",
+              "group": "Thermic",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "thermicalloys",
+              "name": "Thermic Alloys",
+              "kind": "manufactured",
+              "group": "Thermic",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "militarygradealloys",
+              "name": "Military Grade Alloys",
+              "kind": "manufactured",
+              "group": "Thermic",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Heat",
+          "cells": [
+            {
+              "id": "heatconductionwiring",
+              "name": "Heat Conduction Wiring",
+              "kind": "manufactured",
+              "group": "Heat",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "heatdispersionplate",
+              "name": "Heat Dispersion Plate",
+              "kind": "manufactured",
+              "group": "Heat",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "heatexchangers",
+              "name": "Heat Exchangers",
+              "kind": "manufactured",
+              "group": "Heat",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "heatvanes",
+              "name": "Heat Vanes",
+              "kind": "manufactured",
+              "group": "Heat",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "protoheatradiators",
+              "name": "Proto Heat Radiators",
+              "kind": "manufactured",
+              "group": "Heat",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Conductive",
+          "cells": [
+            {
+              "id": "basicconductors",
+              "name": "Basic Conductors",
+              "kind": "manufactured",
+              "group": "Conductive",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "conductivecomponents",
+              "name": "Conductive Components",
+              "kind": "manufactured",
+              "group": "Conductive",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "conductiveceramics",
+              "name": "Conductive Ceramics",
+              "kind": "manufactured",
+              "group": "Conductive",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "conductivepolymers",
+              "name": "Conductive Polymers",
+              "kind": "manufactured",
+              "group": "Conductive",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "biotechconductors",
+              "name": "Biotech Conductors",
+              "kind": "manufactured",
+              "group": "Conductive",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Mechanical Components",
+          "cells": [
+            {
+              "id": "mechanicalscrap",
+              "name": "Mechanical Scrap",
+              "kind": "manufactured",
+              "group": "Mechanical Components",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "mechanicalequipment",
+              "name": "Mechanical Equipment",
+              "kind": "manufactured",
+              "group": "Mechanical Components",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "mechanicalcomponents",
+              "name": "Mechanical Components",
+              "kind": "manufactured",
+              "group": "Mechanical Components",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "configurablecomponents",
+              "name": "Configurable Components",
+              "kind": "manufactured",
+              "group": "Mechanical Components",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "improvisedcomponents",
+              "name": "Improvised Components",
+              "kind": "manufactured",
+              "group": "Mechanical Components",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Capacitors",
+          "cells": [
+            {
+              "id": "gridresistors",
+              "name": "Grid Resistors",
+              "kind": "manufactured",
+              "group": "Capacitors",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "hybridcapacitors",
+              "name": "Hybrid Capacitors",
+              "kind": "manufactured",
+              "group": "Capacitors",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "electrochemicalarrays",
+              "name": "Electrochemical Arrays",
+              "kind": "manufactured",
+              "group": "Capacitors",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "polymercapacitors",
+              "name": "Polymer Capacitors",
+              "kind": "manufactured",
+              "group": "Capacitors",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "militarysupercapacitors",
+              "name": "Military Supercapacitors",
+              "kind": "manufactured",
+              "group": "Capacitors",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Shielding",
+          "cells": [
+            {
+              "id": "wornshieldemitters",
+              "name": "Worn Shield Emitters",
+              "kind": "manufactured",
+              "group": "Shielding",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "shieldemitters",
+              "name": "Shield Emitters",
+              "kind": "manufactured",
+              "group": "Shielding",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "shieldingsensors",
+              "name": "Shielding Sensors",
+              "kind": "manufactured",
+              "group": "Shielding",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "compoundshielding",
+              "name": "Compound Shielding",
+              "kind": "manufactured",
+              "group": "Shielding",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "imperialshielding",
+              "name": "Imperial Shielding",
+              "kind": "manufactured",
+              "group": "Shielding",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Composite",
+          "cells": [
+            {
+              "id": "compactcomposites",
+              "name": "Compact Composites",
+              "kind": "manufactured",
+              "group": "Composite",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "filamentcomposites",
+              "name": "Filament Composites",
+              "kind": "manufactured",
+              "group": "Composite",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "highdensitycomposites",
+              "name": "High Density Composites",
+              "kind": "manufactured",
+              "group": "Composite",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "fedproprietarycomposites",
+              "name": "Proprietary Composites",
+              "kind": "manufactured",
+              "group": "Composite",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "fedcorecomposites",
+              "name": "Core Dynamics Composites",
+              "kind": "manufactured",
+              "group": "Composite",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Crystals",
+          "cells": [
+            {
+              "id": "crystalshards",
+              "name": "Crystal Shards",
+              "kind": "manufactured",
+              "group": "Crystals",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "uncutfocuscrystals",
+              "name": "Flawed Focus Crystals",
+              "kind": "manufactured",
+              "group": "Crystals",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "focuscrystals",
+              "name": "Focus Crystals",
+              "kind": "manufactured",
+              "group": "Crystals",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "refinedfocuscrystals",
+              "name": "Refined Focus Crystals",
+              "kind": "manufactured",
+              "group": "Crystals",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "exquisitefocuscrystals",
+              "name": "Exquisite Focus Crystals",
+              "kind": "manufactured",
+              "group": "Crystals",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Alloys",
+          "cells": [
+            {
+              "id": "salvagedalloys",
+              "name": "Salvaged Alloys",
+              "kind": "manufactured",
+              "group": "Alloys",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "galvanisingalloys",
+              "name": "Galvanising Alloys",
+              "kind": "manufactured",
+              "group": "Alloys",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "phasealloys",
+              "name": "Phase Alloys",
+              "kind": "manufactured",
+              "group": "Alloys",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "protolightalloys",
+              "name": "Proto Light Alloys",
+              "kind": "manufactured",
+              "group": "Alloys",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "protoradiolicalloys",
+              "name": "Proto Radiolic Alloys",
+              "kind": "manufactured",
+              "group": "Alloys",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        }
+      ],
+      "held": 40,
+      "capacity": 10000
+    },
+    {
+      "id": "encoded",
+      "title": "Encoded",
+      "trader": "Encoded material trader",
+      "grades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "groups": [
+        {
+          "name": "Emission Data",
+          "cells": [
+            {
+              "id": "scrambledemissiondata",
+              "name": "Exceptional Scrambled Emission Data",
+              "kind": "encoded",
+              "group": "Emission Data",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "archivedemissiondata",
+              "name": "Irregular Emission Data",
+              "kind": "encoded",
+              "group": "Emission Data",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "emissiondata",
+              "name": "Unexpected Emission Data",
+              "kind": "encoded",
+              "group": "Emission Data",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 32,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "decodedemissiondata",
+              "name": "Decoded Emission Data",
+              "kind": "encoded",
+              "group": "Emission Data",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "compactemissionsdata",
+              "name": "Abnormal Compact Emissions Data",
+              "kind": "encoded",
+              "group": "Emission Data",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Wake Scans",
+          "cells": [
+            {
+              "id": "disruptedwakeechoes",
+              "name": "Atypical Disrupted Wake Echoes",
+              "kind": "encoded",
+              "group": "Wake Scans",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 4,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "fsdtelemetry",
+              "name": "Anomalous FSD Telemetry",
+              "kind": "encoded",
+              "group": "Wake Scans",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "wakesolutions",
+              "name": "Strange Wake Solutions",
+              "kind": "encoded",
+              "group": "Wake Scans",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "hyperspacetrajectories",
+              "name": "Eccentric Hyperspace Trajectories",
+              "kind": "encoded",
+              "group": "Wake Scans",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "dataminedwake",
+              "name": "Datamined Wake Exceptions",
+              "kind": "encoded",
+              "group": "Wake Scans",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Shield Data",
+          "cells": [
+            {
+              "id": "shieldcyclerecordings",
+              "name": "Distorted Shield Cycle Recordings",
+              "kind": "encoded",
+              "group": "Shield Data",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "shieldsoakanalysis",
+              "name": "Inconsistent Shield Soak Analysis",
+              "kind": "encoded",
+              "group": "Shield Data",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "shielddensityreports",
+              "name": "Untypical Shield Scans",
+              "kind": "encoded",
+              "group": "Shield Data",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "shieldpatternanalysis",
+              "name": "Aberrant Shield Pattern Analysis",
+              "kind": "encoded",
+              "group": "Shield Data",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "shieldfrequencydata",
+              "name": "Peculiar Shield Frequency Data",
+              "kind": "encoded",
+              "group": "Shield Data",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Encryption Files",
+          "cells": [
+            {
+              "id": "encryptedfiles",
+              "name": "Unusual Encrypted Files",
+              "kind": "encoded",
+              "group": "Encryption Files",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "encryptioncodes",
+              "name": "Tagged Encryption Codes",
+              "kind": "encoded",
+              "group": "Encryption Files",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "symmetrickeys",
+              "name": "Open Symmetric Keys",
+              "kind": "encoded",
+              "group": "Encryption Files",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "encryptionarchives",
+              "name": "Atypical Encryption Archives",
+              "kind": "encoded",
+              "group": "Encryption Files",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "adaptiveencryptors",
+              "name": "Adaptive Encryptors Capture",
+              "kind": "encoded",
+              "group": "Encryption Files",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Data Archives",
+          "cells": [
+            {
+              "id": "bulkscandata",
+              "name": "Anomalous Bulk Scan Data",
+              "kind": "encoded",
+              "group": "Data Archives",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "scanarchives",
+              "name": "Unidentified Scan Archives",
+              "kind": "encoded",
+              "group": "Data Archives",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "scandatabanks",
+              "name": "Classified Scan Databanks",
+              "kind": "encoded",
+              "group": "Data Archives",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "encodedscandata",
+              "name": "Divergent Scan Data",
+              "kind": "encoded",
+              "group": "Data Archives",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "classifiedscandata",
+              "name": "Classified Scan Fragment",
+              "kind": "encoded",
+              "group": "Data Archives",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        },
+        {
+          "name": "Encoded Firmware",
+          "cells": [
+            {
+              "id": "legacyfirmware",
+              "name": "Specialised Legacy Firmware",
+              "kind": "encoded",
+              "group": "Encoded Firmware",
+              "grade": 1,
+              "rarity": "Very common",
+              "count": 0,
+              "capacity": 300,
+              "trader": true
+            },
+            {
+              "id": "consumerfirmware",
+              "name": "Modified Consumer Firmware",
+              "kind": "encoded",
+              "group": "Encoded Firmware",
+              "grade": 2,
+              "rarity": "Common",
+              "count": 0,
+              "capacity": 250,
+              "trader": true
+            },
+            {
+              "id": "industrialfirmware",
+              "name": "Cracked Industrial Firmware",
+              "kind": "encoded",
+              "group": "Encoded Firmware",
+              "grade": 3,
+              "rarity": "Standard",
+              "count": 0,
+              "capacity": 200,
+              "trader": true
+            },
+            {
+              "id": "securityfirmware",
+              "name": "Security Firmware Patch",
+              "kind": "encoded",
+              "group": "Encoded Firmware",
+              "grade": 4,
+              "rarity": "Rare",
+              "count": 0,
+              "capacity": 150,
+              "trader": true
+            },
+            {
+              "id": "embeddedfirmware",
+              "name": "Modified Embedded Firmware",
+              "kind": "encoded",
+              "group": "Encoded Firmware",
+              "grade": 5,
+              "rarity": "Very rare",
+              "count": 0,
+              "capacity": 100,
+              "trader": true
+            }
+          ]
+        }
+      ],
+      "held": 36,
+      "capacity": 6000
+    }
+  ],
+  "other": []
+}
