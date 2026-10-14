@@ -135,6 +135,37 @@ mod tests {
     }
 
     #[test]
+    fn single_grade_blueprints_and_vehicles() {
+        // Expanded Capacity exists only at G5: no phantom G1–G4 steps
+        let mut b = FleetBuilder::default();
+        let l = astromech_journal::parse_line(
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"Modules":[{"Slot":"Slot01_Size6","Item":"Int_CargoRack_Size6_Class1"}]}"#,
+        )
+        .unwrap();
+        b.apply(&l.timestamp, &l.event);
+        // a taxi's Loadout is not a ship of the fleet
+        let taxi = astromech_journal::parse_line(
+            r#"{"timestamp":"t","event":"Loadout","Ship":"adder_taxi","ShipID":99,"Modules":[]}"#,
+        )
+        .unwrap();
+        b.apply(&taxi.timestamp, &taxi.event);
+        let fleet = b.build("t");
+        assert_eq!(fleet.ships.len(), 1);
+        assert!(fleet.ships[0].current);
+        let t = Target {
+            slot: "Slot01_Size6".into(),
+            blueprint: "CargoRack_IncreasedCapacity".into(),
+            grade: 5,
+            experimental: None,
+        };
+        let c = plan::cost_target(&fleet.ships[0], &t, &Rolls::default());
+        assert_eq!(c.steps.iter().map(|s| s.0).collect::<Vec<_>>(), vec![5]);
+        assert!(
+            fleet::is_vehicle("testbuggy") && fleet::is_vehicle("federation_fighter") && !fleet::is_vehicle("anaconda")
+        );
+    }
+
+    #[test]
     fn trader_rates() {
         let s = |id| catalog::lookup(id).unwrap();
         assert_eq!(plan::rate(s("iron"), s("nickel")), Some((6, 1))); // same grade, other category

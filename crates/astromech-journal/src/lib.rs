@@ -232,6 +232,11 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             Some(ship_id) => JournalEvent::ShipSold { ship_id },
             None => JournalEvent::Other { event, raw },
         },
+        // Buying a ship can trade in the current one.
+        "ShipyardBuy" => match opt_i(&raw, "SellShipID") {
+            Some(ship_id) => JournalEvent::ShipSold { ship_id },
+            None => JournalEvent::Other { event, raw },
+        },
         "SellShipOnRebuy" => match opt_i(&raw, "SellShipId").or_else(|| opt_i(&raw, "SellShipID")) {
             Some(ship_id) => JournalEvent::ShipSold { ship_id },
             None => JournalEvent::Other { event, raw },
@@ -327,7 +332,12 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
                 ship_id: opt_i(x, "ShipID")?,
                 ship_type: s(x, "ShipType").to_ascii_lowercase(),
                 name: opt_s(x, "Name"),
-                system: opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")),
+                // In transit: no system yet (not the one the list was written in).
+                system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
+                    None
+                } else {
+                    opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem"))
+                },
             })
         })
         .collect()
@@ -607,6 +617,10 @@ mod tests {
             }
             _ => panic!("expected StoredShips"),
         }
+        let l = parse_line(r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true}]}"#).unwrap();
+        assert!(matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none()));
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
     }

@@ -142,33 +142,38 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
         out.note = Some(format!("{} cannot take {}.", m.name, bp.name));
         return out;
     }
-    let target = t.grade.clamp(1, bp.max_grade());
+    // Some blueprints have only one grade (Expanded Capacity is G5 only).
+    let lowest = bp.grades.iter().map(|g| g.grade).min().unwrap_or(1);
+    let target = t.grade.clamp(lowest, bp.max_grade());
     out.grade = target;
+    let mut notes: Vec<String> = vec![];
     let same = m.engineering.as_ref().filter(|e| e.blueprint.eq_ignore_ascii_case(bp_id));
     let (start, done_q) = match same {
-        Some(e) if e.grade >= 1 => (e.grade, e.quality),
-        _ => (1, 0.0),
+        Some(e) if e.grade >= lowest => (e.grade, e.quality),
+        _ => (lowest, 0.0),
     };
     if same.is_none() && m.engineering.is_some() {
-        out.note = Some("Replaces the current blueprint; starts again at grade 1.".into());
+        notes.push(format!("Replaces the current blueprint; starts again at grade {lowest}."));
     }
     let mut mats: BTreeMap<String, i64> = BTreeMap::new();
     if start <= target {
         for g in start..=target {
+            let Some(rec) = bp.grade(g) else { continue };
             let r = rolls.of(g);
             let n = if g == start && same.is_some() { ((1.0 - done_q) * r as f64).ceil().max(0.0) as u32 } else { r };
             if n == 0 {
                 continue;
             }
             out.steps.push((g, n));
-            if let Some(rec) = bp.grade(g) {
-                for (id, c) in &rec.materials {
-                    *mats.entry(id.clone()).or_default() += c * n as i64;
-                }
+            if rec.materials.is_empty() {
+                notes.push(format!("No recipe data for G{g}: its materials are not counted."));
+            }
+            for (id, c) in &rec.materials {
+                *mats.entry(id.clone()).or_default() += c * n as i64;
             }
         }
     } else {
-        out.note = Some(format!("Already grade {start}, above the target."));
+        notes.push(format!("Already grade {start}, above the target."));
     }
     if let Some((ex_id, e)) = ex {
         let has = m
@@ -178,7 +183,7 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
             .is_some_and(|x| x.eq_ignore_ascii_case(ex_id));
         let fits = allowed.is_some_and(|g| g.experimentals.iter().any(|x| x == ex_id));
         if !fits {
-            out.note = Some(format!("{} cannot take {}.", m.name, e.name));
+            notes.push(format!("{} cannot take {}.", m.name, e.name));
         } else if !has || same.is_none() {
             out.experimental_needed = true;
             for (id, c) in &e.materials {
@@ -187,9 +192,10 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
         }
     }
     out.engineers = bp.grade(target).map(|r| r.engineers.clone()).unwrap_or_default();
-    if out.steps.is_empty() && !out.experimental_needed && out.note.is_none() {
-        out.note = Some("Already done.".into());
+    if out.steps.is_empty() && !out.experimental_needed && notes.is_empty() {
+        notes.push("Already done.".into());
     }
+    out.note = (!notes.is_empty()).then(|| notes.join(" "));
     out.materials = mats.into_iter().collect();
     out
 }

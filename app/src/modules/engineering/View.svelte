@@ -12,6 +12,7 @@
   let result = $state<PlanResult | null>(null);
   let failed = $state<string | null>(null);
   let selMat = $state<string | null>(null);
+  let seq = 0;
 
   const ship = $derived(fleet?.ships.find((s) => s.id === shipId) ?? fleet?.ships[0]);
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet?.groups[m.group]) ?? []);
@@ -42,12 +43,15 @@
     void fleet;
     if (!p) return;
     const snapshot = $state.snapshot(p) as Plan;
+    const mine = ++seq;
     evaluatePlan(snapshot)
       .then((r) => {
+        if (mine !== seq) return; // a newer request (e.g. another ship) is in flight
         result = r;
         failed = r ? null : "Plan maths runs in the app. Outside it, only the sample plan has numbers.";
       })
       .catch((e: unknown) => {
+        if (mine !== seq) return;
         result = null;
         failed = String(e);
       });

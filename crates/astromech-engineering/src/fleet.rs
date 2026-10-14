@@ -91,7 +91,9 @@ pub struct FleetBuilder {
 impl FleetBuilder {
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
         match ev {
-            JournalEvent::Loadout { ship_id: Some(id), ship, ship_name, ship_ident, modules, .. } => {
+            JournalEvent::Loadout { ship_id: Some(id), ship, ship_name, ship_ident, modules, .. }
+                if !is_vehicle(ship.as_deref().unwrap_or("")) =>
+            {
                 self.current = Some(*id);
                 self.stored.remove(id);
                 self.loadouts.insert(
@@ -220,6 +222,12 @@ fn fitted(m: &ModuleSnap) -> Option<Fitted> {
     })
 }
 
+/// Taxis, SRVs and fighters write `Loadout` too; they are not part of the fleet.
+pub fn is_vehicle(ship_type: &str) -> bool {
+    let s = ship_type.to_ascii_lowercase();
+    s.ends_with("_taxi") || s.contains("buggy") || s.contains("_srv") || s.ends_with("_fighter")
+}
+
 const CORE: &[(&str, &str)] = &[
     ("Armour", "Armour"),
     ("PowerPlant", "Power plant"),
@@ -280,7 +288,8 @@ fn slot_order(slot: &str) -> (u8, u8, String) {
     (class, rank, slot.to_string())
 }
 
-const FLEET_EVENTS: &[&str] = &["\"Loadout\"", "\"StoredShips\"", "\"ShipyardSell\"", "\"SellShipOnRebuy\""];
+const FLEET_EVENTS: &[&str] =
+    &["\"Loadout\"", "\"StoredShips\"", "\"ShipyardSell\"", "\"ShipyardBuy\"", "\"SellShipOnRebuy\""];
 
 /// Replay every journal in `dir`, oldest first. Lines are pre-filtered by event name, so years
 /// of journals cost one read each.
