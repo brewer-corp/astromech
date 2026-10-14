@@ -527,9 +527,11 @@
         "capacity": 100,
         "collect": 5,
         "grade": 5,
+        "have": 0,
         "id": "dataminedwake",
         "kind": "encoded",
         "name": "Datamined Wake Exceptions",
+        "over_cap": false,
         "sources": [
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
@@ -542,9 +544,11 @@
         "capacity": 100,
         "collect": 5,
         "grade": 5,
+        "have": 0,
         "id": "pharmaceuticalisolators",
         "kind": "manufactured",
         "name": "Pharmaceutical Isolators",
+        "over_cap": false,
         "sources": [
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
@@ -557,25 +561,31 @@
         "capacity": 150,
         "collect": 4,
         "grade": 4,
+        "have": 1,
         "id": "chemicalmanipulators",
         "kind": "manufactured",
-        "name": "Chemical Manipulators"
+        "name": "Chemical Manipulators",
+        "over_cap": false
       },
       {
         "capacity": 150,
         "collect": 4,
         "grade": 4,
+        "have": 0,
         "id": "configurablecomponents",
         "kind": "manufactured",
-        "name": "Configurable Components"
+        "name": "Configurable Components",
+        "over_cap": false
       },
       {
         "capacity": 150,
         "collect": 4,
         "grade": 4,
+        "have": 0,
         "id": "selenium",
         "kind": "raw",
         "name": "Selenium",
+        "over_cap": false,
         "sources": [
           {
             "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
@@ -588,9 +598,11 @@
         "capacity": 200,
         "collect": 5,
         "grade": 3,
+        "have": 0,
         "id": "industrialfirmware",
         "kind": "encoded",
         "name": "Cracked Industrial Firmware",
+        "over_cap": false,
         "sources": [
           {
             "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
@@ -603,17 +615,21 @@
         "capacity": 200,
         "collect": 2,
         "grade": 3,
+        "have": 0,
         "id": "mechanicalcomponents",
         "kind": "manufactured",
-        "name": "Mechanical Components"
+        "name": "Mechanical Components",
+        "over_cap": false
       },
       {
         "capacity": 250,
         "collect": 2,
         "grade": 2,
+        "have": 0,
         "id": "consumerfirmware",
         "kind": "encoded",
         "name": "Modified Consumer Firmware",
+        "over_cap": false,
         "sources": [
           {
             "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",

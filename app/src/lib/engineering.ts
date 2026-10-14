@@ -116,7 +116,9 @@ export interface FarmStep {
   kind: "raw" | "manufactured" | "encoded" | null;
   grade: number;
   collect: number;
+  have: number;
   capacity: number;
+  over_cap: boolean;
   sources?: SourceNote[];
   then?: Trade[];
 }

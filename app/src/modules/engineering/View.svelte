@@ -208,10 +208,10 @@
             {#each result.farm as f (f.id)}
               <li>
                 <button class="link" onclick={() => (selMat = f.id)}><span class="q">{f.collect}</span> {f.name}</button>
-                {#if f.collect > f.capacity}<span class="lo"> · cap {f.capacity}: in batches</span>{/if}
+                {#if f.over_cap}<span class="lo"> · over the {f.capacity} cap with what you hold: in batches</span>{/if}
                 {#if f.sources?.[0]}<span class="lo"> · {f.sources[0].summary}</span>{/if}
                 {#if f.then?.length}
-                  <span class="then">then trade for {f.then.map((t) => `${t.get} ${t.get_name} (${t.give})`).join(", ")}</span>
+                  <span class="then">then trade {f.then.map((t) => `${t.give} → ${t.get} ${t.get_name}`).join(", ")}</span>
                 {/if}
               </li>
             {/each}
@@ -228,7 +228,7 @@
   <aside class="about">
     {#if selFarm && !sel}
       <h3>{selFarm.name}</h3>
-      <p>Grade {selFarm.grade} · collect {selFarm.collect} to trade for:</p>
+      <p>Grade {selFarm.grade} · collect {selFarm.collect}{selFarm.then?.length ? ", then trade (topping up from stock):" : ""}</p>
       {#each selFarm.then ?? [] as t, i (i)}
         <p class="qty">{t.give} → {t.get} {t.get_name}</p>
       {/each}
@@ -249,6 +249,13 @@
       {#each result?.farm.flatMap((f) => (f.then ?? []).filter((t) => t.get_id === sel.id)) ?? [] as t, i (i)}
         <p>Collect {t.give} {t.give_name}, then trade for {t.get}.</p>
       {/each}
+      {#if selFarm}
+        <p>Collect {selFarm.collect} more{selFarm.then?.length ? ", then trade:" : "."}</p>
+        {#each selFarm.then ?? [] as t, i (i)}
+          <p class="qty">{t.give} → {t.get} {t.get_name}</p>
+        {/each}
+        {#if selFarm.over_cap}<p class="lo">That's more than the {selFarm.capacity} cap with what you hold: do it in batches.</p>{/if}
+      {/if}
       {#each sel.sources ?? [] as s, i (i)}
         <p>{s.summary}</p>
         <p class="lo">{s.hint}</p>

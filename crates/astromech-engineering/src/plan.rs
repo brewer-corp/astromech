@@ -107,7 +107,11 @@ pub struct FarmStep {
     pub kind: Option<Kind>,
     pub grade: u8,
     pub collect: i64,
+    /// Held now (some of it may be reserved for the plan).
+    pub have: i64,
     pub capacity: i64,
+    /// `have + collect` is more than storage holds at once: collect and trade in batches.
+    pub over_cap: bool,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<SourceNote>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -320,6 +324,9 @@ pub fn suggest_trades(
         need.iter().map(|(id, n)| (id.clone(), (n - ledger.count(id)).max(0))).filter(|(_, n)| *n > 0).collect();
     let mut trades = vec![];
     for (to, mut gap) in short {
+        // the trader won't fill past the storage cap
+        let mut held = ledger.count(to.id);
+        let cap = catalog::capacity(to.grade);
         let mut donors: Vec<(&'static Spec, i64, i64, f64, f64)> = spare
             .iter()
             .filter_map(|(id, n)| {
@@ -339,13 +346,14 @@ pub fn suggest_trades(
                 break;
             }
             let avail = spare.get(from.id).copied().unwrap_or(0);
-            let blocks = ((gap + get - 1) / get).min(avail / give);
+            let blocks = ((gap + get - 1) / get).min(avail / give).min((cap - held).max(0) / get);
             if blocks <= 0 {
                 continue;
             }
             *spare.entry(from.id).or_default() -= blocks * give;
             let got = blocks * get;
             gap -= got;
+            held += got;
             trades.push(Trade {
                 give_id: from.id.to_string(),
                 give_name: ledger.display_name(from),
@@ -410,12 +418,16 @@ pub fn farm_route(left: &BTreeMap<String, i64>, spare: &BTreeMap<String, i64>, l
                 return None;
             }
             let grade = a.spec.map(|s| s.grade).unwrap_or(1);
+            let have = ledger.count(&id);
+            let capacity = catalog::capacity(grade);
             Some(FarmStep {
                 name: a.spec.map(|s| ledger.display_name(s)).unwrap_or_else(|| id.clone()),
                 kind: a.spec.map(|s| s.kind),
                 grade,
                 collect,
-                capacity: catalog::capacity(grade),
+                have,
+                capacity,
+                over_cap: have + collect > capacity,
                 sources: a.spec.map(astromech_materials::hge::sources_for).unwrap_or_default(),
                 then: a.then,
                 id,

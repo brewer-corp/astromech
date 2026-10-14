@@ -203,6 +203,28 @@ mod tests {
     }
 
     #[test]
+    fn trades_and_farm_respect_storage_caps() {
+        // 280 carbon (cap 300) and plenty of yttrium: a G4→G1 block gives 27, which would
+        // overflow, so the trade is skipped and the 20 are farmed
+        let mut ledger = astromech_materials::Ledger::default();
+        ledger.counts.insert("carbon".into(), 280);
+        ledger.counts.insert("yttrium".into(), 100);
+        let need: std::collections::BTreeMap<String, i64> = [("carbon".to_string(), 300)].into_iter().collect();
+        let (trades, left, _) = plan::suggest_trades(&need, &ledger);
+        assert!(trades.iter().all(|t| t.get_id != "carbon" || 280 + t.get <= 300), "{trades:?}");
+        assert_eq!(left.get("carbon"), Some(&20));
+        // anchor already full: collecting more for trade-downs is flagged
+        let mut ledger = astromech_materials::Ledger::default();
+        ledger.counts.insert("polonium".into(), 150);
+        let need: std::collections::BTreeMap<String, i64> =
+            [("polonium".to_string(), 150), ("arsenic".to_string(), 10)].into_iter().collect();
+        let (_, left, spare) = plan::suggest_trades(&need, &ledger);
+        let route = plan::farm_route(&left, &spare, &ledger);
+        let po = route.iter().find(|f| f.id == "polonium").unwrap();
+        assert_eq!((po.collect, po.have, po.over_cap), (2, 150, true));
+    }
+
+    #[test]
     fn trader_rates() {
         let s = |id| catalog::lookup(id).unwrap();
         assert_eq!(plan::rate(s("iron"), s("nickel")), Some((6, 1))); // same grade, other category

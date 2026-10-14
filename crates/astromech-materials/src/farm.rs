@@ -4,9 +4,9 @@
 //!
 //! - Raw: Guardian brain trees and crystalline shards drop grade 4 only; the lower grades of a
 //!   category are cheapest as a trade down from its grade 4 (1 → 3 per grade).
-//! - Encoded: Jameson Crash Site data points (scan, relog, scan) for firmware and Adaptive
-//!   Encryptors Capture, which trades down into any other encoded category; wake scanning for
-//!   the Wake Scans column.
+//! - Encoded: Jameson Crash Site data points (scan, relog, scan) for Modified Consumer and
+//!   Cracked Industrial Firmware and Adaptive Encryptors Capture, which trades into any other
+//!   encoded category (the rest of the firmware too); wake scanning for the Wake Scans column.
 
 use crate::catalog::{self, Kind, Spec};
 use crate::hge::SourceNote;
