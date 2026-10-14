@@ -1632,15 +1632,6 @@
         },
         "jobs": [
           {
-            "blueprint": "FSD_LongRange",
-            "grade": 0,
-            "kind": "experimental",
-            "module": "5A Frame Shift Drive",
-            "slot": "FrameShiftDrive",
-            "slot_name": "Frame shift drive",
-            "what": "Mass Manager"
-          },
-          {
             "blueprint": "Engine_Dirty",
             "grade": 5,
             "kind": "grades",
@@ -1671,6 +1662,15 @@
             "slot": "FrameShiftDrive",
             "slot_name": "Frame shift drive",
             "what": "Increased range G3 → G5"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "grade": 0,
+            "kind": "experimental",
+            "module": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive",
+            "what": "Mass Manager"
           }
         ],
         "rank": 5,

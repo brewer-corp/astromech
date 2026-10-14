@@ -135,7 +135,8 @@ pub fn plan_trip(
     let mut blocked = vec![];
     // (job, candidate engineer keys)
     let mut jobs: Vec<(Job, Vec<String>)> = vec![];
-    for t in targets.iter().filter(|t| t.note.as_deref().is_none_or(|n| !n.contains("cannot take"))) {
+    // Targets that can't apply have no steps and no experimental, so they make no jobs.
+    for t in targets {
         if !t.steps.is_empty() {
             let mut job = job_from(t, "grades", ship);
             let offer: Vec<&EngineerView> =
@@ -226,11 +227,25 @@ pub fn plan_trip(
         job_group.push(g);
     }
     let n = nodes.len();
+    // Every leg once: from the start, and each pair (legs are symmetric).
+    let from_start: Vec<Hop> = (0..n)
+        .map(|b| match start {
+            Some((_, p)) => hop(p, nodes[b].coords),
+            None => Hop { ly: 0.0, jumps: 0, exact: false },
+        })
+        .collect();
+    let mut between = vec![vec![Hop { ly: 0.0, jumps: 0, exact: true }; n]; n];
+    for a in 0..n {
+        for b in a + 1..n {
+            let h = hop(nodes[a].coords, nodes[b].coords);
+            between[a][b] = h;
+            between[b][a] = h;
+        }
+    }
     let leg = |a: Option<usize>, b: usize| -> Hop {
-        match (a, start) {
-            (Some(i), _) => hop(nodes[i].coords, nodes[b].coords),
-            (None, Some((_, p))) => hop(p, nodes[b].coords),
-            (None, None) => Hop { ly: 0.0, jumps: 0, exact: true },
+        match a {
+            Some(i) => between[i][b],
+            None => from_start[b],
         }
     };
     let order = if jobs.is_empty() {
@@ -241,20 +256,40 @@ pub fn plan_trip(
         solve_greedy(n, &group_masks, &leg)
     };
 
-    // Assign each job to the first stop that can do it.
-    let mut stops: Vec<Stop> = vec![];
-    let mut done = vec![false; jobs.len()];
-    let mut prev: Option<usize> = None;
-    for &i in &order {
-        let picked: Vec<usize> =
-            (0..jobs.len()).filter(|&j| !done[j] && group_masks[job_group[j]] & (1 << i) != 0).collect();
-        let mine: Vec<Job> = picked
+    // Assign each job to the first stop that can do it; an experimental goes at or after the
+    // stop that applies its slot's grades (a new blueprint would wipe it).
+    let mut order = order;
+    let can = |j: usize, node: usize| group_masks[job_group[j]] & (1 << node) != 0;
+    let mut at: Vec<Option<usize>> = vec![None; jobs.len()];
+    for (j, (job, _)) in jobs.iter().enumerate() {
+        if job.kind == "grades" {
+            at[j] = order.iter().position(|&i| can(j, i));
+        }
+    }
+    for (j, (job, _)) in jobs.iter().enumerate() {
+        if job.kind != "experimental" {
+            continue;
+        }
+        let after = jobs
             .iter()
-            .map(|&j| {
-                done[j] = true;
-                jobs[j].0.clone()
-            })
-            .collect();
+            .enumerate()
+            .find(|(k, (o, _))| o.kind == "grades" && o.slot == job.slot && at[*k].is_some())
+            .and_then(|(k, _)| at[k])
+            .unwrap_or(0);
+        at[j] = order.iter().enumerate().skip(after).find(|(_, &i)| can(j, i)).map(|(p, _)| p);
+        if at[j].is_none() {
+            // no capable stop late enough: add the nearest capable engineer at the end
+            let last = order.last().copied();
+            if let Some(best) = (0..n).filter(|&i| can(j, i)).min_by_key(|&i| leg(last, i).jumps) {
+                order.push(best);
+                at[j] = Some(order.len() - 1);
+            }
+        }
+    }
+    let mut stops: Vec<Stop> = vec![];
+    let mut prev: Option<usize> = None;
+    for (p, &i) in order.iter().enumerate() {
+        let mine: Vec<Job> = (0..jobs.len()).filter(|&j| at[j] == Some(p)).map(|j| jobs[j].0.clone()).collect();
         if mine.is_empty() {
             continue;
         }

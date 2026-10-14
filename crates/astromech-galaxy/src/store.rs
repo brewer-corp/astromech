@@ -63,18 +63,36 @@ impl Store {
         Ok(Store { db })
     }
 
-    /// Copy the bundled preload in once (marked in `meta`). Missing or empty preloads are fine.
+    /// Copy the bundled preload in, once per preload build (its `source` in `meta`); a newer
+    /// preload shipped with an update is merged in. Missing, empty or schema-less files are skipped.
     pub fn seed_from(&mut self, preload: &Path) -> Result<bool> {
-        let done: Option<String> =
-            self.db.query_row("SELECT value FROM meta WHERE key='preload'", [], |r| r.get(0)).optional()?;
-        if done.is_some() || !preload.is_file() {
+        if !preload.is_file() {
             return Ok(false);
         }
+        let done: Option<String> =
+            self.db.query_row("SELECT value FROM meta WHERE key='preload'", [], |r| r.get(0)).optional()?;
         self.db.execute("ATTACH DATABASE ?1 AS pre", params![preload.to_string_lossy()])?;
-        // The CI placeholder has the schema but no coverage: skip it without marking.
-        let n: i64 = self.db.query_row("SELECT count(*) FROM pre.coverage", [], |r| r.get(0))?;
+        let r = self.seed_attached(done.as_deref());
+        self.db.execute("DETACH DATABASE pre", [])?;
+        r
+    }
+
+    fn seed_attached(&mut self, done: Option<&str>) -> Result<bool> {
+        // The CI placeholder (or a zero-byte file) has no coverage: skip it without marking.
+        let Ok(n) = self.db.query_row("SELECT count(*) FROM pre.coverage", [], |r| r.get::<_, i64>(0)) else {
+            return Ok(false);
+        };
         if n == 0 {
-            self.db.execute("DETACH DATABASE pre", [])?;
+            return Ok(false);
+        }
+        let src: String = self
+            .db
+            .query_row("SELECT value FROM pre.meta WHERE key='source'", [], |r| r.get(0))
+            .optional()
+            .ok()
+            .flatten()
+            .unwrap_or_else(|| "preload".into());
+        if done == Some(src.as_str()) {
             return Ok(false);
         }
         let tx = self.db.transaction()?;
@@ -83,13 +101,8 @@ impl Store {
             "INSERT INTO coverage(x, y, z, radius, source, fetched) SELECT x, y, z, radius, source, fetched FROM pre.coverage",
             [],
         )?;
-        let src: String = tx
-            .query_row("SELECT value FROM pre.meta WHERE key='source'", [], |r| r.get(0))
-            .optional()?
-            .unwrap_or_else(|| "preload".into());
         tx.execute("INSERT OR REPLACE INTO meta VALUES ('preload', ?1)", params![src])?;
         tx.commit()?;
-        self.db.execute("DETACH DATABASE pre", [])?;
         Ok(true)
     }
 
@@ -183,8 +196,11 @@ mod tests {
         }
         let empty = d.path().join("empty.db");
         Store::open(&empty).unwrap();
+        let zero = d.path().join("zero.db");
+        std::fs::write(&zero, b"").unwrap();
         let mut s = Store::open(&d.path().join("galaxy.db")).unwrap();
         assert!(!s.seed_from(&empty).unwrap(), "placeholder is skipped");
+        assert!(!s.seed_from(&zero).unwrap(), "zero-byte file is skipped");
         assert!(s.seed_from(&pre).unwrap());
         assert!(!s.seed_from(&pre).unwrap(), "seeds once");
         assert_eq!(s.count().unwrap(), 2);

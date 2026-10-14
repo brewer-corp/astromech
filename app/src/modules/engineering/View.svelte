@@ -1,6 +1,7 @@
 <script lang="ts">
   // Build planner: pick a ship from the journal fleet, set a blueprint / grade / experimental per
   // module, and see the materials it costs against the inventory, trades and what to farm.
+  import { untrack } from "svelte";
   import {
     DEFAULT_ROLLS, evaluatePlan, loadEngineers, loadFleet, planTrip, savePlan, savedPlan, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
@@ -15,6 +16,9 @@
   let failed = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
+  let tripSeq = 0;
+  let engineersKey = "";
+  let lastTripKey = "";
   let engineers = $state<Engineers | null>(null);
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
@@ -34,7 +38,16 @@
   $effect(() => {
     const tick = () => {
       void loadFleet().then((f) => (fleet = f));
-      void loadEngineers().then((e) => (engineers = e)).catch(() => {});
+      // replace only on change, so the trip isn't re-planned on every poll
+      void loadEngineers()
+        .then((e) => {
+          const k = JSON.stringify(e);
+          if (k !== engineersKey) {
+            engineersKey = k;
+            engineers = e;
+          }
+        })
+        .catch(() => {});
     };
     tick();
     const t = setInterval(tick, 5000);
@@ -69,21 +82,36 @@
       });
   });
 
-  // Re-plan the trip when the plan or the journal changes (crafts, remote or not, shrink it).
+  // What the trip depends on: the jobs, engineer access and where you are. Materials don't
+  // matter, so a poll that only re-reads the inventory doesn't re-plan.
+  const tripKey = $derived(
+    JSON.stringify({
+      ship: plan?.ship_id,
+      jobs: result?.targets.map((t) => [t.slot, t.blueprint, t.steps, t.experimental_needed]),
+      engineers: engineers?.engineers.map((e) => [e.name, e.progress, e.rank]),
+      here: engineers?.here?.system,
+    }),
+  );
+
+  // Re-plan the trip when that changes (crafts, remote or not, shrink it).
   $effect(() => {
-    const p = plan;
-    void result;
-    void engineers;
-    if (!p || !hasJobs) {
+    const key = tripKey;
+    if (key === lastTripKey) return;
+    lastTripKey = key;
+    const p = untrack(() => plan);
+    if (!p || !untrack(() => hasJobs)) {
       trip = null;
       return;
     }
+    const mine = ++tripSeq;
     planTrip($state.snapshot(p) as Plan)
       .then((tr) => {
+        if (mine !== tripSeq) return;
         trip = tr;
         tripErr = null;
       })
       .catch((e: unknown) => {
+        if (mine !== tripSeq) return;
         trip = null;
         tripErr = String(e);
       });

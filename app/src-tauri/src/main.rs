@@ -282,18 +282,22 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
     Ok(v)
 }
 
-/// The local star map (app dir `galaxy.db`), seeded once from the bundled preload.
-struct GalaxyState(std::sync::OnceLock<Result<std::sync::Arc<astromech_galaxy::Galaxy>, String>>);
+/// The local star map (app dir `galaxy.db`), seeded from the bundled preload. A failed open is
+/// retried on the next call instead of being remembered.
+struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Galaxy>>>);
 
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
     let st = app.state::<GalaxyState>();
-    st.0.get_or_init(|| {
-        let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
-        astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref())
-            .map(std::sync::Arc::new)
-            .map_err(|e| e.to_string())
-    })
-    .clone()
+    let mut g = st.0.lock().map_err(|_| "busy".to_string())?;
+    if let Some(x) = g.as_ref() {
+        return Ok(x.clone());
+    }
+    let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
+    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref())
+        .map(std::sync::Arc::new)
+        .map_err(|e| e.to_string())?;
+    *g = Some(opened.clone());
+    Ok(opened)
 }
 
 /// Jump range for counting: the ship's unladen maximum, else a typical 20 ly.
@@ -494,7 +498,7 @@ fn main() {
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
-        .manage(GalaxyState(std::sync::OnceLock::new()))
+        .manage(GalaxyState(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,

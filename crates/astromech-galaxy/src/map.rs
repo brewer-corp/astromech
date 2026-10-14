@@ -25,6 +25,12 @@ pub struct StarMap {
     stars: Vec<Star>,
     grid: HashMap<(i32, i32, i32), Vec<u32>>,
     coverage: Vec<Sphere>,
+    /// Hops already counted on this map: endpoints in 1/32 ly (ordered pair) and range in 1/100 ly.
+    hops: std::sync::Mutex<HashMap<([i64; 3], [i64; 3], u32), Hop>>,
+}
+
+fn q32(p: [f64; 3]) -> [i64; 3] {
+    [(p[0] * 32.0).round() as i64, (p[1] * 32.0).round() as i64, (p[2] * 32.0).round() as i64]
 }
 
 fn cell_of(p: [f32; 3]) -> (i32, i32, i32) {
@@ -53,7 +59,7 @@ impl StarMap {
         for (i, s) in stars.iter().enumerate() {
             grid.entry(cell_of(s.pos)).or_default().push(i as u32);
         }
-        StarMap { stars, grid, coverage }
+        StarMap { stars, grid, coverage, hops: std::sync::Mutex::new(HashMap::new()) }
     }
 
     pub fn len(&self) -> usize {
@@ -87,13 +93,37 @@ impl StarMap {
     }
 
     /// Jumps from `a` to `b` at `range` ly per jump.
+    /// The straight line from `a` to `b` stays inside covered space (sampled every 10 ly). The
+    /// covered region is a union of spheres, so both ends being covered is not enough.
+    pub fn segment_covered(&self, a: [f64; 3], b: [f64; 3]) -> bool {
+        let n = (dist(a, b) / 10.0).ceil().max(1.0) as usize;
+        (0..=n).all(|i| {
+            let f = i as f64 / n as f64;
+            self.covered([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f])
+        })
+    }
+
+    /// Jumps from `a` to `b` at `range` ly per jump (cached; legs are symmetric).
     pub fn hop(&self, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
+        let (qa, qb) = (q32(a), q32(b));
+        let key =
+            if qa <= qb { (qa, qb, (range * 100.0).round() as u32) } else { (qb, qa, (range * 100.0).round() as u32) };
+        if let Some(h) = self.hops.lock().unwrap_or_else(|e| e.into_inner()).get(&key) {
+            return *h;
+        }
+        let h = self.hop_uncached(a, b, range);
+        self.hops.lock().unwrap_or_else(|e| e.into_inner()).insert(key, h);
+        h
+    }
+
+    fn hop_uncached(&self, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
         let ly = dist(a, b);
         let est = Hop { ly, jumps: estimate(ly, range), exact: false };
+        let covered = self.segment_covered(a, b);
         if range <= 0.0 || est.jumps <= 1 {
-            return Hop { exact: self.covered(a) && self.covered(b), ..est };
+            return Hop { exact: covered, ..est };
         }
-        if !(self.covered(a) && self.covered(b)) {
+        if !covered {
             return est;
         }
         match self.astar(f32p(a), f32p(b), range as f32) {
@@ -163,5 +193,12 @@ mod tests {
         // outside coverage → estimate
         let h = m.hop([0.0; 3], [1000.0, 0.0, 0.0], 50.0);
         assert_eq!((h.jumps, h.exact), (20, false));
+        // both ends covered but the line between them leaves coverage → estimate
+        let two = StarMap::new(
+            line(30, 9.0),
+            vec![Sphere { center: [0.0; 3], radius: 50.0 }, Sphere { center: [200.0, 0.0, 0.0], radius: 50.0 }],
+        );
+        assert!(!two.segment_covered([0.0; 3], [200.0, 0.0, 0.0]));
+        assert!(!two.hop([0.0; 3], [200.0, 0.0, 0.0], 20.0).exact);
     }
 }

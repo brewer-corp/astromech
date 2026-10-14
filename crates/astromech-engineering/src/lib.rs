@@ -234,6 +234,42 @@ mod tests {
     }
 
     #[test]
+    fn experimental_never_before_its_blueprint() {
+        // New blueprint (Faster boot G5: Felicity) plus Mass Manager on the FSD, and Dirty
+        // drives G5 (only Palin). Starting at Palin, the cheapest route visits Palin first; he
+        // could apply Mass Manager, but the new blueprint at Felicity afterwards would wipe it.
+        let fleet = from_journal_dir(&fixture_dir());
+        let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let plan = Plan {
+            ship_id: 7,
+            targets: vec![
+                Target {
+                    slot: "FrameShiftDrive".into(),
+                    blueprint: "FSD_FastBoot".into(),
+                    grade: 5,
+                    experimental: Some("special_fsd_heavy".into()),
+                },
+                Target { slot: "MainEngines".into(), blueprint: "Engine_Dirty".into(), grade: 5, experimental: None },
+            ],
+            rolls: Rolls::default(),
+        };
+        let ledger = astromech_materials::Ledger::default();
+        let r = evaluate(ship, &plan, &ledger);
+        let engs =
+            engineers_with(&[("Felicity Farseer", "Unlocked", Some(5)), ("Professor Palin", "Unlocked", Some(5))]);
+        let arque = engineers::info("Professor Palin").unwrap().coords;
+        let trip = plan_trip(ship, &r.targets, &engs, Some(("Arque", arque)), 20.0, &straight(20.0));
+        let stop_of =
+            |what: &str| trip.stops.iter().position(|s| s.jobs.iter().any(|j| j.what.contains(what))).unwrap();
+        assert_eq!(trip.stops[0].engineer, "Professor Palin");
+        assert!(stop_of("Mass Manager") >= stop_of("Faster boot"), "{:?}", trip.stops);
+        assert_eq!(trip.stops[stop_of("Mass Manager")].engineer, "Felicity Farseer");
+        // no start: first leg is not claimed exact
+        let trip = plan_trip(ship, &r.targets, &engs, None, 20.0, &straight(20.0));
+        assert!(!trip.stops[0].hop.exact);
+    }
+
+    #[test]
     fn crafts_update_the_fleet_and_shrink_the_trip() {
         use astromech_journal::JournalEvent;
         let craft = |bp: &str, level: u8, quality: f64, slot: &str, exp: Option<&str>| JournalEvent::EngineerCraft {

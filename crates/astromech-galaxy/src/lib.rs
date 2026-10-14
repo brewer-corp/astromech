@@ -58,7 +58,12 @@ pub struct Nearby {
 pub struct Galaxy {
     store: Mutex<Store>,
     map: RwLock<Option<Arc<StarMap>>>,
+    /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
+    fill_failed: Mutex<Option<i64>>,
 }
+
+/// After an EDSM failure, wait this long before trying again.
+pub const FILL_RETRY_S: i64 = 600;
 
 fn now_s() -> i64 {
     chrono::Utc::now().timestamp()
@@ -79,7 +84,7 @@ impl Galaxy {
     }
 
     pub fn with_store(s: Store) -> Self {
-        Galaxy { store: Mutex::new(s), map: RwLock::new(None) }
+        Galaxy { store: Mutex::new(s), map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
@@ -118,12 +123,26 @@ impl Galaxy {
         if self.map()?.covered(p) {
             return Ok(false);
         }
-        let body = remote::edsm_sphere(p, FILL_RADIUS)?;
-        let rows = remote::parse_sphere(&body)?;
+        let now = now_s();
+        if self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()).is_some_and(|t| now - t < FILL_RETRY_S) {
+            return Ok(false);
+        }
+        let rows = match remote::edsm_sphere(p, FILL_RADIUS).and_then(|b| remote::parse_sphere(&b)) {
+            Ok(r) => r,
+            Err(e) => {
+                *self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()) = Some(now);
+                return Err(e);
+            }
+        };
+        // An empty answer is not coverage: EDSM may simply not know the area yet.
+        if rows.is_empty() {
+            *self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()) = Some(now);
+            return Ok(false);
+        }
         {
             let mut s = self.store();
             s.insert_systems(rows.iter().map(|(id, n, q)| (*id, n.as_str(), *q)))?;
-            s.add_coverage(Sphere { center: p, radius: FILL_RADIUS }, "edsm", &iso(now_s()))?;
+            s.add_coverage(Sphere { center: p, radius: FILL_RADIUS }, "edsm", &iso(now))?;
         }
         self.invalidate();
         Ok(true)
@@ -141,9 +160,9 @@ impl Galaxy {
         let key = format!(
             "spansh:{}:{:.0}:{:.0}:{:.0}",
             q.id,
-            (here.pos[0] / 10.0).round(),
-            (here.pos[1] / 10.0).round(),
-            (here.pos[2] / 10.0).round()
+            (here.pos[0] / 10.0).round() + 0.0,
+            (here.pos[1] / 10.0).round() + 0.0,
+            (here.pos[2] / 10.0).round() + 0.0
         );
         let now = now_s();
         let cached = self.store().cache_get(&key, now, STATE_TTL_S)?;
