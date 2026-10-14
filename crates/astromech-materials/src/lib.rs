@@ -5,6 +5,7 @@
 //! collect / discard / trade / craft / synthesis / mission / broker events are applied as deltas.
 
 pub mod catalog;
+pub mod farm;
 pub mod hge;
 pub mod ledger;
 pub mod view;

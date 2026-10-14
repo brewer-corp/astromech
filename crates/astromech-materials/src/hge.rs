@@ -158,6 +158,8 @@ pub fn pool_for_factions(factions: &[FactionSnap], population: i64) -> Vec<PoolM
     out
 }
 
+/// Farming notes for one material: High Grade Emissions for manufactured, `farm` for raw and
+/// encoded.
 pub fn sources_for(spec: &Spec) -> Vec<SourceNote> {
     let mut notes = vec![];
     for (id, summary) in NOT_HGE {
@@ -175,6 +177,7 @@ pub fn sources_for(spec: &Spec) -> Vec<SourceNote> {
             notes.push(SourceNote { kind: "hge".into(), summary: rule.summary.into(), hint: rule.hint.into() });
         }
     }
+    notes.extend(crate::farm::sources_for(spec));
     notes
 }
 

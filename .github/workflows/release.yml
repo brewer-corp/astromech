@@ -49,6 +49,16 @@ jobs:
           cache-dependency-path: app/pnpm-lock.yaml
       - name: core (release)
         run: cargo build -p astromech-core --bin astromech-core --release --locked
+      - name: drop a sherpa-onnx prebuilt cache that lost its libraries
+        # sherpa-onnx-sys skips its download when target/sherpa-onnx-prebuilt/<ver>/lib exists,
+        # and rust-cache can restore that folder without the static libraries in it.
+        shell: bash
+        run: |
+          d=target/sherpa-onnx-prebuilt
+          if [ -d "$d" ] && ! compgen -G "$d/*/lib/*sherpa-onnx-c-api*" > /dev/null; then
+            echo "removing $d (no sherpa-onnx-c-api library inside)"
+            rm -rf "$d"
+          fi
       - name: voice worker (release, sherpa-onnx; GPL-3.0 binary, see NOTICE.md)
         run: cargo build -p astromech-voice --features sherpa --bin astromech-voice-worker --release --locked
       - name: stage sidecars

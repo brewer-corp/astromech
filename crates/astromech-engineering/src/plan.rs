@@ -53,8 +53,8 @@ pub struct PlanResult {
     /// Every material the plan uses, rarest first.
     pub materials: Vec<MatLine>,
     pub trades: Vec<Trade>,
-    /// Still short after the suggested trades.
-    pub farm: Vec<MatLine>,
+    /// What to collect for whatever is still short after the trades, rarest first.
+    pub farm: Vec<FarmStep>,
     pub snapshot_ts: Option<String>,
 }
 
@@ -95,6 +95,27 @@ pub struct MatLine {
     pub over_cap: bool,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<SourceNote>,
+}
+
+/// Collect `collect` of one material, then make the `then` trades with it. Raw shortfalls are
+/// farmed as the grade 4 of their category, most encoded ones as Adaptive Encryptors Capture
+/// (`astromech_materials::farm::anchor`).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct FarmStep {
+    pub id: String,
+    pub name: String,
+    pub kind: Option<Kind>,
+    pub grade: u8,
+    pub collect: i64,
+    /// Held now (some of it may be reserved for the plan).
+    pub have: i64,
+    pub capacity: i64,
+    /// `have + collect` is more than storage holds at once: collect and trade in batches.
+    pub over_cap: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<SourceNote>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub then: Vec<Trade>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -210,15 +231,8 @@ pub fn evaluate(ship: &Ship, plan: &Plan, ledger: &Ledger) -> PlanResult {
     }
     let mut materials: Vec<MatLine> = need.iter().map(|(id, n)| mat_line(id, *n, ledger)).collect();
     materials.sort_by(|a, b| b.grade.cmp(&a.grade).then_with(|| a.name.cmp(&b.name)));
-    let (trades, left) = suggest_trades(&need, ledger);
-    let mut farm: Vec<MatLine> = materials
-        .iter()
-        .filter_map(|m| {
-            let s = left.get(&m.id).copied().unwrap_or(0);
-            (s > 0).then(|| MatLine { short: s, ..m.clone() })
-        })
-        .collect();
-    farm.sort_by(|a, b| b.grade.cmp(&a.grade).then_with(|| b.short.cmp(&a.short)));
+    let (trades, left, spare) = suggest_trades(&need, ledger);
+    let farm = farm_route(&left, &spare, ledger);
     PlanResult {
         ship_id: plan.ship_id,
         rolls: plan.rolls,
@@ -285,7 +299,11 @@ fn efficiency(from: &Spec, to: &Spec, give: i64, get: i64) -> f64 {
 
 /// Greedy trader plan: rarest shortfall first, each from the donor that loses the least value,
 /// preferring donors closest to their cap. Only spends what the plan itself does not need.
-pub fn suggest_trades(need: &BTreeMap<String, i64>, ledger: &Ledger) -> (Vec<Trade>, BTreeMap<String, i64>) {
+/// Returns the trades, what is still short, and what is still spare afterwards.
+pub fn suggest_trades(
+    need: &BTreeMap<String, i64>,
+    ledger: &Ledger,
+) -> (Vec<Trade>, BTreeMap<String, i64>, BTreeMap<String, i64>) {
     let mut spare: BTreeMap<&'static str, i64> = BTreeMap::new();
     for s in catalog::catalog().iter().filter(|s| s.on_trader) {
         let n = ledger.count(s.id) - need.get(s.id).copied().unwrap_or(0);
@@ -306,6 +324,9 @@ pub fn suggest_trades(need: &BTreeMap<String, i64>, ledger: &Ledger) -> (Vec<Tra
         need.iter().map(|(id, n)| (id.clone(), (n - ledger.count(id)).max(0))).filter(|(_, n)| *n > 0).collect();
     let mut trades = vec![];
     for (to, mut gap) in short {
+        // the trader won't fill past the storage cap
+        let mut held = ledger.count(to.id);
+        let cap = catalog::capacity(to.grade);
         let mut donors: Vec<(&'static Spec, i64, i64, f64, f64)> = spare
             .iter()
             .filter_map(|(id, n)| {
@@ -325,13 +346,14 @@ pub fn suggest_trades(need: &BTreeMap<String, i64>, ledger: &Ledger) -> (Vec<Tra
                 break;
             }
             let avail = spare.get(from.id).copied().unwrap_or(0);
-            let blocks = ((gap + get - 1) / get).min(avail / give);
+            let blocks = ((gap + get - 1) / get).min(avail / give).min((cap - held).max(0) / get);
             if blocks <= 0 {
                 continue;
             }
             *spare.entry(from.id).or_default() -= blocks * give;
             let got = blocks * get;
             gap -= got;
+            held += got;
             trades.push(Trade {
                 give_id: from.id.to_string(),
                 give_name: ledger.display_name(from),
@@ -345,5 +367,73 @@ pub fn suggest_trades(need: &BTreeMap<String, i64>, ledger: &Ledger) -> (Vec<Tra
         left.insert(to.id.to_string(), gap.max(0));
     }
     left.retain(|_, n| *n > 0);
-    (trades, left)
+    let spare = spare.into_iter().filter(|(_, n)| *n > 0).map(|(k, n)| (k.to_string(), n)).collect();
+    (trades, left, spare)
+}
+
+/// Group the remaining shortfalls by what to farm for them (see [`FarmStep`]).
+pub fn farm_route(left: &BTreeMap<String, i64>, spare: &BTreeMap<String, i64>, ledger: &Ledger) -> Vec<FarmStep> {
+    struct Acc {
+        spec: Option<&'static Spec>,
+        direct: i64,
+        for_trades: i64,
+        then: Vec<Trade>,
+    }
+    let mut acc: BTreeMap<String, Acc> = BTreeMap::new();
+    for (id, &short) in left {
+        let spec = catalog::lookup(id);
+        let anchor = spec.map(astromech_materials::farm::anchor);
+        let rate = spec.zip(anchor).and_then(|(s, a)| rate(a, s).map(|r| (s, a, r)));
+        match rate {
+            Some((s, a, (give, get))) => {
+                let blocks = (short + get - 1) / get;
+                let e = acc.entry(a.id.to_string()).or_insert(Acc {
+                    spec: Some(a),
+                    direct: 0,
+                    for_trades: 0,
+                    then: vec![],
+                });
+                e.for_trades += blocks * give;
+                e.then.push(Trade {
+                    give_id: a.id.to_string(),
+                    give_name: ledger.display_name(a),
+                    give: blocks * give,
+                    get_id: s.id.to_string(),
+                    get_name: ledger.display_name(s),
+                    get: blocks * get,
+                    trader: s.kind.trader().to_string(),
+                });
+            }
+            None => {
+                acc.entry(id.clone()).or_insert(Acc { spec, direct: 0, for_trades: 0, then: vec![] }).direct += short;
+            }
+        }
+    }
+    let mut out: Vec<FarmStep> = acc
+        .into_iter()
+        .filter_map(|(id, a)| {
+            let total = a.direct + a.for_trades;
+            let collect = (total - if a.for_trades > 0 { spare.get(&id).copied().unwrap_or(0) } else { 0 }).max(0);
+            if collect == 0 && a.then.is_empty() {
+                return None;
+            }
+            let grade = a.spec.map(|s| s.grade).unwrap_or(1);
+            let have = ledger.count(&id);
+            let capacity = catalog::capacity(grade);
+            Some(FarmStep {
+                name: a.spec.map(|s| ledger.display_name(s)).unwrap_or_else(|| id.clone()),
+                kind: a.spec.map(|s| s.kind),
+                grade,
+                collect,
+                have,
+                capacity,
+                over_cap: have + collect > capacity,
+                sources: a.spec.map(astromech_materials::hge::sources_for).unwrap_or_default(),
+                then: a.then,
+                id,
+            })
+        })
+        .collect();
+    out.sort_by(|a, b| b.grade.cmp(&a.grade).then_with(|| b.collect.cmp(&a.collect)).then_with(|| a.name.cmp(&b.name)));
+    out
 }

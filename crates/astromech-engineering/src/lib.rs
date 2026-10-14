@@ -10,7 +10,7 @@ pub mod fleet;
 pub mod plan;
 
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
-pub use plan::{evaluate, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
+pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 
 /// Fleet read from the crate's fake journal fixtures (app window sample).
 pub fn sample_fleet() -> Fleet {
@@ -129,9 +129,46 @@ mod tests {
         // trades never spend more than is spare
         let csu: i64 = r.trades.iter().filter(|t| t.give_id == "chemicalstorageunits").map(|t| t.give).sum();
         assert!(csu <= 200);
-        // what trades cover is not in the farm list; G5 wake data has no donor
-        assert!(r.farm.iter().all(|f| f.id != "cadmium"));
-        assert_eq!(r.farm.iter().find(|f| f.id == "dataminedwake").unwrap().short, 5);
+        // what trades cover is not in the farm list; G5 wake data is farmed directly (wake scans)
+        assert!(r.farm.iter().all(|f| f.id != "cadmium" && f.then.iter().all(|t| t.get_id != "cadmium")));
+        let dw = r.farm.iter().find(|f| f.id == "dataminedwake").unwrap();
+        assert_eq!((dw.collect, dw.sources[0].kind.as_str()), (5, "wake_scan"));
+        // the encoded firmware the thrusters need is either collected at Jameson or traded
+        // from Adaptive Encryptors; the leftover raw comes from grade 4 of its category
+        let ae = r.farm.iter().find(|f| f.id == "adaptiveencryptors");
+        let ind = r.farm.iter().find(|f| f.id == "industrialfirmware").unwrap();
+        assert_eq!((ind.collect, ind.sources[0].kind.as_str()), (5, "jameson"));
+        assert!(ae.is_none() || ae.unwrap().then.iter().all(|t| t.give_id == "adaptiveencryptors"));
+        for f in &r.farm {
+            for t in &f.then {
+                assert_eq!(t.give_id, f.id);
+            }
+        }
+    }
+
+    #[test]
+    fn farm_route_trades_down_from_anchors() {
+        let ledger = astromech_materials::Ledger::default();
+        let need: std::collections::BTreeMap<String, i64> =
+            [("arsenic", 10), ("mercury", 5), ("polonium", 1), ("shieldfrequencydata", 2), ("dataminedwake", 3)]
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v))
+                .collect();
+        let (trades, left, spare) = plan::suggest_trades(&need, &ledger);
+        assert!(trades.is_empty());
+        let route = plan::farm_route(&left, &spare, &ledger);
+        let po = route.iter().find(|f| f.id == "polonium").unwrap();
+        // 1 for itself + arsenic 1:9 ×2 blocks + mercury 1:3 ×2 blocks
+        assert_eq!(po.collect, 1 + 2 + 2);
+        assert_eq!(
+            po.then.iter().map(|t| (t.get_id.as_str(), t.give, t.get)).collect::<Vec<_>>(),
+            vec![("arsenic", 2, 18), ("mercury", 2, 6)]
+        );
+        assert_eq!(po.sources[0].kind, "brain_tree");
+        // G5 → G5 across categories: 6:1
+        let ae = route.iter().find(|f| f.id == "adaptiveencryptors").unwrap();
+        assert_eq!((ae.collect, ae.then[0].get), (12, 2));
+        assert!(route.iter().any(|f| f.id == "dataminedwake" && f.collect == 3 && f.then.is_empty()));
     }
 
     #[test]
@@ -163,6 +200,28 @@ mod tests {
         assert!(
             fleet::is_vehicle("testbuggy") && fleet::is_vehicle("federation_fighter") && !fleet::is_vehicle("anaconda")
         );
+    }
+
+    #[test]
+    fn trades_and_farm_respect_storage_caps() {
+        // 280 carbon (cap 300) and plenty of yttrium: a G4→G1 block gives 27, which would
+        // overflow, so the trade is skipped and the 20 are farmed
+        let mut ledger = astromech_materials::Ledger::default();
+        ledger.counts.insert("carbon".into(), 280);
+        ledger.counts.insert("yttrium".into(), 100);
+        let need: std::collections::BTreeMap<String, i64> = [("carbon".to_string(), 300)].into_iter().collect();
+        let (trades, left, _) = plan::suggest_trades(&need, &ledger);
+        assert!(trades.iter().all(|t| t.get_id != "carbon" || 280 + t.get <= 300), "{trades:?}");
+        assert_eq!(left.get("carbon"), Some(&20));
+        // anchor already full: collecting more for trade-downs is flagged
+        let mut ledger = astromech_materials::Ledger::default();
+        ledger.counts.insert("polonium".into(), 150);
+        let need: std::collections::BTreeMap<String, i64> =
+            [("polonium".to_string(), 150), ("arsenic".to_string(), 10)].into_iter().collect();
+        let (_, left, spare) = plan::suggest_trades(&need, &ledger);
+        let route = plan::farm_route(&left, &spare, &ledger);
+        let po = route.iter().find(|f| f.id == "polonium").unwrap();
+        assert_eq!((po.collect, po.have, po.over_cap), (2, 150, true));
     }
 
     #[test]
