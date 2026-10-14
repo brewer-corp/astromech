@@ -525,27 +525,26 @@
     "farm": [
       {
         "capacity": 100,
+        "collect": 5,
         "grade": 5,
-        "group": "Wake Scans",
-        "have": 0,
         "id": "dataminedwake",
         "kind": "encoded",
         "name": "Datamined Wake Exceptions",
-        "need": 5,
-        "over_cap": false,
-        "short": 5
+        "sources": [
+          {
+            "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+            "kind": "wake_scan",
+            "summary": "Wake scanning where traffic never stops."
+          }
+        ]
       },
       {
         "capacity": 100,
+        "collect": 5,
         "grade": 5,
-        "group": "Chemical",
-        "have": 0,
         "id": "pharmaceuticalisolators",
         "kind": "manufactured",
         "name": "Pharmaceutical Isolators",
-        "need": 5,
-        "over_cap": false,
-        "short": 5,
         "sources": [
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
@@ -556,75 +555,72 @@
       },
       {
         "capacity": 150,
+        "collect": 4,
         "grade": 4,
-        "group": "Chemical",
-        "have": 1,
         "id": "chemicalmanipulators",
         "kind": "manufactured",
-        "name": "Chemical Manipulators",
-        "need": 5,
-        "over_cap": false,
-        "short": 4
+        "name": "Chemical Manipulators"
       },
       {
         "capacity": 150,
+        "collect": 4,
         "grade": 4,
-        "group": "Mechanical Components",
-        "have": 0,
         "id": "configurablecomponents",
         "kind": "manufactured",
-        "name": "Configurable Components",
-        "need": 4,
-        "over_cap": false,
-        "short": 4
+        "name": "Configurable Components"
       },
       {
         "capacity": 150,
+        "collect": 4,
         "grade": 4,
-        "group": "Category 4",
-        "have": 0,
         "id": "selenium",
         "kind": "raw",
         "name": "Selenium",
-        "need": 4,
-        "over_cap": false,
-        "short": 4
+        "sources": [
+          {
+            "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+            "kind": "brain_tree",
+            "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+          }
+        ]
       },
       {
         "capacity": 200,
+        "collect": 5,
         "grade": 3,
-        "group": "Encoded Firmware",
-        "have": 0,
         "id": "industrialfirmware",
         "kind": "encoded",
         "name": "Cracked Industrial Firmware",
-        "need": 5,
-        "over_cap": false,
-        "short": 5
+        "sources": [
+          {
+            "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+            "kind": "jameson",
+            "summary": "Jameson Crash Site data points."
+          }
+        ]
       },
       {
         "capacity": 200,
+        "collect": 2,
         "grade": 3,
-        "group": "Mechanical Components",
-        "have": 0,
         "id": "mechanicalcomponents",
         "kind": "manufactured",
-        "name": "Mechanical Components",
-        "need": 2,
-        "over_cap": false,
-        "short": 2
+        "name": "Mechanical Components"
       },
       {
         "capacity": 250,
+        "collect": 2,
         "grade": 2,
-        "group": "Encoded Firmware",
-        "have": 0,
         "id": "consumerfirmware",
         "kind": "encoded",
         "name": "Modified Consumer Firmware",
-        "need": 4,
-        "over_cap": false,
-        "short": 2
+        "sources": [
+          {
+            "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+            "kind": "jameson",
+            "summary": "Jameson Crash Site data points."
+          }
+        ]
       }
     ],
     "materials": [
@@ -638,7 +634,14 @@
         "name": "Datamined Wake Exceptions",
         "need": 5,
         "over_cap": false,
-        "short": 5
+        "short": 5,
+        "sources": [
+          {
+            "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+            "kind": "wake_scan",
+            "summary": "Wake scanning where traffic never stops."
+          }
+        ]
       },
       {
         "capacity": 100,
@@ -693,7 +696,14 @@
         "name": "Eccentric Hyperspace Trajectories",
         "need": 5,
         "over_cap": false,
-        "short": 0
+        "short": 0,
+        "sources": [
+          {
+            "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+            "kind": "wake_scan",
+            "summary": "Wake scanning where traffic never stops."
+          }
+        ]
       },
       {
         "capacity": 150,
@@ -705,7 +715,14 @@
         "name": "Selenium",
         "need": 4,
         "over_cap": false,
-        "short": 4
+        "short": 4,
+        "sources": [
+          {
+            "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+            "kind": "brain_tree",
+            "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
+          }
+        ]
       },
       {
         "capacity": 200,
@@ -717,7 +734,14 @@
         "name": "Cadmium",
         "need": 5,
         "over_cap": false,
-        "short": 5
+        "short": 5,
+        "sources": [
+          {
+            "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+            "kind": "trade_down",
+            "summary": "Trade down from Ruthenium (1 → 3 at a raw trader)."
+          }
+        ]
       },
       {
         "capacity": 200,
@@ -741,7 +765,14 @@
         "name": "Cracked Industrial Firmware",
         "need": 5,
         "over_cap": false,
-        "short": 5
+        "short": 5,
+        "sources": [
+          {
+            "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+            "kind": "jameson",
+            "summary": "Jameson Crash Site data points."
+          }
+        ]
       },
       {
         "capacity": 200,
@@ -765,7 +796,14 @@
         "name": "Strange Wake Solutions",
         "need": 3,
         "over_cap": false,
-        "short": 0
+        "short": 0,
+        "sources": [
+          {
+            "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+            "kind": "wake_scan",
+            "summary": "Wake scanning where traffic never stops."
+          }
+        ]
       },
       {
         "capacity": 250,
@@ -777,7 +815,14 @@
         "name": "Arsenic",
         "need": 5,
         "over_cap": false,
-        "short": 2
+        "short": 2,
+        "sources": [
+          {
+            "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+            "kind": "trade_down",
+            "summary": "Trade down from Polonium (1 → 9 at a raw trader)."
+          }
+        ]
       },
       {
         "capacity": 250,
@@ -801,7 +846,14 @@
         "name": "Chromium",
         "need": 2,
         "over_cap": false,
-        "short": 2
+        "short": 2,
+        "sources": [
+          {
+            "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+            "kind": "trade_down",
+            "summary": "Trade down from Technetium (1 → 9 at a raw trader)."
+          }
+        ]
       },
       {
         "capacity": 250,
@@ -825,7 +877,14 @@
         "name": "Manganese",
         "need": 4,
         "over_cap": false,
-        "short": 0
+        "short": 0,
+        "sources": [
+          {
+            "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+            "kind": "trade_down",
+            "summary": "Trade down from Ruthenium (1 → 9 at a raw trader)."
+          }
+        ]
       },
       {
         "capacity": 250,
@@ -837,7 +896,14 @@
         "name": "Modified Consumer Firmware",
         "need": 4,
         "over_cap": false,
-        "short": 4
+        "short": 4,
+        "sources": [
+          {
+            "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.",
+            "kind": "jameson",
+            "summary": "Jameson Crash Site data points."
+          }
+        ]
       },
       {
         "capacity": 300,
@@ -849,7 +915,14 @@
         "name": "Atypical Disrupted Wake Echoes",
         "need": 5,
         "over_cap": false,
-        "short": 0
+        "short": 0,
+        "sources": [
+          {
+            "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+            "kind": "wake_scan",
+            "summary": "Wake scanning where traffic never stops."
+          }
+        ]
       },
       {
         "capacity": 300,
@@ -861,7 +934,14 @@
         "name": "Phosphorus",
         "need": 3,
         "over_cap": false,
-        "short": 0
+        "short": 0,
+        "sources": [
+          {
+            "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining.",
+            "kind": "trade_down",
+            "summary": "Trade down from Technetium (1 → 27 at a raw trader)."
+          }
+        ]
       },
       {
         "capacity": 300,
@@ -873,7 +953,14 @@
         "name": "Specialised Legacy Firmware",
         "need": 2,
         "over_cap": false,
-        "short": 2
+        "short": 2,
+        "sources": [
+          {
+            "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data.",
+            "kind": "trade_down",
+            "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site)."
+          }
+        ]
       }
     ],
     "rolls": [

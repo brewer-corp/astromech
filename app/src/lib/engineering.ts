@@ -110,13 +110,24 @@ export interface Trade {
   trader: string;
 }
 
+export interface FarmStep {
+  id: string;
+  name: string;
+  kind: "raw" | "manufactured" | "encoded" | null;
+  grade: number;
+  collect: number;
+  capacity: number;
+  sources?: SourceNote[];
+  then?: Trade[];
+}
+
 export interface PlanResult {
   ship_id: number;
   rolls: number[];
   targets: TargetCost[];
   materials: MatLine[];
   trades: Trade[];
-  farm: MatLine[];
+  farm: FarmStep[];
   snapshot_ts: string | null;
 }
 

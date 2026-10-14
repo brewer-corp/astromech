@@ -17,6 +17,7 @@
   const ship = $derived(fleet?.ships.find((s) => s.id === shipId) ?? fleet?.ships[0]);
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet?.groups[m.group]) ?? []);
   const sel = $derived(result?.materials.find((m) => m.id === selMat));
+  const selFarm = $derived(result?.farm.find((f) => f.id === selMat));
   const usedBy = $derived(result?.targets.filter((t) => t.materials.some(([id]) => id === selMat)) ?? []);
   const traded = $derived(
     (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
@@ -203,11 +204,15 @@
 
         {#if result.farm.length}
           <h4>Still to collect</h4>
-          <ul class="plain">
-            {#each result.farm as m (m.id)}
+          <ul class="plain farm">
+            {#each result.farm as f (f.id)}
               <li>
-                <button class="link" onclick={() => (selMat = m.id)}><span class="q">{m.short}</span> {m.name}</button>
-                {#if m.sources?.[0]}<span class="lo"> · {m.sources[0].summary}</span>{/if}
+                <button class="link" onclick={() => (selMat = f.id)}><span class="q">{f.collect}</span> {f.name}</button>
+                {#if f.collect > f.capacity}<span class="lo"> · cap {f.capacity}: in batches</span>{/if}
+                {#if f.sources?.[0]}<span class="lo"> · {f.sources[0].summary}</span>{/if}
+                {#if f.then?.length}
+                  <span class="then">then trade for {f.then.map((t) => `${t.get} ${t.get_name} (${t.give})`).join(", ")}</span>
+                {/if}
               </li>
             {/each}
           </ul>
@@ -221,7 +226,17 @@
   {/if}
 
   <aside class="about">
-    {#if sel}
+    {#if selFarm && !sel}
+      <h3>{selFarm.name}</h3>
+      <p>Grade {selFarm.grade} · collect {selFarm.collect} to trade for:</p>
+      {#each selFarm.then ?? [] as t, i (i)}
+        <p class="qty">{t.give} → {t.get} {t.get_name}</p>
+      {/each}
+      {#each selFarm.sources ?? [] as s, i (i)}
+        <p>{s.summary}</p>
+        <p class="lo">{s.hint}</p>
+      {/each}
+    {:else if sel}
       <h3>{sel.name}</h3>
       <p>Grade {sel.grade}{sel.kind ? ` · ${sel.kind.charAt(0).toUpperCase()}${sel.kind.slice(1)}` : ""} · {sel.group}</p>
       <p class="qty">{sel.have} / {sel.need} needed · cap {sel.capacity}</p>
@@ -230,6 +245,9 @@
       {/if}
       {#each result?.trades.filter((t) => t.get_id === sel.id) ?? [] as t, i (i)}
         <p>Trade {t.give} {t.give_name} for {t.get}.</p>
+      {/each}
+      {#each result?.farm.flatMap((f) => (f.then ?? []).filter((t) => t.get_id === sel.id)) ?? [] as t, i (i)}
+        <p>Collect {t.give} {t.give_name}, then trade for {t.get}.</p>
       {/each}
       {#each sel.sources ?? [] as s, i (i)}
         <p>{s.summary}</p>
@@ -287,6 +305,7 @@
   .ok { color: var(--accent); margin-top: 18px; }
   .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
   .link { color: var(--text); }
+  .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
   .about { border-left: 2px solid var(--accent); padding-left: 24px; grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }

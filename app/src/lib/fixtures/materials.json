@@ -25,7 +25,14 @@
               "rarity": "Very common",
               "count": 89,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 27 at a raw trader).",
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "vanadium",
@@ -36,7 +43,14 @@
               "rarity": "Common",
               "count": 9,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 9 at a raw trader).",
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "niobium",
@@ -47,7 +61,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Yttrium (1 → 3 at a raw trader).",
+                  "hint": "Fill Yttrium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "yttrium",
@@ -58,7 +79,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -74,7 +102,14 @@
               "rarity": "Very common",
               "count": 4,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 27 at a raw trader).",
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "chromium",
@@ -85,7 +120,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 9 at a raw trader).",
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "molybdenum",
@@ -96,7 +138,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Technetium (1 → 3 at a raw trader).",
+                  "hint": "Fill Technetium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "technetium",
@@ -107,7 +156,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Reported: HIP 36601 C 5 a (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -123,7 +179,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 27 at a raw trader).",
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "manganese",
@@ -134,7 +197,14 @@
               "rarity": "Common",
               "count": 4,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 9 at a raw trader).",
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "cadmium",
@@ -145,7 +215,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Ruthenium (1 → 3 at a raw trader).",
+                  "hint": "Fill Ruthenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "ruthenium",
@@ -156,7 +233,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Reported: HIP 36601 C 1 d (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -172,7 +256,14 @@
               "rarity": "Very common",
               "count": 22,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 27 at a raw trader).",
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "zinc",
@@ -183,7 +274,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 9 at a raw trader).",
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "tin",
@@ -194,7 +292,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Selenium (1 → 3 at a raw trader).",
+                  "hint": "Fill Selenium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "selenium",
@@ -205,7 +310,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -221,7 +333,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 27 at a raw trader).",
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "germanium",
@@ -232,7 +351,14 @@
               "rarity": "Common",
               "count": 4,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 9 at a raw trader).",
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "tungsten",
@@ -243,7 +369,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Tellurium (1 → 3 at a raw trader).",
+                  "hint": "Fill Tellurium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "tellurium",
@@ -254,7 +387,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Reported: HIP 36601 C 3 b (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -270,7 +410,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 27 at a raw trader).",
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "arsenic",
@@ -281,7 +428,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 9 at a raw trader).",
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "mercury",
@@ -292,7 +446,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Polonium (1 → 3 at a raw trader).",
+                  "hint": "Fill Polonium at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "polonium",
@@ -303,7 +464,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Reported: Synuefe BY-F d12-39 A 2 (brain trees); HIP 36601 C 1 a (shards). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         },
@@ -319,7 +487,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 27 at a raw trader).",
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "zirconium",
@@ -330,7 +505,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 9 at a raw trader).",
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "boron",
@@ -341,7 +523,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade down from Antimony (1 → 3 at a raw trader).",
+                  "hint": "Fill Antimony at brain trees or crystalline shards. Also from surface prospecting and mining."
+                }
+              ]
             },
             {
               "id": "antimony",
@@ -352,7 +541,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "brain_tree",
+                  "summary": "Guardian brain trees and crystalline shards drop grade 4 raw.",
+                  "hint": "Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees."
+                }
+              ]
             }
           ]
         }
@@ -1084,7 +1280,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "archivedemissiondata",
@@ -1095,7 +1298,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "emissiondata",
@@ -1106,7 +1316,14 @@
               "rarity": "Standard",
               "count": 32,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "decodedemissiondata",
@@ -1117,7 +1334,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "compactemissionsdata",
@@ -1128,7 +1352,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             }
           ]
         },
@@ -1144,7 +1375,14 @@
               "rarity": "Very common",
               "count": 4,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "wake_scan",
+                  "summary": "Wake scanning where traffic never stops.",
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                }
+              ]
             },
             {
               "id": "fsdtelemetry",
@@ -1155,7 +1393,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "wake_scan",
+                  "summary": "Wake scanning where traffic never stops.",
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                }
+              ]
             },
             {
               "id": "wakesolutions",
@@ -1166,7 +1411,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "wake_scan",
+                  "summary": "Wake scanning where traffic never stops.",
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                }
+              ]
             },
             {
               "id": "hyperspacetrajectories",
@@ -1177,7 +1429,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "wake_scan",
+                  "summary": "Wake scanning where traffic never stops.",
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                }
+              ]
             },
             {
               "id": "dataminedwake",
@@ -1188,7 +1447,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "wake_scan",
+                  "summary": "Wake scanning where traffic never stops.",
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                }
+              ]
             }
           ]
         },
@@ -1204,7 +1470,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "shieldsoakanalysis",
@@ -1215,7 +1488,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "shielddensityreports",
@@ -1226,7 +1506,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "shieldpatternanalysis",
@@ -1237,7 +1524,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "shieldfrequencydata",
@@ -1248,7 +1542,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             }
           ]
         },
@@ -1264,7 +1565,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "encryptioncodes",
@@ -1275,7 +1583,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "symmetrickeys",
@@ -1286,7 +1601,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "encryptionarchives",
@@ -1297,7 +1619,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "adaptiveencryptors",
@@ -1308,7 +1637,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points.",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
+                }
+              ]
             }
           ]
         },
@@ -1324,7 +1660,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "scanarchives",
@@ -1335,7 +1678,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "scandatabanks",
@@ -1346,7 +1696,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "encodedscandata",
@@ -1357,7 +1714,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "classifiedscandata",
@@ -1368,7 +1732,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             }
           ]
         },
@@ -1384,7 +1755,14 @@
               "rarity": "Very common",
               "count": 0,
               "capacity": 300,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "consumerfirmware",
@@ -1395,7 +1773,14 @@
               "rarity": "Common",
               "count": 0,
               "capacity": 250,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points.",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
+                }
+              ]
             },
             {
               "id": "industrialfirmware",
@@ -1406,7 +1791,14 @@
               "rarity": "Standard",
               "count": 0,
               "capacity": 200,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "jameson",
+                  "summary": "Jameson Crash Site data points.",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri."
+                }
+              ]
             },
             {
               "id": "securityfirmware",
@@ -1417,7 +1809,14 @@
               "rarity": "Rare",
               "count": 0,
               "capacity": 150,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             },
             {
               "id": "embeddedfirmware",
@@ -1428,7 +1827,14 @@
               "rarity": "Very rare",
               "count": 0,
               "capacity": 100,
-              "trader": true
+              "trader": true,
+              "sources": [
+                {
+                  "kind": "trade_down",
+                  "summary": "Trade from Adaptive Encryptors Capture (Jameson Crash Site).",
+                  "hint": "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri. Mission rewards also give encoded data."
+                }
+              ]
             }
           ]
         }
