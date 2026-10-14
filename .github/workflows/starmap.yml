@@ -1,0 +1,49 @@
+name: Star map preload
+
+# Builds the bundled star map preload (every system within 500 ly of Sol) from Spansh's systems
+# dump and publishes it as `starmap.db.gz` on the `starmap` pre-release. Run by hand when it is
+# worth refreshing (star positions don't change; new discoveries trickle in). Release builds
+# just download the latest one. It's a pre-release so it never becomes the "latest" release
+# the in-app updater reads.
+
+on:
+  workflow_dispatch:
+    inputs:
+      radius:
+        description: "Radius around Sol, light years"
+        default: "500"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: starmap
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and publish the star map preload
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Spansh systems dump (~6.4 GB, streamed into the build)
+        run: |
+          set -euo pipefail
+          curl -sSfL -A "astromech-starmap (+https://github.com/${GITHUB_REPOSITORY})" -o "$RUNNER_TEMP/systems.json.gz" https://downloads.spansh.co.uk/systems.json.gz
+          python3 scripts/gen-starmap.py --dump "$RUNNER_TEMP/systems.json.gz" --radius "${{ inputs.radius }}" --out "$RUNNER_TEMP/starmap.db"
+          rm -f "$RUNNER_TEMP/systems.json.gz"
+          gzip -9 -c "$RUNNER_TEMP/starmap.db" > "$RUNNER_TEMP/starmap.db.gz"
+          ls -la "$RUNNER_TEMP"/starmap.db*
+      - name: Publish to the starmap pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          notes="Star map preload for release builds: every system within ${{ inputs.radius }} ly of Sol, from Spansh's systems dump (EDDN community data), built $(date -u +%Y-%m-%d). Not an app release."
+          if gh release view starmap --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload starmap "$RUNNER_TEMP/starmap.db.gz" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit starmap --notes "$notes" --prerelease --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create starmap "$RUNNER_TEMP/starmap.db.gz" --prerelease --latest=false --title "Star map preload" --notes "$notes" --repo "$GITHUB_REPOSITORY"
+          fi
