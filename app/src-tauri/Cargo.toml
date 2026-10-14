@@ -29,6 +29,7 @@ astromech-keybinds = { path = "../../crates/astromech-keybinds" }
 astromech-input = { path = "../../crates/astromech-input" }
 astromech-materials = { path = "../../crates/astromech-materials" }
 astromech-engineering = { path = "../../crates/astromech-engineering" }
+astromech-galaxy = { path = "../../crates/astromech-galaxy" }
 
 [profile.release]
 opt-level = "s"

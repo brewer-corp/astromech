@@ -40,7 +40,8 @@
       "../../NOTICE.md": "NOTICE.md",
       "../../THIRD_PARTY.md": "THIRD_PARTY.md",
       "../../LICENSE": "LICENSE.txt",
-      "../../COPYING-GPL-3.0.txt": "COPYING-GPL-3.0.txt"
+      "../../COPYING-GPL-3.0.txt": "COPYING-GPL-3.0.txt",
+      "resources/starmap.db": "starmap.db"
     },
     "windows": {
       "webviewInstallMode": {

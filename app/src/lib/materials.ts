@@ -9,6 +9,8 @@ export interface SourceNote {
   kind: "hge" | "not_hge" | string;
   summary: string;
   hint: string;
+  /** Live nearest-systems lookup id (lib/galaxy.ts), if one applies. */
+  query?: string;
 }
 
 export interface Cell {

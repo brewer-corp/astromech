@@ -133,6 +133,48 @@ export interface PlanResult {
   snapshot_ts: string | null;
 }
 
+export interface EngineerView {
+  id: number;
+  name: string;
+  system: string;
+  coords: [number, number, number];
+  colonia: boolean;
+  progress: string;
+  rank: number | null;
+  rank_progress: number | null;
+}
+
+export interface Engineers {
+  engineers: EngineerView[];
+  here: { system: string; pos: [number, number, number] } | null;
+}
+
+export interface Hop {
+  ly: number;
+  jumps: number;
+  exact: boolean;
+}
+
+export interface Job {
+  slot: string;
+  slot_name: string;
+  module: string;
+  kind: "grades" | "experimental";
+  blueprint: string;
+  what: string;
+  grade: number;
+  note?: string;
+}
+
+export interface Trip {
+  start: string | null;
+  range: number;
+  stops: { engineer: string; system: string; rank: number | null; hop: Hop; jobs: Job[] }[];
+  blocked: { job: Job; reason: string; unlock: [string, string][] }[];
+  total_jumps: number;
+  exact: boolean;
+}
+
 export const DEFAULT_ROLLS = [1, 2, 3, 4, 5];
 
 const samplePlan = sample.plan as unknown as PlanResult;
@@ -170,6 +212,17 @@ export function savedPlan(shipId: number): Plan {
 
 export function savePlan(plan: Plan): void {
   localStorage.setItem(key(plan.ship_id), JSON.stringify(plan));
+}
+
+export async function loadEngineers(): Promise<Engineers> {
+  if (!inTauri) return sample.engineers as unknown as Engineers;
+  return await invoke<Engineers>("engineering_engineers");
+}
+
+/** Outside the app only the sample plan has a trip. */
+export async function planTrip(plan: Plan): Promise<Trip | null> {
+  if (!inTauri) return plan.ship_id === samplePlan.ship_id ? (sample.trip as unknown as Trip) : null;
+  return await invoke<Trip>("engineering_trip", { plan });
 }
 
 export function shipTitle(s: Ship): string {

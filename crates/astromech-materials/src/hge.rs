@@ -12,6 +12,9 @@ pub struct SourceNote {
     pub kind: String,
     pub summary: String,
     pub hint: String,
+    /// Live "nearest systems" lookup that applies (`astromech_galaxy::QUERIES` id).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -168,13 +171,19 @@ pub fn sources_for(spec: &Spec) -> Vec<SourceNote> {
                 kind: "not_hge".into(),
                 summary: (*summary).into(),
                 hint: "Trade up at a manufactured trader, or look at mission rewards.".into(),
+                query: None,
             });
             return notes;
         }
     }
     for rule in RULES {
         if rule.ids.contains(&spec.id) {
-            notes.push(SourceNote { kind: "hge".into(), summary: rule.summary.into(), hint: rule.hint.into() });
+            notes.push(SourceNote {
+                kind: "hge".into(),
+                summary: rule.summary.into(),
+                hint: rule.hint.into(),
+                query: Some(rule.id.into()),
+            });
         }
     }
     notes.extend(crate::farm::sources_for(spec));

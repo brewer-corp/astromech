@@ -1,10 +1,13 @@
 <script lang="ts">
   // Build planner: pick a ship from the journal fleet, set a blueprint / grade / experimental per
   // module, and see the materials it costs against the inventory, trades and what to farm.
+  import { untrack } from "svelte";
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadFleet, savePlan, savedPlan, shipTitle,
-    type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target,
+    DEFAULT_ROLLS, evaluatePlan, loadEngineers, loadFleet, planTrip, savePlan, savedPlan, shipTitle,
+    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
   } from "../../lib/engineering";
+  import { jumps } from "../../lib/galaxy";
+  import Nearby from "../../lib/ui/Nearby.svelte";
 
   let fleet = $state<Fleet | null>(null);
   let shipId = $state<number | null>(null);
@@ -13,6 +16,12 @@
   let failed = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
+  let tripSeq = 0;
+  let engineersKey = "";
+  let lastTripKey = "";
+  let engineers = $state<Engineers | null>(null);
+  let trip = $state<Trip | null>(null);
+  let tripErr = $state<string | null>(null);
 
   const ship = $derived(fleet?.ships.find((s) => s.id === shipId) ?? fleet?.ships[0]);
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet?.groups[m.group]) ?? []);
@@ -23,8 +32,23 @@
     (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
   );
 
+  const hasJobs = $derived(result?.targets.some((t) => t.steps.length > 0 || t.experimental_needed) ?? false);
+  const lookup = $derived((selFarm ?? sel)?.sources?.find((s) => s.query)?.query);
+
   $effect(() => {
-    const tick = () => void loadFleet().then((f) => (fleet = f));
+    const tick = () => {
+      void loadFleet().then((f) => (fleet = f));
+      // replace only on change, so the trip isn't re-planned on every poll
+      void loadEngineers()
+        .then((e) => {
+          const k = JSON.stringify(e);
+          if (k !== engineersKey) {
+            engineersKey = k;
+            engineers = e;
+          }
+        })
+        .catch(() => {});
+    };
     tick();
     const t = setInterval(tick, 5000);
     return () => clearInterval(t);
@@ -55,6 +79,41 @@
         if (mine !== seq) return;
         result = null;
         failed = String(e);
+      });
+  });
+
+  // What the trip depends on: the jobs, engineer access and where you are. Materials don't
+  // matter, so a poll that only re-reads the inventory doesn't re-plan.
+  const tripKey = $derived(
+    JSON.stringify({
+      ship: plan?.ship_id,
+      jobs: result?.targets.map((t) => [t.slot, t.blueprint, t.steps, t.experimental_needed]),
+      engineers: engineers?.engineers.map((e) => [e.name, e.progress, e.rank]),
+      here: engineers?.here?.system,
+    }),
+  );
+
+  // Re-plan the trip when that changes (crafts, remote or not, shrink it).
+  $effect(() => {
+    const key = tripKey;
+    if (key === lastTripKey) return;
+    lastTripKey = key;
+    const p = untrack(() => plan);
+    if (!p || !untrack(() => hasJobs)) {
+      trip = null;
+      return;
+    }
+    const mine = ++tripSeq;
+    planTrip($state.snapshot(p) as Plan)
+      .then((tr) => {
+        if (mine !== tripSeq) return;
+        trip = tr;
+        tripErr = null;
+      })
+      .catch((e: unknown) => {
+        if (mine !== tripSeq) return;
+        trip = null;
+        tripErr = String(e);
       });
   });
 
@@ -222,6 +281,40 @@
       {:else if result}
         <p class="lo">Pick a blueprint for a module to see what it costs.</p>
       {/if}
+
+      {#if tripErr}
+        <p class="lo">{tripErr}</p>
+      {:else if trip}
+        <h4>Engineer trip</h4>
+        <p class="lo small">
+          {trip.start ? `From ${trip.start}` : "Start unknown"} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
+          {#if !trip.exact}· ~ = straight-line estimate{/if}
+        </p>
+        {#if trip.stops.length}
+          <ol class="stops">
+            {#each trip.stops as s, i (i)}
+              <li>
+                <span class="stop">{s.engineer}</span>
+                <span class="lo"> · {s.system} · <span class="q">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
+                {#each s.jobs as j (j.slot + j.kind)}
+                  <span class="then">{j.slot_name}: {j.what}{j.note ? ` · ${j.note}` : ""}</span>
+                {/each}
+              </li>
+            {/each}
+          </ol>
+        {/if}
+        {#if trip.blocked.length}
+          <p class="sublabel">Needs an engineer unlock</p>
+          <ul class="plain">
+            {#each trip.blocked as b (b.job.slot + b.job.kind)}
+              <li>
+                {b.job.slot_name}: {b.job.what} <span class="lo">· {b.reason}</span>
+                {#if b.unlock.length}<span class="then">{b.unlock.map(([n, p]) => `${n} (${p.toLowerCase()})`).join(", ")}</span>{/if}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      {/if}
     </div>
   {/if}
 
@@ -236,6 +329,7 @@
         <p>{s.summary}</p>
         <p class="lo">{s.hint}</p>
       {/each}
+      {#if lookup}<Nearby query={lookup} />{/if}
     {:else if sel}
       <h3>{sel.name}</h3>
       <p>Grade {sel.grade}{sel.kind ? ` · ${sel.kind.charAt(0).toUpperCase()}${sel.kind.slice(1)}` : ""} · {sel.group}</p>
@@ -261,6 +355,7 @@
         <p class="lo">{s.hint}</p>
       {/each}
       <p class="lo">Used by: {usedBy.map((t) => `${t.slot_name} (${t.blueprint_name})`).join(", ")}</p>
+      {#if lookup}<Nearby query={lookup} />{/if}
     {:else}
       <h3>Engineering</h3>
       <p>Choose a blueprint, grade and experimental for each module. The list adds up the remaining grade steps from where each module is now and compares the total with your materials.</p>
@@ -312,6 +407,11 @@
   .ok { color: var(--accent); margin-top: 18px; }
   .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
   .link { color: var(--text); }
+  .small { font-size: var(--fs-s); }
+  .stops { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-s); }
+  .stop { color: var(--text-hi); }
+  .sublabel { margin: 16px 0 6px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+
   .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
   .about { border-left: 2px solid var(--accent); padding-left: 24px; grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; }

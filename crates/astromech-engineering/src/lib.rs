@@ -6,11 +6,15 @@
 //! trader swaps from surplus and farming notes for the rest.
 
 pub mod data;
+pub mod engineers;
 pub mod fleet;
 pub mod plan;
+pub mod trip;
 
+pub use engineers::EngineerView;
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
 pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
+pub use trip::{plan_trip, Hop, Trip};
 
 /// Fleet read from the crate's fake journal fixtures (app window sample).
 pub fn sample_fleet() -> Fleet {
@@ -169,6 +173,154 @@ mod tests {
         let ae = route.iter().find(|f| f.id == "adaptiveencryptors").unwrap();
         assert_eq!((ae.collect, ae.then[0].get), (12, 2));
         assert!(route.iter().any(|f| f.id == "dataminedwake" && f.collect == 3 && f.then.is_empty()));
+    }
+
+    fn engineers_with(set: &[(&str, &str, Option<u8>)]) -> Vec<EngineerView> {
+        let mut b = engineers::EngineerBuilder::default();
+        let snaps = set
+            .iter()
+            .map(|(n, p, r)| astromech_journal::EngineerSnap {
+                engineer: n.to_string(),
+                engineer_id: None,
+                progress: p.to_string(),
+                rank: *r,
+                rank_progress: None,
+            })
+            .collect();
+        b.apply(&astromech_journal::JournalEvent::EngineerProgress { engineers: snaps });
+        b.build()
+    }
+
+    fn straight(range: f64) -> impl Fn([f64; 3], [f64; 3]) -> Hop {
+        move |a, b| {
+            let ly = ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt();
+            Hop { ly, jumps: (ly / range).ceil() as u32, exact: false }
+        }
+    }
+
+    #[test]
+    fn trip_in_person_stops_and_remote_note() {
+        let fleet = from_journal_dir(&fixture_dir());
+        let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let r = sample_plan();
+        let engs = engineers_with(&[
+            ("Felicity Farseer", "Unlocked", Some(5)),
+            ("Professor Palin", "Unlocked", Some(3)),
+            ("Elvira Martuuk", "Invited", None),
+        ]);
+        assert!(engineers::info("Felicity Farseer").is_some());
+        let hop = straight(20.0);
+        let trip = plan_trip(ship, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &hop);
+        // FSD G4–G5 needs Felicity (Palin stops at G3); Palin does Dirty drives and, as he
+        // works on FSDs too, can take Mass Manager: two stops
+        let names: Vec<&str> = trip.stops.iter().map(|s| s.engineer.as_str()).collect();
+        assert_eq!(names.len(), 2, "{names:?}");
+        let fel = trip.stops.iter().find(|s| s.engineer == "Felicity Farseer").unwrap();
+        let fsd = fel.jobs.iter().find(|j| j.what == "Increased range G3 → G5").unwrap();
+        // Felicity is rank 5: the grades could be remote if pinned there
+        assert!(fsd.note.as_deref().unwrap().contains("pinned at Felicity Farseer"));
+        let palin = trip.stops.iter().find(|s| s.engineer == "Professor Palin").unwrap();
+        let dirty = palin.jobs.iter().find(|j| j.kind == "grades").unwrap();
+        assert!(dirty.note.as_deref().unwrap().contains("rank 3"));
+        assert_eq!(trip.total_jumps, trip.stops.iter().map(|s| s.hop.jumps).sum::<u32>());
+        assert!(trip.blocked.is_empty());
+
+        // nobody unlocked → everything blocked, with who to unlock
+        let none = engineers_with(&[]);
+        let trip = plan_trip(ship, &r.targets, &none, None, 20.0, &hop);
+        assert!(trip.stops.is_empty());
+        assert_eq!(trip.blocked.len(), 3);
+        assert!(trip.blocked[0].unlock.iter().any(|(n, _)| n == "Felicity Farseer"));
+    }
+
+    #[test]
+    fn experimental_never_before_its_blueprint() {
+        // New blueprint (Faster boot G5: Felicity) plus Mass Manager on the FSD, and Dirty
+        // drives G5 (only Palin). Starting at Palin, the cheapest route visits Palin first; he
+        // could apply Mass Manager, but the new blueprint at Felicity afterwards would wipe it.
+        let fleet = from_journal_dir(&fixture_dir());
+        let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let plan = Plan {
+            ship_id: 7,
+            targets: vec![
+                Target {
+                    slot: "FrameShiftDrive".into(),
+                    blueprint: "FSD_FastBoot".into(),
+                    grade: 5,
+                    experimental: Some("special_fsd_heavy".into()),
+                },
+                Target { slot: "MainEngines".into(), blueprint: "Engine_Dirty".into(), grade: 5, experimental: None },
+            ],
+            rolls: Rolls::default(),
+        };
+        let ledger = astromech_materials::Ledger::default();
+        let r = evaluate(ship, &plan, &ledger);
+        let engs =
+            engineers_with(&[("Felicity Farseer", "Unlocked", Some(5)), ("Professor Palin", "Unlocked", Some(5))]);
+        let arque = engineers::info("Professor Palin").unwrap().coords;
+        let trip = plan_trip(ship, &r.targets, &engs, Some(("Arque", arque)), 20.0, &straight(20.0));
+        let stop_of =
+            |what: &str| trip.stops.iter().position(|s| s.jobs.iter().any(|j| j.what.contains(what))).unwrap();
+        assert_eq!(trip.stops[0].engineer, "Professor Palin");
+        assert!(stop_of("Mass Manager") >= stop_of("Faster boot"), "{:?}", trip.stops);
+        assert_eq!(trip.stops[stop_of("Mass Manager")].engineer, "Felicity Farseer");
+        // no start: first leg is not claimed exact
+        let trip = plan_trip(ship, &r.targets, &engs, None, 20.0, &straight(20.0));
+        assert!(!trip.stops[0].hop.exact);
+    }
+
+    #[test]
+    fn crafts_update_the_fleet_and_shrink_the_trip() {
+        use astromech_journal::JournalEvent;
+        let craft = |bp: &str, level: u8, quality: f64, slot: &str, exp: Option<&str>| JournalEvent::EngineerCraft {
+            engineer: "Felicity Farseer".into(),
+            engineer_id: Some(300100),
+            blueprint: bp.into(),
+            level,
+            quality,
+            slot: Some(slot.into()),
+            experimental: exp.map(str::to_string),
+            experimental_localised: None,
+            preview: false,
+            ingredients: vec![],
+        };
+        let mut b = FleetBuilder::default();
+        for p in astromech_journal::journal_logs(&fixture_dir()) {
+            for l in astromech_journal::parse_file(&p) {
+                b.apply(&l.timestamp, &l.event);
+            }
+        }
+        // the fixture's current ship is the Anaconda (3); switch to the Krait by flying it
+        let krait_loadout = astromech_journal::parse_file(&fixture_dir().join("Journal.2026-09-20T180000.01.log"))
+            .into_iter()
+            .find(|l| matches!(l.event, JournalEvent::Loadout { ship_id: Some(7), .. }))
+            .unwrap();
+        b.apply("2026-10-04T10:00:00Z", &krait_loadout.event);
+        // FSD G5 at full progress plus Mass Manager, rolled remotely or not: same events
+        b.apply("2026-10-04T10:05:00Z", &craft("FSD_LongRange", 5, 1.0, "FrameShiftDrive", Some("special_fsd_heavy")));
+        // a preview changes nothing
+        let mut preview = craft("Engine_Dirty", 5, 1.0, "MainEngines", None);
+        if let JournalEvent::EngineerCraft { preview: p, .. } = &mut preview {
+            *p = true;
+        }
+        b.apply("2026-10-04T10:06:00Z", &preview);
+        let fleet = b.build("test");
+        let krait = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let fsd = krait.modules.iter().find(|m| m.slot == "FrameShiftDrive").unwrap().engineering.clone().unwrap();
+        assert_eq!((fsd.grade, fsd.quality, fsd.experimental.as_deref()), (5, 1.0, Some("special_fsd_heavy")));
+        let thr = krait.modules.iter().find(|m| m.slot == "MainEngines").unwrap().engineering.clone().unwrap();
+        assert_eq!(thr.grade, 3, "preview ignored");
+        assert_eq!(thr.experimental.as_deref(), Some("special_engine_overloaded"));
+        assert_eq!(krait.loadout_ts.as_deref(), Some("2026-10-04T10:05:00Z"));
+        // the FSD target is now done, so the trip only has the thrusters
+        let ledger = astromech_materials::replay_journal_dir(&fixture_dir());
+        let r = evaluate(krait, &sample_plan_input(), &ledger);
+        assert_eq!(r.targets[0].note.as_deref(), Some("Already done."));
+        let engs =
+            engineers_with(&[("Felicity Farseer", "Unlocked", Some(5)), ("Professor Palin", "Unlocked", Some(3))]);
+        let trip = plan_trip(krait, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
+        let jobs: Vec<&str> = trip.stops.iter().flat_map(|s| s.jobs.iter().map(|j| j.what.as_str())).collect();
+        assert_eq!(jobs, vec!["Dirty G3 → G5"]);
     }
 
     #[test]

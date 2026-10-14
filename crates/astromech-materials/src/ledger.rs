@@ -24,7 +24,8 @@ impl Ledger {
                     self.set(it, it.count);
                 }
             }
-            JournalEvent::MaterialDelta { items } => {
+            JournalEvent::MaterialDelta { items }
+            | JournalEvent::EngineerCraft { ingredients: items, preview: false, .. } => {
                 for it in items {
                     self.add(it, it.count);
                 }

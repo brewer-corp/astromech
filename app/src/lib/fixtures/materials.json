@@ -629,7 +629,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak.",
-                  "hint": "Independent or Alliance systems in Outbreak, population about a million or more."
+                  "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
+                  "query": "pharma"
                 }
               ]
             }
@@ -696,7 +697,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
-                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO."
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
+                  "query": "military"
                 }
               ]
             }
@@ -763,7 +765,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "query": "proto"
                 }
               ]
             }
@@ -897,7 +900,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Civil Unrest.",
-                  "hint": "Independent or Alliance systems in Civil Unrest. Check Contacts → INFO."
+                  "hint": "Independent or Alliance systems in Civil Unrest. Check Contacts → INFO.",
+                  "query": "improvised"
                 }
               ]
             }
@@ -964,7 +968,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a faction in War or Civil War.",
-                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO."
+                  "hint": "Any allegiance. War / Civil War on the spawning faction. Check Contacts → INFO.",
+                  "query": "military"
                 }
               ]
             }
@@ -1031,7 +1036,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Empire faction.",
-                  "hint": "Prefer high-population Empire systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                  "hint": "Prefer high-population Empire systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "query": "empire_shielding"
                 }
               ]
             }
@@ -1087,7 +1093,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "query": "fed_composites"
                 }
               ]
             },
@@ -1105,7 +1112,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State."
+                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "query": "fed_composites"
                 }
               ]
             }
@@ -1228,7 +1236,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "query": "proto"
                 }
               ]
             },
@@ -1246,7 +1255,8 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Boom.",
-                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO."
+                  "hint": "Independent or Alliance systems in Boom. Honk or scan the nav beacon, then check Contacts → INFO.",
+                  "query": "proto"
                 }
               ]
             }
@@ -1380,7 +1390,8 @@
                 {
                   "kind": "wake_scan",
                   "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "query": "famine"
                 }
               ]
             },
@@ -1398,7 +1409,8 @@
                 {
                   "kind": "wake_scan",
                   "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "query": "famine"
                 }
               ]
             },
@@ -1416,7 +1428,8 @@
                 {
                   "kind": "wake_scan",
                   "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "query": "famine"
                 }
               ]
             },
@@ -1434,7 +1447,8 @@
                 {
                   "kind": "wake_scan",
                   "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "query": "famine"
                 }
               ]
             },
@@ -1452,7 +1466,8 @@
                 {
                   "kind": "wake_scan",
                   "summary": "Wake scanning where traffic never stops.",
-                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early."
+                  "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
+                  "query": "famine"
                 }
               ]
             }

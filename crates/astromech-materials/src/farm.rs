@@ -48,7 +48,12 @@ pub fn anchor(spec: &'static Spec) -> &'static Spec {
 }
 
 pub fn sources_for(spec: &Spec) -> Vec<SourceNote> {
-    let note = |kind: &str, summary: String, hint: String| SourceNote { kind: kind.into(), summary, hint };
+    let note = |kind: &str, summary: String, hint: String| SourceNote {
+        kind: kind.into(),
+        summary,
+        hint,
+        query: (kind == "wake_scan").then(|| "famine".to_string()),
+    };
     let mut out = vec![];
     match spec.kind {
         Kind::Raw if spec.on_trader && spec.grade == 4 => {

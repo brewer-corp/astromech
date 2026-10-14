@@ -1,4 +1,367 @@
 {
+  "engineers": {
+    "engineers": [
+      {
+        "colonia": false,
+        "coords": [
+          72.75,
+          48.75,
+          68.25
+        ],
+        "id": 300000,
+        "name": "Didi Vatermann",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Leesti"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -33.65625,
+          72.46875,
+          -20.65625
+        ],
+        "id": 300010,
+        "name": "Bill Turner",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Alioth"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          17.03125,
+          -172.78125,
+          -3.46875
+        ],
+        "id": 300030,
+        "name": "Broo Tarquin",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Muang"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          32.25,
+          -55.1875,
+          23.875
+        ],
+        "id": 300040,
+        "name": "The Sarge",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Beta-3 Tucani"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          97.875,
+          -86.90625,
+          64.125
+        ],
+        "id": 300050,
+        "name": "Zacariah Nemo",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Yoru"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          51.40625,
+          -54.40625,
+          -30.5
+        ],
+        "id": 300080,
+        "name": "Liz Ryder",
+        "progress": "Known",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Eurybia"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          134.65625,
+          -226.90625,
+          -7.8125
+        ],
+        "id": 300090,
+        "name": "Hera Tani",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Kuwemaki"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          122.625,
+          -0.8125,
+          -47.28125
+        ],
+        "id": 300100,
+        "name": "Felicity Farseer",
+        "progress": "Unlocked",
+        "rank": 5,
+        "rank_progress": 0,
+        "system": "Deciat"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          118.78125,
+          -56.4375,
+          -97.1875
+        ],
+        "id": 300110,
+        "name": "Ram Tah",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Meene"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -21.53125,
+          -6.3125,
+          116.03125
+        ],
+        "id": 300120,
+        "name": "Lei Cheung",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Laksak"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9550.28125,
+          -916.65625,
+          19816.1875
+        ],
+        "id": 300130,
+        "name": "Petra Olmanova",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Asura"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "id": 300140,
+        "name": "Colonel Bris Dekker",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Sol"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9532.9375,
+          -923.4375,
+          19799.125
+        ],
+        "id": 300150,
+        "name": "Marsha Hicks",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Tir"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -171.59375,
+          19.96875,
+          -56.96875
+        ],
+        "id": 300160,
+        "name": "Elvira Martuuk",
+        "progress": "Invited",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Khun"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -11.625,
+          31.53125,
+          -3.9375
+        ],
+        "id": 300180,
+        "name": "The Dweller",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Wyrd"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          6.25,
+          -1.28125,
+          -5.75
+        ],
+        "id": 300200,
+        "name": "Marco Qwent",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Sirius"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -21.28125,
+          69.09375,
+          -16.3125
+        ],
+        "id": 300210,
+        "name": "Selene Jean",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Kuk"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          66.5,
+          38.0625,
+          61.125
+        ],
+        "id": 300220,
+        "name": "Professor Palin",
+        "progress": "Unlocked",
+        "rank": 3,
+        "rank_progress": 40,
+        "system": "Arque"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          55.71875,
+          17.59375,
+          27.15625
+        ],
+        "id": 300230,
+        "name": "Lori Jameson",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Shinrarta Dezhra"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          14.6875,
+          27.65625,
+          108.65625
+        ],
+        "id": 300250,
+        "name": "Juri Ishmaak",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Giryak"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          40.0,
+          79.21875,
+          -10.40625
+        ],
+        "id": 300260,
+        "name": "Tod 'The Blaster' McQuinn",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Wolf 397"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          67.5,
+          -119.46875,
+          24.84375
+        ],
+        "id": 300270,
+        "name": "Tiana Fortune",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Achenar"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9523.3125,
+          -914.46875,
+          19825.90625
+        ],
+        "id": 300280,
+        "name": "Mel Brandon",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Luchtaine"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9509.34375,
+          -886.3125,
+          19820.125
+        ],
+        "id": 300290,
+        "name": "Etienne Dorn",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Los"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          351.96875,
+          -373.46875,
+          -711.09375
+        ],
+        "id": 300300,
+        "name": "Chloe Sedesi",
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Shenve"
+      }
+    ],
+    "here": {
+      "id64": 3932277478106,
+      "pos": [
+        55.71875,
+        17.59375,
+        27.15625
+      ],
+      "system": "Shinrarta Dezhra"
+    }
+  },
   "fleet": {
     "groups": {
       "bh": {
@@ -391,6 +754,7 @@
         "id": 3,
         "ident": "HL-03",
         "loadout_ts": "2026-10-03T09:00:05Z",
+        "max_jump_range": 18.0,
         "modules": [
           {
             "group": "bh",
@@ -424,6 +788,7 @@
         "id": 7,
         "ident": "LW-07",
         "loadout_ts": "2026-09-20T18:00:05Z",
+        "max_jump_range": 32.5,
         "modules": [
           {
             "group": "bh",
@@ -512,6 +877,7 @@
         "id": 12,
         "ident": null,
         "loadout_ts": null,
+        "max_jump_range": null,
         "modules": [],
         "name": null,
         "ship_type": "asp",
@@ -536,6 +902,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -553,6 +920,7 @@
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
             "kind": "hge",
+            "query": "pharma",
             "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
           }
         ]
@@ -655,6 +1023,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -674,6 +1043,7 @@
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
             "kind": "hge",
+            "query": "pharma",
             "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
           }
         ]
@@ -717,6 +1087,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -817,6 +1188,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -936,6 +1308,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -1243,5 +1616,67 @@
         "slot": "MainEngines"
       }
     ]
+  },
+  "trip": {
+    "blocked": [],
+    "exact": false,
+    "range": 32.5,
+    "start": "Shinrarta Dezhra",
+    "stops": [
+      {
+        "engineer": "Professor Palin",
+        "hop": {
+          "exact": false,
+          "jumps": 2,
+          "ly": 41.09843129229509
+        },
+        "jobs": [
+          {
+            "blueprint": "Engine_Dirty",
+            "grade": 5,
+            "kind": "grades",
+            "module": "6A Thrusters",
+            "note": "Rank rises as you craft in person: Professor Palin (rank 3).",
+            "slot": "MainEngines",
+            "slot_name": "Thrusters",
+            "what": "Dirty G3 → G5"
+          }
+        ],
+        "rank": 3,
+        "system": "Arque"
+      },
+      {
+        "engineer": "Felicity Farseer",
+        "hop": {
+          "exact": false,
+          "jumps": 4,
+          "ly": 128.1139972409826
+        },
+        "jobs": [
+          {
+            "blueprint": "FSD_LongRange",
+            "grade": 5,
+            "kind": "grades",
+            "module": "5A Frame Shift Drive",
+            "note": "Could be rolled remotely if Increased range is pinned at Felicity Farseer.",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive",
+            "what": "Increased range G3 → G5"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "grade": 0,
+            "kind": "experimental",
+            "module": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive",
+            "what": "Mass Manager"
+          }
+        ],
+        "rank": 5,
+        "system": "Deciat"
+      }
+    ],
+    "total_jumps": 6
   }
 }
