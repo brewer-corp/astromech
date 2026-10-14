@@ -2,14 +2,13 @@
 //! `scripts/gen-starmap.py`), what they offer (`engineering.json`), and the commander's access
 //! from the journal (`EngineerProgress`).
 //!
-//! The game does not log which blueprint is pinned at each engineer. A craft made while not in
-//! that engineer's system must have been remote, so it was the pinned blueprint then; the newest
-//! such craft per engineer is offered as the default, which the user can override.
+//! Pinned blueprints are not tracked: the game does not log them. Remote crafts show up as
+//! `EngineerCraft` like any other and update the fleet, so the plan and trip shrink on their own.
 
 use crate::data;
 use astromech_journal::JournalEvent;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::path::Path;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -58,21 +57,6 @@ pub fn offers(engineer: &str, blueprint: &str) -> u8 {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct Offer {
-    pub blueprint: String,
-    pub name: String,
-    pub module: String,
-    pub max_grade: u8,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct Pin {
-    pub blueprint: String,
-    pub blueprint_name: String,
-    pub ts: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EngineerView {
     pub id: i64,
     pub name: String,
@@ -83,8 +67,6 @@ pub struct EngineerView {
     pub progress: String,
     pub rank: Option<u8>,
     pub rank_progress: Option<u8>,
-    pub inferred_pin: Option<Pin>,
-    pub offers: Vec<Offer>,
 }
 
 impl EngineerView {
@@ -93,65 +75,19 @@ impl EngineerView {
     }
 }
 
-fn offers_of(name: &str) -> Vec<Offer> {
-    let k = key(name);
-    let c = data::catalog();
-    let mut module_of: HashMap<&str, &str> = HashMap::new();
-    for g in c.groups.values() {
-        for b in &g.blueprints {
-            module_of.entry(b.as_str()).or_insert(g.name.as_str());
-        }
-    }
-    let mut out: Vec<Offer> = c
-        .blueprints
-        .iter()
-        .filter_map(|(id, b)| {
-            let max = b.grades.iter().filter(|g| g.engineers.iter().any(|e| key(e) == k)).map(|g| g.grade).max()?;
-            Some(Offer {
-                blueprint: id.clone(),
-                name: b.name.clone(),
-                module: module_of.get(id.as_str()).copied().unwrap_or("").to_string(),
-                max_grade: max,
-            })
-        })
-        .collect();
-    out.sort_by(|a, b| a.module.cmp(&b.module).then(a.name.cmp(&b.name)));
-    out
-}
-
-const EVENTS: &[&str] =
-    &["\"EngineerProgress\"", "\"EngineerCraft\"", "\"Location\"", "\"FSDJump\"", "\"CarrierJump\""];
+const EVENTS: &[&str] = &["\"EngineerProgress\""];
 
 #[derive(Debug, Default)]
 pub struct EngineerBuilder {
     progress: HashMap<String, (String, Option<u8>, Option<u8>)>,
-    pins: HashMap<String, Pin>,
-    system: Option<i64>,
 }
 
 impl EngineerBuilder {
-    pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
-        match ev {
-            JournalEvent::Location { system_address, .. } | JournalEvent::FsdJump { system_address, .. } => {
-                self.system = *system_address;
+    pub fn apply(&mut self, ev: &JournalEvent) {
+        if let JournalEvent::EngineerProgress { engineers } = ev {
+            for e in engineers {
+                self.progress.insert(key(&e.engineer), (e.progress.clone(), e.rank, e.rank_progress));
             }
-            JournalEvent::EngineerProgress { engineers } => {
-                for e in engineers {
-                    self.progress.insert(key(&e.engineer), (e.progress.clone(), e.rank, e.rank_progress));
-                }
-            }
-            JournalEvent::EngineerCraft { engineer, blueprint, .. } => {
-                let (Some(here), Some(info)) = (self.system, info(engineer)) else { return };
-                if here != info.id64 {
-                    if let Some((id, b)) = data::blueprint(blueprint) {
-                        self.pins.insert(
-                            key(engineer),
-                            Pin { blueprint: id.to_string(), blueprint_name: b.name.clone(), ts: ts.to_string() },
-                        );
-                    }
-                }
-            }
-            _ => {}
         }
     }
 
@@ -171,8 +107,6 @@ impl EngineerBuilder {
                     progress,
                     rank,
                     rank_progress,
-                    inferred_pin: self.pins.get(&k).cloned(),
-                    offers: offers_of(&e.name),
                 }
             })
             .collect()
@@ -185,24 +119,9 @@ pub fn from_journal_dir(dir: &Path) -> Vec<EngineerView> {
         let Ok(text) = std::fs::read_to_string(&p) else { continue };
         for line in text.lines().filter(|l| EVENTS.iter().any(|e| l.contains(e))) {
             if let Ok(l) = astromech_journal::parse_line(line.trim()) {
-                b.apply(&l.timestamp, &l.event);
+                b.apply(&l.event);
             }
         }
     }
     b.build()
-}
-
-/// Effective pins: the user's choices (engineer name → blueprint id, "" to clear) over the
-/// inferred ones.
-pub fn effective_pins(engineers: &[EngineerView], user: &BTreeMap<String, String>) -> HashMap<String, String> {
-    let mut out: HashMap<String, String> =
-        engineers.iter().filter_map(|e| e.inferred_pin.as_ref().map(|p| (key(&e.name), p.blueprint.clone()))).collect();
-    for (name, bp) in user {
-        if bp.is_empty() {
-            out.remove(&key(name));
-        } else {
-            out.insert(key(name), bp.clone());
-        }
-    }
-    out
 }

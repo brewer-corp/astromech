@@ -2,7 +2,7 @@
   // Build planner: pick a ship from the journal fleet, set a blueprint / grade / experimental per
   // module, and see the materials it costs against the inventory, trades and what to farm.
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadEngineers, loadFleet, planTrip, savePins, savePlan, savedPins, savedPlan, shipTitle,
+    DEFAULT_ROLLS, evaluatePlan, loadEngineers, loadFleet, planTrip, savePlan, savedPlan, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
   } from "../../lib/engineering";
   import { jumps } from "../../lib/galaxy";
@@ -16,7 +16,6 @@
   let selMat = $state<string | null>(null);
   let seq = 0;
   let engineers = $state<Engineers | null>(null);
-  let pins = $state<Record<string, string>>(savedPins());
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
 
@@ -29,7 +28,6 @@
     (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
   );
 
-  const rank5 = $derived(engineers?.engineers.filter((e) => e.progress === "Unlocked" && e.rank === 5) ?? []);
   const hasJobs = $derived(result?.targets.some((t) => t.steps.length > 0 || t.experimental_needed) ?? false);
   const lookup = $derived((selFarm ?? sel)?.sources?.find((s) => s.query)?.query);
 
@@ -71,17 +69,16 @@
       });
   });
 
-  // Re-plan the trip when the plan, pins or journal change.
+  // Re-plan the trip when the plan or the journal changes (crafts, remote or not, shrink it).
   $effect(() => {
     const p = plan;
-    const pn = $state.snapshot(pins);
     void result;
     void engineers;
     if (!p || !hasJobs) {
       trip = null;
       return;
     }
-    planTrip($state.snapshot(p) as Plan, pn)
+    planTrip($state.snapshot(p) as Plan)
       .then((tr) => {
         trip = tr;
         tripErr = null;
@@ -91,16 +88,6 @@
         tripErr = String(e);
       });
   });
-
-  function pinOf(name: string): string {
-    if (name in pins) return pins[name] ?? "";
-    return engineers?.engineers.find((e) => e.name === name)?.inferred_pin?.blueprint ?? "";
-  }
-
-  function setPin(name: string, bp: string) {
-    pins = { ...pins, [name]: bp };
-    savePins(pins);
-  }
 
   function target(slot: string): Target | undefined {
     return plan?.targets.find((t) => t.slot === slot);
@@ -288,14 +275,6 @@
             {/each}
           </ol>
         {/if}
-        {#if trip.remote.length}
-          <p class="sublabel">Remote, with a pinned blueprint (rank 5)</p>
-          <ul class="plain">
-            {#each trip.remote as r (r.job.slot)}
-              <li>{r.job.slot_name}: {r.job.what} <span class="lo">· pinned at {r.engineer}</span></li>
-            {/each}
-          </ul>
-        {/if}
         {#if trip.blocked.length}
           <p class="sublabel">Needs an engineer unlock</p>
           <ul class="plain">
@@ -306,22 +285,6 @@
               </li>
             {/each}
           </ul>
-        {/if}
-        {#if rank5.length}
-          <p class="sublabel">Pinned blueprints (remote engineering at rank 5)</p>
-          <div class="pins">
-            {#each rank5 as e (e.id)}
-              <span>{e.name}</span>
-              <select class:idle={!pinOf(e.name)} value={pinOf(e.name)} onchange={(ev) => setPin(e.name, ev.currentTarget.value)}>
-                <option value="" selected={!pinOf(e.name)}>None</option>
-                {#each e.offers as o (o.blueprint)}
-                  <option value={o.blueprint} selected={o.blueprint === pinOf(e.name)}>{o.module}: {o.name} (G{o.max_grade})</option>
-                {/each}
-              </select>
-              <span class="lo small">{e.inferred_pin && !(e.name in pins) ? `from your remote craft, ${e.inferred_pin.ts.slice(0, 10)}` : e.name in pins ? "set here" : ""}</span>
-            {/each}
-          </div>
-          <p class="lo small">The game doesn't log pins: they're guessed from remote crafts. Remote crafting earns no reputation, so below rank 5 the trip goes in person.</p>
         {/if}
       {/if}
     </div>
@@ -420,7 +383,7 @@
   .stops { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-s); }
   .stop { color: var(--text-hi); }
   .sublabel { margin: 16px 0 6px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .pins { display: grid; grid-template-columns: 12rem 18rem 1fr; gap: var(--gap) 10px; align-items: center; font-size: var(--fs-s); }
+
   .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
   .about { border-left: 2px solid var(--accent); padding-left: 24px; grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; }

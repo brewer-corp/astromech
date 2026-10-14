@@ -4,9 +4,11 @@
 //! engineered while flown, so the newest `Loadout` per `ShipID` stays true until that ship is
 //! flown again. `StoredShips` (each shipyard visit) lists the rest of the fleet and drops ships
 //! sold while no journal was kept; `ShipyardSell` / `SellShipOnRebuy` drop them as they happen.
+//! Each `EngineerCraft` (in person or remote) updates the flown ship's module straight away, so
+//! the plan and trip follow engineering without waiting for the next `Loadout`.
 
 use crate::data;
-use astromech_journal::{JournalEvent, ModuleSnap, StoredShip};
+use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredShip};
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
@@ -115,6 +117,34 @@ impl FleetBuilder {
                 self.stored = ships.iter().map(|s| (s.ship_id, s.clone())).collect();
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
+            }
+            JournalEvent::EngineerCraft {
+                engineer,
+                blueprint,
+                level,
+                quality,
+                slot: Some(slot),
+                experimental,
+                experimental_localised,
+                preview: false,
+                ..
+            } => {
+                let Some(seen) = self.current.and_then(|id| self.loadouts.get_mut(&id)) else { return };
+                let Some(m) = seen.modules.iter_mut().find(|m| m.slot.eq_ignore_ascii_case(slot)) else { return };
+                let same = m.engineering.as_ref().is_some_and(|e| e.blueprint.eq_ignore_ascii_case(blueprint));
+                // An experimental stays unless the craft names one or the blueprint changed.
+                let kept = if same { m.engineering.as_ref().and_then(|e| e.experimental.clone()) } else { None };
+                let kept_name =
+                    if same { m.engineering.as_ref().and_then(|e| e.experimental_localised.clone()) } else { None };
+                m.engineering = Some(ModEngineering {
+                    blueprint: blueprint.clone(),
+                    level: *level,
+                    quality: *quality,
+                    experimental: experimental.clone().or(kept),
+                    experimental_localised: experimental_localised.clone().or(kept_name),
+                    engineer: Some(engineer.clone()),
+                });
+                seen.ts = ts.to_string();
             }
             JournalEvent::ShipSold { ship_id } => {
                 self.loadouts.remove(ship_id);
@@ -293,8 +323,14 @@ fn slot_order(slot: &str) -> (u8, u8, String) {
     (class, rank, slot.to_string())
 }
 
-const FLEET_EVENTS: &[&str] =
-    &["\"Loadout\"", "\"StoredShips\"", "\"ShipyardSell\"", "\"ShipyardBuy\"", "\"SellShipOnRebuy\""];
+const FLEET_EVENTS: &[&str] = &[
+    "\"Loadout\"",
+    "\"StoredShips\"",
+    "\"ShipyardSell\"",
+    "\"ShipyardBuy\"",
+    "\"SellShipOnRebuy\"",
+    "\"EngineerCraft\"",
+];
 
 /// Replay every journal in `dir`, oldest first. Lines are pre-filtered by event name, so years
 /// of journals cost one read each.

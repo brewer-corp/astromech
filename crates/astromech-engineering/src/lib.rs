@@ -11,7 +11,7 @@ pub mod fleet;
 pub mod plan;
 pub mod trip;
 
-pub use engineers::{EngineerView, Pin};
+pub use engineers::EngineerView;
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
 pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 pub use trip::{plan_trip, Hop, Trip};
@@ -187,7 +187,7 @@ mod tests {
                 rank_progress: None,
             })
             .collect();
-        b.apply("t", &astromech_journal::JournalEvent::EngineerProgress { engineers: snaps });
+        b.apply(&astromech_journal::JournalEvent::EngineerProgress { engineers: snaps });
         b.build()
     }
 
@@ -199,7 +199,7 @@ mod tests {
     }
 
     #[test]
-    fn trip_remote_pin_and_in_person_stops() {
+    fn trip_in_person_stops_and_remote_note() {
         let fleet = from_journal_dir(&fixture_dir());
         let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
         let r = sample_plan();
@@ -209,74 +209,82 @@ mod tests {
             ("Elvira Martuuk", "Invited", None),
         ]);
         assert!(engineers::info("Felicity Farseer").is_some());
-        let user: std::collections::BTreeMap<String, String> =
-            [("Felicity Farseer".to_string(), "FSD_LongRange".to_string())].into_iter().collect();
-        let pins = engineers::effective_pins(&engs, &user);
         let hop = straight(20.0);
-        let trip = plan_trip(ship, &r.targets, &engs, &pins, Some(("Sol", [0.0; 3])), 20.0, &hop);
-        // FSD grades: Felicity is rank 5 with it pinned → remote
-        assert_eq!(trip.remote.len(), 1);
-        assert_eq!(trip.remote[0].engineer, "Felicity Farseer");
-        assert_eq!(trip.remote[0].job.what, "Increased range G3 → G5");
-        // in person: Mass Manager and Dirty drives G3 → G5. Palin works on FSDs too, so one
-        // stop covers both.
-        let names: Vec<&str> = trip.stops.iter().map(|s| s.engineer.as_str()).collect();
-        assert_eq!(names, vec!["Professor Palin"]);
-        let palin = &trip.stops[0];
-        assert_eq!(palin.jobs.len(), 2);
-        let dirty = palin.jobs.iter().find(|j| j.kind == "grades").unwrap();
-        assert!(dirty.note.as_deref().unwrap().contains("rank 3"));
-        assert_eq!(trip.total_jumps, palin.hop.jumps);
-        assert!(trip.blocked.is_empty());
-
-        // without the pin, FSD G4–G5 needs Felicity (Palin stops at G3): two stops
-        let trip = plan_trip(ship, &r.targets, &engs, &Default::default(), Some(("Sol", [0.0; 3])), 20.0, &hop);
-        assert!(trip.remote.is_empty());
+        let trip = plan_trip(ship, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &hop);
+        // FSD G4–G5 needs Felicity (Palin stops at G3); Palin does Dirty drives and, as he
+        // works on FSDs too, can take Mass Manager: two stops
         let names: Vec<&str> = trip.stops.iter().map(|s| s.engineer.as_str()).collect();
         assert_eq!(names.len(), 2, "{names:?}");
-        assert!(trip
-            .stops
-            .iter()
-            .any(|s| s.engineer == "Felicity Farseer" && s.jobs.iter().any(|j| j.what == "Increased range G3 → G5")));
+        let fel = trip.stops.iter().find(|s| s.engineer == "Felicity Farseer").unwrap();
+        let fsd = fel.jobs.iter().find(|j| j.what == "Increased range G3 → G5").unwrap();
+        // Felicity is rank 5: the grades could be remote if pinned there
+        assert!(fsd.note.as_deref().unwrap().contains("pinned at Felicity Farseer"));
+        let palin = trip.stops.iter().find(|s| s.engineer == "Professor Palin").unwrap();
+        let dirty = palin.jobs.iter().find(|j| j.kind == "grades").unwrap();
+        assert!(dirty.note.as_deref().unwrap().contains("rank 3"));
+        assert_eq!(trip.total_jumps, trip.stops.iter().map(|s| s.hop.jumps).sum::<u32>());
+        assert!(trip.blocked.is_empty());
 
         // nobody unlocked → everything blocked, with who to unlock
         let none = engineers_with(&[]);
-        let trip = plan_trip(ship, &r.targets, &none, &Default::default(), None, 20.0, &hop);
+        let trip = plan_trip(ship, &r.targets, &none, None, 20.0, &hop);
         assert!(trip.stops.is_empty());
         assert_eq!(trip.blocked.len(), 3);
         assert!(trip.blocked[0].unlock.iter().any(|(n, _)| n == "Felicity Farseer"));
     }
 
     #[test]
-    fn pin_inferred_from_remote_craft() {
-        let mut b = engineers::EngineerBuilder::default();
-        let deciat = engineers::info("Felicity Farseer").unwrap().id64;
-        let jump = |id: i64| astromech_journal::JournalEvent::FsdJump {
-            star_system: "x".into(),
-            jump_dist: 1.0,
-            allegiance: String::new(),
-            population: 0,
-            factions: vec![],
-            from_carrier: false,
-            system_address: Some(id),
-            star_pos: None,
-        };
-        let craft = |bp: &str| astromech_journal::JournalEvent::EngineerCraft {
+    fn crafts_update_the_fleet_and_shrink_the_trip() {
+        use astromech_journal::JournalEvent;
+        let craft = |bp: &str, level: u8, quality: f64, slot: &str, exp: Option<&str>| JournalEvent::EngineerCraft {
             engineer: "Felicity Farseer".into(),
             engineer_id: Some(300100),
             blueprint: bp.into(),
-            level: 5,
-            slot: None,
+            level,
+            quality,
+            slot: Some(slot.into()),
+            experimental: exp.map(str::to_string),
+            experimental_localised: None,
+            preview: false,
             ingredients: vec![],
         };
-        b.apply("t1", &jump(deciat));
-        b.apply("t2", &craft("FSD_FastBoot")); // in person: not a pin
-        b.apply("t3", &jump(10477373803));
-        b.apply("t4", &craft("FSD_LongRange")); // from Sol: remote → pinned
-        let v = b.build();
-        let f = v.iter().find(|e| e.name == "Felicity Farseer").unwrap();
-        assert_eq!(f.inferred_pin.as_ref().unwrap().blueprint, "FSD_LongRange");
-        assert!(f.offers.iter().any(|o| o.blueprint == "FSD_LongRange" && o.max_grade == 5));
+        let mut b = FleetBuilder::default();
+        for p in astromech_journal::journal_logs(&fixture_dir()) {
+            for l in astromech_journal::parse_file(&p) {
+                b.apply(&l.timestamp, &l.event);
+            }
+        }
+        // the fixture's current ship is the Anaconda (3); switch to the Krait by flying it
+        let krait_loadout = astromech_journal::parse_file(&fixture_dir().join("Journal.2026-09-20T180000.01.log"))
+            .into_iter()
+            .find(|l| matches!(l.event, JournalEvent::Loadout { ship_id: Some(7), .. }))
+            .unwrap();
+        b.apply("2026-10-04T10:00:00Z", &krait_loadout.event);
+        // FSD G5 at full progress plus Mass Manager, rolled remotely or not: same events
+        b.apply("2026-10-04T10:05:00Z", &craft("FSD_LongRange", 5, 1.0, "FrameShiftDrive", Some("special_fsd_heavy")));
+        // a preview changes nothing
+        let mut preview = craft("Engine_Dirty", 5, 1.0, "MainEngines", None);
+        if let JournalEvent::EngineerCraft { preview: p, .. } = &mut preview {
+            *p = true;
+        }
+        b.apply("2026-10-04T10:06:00Z", &preview);
+        let fleet = b.build("test");
+        let krait = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let fsd = krait.modules.iter().find(|m| m.slot == "FrameShiftDrive").unwrap().engineering.clone().unwrap();
+        assert_eq!((fsd.grade, fsd.quality, fsd.experimental.as_deref()), (5, 1.0, Some("special_fsd_heavy")));
+        let thr = krait.modules.iter().find(|m| m.slot == "MainEngines").unwrap().engineering.clone().unwrap();
+        assert_eq!(thr.grade, 3, "preview ignored");
+        assert_eq!(thr.experimental.as_deref(), Some("special_engine_overloaded"));
+        assert_eq!(krait.loadout_ts.as_deref(), Some("2026-10-04T10:05:00Z"));
+        // the FSD target is now done, so the trip only has the thrusters
+        let ledger = astromech_materials::replay_journal_dir(&fixture_dir());
+        let r = evaluate(krait, &sample_plan_input(), &ledger);
+        assert_eq!(r.targets[0].note.as_deref(), Some("Already done."));
+        let engs =
+            engineers_with(&[("Felicity Farseer", "Unlocked", Some(5)), ("Professor Palin", "Unlocked", Some(3))]);
+        let trip = plan_trip(krait, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
+        let jobs: Vec<&str> = trip.stops.iter().flat_map(|s| s.jobs.iter().map(|j| j.what.as_str())).collect();
+        assert_eq!(jobs, vec!["Dirty G3 → G5"]);
     }
 
     #[test]

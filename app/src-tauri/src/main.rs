@@ -327,7 +327,7 @@ async fn engineering_plan(app: tauri::AppHandle, plan: astromech_engineering::Pl
     .await
 }
 
-/// Ship engineers: where they are, access and rank, inferred pinned blueprints, what they offer.
+/// Ship engineers: where they are, access and rank.
 #[tauri::command]
 async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
@@ -342,13 +342,11 @@ async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
 async fn engineering_trip(
     app: tauri::AppHandle,
     plan: astromech_engineering::Plan,
-    pins: std::collections::BTreeMap<String, String>,
 ) -> Result<Value, String> {
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>())?;
         let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
         let result = astromech_engineering::evaluate(ship, &plan, &st.ledger);
-        let pins = astromech_engineering::engineers::effective_pins(&st.engineers, &pins);
         let range = range_of(Some(ship));
         let g = galaxy(&app).ok();
         if let (Some(g), Some(h)) = (&g, &st.here) {
@@ -366,7 +364,7 @@ async fn engineering_trip(
             astromech_engineering::Hop { ly: h.ly, jumps: h.jumps, exact: h.exact }
         };
         let start = st.here.as_ref().map(|h| (h.system.as_str(), h.pos));
-        let trip = astromech_engineering::plan_trip(ship, &result.targets, &st.engineers, &pins, start, range, &hop);
+        let trip = astromech_engineering::plan_trip(ship, &result.targets, &st.engineers, start, range, &hop);
         serde_json::to_value(trip).map_err(|e| e.to_string())
     })
     .await

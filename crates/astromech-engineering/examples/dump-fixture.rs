@@ -8,7 +8,6 @@ fn main() {
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
     let engs = engineers::from_journal_dir(&dir);
     let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
-    let pins = engineers::effective_pins(&engs, &Default::default());
     let range = ship.max_jump_range.unwrap_or(20.0);
     // straight-line estimate: the sample has no star map
     let hop = |a: [f64; 3], b: [f64; 3]| {
@@ -16,7 +15,7 @@ fn main() {
         Hop { ly, jumps: (ly / range).ceil() as u32, exact: false }
     };
     let start = ("Shinrarta Dezhra", [55.71875, 17.59375, 27.15625]);
-    let trip = plan_trip(ship, &plan.targets, &engs, &pins, Some(start), range, &hop);
+    let trip = plan_trip(ship, &plan.targets, &engs, Some(start), range, &hop);
     let v = serde_json::json!({
         "fleet": fleet,
         "plan_input": astromech_engineering::sample_plan_input(),

@@ -111,7 +111,15 @@ pub enum JournalEvent {
         engineer_id: Option<i64>,
         blueprint: String,
         level: u8,
+        /// Progress within `level` after this roll, 0.0–1.0.
+        quality: f64,
         slot: Option<String>,
+        /// Experimental on the module after this craft (`ExperimentalEffect`, or the one being
+        /// applied, `ApplyExperimentalEffect`).
+        experimental: Option<String>,
+        experimental_localised: Option<String>,
+        /// A preview (no change to the module).
+        preview: bool,
         ingredients: Vec<MaterialStack>,
     },
     /// Engineer access and rank (`EngineerProgress`): all engineers at login, one on a change.
@@ -322,7 +330,12 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             engineer_id: opt_i(&raw, "EngineerID"),
             blueprint: s(&raw, "BlueprintName"),
             level: opt_i(&raw, "Level").unwrap_or(0).clamp(0, 5) as u8,
+            quality: opt_f(&raw, "Quality").unwrap_or(0.0).clamp(0.0, 1.0),
             slot: opt_s(&raw, "Slot"),
+            experimental: opt_s(&raw, "ExperimentalEffect").or_else(|| opt_s(&raw, "ApplyExperimentalEffect")),
+            experimental_localised: opt_s(&raw, "ExperimentalEffect_Localised")
+                .or_else(|| opt_s(&raw, "ApplyExperimentalEffect_Localised")),
+            preview: raw.get("IsPreview").and_then(|x| x.as_bool()).unwrap_or(false),
             ingredients: stacks_signed(&raw, "Ingredients", -1),
         },
         "EngineerProgress" => JournalEvent::EngineerProgress { engineers: engineer_progress(&raw) },
@@ -728,8 +741,9 @@ mod tests {
         )
         .unwrap();
         match l.event {
-            JournalEvent::EngineerCraft { engineer, blueprint, level, ingredients, .. } => {
+            JournalEvent::EngineerCraft { engineer, blueprint, level, quality, ingredients, preview, .. } => {
                 assert_eq!((engineer.as_str(), blueprint.as_str(), level), ("Felicity Farseer", "FSD_LongRange", 5));
+                assert_eq!((quality, preview), (0.4, false));
                 assert_eq!(ingredients[0].count, -1);
             }
             _ => panic!("expected EngineerCraft"),

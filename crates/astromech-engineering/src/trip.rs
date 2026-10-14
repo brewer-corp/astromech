@@ -1,8 +1,9 @@
 //! Which engineers to visit, and in what order, to finish a plan.
 //!
 //! Jobs come from the plan: the remaining grade rolls of each target and each experimental.
-//! A grade job can be done remotely only through an engineer at rank 5 whose pinned blueprint it
-//! is (remote crafting earns no reputation, so anything below rank 5 is done in person).
+//! Every job is planned in person. Grades can also be rolled remotely with a blueprint pinned at a
+//! rank-5 engineer, but the game does not log pins, so such jobs only get a note; remote crafts
+//! update the fleet like any other, and the trip shrinks on the next read.
 //! Experimentals are always in person. Every in-person job can be done by any unlocked engineer
 //! who offers it; experimentals by any unlocked engineer who works on that module type.
 //!
@@ -57,12 +58,6 @@ pub struct Stop {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct RemoteJob {
-    pub engineer: String,
-    pub job: Job,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Blocked {
     pub job: Job,
     pub reason: String,
@@ -75,7 +70,6 @@ pub struct Trip {
     pub start: Option<String>,
     pub range: f64,
     pub stops: Vec<Stop>,
-    pub remote: Vec<RemoteJob>,
     pub blocked: Vec<Blocked>,
     pub total_jumps: u32,
     /// Every leg was counted on the star map (not estimated).
@@ -133,49 +127,49 @@ pub fn plan_trip(
     ship: &Ship,
     targets: &[TargetCost],
     engs: &[EngineerView],
-    pins: &HashMap<String, String>,
     start: Option<(&str, [f64; 3])>,
     range: f64,
     hop: &dyn Fn([f64; 3], [f64; 3]) -> Hop,
 ) -> Trip {
     let by_key: HashMap<String, &EngineerView> = engs.iter().map(|e| (engineers::key(&e.name), e)).collect();
-    let mut remote = vec![];
     let mut blocked = vec![];
     // (job, candidate engineer keys)
     let mut jobs: Vec<(Job, Vec<String>)> = vec![];
     for t in targets.iter().filter(|t| t.note.as_deref().is_none_or(|n| !n.contains("cannot take"))) {
         if !t.steps.is_empty() {
             let mut job = job_from(t, "grades", ship);
-            let via_pin = engs.iter().find(|e| {
-                e.unlocked()
-                    && e.rank == Some(5)
-                    && pins.get(&engineers::key(&e.name)).is_some_and(|b| b.eq_ignore_ascii_case(&t.blueprint))
-                    && engineers::offers(&e.name, &t.blueprint) >= job.grade
-            });
-            if let Some(e) = via_pin {
-                remote.push(RemoteJob { engineer: e.name.clone(), job });
+            let offer: Vec<&EngineerView> =
+                engs.iter().filter(|e| engineers::offers(&e.name, &t.blueprint) >= job.grade).collect();
+            let cands: Vec<String> = offer.iter().filter(|e| e.unlocked()).map(|e| engineers::key(&e.name)).collect();
+            if cands.is_empty() {
+                blocked.push(Blocked {
+                    reason: format!("No unlocked engineer offers {} G{}.", t.blueprint_name, job.grade),
+                    unlock: offer.iter().map(|e| (e.name.clone(), e.progress.clone())).collect(),
+                    job,
+                });
             } else {
-                let offer: Vec<&EngineerView> =
-                    engs.iter().filter(|e| engineers::offers(&e.name, &t.blueprint) >= job.grade).collect();
-                let cands: Vec<String> =
-                    offer.iter().filter(|e| e.unlocked()).map(|e| engineers::key(&e.name)).collect();
-                if cands.is_empty() {
-                    blocked.push(Blocked {
-                        reason: format!("No unlocked engineer offers {} G{}.", t.blueprint_name, job.grade),
-                        unlock: offer.iter().map(|e| (e.name.clone(), e.progress.clone())).collect(),
-                        job,
-                    });
-                } else {
-                    let low: Vec<String> = offer
-                        .iter()
-                        .filter(|e| e.unlocked() && e.rank.unwrap_or(0) < job.grade)
-                        .map(|e| format!("{} (rank {})", e.name, e.rank.unwrap_or(0)))
-                        .collect();
-                    if low.len() == cands.len() {
-                        job.note = Some(format!("Rank rises as you craft in person: {}.", low.join(", ")));
-                    }
-                    jobs.push((job, cands));
+                let mut notes = vec![];
+                let low: Vec<String> = offer
+                    .iter()
+                    .filter(|e| e.unlocked() && e.rank.unwrap_or(0) < job.grade)
+                    .map(|e| format!("{} (rank {})", e.name, e.rank.unwrap_or(0)))
+                    .collect();
+                if low.len() == cands.len() {
+                    notes.push(format!("Rank rises as you craft in person: {}.", low.join(", ")));
                 }
+                let rank5: Vec<&str> =
+                    offer.iter().filter(|e| e.unlocked() && e.rank == Some(5)).map(|e| e.name.as_str()).collect();
+                if !rank5.is_empty() {
+                    notes.push(format!(
+                        "Could be rolled remotely if {} is pinned at {}.",
+                        t.blueprint_name,
+                        rank5.join(" or ")
+                    ));
+                }
+                if !notes.is_empty() {
+                    job.note = Some(notes.join(" "));
+                }
+                jobs.push((job, cands));
             }
         }
         if t.experimental_needed {
@@ -279,7 +273,6 @@ pub fn plan_trip(
         total_jumps: stops.iter().map(|s| s.hop.jumps).sum(),
         exact: stops.iter().all(|s| s.hop.exact),
         stops,
-        remote,
         blocked,
     }
 }

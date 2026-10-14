@@ -133,13 +133,6 @@ export interface PlanResult {
   snapshot_ts: string | null;
 }
 
-export interface Offer {
-  blueprint: string;
-  name: string;
-  module: string;
-  max_grade: number;
-}
-
 export interface EngineerView {
   id: number;
   name: string;
@@ -149,8 +142,6 @@ export interface EngineerView {
   progress: string;
   rank: number | null;
   rank_progress: number | null;
-  inferred_pin: { blueprint: string; blueprint_name: string; ts: string } | null;
-  offers: Offer[];
 }
 
 export interface Engineers {
@@ -179,7 +170,6 @@ export interface Trip {
   start: string | null;
   range: number;
   stops: { engineer: string; system: string; rank: number | null; hop: Hop; jobs: Job[] }[];
-  remote: { engineer: string; job: Job }[];
   blocked: { job: Job; reason: string; unlock: [string, string][] }[];
   total_jumps: number;
   exact: boolean;
@@ -230,25 +220,9 @@ export async function loadEngineers(): Promise<Engineers> {
 }
 
 /** Outside the app only the sample plan has a trip. */
-export async function planTrip(plan: Plan, pins: Record<string, string>): Promise<Trip | null> {
+export async function planTrip(plan: Plan): Promise<Trip | null> {
   if (!inTauri) return plan.ship_id === samplePlan.ship_id ? (sample.trip as unknown as Trip) : null;
-  return await invoke<Trip>("engineering_trip", { plan, pins });
-}
-
-const PINS = "astromech.engineering.pins";
-
-/** The user's pinned blueprint per engineer (name → blueprint id, "" = none), over the inferred ones. */
-export function savedPins(): Record<string, string> {
-  try {
-    const v = JSON.parse(localStorage.getItem(PINS) ?? "{}") as unknown;
-    return v && typeof v === "object" ? (v as Record<string, string>) : {};
-  } catch {
-    return {};
-  }
-}
-
-export function savePins(p: Record<string, string>): void {
-  localStorage.setItem(PINS, JSON.stringify(p));
+  return await invoke<Trip>("engineering_trip", { plan });
 }
 
 export function shipTitle(s: Ship): string {
