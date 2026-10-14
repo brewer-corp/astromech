@@ -1639,7 +1639,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   1. **Player-visible game data lives in the repo.** If the game shows it to every player, or it's on the Elite Dangerous wiki (blueprint recipes, grades, material categories, module base stats, trader ratios), it goes in `data/` like any other source file. Credit the upstream source (coriolis-data, FDevIDs, EDEngineer, wiki) in `NOTICE.md`. Still excluded: Frontier art and other assets, copies of game files (default `.binds`), and anything datamined or not meant for players.
   2. Larger or fast-changing tables may still be refreshed at run time later; this is optional, not a licensing requirement.
   3. **Prefer the user's own journal** wherever possible: ship stats come from `Loadout` plus base stats; inventory from journal snapshots.
-- **Remote services** (EDDN, Spansh, EDSM, Inara): all opt-in, cached in SQLite with TTLs, rate-limited, with an identifying User-Agent. **Ask each operator** before shipping features that depend on heavy use (needs Sumeet's go-ahead; not now).
+- **Remote services** (EDDN, Spansh, EDSM, Inara): used directly; no opt-in setting or operator sign-off needed (Sumeet, 14 Oct: our call volume is negligible to them). Still send an identifying User-Agent and cache results with a TTL, as a courtesy and for speed.
 
 ### 18.5 Local persistence and journal history
 - **`rusqlite` (bundled SQLite, already in §5) + `rusqlite_migration`**, not `sqlx`:
