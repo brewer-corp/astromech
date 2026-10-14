@@ -1,5 +1,6 @@
 fn main() {
-    // The star map preload is built by scripts/gen-starmap.py (release CI) and not committed.
+    // The star map preload is published separately (.github/workflows/starmap.yml) and downloaded
+    // by release builds; it is not committed.
     // Without it, bundle an empty file: the app skips it and fills in from EDSM as you travel.
     let preload = std::path::Path::new("resources/starmap.db");
     if !preload.exists() {

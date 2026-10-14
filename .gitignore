@@ -12,5 +12,5 @@ results/
 .vscode/
 .idea/
 app/src-tauri/binaries/
-# Star map preload: built by scripts/gen-starmap.py (release CI), not committed
+# Star map preload: published by .github/workflows/starmap.yml, downloaded by release builds; not committed
 app/src-tauri/resources/starmap.db

@@ -28,7 +28,7 @@ jobs:
   installer:
     name: Windows installer (build, install, smoke test)
     runs-on: windows-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - name: Rust toolchain
@@ -64,18 +64,21 @@ jobs:
       - name: stage sidecars
         shell: bash
         run: scripts/stage-sidecars.sh target/release
-      - name: star map preload (Spansh systems dump, 500 ly of Sol; tags only)
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: star map preload (published separately by starmap.yml; placeholder on PRs)
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          curl -sSfL -A "astromech-release (+https://github.com/spadaval/astromech)" -o "$RUNNER_TEMP/systems.json.gz" https://downloads.spansh.co.uk/systems.json.gz
-          python scripts/gen-starmap.py --dump "$RUNNER_TEMP/systems.json.gz" --out app/src-tauri/resources/starmap.db
-          rm -f "$RUNNER_TEMP/systems.json.gz"
-      - name: star map placeholder (pull requests and manual runs)
-        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        shell: bash
-        run: python scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db
+          out=app/src-tauri/resources/starmap.db
+          mkdir -p "$(dirname "$out")"
+          if [[ "$GITHUB_REF" == refs/tags/* ]] && gh release download starmap --repo "$GITHUB_REPOSITORY" --pattern starmap.db.gz --dir "$RUNNER_TEMP"; then
+            gzip -dc "$RUNNER_TEMP/starmap.db.gz" > "$out"
+            echo "star map preload: $(du -h "$out" | cut -f1)"
+          else
+            [[ "$GITHUB_REF" == refs/tags/* ]] && echo "::warning::No starmap release found; shipping without a star map preload (the app fills in from EDSM)."
+            python scripts/gen-starmap.py --empty --out "$out"
+          fi
       - name: frontend install
         working-directory: app
         run: pnpm install --frozen-lockfile
