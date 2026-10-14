@@ -6,11 +6,15 @@
 //! trader swaps from surplus and farming notes for the rest.
 
 pub mod data;
+pub mod engineers;
 pub mod fleet;
 pub mod plan;
+pub mod trip;
 
+pub use engineers::{EngineerView, Pin};
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
 pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
+pub use trip::{plan_trip, Hop, Trip};
 
 /// Fleet read from the crate's fake journal fixtures (app window sample).
 pub fn sample_fleet() -> Fleet {
@@ -169,6 +173,110 @@ mod tests {
         let ae = route.iter().find(|f| f.id == "adaptiveencryptors").unwrap();
         assert_eq!((ae.collect, ae.then[0].get), (12, 2));
         assert!(route.iter().any(|f| f.id == "dataminedwake" && f.collect == 3 && f.then.is_empty()));
+    }
+
+    fn engineers_with(set: &[(&str, &str, Option<u8>)]) -> Vec<EngineerView> {
+        let mut b = engineers::EngineerBuilder::default();
+        let snaps = set
+            .iter()
+            .map(|(n, p, r)| astromech_journal::EngineerSnap {
+                engineer: n.to_string(),
+                engineer_id: None,
+                progress: p.to_string(),
+                rank: *r,
+                rank_progress: None,
+            })
+            .collect();
+        b.apply("t", &astromech_journal::JournalEvent::EngineerProgress { engineers: snaps });
+        b.build()
+    }
+
+    fn straight(range: f64) -> impl Fn([f64; 3], [f64; 3]) -> Hop {
+        move |a, b| {
+            let ly = ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt();
+            Hop { ly, jumps: (ly / range).ceil() as u32, exact: false }
+        }
+    }
+
+    #[test]
+    fn trip_remote_pin_and_in_person_stops() {
+        let fleet = from_journal_dir(&fixture_dir());
+        let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
+        let r = sample_plan();
+        let engs = engineers_with(&[
+            ("Felicity Farseer", "Unlocked", Some(5)),
+            ("Professor Palin", "Unlocked", Some(3)),
+            ("Elvira Martuuk", "Invited", None),
+        ]);
+        assert!(engineers::info("Felicity Farseer").is_some());
+        let user: std::collections::BTreeMap<String, String> =
+            [("Felicity Farseer".to_string(), "FSD_LongRange".to_string())].into_iter().collect();
+        let pins = engineers::effective_pins(&engs, &user);
+        let hop = straight(20.0);
+        let trip = plan_trip(ship, &r.targets, &engs, &pins, Some(("Sol", [0.0; 3])), 20.0, &hop);
+        // FSD grades: Felicity is rank 5 with it pinned → remote
+        assert_eq!(trip.remote.len(), 1);
+        assert_eq!(trip.remote[0].engineer, "Felicity Farseer");
+        assert_eq!(trip.remote[0].job.what, "Increased range G3 → G5");
+        // in person: Mass Manager and Dirty drives G3 → G5. Palin works on FSDs too, so one
+        // stop covers both.
+        let names: Vec<&str> = trip.stops.iter().map(|s| s.engineer.as_str()).collect();
+        assert_eq!(names, vec!["Professor Palin"]);
+        let palin = &trip.stops[0];
+        assert_eq!(palin.jobs.len(), 2);
+        let dirty = palin.jobs.iter().find(|j| j.kind == "grades").unwrap();
+        assert!(dirty.note.as_deref().unwrap().contains("rank 3"));
+        assert_eq!(trip.total_jumps, palin.hop.jumps);
+        assert!(trip.blocked.is_empty());
+
+        // without the pin, FSD G4–G5 needs Felicity (Palin stops at G3): two stops
+        let trip = plan_trip(ship, &r.targets, &engs, &Default::default(), Some(("Sol", [0.0; 3])), 20.0, &hop);
+        assert!(trip.remote.is_empty());
+        let names: Vec<&str> = trip.stops.iter().map(|s| s.engineer.as_str()).collect();
+        assert_eq!(names.len(), 2, "{names:?}");
+        assert!(trip
+            .stops
+            .iter()
+            .any(|s| s.engineer == "Felicity Farseer" && s.jobs.iter().any(|j| j.what == "Increased range G3 → G5")));
+
+        // nobody unlocked → everything blocked, with who to unlock
+        let none = engineers_with(&[]);
+        let trip = plan_trip(ship, &r.targets, &none, &Default::default(), None, 20.0, &hop);
+        assert!(trip.stops.is_empty());
+        assert_eq!(trip.blocked.len(), 3);
+        assert!(trip.blocked[0].unlock.iter().any(|(n, _)| n == "Felicity Farseer"));
+    }
+
+    #[test]
+    fn pin_inferred_from_remote_craft() {
+        let mut b = engineers::EngineerBuilder::default();
+        let deciat = engineers::info("Felicity Farseer").unwrap().id64;
+        let jump = |id: i64| astromech_journal::JournalEvent::FsdJump {
+            star_system: "x".into(),
+            jump_dist: 1.0,
+            allegiance: String::new(),
+            population: 0,
+            factions: vec![],
+            from_carrier: false,
+            system_address: Some(id),
+            star_pos: None,
+        };
+        let craft = |bp: &str| astromech_journal::JournalEvent::EngineerCraft {
+            engineer: "Felicity Farseer".into(),
+            engineer_id: Some(300100),
+            blueprint: bp.into(),
+            level: 5,
+            slot: None,
+            ingredients: vec![],
+        };
+        b.apply("t1", &jump(deciat));
+        b.apply("t2", &craft("FSD_FastBoot")); // in person: not a pin
+        b.apply("t3", &jump(10477373803));
+        b.apply("t4", &craft("FSD_LongRange")); // from Sol: remote → pinned
+        let v = b.build();
+        let f = v.iter().find(|e| e.name == "Felicity Farseer").unwrap();
+        assert_eq!(f.inferred_pin.as_ref().unwrap().blueprint, "FSD_LongRange");
+        assert!(f.offers.iter().any(|o| o.blueprint == "FSD_LongRange" && o.max_grade == 5));
     }
 
     #[test]

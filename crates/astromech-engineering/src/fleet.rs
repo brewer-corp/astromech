@@ -30,6 +30,8 @@ pub struct Ship {
     pub current: bool,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
+    /// Unladen maximum from the last `Loadout`.
+    pub max_jump_range: Option<f64>,
     pub modules: Vec<Fitted>,
 }
 
@@ -77,6 +79,7 @@ struct Seen {
     ship_type: String,
     name: Option<String>,
     ident: Option<String>,
+    max_jump_range: Option<f64>,
     modules: Vec<ModuleSnap>,
 }
 
@@ -91,9 +94,9 @@ pub struct FleetBuilder {
 impl FleetBuilder {
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
         match ev {
-            JournalEvent::Loadout { ship_id: Some(id), ship, ship_name, ship_ident, modules, .. }
-                if !is_vehicle(ship.as_deref().unwrap_or("")) =>
-            {
+            JournalEvent::Loadout {
+                ship_id: Some(id), ship, ship_name, ship_ident, modules, max_jump_range, ..
+            } if !is_vehicle(ship.as_deref().unwrap_or("")) => {
                 self.current = Some(*id);
                 self.stored.remove(id);
                 self.loadouts.insert(
@@ -103,6 +106,7 @@ impl FleetBuilder {
                         ship_type: ship.clone().unwrap_or_default().to_ascii_lowercase(),
                         name: ship_name.clone(),
                         ident: ship_ident.clone(),
+                        max_jump_range: *max_jump_range,
                         modules: modules.clone(),
                     },
                 );
@@ -164,6 +168,7 @@ impl FleetBuilder {
             system: stored.and_then(|s| s.system.clone()),
             current: self.current == Some(id),
             loadout_ts: seen.map(|s| s.ts.clone()),
+            max_jump_range: seen.and_then(|s| s.max_jump_range),
             modules,
         }
     }

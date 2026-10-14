@@ -61,6 +61,8 @@ pub enum JournalEvent {
         allegiance: String,
         population: i64,
         factions: Vec<FactionSnap>,
+        system_address: Option<i64>,
+        star_pos: Option<[f64; 3]>,
     },
     ApproachBody {
         star_system: String,
@@ -78,6 +80,8 @@ pub enum JournalEvent {
         factions: Vec<FactionSnap>,
         /// True for `CarrierJump` (stay docked; do not clear station).
         from_carrier: bool,
+        system_address: Option<i64>,
+        star_pos: Option<[f64; 3]>,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -97,9 +101,22 @@ pub enum JournalEvent {
         manufactured: Vec<MaterialStack>,
         encoded: Vec<MaterialStack>,
     },
-    /// Signed counts from collect / discard / trade / craft / synthesis / rewards.
+    /// Signed counts from collect / discard / trade / synthesis / rewards.
     MaterialDelta {
         items: Vec<MaterialStack>,
+    },
+    /// One engineering roll (`EngineerCraft`); `ingredients` are already negative counts.
+    EngineerCraft {
+        engineer: String,
+        engineer_id: Option<i64>,
+        blueprint: String,
+        level: u8,
+        slot: Option<String>,
+        ingredients: Vec<MaterialStack>,
+    },
+    /// Engineer access and rank (`EngineerProgress`): all engineers at login, one on a change.
+    EngineerProgress {
+        engineers: Vec<EngineerSnap>,
     },
     Other {
         event: String,
@@ -145,6 +162,17 @@ pub struct StoredShip {
     pub ship_type: String,
     pub name: Option<String>,
     pub system: Option<String>,
+}
+
+/// One engineer on `EngineerProgress`. `progress` is `Known`, `Invited`, `Acquainted` or
+/// `Unlocked`; `rank` is set once unlocked.
+#[derive(Debug, Clone, PartialEq)]
+pub struct EngineerSnap {
+    pub engineer: String,
+    pub engineer_id: Option<i64>,
+    pub progress: String,
+    pub rank: Option<u8>,
+    pub rank_progress: Option<u8>,
 }
 
 /// One minor faction on `Location` / `FSDJump` / `CarrierJump`.
@@ -248,6 +276,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             allegiance: system_allegiance(&raw),
             population: population(&raw),
             factions: factions(&raw),
+            system_address: opt_i(&raw, "SystemAddress"),
+            star_pos: star_pos(&raw),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
@@ -258,6 +288,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             population: population(&raw),
             factions: factions(&raw),
             from_carrier: event == "CarrierJump",
+            system_address: opt_i(&raw, "SystemAddress"),
+            star_pos: star_pos(&raw),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -285,7 +317,15 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             .filter(|m| !m.name.is_empty())
             .collect(),
         },
-        "EngineerCraft" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Ingredients", -1) },
+        "EngineerCraft" => JournalEvent::EngineerCraft {
+            engineer: s(&raw, "Engineer"),
+            engineer_id: opt_i(&raw, "EngineerID"),
+            blueprint: s(&raw, "BlueprintName"),
+            level: opt_i(&raw, "Level").unwrap_or(0).clamp(0, 5) as u8,
+            slot: opt_s(&raw, "Slot"),
+            ingredients: stacks_signed(&raw, "Ingredients", -1),
+        },
+        "EngineerProgress" => JournalEvent::EngineerProgress { engineers: engineer_progress(&raw) },
         "Synthesis" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
         "ScientificResearch" => JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, -1)] },
         "TechnologyBroker" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
@@ -341,6 +381,39 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
             })
         })
         .collect()
+}
+
+fn star_pos(v: &serde_json::Value) -> Option<[f64; 3]> {
+    let a = v.get("StarPos")?.as_array()?;
+    match a.as_slice() {
+        [x, y, z] => Some([x.as_f64()?, y.as_f64()?, z.as_f64()?]),
+        _ => None,
+    }
+}
+
+fn engineer_snap(v: &serde_json::Value) -> EngineerSnap {
+    EngineerSnap {
+        engineer: s(v, "Engineer"),
+        engineer_id: opt_i(v, "EngineerID"),
+        progress: s(v, "Progress"),
+        rank: opt_i(v, "Rank").map(|r| r.clamp(0, 5) as u8),
+        rank_progress: opt_i(v, "RankProgress").map(|r| r.clamp(0, 100) as u8),
+    }
+}
+
+/// Startup form lists every engineer in `Engineers`; a change writes one at the top level.
+fn engineer_progress(v: &serde_json::Value) -> Vec<EngineerSnap> {
+    match v.get("Engineers").and_then(|x| x.as_array()) {
+        Some(a) => a.iter().map(engineer_snap).filter(|e| !e.engineer.is_empty()).collect(),
+        None => {
+            let e = engineer_snap(v);
+            if e.engineer.is_empty() {
+                vec![]
+            } else {
+                vec![e]
+            }
+        }
+    }
 }
 
 fn system_allegiance(v: &serde_json::Value) -> String {
@@ -526,6 +599,8 @@ mod tests {
                 population: 0,
                 factions: vec![],
                 from_carrier: false,
+                system_address: None,
+                star_pos: None,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
@@ -623,6 +698,42 @@ mod tests {
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
+    }
+
+    #[test]
+    fn positions_and_engineer_events() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Deciat","SystemAddress":6681123623626,"StarPos":[122.625,-0.8125,-47.28125],"JumpDist":9.1}"#,
+        )
+        .unwrap();
+        assert!(
+            matches!(l.event, JournalEvent::FsdJump { system_address: Some(6681123623626), star_pos: Some([x, _, _]), .. } if x == 122.625)
+        );
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"EngineerProgress","Engineers":[{"Engineer":"Felicity Farseer","EngineerID":300100,"Progress":"Unlocked","RankProgress":0,"Rank":5},{"Engineer":"Liz Ryder","EngineerID":300080,"Progress":"Invited"}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::EngineerProgress { engineers } => {
+                assert_eq!(engineers.len(), 2);
+                assert_eq!((engineers[0].progress.as_str(), engineers[0].rank), ("Unlocked", Some(5)));
+                assert_eq!(engineers[1].rank, None);
+            }
+            _ => panic!("expected EngineerProgress"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"EngineerProgress","Engineer":"Liz Ryder","EngineerID":300080,"Progress":"Unlocked","Rank":1,"RankProgress":20}"#).unwrap();
+        assert!(matches!(l.event, JournalEvent::EngineerProgress { ref engineers } if engineers[0].rank == Some(1)));
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Ingredients":[{"Name":"arsenic","Count":1}],"Engineer":"Felicity Farseer","EngineerID":300100,"BlueprintID":128673694,"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.4}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::EngineerCraft { engineer, blueprint, level, ingredients, .. } => {
+                assert_eq!((engineer.as_str(), blueprint.as_str(), level), ("Felicity Farseer", "FSD_LongRange", 5));
+                assert_eq!(ingredients[0].count, -1);
+            }
+            _ => panic!("expected EngineerCraft"),
+        }
     }
 
     #[test]

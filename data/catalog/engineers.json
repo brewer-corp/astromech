@@ -1,0 +1,330 @@
+{
+ "source": "EDCD/FDevIDs engineers.csv + Spansh systems dump (scripts/gen-starmap.py)",
+ "engineers": [
+  {
+   "id": 300000,
+   "name": "Didi Vatermann",
+   "system": "Leesti",
+   "id64": 3932277478114,
+   "market_id": 128673927,
+   "coords": [
+    72.75,
+    48.75,
+    68.25
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300010,
+   "name": "Bill Turner",
+   "system": "Alioth",
+   "id64": 1109989017963,
+   "market_id": 128674183,
+   "coords": [
+    -33.65625,
+    72.46875,
+    -20.65625
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300030,
+   "name": "Broo Tarquin",
+   "system": "Muang",
+   "id64": 4481966019282,
+   "market_id": 128674695,
+   "coords": [
+    17.03125,
+    -172.78125,
+    -3.46875
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300040,
+   "name": "The Sarge",
+   "system": "Beta-3 Tucani",
+   "id64": 2827992680811,
+   "market_id": 128674951,
+   "coords": [
+    32.25,
+    -55.1875,
+    23.875
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300050,
+   "name": "Zacariah Nemo",
+   "system": "Yoru",
+   "id64": 6131367744226,
+   "market_id": 128675207,
+   "coords": [
+    97.875,
+    -86.90625,
+    64.125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300080,
+   "name": "Liz Ryder",
+   "system": "Eurybia",
+   "id64": 1458309141194,
+   "market_id": 128675975,
+   "coords": [
+    51.40625,
+    -54.40625,
+    -30.5
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300090,
+   "name": "Hera Tani",
+   "system": "Kuwemaki",
+   "id64": 1733321102034,
+   "market_id": 128676231,
+   "coords": [
+    134.65625,
+    -226.90625,
+    -7.8125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300100,
+   "name": "Felicity Farseer",
+   "system": "Deciat",
+   "id64": 6681123623626,
+   "market_id": 128676487,
+   "coords": [
+    122.625,
+    -0.8125,
+    -47.28125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300110,
+   "name": "Ram Tah",
+   "system": "Meene",
+   "id64": 3790082132323,
+   "market_id": 128676743,
+   "coords": [
+    118.78125,
+    -56.4375,
+    -97.1875
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300120,
+   "name": "Lei Cheung",
+   "system": "Laksak",
+   "id64": 4305444669811,
+   "market_id": 128676999,
+   "coords": [
+    -21.53125,
+    -6.3125,
+    116.03125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300130,
+   "name": "Petra Olmanova",
+   "system": "Asura",
+   "id64": 12274907287851,
+   "market_id": 128677255,
+   "coords": [
+    -9550.28125,
+    -916.65625,
+    19816.1875
+   ],
+   "colonia": true
+  },
+  {
+   "id": 300140,
+   "name": "Colonel Bris Dekker",
+   "system": "Sol",
+   "id64": 10477373803,
+   "market_id": 128677511,
+   "coords": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300150,
+   "name": "Marsha Hicks",
+   "system": "Tir",
+   "id64": 48996147307082,
+   "market_id": 128677767,
+   "coords": [
+    -9532.9375,
+    -923.4375,
+    19799.125
+   ],
+   "colonia": true
+  },
+  {
+   "id": 300160,
+   "name": "Elvira Martuuk",
+   "system": "Khun",
+   "id64": 3107241104074,
+   "market_id": 128678023,
+   "coords": [
+    -171.59375,
+    19.96875,
+    -56.96875
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300180,
+   "name": "The Dweller",
+   "system": "Wyrd",
+   "id64": 5031654888146,
+   "market_id": 128678535,
+   "coords": [
+    -11.625,
+    31.53125,
+    -3.9375
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300200,
+   "name": "Marco Qwent",
+   "system": "Sirius",
+   "id64": 121569805492,
+   "market_id": 128679047,
+   "coords": [
+    6.25,
+    -1.28125,
+    -5.75
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300210,
+   "name": "Selene Jean",
+   "system": "Kuk",
+   "id64": 24859942069665,
+   "market_id": 128679303,
+   "coords": [
+    -21.28125,
+    69.09375,
+    -16.3125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300220,
+   "name": "Professor Palin",
+   "system": "Arque",
+   "id64": 113573366131,
+   "market_id": 128679559,
+   "coords": [
+    66.5,
+    38.0625,
+    61.125
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300230,
+   "name": "Lori Jameson",
+   "system": "Shinrarta Dezhra",
+   "id64": 3932277478106,
+   "market_id": 128679815,
+   "coords": [
+    55.71875,
+    17.59375,
+    27.15625
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300250,
+   "name": "Juri Ishmaak",
+   "system": "Giryak",
+   "id64": 4481899074282,
+   "market_id": 128680327,
+   "coords": [
+    14.6875,
+    27.65625,
+    108.65625
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300260,
+   "name": "Tod 'The Blaster' McQuinn",
+   "system": "Wolf 397",
+   "id64": 3107576681170,
+   "market_id": 128680583,
+   "coords": [
+    40.0,
+    79.21875,
+    -10.40625
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300270,
+   "name": "Tiana Fortune",
+   "system": "Achenar",
+   "id64": 164098653,
+   "market_id": 128680839,
+   "coords": [
+    67.5,
+    -119.46875,
+    24.84375
+   ],
+   "colonia": false
+  },
+  {
+   "id": 300280,
+   "name": "Mel Brandon",
+   "system": "Luchtaine",
+   "id64": 66038577537618,
+   "market_id": 128681095,
+   "coords": [
+    -9523.3125,
+    -914.46875,
+    19825.90625
+   ],
+   "colonia": true
+  },
+  {
+   "id": 300290,
+   "name": "Etienne Dorn",
+   "system": "Los",
+   "id64": 11887629902418,
+   "market_id": 128681351,
+   "coords": [
+    -9509.34375,
+    -886.3125,
+    19820.125
+   ],
+   "colonia": true
+  },
+  {
+   "id": 300300,
+   "name": "Chloe Sedesi",
+   "system": "Shenve",
+   "id64": 594676730147,
+   "market_id": 128954244,
+   "coords": [
+    351.96875,
+    -373.46875,
+    -711.09375
+   ],
+   "colonia": false
+  }
+ ]
+}

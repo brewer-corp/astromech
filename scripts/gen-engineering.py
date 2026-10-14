@@ -14,6 +14,7 @@ import collections, csv, glob, json, os, re, subprocess, sys
 
 # coriolis display-name typos / trailing spaces → FDevIDs display name
 MATERIAL_ALIASES = {"adaptive encyptors capture": "adaptive encryptors capture"}
+ENGINEER_ALIASES = {"Felicty Farseer": "Felicity Farseer"}
 GROUP_NAMES = {"bh": "Armour", "mr": "Missile Rack"}
 
 
@@ -52,7 +53,7 @@ def main(cor, fdev):
     for g in mod_map.values():
         for bp, b in g.get("blueprints", {}).items():
             for grade, x in b.get("grades", {}).items():
-                engineers[bp][int(grade)].update(x.get("engineers", []))
+                engineers[bp][int(grade)].update(ENGINEER_ALIASES.get(e, e) for e in x.get("engineers", []))
 
     blueprints = {}
     for fd, b in sorted(bps_raw.items()):

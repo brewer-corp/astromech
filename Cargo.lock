@@ -186,6 +186,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-galaxy"
+version = "0.1.3"
+dependencies = [
+ "anyhow",
+ "astromech-journal",
+ "chrono",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "ureq",
+]
+
+[[package]]
 name = "astromech-gamestate"
 version = "0.1.3"
 dependencies = [
@@ -3146,6 +3160,8 @@ dependencies = [
  "once_cell",
  "rustls",
  "rustls-pki-types",
+ "serde",
+ "serde_json",
  "url",
  "webpki-roots 0.26.11",
 ]

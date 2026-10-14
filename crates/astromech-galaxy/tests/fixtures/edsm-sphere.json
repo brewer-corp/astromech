@@ -1,0 +1,80 @@
+[
+ {
+  "distance": 5.95,
+  "bodyCount": 16,
+  "name": "Barnard's Star",
+  "id": 13212,
+  "id64": 18263140541865,
+  "coords": {
+   "x": -3.03125,
+   "y": 1.375,
+   "z": 4.9375
+  },
+  "coordsLocked": true
+ },
+ {
+  "distance": 0,
+  "bodyCount": 40,
+  "name": "Sol",
+  "id": 27,
+  "id64": 10477373803,
+  "coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "coordsLocked": true
+ },
+ {
+  "distance": 0,
+  "bodyCount": 42,
+  "name": "Byae Phlue BW-T d4-2",
+  "id": 101743731,
+  "id64": 0,
+  "coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "coordsLocked": false
+ },
+ {
+  "distance": 0,
+  "bodyCount": null,
+  "name": "Somewhere Else",
+  "id": 102256090,
+  "id64": 2,
+  "coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "coordsLocked": false
+ },
+ {
+  "distance": 2,
+  "bodyCount": 1,
+  "name": "AssetViewerSystem",
+  "id": 81498438,
+  "id64": 4099286239595,
+  "coords": {
+   "x": 0,
+   "y": 2,
+   "z": 0
+  },
+  "coordsLocked": false
+ },
+ {
+  "distance": 4.38,
+  "bodyCount": 9,
+  "name": "Alpha Centauri",
+  "id": 6903,
+  "id64": 1178708478315,
+  "coords": {
+   "x": 3.03125,
+   "y": -0.09375,
+   "z": 3.15625
+  },
+  "coordsLocked": true
+ }
+]
