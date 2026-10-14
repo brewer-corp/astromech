@@ -42,6 +42,17 @@ pub enum JournalEvent {
         max_jump_range: Option<f64>,
         fuel_capacity_main: Option<f64>,
         rebuy: Option<i64>,
+        ship_id: Option<i64>,
+        modules: Vec<ModuleSnap>,
+    },
+    /// Ships at this station and elsewhere (`StoredShips`, written when the shipyard opens).
+    /// The ship being flown is not listed.
+    StoredShips {
+        ships: Vec<StoredShip>,
+    },
+    /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
+    ShipSold {
+        ship_id: i64,
     },
     Location {
         star_system: String,
@@ -104,6 +115,36 @@ pub struct MaterialStack {
     pub name_localised: Option<String>,
     pub count: i64,
     pub category: Option<String>,
+}
+
+/// One fitted module on `Loadout`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ModuleSnap {
+    pub slot: String,
+    /// Outfitting symbol, lowercase (`int_hyperdrive_size5_class5`).
+    pub item: String,
+    pub engineering: Option<ModEngineering>,
+}
+
+/// `Engineering` block of a fitted module.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ModEngineering {
+    pub blueprint: String,
+    pub level: u8,
+    /// Progress within `level`, 0.0–1.0.
+    pub quality: f64,
+    pub experimental: Option<String>,
+    pub experimental_localised: Option<String>,
+    pub engineer: Option<String>,
+}
+
+/// One entry of `StoredShips` (`ShipsHere` and `ShipsRemote`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct StoredShip {
+    pub ship_id: i64,
+    pub ship_type: String,
+    pub name: Option<String>,
+    pub system: Option<String>,
 }
 
 /// One minor faction on `Location` / `FSDJump` / `CarrierJump`.
@@ -183,6 +224,22 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             max_jump_range: opt_f(&raw, "MaxJumpRange"),
             fuel_capacity_main: raw.get("FuelCapacity").and_then(|f| opt_f(f, "Main")),
             rebuy: opt_i(&raw, "Rebuy"),
+            ship_id: opt_i(&raw, "ShipID"),
+            modules: modules(&raw),
+        },
+        "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
+        "ShipyardSell" => match opt_i(&raw, "SellShipID") {
+            Some(ship_id) => JournalEvent::ShipSold { ship_id },
+            None => JournalEvent::Other { event, raw },
+        },
+        // Buying a ship can trade in the current one.
+        "ShipyardBuy" => match opt_i(&raw, "SellShipID") {
+            Some(ship_id) => JournalEvent::ShipSold { ship_id },
+            None => JournalEvent::Other { event, raw },
+        },
+        "SellShipOnRebuy" => match opt_i(&raw, "SellShipId").or_else(|| opt_i(&raw, "SellShipID")) {
+            Some(ship_id) => JournalEvent::ShipSold { ship_id },
+            None => JournalEvent::Other { event, raw },
         },
         "Location" => JournalEvent::Location {
             star_system: s(&raw, "StarSystem"),
@@ -244,6 +301,46 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         _ => JournalEvent::Other { event, raw },
     };
     Ok(JournalLine { timestamp, event: ev })
+}
+
+fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
+    let Some(a) = v.get("Modules").and_then(|x| x.as_array()) else { return vec![] };
+    a.iter()
+        .map(|m| ModuleSnap {
+            slot: s(m, "Slot"),
+            item: s(m, "Item").to_ascii_lowercase(),
+            engineering: m.get("Engineering").filter(|e| e.is_object()).map(|e| ModEngineering {
+                blueprint: s(e, "BlueprintName"),
+                level: opt_i(e, "Level").unwrap_or(0).clamp(0, 5) as u8,
+                quality: opt_f(e, "Quality").unwrap_or(0.0).clamp(0.0, 1.0),
+                experimental: opt_s(e, "ExperimentalEffect"),
+                experimental_localised: opt_s(e, "ExperimentalEffect_Localised"),
+                engineer: opt_s(e, "Engineer"),
+            }),
+        })
+        .filter(|m| !m.item.is_empty())
+        .collect()
+}
+
+fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
+    ["ShipsHere", "ShipsRemote"]
+        .iter()
+        .filter_map(|k| v.get(*k).and_then(|x| x.as_array()))
+        .flatten()
+        .filter_map(|x| {
+            Some(StoredShip {
+                ship_id: opt_i(x, "ShipID")?,
+                ship_type: s(x, "ShipType").to_ascii_lowercase(),
+                name: opt_s(x, "Name"),
+                // In transit: no system yet (not the one the list was written in).
+                system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
+                    None
+                } else {
+                    opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem"))
+                },
+            })
+        })
+        .collect()
 }
 
 fn system_allegiance(v: &serde_json::Value) -> String {
@@ -491,6 +588,44 @@ mod tests {
     }
 
     #[test]
+    fn loadout_modules_and_fleet_events() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::Loadout { ship_id, modules, .. } => {
+                assert_eq!(ship_id, Some(7));
+                assert_eq!(modules[0].item, "int_hyperdrive_size5_class5");
+                let e = modules[0].engineering.as_ref().unwrap();
+                assert_eq!((e.blueprint.as_str(), e.level, e.quality), ("FSD_LongRange", 4, 0.5));
+                assert_eq!(e.experimental.as_deref(), Some("special_fsd_heavy"));
+                assert!(modules[1].engineering.is_none());
+            }
+            _ => panic!("expected Loadout"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Shinrarta Dezhra","ShipsHere":[{"ShipID":3,"ShipType":"Anaconda","Name":"Big"}],"ShipsRemote":[{"ShipID":4,"ShipType":"asp","StarSystem":"Sol","InTransit":false}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredShips { ships } => {
+                assert_eq!(ships.len(), 2);
+                assert_eq!(ships[0].system.as_deref(), Some("Shinrarta Dezhra"));
+                assert_eq!(ships[0].ship_type, "anaconda");
+                assert_eq!(ships[1].system.as_deref(), Some("Sol"));
+            }
+            _ => panic!("expected StoredShips"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true}]}"#).unwrap();
+        assert!(matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none()));
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
+        let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
+    }
+
+    #[test]
     fn journal_names_order_across_schemes() {
         let d = tempfile::tempdir().unwrap();
         // Horizons name "22…" sorts after Odyssey "2026…" as a string; date order is the reverse.
@@ -549,6 +684,8 @@ mod tests {
             r#"{ "timestamp":"t", "event":"CarrierJump", "StarSystem":"Alioth", "SystemAllegiance":"Alliance", "Population":1000 }"#,
         )
         .unwrap();
-        assert!(matches!(l.event, JournalEvent::FsdJump { from_carrier: true, ref star_system, .. } if star_system == "Alioth"));
+        assert!(
+            matches!(l.event, JournalEvent::FsdJump { from_carrier: true, ref star_system, .. } if star_system == "Alioth")
+        );
     }
 }

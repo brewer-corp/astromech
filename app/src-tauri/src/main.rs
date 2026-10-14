@@ -250,6 +250,47 @@ fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, Str
     Ok(v)
 }
 
+#[allow(clippy::type_complexity)]
+struct EngineeringCache(
+    std::sync::Mutex<Option<((u64, u64, u64), std::sync::Arc<(astromech_engineering::Fleet, astromech_materials::Ledger)>)>>,
+);
+
+/// Fleet loadouts (all journals) and the material ledger, re-read when the journal folder changes.
+fn engineering_state(
+    cache: &EngineeringCache,
+) -> Result<std::sync::Arc<(astromech_engineering::Fleet, astromech_materials::Ledger)>, String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    let sig = journal_folder_sig(&dir);
+    if let Some((s, v)) = &*cache.0.lock().map_err(|_| "busy".to_string())? {
+        if *s == sig {
+            return Ok(v.clone());
+        }
+    }
+    let v = std::sync::Arc::new((
+        astromech_engineering::from_journal_dir(&dir),
+        astromech_materials::replay_journal_dir(&dir),
+    ));
+    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
+    Ok(v)
+}
+
+/// Every owned ship with its modules and current engineering.
+#[tauri::command]
+fn engineering_fleet(cache: tauri::State<EngineeringCache>) -> Result<Value, String> {
+    serde_json::to_value(&engineering_state(&cache)?.0).map_err(|e| e.to_string())
+}
+
+/// Materials a build plan needs against the current inventory, with trades and farming.
+#[tauri::command]
+fn engineering_plan(cache: tauri::State<EngineeringCache>, plan: astromech_engineering::Plan) -> Result<Value, String> {
+    let st = engineering_state(&cache)?;
+    let ship = st.0.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
+    serde_json::to_value(astromech_engineering::evaluate(ship, &plan, &st.1)).map_err(|e| e.to_string())
+}
+
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
 /// and press-to-bind. Read-only (Raw Input with INPUTSINK + XInput polling, like the core).
 #[cfg(windows)]
@@ -360,6 +401,7 @@ fn main() {
         }))
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
+        .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
@@ -373,7 +415,9 @@ fn main() {
             binds_set_active,
             binds_restore,
             binds_set_override,
-            materials_inventory
+            materials_inventory,
+            engineering_fleet,
+            engineering_plan
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

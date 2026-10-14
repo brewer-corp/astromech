@@ -70,6 +70,7 @@ impl GameState {
                 max_jump_range,
                 fuel_capacity_main,
                 rebuy,
+                ..
             } => {
                 if ship.is_some() {
                     self.ship = ship.clone();

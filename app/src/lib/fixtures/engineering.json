@@ -1,0 +1,1144 @@
+{
+  "fleet": {
+    "groups": {
+      "bh": {
+        "blueprints": [
+          {
+            "id": "Armour_Advanced",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Armour_Explosive",
+            "max_grade": 5,
+            "name": "Blast resistant"
+          },
+          {
+            "id": "Armour_HeavyDuty",
+            "max_grade": 5,
+            "name": "Heavy duty"
+          },
+          {
+            "id": "Armour_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "Armour_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_armour_kinetic",
+            "name": "Angled Plating"
+          },
+          {
+            "id": "special_armour_explosive",
+            "name": "Layered Plating"
+          },
+          {
+            "id": "special_armour_chunky",
+            "name": "Deep Plating"
+          },
+          {
+            "id": "special_armour_thermic",
+            "name": "Reflective Plating"
+          }
+        ],
+        "name": "Armour"
+      },
+      "cr": {
+        "blueprints": [
+          {
+            "id": "CargoRack_IncreasedCapacity",
+            "max_grade": 5,
+            "name": "Expanded Capacity"
+          }
+        ],
+        "experimentals": [],
+        "name": "Cargo Rack"
+      },
+      "fsd": {
+        "blueprints": [
+          {
+            "id": "FSD_FastBoot",
+            "max_grade": 5,
+            "name": "Faster boot sequence"
+          },
+          {
+            "id": "FSD_LongRange",
+            "max_grade": 5,
+            "name": "Increased range"
+          },
+          {
+            "id": "FSD_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_fsd_fuelcapacity",
+            "name": "Deep Charge"
+          },
+          {
+            "id": "special_fsd_heavy",
+            "name": "Mass Manager"
+          },
+          {
+            "id": "special_fsd_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_fsd_lightweight",
+            "name": "Stripped Down"
+          },
+          {
+            "id": "special_fsd_cooled",
+            "name": "Thermal Spread"
+          }
+        ],
+        "name": "Frame Shift Drive"
+      },
+      "pl": {
+        "blueprints": [
+          {
+            "id": "Weapon_Efficient",
+            "max_grade": 5,
+            "name": "Efficient"
+          },
+          {
+            "id": "Weapon_Focused",
+            "max_grade": 5,
+            "name": "Focused"
+          },
+          {
+            "id": "Weapon_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Weapon_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          },
+          {
+            "id": "Weapon_Overcharged",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "Weapon_RapidFire",
+            "max_grade": 5,
+            "name": "Rapid fire"
+          },
+          {
+            "id": "Weapon_ShortRange",
+            "max_grade": 5,
+            "name": "Short range"
+          },
+          {
+            "id": "Weapon_Sturdy",
+            "max_grade": 5,
+            "name": "Sturdy"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_concordant_sequence",
+            "name": "Concordant sequence"
+          },
+          {
+            "id": "special_emissive_munitions",
+            "name": "Emissive munitions"
+          },
+          {
+            "id": "special_phasing_sequence",
+            "name": "Phasing sequence"
+          },
+          {
+            "id": "special_scramble_spectrum",
+            "name": "Scramble spectrum"
+          },
+          {
+            "id": "special_thermalshock",
+            "name": "Thermal shock"
+          },
+          {
+            "id": "special_weapon_damage",
+            "name": "Oversized"
+          },
+          {
+            "id": "special_weapon_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_weapon_rateoffire",
+            "name": "Multi-servos"
+          },
+          {
+            "id": "special_weapon_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_weapon_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Pulse Laser"
+      },
+      "pp": {
+        "blueprints": [
+          {
+            "id": "PowerPlant_Armoured",
+            "max_grade": 5,
+            "name": "Armoured"
+          },
+          {
+            "id": "PowerPlant_Boosted",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "PowerPlant_Stealth",
+            "max_grade": 5,
+            "name": "Low emissions"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_powerplant_highcharge",
+            "name": "Monstered"
+          },
+          {
+            "id": "special_powerplant_cooled",
+            "name": "Thermal Spread"
+          },
+          {
+            "id": "special_powerplant_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_powerplant_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Power Plant"
+      },
+      "sb": {
+        "blueprints": [
+          {
+            "id": "ShieldBooster_Explosive",
+            "max_grade": 5,
+            "name": "Blast resistant"
+          },
+          {
+            "id": "ShieldBooster_HeavyDuty",
+            "max_grade": 5,
+            "name": "Heavy duty"
+          },
+          {
+            "id": "ShieldBooster_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "ShieldBooster_Resistive",
+            "max_grade": 5,
+            "name": "Resistance augmented"
+          },
+          {
+            "id": "ShieldBooster_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_shieldbooster_thermic",
+            "name": "Thermo Block"
+          },
+          {
+            "id": "special_shieldbooster_kinetic",
+            "name": "Force Block"
+          },
+          {
+            "id": "special_shieldbooster_explosive",
+            "name": "Blast Block"
+          },
+          {
+            "id": "special_shieldbooster_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_shieldbooster_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_shieldbooster_chunky",
+            "name": "Super Capacitors"
+          }
+        ],
+        "name": "Shield Booster"
+      },
+      "sg": {
+        "blueprints": [
+          {
+            "id": "ShieldGenerator_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "ShieldGenerator_Optimised",
+            "max_grade": 5,
+            "name": "Enhanced low power"
+          },
+          {
+            "id": "ShieldGenerator_Reinforced",
+            "max_grade": 5,
+            "name": "Reinforced"
+          },
+          {
+            "id": "ShieldGenerator_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_shield_regenerative",
+            "name": "Fast Charge"
+          },
+          {
+            "id": "special_shield_resistive",
+            "name": "Multi-weave"
+          },
+          {
+            "id": "special_shield_health",
+            "name": "Hi-Cap"
+          },
+          {
+            "id": "special_shield_efficient",
+            "name": "Lo-draw"
+          },
+          {
+            "id": "special_shield_thermic",
+            "name": "Thermo Block"
+          },
+          {
+            "id": "special_shield_kinetic",
+            "name": "Force Block"
+          },
+          {
+            "id": "special_shield_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_shield_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Shield Generator"
+      },
+      "t": {
+        "blueprints": [
+          {
+            "id": "Engine_Dirty",
+            "max_grade": 5,
+            "name": "Dirty"
+          },
+          {
+            "id": "Engine_Reinforced",
+            "max_grade": 5,
+            "name": "Reinforced"
+          },
+          {
+            "id": "Engine_Tuned",
+            "max_grade": 5,
+            "name": "Clean"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_engine_cooled",
+            "name": "Thermal Spread"
+          },
+          {
+            "id": "special_engine_haulage",
+            "name": "Drive Distributors"
+          },
+          {
+            "id": "special_engine_overloaded",
+            "name": "Drag Drives"
+          },
+          {
+            "id": "special_engine_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_engine_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Thrusters"
+      }
+    },
+    "ships": [
+      {
+        "current": true,
+        "id": 3,
+        "ident": "HL-03",
+        "loadout_ts": "2026-10-03T09:00:05Z",
+        "modules": [
+          {
+            "group": "bh",
+            "item": "anaconda_armour_grade1",
+            "name": "Lightweight Alloy",
+            "slot": "Armour",
+            "slot_name": "Armour"
+          },
+          {
+            "group": "fsd",
+            "item": "int_hyperdrive_size6_class5",
+            "name": "6A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive"
+          },
+          {
+            "group": "cr",
+            "item": "int_cargorack_size7_class1",
+            "name": "7E Cargo Rack",
+            "slot": "Slot01_Size7",
+            "slot_name": "Optional 1 (size 7)"
+          }
+        ],
+        "name": "Heavy Lifter",
+        "ship_type": "anaconda",
+        "system": null,
+        "type_name": "Anaconda"
+      },
+      {
+        "current": false,
+        "id": 7,
+        "ident": "LW-07",
+        "loadout_ts": "2026-09-20T18:00:05Z",
+        "modules": [
+          {
+            "group": "bh",
+            "item": "krait_mkii_armour_grade1",
+            "name": "Lightweight Alloy",
+            "slot": "Armour",
+            "slot_name": "Armour"
+          },
+          {
+            "engineering": {
+              "blueprint": "PowerPlant_Boosted",
+              "blueprint_name": "Overcharged",
+              "engineer": "Felicity Farseer",
+              "experimental": null,
+              "experimental_name": null,
+              "grade": 5,
+              "quality": 1.0
+            },
+            "group": "pp",
+            "item": "int_powerplant_size7_class5",
+            "name": "7A Power Plant",
+            "slot": "PowerPlant",
+            "slot_name": "Power plant"
+          },
+          {
+            "engineering": {
+              "blueprint": "Engine_Dirty",
+              "blueprint_name": "Dirty",
+              "engineer": "Professor Palin",
+              "experimental": "special_engine_overloaded",
+              "experimental_name": "Drag Drives",
+              "grade": 3,
+              "quality": 0.5
+            },
+            "group": "t",
+            "item": "int_engine_size6_class5",
+            "name": "6A Thrusters",
+            "slot": "MainEngines",
+            "slot_name": "Thrusters"
+          },
+          {
+            "engineering": {
+              "blueprint": "FSD_LongRange",
+              "blueprint_name": "Increased range",
+              "engineer": "Felicity Farseer",
+              "experimental": null,
+              "experimental_name": null,
+              "grade": 3,
+              "quality": 0.25
+            },
+            "group": "fsd",
+            "item": "int_hyperdrive_size5_class5",
+            "name": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive"
+          },
+          {
+            "group": "pl",
+            "item": "hpt_pulselaser_gimbal_medium",
+            "name": "2F Pulse Laser",
+            "slot": "MediumHardpoint1",
+            "slot_name": "Medium hardpoint 1"
+          },
+          {
+            "group": "sb",
+            "item": "hpt_shieldbooster_size0_class5",
+            "name": "0A Shield Booster",
+            "slot": "TinyHardpoint1",
+            "slot_name": "Utility 1"
+          },
+          {
+            "group": "sg",
+            "item": "int_shieldgenerator_size6_class5",
+            "name": "6A Shield Generator",
+            "slot": "Slot01_Size6",
+            "slot_name": "Optional 1 (size 6)"
+          }
+        ],
+        "name": "Long Way Round",
+        "ship_type": "krait_mkii",
+        "system": null,
+        "type_name": "Krait MkII"
+      },
+      {
+        "current": false,
+        "id": 12,
+        "ident": null,
+        "loadout_ts": null,
+        "modules": [],
+        "name": null,
+        "ship_type": "asp",
+        "system": "Sol",
+        "type_name": "Asp Explorer"
+      }
+    ],
+    "source": "Sample journal"
+  },
+  "plan": {
+    "farm": [
+      {
+        "capacity": 100,
+        "grade": 5,
+        "group": "Wake Scans",
+        "have": 0,
+        "id": "dataminedwake",
+        "kind": "encoded",
+        "name": "Datamined Wake Exceptions",
+        "need": 5,
+        "over_cap": false,
+        "short": 5
+      },
+      {
+        "capacity": 100,
+        "grade": 5,
+        "group": "Chemical",
+        "have": 0,
+        "id": "pharmaceuticalisolators",
+        "kind": "manufactured",
+        "name": "Pharmaceutical Isolators",
+        "need": 5,
+        "over_cap": false,
+        "short": 5,
+        "sources": [
+          {
+            "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
+            "kind": "hge",
+            "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
+          }
+        ]
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Chemical",
+        "have": 1,
+        "id": "chemicalmanipulators",
+        "kind": "manufactured",
+        "name": "Chemical Manipulators",
+        "need": 5,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Mechanical Components",
+        "have": 0,
+        "id": "configurablecomponents",
+        "kind": "manufactured",
+        "name": "Configurable Components",
+        "need": 4,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Category 4",
+        "have": 0,
+        "id": "selenium",
+        "kind": "raw",
+        "name": "Selenium",
+        "need": 4,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Encoded Firmware",
+        "have": 0,
+        "id": "industrialfirmware",
+        "kind": "encoded",
+        "name": "Cracked Industrial Firmware",
+        "need": 5,
+        "over_cap": false,
+        "short": 5
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Mechanical Components",
+        "have": 0,
+        "id": "mechanicalcomponents",
+        "kind": "manufactured",
+        "name": "Mechanical Components",
+        "need": 2,
+        "over_cap": false,
+        "short": 2
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Encoded Firmware",
+        "have": 0,
+        "id": "consumerfirmware",
+        "kind": "encoded",
+        "name": "Modified Consumer Firmware",
+        "need": 4,
+        "over_cap": false,
+        "short": 2
+      }
+    ],
+    "materials": [
+      {
+        "capacity": 100,
+        "grade": 5,
+        "group": "Wake Scans",
+        "have": 0,
+        "id": "dataminedwake",
+        "kind": "encoded",
+        "name": "Datamined Wake Exceptions",
+        "need": 5,
+        "over_cap": false,
+        "short": 5
+      },
+      {
+        "capacity": 100,
+        "grade": 5,
+        "group": "Chemical",
+        "have": 0,
+        "id": "pharmaceuticalisolators",
+        "kind": "manufactured",
+        "name": "Pharmaceutical Isolators",
+        "need": 5,
+        "over_cap": false,
+        "short": 5,
+        "sources": [
+          {
+            "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
+            "kind": "hge",
+            "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
+          }
+        ]
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Chemical",
+        "have": 1,
+        "id": "chemicalmanipulators",
+        "kind": "manufactured",
+        "name": "Chemical Manipulators",
+        "need": 5,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Mechanical Components",
+        "have": 0,
+        "id": "configurablecomponents",
+        "kind": "manufactured",
+        "name": "Configurable Components",
+        "need": 4,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Wake Scans",
+        "have": 6,
+        "id": "hyperspacetrajectories",
+        "kind": "encoded",
+        "name": "Eccentric Hyperspace Trajectories",
+        "need": 5,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 150,
+        "grade": 4,
+        "group": "Category 4",
+        "have": 0,
+        "id": "selenium",
+        "kind": "raw",
+        "name": "Selenium",
+        "need": 4,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Category 3",
+        "have": 0,
+        "id": "cadmium",
+        "kind": "raw",
+        "name": "Cadmium",
+        "need": 5,
+        "over_cap": false,
+        "short": 5
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Chemical",
+        "have": 2,
+        "id": "chemicaldistillery",
+        "kind": "manufactured",
+        "name": "Chemical Distillery",
+        "need": 4,
+        "over_cap": false,
+        "short": 2
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Encoded Firmware",
+        "have": 0,
+        "id": "industrialfirmware",
+        "kind": "encoded",
+        "name": "Cracked Industrial Firmware",
+        "need": 5,
+        "over_cap": false,
+        "short": 5
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Mechanical Components",
+        "have": 0,
+        "id": "mechanicalcomponents",
+        "kind": "manufactured",
+        "name": "Mechanical Components",
+        "need": 2,
+        "over_cap": false,
+        "short": 2
+      },
+      {
+        "capacity": 200,
+        "grade": 3,
+        "group": "Wake Scans",
+        "have": 4,
+        "id": "wakesolutions",
+        "kind": "encoded",
+        "name": "Strange Wake Solutions",
+        "need": 3,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Category 6",
+        "have": 3,
+        "id": "arsenic",
+        "kind": "raw",
+        "name": "Arsenic",
+        "need": 5,
+        "over_cap": false,
+        "short": 2
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Chemical",
+        "have": 12,
+        "id": "chemicalprocessors",
+        "kind": "manufactured",
+        "name": "Chemical Processors",
+        "need": 3,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Category 2",
+        "have": 0,
+        "id": "chromium",
+        "kind": "raw",
+        "name": "Chromium",
+        "need": 2,
+        "over_cap": false,
+        "short": 2
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Alloys",
+        "have": 0,
+        "id": "galvanisingalloys",
+        "kind": "manufactured",
+        "name": "Galvanising Alloys",
+        "need": 3,
+        "over_cap": false,
+        "short": 3
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Category 3",
+        "have": 10,
+        "id": "manganese",
+        "kind": "raw",
+        "name": "Manganese",
+        "need": 4,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 250,
+        "grade": 2,
+        "group": "Encoded Firmware",
+        "have": 0,
+        "id": "consumerfirmware",
+        "kind": "encoded",
+        "name": "Modified Consumer Firmware",
+        "need": 4,
+        "over_cap": false,
+        "short": 4
+      },
+      {
+        "capacity": 300,
+        "grade": 1,
+        "group": "Wake Scans",
+        "have": 30,
+        "id": "disruptedwakeechoes",
+        "kind": "encoded",
+        "name": "Atypical Disrupted Wake Echoes",
+        "need": 5,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 300,
+        "grade": 1,
+        "group": "Category 2",
+        "have": 20,
+        "id": "phosphorus",
+        "kind": "raw",
+        "name": "Phosphorus",
+        "need": 3,
+        "over_cap": false,
+        "short": 0
+      },
+      {
+        "capacity": 300,
+        "grade": 1,
+        "group": "Encoded Firmware",
+        "have": 0,
+        "id": "legacyfirmware",
+        "kind": "encoded",
+        "name": "Specialised Legacy Firmware",
+        "need": 2,
+        "over_cap": false,
+        "short": 2
+      }
+    ],
+    "rolls": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "ship_id": 7,
+    "snapshot_ts": "2026-10-03T09:00:02Z",
+    "targets": [
+      {
+        "blueprint": "FSD_LongRange",
+        "blueprint_name": "Increased range",
+        "engineers": [
+          "Elvira Martuuk",
+          "Felicity Farseer",
+          "Mel Brandon"
+        ],
+        "experimental": "special_fsd_heavy",
+        "experimental_name": "Mass Manager",
+        "experimental_needed": true,
+        "from": {
+          "blueprint": "FSD_LongRange",
+          "blueprint_name": "Increased range",
+          "engineer": "Felicity Farseer",
+          "experimental": null,
+          "experimental_name": null,
+          "grade": 3,
+          "quality": 0.25
+        },
+        "grade": 5,
+        "materials": [
+          [
+            "arsenic",
+            5
+          ],
+          [
+            "chemicaldistillery",
+            4
+          ],
+          [
+            "chemicalmanipulators",
+            5
+          ],
+          [
+            "chemicalprocessors",
+            3
+          ],
+          [
+            "dataminedwake",
+            5
+          ],
+          [
+            "disruptedwakeechoes",
+            5
+          ],
+          [
+            "galvanisingalloys",
+            3
+          ],
+          [
+            "hyperspacetrajectories",
+            5
+          ],
+          [
+            "manganese",
+            4
+          ],
+          [
+            "phosphorus",
+            3
+          ],
+          [
+            "wakesolutions",
+            3
+          ]
+        ],
+        "module": "5A Frame Shift Drive",
+        "note": null,
+        "slot": "FrameShiftDrive",
+        "slot_name": "Frame shift drive",
+        "steps": [
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            5,
+            5
+          ]
+        ]
+      },
+      {
+        "blueprint": "Engine_Dirty",
+        "blueprint_name": "Dirty",
+        "engineers": [
+          "Chloe Sedesi",
+          "Mel Brandon",
+          "Professor Palin"
+        ],
+        "experimental": "special_engine_overloaded",
+        "experimental_name": "Drag Drives",
+        "experimental_needed": false,
+        "from": {
+          "blueprint": "Engine_Dirty",
+          "blueprint_name": "Dirty",
+          "engineer": "Professor Palin",
+          "experimental": "special_engine_overloaded",
+          "experimental_name": "Drag Drives",
+          "grade": 3,
+          "quality": 0.5
+        },
+        "grade": 5,
+        "materials": [
+          [
+            "cadmium",
+            5
+          ],
+          [
+            "chromium",
+            2
+          ],
+          [
+            "configurablecomponents",
+            4
+          ],
+          [
+            "consumerfirmware",
+            4
+          ],
+          [
+            "industrialfirmware",
+            5
+          ],
+          [
+            "legacyfirmware",
+            2
+          ],
+          [
+            "mechanicalcomponents",
+            2
+          ],
+          [
+            "pharmaceuticalisolators",
+            5
+          ],
+          [
+            "selenium",
+            4
+          ]
+        ],
+        "module": "6A Thrusters",
+        "note": null,
+        "slot": "MainEngines",
+        "slot_name": "Thrusters",
+        "steps": [
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            5,
+            5
+          ]
+        ]
+      }
+    ],
+    "trades": [
+      {
+        "get": 5,
+        "get_id": "cadmium",
+        "get_name": "Cadmium",
+        "give": 180,
+        "give_id": "sulphur",
+        "give_name": "Sulphur",
+        "trader": "Raw material trader"
+      },
+      {
+        "get": 2,
+        "get_id": "chemicaldistillery",
+        "get_name": "Chemical Distillery",
+        "give": 72,
+        "give_id": "chemicalstorageunits",
+        "give_name": "Chemical Storage Units",
+        "trader": "Manufactured material trader"
+      },
+      {
+        "get": 2,
+        "get_id": "arsenic",
+        "get_name": "Arsenic",
+        "give": 72,
+        "give_id": "sulphur",
+        "give_name": "Sulphur",
+        "trader": "Raw material trader"
+      },
+      {
+        "get": 2,
+        "get_id": "chromium",
+        "get_name": "Chromium",
+        "give": 12,
+        "give_id": "phosphorus",
+        "give_name": "Phosphorus",
+        "trader": "Raw material trader"
+      },
+      {
+        "get": 2,
+        "get_id": "consumerfirmware",
+        "get_name": "Modified Consumer Firmware",
+        "give": 12,
+        "give_id": "fsdtelemetry",
+        "give_name": "Anomalous FSD Telemetry",
+        "trader": "Encoded material trader"
+      },
+      {
+        "get": 3,
+        "get_id": "galvanisingalloys",
+        "get_name": "Galvanising Alloys",
+        "give": 108,
+        "give_id": "chemicalstorageunits",
+        "give_name": "Chemical Storage Units",
+        "trader": "Manufactured material trader"
+      },
+      {
+        "get": 2,
+        "get_id": "legacyfirmware",
+        "get_name": "Specialised Legacy Firmware",
+        "give": 12,
+        "give_id": "disruptedwakeechoes",
+        "give_name": "Atypical Disrupted Wake Echoes",
+        "trader": "Encoded material trader"
+      }
+    ]
+  },
+  "plan_input": {
+    "rolls": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "ship_id": 7,
+    "targets": [
+      {
+        "blueprint": "FSD_LongRange",
+        "experimental": "special_fsd_heavy",
+        "grade": 5,
+        "slot": "FrameShiftDrive"
+      },
+      {
+        "blueprint": "Engine_Dirty",
+        "experimental": "special_engine_overloaded",
+        "grade": 5,
+        "slot": "MainEngines"
+      }
+    ]
+  }
+}

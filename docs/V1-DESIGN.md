@@ -184,6 +184,7 @@ setup work at a desk: big readable text, one thing at a time.
 | **My controller** | See one device as its manufacturer drew it, with what each control does | Editing; actions for other devices; anything not on that device |
 | **Presets** | Which preset is active, switch, back up, restore | Bindings themselves |
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
+| **Engineering** | Pick any owned ship (modules from the newest `Loadout` for that ship in journal history), set blueprint / grade / experimental per module, and see need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), stat previews, engineer unlocks, Odyssey suit/weapon engineering |
 | **Settings** | Every voice and control setting in **one list** | Calibration flows, press logs, live transcripts, anything that isn't a setting |
 | **Diagnostics** | Prove what the app sees: key tester (live press log), device list, health report, logs, "Save diagnostics" | Settings (except links to them) |
 | **Tray menu** (native) | Is it running, open the window, pause voice, kill switch, quit | Any status beyond one line; any webview |
