@@ -16,5 +16,8 @@ Thanks for your interest! astromech is pre-alpha, so expect big changes.
   source in `NOTICE.md`. Never commit Frontier assets, copies of game files (default `.binds`),
   datamined data, models, or personal logs and results (journals, device paths, window titles).
   Use synthetic fixtures.
+- The star map preload is not committed. For a local shell build, either
+  `python3 scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db` (fill-in only),
+  or build the real one from Spansh's `systems.json.gz` (6.4 GB; about 5 minutes).
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.

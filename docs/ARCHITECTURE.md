@@ -234,7 +234,10 @@ astromech/
     astromech-store/     SQLite (rusqlite, bundled) config + migrations
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
-                         shopping list, trader swaps; recipes from data/catalog/engineering.json
+                         shopping list, trader swaps; recipes from data/catalog/engineering.json;
+                         engineer access (EngineerProgress), inferred pins, trip planning
+    astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
+                         Spansh faction-state lookups (Famine, HGE pools), position from the journal
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)

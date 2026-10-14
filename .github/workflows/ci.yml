@@ -109,6 +109,9 @@ jobs:
         env:
           PLACEHOLDER: "1"
         run: scripts/stage-sidecars.sh target/debug
+      - name: star map placeholder (the real preload is built for releases)
+        shell: bash
+        run: python scripts/gen-starmap.py --empty --out app/src-tauri/resources/starmap.db
       - name: app shell (Tauri) build
         working-directory: app/src-tauri
         run: cargo build --locked

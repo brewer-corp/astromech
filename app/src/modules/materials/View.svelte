@@ -1,6 +1,7 @@
 <script lang="ts">
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
+  import Nearby from "../../lib/ui/Nearby.svelte";
 
   let inv = $state<Inventory | null>(null);
   let kindId = $state("raw");
@@ -109,6 +110,8 @@
         {/each}
       {/if}
       <p class="lo">{sel.trader ? "Shown on the matching material trader." : "Not traded at material traders."}</p>
+      {@const lookup = sel.sources?.find((s) => s.query)?.query}
+      {#if lookup}<Nearby query={lookup} />{/if}
     {:else}
       <h3>{kind?.title ?? "Materials"}</h3>
       <p>Same layout as the in-game material trader: each row is a category, each column a grade. The fill is how close that material is to its storage cap.</p>

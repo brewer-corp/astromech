@@ -250,15 +250,18 @@ fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, Str
     Ok(v)
 }
 
-#[allow(clippy::type_complexity)]
-struct EngineeringCache(
-    std::sync::Mutex<Option<((u64, u64, u64), std::sync::Arc<(astromech_engineering::Fleet, astromech_materials::Ledger)>)>>,
-);
+/// Everything the Engineering screen reads from the journals, re-read when the folder changes.
+struct JournalState {
+    fleet: astromech_engineering::Fleet,
+    ledger: astromech_materials::Ledger,
+    engineers: Vec<astromech_engineering::EngineerView>,
+    here: Option<astromech_galaxy::Here>,
+}
 
-/// Fleet loadouts (all journals) and the material ledger, re-read when the journal folder changes.
-fn engineering_state(
-    cache: &EngineeringCache,
-) -> Result<std::sync::Arc<(astromech_engineering::Fleet, astromech_materials::Ledger)>, String> {
+#[allow(clippy::type_complexity)]
+struct EngineeringCache(std::sync::Mutex<Option<((u64, u64, u64), std::sync::Arc<JournalState>)>>);
+
+fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalState>, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
@@ -269,26 +272,117 @@ fn engineering_state(
             return Ok(v.clone());
         }
     }
-    let v = std::sync::Arc::new((
-        astromech_engineering::from_journal_dir(&dir),
-        astromech_materials::replay_journal_dir(&dir),
-    ));
+    let v = std::sync::Arc::new(JournalState {
+        fleet: astromech_engineering::from_journal_dir(&dir),
+        ledger: astromech_materials::replay_journal_dir(&dir),
+        engineers: astromech_engineering::engineers::from_journal_dir(&dir),
+        here: astromech_galaxy::here_from_journal_dir(&dir),
+    });
     *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
     Ok(v)
 }
 
+/// The local star map (app dir `galaxy.db`), seeded once from the bundled preload.
+struct GalaxyState(std::sync::OnceLock<Result<std::sync::Arc<astromech_galaxy::Galaxy>, String>>);
+
+fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
+    let st = app.state::<GalaxyState>();
+    st.0.get_or_init(|| {
+        let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
+        astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref())
+            .map(std::sync::Arc::new)
+            .map_err(|e| e.to_string())
+    })
+    .clone()
+}
+
+/// Jump range for counting: the ship's unladen maximum, else a typical 20 ly.
+fn range_of(ship: Option<&astromech_engineering::Ship>) -> f64 {
+    ship.and_then(|s| s.max_jump_range).filter(|r| *r > 1.0).unwrap_or(20.0)
+}
+
+/// Run blocking work (journal reads, network, SQLite) off the main thread.
+async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Send + 'static) -> Result<T, String> {
+    tauri::async_runtime::spawn_blocking(f).await.map_err(|e| e.to_string())?
+}
+
 /// Every owned ship with its modules and current engineering.
 #[tauri::command]
-fn engineering_fleet(cache: tauri::State<EngineeringCache>) -> Result<Value, String> {
-    serde_json::to_value(&engineering_state(&cache)?.0).map_err(|e| e.to_string())
+async fn engineering_fleet(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        serde_json::to_value(&st.fleet).map_err(|e| e.to_string())
+    })
+    .await
 }
 
 /// Materials a build plan needs against the current inventory, with trades and farming.
 #[tauri::command]
-fn engineering_plan(cache: tauri::State<EngineeringCache>, plan: astromech_engineering::Plan) -> Result<Value, String> {
-    let st = engineering_state(&cache)?;
-    let ship = st.0.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
-    serde_json::to_value(astromech_engineering::evaluate(ship, &plan, &st.1)).map_err(|e| e.to_string())
+async fn engineering_plan(app: tauri::AppHandle, plan: astromech_engineering::Plan) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
+        serde_json::to_value(astromech_engineering::evaluate(ship, &plan, &st.ledger)).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Ship engineers: where they are, access and rank, inferred pinned blueprints, what they offer.
+#[tauri::command]
+async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        serde_json::to_value(serde_json::json!({ "engineers": st.engineers, "here": st.here })).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Which engineers to visit for a plan, in order, from the commander's current system.
+#[tauri::command]
+async fn engineering_trip(
+    app: tauri::AppHandle,
+    plan: astromech_engineering::Plan,
+    pins: std::collections::BTreeMap<String, String>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
+        let result = astromech_engineering::evaluate(ship, &plan, &st.ledger);
+        let pins = astromech_engineering::engineers::effective_pins(&st.engineers, &pins);
+        let range = range_of(Some(ship));
+        let g = galaxy(&app).ok();
+        if let (Some(g), Some(h)) = (&g, &st.here) {
+            let _ = g.ensure_covered(h.pos);
+        }
+        let map = g.as_ref().and_then(|g| g.map().ok());
+        let hop = |a: [f64; 3], b: [f64; 3]| {
+            let h = match &map {
+                Some(m) => m.hop(a, b, range),
+                None => {
+                    let ly = astromech_galaxy::dist(a, b);
+                    astromech_galaxy::Hop { ly, jumps: astromech_galaxy::estimate(ly, range), exact: false }
+                }
+            };
+            astromech_engineering::Hop { ly: h.ly, jumps: h.jumps, exact: h.exact }
+        };
+        let start = st.here.as_ref().map(|h| (h.system.as_str(), h.pos));
+        let trip = astromech_engineering::plan_trip(ship, &result.targets, &st.engineers, &pins, start, range, &hop);
+        serde_json::to_value(trip).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Systems near the commander matching a lookup (`famine`, or an HGE pool id), with jumps.
+#[tauri::command]
+async fn galaxy_nearby(app: tauri::AppHandle, query: String) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let here = st.here.clone().ok_or("no position in the journal yet")?;
+        let current = st.fleet.ships.iter().find(|s| s.current);
+        let n = galaxy(&app)?.nearby(&query, &here, range_of(current), 8).map_err(|e| e.to_string())?;
+        serde_json::to_value(n).map_err(|e| e.to_string())
+    })
+    .await
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -402,6 +496,7 @@ fn main() {
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
+        .manage(GalaxyState(std::sync::OnceLock::new()))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
@@ -417,7 +512,10 @@ fn main() {
             binds_set_override,
             materials_inventory,
             engineering_fleet,
-            engineering_plan
+            engineering_plan,
+            engineering_engineers,
+            engineering_trip,
+            galaxy_nearby
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

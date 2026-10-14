@@ -252,6 +252,23 @@ mod tests {
     }
 
     #[test]
+    fn farming_notes_name_known_lookups() {
+        for spec in astromech_materials::catalog::catalog() {
+            for n in astromech_materials::hge::sources_for(spec) {
+                if let Some(q) = n.query.as_deref() {
+                    assert!(query(q).is_some(), "{} names unknown lookup {q}", spec.id);
+                }
+            }
+        }
+        assert!(
+            astromech_materials::hge::sources_for(astromech_materials::lookup("dataminedwake").unwrap())[0]
+                .query
+                .as_deref()
+                == Some("famine")
+        );
+    }
+
+    #[test]
     fn here_from_journals() {
         let d = tempfile::tempdir().unwrap();
         std::fs::write(

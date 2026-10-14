@@ -2,9 +2,11 @@
   // Build planner: pick a ship from the journal fleet, set a blueprint / grade / experimental per
   // module, and see the materials it costs against the inventory, trades and what to farm.
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadFleet, savePlan, savedPlan, shipTitle,
-    type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target,
+    DEFAULT_ROLLS, evaluatePlan, loadEngineers, loadFleet, planTrip, savePins, savePlan, savedPins, savedPlan, shipTitle,
+    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
   } from "../../lib/engineering";
+  import { jumps } from "../../lib/galaxy";
+  import Nearby from "../../lib/ui/Nearby.svelte";
 
   let fleet = $state<Fleet | null>(null);
   let shipId = $state<number | null>(null);
@@ -13,6 +15,10 @@
   let failed = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
+  let engineers = $state<Engineers | null>(null);
+  let pins = $state<Record<string, string>>(savedPins());
+  let trip = $state<Trip | null>(null);
+  let tripErr = $state<string | null>(null);
 
   const ship = $derived(fleet?.ships.find((s) => s.id === shipId) ?? fleet?.ships[0]);
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet?.groups[m.group]) ?? []);
@@ -23,8 +29,15 @@
     (result?.trades ?? []).reduce((m, t) => m.set(t.get_id, (m.get(t.get_id) ?? 0) + t.get), new Map<string, number>()),
   );
 
+  const rank5 = $derived(engineers?.engineers.filter((e) => e.progress === "Unlocked" && e.rank === 5) ?? []);
+  const hasJobs = $derived(result?.targets.some((t) => t.steps.length > 0 || t.experimental_needed) ?? false);
+  const lookup = $derived((selFarm ?? sel)?.sources?.find((s) => s.query)?.query);
+
   $effect(() => {
-    const tick = () => void loadFleet().then((f) => (fleet = f));
+    const tick = () => {
+      void loadFleet().then((f) => (fleet = f));
+      void loadEngineers().then((e) => (engineers = e)).catch(() => {});
+    };
     tick();
     const t = setInterval(tick, 5000);
     return () => clearInterval(t);
@@ -57,6 +70,37 @@
         failed = String(e);
       });
   });
+
+  // Re-plan the trip when the plan, pins or journal change.
+  $effect(() => {
+    const p = plan;
+    const pn = $state.snapshot(pins);
+    void result;
+    void engineers;
+    if (!p || !hasJobs) {
+      trip = null;
+      return;
+    }
+    planTrip($state.snapshot(p) as Plan, pn)
+      .then((tr) => {
+        trip = tr;
+        tripErr = null;
+      })
+      .catch((e: unknown) => {
+        trip = null;
+        tripErr = String(e);
+      });
+  });
+
+  function pinOf(name: string): string {
+    if (name in pins) return pins[name] ?? "";
+    return engineers?.engineers.find((e) => e.name === name)?.inferred_pin?.blueprint ?? "";
+  }
+
+  function setPin(name: string, bp: string) {
+    pins = { ...pins, [name]: bp };
+    savePins(pins);
+  }
 
   function target(slot: string): Target | undefined {
     return plan?.targets.find((t) => t.slot === slot);
@@ -222,6 +266,64 @@
       {:else if result}
         <p class="lo">Pick a blueprint for a module to see what it costs.</p>
       {/if}
+
+      {#if tripErr}
+        <p class="lo">{tripErr}</p>
+      {:else if trip}
+        <h4>Engineer trip</h4>
+        <p class="lo small">
+          {trip.start ? `From ${trip.start}` : "Start unknown"} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
+          {#if !trip.exact}· ~ = straight-line estimate{/if}
+        </p>
+        {#if trip.stops.length}
+          <ol class="stops">
+            {#each trip.stops as s, i (i)}
+              <li>
+                <span class="stop">{s.engineer}</span>
+                <span class="lo"> · {s.system} · <span class="q">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
+                {#each s.jobs as j (j.slot + j.kind)}
+                  <span class="then">{j.slot_name}: {j.what}{j.note ? ` · ${j.note}` : ""}</span>
+                {/each}
+              </li>
+            {/each}
+          </ol>
+        {/if}
+        {#if trip.remote.length}
+          <p class="sublabel">Remote, with a pinned blueprint (rank 5)</p>
+          <ul class="plain">
+            {#each trip.remote as r (r.job.slot)}
+              <li>{r.job.slot_name}: {r.job.what} <span class="lo">· pinned at {r.engineer}</span></li>
+            {/each}
+          </ul>
+        {/if}
+        {#if trip.blocked.length}
+          <p class="sublabel">Needs an engineer unlock</p>
+          <ul class="plain">
+            {#each trip.blocked as b (b.job.slot + b.job.kind)}
+              <li>
+                {b.job.slot_name}: {b.job.what} <span class="lo">· {b.reason}</span>
+                {#if b.unlock.length}<span class="then">{b.unlock.map(([n, p]) => `${n} (${p.toLowerCase()})`).join(", ")}</span>{/if}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+        {#if rank5.length}
+          <p class="sublabel">Pinned blueprints (remote engineering at rank 5)</p>
+          <div class="pins">
+            {#each rank5 as e (e.id)}
+              <span>{e.name}</span>
+              <select class:idle={!pinOf(e.name)} value={pinOf(e.name)} onchange={(ev) => setPin(e.name, ev.currentTarget.value)}>
+                <option value="" selected={!pinOf(e.name)}>None</option>
+                {#each e.offers as o (o.blueprint)}
+                  <option value={o.blueprint} selected={o.blueprint === pinOf(e.name)}>{o.module}: {o.name} (G{o.max_grade})</option>
+                {/each}
+              </select>
+              <span class="lo small">{e.inferred_pin && !(e.name in pins) ? `from your remote craft, ${e.inferred_pin.ts.slice(0, 10)}` : e.name in pins ? "set here" : ""}</span>
+            {/each}
+          </div>
+          <p class="lo small">The game doesn't log pins: they're guessed from remote crafts. Remote crafting earns no reputation, so below rank 5 the trip goes in person.</p>
+        {/if}
+      {/if}
     </div>
   {/if}
 
@@ -236,6 +338,7 @@
         <p>{s.summary}</p>
         <p class="lo">{s.hint}</p>
       {/each}
+      {#if lookup}<Nearby query={lookup} />{/if}
     {:else if sel}
       <h3>{sel.name}</h3>
       <p>Grade {sel.grade}{sel.kind ? ` · ${sel.kind.charAt(0).toUpperCase()}${sel.kind.slice(1)}` : ""} · {sel.group}</p>
@@ -261,6 +364,7 @@
         <p class="lo">{s.hint}</p>
       {/each}
       <p class="lo">Used by: {usedBy.map((t) => `${t.slot_name} (${t.blueprint_name})`).join(", ")}</p>
+      {#if lookup}<Nearby query={lookup} />{/if}
     {:else}
       <h3>Engineering</h3>
       <p>Choose a blueprint, grade and experimental for each module. The list adds up the remaining grade steps from where each module is now and compares the total with your materials.</p>
@@ -312,6 +416,11 @@
   .ok { color: var(--accent); margin-top: 18px; }
   .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
   .link { color: var(--text); }
+  .small { font-size: var(--fs-s); }
+  .stops { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-s); }
+  .stop { color: var(--text-hi); }
+  .sublabel { margin: 16px 0 6px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .pins { display: grid; grid-template-columns: 12rem 18rem 1fr; gap: var(--gap) 10px; align-items: center; font-size: var(--fs-s); }
   .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
   .about { border-left: 2px solid var(--accent); padding-left: 24px; grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; }

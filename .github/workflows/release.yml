@@ -64,6 +64,13 @@ jobs:
       - name: stage sidecars
         shell: bash
         run: scripts/stage-sidecars.sh target/release
+      - name: star map preload (Spansh systems dump, 500 ly of Sol)
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL -A "astromech-release (+https://github.com/spadaval/astromech)" -o "$RUNNER_TEMP/systems.json.gz" https://downloads.spansh.co.uk/systems.json.gz
+          python scripts/gen-starmap.py --dump "$RUNNER_TEMP/systems.json.gz" --out app/src-tauri/resources/starmap.db
+          rm -f "$RUNNER_TEMP/systems.json.gz"
       - name: frontend install
         working-directory: app
         run: pnpm install --frozen-lockfile

@@ -1,4 +1,2840 @@
 {
+  "engineers": {
+    "engineers": [
+      {
+        "colonia": false,
+        "coords": [
+          72.75,
+          48.75,
+          68.25
+        ],
+        "id": 300000,
+        "inferred_pin": null,
+        "name": "Didi Vatermann",
+        "offers": [
+          {
+            "blueprint": "ShieldGenerator_Optimised",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Enhanced low power"
+          },
+          {
+            "blueprint": "ShieldGenerator_Kinetic",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldGenerator_Reinforced",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ShieldGenerator_Thermic",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_Explosive",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_HeavyDuty",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "ShieldBooster_Kinetic",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_Resistive",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Resistance augmented"
+          },
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Thermal resistant"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Leesti"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -33.65625,
+          72.46875,
+          -20.65625
+        ],
+        "id": 300010,
+        "inferred_pin": null,
+        "name": "Bill Turner",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "AFM_Shielded",
+            "max_grade": 3,
+            "module": "Auto Field-Maintenance Unit",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "FuelScoop_Shielded",
+            "max_grade": 3,
+            "module": "Fuel Scoop",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "LifeSupport_LightWeight",
+            "max_grade": 3,
+            "module": "Life Support",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "LifeSupport_Reinforced",
+            "max_grade": 3,
+            "module": "Life Support",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "LifeSupport_Shielded",
+            "max_grade": 3,
+            "module": "Life Support",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 5,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          },
+          {
+            "blueprint": "Refineries_Shielded",
+            "max_grade": 3,
+            "module": "Refinery",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Alioth"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          17.03125,
+          -172.78125,
+          -3.46875
+        ],
+        "id": 300030,
+        "inferred_pin": null,
+        "name": "Broo Tarquin",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 5,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Muang"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          32.25,
+          -55.1875,
+          23.875
+        ],
+        "id": 300040,
+        "inferred_pin": null,
+        "name": "The Sarge",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "CollectionLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "CollectionLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "CollectionLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "ProspectingLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Shielded"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Beta-3 Tucani"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          97.875,
+          -86.90625,
+          64.125
+        ],
+        "id": 300050,
+        "inferred_pin": null,
+        "name": "Zacariah Nemo",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 3,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "MC_Overcharged",
+            "max_grade": 3,
+            "module": "Advanced Multi-Cannon",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 3,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_DoubleShot",
+            "max_grade": 5,
+            "module": "Fragment Cannon",
+            "name": "Double shot"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 2,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Yoru"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          51.40625,
+          -54.40625,
+          -30.5
+        ],
+        "id": 300080,
+        "inferred_pin": null,
+        "name": "Liz Ryder",
+        "offers": [
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Armour_Explosive",
+            "max_grade": 1,
+            "module": "Armour",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "Armour_HeavyDuty",
+            "max_grade": 1,
+            "module": "Armour",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "Armour_Kinetic",
+            "max_grade": 1,
+            "module": "Armour",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "Armour_Advanced",
+            "max_grade": 1,
+            "module": "Armour",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Armour_Thermic",
+            "max_grade": 1,
+            "module": "Armour",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_Explosive",
+            "max_grade": 1,
+            "module": "Hull Reinforcement Package",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_HeavyDuty",
+            "max_grade": 1,
+            "module": "Hull Reinforcement Package",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "HullReinforcement_Kinetic",
+            "max_grade": 1,
+            "module": "Hull Reinforcement Package",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_Advanced",
+            "max_grade": 1,
+            "module": "Hull Reinforcement Package",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HullReinforcement_Thermic",
+            "max_grade": 1,
+            "module": "Hull Reinforcement Package",
+            "name": "Thermal resistant"
+          }
+        ],
+        "progress": "Known",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Eurybia"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          134.65625,
+          -226.90625,
+          -7.8125
+        ],
+        "id": 300090,
+        "inferred_pin": null,
+        "name": "Hera Tani",
+        "offers": [
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "PowerDistributor_HighFrequency",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Charge enhanced"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityEngines",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Engine focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighCapacity",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "High charge capacity"
+          },
+          {
+            "blueprint": "PowerDistributor_Shielded",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "PowerDistributor_PrioritySystems",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "System focused"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Weapon focused"
+          },
+          {
+            "blueprint": "PowerPlant_Armoured",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Armoured"
+          },
+          {
+            "blueprint": "PowerPlant_Stealth",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Low emissions"
+          },
+          {
+            "blueprint": "PowerPlant_Boosted",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Wide angle"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Kuwemaki"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          122.625,
+          -0.8125,
+          -47.28125
+        ],
+        "id": 300100,
+        "inferred_pin": {
+          "blueprint": "FSD_Shielded",
+          "blueprint_name": "Shielded",
+          "ts": "2026-09-20T18:00:03Z"
+        },
+        "name": "Felicity Farseer",
+        "offers": [
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 3,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 3,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 3,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FSDinterdictor_Expanded",
+            "max_grade": 1,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Expanded capture arc"
+          },
+          {
+            "blueprint": "FSDinterdictor_LongRange",
+            "max_grade": 1,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "PowerPlant_Armoured",
+            "max_grade": 1,
+            "module": "Power Plant",
+            "name": "Armoured"
+          },
+          {
+            "blueprint": "PowerPlant_Stealth",
+            "max_grade": 1,
+            "module": "Power Plant",
+            "name": "Low emissions"
+          },
+          {
+            "blueprint": "PowerPlant_Boosted",
+            "max_grade": 1,
+            "module": "Power Plant",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 3,
+            "module": "Sensors",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "ShieldBooster_Explosive",
+            "max_grade": 1,
+            "module": "Shield Booster",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_HeavyDuty",
+            "max_grade": 1,
+            "module": "Shield Booster",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "ShieldBooster_Kinetic",
+            "max_grade": 1,
+            "module": "Shield Booster",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_Resistive",
+            "max_grade": 1,
+            "module": "Shield Booster",
+            "name": "Resistance augmented"
+          },
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "max_grade": 1,
+            "module": "Shield Booster",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "Engine_Tuned",
+            "max_grade": 3,
+            "module": "Thrusters",
+            "name": "Clean"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "max_grade": 3,
+            "module": "Thrusters",
+            "name": "Dirty"
+          },
+          {
+            "blueprint": "Engine_Reinforced",
+            "max_grade": 3,
+            "module": "Thrusters",
+            "name": "Reinforced"
+          }
+        ],
+        "progress": "Unlocked",
+        "rank": 5,
+        "rank_progress": 0,
+        "system": "Deciat"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          118.78125,
+          -56.4375,
+          -97.1875
+        ],
+        "id": 300110,
+        "inferred_pin": null,
+        "name": "Ram Tah",
+        "offers": [
+          {
+            "blueprint": "Misc_HeatSinkCapacity",
+            "max_grade": 1,
+            "module": "Caustic Sink Launcher",
+            "name": "Ammo capacity"
+          },
+          {
+            "blueprint": "Misc_ChaffCapacity",
+            "max_grade": 1,
+            "module": "Chaff Launcher",
+            "name": "Ammo capacity"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "CollectionLimpet_LightWeight",
+            "max_grade": 4,
+            "module": "Collector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "CollectionLimpet_Reinforced",
+            "max_grade": 4,
+            "module": "Collector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "CollectionLimpet_Shielded",
+            "max_grade": 4,
+            "module": "Collector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_LightWeight",
+            "max_grade": 4,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Reinforced",
+            "max_grade": 4,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Shielded",
+            "max_grade": 4,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_LightWeight",
+            "max_grade": 4,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Reinforced",
+            "max_grade": 4,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Shielded",
+            "max_grade": 4,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Misc_PointDefenseCapacity",
+            "max_grade": 1,
+            "module": "Point Defence",
+            "name": "Ammo capacity"
+          },
+          {
+            "blueprint": "ProspectingLimpet_LightWeight",
+            "max_grade": 4,
+            "module": "Prospector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Reinforced",
+            "max_grade": 4,
+            "module": "Prospector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Shielded",
+            "max_grade": 4,
+            "module": "Prospector Limpet Controller",
+            "name": "Shielded"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Meene"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -21.53125,
+          -6.3125,
+          116.03125
+        ],
+        "id": 300120,
+        "inferred_pin": null,
+        "name": "Lei Cheung",
+        "offers": [
+          {
+            "blueprint": "ShieldGenerator_Optimised",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Enhanced low power"
+          },
+          {
+            "blueprint": "ShieldGenerator_Kinetic",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldGenerator_Reinforced",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ShieldGenerator_Thermic",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "ShieldBooster_Explosive",
+            "max_grade": 3,
+            "module": "Shield Booster",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_HeavyDuty",
+            "max_grade": 3,
+            "module": "Shield Booster",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "ShieldBooster_Kinetic",
+            "max_grade": 3,
+            "module": "Shield Booster",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_Resistive",
+            "max_grade": 3,
+            "module": "Shield Booster",
+            "name": "Resistance augmented"
+          },
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "max_grade": 3,
+            "module": "Shield Booster",
+            "name": "Thermal resistant"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Laksak"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9550.28125,
+          -916.65625,
+          19816.1875
+        ],
+        "id": 300130,
+        "inferred_pin": null,
+        "name": "Petra Olmanova",
+        "offers": [
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Armour_Explosive",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "Armour_HeavyDuty",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "Armour_Kinetic",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "Armour_Advanced",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Armour_Thermic",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "AFM_Shielded",
+            "max_grade": 5,
+            "module": "Auto Field-Maintenance Unit",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Misc_HeatSinkCapacity",
+            "max_grade": 1,
+            "module": "Caustic Sink Launcher",
+            "name": "Ammo capacity"
+          },
+          {
+            "blueprint": "Misc_ChaffCapacity",
+            "max_grade": 1,
+            "module": "Chaff Launcher",
+            "name": "Ammo capacity"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "HullReinforcement_Explosive",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_HeavyDuty",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "HullReinforcement_Kinetic",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_Advanced",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HullReinforcement_Thermic",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "Misc_PointDefenseCapacity",
+            "max_grade": 1,
+            "module": "Point Defence",
+            "name": "Ammo capacity"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Asura"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "id": 300140,
+        "inferred_pin": null,
+        "name": "Colonel Bris Dekker",
+        "offers": [
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FSDinterdictor_Expanded",
+            "max_grade": 4,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Expanded capture arc"
+          },
+          {
+            "blueprint": "FSDinterdictor_LongRange",
+            "max_grade": 4,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Long range"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Sol"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9532.9375,
+          -923.4375,
+          19799.125
+        ],
+        "id": 300150,
+        "inferred_pin": null,
+        "name": "Marsha Hicks",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "MC_Overcharged",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "CollectionLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "CollectionLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "CollectionLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Weapon_DoubleShot",
+            "max_grade": 5,
+            "module": "Fragment Cannon",
+            "name": "Double shot"
+          },
+          {
+            "blueprint": "FuelScoop_Shielded",
+            "max_grade": 5,
+            "module": "Fuel Scoop",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "ProspectingLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Refineries_Shielded",
+            "max_grade": 5,
+            "module": "Refinery",
+            "name": "Shielded"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Tir"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -171.59375,
+          19.96875,
+          -56.96875
+        ],
+        "id": 300160,
+        "inferred_pin": null,
+        "name": "Elvira Martuuk",
+        "offers": [
+          {
+            "blueprint": "ShieldGenerator_Optimised",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Enhanced low power"
+          },
+          {
+            "blueprint": "ShieldGenerator_Kinetic",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldGenerator_Reinforced",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ShieldGenerator_Thermic",
+            "max_grade": 3,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "ShieldCellBank_Rapid",
+            "max_grade": 1,
+            "module": "Shield Cell Bank",
+            "name": "Rapid charge"
+          },
+          {
+            "blueprint": "ShieldCellBank_Specialised",
+            "max_grade": 1,
+            "module": "Shield Cell Bank",
+            "name": "Specialised"
+          },
+          {
+            "blueprint": "Engine_Tuned",
+            "max_grade": 2,
+            "module": "Thrusters",
+            "name": "Clean"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "max_grade": 2,
+            "module": "Thrusters",
+            "name": "Dirty"
+          },
+          {
+            "blueprint": "Engine_Reinforced",
+            "max_grade": 2,
+            "module": "Thrusters",
+            "name": "Reinforced"
+          }
+        ],
+        "progress": "Invited",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Khun"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -11.625,
+          31.53125,
+          -3.9375
+        ],
+        "id": 300180,
+        "inferred_pin": null,
+        "name": "The Dweller",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 4,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 4,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 4,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighFrequency",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Charge enhanced"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityEngines",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Engine focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighCapacity",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "High charge capacity"
+          },
+          {
+            "blueprint": "PowerDistributor_Shielded",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "PowerDistributor_PrioritySystems",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "System focused"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Weapon focused"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Wyrd"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          6.25,
+          -1.28125,
+          -5.75
+        ],
+        "id": 300200,
+        "inferred_pin": null,
+        "name": "Marco Qwent",
+        "offers": [
+          {
+            "blueprint": "PowerDistributor_HighFrequency",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Charge enhanced"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityEngines",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Engine focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighCapacity",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "High charge capacity"
+          },
+          {
+            "blueprint": "PowerDistributor_Shielded",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "PowerDistributor_PrioritySystems",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "System focused"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "max_grade": 3,
+            "module": "Power Distributor",
+            "name": "Weapon focused"
+          },
+          {
+            "blueprint": "PowerPlant_Armoured",
+            "max_grade": 4,
+            "module": "Power Plant",
+            "name": "Armoured"
+          },
+          {
+            "blueprint": "PowerPlant_Stealth",
+            "max_grade": 4,
+            "module": "Power Plant",
+            "name": "Low emissions"
+          },
+          {
+            "blueprint": "PowerPlant_Boosted",
+            "max_grade": 4,
+            "module": "Power Plant",
+            "name": "Overcharged"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Sirius"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          -21.28125,
+          69.09375,
+          -16.3125
+        ],
+        "id": 300210,
+        "inferred_pin": null,
+        "name": "Selene Jean",
+        "offers": [
+          {
+            "blueprint": "Armour_Explosive",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "Armour_HeavyDuty",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "Armour_Kinetic",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "Armour_Advanced",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Armour_Thermic",
+            "max_grade": 5,
+            "module": "Armour",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_Explosive",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_HeavyDuty",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "HullReinforcement_Kinetic",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "HullReinforcement_Advanced",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HullReinforcement_Thermic",
+            "max_grade": 5,
+            "module": "Hull Reinforcement Package",
+            "name": "Thermal resistant"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Kuk"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          66.5,
+          38.0625,
+          61.125
+        ],
+        "id": 300220,
+        "inferred_pin": null,
+        "name": "Professor Palin",
+        "offers": [
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Engine_Tuned",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Clean"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Dirty"
+          },
+          {
+            "blueprint": "Engine_Reinforced",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Reinforced"
+          }
+        ],
+        "progress": "Unlocked",
+        "rank": 3,
+        "rank_progress": 40,
+        "system": "Arque"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          55.71875,
+          17.59375,
+          27.15625
+        ],
+        "id": 300230,
+        "inferred_pin": null,
+        "name": "Lori Jameson",
+        "offers": [
+          {
+            "blueprint": "AFM_Shielded",
+            "max_grade": 4,
+            "module": "Auto Field-Maintenance Unit",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "FuelScoop_Shielded",
+            "max_grade": 4,
+            "module": "Fuel Scoop",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "LifeSupport_LightWeight",
+            "max_grade": 4,
+            "module": "Life Support",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "LifeSupport_Reinforced",
+            "max_grade": 4,
+            "module": "Life Support",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "LifeSupport_Shielded",
+            "max_grade": 4,
+            "module": "Life Support",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Refineries_Shielded",
+            "max_grade": 4,
+            "module": "Refinery",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "ShieldCellBank_Rapid",
+            "max_grade": 3,
+            "module": "Shield Cell Bank",
+            "name": "Rapid charge"
+          },
+          {
+            "blueprint": "ShieldCellBank_Specialised",
+            "max_grade": 3,
+            "module": "Shield Cell Bank",
+            "name": "Specialised"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Shinrarta Dezhra"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          14.6875,
+          27.65625,
+          108.65625
+        ],
+        "id": 300250,
+        "inferred_pin": null,
+        "name": "Juri Ishmaak",
+        "offers": [
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Giryak"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          40.0,
+          79.21875,
+          -10.40625
+        ],
+        "id": 300260,
+        "inferred_pin": null,
+        "name": "Tod 'The Blaster' McQuinn",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "MC_Overcharged",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 3,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Weapon_DoubleShot",
+            "max_grade": 3,
+            "module": "Fragment Cannon",
+            "name": "Double shot"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Wolf 397"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          67.5,
+          -119.46875,
+          24.84375
+        ],
+        "id": 300270,
+        "inferred_pin": null,
+        "name": "Tiana Fortune",
+        "offers": [
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "CollectionLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "CollectionLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "CollectionLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Collector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 3,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "FSDinterdictor_Expanded",
+            "max_grade": 3,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Expanded capture arc"
+          },
+          {
+            "blueprint": "FSDinterdictor_LongRange",
+            "max_grade": 3,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "FuelTransferLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Fuel Transfer Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "HatchBreakerLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Hatch Breaker Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "ProspectingLimpet_LightWeight",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Reinforced",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ProspectingLimpet_Shielded",
+            "max_grade": 5,
+            "module": "Prospector Limpet Controller",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Achenar"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9523.3125,
+          -914.46875,
+          19825.90625
+        ],
+        "id": 300280,
+        "inferred_pin": null,
+        "name": "Mel Brandon",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "ShieldGenerator_Optimised",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Enhanced low power"
+          },
+          {
+            "blueprint": "ShieldGenerator_Kinetic",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldGenerator_Reinforced",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "ShieldGenerator_Thermic",
+            "max_grade": 5,
+            "module": "Bi-Weave Shield Generator",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 5,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "FSDinterdictor_Expanded",
+            "max_grade": 5,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Expanded capture arc"
+          },
+          {
+            "blueprint": "FSDinterdictor_LongRange",
+            "max_grade": 5,
+            "module": "Frame Shift Drive Interdictor",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 5,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          },
+          {
+            "blueprint": "ShieldBooster_Explosive",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Blast resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_HeavyDuty",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Heavy duty"
+          },
+          {
+            "blueprint": "ShieldBooster_Kinetic",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Kinetic resistant"
+          },
+          {
+            "blueprint": "ShieldBooster_Resistive",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Resistance augmented"
+          },
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "max_grade": 5,
+            "module": "Shield Booster",
+            "name": "Thermal resistant"
+          },
+          {
+            "blueprint": "ShieldCellBank_Rapid",
+            "max_grade": 4,
+            "module": "Shield Cell Bank",
+            "name": "Rapid charge"
+          },
+          {
+            "blueprint": "ShieldCellBank_Specialised",
+            "max_grade": 4,
+            "module": "Shield Cell Bank",
+            "name": "Specialised"
+          },
+          {
+            "blueprint": "Engine_Tuned",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Clean"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Dirty"
+          },
+          {
+            "blueprint": "Engine_Reinforced",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Reinforced"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Luchtaine"
+      },
+      {
+        "colonia": true,
+        "coords": [
+          -9509.34375,
+          -886.3125,
+          19820.125
+        ],
+        "id": 300290,
+        "inferred_pin": null,
+        "name": "Etienne Dorn",
+        "offers": [
+          {
+            "blueprint": "Weapon_Efficient",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Efficient"
+          },
+          {
+            "blueprint": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "High capacity"
+          },
+          {
+            "blueprint": "Weapon_LightWeight",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Weapon_LongRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Weapon_RapidFire",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Rapid fire"
+          },
+          {
+            "blueprint": "Weapon_ShortRange",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Short range"
+          },
+          {
+            "blueprint": "Weapon_Sturdy",
+            "max_grade": 5,
+            "module": "Advanced Multi-Cannon",
+            "name": "Sturdy"
+          },
+          {
+            "blueprint": "Weapon_Overcharged",
+            "max_grade": 5,
+            "module": "Beam Laser",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Sensor_FastScan",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Fast scan"
+          },
+          {
+            "blueprint": "Scanner_LongRange",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Scanner_WideAngle",
+            "max_grade": 5,
+            "module": "Cargo Scanner",
+            "name": "Wide angle"
+          },
+          {
+            "blueprint": "Misc_LightWeight",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Misc_Reinforced",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "Misc_Shielded",
+            "max_grade": 5,
+            "module": "Chaff Launcher",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Sensor_Expanded",
+            "max_grade": 5,
+            "module": "Detailed Surface Scanner",
+            "name": "Expanded Probe Scanning Radius"
+          },
+          {
+            "blueprint": "LifeSupport_LightWeight",
+            "max_grade": 5,
+            "module": "Life Support",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "LifeSupport_Reinforced",
+            "max_grade": 5,
+            "module": "Life Support",
+            "name": "Reinforced"
+          },
+          {
+            "blueprint": "LifeSupport_Shielded",
+            "max_grade": 5,
+            "module": "Life Support",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Weapon_Focused",
+            "max_grade": 5,
+            "module": "Plasma Accelerator",
+            "name": "Focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighFrequency",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Charge enhanced"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityEngines",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Engine focused"
+          },
+          {
+            "blueprint": "PowerDistributor_HighCapacity",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "High charge capacity"
+          },
+          {
+            "blueprint": "PowerDistributor_Shielded",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "PowerDistributor_PrioritySystems",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "System focused"
+          },
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "max_grade": 5,
+            "module": "Power Distributor",
+            "name": "Weapon focused"
+          },
+          {
+            "blueprint": "PowerPlant_Armoured",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Armoured"
+          },
+          {
+            "blueprint": "PowerPlant_Stealth",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Low emissions"
+          },
+          {
+            "blueprint": "PowerPlant_Boosted",
+            "max_grade": 5,
+            "module": "Power Plant",
+            "name": "Overcharged"
+          },
+          {
+            "blueprint": "Sensor_LightWeight",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Lightweight"
+          },
+          {
+            "blueprint": "Sensor_LongRange",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Long range"
+          },
+          {
+            "blueprint": "Sensor_WideAngle",
+            "max_grade": 5,
+            "module": "Sensors",
+            "name": "Wide angle"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Los"
+      },
+      {
+        "colonia": false,
+        "coords": [
+          351.96875,
+          -373.46875,
+          -711.09375
+        ],
+        "id": 300300,
+        "inferred_pin": null,
+        "name": "Chloe Sedesi",
+        "offers": [
+          {
+            "blueprint": "FSD_FastBoot",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Faster boot sequence"
+          },
+          {
+            "blueprint": "FSD_LongRange",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Increased range"
+          },
+          {
+            "blueprint": "FSD_Shielded",
+            "max_grade": 3,
+            "module": "Frame Shift Drive",
+            "name": "Shielded"
+          },
+          {
+            "blueprint": "Engine_Tuned",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Clean"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Dirty"
+          },
+          {
+            "blueprint": "Engine_Reinforced",
+            "max_grade": 5,
+            "module": "Thrusters",
+            "name": "Reinforced"
+          }
+        ],
+        "progress": "Unknown",
+        "rank": null,
+        "rank_progress": null,
+        "system": "Shenve"
+      }
+    ],
+    "here": {
+      "id64": 3932277478106,
+      "pos": [
+        55.71875,
+        17.59375,
+        27.15625
+      ],
+      "system": "Shinrarta Dezhra"
+    }
+  },
   "fleet": {
     "groups": {
       "bh": {
@@ -391,6 +3227,7 @@
         "id": 3,
         "ident": "HL-03",
         "loadout_ts": "2026-10-03T09:00:05Z",
+        "max_jump_range": 18.0,
         "modules": [
           {
             "group": "bh",
@@ -424,6 +3261,7 @@
         "id": 7,
         "ident": "LW-07",
         "loadout_ts": "2026-09-20T18:00:05Z",
+        "max_jump_range": 32.5,
         "modules": [
           {
             "group": "bh",
@@ -512,6 +3350,7 @@
         "id": 12,
         "ident": null,
         "loadout_ts": null,
+        "max_jump_range": null,
         "modules": [],
         "name": null,
         "ship_type": "asp",
@@ -536,6 +3375,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -553,6 +3393,7 @@
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
             "kind": "hge",
+            "query": "pharma",
             "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
           }
         ]
@@ -655,6 +3496,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -674,6 +3516,7 @@
           {
             "hint": "Independent or Alliance systems in Outbreak, population about a million or more.",
             "kind": "hge",
+            "query": "pharma",
             "summary": "High Grade Emissions spawned by an Independent or Alliance faction in Outbreak."
           }
         ]
@@ -717,6 +3560,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -817,6 +3661,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -936,6 +3781,7 @@
           {
             "hint": "A fast ship with a wake scanner: busy stations with a tourist beacon (Luyten's Star works well), or distribution centres in Famine systems. Wakes fade, so get to them early.",
             "kind": "wake_scan",
+            "query": "famine",
             "summary": "Wake scanning where traffic never stops."
           }
         ]
@@ -1243,5 +4089,67 @@
         "slot": "MainEngines"
       }
     ]
+  },
+  "trip": {
+    "blocked": [],
+    "exact": false,
+    "range": 32.5,
+    "remote": [],
+    "start": "Shinrarta Dezhra",
+    "stops": [
+      {
+        "engineer": "Professor Palin",
+        "hop": {
+          "exact": false,
+          "jumps": 2,
+          "ly": 41.09843129229509
+        },
+        "jobs": [
+          {
+            "blueprint": "FSD_LongRange",
+            "grade": 0,
+            "kind": "experimental",
+            "module": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive",
+            "what": "Mass Manager"
+          },
+          {
+            "blueprint": "Engine_Dirty",
+            "grade": 5,
+            "kind": "grades",
+            "module": "6A Thrusters",
+            "note": "Rank rises as you craft in person: Professor Palin (rank 3).",
+            "slot": "MainEngines",
+            "slot_name": "Thrusters",
+            "what": "Dirty G3 → G5"
+          }
+        ],
+        "rank": 3,
+        "system": "Arque"
+      },
+      {
+        "engineer": "Felicity Farseer",
+        "hop": {
+          "exact": false,
+          "jumps": 4,
+          "ly": 128.1139972409826
+        },
+        "jobs": [
+          {
+            "blueprint": "FSD_LongRange",
+            "grade": 5,
+            "kind": "grades",
+            "module": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive",
+            "what": "Increased range G3 → G5"
+          }
+        ],
+        "rank": 5,
+        "system": "Deciat"
+      }
+    ],
+    "total_jumps": 6
   }
 }

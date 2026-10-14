@@ -71,6 +71,12 @@ impl Store {
             return Ok(false);
         }
         self.db.execute("ATTACH DATABASE ?1 AS pre", params![preload.to_string_lossy()])?;
+        // The CI placeholder has the schema but no coverage: skip it without marking.
+        let n: i64 = self.db.query_row("SELECT count(*) FROM pre.coverage", [], |r| r.get(0))?;
+        if n == 0 {
+            self.db.execute("DETACH DATABASE pre", [])?;
+            return Ok(false);
+        }
         let tx = self.db.transaction()?;
         tx.execute("INSERT OR IGNORE INTO systems SELECT * FROM pre.systems", [])?;
         tx.execute(
@@ -175,7 +181,10 @@ mod tests {
             p.add_coverage(Sphere { center: [0.0; 3], radius: 500.0 }, "preload", "t").unwrap();
             p.db.execute("INSERT INTO meta VALUES ('source', 'test preload')", []).unwrap();
         }
+        let empty = d.path().join("empty.db");
+        Store::open(&empty).unwrap();
         let mut s = Store::open(&d.path().join("galaxy.db")).unwrap();
+        assert!(!s.seed_from(&empty).unwrap(), "placeholder is skipped");
         assert!(s.seed_from(&pre).unwrap());
         assert!(!s.seed_from(&pre).unwrap(), "seeds once");
         assert_eq!(s.count().unwrap(), 2);
