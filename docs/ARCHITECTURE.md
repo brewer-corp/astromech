@@ -1634,8 +1634,8 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   - **EDCD/coriolis-data:** JSON ships and modules, blueprints and modifications. Its licence states the **data is Frontier's IP, subject to Frontier's terms**.
   - EDEngineer, EDOMH and EDDiscovery: MIT/Apache code with recipe tables. Their data ultimately derives from the game as well.
 - **Decision:**
-  1. **No game data in the MIT source tree.** `gamedata/` holds only MIT generator scripts. They build a versioned **game data pack** (`gamedata-<date>.json.zst`) from pinned upstream commits, with a NOTICE that names its sources and says it's Frontier's IP, used under Frontier's fan-content / media-usage rules (⚠ read those rules and confirm non-commercial, open-source tool use is covered; EDSY cites the same rules).
-  2. The core **downloads or updates the pack at run time** (SHA-256 pinned, like S9's models) or ships it beside the binary, with that notice.
+  1. **Player-visible game data lives in the repo.** If the game shows it to every player, or it's on the Elite Dangerous wiki (blueprint recipes, grades, material categories, module base stats, trader ratios), it goes in `data/` like any other source file. Credit the upstream source (coriolis-data, FDevIDs, EDEngineer, wiki) in `NOTICE.md`. Still excluded: Frontier art and other assets, copies of game files (default `.binds`), and anything datamined or not meant for players.
+  2. Larger or fast-changing tables may still be refreshed at run time later; this is optional, not a licensing requirement.
   3. **Prefer the user's own journal** wherever possible: ship stats come from `Loadout` plus base stats; inventory from journal snapshots.
 - **Remote services** (EDDN, Spansh, EDSM, Inara): all opt-in, cached in SQLite with TTLs, rate-limited, with an identifying User-Agent. **Ask each operator** before shipping features that depend on heavy use (needs Sumeet's go-ahead; not now).
 

@@ -12,7 +12,9 @@ Thanks for your interest! astromech is pre-alpha, so expect big changes.
   `scripts/mockup-shots.sh` use the same binary.
 - Respect the dependency rules: actions go through `astromech-policy`; voice and tools never use
   the input executor directly.
-- Never commit game data, Frontier assets, copies of default `.binds` files, models, or personal
-  logs and results (journals, device paths, window titles). Use synthetic fixtures.
+- Player-visible game data (anything on the Elite Dangerous wiki) is fine in `data/`; credit its
+  source in `NOTICE.md`. Never commit Frontier assets, copies of game files (default `.binds`),
+  datamined data, models, or personal logs and results (journals, device paths, window titles).
+  Use synthetic fixtures.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.

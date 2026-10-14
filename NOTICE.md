@@ -18,8 +18,10 @@ docs/ARCHITECTURE.md §17). Consequences:
 
 ## Not in this repository
 
-- No game data, Frontier assets or copies of Frontier's default `.binds` files. Elite
-  Dangerous is a trademark of Frontier Developments plc; astromech is an unofficial fan project
+- No Frontier assets (art, audio, fonts), copies of game files such as Frontier's default `.binds`,
+  or datamined data. Player-visible game facts (material names and grades, blueprint recipes,
+  module stats; the kind of thing on the Elite Dangerous wiki) are included in `data/` and
+  credited to their sources below. Elite Dangerous is a trademark of Frontier Developments plc; astromech is an unofficial fan project
   and is not affiliated with or endorsed by Frontier.
 - No speech models. They are downloaded at first run, each under its own licence:
   Parakeet TDT 0.6B (NVIDIA, CC-BY-4.0), Kokoro-82M (Apache-2.0; its `espeak-ng-data` is GPL-3.0).
