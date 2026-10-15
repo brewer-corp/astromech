@@ -18,7 +18,7 @@ under `.atelier/`, committed with the code they describe. There is no separate b
   Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards `main` to the
   reviewed branch; pushing `main` then marks the PR merged.
 - Someday work, and the children of a draft epic, sit in the `backlog` status so
-  `atelier work ready` shows only near-term work. New issues start in `todo`;
+  `atelier work ready` shows only near-term work. New work items start in `todo`;
   `atelier issue transition <id> defer` moves one to `backlog`, and `plan` moves it back.
 - Records labelled `needs-cmdr` need Sumeet at the PC or in the game. Prepare everything
   else, then hand off.

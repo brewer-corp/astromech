@@ -30,7 +30,7 @@ updated_at: "2026-10-15T20:36:18.899608472+00:00"
 
 ## Outcome
 
-astromech v1.0 is on GitHub Releases: voice replies sound like the in-game COVAS, a fresh install reaches a working voice command in minutes, and it's on GitHub Releases.
+astromech v1.0 is on GitHub Releases: voice replies sound like the in-game COVAS, a fresh install reaches a working voice command in minutes, and the README is up to date.
 
 ## Success criteria
 
