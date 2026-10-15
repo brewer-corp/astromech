@@ -189,10 +189,12 @@ setup work at a desk: big readable text, one thing at a time.
 | **Nearby lookups** (Materials and Engineering side panel) | Nearest systems for a farming source (Famine for wake scanning, the HGE faction pools) with jumps at the current ship's range and how old the report is | Plotting the route in game |
 | **Settings** | Every voice and control setting in **one list** | Calibration flows, press logs, live transcripts, anything that isn't a setting |
 | **Diagnostics** | Prove what the app sees: key tester (live press log), device list, health report, logs, "Save diagnostics" | Settings (except links to them) |
-| **Tray menu** (native) | Is it running, open the window, pause voice, kill switch, quit | Any status beyond one line; any webview |
+| **Tray menu** (native, dark) | Is it running, open the window, pause voice, kill switch (while active), quit; one extra line only when something needs attention (crash, Finish setup, Restart to update) | Any status beyond one line; any webview; settings, updates, files (all in the window) |
 
-Navigation is plain text tabs in the window header (Activities, All keybinds, My
-controller, Materials, Presets, Settings, Diagnostics), like the game's top-level options.
+Navigation is three plain text tabs in the window header, like the game's top-level options,
+each with its pages as sub-tabs: **Controls** (Activities, All keybinds, My controller, Presets,
+Key tester), **Engineering** (Builds, Materials) and **Settings** (General, Diagnostics). While
+setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
 **How the three binding views fit together.** They show the same bindings three ways:
 - **Activities** answers "what do I need for this?". It's curated and short.
@@ -223,8 +225,9 @@ flow, not a tab.
   - **Debug**: save push-to-talk clips (off), log every input event (off), bounce and
     minimum-clip thresholds (tuning knobs most people never touch).
 - **Last commands / transcripts** → Diagnostics (log view), not the tray.
-- **Check for updates** → tray menu and Diagnostics; downloads a signed zip. **Install update**
-  quits, overlays files, relaunches (Elite may still be running).
+- **Check for updates** → Settings → Updates (and a daily check); downloads a signed zip.
+  **Install and restart** (Settings, or the tray's "Restart to update" line) quits, overlays
+  files, relaunches, and reopens the window if it was open (Elite may still be running).
 
 ---
 
@@ -666,8 +669,9 @@ keep the flattest announcer as the Cockpit default. `speaker_id` remains a setti
 ### 7.1 Process and tray model
 **Two processes, and the core owns a native tray menu.**
 - `astromech-core.exe` (Rust, no WebView) is the only process that's always running: tray icon
-  and **native context menu** (the `tray-icon` crate's OS menu: status line, Open astromech,
-  Keybinds, Settings, Pause voice, Kill switch, Check for updates…, Save diagnostics…, Quit),
+  and **native context menu** (the `tray-icon` crate's OS menu, dark via uxtheme: status line,
+  Open astromech, Pause voice, Kill switch while active, Quit, plus a crash / Finish setup /
+  Restart to update line when relevant),
   game watcher, journal pipeline, input listeners, voice, the local API. Idle memory target
   about 20–40 MB; models load only while Elite runs (§7.6).
 - `astromech-shell.exe` (Tauri v2 + Svelte) is the window, started from the tray or on first
@@ -692,15 +696,15 @@ keep the flattest announcer as the Cockpit default. `speaker_id` remains a setti
 - **Channel:** GitHub Releases `v*` tags. Each release ships `latest.json` (version, zip name,
   SHA-256, notes) and `latest.json.sig` (ed25519 over the exact JSON bytes). The verifying key
   is baked into the core (`PUBLIC_KEY_HEX`); CI holds the private seed as `ASTROMECH_UPDATE_KEY`.
-- **Payload:** a zip of `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe`
-  and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
+- **Payload:** a zip of `astromech-shell.exe`, `astromech-core.exe`, `astromech-voice-worker.exe`,
+  `starmap.db` and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
   `data\` (config, logs, models, DB) is never overwritten. `uninstall.exe` stays.
 - **When:** check and download any time, including while Elite is running. Apply drops keys and
   the session, quits, copies from a helper in `%TEMP%` (the running `astromech-core.exe` is
   locked), then relaunches. The new process attaches to the running game the same way a mid-session
   start already does.
 - **Policy** (`[update]` in `astromech.toml`): `check = true` (default) polls about daily;
-  `apply = "ask"` (default) waits for tray/Diagnostics **Install update**; `on_quit` applies when
+  `apply = "ask"` (default) waits for **Install and restart** (Settings or tray); `on_quit` applies when
   astromech itself quits (no relaunch); `never` does not apply.
 - First install, or a machine that never ran a self-updating build, still uses the NSIS
   `setup.exe`. NSIS still asks the core to exit cleanly before replacing files.
@@ -785,8 +789,8 @@ Total about **11 weeks**.
   WebSocket API replaces it as modules need it.
 - Active = launcher or game running (the launcher pre-warms); idle after the game has been gone
   for two polls (6 s). The Raw Input listener starts at the first activation and stays.
-- Tray extras until Settings/onboarding exist: "Start with Windows" toggle, "Open config file",
-  "Download speech models" (only when missing).
+- Start with Windows, Open config file and Download speech models moved from the tray to
+  Settings (14 Oct); the tray links there with "Finish setup" while something is missing.
 - Crash restart: the window's watchdog restarts the core if `core.json` exists but the core
   doesn't answer (a clean Quit removes the file, so it stays off).
 

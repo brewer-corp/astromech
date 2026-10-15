@@ -81,6 +81,8 @@ pub struct Snapshot {
     pub error: Option<String>,
     pub last_check: Option<String>,
     pub ready: bool,
+    /// Why the previous install failed (from the helper); kept until this process exits.
+    pub apply_error: Option<String>,
 }
 
 #[derive(Debug)]
@@ -348,10 +350,17 @@ pub fn wait_pid(pid: u32, timeout: Duration) -> Result<()> {
     }
 }
 
-pub fn relaunch(install_dir: &Path) -> Result<()> {
+/// Start the installed core again. `open_window`: also open the app window (it was open when
+/// the update started), otherwise tray only.
+pub fn relaunch(install_dir: &Path, open_window: bool) -> Result<()> {
     let exe = install_dir.join(if cfg!(windows) { "astromech-core.exe" } else { "astromech-core" });
     let mut c = std::process::Command::new(&exe);
-    c.arg("--background").current_dir(install_dir);
+    if open_window {
+        c.arg("--route").arg(WINDOW_ROUTE);
+    } else {
+        c.arg("--background");
+    }
+    c.current_dir(install_dir);
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
@@ -364,8 +373,22 @@ pub fn relaunch(install_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// The page the window reopens at after an update (where the update status is).
+pub const WINDOW_ROUTE: &str = "settings";
+
+/// What the apply helper does once the files are in place.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum After {
+    /// Apply on quit: leave astromech off.
+    Exit,
+    /// Start the core again, tray only.
+    Relaunch,
+    /// Start the core again and open the app window.
+    RelaunchWithWindow,
+}
+
 /// Spawn a copy of this exe in %TEMP% that waits for us, copies the payload, and optionally relaunches.
-pub fn spawn_apply(payload: &Path, install_dir: &Path, do_relaunch: bool) -> Result<()> {
+pub fn spawn_apply(payload: &Path, install_dir: &Path, after: After) -> Result<()> {
     let src = std::env::current_exe().context("current exe")?;
     let name = if cfg!(windows) {
         format!("astromech-apply-{}.exe", std::process::id())
@@ -382,8 +405,14 @@ pub fn spawn_apply(payload: &Path, install_dir: &Path, do_relaunch: bool) -> Res
         .arg(install_dir)
         .arg("--wait-pid")
         .arg(std::process::id().to_string());
-    if do_relaunch {
-        c.arg("--relaunch");
+    match after {
+        After::Exit => {}
+        After::Relaunch => {
+            c.arg("--relaunch");
+        }
+        After::RelaunchWithWindow => {
+            c.arg("--relaunch").arg("--route").arg(WINDOW_ROUTE);
+        }
     }
     #[cfg(windows)]
     {
@@ -410,7 +439,16 @@ fn stop_locked_exes() {
     }
 }
 
-pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, do_relaunch: bool) -> i32 {
+/// Where the helper leaves the reason a copy failed, for the next core to show.
+pub fn apply_error_file(app_dir: &Path) -> PathBuf {
+    app_dir.join("updates").join("apply-error.txt")
+}
+
+/// The `--apply-update` helper. Logs every step (it has no window), and relaunches even when
+/// the copy failed so astromech isn't left off; the error is left in [`apply_error_file`].
+pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, after: After, app_dir: &Path) -> i32 {
+    use crate::logging::log;
+    log(&format!("update helper: applying {} to {}", from.display(), install_dir.display()));
     if let Some(pid) = wait {
         let _ = wait_pid(pid, Duration::from_secs(45));
     }
@@ -419,13 +457,8 @@ pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, do_relaunch
     for _ in 0..12 {
         match copy_payload(from, install_dir) {
             Ok(()) => {
-                if do_relaunch {
-                    if let Err(e) = relaunch(install_dir) {
-                        eprintln!("relaunch: {e:#}");
-                        return 1;
-                    }
-                }
-                return 0;
+                last = None;
+                break;
             }
             Err(e) => {
                 last = Some(e);
@@ -433,8 +466,32 @@ pub fn apply_cli(from: &Path, install_dir: &Path, wait: Option<u32>, do_relaunch
             }
         }
     }
-    eprintln!("apply update: {:#}", last.unwrap());
-    1
+    let err_file = apply_error_file(app_dir);
+    let mut code = 0;
+    match &last {
+        None => {
+            log("update helper: files copied");
+            let _ = fs::remove_file(&err_file);
+        }
+        Some(e) => {
+            log(&format!("update helper: copy failed: {e:#}"));
+            if let Some(d) = err_file.parent() {
+                let _ = fs::create_dir_all(d);
+            }
+            let _ = fs::write(&err_file, format!("{e:#}"));
+            code = 1;
+        }
+    }
+    if after != After::Exit {
+        match relaunch(install_dir, after == After::RelaunchWithWindow) {
+            Ok(()) => log("update helper: astromech restarted"),
+            Err(e) => {
+                log(&format!("update helper: relaunch failed: {e:#}"));
+                code = 1;
+            }
+        }
+    }
+    code
 }
 
 pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey) -> Result<(Manifest, Vec<u8>)> {

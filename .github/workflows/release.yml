@@ -115,6 +115,8 @@ jobs:
           if [ ! -f "$REL/astromech-voice-worker.exe" ] && [ -f target/release/astromech-voice-worker.exe ]; then
             files+=(target/release/astromech-voice-worker.exe)
           fi
+          # The installer ships it as a Tauri resource; updates must carry it too.
+          files+=(app/src-tauri/resources/starmap.db)
           python3 scripts/pack-update.py --out dist-release --notes "See the GitHub release notes." "${files[@]}"
           if [ -n "${ASTROMECH_UPDATE_KEY:-}" ]; then
             cargo run -p astromech-core --example sign-update --release --locked -- dist-release/latest.json
