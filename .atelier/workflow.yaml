@@ -97,6 +97,10 @@ workflows:
         from: [backlog]
         to: todo
         description: Pull someday work into the near-term plan.
+      defer:
+        from: [todo]
+        to: backlog
+        description: Park work that isn't near-term.
       start:
         from: [todo, blocked]
         to: in_progress
