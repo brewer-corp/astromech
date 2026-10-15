@@ -1,0 +1,123 @@
+schema: atelier.workflow
+schema_version: 3
+branch_policy:
+  base_branch: main
+  merge_strategy: fast_forward_only
+issue_types:
+  bug:
+    label: Bug
+  epic:
+    label: Epic
+  feature:
+    label: Feature
+  mission:
+    label: Mission
+  spike:
+    label: Spike
+  task:
+    label: Task
+  validation:
+    label: Validation
+statuses:
+  draft:
+    category: todo
+  todo:
+    category: todo
+  in_progress:
+    category: active
+  blocked:
+    category: blocked
+  review:
+    category: active
+  done:
+    category: done
+  superseded:
+    category: done
+workflows:
+  objective:
+    applies_to:
+    - mission
+    - epic
+    initial_status: draft
+    done_statuses:
+    - done
+    - superseded
+    transitions:
+      ready:
+        from: [draft]
+        to: todo
+        description: The outcome, immediate work, and proof route are clear enough to execute.
+        validators:
+        - issue.sections_parseable
+      start:
+        from: [todo, blocked]
+        to: in_progress
+        description: Start work.
+        validators:
+        - blockers.transitive_none_open
+      block:
+        from: [todo, in_progress, review]
+        to: blocked
+        description: Record a blocker.
+      request_review:
+        from: [in_progress]
+        to: review
+        description: Ready for independent review.
+      revise:
+        from: [review]
+        to: in_progress
+        description: Return to active work after review findings.
+      close:
+        from: [in_progress, review]
+        to: done
+        required_fields: [close_reason]
+        description: Done claim; commit it on the work branch before review.
+        validators:
+        - blockers.none_open
+      supersede:
+        from: [draft, todo, blocked, in_progress]
+        to: superseded
+        required_fields: [close_reason]
+        description: Retire work that evidence made obsolete.
+  work:
+    applies_to:
+    - bug
+    - feature
+    - spike
+    - task
+    - validation
+    initial_status: todo
+    done_statuses:
+    - done
+    - superseded
+    transitions:
+      start:
+        from: [todo, blocked]
+        to: in_progress
+        description: Start work.
+        validators:
+        - blockers.transitive_none_open
+      block:
+        from: [todo, in_progress, review]
+        to: blocked
+        description: Record a blocker.
+      request_review:
+        from: [in_progress]
+        to: review
+        description: Ready for independent review.
+      revise:
+        from: [review]
+        to: in_progress
+        description: Return to active work after review findings.
+      close:
+        from: [in_progress, review]
+        to: done
+        required_fields: [close_reason]
+        description: Done claim; commit it on the work branch before review.
+        validators:
+        - blockers.none_open
+      supersede:
+        from: [todo, blocked, in_progress]
+        to: superseded
+        required_fields: [close_reason]
+        description: Retire work that is no longer needed.
