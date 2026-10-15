@@ -21,6 +21,8 @@ issue_types:
 statuses:
   draft:
     category: todo
+  backlog:
+    category: todo
   todo:
     category: todo
   in_progress:
@@ -91,6 +93,10 @@ workflows:
     - done
     - superseded
     transitions:
+      plan:
+        from: [backlog]
+        to: todo
+        description: Pull someday work into the near-term plan.
       start:
         from: [todo, blocked]
         to: in_progress
@@ -117,7 +123,7 @@ workflows:
         validators:
         - blockers.none_open
       supersede:
-        from: [todo, blocked, in_progress]
+        from: [backlog, todo, blocked, in_progress]
         to: superseded
         required_fields: [close_reason]
         description: Retire work that is no longer needed.

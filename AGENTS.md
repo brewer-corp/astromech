@@ -15,6 +15,8 @@ under `.atelier/`, committed with the code they describe. There is no separate b
   and "Ship v1.0".
 - `atelier start <id>` creates the work branch (`<issue_type>/<id>`) from `main`. Integrate
   with `atelier merge <id>` after independent review, never a plain `git merge` into `main`.
+  Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards `main` to the
+  reviewed branch; pushing `main` then marks the PR merged.
 - Records labelled `needs-cmdr` need Sumeet at the PC or in the game. Prepare everything
   else, then hand off.
 

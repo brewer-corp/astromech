@@ -30,7 +30,8 @@ calibration wizard inside settings and a press log inside the button config. Thi
 starts from the tasks (§2), derives a minimal visual system from the game's own Controls screen
 (§4), and only then draws (§5). Decisions applied:
 - **VR is out of the app entirely.** No overlay, no in-headset UI. Voice still has to work
-  while he flies in VR (§6), but nothing on screen needs to.
+  while he flies in VR (§6), but nothing on screen needs to. *Update 15 Oct:* not yet, rather than never
+  (see §1.4).
 - **Releases are unsigned.**
 - **Signed in-app updates.** The core checks GitHub Releases (`latest.json` + ed25519). Apply
   quits astromech, overlays the zip, and relaunches; Elite may still be running. First install
@@ -847,7 +848,9 @@ Settled with Sumeet before implementation started:
    confirmation** first), HUD mode, panels, and throttle to zero.
 4. **Game callouts:** **only a low-fuel warning**, on by default at **25%**, threshold
    configurable in Settings. No interdiction or heat callouts: the game already alerts those
-   clearly.
+   clearly. *Update 15 Oct:* the low-fuel warning is prominent on the HUD too, so
+   it isn't spoken either; the fuel callout says the next scoopable star on the route, and
+   warns only when there isn't enough fuel to reach one (tracker: "Fuel: next scoopable star").
 5. **Autostart:** **start with Windows on by default** (tray only, idle until Elite runs), with
    an opt-out in setup and in Settings.
 6. **Six uncertain VKB buttons** (ministick push, both base-switch directions, rapid-fire
