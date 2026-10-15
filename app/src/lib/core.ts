@@ -32,6 +32,14 @@ export interface CoreStatus {
   log_dir: string;
   config: string;
   config_note: string | null;
+  /** What still has to be set up before voice works, e.g. "push-to-talk not set". */
+  setup_needed?: string[];
+  /** Push-to-talk as "<device> <key>", or null. */
+  ptt?: string | null;
+  models_missing?: boolean;
+  /** Download progress while speech models download. */
+  models_progress?: string | null;
+  models_dir?: string;
   update?: UpdateStatus;
 }
 
@@ -46,7 +54,21 @@ export async function coreStatus(): Promise<CoreStatus | null> {
   }
 }
 
-export async function coreCall(cmd: string): Promise<Record<string, unknown>> {
+/** Commands the window may send; the shell's `core_call` allows exactly these. */
+export type CoreCmd =
+  | "save_diagnostics"
+  | "ack_crash"
+  | "check_update"
+  | "install_update"
+  | "autostart_on"
+  | "autostart_off"
+  | "pause_voice"
+  | "resume_voice"
+  | "kill_switch"
+  | "download_models"
+  | "open_config";
+
+export async function coreCall(cmd: CoreCmd): Promise<Record<string, unknown>> {
   if (!inTauri) return { ok: false, error: "not running inside the app" };
   return await invoke<Record<string, unknown>>("core_call", { cmd });
 }
@@ -72,7 +94,7 @@ export function onRoute(cb: (route: string) => void): void {
 
 /** One-line summary for the header. */
 export function headerState(s: CoreStatus | null): string {
-  if (!s) return "Core not running";
+  if (!s) return "Not running";
   if (s.starting) return "Starting voice…";
   const game = s.game === "running" ? "Elite running" : s.game === "launcher" ? "Launcher open" : "Waiting for Elite";
   if (!s.active) return game;

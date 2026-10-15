@@ -2,9 +2,10 @@ import type { ModuleManifest } from "../../lib/modules";
 
 const manifest: ModuleManifest = {
   id: "diagnostics",
+  group: "settings",
   title: "Diagnostics",
-  summary: "What the core sees, logs, Save diagnostics",
-  order: 50,
+  summary: "What astromech sees, logs, Save diagnostics",
+  order: 10,
   api: ["core"],
   load: () => import("./View.svelte"),
 };

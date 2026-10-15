@@ -69,12 +69,12 @@ Download `astromech_<version>_x64-setup.exe` from the latest
 GitHub Release once tagged). It installs per-user to `%LOCALAPPDATA%\astromech`, no admin. The
 build is **unsigned**: SmartScreen says "Windows protected your PC" → More info → Run anyway.
 
-astromech then runs in the tray and starts with Windows (untick "Start with Windows" in the tray
-menu to stop that). It stays idle until Elite (or its launcher) starts, then loads voice. Your
-config is `%LOCALAPPDATA%\astromech\data\astromech.toml` (tray → Open config file); speech
-models go in `data\models` (tray → Download speech models). Logs: `data\logs`, or tray → Save
-diagnostics. After this version, tray → Check for updates downloads a signed zip and Install
-restarts astromech (Elite can keep running). First install is still the NSIS setup.exe.
+astromech then runs in the tray and starts with Windows (turn that off in Settings). It stays
+idle until Elite (or its launcher) starts, then loads voice. Settings has push-to-talk, the speech
+model download (about 800 MB), your config file (`%LOCALAPPDATA%\astromech\data\astromech.toml`)
+and updates: astromech checks daily and downloads a signed zip; **Install and restart** applies
+it (Elite can keep running). Logs: `data\logs`, or Settings → Diagnostics → Save diagnostics.
+First install is still the NSIS setup.exe.
 
 ## Try the gear-down slice
 

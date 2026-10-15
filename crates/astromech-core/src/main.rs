@@ -81,7 +81,7 @@ struct Args {
     /// Wait for this pid to exit before copying
     #[arg(long)]
     wait_pid: Option<u32>,
-    /// Relaunch astromech-core --background after a successful copy
+    /// Start astromech-core again after copying (with --route: open the window at that page)
     #[arg(long)]
     relaunch: bool,
 }
@@ -144,7 +144,15 @@ fn main() {
     if args.apply_update {
         let from = args.from.expect("--apply-update needs --from");
         let install = args.install_dir.expect("--apply-update needs --install-dir");
-        std::process::exit(astromech_core::update::apply_cli(&from, &install, args.wait_pid, args.relaunch));
+        use astromech_core::update::After;
+        let after = match (args.relaunch, args.route.is_some()) {
+            (false, _) => After::Exit,
+            (true, false) => After::Relaunch,
+            (true, true) => After::RelaunchWithWindow,
+        };
+        let app_dir = Config::app_dir();
+        astromech_core::logging::init(&app_dir.join("logs"), false);
+        std::process::exit(astromech_core::update::apply_cli(&from, &install, args.wait_pid, after, &app_dir));
     }
     if args.quit {
         std::process::exit(quit_running());

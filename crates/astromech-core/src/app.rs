@@ -7,7 +7,7 @@ use crate::config::Config;
 use crate::control::{self, Request};
 use crate::gamewatch::{self, Change, Game};
 use crate::logging::log;
-use crate::session::{self, Session};
+use crate::session::{self, Session, VOICE_PAUSED};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
 use serde_json::{json, Value};
@@ -63,29 +63,35 @@ impl Core {
         self.session.lock().unwrap().is_some()
     }
 
-    /// The tray's one status line.
+    /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
         let game = *self.game.lock().unwrap();
         let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
-            (_, _, true) => "astromech · starting voice…".to_string(),
-            (Game::Running, true, _) => format!("astromech · active · {}", self.voice.lock().unwrap()),
-            (Game::Launcher, true, _) => format!("astromech · launcher open · {}", self.voice.lock().unwrap()),
-            (Game::Running, false, _) => "astromech · Elite running · voice failed (see logs)".to_string(),
-            _ => "astromech · idle · waiting for Elite".to_string(),
+            (_, _, true) => "Starting voice…".to_string(),
+            (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().unwrap()),
+            (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().unwrap()),
+            (Game::Running, false, _) => "Elite running · voice failed (see logs)".to_string(),
+            _ => "Waiting for Elite".to_string(),
         };
+        if VOICE_PAUSED.load(Ordering::SeqCst) {
+            s = format!("{s} · paused");
+        }
         if let Some(m) = self.models.lock().unwrap().as_ref() {
             s = format!("{s} · {m}");
         }
-        if let Some(n) = &self.config_note {
-            s = format!("{s} · {n}");
-        }
-        let u = self.update.lock().unwrap();
-        if u.snap.ready {
-            if let Some(v) = &u.snap.latest {
-                s = format!("{s} · update {v}");
-            }
-        }
         s
+    }
+
+    /// What still has to be set up before voice can work, in the order to do it.
+    pub fn setup_needed(&self) -> Vec<&'static str> {
+        let mut v = vec![];
+        if self.cfg.controls.ptt.is_none() {
+            v.push("push-to-talk not set");
+        }
+        if models_missing(&self.cfg) {
+            v.push("speech models not downloaded");
+        }
+        v
     }
 
     pub fn status_json(&self) -> Value {
@@ -107,6 +113,11 @@ impl Core {
             "log_dir": self.app_dir.join("logs").display().to_string(),
             "config": self.config_path.display().to_string(),
             "config_note": self.config_note,
+            "setup_needed": self.setup_needed(),
+            "ptt": self.cfg.controls.ptt.as_ref().map(|b| format!("{} {}", b.device, b.key)),
+            "models_missing": models_missing(&self.cfg),
+            "models_progress": *self.models.lock().unwrap(),
+            "models_dir": self.cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
         })
     }
@@ -290,12 +301,20 @@ impl Core {
             return json!({"ok": false, "error": "update payload missing"});
         };
         let install_dir = Config::exe_dir();
+        // Bring the window back afterwards if it is open now (the helper closes it to replace it).
+        let window_open = gamewatch::process_names().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
+        let after = if window_open { update::After::RelaunchWithWindow } else { update::After::Relaunch };
         self.deactivate("installing update");
-        match update::spawn_apply(&payload, &install_dir, true) {
+        match update::spawn_apply(&payload, &install_dir, after) {
             Ok(()) => {
                 self.set_update(|h| h.snap.status = UpStatus::Applying);
                 log("update: helper started; quitting so files can be replaced");
-                let _ = self.ui.lock().unwrap().send(Ui::Quit);
+                // Quit a moment later, so whoever asked (the window) still gets this reply.
+                let ui = self.ui.lock().unwrap().clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(Duration::from_millis(300));
+                    let _ = ui.send(Ui::Quit);
+                });
                 json!({"ok": true})
             }
             Err(e) => {
@@ -319,7 +338,7 @@ impl Core {
         }
         let Some(payload) = h.payload.clone() else { return };
         drop(h);
-        match update::spawn_apply(&payload, &Config::exe_dir(), false) {
+        match update::spawn_apply(&payload, &Config::exe_dir(), update::After::Exit) {
             Ok(()) => log("update: applying on quit"),
             Err(e) => log(&format!("update: apply on quit failed: {e:#}")),
         }
@@ -381,6 +400,37 @@ impl Core {
                 json!({"ok": true})
             }
             "install_update" => self.install_update(),
+            "autostart_on" | "autostart_off" => {
+                let on = r.cmd == "autostart_on";
+                let res =
+                    std::env::current_exe().map_err(|e| e.to_string()).and_then(|exe| crate::autostart::set(on, &exe));
+                self.notify();
+                match res {
+                    Ok(()) => {
+                        log(if on { "start with Windows: on" } else { "start with Windows: off" });
+                        json!({"ok": true})
+                    }
+                    Err(e) => json!({"ok": false, "error": e}),
+                }
+            }
+            "pause_voice" | "resume_voice" => {
+                VOICE_PAUSED.store(r.cmd == "pause_voice", Ordering::SeqCst);
+                log(if r.cmd == "pause_voice" { "voice paused" } else { "voice resumed" });
+                self.notify();
+                json!({"ok": true})
+            }
+            "kill_switch" => {
+                self.kill_switch();
+                json!({"ok": true})
+            }
+            "download_models" => {
+                download_models(self);
+                json!({"ok": true})
+            }
+            "open_config" => {
+                open_config(&self.config_path);
+                json!({"ok": true})
+            }
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
     }
@@ -559,13 +609,12 @@ pub fn run(opts: Opts) -> i32 {
             }
         }
     } else {
-        log(&format!("config: {} not found; using defaults (tray → Open config file)", config_path.display()));
+        log(&format!("config: {} not found; using defaults (Settings → Open config file)", config_path.display()));
         (Config::default(), None)
     };
     if opts.session.dry_run {
         cfg.actions.dry_run = true;
     }
-    let config_note = config_note.or_else(|| cfg.controls.ptt.is_none().then(|| "push-to-talk not set".to_string()));
 
     if !Config::portable() {
         if let Ok(exe) = std::env::current_exe() {
@@ -580,6 +629,15 @@ pub fn run(opts: Opts) -> i32 {
         log("astromech crashed last time; the tray offers Save diagnostics");
     }
 
+    let mut update_handle = update::Handle::new();
+    let apply_err = update::apply_error_file(&app_dir);
+    if let Ok(e) = std::fs::read_to_string(&apply_err) {
+        let _ = std::fs::remove_file(&apply_err);
+        log(&format!("update: the last install failed: {e}"));
+        update_handle.snap.status = UpStatus::Error;
+        update_handle.snap.error = Some(format!("The last update didn't install: {e}"));
+    }
+
     let (ui_tx, ui_rx) = channel();
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
@@ -592,7 +650,7 @@ pub fn run(opts: Opts) -> i32 {
         voice: Mutex::new("voice not loaded".into()),
         crash: Mutex::new(crash),
         models: Mutex::new(None),
-        update: Mutex::new(update::Handle::new()),
+        update: Mutex::new(update_handle),
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
     });

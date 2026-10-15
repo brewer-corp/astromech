@@ -10,7 +10,6 @@
 </script>
 
 <section>
-  <h3>Key tester</h3>
   <p class="lo">Press anything. Each press shows the name Elite uses and what {binds.view?.name ?? "the preset"} does with it. Axes show when they settle.</p>
   <div class="grid">
     <div>
@@ -41,9 +40,9 @@
 </section>
 
 <style>
-  section { padding: 0 0 28px; }
-  h3 { margin: 0 0 6px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; margin-top: 12px; }
+  section { padding: 28px 0; }
+  p { margin: 0; }
+  .grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; margin-top: 20px; }
   .head, .row { display: grid; grid-template-columns: 260px 240px 1fr; gap: var(--gap); }
   .head { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-bottom: 6px; }
   .row { min-height: 30px; margin-bottom: var(--gap); }

@@ -5,13 +5,24 @@
  */
 import type { Component } from "svelte";
 
+/** Top-level tabs. Each module sits under one; the group's modules are its sub-tabs. */
+export const groups = [
+  { id: "controls", title: "Controls" },
+  { id: "engineering", title: "Engineering" },
+  { id: "settings", title: "Settings" },
+] as const;
+
+export type GroupId = (typeof groups)[number]["id"];
+
 export interface ModuleManifest {
   /** Stable id, also the route: #/<id> */
   id: string;
+  /** Top-level tab it sits under. */
+  group: GroupId;
   title: string;
   /** Short line for the nav tooltip. */
   summary: string;
-  /** Lower sorts first in the nav. */
+  /** Lower sorts first within its group; the first one is where the group opens. */
   order: number;
   /** API namespaces the module uses (for the core's capability check), e.g. "binds". */
   api: string[];
@@ -25,4 +36,8 @@ export const modules: ModuleManifest[] = Object.values(found).sort((a, b) => a.o
 
 export function findModule(id: string): ModuleManifest | undefined {
   return modules.find((m) => m.id === id);
+}
+
+export function groupModules(g: GroupId): ModuleManifest[] {
+  return modules.filter((m) => m.group === g);
 }

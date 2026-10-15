@@ -1,7 +1,7 @@
 //! Start with Windows (docs/V1-DESIGN.md §7.5, §9): the HKCU `Run` value `astromech` →
 //! `"<dir>\astromech-core.exe" --background`. No admin. On by default: the first time the core
 //! runs from an install it turns autostart on and records that in `core-state.json`, so turning
-//! it off later (tray menu now, setup and Settings later) sticks.
+//! it off later (in Settings) sticks.
 
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -51,7 +51,7 @@ pub fn apply_default(app_dir: &Path, exe: &Path) -> Option<String> {
     st.autostart_default_applied = true;
     st.save(app_dir);
     Some(match r {
-        Ok(()) => "autostart: on (default); turn it off with \"Start with Windows\" in the tray menu".into(),
+        Ok(()) => "autostart: on (default); turn it off with \"Start with Windows\" in Settings".into(),
         Err(e) => format!("autostart: couldn't turn it on: {e}"),
     })
 }

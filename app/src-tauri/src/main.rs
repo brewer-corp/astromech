@@ -446,8 +446,22 @@ fn core_status() -> Option<Value> {
 
 #[tauri::command]
 fn core_call(cmd: String) -> Value {
-    // The window may only ask for these.
-    if !matches!(cmd.as_str(), "status" | "save_diagnostics" | "ack_crash") {
+    // The window may only ask for these ("quit" and "open_window" stay with the tray).
+    const ALLOWED: &[&str] = &[
+        "status",
+        "save_diagnostics",
+        "ack_crash",
+        "check_update",
+        "install_update",
+        "autostart_on",
+        "autostart_off",
+        "pause_voice",
+        "resume_voice",
+        "kill_switch",
+        "download_models",
+        "open_config",
+    ];
+    if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });
     }
     call(&cmd).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
