@@ -81,6 +81,8 @@ pub struct Snapshot {
     pub error: Option<String>,
     pub last_check: Option<String>,
     pub ready: bool,
+    /// Why the previous install failed (from the helper); kept until this process exits.
+    pub apply_error: Option<String>,
 }
 
 #[derive(Debug)]
@@ -353,7 +355,9 @@ pub fn wait_pid(pid: u32, timeout: Duration) -> Result<()> {
 pub fn relaunch(install_dir: &Path, open_window: bool) -> Result<()> {
     let exe = install_dir.join(if cfg!(windows) { "astromech-core.exe" } else { "astromech-core" });
     let mut c = std::process::Command::new(&exe);
-    if !open_window {
+    if open_window {
+        c.arg("--route").arg(WINDOW_ROUTE);
+    } else {
         c.arg("--background");
     }
     c.current_dir(install_dir);
@@ -368,6 +372,9 @@ pub fn relaunch(install_dir: &Path, open_window: bool) -> Result<()> {
     c.spawn().with_context(|| format!("relaunch {}", exe.display()))?;
     Ok(())
 }
+
+/// The page the window reopens at after an update (where the update status is).
+pub const WINDOW_ROUTE: &str = "settings";
 
 /// What the apply helper does once the files are in place.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -404,7 +411,7 @@ pub fn spawn_apply(payload: &Path, install_dir: &Path, after: After) -> Result<(
             c.arg("--relaunch");
         }
         After::RelaunchWithWindow => {
-            c.arg("--relaunch").arg("--route").arg("settings");
+            c.arg("--relaunch").arg("--route").arg(WINDOW_ROUTE);
         }
     }
     #[cfg(windows)]

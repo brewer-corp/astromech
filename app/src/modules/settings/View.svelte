@@ -96,7 +96,11 @@
         {/if}
       </dd>
     </dl>
-    <p class="hint">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
+    {#if u?.apply_error}
+      <p class="hint warn-text">The last update didn't install: {u.apply_error}. Try again, or run the setup.exe from the release page.</p>
+    {:else}
+      <p class="hint">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
+    {/if}
 
     <h3>Files</h3>
     <dl>

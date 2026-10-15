@@ -85,6 +85,11 @@ impl Core {
     /// What still has to be set up before voice can work, in the order to do it.
     pub fn setup_needed(&self) -> Vec<&'static str> {
         let mut v = vec![];
+        // A broken config falls back to defaults, which would otherwise read as "not set".
+        if self.config_note.is_some() {
+            v.push("config file has an error (see logs)");
+            return v;
+        }
         if self.cfg.controls.ptt.is_none() {
             v.push("push-to-talk not set");
         }
@@ -290,15 +295,21 @@ impl Core {
         if self.cfg.update.apply == ApplyWhen::Never {
             return json!({"ok": false, "error": "updates are set to never apply ([update] apply = \"never\")"});
         }
-        let payload = {
-            let h = self.update.lock().unwrap();
+        // Claim the install under the lock, so a second click can't start another helper.
+        let (payload, before) = {
+            let mut h = self.update.lock().unwrap();
+            if h.snap.status == UpStatus::Applying {
+                return json!({"ok": false, "error": "already installing"});
+            }
             if !h.snap.ready {
                 return json!({"ok": false, "error": h.snap.error.clone().unwrap_or_else(|| "no update ready".into())});
             }
-            h.payload.clone()
-        };
-        let Some(payload) = payload else {
-            return json!({"ok": false, "error": "update payload missing"});
+            let Some(p) = h.payload.clone() else {
+                return json!({"ok": false, "error": "update payload missing"});
+            };
+            let before = h.snap.status;
+            h.snap.status = UpStatus::Applying;
+            (p, before)
         };
         let install_dir = Config::exe_dir();
         // Bring the window back afterwards if it is open now (the helper closes it to replace it).
@@ -307,7 +318,7 @@ impl Core {
         self.deactivate("installing update");
         match update::spawn_apply(&payload, &install_dir, after) {
             Ok(()) => {
-                self.set_update(|h| h.snap.status = UpStatus::Applying);
+                self.notify();
                 log("update: helper started; quitting so files can be replaced");
                 // Quit a moment later, so whoever asked (the window) still gets this reply.
                 let ui = self.ui.lock().unwrap().clone();
@@ -320,6 +331,7 @@ impl Core {
             Err(e) => {
                 let m = format!("{e:#}");
                 log(&format!("update: couldn't start helper: {m}"));
+                self.set_update(|h| h.snap.status = before);
                 json!({"ok": false, "error": m})
             }
         }
@@ -634,8 +646,7 @@ pub fn run(opts: Opts) -> i32 {
     if let Ok(e) = std::fs::read_to_string(&apply_err) {
         let _ = std::fs::remove_file(&apply_err);
         log(&format!("update: the last install failed: {e}"));
-        update_handle.snap.status = UpStatus::Error;
-        update_handle.snap.error = Some(format!("The last update didn't install: {e}"));
+        update_handle.snap.apply_error = Some(e.trim().to_string());
     }
 
     let (ui_tx, ui_rx) = channel();

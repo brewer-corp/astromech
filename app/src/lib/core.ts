@@ -13,6 +13,8 @@ export interface UpdateStatus {
   error: string | null;
   last_check: string | null;
   ready: boolean;
+  /** Why the previous install failed, if it did. */
+  apply_error?: string | null;
 }
 
 export interface CoreStatus {
