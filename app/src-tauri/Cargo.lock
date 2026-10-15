@@ -49,7 +49,7 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "astromech-engineering"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "astromech-materials",
@@ -59,7 +59,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-galaxy"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-journal",
@@ -72,7 +72,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-input"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-keybinds",
@@ -84,7 +84,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-journal"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "chrono",
  "serde",
@@ -94,7 +94,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-keybinds"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "chrono",
@@ -106,7 +106,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-materials"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "serde",
@@ -115,7 +115,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-shell"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-engineering",
