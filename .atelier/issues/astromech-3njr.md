@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ship detail with live build stats"
-updated_at: "2026-10-16T18:58:37.510698426+00:00"
+updated_at: "2026-10-16T19:06:19.488705550+00:00"
 ---
 
 ## Goal
@@ -38,3 +38,4 @@ The plan model is in `app/src/lib/engineering.ts` and `crates/astromech-engineer
 ## Notes
 
 - 2026-10-16 [note] From review of the Ships page (astromech-mycc): opening a card does not change the URL, so reload and back leave the detail. Make the ship detail routable (for example #/engineering/<ship id>).
+- 2026-10-16 [note] From review of astromech-ojwr: (R3) an unknown grade on a known blueprint is skipped silently; add it to unresolved. (R5) add a unit test that G5 at Quality 0 equals the G4 maximum. (R4) MediumTransport01, size-8 FSDs and starter *_free modules are not in coriolis-data, so show the ship as incomplete when unresolved is not empty. Sustained DPS display waits on decision astromech-bnnh.
