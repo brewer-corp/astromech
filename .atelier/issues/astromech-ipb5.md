@@ -31,6 +31,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-2h0q"
+    type: "related"
+  - kind: "issue"
     id: "astromech-5t34"
     type: "related"
   - kind: "issue"
