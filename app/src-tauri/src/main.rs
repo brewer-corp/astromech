@@ -231,8 +231,13 @@ fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
 }
 
 /// Engineering materials from the journal, laid out like the in-game traders.
+/// Off the main thread: the page polls every second and a recompute re-reads the session journal.
 #[tauri::command]
-fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, String> {
+async fn materials_inventory(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || materials_inventory_now(&app.state::<MaterialsCache>())).await
+}
+
+fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
