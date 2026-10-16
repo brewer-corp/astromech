@@ -10,6 +10,8 @@ priority: "P1"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-1b43"
+  - kind: "issue"
     id: "astromech-snqt"
   children:
   - kind: "issue"
