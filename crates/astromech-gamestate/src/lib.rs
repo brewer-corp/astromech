@@ -6,7 +6,7 @@
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, NavRouteSnap};
+use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
@@ -84,6 +84,9 @@ pub struct GameState {
     pub journal_file: Option<String>,
     /// Ship engineering materials (login snapshot + later deltas).
     pub materials: Ledger,
+    /// Powerplay standing (since the core started: the week total needs older journals, which
+    /// the app window replays itself).
+    pub powerplay: astromech_powerplay::Standing,
     #[serde(skip)]
     pub companions: Companions,
 }
@@ -94,7 +97,18 @@ impl GameState {
         self.status_seen.then_some(self.status_flags)
     }
 
+    /// Fold a journal line (its timestamp dates Powerplay merits into their weekly cycle).
+    pub fn apply_line(&mut self, l: &JournalLine) {
+        self.apply_at(&l.timestamp, &l.event);
+    }
+
+    /// Fold an event without its timestamp.
     pub fn apply_journal(&mut self, ev: &JournalEvent) {
+        self.apply_at("", ev);
+    }
+
+    fn apply_at(&mut self, ts: &str, ev: &JournalEvent) {
+        self.powerplay.apply(ts, ev);
         match ev {
             JournalEvent::LoadGame { commander, ship, ship_name, ship_ident, credits } => {
                 self.commander = Some(commander.clone());

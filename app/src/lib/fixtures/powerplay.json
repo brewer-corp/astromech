@@ -1,0 +1,12 @@
+{
+  "standing": {
+    "power": "Li Yong-Rui",
+    "rank": 9,
+    "merits": 47129,
+    "time_pledged_secs": 22680000,
+    "session_merits": 1329,
+    "week_merits": 1829,
+    "week_ends": "2026-10-22T07:00:00+00:00",
+    "next": { "rank": 10, "merits": 55000, "to_go": 7871, "reward": "Care package", "note": null }
+  }
+}

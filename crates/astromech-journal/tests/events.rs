@@ -260,6 +260,8 @@ fn powerplay_family() {
     assert_eq!((p.merits_gained, p.total_merits, p.power.as_deref()), (Some(50), Some(1250), Some("Test Power")));
     let E::Powerplay(p) = ex("PowerplayDefect") else { panic!() };
     assert_eq!((p.from_power.as_deref(), p.to_power.as_deref()), (Some("Test Power"), Some("Other Power")));
+    let E::Powerplay(p) = ex("PowerplayRank") else { panic!() };
+    assert_eq!((p.power.as_deref(), p.rank), (Some("Other Power"), Some(4)));
 }
 
 #[test]

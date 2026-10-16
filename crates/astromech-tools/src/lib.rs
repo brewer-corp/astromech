@@ -71,6 +71,7 @@ pub enum Query {
     Credits,
     Ship,
     Legal,
+    Powerplay,
 }
 
 /// One typed tool call.
@@ -256,6 +257,7 @@ pub fn from_command(id: &str) -> Option<ToolCall> {
             "credits" => Query::Credits,
             "ship" => Query::Ship,
             "legal" => Query::Legal,
+            "powerplay" => Query::Powerplay,
             _ => return None,
         };
         return Some(ToolCall::Query(q));
@@ -571,6 +573,7 @@ pub fn answer(q: Query, g: &GameState) -> String {
             Some(st) => format!("Legal state: {st}."),
             None => "No legal-state data yet.".into(),
         },
+        Query::Powerplay => g.powerplay.spoken(),
     }
 }
 
@@ -749,5 +752,23 @@ mod tests {
         assert!(answer(Query::Ship, &g).contains("Test"));
         assert!(answer(Query::Legal, &g).contains("Clean"));
         assert!(answer(Query::Credits, &g).contains("1000000"));
+    }
+
+    #[test]
+    fn powerplay_rank_is_answered_from_the_journal() {
+        let mut g = GameState::default();
+        assert_eq!(from_command("status.powerplay"), Some(ToolCall::Query(Query::Powerplay)));
+        assert_eq!(answer(Query::Powerplay, &g), "Not pledged to a power.");
+        for l in [
+            r#"{"timestamp":"2026-10-16T18:00:05Z","event":"LoadGame","Commander":"Test"}"#,
+            r#"{"timestamp":"2026-10-16T18:00:06Z","event":"Powerplay","Power":"Li Yong-Rui","Rank":8,"Merits":45000,"TimePledged":1}"#,
+            r#"{"timestamp":"2026-10-16T18:30:00Z","event":"PowerplayMerits","Power":"Li Yong-Rui","MeritsGained":100,"TotalMerits":45100}"#,
+        ] {
+            g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        }
+        assert_eq!(
+            answer(Query::Powerplay, &g),
+            "Pledged to Li Yong-Rui, rank 8, 45100 merits. 1900 merits to rank 9: Care package. 100 merits this session."
+        );
     }
 }

@@ -181,6 +181,9 @@ pub struct AsteroidMaterial {
 }
 
 /// Every `Powerplay*` event. `kind` is the event name; the rest is whatever that event carried.
+/// community (Powerplay 2.0): `Powerplay` {Power, Rank, Merits, TimePledged}, `PowerplayMerits`
+/// {Power, MeritsGained, TotalMerits} and `PowerplayRank` {Power, Rank} were checked against
+/// kayahr/ed-journal's typings and journal lines quoted in community trackers (Oct 2026).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PowerplayEvent {
     pub kind: String,

@@ -128,6 +128,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-powerplay"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-shell"
 version = "0.1.5"
 dependencies = [
@@ -137,6 +147,7 @@ dependencies = [
  "astromech-input",
  "astromech-keybinds",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-store",
  "serde",
  "serde_json",

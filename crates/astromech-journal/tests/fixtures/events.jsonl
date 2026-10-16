@@ -41,6 +41,7 @@
 { "timestamp":"2026-10-10T20:00:40Z", "event":"Powerplay", "Power":"Test Power", "Rank":3, "Merits":1200, "Votes":0, "TimePledged":86400 }
 { "timestamp":"2026-10-10T20:00:41Z", "event":"PowerplayMerits", "Power":"Test Power", "MeritsGained":50, "TotalMerits":1250 }
 { "timestamp":"2026-10-10T20:00:42Z", "event":"PowerplayDefect", "FromPower":"Test Power", "ToPower":"Other Power" }
+{ "timestamp":"2026-10-10T20:00:43Z", "event":"PowerplayRank", "Power":"Other Power", "Rank":4 }
 { "timestamp":"2026-10-10T20:00:43Z", "event":"ColonisationConstructionDepot", "MarketID":3900000001, "ConstructionProgress":0.25, "ConstructionComplete":false, "ConstructionFailed":false, "ResourcesRequired":[ { "Name":"$steel_name;", "Name_Localised":"Steel", "RequiredAmount":800, "ProvidedAmount":200, "Payment":4000 } ] }
 { "timestamp":"2026-10-10T20:00:44Z", "event":"ColonisationContribution", "MarketID":3900000001, "Contributions":[ { "Name":"$steel_name;", "Name_Localised":"Steel", "Amount":120 } ] }
 { "timestamp":"2026-10-10T20:00:45Z", "event":"CarrierStats", "CarrierID":3700000001, "Callsign":"T1X-00Z", "Name":"TEST CARRIER", "DockingAccess":"all", "AllowNotorious":false, "FuelLevel":500, "JumpRangeCurr":500.0, "JumpRangeMax":500.0, "PendingDecommission":false, "SpaceUsage":{ "TotalCapacity":25000, "FreeSpace":20000 }, "Finance":{ "CarrierBalance":1000000, "ReserveBalance":500000 } }
