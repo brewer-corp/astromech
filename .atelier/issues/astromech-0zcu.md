@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:15:18.925711909+00:00"
+status: "done"
 title: "Being-scanned callout"
-updated_at: "2026-10-16T20:12:36.651525517+00:00"
+updated_at: "2026-10-16T20:15:18.925711909+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,11 @@ Replay tests: each scan type gives its line; the stolen-goods suffix appears onl
 ## Context
 
 The HUD warning is small and easy to miss in a fight, so this one is spoken (Sumeet, 15 Oct 2026). `Scanned` doesn't say who scanned you, and the last `ShipTargeted` is only a guess, so don't name the ship. Interdiction, hull, shields and heat stay unspoken.
+
+## Notes
+
+- 2026-10-16 [note] Stolen goods come from Cargo.json (Stolen per item). Prohibited goods are not checked: no local data source (Market.json has no prohibited flag); backlog astromech-p8ud. The suffix is on cargo scans only, since only a cargo scan finds cargo.
+
+## Close Reason
+
+Replay tests: each scan type gives its line; the stolen-goods suffix appears only with stolen cargo in the fixture. Prohibited goods split to astromech-p8ud (no data source).
