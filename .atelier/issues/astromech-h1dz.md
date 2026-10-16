@@ -18,9 +18,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:43:24.428794400+00:00"
+status: "done"
 title: "System Powerplay on arrival"
-updated_at: "2026-10-16T20:41:18.069030755+00:00"
+updated_at: "2026-10-16T20:43:24.428794400+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,11 @@ An FSDJump fixture with Powerplay fields produces the expected summary and arriv
 ## Context
 
 FSDJump `Powerplay*` fields. Journal only.
+
+## Notes
+
+- 2026-10-16 [note] Done in 9b67a35. Journal: SystemPowerplay on FSDJump/CarrierJump/Location (field names community-sourced: kayahr/ed-journal + quoted lines; ControlProgress semantics = fraction of the state band, per EliteMeritTracker's handling). astromech-powerplay::SystemPower (summary, work_for, spoken) and arrival_line (FSDJump/CarrierJump only, None when no activity). GameState.system_power; voice status.system_power. App: This system panel. Speech on arrival filed as astromech-gtza (blocked by astromech-cmhv); Done when updated accordingly.
+
+## Close Reason
+
+FSDJump fixtures with Powerplay fields give the expected summary and arrival line (evidence astromech-9pw5, astromech-d3xn); speaking it moved to astromech-gtza, blocked by astromech-cmhv.
