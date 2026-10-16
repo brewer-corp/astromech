@@ -5,14 +5,14 @@ issue_type: "feature"
 labels: []
 priority: "P2"
 relationships:
-  blocks: []
-  children:
-  - kind: "issue"
-    id: "astromech-d4p9"
+  blocks:
   - kind: "issue"
     id: "astromech-iw0s"
   - kind: "issue"
     id: "astromech-leio"
+  children:
+  - kind: "issue"
+    id: "astromech-d4p9"
   - kind: "issue"
     id: "astromech-um0g"
   attachments: []
@@ -21,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "VR overlay"
-updated_at: "2026-10-16T04:38:45.043938214+00:00"
+updated_at: "2026-10-16T18:26:24.492513538+00:00"
 ---
 
 ## Goal
@@ -30,7 +30,7 @@ In VR, the user sees the PTT and confirmation toast and a kneeboard with the loo
 
 ## Done when
 
-Every child is done, including the headset check (astromech-leio). Independent review.
+Every child is done. Independent review. The headset checks (astromech-iw0s, astromech-leio) run after this merges.
 
 ## Scope
 

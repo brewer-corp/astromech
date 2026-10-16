@@ -10,6 +10,8 @@ relationships:
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
+  - kind: "issue"
+    id: "astromech-uxyq"
   children:
   - kind: "issue"
     id: "astromech-09s3"
@@ -22,8 +24,6 @@ relationships:
   - kind: "issue"
     id: "astromech-thau"
   - kind: "issue"
-    id: "astromech-uxyq"
-  - kind: "issue"
     id: "astromech-w20r"
   attachments: []
   relates:
@@ -34,7 +34,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDDN sender"
-updated_at: "2026-10-16T04:38:23.018496517+00:00"
+updated_at: "2026-10-16T18:26:24.889278273+00:00"
 ---
 
 ## Goal
@@ -43,7 +43,7 @@ astromech sends commodity, outfitting, shipyard, journal and the other live EDDN
 
 ## Done when
 
-Message tests per schema against the EDDN schema files. The game check (astromech-uxyq) is done. Independent review. Delivers S6.
+Message tests per schema against the EDDN schema files. Independent review. The game check (astromech-uxyq) runs after this merges. Delivers S6.
 
 ## Unknowns
 

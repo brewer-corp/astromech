@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Check the engineering lookups in the real game"
-updated_at: "2026-10-16T04:38:22.992669835+00:00"
+updated_at: "2026-10-16T18:26:24.249835384+00:00"
 ---
 
 ## Goal

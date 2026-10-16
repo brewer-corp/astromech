@@ -5,7 +5,9 @@ issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-snqt"
   children:
   - kind: "issue"
     id: "astromech-fa3g"
@@ -15,8 +17,6 @@ relationships:
     id: "astromech-kbcm"
   - kind: "issue"
     id: "astromech-pxeh"
-  - kind: "issue"
-    id: "astromech-snqt"
   - kind: "issue"
     id: "astromech-vmot"
   attachments: []
@@ -28,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "v1.0 UI refinement"
-updated_at: "2026-10-16T18:12:14.997693106+00:00"
+updated_at: "2026-10-16T18:26:24.706345657+00:00"
 ---
 
 ## Goal
@@ -37,4 +37,4 @@ Many screens still look rough. Before v1.0, fix the specific layout and interact
 
 ## Done when
 
-Every child is done, including Sumeet's walkthrough of every screen, and the work has had independent review.
+Every child is done and the work has had independent review. Sumeet's walkthrough of every screen (astromech-snqt) runs after this merges.

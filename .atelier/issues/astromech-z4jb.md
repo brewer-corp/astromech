@@ -7,12 +7,12 @@ priority: "P0"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-fgv5"
+  - kind: "issue"
     id: "astromech-snqt"
   children:
   - kind: "issue"
     id: "astromech-3njr"
-  - kind: "issue"
-    id: "astromech-fgv5"
   - kind: "issue"
     id: "astromech-mycc"
   - kind: "issue"
@@ -29,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ships page with live build stats"
-updated_at: "2026-10-16T18:12:14.750038265+00:00"
+updated_at: "2026-10-16T18:26:24.338138621+00:00"
 ---
 
 ## Goal
@@ -38,7 +38,7 @@ Replace the Builds page, a plain table that is awkward to use, with a Ships page
 
 ## Done when
 
-Every child is done, the in-game check of the three questions (validation child) has passed, and the work has had independent review.
+Every child is done and the work has had independent review. The in-game check of the three questions (astromech-fgv5) runs after this merges.
 
 ## Scope
 

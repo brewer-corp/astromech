@@ -7,14 +7,14 @@ priority: "P0"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-4su3"
+  - kind: "issue"
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
   children:
   - kind: "issue"
     id: "astromech-4c6q"
-  - kind: "issue"
-    id: "astromech-4su3"
   - kind: "issue"
     id: "astromech-puas"
   - kind: "issue"
@@ -28,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Nearby outfitting, ships and services"
-updated_at: "2026-10-16T04:38:22.981289450+00:00"
+updated_at: "2026-10-16T18:26:24.044656173+00:00"
 ---
 
 ## Goal
@@ -37,7 +37,7 @@ From the current or a typed system, the user finds the nearest station selling a
 
 ## Done when
 
-Lookups against recorded Spansh/Ardent responses, voice phrase tests. The game check (astromech-4su3) is done. Independent review. Delivers S1.
+Lookups against recorded Spansh/Ardent responses, voice phrase tests. Independent review. The game check (astromech-4su3) runs after this merges. Delivers S1.
 
 ## Unknowns
 

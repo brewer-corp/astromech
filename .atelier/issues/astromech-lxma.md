@@ -8,6 +8,8 @@ relationships:
   blocks:
   - kind: "issue"
     id: "astromech-huab"
+  - kind: "issue"
+    id: "astromech-we0f"
   children:
   - kind: "issue"
     id: "astromech-mmqs"
@@ -15,8 +17,6 @@ relationships:
     id: "astromech-ny3y"
   - kind: "issue"
     id: "astromech-orel"
-  - kind: "issue"
-    id: "astromech-we0f"
   attachments: []
   relates:
   - kind: "issue"
@@ -26,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "M4 exit: onboarding and settings"
-updated_at: "2026-10-16T04:33:15.460439623+00:00"
+updated_at: "2026-10-16T18:26:25.080130220+00:00"
 ---
 
 ## Goal
@@ -35,7 +35,7 @@ A fresh install walks the user from first launch to a working "gear down" by voi
 
 ## Done when
 
-A timed fresh-install run on a clean Windows account (evidence), plus UI checks. Independent review. Delivers v1.0 S2.
+UI checks. Independent review. The timed fresh-install run on a clean Windows account (astromech-we0f) runs after this merges. Delivers v1.0 S2.
 
 ## Scope
 

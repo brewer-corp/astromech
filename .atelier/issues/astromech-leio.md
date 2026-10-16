@@ -15,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Check the overlay panels in the headset"
-updated_at: "2026-10-16T04:33:15.549001105+00:00"
+updated_at: "2026-10-16T18:26:24.426306215+00:00"
 ---
 
 ## Goal

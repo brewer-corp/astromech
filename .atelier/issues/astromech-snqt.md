@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-610m"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Walk every screen for v1.0"
-updated_at: "2026-10-16T18:12:14.997047472+00:00"
+updated_at: "2026-10-16T18:26:24.706019830+00:00"
 ---
 
 ## Goal

@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Play a session with the arrival, docking and route callouts"
-updated_at: "2026-10-16T04:38:22.942844748+00:00"
+updated_at: "2026-10-16T18:26:23.958987406+00:00"
 ---
 
 ## Goal

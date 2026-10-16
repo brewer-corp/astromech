@@ -7,6 +7,8 @@ priority: "P0"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-6920"
+  - kind: "issue"
     id: "astromech-77a1"
   - kind: "issue"
     id: "astromech-e8ux"
@@ -15,8 +17,6 @@ relationships:
   children:
   - kind: "issue"
     id: "astromech-0zcu"
-  - kind: "issue"
-    id: "astromech-6920"
   - kind: "issue"
     id: "astromech-ngyt"
   - kind: "issue"
@@ -34,7 +34,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-16T04:38:22.955761225+00:00"
+updated_at: "2026-10-16T18:26:24.161862282+00:00"
 ---
 
 ## Goal
@@ -43,7 +43,7 @@ Journal and Status events drive rules that speak, toast or notify, and the two c
 
 ## Done when
 
-Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy. The game check (astromech-6920) is done. Independent review. Delivers S7.
+Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy. Independent review. The game check (astromech-6920) runs after this merges. Delivers S7.
 
 ## Scope
 

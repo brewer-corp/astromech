@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Time the logbook import on the real logs"
-updated_at: "2026-10-16T04:38:23.042533164+00:00"
+updated_at: "2026-10-16T18:26:24.794719737+00:00"
 ---
 
 ## Goal

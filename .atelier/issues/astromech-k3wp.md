@@ -10,6 +10,8 @@ relationships:
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
+  - kind: "issue"
+    id: "astromech-xf8j"
   children:
   - kind: "issue"
     id: "astromech-05bi"
@@ -17,8 +19,6 @@ relationships:
     id: "astromech-6qk1"
   - kind: "issue"
     id: "astromech-i9w7"
-  - kind: "issue"
-    id: "astromech-xf8j"
   attachments: []
   relates:
   - kind: "issue"
@@ -28,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Colonisation tracker"
-updated_at: "2026-10-16T04:38:22.968667432+00:00"
+updated_at: "2026-10-16T18:26:25.169683597+00:00"
 ---
 
 ## Goal
@@ -37,4 +37,4 @@ The user sees every construction project's progress, what's left to deliver in l
 
 ## Done when
 
-Journal replay tests for the tracker and shopping list; recorded-response tests for where to buy. The game check (astromech-xf8j) is done. Independent review. Delivers S5.
+Journal replay tests for the tracker and shopping list; recorded-response tests for where to buy. Independent review. The game check (astromech-xf8j) runs after this merges. Delivers S5.

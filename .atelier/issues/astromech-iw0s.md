@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Run the overlay spike next to Elite"
-updated_at: "2026-10-16T04:38:45.043485962+00:00"
+updated_at: "2026-10-16T18:26:24.491979223+00:00"
 ---
 
 ## Goal

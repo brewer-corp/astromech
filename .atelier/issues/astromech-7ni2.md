@@ -10,6 +10,8 @@ relationships:
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
+  - kind: "issue"
+    id: "astromech-w1q2"
   children:
   - kind: "issue"
     id: "astromech-7ix7"
@@ -17,8 +19,6 @@ relationships:
     id: "astromech-h1dz"
   - kind: "issue"
     id: "astromech-ny26"
-  - kind: "issue"
-    id: "astromech-w1q2"
   attachments: []
   relates:
   - kind: "issue"
@@ -28,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Powerplay basics"
-updated_at: "2026-10-16T04:38:22.930237458+00:00"
+updated_at: "2026-10-16T18:26:24.985493818+00:00"
 ---
 
 ## Goal
@@ -37,7 +37,7 @@ The user sees their Powerplay standing, hears the system's Powerplay state on ar
 
 ## Done when
 
-Journal replay tests for standing and arrival state; recorded-response tests for nearby targets. The game check (astromech-w1q2) is done. Independent review. Delivers S4.
+Journal replay tests for standing and arrival state; recorded-response tests for nearby targets. Independent review. The game check (astromech-w1q2) runs after this merges. Delivers S4.
 
 ## Unknowns
 

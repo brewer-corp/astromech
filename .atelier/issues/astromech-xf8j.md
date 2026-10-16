@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Run a colonisation delivery against the tracker"
-updated_at: "2026-10-16T04:38:22.968050012+00:00"
+updated_at: "2026-10-16T18:26:25.169381474+00:00"
 ---
 
 ## Goal

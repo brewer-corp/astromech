@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-610m"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Time a fresh install through onboarding"
-updated_at: "2026-10-16T04:33:15.459855535+00:00"
+updated_at: "2026-10-16T18:26:25.079588680+00:00"
 ---
 
 ## Goal

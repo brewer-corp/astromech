@@ -5,14 +5,14 @@ issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-rk4s"
   children:
   - kind: "issue"
     id: "astromech-4fe3"
   - kind: "issue"
     id: "astromech-dqmv"
-  - kind: "issue"
-    id: "astromech-rk4s"
   attachments: []
   relates:
   - kind: "issue"
@@ -22,7 +22,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-16T18:13:06.360692951+00:00"
+updated_at: "2026-10-16T18:26:24.582340876+00:00"
 ---
 
 ## Goal
@@ -31,7 +31,7 @@ The user plots neutron and exact routes inside astromech, using the real jump ra
 
 ## Done when
 
-Neutron and exact routes, plotted from recorded Spansh responses with the jump range from the current loadout, load into the route follower. The game check (astromech-rk4s) is done. Independent review.
+Neutron and exact routes, plotted from recorded Spansh responses with the jump range from the current loadout, load into the route follower. Independent review. The game check (astromech-rk4s) runs after this merges.
 
 ## Scope
 

@@ -5,7 +5,9 @@ issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-tqdh"
   children:
   - kind: "issue"
     id: "astromech-2myu"
@@ -15,8 +17,6 @@ relationships:
     id: "astromech-bg0x"
   - kind: "issue"
     id: "astromech-fxp0"
-  - kind: "issue"
-    id: "astromech-tqdh"
   attachments: []
   relates:
   - kind: "issue"
@@ -26,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal history and logbook"
-updated_at: "2026-10-16T04:38:23.043117542+00:00"
+updated_at: "2026-10-16T18:26:24.795044272+00:00"
 ---
 
 ## Goal
@@ -35,7 +35,7 @@ Every journal ever written is imported into a local history, and the logbook, se
 
 ## Done when
 
-Import tests on fixture logs (including a resumed import) and UI checks of the logbook. The game check (astromech-tqdh) is done. Independent review. Delivers S8, through landings per body.
+Import tests on fixture logs (including a resumed import) and UI checks of the logbook. Independent review. The game check (astromech-tqdh) runs after this merges. Delivers S8, through landings per body.
 
 ## Unknowns
 

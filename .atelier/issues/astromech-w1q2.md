@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Check Powerplay in the real game"
-updated_at: "2026-10-16T04:38:22.929588669+00:00"
+updated_at: "2026-10-16T18:26:24.985168983+00:00"
 ---
 
 ## Goal

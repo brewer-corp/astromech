@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Buy from an outfitting lookup in the real game"
-updated_at: "2026-10-16T04:38:22.980647404+00:00"
+updated_at: "2026-10-16T18:26:24.044353559+00:00"
 ---
 
 ## Goal

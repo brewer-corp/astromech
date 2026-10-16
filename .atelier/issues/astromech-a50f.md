@@ -13,12 +13,18 @@ relationships:
     id: "astromech-orel"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-0474"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-610m"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Switch text-to-speech to Kokoro v1.0"
-updated_at: "2026-10-16T18:20:15.335077037+00:00"
+updated_at: "2026-10-16T18:26:25.247495470+00:00"
 ---
 
 ## Goal

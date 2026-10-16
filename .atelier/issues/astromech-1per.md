@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Sell at a suggested station in the real game"
-updated_at: "2026-10-16T04:38:23.005757972+00:00"
+updated_at: "2026-10-16T18:26:23.859994775+00:00"
 ---
 
 ## Goal

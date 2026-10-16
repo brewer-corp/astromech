@@ -10,12 +10,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-610m"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Answer the three build questions on the Ships page"
-updated_at: "2026-10-16T18:12:14.749393272+00:00"
+updated_at: "2026-10-16T18:26:24.337793227+00:00"
 ---
 
 ## Goal
