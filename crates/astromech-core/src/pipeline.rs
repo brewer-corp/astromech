@@ -604,10 +604,18 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(fired.lock().unwrap().len(), 3);
         // The same notion of live as EDDN: an older journal that becomes newest (a sync tool
-        // touched it) is re-read as a replay, so none of its lines fire again.
-        std::thread::sleep(Duration::from_millis(20));
-        writeln!(f, "{{\"timestamp\":\"2026-10-16T20:11:00Z\",\"event\":\"Music\"}}").unwrap();
-        f.flush().unwrap();
+        // touched it) is re-read as a replay, so none of its lines fire again. The touch is what
+        // a sync tool does: its own handle, closed, then a later modified time. Writing through
+        // the game's still-open handle `f` doesn't work on Windows: NTFS updates the directory
+        // entry (which `newest_journal`'s listing reads) only when a handle closes. The explicit
+        // time also keeps the order from depending on timestamp granularity.
+        drop(f);
+        {
+            let mut g = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+            writeln!(g, "{{\"timestamp\":\"2026-10-16T20:11:00Z\",\"event\":\"Music\"}}").unwrap();
+        }
+        let later = std::time::SystemTime::now() + Duration::from_secs(3600);
+        std::fs::OpenOptions::new().write(true).open(&p).unwrap().set_modified(later).unwrap();
         t.on_journal_activity();
         assert_eq!(astromech_journal::newest_journal(d.path()), Some(p.clone()));
         let got = fired.lock().unwrap().clone();
