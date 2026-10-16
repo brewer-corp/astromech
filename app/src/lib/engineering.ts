@@ -36,6 +36,8 @@ export interface Ship {
   current: boolean;
   loadout_ts: string | null;
   modules: Fitted[];
+  /** Open this loadout in Coriolis / EDSY. Absent when the saved Loadout is stale. */
+  links?: { coriolis: string; edsy: string };
 }
 
 export interface Choice {

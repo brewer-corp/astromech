@@ -1,0 +1,183 @@
+{
+ "timestamp": "2026-10-03T09:00:05Z",
+ "event": "Loadout",
+ "Ship": "asp",
+ "ShipID": 42,
+ "ShipName": "Fixture Asp",
+ "ShipIdent": "FX-42",
+ "HullValue": 6145793,
+ "ModulesValue": 9000000,
+ "HullHealth": 1.0,
+ "UnladenMass": 400.0,
+ "CargoCapacity": 16,
+ "MaxJumpRange": 40.0,
+ "FuelCapacity": {
+  "Main": 32.0,
+  "Reserve": 0.63
+ },
+ "Rebuy": 750000,
+ "Modules": [
+  {
+   "Slot": "Armour",
+   "Item": "Asp_Armour_Grade3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerPlant",
+   "Item": "Int_Powerplant_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MainEngines",
+   "Item": "Int_Engine_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FrameShiftDrive",
+   "Item": "Int_Hyperdrive_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Felicity Farseer",
+    "EngineerID": 300100,
+    "BlueprintID": 128673694,
+    "BlueprintName": "FSD_LongRange",
+    "Level": 5,
+    "Quality": 1.0,
+    "ExperimentalEffect": "special_fsd_heavy",
+    "ExperimentalEffect_Localised": "Mass Manager",
+    "Modifiers": [
+     {
+      "Label": "Mass",
+      "Value": 25.0,
+      "OriginalValue": 20.0,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "Integrity",
+      "Value": 78.0,
+      "OriginalValue": 120.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 0.65,
+      "OriginalValue": 0.54,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "FSDOptimalMass",
+      "Value": 1470.0,
+      "OriginalValue": 1050.0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "LifeSupport",
+   "Item": "Int_LifeSupport_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerDistributor",
+   "Item": "Int_PowerDistributor_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Radar",
+   "Item": "Int_Sensors_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FuelTank",
+   "Item": "Int_FuelTank_Size5_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MediumHardpoint1",
+   "Item": "Hpt_PulseLaser_Gimbal_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MediumHardpoint2",
+   "Item": "Hpt_PulseLaser_Gimbal_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "SmallHardpoint1",
+   "Item": "Hpt_MultiCannon_Gimbal_Small",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint1",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint2",
+   "Item": "Hpt_HeatSinkLauncher_Turret_Tiny",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot01_Size6",
+   "Item": "Int_ShieldGenerator_Size6_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot02_Size5",
+   "Item": "Int_FuelScoop_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot03_Size3",
+   "Item": "Int_Repairer_Size3_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot04_Size3",
+   "Item": "Int_CargoRack_Size3_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PlanetaryApproachSuite",
+   "Item": "Int_PlanetApproachSuite",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  }
+ ]
+}

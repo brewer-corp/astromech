@@ -7,6 +7,8 @@
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
   } from "../../lib/engineering";
   import { jumps } from "../../lib/galaxy";
+  import { openUrl } from "../../lib/core";
+  import { inaraSystem, spanshSystem } from "../../lib/links";
   import Nearby from "../../lib/ui/Nearby.svelte";
 
   let fleet = $state<Fleet | null>(null);
@@ -183,6 +185,22 @@
         {s.name ?? s.type_name}{s.current ? " ●" : ""}
       </button>
     {/each}
+    {#if ship?.links}
+      <span class="open">
+        Open in
+        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && openUrl(ship.links.coriolis)}>Coriolis</button>
+        <button title="Open this loadout in EDSY" onclick={() => ship?.links && openUrl(ship.links.edsy)}>EDSY</button>
+      </span>
+    {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
+      <span class="open lo" title="An engineering craft since the last Loadout: the saved loadout is out of date.">Coriolis / EDSY link after the next loadout</span>
+    {/if}
+    {#if ship?.system}
+      <span class="open">
+        {ship.system}
+        <button onclick={() => ship?.system && openUrl(spanshSystem({ name: ship.system }))}>Spansh</button>
+        <button onclick={() => ship?.system && openUrl(inaraSystem(ship.system))}>Inara</button>
+      </span>
+    {/if}
   </div>
   <p class="sub">
     {#if !fleet}
@@ -381,6 +399,8 @@
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
+  .open { margin-left: 12px; color: var(--text-lo); }
+  .open button { color: var(--accent); margin-left: 6px; }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
   .acts .dim:not(.on) { opacity: 0.6; }
