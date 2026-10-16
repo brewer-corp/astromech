@@ -11,6 +11,7 @@
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
+//! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
 //!   notifications);
@@ -44,6 +45,7 @@ pub mod session;
 pub mod setup;
 pub mod speech;
 pub mod tester;
+pub mod trade;
 #[cfg(windows)]
 pub mod tray;
 pub mod update;
