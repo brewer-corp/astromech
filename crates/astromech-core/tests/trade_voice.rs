@@ -130,11 +130,12 @@ fn where_can_i_sell_uses_the_remembered_filters() {
 #[test]
 fn where_can_i_buy_answers_the_cheapest_with_its_age() {
     let r = rig(false);
-    // No filters saved: 100 ly, any age, the Krait's medium pad.
+    // No filters saved: 100 ly, data up to 30 days old, the Krait's medium pad. The carriers
+    // asking 2,565 were last reported over two months ago, so they are left out.
     let s = spoken(r.assistant.handle("Where can I buy tritium?", Origin::Voice));
     assert_eq!(
-        s, "Cheapest Tritium: FCX-656 in Okinura, 32 light years. 2,565 credits, 431 in stock. Reported 69 days ago.",
-        "two carriers ask 2,565: the nearer one"
+        s,
+        "Cheapest Tritium: Bogacki Extraction Territory in Core Sys Sector YU-P a5-3, 30 light years. 44,738 credits, 31 in stock. Reported 25 days ago."
     );
     // Fleet carriers off for buying, and enough stock for a load.
     let f = Filters { exclude_carriers: true, min_volume: Some(100), ..Filters::default() };
@@ -199,9 +200,9 @@ fn where_should_i_sell_my_cargo_names_the_best_station_for_the_whole_load() {
     );
     assert_eq!(r.rec.log.lock().unwrap().len(), 3, "one lookup per commodity sold");
 
-    // The cargo lookup's own filters (the Trade page's My cargo): within 15 ly, only a buyer
-    // for part of the platinum is left.
-    let f = Filters { max_distance_ly: Some(15), ..Filters::default() };
+    // The cargo lookup's own filters (the Trade page's My cargo): within 15 ly, data up to 90
+    // days old, only a buyer for part of the platinum is left.
+    let f = Filters { max_distance_ly: Some(15), max_age_days: Some(90), ..Filters::default() };
     astromech_galaxy::filters::save(&r.store.lock().unwrap(), "trade.cargo", &f).unwrap();
     let s = spoken(r.assistant.handle("sell my cargo", Origin::Voice));
     assert_eq!(

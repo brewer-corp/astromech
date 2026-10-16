@@ -95,10 +95,25 @@ fn sell_returns_the_best_price_within_the_distance_and_filters() {
     assert!(!stations(p).iter().any(|s| ["Townshend Lab", "Radium Station", "Cousteau Vista"].contains(s)));
     assert!(p.offers.windows(2).all(|w| w[0].price >= w[1].price), "highest price first");
 
-    // The same answer without an age limit: the stale offers come back on top.
-    let all = Filters { max_distance_ly: Some(40), ..Filters::default() };
-    let r = prices(&c, &sol(), Side::Sell, &["painite"], &all, 20.0, now()).unwrap();
-    assert_eq!((r[0].offers[0].price, &r[0].offers[0].updated_at[..10]), (289_998, "2026-09-07"));
+    // Ardent's placeholder rows (demand 999,999 at one price, all from 7 Sep, incl. a
+    // construction site) are never offered, at the default age limit or any other.
+    let default_age = Filters { max_distance_ly: Some(40), ..Filters::default() };
+    let year = Filters { max_age_days: Some(365), ..default_age.clone() };
+    for f in [&default_age, &year] {
+        let r = prices(&c, &sol(), Side::Sell, &["painite"], f, 20.0, now()).unwrap();
+        assert_eq!(r[0].offers[0].station, "Good Landing", "{:?}", stations(&r[0]));
+        assert!(r[0]
+            .offers
+            .iter()
+            .all(|o| o.volume != 999_999 && o.station_type.as_deref() != Some("SpaceConstructionDepot")));
+    }
+    let r = prices(&c, &sol(), Side::Sell, &["painite"], &year, 20.0, now()).unwrap();
+    assert!(stations(&r[0]).contains(&"FCX-640"), "a real but old offer comes back with a wider age");
+    let r = prices(&c, &sol(), Side::Sell, &["painite"], &default_age, 20.0, now()).unwrap();
+    assert!(!stations(&r[0]).contains(&"FCX-640"), "39 days old: past the 30-day default");
+    let asked_default =
+        rec.log.lock().unwrap().iter().any(|(_, q)| q.query.contains(&("maxDaysAgo".into(), "30".into())));
+    assert!(asked_default, "the default is asked of Ardent too");
 
     // Pad, fleet carriers, Odyssey settlements and arrival distance.
     let strict = Filters {
@@ -144,14 +159,19 @@ fn sell_excludes_markets_with_less_demand_than_asked() {
 #[test]
 fn buy_returns_the_lowest_price_with_enough_stock() {
     let (c, _) = client();
+    // The carriers asking 2,565 were reported two and three months ago: past the 30-day
+    // default, back with a wider age limit.
     let near = Filters { max_distance_ly: Some(40), ..Filters::default() };
     let r = prices(&c, &sol(), Side::Buy, &["tritium"], &near, 20.0, now()).unwrap();
+    assert!(!r[0].offers.iter().any(|o| o.fleet_carrier), "{:?}", stations(&r[0]));
+    let old = Filters { max_age_days: Some(120), ..near.clone() };
+    let r = prices(&c, &sol(), Side::Buy, &["tritium"], &old, 20.0, now()).unwrap();
     let p = &r[0];
     assert!(p.offers.windows(2).all(|w| w[0].price <= w[1].price), "lowest price first");
     assert!(p.offers[0].fleet_carrier, "carriers sell tritium cheapest");
     assert_eq!(p.offers[0].price, 2565);
 
-    let stations_only = Filters { exclude_carriers: true, ..near.clone() };
+    let stations_only = Filters { exclude_carriers: true, ..old.clone() };
     let r = prices(&c, &sol(), Side::Buy, &["tritium"], &stations_only, 20.0, now()).unwrap();
     assert_eq!((r[0].offers[0].station.as_str(), r[0].offers[0].volume), ("Bogacki Extraction Territory", 31));
 
@@ -354,5 +374,7 @@ fn a_full_answer_is_asked_again_with_the_demand_needed() {
     assert_eq!(asked.len(), 2);
     assert!(asked[1].contains(&("minVolume".into(), "500".into())), "{:?}", asked[1]);
     assert_eq!(p.per_commodity[0].best.as_ref().map(|o| o.market_id), Some(5000));
-    assert_eq!(p.stations[0].total, 10 * 50_000, "the whole load still uses every listed market");
+    // The re-asked market counts for the whole load too: 500 t × 40,000 beats 10 t × 50,000.
+    assert_eq!((p.stations[0].market_id, p.stations[0].sold, p.stations[0].total), (5000, 500, 20_000_000));
+    assert_eq!(p.stations.len(), 1001, "every listed market, plus the re-asked one once");
 }

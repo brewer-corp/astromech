@@ -86,6 +86,9 @@ export function credits(n: number): string {
 /** The search radius the lookup uses when none is picked (astromech_market::trade::DEFAULT_DISTANCE_LY). */
 export const DEFAULT_DISTANCE_LY = 100;
 
+/** The data age the lookup uses when none is picked (astromech_market::trade::DEFAULT_MAX_AGE_DAYS). */
+export const DEFAULT_MAX_AGE_DAYS = 30;
+
 const PAD_RANK: Record<Pad, number> = { S: 1, M: 2, L: 3 };
 
 type Market = Pick<Offer, "ly" | "fleet_carrier" | "odyssey" | "pad" | "arrival_ls" | "updated_at"> & { volume?: number };
@@ -97,7 +100,7 @@ function previewKeeps(o: Market, f: Filters, now: number): boolean {
   if (f.exclude_odyssey && o.odyssey) return false;
   if (f.pad && o.pad && PAD_RANK[o.pad] < PAD_RANK[f.pad]) return false;
   if (f.max_arrival_ls != null && o.arrival_ls != null && o.arrival_ls > f.max_arrival_ls) return false;
-  if (f.max_age_days != null && now - Date.parse(o.updated_at) > f.max_age_days * 86400000) return false;
+  if (now - Date.parse(o.updated_at) > (f.max_age_days ?? DEFAULT_MAX_AGE_DAYS) * 86400000) return false;
   return true;
 }
 

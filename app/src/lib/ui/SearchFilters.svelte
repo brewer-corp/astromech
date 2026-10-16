@@ -10,7 +10,7 @@
     onchange,
   }: { filters: Filters; offers: FilterKey[]; hints?: FilterHints; onchange: (f: Filters) => void } = $props();
 
-  const AGES = [1, 3, 7, 30, 90];
+  const AGES = [1, 3, 7, 30, 90, 365];
   const ARRIVALS = [1000, 5000, 25000];
   const DISTANCES = [20, 50, 100, 200, 500];
   const VOLUMES = [100, 500, 1000, 5000];
@@ -48,8 +48,8 @@
     <label>
       <span>Data age</span>
       <select value={filters.max_age_days ?? ""} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
-        <option value="">Any</option>
-        {#each AGES as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
+        <option value="">{hints.age ? `Up to ${hints.age} days` : "Any"}</option>
+        {#each AGES.filter((d) => d !== hints.age) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
       </select>
     </label>
   {/if}

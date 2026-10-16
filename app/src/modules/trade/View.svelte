@@ -11,6 +11,7 @@
     cargoResults,
     credits,
     DEFAULT_DISTANCE_LY,
+    DEFAULT_MAX_AGE_DAYS,
     findCommodity,
     toResults,
     tradeCargo,
@@ -61,7 +62,7 @@
       <SearchKit
         lookup="trade.cargo"
         offers={["distance", "pad", "age", "arrival", "carriers", "odyssey"]}
-        hints={{ distance: DEFAULT_DISTANCE_LY }}
+        hints={{ distance: DEFAULT_DISTANCE_LY, age: DEFAULT_MAX_AGE_DAYS }}
         {run}
         title="Best for the whole load"
         joiner="near"
@@ -92,7 +93,7 @@
       <SearchKit
         lookup={`trade.${mode}`}
         offers={["distance", "volume", "pad", "age", "arrival", "carriers", "odyssey"]}
-        hints={{ volume: mode === "sell" ? "Demand" : "Stock", distance: DEFAULT_DISTANCE_LY }}
+        hints={{ volume: mode === "sell" ? "Demand" : "Stock", distance: DEFAULT_DISTANCE_LY, age: DEFAULT_MAX_AGE_DAYS }}
         {run}
         title={mode === "sell" ? "Best prices" : "Cheapest"}
         joiner="near"

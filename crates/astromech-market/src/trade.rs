@@ -12,6 +12,27 @@ use serde::{Deserialize, Serialize};
 /// Search radius when the commander hasn't picked one, in light years.
 pub const DEFAULT_DISTANCE_LY: u32 = 100;
 
+/// Oldest market data used when the commander hasn't picked an age, in days. Markets change
+/// within weeks; older rows are mostly stale. A default Sumeet may want to change.
+pub const DEFAULT_MAX_AGE_DAYS: u32 = 30;
+
+/// Demand or stock Ardent reports for rows that carry no real market data (seen 16 Oct 2026:
+/// one identical price, all reported the same day, at outposts, settlements and construction
+/// sites). Not a real market, so never offered.
+pub const PLACEHOLDER_VOLUME: i64 = 999_999;
+
+/// Colonisation construction sites: they take deliveries for the build, not trade.
+const CONSTRUCTION_DEPOTS: &[&str] = &["SpaceConstructionDepot", "PlanetaryConstructionDepot"];
+
+/// `filters` with the trade lookups' defaults filled in (radius and data age).
+pub fn with_defaults(filters: &Filters) -> Filters {
+    Filters {
+        max_distance_ly: Some(filters.max_distance_ly.unwrap_or(DEFAULT_DISTANCE_LY)),
+        max_age_days: Some(filters.max_age_days.unwrap_or(DEFAULT_MAX_AGE_DAYS)),
+        ..filters.clone()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Side {
@@ -108,8 +129,9 @@ fn pad_num(p: Pad) -> u8 {
 
 /// Ardent's side of `filters` (it filters before its 1000-row cap, so asking it matters).
 pub fn market_filter(filters: &Filters) -> MarketFilter {
+    let filters = with_defaults(filters);
     MarketFilter {
-        max_distance: Some(filters.max_distance_ly.unwrap_or(DEFAULT_DISTANCE_LY) as f64),
+        max_distance: filters.max_distance_ly.map(f64::from),
         max_days_ago: filters.max_age_days,
         min_landing_pad: filters.pad.map(pad_num),
         fleet_carriers: filters.exclude_carriers.then_some(false),
@@ -117,13 +139,15 @@ pub fn market_filter(filters: &Filters) -> MarketFilter {
     }
 }
 
-/// `listing` as an offer, or `None` if the station doesn't trade it that way (price 0).
+/// `listing` as an offer, or `None` if the station doesn't trade it that way (price 0), the
+/// row is a placeholder ([`PLACEHOLDER_VOLUME`]) or the station is a construction site.
 fn offer(side: Side, l: &Listing, origin: &Origin, range: f64) -> Option<Offer> {
     let (price, volume) = match side {
         Side::Sell => (l.sell_price, l.demand),
         Side::Buy => (l.buy_price, l.stock),
     };
-    if price <= 0 {
+    let kind = l.station_type.as_deref();
+    if price <= 0 || volume == PLACEHOLDER_VOLUME || kind.is_some_and(|k| CONSTRUCTION_DEPOTS.contains(&k)) {
         return None;
     }
     let system_pos = [l.system_x, l.system_y, l.system_z];
@@ -131,7 +155,6 @@ fn offer(side: Side, l: &Listing, origin: &Origin, range: f64) -> Option<Offer> 
         Some(p) => dist(p, system_pos),
         None => l.distance.unwrap_or(0.0),
     };
-    let kind = l.station_type.as_deref();
     Some(Offer {
         commodity: l.commodity_name.clone(),
         market_id: l.market_id,
@@ -165,8 +188,7 @@ pub fn rank(
 
 /// The `offers` that pass `filters`, best first.
 pub fn rank_offers(side: Side, offers: Vec<Offer>, filters: &Filters, now_s: i64) -> Vec<Offer> {
-    let filters =
-        Filters { max_distance_ly: Some(filters.max_distance_ly.unwrap_or(DEFAULT_DISTANCE_LY)), ..filters.clone() };
+    let filters = with_defaults(filters);
     let mut out: Vec<Offer> = offers
         .into_iter()
         .filter(|o| {

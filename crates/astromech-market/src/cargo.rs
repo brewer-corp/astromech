@@ -197,23 +197,32 @@ pub fn plan(
     let symbols: Vec<&str> = load.iter().map(|l| l.symbol.as_str()).collect();
     let all = prices(client, origin, Side::Sell, &symbols, &whole, range, now_s)?;
     let mut per_commodity = vec![];
+    let mut offers: Vec<Vec<Offer>> = vec![];
     for (l, p) in load.iter().zip(&all) {
         let single = single_filters(filters, l.tonnes);
-        let best = if p.truncated {
-            prices(client, origin, Side::Sell, &[l.symbol.as_str()], &single, range, now_s)?.remove(0).offers
+        let mut whole_offers = p.offers.clone();
+        let ranked = if p.truncated {
+            // The full answer may have cut the markets with demand for the whole lot: they
+            // count for the whole load as well as on their own.
+            let again =
+                prices(client, origin, Side::Sell, &[l.symbol.as_str()], &single, range, now_s)?.remove(0).offers;
+            for o in &again {
+                if !whole_offers.iter().any(|w| w.market_id == o.market_id) {
+                    whole_offers.push(o.clone());
+                }
+            }
+            again
         } else {
             rank_offers(Side::Sell, p.offers.clone(), &single, now_s)
-        }
-        .into_iter()
-        .next();
+        };
         per_commodity.push(CommoditySale {
             commodity: l.symbol.clone(),
             name: l.name.clone(),
             carried: l.tonnes,
-            best,
+            best: ranked.into_iter().next(),
         });
+        offers.push(whole_offers);
     }
-    let offers: Vec<Vec<Offer>> = all.iter().map(|p| p.offers.clone()).collect();
     Ok(CargoPlan {
         stations: whole_load(&load, &offers),
         fetched_at: all.iter().map(|p| p.fetched_at).min().unwrap_or(0),

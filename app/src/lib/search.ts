@@ -73,6 +73,8 @@ export interface FilterHints {
   volume?: string;
   /** The radius used when none is picked, in ly. */
   distance?: number;
+  /** The data age used when none is picked, in days. */
+  age?: number;
 }
 
 export const DEFAULT_FILTERS: Filters = {
