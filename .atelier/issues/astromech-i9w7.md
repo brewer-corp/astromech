@@ -18,9 +18,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Colonisation shopping list"
-updated_at: "2026-10-15T20:36:13.649573438+00:00"
+updated_at: "2026-10-16T19:41:48.036167617+00:00"
 ---
 
 ## Goal

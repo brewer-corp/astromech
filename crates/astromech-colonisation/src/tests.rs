@@ -139,3 +139,56 @@ fn claim_without_address_keys_by_name_and_empty_events_are_tolerated() {
     assert_eq!(t.beacons().count(), 1);
     assert_eq!(t.projects().count(), 0);
 }
+
+mod shopping_tests {
+    use super::*;
+    use crate::shopping::{commodity_id, shopping_list, Hold};
+
+    fn hold(lines: &[&str]) -> Hold {
+        let mut h = Hold::default();
+        for l in lines {
+            h.apply(&astromech_journal::parse_line(l).unwrap());
+        }
+        h
+    }
+
+    const LOADOUT: &str = r#"{"timestamp":"2026-10-02T10:00:00Z","event":"Loadout","Ship":"type9","ShipID":3,"CargoCapacity":100,"Modules":[]}"#;
+    const CARGO: &str = r#"{"timestamp":"2026-10-02T10:01:00Z","event":"Cargo","Vessel":"Ship","Count":130,"Inventory":[{"Name":"steel","Count":120},{"Name":"gold","Count":10}]}"#;
+
+    #[test]
+    fn remaining_minus_cargo_in_loads() {
+        // Project A at the end of the fixture: steel 300 and aluminium 150 still to deliver.
+        let a = replayed().project(MARKET_A).unwrap().clone();
+        let l = shopping_list(&a, &hold(&[LOADOUT, CARGO]));
+        let rows: Vec<_> = l.lines.iter().map(|x| (x.name.as_str(), x.remaining, x.in_cargo, x.to_buy)).collect();
+        assert_eq!(rows, vec![("$steel_name;", 300, 120, 180), ("$aluminium_name;", 150, 0, 150)]);
+        assert_eq!(l.to_buy_total, 330);
+        assert_eq!((l.capacity, l.loads), (Some(100), Some(4)));
+    }
+
+    #[test]
+    fn exact_multiple_extra_cargo_unknown_capacity_and_srv() {
+        let a = replayed().project(MARKET_A).unwrap().clone();
+        // 400 steel aboard is more than the 300 needed: only 300 count, so just aluminium is left.
+        let big = r#"{"timestamp":"t","event":"Cargo","Vessel":"Ship","Count":400,"Inventory":[{"Name":"steel","Count":400}]}"#;
+        let l = shopping_list(&a, &hold(&[LOADOUT, big]));
+        assert_eq!((l.to_buy_total, l.loads), (150, Some(2)));
+        assert_eq!(l.lines.len(), 2);
+        assert_eq!(l.lines[1].to_buy, 0);
+        // No Loadout seen: list is right, loads unknown. An SRV hold is ignored.
+        let srv =
+            r#"{"timestamp":"t","event":"Cargo","Vessel":"SRV","Count":5,"Inventory":[{"Name":"steel","Count":5}]}"#;
+        let l = shopping_list(&a, &hold(&[CARGO, srv]));
+        assert_eq!((l.to_buy_total, l.loads), (330, None));
+        // A finished project needs nothing.
+        let b = replayed().project(MARKET_B).unwrap().clone();
+        let l = shopping_list(&b, &hold(&[LOADOUT]));
+        assert_eq!((l.lines.len(), l.loads), (0, Some(0)));
+    }
+
+    #[test]
+    fn names_match_between_depot_and_cargo() {
+        assert_eq!(commodity_id("$CeramicComposites_name;"), "ceramiccomposites");
+        assert_eq!(commodity_id("ceramiccomposites"), "ceramiccomposites");
+    }
+}

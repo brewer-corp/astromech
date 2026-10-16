@@ -348,5 +348,7 @@ pub fn replay_lines<'a>(t: &mut Tracker, lines: impl IntoIterator<Item = &'a str
     }
 }
 
+pub mod shopping;
+
 #[cfg(test)]
 mod tests;
