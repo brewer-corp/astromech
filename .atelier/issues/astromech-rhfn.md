@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:58:52.372259664+00:00"
+status: "done"
 title: "A mouse click on All keybinds opens every group"
-updated_at: "2026-10-16T18:56:53.816922649+00:00"
+updated_at: "2026-10-16T18:58:52.372259664+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ A component test clicks a group header and injects a Mouse_1 press, and only tha
 ## Context
 
 `app/src/modules/keybinds/KeybindsView.svelte` (`isOpen` default `hits.length > 0`, press effect), `app/src-tauri/src/rawinput.rs`, `tracker.rs`. Found in review of astromech-q318 (round 1, R1). Not reproduced on Windows; inferred from the input code and an injected-press test.
+
+## Close Reason
+
+Fixed in da4caae; failing-first test added.
