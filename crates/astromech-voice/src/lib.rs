@@ -5,6 +5,7 @@
 //! (`astromech-voice-worker`, feature `sherpa`) that talks JSON lines over stdin/stdout.
 //! - [`proto`]: the worker protocol.
 //! - [`score`]: transcript normalisation and word error rate (S9 accuracy scoring).
+//! - [`speakable`]: reading rules applied to text before TTS.
 //! - [`wav`]: mono WAV I/O.
 //! - [`colour`]: Cockpit PA treatment of Kokoro PCM (V1-DESIGN.md §6.4).
 //! - [`gain`]: per-clip level correction and mic-name matching (V1-DESIGN.md §6.2).
@@ -32,6 +33,7 @@ pub mod models;
 pub mod player;
 pub mod proto;
 pub mod score;
+pub mod speakable;
 pub mod wav;
 
 /// Default inference threads (S9 thread sweep on a Ryzen 9 7900X: 4 was best).
