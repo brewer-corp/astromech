@@ -21,12 +21,26 @@ macro_rules! spansh {
 struct Recorded {
     submit: (u16, &'static str),
     polls: Mutex<VecDeque<&'static str>>,
+    /// LP 71-165's markets (the destination).
+    destination: String,
     log: Mutex<Vec<(String, Request)>>,
 }
 
 impl Recorded {
     fn new(submit: (u16, &'static str), polls: &[&'static str]) -> Self {
-        Recorded { submit, polls: Mutex::new(polls.iter().copied().collect()), log: Mutex::default() }
+        Recorded {
+            submit,
+            polls: Mutex::new(polls.iter().copied().collect()),
+            destination: include_str!("fixtures/ardent-markets-lp-71-165.json").to_string(),
+            log: Mutex::default(),
+        }
+    }
+
+    /// The destination's markets with its largest pad changed to `pad` (1 small .. 3 large).
+    fn destination_pad(mut self, pad: u8) -> Self {
+        self.destination =
+            self.destination.replace("\"maxLandingPadSize\": 3", &format!("\"maxLandingPadSize\": {pad}"));
+        self
     }
 
     fn urls(&self) -> Vec<String> {
@@ -52,7 +66,7 @@ impl Transport for Recorded {
         } else if url.ends_with("/v2/system/name/Sol/commodities") {
             (200, include_str!("fixtures/ardent-markets-sol.json"))
         } else if url.ends_with("/v2/system/name/LP%2071-165/commodities") {
-            (200, include_str!("fixtures/ardent-markets-lp-71-165.json"))
+            return Ok(Response { status: 200, body: self.destination.clone() });
         } else if url.ends_with("/commodities") {
             (200, "[]")
         } else {
@@ -118,10 +132,50 @@ fn single_hop_from_a_recorded_job_and_its_polls() {
     assert_eq!((l.profit_per_t, l.profit, r.profit), (644, 128_800, 128_800));
     assert_eq!((l.jumps, l.source), (2, "Spansh"));
 
-    // Per hour is the documented estimate: 2 jumps, supercruise to 6 ls, one dock.
-    let secs = 2.0 * route::JUMP_S + route::SUPERCRUISE_S + 6.0 * route::SUPERCRUISE_S_PER_LS + route::DOCK_S;
-    assert!((r.minutes - secs / 60.0).abs() < 1e-9);
-    assert_eq!(r.per_hour, (128_800.0 * 3600.0 / secs).round() as i64);
+    // Per hour is the documented estimate over the round trip, the way back flown empty: each
+    // way 2 jumps and one dock, supercruise to 6 ls there and 505 ls back.
+    let there = 2.0 * route::JUMP_S + route::SUPERCRUISE_S + 6.0 * route::SUPERCRUISE_S_PER_LS + route::DOCK_S;
+    let back = 2.0 * route::JUMP_S + route::SUPERCRUISE_S + 505.0 * route::SUPERCRUISE_S_PER_LS + route::DOCK_S;
+    assert!((l.seconds - there).abs() < 1e-9);
+    assert!((r.minutes - (there + back) / 60.0).abs() < 1e-9);
+    assert_eq!(r.per_hour, (128_800.0 * 3600.0 / (there + back)).round() as i64);
+
+    // The destination's largest pad comes from its Ardent market; it fits.
+    assert_eq!(l.to.pad, Some(Pad::L));
+    assert_eq!(r.warning, None);
+}
+
+#[test]
+fn single_hop_per_hour_compares_with_a_loop_flying_back_empty() {
+    // Data too old for any cargo back: the loop flies back empty, the same run as a single hop.
+    let week = Filters { max_age_days: Some(7), ..large() };
+    let (c, _) = client(Recorded::new(SUBMIT, &[DONE]));
+    let single = route::plan(&c, "Sol", RANGE, &ask(Kind::Single, 200), &week, NO_WAIT, now()).unwrap();
+    let (c, _) = client(Recorded::new(SUBMIT, &[DONE]));
+    let looped = route::plan(&c, "Sol", RANGE, &ask(Kind::Loop, 200), &week, NO_WAIT, now()).unwrap();
+    assert!(looped.legs[1].cargo.is_empty());
+    assert_eq!(single.profit, looped.profit);
+    assert!((single.minutes - looped.minutes).abs() < 1e-9);
+    assert_eq!(single.per_hour, looped.per_hour);
+}
+
+#[test]
+fn a_destination_too_small_for_the_ship_is_flagged() {
+    let medium = Filters { pad: Some(Pad::M), ..Filters::default() };
+    let (c, rec) = client(Recorded::new(SUBMIT, &[DONE]).destination_pad(1));
+    let r = route::plan(&c, "Sol", RANGE, &ask(Kind::Single, 200), &medium, NO_WAIT, now()).unwrap();
+    assert_eq!(rec.submitted("requires_large_pad").as_deref(), Some("0"), "Spansh can't require a medium pad");
+    assert_eq!(r.legs[0].to.pad, Some(Pad::S));
+    assert_eq!(
+        r.warning.as_deref(),
+        Some("Starbase Pratchett (LP 71-165) has no M pad: its largest is S. Spansh can only require a large pad.")
+    );
+
+    // A medium pad there is fine for a medium ship.
+    let (c, _) = client(Recorded::new(SUBMIT, &[DONE]).destination_pad(2));
+    let r = route::plan(&c, "Sol", RANGE, &ask(Kind::Loop, 200), &medium, NO_WAIT, now()).unwrap();
+    assert_eq!((r.legs[0].to.pad, r.legs[1].to.pad), (Some(Pad::M), Some(Pad::L)));
+    assert_eq!(r.warning, None);
 }
 
 #[test]

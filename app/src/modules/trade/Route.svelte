@@ -5,7 +5,7 @@
   // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
   import { changeFilters, openFilters, type FilterStore } from "../../lib/filterstate";
   import { ago, jumps } from "../../lib/galaxy";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, saveFilters, type Filters, type Origin } from "../../lib/search";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type Filters, type Origin } from "../../lib/search";
   import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteSearch } from "../../lib/trade";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
@@ -101,6 +101,7 @@
     <p class="lo err">{err}</p>
   {:else if res}
     <h4>{res.route.kind === "loop" ? "Loop" : "Single hop"} from&nbsp;<SystemChip name={res.here.system} /></h4>
+    {#if res.route.warning}<p class="warn" role="alert">{res.route.warning}</p>{/if}
     {#if res.route.legs.length === 0}
       <p class="lo">No profitable route within these limits. Try a longer hop, more credits or older market data.</p>
     {:else}
@@ -114,7 +115,7 @@
               <span class="lo">Nothing worth carrying back: fly back empty.</span>
             {/each}
             <span class="q">{l.cargo.length ? `${credits(l.profit_per_t)} cr/t · ${credits(l.profit)} cr · ` : ""}{jumps(l.jumps, false)} · {l.ly.toFixed(1)} ly</span>
-            <span class="lo">{[arrivalLabel(l.to.arrival_ls), l.source].filter(Boolean).join(" · ")}</span>
+            <span class="lo">{[padLabel(l.to.pad), arrivalLabel(l.to.arrival_ls), l.source].filter(Boolean).join(" · ")}</span>
           </li>
         {/each}
       </ol>
@@ -122,7 +123,7 @@
         {credits(res.route.profit)} cr a {res.route.kind === "loop" ? "round" : "trip"} · about {credits(res.route.per_hour)} cr/h <span class="lo">(estimate)</span>
       </p>
       <p class="lo small">
-        Spansh gives no profit per hour, so it's estimated: {minutes(res.route.minutes)} a {res.route.kind === "loop" ? "round" : "trip"} at {res.route.range.toFixed(1)} ly per jump, {ROUTE_ESTIMATE}. Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
+        Spansh gives no profit per hour, so it's estimated: {minutes(res.route.minutes)} a round trip{res.route.kind === "single" ? " (flying back empty)" : ""} at {res.route.range.toFixed(1)} ly per jump, {ROUTE_ESTIMATE}. Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
       </p>
     {/if}
   {/if}
@@ -150,6 +151,7 @@
   .q { color: var(--accent); font-family: var(--mono); }
   .total { margin: 12px 0 4px; color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
   .lo { color: var(--text-lo); }
+  .warn { color: var(--accent); margin: 0 0 8px; }
   .small { font-size: var(--fs-s); }
   p { margin: 0 0 6px; }
 </style>

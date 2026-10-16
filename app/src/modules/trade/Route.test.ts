@@ -44,8 +44,11 @@ describe("Trade route", () => {
       expect.objectContaining({ pad: "M" }),
     );
     expect(screen.getByText(/644 cr\/t · 128,800 cr · ~1 jump · 23\.8 ly/)).toBeTruthy();
-    expect(screen.getByText(/128,800 cr a trip · about 2,206,109 cr\/h/)).toBeTruthy();
-    expect(screen.getByText(/Spansh gives no profit per hour, so it's estimated: 4 min a trip/)).toBeTruthy();
+    // Per hour counts the flight back empty, so it compares with a loop.
+    expect(screen.getByText(/128,800 cr a trip · about 1,065,123 cr\/h/)).toBeTruthy();
+    expect(screen.getByText(/Spansh gives no profit per hour, so it's estimated: 7 min a round trip \(flying back empty\)/)).toBeTruthy();
+    expect(screen.getByText("L pad · 6 ls · Spansh")).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("finds a loop with the cargo back to the start, from overridden numbers", async () => {
@@ -82,6 +85,18 @@ describe("Trade route", () => {
     route.mockRejectedValueOnce("Spansh took too long to answer. Try again in a minute.");
     await fireEvent.click(find);
     expect(await screen.findByText("Spansh took too long to answer. Try again in a minute.")).toBeTruthy();
+  });
+
+  it("warns when a stop's largest pad is too small for the ship", async () => {
+    const single = recorded.route.single;
+    const leg = single.legs[0]!;
+    const warning = "Starbase Pratchett (LP 71-165) has no M pad: its largest is S. Spansh can only require a large pad.";
+    route.mockResolvedValueOnce({ here, route: { ...single, legs: [{ ...leg, to: { ...leg.to, pad: "S" } }], warning } });
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect((await screen.findByRole("alert")).textContent).toBe(warning);
+    expect(screen.getByText("S pad · 6 ls · Spansh")).toBeTruthy();
   });
 
   it("can't search without a hold or credits", async () => {

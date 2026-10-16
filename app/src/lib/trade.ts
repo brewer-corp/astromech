@@ -256,6 +256,8 @@ export interface RouteStop {
   system: string;
   market_id: number;
   arrival_ls: number | null;
+  /** The largest landing pad (Ardent Insight); null: not known. */
+  pad: Pad | null;
 }
 
 export interface RouteCargo {
@@ -286,10 +288,12 @@ export interface TradeRoute {
   /** Empty: nothing profitable within the limits. */
   legs: RouteLeg[];
   profit: number;
-  /** One run, estimated. */
+  /** One run back to the start (a single hop flies back empty), estimated. */
   minutes: number;
   /** Estimated: Spansh gives no figure per hour. */
   per_hour: number;
+  /** A stop the ship can't land at. */
+  warning: string | null;
   range: number;
   fetched_at: number;
 }

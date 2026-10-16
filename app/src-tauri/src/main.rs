@@ -692,8 +692,22 @@ async fn trade_route_defaults() -> Result<astromech_market::route::Defaults, Str
     .await
 }
 
+/// A trade route search is running (one Spansh job at a time, even if the page is left and
+/// opened again while the first still polls).
+static ROUTE_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Clears [`ROUTE_BUSY`] when the search ends, however it ends.
+struct RouteSearching;
+
+impl Drop for RouteSearching {
+    fn drop(&mut self) {
+        ROUTE_BUSY.store(false, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
 /// A single-hop or loop trade route from `origin` (a typed system name) or the commander's
-/// system (Spansh's trade router, polled off the UI thread until done or its timeout).
+/// system (Spansh's trade router, polled off the UI thread until done or its timeout). A second
+/// search while one runs is turned down.
 #[tauri::command]
 async fn trade_route(
     app: tauri::AppHandle,
@@ -702,6 +716,10 @@ async fn trade_route(
     filters: Option<astromech_galaxy::Filters>,
 ) -> Result<Value, String> {
     blocking(move || {
+        if ROUTE_BUSY.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            return Err("A route search is already running. Wait for it to finish.".into());
+        }
+        let _searching = RouteSearching;
         let g = galaxy(&app)?;
         let (here, range) = search_origin(&app, &g, origin.as_deref())?;
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);

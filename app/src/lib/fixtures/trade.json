@@ -812,13 +812,15 @@
             "station": "Abraham Lincoln",
             "system": "Sol",
             "market_id": 128016896,
-            "arrival_ls": 505.0
+            "arrival_ls": 505.0,
+            "pad": "L"
           },
           "to": {
             "station": "Starbase Pratchett",
             "system": "LP 71-165",
             "market_id": 4245314563,
-            "arrival_ls": 6.0
+            "arrival_ls": 6.0,
+            "pad": "L"
           },
           "ly": 23.7711049319862,
           "jumps": 1,
@@ -839,10 +841,11 @@
         }
       ],
       "profit": 128800,
-      "minutes": 3.503,
-      "per_hour": 2206109,
+      "minutes": 7.2555000000000005,
+      "per_hour": 1065123,
       "range": 31.5,
-      "fetched_at": 1792192994
+      "fetched_at": 1792192994,
+      "warning": null
     },
     "loop": {
       "kind": "loop",
@@ -852,13 +855,15 @@
             "station": "Abraham Lincoln",
             "system": "Sol",
             "market_id": 128016896,
-            "arrival_ls": 505.0
+            "arrival_ls": 505.0,
+            "pad": "L"
           },
           "to": {
             "station": "Starbase Pratchett",
             "system": "LP 71-165",
             "market_id": 4245314563,
-            "arrival_ls": 6.0
+            "arrival_ls": 6.0,
+            "pad": "L"
           },
           "ly": 23.7711049319862,
           "jumps": 1,
@@ -882,13 +887,15 @@
             "station": "Starbase Pratchett",
             "system": "LP 71-165",
             "market_id": 4245314563,
-            "arrival_ls": 6.0
+            "arrival_ls": 6.0,
+            "pad": "L"
           },
           "to": {
             "station": "Abraham Lincoln",
             "system": "Sol",
             "market_id": 128016896,
-            "arrival_ls": 505.0
+            "arrival_ls": 505.0,
+            "pad": "L"
           },
           "ly": 23.7711049319862,
           "jumps": 1,
@@ -912,7 +919,8 @@
       "minutes": 7.2555000000000005,
       "per_hour": 2872855,
       "range": 31.5,
-      "fetched_at": 1792192994
+      "fetched_at": 1792192994,
+      "warning": null
     }
   }
 }

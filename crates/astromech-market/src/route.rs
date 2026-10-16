@@ -9,10 +9,13 @@
 //! there and the demand at the start.
 //!
 //! Spansh gives no profit per hour, so [`Route::per_hour`] is an estimate from a simple model
-//! (see [`leg_seconds`]); the app says so.
+//! (see [`leg_seconds`]); the app says so. A single hop is only repeatable by flying back, so its
+//! time counts the flight back empty, and it compares fairly with a loop.
 //!
 //! Spansh can only require a large pad, so a medium-pad ship may be routed to a small-pad-only
-//! station; Spansh's planetary switch is always on (planetary ports are ordinary stations).
+//! station (Spansh's planetary switch is always on: planetary ports are ordinary stations). Each
+//! stop's largest pad is looked up in its Ardent market, and [`Route::warning`] names a stop the
+//! ship can't land at.
 
 use crate::trade::{with_defaults, PLACEHOLDER_VOLUME};
 use astromech_data::ardent::Listing;
@@ -85,6 +88,8 @@ pub struct Stop {
     pub market_id: i64,
     /// Light seconds from the arrival star.
     pub arrival_ls: Option<f64>,
+    /// The largest landing pad, from the station's Ardent market; `None`: not known.
+    pub pad: Option<Pad>,
 }
 
 /// One commodity carried on a leg.
@@ -125,10 +130,12 @@ pub struct Route {
     /// No legs: nothing profitable within the limits.
     pub legs: Vec<Leg>,
     pub profit: i64,
-    /// One run of the route, estimated.
+    /// One run of the route back to the start (a single hop flies back empty), estimated.
     pub minutes: f64,
     /// Estimated profit per hour of repeating the route.
     pub per_hour: i64,
+    /// A stop the ship can't land at (its largest pad is smaller than the pad filter).
+    pub warning: Option<String>,
     /// The jump range the estimate used.
     pub range: f64,
     /// When the market data was asked for (unix seconds).
@@ -142,6 +149,7 @@ impl Stop {
             system: s.system.clone(),
             market_id: s.market_id,
             arrival_ls: s.distance_to_arrival,
+            pad: None,
         }
     }
 }
@@ -291,18 +299,30 @@ pub fn plan(
     };
     let hops = client.spansh_trade_route_wait(&request(system, &station, ask, filters), polling)?;
     let mut legs: Vec<Leg> = hops.iter().take(1).map(|h| spansh_leg(h, range)).collect();
-    if ask.kind == Kind::Loop {
-        if let Some(out) = legs.first() {
-            let back = return_leg(client, out, range, ask, filters, now_s)?;
-            legs.push(back);
+    // Seconds to get back to the start: a single hop flies back empty.
+    let mut back_s = 0.0;
+    if let Some(out) = legs.first_mut() {
+        let there = client.ardent_markets(&out.to.system).map(|f| f.value);
+        if let Ok(ls) = &there {
+            out.to.pad = pad_at(ls, out.to.market_id);
+        }
+        match ask.kind {
+            Kind::Loop => {
+                let home = client.ardent_markets(&out.from.system)?.value;
+                out.from.pad = pad_at(&home, out.from.market_id);
+                let back = return_leg(out, &there?, &home, range, ask, filters, now_s);
+                legs.push(back);
+            }
+            Kind::Single => back_s = leg_seconds(out.ly, range, out.from.arrival_ls),
         }
     }
     let profit = legs.iter().map(|l| l.profit).sum();
-    let seconds: f64 = legs.iter().map(|l| l.seconds).sum();
+    let seconds: f64 = legs.iter().map(|l| l.seconds).sum::<f64>() + back_s;
     Ok(Route {
         kind: ask.kind,
         per_hour: if seconds > 0.0 { (profit as f64 * 3600.0 / seconds).round() as i64 } else { 0 },
         minutes: seconds / 60.0,
+        warning: pad_warning(&legs, filters.pad),
         legs,
         profit,
         range,
@@ -310,18 +330,43 @@ pub fn plan(
     })
 }
 
-/// The way back from `out`'s destination to its start, with the best cargo for it.
-fn return_leg(client: &Client, out: &Leg, range: f64, ask: &Ask, filters: &Filters, now_s: i64) -> Result<Leg, Error> {
-    let there = client.ardent_markets(&out.to.system)?.value;
-    let home = client.ardent_markets(&out.from.system)?.value;
+/// The largest pad at market `id` among `listings`.
+fn pad_at(listings: &[Listing], id: i64) -> Option<Pad> {
+    listings.iter().find(|l| l.market_id == id).and_then(|l| pad_num(l.max_landing_pad_size))
+}
+
+/// "Starbase X (LP 71-165) has no M pad: its largest is S.", for the first stop too small for `need`.
+fn pad_warning(legs: &[Leg], need: Option<Pad>) -> Option<String> {
+    let need = need?;
+    legs.iter().map(|l| &l.to).find(|s| s.pad.is_some_and(|p| p < need)).map(|s| {
+        format!(
+            "{} ({}) has no {need:?} pad: its largest is {:?}. Spansh can only require a large pad.",
+            s.station,
+            s.system,
+            s.pad.unwrap_or(need)
+        )
+    })
+}
+
+/// The way back from `out`'s destination to its start, with the best cargo for it, from the
+/// markets of the destination's system (`there`) and the start's (`home`).
+fn return_leg(
+    out: &Leg,
+    there: &[Listing],
+    home: &[Listing],
+    range: f64,
+    ask: &Ask,
+    filters: &Filters,
+    now_s: i64,
+) -> Leg {
     let at = |ls: &[Listing], id: i64| ls.iter().filter(|l| l.market_id == id).cloned().collect::<Vec<_>>();
     let cargo = best_cargo(
-        &at(&there, out.to.market_id),
-        &at(&home, out.from.market_id),
+        &at(there, out.to.market_id),
+        &at(home, out.from.market_id),
         i64::from(ask.capacity),
         ask.credits + out.profit,
         with_defaults(filters).max_age_days,
         now_s,
     );
-    Ok(leg(out.to.clone(), out.from.clone(), out.ly, cargo, range, "Ardent Insight"))
+    leg(out.to.clone(), out.from.clone(), out.ly, cargo, range, "Ardent Insight")
 }
