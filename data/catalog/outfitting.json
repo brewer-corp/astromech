@@ -7,11 +7,17 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size2_class5_fast"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size3_class5_fast"
+     ]
     }
    ]
   },
@@ -21,143 +27,249 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size2_class1",
+      "int_hyperdrive_size2_class1_free"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_size8_class1"
+     ]
     }
    ]
   },
@@ -167,143 +279,248 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class1"
+     ]
     }
    ]
   },
@@ -313,35 +530,60 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size1_class3",
+      "int_fueltank_size1_class3_free"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size2_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size3_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size4_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size5_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size6_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size7_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fueltank_size8_class3"
+     ]
     }
    ]
   },
@@ -351,163 +593,284 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size1_class1",
+      "int_lifesupport_size1_class1_free"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_lifesupport_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_lifesupport_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_lifesupport_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_lifesupport_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_lifesupport_size8_class1"
+     ]
     }
    ]
   },
@@ -517,7 +880,10 @@
    "sizes": [
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_mkiiagileboost_engine_size5_class5"
+     ]
     }
    ]
   },
@@ -527,7 +893,10 @@
    "sizes": [
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size7_class5_gravityoptimised_mkii"
+     ]
     }
    ]
   },
@@ -537,7 +906,10 @@
    "sizes": [
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_hyperdrive_overcharge_size8_class5_overchargebooster_mkii"
+     ]
     }
    ]
   },
@@ -547,163 +919,284 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size1_class1",
+      "int_powerdistributor_size1_class1_free"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerdistributor_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerdistributor_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerdistributor_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerdistributor_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerdistributor_size8_class1"
+     ]
     }
    ]
   },
@@ -713,143 +1206,249 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size2_class1",
+      "int_powerplant_size2_class1_free"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_powerplant_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_powerplant_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_powerplant_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_powerplant_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_powerplant_size8_class1"
+     ]
     }
    ]
   },
@@ -859,163 +1458,284 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size1_class1",
+      "int_sensors_size1_class1_free"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_sensors_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_sensors_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_sensors_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_sensors_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_sensors_size8_class1"
+     ]
     }
    ]
   },
@@ -1025,143 +1745,249 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size2_class1",
+      "int_engine_size2_class1_free"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_engine_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_engine_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_engine_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_engine_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_engine_size8_class1"
+     ]
     }
    ]
   },
@@ -1171,7 +1997,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dockingcomputer_advanced"
+     ]
     }
    ]
   },
@@ -1181,7 +2010,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "int_planetapproachsuite_advanced"
+     ]
     }
    ]
   },
@@ -1191,163 +2023,283 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_repairer_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_repairer_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_repairer_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_repairer_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_repairer_size8_class1"
+     ]
     }
    ]
   },
@@ -1357,7 +2309,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_stellarbodydiscoveryscanner_standard_free"
+     ]
     }
    ]
   },
@@ -1367,35 +2322,59 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size1_class3_fast"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size2_class3_fast"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size3_class3_fast"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size4_class3_fast"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size5_class3_fast"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size6_class3_fast"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size7_class3_fast"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size8_class3_fast"
+     ]
     }
    ]
   },
@@ -1405,19 +2384,31 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_passengercabin_size3_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_passengercabin_size4_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_passengercabin_size5_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_passengercabin_size6_class2"
+     ]
     }
    ]
   },
@@ -1427,35 +2418,60 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size2_class1",
+      "int_cargorack_size2_class1_free"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_cargorack_size8_class1"
+     ]
     }
    ]
   },
@@ -1465,83 +2481,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_collection_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_collection_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_collection_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_collection_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_collection_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_collection_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_collection_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_collection_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_collection_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_collection_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_collection_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_collection_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_collection_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_collection_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_collection_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_collection_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_collection_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_collection_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_collection_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_collection_size7_class1"
+     ]
     }
    ]
   },
@@ -1551,15 +2627,24 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_corrosionproofcargorack_size1_class1"
+     ]
     },
     {
      "class": 1,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_corrosionproofcargorack_size1_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_corrosionproofcargorack_size4_class1"
+     ]
     }
    ]
   },
@@ -1569,19 +2654,31 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_decontamination_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_decontamination_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_decontamination_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_decontamination_size7_class1"
+     ]
     }
    ]
   },
@@ -1591,7 +2688,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "int_detailedsurfacescanner_tiny"
+     ]
     }
    ]
   },
@@ -1601,23 +2701,38 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_passengercabin_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_passengercabin_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_passengercabin_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_passengercabin_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_passengercabin_size6_class1"
+     ]
     }
    ]
   },
@@ -1627,11 +2742,17 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_expmodulestabiliser_size3_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_expmodulestabiliser_size5_class3"
+     ]
     }
    ]
   },
@@ -1641,15 +2762,24 @@
    "sizes": [
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_passengercabin_size4_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_passengercabin_size5_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_passengercabin_size6_class3"
+     ]
     }
    ]
   },
@@ -1659,83 +2789,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fsdinterdictor_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fsdinterdictor_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fsdinterdictor_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fsdinterdictor_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fsdinterdictor_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fsdinterdictor_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fsdinterdictor_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fsdinterdictor_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fsdinterdictor_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fsdinterdictor_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fsdinterdictor_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fsdinterdictor_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fsdinterdictor_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fsdinterdictor_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fsdinterdictor_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fsdinterdictor_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fsdinterdictor_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fsdinterdictor_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fsdinterdictor_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fsdinterdictor_size4_class1"
+     ]
     }
    ]
   },
@@ -1745,163 +2935,283 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_fuelscoop_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_fuelscoop_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_fuelscoop_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fuelscoop_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_fuelscoop_size8_class1"
+     ]
     }
    ]
   },
@@ -1911,83 +3221,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_fueltransfer_size7_class1"
+     ]
     }
    ]
   },
@@ -1997,23 +3367,38 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_guardianfsdbooster_size1"
+     ]
     },
     {
      "class": 2,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_guardianfsdbooster_size2"
+     ]
     },
     {
      "class": 3,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_guardianfsdbooster_size3"
+     ]
     },
     {
      "class": 4,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_guardianfsdbooster_size4"
+     ]
     },
     {
      "class": 5,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_guardianfsdbooster_size5"
+     ]
     }
    ]
   },
@@ -2023,43 +3408,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianhullreinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianhullreinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianhullreinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianhullreinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianhullreinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianhullreinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianhullreinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianhullreinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianhullreinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianhullreinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2069,35 +3484,59 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size2"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size3"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size4"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size5"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size6"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size7"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerdistributor_size8"
+     ]
     }
    ]
   },
@@ -2107,31 +3546,52 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size2"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size3"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size4"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size5"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size6"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size7"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_guardianpowerplant_size8"
+     ]
     }
    ]
   },
@@ -2141,43 +3601,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianmodulereinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianmodulereinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianmodulereinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianmodulereinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianmodulereinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianmodulereinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianmodulereinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianmodulereinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianmodulereinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianmodulereinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2187,43 +3677,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianshieldreinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianshieldreinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianshieldreinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianshieldreinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianshieldreinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianshieldreinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianshieldreinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianshieldreinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_guardianshieldreinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_guardianshieldreinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2233,87 +3753,150 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size1_class1"
+     ]
     },
     {
      "class": 1,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_resourcesiphon_size7_class1"
+     ]
     }
    ]
   },
@@ -2323,43 +3906,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hullreinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hullreinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hullreinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hullreinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hullreinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hullreinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hullreinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hullreinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_hullreinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_hullreinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2369,15 +3982,27 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_largebuggybay_size2_class3",
+      "int_largebuggybay_size2_class3_free"
+     ]
     },
     {
      "class": 4,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_largebuggybay_size4_class3",
+      "int_largebuggybay_size4_class3_free"
+     ]
     },
     {
      "class": 6,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_largebuggybay_size6_class3",
+      "int_largebuggybay_size6_class3_free"
+     ]
     }
    ]
   },
@@ -2387,11 +4012,17 @@
    "sizes": [
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_passengercabin_size5_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_passengercabin_size6_class4"
+     ]
     }
    ]
   },
@@ -2401,43 +4032,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_metaalloyhullreinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2447,11 +4108,17 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_multidronecontrol_mining_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_multidronecontrol_mining_size3_class1"
+     ]
     }
    ]
   },
@@ -2461,11 +4128,17 @@
    "sizes": [
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_largecargorack_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_largecargorack_size8_class1"
+     ]
     }
    ]
   },
@@ -2475,15 +4148,27 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_mkiilargebuggybay_size2_class3",
+      "int_mkiilargebuggybay_size2_class3_free"
+     ]
     },
     {
      "class": 4,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_mkiilargebuggybay_size4_class3",
+      "int_mkiilargebuggybay_size4_class3_free"
+     ]
     },
     {
      "class": 6,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "int_mkiilargebuggybay_size6_class3",
+      "int_mkiilargebuggybay_size6_class3_free"
+     ]
     }
    ]
   },
@@ -2493,7 +4178,10 @@
    "sizes": [
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_multidronecontrol_miningv2_size5_class5"
+     ]
     }
    ]
   },
@@ -2503,15 +4191,27 @@
    "sizes": [
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbaymk2_size5_class1",
+      "int_fighterbaymk2_size5_class1_free"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbaymk2_size6_class1",
+      "int_fighterbaymk2_size6_class1_free"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbaymk2_size7_class1",
+      "int_fighterbaymk2_size7_class1_free"
+     ]
     }
    ]
   },
@@ -2521,15 +4221,25 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_mkii_passengercabin_size3_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_mkii_passengercabin_size4_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_mkii_passengercabin_size5_class2",
+      "int_mkii_passengercabin_size6_class2"
+     ]
     }
    ]
   },
@@ -2539,19 +4249,32 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_mkii_passengercabin_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_mkii_passengercabin_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_mkii_passengercabin_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_mkii_passengercabin_size5_class1",
+      "int_mkii_passengercabin_size6_class1"
+     ]
     }
    ]
   },
@@ -2561,43 +4284,73 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_modulereinforcement_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_modulereinforcement_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_modulereinforcement_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_modulereinforcement_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_modulereinforcement_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_modulereinforcement_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_modulereinforcement_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_modulereinforcement_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_modulereinforcement_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_modulereinforcement_size5_class1"
+     ]
     }
    ]
   },
@@ -2607,11 +4360,17 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_multidronecontrol_operations_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_multidronecontrol_operations_size3_class3"
+     ]
     }
    ]
   },
@@ -2621,7 +4380,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "int_planetapproachsuite"
+     ]
     }
    ]
   },
@@ -2631,27 +4393,45 @@
    "sizes": [
     {
      "class": 2,
-     "rating": "G"
+     "rating": "G",
+     "symbols": [
+      "int_buggybay_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_buggybay_size2_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "G"
+     "rating": "G",
+     "symbols": [
+      "int_buggybay_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_buggybay_size4_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "G"
+     "rating": "G",
+     "symbols": [
+      "int_buggybay_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "H"
+     "rating": "H",
+     "symbols": [
+      "int_buggybay_size6_class1"
+     ]
     }
    ]
   },
@@ -2661,35 +4441,59 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size1_class5_strong"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size2_class5_strong"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size3_class5_strong"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size4_class5_strong"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size5_class5_strong"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size6_class5_strong"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size7_class5_strong"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size8_class5_strong"
+     ]
     }
    ]
   },
@@ -2699,83 +4503,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_prospector_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_prospector_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_prospector_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_prospector_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_prospector_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_prospector_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_prospector_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_prospector_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_prospector_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_prospector_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_prospector_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_prospector_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_prospector_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_prospector_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_prospector_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_prospector_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_prospector_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_prospector_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_prospector_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_prospector_size7_class1"
+     ]
     }
    ]
   },
@@ -2785,19 +4649,31 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_recon_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_recon_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_recon_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_recon_size7_class1"
+     ]
     }
    ]
   },
@@ -2807,83 +4683,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_refinery_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_refinery_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_refinery_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_refinery_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_refinery_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_refinery_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_refinery_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_refinery_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_refinery_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_refinery_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_refinery_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_refinery_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_refinery_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_refinery_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_refinery_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_refinery_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_refinery_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_refinery_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_refinery_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_refinery_size4_class1"
+     ]
     }
    ]
   },
@@ -2893,83 +4829,143 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_repair_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_repair_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_repair_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_repair_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_repair_size1_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_repair_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_repair_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_repair_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_repair_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_repair_size3_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_repair_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_repair_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_repair_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_repair_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_repair_size5_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_dronecontrol_repair_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_dronecontrol_repair_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_dronecontrol_repair_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_dronecontrol_repair_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_repair_size7_class1"
+     ]
     }
    ]
   },
@@ -2979,11 +4975,17 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_multidronecontrol_rescue_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_multidronecontrol_rescue_size3_class2"
+     ]
     }
    ]
   },
@@ -2993,7 +4995,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dronecontrol_unkvesselresearch"
+     ]
     }
    ]
   },
@@ -3003,163 +5008,283 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size1_class4"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size2_class1"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldcellbank_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldcellbank_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldcellbank_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldcellbank_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldcellbank_size8_class1"
+     ]
     }
    ]
   },
@@ -3169,159 +5294,277 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size1_class5"
+     ]
     },
     {
      "class": 1,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size1_class3"
+     ]
     },
     {
      "class": 1,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size1_class2"
+     ]
     },
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size1_class1"
+     ]
     },
     {
      "class": 2,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size2_class5"
+     ]
     },
     {
      "class": 2,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size2_class4"
+     ]
     },
     {
      "class": 2,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size2_class3"
+     ]
     },
     {
      "class": 2,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size2_class2"
+     ]
     },
     {
      "class": 2,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size2_class1",
+      "int_shieldgenerator_size2_class1_free"
+     ]
     },
     {
      "class": 3,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size3_class5"
+     ]
     },
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size3_class3"
+     ]
     },
     {
      "class": 3,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size3_class2"
+     ]
     },
     {
      "class": 3,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size3_class1"
+     ]
     },
     {
      "class": 4,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size4_class5"
+     ]
     },
     {
      "class": 4,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size4_class4"
+     ]
     },
     {
      "class": 4,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size4_class3"
+     ]
     },
     {
      "class": 4,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size4_class2"
+     ]
     },
     {
      "class": 4,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size4_class1"
+     ]
     },
     {
      "class": 5,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size5_class5"
+     ]
     },
     {
      "class": 5,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size5_class4"
+     ]
     },
     {
      "class": 5,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size5_class3"
+     ]
     },
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size5_class2"
+     ]
     },
     {
      "class": 5,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size5_class1"
+     ]
     },
     {
      "class": 6,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size6_class5"
+     ]
     },
     {
      "class": 6,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size6_class4"
+     ]
     },
     {
      "class": 6,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size6_class3"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size6_class2"
+     ]
     },
     {
      "class": 6,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size6_class1"
+     ]
     },
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size7_class4"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size7_class3"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size7_class2"
+     ]
     },
     {
      "class": 7,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size7_class1"
+     ]
     },
     {
      "class": 8,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_shieldgenerator_size8_class5"
+     ]
     },
     {
      "class": 8,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_shieldgenerator_size8_class4"
+     ]
     },
     {
      "class": 8,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_shieldgenerator_size8_class3"
+     ]
     },
     {
      "class": 8,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_shieldgenerator_size8_class2"
+     ]
     },
     {
      "class": 8,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_shieldgenerator_size8_class1"
+     ]
     }
    ]
   },
@@ -3331,7 +5574,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_dockingcomputer_standard"
+     ]
     }
    ]
   },
@@ -3341,7 +5587,10 @@
    "sizes": [
     {
      "class": 1,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "int_supercruiseassist"
+     ]
     }
    ]
   },
@@ -3351,11 +5600,17 @@
    "sizes": [
     {
      "class": 7,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "int_multidronecontrol_universal_size7_class5"
+     ]
     },
     {
      "class": 7,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_multidronecontrol_universal_size7_class3"
+     ]
     }
    ]
   },
@@ -3365,15 +5620,27 @@
    "sizes": [
     {
      "class": 5,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbay_size5_class1",
+      "int_fighterbay_size5_class1_free"
+     ]
     },
     {
      "class": 6,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbay_size6_class1",
+      "int_fighterbay_size6_class1_free"
+     ]
     },
     {
      "class": 7,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "int_fighterbay_size7_class1",
+      "int_fighterbay_size7_class1_free"
+     ]
     }
    ]
   },
@@ -3383,11 +5650,17 @@
    "sizes": [
     {
      "class": 3,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "int_multidronecontrol_xeno_size3_class4"
+     ]
     },
     {
      "class": 3,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "int_multidronecontrol_xeno_size3_class3"
+     ]
     }
    ]
   },
@@ -3398,22 +5671,34 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atdumbfiremissile_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atdumbfiremissile_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atdumbfiremissile_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "A",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atdumbfiremissile_turret_large"
+     ]
     }
    ]
   },
@@ -3424,22 +5709,34 @@
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atmulticannon_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atmulticannon_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atmulticannon_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atmulticannon_turret_large"
+     ]
     }
    ]
   },
@@ -3450,12 +5747,18 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mining_abrblstr_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mining_abrblstr_turret_small"
+     ]
     }
    ]
   },
@@ -3466,12 +5769,18 @@
     {
      "class": 1,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_small_advanced"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_medium_advanced"
+     ]
     }
    ]
   },
@@ -3482,12 +5791,18 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_small_advanced"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_medium_advanced"
+     ]
     }
    ]
   },
@@ -3498,7 +5813,10 @@
     {
      "class": 3,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmaaccelerator_fixed_large_advanced"
+     ]
     }
    ]
   },
@@ -3509,57 +5827,90 @@
     {
      "class": 1,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_beamlaser_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_beamlaser_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_beamlaser_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_beamlaser_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_beamlaser_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_beamlaser_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_beamlaser_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_beamlaser_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_beamlaser_turret_large"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_beamlaser_fixed_huge"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_beamlaser_gimbal_huge"
+     ]
     }
    ]
   },
@@ -3570,57 +5921,90 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaserburst_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaserburst_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaserburst_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaserburst_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaserburst_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaserburst_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaserburst_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaserburst_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaserburst_turret_large"
+     ]
     },
     {
      "class": 4,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaserburst_fixed_huge"
+     ]
     },
     {
      "class": 4,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaserburst_gimbal_huge"
+     ]
     }
    ]
   },
@@ -3631,57 +6015,90 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_cannon_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_cannon_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_cannon_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_cannon_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_cannon_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_cannon_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_cannon_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_cannon_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_cannon_turret_large"
+     ]
     },
     {
      "class": 4,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_cannon_fixed_huge"
+     ]
     },
     {
      "class": 4,
      "rating": "B",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_cannon_gimbal_huge"
+     ]
     }
    ]
   },
@@ -3692,7 +6109,10 @@
     {
      "class": 2,
      "rating": "D",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_cannon_gimbal_medium_burst"
+     ]
     }
    ]
   },
@@ -3703,7 +6123,10 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaserburst_fixed_small_scatter"
+     ]
     }
    ]
   },
@@ -3714,7 +6137,10 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_small_strong"
+     ]
     }
    ]
   },
@@ -3725,22 +6151,34 @@
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atdumbfiremissile_fixed_medium_v2"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atdumbfiremissile_turret_medium_v2"
+     ]
     },
     {
      "class": 3,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atdumbfiremissile_fixed_large_v2"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atdumbfiremissile_turret_large_v2"
+     ]
     }
    ]
   },
@@ -3751,32 +6189,50 @@
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atmulticannon_fixed_medium_v2"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_atmulticannon_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atmulticannon_turret_medium_v2"
+     ]
     },
     {
      "class": 3,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atmulticannon_fixed_large_v2"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_atmulticannon_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_atmulticannon_turret_large_v2"
+     ]
     }
    ]
   },
@@ -3787,7 +6243,10 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_causticmissile_fixed_medium"
+     ]
     }
    ]
   },
@@ -3798,47 +6257,74 @@
     {
      "class": 1,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_slugshot_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_slugshot_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_slugshot_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_slugshot_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_slugshot_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_slugshot_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_slugshot_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_slugshot_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_slugshot_turret_large"
+     ]
     }
    ]
   },
@@ -3849,12 +6335,18 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_gausscannon_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_gausscannon_fixed_medium"
+     ]
     }
    ]
   },
@@ -3865,12 +6357,18 @@
     {
      "class": 2,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atventdisruptorpylon_fixed_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_atventdisruptorpylon_fixed_large"
+     ]
     }
    ]
   },
@@ -3881,32 +6379,50 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_plasmalauncher_turret_large"
+     ]
     }
    ]
   },
@@ -3917,32 +6433,50 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_shardcannon_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_shardcannon_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_shardcannon_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_shardcannon_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_guardian_shardcannon_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_guardian_shardcannon_turret_large"
+     ]
     }
    ]
   },
@@ -3953,7 +6487,10 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_railgun_fixed_medium_burst"
+     ]
     }
    ]
   },
@@ -3964,12 +6501,18 @@
     {
      "class": 1,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_minelauncher_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_minelauncher_fixed_medium"
+     ]
     }
    ]
   },
@@ -3980,7 +6523,10 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mininglaser_fixed_small_advanced"
+     ]
     }
    ]
   },
@@ -3991,22 +6537,34 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mininglaser_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mininglaser_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mininglaser_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mininglaser_turret_medium"
+     ]
     }
    ]
   },
@@ -4017,7 +6575,10 @@
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_miningtoolv2_fixed_large"
+     ]
     }
    ]
   },
@@ -4028,17 +6589,26 @@
     {
      "class": 1,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_large"
+     ]
     }
    ]
   },
@@ -4049,7 +6619,10 @@
     {
      "class": 3,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mkiiplasmashockautocannon_fixed_large"
+     ]
     }
    ]
   },
@@ -4060,57 +6633,90 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_multicannon_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_multicannon_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_multicannon_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_multicannon_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_multicannon_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_multicannon_turret_large"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_multicannon_fixed_huge"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_multicannon_gimbal_huge"
+     ]
     }
    ]
   },
@@ -4121,7 +6727,10 @@
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_slugshot_fixed_large_range"
+     ]
     }
    ]
   },
@@ -4132,7 +6741,10 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_drunkmissilerack_fixed_medium"
+     ]
     }
    ]
   },
@@ -4143,17 +6755,26 @@
     {
      "class": 2,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmaaccelerator_fixed_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmaaccelerator_fixed_large"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmaaccelerator_fixed_huge"
+     ]
     }
    ]
   },
@@ -4164,7 +6785,10 @@
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaser_fixed_medium_disruptor"
+     ]
     }
    ]
   },
@@ -4175,57 +6799,90 @@
     {
      "class": 1,
      "rating": "F",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaser_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaser_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "G",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaser_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaser_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaser_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaser_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaser_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaser_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_pulselaser_turret_large"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_pulselaser_fixed_huge"
+     ]
     },
     {
      "class": 4,
      "rating": "A",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_pulselaser_gimbal_huge"
+     ]
     }
    ]
   },
@@ -4236,12 +6893,18 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_railgun_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_railgun_fixed_medium"
+     ]
     }
    ]
   },
@@ -4252,12 +6915,18 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_flakmortar_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_flakmortar_turret_medium"
+     ]
     }
    ]
   },
@@ -4268,12 +6937,18 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_flechettelauncher_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_flechettelauncher_turret_medium"
+     ]
     }
    ]
   },
@@ -4284,7 +6959,10 @@
     {
      "class": 1,
      "rating": "E",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_beamlaser_fixed_small_heat"
+     ]
     }
    ]
   },
@@ -4295,7 +6973,10 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_dumbfiremissilerack_fixed_medium_lasso"
+     ]
     }
    ]
   },
@@ -4306,17 +6987,26 @@
     {
      "class": 1,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_basicmissilerack_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_basicmissilerack_fixed_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "A",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_basicmissilerack_fixed_large"
+     ]
     }
    ]
   },
@@ -4327,12 +7017,18 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mining_seismchrgwarhd_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mining_seismchrgwarhd_turret_medium"
+     ]
     }
    ]
   },
@@ -4343,47 +7039,74 @@
     {
      "class": 1,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmashockcannon_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "E",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_plasmashockcannon_gimbal_small"
+     ]
     },
     {
      "class": 1,
      "rating": "F",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_plasmashockcannon_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmashockcannon_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "D",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_plasmashockcannon_gimbal_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "E",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_plasmashockcannon_turret_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_plasmashockcannon_fixed_large"
+     ]
     },
     {
      "class": 3,
      "rating": "C",
-     "mount": "Gimballed"
+     "mount": "Gimballed",
+     "symbols": [
+      "hpt_plasmashockcannon_gimbal_large"
+     ]
     },
     {
      "class": 3,
      "rating": "D",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_plasmashockcannon_turret_large"
+     ]
     }
    ]
   },
@@ -4394,7 +7117,10 @@
     {
      "class": 1,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_minelauncher_fixed_small_impulse"
+     ]
     }
    ]
   },
@@ -4405,22 +7131,34 @@
     {
      "class": 1,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mining_subsurfdispmisle_fixed_small"
+     ]
     },
     {
      "class": 1,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mining_subsurfdispmisle_turret_small"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_mining_subsurfdispmisle_fixed_medium"
+     ]
     },
     {
      "class": 2,
      "rating": "B",
-     "mount": "Turreted"
+     "mount": "Turreted",
+     "symbols": [
+      "hpt_mining_subsurfdispmisle_turret_medium"
+     ]
     }
    ]
   },
@@ -4431,7 +7169,10 @@
     {
      "class": 2,
      "rating": "B",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_human_extraction_fixed_medium"
+     ]
     }
    ]
   },
@@ -4442,17 +7183,26 @@
     {
      "class": 1,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_advancedtorppylon_fixed_small"
+     ]
     },
     {
      "class": 2,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_advancedtorppylon_fixed_medium"
+     ]
     },
     {
      "class": 3,
      "rating": "I",
-     "mount": "Fixed"
+     "mount": "Fixed",
+     "symbols": [
+      "hpt_advancedtorppylon_fixed_large"
+     ]
     }
    ]
   },
@@ -4462,23 +7212,38 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "hpt_cargoscanner_size0_class5"
+     ]
     },
     {
      "class": 0,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "hpt_cargoscanner_size0_class4"
+     ]
     },
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_cargoscanner_size0_class3"
+     ]
     },
     {
      "class": 0,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "hpt_cargoscanner_size0_class2"
+     ]
     },
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_cargoscanner_size0_class1"
+     ]
     }
    ]
   },
@@ -4488,7 +7253,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "hpt_chafflauncher_tiny"
+     ]
     }
    ]
   },
@@ -4498,7 +7266,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "hpt_electroniccountermeasure_tiny"
+     ]
     }
    ]
   },
@@ -4508,7 +7279,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_xenoscannermk2_basic_tiny"
+     ]
     }
    ]
   },
@@ -4518,23 +7292,38 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "hpt_cloudscanner_size0_class5"
+     ]
     },
     {
      "class": 0,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "hpt_cloudscanner_size0_class4"
+     ]
     },
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_cloudscanner_size0_class3"
+     ]
     },
     {
      "class": 0,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "hpt_cloudscanner_size0_class2"
+     ]
     },
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_cloudscanner_size0_class1"
+     ]
     }
    ]
   },
@@ -4544,7 +7333,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "hpt_heatsinklauncher_turret_tiny"
+     ]
     }
    ]
   },
@@ -4554,23 +7346,38 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "hpt_crimescanner_size0_class5"
+     ]
     },
     {
      "class": 0,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "hpt_crimescanner_size0_class4"
+     ]
     },
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_crimescanner_size0_class3"
+     ]
     },
     {
      "class": 0,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "hpt_crimescanner_size0_class2"
+     ]
     },
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_crimescanner_size0_class1"
+     ]
     }
    ]
   },
@@ -4580,7 +7387,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "I"
+     "rating": "I",
+     "symbols": [
+      "hpt_plasmapointdefence_turret_tiny"
+     ]
     }
    ]
   },
@@ -4590,23 +7400,38 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "hpt_mrascanner_size0_class5"
+     ]
     },
     {
      "class": 0,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "hpt_mrascanner_size0_class4"
+     ]
     },
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_mrascanner_size0_class3"
+     ]
     },
     {
      "class": 0,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "hpt_mrascanner_size0_class2"
+     ]
     },
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_mrascanner_size0_class1"
+     ]
     }
    ]
   },
@@ -4616,7 +7441,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_xenoscanner_advanced_tiny"
+     ]
     }
    ]
   },
@@ -4626,23 +7454,38 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "A"
+     "rating": "A",
+     "symbols": [
+      "hpt_shieldbooster_size0_class5"
+     ]
     },
     {
      "class": 0,
-     "rating": "B"
+     "rating": "B",
+     "symbols": [
+      "hpt_shieldbooster_size0_class4"
+     ]
     },
     {
      "class": 0,
-     "rating": "C"
+     "rating": "C",
+     "symbols": [
+      "hpt_shieldbooster_size0_class3"
+     ]
     },
     {
      "class": 0,
-     "rating": "D"
+     "rating": "D",
+     "symbols": [
+      "hpt_shieldbooster_size0_class2"
+     ]
     },
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_shieldbooster_size0_class1"
+     ]
     }
    ]
   },
@@ -4652,7 +7495,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "F"
+     "rating": "F",
+     "symbols": [
+      "hpt_antiunknownshutdown_tiny"
+     ]
     }
    ]
   },
@@ -4662,7 +7508,10 @@
    "sizes": [
     {
      "class": 0,
-     "rating": "E"
+     "rating": "E",
+     "symbols": [
+      "hpt_xenoscanner_basic_tiny"
+     ]
     }
    ]
   }

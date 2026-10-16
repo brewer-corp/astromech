@@ -55,6 +55,9 @@ pub struct Size {
     pub rating: String,
     #[serde(default)]
     pub mount: Option<Mount>,
+    /// Its journal symbols, lower case (`int_fighterbay_size5_class1`, and a `_free` twin).
+    #[serde(default)]
+    pub symbols: Vec<String>,
 }
 
 /// One module, by its name in game, and every size it is sold in.
@@ -90,6 +93,20 @@ pub fn catalog() -> &'static Catalog {
 /// The catalogue's module called `name` (any case).
 pub fn module(name: &str) -> Option<&'static ModuleKind> {
     catalog().modules.iter().find(|m| m.name.eq_ignore_ascii_case(name))
+}
+
+/// Modules Spansh lists under other names too (its `field_values/modules`, recorded in
+/// `tests/fixtures/spansh-module-names.json`): (catalogue name, Spansh's other names).
+const SPANSH_NAMES: &[(&str, &[&str])] = &[
+    ("Vessel Hangar", &["Fighter Hangar"]),
+    ("MkII Business Class Passenger Cabin", &["Mk II Business Class Passenger Cabin"]),
+    ("MkII Economy Class Passenger Cabin", &["Mk II Economy Class Passenger Cabin"]),
+];
+
+/// Every name Spansh may list the module called `name` under, `name` first.
+pub fn spansh_names(name: &str) -> Vec<&str> {
+    let more = SPANSH_NAMES.iter().find(|(n, _)| n.eq_ignore_ascii_case(name)).map(|(_, m)| *m).unwrap_or(&[]);
+    std::iter::once(name).chain(more.iter().copied()).collect()
 }
 
 /// The catalogue's ship called `name` (any case).
@@ -289,9 +306,30 @@ impl ModuleWant {
         format!("{size}{}{mount}", self.name)
     }
 
-    /// Whether a module a station sells is this one.
+    /// The journal symbols of every catalogue size that fits, lower case; empty when the
+    /// module isn't in the catalogue.
+    pub fn symbols(&self) -> Vec<&'static str> {
+        let Some(kind) = module(&self.name) else { return vec![] };
+        kind.sizes
+            .iter()
+            .filter(|s| {
+                self.class.is_none_or(|c| s.class == c)
+                    && self.rating.as_deref().is_none_or(|r| s.rating.eq_ignore_ascii_case(r))
+                    && self.mount.is_none_or(|m| s.mount == Some(m))
+            })
+            .flat_map(|s| s.symbols.iter().map(String::as_str))
+            .collect()
+    }
+
+    /// Whether a module a station sells is this one: by its journal symbol when Spansh gives
+    /// one and the module is in the catalogue (Spansh's names vary), else by any of Spansh's
+    /// names for it, class, rating and mount.
     pub fn fits(&self, m: &spansh::Module) -> bool {
-        m.name.eq_ignore_ascii_case(&self.name)
+        let symbols = self.symbols();
+        if let (Some(sym), false) = (m.ed_symbol.as_deref(), symbols.is_empty()) {
+            return symbols.iter().any(|s| s.eq_ignore_ascii_case(sym));
+        }
+        spansh_names(&self.name).iter().any(|n| m.name.eq_ignore_ascii_case(n))
             && self.class.is_none_or(|c| m.class == c)
             && self.rating.as_deref().is_none_or(|r| m.rating.eq_ignore_ascii_case(r))
             && self.mount.is_none_or(|want| m.ed_symbol.as_deref().and_then(Mount::of_symbol) == Some(want))
@@ -312,9 +350,12 @@ mod tests {
     #[test]
     fn catalogue_has_modules_and_ships() {
         let fsd = module("frame shift drive").unwrap();
-        assert!(fsd.sizes.contains(&Size { class: 5, rating: "A".into(), mount: None }));
+        let has = |k: &ModuleKind, c: u8, r: &str, m: Option<Mount>| {
+            k.sizes.iter().any(|s| s.class == c && s.rating == r && s.mount == m && !s.symbols.is_empty())
+        };
+        assert!(has(fsd, 5, "A", None));
         let mc = module("Multi-Cannon").unwrap();
-        assert!(mc.sizes.contains(&Size { class: 3, rating: "C".into(), mount: Some(Mount::Gimballed) }));
+        assert!(has(mc, 3, "C", Some(Mount::Gimballed)));
         assert!(catalog().ships.iter().any(|s| s.symbol == "krait_mkii" && s.name == "Krait MkII"));
         for (said, name) in MODULE_ALIASES {
             assert!(module(name).is_some(), "alias {said:?} names unknown module {name:?}");
@@ -327,6 +368,65 @@ mod tests {
         }
         assert_eq!(ship_pad("Anaconda"), Some(crate::Pad::L));
         assert_eq!(ship_pad("krait mkii"), Some(crate::Pad::M));
+    }
+
+    /// Spansh's module and ship names (`/api/stations/field_values/{modules,ships}`, recorded
+    /// 17 Oct 2026).
+    const SPANSH_MODULES: &str = include_str!("../tests/fixtures/spansh-module-names.json");
+    const SPANSH_SHIPS: &str = include_str!("../tests/fixtures/spansh-ship-names.json");
+
+    fn names(json: &str) -> Vec<String> {
+        let v: serde_json::Value = serde_json::from_str(json).unwrap();
+        serde_json::from_value(v["values"]["name"].clone()).unwrap()
+    }
+
+    /// In the catalogue (FDevIDs) but not sold at stations, so Spansh never lists it.
+    const NOT_SOLD: &[&str] = &["Basic Discovery Scanner"];
+
+    #[test]
+    fn every_catalogue_name_is_one_spansh_uses() {
+        let spansh = names(SPANSH_MODULES);
+        for m in &catalog().modules {
+            if NOT_SOLD.contains(&m.name.as_str()) {
+                continue;
+            }
+            assert!(spansh.iter().any(|n| *n == m.name), "Spansh has no module called {:?}", m.name);
+        }
+        for (name, more) in SPANSH_NAMES {
+            assert!(module(name).is_some(), "{name} not in the catalogue");
+            for n in *more {
+                assert!(spansh.iter().any(|s| s == n), "Spansh has no module called {n:?}");
+            }
+        }
+        let ships = names(SPANSH_SHIPS);
+        for s in &catalog().ships {
+            assert!(ships.contains(&s.name), "Spansh has no ship called {:?}", s.name);
+        }
+    }
+
+    #[test]
+    fn spansh_name_variants_fit_by_symbol_or_name() {
+        let sold = |name: &str, class: u8, rating: &str, sym: Option<&str>| spansh::Module {
+            name: name.into(),
+            class,
+            rating: rating.into(),
+            category: None,
+            ship: None,
+            price: None,
+            ed_symbol: sym.map(str::to_string),
+        };
+        let hangar = ModuleWant::from_words("Vessel Hangar", "5d");
+        assert!(hangar.fits(&sold("Fighter Hangar", 5, "D", Some("Int_FighterBay_Size5_Class1"))));
+        assert!(hangar.fits(&sold("Vessel Hangar", 5, "D", Some("Int_FighterBay_Size5_Class1_Free"))));
+        assert!(!hangar.fits(&sold("Mk II Vessel Hangar", 5, "D", Some("Int_FighterBayMk2_Size5_Class1_Free"))));
+        assert!(hangar.fits(&sold("Fighter Hangar", 5, "D", None)), "no symbol: by Spansh's other name");
+        let cabin = ModuleWant::from_words("MkII Economy Class Passenger Cabin", "");
+        assert!(cabin.fits(&sold("Mk II Economy Class Passenger Cabin", 4, "E", None)));
+        assert_eq!(spansh_names("Vessel Hangar"), ["Vessel Hangar", "Fighter Hangar"]);
+        assert_eq!(spansh_names("Frame Shift Drive"), ["Frame Shift Drive"]);
+        let gimballed = ModuleWant::from_words("Multi-Cannon", "3c gimballed");
+        assert!(gimballed.fits(&sold("Multi-Cannon", 3, "C", Some("Hpt_MultiCannon_Gimbal_Large"))));
+        assert!(!gimballed.fits(&sold("Multi-Cannon", 3, "C", Some("Hpt_MultiCannon_Fixed_Large"))));
     }
 
     #[test]

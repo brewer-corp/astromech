@@ -6,7 +6,7 @@
 //! the helpers on the result types ([`Station::has_service`], ...). Verified filter shapes:
 //!
 //! - `services`, `ships`: `[{"name": [..]}]` (`{"value": [..]}` is ignored);
-//! - `modules`: `[{"name": [..], "class": [..], "rating": [..]}]`;
+//! - `modules`: `[{"name": [..], "class": [..], "rating": [..]}]` (any of the names);
 //! - `market`: `[{"name": "Gold", "supply"|"demand": {"value": [min, max], "comparison": "<=>"}}]`;
 //! - `distance`: `{"min": "0", "max": "40"}`;
 //! - `material_trader`, `technology_broker`, `type` (stations): `{"value": [..]}` (`type` only
@@ -144,9 +144,10 @@ impl Search {
         self.push("services", json!({ "name": [name] }))
     }
 
-    /// Stations selling a module. `class` 1–8; `rating` "A"–"I".
-    pub fn module(self, name: &str, class: Option<u8>, rating: Option<&str>) -> Self {
-        let mut m = json!({ "name": [name] });
+    /// Stations selling a module under any of `names` (Spansh lists some modules under more
+    /// than one). `class` 1–8; `rating` "A"–"I".
+    pub fn module(self, names: &[&str], class: Option<u8>, rating: Option<&str>) -> Self {
+        let mut m = json!({ "name": names });
         if let Some(c) = class {
             m["class"] = json!([c.to_string()]);
         }
@@ -279,6 +280,9 @@ pub struct Ship {
     pub name: String,
     #[serde(default)]
     pub price: Option<i64>,
+    /// The journal symbol (`Krait_MkII`).
+    #[serde(default)]
+    pub symbol: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -540,7 +544,7 @@ mod tests {
     fn search_body_uses_verified_shapes() {
         let b = Search::near(Reference::System("Sol".into()))
             .service("Interstellar Factors Contact")
-            .module("Frame Shift Drive", Some(5), Some("A"))
+            .module(&["Frame Shift Drive"], Some(5), Some("A"))
             .ship("Mandalay")
             .supply("Gold", 1000)
             .within(40.0)

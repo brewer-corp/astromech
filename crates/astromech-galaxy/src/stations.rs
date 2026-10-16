@@ -204,7 +204,7 @@ impl Want {
                 Spansh::Trader(kind) => q.material_trader(kind),
                 Spansh::Broker(kind) => q.technology_broker(kind),
             },
-            Want::Module(m) => q.module(&m.name, m.class, m.rating.as_deref()),
+            Want::Module(m) => q.module(&crate::outfitting::spansh_names(&m.name), m.class, m.rating.as_deref()),
             Want::Ship { ship } => q.ship(ship),
         }
     }
@@ -226,7 +226,12 @@ impl Want {
                 return Some(Offer { price: first.price, detail: Some(sizes.join(", ")) });
             }
             Want::Ship { ship } => {
-                let sold = s.ships.iter().find(|x| x.name.eq_ignore_ascii_case(ship))?;
+                // By name, or by journal symbol in case Spansh renames a ship.
+                let symbol = crate::outfitting::ship(ship).map(|k| k.symbol.as_str());
+                let sold = s.ships.iter().find(|x| {
+                    x.name.eq_ignore_ascii_case(ship)
+                        || x.symbol.as_deref().zip(symbol).is_some_and(|(have, want)| have.eq_ignore_ascii_case(want))
+                })?;
                 return Some(Offer { price: sold.price, detail: None });
             }
         };
@@ -599,6 +604,24 @@ mod tests {
         let rail = Want::Module(ModuleWant::from_words("Rail Gun", ""));
         let none = find(&c, &rail, sol(), &Filters::default(), 10, NOW).unwrap();
         assert!(none.hits.is_empty() && none.warning.is_some());
+    }
+
+    #[test]
+    fn modules_spansh_names_differently_are_asked_for_by_every_name() {
+        // A recorded FSD page with one station's module renamed the way Spansh lists the
+        // standard fighter bay ("Fighter Hangar", symbol Int_FighterBay_Size5_Class1).
+        let mut page: Value = serde_json::from_str(&module_page("fsd_5a")).unwrap();
+        page["results"][0]["modules"] = serde_json::json!([{
+            "name": "Fighter Hangar", "class": 5, "rating": "D", "category": "internal",
+            "ed_symbol": "Int_FighterBay_Size5_Class1", "price": 575_200
+        }]);
+        let (c, rec) = client(Some(page.to_string()));
+        let hangar = Want::Module(ModuleWant::from_words("Vessel Hangar", "5d"));
+        let found = find(&c, &hangar, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert_eq!(found.hits.len(), 1);
+        assert_eq!((found.hits[0].name.as_str(), found.hits[0].price), ("Abraham Lincoln", Some(575_200)));
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(body["filters"]["modules"][0]["name"], serde_json::json!(["Vessel Hangar", "Fighter Hangar"]));
     }
 
     #[test]

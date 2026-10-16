@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Search kit follow-ups: shared settings path, safe migrations, origin Enter, live pad, age filter"
-updated_at: "2026-10-16T19:54:30.160316024+00:00"
+updated_at: "2026-10-16T21:53:36.382767525+00:00"
 ---
 
 ## Goal
@@ -44,3 +44,4 @@ Found in the independent review of feature/astromech-qz9u at 1d1921b (astromech-
 ## Notes
 
 - 2026-10-16 [note] Also (review of qz9u round 3, N1): two overlapping filter changes can clobber each other in SearchKit when the first save fails; use a per-change counter like the search's asked counter.
+- 2026-10-16 [note] R7 fixed on feature/astromech-m30a: galaxy_nearby and stations_nearby both re-resolve the pad from the current ship (Filters::for_ship) on every search. The shell isn't unit-testable on Linux; the rule itself is covered by filters::tests::pad_follows_the_ship_unless_the_commander_set_it. The filter box's 'Ship's (X)' label still shows the pad from when the lookup's filters loaded.

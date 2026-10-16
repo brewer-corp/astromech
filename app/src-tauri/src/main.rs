@@ -430,7 +430,8 @@ fn search_origin(
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
-/// or, without one, near the commander, with jumps at the current ship's range.
+/// or, without one, near the commander, with jumps at the current ship's range. The pad follows
+/// the current ship at search time unless the commander set one.
 #[tauri::command]
 async fn galaxy_nearby(
     app: tauri::AppHandle,
@@ -443,8 +444,9 @@ async fn galaxy_nearby(
         let g = galaxy(&app)?;
         let here = search_origin(&g, &st, origin.as_deref())?;
         let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-        let n =
-            g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+        let filters = filters.unwrap_or_default().for_ship(pad);
+        let n = g.nearby(&query, &here, range_of(current), 8, &filters).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await

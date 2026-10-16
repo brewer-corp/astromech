@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generate data/catalog/outfitting.json: every module a station can sell (by name, with each
-class, rating and mount it comes in) and every ship, for the outfitting and shipyard lookups.
+class, rating and mount it comes in, and the journal symbols of each) and every ship, for the outfitting and shipyard lookups.
 
 Usage: scripts/gen-outfitting.py <FDevIDs checkout>
 
@@ -33,8 +33,11 @@ def main(fdev):
         size = {"class": int(r["class"]), "rating": r["rating"]}
         if r["mount"] in MOUNTS and r["mount"]:  # one row has "mount" there
             size["mount"] = r["mount"]
-        if size not in by_name[name]:
-            by_name[name].append(size)
+        same = next((x for x in by_name[name] if {k: v for k, v in x.items() if k != "symbols"} == size), None)
+        if same is None:
+            same = dict(size, symbols=[])
+            by_name[name].append(same)
+        same["symbols"].append(r["symbol"].lower())
     modules = [
         {
             "name": n,
