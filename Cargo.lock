@@ -209,6 +209,7 @@ dependencies = [
  "astromech-materials",
  "astromech-status",
  "serde",
+ "tempfile",
 ]
 
 [[package]]

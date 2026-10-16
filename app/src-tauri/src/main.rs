@@ -41,13 +41,19 @@ fn endpoint_file() -> PathBuf {
     app_dir().join("core.json")
 }
 
-fn call(cmd: &str, args: Option<Value>) -> Result<Value, String> {
+fn call(cmd: &str) -> Result<Value, String> {
+    call_with(cmd, None, None)
+}
+
+/// One request to the core; `text` is the voice tester's phrase or command id, `args` a setup
+/// command's arguments (e.g. `set_ptt` with `{device, key}`).
+fn call_with(cmd: &str, text: Option<&str>, args: Option<Value>) -> Result<Value, String> {
     let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core isn't running".to_string())?;
     let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
     s.set_read_timeout(Some(Duration::from_secs(15))).map_err(|e| e.to_string())?;
-    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "args": args });
+    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "text": text, "args": args });
     writeln!(s, "{req}").map_err(|e| e.to_string())?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line).map_err(|e| e.to_string())?;
@@ -55,7 +61,7 @@ fn call(cmd: &str, args: Option<Value>) -> Result<Value, String> {
 }
 
 fn core_alive() -> bool {
-    call("status", None).map(|v| v["ok"] == true).unwrap_or(false)
+    call("status").map(|v| v["ok"] == true).unwrap_or(false)
 }
 
 /// Start `astromech-core --background` from next to this exe, without a console window.
@@ -209,9 +215,10 @@ fn journal_dir() -> PathBuf {
         .join("Elite Dangerous")
 }
 
-#[allow(clippy::type_complexity)]
-struct MaterialsCache(std::sync::Mutex<Option<((u64, u64, u64), Value)>>);
+struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
 
+/// Directory-listing metadata only. On Windows it can lag appends to the journal the game holds
+/// open, which delays the Engineering page (astromech-ztrb).
 fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
     let mut n = 0u64;
     let mut newest = 0u64;
@@ -237,23 +244,29 @@ fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
 }
 
 /// Engineering materials from the journal, laid out like the in-game traders.
+/// Off the main thread: the page polls every second and a recompute re-reads the session journal.
 #[tauri::command]
-fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, String> {
+async fn materials_inventory(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || materials_inventory_now(&app.state::<MaterialsCache>())).await
+}
+
+fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    let sig = journal_folder_sig(&dir);
+    // Not journal_folder_sig: on Windows that misses appends to the open journal (astromech-txzq).
+    let version = astromech_materials::journal_version(&dir);
     {
         let g = cache.0.lock().map_err(|_| "busy".to_string())?;
         if let Some((s, v)) = &*g {
-            if *s == sig {
+            if *s == version {
                 return Ok(v.clone());
             }
         }
     }
     let v = serde_json::to_value(astromech_materials::from_journal_dir(&dir)).map_err(|e| e.to_string())?;
-    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
+    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
     Ok(v)
 }
 
@@ -447,13 +460,14 @@ fn start_input(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn core_status() -> Option<Value> {
-    call("status", None).ok()
+async fn core_status() -> Option<Value> {
+    blocking(|| Ok(call("status").ok())).await.ok().flatten()
 }
 
-/// Blocking: calibration and the mic check record for a few seconds.
+/// Blocking: a voice tester live run waits for Elite to come to the front; calibration and the
+/// mic check record for a few seconds.
 #[tauri::command]
-async fn core_call(cmd: String, args: Option<Value>) -> Value {
+async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Value {
     // The window may only ask for these ("quit" and "open_window" stay with the tray).
     const ALLOWED: &[&str] = &[
         "status",
@@ -468,6 +482,10 @@ async fn core_call(cmd: String, args: Option<Value>) -> Value {
         "kill_switch",
         "download_models",
         "open_config",
+        "voice_test",
+        "voice_test_poll",
+        "voice_test_stop",
+        "voice_test_live",
         "find_elite",
         "set_ptt",
         "set_kill_switch",
@@ -484,7 +502,7 @@ async fn core_call(cmd: String, args: Option<Value>) -> Value {
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });
     }
-    blocking(move || Ok(call(&cmd, args).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))))
+    blocking(move || Ok(call_with(&cmd, text.as_deref(), args).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))))
         .await
         .unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
 }

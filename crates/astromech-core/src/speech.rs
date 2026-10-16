@@ -99,10 +99,12 @@ enum Job {
     Warm(String),
 }
 
-fn cache_name(text: &str, colour: astromech_voice::colour::Colour, sid: i32, speed: f32) -> String {
+/// Cache file for one rendered line. `model` names the model folder, so a model update
+/// (Kokoro v0.19 to v1.0, fp32 to int8) never plays audio rendered by the old one.
+fn cache_name(text: &str, colour: astromech_voice::colour::Colour, model: &str, speaker: &str, speed: f32) -> String {
     // FNV-1a: stable across runs (std's hasher is randomly seeded).
     let mut h: u64 = 0xcbf29ce484222325;
-    let key = format!("{text}\0{}\0{sid}\0{speed:.3}", colour.as_str());
+    let key = format!("{text}\0{}\0{model}\0{speaker}\0{speed:.3}", colour.as_str());
     for b in key.as_bytes() {
         h ^= *b as u64;
         h = h.wrapping_mul(0x100000001b3);
@@ -116,14 +118,18 @@ impl TtsSpeaker {
         models_dir: &Path,
         threads: i32,
         data_dir: &Path,
-        sid: i32,
+        speaker: &str,
         speed: f32,
         colour: astromech_voice::colour::Colour,
         prerender: Vec<String>,
     ) -> Result<Self> {
-        use astromech_voice::colour;
-        use astromech_voice::models;
+        use astromech_voice::{catalog, colour, models};
+        let sid = catalog::voice_sid(speaker).ok_or_else(|| anyhow!("unknown Kokoro voice {speaker:?}"))?;
+        let lang = catalog::voice_lang(speaker);
+        let speaker = speaker.to_string();
         let p = models::find_tts(models_dir)?;
+        let model =
+            p.model.parent().and_then(|d| d.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
         let cache = data_dir.join("tts-cache");
         std::fs::create_dir_all(&cache)?;
         let mut worker = Worker::spawn(exe, None, &data_dir.join("worker-tts.log"), "text-to-speech")?;
@@ -135,12 +141,18 @@ impl TtsSpeaker {
         let pre_tx = tx.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
             let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
-                let f = cache.join(cache_name(text, colour, sid, speed));
+                let f = cache.join(cache_name(text, colour, &model, &speaker, speed));
                 if f.is_file() {
                     return astromech_voice::wav::read_mono_f32(&f).ok().map(|(sr, s)| (sr, s, f));
                 }
                 let raw = f.with_extension("raw.wav");
-                let req = Request::Tts { text: text.into(), sid, speed, out_wav: raw.display().to_string() };
+                let req = Request::Tts {
+                    text: text.into(),
+                    sid,
+                    speed,
+                    out_wav: raw.display().to_string(),
+                    lang: lang.into(),
+                };
                 if let Err(e) = w.call_ok(&req, Duration::from_secs(30)) {
                     eprintln!("text-to-speech failed: {e:#}");
                     let _ = std::fs::remove_file(&raw);
@@ -245,13 +257,15 @@ mod tests {
     #[test]
     fn cache_names_are_stable() {
         use astromech_voice::colour::Colour;
-        assert_eq!(
-            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94),
-            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94)
-        );
+        let name =
+            |colour, model, speaker, speed| super::cache_name("Landing gear deployed.", colour, model, speaker, speed);
+        let v1 = "kokoro-multi-lang-v1_0";
+        assert_eq!(name(Colour::Cockpit, v1, "bf_emma", 0.94), name(Colour::Cockpit, v1, "bf_emma", 0.94));
+        assert_ne!(name(Colour::Cockpit, v1, "bf_emma", 0.94), name(Colour::Natural, v1, "bf_emma", 1.0));
+        assert_ne!(name(Colour::Cockpit, v1, "bf_emma", 0.94), name(Colour::Cockpit, v1, "bm_george", 0.94));
         assert_ne!(
-            super::cache_name("Landing gear deployed.", Colour::Cockpit, 0, 0.94),
-            super::cache_name("Landing gear deployed.", Colour::Natural, 0, 1.0)
+            name(Colour::Cockpit, v1, "bf_emma", 0.94),
+            name(Colour::Cockpit, "kokoro-int8-multi-lang-v1_0", "bf_emma", 0.94)
         );
         assert!(super::fixed_phrases().contains(&"Landing gear deployed.".to_string()));
     }

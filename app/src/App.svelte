@@ -1,15 +1,20 @@
 <script lang="ts">
   // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
   // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
-  // Activities. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>.
   import { groups, groupModules, findModule } from "./lib/modules";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
 
-  const DEFAULT = "activities";
-  const fromHash = () => location.hash.replace(/^#\//, "") || DEFAULT;
-  let route = $state(fromHash());
+  const DEFAULT = "controller";
+  // Pages that were merged into another keep working as links.
+  const MOVED: Record<string, string> = { activities: "controller" };
+  const resolve = (r: string) => MOVED[r] ?? (r || DEFAULT);
+  const fromHash = () => resolve(location.hash.replace(/^#\//, ""));
+  const start = fromHash();
+  let route = $state(start);
+  if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
   const current = $derived(findModule(route) ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
@@ -17,8 +22,8 @@
   const onboarding = $derived(route === "setup" || route.startsWith("setup/") || status?.onboarded === false);
 
   function go(id: string) {
-    route = id;
-    location.hash = `#/${id}`;
+    route = resolve(id);
+    location.hash = `#/${route}`;
   }
 
   $effect(() => {
@@ -33,7 +38,7 @@
   }
 
   $effect(() => {
-    onRoute((r) => go(r || DEFAULT));
+    onRoute((r) => go(r));
     const tick = async () => (status = await coreStatus());
     void tick();
     const t = setInterval(() => void tick(), 2000);

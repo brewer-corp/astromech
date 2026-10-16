@@ -30,6 +30,11 @@ impl Ledger {
                     self.add(it, it.count);
                 }
             }
+            JournalEvent::Extra(astromech_journal::ExtraEvent::MissionCompleted { materials_reward, .. }) => {
+                for it in materials_reward {
+                    self.add(it, it.count);
+                }
+            }
             _ => {}
         }
     }

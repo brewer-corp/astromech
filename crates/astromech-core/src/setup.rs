@@ -137,7 +137,7 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
     }
     let out = doc.to_string();
     // Never write a file the core can't read back.
-    let c = toml::from_str::<Config>(&out).context("the edited config doesn't parse")?;
+    let c = Config::parse(&out).context("the edited config doesn't parse")?;
     if let (Some(p), Some(k)) = (&c.controls.ptt, &c.controls.kill_switch) {
         if p.device.eq_ignore_ascii_case(&k.device) && p.key.eq_ignore_ascii_case(&k.key) {
             bail!("push-to-talk and the kill switch can't be the same button");

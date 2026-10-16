@@ -136,29 +136,162 @@ pub const STT_PARAKEET_V2_INT8: Asset = Asset {
     ..BLANK
 };
 
-pub const TTS_KOKORO_EN: Asset = Asset {
-    id: "tts-kokoro-en-v0_19",
+/// Kokoro v1.0 (sherpa-onnx `kokoro-multi-lang-v1_0`, checked 2026-10-16): 54 voices, 8 of them
+/// British. Extracted it takes about 401 MB (model.onnx 326 MB, voices.bin 28 MB, espeak-ng-data,
+/// English and Chinese lexicons).
+pub const TTS_KOKORO: Asset = Asset {
+    id: "tts-kokoro-multi-lang-v1_0",
     kind: Kind::Tts,
     tag: "tts-models",
-    file: "kokoro-en-v0_19.tar.bz2",
-    size: 319_625_534,
-    sha256: "912804855a04745fa77a30be545b3f9a5d15c4d66db00b88cbcd4921df605ac7",
+    file: "kokoro-multi-lang-v1_0.tar.bz2",
+    size: 349_906_910,
+    sha256: "c5f7e2d2caf082bc1d20fb70334a61d99d20b484500aad32e7cf84c128ea3298",
     dest: "models",
-    label: "Kokoro English v0.19 (fp32)",
+    label: "Kokoro v1.0 (fp32)",
     ..BLANK
 };
 
-pub const TTS_KOKORO_EN_INT8: Asset = Asset {
-    id: "tts-kokoro-int8-en-v0_19",
+/// The int8 build of [`TTS_KOKORO`]: same voices (identical voices.bin), about 190 MB extracted.
+pub const TTS_KOKORO_INT8: Asset = Asset {
+    id: "tts-kokoro-int8-multi-lang-v1_0",
     kind: Kind::Tts,
     tag: "tts-models",
-    file: "kokoro-int8-en-v0_19.tar.bz2",
-    size: 103_248_205,
-    sha256: "c9f0dd393615805b0bab050c340834d5e684e732aec91c0e860cd30e982c08bd",
+    file: "kokoro-int8-multi-lang-v1_0.tar.bz2",
+    size: 132_303_094,
+    sha256: "4c3052abaa60943a341f193888cf6abd68787dae6ab8ae5c925a706caa247e4e",
     dest: "models",
-    label: "Kokoro English v0.19 (int8, smaller)",
+    label: "Kokoro v1.0 (int8, smaller)",
     ..BLANK
 };
+
+/// Kokoro v0.19, replaced by v1.0. Listed only so an update can remove its folders.
+pub const RETIRED_TTS: [Asset; 2] = [
+    Asset {
+        id: "tts-kokoro-en-v0_19",
+        kind: Kind::Tts,
+        tag: "tts-models",
+        file: "kokoro-en-v0_19.tar.bz2",
+        size: 319_625_534,
+        sha256: "912804855a04745fa77a30be545b3f9a5d15c4d66db00b88cbcd4921df605ac7",
+        dest: "models",
+        label: "Kokoro English v0.19 (fp32)",
+        ..BLANK
+    },
+    Asset {
+        id: "tts-kokoro-int8-en-v0_19",
+        kind: Kind::Tts,
+        tag: "tts-models",
+        file: "kokoro-int8-en-v0_19.tar.bz2",
+        size: 103_248_205,
+        sha256: "c9f0dd393615805b0bab050c340834d5e684e732aec91c0e860cd30e982c08bd",
+        dest: "models",
+        label: "Kokoro English v0.19 (int8, smaller)",
+        ..BLANK
+    },
+];
+
+/// Kokoro v1.0 voices; the index is the speaker ID (`sid`). Read from the `speaker_names`
+/// metadata of both v1.0 model files. The prefix is language and sex: `a` American English,
+/// `b` British English, `e` Spanish, `f` French, `h` Hindi, `i` Italian, `j` Japanese,
+/// `p` Brazilian Portuguese, `z` Mandarin; then `f` female, `m` male.
+pub const KOKORO_VOICES: [&str; 54] = [
+    "af_alloy",
+    "af_aoede",
+    "af_bella",
+    "af_heart",
+    "af_jessica",
+    "af_kore",
+    "af_nicole",
+    "af_nova", // 0-7
+    "af_river",
+    "af_sarah",
+    "af_sky",
+    "am_adam",
+    "am_echo",
+    "am_eric",
+    "am_fenrir",
+    "am_liam", // 8-15
+    "am_michael",
+    "am_onyx",
+    "am_puck",
+    "am_santa",
+    "bf_alice",
+    "bf_emma",
+    "bf_isabella",
+    "bf_lily", // 16-23
+    "bm_daniel",
+    "bm_fable",
+    "bm_george",
+    "bm_lewis",
+    "ef_dora",
+    "em_alex",
+    "ff_siwis",
+    "hf_alpha", // 24-31
+    "hf_beta",
+    "hm_omega",
+    "hm_psi",
+    "if_sara",
+    "im_nicola",
+    "jf_alpha",
+    "jf_gongitsune",
+    "jf_nezumi", // 32-39
+    "jf_tebukuro",
+    "jm_kumo",
+    "pf_dora",
+    "pm_alex",
+    "pm_santa",
+    "zf_xiaobei",
+    "zf_xiaoni",
+    "zf_xiaoxiao", // 40-47
+    "zf_xiaoyi",
+    "zm_yunjian",
+    "zm_yunxi",
+    "zm_yunxia",
+    "zm_yunyang",
+    "em_santa", // 48-53
+];
+
+/// Kokoro v0.19 voices by speaker ID (its `speaker_names` metadata), for migrating old configs.
+/// `af` is a blend of `af_bella` and `af_sarah` and has no v1.0 equivalent.
+pub const KOKORO_V0_19_VOICES: [&str; 11] = [
+    "af",
+    "af_bella",
+    "af_nicole",
+    "af_sarah",
+    "af_sky",
+    "am_adam",
+    "am_michael",
+    "bf_emma",
+    "bf_isabella",
+    "bm_george",
+    "bm_lewis",
+];
+
+/// The voice used when none is set: `bf_emma`, the best-graded British voice in hexgrad's
+/// Kokoro-82M VOICES.md (overall B-). The voice is a Settings choice; this is only the default.
+pub const DEFAULT_VOICE: &str = "bf_emma";
+
+/// Speaker ID of a v1.0 voice.
+pub fn voice_sid(name: &str) -> Option<i32> {
+    KOKORO_VOICES.iter().position(|v| *v == name).map(|i| i as i32)
+}
+
+/// The espeak-ng voice the text is phonemised with: British voices get British English (`en`,
+/// espeak-ng's "English (Great Britain)"; it has no voice named `en-gb`), every other voice
+/// American English (astromech only speaks English).
+pub fn voice_lang(name: &str) -> &'static str {
+    if name.starts_with('b') {
+        "en"
+    } else {
+        "en-us"
+    }
+}
+
+/// The v1.0 voice for a v0.19 speaker ID, if v1.0 has the same voice.
+pub fn voice_from_v0_19(sid: i32) -> Option<&'static str> {
+    let name = *KOKORO_V0_19_VOICES.get(usize::try_from(sid).ok()?)?;
+    KOKORO_VOICES.iter().copied().find(|v| *v == name)
+}
 
 /// Shared runtime the worker needs at run time: none on Windows (sherpa-onnx and
 /// onnxruntime are linked into s9-voice-worker.exe), the shared libraries on Linux.
@@ -184,9 +317,16 @@ mod tests {
 
     #[test]
     fn urls_and_digests() {
-        for a in
-            [RUNTIME_CPU_LINUX, ORT_DIRECTML_WIN, DIRECTML_WIN, STT_PARAKEET_V2_INT8, TTS_KOKORO_EN, TTS_KOKORO_EN_INT8]
-        {
+        for a in [
+            RUNTIME_CPU_LINUX,
+            ORT_DIRECTML_WIN,
+            DIRECTML_WIN,
+            STT_PARAKEET_V2_INT8,
+            TTS_KOKORO,
+            TTS_KOKORO_INT8,
+            RETIRED_TTS[0],
+            RETIRED_TTS[1],
+        ] {
             assert!(a.url().starts_with("https://"), "{}", a.id);
             assert_eq!(a.sha256.len(), 64, "{}", a.id);
             assert!(a.sha256.chars().all(|c| c.is_ascii_hexdigit()));
@@ -200,6 +340,38 @@ mod tests {
         assert!(ORT_DIRECTML_WIN.url().starts_with("https://api.nuget.org/"));
         assert!(RUNTIME_CPU_LINUX.skip_member("x/bin/sherpa-onnx"));
         assert!(!RUNTIME_CPU_LINUX.skip_member("x/lib/libonnxruntime.so"));
-        assert!(!TTS_KOKORO_EN.skip_member("kokoro-en-v0_19/espeak-ng-data/bin/x"));
+        assert!(!TTS_KOKORO.skip_member("kokoro-multi-lang-v1_0/espeak-ng-data/bin/x"));
+    }
+
+    #[test]
+    fn kokoro_v1_assets_and_voices() {
+        assert_eq!(
+            TTS_KOKORO.url(),
+            "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-multi-lang-v1_0.tar.bz2"
+        );
+        assert_eq!(TTS_KOKORO.stem(), "kokoro-multi-lang-v1_0");
+        assert_eq!(TTS_KOKORO_INT8.stem(), "kokoro-int8-multi-lang-v1_0");
+        assert_eq!(RETIRED_TTS.map(|a| a.stem()), ["kokoro-en-v0_19", "kokoro-int8-en-v0_19"]);
+        // voices.bin holds 54 style tables of 510 x 256 f32 (28,200,960 bytes).
+        assert_eq!(KOKORO_VOICES.len() * 510 * 256 * 4, 28_200_960);
+        let british: Vec<&str> = KOKORO_VOICES.iter().copied().filter(|v| v.starts_with('b')).collect();
+        assert_eq!(
+            british,
+            ["bf_alice", "bf_emma", "bf_isabella", "bf_lily", "bm_daniel", "bm_fable", "bm_george", "bm_lewis"]
+        );
+        assert_eq!(voice_sid("af_alloy"), Some(0));
+        assert_eq!(voice_sid("bf_emma"), Some(21));
+        assert_eq!(voice_sid("em_santa"), Some(53));
+        assert_eq!(voice_sid("af"), None);
+        assert!(voice_sid(DEFAULT_VOICE).is_some());
+        assert_eq!((voice_lang("bm_george"), voice_lang("af_heart")), ("en", "en-us"));
+        assert_eq!(voice_from_v0_19(0), None, "af is a blend v1.0 doesn't have");
+        assert_eq!(voice_from_v0_19(7), Some("bf_emma"));
+        assert_eq!(voice_from_v0_19(10), Some("bm_lewis"));
+        assert_eq!(voice_from_v0_19(11), None);
+        assert_eq!(voice_from_v0_19(-1), None);
+        for sid in 1..11 {
+            assert!(voice_from_v0_19(sid).is_some(), "v0.19 speaker {sid} is in v1.0");
+        }
     }
 }

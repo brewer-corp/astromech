@@ -1,6 +1,7 @@
 <script lang="ts">
   // Nearest systems for one lookup (Famine, an HGE pool), with jumps at the current ship's range.
   import { ago, jumps, nearby, type Nearby } from "../galaxy";
+  import SystemChip from "./SystemChip.svelte";
 
   let { query }: { query: string } = $props();
   let res = $state<Nearby | null>(null);
@@ -29,7 +30,7 @@
 </script>
 
 <div class="near">
-  <h4>Nearest{res ? ` to ${res.here.system}` : ""}</h4>
+  <h4>Nearest{#if res}&nbsp;to&nbsp;<SystemChip name={res.here.system} />{/if}</h4>
   {#if busy && !res}
     <p class="lo">Looking up live faction states…</p>
   {:else if err}
@@ -39,7 +40,7 @@
     <ul>
       {#each res.hits as h (h.id64)}
         <li>
-          <span class="sys">{h.name}</span>
+          <span class="sys"><SystemChip name={h.name} /></span>
           <span class="q">{jumps(h.jumps, h.exact)} · {h.ly.toFixed(1)} ly</span>
           <span class="lo">{states(h)} · reported {ago(h.updated_at)}</span>
         </li>

@@ -77,6 +77,10 @@ export type CoreCmd =
   | "kill_switch"
   | "download_models"
   | "open_config"
+  | "voice_test"
+  | "voice_test_poll"
+  | "voice_test_stop"
+  | "voice_test_live"
   // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
   | "find_elite"
   | "set_ptt"
@@ -94,9 +98,15 @@ export type CoreCmd =
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };
 
-export async function coreCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
+/**
+ * A string is the voice tester's phrase ("voice_test") or command id ("voice_test_live"); an
+ * object is a setup command's arguments (e.g. `set_ptt` with `{device, key}`).
+ */
+export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
+  const text = typeof arg === "string" ? arg : undefined;
+  const args = typeof arg === "string" ? null : (arg ?? null);
   if (!inTauri) return fakeScenario() ? fakeCall(cmd, args) : { ok: false, error: "not running inside the app" };
-  return await invoke<Reply>("core_call", { cmd, args: args ?? null });
+  return await invoke<Reply>("core_call", { cmd, text, args });
 }
 
 /** A button from the config as the status shows it ("231D3201 Joy_4"). */

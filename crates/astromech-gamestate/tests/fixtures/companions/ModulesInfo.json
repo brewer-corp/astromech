@@ -1,0 +1,1 @@
+{ "timestamp":"2026-10-10T20:00:08Z", "event":"ModuleInfo", "Modules":[ { "Slot":"FrameShiftDrive", "Item":"int_hyperdrive_size4_class5", "Power":0.72, "Priority":0 }, { "Slot":"PowerPlant", "Item":"int_powerplant_size4_class5", "Priority":0 } ] }
