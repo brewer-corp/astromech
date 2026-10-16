@@ -365,7 +365,11 @@ impl History {
         let mut todo = vec![];
         let mut previous: Option<i64> = None;
         for path in astromech_journal::journal_logs(dir) {
-            let len = std::fs::metadata(&path).map_err(|source| HistoryError::Io { path: path.clone(), source })?.len();
+            // Through an open handle: on Windows the folder listing lags appends to an open file.
+            let len = std::fs::File::open(&path)
+                .and_then(|f| f.metadata())
+                .map_err(|source| HistoryError::Io { path: path.clone(), source })?
+                .len();
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
             let (file_id, start, state) = self.file_state(&name)?;
             if len < start {

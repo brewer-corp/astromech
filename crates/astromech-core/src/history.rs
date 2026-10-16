@@ -2,11 +2,15 @@
 //! current while the core runs (ARCHITECTURE.md §18.5).
 //!
 //! One background thread owns the history database. It imports at startup (the first run is
-//! the backfill of every journal) and again whenever the journal folder changes. Changes are
-//! coalesced: after a notification it waits [`SETTLE`] and takes every notification that
-//! arrived meanwhile as one import, which reads only what is new. Any change in the folder
-//! counts, not only `Journal.*.log`: Windows may not report appends to a file the game holds
-//! open, but `Status.json` changes all the time while the game runs.
+//! the backfill of every journal) and again whenever the journals change, which reads only
+//! what is new. Two things start an import:
+//! - a change notification for the journal folder (any file: `Status.json` changes all the time
+//!   while the game runs). After one it waits [`SETTLE`] and takes every notification that
+//!   arrived meanwhile as one import;
+//! - every [`RECHECK`] without a notification, the journals' [`JournalVersion`] (how many, and
+//!   the newest one's length read through an open handle) differs from the last import's.
+//!   Windows doesn't report appends to a file the game holds open (NTFS updates the directory
+//!   entry lazily; astromech-txzq), so notifications alone would stop following live play.
 //!
 //! The game-state pipeline never waits for it: separate thread, separate database file, and
 //! nothing here holds a lock the pipeline takes. Progress is in [`status`] (the control API's
@@ -16,7 +20,7 @@ use astromech_history::{History, ImportOptions};
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
 use std::path::PathBuf;
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{channel, Receiver, RecvTimeoutError, Sender};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
 
@@ -24,6 +28,40 @@ use std::time::Duration;
 pub const DB_FILE: &str = "history.sqlite";
 /// How long to gather folder notifications into one import.
 pub const SETTLE: Duration = Duration::from_secs(2);
+/// How often to look for journal growth that no notification reported.
+pub const RECHECK: Duration = Duration::from_secs(2);
+
+/// When the follower imports. [`Default`] is what the core uses.
+#[derive(Debug, Clone, Copy)]
+pub struct Timing {
+    pub settle: Duration,
+    pub recheck: Duration,
+    /// Watch the folder for change notifications (off: only the recheck).
+    pub notify: bool,
+}
+
+impl Default for Timing {
+    fn default() -> Self {
+        Self { settle: SETTLE, recheck: RECHECK, notify: true }
+    }
+}
+
+/// How many journals there are and how long the newest is, read through an open handle: on
+/// Windows the folder listing can lag appends to the file the game holds open.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct JournalVersion {
+    files: usize,
+    newest: Option<PathBuf>,
+    len: u64,
+}
+
+pub fn journal_version(dir: &std::path::Path) -> JournalVersion {
+    let logs = astromech_journal::journal_logs(dir);
+    let newest = logs.last().cloned();
+    let len =
+        newest.as_deref().and_then(|p| std::fs::File::open(p).and_then(|f| f.metadata()).ok()).map_or(0, |m| m.len());
+    JournalVersion { files: logs.len(), newest, len }
+}
 
 /// What the history thread is doing, for the app.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
@@ -53,23 +91,29 @@ pub struct Follower {
 }
 
 impl Follower {
-    /// Start importing `dir` into `db` now and on every change in `dir`. Returns at once.
-    pub fn start(dir: PathBuf, db: PathBuf, settle: Duration, log: Log) -> Follower {
+    /// Start importing `dir` into `db` now and whenever its journals change. Returns at once.
+    pub fn start(dir: PathBuf, db: PathBuf, timing: Timing, log: Log) -> Follower {
         let progress = Arc::new(Mutex::new(Progress::default()));
         let (poke, rx) = channel();
         let tx = poke.clone();
-        let watcher = notify::recommended_watcher(move |e: notify::Result<notify::Event>| {
-            if e.is_ok() {
-                let _ = tx.send(());
-            }
-        })
-        .and_then(|mut w| w.watch(&dir, RecursiveMode::NonRecursive).map(|()| w))
-        .map_err(|e| log(&format!("history: not watching {}: {e}; imports at startup only", dir.display())))
-        .ok();
+        let watcher = if timing.notify {
+            notify::recommended_watcher(move |e: notify::Result<notify::Event>| {
+                if e.is_ok() {
+                    let _ = tx.send(());
+                }
+            })
+            .and_then(|mut w| w.watch(&dir, RecursiveMode::NonRecursive).map(|()| w))
+            .map_err(|e| {
+                log(&format!("history: not watching {}: {e}; checking for new lines on a timer", dir.display()))
+            })
+            .ok()
+        } else {
+            None
+        };
         let p = progress.clone();
         let l = log.clone();
         if let Err(e) =
-            std::thread::Builder::new().name("history".into()).spawn(move || run(&dir, &db, settle, &p, &rx, &l))
+            std::thread::Builder::new().name("history".into()).spawn(move || run(&dir, &db, timing, &p, &rx, &l))
         {
             log(&format!("history: can't start its thread: {e}"));
         }
@@ -86,14 +130,7 @@ impl Follower {
     }
 }
 
-fn run(
-    dir: &std::path::Path,
-    db: &std::path::Path,
-    settle: Duration,
-    p: &Mutex<Progress>,
-    rx: &Receiver<()>,
-    log: &Log,
-) {
+fn run(dir: &std::path::Path, db: &std::path::Path, timing: Timing, p: &Mutex<Progress>, rx: &Receiver<()>, log: &Log) {
     let mut history: Option<History> = None;
     let mut first = true;
     loop {
@@ -110,6 +147,8 @@ fn run(
                 }
             }
         }
+        // Taken before the import: lines written while it runs make the next recheck import.
+        let mut version = journal_version(dir);
         if let Some(h) = history.as_mut() {
             let r = h.import_with(dir, &ImportOptions::default(), |r| {
                 let mut g = p.lock().unwrap();
@@ -142,12 +181,25 @@ fn run(
                 }
             }
         }
-        // Wait for the folder to change; gather what else changes meanwhile into one import.
-        if rx.recv().is_err() {
-            return;
+        // Wait for a notification (then gather what else arrives into one import) or for the
+        // journals to grow without one.
+        loop {
+            match rx.recv_timeout(timing.recheck) {
+                Ok(()) => {
+                    std::thread::sleep(timing.settle);
+                    while rx.try_recv().is_ok() {}
+                    break;
+                }
+                Err(RecvTimeoutError::Timeout) => {
+                    let now = journal_version(dir);
+                    if now != version {
+                        break;
+                    }
+                    version = now;
+                }
+                Err(RecvTimeoutError::Disconnected) => return,
+            }
         }
-        std::thread::sleep(settle);
-        while rx.try_recv().is_ok() {}
     }
 }
 
@@ -156,7 +208,7 @@ static CURRENT: OnceLock<Follower> = OnceLock::new();
 /// Start the core's one history follower (at core startup).
 pub fn start(dir: PathBuf, data_dir: PathBuf, log: Log) {
     let _ = std::fs::create_dir_all(&data_dir);
-    let _ = CURRENT.set(Follower::start(dir, data_dir.join(DB_FILE), SETTLE, log));
+    let _ = CURRENT.set(Follower::start(dir, data_dir.join(DB_FILE), Timing::default(), log));
 }
 
 /// The core's history progress, once [`start`] ran.
@@ -196,12 +248,43 @@ mod tests {
         Arc::new(|_| {})
     }
 
+    fn fast(notify: bool) -> Timing {
+        Timing { settle: Duration::from_millis(50), recheck: Duration::from_millis(50), notify }
+    }
+
+    /// The Windows case (astromech-txzq): the game appends to the journal it holds open and no
+    /// change notification arrives. With notifications off, the recheck still imports the line.
+    #[test]
+    fn follows_appends_without_notifications() {
+        let j = journal_dir();
+        let data = tempfile::tempdir().unwrap();
+        let db = data.path().join(DB_FILE);
+        let f = Follower::start(j.path().to_path_buf(), db.clone(), fast(false), quiet());
+        wait_for("the startup import", || f.progress().ready);
+        let newest = astromech_journal::newest_journal(j.path()).unwrap();
+        let mut w = std::fs::OpenOptions::new().append(true).open(newest).unwrap();
+        w.write_all(
+            b"{ \"timestamp\":\"2026-09-03T10:40:00Z\", \"event\":\"FSDJump\", \"StarSystem\":\"Ross 128\", \"SystemAddress\":3, \"JumpDist\":9.1 }\r\n",
+        )
+        .unwrap();
+        w.flush().unwrap();
+        let reader = History::open(&db).unwrap();
+        wait_for("the appended jump, with the writer still open", || {
+            reader.visits("F0000001").unwrap().iter().any(|v| v.star_system == "Ross 128")
+        });
+        // A new journal file is picked up the same way.
+        let next = j.path().join("Journal.2026-09-04T100000.01.log");
+        std::fs::write(&next, "{ \"timestamp\":\"2026-09-04T10:00:00Z\", \"event\":\"Fileheader\", \"part\":1, \"gameversion\":\"4.1.0.100\" }\r\n").unwrap();
+        wait_for("the new file", || f.progress().events == 54);
+        drop(w);
+    }
+
     #[test]
     fn imports_at_startup_then_follows_new_lines() {
         let j = journal_dir();
         let data = tempfile::tempdir().unwrap();
         let db = data.path().join(DB_FILE);
-        let f = Follower::start(j.path().to_path_buf(), db.clone(), Duration::from_millis(50), quiet());
+        let f = Follower::start(j.path().to_path_buf(), db.clone(), fast(true), quiet());
         wait_for("the startup import", || f.progress().ready);
         let p = f.progress();
         assert_eq!((p.events, p.error.clone(), p.running), (52, None, false));
@@ -233,7 +316,7 @@ mod tests {
         let lock = rusqlite_lock(&db);
 
         let t = Instant::now();
-        let f = Follower::start(j.path().to_path_buf(), db.clone(), Duration::from_millis(50), quiet());
+        let f = Follower::start(j.path().to_path_buf(), db.clone(), fast(true), quiet());
         assert!(t.elapsed() < Duration::from_millis(500), "Follower::start took {:?}", t.elapsed());
         wait_for("the import to start (and wait on the lock)", || f.progress().running);
         let t = Instant::now();
