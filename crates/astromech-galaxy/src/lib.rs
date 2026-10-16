@@ -246,31 +246,45 @@ impl Galaxy {
         let q = query(query_id).ok_or_else(|| anyhow::anyhow!("unknown lookup {query_id}"))?;
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let key = format!(
-            "spansh:{}:{:.0}:{:.0}:{:.0}",
-            q.id,
-            (here.pos[0] / 10.0).round() + 0.0,
-            (here.pos[1] / 10.0).round() + 0.0,
-            (here.pos[2] / 10.0).round() + 0.0
-        );
         let now = now_s();
-        let cached = self.store().cache_get(&key, now, STATE_TTL_S)?;
-        let (fetched, body) = match cached {
-            Some(c) => c,
-            None => {
-                let b = remote::spansh_search(&self.remote, q, here.pos, 50)?;
-                remote::parse_search(&b)?;
-                self.store().cache_put(&key, now, &b)?;
-                (now, b)
-            }
-        };
+        let (fetched, body) = self.search_page(q, here, None, now)?;
         let mut hits = remote::parse_search(&body)?;
+        if q.by_population {
+            // Spansh's nearest matches can all be small (in the bubble the nearest 50 lie within
+            // 20 ly): add the nearest systems over a billion people, then rank both together.
+            let (_, big) = self.search_page(q, here, Some(HGE_POPULATION), now)?;
+            for h in remote::parse_search(&big)? {
+                if !hits.iter().any(|x| x.id64 == h.id64) {
+                    hits.push(h);
+                }
+            }
+        }
         let visited = self.refresh_from_visits(&mut hits);
         let hits = hits
             .into_iter()
             .filter(|h| filters.keeps(&Facts { updated_at: h.updated_at.as_deref(), ..Facts::default() }, now))
             .collect();
         Ok(self.rank(q, here, range, limit, hits, iso(fetched), &visited))
+    }
+
+    /// One Spansh systems search for `q` near `here` (cached for [`STATE_TTL_S`] per 10 ly cell):
+    /// `(fetched, body)`.
+    fn search_page(&self, q: &Query, here: &Here, min_population: Option<i64>, now: i64) -> Result<(i64, String)> {
+        let key = format!(
+            "spansh:{}{}:{:.0}:{:.0}:{:.0}",
+            q.id,
+            if min_population.is_some() { ":pop" } else { "" },
+            (here.pos[0] / 10.0).round() + 0.0,
+            (here.pos[1] / 10.0).round() + 0.0,
+            (here.pos[2] / 10.0).round() + 0.0
+        );
+        if let Some(c) = self.store().cache_get(&key, now, STATE_TTL_S)? {
+            return Ok(c);
+        }
+        let b = remote::spansh_search(&self.remote, q, here.pos, 50, min_population)?;
+        remote::parse_search(&b)?;
+        self.store().cache_put(&key, now, &b)?;
+        Ok((now, b))
     }
 
     /// The nearest raw-material sites of `kind_id` ([`SITE_KINDS`]) to `here`, matching
@@ -547,6 +561,7 @@ mod tests {
         let s = Store::in_memory().unwrap();
         s.add_coverage(Sphere { center: [0.0; 3], radius: 1000.0 }, "test", "t").unwrap();
         s.cache_put("spansh:fed_composites:0:0:0", now_s(), &body).unwrap();
+        s.cache_put("spansh:fed_composites:pop:0:0:0", now_s(), EMPTY_PAGE).unwrap();
         s.cache_put("spansh:famine:0:0:0", now_s(), &body.replace("\"None\"", "\"Famine\"")).unwrap();
         let g = Galaxy::with_store(s);
         let here = Here { system: "Origin".into(), id64: None, pos: [0.0; 3] };
@@ -559,6 +574,78 @@ mod tests {
         let f = g.nearby("famine", &here, 20.0, 3, &Filters::default()).unwrap();
         let ranked: Vec<(&str, Option<u32>)> = f.hits.iter().map(|h| (h.name.as_str(), h.score)).collect();
         assert_eq!(ranked, [("Small Fed", None), ("Big Fed", None), ("Far Giant", None)]);
+    }
+
+    const EMPTY_PAGE: &str = r#"{"count": 0, "from": 0, "results": []}"#;
+
+    /// Answers the plain and the population-filtered Spansh systems search separately.
+    struct TwoPages {
+        nearest: String,
+        big: String,
+        log: Mutex<Vec<serde_json::Value>>,
+    }
+
+    impl Transport for TwoPages {
+        fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
+            let astromech_data::Body::Json(b) = &req.body else {
+                return Ok(Response { status: 200, body: "[]".into() }); // EDSM fill-in
+            };
+            assert!(url.ends_with("/api/systems/search"), "{url}");
+            self.log.lock().unwrap().push(b.clone());
+            let body = if b["filters"].get("population").is_some() { &self.big } else { &self.nearest };
+            Ok(Response { status: 200, body: body.clone() })
+        }
+    }
+
+    #[test]
+    fn hge_lookups_also_ask_for_the_nearest_billion_people_systems() {
+        let sys = |id: i64, name: &str, x: f64, pop: i64| {
+            serde_json::json!({
+                "id64": id, "name": name, "x": x, "y": 0.0, "z": 0.0, "population": pop,
+                "updated_at": "2026-10-16T10:00:00Z",
+                "minor_faction_presences": [{ "name": format!("{name} Party"), "allegiance": "Federation",
+                    "state": "None", "active_states": [], "influence": 0.5 }],
+            })
+        };
+        let page =
+            |r: &[serde_json::Value]| serde_json::json!({ "count": r.len(), "from": 0, "results": r }).to_string();
+        let galaxy = |nearest: &[serde_json::Value], big: &[serde_json::Value]| {
+            let rec = Arc::new(TwoPages { nearest: page(nearest), big: page(big), log: Mutex::new(vec![]) });
+            let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+            let s = Store::in_memory().unwrap();
+            s.add_coverage(Sphere { center: [0.0; 3], radius: 1000.0 }, "test", "t").unwrap();
+            (Galaxy::with_remote(s, client), rec)
+        };
+        let here = Here { system: "Origin".into(), id64: None, pos: [0.0; 3] };
+        // the nearest 50 matching systems are all small, as in the bubble; the population page
+        // has a big one 60 ly out
+        let small: Vec<_> =
+            (0..50).map(|i| sys(100 + i, &format!("Small {i}"), 2.0 + i as f64 * 0.3, 5_000_000)).collect();
+        let (g, rec) = galaxy(&small, &[sys(8, "Big Fed", 60.0, 3_000_000_000)]);
+        let n = g.nearby("fed_composites", &here, 20.0, 3, &Filters::default()).unwrap();
+        let names: Vec<&str> = n.hits.iter().map(|h| h.name.as_str()).collect();
+        assert_eq!(names, ["Big Fed", "Small 0", "Small 1"], "the farther billion-people system wins");
+        {
+            let log = rec.log.lock().unwrap();
+            assert_eq!(log.len(), 2, "the nearest page and the population page");
+            assert!(log[0]["filters"].get("population").is_none());
+            assert_eq!(log[1]["filters"]["population"]["value"][0], "1000000000");
+            assert_eq!(log[1]["filters"]["population"]["comparison"], "<=>");
+        }
+        // famine needs no population page
+        g.nearby("famine", &here, 20.0, 3, &Filters::default()).unwrap();
+        assert_eq!(rec.log.lock().unwrap().len(), 3);
+        assert!(rec.log.lock().unwrap()[2]["filters"].get("population").is_none());
+
+        // a big system in both pages is listed once
+        let mut near = small.clone();
+        near[49] = sys(7, "Near Billion", 16.7, 1_200_000_000);
+        let (g, _) =
+            galaxy(&near, &[sys(7, "Near Billion", 16.7, 1_200_000_000), sys(8, "Big Fed", 60.0, 3_000_000_000)]);
+        let n = g.nearby("fed_composites", &here, 20.0, 5, &Filters::default()).unwrap();
+        let names: Vec<&str> = n.hits.iter().map(|h| h.name.as_str()).collect();
+        assert_eq!(names[..2], ["Near Billion", "Big Fed"]);
+        assert_eq!(names.iter().filter(|n| **n == "Near Billion").count(), 1, "deduplicated");
     }
 
     #[test]
@@ -606,6 +693,7 @@ mod tests {
         // and the boom shows up for the proto lookup
         let s2 = g.store();
         s2.cache_put("spansh:proto:0:0:0", now_s(), include_str!("../tests/fixtures/spansh-famine.json")).unwrap();
+        s2.cache_put("spansh:proto:pop:0:0:0", now_s(), EMPTY_PAGE).unwrap();
         drop(s2);
         let proto = g.nearby("proto", &here, 20.0, 5, &Filters::default()).unwrap();
         let tau = proto.hits.iter().find(|h| h.name == "Tau Ceti").unwrap();
