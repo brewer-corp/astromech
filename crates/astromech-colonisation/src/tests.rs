@@ -187,8 +187,59 @@ mod shopping_tests {
     }
 
     #[test]
-    fn names_match_between_depot_and_cargo() {
-        assert_eq!(commodity_id("$CeramicComposites_name;"), "ceramiccomposites");
-        assert_eq!(commodity_id("ceramiccomposites"), "ceramiccomposites");
+    fn mid_session_events_move_the_hold() {
+        let h = hold(&[
+            CARGO,
+            r#"{"timestamp":"t","event":"ColonisationContribution","MarketID":1,"Contributions":[{"Name":"$steel_name;","Amount":120}]}"#,
+            r#"{"timestamp":"t","event":"MarketBuy","MarketID":2,"Type":"steel","Count":50,"BuyPrice":10,"TotalCost":500}"#,
+        ]);
+        assert_eq!(h.cargo.get("steel"), Some(&50));
+        assert_eq!(h.cargo.get("gold"), Some(&10));
+        // Delivered cargo is not subtracted twice.
+        let a = replayed().project(MARKET_A).unwrap().clone();
+        let l = shopping_list(&a, &h);
+        assert_eq!((l.lines[0].in_cargo, l.lines[0].to_buy), (50, 250));
+
+        let h = hold(&[
+            CARGO,
+            r#"{"timestamp":"t","event":"MarketSell","MarketID":2,"Type":"steel","Count":20,"SellPrice":10,"TotalSale":200}"#,
+            r#"{"timestamp":"t","event":"CollectCargo","Type":"steel","Stolen":false}"#,
+            r#"{"timestamp":"t","event":"EjectCargo","Type":"steel","Count":11,"Abandoned":false}"#,
+            r#"{"timestamp":"t","event":"EjectCargo","Type":"steel","Count":50,"Abandoned":false,"MissionID":9}"#,
+            r#"{"timestamp":"t","event":"MarketSell","Type":"gold","Count":99}"#,
+        ]);
+        assert_eq!(h.cargo.get("steel"), Some(&90));
+        assert_eq!(h.cargo.get("gold"), Some(&0));
+    }
+
+    #[test]
+    fn cargo_without_inventory_keeps_the_hold() {
+        let count_only = r#"{"timestamp":"t","event":"Cargo","Vessel":"Ship","Count":130}"#;
+        assert_eq!(hold(&[CARGO, count_only]).cargo.get("steel"), Some(&120));
+        // An explicitly empty hold does clear it.
+        let empty = r#"{"timestamp":"t","event":"Cargo","Vessel":"Ship","Count":0,"Inventory":[]}"#;
+        assert!(hold(&[CARGO, empty]).cargo.is_empty());
+    }
+
+    #[test]
+    fn mission_cargo_is_skipped_and_stolen_is_counted() {
+        let c = r#"{"timestamp":"t","event":"Cargo","Vessel":"Ship","Count":60,"Inventory":[{"Name":"steel","Count":20,"MissionID":5},{"Name":"steel","Count":30,"Stolen":1},{"Name":"steel","Count":10}]}"#;
+        assert_eq!(hold(&[c]).cargo.get("steel"), Some(&40));
+    }
+
+    #[test]
+    fn commodity_ids_from_real_names() {
+        for (depot, cargo) in [
+            ("$CeramicComposites_name;", "ceramiccomposites"),
+            ("$InsulatingMembrane_name;", "insulatingmembrane"),
+            ("$LiquidOxygen_name;", "liquidoxygen"),
+            ("$Pesticides_name;", "pesticides"),
+            ("$Semiconductors_name;", "semiconductors"),
+            ("$Superconductors_name;", "superconductors"),
+            ("$CMMComposite_name;", "cmmcomposite"),
+        ] {
+            assert_eq!(commodity_id(depot), cargo);
+            assert_eq!(commodity_id(cargo), cargo);
+        }
     }
 }

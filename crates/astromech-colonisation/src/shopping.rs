@@ -22,16 +22,50 @@ impl Hold {
         match &line.event {
             JournalEvent::Loadout { cargo_capacity: Some(c), .. } => self.capacity = Some(*c),
             // A `Cargo` event for the SRV lists its own hold, not the ship's.
-            JournalEvent::Extra(ExtraEvent::Cargo { vessel, inventory, .. })
+            JournalEvent::Extra(ExtraEvent::Cargo { vessel, count, inventory })
                 if vessel.as_deref().is_none_or(|v| v.eq_ignore_ascii_case("ship")) =>
             {
+                // Count > 0 with no inventory means the list was not given: keep what we had.
+                if inventory.is_empty() && count.is_none_or(|c| c > 0) {
+                    return;
+                }
                 self.cargo.clear();
                 for i in inventory {
-                    *self.cargo.entry(commodity_id(&i.name)).or_insert(0) += i.count;
+                    // Mission cargo is not deliverable to a depot. Stolen goods are counted:
+                    // depots are assumed to accept them (unverified).
+                    if i.mission_id.is_none() {
+                        self.add(&i.name, i.count);
+                    }
+                }
+            }
+            JournalEvent::Extra(ExtraEvent::MarketTrade(m)) => {
+                self.add(&m.commodity, if m.sell { -m.count } else { m.count });
+            }
+            JournalEvent::Extra(ExtraEvent::ColonisationContribution { contributions, .. }) => {
+                for (name, amount) in contributions {
+                    self.add(name, -amount);
+                }
+            }
+            // Not typed in the journal crate: `CollectCargo` is one unit per event, `EjectCargo`
+            // carries `Count`. Either may be mission cargo (`MissionID`), which is not tracked.
+            JournalEvent::Other { event, raw } if raw.get("MissionID").is_none() => {
+                let name = raw.get("Type").and_then(|v| v.as_str()).unwrap_or_default();
+                match event.as_str() {
+                    "CollectCargo" => self.add(name, 1),
+                    "EjectCargo" => self.add(name, -raw.get("Count").and_then(|v| v.as_i64()).unwrap_or(1)),
+                    _ => {}
                 }
             }
             _ => {}
         }
+    }
+
+    fn add(&mut self, name: &str, delta: i64) {
+        if name.is_empty() {
+            return;
+        }
+        let n = self.cargo.entry(commodity_id(name)).or_insert(0);
+        *n = (*n + delta).max(0);
     }
 }
 
