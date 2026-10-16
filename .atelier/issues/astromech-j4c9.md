@@ -16,11 +16,21 @@ relationships:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-f1us"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-h9ch"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-ha4m"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T22:14:37.971294675+00:00"
+status: "done"
 title: "Odyssey micro-resources"
-updated_at: "2026-10-16T21:15:43.982066834+00:00"
+updated_at: "2026-10-16T22:14:37.971294675+00:00"
 ---
 
 ## Goal
@@ -30,3 +40,7 @@ updated_at: "2026-10-16T21:15:43.982066834+00:00"
 ## Done when
 
 A ShipLocker fixture produces the inventory, and a chosen blueprint shows what's missing.
+
+## Close Reason
+
+Done when met: the ShipLocker fixture gives the inventory and a chosen blueprint shows what is missing (astromech-tli9, astromech-g8vw, astromech-8c2o). Also built: Backpack, suit/weapon upgrades and mods, shopping list, on-foot engineers with referral chain, bartender values. Follow-ups: astromech-f1us (owned gear), astromech-ha4m (bartender trade plan), astromech-h9ch (needs-human data check). Independent review outstanding.
