@@ -224,7 +224,10 @@ impl Core {
         if !self.starting.load(Ordering::SeqCst) {
             *self.voice.lock().unwrap() = "voice not loaded".into();
         }
-        if let Some(s) = self.session.lock().unwrap().take() {
+        // Out of the lock before dropping: closing a session waits for its threads, and the
+        // status, tray and kill switch all need this lock meanwhile.
+        let session = self.session.lock().unwrap().take();
+        if let Some(s) = session {
             log(&format!("{why}: going idle (unloading voice, closing the microphone)"));
             s.speaker.interrupt();
             s.runner.policy.kill();
@@ -419,6 +422,7 @@ impl Core {
         let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
             crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
                 c.actions.dry_run |= self.opts.session.dry_run;
+                crate::pipeline::EDDN_SHARING.store(c.eddn.enabled, Ordering::SeqCst);
                 *self.cfg.write().unwrap() = c;
             })
         });
@@ -429,7 +433,8 @@ impl Core {
                     self.apply_voice();
                 }
                 self.notify();
-                json!({"ok": true, "applies_next_session": r.cmd != "set_voice" && self.active()})
+                let now = r.cmd == "set_voice" || r.cmd == "set_eddn";
+                json!({"ok": true, "applies_next_session": !now && self.active()})
             }
             Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         }
@@ -558,8 +563,12 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
+            "eddn_log" => {
+                let cfg = self.cfg();
+                eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
+            }
             "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
-            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" => self.edit_config(r),
+            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" => self.edit_config(r),
             "voice_settings" => {
                 let v = self.cfg().voice;
                 json!({
@@ -644,6 +653,31 @@ impl Core {
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
     }
+}
+
+/// EDDN status for Settings → Data sharing and the send log for Diagnostics: the switch, queue
+/// depth, last send and last error, the gateway's answers and (apart, so they can't push those
+/// off screen) the messages never queued. Reads `eddn.sqlite` only if it exists, so asking never
+/// creates it.
+pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Value {
+    use astromech_eddn::Outcome::{Dropped, GaveUp, Rejected, Retry, Sent};
+    let p = data_dir.join(astromech_eddn::DB_FILE);
+    let base = json!({"ok": true, "enabled": enabled, "test": test, "pending": 0,
+        "last_sent": null, "last_error": null, "log": [], "skipped": []});
+    if !p.is_file() {
+        return base;
+    }
+    let read = || -> Result<Value> {
+        let o = astromech_eddn::Outbox::open(&p)?;
+        let mut v = base.clone();
+        v["pending"] = json!(o.pending()?);
+        v["last_sent"] = json!(o.recent_of(&[Sent], 1)?.pop());
+        v["last_error"] = json!(o.recent_of(&[Rejected, Retry, GaveUp], 1)?.pop());
+        v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp], 50)?);
+        v["skipped"] = json!(o.recent_of(&[Dropped], 50)?);
+        Ok(v)
+    };
+    read().unwrap_or_else(|e| json!({"ok": false, "error": format!("reading {}: {e}", p.display())}))
 }
 
 /// Open a URL or folder with the default handler.
@@ -867,6 +901,7 @@ pub fn run(opts: Opts) -> i32 {
         update_handle.snap.apply_error = Some(e.trim().to_string());
     }
 
+    crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
     let (ui_tx, ui_rx) = channel();
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
@@ -1010,5 +1045,30 @@ mod tests {
         assert!(remove_retired_models(&cfg).is_empty());
         assert!(models::has_retired(m), "another tool's v0.19 is left alone");
         assert!(models::find_tts(m).is_ok());
+    }
+
+    #[test]
+    fn eddn_log_reads_the_outbox_without_creating_it() {
+        let d = tempfile::tempdir().unwrap();
+        let v = eddn_log(d.path(), false, true);
+        assert_eq!(
+            (&v["ok"], &v["enabled"], &v["test"], &v["pending"]),
+            (&json!(true), &json!(false), &json!(true), &json!(0))
+        );
+        assert!(v["last_error"].is_null() && v["log"] == json!([]));
+        assert!(!d.path().join(astromech_eddn::DB_FILE).exists());
+        let o = astromech_eddn::Outbox::open(&d.path().join(astromech_eddn::DB_FILE)).unwrap();
+        let r = "https://eddn.edcd.io/schemas/journal/1";
+        o.enqueue(r, b"m", 10).unwrap();
+        o.log(11, r, astromech_eddn::Outcome::Sent, "").unwrap();
+        o.log(12, r, astromech_eddn::Outcome::Retry, "HTTP 503: down; retry in 60 s").unwrap();
+        o.log(13, r, astromech_eddn::Outcome::Dropped, "beta").unwrap();
+        let v = eddn_log(d.path(), true, false);
+        assert_eq!(v["pending"], 1);
+        assert_eq!((&v["last_sent"]["at"], &v["last_error"]["at"]), (&json!(11), &json!(12)));
+        assert_eq!(v["last_error"]["detail"], "HTTP 503: down; retry in 60 s", "the status shows the last failed send");
+        let outcomes: Vec<&Value> = v["log"].as_array().unwrap().iter().map(|e| &e["outcome"]).collect();
+        assert_eq!(outcomes, [&json!("retry"), &json!("sent")], "skips are listed apart");
+        assert_eq!(v["skipped"][0]["detail"], "beta");
     }
 }

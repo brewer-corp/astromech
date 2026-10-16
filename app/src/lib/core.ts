@@ -91,6 +91,8 @@ export type CoreCmd =
   | "kill_switch"
   | "download_models"
   | "open_config"
+  | "eddn_log"
+  | "set_eddn"
   | "voice_test"
   | "voice_test_poll"
   | "voice_test_stop"
