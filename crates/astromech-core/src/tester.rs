@@ -166,10 +166,18 @@ pub fn dry_run_idle(cfg: &Config, transcript: &str) -> DryRun {
     dry_run(&grammar, transcript, &GameState::default(), &binds, Source::Typed)
 }
 
-/// Run a tested command for real, through the policy like any other command. The user asked
-/// for it on the tester page, so a spoken confirmation (silent running) counts as given.
-pub fn live(runner: &Runner, command: &str) -> Result<String, String> {
+/// How long a live run waits for the user to switch from astromech to Elite.
+pub const SWITCH_WAIT: Duration = Duration::from_secs(5);
+
+/// Run a tested command for real, through the policy like any other command. The user clicked
+/// Run live in astromech, so this first waits up to `wait` for Elite to be the active window
+/// (presses are only ever sent to Elite in front). The user asked for it on the tester page, so
+/// a spoken confirmation (silent running) or "Did you mean …?" counts as answered.
+pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, String> {
     let call = from_command(command).ok_or_else(|| format!("{command} can't be run"))?;
+    if !runner.policy.wait_foreground(wait) {
+        return Ok("Elite didn't come to the front in time, so nothing was pressed.".into());
+    }
     Ok(match runner.run_confirmed(call, Origin::AppWindow) {
         Outcome::Sent(h) => match h.join() {
             Ok(Verified::Confirmed { ms }) => format!("Pressed; the game confirmed it in {ms} ms."),

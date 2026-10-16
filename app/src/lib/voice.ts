@@ -66,7 +66,10 @@ export async function voiceStop(): Promise<void> {
   if (inTauri) await coreCall("voice_test_stop");
 }
 
-/** Run a command for real. Returns what happened, in words. */
+/** How long a live run waits for Elite to be the active window (the core's `tester::SWITCH_WAIT`). */
+export const SWITCH_SECONDS = 5;
+
+/** Run a command for real: the core presses once Elite is in front. Returns what happened, in words. */
 export async function voiceLive(command: string): Promise<string> {
   const r = await coreCall("voice_test_live", command);
   if (!r.ok) throw new Error(String(r.error));

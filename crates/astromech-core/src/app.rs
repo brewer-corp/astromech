@@ -474,7 +474,7 @@ impl Core {
                     None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
                     Some(runner) => {
                         log(&format!("voice tester: live run of {cmd}"));
-                        match tester::live(&runner, &cmd) {
+                        match tester::live(&runner, &cmd, tester::SWITCH_WAIT) {
                             Ok(m) => json!({"ok": true, "message": m}),
                             Err(e) => json!({"ok": false, "error": e}),
                         }

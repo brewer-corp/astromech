@@ -3,7 +3,7 @@
   // is open, and see what was heard, the intent it matched, how sure the match is and the keys it
   // would send. Tests are dry runs; nothing reaches the game unless you click Run live.
   import { keyName } from "../../lib/format";
-  import { voiceLive, voicePoll, voiceStop, voiceTest, type DryRun, type Would } from "../../lib/voice";
+  import { SWITCH_SECONDS, voiceLive, voicePoll, voiceStop, voiceTest, type DryRun, type Would } from "../../lib/voice";
 
   let text = $state("");
   let result = $state<DryRun | null>(null);
@@ -18,23 +18,36 @@
     liveNote = "";
   }
 
-  // Polling keeps push-to-talk in test mode; leaving the page hands it back to the assistant.
+  // Polling keeps push-to-talk in test mode, but only while the page can be seen: a minimised
+  // window, or the page hidden behind the game, hands push-to-talk back to the assistant.
   $effect(() => {
     let seen: number | null = null;
+    let t: ReturnType<typeof setInterval> | undefined;
     const tick = async () => {
       const p = await voicePoll();
       listening = p?.listening ?? false;
-      const last = p?.last;
-      if (!last) return;
+      const seq = p?.last?.seq ?? 0;
       // The first poll only notes what an earlier visit already showed.
-      if (seen !== null && last.seq !== seen) show(last.result);
-      seen = last.seq;
+      if (seen !== null && seq !== seen && p?.last) show(p.last.result);
+      seen = seq;
     };
-    void tick();
-    const t = setInterval(() => void tick(), 1000);
-    return () => {
-      clearInterval(t);
+    const start = () => {
+      if (t) return;
+      void tick();
+      t = setInterval(() => void tick(), 1000);
+    };
+    const stop = () => {
+      if (t) clearInterval(t);
+      t = undefined;
+      listening = false;
       void voiceStop();
+    };
+    const onVisibility = () => (document.visibilityState === "visible" ? start() : stop());
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      stop();
     };
   });
 
@@ -48,16 +61,26 @@
     }
   }
 
+  // The core presses only when Elite is the active window, so a live run gives you a few seconds
+  // to switch to the game; the countdown shows how long is left.
+  let countdown = $state(0);
   async function runLive() {
     if (!result?.live) return;
     running = true;
+    liveNote = "";
+    countdown = SWITCH_SECONDS;
+    const t = setInterval(() => (countdown = Math.max(0, countdown - 1)), 1000);
     try {
       liveNote = await voiceLive(result.live);
     } catch (err) {
       liveNote = String(err instanceof Error ? err.message : err);
     }
+    clearInterval(t);
+    countdown = 0;
     running = false;
   }
+  /** A spoken command would ask first; a live run doesn't. */
+  const skipsAsk = (r: DryRun) => r.would === "confirm" || r.would === "did_you_mean";
 
   const WOULD: Record<Would, string> = {
     press: "Press the keys, then say",
@@ -120,8 +143,18 @@
     <p class="safe">Nothing was sent to the game.</p>
     {#if result.live}
       <div class="actions">
-        <button onclick={runLive} disabled={!listening || running}>Run live</button>
-        <span class="lo">{listening ? "Sends it to Elite now, like a spoken command." : "Live runs need Elite running."}</span>
+        <button onclick={runLive} disabled={!listening || running}>{skipsAsk(result) ? "Run live (no confirmation)" : "Run live"}</button>
+        <span class="lo">
+          {#if running}
+            Switch to Elite now: pressing when it's in front ({countdown} s left).
+          {:else if !listening}
+            Live runs need Elite running.
+          {:else if skipsAsk(result)}
+            Runs {result.intent?.phrase ?? "it"} without the question a spoken command would ask. Switch to Elite within {SWITCH_SECONDS} s after clicking.
+          {:else}
+            Sends it to Elite like a spoken command. Switch to Elite within {SWITCH_SECONDS} s after clicking.
+          {/if}
+        </span>
       </div>
     {/if}
     {#if liveNote}<p class="note">{liveNote}</p>{/if}

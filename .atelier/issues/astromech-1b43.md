@@ -27,7 +27,7 @@ Check the Voice tester page (Settings → Voice tester) with the real microphone
 
 ## Done when
 
-With Elite running and the page open: holding push-to-talk and saying "gear down" shows the transcript, the landing_gear.down intent and its key within a couple of seconds, and the gear does not move. Clicking Run live then lowers it. After leaving the page, push-to-talk lowers or raises the gear again as normal within 3 s. Each result is recorded as evidence.
+With Elite running and the page open: holding push-to-talk and saying "gear down" shows the transcript, the landing_gear.down intent and its key within a couple of seconds, and the gear does not move. Clicking Run live shows a "Switch to Elite now" countdown; switching to Elite within 5 s lowers the gear, and staying in astromech presses nothing ("Elite didn't come to the front in time"). After leaving the page, or minimising the window, push-to-talk lowers or raises the gear again as normal within 3 s. Each result is recorded as evidence.
 
 ## Context
 

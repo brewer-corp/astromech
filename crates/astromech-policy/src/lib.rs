@@ -197,6 +197,26 @@ impl Policy {
         Ok(Ticket { inner: i.clone(), name: name.to_string(), generation: i.generation.load(Ordering::SeqCst) })
     }
 
+    /// Wait up to `timeout` for the game window to come to the front (true at once when window
+    /// checks are off). For a live run started from the app window: the user clicked in
+    /// astromech and needs a moment to switch to Elite. Presses still check the window.
+    pub fn wait_foreground(&self, timeout: Duration) -> bool {
+        let i = &self.inner;
+        if i.cfg.skip_window_checks {
+            return true;
+        }
+        let end = Instant::now() + timeout;
+        loop {
+            if i.platform.foreground_title().as_deref() == Some(TARGET_WINDOW) {
+                return true;
+            }
+            if Instant::now() >= end || self.is_killed() {
+                return false;
+            }
+            std::thread::sleep(Duration::from_millis(50));
+        }
+    }
+
     /// Back-compat helper: decide without keeping a ticket.
     pub fn check(&self, name: &str, tier: Tier, origin: Origin) -> Result<(), Denial> {
         self.authorize(name, tier, origin, Instant::now()).map(|_| ())
@@ -361,6 +381,23 @@ mod tests {
         *r.title.lock().unwrap() = "Discord".into();
         assert!(matches!(t.press("Key_L", &[]), Err(PressError::NotForeground(_))));
         assert!(matches!(t.press("Key_Pause", &[]), Err(PressError::UnknownKey(_))));
+    }
+
+    #[test]
+    fn wait_foreground_until_the_game_is_in_front() {
+        let (r, p) = setup();
+        *r.title.lock().unwrap() = "astromech".into();
+        let start = Instant::now();
+        assert!(!p.wait_foreground(Duration::from_millis(120)));
+        assert!(start.elapsed() >= Duration::from_millis(120));
+        let r2 = r.clone();
+        let h = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(100));
+            *r2.title.lock().unwrap() = TARGET_WINDOW.into();
+        });
+        assert!(p.wait_foreground(Duration::from_secs(2)));
+        h.join().unwrap();
+        assert!(r.log.lock().unwrap().is_empty(), "waiting presses nothing");
     }
 
     #[test]

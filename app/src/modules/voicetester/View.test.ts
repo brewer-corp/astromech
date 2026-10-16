@@ -7,10 +7,11 @@ import View from "./View.svelte";
 // polling and the live run are stubbed so the test can see whether a live run was asked for.
 const poll = vi.fn<() => Promise<Poll | null>>();
 const live = vi.fn<(command: string) => Promise<string>>();
+const stop = vi.fn<() => Promise<void>>();
 vi.mock("../../lib/voice", async (orig) => ({
   ...(await orig<typeof import("../../lib/voice")>()),
   voicePoll: () => poll(),
-  voiceStop: async () => {},
+  voiceStop: () => stop(),
   voiceLive: (c: string) => live(c),
 }));
 
@@ -30,10 +31,17 @@ async function typePhrase(text: string) {
   await fireEvent.click(screen.getByRole("button", { name: "Test" }));
 }
 
+function setVisibility(v: DocumentVisibilityState) {
+  Object.defineProperty(document, "visibilityState", { configurable: true, get: () => v });
+  document.dispatchEvent(new Event("visibilitychange"));
+}
+
 describe("Voice tester", () => {
   beforeEach(() => {
     poll.mockReset().mockResolvedValue({ listening: true, last: null });
     live.mockReset().mockResolvedValue("Pressed; the game confirmed it in 120 ms.");
+    stop.mockReset().mockResolvedValue(undefined);
+    setVisibility("visible");
   });
 
   it("shows a typed phrase's intent and keys and runs nothing live", async () => {
@@ -62,6 +70,50 @@ describe("Voice tester", () => {
     expect(screen.queryByText("Gear up.", { exact: false })).toBeNull();
     expect(screen.getByText("Left shift + K")).toBeTruthy();
     expect(live).not.toHaveBeenCalled();
+  });
+
+  it("shows the first push-to-talk result after the core starts", async () => {
+    poll.mockResolvedValueOnce({ listening: true, last: null }).mockResolvedValue({ listening: true, last: { seq: 1, result: heard } });
+    render(View);
+
+    expect(await screen.findByText("lights.on", { exact: false }, { timeout: 2500 })).toBeTruthy();
+  });
+
+  it("tests push-to-talk only while the page is visible", async () => {
+    setVisibility("hidden");
+    render(View);
+    await new Promise((r) => setTimeout(r, 1200));
+    expect(poll).not.toHaveBeenCalled();
+    expect(stop).toHaveBeenCalled();
+
+    setVisibility("visible");
+    await vi.waitFor(() => expect(poll).toHaveBeenCalled());
+    stop.mockClear();
+    setVisibility("hidden");
+    expect(stop).toHaveBeenCalledOnce();
+    const calls = poll.mock.calls.length;
+    await new Promise((r) => setTimeout(r, 1200));
+    expect(poll.mock.calls.length).toBe(calls);
+  });
+
+  it("tells you to switch to Elite during a live run", async () => {
+    let finish: (m: string) => void = () => {};
+    live.mockReturnValue(new Promise((r) => (finish = r)));
+    render(View);
+    await vi.waitFor(() => expect(poll).toHaveBeenCalled());
+    await typePhrase("gear down");
+    await fireEvent.click(await screen.findByRole("button", { name: "Run live" }));
+    expect(await screen.findByText(/Switch to Elite now/)).toBeTruthy();
+    finish("Elite didn't come to the front in time, so nothing was pressed.");
+    expect(await screen.findByText("Elite didn't come to the front in time, so nothing was pressed.")).toBeTruthy();
+  });
+
+  it("says when a live run skips the question a spoken command would ask", async () => {
+    render(View);
+    await vi.waitFor(() => expect(poll).toHaveBeenCalled());
+    await typePhrase("you're down");
+    expect(await screen.findByRole("button", { name: "Run live (no confirmation)" })).toBeTruthy();
+    expect(screen.getByText(/without the question a spoken command would ask/)).toBeTruthy();
   });
 
   it("can't run live without Elite", async () => {

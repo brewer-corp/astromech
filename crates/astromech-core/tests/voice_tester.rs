@@ -16,15 +16,17 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, Instant};
 
-/// A fake executor: records every key event it is asked to send.
+/// A fake executor: records every key event it is asked to send. `front` is the active window
+/// (Elite unless a test says otherwise).
 #[derive(Default)]
 struct Recorder {
     sent: Mutex<Vec<(ScanKey, bool)>>,
+    front: Mutex<Option<String>>,
 }
 
 impl Platform for Recorder {
     fn foreground_title(&self) -> Option<String> {
-        Some(GAME_WINDOW_TITLE.into())
+        Some(self.front.lock().unwrap().clone().unwrap_or_else(|| GAME_WINDOW_TITLE.into()))
     }
     fn send_key(&self, k: ScanKey, up: bool) -> Result<(), String> {
         self.sent.lock().unwrap().push((k, up));
@@ -119,7 +121,30 @@ fn typed_phrase_shows_intent_and_keys_with_nothing_pressed() {
 
     r.nothing_happened();
     // The dry runs took no policy slot: a live run straight after is not a "duplicate".
-    assert_eq!(tester::live(&r.runner, "landing_gear.down").unwrap(), "Pressed, but the game didn't show the change.");
+    assert_eq!(
+        tester::live(&r.runner, "landing_gear.down", Duration::ZERO).unwrap(),
+        "Pressed, but the game didn't show the change."
+    );
+    assert_eq!(*r.exec.sent.lock().unwrap(), vec![(key("Key_L"), false), (key("Key_L"), true)]);
+}
+
+#[test]
+fn live_run_waits_for_elite_in_front_and_never_presses_into_another_window() {
+    let r = rig();
+    // The user just clicked Run live, so astromech is the active window.
+    *r.exec.front.lock().unwrap() = Some("astromech".into());
+    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_millis(300)).unwrap();
+    assert_eq!(m, "Elite didn't come to the front in time, so nothing was pressed.");
+    assert!(r.exec.sent.lock().unwrap().is_empty());
+    // They switch to Elite within the wait: the press goes ahead.
+    let exec = r.exec.clone();
+    let h = std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(150));
+        *exec.front.lock().unwrap() = None;
+    });
+    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_secs(3)).unwrap();
+    h.join().unwrap();
+    assert_eq!(m, "Pressed, but the game didn't show the change.");
     assert_eq!(*r.exec.sent.lock().unwrap(), vec![(key("Key_L"), false), (key("Key_L"), true)]);
 }
 

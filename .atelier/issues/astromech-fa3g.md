@@ -11,7 +11,10 @@ relationships:
     id: "astromech-snqt"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-12uv"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T18:55:10.516884478+00:00"
