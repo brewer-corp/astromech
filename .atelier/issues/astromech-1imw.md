@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:19:22.783997810+00:00"
+status: "done"
 title: "Remember search filters per lookup"
-updated_at: "2026-10-16T19:13:19.140885570+00:00"
+updated_at: "2026-10-16T19:19:22.783997810+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ Changing a filter, closing the app and reopening it restores the filter for that
 ## Context
 
 Stored in `astromech-store` settings.
+
+## Close Reason
+
+Filters (pad, fleet carriers, Odyssey settlements, data age, arrival distance) are remembered per lookup in astromech-store settings; the pad follows the ship unless set. Proven by Rust store round-trip tests and a browser-fallback reload check; the real app restart via the shell is not run on Linux. Review outstanding.
