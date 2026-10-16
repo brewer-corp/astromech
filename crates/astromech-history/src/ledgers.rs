@@ -20,10 +20,11 @@
 
 use astromech_journal::{ExtraEvent as X, JournalEvent as J, JournalLine};
 use astromech_store::rusqlite::{params, Connection, OptionalExtension, Result};
+use serde::Serialize;
 use serde_json::Value;
 
 /// A row of `commanders`. `cmdr` is the key every ledger uses.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Commander {
     pub cmdr: String,
     pub name: String,
@@ -33,7 +34,7 @@ pub struct Commander {
 }
 
 /// A row of `visits`. `kind` is `system` or `station`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Visit {
     pub ts: String,
     pub kind: String,
@@ -45,7 +46,7 @@ pub struct Visit {
 }
 
 /// A row of `earnings`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Earning {
     pub ts: String,
     pub kind: String,
@@ -57,7 +58,7 @@ pub struct Earning {
 }
 
 /// A row of `ships`.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Ship {
     pub ship_id: i64,
     /// Lowercase journal symbol (`krait_mkii`).
@@ -72,7 +73,7 @@ pub struct Ship {
 
 /// A row of `scans`. `kind` is `body`, `mapped` or `organic`; `class` is the star type, planet
 /// class or species.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Scan {
     pub ts: String,
     pub kind: String,

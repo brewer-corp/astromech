@@ -1,5 +1,5 @@
 //! Import a journal folder into a history database and print how long it took and how big
-//! the database is (astromech-aonb, astromech-tqdh):
+//! the database is, and how long logbook searches take (astromech-aonb, astromech-tqdh):
 //! `cargo run --release -p astromech-history --example import-history -- <journal dir> <history.sqlite>`.
 
 use astromech_history::{History, ImportOptions};
@@ -39,5 +39,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         count("ships")?,
         count("scans")?
     );
+    for q in ["", "sys 12", "no such place"] {
+        let t = Instant::now();
+        let b = h.logbook(None, q, 200)?;
+        println!("logbook {q:?}: {} places match, {:.0} ms", b.matches, t.elapsed().as_secs_f64() * 1000.0);
+    }
     Ok(())
 }

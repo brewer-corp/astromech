@@ -69,16 +69,16 @@ fn visit(ts: &str, kind: &str, system: &str, addr: i64, station: Option<(&str, i
 fn imports_every_line_once() {
     let (mut h, r) = clean_import();
     assert_eq!(r.files, 3);
-    assert_eq!(r.lines, 16 + 16 + 15);
+    assert_eq!(r.lines, 16 + 16 + 17);
     assert_eq!(r.malformed, 1, "the truncated Bounty line");
-    assert_eq!(r.events, 46);
-    assert_eq!(h.event_count().unwrap(), 46);
+    assert_eq!(r.events, 48);
+    assert_eq!(h.event_count().unwrap(), 48);
     let total: u64 = journal_logs_size();
     assert_eq!((r.bytes, r.bytes_total), (total, total));
     // Nothing new: nothing read, nothing stored.
     let again = h.import(&fixtures(), &ImportOptions::default()).unwrap();
     assert_eq!(again, ImportReport::default());
-    assert_eq!(h.event_count().unwrap(), 46);
+    assert_eq!(h.event_count().unwrap(), 48);
 }
 
 fn journal_logs_size() -> u64 {
@@ -104,6 +104,7 @@ fn visits_ledger() {
             visit("2026-09-02T10:20:00Z", "system", "Alpha Centauri", 1, None, Some(4.38)),
             // 09-03: logging in where the last session ended is not a new visit either.
             visit("2026-09-03T10:10:00Z", "station", "Alpha Centauri", 1, Some(("Hutton Orbital", 128000002)), None),
+            visit("2026-09-03T10:25:00Z", "station", "Alpha Centauri", 1, Some(("Hutton Orbital", 128000002)), None),
         ]
     );
 }
@@ -393,4 +394,63 @@ fn ship_rows_ignore_older_events() {
         (s.ship_type.as_str(), s.name.as_deref(), s.first_seen.as_str(), s.last_flown.as_deref()),
         ("python", Some("New"), "2026-09-01T00:00:00Z", Some("2026-09-02T00:00:00Z"))
     );
+}
+
+/// The done-when of astromech-fxp0: a search finds a visited station with the right counts.
+#[test]
+fn logbook_search_finds_places_with_their_counts() {
+    let (h, _) = clean_import();
+    let b = h.logbook(None, "  HUTTON ", 50).unwrap();
+    assert_eq!(b.commander.as_ref().map(|c| c.name.as_str()), Some("Fixture"));
+    assert_eq!(b.query, "HUTTON");
+    assert_eq!(
+        b.places,
+        vec![Place {
+            kind: "station".into(),
+            star_system: "Alpha Centauri".into(),
+            system_address: Some(1),
+            station_name: Some("Hutton Orbital".into()),
+            market_id: Some(128000002),
+            visits: 2,
+            first: "2026-09-03T10:10:00Z".into(),
+            last: "2026-09-03T10:25:00Z".into(),
+        }]
+    );
+    assert_eq!(
+        b.timeline.iter().map(|v| v.ts.as_str()).collect::<Vec<_>>(),
+        ["2026-09-03T10:25:00Z", "2026-09-03T10:10:00Z"]
+    );
+
+    // A system name finds the system and the stations in it; latest visit first.
+    let b = h.logbook(None, "alpha", 50).unwrap();
+    let got: Vec<(&str, Option<&str>, i64, &str, &str)> = b
+        .places
+        .iter()
+        .map(|p| (p.kind.as_str(), p.station_name.as_deref(), p.visits, p.first.as_str(), p.last.as_str()))
+        .collect();
+    assert_eq!(
+        got,
+        vec![
+            ("station", Some("Hutton Orbital"), 2, "2026-09-03T10:10:00Z", "2026-09-03T10:25:00Z"),
+            ("system", None, 2, "2026-09-01T10:10:00Z", "2026-09-02T10:20:00Z"),
+        ]
+    );
+
+    // No search: everything, with totals.
+    let b = h.logbook(Some(CMDR), "", 2).unwrap();
+    assert_eq!(b.totals, Totals { systems: 3, stations: 3, system_visits: 5, station_visits: 4 });
+    assert_eq!((b.matches, b.places.len(), b.timeline.len()), (6, 2, 2));
+    assert!(h.logbook(None, "nowhere", 50).unwrap().places.is_empty());
+}
+
+#[test]
+fn read_only_open_reads_what_the_writer_wrote() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("history.sqlite");
+    assert!(History::open_read_only(&db).is_err(), "no database yet: nothing is created");
+    let mut w = History::open(&db).unwrap();
+    let r = History::open_read_only(&db).unwrap();
+    w.import(&fixtures(), &ImportOptions::default()).unwrap();
+    assert_eq!(r.logbook(None, "miller", 10).unwrap().places[0].visits, 1);
+    assert!(r.conn().execute("DELETE FROM visits", []).is_err(), "read only");
 }

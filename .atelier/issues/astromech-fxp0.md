@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Logbook"
-updated_at: "2026-10-15T20:36:13.653039260+00:00"
+updated_at: "2026-10-16T20:05:28.944728855+00:00"
 ---
 
 ## Goal

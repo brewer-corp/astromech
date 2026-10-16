@@ -19,8 +19,10 @@
 
 mod commander;
 mod ledgers;
+mod logbook;
 
 pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
+pub use logbook::{Logbook, Place, Totals};
 
 use commander::FileCommander;
 
@@ -196,6 +198,8 @@ pub enum HistoryError {
     Db(#[from] rusqlite::Error),
     #[error("reading {path}: {source}")]
     Io { path: PathBuf, source: std::io::Error },
+    #[error("the history database is at schema {found}, this build reads {want}; the core upgrades it")]
+    Schema { found: i64, want: i64 },
     /// Raised by [`ImportOptions::crash_after_lines`].
     #[error("import stopped by the crash test hook")]
     Crashed,
@@ -244,6 +248,18 @@ pub struct History {
 impl History {
     pub fn open(path: &Path) -> Result<Self> {
         Self::init(Connection::open(path)?)
+    }
+
+    /// Open for reading only, alongside the core that writes it (the app window). Doesn't
+    /// create, migrate or rebuild anything.
+    pub fn open_read_only(path: &Path) -> Result<Self> {
+        let conn = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+        let found: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+        let want = MIGRATIONS.len() as i64;
+        if found != want {
+            return Err(HistoryError::Schema { found, want });
+        }
+        Ok(Self { conn })
     }
 
     pub fn in_memory() -> Result<Self> {

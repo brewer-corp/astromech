@@ -220,6 +220,7 @@ version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "astromech-store",
+ "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.21",
