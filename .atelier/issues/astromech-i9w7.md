@@ -18,9 +18,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:42:46.733288565+00:00"
+status: "done"
 title: "Colonisation shopping list"
-updated_at: "2026-10-16T19:41:48.036167617+00:00"
+updated_at: "2026-10-16T19:42:46.733288565+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Remaining commodities minus cargo (and carrier cargo if known), in loads at the 
 ## Done when
 
 For a fixture project, cargo and ship, the remaining list and load count are right.
+
+## Close Reason
+
+Shopping list (remaining minus ship cargo, in loads at Loadout CargoCapacity) implemented and tested on a fixture project; carrier cargo not known from the journal.
