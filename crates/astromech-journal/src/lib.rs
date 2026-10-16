@@ -84,6 +84,8 @@ pub enum JournalEvent {
         /// Set when starting docked (`Docked: true`).
         station_name: Option<String>,
         market_id: Option<i64>,
+        /// What the station offers; `Some` when `docked`.
+        station: Option<StationInfo>,
         /// The system's Powerplay fields, if it has any.
         powerplay: Option<Box<SystemPowerplay>>,
     },
@@ -122,6 +124,7 @@ pub enum JournalEvent {
         star_system: String,
         market_id: Option<i64>,
         system_address: Option<i64>,
+        station: StationInfo,
     },
     Undocked {
         station_name: String,
@@ -389,6 +392,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             star_pos: star_pos(&raw),
             station_name: opt_s(&raw, "StationName"),
             market_id: opt_i(&raw, "MarketID"),
+            station: raw.get("Docked").and_then(|x| x.as_bool()).unwrap_or(false).then(|| station_info(&raw)),
             powerplay: system_powerplay(&raw),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
@@ -423,6 +427,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             star_system: s(&raw, "StarSystem"),
             market_id: opt_i(&raw, "MarketID"),
             system_address: opt_i(&raw, "SystemAddress"),
+            station: station_info(&raw),
         },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
         "Materials" => JournalEvent::Materials {
@@ -1034,7 +1039,30 @@ mod tests {
                 star_system: "Alpha Centauri".into(),
                 market_id: Some(2),
                 system_address: Some(1),
+                station: StationInfo::default(),
             }
         );
+    }
+
+    #[test]
+    fn docked_reads_what_the_station_offers() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"Docked","StationName":"Test Orbital","StationType":"Orbis","StarSystem":"Test System","SystemAddress":1,"MarketID":2,
+            "StationFaction":{"Name":"Test Holdings","FactionState":"Boom"},"StationGovernment":"$government_Corporate;","StationGovernment_Localised":"Corporate","StationAllegiance":"Federation",
+            "StationServices":["dock","outfitting","refuel"],
+            "StationEconomies":[{"Name":"$economy_HighTech;","Name_Localised":"High Tech","Proportion":0.75},{"Name":"$economy_Refinery;","Proportion":0.25}],
+            "DistFromStarLS":512.5,"LandingPads":{"Small":4,"Medium":6,"Large":3}}"#,
+        )
+        .unwrap();
+        let JournalEvent::Docked { station, .. } = l.event else { panic!("not Docked") };
+        assert_eq!(station.station_type.as_deref(), Some("Orbis"));
+        assert_eq!(station.services, ["dock", "outfitting", "refuel"]);
+        assert_eq!(station.economies.len(), 2);
+        assert_eq!(station.economies[0].name_localised.as_deref(), Some("High Tech"));
+        assert_eq!(station.economies[1].proportion, 0.25);
+        assert_eq!(station.faction, Some(StationFaction { name: "Test Holdings".into(), state: Some("Boom".into()) }));
+        assert_eq!(station.government.as_deref(), Some("Corporate"));
+        assert_eq!(station.landing_pads, Some(LandingPads { small: 4, medium: 6, large: 3 }));
+        assert_eq!(station.dist_from_star_ls, Some(512.5));
     }
 }

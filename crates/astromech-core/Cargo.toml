@@ -33,6 +33,7 @@ astromech-galaxy.workspace = true
 astromech-market.workspace = true
 astromech-eddn.workspace = true
 astromech-history.workspace = true
+astromech-station.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
