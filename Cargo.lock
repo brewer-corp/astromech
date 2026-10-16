@@ -148,6 +148,7 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-gamestate",
+ "astromech-history",
  "astromech-input",
  "astromech-intent",
  "astromech-journal",
@@ -224,6 +225,18 @@ dependencies = [
  "astromech-status",
  "serde",
  "tempfile",
+]
+
+[[package]]
+name = "astromech-history"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -323,6 +336,7 @@ name = "astromech-store"
 version = "0.1.5"
 dependencies = [
  "rusqlite",
+ "tempfile",
 ]
 
 [[package]]

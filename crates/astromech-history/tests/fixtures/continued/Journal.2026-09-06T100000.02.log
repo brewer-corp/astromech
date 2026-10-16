@@ -1,0 +1,2 @@
+{ "timestamp":"2026-09-06T10:20:00Z", "event":"Fileheader", "part":2, "language":"English/UK", "Odyssey":true, "gameversion":"4.1.0.100", "build":"r300000/r0 " }
+{ "timestamp":"2026-09-06T10:30:00Z", "event":"FSDJump", "StarSystem":"Alpha Centauri", "SystemAddress":1, "JumpDist":4.38 }

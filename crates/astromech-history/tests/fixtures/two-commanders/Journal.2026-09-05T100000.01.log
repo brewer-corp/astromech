@@ -1,0 +1,11 @@
+{ "timestamp":"2026-09-05T10:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.1.0.100", "build":"r300000/r0 " }
+{ "timestamp":"2026-09-05T10:00:01Z", "event":"Commander", "FID":"F0000002", "Name":"Second" }
+{ "timestamp":"2026-09-05T10:00:05Z", "event":"LoadGame", "FID":"F0000002", "Commander":"Second", "Ship":"SideWinder", "ShipID":1, "Credits":1000 }
+{ "timestamp":"2026-09-05T10:00:06Z", "event":"Loadout", "Ship":"sidewinder", "ShipID":1, "ShipName":"", "ShipIdent":"", "Modules":[] }
+{ "timestamp":"2026-09-05T10:00:07Z", "event":"Location", "Docked":false, "StarSystem":"Sol", "SystemAddress":10477373803 }
+{ "timestamp":"2026-09-05T10:10:00Z", "event":"FSDJump", "StarSystem":"Alpha Centauri", "SystemAddress":1, "JumpDist":4.38 }
+{ "timestamp":"2026-09-05T11:00:01Z", "event":"Commander", "FID":"F0000001", "Name":"Fixture" }
+{ "timestamp":"2026-09-05T11:00:05Z", "event":"LoadGame", "FID":"F0000001", "Commander":"Fixture", "Ship":"Python", "ShipID":4, "Credits":3000000 }
+{ "timestamp":"2026-09-05T11:00:06Z", "event":"Loadout", "Ship":"python", "ShipID":4, "ShipName":"Big Snake", "ShipIdent":"BS-04", "Modules":[] }
+{ "timestamp":"2026-09-05T11:01:00Z", "event":"ShipyardSell", "ShipType":"cobramkiii", "SellShipID":1, "ShipPrice":300000, "MarketID":128000001 }
+{ "timestamp":"2026-09-05T11:02:00Z", "event":"Location", "Docked":true, "StationName":"Miller Depot", "StationType":"Outpost", "MarketID":128000001, "StarSystem":"Barnard's Star", "SystemAddress":2 }
