@@ -254,9 +254,27 @@ astromech/
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)
+    astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
+                         with the global rules (live-only, *_Localised and commander data stripped,
+                         header from Fileheader/LoadGame, flags never null, augmentation cross-check),
+                         per-schema SchemaSpec elisions, SQLite outbox (eddn.sqlite) with retry and
+                         backoff, /test schemas, send log shown in Diagnostics; commodity/3,
+                         outfitting/2 and shipyard/2 built from the companion files' JSON;
+                         journal/1 and the event schemas (fsssignaldiscovered batched per run,
+                         codexentry body cross-check); all tested against the live schema files.
+                         Feed: what the core drives; only live-tailed lines and their companion files
+                         are queued (the startup replay, an older or already-read journal, and lines
+                         over 5 min old only rebuild the header and location);
+                         outfitting/2 is off until commander-specific modules are filtered.
+                         Worker: delivery on its own thread and SQLite connection, so no lock is held
+                         across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
+                         also wait a minute on the monotonic clock; messages over 30 min old are given
+                         up, and at most 2000 are kept; stopping never waits for a post. Off until
+                         switched on in Settings → Data sharing ([eddn] enabled), which takes effect at
+                         once: off, nothing is queued and the queue is discarded
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
                          backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
-    astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
+    astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
   app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)

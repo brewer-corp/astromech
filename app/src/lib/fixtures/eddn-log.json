@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "test": false,
+  "pending": 1,
+  "last_sent": { "at": 1792166460, "schema_ref": "https://eddn.edcd.io/schemas/commodity/3", "outcome": "sent", "detail": "" },
+  "last_error": { "at": 1792166400, "schema_ref": "https://eddn.edcd.io/schemas/journal/1", "outcome": "retry", "detail": "HTTP 503: Service Unavailable; retry in 60 s" },
+  "log": [
+    { "at": 1792166460, "schema_ref": "https://eddn.edcd.io/schemas/commodity/3", "outcome": "sent", "detail": "" },
+    { "at": 1792166400, "schema_ref": "https://eddn.edcd.io/schemas/journal/1", "outcome": "retry", "detail": "HTTP 503: Service Unavailable; retry in 60 s" },
+    { "at": 1792166280, "schema_ref": "https://eddn.edcd.io/schemas/shipyard/2", "outcome": "rejected", "detail": "HTTP 426: FAIL: Oudated Schema" }
+  ],
+  "skipped": [
+    { "at": 1792166340, "schema_ref": "https://eddn.edcd.io/schemas/journal/1", "outcome": "dropped", "detail": "location mismatch: SystemAddress 1 vs last location 3932277478106" },
+    { "at": 1792166300, "schema_ref": "https://eddn.edcd.io/schemas/outfitting/2", "outcome": "dropped", "detail": "outfitting/2 is off until PowerPlay and tech-broker modules are filtered" }
+  ]
+}

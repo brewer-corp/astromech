@@ -141,8 +141,10 @@ impl Session {
         // 2. Game state pipeline.
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-        let pipe = crate::pipeline::start(&jdir, hub.clone(), Some(&data.join("astromech.sqlite")), log)
-            .with_context(|| format!("journal folder {}", jdir.display()))?;
+        let eddn = crate::pipeline::eddn_feed(cfg, &data);
+        let pipe =
+            crate::pipeline::start_with_eddn(&jdir, hub.clone(), Some(&data.join("astromech.sqlite")), log, eddn)
+                .with_context(|| format!("journal folder {}", jdir.display()))?;
         let g = hub.snapshot();
         log(&format!(
             "game state: {} | system {} | status flags {}",
