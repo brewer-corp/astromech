@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:02:14.277330776+00:00"
+status: "done"
 title: "Run the EDDN sender in the core"
-updated_at: "2026-10-16T19:33:33.587303398+00:00"
+updated_at: "2026-10-16T20:02:14.277330776+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,8 @@ Tests show:
 ## Notes
 
 - 2026-10-16 [note] From review of lt2b/thau: (R1) don't enable outfitting/2 until PowerPlay and tech-broker modules are filtered: journal Outfitting.json has no sku, so the README's commander-status rule never fires; add a denylist of those module names (wiki-visible data) or file a decision. (R2) send companion-file messages only for live tailed events, not replay; if real logs show file and event timestamps always equal, require equality. (R5) write each companion::Unusable to the send log like Dropped results.
+- 2026-10-16 [note] Decisions: nothing from the startup catch-up is sent (Developers.md has no explicit rule; EDDN consumers read messages as current, so replayed lines only rebuild the header/commander/location); a journal the game starts while astromech runs is live from its Fileheader. EDDN is off unless [eddn] enabled = true in astromech.toml (09s3 should move this into Settings); debug builds always use /test. outfitting/2 stays off (companion::SEND_OUTFITTING) and each Outfitting visit logs a skip. One companion trigger rule (event, MarketID, file >= event) for commodity/outfitting/shipyard/navroute/fcmaterials; uxyq decides equality. The Diagnostics view still shows the newest 50 rows mixed; the kept log caps dropped rows (200) apart from gateway answers (500). Shutdown can wait up to the 30 s HTTP timeout if a post is in flight.
+
+## Close Reason
+
+Done-when met at 06e57df (evidence astromech-ckvr, astromech-ut2b, astromech-04bk): replay from Fileheader, worker with its own outbox and transport (no lock across HTTP), pass stops at first outage, monotonic retry minimum, dated log and separate drop cap; plus live-only sending, outfitting gated, Unusable/skips logged. Needs independent review.
