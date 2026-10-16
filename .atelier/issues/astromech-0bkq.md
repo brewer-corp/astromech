@@ -17,9 +17,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:06:45.830839998+00:00"
+status: "done"
 title: "Callout delivery: speaker busy without a device, notifications off the pipeline thread"
-updated_at: "2026-10-16T20:02:31.309078825+00:00"
+updated_at: "2026-10-16T20:06:45.830839998+00:00"
 ---
 
 ## Goal
@@ -41,3 +42,7 @@ Review findings R3, R4 and R5 on the reaction engine (astromech-ngyt, feature/as
 ## Notes
 
 - 2026-10-16 [note] Also (review of ngyt round 3, N1): if the STT thread panics, the voice-turn job count stays one too high and every later push-to-talk holds callouts for the full 60 s; add a drop guard in the STT loop that calls job_done when a job ends, including on panic.
+
+## Close Reason
+
+Tests cover busy() with no device and after a TTS failure, delivery outside the stats lock, and the notification rate limit. The Windows run is split into astromech-g80r (needs-human).
