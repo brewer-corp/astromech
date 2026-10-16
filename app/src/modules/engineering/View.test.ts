@@ -10,13 +10,17 @@ import View from "./View.svelte";
 
 let headlines: Record<string, Headline> = {};
 let fleet: Fleet;
+let headlinesFail: string | null = null;
 
 vi.mock("../../lib/engineering", async (importActual) => {
   const real = await importActual<typeof import("../../lib/engineering")>();
   return {
     ...real,
     loadFleet: async () => fleet,
-    loadHeadlines: async () => headlines,
+    loadHeadlines: async () => {
+      if (headlinesFail) throw new Error(headlinesFail);
+      return headlines;
+    },
   };
 });
 
@@ -31,6 +35,7 @@ beforeEach(() => {
   location.hash = "#/engineering";
   headlines = structuredClone(ships.headlines) as unknown as Record<string, Headline>;
   fleet = structuredClone(ships.fleet) as unknown as Fleet;
+  headlinesFail = null;
 });
 afterEach(cleanup);
 
@@ -65,7 +70,7 @@ it("shows a stored ship's system as a chip that copies its name, and opens the s
   await fireEvent.click(copy);
   expect(writeText).toHaveBeenCalledWith("Shinrarta Dezhra");
   expect(location.hash).toBe("#/engineering");
-  const open = within(c).getByRole("link", { name: "Synthetic_Krait" });
+  const open = within(c).getByRole("link", { name: "Synthetic_Krait, Krait MkII" });
   expect(open.getAttribute("href")).toBe("#/engineering/1");
 });
 
@@ -73,6 +78,26 @@ it("says where a ship in transit is going, as a chip", async () => {
   Object.assign(fleet.ships[0]!, { current: false, in_transit: true, system: "Sol" });
   render(View);
   const c = (await screen.findByText("Synthetic_Krait")).closest(".card") as HTMLElement;
-  expect(c.querySelector(".where")!.textContent!.replace(/\s+/g, " ").trim()).toBe("In transit to Sol Copy");
+  const where = c.querySelector(".where")!;
+  expect(where.textContent!.replace(/\s+/g, " ").trim()).toBe("In transit to Sol Copy");
+  // The location wraps and its name may be cut short on a narrow card: the full name is on hover.
+  expect(where.getAttribute("title")).toBe("Sol");
   expect(within(c).getByRole("button", { name: "Copy Sol" })).toBeTruthy();
+});
+
+it("names each card's link by ship name or ident and type", async () => {
+  Object.assign(fleet.ships[0]!, { name: null, ident: "CU-01", type_name: "Imperial Cutter" });
+  render(View);
+  const link = await screen.findByRole("link", { name: "CU-01, Imperial Cutter" });
+  expect(link.textContent).toBe("Unnamed");
+});
+
+it("says when the card stats can't be worked out", async () => {
+  headlinesFail = "journal folder not found: C:\\nowhere";
+  render(View);
+  const note = await screen.findByText(
+    (_, el) => el?.tagName === "P" && /^! Shield, DPS and calculated jump range are unavailable: journal folder not found/.test(el.textContent?.trim() ?? ""),
+  );
+  expect(note).toBeTruthy();
+  expect((await card("Synthetic_Krait"))["Shield"]).toBe("–");
 });

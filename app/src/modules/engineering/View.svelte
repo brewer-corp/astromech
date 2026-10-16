@@ -9,6 +9,7 @@
 
   let fleet = $state<Fleet | null>(null);
   let headlines = $state<Record<string, Headline>>({});
+  let headlinesErr = $state<string | null>(null);
   const readOpen = () => {
     const m = /^#\/engineering\/(-?\d+)$/.exec(location.hash);
     return m ? Number(m[1]) : null;
@@ -25,13 +26,22 @@
     const tick = () => {
       void loadFleet().then((f) => (fleet = f));
       void loadHeadlines()
-        .then((h) => (headlines = h))
-        .catch(() => (headlines = {}));
+        .then((h) => {
+          headlines = h;
+          headlinesErr = null;
+        })
+        .catch((e: unknown) => {
+          headlines = {};
+          headlinesErr = e instanceof Error ? e.message : String(e);
+        });
     };
     tick();
     const t = setInterval(tick, 5000);
     return () => clearInterval(t);
   });
+
+  // A literal trailing space would be trimmed; the flex gap spaces it on screen, this for readers.
+  const IN_TRANSIT_TO = "In transit to ";
 
   /** "165M", "6.7M", "90k". */
   function cr(n: number | null): string {
@@ -60,6 +70,9 @@
         {fleet.stored_modules.length === 1 ? "module" : "modules"} · {fleet.source}
       {/if}
     </p>
+    {#if headlinesErr}
+      <p class="sub"><b class="mark">!</b> Shield, DPS and calculated jump range are unavailable: {headlinesErr}</p>
+    {/if}
 
     <div class="cards">
       {#each fleet?.ships ?? [] as s (s.id)}
@@ -68,11 +81,13 @@
         {@const jump = h?.jump ?? s.max_jump_range}
         <!-- The name link covers the card; the system chip sits above it (a button can't hold one). -->
         <div class="card" class:now={s.current}>
-          <a class="name" href="#/engineering/{s.id}">{s.name ?? "Unnamed"}</a>
+          <a class="name" href="#/engineering/{s.id}" aria-label="{s.name ?? s.ident ?? `#${s.id}`}, {s.type_name}">{s.name ?? "Unnamed"}</a>
           <span class="id lo">{s.ident ?? `#${s.id}`}</span>
-          <span class="type lo">{s.type_name}</span>
-          <span class="where" class:accent={s.current}>
-            {#if s.current}Flying now{:else if s.system}{s.in_transit ? "In transit to " : ""}<SystemChip name={s.system} />{:else}{s.in_transit ? "In transit" : "Stored"}{/if}
+          <span class="row">
+            <span class="type lo">{s.type_name}</span>
+            <span class="where" class:accent={s.current} title={!s.current && s.system ? s.system : undefined}>
+              {#if s.current}Flying now{:else if s.system}{#if s.in_transit}<span>{IN_TRANSIT_TO}</span>{/if}<SystemChip name={s.system} />{:else}{s.in_transit ? "In transit" : "Stored"}{/if}
+            </span>
           </span>
           <span class="k">Value</span><span class="q">{cr(s.value)}</span>
           <span class="k">Rebuy</span><span class="q">{cr(s.rebuy)}</span>
@@ -121,12 +136,16 @@
   .card:has(.name:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
   .name::after { content: ""; position: absolute; inset: 0; }
   .name:focus-visible { outline: none; }
-  .where :global(.chip) { position: relative; z-index: 1; }
+  .where :global(.chip) { position: relative; z-index: 1; max-width: 100%; min-width: 0; }
+  .where :global(.chip .name) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .card.now { border-left-color: var(--accent); }
   .name { grid-column: 1 / 3; color: var(--text-hi); text-decoration: none; font-size: var(--fs-l); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .id { font-family: var(--mono); font-size: var(--fs-s); text-align: right; align-self: center; }
-  .type { grid-column: 1; font-size: var(--fs-s); white-space: nowrap; }
-  .where { grid-column: 2 / 4; justify-self: end; font-size: var(--fs-s); text-align: right; color: var(--text); white-space: nowrap; }
+  /* Type left, location right; a long location wraps under "In transit to" and its name ellipsizes. */
+  .row { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; min-width: 0; }
+  .type { flex: none; font-size: var(--fs-s); white-space: nowrap; }
+  .where { min-width: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; column-gap: 4px; font-size: var(--fs-s); text-align: right; color: var(--text); white-space: nowrap; }
+  .mark { color: var(--accent); }
   .accent { color: var(--accent); }
   .inc b { color: var(--accent); }
   .k { grid-column: 1 / 3; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
