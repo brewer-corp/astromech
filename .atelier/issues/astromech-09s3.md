@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Settings → Data sharing"
-updated_at: "2026-10-16T18:51:22.441315362+00:00"
+updated_at: "2026-10-16T20:18:55.697268890+00:00"
 ---
 
 ## Goal
@@ -35,3 +35,4 @@ Turning EDDN off stops sends (the outbox stays empty during a replay), and the s
 
 - 2026-10-16 [note] From the astromech-tyjz review (R7): when a service is switched off, purge its queued messages or stop queuing for it, and cap the outbox by row count and age so a long outage can't grow it without limit.
 - 2026-10-16 [note] Also decide whether giving up after about 2 h of retries (60+...+3600 s, 8 tries) is the intended limit, or whether a long gateway outage should keep data queued longer (review of el1v, R7).
+- 2026-10-16 [note] Also (review of xvjs, R6): Diagnostics shows the newest 50 send-log rows mixed, so skips push gateway answers off screen; add a filter or a separate list.
