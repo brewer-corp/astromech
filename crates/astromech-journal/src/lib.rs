@@ -223,6 +223,8 @@ pub struct JournalLine {
 pub struct CargoSnap {
     pub count: i64,
     pub items: Vec<(String, i64)>,
+    /// Tonnes marked stolen (`Stolen` in each inventory entry).
+    pub stolen: i64,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -550,6 +552,7 @@ pub fn parse_cargo(bytes: &[u8]) -> Option<CargoSnap> {
     let v: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let count = v.get("Count").and_then(|x| x.as_i64()).unwrap_or(0);
     let mut items = vec![];
+    let mut stolen = 0;
     if let Some(inv) = v.get("Inventory").and_then(|x| x.as_array()) {
         for it in inv {
             let name = it
@@ -558,11 +561,12 @@ pub fn parse_cargo(bytes: &[u8]) -> Option<CargoSnap> {
                 .or_else(|| it.get("Name").and_then(|x| x.as_str()))
                 .unwrap_or("item");
             let n = it.get("Count").and_then(|x| x.as_i64()).unwrap_or(0);
+            stolen += opt_i(it, "Stolen").unwrap_or(0).max(0);
             items.push((name.to_string(), n));
         }
     }
     items.sort_by_key(|a| std::cmp::Reverse(a.1));
-    Some(CargoSnap { count, items })
+    Some(CargoSnap { count, items, stolen })
 }
 
 /// NavRoute.json in the journal folder. First entry is the current system.
@@ -805,10 +809,10 @@ mod tests {
     #[test]
     fn cargo_and_route_files() {
         let c = parse_cargo(
-            br#"{ "event":"Cargo", "Count":5, "Inventory":[{"Name":"gold","Name_Localised":"Gold","Count":3},{"Name":"painite","Count":2}] }"#,
+            br#"{ "event":"Cargo", "Count":5, "Inventory":[{"Name":"gold","Name_Localised":"Gold","Count":3,"Stolen":1},{"Name":"painite","Count":2,"Stolen":0}] }"#,
         )
         .unwrap();
-        assert_eq!(c.count, 5);
+        assert_eq!((c.count, c.stolen), (5, 1));
         assert_eq!(c.items[0], ("Gold".into(), 3));
         let r = parse_nav_route(
             br#"{ "event":"NavRoute", "Route":[{"StarSystem":"Sol"},{"StarSystem":"Barnard's Star"}] }"#,

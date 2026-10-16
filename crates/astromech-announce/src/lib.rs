@@ -18,7 +18,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`].
+//! The rules that ship are in [`builtin`]: [`prospector`] and [`scan`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
@@ -107,10 +107,11 @@ pub trait Rule: Send {
 }
 
 pub mod prospector;
+pub mod scan;
 
 /// The rules that ship. `prospector`: the thresholds the core keeps (Settings changes them).
 pub fn builtin(prospector: prospector::SharedThresholds) -> Vec<Box<dyn Rule>> {
-    vec![Box::new(prospector::Prospector { thresholds: prospector })]
+    vec![Box::new(prospector::Prospector { thresholds: prospector }), Box::new(scan::Scan)]
 }
 
 /// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.

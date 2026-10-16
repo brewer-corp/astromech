@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Being-scanned callout"
-updated_at: "2026-10-15T20:36:13.659069834+00:00"
+updated_at: "2026-10-16T20:12:36.651525517+00:00"
 ---
 
 ## Goal
