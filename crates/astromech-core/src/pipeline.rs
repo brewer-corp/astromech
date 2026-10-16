@@ -12,10 +12,17 @@
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file.
+//! - EDDN (when switched on): every journal line goes to the [`astromech_eddn::Feed`] in order,
+//!   and the companion files to it after their event. Lines replayed at startup are fed as not
+//!   live, so they rebuild its header, commander and location but nothing from them is sent; a
+//!   journal the game starts while we run (later by name, not opened before) is live from its
+//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
+//!   feed's own thread, so the network never holds up this one.
 
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
-use astromech_journal::companion::{load, triggers, CompanionKind, Trigger};
+use astromech_eddn::worker::wall_now;
+use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
 use notify::{RecursiveMode, Watcher};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -81,6 +88,23 @@ fn is_journal(p: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// Is journal `a` later than `b`? Names carry the start time (`Journal.2026-10-16T120000.01.log`,
+/// or `Journal.161016120000.01.log` before 2021), so they sort in time order.
+fn later(a: &Path, b: &Path) -> bool {
+    a.file_name() > b.file_name()
+}
+
+/// The journal event and text of a companion file EDDN has a schema for.
+fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
+    Some(match f {
+        CompanionFile::Market(m) => ("Market", &m.raw_json),
+        CompanionFile::Outfitting(o) => ("Outfitting", &o.raw_json),
+        CompanionFile::Shipyard(y) => ("Shipyard", &y.raw_json),
+        CompanionFile::FcMaterials(c) => ("FCMaterials", &c.raw_json),
+        _ => return None,
+    })
+}
+
 /// Counters for logs and tests.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Stats {
@@ -118,6 +142,11 @@ struct Tailer {
     log: Box<dyn Fn(&str) + Send>,
     /// Companion events whose file was not usable yet; tried again when the game touches the file.
     pending: Vec<Trigger>,
+    eddn: Option<astromech_eddn::Feed>,
+    /// False while replaying a journal written before we started.
+    live: bool,
+    /// Journals opened this run: opening one again is a replay, never live.
+    opened: std::collections::HashSet<PathBuf>,
 }
 
 impl Tailer {
@@ -130,7 +159,10 @@ impl Tailer {
                 match astromech_journal::parse_line(&l) {
                     Ok(j) => {
                         st.journal_lines += 1;
-                        self.hub.apply_journal(&j.event);
+                        self.hub.apply_journal(&j);
+                        if let (Some(f), Ok(raw)) = (&mut self.eddn, serde_json::from_str(&j.raw_json)) {
+                            f.journal(&raw, self.live, wall_now());
+                        }
                         parsed.push(j);
                     }
                     Err(_) => st.bad_lines += 1,
@@ -143,6 +175,17 @@ impl Tailer {
             self.pending.retain(|p| !found.iter().any(|t| t.kind == p.kind));
             self.load_companions(found);
         }
+        self.eddn_nav_route();
+    }
+
+    /// `NavRoute.json` for a live `NavRoute` event: read after the event and whenever the game
+    /// writes the file, until the feed has the file the event announced.
+    fn eddn_nav_route(&mut self) {
+        let Some(f) = self.eddn.as_mut().filter(|f| f.awaiting("NavRoute")) else { return };
+        let file = std::fs::read(self.dir.join("NavRoute.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
+        if let Some(file) = file {
+            f.companion_file("NavRoute", &file, wall_now());
+        }
     }
 
     fn load_companions(&mut self, found: Vec<Trigger>) {
@@ -153,6 +196,11 @@ impl Tailer {
             st.companions_unused += reports.len() as u64;
         }
         for f in files {
+            if let (Some(feed), Some((event, raw))) = (&mut self.eddn, eddn_file(&f)) {
+                if let Ok(file) = serde_json::from_str(raw) {
+                    feed.companion_file(event, &file, wall_now());
+                }
+            }
             self.hub.update(|g| g.apply_companion(f));
         }
         for r in reports {
@@ -180,10 +228,15 @@ impl Tailer {
 
     fn open(&mut self, path: PathBuf, replay: bool) {
         let saved = self.store.as_ref().and_then(|s| s.journal_offset(&path.display().to_string()).ok().flatten());
+        // Every journal is read from its first line (the Fileheader). At startup that's a replay
+        // of what happened before we started; a file the game starts later is live throughout.
         let mut t = JournalTail::new(path.clone(), 0);
         let lines = t.read_new();
         let n = lines.len();
+        self.opened.insert(path.clone());
+        self.live = !replay;
         self.apply_lines(lines);
+        self.live = true;
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         self.hub.update(|g| g.journal_file = Some(name.clone()));
         match (replay, saved) {
@@ -208,7 +261,12 @@ impl Tailer {
                 if self.tail.is_some() {
                     self.stats.lock().unwrap().rollovers += 1;
                 }
-                self.open(n, false);
+                self.flush_eddn();
+                // Newest by mtime isn't always the game's new journal: a backup or sync tool can
+                // touch an old one, or another client can write the same folder. Only a journal
+                // not opened yet this run and later by name than the current one is live.
+                let live = !self.opened.contains(&n) && self.tail.as_ref().is_none_or(|t| later(&n, &t.path));
+                self.open(n, !live);
             }
         }
         self.save();
@@ -218,6 +276,9 @@ impl Tailer {
         let p = self.dir.join("Status.json");
         if let Some(s) = astromech_status::read_status_retry(&p, 5) {
             self.stats.lock().unwrap().status_reads += 1;
+            if let Some(f) = &mut self.eddn {
+                f.status(&serde_json::json!({ "BodyName": s.body_name }));
+            }
             self.hub.apply_status(&s);
         }
         self.on_companions();
@@ -235,6 +296,13 @@ impl Tailer {
             }
         }
     }
+
+    /// End of a journal, or shutdown: send a pending signal run.
+    fn flush_eddn(&mut self) {
+        if let Some(f) = &mut self.eddn {
+            f.flush(wall_now());
+        }
+    }
 }
 
 /// Start watching `dir`. `db` is the store file for read positions (None: don't persist).
@@ -243,6 +311,52 @@ pub fn start(
     hub: Arc<StateHub>,
     db: Option<&Path>,
     log: impl Fn(&str) + Send + 'static,
+) -> Result<Pipeline> {
+    start_with_eddn(dir, hub, db, log, None)
+}
+
+/// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
+/// event and by its worker before every post, so switching it takes effect at once. The core
+/// sets it from the config at start and on every edit.
+pub static EDDN_SHARING: std::sync::LazyLock<Arc<AtomicBool>> = std::sync::LazyLock::new(Arc::default);
+
+/// Whether EDDN messages go to the `/test` schemas: when the config says so, and always in a
+/// debug build.
+pub fn eddn_test(cfg: &crate::config::Config) -> bool {
+    cfg.eddn.test || cfg!(debug_assertions)
+}
+
+/// The EDDN feed. It runs even while sharing is off, so the header, commander and location are
+/// right the moment it's switched on; off, it queues nothing and its worker posts nothing. A
+/// feed that can't start is logged and left out.
+pub fn eddn_feed(cfg: &crate::config::Config, data_dir: &Path) -> Option<astromech_eddn::Feed> {
+    let test = eddn_test(cfg);
+    let version = env!("CARGO_PKG_VERSION");
+    let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
+    let transport = astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &format!("astromech/{version}"));
+    let db = data_dir.join(astromech_eddn::DB_FILE);
+    let sharing = EDDN_SHARING.clone();
+    let on = sharing.load(Ordering::SeqCst);
+    match astromech_eddn::Feed::start(&db, software, test, Box::new(transport), sharing, crate::logging::log) {
+        Ok(f) => {
+            let state = if on { "sharing live data" } else { "off (Settings → Data sharing)" };
+            crate::logging::log(&format!("EDDN: {state}{}", if test { ", test schemas" } else { "" }));
+            Some(f)
+        }
+        Err(e) => {
+            crate::logging::log(&format!("EDDN off: {} {e}", db.display()));
+            None
+        }
+    }
+}
+
+/// [`start`], also feeding EDDN.
+pub fn start_with_eddn(
+    dir: &Path,
+    hub: Arc<StateHub>,
+    db: Option<&Path>,
+    log: impl Fn(&str) + Send + 'static,
+    eddn: Option<astromech_eddn::Feed>,
 ) -> Result<Pipeline> {
     let (tx, rx) = channel::<notify::Result<notify::Event>>();
     let mut watcher = notify::recommended_watcher(tx).context("creating file watcher")?;
@@ -260,6 +374,9 @@ pub fn start(
         stats: stats.clone(),
         log: Box::new(log),
         pending: vec![],
+        eddn,
+        live: true,
+        opened: Default::default(),
     };
     if let Some(n) = astromech_journal::newest_journal(dir) {
         t.open(n, true);
@@ -283,11 +400,13 @@ pub fn start(
                 let mut status = false;
                 let mut journal = false;
                 let mut companions: Vec<CompanionKind> = vec![];
+                let mut nav_route = false;
                 let mut classify = |paths: &[PathBuf]| {
                     for p in paths {
                         let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
                         if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
                             status = true;
+                            nav_route |= name == "NavRoute.json";
                         } else if let Some(k) = CompanionKind::from_file_name(&name) {
                             if !companions.contains(&k) {
                                 companions.push(k);
@@ -311,7 +430,11 @@ pub fn start(
                 if !companions.is_empty() {
                     t.on_companion_files(&companions);
                 }
+                if nav_route {
+                    t.eddn_nav_route();
+                }
             }
+            t.flush_eddn();
         })
         .context("starting pipeline thread")?;
     Ok(Pipeline { _watcher: watcher, stop, thread: Some(thread), stats })
@@ -351,6 +474,9 @@ mod tests {
             stats: Arc::new(std::sync::Mutex::new(Stats::default())),
             log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
             pending: vec![],
+            eddn: None,
+            live: true,
+            opened: Default::default(),
         };
         (t, hub, logs)
     }
@@ -389,5 +515,119 @@ mod tests {
         assert!(hub.snapshot().companions.market.is_some());
         assert!(t.pending.is_empty());
         assert_eq!(t.stats.lock().unwrap().companions_unused, 2);
+    }
+
+    // EDDN: the feed sees every line from each journal's Fileheader, but only live lines and
+    // their companion files are queued.
+
+    /// A session's opening lines, stamped `ts`.
+    fn session(ts: &str, build: &str) -> String {
+        [
+            format!(r#"{{"timestamp":"{ts}","event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":"{build}"}}"#),
+            format!(r#"{{"timestamp":"{ts}","event":"LoadGame","Commander":"Jameson","FID":"F1","Horizons":true,"Odyssey":true}}"#),
+            format!(r#"{{"timestamp":"{ts}","event":"Location","StarSystem":"Sys","SystemAddress":5,"StarPos":[1.0,2.0,3.0]}}"#),
+            String::new(),
+        ]
+        .join("\n")
+    }
+
+    /// The game's timestamp `secs_ago` seconds before now (live lines must be recent).
+    fn ts(secs_ago: i64) -> String {
+        (chrono::Utc::now() - chrono::Duration::seconds(secs_ago)).format("%Y-%m-%dT%H:%M:%SZ").to_string()
+    }
+
+    fn touch(p: &Path, secs_from_now: u64) {
+        let t = std::time::SystemTime::now() + Duration::from_secs(secs_from_now);
+        std::fs::File::options().write(true).open(p).unwrap().set_modified(t).unwrap();
+    }
+
+    fn docked(ts: &str) -> String {
+        format!(
+            r#"{{"timestamp":"{ts}","event":"Docked","StationName":"S","MarketID":7,"StarSystem":"Sys","SystemAddress":5}}"#
+        )
+    }
+
+    fn eddn_tailer(dir: &Path) -> (Tailer, PathBuf) {
+        let db = dir.join("eddn.sqlite");
+        let sender = astromech_eddn::Sender::new(
+            astromech_eddn::Outbox::open(&db).unwrap(),
+            astromech_eddn::Software { name: "astromech".into(), version: "test".into() },
+            true,
+        );
+        let (mut t, _, _) = tailer(dir);
+        t.eddn = Some(astromech_eddn::Feed::new(sender));
+        (t, db)
+    }
+
+    /// Messages queued, and the send log's details (oldest first).
+    fn eddn_state(db: &Path) -> (usize, Vec<String>) {
+        let o = astromech_eddn::Outbox::open(db).unwrap();
+        (o.pending().unwrap(), o.recent(100).unwrap().into_iter().rev().map(|e| e.detail).collect())
+    }
+
+    fn append(p: &Path, text: &str) {
+        let mut f = std::fs::OpenOptions::new().append(true).open(p).unwrap();
+        writeln!(f, "{text}").unwrap();
+    }
+
+    #[test]
+    fn eddn_gets_nothing_from_the_startup_replay_and_live_lines_after_it() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        let market_event = MARKET_EVENT.replace("2026-10-10T20:00:05Z", &ts(60));
+        let market_file = MARKET_FILE.replace("2026-10-10T20:00:05Z", &ts(60));
+        std::fs::write(&j, format!("{}{}\n{market_event}\n", session(&ts(120), "r1 "), docked(&ts(90)))).unwrap();
+        std::fs::write(d.path().join("Market.json"), &market_file).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j.clone(), true);
+        assert_eq!(eddn_state(&db), (0, vec![]), "nothing from the catch-up, companion file included");
+
+        append(&j, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (1, vec![]), "the live Docked");
+
+        // A live Market event reaches the feed with its file: commodity/3 is queued.
+        let market_event = MARKET_EVENT.replace("2026-10-10T20:00:05Z", &ts(0));
+        std::fs::write(d.path().join("Market.json"), MARKET_FILE.replace("2026-10-10T20:00:05Z", &ts(0))).unwrap();
+        append(&j, &market_event);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (2, vec![]));
+
+        // The game starts a new journal: live from its Fileheader, which is replayed into the
+        // feed, so its Location is sent with the new header.
+        let j2 = d.path().join("Journal.2026-10-16T120000.01.log");
+        std::fs::write(&j2, session(&ts(0), "r2 ")).unwrap();
+        touch(&j2, 5);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 3);
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+    }
+
+    #[test]
+    fn an_older_journal_touched_later_is_read_as_a_replay() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        // Recent timestamps, so only the file choice keeps them from being sent.
+        std::fs::write(&j1, format!("{}{}\n", session(&ts(30), "r1 "), docked(&ts(20)))).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        // A backup tool rewrites the older journal: newest by mtime, but earlier by name.
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]), "an older journal is never live");
+
+        // Back to the newer one (seen already this run): also a replay.
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]));
+        // Lines the game appends to it are live again.
+        append(&j2, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
     }
 }

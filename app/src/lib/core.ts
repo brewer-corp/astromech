@@ -51,6 +51,20 @@ export interface CoreStatus {
   models_progress?: string | null;
   models_dir?: string;
   update?: UpdateStatus;
+  /** The journal history the core keeps (backfill, then new lines). */
+  history?: HistoryProgress | null;
+}
+
+export interface HistoryProgress {
+  running: boolean;
+  /** The first import since the core started has finished. */
+  ready: boolean;
+  files: number;
+  lines: number;
+  bytes: number;
+  bytes_total: number;
+  events: number;
+  error: string | null;
 }
 
 export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -77,6 +91,8 @@ export type CoreCmd =
   | "kill_switch"
   | "download_models"
   | "open_config"
+  | "eddn_log"
+  | "set_eddn"
   | "voice_test"
   | "voice_test_poll"
   | "voice_test_stop"

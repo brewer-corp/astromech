@@ -1,0 +1,15 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-ylo6
+title: 'R4: switched-off and outbox-full rows show as Last error; a row per overflowing enqueue.'
+target: astromech-tyjz
+identity: review-agent (tyjz round 7, final)
+commit: 941dfa00d0923ff320b2abb317b7dd256a9f6c9f
+created_at: 2026-10-16T20:56:51.852728061Z
+event:
+  event: finding
+  recommendation: defer
+---
+
+R4: switched-off and outbox-full rows show as Last error; a row per overflowing enqueue.

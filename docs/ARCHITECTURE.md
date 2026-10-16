@@ -236,17 +236,41 @@ astromech/
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
+    astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
+                         cycle, next rank and reward), the system's state on arrival and its spoken
+                         line; rank rules from data/catalog/powerplay.json
     astromech-ship/      ship stats from fitted modules and engineering (mass, jump range, power,
                          shields, armour, weapons, distributor, speed), ported from Coriolis;
                          base stats from data/catalog/ships.json
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
-                         Spansh faction-state lookups (Famine, HGE pools), position from the journal;
+                         Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
+                         (acquire / reinforce / undermine for the pledged power), position from the journal;
                          its network calls go through astromech-data
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)
-    astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
+    astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
+                         with the global rules (live-only, *_Localised and commander data stripped,
+                         header from Fileheader/LoadGame, flags never null, augmentation cross-check),
+                         per-schema SchemaSpec elisions, SQLite outbox (eddn.sqlite) with retry and
+                         backoff, /test schemas, send log shown in Diagnostics; commodity/3,
+                         outfitting/2 and shipyard/2 built from the companion files' JSON;
+                         journal/1 and the event schemas (fsssignaldiscovered batched per run,
+                         codexentry body cross-check); all tested against the live schema files.
+                         Feed: what the core drives; only live-tailed lines and their companion files
+                         are queued (the startup replay, an older or already-read journal, and lines
+                         over 5 min old only rebuild the header and location);
+                         outfitting/2 is off until commander-specific modules are filtered.
+                         Worker: delivery on its own thread and SQLite connection, so no lock is held
+                         across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
+                         also wait a minute on the monotonic clock; messages over 30 min old are given
+                         up, and at most 2000 are kept; stopping never waits for a post. Off until
+                         switched on in Settings → Data sharing ([eddn] enabled), which takes effect at
+                         once: off, nothing is queued and the queue is discarded
+    astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
+                         backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
+    astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
   app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)
@@ -1661,12 +1685,17 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   - No compile-time database needed.
   - sqlx's strengths (async pools, multiple backends, compile-time checked queries) don't pay off for a single-user local file.
   - It runs on a dedicated DB thread: an actor with a request channel; reads go through a small pool of read-only connections in WAL mode.
-- **Schema sketch:**
-  - `journal_files(id, path, sha256, cmdr_fid, first_ts, last_ts, size, last_offset)`
-  - `events(id, file_id, offset, ts, cmdr_fid, event, json)` with indexes on `(event, ts)` and `(cmdr_fid, ts)`, plus JSON1 generated columns for hot fields (`StarSystem`, `SystemAddress`, `MarketID`, `ShipID`).
-  - **Derived ledgers**, rebuilt from `events` at any time (the events table is the source of truth): `material_snapshots` and `material_deltas`, `ships`/`loadouts`, `visits`, `earnings`, `scans`, `engineer_progress`.
-  - FTS5 over event text, for logbook search.
-- **Backfill:** a first-run import of every `Journal.*.log` runs in the background with progress, resumable by file offset; afterwards the store follows the files incrementally. ⚠ Measure the size and import time on Sumeet's history (years of logs can reach hundreds of MB).
+- **Journal history (built, astromech-aonb): crate `astromech-history`, its own file `history.sqlite`** next to `astromech.sqlite`. Not in the settings store: it grows to hundreds of MB, it can always be rebuilt from the journals (delete it and re-import), and long import transactions must not hold the write lock the voice path uses for settings and aliases. It uses the store's migration runner (`astromech_store::migrate`), which applies each migration and its `user_version` bump in one `BEGIN IMMEDIATE` transaction, so a crash mid-migration leaves the previous version.
+  - **Commanders** (astromech-i4gx): one journal folder can hold several commanders and Legacy-mode play, and a file can switch commander after a return to the main menu. Each line belongs to the commander its file named last (`Commander`/`LoadGame` `FID`; `name:<Commander>` in journals too old to have one; `/legacy` appended for 3.x journals after Update 14 on 29 Nov 2022); a continuation part (`Fileheader` `part` > 1) starts from the previous part's commander. Every ledger is keyed by that commander, and lookups of earlier rows stay within it, so one commander's ship 1 is never another's.
+  - `journal_files(id, name, offset, lines, cmdr, legacy)`: per file, the byte offset after the last complete line imported and the commander there.
+  - `events(id, file_id, offset, cmdr, ts, event, json)`, `UNIQUE(file_id, offset)`, indexes on `(event, ts)` and `(cmdr, ts)`. `json` is the line as the game wrote it; `cmdr` is null before the file names one.
+  - **Derived ledgers**, written in the same transaction as their events and rebuildable from `events` (`History::rebuild_ledgers`): `commanders` (key, name, Legacy or not), `visits` (system arrivals and dockings, with jump distance), `earnings` (credits received, one row per event, by kind), `ships` (every ship id per commander: type, name, acquired, last flown, sold), `scans` (body scans, maps, completed organic samples). Rules are in `crates/astromech-history/src/ledgers.rs`.
+  - **Game time, not import order** (astromech-u3f4): rebuilds replay events by `ts`, lookups of earlier rows (was this Location the system already recorded?) order by `ts`, and ship rows only take type and name from events newer than the ones they have. An import that stores events older than a commander's ledgers already hold (a restored backup, logs from another PC) rebuilds that commander's ledgers afterwards, so the result is the same as importing in order.
+  - Work that needs Rust (v2 filling in commanders, v3 and late-file rebuilds) is a row in `pending`, done and deleted in one transaction, on the next open or import if interrupted.
+  - **Logbook** (astromech-fxp0, `History::logbook`, the app's Logbook tab): places visited (one per system address, one per station market id) with visit counts and first/last visit, totals, and the timeline of arrivals and dockings. Search is a case-insensitive substring match on system and station names, over places by their latest name. The app window reads `history.sqlite` itself, read only (`History::open_read_only`; WAL lets it read while the core writes), like `galaxy.db`. Measured on the 400 MB synthetic history (74,679 visits, all different places, the worst case): about 0.1–0.25 s per search.
+  - **Session summary** (astromech-bg0x, `History::session`, the app's Logbook → Session tab): one session is a commander's events from a `LoadGame` to their next `LoadGame`. It reports credits by activity (the `earnings` ledger: what counts and what doesn't is listed in `crates/astromech-history/src/ledgers.rs`), total and per hour, trade profit, FSD jumps and distance (carrier jumps apart: visits record their event in `via` and carrier jumps have no jump distance), bounties awarded (`Bounty` events, not yet cashed in) and data sold (exploration + organic). Asking for it by voice and a summary at logout are astromech-oo8y.
+  - Still to come with their consumers: JSON1 generated columns for hot fields, FTS5 over event text (searching more than place names), `material_snapshots`/`material_deltas`, `loadouts`, `engineer_progress`.
+- **Backfill:** `History::import` reads every `Journal.*.log` oldest first, in batches of 20,000 lines per transaction (WAL, `synchronous=NORMAL`). Progress commits with its batch, so a killed import resumes where it stopped without duplicates; an unfinished last line waits for its newline. Running it again only reads what's new, so the same call follows the files incrementally. **In the core** (astromech-3tlm, `crates/astromech-core/src/history.rs`): one `history` thread owns the database, imports at core startup (the first run is the backfill) and again after any change in the journal folder, gathering changes for 2 s into one import, and also whenever a 2 s recheck finds the journals grew (file count, newest file's length through an open handle), because Windows doesn't notify appends to the file the game holds open (astromech-txzq); it shares no thread, file or lock with the game-state pipeline. Its progress (`running`, `ready`, files, lines, bytes of the total, events, last error) is `history` in the control API's `status` reply. Measured on a 400 MB synthetic set (80 files, 889k lines, release build, Linux): **7.5–8.1 s over two runs, 638 MB database (1.6× the journals)**, of which `events` is 507 MB. The run on Sumeet's real logs is astromech-tqdh (`cargo run --release -p astromech-history --example import-history -- <journal dir> <db>`).
 - **Example: "how many raw materials do I have?"**
   1. Take the latest `Materials` snapshot.
   2. Apply later deltas: `MaterialCollected`, `MaterialDiscarded`, `MaterialTrade`, `EngineerCraft`, `Synthesis`, `TechnologyBroker`, mission material rewards, `ScientificResearch`.
@@ -1689,6 +1718,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
 | **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?" |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
-| M8+ | Missions/CGs, Fleet carrier, Powerplay, Galaxy map, 3D ship | — | Deferred |
+| Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?" |
+| M8+ | Missions/CGs, Fleet carrier, Galaxy map, 3D ship | — | Deferred |
 
 Each module ships with its voice queries in the same release: a module isn't "done" until its `voice_exposed` queries have phrase templates and tests.

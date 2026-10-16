@@ -181,6 +181,9 @@ pub struct AsteroidMaterial {
 }
 
 /// Every `Powerplay*` event. `kind` is the event name; the rest is whatever that event carried.
+/// community (Powerplay 2.0): `Powerplay` {Power, Rank, Merits, TimePledged}, `PowerplayMerits`
+/// {Power, MeritsGained, TotalMerits} and `PowerplayRank` {Power, Rank} were checked against
+/// kayahr/ed-journal's typings and journal lines quoted in community trackers (Oct 2026).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct PowerplayEvent {
     pub kind: String,
@@ -199,6 +202,51 @@ pub struct PowerplayEvent {
     pub count: Option<i64>,
     /// `PowerplaySalary` amount or `PowerplayFastTrack` cost.
     pub amount: Option<i64>,
+}
+
+/// One power's progress towards taking an unoccupied system (`PowerplayConflictProgress`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PowerProgress {
+    pub power: String,
+    /// Fraction of the acquisition threshold, 0.0 up.
+    pub progress: f64,
+}
+
+/// A system's Powerplay fields on `FSDJump` / `Location` / `CarrierJump`. community (Powerplay
+/// 2.0): names from kayahr/ed-journal's typings and journal lines quoted in community trackers
+/// (Oct 2026). Seen states: `Unoccupied`, `Exploited`, `Fortified`, `Stronghold` (Powerplay 1.0
+/// wrote others, e.g. `Contested`, `HomeSystem`).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct SystemPowerplay {
+    pub controlling_power: Option<String>,
+    /// The controlling power and any others active here (`Powers`).
+    pub powers: Vec<String>,
+    pub state: Option<String>,
+    /// Progress through the current state's band (`PowerplayStateControlProgress`), a fraction;
+    /// may fall below 0 or pass 1 before the weekly tick moves the state.
+    pub control_progress: Option<f64>,
+    /// Control score added this cycle by the controlling power's side and by its opponents.
+    pub reinforcement: Option<i64>,
+    pub undermining: Option<i64>,
+    /// Unoccupied systems: each power's acquisition progress.
+    pub conflict: Vec<PowerProgress>,
+}
+
+/// The Powerplay fields of a system event, `None` if it has none.
+pub(crate) fn system_powerplay(v: &Value) -> Option<Box<SystemPowerplay>> {
+    let p = SystemPowerplay {
+        controlling_power: opt_s(v, "ControllingPower"),
+        powers: arr(v, "Powers").filter_map(|p| p.as_str().map(str::to_string)).collect(),
+        state: opt_s(v, "PowerplayState"),
+        control_progress: opt_f(v, "PowerplayStateControlProgress"),
+        reinforcement: opt_i(v, "PowerplayStateReinforcement"),
+        undermining: opt_i(v, "PowerplayStateUndermining"),
+        conflict: arr(v, "PowerplayConflictProgress")
+            .map(|c| PowerProgress { power: s(c, "Power"), progress: opt_f(c, "ConflictProgress").unwrap_or(0.0) })
+            .filter(|c| !c.power.is_empty())
+            .collect(),
+    };
+    (p != SystemPowerplay::default()).then(|| Box::new(p))
 }
 
 #[derive(Debug, Clone, PartialEq)]

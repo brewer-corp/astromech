@@ -78,11 +78,23 @@ dependencies = [
  "astromech-data",
  "astromech-journal",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-store",
  "chrono",
  "rusqlite",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "astromech-history"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
@@ -129,15 +141,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-powerplay"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-shell"
 version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-engineering",
  "astromech-galaxy",
+ "astromech-history",
  "astromech-input",
  "astromech-keybinds",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-ship",
  "astromech-store",
  "serde",

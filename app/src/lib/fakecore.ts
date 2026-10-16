@@ -7,6 +7,7 @@
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
+import eddnSample from "./fixtures/eddn-log.json";
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -30,6 +31,7 @@ interface State {
   run: number | null;
   voice: { speaker: string; speed: number; colour: string };
   previews: string[];
+  eddn: boolean;
 }
 
 let state: State | null = null;
@@ -58,6 +60,7 @@ function fresh(scenario: Scenario): State {
     run: null,
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
     previews: [],
+    eddn: false,
   };
 }
 
@@ -235,6 +238,12 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
       if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
       st.previews.push(st.voice.speaker);
       return { ok: true, line: "Landing gear deployed." };
+    case "eddn_log":
+      // Sharing was on earlier (the sample's history); the switch is this PC's setting.
+      return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
+    case "set_eddn":
+      st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
+      return { ok: true, applies_next_session: false };
     case "onboarding_done":
       st.onboarded = true;
       return { ok: true };

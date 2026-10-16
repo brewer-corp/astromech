@@ -1,0 +1,5 @@
+{ "timestamp":"2026-10-15T10:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.4.1.1", "build":"r000000/r0 " }
+{ "timestamp":"2026-10-15T10:00:05Z", "event":"LoadGame", "FID":"F0000000", "Commander":"Test", "Horizons":true, "Odyssey":true, "Ship":"krait_mkii", "ShipID":7, "Credits":1000000 }
+{ "timestamp":"2026-10-15T10:00:06Z", "event":"Powerplay", "Power":"Li Yong-Rui", "Rank":8, "Merits":45300, "TimePledged":22560000 }
+{ "timestamp":"2026-10-15T10:30:00Z", "event":"PowerplayMerits", "Power":"Li Yong-Rui", "MeritsGained":500, "TotalMerits":45800 }
+{ "timestamp":"2026-10-15T11:00:00Z", "event":"Shutdown" }
