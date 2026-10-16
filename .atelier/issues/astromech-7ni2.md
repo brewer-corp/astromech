@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.648138543+00:00"
 id: "astromech-7ni2"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-7ni2
 priority: "P0"
 relationships:
   blocks:
@@ -28,7 +31,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Powerplay basics"
-updated_at: "2026-10-16T18:26:24.985493818+00:00"
+updated_at: "2026-10-16T20:16:05.288831167+00:00"
 ---
 
 ## Goal

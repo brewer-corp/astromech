@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "My Powerplay standing"
-updated_at: "2026-10-15T20:36:13.655630401+00:00"
+updated_at: "2026-10-16T20:16:05.288833892+00:00"
 ---
 
 ## Goal
