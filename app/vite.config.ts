@@ -7,6 +7,6 @@ export default defineConfig({
   plugins: [svelte(), svelteTesting()],
   clearScreen: false,
   server: { port: 5173, strictPort: true },
-  build: { target: "es2022", outDir: "dist", emptyOutDir: true },
   test: { environment: "jsdom", include: ["src/**/*.test.ts"] },
+  build: { target: "es2022", outDir: "dist", emptyOutDir: true },
 });

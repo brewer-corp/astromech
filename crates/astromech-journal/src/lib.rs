@@ -4,10 +4,16 @@
 //! Seed of the ingest pipeline (ARCHITECTURE.md §5.1, S6 verdict: own parser, lenient on
 //! unknown events, `ed-journals` corpus only for tests).
 //!
-//! Next slice: incremental tailing of the newest journal file, file rotation, and typed
-//! events for the ~40 events the MVP needs; everything else stays as [`JournalEvent::Other`].
+//! Events with a dedicated form are in [`JournalEvent`] (the first 15) and
+//! [`ExtraEvent`] (the toolbox set, in `detail`); everything else stays as
+//! [`JournalEvent::Other`]. Every parsed line keeps its original text
+//! ([`JournalLine::raw_json`]) so the EDDN sender can forward the game's own keys.
+//! Companion files (`Market.json`, `Cargo.json`, ...) are in [`companion`].
 
-use serde::Deserialize;
+pub mod companion;
+mod detail;
+
+pub use detail::*;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, thiserror::Error)]
@@ -74,6 +80,9 @@ pub enum JournalEvent {
         factions: Vec<FactionSnap>,
         system_address: Option<i64>,
         star_pos: Option<[f64; 3]>,
+        /// Set when starting docked (`Docked: true`).
+        station_name: Option<String>,
+        market_id: Option<i64>,
     },
     ApproachBody {
         star_system: String,
@@ -98,10 +107,15 @@ pub enum JournalEvent {
     FssSignal {
         uss_type: String,
         high_grade: bool,
+        /// `SignalName` (stations, carriers, conflict zones, ...).
+        signal_name: Option<String>,
+        is_station: bool,
+        system_address: Option<i64>,
     },
     Docked {
         station_name: String,
         star_system: String,
+        market_id: Option<i64>,
     },
     Undocked {
         station_name: String,
@@ -137,6 +151,8 @@ pub enum JournalEvent {
     EngineerProgress {
         engineers: Vec<EngineerSnap>,
     },
+    /// One of the events typed for the toolbox work (see [`ExtraEvent`]).
+    Extra(ExtraEvent),
     Other {
         event: String,
         raw: serde_json::Value,
@@ -228,7 +244,11 @@ pub struct FactionSnap {
 #[derive(Debug, Clone, PartialEq)]
 pub struct JournalLine {
     pub timestamp: String,
+    /// The journal event name (`FSDJump`, `Market`, ...), also for events typed as one variant.
+    pub name: String,
     pub event: JournalEvent,
+    /// The line exactly as read (no re-serialising), for forwarding the game's own keys.
+    pub raw_json: String,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -242,7 +262,6 @@ pub struct NavRouteSnap {
     pub systems: Vec<String>,
 }
 
-#[derive(Deserialize)]
 struct Head {
     timestamp: Option<String>,
     event: Option<String>,
@@ -267,9 +286,10 @@ fn opt_i(v: &serde_json::Value, k: &str) -> Option<i64> {
 /// Parse one line. Unknown events never fail; malformed JSON does.
 pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
     let raw: serde_json::Value = serde_json::from_str(line)?;
-    let head: Head = serde_json::from_value(raw.clone())?;
+    let head = Head { timestamp: opt_s(&raw, "timestamp"), event: opt_s(&raw, "event") };
     let event = head.event.ok_or(JournalError::Missing("event"))?;
     let timestamp = head.timestamp.ok_or(JournalError::Missing("timestamp"))?;
+    let name = event.clone();
     let ev = match event.as_str() {
         "Fileheader" => JournalEvent::FileHeader {
             game_version: s(&raw, "gameversion"),
@@ -327,6 +347,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             factions: factions(&raw),
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
+            station_name: opt_s(&raw, "StationName"),
+            market_id: opt_i(&raw, "MarketID"),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
@@ -346,9 +368,19 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
                 .or_else(|| opt_s(&raw, "SignalName"))
                 .unwrap_or_default();
             let localised = opt_s(&raw, "USSType_Localised").or_else(|| opt_s(&raw, "SignalType_Localised"));
-            JournalEvent::FssSignal { high_grade: is_high_grade(&uss_type, localised.as_deref()), uss_type }
+            JournalEvent::FssSignal {
+                high_grade: is_high_grade(&uss_type, localised.as_deref()),
+                uss_type,
+                signal_name: opt_s(&raw, "SignalName"),
+                is_station: raw.get("IsStation").and_then(|x| x.as_bool()).unwrap_or(false),
+                system_address: opt_i(&raw, "SystemAddress"),
+            }
         }
-        "Docked" => JournalEvent::Docked { station_name: s(&raw, "StationName"), star_system: s(&raw, "StarSystem") },
+        "Docked" => JournalEvent::Docked {
+            station_name: s(&raw, "StationName"),
+            star_system: s(&raw, "StarSystem"),
+            market_id: opt_i(&raw, "MarketID"),
+        },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
         "Materials" => JournalEvent::Materials {
             raw: stacks(&raw, "Raw", Some("Raw")),
@@ -383,7 +415,6 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         "Synthesis" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
         "ScientificResearch" => JournalEvent::MaterialDelta { items: vec![stack_signed(&raw, -1)] },
         "TechnologyBroker" => JournalEvent::MaterialDelta { items: stacks_signed(&raw, "Materials", -1) },
-        "MissionCompleted" => JournalEvent::MaterialDelta { items: stacks(&raw, "MaterialsReward", None) },
         "EngineerContribution" => {
             let kind = s(&raw, "Type").to_ascii_lowercase();
             if kind == "materials" || kind == "material" {
@@ -392,9 +423,12 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
                 JournalEvent::Other { event, raw }
             }
         }
-        _ => JournalEvent::Other { event, raw },
+        _ => match parse_extra(&event, &raw) {
+            Some(x) => JournalEvent::Extra(x),
+            None => JournalEvent::Other { event, raw },
+        },
     };
-    Ok(JournalLine { timestamp, event: ev })
+    Ok(JournalLine { timestamp, name, event: ev, raw_json: line.to_string() })
 }
 
 fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
@@ -736,7 +770,9 @@ mod tests {
         )
         .unwrap();
         match l.event {
-            JournalEvent::MaterialDelta { items } => assert_eq!(items[0].count, 4),
+            JournalEvent::Extra(ExtraEvent::MissionCompleted { materials_reward, .. }) => {
+                assert_eq!(materials_reward[0].count, 4)
+            }
             _ => panic!("expected reward"),
         }
         let l = parse_line(r#"{"timestamp":"t","event":"EngineerContribution","Type":"Commodity","Commodity":"soontillrelics","Quantity":2}"#)

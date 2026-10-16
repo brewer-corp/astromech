@@ -1,13 +1,18 @@
 <script lang="ts">
   // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
   // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
-  // Activities.
+  // My controller.
   import { groups, groupModules, findModule } from "./lib/modules";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
 
-  const DEFAULT = "activities";
-  const readRoute = () => location.hash.replace(/^#\//, "") || DEFAULT;
-  let route = $state(readRoute());
+  const DEFAULT = "controller";
+  // Pages that were merged into another keep working as links.
+  const MOVED: Record<string, string> = { activities: "controller" };
+  const resolve = (r: string) => MOVED[r] ?? (r || DEFAULT);
+  const readRoute = () => resolve(location.hash.replace(/^#\//, ""));
+  const start = readRoute();
+  let route = $state(start);
+  if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
   const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
@@ -15,8 +20,8 @@
   const setup = $derived(status?.setup_needed ?? []);
 
   function go(id: string) {
-    route = id;
-    location.hash = `#/${id}`;
+    route = resolve(id);
+    location.hash = `#/${route}`;
   }
 
   $effect(() => {
@@ -26,7 +31,7 @@
   });
 
   $effect(() => {
-    onRoute((r) => go(r || DEFAULT));
+    onRoute((r) => go(r));
     const tick = async () => (status = await coreStatus());
     void tick();
     const t = setInterval(() => void tick(), 2000);

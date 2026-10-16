@@ -25,6 +25,9 @@ pub enum Request {
         voices: String,
         tokens: String,
         data_dir: String,
+        /// espeak-ng voice Kokoro v1.0 loads with (each `Tts` request may override it).
+        #[serde(default)]
+        lang: String,
         provider: String,
         threads: i32,
     },
@@ -38,6 +41,9 @@ pub enum Request {
         sid: i32,
         speed: f32,
         out_wav: String,
+        /// espeak-ng voice to phonemise with ("en" British, "en-us"). Empty: the load-time one.
+        #[serde(default, skip_serializing_if = "String::is_empty")]
+        lang: String,
     },
     Quit,
 }
@@ -99,7 +105,8 @@ mod tests {
 
     #[test]
     fn request_roundtrip() {
-        let r = Request::Tts { text: "Lights on.".into(), sid: 0, speed: 1.0, out_wav: "a.wav".into() };
+        let r =
+            Request::Tts { text: "Lights on.".into(), sid: 21, speed: 1.0, out_wav: "a.wav".into(), lang: "en".into() };
         let s = serde_json::to_string(&r).unwrap();
         assert!(s.contains("\"cmd\":\"tts\""));
         assert_eq!(serde_json::from_str::<Request>(&s).unwrap(), r);
