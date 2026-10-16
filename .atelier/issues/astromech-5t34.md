@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:38:24.348175437+00:00"
 id: "astromech-5t34"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-5t34
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Start or re-point the history follower when the journal folder changes"
-updated_at: "2026-10-16T20:38:24.348175437+00:00"
+updated_at: "2026-10-16T23:55:32.126559734+00:00"
 ---
 
 ## Goal
