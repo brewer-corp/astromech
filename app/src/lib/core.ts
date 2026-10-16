@@ -93,7 +93,11 @@ export type CoreCmd =
   | "calibrate_record"
   | "calibrate_finish"
   | "calibrate_cancel"
-  | "onboarding_done";
+  | "onboarding_done"
+  // Settings → Voice responses.
+  | "set_voice"
+  | "voice_settings"
+  | "voice_preview";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };
@@ -127,6 +131,10 @@ export interface Found {
 }
 
 export interface Level { device: string; peak_dbfs: number; noise_dbfs: number; verdict: "ok" | "quiet" | "silent" }
+
+export type Colour = "natural" | "cockpit" | "harsh";
+export interface VoiceChoice { name: string; label: string; accent: "British" | "American"; gender: "female" | "male" }
+export interface VoiceSettings { speaker: string; speed: number; colour: Colour; voices: VoiceChoice[]; speeds: [number, number] }
 
 export interface MicList {
   names: string[];

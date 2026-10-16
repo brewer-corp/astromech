@@ -498,6 +498,9 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "calibrate_finish",
         "calibrate_cancel",
         "onboarding_done",
+        "set_voice",
+        "voice_settings",
+        "voice_preview",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });

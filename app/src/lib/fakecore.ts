@@ -28,6 +28,8 @@ interface State {
   onboarded: boolean;
   gates: Record<string, number>;
   run: number | null;
+  voice: { speaker: string; speed: number; colour: string };
+  previews: string[];
 }
 
 let state: State | null = null;
@@ -54,6 +56,8 @@ function fresh(scenario: Scenario): State {
     onboarded: done,
     gates: done ? { [MICS[0] ?? ""]: -51 } : {},
     run: null,
+    voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
+    previews: [],
   };
 }
 
@@ -117,6 +121,23 @@ function step(n: number) {
   if (n === 0) return { step: 0, steps: 4, phrase: "", ms: 2000 };
   if (n <= PHRASES.length) return { step: n, steps: 4, phrase: PHRASES[n - 1], ms: 2500 };
   return { step: n, steps: 4, phrase: null, ms: 0 };
+}
+
+/** The English Kokoro v1.0 voices, British first (core: speech::voice_choices). */
+const VOICES = [
+  ...["bf_alice", "bf_emma", "bf_isabella", "bf_lily", "bm_daniel", "bm_fable", "bm_george", "bm_lewis"],
+  ...["af_alloy", "af_aoede", "af_bella", "af_heart", "af_jessica", "af_kore", "af_nicole", "af_nova", "af_river", "af_sarah", "af_sky"],
+  ...["am_adam", "am_echo", "am_eric", "am_fenrir", "am_liam", "am_michael", "am_onyx", "am_puck", "am_santa"],
+].map((name) => ({
+  name,
+  label: name.slice(3, 4).toUpperCase() + name.slice(4),
+  accent: name.startsWith("b") ? "British" : "American",
+  gender: name[1] === "f" ? "female" : "male",
+}));
+
+/** Voices previewed so far, in order (tests). */
+export function fakePreviews(): string[] {
+  return s().previews;
 }
 
 const NO_MIC = "no recording device found (plug in a microphone or headset)";
@@ -202,6 +223,18 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
         st.modelsProgress = null;
       }, 1500);
       return { ok: true };
+    case "voice_settings":
+      return { ok: true, ...st.voice, voices: VOICES, speeds: [0.7, 1.3] };
+    case "set_voice": {
+      if (a.speaker && !VOICES.some((v) => v.name === a.speaker)) return { ok: false, error: `unknown voice "${a.speaker}"` };
+      const b = (args ?? {}) as Partial<State["voice"]>;
+      st.voice = { ...st.voice, ...Object.fromEntries(Object.entries(b).filter(([, v]) => v != null)) };
+      return { ok: true, applies_next_session: false };
+    }
+    case "voice_preview":
+      if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
+      st.previews.push(st.voice.speaker);
+      return { ok: true, line: "Landing gear deployed." };
     case "onboarding_done":
       st.onboarded = true;
       return { ok: true };

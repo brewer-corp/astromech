@@ -2,7 +2,7 @@
   // Settings (docs/V1-DESIGN.md §2.3): one list, label left, value right, actions on the row.
   // Everything the tray used to carry lives here now. Push-to-talk, the kill switch and the mic
   // are picked in setup (onboarding); calibration's "Run again" opens just that step.
-  import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd, type MicList } from "../../lib/core";
+  import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
   import { control } from "../../lib/format";
   import Calibration from "../../lib/ui/Calibration.svelte";
 
@@ -10,6 +10,41 @@
   let note = $state("");
   let mics = $state<MicList | null>(null);
   let calibrating = $state(false);
+  let voice = $state<VoiceSettings | null>(null);
+  let voiceNote = $state("");
+
+  async function loadVoice() {
+    const r = await coreCall("voice_settings");
+    voice = r.ok ? (r as unknown as VoiceSettings) : null;
+  }
+  $effect(() => {
+    void loadVoice();
+  });
+
+  async function setVoice(change: { speaker?: string; speed?: number; colour?: Colour }) {
+    const r = await coreCall("set_voice", change);
+    voiceNote = r.ok ? "Saved. The next reply uses it." : String(r.error);
+    await loadVoice();
+  }
+
+  async function preview() {
+    voiceNote = "Speaking…";
+    const r = await coreCall("voice_preview");
+    voiceNote = r.ok ? `“${String(r.line)}”` : String(r.error);
+  }
+
+  const COLOURS: { id: Colour; label: string }[] = [
+    { id: "natural", label: "Natural" },
+    { id: "cockpit", label: "Cockpit" },
+    { id: "harsh", label: "Harsh" },
+  ];
+  const speeds = $derived.by(() => {
+    if (!voice) return [];
+    const [lo, hi] = voice.speeds;
+    const out: number[] = [];
+    for (let x = Math.round(lo * 10); x <= Math.round(hi * 10); x++) out.push(x / 10);
+    return out;
+  });
 
   async function loadMics() {
     const r = await coreCall("mic_list");
@@ -104,6 +139,42 @@
       <p class="hint">Push-to-talk isn't set, so voice can't listen. <a href="#/setup">Run setup</a> to pick a button.</p>
     {/if}
 
+    {#if voice}
+      <h3>Voice responses</h3>
+      <dl>
+        <dt>Speaker</dt>
+        <dd>
+          <select aria-label="Speaker" value={voice.speaker} onchange={(e) => setVoice({ speaker: e.currentTarget.value })}>
+            {#each ["British", "American"] as accent (accent)}
+              <optgroup label={accent}>
+                {#each voice.voices.filter((v) => v.accent === accent) as v (v.name)}
+                  <option value={v.name}>{v.label} · {v.gender}</option>
+                {/each}
+              </optgroup>
+            {/each}
+          </select>
+          <button onclick={preview}>Preview</button>
+        </dd>
+        <dt>Colour</dt>
+        <dd>
+          <span class="choices">
+            {#each COLOURS as c (c.id)}
+              <button class:on={voice.colour === c.id} aria-pressed={voice.colour === c.id} onclick={() => setVoice({ colour: c.id })}>{c.label}</button>
+            {/each}
+          </span>
+        </dd>
+        <dt>Speed</dt>
+        <dd>
+          <select aria-label="Speed" value={voice.speed.toFixed(1)} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
+            {#each speeds as x (x)}
+              <option value={x.toFixed(1)}>{x === 1 ? "Normal (the colour's own pace)" : `${x.toFixed(1)}×`}</option>
+            {/each}
+          </select>
+        </dd>
+      </dl>
+      <p class="hint">{voiceNote || "Cockpit sounds like the ship's PA, close to Elite's own voice. Changes apply to the next reply."}</p>
+    {/if}
+
     <h3>Microphone</h3>
     <dl>
       <dt>Device</dt>
@@ -180,6 +251,12 @@
   .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .warn-text { color: var(--accent); }
   .lo { color: var(--text-lo); }
+  select { all: unset; flex: 1; cursor: pointer; color: var(--text); }
+  select:focus-visible { color: var(--text-hi); }
+  option, optgroup { background: var(--bg); color: var(--text); }
+  .choices { display: flex; gap: 24px; }
+  .choices button { color: var(--text-lo); }
+  .choices button.on { color: var(--accent); }
   .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
   .dlg { width: 600px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
   .lbl { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }

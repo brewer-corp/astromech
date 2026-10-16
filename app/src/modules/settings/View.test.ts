@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
-import { resetFakeCore, type Scenario } from "../../lib/fakecore";
+import { fakeCall, fakePreviews, resetFakeCore, type Scenario } from "../../lib/fakecore";
 
 function on(scenario: Scenario, hash = "") {
   history.replaceState(null, "", `/?core=${scenario}${hash}`);
@@ -30,6 +30,40 @@ describe("Settings → Microphone", () => {
     await screen.findByText("Ignore clips quieter than");
     await fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(await screen.findByText("Ignores clips quieter than -51 dBFS")).toBeTruthy();
+  });
+});
+
+describe("Settings → Voice responses", () => {
+  it("lists British voices first and saves the speaker, colour and speed", async () => {
+    on("ready");
+    render(View);
+    const speaker = (await screen.findByLabelText("Speaker")) as HTMLSelectElement;
+    expect(speaker.value).toBe("bf_emma");
+    const groups = [...speaker.querySelectorAll("optgroup")].map((g) => g.label);
+    expect(groups).toEqual(["British", "American"]);
+    await fireEvent.change(speaker, { target: { value: "bm_george" } });
+    expect(await screen.findByText("Saved. The next reply uses it.")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Natural" }));
+    await fireEvent.change(screen.getByLabelText("Speed"), { target: { value: "0.9" } });
+    const saved = await fakeCall("voice_settings");
+    expect([saved.speaker, saved.colour, saved.speed]).toEqual(["bm_george", "natural", 0.9]);
+    expect(screen.getByRole("button", { name: "Natural" }).getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("previews the chosen voice", async () => {
+    on("ready");
+    render(View);
+    await fireEvent.change(await screen.findByLabelText("Speaker"), { target: { value: "bf_lily" } });
+    await fireEvent.click(screen.getByRole("button", { name: "Preview" }));
+    expect(await screen.findByText("“Landing gear deployed.”")).toBeTruthy();
+    expect(fakePreviews()).toEqual(["bf_lily"]);
+  });
+
+  it("refuses a preview before the speech models are downloaded", async () => {
+    on("new");
+    render(View);
+    await fireEvent.click(await screen.findByRole("button", { name: "Preview" }));
+    expect(await screen.findByText(/download the speech models first/)).toBeTruthy();
   });
 });
 

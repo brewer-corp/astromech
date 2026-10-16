@@ -15,7 +15,76 @@ pub trait Speaker: Send + Sync {
     fn say(&self, text: &str);
     /// Stop talking now (push-to-talk barge-in). Default: nothing to cut.
     fn interrupt(&self) {}
+    /// Speak later lines with this voice (Settings → Voice responses). Default: no voice to change.
+    fn set_voice(&self, _voice: &VoiceParams) {}
 }
+
+/// What Kokoro renders a line with. Settings can change it while voice runs; the next line uses it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct VoiceParams {
+    /// Kokoro v1.0 voice name, e.g. `bf_emma`.
+    pub speaker: String,
+    pub sid: i32,
+    /// espeak-ng language the text is phonemised with.
+    pub lang: &'static str,
+    /// The speed sent to Kokoro: the configured one, or the colour's own at 1.0.
+    pub speed: f32,
+    pub colour: astromech_voice::colour::Colour,
+}
+
+impl VoiceParams {
+    pub fn new(speaker: &str, speed: f32, colour: astromech_voice::colour::Colour) -> Result<Self> {
+        use astromech_voice::{catalog, colour};
+        let sid = catalog::voice_sid(speaker).ok_or_else(|| anyhow!("unknown Kokoro voice {speaker:?}"))?;
+        Ok(Self {
+            speaker: speaker.to_string(),
+            sid,
+            lang: catalog::voice_lang(speaker),
+            speed: colour::speed(colour, speed),
+            colour,
+        })
+    }
+
+    pub fn from_config(v: &crate::config::Voice) -> Result<Self> {
+        Self::new(&v.speaker, v.speed, v.colour)
+    }
+}
+
+/// One voice the Settings picker offers: English Kokoro voices, British first.
+#[derive(Debug, Clone, serde::Serialize, PartialEq)]
+pub struct VoiceChoice {
+    pub name: &'static str,
+    /// "Emma"
+    pub label: String,
+    /// "British" or "American"
+    pub accent: &'static str,
+    /// "female" or "male"
+    pub gender: &'static str,
+}
+
+/// The voices Settings offers: British, then American (astromech speaks English only).
+pub fn voice_choices() -> Vec<VoiceChoice> {
+    let mut v: Vec<VoiceChoice> = astromech_voice::catalog::KOKORO_VOICES
+        .iter()
+        .filter_map(|&name| {
+            let mut c = name.chars();
+            let accent = match c.next()? {
+                'b' => "British",
+                'a' => "American",
+                _ => return None,
+            };
+            let gender = if c.next()? == 'f' { "female" } else { "male" };
+            let base = name.get(3..)?;
+            let label = base[..1].to_uppercase() + &base[1..];
+            Some(VoiceChoice { name, label, accent, gender })
+        })
+        .collect();
+    v.sort_by_key(|c| (c.accent != "British", c.name));
+    v
+}
+
+/// The line the Settings preview speaks (a fixed phrase, so it's usually cached already).
+pub const PREVIEW_LINE: &str = "Landing gear deployed.";
 
 /// Prints instead of speaking.
 pub struct ConsoleSpeaker;
@@ -86,17 +155,39 @@ impl Stt for WorkerStt {
     }
 }
 
+/// Renders one line to a WAV file: the Kokoro worker, or a fake in tests.
+pub trait Synth: Send + 'static {
+    fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()>;
+}
+
+impl Synth for Worker {
+    fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()> {
+        let req = Request::Tts {
+            text: text.into(),
+            sid: voice.sid,
+            speed: voice.speed,
+            out_wav: out_wav.display().to_string(),
+            lang: voice.lang.into(),
+        };
+        self.call_ok(&req, Duration::from_secs(30)).map(|_| ())
+    }
+}
+
 /// Kokoro through its own worker, on a background thread with a WAV cache, so `say` returns
 /// at once and phrases repeat without re-synthesis. Playback goes through [`astromech_voice::mixer`]
-/// (coloured, barge-in). Also prints every line.
+/// (coloured, barge-in). Also prints every line. The voice can change while it runs
+/// ([`Speaker::set_voice`]); each line is rendered with the voice current when it was said, and
+/// the cache is keyed by model, voice, speed and colour.
 pub struct TtsSpeaker {
     tx: Mutex<Sender<Job>>,
     mixer: astromech_voice::mixer::Mixer,
+    voice: Mutex<VoiceParams>,
+    prerender: Vec<String>,
 }
 
 enum Job {
-    Speak(String),
-    Warm(String),
+    Speak(String, VoiceParams),
+    Warm(String, VoiceParams),
 }
 
 /// Cache file for one rendered line. `model` names the model folder, so a model update
@@ -113,6 +204,7 @@ fn cache_name(text: &str, colour: astromech_voice::colour::Colour, model: &str, 
 }
 
 impl TtsSpeaker {
+    #[allow(clippy::too_many_arguments)]
     pub fn start(
         exe: &Path,
         models_dir: &Path,
@@ -123,37 +215,46 @@ impl TtsSpeaker {
         colour: astromech_voice::colour::Colour,
         prerender: Vec<String>,
     ) -> Result<Self> {
-        use astromech_voice::{catalog, colour, models};
-        let sid = catalog::voice_sid(speaker).ok_or_else(|| anyhow!("unknown Kokoro voice {speaker:?}"))?;
-        let lang = catalog::voice_lang(speaker);
-        let speaker = speaker.to_string();
+        use astromech_voice::models;
+        let voice = VoiceParams::new(speaker, speed, colour)?;
         let p = models::find_tts(models_dir)?;
         let model =
             p.model.parent().and_then(|d| d.file_name()).map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-        let cache = data_dir.join("tts-cache");
-        std::fs::create_dir_all(&cache)?;
         let mut worker = Worker::spawn(exe, None, &data_dir.join("worker-tts.log"), "text-to-speech")?;
         worker.call_ok(&models::load_tts_req(&p, threads), CALL)?;
-        let speed = colour::speed(colour, speed);
-        let mixer = astromech_voice::mixer::Mixer::with_default_output();
+        Self::with_synth(
+            worker,
+            &model,
+            data_dir,
+            voice,
+            astromech_voice::mixer::Mixer::with_default_output(),
+            prerender,
+        )
+    }
+
+    /// The speaker around any [`Synth`] (tests pass a fake).
+    pub fn with_synth(
+        mut synth: impl Synth,
+        model: &str,
+        data_dir: &Path,
+        voice: VoiceParams,
+        mixer: astromech_voice::mixer::Mixer,
+        prerender: Vec<String>,
+    ) -> Result<Self> {
+        use astromech_voice::colour;
+        let model = model.to_string();
+        let cache = data_dir.join("tts-cache");
+        std::fs::create_dir_all(&cache)?;
         let mix = mixer.clone();
         let (tx, rx) = channel::<Job>();
-        let pre_tx = tx.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
-            let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
-                let f = cache.join(cache_name(text, colour, &model, &speaker, speed));
+            let mut render = |text: &str, v: &VoiceParams| -> Option<(u32, Vec<f32>, PathBuf)> {
+                let f = cache.join(cache_name(text, v.colour, &model, &v.speaker, v.speed));
                 if f.is_file() {
                     return astromech_voice::wav::read_mono_f32(&f).ok().map(|(sr, s)| (sr, s, f));
                 }
                 let raw = f.with_extension("raw.wav");
-                let req = Request::Tts {
-                    text: text.into(),
-                    sid,
-                    speed,
-                    out_wav: raw.display().to_string(),
-                    lang: lang.into(),
-                };
-                if let Err(e) = w.call_ok(&req, Duration::from_secs(30)) {
+                if let Err(e) = synth.tts(text, v, &raw) {
                     eprintln!("text-to-speech failed: {e:#}");
                     let _ = std::fs::remove_file(&raw);
                     return None;
@@ -167,7 +268,7 @@ impl TtsSpeaker {
                     }
                 };
                 let _ = std::fs::remove_file(&raw);
-                let out = colour::utterance(&samples, sr, colour);
+                let out = colour::utterance(&samples, sr, v.colour);
                 if let Err(e) = astromech_voice::wav::write_mono_i16(&f, sr, &out) {
                     eprintln!("text-to-speech cache: {e:#}");
                 }
@@ -175,12 +276,12 @@ impl TtsSpeaker {
             };
             while let Ok(job) = rx.recv() {
                 match job {
-                    Job::Warm(t) => {
-                        let _ = render(&mut worker, &t);
+                    Job::Warm(t, v) => {
+                        let _ = render(&t, &v);
                     }
-                    Job::Speak(t) => {
+                    Job::Speak(t, v) => {
                         let token = mix.token();
-                        if let Some((sr, samples, f)) = render(&mut worker, &t) {
+                        if let Some((sr, samples, f)) = render(&t, &v) {
                             if mix.has_device() {
                                 mix.play(token, &samples, sr);
                             } else {
@@ -198,22 +299,31 @@ impl TtsSpeaker {
                 }
             }
         })?;
-        for p in prerender {
-            let _ = pre_tx.send(Job::Warm(p));
+        for p in &prerender {
+            let _ = tx.send(Job::Warm(p.clone(), voice.clone()));
         }
-        Ok(Self { tx: Mutex::new(tx), mixer })
+        Ok(Self { tx: Mutex::new(tx), mixer, voice: Mutex::new(voice), prerender })
     }
 }
 
 impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
-        let _ = self.tx.lock().unwrap().send(Job::Speak(text.to_string()));
+        let v = self.voice.lock().unwrap().clone();
+        let _ = self.tx.lock().unwrap().send(Job::Speak(text.to_string(), v));
     }
     fn interrupt(&self) {
         self.mixer.cut();
         #[cfg(windows)]
         astromech_voice::player::stop();
+    }
+    fn set_voice(&self, voice: &VoiceParams) {
+        *self.voice.lock().unwrap() = voice.clone();
+        // Render the fixed phrases in the new voice in the background, as at startup.
+        let tx = self.tx.lock().unwrap();
+        for p in &self.prerender {
+            let _ = tx.send(Job::Warm(p.clone(), voice.clone()));
+        }
     }
 }
 
@@ -254,6 +364,74 @@ pub fn fixed_phrases() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use std::sync::Arc;
+
+    /// Records which voice rendered each line and writes a short tone.
+    struct FakeSynth(Arc<Mutex<Vec<(String, String)>>>);
+    impl Synth for FakeSynth {
+        fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()> {
+            self.0.lock().unwrap().push((text.to_string(), voice.speaker.clone()));
+            let tone: Vec<f32> = (0..2400).map(|i| 0.2 * (i as f32 * 0.1).sin()).collect();
+            astromech_voice::wav::write_mono_i16(out_wav, 24000, &tone)
+        }
+    }
+
+    fn wait_for(log: &Mutex<Vec<(String, String)>>, n: usize) -> Vec<(String, String)> {
+        let t0 = std::time::Instant::now();
+        while log.lock().unwrap().len() < n && t0.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        log.lock().unwrap().clone()
+    }
+
+    /// astromech-orel: changing the speaker changes the voice of the next reply; a line already
+    /// rendered in that voice comes from the cache.
+    #[test]
+    fn set_voice_changes_the_next_reply() {
+        use astromech_voice::colour::Colour;
+        let d = tempfile::tempdir().unwrap();
+        let log = Arc::new(Mutex::new(vec![]));
+        let emma = VoiceParams::new("bf_emma", 1.0, Colour::Cockpit).unwrap();
+        let s = TtsSpeaker::with_synth(
+            FakeSynth(log.clone()),
+            "kokoro-test",
+            d.path(),
+            emma,
+            astromech_voice::mixer::Mixer::silent(24000),
+            vec![],
+        )
+        .unwrap();
+        s.say(PREVIEW_LINE);
+        assert_eq!(wait_for(&log, 1), [(PREVIEW_LINE.into(), "bf_emma".into())]);
+        s.set_voice(&VoiceParams::new("bm_george", 1.0, Colour::Cockpit).unwrap());
+        s.say(PREVIEW_LINE);
+        s.say(PREVIEW_LINE); // cached in George's voice now: not rendered again
+        s.say("Cancelled.");
+        let got = wait_for(&log, 3);
+        assert_eq!(
+            got,
+            [
+                (PREVIEW_LINE.into(), "bf_emma".into()),
+                (PREVIEW_LINE.into(), "bm_george".into()),
+                ("Cancelled.".into(), "bm_george".into()),
+            ]
+        );
+    }
+
+    #[test]
+    fn voice_choices_are_english_british_first() {
+        let v = voice_choices();
+        assert_eq!(v.first().map(|c| c.name), Some("bf_alice"));
+        let first_american = v.iter().position(|c| c.accent == "American").unwrap();
+        assert!(v[..first_american].iter().all(|c| c.accent == "British"));
+        assert_eq!(first_american, 8);
+        assert!(v.iter().all(|c| c.name.starts_with('a') || c.name.starts_with('b')));
+        let george = v.iter().find(|c| c.name == "bm_george").unwrap();
+        assert_eq!((george.label.as_str(), george.gender), ("George", "male"));
+        assert!(VoiceParams::new("xx_nobody", 1.0, Default::default()).is_err());
+    }
+
     #[test]
     fn cache_names_are_stable() {
         use astromech_voice::colour::Colour;

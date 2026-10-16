@@ -857,6 +857,12 @@ Total about **11 weeks**.
   `set_mic` and `set_folders` edit `astromech.toml` with `toml_edit` (comments kept, never written
   if the result doesn't parse) and swap the core's config. A running voice session picks them up
   the next time Elite starts. Recording (`mic_check`, `calibrate_*`) happens in the core, on Windows.
+- **Voice responses** (Settings): speaker (English Kokoro v1.0 voices, British first), colour and
+  speed, written with `set_voice` through the same locked config edit. The running session's
+  speaker switches at once (`Speaker::set_voice`), so the next reply uses the new voice; the TTS
+  cache key already includes model, voice, speed and colour. Preview says "Landing gear deployed."
+  through the session's speaker, or a Kokoro the core starts for the preview while Elite isn't
+  running (dropped when a session starts).
 - **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
   (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
 

@@ -52,11 +52,19 @@ pub enum Edit {
     Mic(String),
     BindingsDir(String),
     JournalDir(String),
+    /// Kokoro v1.0 voice name (Settings → Voice responses).
+    Speaker(String),
+    Speed(f32),
+    Colour(astromech_voice::colour::Colour),
 }
+
+/// Kokoro speeds Settings may set (1.0 is the colour's own pace).
+pub const SPEEDS: std::ops::RangeInclusive<f32> = 0.7..=1.3;
 
 impl Edit {
     /// From a control-API request: `set_ptt` / `set_kill_switch` with `{device, key}` (or null
-    /// to clear), `set_mic` with `{mic}`, `set_folders` with `{bindings_dir}` or `{journal_dir}`.
+    /// to clear), `set_mic` with `{mic}`, `set_folders` with `{bindings_dir}` or `{journal_dir}`,
+    /// `set_voice` with any of `{speaker, speed, colour}`.
     pub fn from_request(cmd: &str, args: Option<&Value>) -> Result<Vec<Edit>> {
         let null = Value::Null;
         let a = args.unwrap_or(&null);
@@ -88,6 +96,31 @@ impl Edit {
                 }
                 v
             }
+            "set_voice" => {
+                let mut v = vec![];
+                if let Some(sp) = text("speaker") {
+                    if astromech_voice::catalog::voice_sid(&sp).is_none() {
+                        bail!("unknown voice {sp:?}");
+                    }
+                    v.push(Edit::Speaker(sp));
+                }
+                if let Some(x) = a.get("speed").filter(|x| !x.is_null()) {
+                    let x = x.as_f64().context("speed must be a number")? as f32;
+                    if !SPEEDS.contains(&x) {
+                        bail!("speed must be between {} and {}", SPEEDS.start(), SPEEDS.end());
+                    }
+                    v.push(Edit::Speed(x));
+                }
+                if let Some(c) = a.get("colour").filter(|x| !x.is_null()) {
+                    v.push(Edit::Colour(
+                        serde_json::from_value(c.clone()).context("colour is natural, cockpit or harsh")?,
+                    ));
+                }
+                if v.is_empty() {
+                    bail!("expected {{speaker}}, {{speed}} or {{colour}}");
+                }
+                v
+            }
             c => bail!("unknown command {c:?}"),
         })
     }
@@ -110,6 +143,10 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             Edit::Mic(m) => ("voice", "mic", Some(toml_edit::value(m.as_str()))),
             Edit::BindingsDir(d) => ("game", "bindings_dir", Some(toml_edit::value(d.as_str()))),
             Edit::JournalDir(d) => ("game", "journal_dir", Some(toml_edit::value(d.as_str()))),
+            Edit::Speaker(sp) => ("voice", "speaker", Some(toml_edit::value(sp.as_str()))),
+            // Two decimals, so 0.9 is written as 0.9 and not 0.8999999761581421.
+            Edit::Speed(x) => ("voice", "speed", Some(toml_edit::value((f64::from(*x) * 100.0).round() / 100.0))),
+            Edit::Colour(c) => ("voice", "colour", Some(toml_edit::value(c.as_str()))),
         };
         if !doc.contains_key(table) {
             doc[table] = toml_edit::table();
@@ -133,6 +170,10 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             None => {
                 t.remove(key);
             }
+        }
+        if matches!(e, Edit::Speaker(_)) {
+            // A v0.19 speaker ID would only be read when the name is missing; drop it.
+            t.remove("speaker_id");
         }
     }
     let out = doc.to_string();
@@ -261,6 +302,27 @@ mod tests {
         std::fs::write(&p, "[controls\nptt = ").unwrap();
         assert!(write(&p, &[Edit::Mic("x".into())]).is_err());
         assert_eq!(std::fs::read_to_string(&p).unwrap(), "[controls\nptt = ");
+    }
+
+    /// astromech-orel: the voice set in Settings is in the file, so it survives a restart.
+    #[test]
+    fn voice_settings_persist() {
+        use astromech_voice::colour::Colour;
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("astromech.toml");
+        std::fs::write(&p, "[voice]\nspeaker_id = 7 # old\n").unwrap();
+        let j = serde_json::json!({"speaker": "bm_george", "speed": 0.9, "colour": "natural"});
+        let edits = Edit::from_request("set_voice", Some(&j)).unwrap();
+        write(&p, &edits).unwrap();
+        let c = Config::load(&p).unwrap();
+        assert_eq!((c.voice.speaker.as_str(), c.voice.speed, c.voice.colour), ("bm_george", 0.9, Colour::Natural));
+        let text = std::fs::read_to_string(&p).unwrap();
+        assert!(text.contains("speed = 0.9\n") && !text.contains("speaker_id"), "{text}");
+        // Bad values are refused before anything is written.
+        for bad in [r#"{"speaker":"xx_nobody"}"#, r#"{"speed":3.0}"#, r#"{"colour":"loud"}"#, "{}"] {
+            let j: Value = serde_json::from_str(bad).unwrap();
+            assert!(Edit::from_request("set_voice", Some(&j)).is_err(), "{bad}");
+        }
     }
 
     #[test]

@@ -45,6 +45,8 @@ pub struct Core {
     pub cfg: std::sync::RwLock<Config>,
     /// Held across a whole setup edit (read, write the file, swap `cfg`).
     pub config_lock: Mutex<()>,
+    /// Kokoro for Settings' voice preview while no session runs (dropped when one starts).
+    pub preview: Mutex<Option<Arc<crate::speech::TtsSpeaker>>>,
     pub config_note: Option<String>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
@@ -182,6 +184,8 @@ impl Core {
             return;
         }
         log(&format!("{why}: going active (loading the binds check, game state and voice)"));
+        // The session loads its own Kokoro; free the preview's.
+        self.preview.lock().unwrap().take();
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
@@ -413,11 +417,66 @@ impl Core {
         match res {
             Ok(()) => {
                 log(&format!("config: {} saved from the window", r.cmd.trim_start_matches("set_")));
+                if r.cmd == "set_voice" {
+                    self.apply_voice();
+                }
                 self.notify();
-                json!({"ok": true, "applies_next_session": self.active()})
+                json!({"ok": true, "applies_next_session": r.cmd != "set_voice" && self.active()})
             }
             Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         }
+    }
+
+    /// Speak the next line in the configured voice: the running session's and the preview's.
+    fn apply_voice(&self) {
+        let cfg = self.cfg();
+        match crate::speech::VoiceParams::from_config(&cfg.voice) {
+            Ok(v) => {
+                if let Some(s) = self.session.lock().unwrap().as_ref() {
+                    s.speaker.set_voice(&v);
+                }
+                if let Some(p) = self.preview.lock().unwrap().as_ref() {
+                    crate::speech::Speaker::set_voice(&**p, &v);
+                }
+                log(&format!("voice: {} ({}, speed {})", v.speaker, v.colour.as_str(), cfg.voice.speed));
+            }
+            Err(e) => log(&format!("voice: {e:#}")),
+        }
+    }
+
+    /// Settings' preview: say a sample line in the configured voice, through the session's
+    /// speaker if voice is running, else a Kokoro started for the preview.
+    fn preview_voice(&self) -> Value {
+        use crate::speech::{Speaker, PREVIEW_LINE};
+        if let Some(s) = self.session.lock().unwrap().as_ref() {
+            s.speaker.say(PREVIEW_LINE);
+            return json!({"ok": true, "line": PREVIEW_LINE});
+        }
+        let cfg = self.cfg();
+        if models_missing(&cfg) {
+            return json!({"ok": false, "error": "download the speech models first (Speech models, above)"});
+        }
+        let mut p = self.preview.lock().unwrap();
+        if p.is_none() {
+            let v = &cfg.voice;
+            match crate::speech::TtsSpeaker::start(
+                &cfg.worker_exe(),
+                &cfg.models_dir(),
+                v.threads,
+                &cfg.data_dir(),
+                &v.speaker,
+                v.speed,
+                v.colour,
+                vec![],
+            ) {
+                Ok(s) => *p = Some(Arc::new(s)),
+                Err(e) => return json!({"ok": false, "error": format!("couldn't start text-to-speech: {e:#}")}),
+            }
+        }
+        if let Some(s) = p.as_ref() {
+            s.say(PREVIEW_LINE);
+        }
+        json!({"ok": true, "line": PREVIEW_LINE})
     }
 
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
@@ -482,7 +541,19 @@ impl Core {
                 json!({"ok": true})
             }
             "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
-            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" => self.edit_config(r),
+            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" => self.edit_config(r),
+            "voice_settings" => {
+                let v = self.cfg().voice;
+                json!({
+                    "ok": true,
+                    "speaker": v.speaker,
+                    "speed": v.speed,
+                    "colour": v.colour,
+                    "voices": crate::speech::voice_choices(),
+                    "speeds": [crate::setup::SPEEDS.start(), crate::setup::SPEEDS.end()],
+                })
+            }
+            "voice_preview" => self.preview_voice(),
             "mic_list" => {
                 let cfg = self.cfg();
                 let mut v = crate::calibration::mic_list(&cfg.voice.mic);
@@ -788,6 +859,7 @@ pub fn run(opts: Opts) -> i32 {
                 .unwrap_or(false),
         ),
         config_lock: Mutex::new(()),
+        preview: Mutex::new(None),
         cfg: std::sync::RwLock::new(cfg),
         config_note,
         game: Mutex::new(Game::NotRunning),
