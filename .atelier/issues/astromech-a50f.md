@@ -4,6 +4,9 @@ id: "astromech-a50f"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-a50f
 priority: "P0"
 relationships:
   blocks:
@@ -22,9 +25,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Switch text-to-speech to Kokoro v1.0"
-updated_at: "2026-10-16T18:26:25.247495470+00:00"
+updated_at: "2026-10-16T18:27:57.077247515+00:00"
 ---
 
 ## Goal
