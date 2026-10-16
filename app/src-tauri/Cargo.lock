@@ -53,6 +53,8 @@ version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "astromech-materials",
+ "base64 0.22.1",
+ "flate2",
  "serde",
  "serde_json",
 ]

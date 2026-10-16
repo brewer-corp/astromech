@@ -11,6 +11,7 @@ fn main() {
     let line = astromech_journal::parse_line(&json.to_string()).unwrap();
     let mut b = FleetBuilder::default();
     b.apply(&line.timestamp, &line.event);
+    b.keep_raw(&line.timestamp, json.clone());
     let fleet = b.build("Sample journal");
     let ship = &fleet.ships[0];
     let t = |slot: &str, blueprint: &str, experimental: &str| Target {

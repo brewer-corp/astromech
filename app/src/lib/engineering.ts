@@ -43,6 +43,8 @@ export interface Ship {
   value: number | null;
   rebuy: number | null;
   modules: Fitted[];
+  /** Open this loadout in Coriolis / EDSY. Absent when the saved Loadout is stale. */
+  links?: { coriolis: string; edsy: string };
 }
 
 export interface Choice {

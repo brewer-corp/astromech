@@ -8,11 +8,12 @@
 pub mod data;
 pub mod engineers;
 pub mod fleet;
+pub mod links;
 pub mod plan;
 pub mod trip;
 
 pub use engineers::EngineerView;
-pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, Stored};
+pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, ShipLinks, Stored};
 pub use plan::{evaluate, planned_modules, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 pub use trip::{plan_trip, Hop, Trip};
 
@@ -196,6 +197,31 @@ mod tests {
             let ly = ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt();
             Hop { ly, jumps: (ly / range).ceil() as u32, exact: false }
         }
+    }
+
+    #[test]
+    fn ship_links_follow_the_loadout_until_a_craft() {
+        let loadout: serde_json::Value = serde_json::from_str(include_str!("../tests/links/loadout-asp.json")).unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let log = dir.path().join("Journal.2026-10-03T090000.01.log");
+        let line = serde_json::to_string(&loadout).unwrap();
+        std::fs::write(&log, format!("{line}\n")).unwrap();
+        let ship = from_journal_dir(dir.path()).ships.remove(0);
+        let links = ship.links.expect("a flown ship has links");
+        assert_eq!(links.coriolis, links::coriolis_url(&loadout));
+        assert_eq!(links.edsy, links::edsy_url(&loadout));
+
+        let craft = r#"{"timestamp":"2026-10-03T09:30:00Z","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":5,"Quality":1.0}"#;
+        std::fs::write(&log, format!("{line}\n{craft}\n")).unwrap();
+        assert_eq!(from_journal_dir(dir.path()).ships[0].links, None, "the saved Loadout is stale after a craft");
+
+        // The game writes a new Loadout after the craft: the links are back, for the new build.
+        let mut newer = loadout.clone();
+        newer["timestamp"] = "2026-10-03T09:45:00Z".into();
+        let newer_line = serde_json::to_string(&newer).unwrap();
+        std::fs::write(&log, format!("{line}\n{craft}\n{newer_line}\n")).unwrap();
+        let links = from_journal_dir(dir.path()).ships.remove(0).links.expect("a later Loadout restores the links");
+        assert_eq!(links.coriolis, links::coriolis_url(&newer));
     }
 
     #[test]

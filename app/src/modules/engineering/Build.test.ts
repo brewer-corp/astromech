@@ -129,6 +129,36 @@ describe("ship detail subtitle", () => {
   });
 });
 
+describe("ship detail link-outs", () => {
+  it("opens the loadout in Coriolis and EDSY, and the system on Spansh and Inara", async () => {
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    const stored = structuredClone(fleet);
+    Object.assign(stored.ships[0]!, { current: false, system: "Shinrarta Dezhra" });
+    const links = stored.ships[0]!.links!;
+    render(Build, { fleet: stored, shipId: krait, onback: () => {} });
+    await fireEvent.click(await screen.findByRole("button", { name: "Coriolis" }));
+    await fireEvent.click(screen.getByRole("button", { name: "EDSY" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Spansh" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Inara" }));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      links.coriolis,
+      links.edsy,
+      "https://spansh.co.uk/search/Shinrarta%20Dezhra",
+      "https://inara.cz/elite/starsystem/?search=Shinrarta%20Dezhra",
+    ]);
+    expect(links.coriolis).toMatch(/^https:\/\/coriolis\.io\//);
+    opened.mockRestore();
+  });
+
+  it("says to refresh the loadout when the saved one is stale", async () => {
+    const stale = structuredClone(fleet);
+    delete stale.ships[0]!.links;
+    render(Build, { fleet: stale, shipId: krait, onback: () => {} });
+    expect(await screen.findByText("Re-dock or relog to refresh the Coriolis / EDSY link")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Coriolis" })).toBeNull();
+  });
+});
+
 describe("ship detail with an unknown hull", () => {
   it("shows the ship as incomplete instead of an error", async () => {
     override = { unknown_hull: "mediumtransport01" };

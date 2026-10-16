@@ -9,6 +9,8 @@
   } from "../../lib/engineering";
   import Stats from "./Stats.svelte";
   import { jumps } from "../../lib/galaxy";
+  import { openUrl } from "../../lib/core";
+  import { inaraSystem, spanshSystem } from "../../lib/links";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
@@ -16,6 +18,7 @@
   let plan = $state<Plan | null>(null);
   let result = $state<PlanResult | null>(null);
   let failed = $state<string | null>(null);
+  let linkErr = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
   let tripSeq = 0;
@@ -200,18 +203,39 @@
   function when(ts: string | null): string {
     return ts ? ts.replace("T", " ").replace(/:\d\dZ?$/, "") : "";
   }
+
+  async function open(url: string) {
+    linkErr = null;
+    try {
+      await openUrl(url);
+    } catch (e) {
+      linkErr = `Couldn't open the link: ${String(e)}`;
+    }
+  }
 </script>
 
 <section>
   <div class="acts">
     <button onclick={onback}>← Ships</button>
+    {#if ship?.links}
+      <span class="open">
+        Open in
+        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
+        <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
+      </span>
+    {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
+      <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
+    {/if}
   </div>
+  {#if linkErr}<p class="lo wide">{linkErr}</p>{/if}
   <p class="sub">
     {#if !ship}
       That ship is no longer in the journal · {fleet.source}
     {:else}
       {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
-      · {#if ship.current}flying now{:else if ship.system}stored at <SystemChip name={ship.system} />{:else}stored{/if}
+      · {#if ship.current}flying now{:else if ship.system}{ship.in_transit ? "in transit to" : "stored at"} <SystemChip name={ship.system} />
+        <button class="ext" title="Open {ship.system} on Spansh" onclick={() => ship?.system && open(spanshSystem({ name: ship.system }))}>Spansh</button>
+        <button class="ext" title="Open {ship.system} on Inara" onclick={() => ship?.system && open(inaraSystem(ship.system))}>Inara</button>{:else}stored{/if}
       · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
       · {fleet.source}
     {/if}
@@ -408,6 +432,11 @@
   .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
+  .open { color: var(--text-lo); }
+  .open button { color: var(--accent); margin-left: 6px; }
+  .open button:hover { color: var(--text-hi); }
+  .ext { color: var(--accent); margin-left: 6px; text-transform: uppercase; letter-spacing: var(--caps); }
+  .ext:hover { color: var(--text-hi); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
   .main { min-width: 0; }
   .mods { display: grid; grid-template-columns: 8.5rem minmax(9rem, 1fr) 10.5rem 4rem 9.5rem; gap: var(--gap) 10px; align-items: center; }
