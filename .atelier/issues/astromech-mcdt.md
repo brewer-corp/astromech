@@ -4,6 +4,9 @@ id: "astromech-mcdt"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mcdt
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Start speech output when the voice model finishes downloading"
-updated_at: "2026-10-16T18:54:29.567403634+00:00"
+updated_at: "2026-10-16T23:55:29.397524598+00:00"
 ---
 
 ## Goal
