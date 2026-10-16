@@ -6,6 +6,7 @@
 //! - [`session`]: one active session, everything that runs while Elite does;
 //! - [`pipeline`]: journal tail (with file rollover) + Status.json watching, feeding
 //!   [`hub::StateHub`]; read positions persist in `astromech-store`;
+//! - [`history`]: keeps the journal history database current (backfill, then new lines);
 //! - [`health`]: the binds health check at startup and on every Bindings-folder change;
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
@@ -33,6 +34,7 @@ pub mod diagnostics;
 pub mod eval;
 pub mod gamewatch;
 pub mod health;
+pub mod history;
 pub mod hub;
 pub mod instance;
 pub mod logging;

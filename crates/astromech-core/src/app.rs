@@ -149,6 +149,7 @@ impl Core {
             "models_dir": cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
             "toasts": toasts,
+            "history": crate::history::status(),
         })
     }
 
@@ -943,6 +944,12 @@ pub fn run(opts: Opts) -> i32 {
             log("text-to-speech: Kokoro v0.19 was replaced by v1.0; downloading it");
             download_models(&core);
         }
+    }
+
+    let cfg = core.cfg();
+    match cfg.journal_dir() {
+        Some(dir) => crate::history::start(dir, cfg.data_dir(), Arc::new(|m: &str| log(m))),
+        None => log("history: no journal folder; set game.journal_dir"),
     }
 
     let c = core.clone();

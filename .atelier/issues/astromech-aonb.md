@@ -28,9 +28,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T19:45:13.592941036+00:00"
+status: "done"
 title: "Journal history database and backfill"
-updated_at: "2026-10-15T20:36:13.651536478+00:00"
+updated_at: "2026-10-16T19:45:13.592941036+00:00"
 ---
 
 ## Goal
@@ -39,8 +40,12 @@ An `events` table, a resumable import of every `Journal.*.log`, and derived ledg
 
 ## Done when
 
-Importing a fixture set, killing it halfway and restarting gives the same ledgers as one clean import; a timing run on Sumeet's real logs is recorded as evidence.
+Importing a fixture set, killing it halfway and restarting gives the same ledgers as one clean import, and an import-time measurement on a large synthetic log set is recorded. The timing run on Sumeet's real logs is astromech-tqdh.
 
 ## Context
 
 Unblocks the logbook, "been here before", exploration history and session stats. Measure import time on years of logs.
+
+## Close Reason
+
+events table, resumable import and visits/earnings/ships/scans ledgers in astromech-history (c11b2a2); kill-at-every-line-then-resume equals a clean import; 400 MB synthetic import 7.5-8.1 s, 638 MB DB (evidence). Core wiring is astromech-3tlm; real-logs timing is astromech-tqdh.

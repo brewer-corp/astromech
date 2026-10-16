@@ -53,6 +53,20 @@ export interface CoreStatus {
   update?: UpdateStatus;
   /** The last few callout toasts, oldest first. */
   toasts?: Toast[];
+  /** The journal history the core keeps (backfill, then new lines). */
+  history?: HistoryProgress | null;
+}
+
+export interface HistoryProgress {
+  running: boolean;
+  /** The first import since the core started has finished. */
+  ready: boolean;
+  files: number;
+  lines: number;
+  bytes: number;
+  bytes_total: number;
+  events: number;
+  error: string | null;
 }
 
 /** One callout shown as a toast. `id` increases by one per toast within a core session. */
