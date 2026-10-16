@@ -37,7 +37,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDDN sender"
-updated_at: "2026-10-16T18:27:56.445127064+00:00"
+updated_at: "2026-10-16T18:41:24.042855909+00:00"
 ---
 
 ## Goal
@@ -51,3 +51,7 @@ Message tests per schema against the EDDN schema files. Independent review. The 
 ## Unknowns
 
 Whether the `blackmarket` schema is still live.
+
+## Notes
+
+- 2026-10-16 [note] Unknown answered (EDCD schemas/blackmarket-README.md, live branch, read 16 Oct 2026): the blackmarket schema is deprecated; the same data goes in commodity/3's prohibited array since Sep 2017. Don't send blackmarket.

@@ -28,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "EDDN sender core"
-updated_at: "2026-10-16T18:27:56.445131623+00:00"
+updated_at: "2026-10-16T18:41:24.057381534+00:00"
 ---
 
 ## Goal
@@ -54,3 +54,7 @@ EDDN sender rules (EDCD `docs/Developers.md`, read 15 Oct 2026):
 - "No data is better than bad data."
 
 Write it from the spec, not from EDMC's GPL-2.0 code.
+
+## Notes
+
+- 2026-10-16 [note] Beta gate: a message is dropped if the game version contains 'beta' or 'alpha' (case-insensitive) or no Fileheader/LoadGame version has been seen. Not checked against a real beta Fileheader; the JournalBeta file-name signal isn't used because the sender takes events, not files. Augmentation drops a message when the last-location fix is missing or the message has neither StarSystem nor SystemAddress to cross-check.
