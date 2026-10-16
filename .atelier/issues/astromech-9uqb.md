@@ -20,9 +20,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Watch the companion files"
-updated_at: "2026-10-15T20:36:13.651413158+00:00"
+updated_at: "2026-10-16T18:36:08.537978959+00:00"
 ---
 
 ## Goal
