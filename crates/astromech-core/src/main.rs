@@ -181,27 +181,25 @@ fn main() {
 }
 
 fn download_models(cfg: &Config) -> Result<()> {
-    use astromech_voice::{catalog, download, models};
+    use astromech_voice::{catalog, models};
     let base = cfg.models_dir();
-    let assets = [models::STT, models::TTS];
-    for a in &assets {
-        let have = download::is_installed(base.parent().unwrap_or(&base), a) || models::model_root(&base, a).is_dir();
-        println!("  {:>6.0} MB  {}  {}", catalog::mb(a.size), a.label, if have { "(already there)" } else { "" });
-    }
-    println!("Into {}. Download now? [y/N]", base.display());
-    let mut s = String::new();
-    std::io::stdin().read_line(&mut s)?;
-    if !s.trim().eq_ignore_ascii_case("y") {
-        bail!("cancelled");
-    }
-    // download::ensure extracts into <base>/<asset.dest> = <exe dir>/models when base is the exe dir.
-    let root = base.parent().map(Path::to_path_buf).unwrap_or_else(|| ".".into());
-    for a in &assets {
-        if models::model_root(&base, a).is_dir() {
-            continue;
+    let assets = models::missing(&base);
+    if assets.is_empty() {
+        println!("The speech models are already in {}.", base.display());
+    } else {
+        for a in &assets {
+            println!("  {:>6.0} MB  {}", catalog::mb(a.size), a.label);
         }
+        println!("Into {}. Download now? [y/N]", base.display());
+        let mut s = String::new();
+        std::io::stdin().read_line(&mut s)?;
+        if !s.trim().eq_ignore_ascii_case("y") {
+            bail!("cancelled");
+        }
+    }
+    for a in &assets {
         let mut last = 0u64;
-        download::ensure(&root, a, &mut |p| {
+        models::download(&base, a, &mut |p| {
             let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
             if pct != last {
                 last = pct;
@@ -210,6 +208,9 @@ fn download_models(cfg: &Config) -> Result<()> {
             }
         })?;
         println!();
+    }
+    for d in astromech_core::app::remove_retired_models(cfg) {
+        println!("Removed the replaced model {}", d.display());
     }
     println!("Done.");
     Ok(())

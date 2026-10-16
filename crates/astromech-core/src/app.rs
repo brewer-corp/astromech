@@ -496,16 +496,12 @@ pub fn download_models(core: &Arc<Core>) {
     core.notify();
     let c = core.clone();
     let _ = std::thread::Builder::new().name("models".into()).spawn(move || {
-        use astromech_voice::{download, models};
+        use astromech_voice::models;
         let base = c.cfg.models_dir();
-        let root = base.parent().map(Path::to_path_buf).unwrap_or_else(|| ".".into());
         let mut err = None;
-        for a in [models::STT, models::TTS] {
-            if models::model_root(&base, &a).is_dir() {
-                continue;
-            }
+        for a in models::missing(&base) {
             let mut last = u64::MAX;
-            let r = download::ensure(&root, &a, &mut |p| {
+            let r = models::download(&base, &a, &mut |p| {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
@@ -519,7 +515,10 @@ pub fn download_models(core: &Arc<Core>) {
             }
         }
         match err {
-            None => log(&format!("speech models ready in {}", base.display())),
+            None => {
+                log(&format!("speech models ready in {}", base.display()));
+                remove_retired_models(&c.cfg);
+            }
             Some(e) => log(&format!("speech model download failed: {e}")),
         }
         *c.models.lock().unwrap() = None;
@@ -527,10 +526,30 @@ pub fn download_models(core: &Arc<Core>) {
     });
 }
 
-pub fn models_missing(cfg: &Config) -> bool {
+/// Delete models an update replaced (Kokoro v0.19) once Kokoro v1.0 is completely downloaded,
+/// but only from astromech's own models folder: a folder `models_dir` points at may belong to
+/// another tool (the S9 test still uses v0.19). Returns the folders removed.
+pub fn remove_retired_models(cfg: &Config) -> Vec<PathBuf> {
     use astromech_voice::models;
-    let m = cfg.models_dir();
-    models::stt_paths(&models::model_root(&m, &models::STT)).is_err() || models::find_tts(&m).is_err()
+    let dir = cfg.models_dir();
+    if !cfg.voice.models_dir.trim().is_empty() {
+        if models::has_retired(&dir) && models::find_tts(&dir).is_ok() {
+            log(&format!(
+                "Kokoro v0.19 in {} is no longer used; left in place because models_dir points at that folder",
+                dir.display()
+            ));
+        }
+        return vec![];
+    }
+    let gone = models::remove_retired(&dir);
+    for d in &gone {
+        log(&format!("removed the replaced speech model {}", d.display()));
+    }
+    gone
+}
+
+pub fn models_missing(cfg: &Config) -> bool {
+    !astromech_voice::models::missing(&cfg.models_dir()).is_empty()
 }
 
 fn watch_game(core: Arc<Core>) {
@@ -678,6 +697,18 @@ pub fn run(opts: Opts) -> i32 {
         }
     };
 
+    // An update from Kokoro v0.19: fetch v1.0 (the old model can't serve v1.0 voices), and
+    // remove v0.19 once v1.0 is there.
+    let models_dir = core.cfg.models_dir();
+    if astromech_voice::models::has_retired(&models_dir) {
+        if astromech_voice::models::find_tts(&models_dir).is_ok() {
+            remove_retired_models(&core.cfg);
+        } else {
+            log("text-to-speech: Kokoro v0.19 was replaced by v1.0; downloading it");
+            download_models(&core);
+        }
+    }
+
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
 
@@ -730,4 +761,29 @@ fn headless(rx: &Receiver<Ui>) -> i32 {
         }
     }
     0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use astromech_voice::{catalog, download, models};
+
+    #[test]
+    fn retired_models_stay_in_a_folder_models_dir_points_at() {
+        let d = tempfile::tempdir().unwrap();
+        let m = d.path();
+        for a in [catalog::RETIRED_TTS[0], models::TTS] {
+            let root = models::model_root(m, &a);
+            std::fs::create_dir_all(root.join("espeak-ng-data")).unwrap();
+            for f in ["model.onnx", "voices.bin", "tokens.txt"] {
+                std::fs::write(root.join(f), "x").unwrap();
+            }
+            std::fs::write(download::marker_in(m, &a), a.sha256).unwrap();
+        }
+        let mut cfg = Config::default();
+        cfg.voice.models_dir = m.display().to_string();
+        assert!(remove_retired_models(&cfg).is_empty());
+        assert!(models::has_retired(m), "another tool's v0.19 is left alone");
+        assert!(models::find_tts(m).is_ok());
+    }
 }
