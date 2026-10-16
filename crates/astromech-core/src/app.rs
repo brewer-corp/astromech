@@ -42,6 +42,8 @@ pub struct Core {
     pub config_path: PathBuf,
     /// The config; the window's setup edits (push-to-talk, mic, folders) replace it.
     pub cfg: std::sync::RwLock<Config>,
+    /// Held across a whole setup edit (read, write the file, swap `cfg`).
+    pub config_lock: Mutex<()>,
     pub config_note: Option<String>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
@@ -401,12 +403,14 @@ impl Core {
     /// Setup edits from the window: write `astromech.toml`, then use it. Voice picks the new
     /// buttons and mic up the next time it starts (when Elite next starts).
     fn edit_config(&self, r: &Request) -> Value {
-        let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref())
-            .and_then(|edits| crate::setup::write(&self.config_path, &edits));
-        match res {
-            Ok(mut c) => {
+        let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
+            crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
                 c.actions.dry_run |= self.opts.session.dry_run;
                 *self.cfg.write().unwrap() = c;
+            })
+        });
+        match res {
+            Ok(()) => {
                 log(&format!("config: {} saved from the window", r.cmd.trim_start_matches("set_")));
                 self.notify();
                 json!({"ok": true, "applies_next_session": self.active()})
@@ -676,7 +680,8 @@ pub fn run(opts: Opts) -> i32 {
     ));
 
     let config_path = opts.config.clone().unwrap_or_else(Config::default_path);
-    let (mut cfg, config_note) = if config_path.is_file() {
+    let config_exists = config_path.is_file();
+    let (mut cfg, config_note) = if config_exists {
         match Config::load(&config_path) {
             Ok(c) => {
                 log(&format!("config: {}", config_path.display()));
@@ -721,8 +726,11 @@ pub fn run(opts: Opts) -> i32 {
         app_dir: app_dir.clone(),
         config_path,
         onboarded: AtomicBool::new(
-            crate::calibration::open_store(&cfg.data_dir()).map(|s| crate::setup::onboarded(&s)).unwrap_or(false),
+            crate::calibration::open_store(&cfg.data_dir())
+                .map(|s| crate::setup::onboarded_at_start(&s, config_exists, &cfg))
+                .unwrap_or(false),
         ),
+        config_lock: Mutex::new(()),
         cfg: std::sync::RwLock::new(cfg),
         config_note,
         game: Mutex::new(Game::NotRunning),

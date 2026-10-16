@@ -8,6 +8,7 @@ use astromech_keybinds::game::{self, GameInstall};
 use serde::Serialize;
 use serde_json::Value;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 /// Where Elite keeps what astromech reads. Bindings and journals appear the first time the game
 /// runs on this account; the install is only needed for built-in preset names.
@@ -136,7 +137,12 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
     }
     let out = doc.to_string();
     // Never write a file the core can't read back.
-    toml::from_str::<Config>(&out).context("the edited config doesn't parse")?;
+    let c = toml::from_str::<Config>(&out).context("the edited config doesn't parse")?;
+    if let (Some(p), Some(k)) = (&c.controls.ptt, &c.controls.kill_switch) {
+        if p.device.eq_ignore_ascii_case(&k.device) && p.key.eq_ignore_ascii_case(&k.key) {
+            bail!("push-to-talk and the kill switch can't be the same button");
+        }
+    }
     Ok(out)
 }
 
@@ -151,10 +157,23 @@ pub fn write(path: &Path, edits: &[Edit]) -> Result<Config> {
     if let Some(d) = path.parent() {
         std::fs::create_dir_all(d)?;
     }
-    let tmp = path.with_extension("toml.tmp");
+    // A name of its own, so a writer outside [`edit`]'s lock can't rename another's half-written file.
+    static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let n = N.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let tmp = path.with_extension(format!("toml.{}-{n}.tmp", std::process::id()));
     std::fs::write(&tmp, &out).with_context(|| format!("writing {}", tmp.display()))?;
     std::fs::rename(&tmp, path).with_context(|| format!("replacing {}", path.display()))?;
     Config::load(path)
+}
+
+/// Read, edit, write and use the config as one step: the control API serves each connection on
+/// its own thread, so two quick edits (a double click, `set_mic` right after `set_ptt`) must not
+/// interleave and lose one, or leave the in-memory config older than the file.
+pub fn edit(lock: &Mutex<()>, path: &Path, edits: &[Edit], use_config: impl FnOnce(Config)) -> Result<()> {
+    let _g = lock.lock().unwrap_or_else(|e| e.into_inner());
+    let c = write(path, edits)?;
+    use_config(c);
+    Ok(())
 }
 
 const ONBOARDED: &str = "onboarding.done";
@@ -167,6 +186,18 @@ pub fn onboarded(store: &astromech_store::Store) -> bool {
 pub fn mark_onboarded(store: &astromech_store::Store) -> Result<()> {
     store.set(ONBOARDED, env!("CARGO_PKG_VERSION"))?;
     Ok(())
+}
+
+/// At startup: someone upgrading from before onboarding already has a config with push-to-talk,
+/// so don't walk them through setup again.
+pub fn onboarded_at_start(store: &astromech_store::Store, config_file_exists: bool, cfg: &Config) -> bool {
+    if onboarded(store) {
+        return true;
+    }
+    if config_file_exists && cfg.controls.ptt.is_some() {
+        return mark_onboarded(store).is_ok();
+    }
+    false
 }
 
 #[cfg(test)]
@@ -248,6 +279,65 @@ mod tests {
         let f = found_in(Some(d.path().join("Bindings")), Some(d.path().join("Journals")), &[install]);
         assert!(f.ok && f.journal_found && !f.bindings_found);
         assert_eq!(f.install_source.as_deref(), Some("Steam"));
+    }
+
+    #[test]
+    fn concurrent_edits_all_survive_in_file_and_memory() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("astromech.toml");
+        std::fs::write(&p, crate::config::SAMPLE).unwrap();
+        let lock = Mutex::new(());
+        let mem = std::sync::RwLock::new(Config::load(&p).unwrap());
+        std::thread::scope(|s| {
+            for t in 0..2 {
+                let (lock, mem, p) = (&lock, &mem, &p);
+                s.spawn(move || {
+                    for i in 0..100 {
+                        let e = if t == 0 {
+                            Edit::Ptt(Some(b("Keyboard", &format!("Key_F{}", i % 12 + 1))))
+                        } else {
+                            Edit::Mic(format!("mic {i}"))
+                        };
+                        edit(lock, p, &[e], |c| *mem.write().unwrap() = c).unwrap();
+                    }
+                });
+            }
+        });
+        let file = Config::load(&p).unwrap();
+        let mem = mem.into_inner().unwrap();
+        for c in [&file, &mem] {
+            assert_eq!(c.controls.ptt, Some(b("Keyboard", "Key_F4")));
+            assert_eq!(c.voice.mic, "mic 99");
+        }
+        let leftovers: Vec<_> = std::fs::read_dir(d.path()).unwrap().flatten().map(|e| e.file_name()).collect();
+        assert_eq!(leftovers.len(), 1, "{leftovers:?}");
+    }
+
+    #[test]
+    fn ptt_and_kill_switch_must_differ() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("astromech.toml");
+        write(&p, &[Edit::Ptt(Some(b("231D3201", "Joy_4")))]).unwrap();
+        let e = write(&p, &[Edit::KillSwitch(Some(b("231d3201", "joy_4")))]).unwrap_err();
+        assert!(format!("{e:#}").contains("can't be the same button"), "{e:#}");
+        assert_eq!(Config::load(&p).unwrap().controls.kill_switch, None);
+        write(&p, &[Edit::KillSwitch(Some(b("231D3201", "Joy_5")))]).unwrap();
+    }
+
+    #[test]
+    fn upgrading_users_with_push_to_talk_skip_onboarding() {
+        let with_ptt: Config = toml::from_str(crate::config::SAMPLE).unwrap();
+        let fresh = Config::default();
+        // A fresh install: no config file.
+        let st = astromech_store::Store::in_memory().unwrap();
+        assert!(!onboarded_at_start(&st, false, &fresh));
+        // A config file without push-to-talk still needs setup.
+        assert!(!onboarded_at_start(&st, true, &fresh));
+        assert!(!onboarded(&st));
+        // An upgrade: config with push-to-talk. Marked once, remembered after.
+        assert!(onboarded_at_start(&st, true, &with_ptt));
+        assert!(onboarded(&st));
+        assert!(onboarded_at_start(&st, false, &fresh));
     }
 
     #[test]
