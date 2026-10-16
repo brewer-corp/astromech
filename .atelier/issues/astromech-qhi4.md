@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Engineer trips suggest engineers who can't reach the grade"
-updated_at: "2026-10-16T18:12:15.158728707+00:00"
+updated_at: "2026-10-16T22:04:25.102075245+00:00"
 ---
 
 ## Goal

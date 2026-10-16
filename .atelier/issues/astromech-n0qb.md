@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T22:04:24.989224077+00:00"
+status: "done"
 title: "Show and refresh faction-state freshness"
-updated_at: "2026-10-16T21:59:40.523523450+00:00"
+updated_at: "2026-10-16T22:04:24.989224077+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ After replaying an FSDJump fixture, the system's state and age come from the jou
 ## Context
 
 FSDJump already carries `Factions[].ActiveStates`. Partly built.
+
+## Close Reason
+
+Faction states and their age come from the commander's arrival (FSDJump/Location) when newer than Spansh; shown as 'seen on your visit'. Evidence recorded.
