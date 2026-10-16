@@ -15,9 +15,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Engineering unlock guide as a tech tree"
-updated_at: "2026-10-16T18:12:15.174541300+00:00"
+updated_at: "2026-10-16T22:10:41.812895374+00:00"
 ---
 
 ## Goal
