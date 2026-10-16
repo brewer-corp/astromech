@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Settings → Data sharing"
-updated_at: "2026-10-15T20:36:13.661131337+00:00"
+updated_at: "2026-10-16T18:47:55.085807633+00:00"
 ---
 
 ## Goal
@@ -30,3 +30,7 @@ Per-service on/off, keys, status (last send, queue depth, last error) and a plai
 ## Done when
 
 Turning EDDN off stops sends (the outbox stays empty during a replay), and the status row shows the last error from a failed send.
+
+## Notes
+
+- 2026-10-16 [note] From the astromech-tyjz review (R7): when a service is switched off, purge its queued messages or stop queuing for it, and cap the outbox by row count and age so a long outage can't grow it without limit.

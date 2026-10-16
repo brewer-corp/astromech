@@ -28,6 +28,8 @@ relationships:
     id: "astromech-thau"
   - kind: "issue"
     id: "astromech-w20r"
+  - kind: "issue"
+    id: "astromech-xvjs"
   attachments: []
   relates:
   - kind: "issue"
@@ -37,7 +39,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDDN sender"
-updated_at: "2026-10-16T18:41:24.042855909+00:00"
+updated_at: "2026-10-16T18:47:49.294349072+00:00"
 ---
 
 ## Goal
