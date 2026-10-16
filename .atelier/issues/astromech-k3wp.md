@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646672720+00:00"
 id: "astromech-k3wp"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-k3wp
 priority: "P0"
 relationships:
   blocks:
@@ -28,7 +31,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Colonisation tracker"
-updated_at: "2026-10-16T18:26:25.169683597+00:00"
+updated_at: "2026-10-16T19:32:22.606106233+00:00"
 ---
 
 ## Goal
