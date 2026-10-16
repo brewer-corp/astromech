@@ -12,7 +12,7 @@ pub mod plan;
 pub mod trip;
 
 pub use engineers::EngineerView;
-pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
+pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, Stored};
 pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 pub use trip::{plan_trip, Hop, Trip};
 
@@ -267,6 +267,34 @@ mod tests {
         // no start: first leg is not claimed exact
         let trip = plan_trip(ship, &r.targets, &engs, None, 20.0, &straight(20.0));
         assert!(!trip.stops[0].hop.exact);
+    }
+
+    #[test]
+    fn fixture_fleet_lists_every_ship_and_stored_module() {
+        let f = sample_fleet();
+        let ships: Vec<_> =
+            f.ships.iter().map(|s| (s.id, s.system.as_deref(), s.value, s.rebuy, s.max_jump_range)).collect();
+        assert_eq!(
+            ships,
+            vec![
+                (3, None, Some(165_000_000), Some(12_000_000), Some(18.0)),
+                (7, None, Some(134_000_000), Some(6_700_000), Some(32.5)),
+                (12, Some("Sol"), Some(6_000_000), None, None),
+            ]
+        );
+        let stored: Vec<_> = f
+            .stored_modules
+            .iter()
+            .map(|m| (m.name.as_str(), m.system.as_deref(), m.blueprint_name.as_deref(), m.grade))
+            .collect();
+        assert_eq!(
+            stored,
+            vec![
+                ("5A Frame Shift Drive", Some("Shinrarta Dezhra"), Some("Increased range"), Some(3)),
+                ("5A Shield Generator", Some("Sol"), None, None),
+                ("2F Pulse Laser", None, None, None),
+            ]
+        );
     }
 
     #[test]

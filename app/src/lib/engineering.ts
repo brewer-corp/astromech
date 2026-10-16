@@ -35,6 +35,10 @@ export interface Ship {
   system: string | null;
   current: boolean;
   loadout_ts: string | null;
+  /** Unladen maximum from the last Loadout, in ly. */
+  max_jump_range: number | null;
+  value: number | null;
+  rebuy: number | null;
   modules: Fitted[];
 }
 
@@ -50,9 +54,20 @@ export interface GroupOptions {
   experimentals: Choice[];
 }
 
+export interface StoredModule {
+  item: string;
+  name: string;
+  /** Null while in transit. */
+  system: string | null;
+  value: number | null;
+  blueprint_name: string | null;
+  grade: number | null;
+}
+
 export interface Fleet {
   source: string;
   ships: Ship[];
+  stored_modules: StoredModule[];
   groups: Record<string, GroupOptions>;
 }
 

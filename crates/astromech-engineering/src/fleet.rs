@@ -8,7 +8,7 @@
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
 use crate::data;
-use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredShip};
+use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredModule, StoredShip};
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
@@ -17,6 +17,8 @@ use std::path::Path;
 pub struct Fleet {
     pub source: String,
     pub ships: Vec<Ship>,
+    /// Modules in storage, from the last `StoredModules`.
+    pub stored_modules: Vec<Stored>,
     /// Engineering options for every module group on these ships.
     pub groups: BTreeMap<String, GroupOptions>,
 }
@@ -34,7 +36,24 @@ pub struct Ship {
     pub loadout_ts: Option<String>,
     /// Unladen maximum from the last `Loadout`.
     pub max_jump_range: Option<f64>,
+    /// What the ship is worth: the shipyard's value for a stored ship, else hull plus modules.
+    pub value: Option<i64>,
+    /// Insurance excess if the ship is lost, from its last `Loadout`.
+    pub rebuy: Option<i64>,
     pub modules: Vec<Fitted>,
+}
+
+/// A module in storage.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Stored {
+    pub item: String,
+    pub name: String,
+    /// `None` while in transit.
+    pub system: Option<String>,
+    pub value: Option<i64>,
+    /// Blueprint name and grade when engineered.
+    pub blueprint_name: Option<String>,
+    pub grade: Option<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -82,6 +101,8 @@ struct Seen {
     name: Option<String>,
     ident: Option<String>,
     max_jump_range: Option<f64>,
+    rebuy: Option<i64>,
+    value: Option<i64>,
     modules: Vec<ModuleSnap>,
 }
 
@@ -90,6 +111,7 @@ struct Seen {
 pub struct FleetBuilder {
     loadouts: HashMap<i64, Seen>,
     stored: HashMap<i64, StoredShip>,
+    stored_modules: Vec<StoredModule>,
     current: Option<i64>,
 }
 
@@ -97,7 +119,16 @@ impl FleetBuilder {
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
         match ev {
             JournalEvent::Loadout {
-                ship_id: Some(id), ship, ship_name, ship_ident, modules, max_jump_range, ..
+                ship_id: Some(id),
+                ship,
+                ship_name,
+                ship_ident,
+                modules,
+                max_jump_range,
+                rebuy,
+                hull_value,
+                modules_value,
+                ..
             } if !is_vehicle(ship.as_deref().unwrap_or("")) => {
                 self.current = Some(*id);
                 self.stored.remove(id);
@@ -109,6 +140,8 @@ impl FleetBuilder {
                         name: ship_name.clone(),
                         ident: ship_ident.clone(),
                         max_jump_range: *max_jump_range,
+                        rebuy: *rebuy,
+                        value: hull_value.map(|h| h + modules_value.unwrap_or(0)),
                         modules: modules.clone(),
                     },
                 );
@@ -118,6 +151,7 @@ impl FleetBuilder {
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
+            JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
             JournalEvent::EngineerCraft {
                 engineer,
                 blueprint,
@@ -179,7 +213,8 @@ impl FleetBuilder {
                 }
             }
         }
-        Fleet { source: source.into(), ships, groups }
+        let stored_modules = self.stored_modules.iter().map(stored_module).collect();
+        Fleet { source: source.into(), ships, stored_modules, groups }
     }
 
     fn ship(&self, id: i64) -> Ship {
@@ -199,6 +234,8 @@ impl FleetBuilder {
             current: self.current == Some(id),
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
+            value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),
+            rebuy: seen.and_then(|s| s.rebuy),
             modules,
         }
     }
@@ -221,6 +258,21 @@ pub fn group_options(id: &str) -> Option<GroupOptions> {
             .map(|(id, e)| Choice { id: id.to_string(), name: e.name.clone(), max_grade: None })
             .collect(),
     })
+}
+
+fn stored_module(m: &StoredModule) -> Stored {
+    let name =
+        data::module(&m.item).map(|i| i.display()).or_else(|| m.localised.clone()).unwrap_or_else(|| m.item.clone());
+    let bp = m.blueprint.as_deref();
+    Stored {
+        item: m.item.clone(),
+        name,
+        system: m.system.clone(),
+        value: m.value,
+        blueprint_name: bp
+            .map(|b| data::blueprint(b).map(|(_, d)| d.name.clone()).unwrap_or_else(|| b.replace('_', " "))),
+        grade: bp.and(m.level),
+    }
 }
 
 fn fitted(m: &ModuleSnap) -> Option<Fitted> {
@@ -326,6 +378,7 @@ fn slot_order(slot: &str) -> (u8, u8, String) {
 const FLEET_EVENTS: &[&str] = &[
     "\"Loadout\"",
     "\"StoredShips\"",
+    "\"StoredModules\"",
     "\"ShipyardSell\"",
     "\"ShipyardBuy\"",
     "\"SellShipOnRebuy\"",
