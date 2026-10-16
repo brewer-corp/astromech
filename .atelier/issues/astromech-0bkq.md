@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Callout delivery: speaker busy without a device, notifications off the pipeline thread"
-updated_at: "2026-10-16T19:57:19.874760390+00:00"
+updated_at: "2026-10-16T19:59:10.873031495+00:00"
 ---
 
 ## Goal

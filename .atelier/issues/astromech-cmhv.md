@@ -21,6 +21,8 @@ relationships:
     id: "astromech-huab"
   children:
   - kind: "issue"
+    id: "astromech-0bkq"
+  - kind: "issue"
     id: "astromech-0zcu"
   - kind: "issue"
     id: "astromech-ngyt"
@@ -45,7 +47,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-16T19:57:30.763090593+00:00"
+updated_at: "2026-10-16T19:59:10.873708699+00:00"
 ---
 
 ## Goal
