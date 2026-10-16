@@ -1,0 +1,2658 @@
+{
+ "interstellar_factors": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Mohanty Drilling Base",
+    "market_id": 3878718208,
+    "type": "Settlement",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 37.425386,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T19:32:37Z",
+    "services": [
+     {
+      "name": "Interstellar Factors Contact"
+     }
+    ]
+   },
+   {
+    "name": "Kuharenko Synthetics Silo",
+    "market_id": 3878719232,
+    "type": "Settlement",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 61.876633,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 0,
+    "is_planetary": true,
+    "updated_at": "2026-10-03T21:29:59Z",
+    "services": [
+     {
+      "name": "Interstellar Factors Contact"
+     }
+    ]
+   },
+   {
+    "name": "Bhardwaj Mineralogic Territory",
+    "market_id": 3878720512,
+    "type": "Settlement",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 61.876633,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 0,
+    "is_planetary": true,
+    "updated_at": "2026-10-12T21:54:16Z",
+    "services": [
+     {
+      "name": "Interstellar Factors Contact"
+     }
+    ]
+   },
+   {
+    "name": "Levi-Strauss Installation",
+    "market_id": 3228867840,
+    "type": "Outpost",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 6.519859,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 2,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T18:13:59Z",
+    "outfitting_updated_at": "2026-10-16T18:13:59Z",
+    "services": [
+     {
+      "name": "Interstellar Factors Contact"
+     }
+    ]
+   },
+   {
+    "name": "Nakano Engineering Installation",
+    "market_id": 3878719488,
+    "type": "Settlement",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 61.876633,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T22:07:05Z",
+    "services": [
+     {
+      "name": "Interstellar Factors Contact"
+     }
+    ]
+   }
+  ]
+ },
+ "material_trader": {
+  "count": 1636,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Patterson Enterprise",
+    "market_id": 128136952,
+    "type": "Coriolis Starport",
+    "system_name": "Sirius",
+    "system_id64": 121569805492,
+    "system_x": 6.25,
+    "system_y": -1.28125,
+    "system_z": -5.75,
+    "distance": 8.58874854460765,
+    "distance_to_arrival": 952.348348,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-16T19:10:57Z",
+    "outfitting_updated_at": "2026-10-16T19:10:57Z",
+    "shipyard_updated_at": "2026-10-16T18:17:28Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Magnus Gateway",
+    "market_id": 3228841728,
+    "type": "Coriolis Starport",
+    "system_name": "EZ Aquarii",
+    "system_id64": 22661186987433,
+    "system_x": -4.4375,
+    "system_y": -9.3125,
+    "system_z": 4.09375,
+    "distance": 11.0983265208093,
+    "distance_to_arrival": 395.244469,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 11,
+    "small_pads": 9,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T19:29:00Z",
+    "outfitting_updated_at": "2026-10-16T19:29:00Z",
+    "shipyard_updated_at": "2026-10-16T19:01:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Broglie Terminal",
+    "market_id": 3228837888,
+    "type": "Ocellus Starport",
+    "system_name": "61 Cygni",
+    "system_id64": 5856288576210,
+    "system_x": -11.21875,
+    "system_y": -1.1875,
+    "system_z": 1.40625,
+    "distance": 11.3687311022383,
+    "distance_to_arrival": 24.04,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 10,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-16T10:59:51Z",
+    "outfitting_updated_at": "2026-10-16T08:40:18Z",
+    "shipyard_updated_at": "2026-10-16T08:16:35Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Clement Orbital",
+    "market_id": 3228847616,
+    "type": "Coriolis Starport",
+    "system_name": "YZ Ceti",
+    "system_id64": 2869977687465,
+    "system_x": -1.1875,
+    "system_y": -11.8125,
+    "system_z": -2.15625,
+    "distance": 12.0662639852814,
+    "distance_to_arrival": 1244.462337,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 7,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "updated_at": "2026-10-16T06:32:06Z",
+    "outfitting_updated_at": "2026-10-16T05:41:27Z",
+    "shipyard_updated_at": "2026-10-16T05:41:27Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Kepler Gateway",
+    "market_id": 3228884736,
+    "type": "Coriolis Starport",
+    "system_name": "Kruger 60",
+    "system_id64": 22660918617513,
+    "system_x": -12.625,
+    "system_y": 0.0,
+    "system_z": -3.40625,
+    "distance": 13.0764354494067,
+    "distance_to_arrival": 3361.756979,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 12,
+    "small_pads": 11,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "updated_at": "2026-10-16T17:40:53Z",
+    "outfitting_updated_at": "2026-10-16T17:13:55Z",
+    "shipyard_updated_at": "2026-10-16T17:13:55Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   }
+  ]
+ },
+ "raw_trader": {
+  "count": 372,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Broglie Terminal",
+    "market_id": 3228837888,
+    "type": "Ocellus Starport",
+    "system_name": "61 Cygni",
+    "system_id64": 5856288576210,
+    "system_x": -11.21875,
+    "system_y": -1.1875,
+    "system_z": 1.40625,
+    "distance": 11.3687311022383,
+    "distance_to_arrival": 24.04,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 10,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-16T10:59:51Z",
+    "outfitting_updated_at": "2026-10-16T08:40:18Z",
+    "shipyard_updated_at": "2026-10-16T08:16:35Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Bresnik Port",
+    "market_id": 3228724992,
+    "type": "Coriolis Starport",
+    "system_name": "82 Eridani",
+    "system_id64": 79196850539,
+    "system_x": 10.40625,
+    "system_y": -16.3125,
+    "system_z": -3.75,
+    "distance": 19.709139892763,
+    "distance_to_arrival": 94.837976,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 14,
+    "small_pads": 10,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-16T12:51:26Z",
+    "outfitting_updated_at": "2026-10-16T12:40:54Z",
+    "shipyard_updated_at": "2026-10-16T12:51:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Hooper Relay",
+    "market_id": 128117240,
+    "type": "Coriolis Starport",
+    "system_name": "Delta Pavonis",
+    "system_id64": 633608344274,
+    "system_x": 8.375,
+    "system_y": -10.84375,
+    "system_z": 14.46875,
+    "distance": 19.9266722165293,
+    "distance_to_arrival": 195.775336,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-16T01:53:34Z",
+    "outfitting_updated_at": "2026-10-16T01:53:34Z",
+    "shipyard_updated_at": "2026-10-16T01:53:34Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Apt Station",
+    "market_id": 3228864768,
+    "type": "Ocellus Starport",
+    "system_name": "Struve 1321",
+    "system_id64": 18262872106401,
+    "system_x": -14.46875,
+    "system_y": -3.09375,
+    "system_z": -13.65625,
+    "distance": 20.134775382097,
+    "distance_to_arrival": 43580.277467,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 14,
+    "small_pads": 8,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-16T18:49:35Z",
+    "outfitting_updated_at": "2026-10-16T18:30:01Z",
+    "shipyard_updated_at": "2026-10-16T18:30:01Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Horowitz Hub",
+    "market_id": 3228515840,
+    "type": "Ocellus Starport",
+    "system_name": "LTT 3572",
+    "system_id64": 22661455488425,
+    "system_x": 18.90625,
+    "system_y": -4.21875,
+    "system_z": 5.875,
+    "distance": 20.2425236970344,
+    "distance_to_arrival": 391.323882,
+    "has_large_pad": true,
+    "large_pads": 7,
+    "medium_pads": 12,
+    "small_pads": 9,
+    "is_planetary": false,
+    "material_trader": "Raw",
+    "updated_at": "2026-10-15T23:56:29Z",
+    "outfitting_updated_at": "2026-10-13T18:53:30Z",
+    "shipyard_updated_at": "2026-10-15T09:28:18Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   }
+  ]
+ },
+ "manufactured_trader": {
+  "count": 813,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Patterson Enterprise",
+    "market_id": 128136952,
+    "type": "Coriolis Starport",
+    "system_name": "Sirius",
+    "system_id64": 121569805492,
+    "system_x": 6.25,
+    "system_y": -1.28125,
+    "system_z": -5.75,
+    "distance": 8.58874854460765,
+    "distance_to_arrival": 952.348348,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-16T19:10:57Z",
+    "outfitting_updated_at": "2026-10-16T19:10:57Z",
+    "shipyard_updated_at": "2026-10-16T18:17:28Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Qureshi Orbital",
+    "market_id": 3228872704,
+    "type": "Coriolis Starport",
+    "system_name": "LHS 380",
+    "system_id64": 13865094030761,
+    "system_x": 5.28125,
+    "system_y": 6.75,
+    "system_z": 10.875,
+    "distance": 13.8462892705049,
+    "distance_to_arrival": 1470.44605,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-16T17:20:53Z",
+    "outfitting_updated_at": "2026-10-16T16:21:49Z",
+    "shipyard_updated_at": "2026-10-16T16:21:49Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Peary Dock",
+    "market_id": 3228874240,
+    "type": "Orbis Starport",
+    "system_name": "V1581 Cygni",
+    "system_id64": 22958211091280,
+    "system_x": -14.9375,
+    "system_y": 2.25,
+    "system_z": 2.9375,
+    "distance": 15.3889672330537,
+    "distance_to_arrival": 17449.41557,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-16T16:21:04Z",
+    "outfitting_updated_at": "2026-10-14T03:44:32Z",
+    "shipyard_updated_at": "2026-10-14T03:44:32Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Cayley Dock",
+    "market_id": 3228753152,
+    "type": "Orbis Starport",
+    "system_name": "Gommat",
+    "system_id64": 4305444669803,
+    "system_x": 2.9375,
+    "system_y": 8.59375,
+    "system_z": -19.53125,
+    "distance": 21.5395258043208,
+    "distance_to_arrival": 178961.428135,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-14T06:17:52Z",
+    "outfitting_updated_at": "2026-10-14T06:17:52Z",
+    "shipyard_updated_at": "2026-10-14T06:02:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Messerschmid City",
+    "market_id": 3229106944,
+    "type": "Coriolis Starport",
+    "system_name": "Haghole",
+    "system_id64": 33656034895281,
+    "system_x": -5.875,
+    "system_y": 0.90625,
+    "system_z": 23.84375,
+    "distance": 24.5735900536531,
+    "distance_to_arrival": 12606.810871,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "material_trader": "Manufactured",
+    "updated_at": "2026-10-16T08:26:25Z",
+    "outfitting_updated_at": "2026-10-16T08:26:25Z",
+    "shipyard_updated_at": "2026-10-16T07:53:04Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   }
+  ]
+ },
+ "encoded_trader": {
+  "count": 444,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Magnus Gateway",
+    "market_id": 3228841728,
+    "type": "Coriolis Starport",
+    "system_name": "EZ Aquarii",
+    "system_id64": 22661186987433,
+    "system_x": -4.4375,
+    "system_y": -9.3125,
+    "system_z": 4.09375,
+    "distance": 11.0983265208093,
+    "distance_to_arrival": 395.244469,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 11,
+    "small_pads": 9,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T19:29:00Z",
+    "outfitting_updated_at": "2026-10-16T19:29:00Z",
+    "shipyard_updated_at": "2026-10-16T19:01:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Clement Orbital",
+    "market_id": 3228847616,
+    "type": "Coriolis Starport",
+    "system_name": "YZ Ceti",
+    "system_id64": 2869977687465,
+    "system_x": -1.1875,
+    "system_y": -11.8125,
+    "system_z": -2.15625,
+    "distance": 12.0662639852814,
+    "distance_to_arrival": 1244.462337,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 7,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "updated_at": "2026-10-16T06:32:06Z",
+    "outfitting_updated_at": "2026-10-16T05:41:27Z",
+    "shipyard_updated_at": "2026-10-16T05:41:27Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Kepler Gateway",
+    "market_id": 3228884736,
+    "type": "Coriolis Starport",
+    "system_name": "Kruger 60",
+    "system_id64": 22660918617513,
+    "system_x": -12.625,
+    "system_y": 0.0,
+    "system_z": -3.40625,
+    "distance": 13.0764354494067,
+    "distance_to_arrival": 3361.756979,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 12,
+    "small_pads": 11,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "updated_at": "2026-10-16T17:40:53Z",
+    "outfitting_updated_at": "2026-10-16T17:13:55Z",
+    "shipyard_updated_at": "2026-10-16T17:13:55Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     }
+    ]
+   },
+   {
+    "name": "Feynman Terminal",
+    "market_id": 3228798208,
+    "type": "Coriolis Starport",
+    "system_name": "Bhritzameno",
+    "system_id64": 5198797867371,
+    "system_x": -11.3125,
+    "system_y": -1.03125,
+    "system_z": 15.34375,
+    "distance": 19.0910135109428,
+    "distance_to_arrival": 1390.585356,
+    "has_large_pad": true,
+    "large_pads": 7,
+    "medium_pads": 13,
+    "small_pads": 8,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-15T00:54:51Z",
+    "outfitting_updated_at": "2026-10-14T01:46:30Z",
+    "shipyard_updated_at": "2026-10-15T00:54:51Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Merbold Ring",
+    "market_id": 3228848384,
+    "type": "Coriolis Starport",
+    "system_name": "EQ Pegasi",
+    "system_id64": 22660918551977,
+    "system_x": -15.4375,
+    "system_y": -12.75,
+    "system_z": -2.5625,
+    "distance": 20.1852746451466,
+    "distance_to_arrival": 10.851417,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 10,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T18:55:34Z",
+    "outfitting_updated_at": "2026-10-16T02:45:28Z",
+    "shipyard_updated_at": "2026-10-15T00:26:12Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   }
+  ]
+ },
+ "technology_broker": {
+  "count": 9052,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Dobrovolskiy Enterprise",
+    "market_id": 3228867072,
+    "type": "Ocellus Starport",
+    "system_name": "WISE 1506+7027",
+    "system_id64": 5366025177936,
+    "system_x": -7.375,
+    "system_y": 7.09375,
+    "system_z": -2.4375,
+    "distance": 10.5191881964579,
+    "distance_to_arrival": 215.423305,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:49:18Z",
+    "outfitting_updated_at": "2026-10-16T18:47:38Z",
+    "shipyard_updated_at": "2026-10-16T18:47:38Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Magnus Gateway",
+    "market_id": 3228841728,
+    "type": "Coriolis Starport",
+    "system_name": "EZ Aquarii",
+    "system_id64": 22661186987433,
+    "system_x": -4.4375,
+    "system_y": -9.3125,
+    "system_z": 4.09375,
+    "distance": 11.0983265208093,
+    "distance_to_arrival": 395.244469,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 11,
+    "small_pads": 9,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T19:29:00Z",
+    "outfitting_updated_at": "2026-10-16T19:29:00Z",
+    "shipyard_updated_at": "2026-10-16T19:01:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Rescue Ship Hutner",
+    "market_id": 129020287,
+    "type": "Mega ship",
+    "system_name": "Luyten's Star",
+    "system_id64": 7268024264097,
+    "system_x": 6.5625,
+    "system_y": 2.34375,
+    "system_z": -10.25,
+    "distance": 12.3944370712227,
+    "distance_to_arrival": 297.803344,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T17:25:20Z",
+    "outfitting_updated_at": "2026-10-16T17:25:20Z",
+    "shipyard_updated_at": "2026-10-16T17:24:36Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Scortia Hub",
+    "market_id": 4290133763,
+    "type": "Dodec Starport",
+    "system_name": "AD Leonis",
+    "system_id64": 5368172661576,
+    "system_x": 5.5,
+    "system_y": 13.03125,
+    "system_z": -7.46875,
+    "distance": 15.9951774958892,
+    "distance_to_arrival": 504.689122,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 14,
+    "small_pads": 7,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:25:51Z",
+    "outfitting_updated_at": "2026-10-16T18:25:51Z",
+    "shipyard_updated_at": "2026-10-16T18:25:51Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Solo Orbiter",
+    "market_id": 128151032,
+    "type": "Orbis Starport",
+    "system_name": "Altair",
+    "system_id64": 306253399220,
+    "system_x": -12.3125,
+    "system_y": -2.75,
+    "system_z": 11.0,
+    "distance": 16.7379854298539,
+    "distance_to_arrival": 666.836617,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:28:44Z",
+    "outfitting_updated_at": "2026-10-16T17:27:47Z",
+    "shipyard_updated_at": "2026-10-16T14:20:19Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   }
+  ]
+ },
+ "human_broker": {
+  "count": 2034,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Dobrovolskiy Enterprise",
+    "market_id": 3228867072,
+    "type": "Ocellus Starport",
+    "system_name": "WISE 1506+7027",
+    "system_id64": 5366025177936,
+    "system_x": -7.375,
+    "system_y": 7.09375,
+    "system_z": -2.4375,
+    "distance": 10.5191881964579,
+    "distance_to_arrival": 215.423305,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:49:18Z",
+    "outfitting_updated_at": "2026-10-16T18:47:38Z",
+    "shipyard_updated_at": "2026-10-16T18:47:38Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Scortia Hub",
+    "market_id": 4290133763,
+    "type": "Dodec Starport",
+    "system_name": "AD Leonis",
+    "system_id64": 5368172661576,
+    "system_x": 5.5,
+    "system_y": 13.03125,
+    "system_z": -7.46875,
+    "distance": 15.9951774958892,
+    "distance_to_arrival": 504.689122,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 14,
+    "small_pads": 7,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:25:51Z",
+    "outfitting_updated_at": "2026-10-16T18:25:51Z",
+    "shipyard_updated_at": "2026-10-16T18:25:51Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Solo Orbiter",
+    "market_id": 128151032,
+    "type": "Orbis Starport",
+    "system_name": "Altair",
+    "system_id64": 306253399220,
+    "system_x": -12.3125,
+    "system_y": -2.75,
+    "system_z": 11.0,
+    "distance": 16.7379854298539,
+    "distance_to_arrival": 666.836617,
+    "has_large_pad": true,
+    "large_pads": 9,
+    "medium_pads": 18,
+    "small_pads": 17,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T18:28:44Z",
+    "outfitting_updated_at": "2026-10-16T17:27:47Z",
+    "shipyard_updated_at": "2026-10-16T14:20:19Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Medusa's Lair",
+    "market_id": 4245555459,
+    "type": "Dodec Starport",
+    "system_name": "LHS 1731",
+    "system_id64": 5069269378465,
+    "system_x": 15.71875,
+    "system_y": -15.46875,
+    "system_z": -20.40625,
+    "distance": 30.0462371552163,
+    "distance_to_arrival": 3142.147861,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 14,
+    "small_pads": 8,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-15T04:55:43Z",
+    "outfitting_updated_at": "2026-10-15T04:54:30Z",
+    "shipyard_updated_at": "2026-10-15T04:54:30Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "X Relay",
+    "market_id": 4313103875,
+    "type": "Dodec Starport",
+    "system_name": "LFT 65",
+    "system_id64": 3102853810539,
+    "system_x": -2.96875,
+    "system_y": -32.25,
+    "system_z": -0.375,
+    "distance": 32.3885257701319,
+    "distance_to_arrival": 1329.666093,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 12,
+    "small_pads": 8,
+    "is_planetary": false,
+    "technology_broker": "Human",
+    "updated_at": "2026-10-16T13:57:00Z",
+    "outfitting_updated_at": "2026-10-16T13:57:00Z",
+    "shipyard_updated_at": "2026-10-16T00:40:08Z",
+    "services": [
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   }
+  ]
+ },
+ "guardian_broker": {
+  "count": 895,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Magnus Gateway",
+    "market_id": 3228841728,
+    "type": "Coriolis Starport",
+    "system_name": "EZ Aquarii",
+    "system_id64": 22661186987433,
+    "system_x": -4.4375,
+    "system_y": -9.3125,
+    "system_z": 4.09375,
+    "distance": 11.0983265208093,
+    "distance_to_arrival": 395.244469,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 11,
+    "small_pads": 9,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T19:29:00Z",
+    "outfitting_updated_at": "2026-10-16T19:29:00Z",
+    "shipyard_updated_at": "2026-10-16T19:01:26Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Feynman Terminal",
+    "market_id": 3228798208,
+    "type": "Coriolis Starport",
+    "system_name": "Bhritzameno",
+    "system_id64": 5198797867371,
+    "system_x": -11.3125,
+    "system_y": -1.03125,
+    "system_z": 15.34375,
+    "distance": 19.0910135109428,
+    "distance_to_arrival": 1390.585356,
+    "has_large_pad": true,
+    "large_pads": 7,
+    "medium_pads": 13,
+    "small_pads": 8,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-15T00:54:51Z",
+    "outfitting_updated_at": "2026-10-14T01:46:30Z",
+    "shipyard_updated_at": "2026-10-15T00:54:51Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Merbold Ring",
+    "market_id": 3228848384,
+    "type": "Coriolis Starport",
+    "system_name": "EQ Pegasi",
+    "system_id64": 22660918551977,
+    "system_x": -15.4375,
+    "system_y": -12.75,
+    "system_z": -2.5625,
+    "distance": 20.1852746451466,
+    "distance_to_arrival": 10.851417,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 10,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T18:55:34Z",
+    "outfitting_updated_at": "2026-10-16T02:45:28Z",
+    "shipyard_updated_at": "2026-10-15T00:26:12Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Bursch Enterprise",
+    "market_id": 3228756992,
+    "type": "Coriolis Starport",
+    "system_name": "Saktsak",
+    "system_id64": 4271084931435,
+    "system_x": 1.40625,
+    "system_y": 16.6875,
+    "system_z": -12.03125,
+    "distance": 20.62040668549,
+    "distance_to_arrival": 2081.564313,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 11,
+    "small_pads": 11,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-16T09:03:07Z",
+    "outfitting_updated_at": "2026-10-16T09:03:07Z",
+    "shipyard_updated_at": "2026-10-16T09:03:07Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   },
+   {
+    "name": "Butz Port",
+    "market_id": 3228888576,
+    "type": "Coriolis Starport",
+    "system_name": "Carener",
+    "system_id64": 8879945552602,
+    "system_x": -5.5625,
+    "system_y": -14.625,
+    "system_z": 15.28125,
+    "distance": 21.8711827026455,
+    "distance_to_arrival": 4888.163859,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 12,
+    "small_pads": 8,
+    "is_planetary": false,
+    "material_trader": "Encoded",
+    "technology_broker": "Guardian",
+    "updated_at": "2026-10-15T01:03:19Z",
+    "outfitting_updated_at": "2026-10-15T01:03:19Z",
+    "shipyard_updated_at": "2026-10-15T01:03:19Z",
+    "services": [
+     {
+      "name": "Material Trader"
+     },
+     {
+      "name": "Technology Broker"
+     }
+    ]
+   }
+  ]
+ },
+ "universal_cartographics": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Universal Cartographics"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Universal Cartographics"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Universal Cartographics"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Universal Cartographics"
+     }
+    ]
+   },
+   {
+    "name": "Burnell Station",
+    "market_id": 3228719104,
+    "type": "Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 363.135679,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T14:52:38Z",
+    "outfitting_updated_at": "2026-10-16T14:52:38Z",
+    "services": [
+     {
+      "name": "Universal Cartographics"
+     }
+    ]
+   }
+  ]
+ },
+ "vista_genomics": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Vista Genomics"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Vista Genomics"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Vista Genomics"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Vista Genomics"
+     }
+    ]
+   },
+   {
+    "name": "Schottky Reformatory",
+    "market_id": 3534391296,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2621.136959,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-05T18:04:09Z",
+    "outfitting_updated_at": "2026-10-05T18:04:09Z",
+    "shipyard_updated_at": "2026-10-05T17:57:54Z",
+    "services": [
+     {
+      "name": "Vista Genomics"
+     }
+    ]
+   }
+  ]
+ },
+ "pioneer_supplies": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Pioneer Supplies"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Pioneer Supplies"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Pioneer Supplies"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Pioneer Supplies"
+     }
+    ]
+   },
+   {
+    "name": "Burnell Station",
+    "market_id": 3228719104,
+    "type": "Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 363.135679,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T14:52:38Z",
+    "outfitting_updated_at": "2026-10-16T14:52:38Z",
+    "services": [
+     {
+      "name": "Pioneer Supplies"
+     }
+    ]
+   }
+  ]
+ },
+ "bartender": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Bartender"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Bartender"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Bartender"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Bartender"
+     }
+    ]
+   },
+   {
+    "name": "Burnell Station",
+    "market_id": 3228719104,
+    "type": "Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 363.135679,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T14:52:38Z",
+    "outfitting_updated_at": "2026-10-16T14:52:38Z",
+    "services": [
+     {
+      "name": "Bartender"
+     }
+    ]
+   }
+  ]
+ },
+ "frontline_solutions": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Frontline Solutions"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Frontline Solutions"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Frontline Solutions"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Frontline Solutions"
+     }
+    ]
+   },
+   {
+    "name": "Schottky Reformatory",
+    "market_id": 3534391296,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2621.136959,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-05T18:04:09Z",
+    "outfitting_updated_at": "2026-10-05T18:04:09Z",
+    "shipyard_updated_at": "2026-10-05T17:57:54Z",
+    "services": [
+     {
+      "name": "Frontline Solutions"
+     }
+    ]
+   }
+  ]
+ },
+ "apex": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Apex Interstellar"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Apex Interstellar"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Apex Interstellar"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Apex Interstellar"
+     }
+    ]
+   },
+   {
+    "name": "Burnell Station",
+    "market_id": 3228719104,
+    "type": "Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 363.135679,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T14:52:38Z",
+    "outfitting_updated_at": "2026-10-16T14:52:38Z",
+    "services": [
+     {
+      "name": "Apex Interstellar"
+     }
+    ]
+   }
+  ]
+ },
+ "refuel": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Refuel"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Refuel"
+     }
+    ]
+   },
+   {
+    "name": "Grebby Prospecting",
+    "market_id": 3802408960,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2611.878719,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:54:16Z",
+    "services": [
+     {
+      "name": "Refuel"
+     }
+    ]
+   },
+   {
+    "name": "Ikeda Tourist Zone",
+    "market_id": 3908612352,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4719.432611,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-08T16:17:50Z",
+    "services": [
+     {
+      "name": "Refuel"
+     }
+    ]
+   },
+   {
+    "name": "Kvitka's Origin",
+    "market_id": 3802405120,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4718.638561,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:21:16Z",
+    "services": [
+     {
+      "name": "Refuel"
+     }
+    ]
+   }
+  ]
+ },
+ "repair": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Repair"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Repair"
+     }
+    ]
+   },
+   {
+    "name": "Grebby Prospecting",
+    "market_id": 3802408960,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2611.878719,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:54:16Z",
+    "services": [
+     {
+      "name": "Repair"
+     }
+    ]
+   },
+   {
+    "name": "Ikeda Tourist Zone",
+    "market_id": 3908612352,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4719.432611,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-08T16:17:50Z",
+    "services": [
+     {
+      "name": "Repair"
+     }
+    ]
+   },
+   {
+    "name": "Kvitka's Origin",
+    "market_id": 3802405120,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4718.638561,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:21:16Z",
+    "services": [
+     {
+      "name": "Repair"
+     }
+    ]
+   }
+  ]
+ },
+ "rearm": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Restock"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Restock"
+     }
+    ]
+   },
+   {
+    "name": "Dekker's Yard",
+    "market_id": 128677511,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4711.336137,
+    "has_large_pad": true,
+    "large_pads": 3,
+    "medium_pads": 3,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-16T18:58:41Z",
+    "outfitting_updated_at": "2026-10-16T18:51:58Z",
+    "services": [
+     {
+      "name": "Restock"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [
+     {
+      "name": "Restock"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [
+     {
+      "name": "Restock"
+     }
+    ]
+   }
+  ]
+ },
+ "black_market": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Rescue Ship - Li Qing Jao",
+    "market_id": 128977009,
+    "type": "Mega ship",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 496.966721,
+    "has_large_pad": false,
+    "is_planetary": false,
+    "updated_at": "2021-03-18T16:19:26Z",
+    "outfitting_updated_at": "2021-03-25T06:51:41Z",
+    "services": [
+     {
+      "name": "Black Market"
+     }
+    ]
+   },
+   {
+    "name": "Markus Extraction Exchange",
+    "market_id": 3868051200,
+    "type": "Settlement",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4298.270538,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 0,
+    "is_planetary": true,
+    "updated_at": "2026-10-01T22:45:54Z",
+    "services": [
+     {
+      "name": "Black Market"
+     }
+    ]
+   },
+   {
+    "name": "T8J-N7L",
+    "market_id": 3705877504,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 1845.128763,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-09-01T07:15:12Z",
+    "outfitting_updated_at": "2026-08-28T21:49:48Z",
+    "shipyard_updated_at": "2026-08-31T09:36:35Z",
+    "services": [
+     {
+      "name": "Black Market"
+     }
+    ]
+   },
+   {
+    "name": "V7T-33H",
+    "market_id": 3712964608,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T04:58:14Z",
+    "outfitting_updated_at": "2026-07-01T04:59:37Z",
+    "shipyard_updated_at": "2026-06-28T04:36:04Z",
+    "services": [
+     {
+      "name": "Black Market"
+     }
+    ]
+   },
+   {
+    "name": "Kawle Genetics Complex",
+    "market_id": 3868050944,
+    "type": "Settlement",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4325.980656,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T00:51:42Z",
+    "services": [
+     {
+      "name": "Black Market"
+     }
+    ]
+   }
+  ]
+ },
+ "search_and_rescue": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [
+     {
+      "name": "Search and Rescue"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [
+     {
+      "name": "Search and Rescue"
+     }
+    ]
+   },
+   {
+    "name": "Grebby Prospecting",
+    "market_id": 3802408960,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2611.878719,
+    "has_large_pad": true,
+    "large_pads": 1,
+    "medium_pads": 0,
+    "small_pads": 1,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:54:16Z",
+    "services": [
+     {
+      "name": "Search and Rescue"
+     }
+    ]
+   },
+   {
+    "name": "Ikeda Tourist Zone",
+    "market_id": 3908612352,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4719.432611,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-08T16:17:50Z",
+    "services": [
+     {
+      "name": "Search and Rescue"
+     }
+    ]
+   },
+   {
+    "name": "Kvitka's Origin",
+    "market_id": 3802405120,
+    "type": "Settlement",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4718.638561,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 0,
+    "small_pads": 2,
+    "is_planetary": true,
+    "updated_at": "2026-10-13T22:21:16Z",
+    "services": [
+     {
+      "name": "Search and Rescue"
+     }
+    ]
+   }
+  ]
+ }
+}

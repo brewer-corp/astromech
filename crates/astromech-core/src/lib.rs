@@ -9,6 +9,7 @@
 //! - [`history`]: keeps the journal history database current (backfill, then new lines);
 //! - [`health`]: the binds health check at startup and on every Bindings-folder change;
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
+//! - [`lookups`]: station lookups by voice (Spansh, with the app's remembered filters);
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
 //! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
@@ -37,6 +38,7 @@ pub mod history;
 pub mod hub;
 pub mod instance;
 pub mod logging;
+pub mod lookups;
 pub mod pipeline;
 pub mod session;
 pub mod setup;

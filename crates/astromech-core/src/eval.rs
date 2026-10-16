@@ -1,7 +1,7 @@
 //! Offline eval of Debug-saved PTT clips (V1-DESIGN.md §6.3).
 
 use anyhow::{Context, Result};
-use astromech_intent::{evaluate, EvalItem, EvalReport, Grammar};
+use astromech_intent::{evaluate, EvalItem, EvalReport};
 use serde_json::Value;
 use std::path::Path;
 
@@ -51,7 +51,7 @@ pub fn load_dir(dir: &Path) -> Result<Vec<EvalItem>> {
 
 pub fn run(dir: &Path) -> Result<EvalReport> {
     let items = load_dir(dir)?;
-    let g = Grammar::mvp(&["Sol"]);
+    let g = crate::assistant::grammar();
     Ok(evaluate(&g, &items))
 }
 

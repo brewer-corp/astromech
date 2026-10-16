@@ -160,7 +160,7 @@ pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLi
                 }
             }
         }
-        J::Docked { station_name, star_system, market_id, system_address } => {
+        J::Docked { station_name, star_system, market_id, system_address, .. } => {
             e.visit("station", star_system, *system_address, Some(station_name), *market_id, None)?;
         }
         J::Loadout { ship_id: Some(id), ship: Some(ship), ship_name, ship_ident, .. } => {

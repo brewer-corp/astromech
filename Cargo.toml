@@ -36,6 +36,8 @@ astromech-market = { path = "crates/astromech-market" }
 astromech-powerplay = { path = "crates/astromech-powerplay" }
 astromech-eddn = { path = "crates/astromech-eddn" }
 astromech-history = { path = "crates/astromech-history" }
+astromech-odyssey = { path = "crates/astromech-odyssey" }
+astromech-station = { path = "crates/astromech-station" }
 anyhow = "1.0.104"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.151"

@@ -270,6 +270,49 @@ fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     Ok(v)
 }
 
+/// On-foot engineer progress, re-read when the journal changes (the scan reads every journal).
+struct OdysseyCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, astromech_odyssey::Progress)>>);
+
+/// The ShipLocker and Backpack (small files, read every call) and the engineer progress.
+fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, astromech_odyssey::Progress), String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    let holdings = astromech_odyssey::Holdings::from_journal_dir(&dir);
+    let version = astromech_materials::journal_version(&dir);
+    let mut g = cache.0.lock().map_err(|_| "busy".to_string())?;
+    let progress = match &*g {
+        Some((v, p)) if *v == version => p.clone(),
+        _ => {
+            let p = astromech_odyssey::progress_from_journal_dir(&dir);
+            *g = Some((version, p.clone()));
+            p
+        }
+    };
+    Ok((holdings, progress))
+}
+
+/// Odyssey micro-resources: inventory, engineers, and the blueprint picker's choices.
+#[tauri::command]
+async fn odyssey_view(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
+        serde_json::to_value(astromech_odyssey::view(&h, &p, "ShipLocker.json")).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// What the picked suit/weapon upgrades and modifications need, against the inventory.
+#[tauri::command]
+async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::Pick>) -> Result<Value, String> {
+    blocking(move || {
+        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
+        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p)).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 #[allow(clippy::type_complexity)]
 struct PowerplayCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, std::sync::Arc<astromech_powerplay::Journal>)>>);
 
@@ -419,6 +462,51 @@ async fn session_summary() -> Result<Value, String> {
     .await
 }
 
+/// The station docked at: services, economies, faction and its state, pads, and which modules its
+/// outfitting sells that the ship flown would be better for. `docked: false` when not docked.
+#[tauri::command]
+async fn docked_here(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = st.fleet.ships.iter().find(|s| s.current);
+        let state = astromech_station::state_from_journal_dir(&journal_dir());
+        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(astromech_station::DockedHere::new(&state, ship, book.as_ref())).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Where a module was seen, from every `Outfitting.json` the core kept (`outfitting.sqlite`, read
+/// only): stations, nearest first when their distance from here is known, else newest first.
+#[tauri::command]
+async fn outfitting_search(app: tauri::AppHandle, query: String) -> Result<Value, String> {
+    blocking(move || {
+        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+            .map_err(|e| e.to_string())?;
+        let Some(book) = book else {
+            return Ok(serde_json::json!({ "stations": 0, "snapshots": 0, "found": [] }));
+        };
+        let mut found = book.find(&query, 100).map_err(|e| e.to_string())?;
+        // Distance from here, where the local star map knows both ends (no network).
+        let here = engineering_state(&app.state::<EngineeringCache>()).ok().and_then(|s| s.here.clone());
+        if let (Some(h), Ok(g)) = (here, galaxy(&app)) {
+            for f in &mut found {
+                f.distance_ly = g.position(&f.star_system).ok().flatten().map(|p| astromech_galaxy::dist(h.pos, p));
+            }
+            found.sort_by(|a, b| match (a.distance_ly, b.distance_ly) {
+                (Some(x), Some(y)) => x.total_cmp(&y),
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (None, None) => std::cmp::Ordering::Equal,
+            });
+        }
+        let (stations, snapshots) = book.counts().map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "stations": stations, "snapshots": snapshots, "found": found }))
+    })
+    .await
+}
+
 /// Every owned ship with its modules and current engineering.
 #[tauri::command]
 async fn engineering_fleet(app: tauri::AppHandle) -> Result<Value, String> {
@@ -506,23 +594,28 @@ async fn engineering_trip(
 }
 
 /// Where a search starts: `origin` (a typed system name) or, without one, the commander's
-/// system; and the jump range to count with (the current ship's).
+/// system; the jump range to count with (the current ship's); and `filters` with the pad
+/// following the current ship unless the commander set one (resolved on every search, so a
+/// ship change applies at once).
 fn search_origin(
     app: &tauri::AppHandle,
     g: &astromech_galaxy::Galaxy,
     origin: Option<&str>,
-) -> Result<(astromech_galaxy::Here, f64), String> {
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<(astromech_galaxy::Here, f64, astromech_galaxy::Filters), String> {
     let st = engineering_state(&app.state::<EngineeringCache>());
     let here = match origin.map(str::trim).filter(|o| !o.is_empty()) {
         Some(name) => g.locate(name).map_err(|e| e.to_string())?,
         None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
     };
     let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-    Ok((here, range_of(current)))
+    let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+    Ok((here, range_of(current), filters.unwrap_or_default().for_ship(pad)))
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
-/// or, without one, near the commander, with jumps at the current ship's range.
+/// or, without one, near the commander, with jumps at the current ship's range. The pad follows
+/// the current ship at search time unless the commander set one.
 #[tauri::command]
 async fn galaxy_nearby(
     app: tauri::AppHandle,
@@ -532,8 +625,26 @@ async fn galaxy_nearby(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
-        let n = g.nearby(&query, &here, range, 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let n = g.nearby(&query, &here, range, 8, &filters).map_err(|e| e.to_string())?;
+        serde_json::to_value(n).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The nearest stations offering `want` (a service, module or ship) near `origin` or the
+/// commander. The pad follows the current ship at search time unless the commander set one.
+#[tauri::command]
+async fn stations_nearby(
+    app: tauri::AppHandle,
+    want: astromech_galaxy::stations::Want,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let n = g.stations(&want, &here, range, 10, &filters).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
@@ -551,10 +662,10 @@ async fn trade_search(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let list: Vec<&str> = commodities.iter().map(String::as_str).collect();
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
-        let s = astromech_market::search(&g, &here, range, side, &list, &filters.unwrap_or_default(), 8, now)
+        let s = astromech_market::search(&g, &here, range, side, &list, &filters, 8, now)
             .map_err(|e| e.to_string())?;
         serde_json::to_value(s).map_err(|e| e.to_string())
     })
@@ -571,10 +682,10 @@ async fn trade_cargo(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let hold = astromech_market::cargo::from_journal_dir(&journal_dir());
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
-        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters.unwrap_or_default(), 8, now)
+        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now)
             .map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "here": here, "range": range, "plan": p, "hold": hold }))
     })
@@ -815,6 +926,7 @@ fn main() {
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
+        .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
@@ -839,7 +951,10 @@ fn main() {
             engineering_headlines,
             engineering_engineers,
             engineering_trip,
+            odyssey_view,
+            odyssey_shopping,
             galaxy_nearby,
+            stations_nearby,
             galaxy_systems,
             trade_search,
             trade_cargo,
@@ -850,6 +965,8 @@ fn main() {
             powerplay_overview,
             powerplay_targets,
             logbook,
+            docked_here,
+            outfitting_search,
             session_summary
         ])
         .setup(move |app| {

@@ -96,6 +96,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-gamestate"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "astromech-materials",
+ "astromech-powerplay",
+ "astromech-status",
+ "serde",
+]
+
+[[package]]
 name = "astromech-history"
 version = "0.1.5"
 dependencies = [
@@ -162,6 +173,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-odyssey"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-powerplay"
 version = "0.1.5"
 dependencies = [
@@ -184,8 +204,10 @@ dependencies = [
  "astromech-keybinds",
  "astromech-market",
  "astromech-materials",
+ "astromech-odyssey",
  "astromech-powerplay",
  "astromech-ship",
+ "astromech-station",
  "astromech-store",
  "serde",
  "serde_json",
@@ -204,6 +226,24 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "astromech-station"
+version = "0.1.5"
+dependencies = [
+ "astromech-engineering",
+ "astromech-gamestate",
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+]
+
+[[package]]
+name = "astromech-status"
+version = "0.1.5"
+dependencies = [
+ "serde_json",
 ]
 
 [[package]]

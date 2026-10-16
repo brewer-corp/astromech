@@ -187,6 +187,7 @@ dependencies = [
  "astromech-market",
  "astromech-policy",
  "astromech-proto",
+ "astromech-station",
  "astromech-status",
  "astromech-store",
  "astromech-tools",
@@ -350,6 +351,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-odyssey"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-overlay"
 version = "0.1.5"
 dependencies = [
@@ -395,6 +406,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-station"
+version = "0.1.5"
+dependencies = [
+ "astromech-engineering",
+ "astromech-gamestate",
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-status"
 version = "0.1.5"
 dependencies = [
@@ -413,6 +436,8 @@ dependencies = [
 name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-journal",
  "astromech-market",
@@ -420,6 +445,7 @@ dependencies = [
  "astromech-proto",
  "astromech-status",
  "chrono",
+ "serde_json",
 ]
 
 [[package]]
