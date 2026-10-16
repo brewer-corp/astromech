@@ -4,6 +4,9 @@ id: "astromech-txzq"
 issue_type: "bug"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-txzq
 priority: "P0"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journal changes take 30 s to a minute to reach the UI"
-updated_at: "2026-10-16T18:12:15.204408970+00:00"
+updated_at: "2026-10-16T18:27:57.341259644+00:00"
 ---
 
 ## Goal
