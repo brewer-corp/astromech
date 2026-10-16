@@ -4,6 +4,9 @@ id: "astromech-mljg"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mljg
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Trade route finder"
-updated_at: "2026-10-16T23:15:00.329238039+00:00"
+updated_at: "2026-10-16T23:15:21.426016089+00:00"
 ---
 
 ## Goal
