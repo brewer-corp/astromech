@@ -2,17 +2,29 @@
 //! what earlier events (by game time) wrote, so an import resumed after a crash produces the
 //! same rows as one clean run. Events arriving older than what a commander's ledgers already
 //! hold (an old journal imported late) make the import rebuild that commander's ledgers in
-//! game-time order; ship rows also only take values from newer events than the ones they have. Every row belongs to one commander (`cmdr`, see `commander`),
-//! and lookups of earlier rows stay within that commander.
+//! game-time order; ship rows also only take values from newer events than the ones they have.
+//! Every row belongs to one commander (`cmdr`, see `commander`), and lookups of earlier rows
+//! stay within that commander.
 //!
 //! - `commanders`: every commander key seen, with the latest name and whether it is Legacy.
-//! - `visits`: arrivals in a system (`FSDJump`, `CarrierJump`, and `Location` when it isn't the
-//!   system already recorded last, so logging in again doesn't count) and dockings (`Docked`,
-//!   and `Location` when starting docked somewhere other than the last docking).
-//! - `earnings`: credits received, one row per event: `trade` (`MarketSell`, with `cost` from
-//!   the average price paid), `exploration`, `organic`, `bounty`, `combat_bond`, `voucher`
-//!   (other `RedeemVoucher` types), `mission`, `search_and_rescue`, `community_goal`,
-//!   `micro_resources`. Bounties count when redeemed, not when the `Bounty` event happens.
+//! - `visits`: arrivals in a system (`FSDJump` with its jump distance, `CarrierJump` without
+//!   one, and `Location` when it isn't the system already recorded last, so logging in again
+//!   doesn't count) and dockings (`Docked`, and `Location` when starting docked somewhere other
+//!   than the last docking). `via` names the event.
+//! - `earnings`: credits paid to the commander for something they did, one row per event:
+//!   - `trade`: `MarketSell` `TotalSale`, with `cost` = `AvgPricePaid` × count when the game
+//!     reports it (profit is `amount - cost`; mined or looted goods have no cost);
+//!   - `exploration` (`SellExplorationData`, `MultiSellExplorationData` `TotalEarnings`),
+//!     `organic` (`SellOrganicData` value + bonus);
+//!   - `bounty`, `combat_bond`, `voucher` (other types, e.g. codex): `RedeemVoucher` `Amount`.
+//!     Bounties count when redeemed; the `Bounty` award itself isn't paid yet;
+//!   - `mission` (`MissionCompleted` `Reward`), `search_and_rescue`, `community_goal`
+//!     (`CommunityGoalReward`), `micro_resources` (`SellMicroResources`), `powerplay`
+//!     (`PowerplaySalary`).
+//!
+//!   Not earnings: selling ships or modules (`ShipyardSell`, `SellShipOnRebuy`, `ModuleSell`),
+//!   drones (`SellDrones`) and carrier transfers (`CarrierBankTransfer`, trade orders) turn
+//!   assets into credits; costs (purchases, fines, crew wages, rebuys) aren't recorded.
 //! - `ships`: every ship id seen (`Loadout`, `StoredShips`, `ShipyardNew`), with its latest type,
 //!   name and ident, when it was bought (`acquired`), last flown and sold.
 //! - `scans`: `body` (`Scan`), `mapped` (`SAAScanComplete`) and `organic` (`ScanOrganic` with
@@ -33,7 +45,8 @@ pub struct Commander {
     pub last_seen: String,
 }
 
-/// A row of `visits`. `kind` is `system` or `station`.
+/// A row of `visits`. `kind` is `system` or `station`. Count jumps with `via == "FSDJump"`:
+/// carrier jumps and logins are arrivals too.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Visit {
     pub ts: String,
@@ -42,7 +55,10 @@ pub struct Visit {
     pub system_address: Option<i64>,
     pub station_name: Option<String>,
     pub market_id: Option<i64>,
+    /// Hyperspace jump distance (`FSDJump` only).
     pub jump_dist: Option<f64>,
+    /// The event: `FSDJump`, `CarrierJump`, `Location` or `Docked`.
+    pub via: String,
 }
 
 /// A row of `earnings`.
@@ -94,15 +110,18 @@ struct Ev<'a> {
     id: i64,
     cmdr: &'a str,
     ts: &'a str,
+    /// The journal event name.
+    via: &'a str,
 }
 
 /// Write the ledger rows for one newly stored event of commander `cmdr`.
 pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLine) -> Result<()> {
-    let e = Ev { c, id: event_id, cmdr, ts: line.timestamp.as_str() };
+    let e = Ev { c, id: event_id, cmdr, ts: line.timestamp.as_str(), via: line.name.as_str() };
     match &line.event {
         J::LoadGame { commander, .. } => e.commander(commander)?,
-        J::FsdJump { star_system, jump_dist, system_address, .. } => {
-            e.visit("system", star_system, *system_address, None, None, Some(*jump_dist))?;
+        J::FsdJump { star_system, jump_dist, system_address, from_carrier, .. } => {
+            let dist = (!from_carrier).then_some(*jump_dist);
+            e.visit("system", star_system, *system_address, None, None, dist)?;
         }
         J::Location { star_system, system_address, docked, station_name, market_id, .. } => {
             let last = c
@@ -195,6 +214,11 @@ impl Ev<'_> {
                 };
                 let detail = if k == "voucher" { Some(kind.clone()) } else { Some(factions.join(", ")) };
                 self.earn(k, *amount, None, detail.filter(|d| !d.is_empty()).as_deref())?;
+            }
+            X::Powerplay(p) if p.kind == "PowerplaySalary" => {
+                if let Some(a) = p.amount {
+                    self.earn("powerplay", a, None, p.power.as_deref())?;
+                }
             }
             X::MissionCompleted { name, reward: Some(r), .. } if *r > 0 => {
                 self.earn("mission", *r, None, Some(name))?;
@@ -342,8 +366,8 @@ impl Ev<'_> {
         self.c
             .prepare_cached(
                 "INSERT INTO visits(cmdr, event_id, ts, kind, star_system, system_address, station_name, market_id,
-                    jump_dist)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+                    jump_dist, via)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             )?
             .execute(params![
                 self.cmdr,
@@ -354,7 +378,8 @@ impl Ev<'_> {
                 system_address,
                 station_name,
                 market_id,
-                jump_dist
+                jump_dist,
+                self.via
             ])?;
         Ok(())
     }
@@ -417,7 +442,7 @@ impl crate::History {
 
     pub fn visits(&self, cmdr: &str) -> crate::Result<Vec<Visit>> {
         let mut st = self.conn.prepare(
-            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist FROM visits
+            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist, via FROM visits
              WHERE cmdr = ?1 ORDER BY ts, id",
         )?;
         let rows = st.query_map([cmdr], |r| {
@@ -429,6 +454,7 @@ impl crate::History {
                 station_name: r.get(4)?,
                 market_id: r.get(5)?,
                 jump_dist: r.get(6)?,
+                via: r.get(7)?,
             })
         })?;
         Ok(rows.collect::<Result<_>>()?)

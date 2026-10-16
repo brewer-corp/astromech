@@ -54,6 +54,12 @@ fn clean_import() -> (History, ImportReport) {
 }
 
 fn visit(ts: &str, kind: &str, system: &str, addr: i64, station: Option<(&str, i64)>, jump: Option<f64>) -> Visit {
+    let via = match (kind, jump) {
+        (_, Some(_)) => "FSDJump",
+        _ if ts.ends_with("10:00:07Z") => "Location",
+        ("station", None) => "Docked",
+        _ => "CarrierJump",
+    };
     Visit {
         ts: ts.into(),
         kind: kind.into(),
@@ -62,6 +68,7 @@ fn visit(ts: &str, kind: &str, system: &str, addr: i64, station: Option<(&str, i
         station_name: station.map(|s| s.0.into()),
         market_id: station.map(|s| s.1),
         jump_dist: jump,
+        via: via.into(),
     }
 }
 
@@ -69,16 +76,16 @@ fn visit(ts: &str, kind: &str, system: &str, addr: i64, station: Option<(&str, i
 fn imports_every_line_once() {
     let (mut h, r) = clean_import();
     assert_eq!(r.files, 3);
-    assert_eq!(r.lines, 16 + 16 + 17);
+    assert_eq!(r.lines, 16 + 20 + 17);
     assert_eq!(r.malformed, 1, "the truncated Bounty line");
-    assert_eq!(r.events, 48);
-    assert_eq!(h.event_count().unwrap(), 48);
+    assert_eq!(r.events, 52);
+    assert_eq!(h.event_count().unwrap(), 52);
     let total: u64 = journal_logs_size();
     assert_eq!((r.bytes, r.bytes_total), (total, total));
     // Nothing new: nothing read, nothing stored.
     let again = h.import(&fixtures(), &ImportOptions::default()).unwrap();
     assert_eq!(again, ImportReport::default());
-    assert_eq!(h.event_count().unwrap(), 48);
+    assert_eq!(h.event_count().unwrap(), 52);
 }
 
 fn journal_logs_size() -> u64 {
@@ -101,6 +108,7 @@ fn visits_ledger() {
             visit("2026-09-01T10:25:00Z", "station", "Barnard's Star", 2, miller, None),
             // 09-02: logging in docked at Miller Depot again is not a new visit.
             visit("2026-09-02T10:10:00Z", "system", "Sol", sol, None, Some(5.95)),
+            visit("2026-09-02T10:15:00Z", "system", "Wolf 359", 4, None, None),
             visit("2026-09-02T10:20:00Z", "system", "Alpha Centauri", 1, None, Some(4.38)),
             // 09-03: logging in where the last session ended is not a new visit either.
             visit("2026-09-03T10:10:00Z", "station", "Alpha Centauri", 1, Some(("Hutton Orbital", 128000002)), None),
@@ -125,6 +133,7 @@ fn earnings_ledger() {
             e("2026-09-01T10:05:00Z", "trade", 500000, Some(450000), Some("gold")),
             e("2026-09-01T10:26:00Z", "bounty", 120000, None, Some("Barnard's Star Group")),
             e("2026-09-01T10:27:00Z", "mission", 250000, None, Some("Mission_Delivery_name")),
+            e("2026-09-02T10:50:00Z", "powerplay", 100000, None, Some("Zachary Hudson")),
             e("2026-09-03T10:11:00Z", "organic", 5000000, None, None),
             e("2026-09-03T10:12:00Z", "exploration", 100000, None, None),
             e("2026-09-03T10:13:00Z", "search_and_rescue", 40000, None, Some("Occupied Escape Pod")),
@@ -438,8 +447,8 @@ fn logbook_search_finds_places_with_their_counts() {
 
     // No search: everything, with totals.
     let b = h.logbook(Some(CMDR), "", 2).unwrap();
-    assert_eq!(b.totals, Totals { systems: 3, stations: 3, system_visits: 5, station_visits: 4 });
-    assert_eq!((b.matches, b.places.len(), b.timeline.len()), (6, 2, 2));
+    assert_eq!(b.totals, Totals { systems: 4, stations: 3, system_visits: 6, station_visits: 4 });
+    assert_eq!((b.matches, b.places.len(), b.timeline.len()), (7, 2, 2));
     assert!(h.logbook(None, "nowhere", 50).unwrap().places.is_empty());
 }
 
@@ -453,4 +462,34 @@ fn read_only_open_reads_what_the_writer_wrote() {
     w.import(&fixtures(), &ImportOptions::default()).unwrap();
     assert_eq!(r.logbook(None, "miller", 10).unwrap().places[0].visits, 1);
     assert!(r.conn().execute("DELETE FROM visits", []).is_err(), "read only");
+}
+
+/// The done-when of astromech-bg0x: fixture sessions give the expected totals.
+#[test]
+fn session_summary_totals() {
+    let (h, _) = clean_import();
+    let s = h.session(None, Some("2026-09-02T10:30:00Z")).unwrap().unwrap();
+    assert_eq!(
+        (s.start.as_str(), s.end.as_str(), s.duration_secs, s.latest),
+        ("2026-09-02T10:00:05Z", "2026-09-02T11:00:00Z", 3595, false)
+    );
+    assert_eq!(s.earnings, vec![EarningTotal { kind: "powerplay".into(), amount: 100000, count: 1 }]);
+    assert_eq!((s.total, s.per_hour, s.data_sold), (100000, Some(100139), 0));
+    // Two FSD jumps; the carrier jump is counted apart and adds no distance.
+    assert_eq!((s.jumps, s.carrier_jumps), (2, 1));
+    assert!((s.distance_ly - (5.95 + 4.38)).abs() < 1e-9);
+    // Bounties awarded (not yet cashed in): 15,000 + 25,000.
+    assert_eq!((s.bounties_awarded, s.bounty_value), (2, 40000));
+
+    let first = h.session(Some(CMDR), Some("2026-09-01T10:20:00Z")).unwrap().unwrap();
+    assert_eq!((first.duration_secs, first.jumps, first.total, first.trade_profit), (1795, 2, 870000, 50000));
+    let kinds: Vec<(&str, i64)> = first.earnings.iter().map(|e| (e.kind.as_str(), e.amount)).collect();
+    assert_eq!(kinds, [("trade", 500000), ("mission", 250000), ("bounty", 120000)]);
+    assert_eq!(first.bounties_awarded, 0, "that session's Bounty line is truncated");
+
+    // No time given: the latest session, data sold = exploration + organic.
+    let last = h.session(None, None).unwrap().unwrap();
+    assert_eq!((last.start.as_str(), last.latest), ("2026-09-03T10:00:05Z", true));
+    assert_eq!((last.total, last.data_sold, last.trade_profit), (7221500, 5100000, 1500));
+    assert!(h.session(None, Some("2020-01-01T00:00:00Z")).unwrap().is_none());
 }

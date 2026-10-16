@@ -105,7 +105,7 @@ impl crate::History {
         let matches = places.len();
         places.truncate(limit);
         let mut st = c.prepare(&format!(
-            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist FROM visits
+            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist, via FROM visits
              WHERE cmdr = ?1 AND {MATCH} ORDER BY ts DESC, id DESC LIMIT ?3"
         ))?;
         let timeline = st
@@ -118,6 +118,7 @@ impl crate::History {
                     station_name: r.get(4)?,
                     market_id: r.get(5)?,
                     jump_dist: r.get(6)?,
+                    via: r.get(7)?,
                 })
             })?
             .collect::<Result<Vec<_>>>()?;

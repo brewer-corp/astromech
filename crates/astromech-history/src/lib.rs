@@ -20,9 +20,11 @@
 mod commander;
 mod ledgers;
 mod logbook;
+mod session;
 
 pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
 pub use logbook::{Logbook, Place, Totals};
+pub use session::{EarningTotal, Session};
 
 use commander::FileCommander;
 
@@ -180,13 +182,17 @@ const MIGRATIONS: &[&str] = &[
     // last set their type and name, and every ledger is rebuilt in game-time order.
     "ALTER TABLE ships ADD COLUMN updated TEXT NOT NULL DEFAULT '';
      INSERT OR IGNORE INTO pending VALUES ('rebuild');",
+    // v4 — session summary (astromech-bg0x): visits say which event they came from, carrier
+    // jumps have no jump distance, and PowerplaySalary is an earning.
+    "ALTER TABLE visits ADD COLUMN via TEXT NOT NULL DEFAULT '';
+     INSERT OR IGNORE INTO pending VALUES ('rebuild');",
 ];
 
 /// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done
 /// redoes it on the next open: fill `events.cmdr` and `journal_files.cmdr` from the stored
 /// lines, then rebuild the ledgers.
 const PENDING_COMMANDERS: &str = "commanders";
-/// Rebuild every ledger (migration v3).
+/// Rebuild every ledger (migrations v3, v4).
 const PENDING_REBUILD: &str = "rebuild";
 /// Prefix of a task to rebuild one commander's ledgers, left by an import that stored events
 /// older than ones that commander's ledgers already had.

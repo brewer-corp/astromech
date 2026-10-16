@@ -110,7 +110,7 @@
             {#if v.kind === "station"}
               <span>Docked at <span class="station">{v.station_name}</span></span> <SystemChip name={v.star_system} />
             {:else}
-              <span>Arrived in</span> <SystemChip name={v.star_system} />
+              <span>{v.via === "CarrierJump" ? "Carrier jumped to" : "Arrived in"}</span> <SystemChip name={v.star_system} />
               {#if v.jump_dist}<span class="lo">{v.jump_dist.toFixed(2)} ly</span>{/if}
             {/if}
           </li>

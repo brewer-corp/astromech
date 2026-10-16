@@ -201,7 +201,7 @@ mod tests {
         let f = Follower::start(j.path().to_path_buf(), db.clone(), Duration::from_millis(50), quiet());
         wait_for("the startup import", || f.progress().ready);
         let p = f.progress();
-        assert_eq!((p.events, p.error.clone(), p.running), (48, None, false));
+        assert_eq!((p.events, p.error.clone(), p.running), (52, None, false));
         assert_eq!(p.bytes, p.bytes_total);
 
         // The game writes a jump into the newest journal.
@@ -216,7 +216,7 @@ mod tests {
         wait_for("the new jump in the visits ledger", || {
             reader.visits("F0000001").unwrap().iter().any(|v| v.star_system == "Ross 128")
         });
-        wait_for("the progress to count it", || f.progress().events == 49);
+        wait_for("the progress to count it", || f.progress().events == 53);
     }
 
     /// A backfill that can't make progress (another connection holds the history database)
@@ -246,7 +246,7 @@ mod tests {
         drop(lock);
         f.poke();
         wait_for("the import once the database is free", || f.progress().ready);
-        assert_eq!(f.progress().events, 48);
+        assert_eq!(f.progress().events, 52);
     }
 
     /// An open write transaction on `db`: other writers wait, then fail with "busy".

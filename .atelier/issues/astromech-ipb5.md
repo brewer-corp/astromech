@@ -25,6 +25,8 @@ relationships:
   - kind: "issue"
     id: "astromech-i4gx"
   - kind: "issue"
+    id: "astromech-oo8y"
+  - kind: "issue"
     id: "astromech-u3f4"
   attachments: []
   relates:
@@ -41,7 +43,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal history and logbook"
-updated_at: "2026-10-16T19:51:00.917742664+00:00"
+updated_at: "2026-10-16T20:16:16.822037247+00:00"
 ---
 
 ## Goal

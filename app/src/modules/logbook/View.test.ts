@@ -7,7 +7,7 @@ import View from "./View.svelte";
 describe("Logbook", () => {
   it("finds a visited station with its counts", async () => {
     render(View);
-    await screen.findByText(/3 systems · 3 stations · 5 arrivals · 4 dockings/);
+    await screen.findByText(/4 systems · 3 stations · 6 arrivals · 4 dockings/);
 
     await fireEvent.input(screen.getByPlaceholderText("System or station"), { target: { value: "hutton" } });
     await screen.findByText(/Places matching “hutton”/);

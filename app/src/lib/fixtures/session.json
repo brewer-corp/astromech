@@ -1,0 +1,39 @@
+{
+  "commander": {
+    "cmdr": "F0000001",
+    "name": "Fixture",
+    "legacy": false,
+    "first_seen": "2026-09-01T10:00:05Z",
+    "last_seen": "2026-09-03T10:00:05Z"
+  },
+  "start": "2026-09-01T10:00:05Z",
+  "end": "2026-09-01T10:30:00Z",
+  "duration_secs": 1795,
+  "latest": false,
+  "earnings": [
+    {
+      "kind": "trade",
+      "amount": 500000,
+      "count": 1
+    },
+    {
+      "kind": "mission",
+      "amount": 250000,
+      "count": 1
+    },
+    {
+      "kind": "bounty",
+      "amount": 120000,
+      "count": 1
+    }
+  ],
+  "total": 870000,
+  "trade_profit": 50000,
+  "per_hour": 1744847,
+  "jumps": 2,
+  "distance_ly": 10.879999999999999,
+  "carrier_jumps": 0,
+  "bounties_awarded": 0,
+  "bounty_value": 0,
+  "data_sold": 0
+}
