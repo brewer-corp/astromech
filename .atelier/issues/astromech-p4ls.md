@@ -35,9 +35,7 @@ While exploring, the user sees bodies as they're scanned with their estimated va
 
 ## Done when
 
-Every child issue is done, delivering:
-
-S8
+Every child issue is done. Delivers S8.
 
 ## Unknowns
 

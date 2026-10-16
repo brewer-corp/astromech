@@ -12,6 +12,8 @@ relationships:
     id: "astromech-huab"
   children:
   - kind: "issue"
+    id: "astromech-1per"
+  - kind: "issue"
     id: "astromech-sd56"
   - kind: "issue"
     id: "astromech-xqdl"
@@ -24,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Trade near me"
-updated_at: "2026-10-15T20:36:13.879269236+00:00"
+updated_at: "2026-10-16T04:38:23.006334135+00:00"
 ---
 
 ## Goal
@@ -33,4 +35,4 @@ The user can ask where to sell or buy a commodity near them, and where to sell t
 
 ## Done when
 
-Lookups against recorded Ardent responses, voice phrase tests, and one sale in the real game at the suggested station. Independent review. Delivers S2.
+Lookups against recorded Ardent responses, voice phrase tests. The game check (astromech-1per) is done. Independent review. Delivers S2.

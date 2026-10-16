@@ -10,6 +10,8 @@ relationships:
   - kind: "issue"
     id: "astromech-d4p9"
   - kind: "issue"
+    id: "astromech-iw0s"
+  - kind: "issue"
     id: "astromech-leio"
   - kind: "issue"
     id: "astromech-um0g"
@@ -19,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "VR overlay"
-updated_at: "2026-10-16T04:33:15.549578430+00:00"
+updated_at: "2026-10-16T04:38:45.043938214+00:00"
 ---
 
 ## Goal

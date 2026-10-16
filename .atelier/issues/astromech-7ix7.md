@@ -9,6 +9,8 @@ relationships:
   blocks:
   - kind: "issue"
     id: "astromech-bf25"
+  - kind: "issue"
+    id: "astromech-w1q2"
   children: []
   attachments: []
   relates: []

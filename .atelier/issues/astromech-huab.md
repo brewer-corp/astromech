@@ -31,9 +31,7 @@ v1.0 is on GitHub Releases with an up-to-date README (signed or not, as decided)
 
 ## Done when
 
-Every child issue is done, delivering:
-
-v1.0 S3, S4
+Every child issue is done. Delivers v1.0 S3, S4.
 
 ## Scope
 

@@ -29,4 +29,4 @@ The user can open a page for any system or station with what Inara and EDSM show
 
 ## Done when
 
-System and station pages render from recorded EDSM and Spansh responses with the data age shown, and match Inara for a sample of systems checked by hand. Independent review.
+System and station pages render from recorded EDSM and Spansh responses with the data age shown, and match Inara's pages for a sample of systems. Independent review.

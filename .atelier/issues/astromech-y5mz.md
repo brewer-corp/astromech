@@ -3,11 +3,12 @@ created_at: "2026-10-15T20:36:13.657732240+00:00"
 id: "astromech-y5mz"
 issue_type: "spike"
 labels:
-- "needs-human"
 - "size-s"
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-7ck3"
   children: []
   attachments: []
   relates:
@@ -17,17 +18,17 @@ relationships:
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
-title: "Spike: WebView2 cost with Elite running"
-updated_at: "2026-10-15T20:36:13.657732240+00:00"
+title: "Build the WebView2 cost harness"
+updated_at: "2026-10-16T04:38:23.111550966+00:00"
 ---
 
 ## Goal
 
-Measure the app window's cost with Elite running on desktop and in VR: < 250 MB idle, no frame-time impact, < 2 s cold start (spike S11).
+A harness that measures the app window's cost: memory idle and in use, frame-time impact on another process, and cold start, against the budgets in spike S11 (< 250 MB idle, no frame-time impact, < 2 s cold start).
 
 ## Done when
 
-A measurement report against each budget (evidence).
+One command runs the measurements and writes a report against each budget; it runs on a dev machine without Elite (evidence).
 
 ## Context
 

@@ -12,6 +12,8 @@ relationships:
     id: "astromech-huab"
   children:
   - kind: "issue"
+    id: "astromech-fipx"
+  - kind: "issue"
     id: "astromech-n0qb"
   - kind: "issue"
     id: "astromech-osjr"
@@ -24,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Engineering material lookups"
-updated_at: "2026-10-15T20:36:13.709595697+00:00"
+updated_at: "2026-10-16T04:38:22.993919433+00:00"
 ---
 
 ## Goal
@@ -33,7 +35,7 @@ The user can find the nearest raw-material sites, including crystalline shards, 
 
 ## Done when
 
-Lookup tests from fixed positions and a check in the real game. Independent review. Delivers S3.
+Lookup tests from fixed positions. The game check (astromech-fipx) is done. Independent review. Delivers S3.
 
 ## Scope
 

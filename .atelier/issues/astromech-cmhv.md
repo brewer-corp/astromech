@@ -16,6 +16,8 @@ relationships:
   - kind: "issue"
     id: "astromech-0zcu"
   - kind: "issue"
+    id: "astromech-6920"
+  - kind: "issue"
     id: "astromech-ngyt"
   - kind: "issue"
     id: "astromech-omi1"
@@ -32,7 +34,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-15T20:36:13.824107559+00:00"
+updated_at: "2026-10-16T04:38:22.955761225+00:00"
 ---
 
 ## Goal
@@ -41,7 +43,7 @@ Journal and Status events drive rules that speak, toast or notify, and the two c
 
 ## Done when
 
-Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy, and a mining session in the real game. Independent review. Delivers S7.
+Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy. The game check (astromech-6920) is done. Independent review. Delivers S7.
 
 ## Scope
 

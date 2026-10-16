@@ -6,7 +6,9 @@ labels:
 - "size-s"
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-tqdh"
   children: []
   attachments: []
   relates: []

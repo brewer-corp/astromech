@@ -22,6 +22,8 @@ relationships:
   - kind: "issue"
     id: "astromech-thau"
   - kind: "issue"
+    id: "astromech-uxyq"
+  - kind: "issue"
     id: "astromech-w20r"
   attachments: []
   relates:
@@ -32,7 +34,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDDN sender"
-updated_at: "2026-10-15T20:36:13.697686132+00:00"
+updated_at: "2026-10-16T04:38:23.018496517+00:00"
 ---
 
 ## Goal
@@ -41,7 +43,7 @@ astromech sends commodity, outfitting, shipyard, journal and the other live EDDN
 
 ## Done when
 
-Message tests per schema against the EDDN schema files; a session against the `/test` schemas with no rejections; then a live session with no rejections, recorded as evidence. Independent review. Delivers S6.
+Message tests per schema against the EDDN schema files. The game check (astromech-uxyq) is done. Independent review. Delivers S6.
 
 ## Unknowns
 

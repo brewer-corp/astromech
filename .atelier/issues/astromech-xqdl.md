@@ -10,6 +10,8 @@ relationships:
   - kind: "issue"
     id: "astromech-05bi"
   - kind: "issue"
+    id: "astromech-1per"
+  - kind: "issue"
     id: "astromech-d1lo"
   - kind: "issue"
     id: "astromech-mcxc"

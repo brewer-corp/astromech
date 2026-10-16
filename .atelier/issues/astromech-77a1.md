@@ -12,6 +12,8 @@ relationships:
   - kind: "issue"
     id: "astromech-2oxr"
   - kind: "issue"
+    id: "astromech-505u"
+  - kind: "issue"
     id: "astromech-6jzn"
   - kind: "issue"
     id: "astromech-lg9r"
@@ -28,7 +30,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Arrival, docking and route callouts"
-updated_at: "2026-10-15T20:36:13.671705072+00:00"
+updated_at: "2026-10-16T04:38:22.943435779+00:00"
 ---
 
 ## Goal
@@ -37,7 +39,7 @@ On arrival, docking and while following a route, astromech says what the HUD doe
 
 ## Done when
 
-Journal replay tests per callout, and a play session in the real game. Independent review. Delivers S3, S4, S7.
+Journal replay tests per callout. The game check (astromech-505u) is done. Independent review. Delivers S3, S4, S7.
 
 ## Scope
 

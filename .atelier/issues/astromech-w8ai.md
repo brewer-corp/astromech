@@ -8,6 +8,8 @@ priority: "P1"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-6920"
+  - kind: "issue"
     id: "astromech-6jzn"
   - kind: "issue"
     id: "astromech-nugx"

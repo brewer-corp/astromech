@@ -6,7 +6,9 @@ labels:
 - "size-m"
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-rk4s"
   children: []
   attachments: []
   relates: []

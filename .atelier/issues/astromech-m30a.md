@@ -14,6 +14,8 @@ relationships:
   - kind: "issue"
     id: "astromech-4c6q"
   - kind: "issue"
+    id: "astromech-4su3"
+  - kind: "issue"
     id: "astromech-puas"
   - kind: "issue"
     id: "astromech-tw2y"
@@ -26,7 +28,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Nearby outfitting, ships and services"
-updated_at: "2026-10-15T20:36:13.791807637+00:00"
+updated_at: "2026-10-16T04:38:22.981289450+00:00"
 ---
 
 ## Goal
@@ -35,7 +37,7 @@ From the current or a typed system, the user finds the nearest station selling a
 
 ## Done when
 
-Lookups against recorded Spansh/Ardent responses, voice phrase tests, and a check in the real game that the top answer sells the item. Independent review. Delivers S1.
+Lookups against recorded Spansh/Ardent responses, voice phrase tests. The game check (astromech-4su3) is done. Independent review. Delivers S1.
 
 ## Unknowns
 

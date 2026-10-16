@@ -35,9 +35,7 @@ The user knows which bodies have biology worth sampling, what it's likely to be 
 
 ## Done when
 
-Every child issue is done, delivering:
-
-S8
+Every child issue is done. Delivers S8.
 
 ## Unknowns
 

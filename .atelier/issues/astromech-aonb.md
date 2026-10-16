@@ -20,6 +20,8 @@ relationships:
   - kind: "issue"
     id: "astromech-qows"
   - kind: "issue"
+    id: "astromech-tqdh"
+  - kind: "issue"
     id: "astromech-xxyp"
   children: []
   attachments: []

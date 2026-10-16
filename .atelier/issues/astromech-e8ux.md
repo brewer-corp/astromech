@@ -3,11 +3,12 @@ created_at: "2026-10-15T20:36:13.666255952+00:00"
 id: "astromech-e8ux"
 issue_type: "validation"
 labels:
-- "needs-human"
 - "size-m"
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-y5so"
   children: []
   attachments: []
   relates:
@@ -17,17 +18,17 @@ relationships:
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
-title: "Validate: a week without the old tools"
-updated_at: "2026-10-15T20:36:13.666255952+00:00"
+title: "Validate the toolbox criteria S1–S8"
+updated_at: "2026-10-16T04:38:23.054314296+00:00"
 ---
 
 ## Goal
 
-Check the toolbox mission's S1–S8 independently, and S9: Sumeet plays for a week without opening Inara, Spansh, Coriolis, EDMC, EDSM, EDCoPilot or OD Explorer for those jobs.
+Check the toolbox mission's S1–S8 independently against the evidence on each item.
 
 ## Done when
 
-Each criterion has a result and an evidence receipt; the handoff lists every time a replaced tool was still needed, and why.
+S1–S8 each have a result and an evidence receipt.
 
 ## Context
 

@@ -11,6 +11,8 @@ relationships:
     id: "astromech-05bi"
   - kind: "issue"
     id: "astromech-kaa9"
+  - kind: "issue"
+    id: "astromech-xf8j"
   children: []
   attachments: []
   relates: []

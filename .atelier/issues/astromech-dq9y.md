@@ -10,7 +10,10 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
@@ -25,3 +28,7 @@ Check the plotting macro in the real game.
 ## Done when
 
 The macro plots the next waypoint from each state in PLOTTING.md's test list (evidence).
+
+## Context
+
+The test list is in [PLOTTING.md](docs/PLOTTING.md).

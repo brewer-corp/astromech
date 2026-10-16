@@ -8,6 +8,8 @@ priority: "P0"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-6920"
+  - kind: "issue"
     id: "astromech-xes6"
   children: []
   attachments: []

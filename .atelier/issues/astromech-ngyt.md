@@ -12,6 +12,8 @@ relationships:
   - kind: "issue"
     id: "astromech-4zeh"
   - kind: "issue"
+    id: "astromech-6920"
+  - kind: "issue"
     id: "astromech-a63r"
   - kind: "issue"
     id: "astromech-drku"

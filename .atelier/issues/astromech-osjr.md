@@ -6,7 +6,9 @@ labels:
 - "size-m"
 priority: "P0"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-fipx"
   children: []
   attachments: []
   relates: []

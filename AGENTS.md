@@ -14,12 +14,15 @@ under `.atelier/`, committed with the code they describe. There is no separate b
 - Missions: "Replace the daily toolbox" ([strategy](docs/strategies/replace-the-toolbox.md))
   and "Ship v1.0".
 - `atelier start <id>` creates the work branch (`<issue_type>/<id>`) from `main`. An issue
-  with children owns one branch that its children share, and merges when they're all done.
+  with children owns one branch that its children share: a child starts on its parent's
+  `<issue_type>/<parent-id>` branch, which merges when every child is done.
   Integrate with `atelier merge <id>` after independent review, never a plain `git merge`
   into `main`. Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards
   `main` to the reviewed branch; pushing `main` then marks the PR merged.
-- Planning changes that touch only `.atelier/` records and strategies (filing, grooming,
-  re-prioritising, recording a decision) are committed straight to `main`.
+- Planning changes (filing, grooming, re-prioritising, recording a decision) are committed
+  straight to `main` when they touch only `.atelier/issues`, `.atelier/evidence`,
+  `.atelier/reviews` and strategies a mission links. Anything else, including
+  `.atelier/workflow.yaml`, goes through review and `atelier merge`.
 - Someday work sits in the `backlog` status so `atelier work ready` shows only near-term
   work. File it with `atelier issue create --status backlog`; `atelier issue transition
   <id> defer` parks an item and `plan` brings it back. Children of a parked parent are

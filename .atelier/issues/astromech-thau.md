@@ -6,7 +6,9 @@ labels:
 - "size-s"
 priority: "P0"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-uxyq"
   children: []
   attachments: []
   relates: []

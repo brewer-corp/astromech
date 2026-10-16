@@ -10,6 +10,8 @@ relationships:
   - kind: "issue"
     id: "astromech-nugx"
   - kind: "issue"
+    id: "astromech-w1q2"
+  - kind: "issue"
     id: "astromech-w62j"
   children: []
   attachments: []
