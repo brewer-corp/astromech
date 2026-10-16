@@ -149,6 +149,10 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         Plan::Already(s) => (Would::Already, s),
         Plan::Refused(s) => (Would::Refused, s),
         Plan::Speak(s) => (Would::Speak, s),
+        Plan::Lookup(kind) => {
+            let noun = astromech_galaxy::site_kind(kind).map_or(kind, |k| k.noun);
+            (Would::Speak, format!("Would look up the nearest {noun} and say where it is."))
+        }
     };
     r
 }

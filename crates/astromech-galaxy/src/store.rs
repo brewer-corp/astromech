@@ -52,6 +52,8 @@ impl Store {
             std::fs::create_dir_all(d)?;
         }
         let db = Connection::open(path)?;
+        // The app window and the core (voice site lookups) share the file.
+        db.busy_timeout(std::time::Duration::from_secs(3))?;
         db.execute_batch("PRAGMA journal_mode=WAL;")?;
         db.execute_batch(SCHEMA)?;
         Ok(Store { db })

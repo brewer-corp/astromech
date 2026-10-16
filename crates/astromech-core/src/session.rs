@@ -231,6 +231,14 @@ impl Session {
             skip_window_checks: cfg.actions.dry_run && !cfg!(windows),
             ..Default::default()
         };
+        // The app window's star map when the core uses the default data dir; else its own.
+        let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None) {
+            Ok(g) => Some(Arc::new(g)),
+            Err(e) => {
+                log(&format!("star map not opened, site lookups are off: {e:#}"));
+                None
+            }
+        };
         let runner = Arc::new(Runner {
             policy: Policy::new(platform, pcfg),
             hub: hub.clone(),
@@ -238,6 +246,7 @@ impl Session {
             speaker: speaker.clone(),
             verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
             log: Arc::new(|s: &str| log(s)),
+            galaxy,
         });
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()

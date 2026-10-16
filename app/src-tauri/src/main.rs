@@ -440,6 +440,29 @@ async fn galaxy_nearby(
     .await
 }
 
+/// Raw-material sites of `kind` (crystalline shards, brain trees, crashed ships, geological
+/// sites, the known farms) near `origin` or the commander, with jumps at the current ship's range.
+#[tauri::command]
+async fn galaxy_sites(
+    app: tauri::AppHandle,
+    kind: String,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>());
+        let g = galaxy(&app)?;
+        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
+            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
+            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
+        };
+        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let s = g.sites(&kind, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        serde_json::to_value(s).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
 /// when the core uses its default data dir (not portable mode or a `data_dir` override).
 fn settings() -> Result<astromech_store::Store, String> {
@@ -642,6 +665,7 @@ fn main() {
             engineering_engineers,
             engineering_trip,
             galaxy_nearby,
+            galaxy_sites,
             galaxy_systems,
             search_filters,
             set_search_filters

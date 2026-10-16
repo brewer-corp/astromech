@@ -49,6 +49,10 @@ The star map preload (`starmap.db`, built by `scripts/gen-starmap.py`, not in th
 community data from EDDN. At run time the app asks Spansh (faction states near you) and EDSM
 (systems near you, edsm.net) directly. Star positions and faction states are Elite Dangerous game
 data, © Frontier Developments plc.
+Raw-material sites (crystalline shards, brain trees, crashed ships, geological sites) come from
+Spansh's bodies search at run time. `data/catalog/raw-farms.json` lists the well-known grade 4 raw
+farms as reported by players on the Frontier forums, Steam and the Elite Dangerous wiki, each
+checked against Spansh's body data (16 Oct 2026); the system positions are from Spansh.
 
 ## Engineering data
 `data/catalog/engineering.json` (blueprint and experimental recipes, which modules take them,

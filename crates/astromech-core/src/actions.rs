@@ -47,9 +47,30 @@ pub struct Runner {
     pub verify_timeout: Duration,
     /// Where verification outcomes go (the console log).
     pub log: Arc<dyn Fn(&str) + Send + Sync>,
+    /// Star map and remote lookups for "nearest crystalline shards" and friends; `None` when
+    /// the galaxy store couldn't be opened.
+    pub galaxy: Option<Arc<astromech_galaxy::Galaxy>>,
 }
 
 impl Runner {
+    /// The nearest site of `kind` to the commander's system, as spoken. Jumps are counted at the
+    /// ship's maximum range (20 ly if unknown); the lookup's filters in the app don't apply.
+    pub fn nearest_site(&self, kind: &str) -> String {
+        let g = self.hub.snapshot();
+        let (Some(system), Some(pos)) = (g.system.clone(), g.star_pos) else {
+            return "Your position isn't known yet. It comes from the next jump or login.".into();
+        };
+        let Some(galaxy) = &self.galaxy else {
+            return "Site lookups aren't available: the star map couldn't be opened.".into();
+        };
+        let range = g.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
+        let here = astromech_galaxy::Here { system, id64: None, pos };
+        match galaxy.sites(kind, &here, range, 1, &astromech_galaxy::Filters::default()) {
+            Ok(s) => astromech_galaxy::sites::spoken(&s),
+            Err(e) => format!("Couldn't look that up. {e}"),
+        }
+    }
+
     pub fn run(&self, call: ToolCall, origin: Origin) -> Outcome {
         self.execute(call, origin, false)
     }
@@ -75,6 +96,11 @@ impl Runner {
                 return Outcome::Refused(m);
             }
             Plan::Speak(m) => {
+                say(&m);
+                return Outcome::Spoken(m);
+            }
+            Plan::Lookup(kind) => {
+                let m = self.nearest_site(kind);
                 say(&m);
                 return Outcome::Spoken(m);
             }

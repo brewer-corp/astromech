@@ -1,0 +1,603 @@
+{
+ "count": 10000,
+ "from": 0,
+ "results": [
+  {
+   "id64": 792638893999278960,
+   "name": "Ch'i Lingo B 2",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Ch'i Lingo",
+   "system_id64": 5359582071664,
+   "system_x": -73.21875,
+   "system_y": -42.6875,
+   "system_z": 35.5,
+   "distance": 91.8882909178993,
+   "distance_to_arrival": 1942.417013,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 21,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Biological"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 3,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 19.506411
+    },
+    {
+     "name": "Germanium",
+     "share": 3.370991
+    },
+    {
+     "name": "Iron",
+     "share": 16.071943
+    },
+    {
+     "name": "Manganese",
+     "share": 6.637549
+    },
+    {
+     "name": "Nickel",
+     "share": 12.156145
+    },
+    {
+     "name": "Niobium",
+     "share": 1.098432
+    },
+    {
+     "name": "Phosphorus",
+     "share": 12.488339
+    },
+    {
+     "name": "Selenium",
+     "share": 3.630552
+    },
+    {
+     "name": "Sulphur",
+     "share": 23.197161
+    },
+    {
+     "name": "Tungsten",
+     "share": 0.882511
+    },
+    {
+     "name": "Yttrium",
+     "share": 0.959958
+    }
+   ],
+   "updated_at": "2026-09-06T15:50:21Z",
+   "landmarks": [
+    {
+     "latitude": 0.0,
+     "longitude": 0.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  },
+  {
+   "id64": 1008806842488310115,
+   "name": "Synuefe XR-H d11-15 B 1 a",
+   "type": "Planet",
+   "subtype": "Rocky Ice world",
+   "system_name": "Synuefe XR-H d11-15",
+   "system_id64": 525957319011,
+   "system_x": 359.53125,
+   "system_y": -51.4375,
+   "system_z": -60.375,
+   "distance": 368.176149088738,
+   "distance_to_arrival": 355578.613587,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 27,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Cadmium",
+     "share": 1.360028
+    },
+    {
+     "name": "Carbon",
+     "share": 17.030048
+    },
+    {
+     "name": "Chromium",
+     "share": 7.876548
+    },
+    {
+     "name": "Iron",
+     "share": 17.513824
+    },
+    {
+     "name": "Manganese",
+     "share": 7.23303
+    },
+    {
+     "name": "Nickel",
+     "share": 13.246722
+    },
+    {
+     "name": "Phosphorus",
+     "share": 10.902929
+    },
+    {
+     "name": "Polonium",
+     "share": 0.453284
+    },
+    {
+     "name": "Selenium",
+     "share": 3.169649
+    },
+    {
+     "name": "Sulphur",
+     "share": 20.252253
+    },
+    {
+     "name": "Tungsten",
+     "share": 0.961685
+    }
+   ],
+   "updated_at": "2026-10-15T22:43:45Z",
+   "landmarks": [
+    {
+     "latitude": -19.792284,
+     "longitude": 37.687973,
+     "subtype": "Viride Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 27.992495,
+     "longitude": 26.521004,
+     "subtype": "Viride Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 36.547596,
+     "longitude": 92.43618,
+     "subtype": "Viride Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  },
+  {
+   "id64": 576483750242437936,
+   "name": "Synuefe QB-A a96-1 C 3 a",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Synuefe QB-A a96-1",
+   "system_id64": 22997939014448,
+   "system_x": 364.78125,
+   "system_y": -37.125,
+   "system_z": -36.0,
+   "distance": 368.428590064021,
+   "distance_to_arrival": 452.594546,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 6,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 14.396912
+    },
+    {
+     "name": "Chromium",
+     "share": 8.62852
+    },
+    {
+     "name": "Iron",
+     "share": 19.185865
+    },
+    {
+     "name": "Manganese",
+     "share": 7.923566
+    },
+    {
+     "name": "Nickel",
+     "share": 14.511383
+    },
+    {
+     "name": "Niobium",
+     "share": 1.311251
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.217151
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.120911
+    },
+    {
+     "name": "Tellurium",
+     "share": 1.301022
+    },
+    {
+     "name": "Tin",
+     "share": 1.189428
+    },
+    {
+     "name": "Zinc",
+     "share": 5.214
+    }
+   ],
+   "updated_at": "2026-10-09T08:46:28Z",
+   "landmarks": [
+    {
+     "latitude": -45.431152,
+     "longitude": -17.402777,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 31.693165,
+     "longitude": -72.375519,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 5.688738,
+     "longitude": -178.626892,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  },
+  {
+   "id64": 576474622229095817,
+   "name": "Synuefe PJ-D b46-6 B 1 a",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Synuefe PJ-D b46-6",
+   "system_id64": 13869925672329,
+   "system_x": 358.78125,
+   "system_y": -49.59375,
+   "system_z": -75.59375,
+   "distance": 369.997216786407,
+   "distance_to_arrival": 1484.610296,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 19,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Antimony",
+     "share": 1.103338
+    },
+    {
+     "name": "Carbon",
+     "share": 14.832376
+    },
+    {
+     "name": "Chromium",
+     "share": 8.849989
+    },
+    {
+     "name": "Iron",
+     "share": 19.678308
+    },
+    {
+     "name": "Manganese",
+     "share": 8.126941
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.284982
+    },
+    {
+     "name": "Nickel",
+     "share": 14.883847
+    },
+    {
+     "name": "Niobium",
+     "share": 1.344907
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.495941
+    },
+    {
+     "name": "Selenium",
+     "share": 2.760616
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.638767
+    }
+   ],
+   "updated_at": "2026-10-16T17:54:23Z",
+   "landmarks": [
+    {
+     "latitude": 44.0,
+     "longitude": 88.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": -29.0,
+     "longitude": 106.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 45.0,
+     "longitude": 88.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  },
+  {
+   "id64": 216186652039456137,
+   "name": "Synuefe PJ-D b46-6 A 1 a",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Synuefe PJ-D b46-6",
+   "system_id64": 13869925672329,
+   "system_x": 358.78125,
+   "system_y": -49.59375,
+   "system_z": -75.59375,
+   "distance": 369.997216786407,
+   "distance_to_arrival": 24.321702,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 13,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Cadmium",
+     "share": 1.548321
+    },
+    {
+     "name": "Carbon",
+     "share": 15.028659
+    },
+    {
+     "name": "Germanium",
+     "share": 5.286406
+    },
+    {
+     "name": "Iron",
+     "share": 19.938581
+    },
+    {
+     "name": "Manganese",
+     "share": 8.234429
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.301978
+    },
+    {
+     "name": "Nickel",
+     "share": 15.080707
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.621605
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.872187
+    },
+    {
+     "name": "Vanadium",
+     "share": 4.896221
+    },
+    {
+     "name": "Yttrium",
+     "share": 1.190908
+    }
+   ],
+   "updated_at": "2026-10-16T17:56:19Z",
+   "landmarks": [
+    {
+     "latitude": 34.0,
+     "longitude": 146.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": -58.0,
+     "longitude": 36.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": -58.0,
+     "longitude": 35.0,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  },
+  {
+   "id64": 720589810304951689,
+   "name": "Synuefe PJ-D b46-6 B 4 a",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Synuefe PJ-D b46-6",
+   "system_id64": 13869925672329,
+   "system_x": 358.78125,
+   "system_y": -49.59375,
+   "system_z": -75.59375,
+   "distance": 369.997216786407,
+   "distance_to_arrival": 1465.62115,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 12,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Arsenic",
+     "share": 2.426359
+    },
+    {
+     "name": "Cadmium",
+     "share": 1.589073
+    },
+    {
+     "name": "Carbon",
+     "share": 15.4241
+    },
+    {
+     "name": "Germanium",
+     "share": 5.425504
+    },
+    {
+     "name": "Iron",
+     "share": 20.463362
+    },
+    {
+     "name": "Manganese",
+     "share": 8.451159
+    },
+    {
+     "name": "Nickel",
+     "share": 15.477628
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.874774
+    },
+    {
+     "name": "Ruthenium",
+     "share": 1.263743
+    },
+    {
+     "name": "Sulphur",
+     "share": 18.342451
+    },
+    {
+     "name": "Tin",
+     "share": 1.261838
+    }
+   ],
+   "updated_at": "2026-10-16T17:54:08Z",
+   "landmarks": [
+    {
+     "latitude": -48.74475,
+     "longitude": -36.80109,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": -34.18145,
+     "longitude": 18.77501,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    },
+    {
+     "latitude": 50.044586,
+     "longitude": 143.101059,
+     "subtype": "Roseum Brain Tree",
+     "type": "Brain Tree"
+    }
+   ]
+  }
+ ],
+ "search": {
+  "filters": {
+   "landmark_subtype": {
+    "value": [
+     "Aureum Brain Tree",
+     "Gypseeum Brain Tree",
+     "Lindigoticum Brain Tree",
+     "Lividum Brain Tree",
+     "Ostrinum Brain Tree",
+     "Puniceum Brain Tree",
+     "Roseum Brain Tree",
+     "Viride Brain Tree"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "size": 10,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "size": 10
+}

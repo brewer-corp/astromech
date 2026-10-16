@@ -10,7 +10,12 @@
 //! - `market`: `[{"name": "Gold", "supply"|"demand": {"value": [min, max], "comparison": "<=>"}}]`;
 //! - `distance`: `{"min": "0", "max": "40"}`;
 //! - `minor_faction_presences` (systems): `[{"allegiance": {"value": [..]}, "state": {"value": [..]}}]`;
-//! - `subtype` (bodies): `{"value": [..]}`.
+//! - `subtype` (bodies): `{"value": [..]}`;
+//! - `landmark_subtype` (bodies, codex points of interest such as "Crystalline Shards" or
+//!   "Roseum Brain Tree"): `{"value": [..]}`; `landmark_type` with the same shape matched
+//!   nothing (16 Oct 2026), so search by subtype;
+//! - `signals` (bodies): `[{"name": ["Geological"]}]`;
+//! - `is_landable` (bodies): `{"value": true}`.
 //!
 //! System-name autocomplete (`/api/systems/field_values/system_names?q=`) answers
 //! `{"values": [names], "min_max": [{id64, name, x, y, z}]}`, up to a handful of names that
@@ -291,6 +296,28 @@ pub struct Signal {
     pub count: u32,
 }
 
+/// A surface point of interest Spansh knows from the codex: a crystalline shard site, a brain
+/// tree, a geyser, a crashed ship, ...
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Landmark {
+    /// e.g. "Shards", "Brain Tree", "Geyser", "Crashed Ship".
+    #[serde(rename = "type")]
+    pub landmark_type: String,
+    /// e.g. "Crystalline Shards", "Roseum Brain Tree", "Water Ice Geyser".
+    pub subtype: String,
+    #[serde(default)]
+    pub latitude: Option<f64>,
+    #[serde(default)]
+    pub longitude: Option<f64>,
+}
+
+/// One element's share of a landable body's surface, in percent.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Share {
+    pub name: String,
+    pub share: f64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Body {
     pub id64: i64,
@@ -301,6 +328,9 @@ pub struct Body {
     pub subtype: Option<String>,
     pub system_name: String,
     pub system_id64: i64,
+    pub system_x: f64,
+    pub system_y: f64,
+    pub system_z: f64,
     pub distance: f64,
     #[serde(default)]
     pub distance_to_arrival: Option<f64>,
@@ -316,6 +346,22 @@ pub struct Body {
     pub estimated_mapping_value: Option<i64>,
     #[serde(default)]
     pub estimated_scan_value: Option<i64>,
+    #[serde(default)]
+    pub landmarks: Vec<Landmark>,
+    #[serde(default)]
+    pub materials: Vec<Share>,
+    #[serde(default)]
+    pub updated_at: Option<String>,
+}
+
+impl Body {
+    pub fn pos(&self) -> [f64; 3] {
+        [self.system_x, self.system_y, self.system_z]
+    }
+
+    pub fn has_signal(&self, name: &str) -> bool {
+        self.signals.iter().any(|s| s.name.eq_ignore_ascii_case(name) && s.count > 0)
+    }
 }
 
 /// An autocomplete suggestion: a system Spansh knows, with its position.

@@ -147,6 +147,8 @@ name = "astromech-core"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-input",
  "astromech-intent",

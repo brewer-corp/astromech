@@ -3,16 +3,19 @@
 //! Where things are and how many jumps away. A local SQLite star map, seeded from a bundled
 //! preload (500 ly around Sol, `scripts/gen-starmap.py`) and filled in from EDSM as the
 //! commander travels; live faction states from Spansh's system search; jump counts by A* over
-//! the known stars at the ship's range.
+//! the known stars at the ship's range; raw-material sites (crystalline shards, brain trees,
+//! crashed ships, geological sites, the known farms) from Spansh's bodies search.
 
 pub mod filters;
 pub mod map;
 pub mod remote;
+pub mod sites;
 pub mod store;
 
 pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
+pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
 
 use anyhow::Result;
@@ -212,6 +215,54 @@ impl Galaxy {
         Ok(self.rank(q, here, range, limit, hits, iso(fetched)))
     }
 
+    /// The nearest raw-material sites of `kind_id` ([`SITE_KINDS`]) to `here`, matching
+    /// `filters` (data age and arrival distance), with jump counts at `range`.
+    pub fn sites(&self, kind_id: &str, here: &Here, range: f64, limit: usize, filters: &Filters) -> Result<Sites> {
+        let kind = site_kind(kind_id).ok_or_else(|| anyhow::anyhow!("unknown site kind {kind_id}"))?;
+        // Fill-in is best effort: without it the jump counts are estimates.
+        let _ = self.ensure_covered(here.pos);
+        let now = now_s();
+        let (source, fetched, found, warning) = match kind.search(here.pos, 30) {
+            Some(search) => {
+                let page = self.remote.spansh_bodies(&search)?;
+                let found = sites::from_bodies(kind, &page.value.results);
+                let warning = (!page.value.results.is_empty() && found.is_empty()).then(|| {
+                    format!("Spansh returned bodies without {}; its search filter may have changed.", kind.noun)
+                });
+                ("Spansh", page.fetched_at, found, warning)
+            }
+            None => ("astromech", now, sites::from_farms(here.pos), None),
+        };
+        let found = sites::keep(found, filters, now);
+        {
+            let mut s = self.store();
+            let _ = s.insert_systems(found.iter().map(|c| (c.id64, c.system.as_str(), c.pos)));
+        }
+        let map = self.map().ok();
+        let mut hits: Vec<SiteHit> = found
+            .into_iter()
+            .take(limit.max(1) * 2)
+            .map(|c| SiteHit {
+                hop: hop_on(map.as_deref(), here.pos, c.pos, range),
+                system: c.system,
+                id64: c.id64,
+                body: c.body,
+                arrival_ls: c.arrival_ls,
+                updated_at: c.updated_at,
+                detail: c.detail,
+            })
+            .collect();
+        hits.sort_by(|a, b| {
+            a.hop
+                .jumps
+                .cmp(&b.hop.jumps)
+                .then(a.hop.ly.total_cmp(&b.hop.ly))
+                .then(a.arrival_ls.unwrap_or(f64::MAX).total_cmp(&b.arrival_ls.unwrap_or(f64::MAX)))
+        });
+        hits.truncate(limit.max(1));
+        Ok(Sites { kind: kind.clone(), here: here.clone(), range, source, fetched: iso(fetched), hits, warning })
+    }
+
     fn rank(&self, q: &Query, here: &Here, range: f64, limit: usize, hits: Vec<Hit>, fetched: String) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
@@ -227,13 +278,7 @@ impl Galaxy {
             .into_iter()
             .take(limit.max(1) * 2)
             .map(|h| {
-                let hop = match &map {
-                    Some(m) => m.hop(here.pos, h.pos(), range),
-                    None => {
-                        let ly = dist(here.pos, h.pos());
-                        Hop { ly, jumps: estimate(ly, range), exact: false }
-                    }
-                };
+                let hop = hop_on(map.as_deref(), here.pos, h.pos(), range);
                 NearbyHit {
                     name: h.name.clone(),
                     id64: h.id64,
@@ -247,6 +292,17 @@ impl Galaxy {
         out.sort_by(|a, b| a.hop.jumps.cmp(&b.hop.jumps).then(a.hop.ly.total_cmp(&b.hop.ly)));
         out.truncate(limit.max(1));
         Nearby { query: q.clone(), here: here.clone(), range, fetched, hits: out, warning }
+    }
+}
+
+/// Jumps on `map`, or the straight-line estimate without one.
+fn hop_on(map: Option<&StarMap>, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
+    match map {
+        Some(m) => m.hop(a, b, range),
+        None => {
+            let ly = dist(a, b);
+            Hop { ly, jumps: estimate(ly, range), exact: false }
+        }
     }
 }
 
