@@ -6,9 +6,14 @@
 //! the helpers on the result types ([`Station::has_service`], ...). Verified filter shapes:
 //!
 //! - `services`, `ships`: `[{"name": [..]}]` (`{"value": [..]}` is ignored);
-//! - `modules`: `[{"name": [..], "class": [..], "rating": [..]}]`;
+//! - `modules`: `[{"name": [..], "class": [..], "rating": [..]}]` (any of the names);
 //! - `market`: `[{"name": "Gold", "supply"|"demand": {"value": [min, max], "comparison": "<=>"}}]`;
 //! - `distance`: `{"min": "0", "max": "40"}`;
+//! - `material_trader`, `technology_broker`, `type` (stations): `{"value": [..]}` (`type` only
+//!   includes; `"comparison": "not"` is ignored);
+//! - `has_large_pad` (stations): `{"value": true}`;
+//! - `distance_to_arrival`, `updated_at`, `outfitting_updated_at`, `shipyard_updated_at`
+//!   (stations): `{"value": [min, max], "comparison": "<=>"}` (`{"min", "max"}` is ignored);
 //! - `minor_faction_presences` (systems): `[{"allegiance": {"value": [..]}, "state": {"value": [..]}}]`;
 //! - `subtype` (bodies): `{"value": [..]}`;
 //! - `landmark_subtype` (bodies, codex points of interest such as "Crystalline Shards" or
@@ -32,12 +37,40 @@
 //! `q=Col 285 Sector AB-C b1` answered `Col 285 Sector AB-E b12-4`, so check names exactly
 //! before treating a suggestion as the system typed.
 //!
+//! Station types, material trader and technology broker kinds are listed by
+//! `/api/stations/field_values/{type,material_trader,technology_broker}` (see [`STATION_TYPES`]).
+//! Module names, classes and ratings filter; the mount does not (`ed_symbol` is ignored), so
+//! check it on [`Module::ed_symbol`].
+//!
 //! An unknown reference system is HTTP 400 `{"error": "Invalid request"}`. `count` is capped
 //! at 10000.
 
 use crate::{encode_segment, parse_json, ttl, Client, Error, Fetched, Request, Result, Service};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
+
+/// Every station type Spansh knows (its `type` field values, 16 Oct 2026).
+pub const STATION_TYPES: &[&str] = &[
+    "Asteroid base",
+    "Coriolis Starport",
+    "Dockable Planet Station",
+    "Dodec Starport",
+    "Drake-Class Carrier",
+    "Mega ship",
+    "Ocellus Starport",
+    "Orbis Starport",
+    "Outpost",
+    "Planetary Construction Depot",
+    "Planetary Outpost",
+    "Planetary Port",
+    "Settlement",
+    "Space Construction Depot",
+    "Surface Settlement",
+];
+/// Fleet carriers' station type.
+pub const CARRIER_TYPES: &[&str] = &["Drake-Class Carrier"];
+/// Odyssey settlements' station types.
+pub const SETTLEMENT_TYPES: &[&str] = &["Settlement", "Surface Settlement"];
 
 /// Where a search measures distance from.
 #[derive(Debug, Clone, PartialEq)]
@@ -88,14 +121,47 @@ impl Search {
         self.filter("distance", json!({ "min": "0", "max": ly.to_string() }))
     }
 
+    /// Stations with a material trader of `kind` ("Raw", "Manufactured", "Encoded").
+    pub fn material_trader(self, kind: &str) -> Self {
+        self.filter("material_trader", json!({ "value": [kind] }))
+    }
+
+    /// Stations with a technology broker of `kind` ("Human", "Guardian").
+    pub fn technology_broker(self, kind: &str) -> Self {
+        self.filter("technology_broker", json!({ "value": [kind] }))
+    }
+
+    /// Only stations of these types (see [`STATION_TYPES`]).
+    pub fn types(self, types: &[&str]) -> Self {
+        self.filter("type", json!({ "value": types }))
+    }
+
+    /// Only stations with a large pad.
+    pub fn large_pad(self) -> Self {
+        self.filter("has_large_pad", json!({ "value": true }))
+    }
+
+    /// Only stations at most `ls` light seconds from the arrival star. Stations Spansh has no
+    /// distance for are kept.
+    pub fn max_arrival(self, ls: f64) -> Self {
+        self.filter("distance_to_arrival", json!({ "value": ["0", ls.to_string()], "comparison": "<=>" }))
+    }
+
+    /// Only stations whose `field` (`updated_at`, `outfitting_updated_at`,
+    /// `shipyard_updated_at`) is at or after `since` (RFC 3339).
+    pub fn updated_since(self, field: &str, since: &str) -> Self {
+        self.filter(field, json!({ "value": [since, "2999-12-31T23:59:59Z"], "comparison": "<=>" }))
+    }
+
     /// Stations offering a service, by Spansh's name (e.g. "Interstellar Factors Contact").
     pub fn service(self, name: &str) -> Self {
         self.push("services", json!({ "name": [name] }))
     }
 
-    /// Stations selling a module. `class` 1–8; `rating` "A"–"I".
-    pub fn module(self, name: &str, class: Option<u8>, rating: Option<&str>) -> Self {
-        let mut m = json!({ "name": [name] });
+    /// Stations selling a module under any of `names` (Spansh lists some modules under more
+    /// than one). `class` 1–8; `rating` "A"–"I".
+    pub fn module(self, names: &[&str], class: Option<u8>, rating: Option<&str>) -> Self {
+        let mut m = json!({ "name": names });
         if let Some(c) = class {
             m["class"] = json!([c.to_string()]);
         }
@@ -252,6 +318,9 @@ pub struct Module {
     pub ship: Option<String>,
     #[serde(default)]
     pub price: Option<i64>,
+    /// The journal symbol, e.g. `Hpt_MultiCannon_Gimbal_Medium`: the only place the mount shows.
+    #[serde(default)]
+    pub ed_symbol: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -259,6 +328,9 @@ pub struct Ship {
     pub name: String,
     #[serde(default)]
     pub price: Option<i64>,
+    /// The journal symbol (`Krait_MkII`).
+    #[serde(default)]
+    pub symbol: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -292,7 +364,19 @@ pub struct Station {
     #[serde(default)]
     pub has_large_pad: Option<bool>,
     #[serde(default)]
+    pub large_pads: Option<u32>,
+    #[serde(default)]
+    pub medium_pads: Option<u32>,
+    #[serde(default)]
+    pub small_pads: Option<u32>,
+    #[serde(default)]
     pub is_planetary: Option<bool>,
+    /// "Raw", "Manufactured" or "Encoded".
+    #[serde(default)]
+    pub material_trader: Option<String>,
+    /// "Human" or "Guardian".
+    #[serde(default)]
+    pub technology_broker: Option<String>,
     #[serde(default)]
     pub services: Vec<Named>,
     #[serde(default)]
@@ -305,6 +389,10 @@ pub struct Station {
     pub updated_at: Option<String>,
     #[serde(default)]
     pub market_updated_at: Option<String>,
+    #[serde(default)]
+    pub outfitting_updated_at: Option<String>,
+    #[serde(default)]
+    pub shipyard_updated_at: Option<String>,
 }
 
 impl Station {
@@ -545,7 +633,7 @@ mod tests {
     fn search_body_uses_verified_shapes() {
         let b = Search::near(Reference::System("Sol".into()))
             .service("Interstellar Factors Contact")
-            .module("Frame Shift Drive", Some(5), Some("A"))
+            .module(&["Frame Shift Drive"], Some(5), Some("A"))
             .ship("Mandalay")
             .supply("Gold", 1000)
             .within(40.0)
@@ -558,6 +646,22 @@ mod tests {
         assert_eq!(b["filters"]["market"][0]["supply"]["value"][0], "1000");
         assert_eq!(b["filters"]["distance"]["max"], "40");
         assert_eq!(b["size"], 3);
+        let s = Search::near(Reference::System("Sol".into()))
+            .material_trader("Raw")
+            .technology_broker("Guardian")
+            .types(&["Outpost"])
+            .large_pad()
+            .max_arrival(1000.0)
+            .updated_since("outfitting_updated_at", "2026-10-15T00:00:00Z")
+            .body();
+        let f = &s["filters"];
+        assert_eq!(f["material_trader"]["value"][0], "Raw");
+        assert_eq!(f["technology_broker"]["value"][0], "Guardian");
+        assert_eq!(f["type"]["value"][0], "Outpost");
+        assert_eq!(f["has_large_pad"]["value"], true);
+        assert_eq!(f["distance_to_arrival"], json!({ "value": ["0", "1000"], "comparison": "<=>" }));
+        assert_eq!(f["outfitting_updated_at"]["value"][0], "2026-10-15T00:00:00Z");
+        assert_eq!(f["outfitting_updated_at"]["comparison"], "<=>");
         let p = Search::near(Reference::System("Lembava".into()))
             .power_state(&["Unoccupied"])
             .power(&["Li Yong-Rui"])

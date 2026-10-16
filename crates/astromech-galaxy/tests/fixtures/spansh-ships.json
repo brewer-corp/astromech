@@ -1,0 +1,708 @@
+{
+ "anaconda": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Stronghold Carrier",
+    "market_id": 3930444033,
+    "type": "Planetary Outpost",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4460.862239,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-16T19:51:46Z",
+    "outfitting_updated_at": "2026-10-16T19:51:46Z",
+    "shipyard_updated_at": "2026-10-16T19:51:00Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "T8J-N7L",
+    "market_id": 3705877504,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 1845.128763,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-09-01T07:15:12Z",
+    "outfitting_updated_at": "2026-08-28T21:49:48Z",
+    "shipyard_updated_at": "2026-08-31T09:36:35Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "L9B-B2Z",
+    "market_id": 3710317312,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2024-12-21T13:55:29Z",
+    "shipyard_updated_at": "2024-11-26T01:38:32Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "J9Z-95W",
+    "market_id": 3711072000,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-11T23:34:38Z",
+    "outfitting_updated_at": "2026-08-31T19:39:28Z",
+    "shipyard_updated_at": "2026-10-03T19:43:28Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "V7T-33H",
+    "market_id": 3712964608,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T04:58:14Z",
+    "outfitting_updated_at": "2026-07-01T04:59:37Z",
+    "shipyard_updated_at": "2026-06-28T04:36:04Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "X7W-45Z",
+    "market_id": 3709490688,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 12048.829155,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-06-03T18:49:08Z",
+    "shipyard_updated_at": "2026-05-29T20:16:13Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "KLX-B3F",
+    "market_id": 3706811648,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4041.622189,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-06-03T21:13:45Z",
+    "shipyard_updated_at": "2025-03-19T13:19:16Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   },
+   {
+    "name": "V4J-0QG",
+    "market_id": 3711096064,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-09-25T16:51:19Z",
+    "shipyard_updated_at": "2026-07-24T11:40:43Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Anaconda",
+      "price": 146969450,
+      "symbol": "Anaconda"
+     }
+    ]
+   }
+  ]
+ },
+ "krait_mkii": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Ehrlich City",
+    "market_id": 3534390016,
+    "type": "Planetary Port",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 227.915269,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 8,
+    "small_pads": 8,
+    "is_planetary": true,
+    "updated_at": "2026-10-14T17:53:45Z",
+    "outfitting_updated_at": "2026-10-14T17:53:45Z",
+    "shipyard_updated_at": "2026-10-14T17:53:45Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Furukawa Enterprise",
+    "market_id": 3534391808,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 226.708874,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-15T17:27:23Z",
+    "outfitting_updated_at": "2026-10-15T17:27:23Z",
+    "shipyard_updated_at": "2026-10-15T17:27:23Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Schottky Reformatory",
+    "market_id": 3534391296,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2621.136959,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-05T18:04:09Z",
+    "outfitting_updated_at": "2026-10-05T18:04:09Z",
+    "shipyard_updated_at": "2026-10-05T17:57:54Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Daedalus",
+    "market_id": 128016384,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 225.213593,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 10,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:17:34Z",
+    "outfitting_updated_at": "2026-10-16T19:17:34Z",
+    "shipyard_updated_at": "2026-10-16T19:17:34Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "Haberlandt Survey",
+    "market_id": 3534390272,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2613.507086,
+    "has_large_pad": true,
+    "large_pads": 4,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-12T21:07:31Z",
+    "outfitting_updated_at": "2026-10-12T21:07:31Z",
+    "shipyard_updated_at": "2021-05-29T01:16:41Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   },
+   {
+    "name": "M.Gorbachev",
+    "market_id": 128017152,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 504.8213,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 8,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:09:36Z",
+    "outfitting_updated_at": "2026-10-16T18:39:11Z",
+    "shipyard_updated_at": "2026-10-16T18:39:11Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Krait MkII",
+      "price": 45814205,
+      "symbol": "Krait_MkII"
+     }
+    ]
+   }
+  ]
+ },
+ "type9": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "Daedalus",
+    "market_id": 128016384,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 225.213593,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 10,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:17:34Z",
+    "outfitting_updated_at": "2026-10-16T19:17:34Z",
+    "shipyard_updated_at": "2026-10-16T19:17:34Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "Columbus",
+    "market_id": 128017920,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2615.265735,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 7,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T18:26:28Z",
+    "outfitting_updated_at": "2026-10-16T18:26:28Z",
+    "shipyard_updated_at": "2026-10-16T18:26:28Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "Titan City",
+    "market_id": 128018176,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 4720.05042,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 13,
+    "small_pads": 7,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T18:21:14Z",
+    "outfitting_updated_at": "2026-10-16T18:21:14Z",
+    "shipyard_updated_at": "2026-10-16T18:21:14Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "Stronghold Carrier",
+    "market_id": 3930444033,
+    "type": "Planetary Outpost",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4460.862239,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-16T19:51:46Z",
+    "outfitting_updated_at": "2026-10-16T19:51:46Z",
+    "shipyard_updated_at": "2026-10-16T19:51:00Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "T8J-N7L",
+    "market_id": 3705877504,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 1845.128763,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-09-01T07:15:12Z",
+    "outfitting_updated_at": "2026-08-28T21:49:48Z",
+    "shipyard_updated_at": "2026-08-31T09:36:35Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "L9B-B2Z",
+    "market_id": 3710317312,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2024-12-21T13:55:29Z",
+    "shipyard_updated_at": "2024-11-26T01:38:32Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   },
+   {
+    "name": "J9Z-95W",
+    "market_id": 3711072000,
+    "type": "Drake-Class Carrier",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-11T23:34:38Z",
+    "outfitting_updated_at": "2026-08-31T19:39:28Z",
+    "shipyard_updated_at": "2026-10-03T19:43:28Z",
+    "services": [],
+    "ships": [
+     {
+      "name": "Type-9 Heavy",
+      "price": 76555840,
+      "symbol": "Type9"
+     }
+    ]
+   }
+  ]
+ }
+}

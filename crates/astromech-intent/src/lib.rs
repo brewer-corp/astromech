@@ -10,9 +10,14 @@
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Didn't catch that".
 //!
-//! Phrases may contain one slot, `{system}` or `{commodity}`, resolved against a caller-supplied
-//! list of names (systems: in the full app, Spansh autocomplete; commodities: the market
-//! catalogue). A slot can match a name of several words ("low temperature diamonds").
+//! Phrases may contain one slot, `{name}`, filled by one or more words of the transcript and
+//! resolved against values the caller supplies for that slot (`{system}`: known system names;
+//! the lookups add `{commodity}`, `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
+//! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
+//! "gimballed").
+
+use std::cell::RefCell;
+use std::collections::HashMap;
 
 /// Score at or above which a match executes without asking.
 pub const EXECUTE: f32 = 0.85;
@@ -32,11 +37,13 @@ pub enum Decision {
 pub struct Match {
     /// Command id, e.g. "landing_gear.down".
     pub command: &'static str,
-    /// The grammar phrase that matched (slot filled in).
+    /// The grammar phrase that matched, its slot filled with the phrasing it matched.
     pub phrase: String,
-    /// The slot's value: the name from the slot list that matched (its canonical spelling).
+    /// The slot's value (as the caller supplied it), when the phrase has a slot.
     pub slot: Option<String>,
-    /// The slot was heard exactly (one of the name's spoken forms), not a near match.
+    /// The transcript words the slot took, normalised and joined with spaces.
+    pub slot_text: Option<String>,
+    /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
     pub score: f32,
     pub decision: Decision,
@@ -48,22 +55,35 @@ pub struct Phrase {
     pub text: String,
 }
 
-/// One name a slot can take: its spoken form, normalised and joined ("lowtemperaturediamonds"),
-/// and the canonical value it stands for ("Low Temperature Diamonds").
-#[derive(Debug, Clone)]
-struct SlotName {
-    joined: String,
-    value: String,
+/// Words a slot accepts without matching them against its values.
+pub type FreeWord = fn(&str) -> bool;
+
+struct Slot {
+    name: String,
+    /// (normalised words, as written, value)
+    values: Vec<(Vec<String>, String, String)>,
+    free: Option<FreeWord>,
 }
 
 pub struct Grammar {
     phrases: Vec<(Phrase, Vec<String>)>,
-    /// Slot kind ("system", "commodity") -> the names it can take.
-    slots: Vec<(&'static str, Vec<SlotName>)>,
+    slots: Vec<Slot>,
 }
 
-/// The longest name a slot matches, in words.
-const SLOT_MAX_WORDS: usize = 4;
+/// Most transcript words one slot can take.
+const MAX_SLOT_WORDS: usize = 8;
+
+/// How well some transcript words fill a slot.
+#[derive(Debug, Clone, Default)]
+struct Fill {
+    sim: f32,
+    value: String,
+    /// The phrasing it matched, as the caller wrote it (for "Did you mean …?").
+    said: String,
+    text: String,
+    /// The words (free words aside) are exactly one of the slot's phrasings.
+    exact: bool,
+}
 
 /// (command id, phrases). The first phrase is the canonical one used in "Did you mean …?".
 pub const MVP: &[(&str, &[&str])] = &[
@@ -174,6 +194,41 @@ pub const MVP: &[(&str, &[&str])] = &[
         "trade.sell_cargo",
         &["where to sell my cargo", "where should i sell my cargo", "best place to sell my cargo", "sell my cargo"],
     ),
+    // Station lookups (the slots' values come from astromech-galaxy).
+    (
+        "find.service",
+        &[
+            "nearest {service}",
+            "where's the nearest {service}",
+            "where is the nearest {service}",
+            "find the nearest {service}",
+            "find {service}",
+        ],
+    ),
+    (
+        "find.module",
+        &[
+            "nearest {module}",
+            "where can i buy {module}",
+            "where can i get {module}",
+            "where's the nearest {module}",
+            "where is the nearest {module}",
+            "find {module}",
+            "buy {module}",
+        ],
+    ),
+    (
+        "find.ship",
+        &[
+            "where can i buy {ship}",
+            "where can i get {ship}",
+            "nearest {ship}",
+            "where's the nearest {ship}",
+            "find {ship}",
+            "buy {ship}",
+            "who sells {ship}",
+        ],
+    ),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
@@ -200,7 +255,7 @@ const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your",
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
-const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "okay", "ok", "hey"];
+const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
 
 /// Lowercase, strip punctuation, fold common splits ("hard points" → "hardpoints"),
 /// and drop filler words.
@@ -225,11 +280,23 @@ pub fn normalise(s: &str) -> Vec<String> {
             ("hard", Some("points" | "point")) => Some("hardpoints"),
             ("head", Some("lights" | "light")) => Some("headlights"),
             ("night", Some("visions")) => Some("night vision"),
+            // Ship marks: "Mk II", "Mark two", "Mk 2" → "mkii" (as in "Krait MkII").
+            ("mk" | "mark", Some("ii" | "two" | "2")) => Some("mkii"),
+            ("mk" | "mark", Some("iii" | "three" | "3")) => Some("mkiii"),
+            ("mk" | "mark", Some("iv" | "four" | "4")) => Some("mkiv"),
+            ("mk" | "mark", Some("v" | "five" | "5")) => Some("mkv"),
             ("power", Some("play" | "plays")) => Some("powerplay"),
             _ => None,
         };
         if let Some(j) = joined {
             out.extend(j.split(' ').map(str::to_string));
+            i += 2;
+            continue;
+        }
+        // A module's class and rating said apart ("5 A", "five a") becomes one word, "5a", so
+        // the rating isn't dropped as the filler "a".
+        if let (Some(d), Some(r)) = (class_digit(&w), next.filter(|n| is_rating(n))) {
+            out.push(format!("{d}{r}"));
             i += 2;
             continue;
         }
@@ -249,6 +316,18 @@ pub fn normalise(s: &str) -> Vec<String> {
         i += 1;
     }
     out
+}
+
+fn class_digit(w: &str) -> Option<char> {
+    const WORDS: [&str; 8] = ["one", "two", "three", "four", "five", "six", "seven", "eight"];
+    match w.as_bytes() {
+        [d @ b'1'..=b'8'] => Some(*d as char),
+        _ => WORDS.iter().position(|n| *n == w).map(|i| (b'1' + i as u8) as char),
+    }
+}
+
+fn is_rating(w: &str) -> bool {
+    matches!(w.as_bytes(), [b'a'..=b'i'])
 }
 
 fn lev(a: &str, b: &str) -> usize {
@@ -316,57 +395,85 @@ pub fn word_sim(a: &str, b: &str) -> f32 {
     }
 }
 
-/// A slot's best name for some words: (similarity, value, exact).
-type SlotFn<'a> = dyn Fn(&str, &[String]) -> (f32, String, bool) + 'a;
-
-/// What a slot was filled with on an alignment path.
-type Filled = Option<(String, bool)>;
-
-/// Alignment score of two token sequences in 0..=1 (substitution cost 1 − similarity,
-/// insertion/deletion cost 1). A slot token (`{system}`) takes 1..=[`SLOT_MAX_WORDS`] words of
-/// the utterance at the cost of one substitution, scored by `slot`.
-fn seq_score(u: &[String], p: &[String], slot: &SlotFn, filled: &mut Filled) -> f32 {
+/// Alignment score of two word sequences in 0..=1 (substitution cost 1 − similarity,
+/// insertion and deletion cost 1).
+fn align(u: &[String], p: &[String]) -> f32 {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
         return 0.0;
     }
-    // dp over (i, j): min cost; keep the slot value chosen on the best path.
-    let mut dp = vec![vec![(f32::MAX, None::<(String, bool)>); m + 1]; n + 1];
+    let mut dp = vec![vec![f32::MAX; m + 1]; n + 1];
+    dp[0][0] = 0.0;
+    for i in 0..=n {
+        for j in 0..=m {
+            let c = dp[i][j];
+            if c == f32::MAX {
+                continue;
+            }
+            if i < n {
+                dp[i + 1][j] = dp[i + 1][j].min(c + 1.0);
+            }
+            if j < m {
+                dp[i][j + 1] = dp[i][j + 1].min(c + 1.0);
+            }
+            if i < n && j < m {
+                dp[i + 1][j + 1] = dp[i + 1][j + 1].min(c + 1.0 - word_sim(&u[i], &p[j]));
+            }
+        }
+    }
+    (1.0 - dp[n][m] / n.max(m) as f32).max(0.0)
+}
+
+fn slot_name(w: &str) -> Option<&str> {
+    w.strip_prefix('{')?.strip_suffix('}')
+}
+
+/// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
+/// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
+/// scores the words `u[i..i + k]` for a slot. Returns the score and the slot's fill.
+fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>) {
+    let (n, m) = (u.len(), p.len());
+    if n == 0 || m == 0 {
+        return (0.0, None);
+    }
+    let mut dp = vec![vec![(f32::MAX, None::<Fill>); m + 1]; n + 1];
     dp[0][0] = (0.0, None);
     for i in 0..=n {
         for j in 0..=m {
-            let (c, s) = dp[i][j].clone();
+            let (c, f) = dp[i][j].clone();
             if c == f32::MAX {
                 continue;
             }
             if i < n && dp[i + 1][j].0 > c + 1.0 {
-                dp[i + 1][j] = (c + 1.0, s.clone());
+                dp[i + 1][j] = (c + 1.0, f.clone());
             }
             if j < m && dp[i][j + 1].0 > c + 1.0 {
-                dp[i][j + 1] = (c + 1.0, s.clone());
+                dp[i][j + 1] = (c + 1.0, f.clone());
             }
-            if i >= n || j >= m {
+            if i == n || j == m {
                 continue;
             }
-            if let Some(kind) = p[j].strip_prefix('{').and_then(|k| k.strip_suffix('}')) {
-                for k in 1..=SLOT_MAX_WORDS.min(n - i) {
-                    let (sim, val, exact) = slot(kind, &u[i..i + k]);
-                    let nc = c + (1.0 - sim);
-                    if dp[i + k][j + 1].0 > nc {
-                        dp[i + k][j + 1] = (nc, Some((val, exact)));
+            match slot_name(&p[j]) {
+                Some(name) => {
+                    for k in 1..=MAX_SLOT_WORDS.min(n - i) {
+                        let got = fill(name, i, k);
+                        let nc = c + k as f32 * (1.0 - got.sim);
+                        if dp[i + k][j + 1].0 > nc {
+                            dp[i + k][j + 1] = (nc, Some(got));
+                        }
                     }
                 }
-            } else {
-                let nc = c + (1.0 - word_sim(&u[i], &p[j]));
-                if dp[i + 1][j + 1].0 > nc {
-                    dp[i + 1][j + 1] = (nc, s.clone());
+                None => {
+                    let nc = c + (1.0 - word_sim(&u[i], &p[j]));
+                    if dp[i + 1][j + 1].0 > nc {
+                        dp[i + 1][j + 1] = (nc, f.clone());
+                    }
                 }
             }
         }
     }
-    let (cost, s) = dp[n][m].clone();
-    *filled = s;
-    (1.0 - cost / n.max(m) as f32).max(0.0)
+    let (cost, f) = dp[n][m].clone();
+    ((1.0 - cost / n.max(m) as f32).max(0.0), f)
 }
 
 impl Grammar {
@@ -377,20 +484,25 @@ impl Grammar {
                 phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
-        let g = Self { phrases, slots: vec![] };
-        g.with_slot("system", &systems.iter().map(|s| (*s, *s)).collect::<Vec<_>>())
+        Self { phrases, slots: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
     }
 
-    /// The names `{kind}` can take, as (spoken form, canonical value) pairs. Several spoken
-    /// forms may share a value ("LTDs" and "Low Temperature Diamonds").
-    pub fn with_slot(mut self, kind: &'static str, names: &[(&str, &str)]) -> Self {
-        let list = names
-            .iter()
-            .map(|(spoken, value)| SlotName { joined: normalise(spoken).concat(), value: value.to_string() })
-            .filter(|n| !n.joined.is_empty())
-            .collect();
-        self.slots.retain(|(k, _)| *k != kind);
-        self.slots.push((kind, list));
+    /// Values for the `{name}` slot: (a way to say it, the value it stands for). Words `free`
+    /// accepts may appear in the slot without counting against the match.
+    pub fn with_slot<'a>(
+        mut self,
+        name: &str,
+        values: impl IntoIterator<Item = (&'a str, &'a str)>,
+        free: Option<FreeWord>,
+    ) -> Self {
+        let values = values.into_iter().map(|(said, value)| (normalise(said), said.to_string(), value.to_string()));
+        match self.slots.iter_mut().find(|s| s.name == name) {
+            Some(s) => {
+                s.values.extend(values);
+                s.free = free.or(s.free);
+            }
+            None => self.slots.push(Slot { name: name.to_string(), values: values.collect(), free }),
+        }
         self
     }
 
@@ -417,20 +529,33 @@ impl Grammar {
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
     }
 
-    /// The `kind` name closest to `words` (compared joined, so "low temperature diamonds"
-    /// matches "lowtemperaturediamonds").
-    fn slot_best(&self, kind: &str, words: &[String]) -> (f32, String, bool) {
-        let heard = words.concat();
-        self.slots
-            .iter()
-            .find(|(k, _)| *k == kind)
-            .and_then(|(_, names)| {
-                names
-                    .iter()
-                    .map(|n| (word_sim(&heard, &n.joined), n.value.clone(), heard == n.joined))
-                    .max_by(|a, b| a.0.total_cmp(&b.0).then(a.2.cmp(&b.2)))
-            })
-            .unwrap_or((0.0, words.join(" "), false))
+    /// How well the words `words` fill the slot `name`.
+    fn fill(&self, name: &str, words: &[String]) -> Fill {
+        let text = words.join(" ");
+        let Some(slot) = self.slots.iter().find(|s| s.name == name) else {
+            return Fill { text, ..Fill::default() };
+        };
+        let said: Vec<String> = words.iter().filter(|w| !slot.free.is_some_and(|f| f(w))).cloned().collect();
+        if said.is_empty() {
+            return Fill { text, ..Fill::default() };
+        }
+        let mut best = Fill { text, ..Fill::default() };
+        let joined = said.concat();
+        for (toks, written, value) in &slot.values {
+            // Word by word, or run together: a name the recogniser split or merged
+            // ("pain night" for Painite, "multicannon" for Multi-Cannon) still comes close.
+            let sim = align(&said, toks).max(word_sim(&joined, &toks.concat()));
+            if sim > best.sim {
+                best.sim = sim;
+                best.value = value.clone();
+                best.said = written.clone();
+                best.exact = joined == toks.concat();
+                if best.exact {
+                    break;
+                }
+            }
+        }
+        best
     }
 
     /// All phrases scored, best first.
@@ -441,30 +566,47 @@ impl Grammar {
                 .map(|w| MISHEARD.iter().find(|(h, _)| h == w).map(|(_, r)| r.to_string()).unwrap_or_else(|| w.clone()))
                 .collect()
         });
-        let slot = |kind: &str, words: &[String]| self.slot_best(kind, words);
+        // Each (slot, start, length) is scored once per transcript.
+        let memo = RefCell::new(HashMap::<(String, bool, usize, usize), Fill>::new());
+        let alt_words = misheard.clone().unwrap_or_default();
+        let fill = |alt: bool, name: &str, i: usize, k: usize| {
+            let words = if alt { &alt_words } else { &u };
+            memo.borrow_mut()
+                .entry((name.to_string(), alt, i, k))
+                .or_insert_with(|| self.fill(name, &words[i..i + k]))
+                .clone()
+        };
+        let fill_u = |name: &str, i: usize, k: usize| fill(false, name, i, k);
+        let fill_alt = |name: &str, i: usize, k: usize| fill(true, name, i, k);
         let mut v: Vec<Match> = self
             .phrases
             .iter()
             .map(|(p, toks)| {
-                let mut filled = None;
-                let mut score = seq_score(&u, toks, &slot, &mut filled);
+                let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
                 if let Some(alt) = &misheard {
-                    let mut f2 = None;
-                    let s2 = seq_score(alt, toks, &slot, &mut f2).min(MISHEARD_CAP);
+                    let (s2, f2) = phrase_score(alt, toks, &fill_alt);
+                    let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
                         score = s2;
                         filled = f2;
                     }
                 }
-                let (slot, slot_exact) = match filled {
-                    Some((v, exact)) => (Some(v), exact),
-                    None => (None, false),
+                let phrase = match &filled {
+                    Some(f) => match toks.iter().find_map(|t| slot_name(t)) {
+                        Some(name) => p.text.replace(&format!("{{{name}}}"), &f.said),
+                        None => p.text.clone(),
+                    },
+                    None => p.text.clone(),
                 };
-                let phrase = match &slot {
-                    Some(s) => fill_slot(&p.text, s),
-                    None => p.text.to_string(),
-                };
-                Match { command: p.command, phrase, slot, slot_exact, score, decision: Decision::NoMatch }
+                Match {
+                    command: p.command,
+                    phrase,
+                    slot: filled.as_ref().map(|f| f.value.clone()),
+                    slot_exact: filled.as_ref().is_some_and(|f| f.exact),
+                    slot_text: filled.map(|f| f.text),
+                    score,
+                    decision: Decision::NoMatch,
+                }
             })
             .collect();
         v.sort_by(|a, b| b.score.total_cmp(&a.score));
@@ -479,12 +621,16 @@ impl Grammar {
                 command: "",
                 phrase: String::new(),
                 slot: None,
+                slot_text: None,
                 slot_exact: false,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
         };
-        let runner = ranked.iter().find(|m| m.command != best.command).map(|m| m.score).unwrap_or(0.0);
+        // When the best heard its slot exactly, another command whose slot is only a near match
+        // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
+        let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
+        let runner = ranked.iter().find(rival).map(|m| m.score).unwrap_or(0.0);
         let clear = best.score - runner >= MARGIN;
         best.decision = if best.score >= EXECUTE && clear {
             Decision::Execute
@@ -493,19 +639,11 @@ impl Grammar {
         } else {
             Decision::NoMatch
         };
-        // A filled slot that wasn't an exact name always asks.
+        // A slot filled by anything but one of its exact phrasings always asks.
         if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
             best.decision = Decision::Ask;
         }
         best
-    }
-}
-
-/// `text` with its `{slot}` replaced by `value`.
-fn fill_slot(text: &str, value: &str) -> String {
-    match (text.find('{'), text.find('}')) {
-        (Some(a), Some(b)) if a < b => format!("{}{value}{}", &text[..a], &text[b + 1..]),
-        _ => text.to_string(),
     }
 }
 
@@ -718,6 +856,148 @@ mod tests {
         }
     }
 
+    /// A few market commodities as the core passes them (spoken form, canonical name).
+    fn trade() -> Grammar {
+        g().with_slot(
+            "commodity",
+            [
+                ("Gold", "Gold"),
+                ("Silver", "Silver"),
+                ("Painite", "Painite"),
+                ("Platinum", "Platinum"),
+                ("Low Temperature Diamonds", "Low Temperature Diamonds"),
+                ("LTDs", "Low Temperature Diamonds"),
+                ("Void Opal", "Void Opal"),
+                ("void opals", "Void Opal"),
+                ("Tritium", "Tritium"),
+                ("Water", "Water"),
+                ("Coltan", "Coltan"),
+            ],
+            None,
+        )
+    }
+
+    #[test]
+    fn trade_phrases_fill_the_commodity_slot() {
+        let g = trade();
+        for (t, cmd, slot) in [
+            ("Where can I sell painite?", "trade.sell", "Painite"),
+            ("where to sell gold", "trade.sell", "Gold"),
+            ("Best price for low temperature diamonds.", "trade.sell", "Low Temperature Diamonds"),
+            ("Where can I sell LTDs?", "trade.sell", "Low Temperature Diamonds"),
+            ("Sell void opals.", "trade.sell", "Void Opal"),
+            ("Where can I buy tritium?", "trade.buy", "Tritium"),
+            ("Where to buy water", "trade.buy", "Water"),
+            ("cheapest silver", "trade.buy", "Silver"),
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                (cmd, Some(slot), Decision::Execute),
+                "{t:?} -> {m:?}"
+            );
+        }
+        // "Did you mean …?" names the slot the way it was said.
+        assert_eq!(g.best("Where can I sell LTDs?").phrase, "where can i sell LTDs");
+    }
+
+    #[test]
+    fn misheard_commodities_ask() {
+        let g = trade();
+        // Parakeet's spelling of a name it doesn't know: close, so ask, never execute.
+        let m = g.best("Where can I sell pain night?");
+        assert_eq!((m.command, m.slot.as_deref(), m.decision), ("trade.sell", Some("Painite"), Decision::Ask), "{m:?}");
+        assert_eq!(m.phrase, "where can i sell Painite");
+        let m = g.best("Where can I sell low temperature diamond?");
+        assert_eq!((m.command, m.slot.as_deref()), ("trade.sell", Some("Low Temperature Diamonds")), "{m:?}");
+        assert_eq!(m.decision, Decision::Ask, "a near name asks: {m:?}");
+        for t in [
+            "Where should I sell my cargo?",
+            "sell my cargo",
+            "Where to sell my cargo.",
+            "Best place to sell the cargo",
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                ("trade.sell_cargo", None, Decision::Execute),
+                "{t}"
+            );
+        }
+        // The status question is unchanged.
+        assert_eq!((g.best("cargo").command, g.best("cargo").decision), ("status.cargo", Decision::Execute));
+        // Not a commodity: at most "Did you mean …?", never a lookup on a guess.
+        assert_ne!(g.best("Where can I sell the weather in Paris").decision, Decision::Execute);
+        assert_eq!(g.best("What's the weather like in Paris tomorrow").decision, Decision::NoMatch);
+    }
+
+    #[test]
+    fn multi_word_slots_resolve_to_their_value() {
+        let g = Grammar::mvp(&["Sol", "Shinrarta Dezhra"]).with_slot(
+            "service",
+            [
+                ("interstellar factors", "interstellar_factors"),
+                ("factors", "interstellar_factors"),
+                ("bartender", "bartender"),
+            ],
+            None,
+        );
+        let m = g.best("Where's the nearest Interstellar Factors?");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("find.service", Some("interstellar_factors"), Decision::Execute)
+        );
+        assert_eq!(m.slot_text.as_deref(), Some("interstellar factors"));
+        assert_eq!(m.phrase, "where's the nearest interstellar factors");
+        let m = g.best("nearest factors");
+        assert_eq!((m.slot.as_deref(), m.decision), (Some("interstellar_factors"), Decision::Execute));
+        // close but not one of its phrasings: ask
+        let m = g.best("nearest interstellar factor");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("find.service", Some("interstellar_factors"), Decision::Ask)
+        );
+        // a multi-word system
+        let m = g.best("plot route to Shinrarta Dezhra");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("plot_route", Some("Shinrarta Dezhra"), Decision::Execute)
+        );
+        // a slot with no values never matches well
+        assert_eq!(Grammar::mvp(&["Sol"]).best("nearest bartender").decision, Decision::NoMatch);
+    }
+
+    #[test]
+    fn free_words_ride_along_in_the_slot_text() {
+        fn class_rating(w: &str) -> bool {
+            w.len() == 2 && w.as_bytes()[0].is_ascii_digit()
+        }
+        let table: &[(&str, &[&str])] = &[("find.thing", &["nearest {thing}"])];
+        let g = Grammar::new(table, &[]).with_slot(
+            "thing",
+            [("frame shift drive", "Frame Shift Drive")],
+            Some(class_rating),
+        );
+        let m = g.best("nearest 6A frame shift drive");
+        assert_eq!(
+            (m.slot.as_deref(), m.slot_text.as_deref()),
+            (Some("Frame Shift Drive"), Some("6a frameshift drive"))
+        );
+        assert_eq!(m.decision, Decision::Execute);
+        // only free words: nothing to match
+        assert_eq!(g.best("nearest 6a").decision, Decision::NoMatch);
+    }
+
+    #[test]
+    fn class_and_rating_said_apart_stay_together() {
+        assert_eq!(normalise("nearest 5 A FSD"), ["nearest", "5a", "fsd"]);
+        assert_eq!(normalise("five a frame shift drive"), ["5a", "frameshift", "drive"]);
+        assert_eq!(normalise("buy a krait"), ["buy", "krait"], "\"a\" is still filler elsewhere");
+        assert_eq!(normalise("Python Mk II"), normalise("python mark two"));
+        assert_eq!(normalise("Kestrel Mk II"), ["kestrel", "mkii"]);
+        assert_eq!(normalise("Cobra MkIII"), normalise("cobra mark 3"));
+    }
+
     #[test]
     fn thresholds_are_the_documented_ones() {
         assert_eq!((EXECUTE, ASK), (0.85, 0.60));
@@ -761,88 +1041,6 @@ mod tests {
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
         assert_eq!(g.best("close cargo scoop").command, "cargo_scoop.close");
-    }
-
-    /// A few market commodities as the core passes them (spoken form, canonical name).
-    fn trade() -> Grammar {
-        g().with_slot(
-            "commodity",
-            &[
-                ("Gold", "Gold"),
-                ("Silver", "Silver"),
-                ("Painite", "Painite"),
-                ("Platinum", "Platinum"),
-                ("Low Temperature Diamonds", "Low Temperature Diamonds"),
-                ("LTDs", "Low Temperature Diamonds"),
-                ("Void Opal", "Void Opal"),
-                ("void opals", "Void Opal"),
-                ("Tritium", "Tritium"),
-                ("Water", "Water"),
-                ("Coltan", "Coltan"),
-            ],
-        )
-    }
-
-    #[test]
-    fn trade_phrases_fill_the_commodity_slot() {
-        let g = trade();
-        for (t, cmd, slot) in [
-            ("Where can I sell painite?", "trade.sell", "Painite"),
-            ("where to sell gold", "trade.sell", "Gold"),
-            ("Best price for low temperature diamonds.", "trade.sell", "Low Temperature Diamonds"),
-            ("Where can I sell LTDs?", "trade.sell", "Low Temperature Diamonds"),
-            ("Sell void opals.", "trade.sell", "Void Opal"),
-            ("Where can I buy tritium?", "trade.buy", "Tritium"),
-            ("Where to buy water", "trade.buy", "Water"),
-            ("cheapest silver", "trade.buy", "Silver"),
-        ] {
-            let m = g.best(t);
-            assert_eq!(
-                (m.command, m.slot.as_deref(), m.decision),
-                (cmd, Some(slot), Decision::Execute),
-                "{t:?} -> {m:?}"
-            );
-        }
-        assert_eq!(g.best("Where can I sell LTDs?").phrase, "where can i sell Low Temperature Diamonds");
-    }
-
-    #[test]
-    fn misheard_commodities_ask() {
-        let g = trade();
-        // Parakeet's spelling of a name it doesn't know: close, so ask, never execute.
-        let m = g.best("Where can I sell pain night?");
-        assert_eq!((m.command, m.slot.as_deref(), m.decision), ("trade.sell", Some("Painite"), Decision::Ask), "{m:?}");
-        assert_eq!(m.phrase, "where can i sell Painite");
-        let m = g.best("Where can I sell low temperature diamond?");
-        assert_eq!((m.command, m.slot.as_deref()), ("trade.sell", Some("Low Temperature Diamonds")), "{m:?}");
-        assert_eq!(m.decision, Decision::Ask, "a near name asks: {m:?}");
-        for t in [
-            "Where should I sell my cargo?",
-            "sell my cargo",
-            "Where to sell my cargo.",
-            "Best place to sell the cargo",
-        ] {
-            let m = g.best(t);
-            assert_eq!(
-                (m.command, m.slot.as_deref(), m.decision),
-                ("trade.sell_cargo", None, Decision::Execute),
-                "{t}"
-            );
-        }
-        // The status question is unchanged.
-        assert_eq!((g.best("cargo").command, g.best("cargo").decision), ("status.cargo", Decision::Execute));
-        // Not a commodity: at most "Did you mean …?", never a lookup on a guess.
-        assert_ne!(g.best("Where can I sell the weather in Paris").decision, Decision::Execute);
-        assert_eq!(g.best("What's the weather like in Paris tomorrow").decision, Decision::NoMatch);
-    }
-
-    #[test]
-    fn multi_word_system_names_fill_the_slot() {
-        let m = g().best("Plot route to Shinrarta Dezhra");
-        assert_eq!(
-            (m.command, m.slot.as_deref(), m.decision),
-            ("plot_route", Some("Shinrarta Dezhra"), Decision::Execute)
-        );
     }
 
     #[test]

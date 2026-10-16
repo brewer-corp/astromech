@@ -425,6 +425,8 @@ dependencies = [
 name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-journal",
  "astromech-market",
@@ -432,6 +434,7 @@ dependencies = [
  "astromech-proto",
  "astromech-status",
  "chrono",
+ "serde_json",
 ]
 
 [[package]]

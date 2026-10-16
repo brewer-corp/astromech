@@ -393,6 +393,7 @@ fn start_voice(
                                 let cmd = match &h {
                                     crate::assistant::Handled::Ran { command, .. }
                                     | crate::assistant::Handled::Asked { command, .. }
+                                    | crate::assistant::Handled::Lookup { command, .. }
                                     | crate::assistant::Handled::NotAvailable(command) => Some(*command),
                                     _ => None,
                                 };
