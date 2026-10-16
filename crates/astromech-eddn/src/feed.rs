@@ -70,6 +70,8 @@ pub struct Feed {
     awaiting: HashMap<String, Value>,
     /// The last event was live (so a run of signals pending from the replay has been dropped).
     live: bool,
+    /// Lines fed as live are arriving too old to send (logged once when this starts and ends).
+    stale: bool,
     worker: Option<Worker>,
     /// The app log, for what can't go in the send log (the outbox itself failing).
     log: Log,
@@ -83,6 +85,7 @@ impl Feed {
             events: EventSchemas::default(),
             awaiting: HashMap::new(),
             live: false,
+            stale: false,
             worker: None,
             log: Arc::new(|_: &str| {}),
         }
@@ -112,7 +115,18 @@ impl Feed {
         // FSDJump that arrives there, and the batch must be checked against the new system.
         self.sender.observe(ev);
         let name = ev.get("event").and_then(Value::as_str).unwrap_or_default();
-        let stale = unix_time(ev).is_some_and(|t| t < now - MAX_EVENT_AGE_SECS);
+        let age = unix_time(ev).map(|t| now - t);
+        let stale = live && age.is_some_and(|a| a > MAX_EVENT_AGE_SECS);
+        if live && stale != self.stale {
+            // Once per change, so a clock that disagrees with the game leaves a trace without
+            // a line per event.
+            self.stale = stale;
+            (self.log)(&if stale {
+                format!("EDDN: live journal line {} min old, treating as replay", age.unwrap_or(0) / 60)
+            } else {
+                "EDDN: live journal lines are current again, sending".to_owned()
+            });
+        }
         if !live || stale {
             // Keep the schemas' own state (the body for codexentry) but send nothing.
             let _ = self.events.on_event(ev, &self.sender.ctx);
@@ -534,5 +548,24 @@ mod tests {
         release.send(()).unwrap();
         assert!(started.recv_timeout(Duration::from_secs(2)).is_err(), "no post after the stop");
         assert_eq!(queued.pending().unwrap(), 1, "the second waits for the next run");
+    }
+
+    #[test]
+    fn a_run_of_stale_lines_is_logged_once_and_so_is_recovery() {
+        let mut f = feed();
+        let lines = Arc::new(Mutex::new(Vec::<String>::new()));
+        let l2 = lines.clone();
+        f.log = Arc::new(move |m: &str| l2.lock().unwrap().push(m.to_owned()));
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        let now = unix_time(&json!({"timestamp":"2026-10-16T12:05:00Z"})).unwrap();
+        for m in 0..5 {
+            f.journal(&docked(&game_ts(now - 3600 + m)), true, now);
+        }
+        assert_eq!(*lines.lock().unwrap(), ["EDDN: live journal line 60 min old, treating as replay"]);
+        f.journal(&docked(&game_ts(now)), true, now);
+        f.journal(&docked(&game_ts(now)), true, now);
+        assert_eq!(lines.lock().unwrap().len(), 2);
+        assert_eq!(lines.lock().unwrap()[1], "EDDN: live journal lines are current again, sending");
+        assert_eq!(f.sender().outbox().pending().unwrap(), 2);
     }
 }
