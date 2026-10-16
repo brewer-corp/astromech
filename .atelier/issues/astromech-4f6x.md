@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-10-16T18:12:14.789814203+00:00"
 status: "superseded"
 title: "Core ship stats from the loadout"
-updated_at: "2026-10-16T18:12:14.789814203+00:00"
+updated_at: "2026-10-16T18:13:06.360259252+00:00"
 ---
 
 ## Goal

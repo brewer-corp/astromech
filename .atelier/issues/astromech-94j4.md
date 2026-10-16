@@ -8,8 +8,6 @@ relationships:
   blocks: []
   children:
   - kind: "issue"
-    id: "astromech-4f6x"
-  - kind: "issue"
     id: "astromech-4fe3"
   - kind: "issue"
     id: "astromech-dqmv"
@@ -24,7 +22,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-16T04:38:23.031080995+00:00"
+updated_at: "2026-10-16T18:13:06.360692951+00:00"
 ---
 
 ## Goal
