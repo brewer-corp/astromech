@@ -8,12 +8,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Session summary by voice and at logout"
-updated_at: "2026-10-16T20:16:16.798744343+00:00"
+updated_at: "2026-10-16T20:17:54.137049158+00:00"
 ---
 
 ## Goal
