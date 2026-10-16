@@ -72,10 +72,9 @@ those problems; see §3 for why this beats a pictorial main view.
 
 | Feature | What it does | Seed / source |
 |---|---|---|
-| **Activities** (discovery view, opens first) | Pick an activity (exploration, trading, combat, …). See its important actions on your own sticks, using the maker's sheet, plus keyboard bindings and a short "not bound yet" list with "Bind this". | new (§3.3) |
 | **All keybinds** (full reference) | The game's Controls list, cloned and improved: same categories and expandable groups, primary/secondary columns and an "about this setting" panel, plus search, "press a button to jump to it", larger type, and inline health/conflict markers. | new; data from `astromech-keybinds` |
 | **Health check** | Runs on app start, device plug/unplug, Bindings folder changes, before launch and on import. Missing devices / PID drift (wrong-firmware warning with reflash steps), buttons above Joy_32, axes the device doesn't have, keyboard-only presets, actions voice needs that have no keyboard key. Shown **inline** in the list (marker on the row, explanation in the about panel) and as an "Issues" filter, not on a separate dashboard. | k0 + `astromech-core::health` |
-| **My controller** | The maker's reference sheet for one device, with every binding in the sheet's own boxes. For VKB: their sheets, bundled with credit, plus built-in stock button maps (§3.2). A device without a sheet gets the list filtered to that device. | new |
+| **My controller** (opens first) | The maker's reference sheet for one device, with every binding in the sheet's own boxes. An activity filter (exploration, trading, combat, …) lights just that activity's actions and adds a short "not bound yet" list with "Bind this" and the keyboard-only bindings (§3.3); "All" shows everything. For VKB: their sheets, bundled with credit, plus built-in stock button maps (§3.2). A device without a sheet gets the list filtered to that device. | new |
 | **Presets** | Every preset in the Bindings folder and which one is active per context (`StartPreset*.start`), duplicate `PresetName`s and file-name mismatches, backups and restore. | `astromech-keybinds::active`, k0 |
 | **Small edits, on a copy** | Exactly one class of edit in v1: **assign a keyboard key to an action's empty slot** (the fix voice needs), plus the manual "replace device ID in a copy" from KEYBINDS §7.3. Always: back up, write a copy, tell the user to reselect the preset. | KEYBINDS §7 |
 | **Key tester** | Live press log (device, Elite name, bound actions, bounce detection), in Diagnostics. Read-only Raw Input, proven in S7 not to disturb the game. The same listener powers "press a button to jump to it". | s7-input-listener |
@@ -182,9 +181,8 @@ setup work at a desk: big readable text, one thing at a time.
 | Screen | Single purpose | Deliberately NOT here |
 |---|---|---|
 | **Onboarding** (first run; individual steps re-runnable) | Get from install to "gear down works" in under 5 minutes | Any setting not needed for that; explanations beyond one line per step |
-| **Activities** (default tab) | Show what matters for one activity and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; activities you didn't pick |
 | **All keybinds** | Find and understand any binding; fix what's broken | Device pictures, statistics, voice settings, a separate health dashboard, colour-coded categories |
-| **My controller** | See one device as its manufacturer drew it, with what each control does | Editing; actions for other devices; anything not on that device |
+| **My controller** (default tab) | See one device as its manufacturer drew it, with what each control does; filter to one activity to see what matters for it and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; actions for other devices |
 | **Presets** | Which preset is active, switch, back up, restore | Bindings themselves |
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
 | **Engineering** | Pick any owned ship (modules from the newest `Loadout` for that ship in journal history), set blueprint / grade / experimental per module, and see need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), stat previews, Odyssey suit/weapon engineering |
@@ -195,14 +193,14 @@ setup work at a desk: big readable text, one thing at a time.
 | **Tray menu** (native, dark) | Is it running, open the window, pause voice, kill switch (while active), quit; one extra line only when something needs attention (crash, Finish setup, Restart to update) | Any status beyond one line; any webview; settings, updates, files (all in the window) |
 
 Navigation is three plain text tabs in the window header, like the game's top-level options,
-each with its pages as sub-tabs: **Controls** (Activities, All keybinds, My controller, Presets,
+each with its pages as sub-tabs: **Controls** (My controller, All keybinds, Presets,
 Key tester), **Engineering** (Builds, Materials) and **Settings** (General, Diagnostics). While
 setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
-**How the three binding views fit together.** They show the same bindings three ways:
-- **Activities** answers "what do I need for this?". It's curated and short.
+**How the three binding views fit together.** They show the same bindings two ways:
+- **My controller** answers "what does each control on this stick do?" ("All"), and "what do I
+  need for this?" with an activity chosen. The activity lists are curated and short.
 - **All keybinds** answers "where is everything?". It's complete and searchable.
-- **My controller** answers "what does each control on this stick do?".
 Every action links to the others: "Show in all keybinds", "Show on my controller".
 
 **Pressing a control.** In any of these views, pressing a button, hat or axis on a stick (or a
@@ -239,9 +237,8 @@ flow, not a tab.
 ### 3.1 Three views, three questions
 | View | Question it answers | Shape |
 |---|---|---|
-| **Activities** (opens first) | "What do I need for exploring, trading, …? What am I missing?" | Your sticks (the maker's sheets) with that activity's actions lit up, plus keyboard bindings and a "not bound yet" list |
 | **All keybinds** | "Where is X? What's on this key?" | The game's Controls list, improved |
-| **My controller** | "What does every control on this stick do?" | One sheet, every binding |
+| **My controller** (opens first) | "What does every control on this stick do?" With an activity: "What do I need for exploring, trading, …? What am I missing?" | One sheet, every binding; an activity filter lights its actions and adds a "not bound yet" list |
 
 Why not one view? The list is the only view that covers everything (keyboard, every context,
 both slots), and it's never wrong, because it's the file. But you can only find what you
@@ -842,7 +839,7 @@ Total about **11 weeks**.
 
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:
-1. **Default screen:** the window opens on **Activities**.
+1. **Default screen:** the window opens on **My controller** (the Activities page was merged into it as a filter on 16 Oct 2026).
 2. **Row labels:** **mixed case**, not the game's all-caps labels.
 3. **v1 voice adds safe toggles:** flight assist, silent running (asks for a **spoken
    confirmation** first), HUD mode, panels, and throttle to zero.
