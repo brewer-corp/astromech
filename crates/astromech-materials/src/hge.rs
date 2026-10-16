@@ -44,15 +44,14 @@ const FED_COMPOSITES: Rule = Rule {
     id: "fed_composites",
     ids: &["fedproprietarycomposites", "fedcorecomposites"],
     summary: "High Grade Emissions spawned by a Federation faction.",
-    hint: "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+    hint: "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
 };
 
 const EMPIRE_SHIELDING: Rule = Rule {
     id: "empire_shielding",
     ids: &["imperialshielding"],
     summary: "High Grade Emissions spawned by an Empire faction.",
-    hint:
-        "Prefer high-population Empire systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+    hint: "Empire systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
 };
 
 const PROTO: Rule = Rule {
@@ -211,6 +210,9 @@ pub fn here_line(system: &str, allegiance: &str, population: i64, pool: &[PoolMa
         format!("HGEs here: {}", names.join(" / "))
     };
     let mut line = format!("{system} · {al} · pop {} · {mats}", format_pop(population));
+    if !pool.is_empty() && population < 1_000_000_000 {
+        line.push_str(" (rare under a billion people)");
+    }
     if hge_signal {
         line.push_str(" · High Grade Emissions on the scanner");
     }
@@ -313,6 +315,9 @@ mod tests {
         assert!(here.line.contains("Proprietary Composites"));
         assert!(here.line.contains("High Grade Emissions on the scanner"));
         assert!(here.line.contains("85M"));
+        assert!(here.line.contains("(rare under a billion people)"));
+        let big = here_line("Big", "Federation", 2_000_000_000, &here.pool, false);
+        assert!(!big.contains("rare"), "{big}");
     }
 
     #[test]

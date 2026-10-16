@@ -1,0 +1,15 @@
+{
+  "_comment": "Well-known grade 4 raw material farms: the body, what it is farmed for, and the system's position in ly. Community-reported sites (Frontier forums, Steam and wiki guides); each body was checked on Spansh on 16 Oct 2026 to still list the site (crystalline shards or brain trees) and the material. arrival_ls is the body's distance from the arrival star.",
+  "checked": "2026-10-16T00:00:00Z",
+  "farms": [
+    { "system": "HIP 36601", "id64": 84456968626, "pos": [337.8125, 562.96875, -1457.84375], "body": "C 1 a", "site": "Crystalline Shards", "material": "polonium", "arrival_ls": 153095 },
+    { "system": "HIP 36601", "id64": 84456968626, "pos": [337.8125, 562.96875, -1457.84375], "body": "C 1 d", "site": "Crystalline Shards", "material": "ruthenium", "arrival_ls": 153098 },
+    { "system": "HIP 36601", "id64": 84456968626, "pos": [337.8125, 562.96875, -1457.84375], "body": "C 3 b", "site": "Crystalline Shards", "material": "tellurium", "arrival_ls": 153317 },
+    { "system": "HIP 36601", "id64": 84456968626, "pos": [337.8125, 562.96875, -1457.84375], "body": "C 5 a", "site": "Crystalline Shards", "material": "technetium", "arrival_ls": 153416 },
+    { "system": "Outotz LS-K d8-3", "id64": 113674078411, "pos": [526.3125, 238.46875, -1613.75], "body": "B 5 a", "site": "Crystalline Shards", "material": "yttrium", "arrival_ls": 310470 },
+    { "system": "Outotz LS-K d8-3", "id64": 113674078411, "pos": [526.3125, 238.46875, -1613.75], "body": "B 5 c", "site": "Crystalline Shards", "material": "antimony", "arrival_ls": 310472 },
+    { "system": "Outotz LS-K d8-3", "id64": 113674078411, "pos": [526.3125, 238.46875, -1613.75], "body": "B 7 b", "site": "Crystalline Shards", "material": "ruthenium", "arrival_ls": 309093 },
+    { "system": "Synuefe BY-F d12-39", "id64": 1350591039851, "pos": [381.3125, -71.4375, -7.25], "body": "A 2", "site": "Brain Trees", "material": "polonium", "arrival_ls": 56 },
+    { "system": "HR 3230", "id64": 182359951707, "pos": [394.15625, 19.25, -152.375], "body": "3 a a", "site": "Brain Trees", "material": "selenium", "arrival_ls": 1692 }
+  ]
+}

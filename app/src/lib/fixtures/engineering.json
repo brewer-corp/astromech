@@ -999,7 +999,7 @@
         "over_cap": false,
         "sources": [
           {
-            "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+            "hint": "Reported: HR 3230 3 a a (brain trees). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
             "kind": "brain_tree",
             "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
           }
@@ -1148,7 +1148,7 @@
         "short": 4,
         "sources": [
           {
-            "hint": "Reported: HR 3230 3 a a. Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
+            "hint": "Reported: HR 3230 3 a a (brain trees). Shoot them (turrets or flak), then collect with the SRV; limpets no longer work on brain trees.",
             "kind": "brain_tree",
             "summary": "Guardian brain trees and crystalline shards drop grade 4 raw."
           }

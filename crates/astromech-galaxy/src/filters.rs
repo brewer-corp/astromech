@@ -134,7 +134,7 @@ impl Filters {
     }
 }
 
-fn parse_time(s: &str) -> Option<i64> {
+pub(crate) fn parse_time(s: &str) -> Option<i64> {
     chrono::DateTime::parse_from_rfc3339(s).ok().map(|t| t.timestamp())
 }
 

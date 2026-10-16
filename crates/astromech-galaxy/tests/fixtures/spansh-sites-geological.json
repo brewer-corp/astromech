@@ -1,0 +1,609 @@
+{
+ "count": 10000,
+ "from": 0,
+ "results": [
+  {
+   "id64": 540431965761833323,
+   "name": "Enceladus",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 4717.270498,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 21,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 17.936211
+    },
+    {
+     "name": "Chromium",
+     "share": 7.208827
+    },
+    {
+     "name": "Iron",
+     "share": 16.029116
+    },
+    {
+     "name": "Manganese",
+     "share": 6.619862
+    },
+    {
+     "name": "Nickel",
+     "share": 12.123753
+    },
+    {
+     "name": "Phosphorus",
+     "share": 11.483069
+    },
+    {
+     "name": "Ruthenium",
+     "share": 0.9899
+    },
+    {
+     "name": "Sulphur",
+     "share": 21.329868
+    },
+    {
+     "name": "Tin",
+     "share": 1.043118
+    },
+    {
+     "name": "Tungsten",
+     "share": 0.88016
+    },
+    {
+     "name": "Zinc",
+     "share": 4.356114
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": -17.0,
+     "longitude": -178.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 8.0,
+     "longitude": 179.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": -9.0,
+     "longitude": -26.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  },
+  {
+   "id64": 1657324673349716331,
+   "name": "Persephone",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 484213.204461,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 16,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Cadmium",
+     "share": 1.303544
+    },
+    {
+     "name": "Carbon",
+     "share": 18.783642
+    },
+    {
+     "name": "Germanium",
+     "share": 3.542862
+    },
+    {
+     "name": "Iron",
+     "share": 16.786446
+    },
+    {
+     "name": "Manganese",
+     "share": 6.932631
+    },
+    {
+     "name": "Nickel",
+     "share": 12.696564
+    },
+    {
+     "name": "Phosphorus",
+     "share": 12.025611
+    },
+    {
+     "name": "Selenium",
+     "share": 3.49603
+    },
+    {
+     "name": "Sulphur",
+     "share": 22.337641
+    },
+    {
+     "name": "Tin",
+     "share": 1.092402
+    },
+    {
+     "name": "Yttrium",
+     "share": 1.002634
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": -28.0,
+     "longitude": 174.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 11.28344,
+     "longitude": -138.06891,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 71.859398,
+     "longitude": 129.594315,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  },
+  {
+   "id64": 576460762780797291,
+   "name": "Tethys",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 4717.743569,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 16,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Arsenic",
+     "share": 1.710179
+    },
+    {
+     "name": "Carbon",
+     "share": 20.274593
+    },
+    {
+     "name": "Iron",
+     "share": 18.118868
+    },
+    {
+     "name": "Nickel",
+     "share": 13.704352
+    },
+    {
+     "name": "Niobium",
+     "share": 1.238328
+    },
+    {
+     "name": "Phosphorus",
+     "share": 12.980143
+    },
+    {
+     "name": "Selenium",
+     "share": 3.773527
+    },
+    {
+     "name": "Sulphur",
+     "share": 24.110689
+    },
+    {
+     "name": "Tellurium",
+     "share": 0.990443
+    },
+    {
+     "name": "Tungsten",
+     "share": 0.994908
+    },
+    {
+     "name": "Zirconium",
+     "share": 2.103974
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": 8.07786,
+     "longitude": 41.73321,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 13.0707,
+     "longitude": 179.8739,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 61.798042,
+     "longitude": 52.272427,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  },
+  {
+   "id64": 360287980667013483,
+   "name": "Europa",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 2611.940942,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 13,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 6,
+     "name": "Human"
+    },
+    {
+     "count": 1,
+     "name": "Other"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Antimony",
+     "share": 0.756526
+    },
+    {
+     "name": "Arsenic",
+     "share": 1.599858
+    },
+    {
+     "name": "Cadmium",
+     "share": 1.316248
+    },
+    {
+     "name": "Carbon",
+     "share": 18.966705
+    },
+    {
+     "name": "Chromium",
+     "share": 7.622997
+    },
+    {
+     "name": "Iron",
+     "share": 16.950043
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.106828
+    },
+    {
+     "name": "Nickel",
+     "share": 12.820303
+    },
+    {
+     "name": "Phosphorus",
+     "share": 12.142811
+    },
+    {
+     "name": "Sulphur",
+     "share": 22.55534
+    },
+    {
+     "name": "Vanadium",
+     "share": 4.162341
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": 29.0,
+     "longitude": 169.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": -45.0,
+     "longitude": -141.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 53.0,
+     "longitude": -62.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  },
+  {
+   "id64": 612489559799761259,
+   "name": "Dione",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 4717.712824,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 24,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 18.498419
+    },
+    {
+     "name": "Chromium",
+     "share": 7.434786
+    },
+    {
+     "name": "Iron",
+     "share": 16.531548
+    },
+    {
+     "name": "Manganese",
+     "share": 6.82736
+    },
+    {
+     "name": "Mercury",
+     "share": 0.721905
+    },
+    {
+     "name": "Nickel",
+     "share": 12.50377
+    },
+    {
+     "name": "Niobium",
+     "share": 1.129843
+    },
+    {
+     "name": "Phosphorus",
+     "share": 11.843005
+    },
+    {
+     "name": "Sulphur",
+     "share": 21.998449
+    },
+    {
+     "name": "Technetium",
+     "share": 0.591267
+    },
+    {
+     "name": "Zirconium",
+     "share": 1.919653
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": -12.0,
+     "longitude": -163.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 15.87008,
+     "longitude": 95.36404,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": 44.11564,
+     "longitude": -86.2747,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  },
+  {
+   "id64": 1369094297198004587,
+   "name": "Actaea",
+   "type": "Planet",
+   "subtype": "Rocky Ice world",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 18614.587547,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 9,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    },
+    {
+     "count": 6,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 16.444319
+    },
+    {
+     "name": "Chromium",
+     "share": 7.898664
+    },
+    {
+     "name": "Iron",
+     "share": 17.563
+    },
+    {
+     "name": "Manganese",
+     "share": 7.25334
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.146854
+    },
+    {
+     "name": "Nickel",
+     "share": 13.283918
+    },
+    {
+     "name": "Phosphorus",
+     "share": 10.527936
+    },
+    {
+     "name": "Sulphur",
+     "share": 19.555702
+    },
+    {
+     "name": "Tungsten",
+     "share": 0.964385
+    },
+    {
+     "name": "Vanadium",
+     "share": 4.312862
+    },
+    {
+     "name": "Yttrium",
+     "share": 1.049017
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": -17.0,
+     "longitude": -77.0,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": -81.15347,
+     "longitude": 14.83193,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    },
+    {
+     "latitude": -29.96763,
+     "longitude": -141.08742,
+     "subtype": "Water Ice Fumarole",
+     "type": "Fumarole"
+    }
+   ]
+  }
+ ],
+ "search": {
+  "filters": {
+   "is_landable": {
+    "value": true
+   },
+   "signals": [
+    {
+     "name": [
+      "Geological"
+     ]
+    }
+   ]
+  },
+  "page": 0,
+  "reference_coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "size": 10,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "size": 10
+}

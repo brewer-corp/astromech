@@ -46,13 +46,15 @@ pub fn info(name: &str) -> Option<&'static EngineerInfo> {
     catalog().iter().find(|e| key(&e.name) == k)
 }
 
-/// Highest grade of `blueprint` that `engineer` offers (0 if none).
-pub fn offers(engineer: &str, blueprint: &str) -> u8 {
+/// Highest grade of `blueprint` that `engineer` offers on modules of `group` (0 if none).
+pub fn offers(engineer: &str, blueprint: &str, group: &str) -> u8 {
     let k = key(engineer);
-    data::blueprint(blueprint)
-        .map(|(_, b)| {
-            b.grades.iter().filter(|g| g.engineers.iter().any(|e| key(e) == k)).map(|g| g.grade).max().unwrap_or(0)
-        })
+    let (Some((_, b)), Some(g)) = (data::blueprint(blueprint), data::group(group)) else { return 0 };
+    b.grades
+        .iter()
+        .filter(|r| g.engineers_for(blueprint, r.grade).iter().any(|e| key(e) == k))
+        .map(|r| r.grade)
+        .max()
         .unwrap_or(0)
 }
 
@@ -91,6 +93,11 @@ impl EngineerBuilder {
         }
     }
 
+    /// The newest `(Progress, Rank)` logged for `name`, if any.
+    pub fn progress(&self, name: &str) -> Option<(&str, Option<u8>)> {
+        self.progress.get(&key(name)).map(|(p, r, _)| (p.as_str(), *r))
+    }
+
     pub fn build(&self) -> Vec<EngineerView> {
         catalog()
             .iter()
@@ -114,6 +121,11 @@ impl EngineerBuilder {
 }
 
 pub fn from_journal_dir(dir: &Path) -> Vec<EngineerView> {
+    builder_from_journal_dir(dir).build()
+}
+
+/// Every `EngineerProgress` in the journals in `dir`, newest per engineer.
+pub fn builder_from_journal_dir(dir: &Path) -> EngineerBuilder {
     let mut b = EngineerBuilder::default();
     for p in astromech_journal::journal_logs(dir) {
         let Ok(text) = std::fs::read_to_string(&p) else { continue };
@@ -123,5 +135,5 @@ pub fn from_journal_dir(dir: &Path) -> Vec<EngineerView> {
             }
         }
     }
-    b.build()
+    b
 }

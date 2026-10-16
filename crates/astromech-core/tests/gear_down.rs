@@ -126,6 +126,7 @@ fn rig(flags: u64, delays: &[u64]) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(2000),
         log: Arc::new(move |s: &str| l2.lock().unwrap().push(s.into())),
+        galaxy: None,
     });
     assert!(hub.wait_flag(FLAG_IN_MAIN_SHIP, true, Duration::from_secs(2), &|| false), "initial Status.json read");
     Rig { _dir: dir, game, speaker, runner, hub, logs, _pipe: pipe }

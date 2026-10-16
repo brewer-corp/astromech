@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646922536+00:00"
 id: "astromech-sfys"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-sfys
 priority: "P0"
 relationships:
   blocks:
@@ -30,9 +33,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T22:16:01.391116948+00:00"
+status: "done"
 title: "Engineering material lookups"
-updated_at: "2026-10-16T18:26:24.250177932+00:00"
+updated_at: "2026-10-16T22:16:01.391116948+00:00"
 ---
 
 ## Goal
@@ -50,3 +54,7 @@ Already built: builds, shopping list, trader maths, engineer trips (#11–#14); 
 ## Unknowns
 
 Which point of interest the user means by "Crystalline Structures" (crystalline shard sites, or something else).
+
+## Close Reason
+
+All five children done: raw-material sites near me with jumps and the voice query, HGE ranking by population and distance, faction-state freshness from arrivals, per-module engineer grade caps, and the engineer unlock tree. Lookup tests from fixed positions recorded per child. Independent review and the game check (astromech-fipx) follow.

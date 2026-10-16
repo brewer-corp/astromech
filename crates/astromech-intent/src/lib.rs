@@ -140,6 +140,21 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("status.credits", &["credits", "how many credits", "rebuy"]),
     ("status.ship", &["what's my ship", "what ship", "current ship", "ship name"]),
     ("status.legal", &["legal state", "wanted", "notoriety", "legal status"]),
+    // Raw-material site lookups (astromech-galaxy `SITE_KINDS`): spoken answer, nothing pressed.
+    (
+        "sites.crystalline_shards",
+        &[
+            "nearest crystalline shards",
+            "find crystalline shards",
+            "where are the nearest crystalline shards",
+            "nearest crystalline structures",
+            "nearest shard site",
+        ],
+    ),
+    ("sites.brain_trees", &["nearest brain trees", "find brain trees", "where are the nearest brain trees"]),
+    ("sites.crashed_ships", &["nearest crashed ship", "find a crashed ship", "nearest wreck site"]),
+    ("sites.geological", &["nearest geological sites", "find geological sites", "nearest geology"]),
+    ("sites.raw_farms", &["nearest raw material farm", "nearest raw farm", "where can i farm raw materials"]),
     (
         "status.system_power",
         &["who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here"],
@@ -1013,6 +1028,18 @@ mod tests {
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
         assert_ne!(g.best("close cargo scoop").command, "panel.close");
+        for (t, c) in [
+            ("Nearest crystalline shards.", "sites.crystalline_shards"),
+            ("where are the nearest crystalline shards", "sites.crystalline_shards"),
+            ("nearest crystalline structures", "sites.crystalline_shards"),
+            ("nearest brain trees", "sites.brain_trees"),
+            ("nearest crashed ship", "sites.crashed_ships"),
+            ("nearest geological sites", "sites.geological"),
+            ("nearest raw farm", "sites.raw_farms"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
         assert_eq!(g.best("close cargo scoop").command, "cargo_scoop.close");
     }
 
