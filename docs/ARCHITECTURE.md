@@ -236,11 +236,15 @@ astromech/
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
+    astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
+                         cycle, next rank and reward), the system's state on arrival and its spoken
+                         line; rank rules from data/catalog/powerplay.json
     astromech-ship/      ship stats from fitted modules and engineering (mass, jump range, power,
                          shields, armour, weapons, distributor, speed), ported from Coriolis;
                          base stats from data/catalog/ships.json
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
-                         Spansh faction-state lookups (Famine, HGE pools), position from the journal;
+                         Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
+                         (acquire / reinforce / undermine for the pledged power), position from the journal;
                          its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
@@ -1700,6 +1704,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
 | **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters; "where should I sell my cargo" (astromech-sd56) plans the hold from `Cargo.json`: whole-load proceeds within demand caps, plus the single-commodity lookup per commodity |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
-| M8+ | Missions/CGs, Fleet carrier, Powerplay, Galaxy map, 3D ship | — | Deferred |
+| Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?" |
+| M8+ | Missions/CGs, Fleet carrier, Galaxy map, 3D ship | — | Deferred |
 
 Each module ships with its voice queries in the same release: a module isn't "done" until its `voice_exposed` queries have phrase templates and tests.

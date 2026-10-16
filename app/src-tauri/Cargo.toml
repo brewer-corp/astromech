@@ -34,6 +34,7 @@ astromech-galaxy = { path = "../../crates/astromech-galaxy" }
 astromech-market = { path = "../../crates/astromech-market" }
 astromech-history = { path = "../../crates/astromech-history" }
 astromech-store = { path = "../../crates/astromech-store" }
+astromech-powerplay = { path = "../../crates/astromech-powerplay" }
 
 [profile.release]
 opt-level = "s"

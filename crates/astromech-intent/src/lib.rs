@@ -120,6 +120,14 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("status.credits", &["credits", "how many credits", "rebuy"]),
     ("status.ship", &["what's my ship", "what ship", "current ship", "ship name"]),
     ("status.legal", &["legal state", "wanted", "notoriety", "legal status"]),
+    (
+        "status.system_power",
+        &["who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here"],
+    ),
+    (
+        "status.powerplay",
+        &["what's my powerplay rank", "powerplay rank", "powerplay status", "how many merits", "merits"],
+    ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
     ("request_docking", &["request docking", "request docking permission", "dock"]),
@@ -202,6 +210,7 @@ pub fn normalise(s: &str) -> Vec<String> {
             ("hard", Some("points" | "point")) => Some("hardpoints"),
             ("head", Some("lights" | "light")) => Some("headlights"),
             ("night", Some("visions")) => Some("night vision"),
+            ("power", Some("play" | "plays")) => Some("powerplay"),
             _ => None,
         };
         if let Some(j) = joined {
@@ -714,6 +723,11 @@ mod tests {
             ("where am i", "status.location"),
             ("jumps left", "status.jumps"),
             ("what's my ship", "status.ship"),
+            ("what's my powerplay rank", "status.powerplay"),
+            ("Power play rank", "status.powerplay"),
+            ("How many merits?", "status.powerplay"),
+            ("Who controls this system?", "status.system_power"),
+            ("system powerplay", "status.system_power"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

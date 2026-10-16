@@ -77,6 +77,7 @@ dependencies = [
  "anyhow",
  "astromech-data",
  "astromech-journal",
+ "astromech-powerplay",
  "astromech-store",
  "chrono",
  "rusqlite",
@@ -151,6 +152,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-powerplay"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-shell"
 version = "0.1.5"
 dependencies = [
@@ -162,6 +173,7 @@ dependencies = [
  "astromech-keybinds",
  "astromech-market",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-ship",
  "astromech-store",
  "serde",

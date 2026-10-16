@@ -1,0 +1,225 @@
+{
+ "count": 17,
+ "from": 0,
+ "reference": {
+  "id64": 3824408316259,
+  "name": "Lembava",
+  "x": -43.25,
+  "y": -64.34375,
+  "z": -77.6875
+ },
+ "results": [
+  {
+   "allegiance": "Independent",
+   "body_count": 3,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Pranav Antal",
+   "distance": 21.7838502752039,
+   "government": "Corporate",
+   "id": "7267218761105",
+   "id64": 7267218761105,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector EB-X b1-3",
+   "needs_permit": false,
+   "population": 47847264,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_state": "Exploited",
+   "power_state_control_progress": 0.076543,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 9,
+   "primary_economy": "Military",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "None",
+   "security": "Low",
+   "updated_at": "2026-10-15T17:49:53Z",
+   "x": -53.5,
+   "y": -61.875,
+   "z": -58.625
+  },
+  {
+   "allegiance": "Federation",
+   "body_count": 26,
+   "controlling_minor_faction": "Independent BD+15 176 Future",
+   "controlling_minor_faction_state": "None",
+   "controlling_power": "Pranav Antal",
+   "distance": 34.2969853358134,
+   "government": "Democracy",
+   "id": "633541169866",
+   "id64": 633541169866,
+   "is_being_colonised": false,
+   "is_colonised": false,
+   "known_permit": false,
+   "name": "BD+15 176",
+   "needs_permit": false,
+   "population": 3528446557,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_state": "Fortified",
+   "power_state_control_progress": 0.238509,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 2769,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Agriculture",
+   "security": "High",
+   "updated_at": "2026-10-14T04:24:52Z",
+   "x": -49.90625,
+   "y": -68.34375,
+   "z": -44.28125
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 10,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Pranav Antal",
+   "distance": 34.7581628227457,
+   "government": "Corporate",
+   "id": "5363877038848",
+   "id64": 5363877038848,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Arietis Sector KD-H a11-0",
+   "needs_permit": false,
+   "population": 2008189,
+   "power": [
+    "Aisling Duval",
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_state": "Exploited",
+   "power_state_control_progress": 0.07286,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 298,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Extraction",
+   "security": "High",
+   "updated_at": "2026-10-16T02:06:31Z",
+   "x": -32.03125,
+   "y": -43.40625,
+   "z": -103.0625
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 9,
+   "controlling_minor_faction": "Milkyway Miners Union",
+   "controlling_minor_faction_state": "None",
+   "controlling_power": "Pranav Antal",
+   "distance": 34.7759710728903,
+   "government": "Cooperative",
+   "id": "2282741535426",
+   "id64": 2282741535426,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "HIP 11437",
+   "needs_permit": false,
+   "population": 2391479,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_state": "Exploited",
+   "power_state_control_progress": 0.066837,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 6,
+   "primary_economy": "Extraction",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Industrial",
+   "security": "Low",
+   "updated_at": "2026-10-15T18:07:32Z",
+   "x": -67.5,
+   "y": -62.75,
+   "z": -102.5625
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 1,
+   "controlling_minor_faction": "NLTT 6667 Union",
+   "controlling_minor_faction_state": "None",
+   "controlling_power": "Jerome Archer",
+   "distance": 34.9108798406743,
+   "government": "Communism",
+   "id": "22954989472544",
+   "id64": 22954989472544,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Tascheter Sector NY-R a4-1",
+   "needs_permit": false,
+   "population": 16382115,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal",
+    "Jerome Archer"
+   ],
+   "power_state": "Exploited",
+   "power_state_control_progress": 0.000543,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 9,
+   "primary_economy": "Military",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "High Tech",
+   "security": "Low",
+   "updated_at": "2026-10-16T16:29:43Z",
+   "x": -40.75,
+   "y": -32.40625,
+   "z": -63.8125
+  }
+ ],
+ "search": {
+  "filters": {
+   "controlling_power": {
+    "value": [
+     "Aisling Duval",
+     "Archon Delaine",
+     "Arissa Lavigny-Duval",
+     "Denton Patreus",
+     "Edmund Mahon",
+     "Felicia Winters",
+     "Jerome Archer",
+     "Nakato Kaine",
+     "Pranav Antal",
+     "Yuri Grom",
+     "Zemina Torval"
+    ]
+   },
+   "distance": {
+    "max": "40",
+    "min": "0"
+   },
+   "power_state": {
+    "value": [
+     "Exploited",
+     "Fortified",
+     "Stronghold"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_system": "Lembava",
+  "reference_system_details": {
+   "id64": 3824408316259,
+   "name": "Lembava",
+   "x": -43.25,
+   "y": -64.34375,
+   "z": -77.6875
+  },
+  "size": 5,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "search_reference": "4CE11948-C99F-11F1-AA15-D5F8BF31047B",
+ "size": 5
+}

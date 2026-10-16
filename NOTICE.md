@@ -93,3 +93,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ```
+
+## Powerplay rules
+`data/catalog/powerplay.json` (merits per rank, the reward at each rank, the powers) is from the
+Elite Dangerous wiki's Powerplay page (elite-dangerous.fandom.com/wiki/Powerplay, CC BY-SA,
+community-collected from the game). The weekly cycle time (Thursday 07:00 UTC) is the commonly
+reported cycle tick. The facts are Elite Dangerous game data, © Frontier Developments plc.
