@@ -27,6 +27,7 @@ astromech-voice.workspace = true
 astromech-policy.workspace = true
 astromech-tools.workspace = true
 astromech-store.workspace = true
+astromech-eddn.workspace = true
 astromech-history.workspace = true
 astromech-station.workspace = true
 anyhow.workspace = true

@@ -260,6 +260,32 @@ fn powerplay_family() {
     assert_eq!((p.merits_gained, p.total_merits, p.power.as_deref()), (Some(50), Some(1250), Some("Test Power")));
     let E::Powerplay(p) = ex("PowerplayDefect") else { panic!() };
     assert_eq!((p.from_power.as_deref(), p.to_power.as_deref()), (Some("Test Power"), Some("Other Power")));
+    let E::Powerplay(p) = ex("PowerplayRank") else { panic!() };
+    assert_eq!((p.power.as_deref(), p.rank), (Some("Other Power"), Some(4)));
+}
+
+#[test]
+fn system_powerplay_on_jump_and_location() {
+    match line("FSDJump", 0).event {
+        JournalEvent::FsdJump { powerplay: Some(p), .. } => {
+            assert_eq!(p.controlling_power.as_deref(), Some("Test Power"));
+            assert_eq!(p.powers, ["Test Power", "Other Power"]);
+            assert_eq!(p.state.as_deref(), Some("Fortified"));
+            assert_eq!((p.control_progress, p.reinforcement, p.undermining), (Some(0.277808), Some(82), Some(3707)));
+            assert!(p.conflict.is_empty());
+        }
+        other => panic!("{other:?}"),
+    }
+    match line("Location", 0).event {
+        JournalEvent::Location { powerplay: Some(p), .. } => {
+            assert_eq!((p.controlling_power.as_deref(), p.state.as_deref()), (None, Some("Unoccupied")));
+            assert_eq!((p.conflict[0].power.as_str(), p.conflict[0].progress), ("Test Power", 0.086375));
+            assert_eq!(p.conflict[1].power, "Other Power");
+        }
+        other => panic!("{other:?}"),
+    }
+    // A system without Powerplay has no fields at all.
+    assert!(matches!(line("CarrierJump", 0).event, JournalEvent::FsdJump { powerplay: None, .. }));
 }
 
 #[test]

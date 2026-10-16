@@ -31,6 +31,8 @@ astromech-engineering = { path = "crates/astromech-engineering" }
 astromech-galaxy = { path = "crates/astromech-galaxy" }
 astromech-ship = { path = "crates/astromech-ship" }
 astromech-data = { path = "crates/astromech-data" }
+astromech-powerplay = { path = "crates/astromech-powerplay" }
+astromech-eddn = { path = "crates/astromech-eddn" }
 astromech-history = { path = "crates/astromech-history" }
 astromech-station = { path = "crates/astromech-station" }
 anyhow = "1.0.104"
