@@ -1,0 +1,302 @@
+//! # astromech-history
+//!
+//! The commander's journal history (ARCHITECTURE.md §18.5): every line of every
+//! `Journal.*.log` in an `events` table, imported resumably, plus ledgers derived from it
+//! (visits, earnings, ships, scans) for the logbook, "been here before" and session stats.
+//!
+//! - The history lives in its own SQLite file (`history.sqlite`), not in the settings store:
+//!   it grows to hundreds of MB, it can always be rebuilt from the journals, and its long
+//!   import transactions must not hold the write lock the voice path uses for settings.
+//! - `events` is the source of truth. The ledgers are written in the same transaction as the
+//!   events they come from, so they always match what has been imported, and
+//!   [`History::rebuild_ledgers`] recomputes them from `events` (after a ledger schema change).
+//! - Progress is the byte offset of the last complete line imported per file, committed with
+//!   that batch of events. A killed import loses at most its open batch and resumes there;
+//!   `(file_id, offset)` is unique, so no line is stored twice.
+//! - A line without its newline yet (the game is still writing it) waits for the next import.
+
+mod ledgers;
+
+pub use ledgers::{Earning, Scan, Ship, Visit};
+
+use astromech_journal::parse_line;
+use astromech_store::rusqlite::{self, params, Connection, OptionalExtension};
+use std::io::{BufRead, BufReader, Seek, SeekFrom};
+use std::path::{Path, PathBuf};
+
+const MIGRATIONS: &[&str] = &[
+    // v1
+    "CREATE TABLE journal_files (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        offset INTEGER NOT NULL DEFAULT 0,
+        lines INTEGER NOT NULL DEFAULT 0
+     );
+     CREATE TABLE events (
+        id INTEGER PRIMARY KEY,
+        file_id INTEGER NOT NULL,
+        offset INTEGER NOT NULL,
+        ts TEXT NOT NULL,
+        event TEXT NOT NULL,
+        json TEXT NOT NULL,
+        UNIQUE (file_id, offset)
+     );
+     CREATE INDEX events_event_ts ON events(event, ts);
+     CREATE INDEX events_ts ON events(ts);
+     CREATE TABLE visits (
+        id INTEGER PRIMARY KEY,
+        event_id INTEGER NOT NULL,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('system', 'station')),
+        star_system TEXT NOT NULL,
+        system_address INTEGER,
+        station_name TEXT,
+        market_id INTEGER,
+        jump_dist REAL
+     );
+     CREATE INDEX visits_system ON visits(star_system);
+     CREATE INDEX visits_address ON visits(system_address);
+     CREATE INDEX visits_market ON visits(market_id);
+     CREATE INDEX visits_ts ON visits(ts);
+     CREATE TABLE earnings (
+        event_id INTEGER PRIMARY KEY,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        cost INTEGER,
+        detail TEXT
+     );
+     CREATE INDEX earnings_ts ON earnings(ts);
+     CREATE TABLE ships (
+        ship_id INTEGER PRIMARY KEY,
+        ship_type TEXT NOT NULL,
+        name TEXT,
+        ident TEXT,
+        first_seen TEXT NOT NULL,
+        last_flown TEXT,
+        acquired TEXT,
+        sold TEXT
+     );
+     CREATE TABLE scans (
+        event_id INTEGER PRIMARY KEY,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('body', 'mapped', 'organic')),
+        system_address INTEGER,
+        star_system TEXT,
+        body_name TEXT,
+        body_id INTEGER,
+        class TEXT,
+        landable INTEGER,
+        terraformable INTEGER,
+        was_discovered INTEGER,
+        was_mapped INTEGER
+     );
+     CREATE INDEX scans_body ON scans(system_address, body_id);
+     CREATE INDEX scans_ts ON scans(ts);",
+];
+
+#[derive(Debug, thiserror::Error)]
+pub enum HistoryError {
+    #[error("history database: {0}")]
+    Db(#[from] rusqlite::Error),
+    #[error("reading {path}: {source}")]
+    Io { path: PathBuf, source: std::io::Error },
+    /// Raised by [`ImportOptions::crash_after_lines`].
+    #[error("import stopped by the crash test hook")]
+    Crashed,
+}
+
+pub type Result<T> = std::result::Result<T, HistoryError>;
+
+#[derive(Debug, Clone)]
+pub struct ImportOptions {
+    /// Lines per transaction. Progress is committed after each batch.
+    pub batch_lines: usize,
+    /// Test hook: after this many lines, return [`HistoryError::Crashed`] without committing the
+    /// open batch, like a process killed mid-import.
+    #[doc(hidden)]
+    pub crash_after_lines: Option<u64>,
+}
+
+impl Default for ImportOptions {
+    fn default() -> Self {
+        Self { batch_lines: 20_000, crash_after_lines: None }
+    }
+}
+
+/// What one [`History::import`] run did.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ImportReport {
+    /// Files with new complete lines.
+    pub files: usize,
+    pub lines: u64,
+    pub bytes: u64,
+    /// New rows in `events`.
+    pub events: u64,
+    /// Lines that are not a journal event (bad JSON, no `event` or `timestamp`); skipped.
+    pub malformed: u64,
+    /// Files shorter than the offset already imported (never expected); left alone.
+    pub shrunk: Vec<String>,
+}
+
+pub struct History {
+    conn: Connection,
+}
+
+impl History {
+    pub fn open(path: &Path) -> Result<Self> {
+        Self::init(Connection::open(path)?)
+    }
+
+    pub fn in_memory() -> Result<Self> {
+        Self::init(Connection::open_in_memory()?)
+    }
+
+    fn init(conn: Connection) -> Result<Self> {
+        let conn = astromech_store::migrate(conn, MIGRATIONS)?;
+        // WAL with NORMAL sync: a power cut can lose the last commits, never corrupt; the
+        // journals are still there to re-import from.
+        conn.pragma_update(None, "synchronous", "NORMAL")?;
+        Ok(Self { conn })
+    }
+
+    /// Read-only access for queries over the history.
+    pub fn conn(&self) -> &Connection {
+        &self.conn
+    }
+
+    /// Import every complete line not imported yet from the `Journal.*.log` files in `dir`,
+    /// oldest file first.
+    pub fn import(&mut self, dir: &Path, opts: &ImportOptions) -> Result<ImportReport> {
+        let mut report = ImportReport::default();
+        let mut seen = 0u64;
+        for path in astromech_journal::journal_logs(dir) {
+            let io = |source| HistoryError::Io { path: path.clone(), source };
+            let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+            let len = std::fs::metadata(&path).map_err(io)?.len();
+            let (file_id, start) = self.file_state(&name)?;
+            if len < start {
+                report.shrunk.push(name);
+                continue;
+            }
+            if len == start {
+                continue;
+            }
+            let mut file = std::fs::File::open(&path).map_err(io)?;
+            file.seek(SeekFrom::Start(start)).map_err(io)?;
+            let mut reader = BufReader::with_capacity(1 << 16, file);
+            let mut buf = Vec::with_capacity(4096);
+            let mut pos = start;
+            let mut batch = 0usize;
+            let mut file_lines = 0u64;
+            let mut tx = self.conn.transaction()?;
+            loop {
+                buf.clear();
+                let n = reader.read_until(b'\n', &mut buf).map_err(io)?;
+                if n == 0 || buf.last() != Some(&b'\n') {
+                    break; // end of file, or a line the game hasn't finished writing
+                }
+                if opts.crash_after_lines.is_some_and(|limit| seen >= limit) {
+                    return Err(HistoryError::Crashed); // `tx` drops: the open batch rolls back
+                }
+                seen += 1;
+                let offset = pos;
+                pos += n as u64;
+                file_lines += 1;
+                let text = String::from_utf8_lossy(&buf);
+                let text = text.trim().trim_start_matches('\u{feff}');
+                if !text.is_empty() {
+                    match parse_line(text) {
+                        Ok(line) => {
+                            if let Some(id) = insert_event(&tx, file_id, offset, &line)? {
+                                ledgers::derive(&tx, id, &line)?;
+                                report.events += 1;
+                            }
+                        }
+                        Err(_) => report.malformed += 1,
+                    }
+                }
+                batch += 1;
+                if batch >= opts.batch_lines.max(1) {
+                    set_progress(&tx, file_id, pos, file_lines)?;
+                    tx.commit()?;
+                    tx = self.conn.transaction()?;
+                    file_lines = 0;
+                    batch = 0;
+                }
+            }
+            set_progress(&tx, file_id, pos, file_lines)?;
+            tx.commit()?;
+            if pos > start {
+                report.files += 1;
+                report.bytes += pos - start;
+            }
+        }
+        report.lines = seen;
+        Ok(report)
+    }
+
+    /// Recompute every ledger from `events`, in import order.
+    pub fn rebuild_ledgers(&mut self) -> Result<()> {
+        let tx = self.conn.transaction()?;
+        tx.execute_batch("DELETE FROM visits; DELETE FROM earnings; DELETE FROM ships; DELETE FROM scans;")?;
+        {
+            let mut st = tx.prepare("SELECT id, json FROM events ORDER BY id")?;
+            let mut rows = st.query([])?;
+            while let Some(r) = rows.next()? {
+                let id: i64 = r.get(0)?;
+                let json: String = r.get(1)?;
+                if let Ok(line) = parse_line(&json) {
+                    ledgers::derive(&tx, id, &line)?;
+                }
+            }
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// Number of rows in `events`.
+    pub fn event_count(&self) -> Result<u64> {
+        Ok(self.conn.query_row("SELECT COUNT(*) FROM events", [], |r| r.get::<_, i64>(0))? as u64)
+    }
+
+    /// `(file_id, imported byte offset)`, adding the file if it is new.
+    fn file_state(&self, name: &str) -> Result<(i64, u64)> {
+        let found = self
+            .conn
+            .query_row("SELECT id, offset FROM journal_files WHERE name = ?1", [name], |r| {
+                Ok((r.get::<_, i64>(0)?, r.get::<_, i64>(1)? as u64))
+            })
+            .optional()?;
+        if let Some(f) = found {
+            return Ok(f);
+        }
+        self.conn.execute("INSERT INTO journal_files(name) VALUES (?1)", [name])?;
+        Ok((self.conn.last_insert_rowid(), 0))
+    }
+}
+
+/// The new event's id, or `None` if this line is already stored.
+fn insert_event(
+    c: &Connection,
+    file_id: i64,
+    offset: u64,
+    line: &astromech_journal::JournalLine,
+) -> Result<Option<i64>> {
+    let mut st =
+        c.prepare_cached("INSERT OR IGNORE INTO events(file_id, offset, ts, event, json) VALUES (?1, ?2, ?3, ?4, ?5)")?;
+    let n = st.execute(params![file_id, offset as i64, line.timestamp, line.name, line.raw_json])?;
+    Ok((n == 1).then(|| c.last_insert_rowid()))
+}
+
+fn set_progress(c: &Connection, file_id: i64, offset: u64, new_lines: u64) -> Result<()> {
+    c.prepare_cached("UPDATE journal_files SET offset = ?2, lines = lines + ?3 WHERE id = ?1")?.execute(params![
+        file_id,
+        offset as i64,
+        new_lines as i64
+    ])?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests;

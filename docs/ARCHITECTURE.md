@@ -238,6 +238,8 @@ astromech/
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools), position from the journal
+    astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
+                         backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
@@ -1651,12 +1653,12 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   - No compile-time database needed.
   - sqlx's strengths (async pools, multiple backends, compile-time checked queries) don't pay off for a single-user local file.
   - It runs on a dedicated DB thread: an actor with a request channel; reads go through a small pool of read-only connections in WAL mode.
-- **Schema sketch:**
-  - `journal_files(id, path, sha256, cmdr_fid, first_ts, last_ts, size, last_offset)`
-  - `events(id, file_id, offset, ts, cmdr_fid, event, json)` with indexes on `(event, ts)` and `(cmdr_fid, ts)`, plus JSON1 generated columns for hot fields (`StarSystem`, `SystemAddress`, `MarketID`, `ShipID`).
-  - **Derived ledgers**, rebuilt from `events` at any time (the events table is the source of truth): `material_snapshots` and `material_deltas`, `ships`/`loadouts`, `visits`, `earnings`, `scans`, `engineer_progress`.
-  - FTS5 over event text, for logbook search.
-- **Backfill:** a first-run import of every `Journal.*.log` runs in the background with progress, resumable by file offset; afterwards the store follows the files incrementally. ⚠ Measure the size and import time on Sumeet's history (years of logs can reach hundreds of MB).
+- **Journal history (built, astromech-aonb): crate `astromech-history`, its own file `history.sqlite`** next to `astromech.sqlite`. Not in the settings store: it grows to hundreds of MB, it can always be rebuilt from the journals (delete it and re-import), and long import transactions must not hold the write lock the voice path uses for settings and aliases. It uses the store's migration runner (`astromech_store::migrate`).
+  - `journal_files(id, name, offset, lines)`: per file, the byte offset after the last complete line imported.
+  - `events(id, file_id, offset, ts, event, json)`, `UNIQUE(file_id, offset)`, indexes on `(event, ts)` and `ts`. `json` is the line as the game wrote it.
+  - **Derived ledgers**, written in the same transaction as their events and rebuildable from `events` (`History::rebuild_ledgers`): `visits` (system arrivals and dockings, with jump distance), `earnings` (credits received, one row per event, by kind), `ships` (every ship id: type, name, acquired, last flown, sold), `scans` (body scans, maps, completed organic samples). Rules are in `crates/astromech-history/src/ledgers.rs`.
+  - Still to come with their consumers: JSON1 generated columns for hot fields, FTS5 over event text for logbook search (astromech-fxp0), `material_snapshots`/`material_deltas`, `loadouts`, `engineer_progress`, more than one commander per file.
+- **Backfill:** `History::import` reads every `Journal.*.log` oldest first, in batches of 20,000 lines per transaction (WAL, `synchronous=NORMAL`). Progress commits with its batch, so a killed import resumes where it stopped without duplicates; an unfinished last line waits for its newline. Running it again only reads what's new, so the same call follows the files incrementally. Measured on a 400 MB synthetic set (80 files, 889k lines, release build, Linux): **7.5–8.1 s over two runs, 638 MB database (1.6× the journals)**, of which `events` is 507 MB. The run on Sumeet's real logs is astromech-tqdh (`cargo run --release -p astromech-history --example import-history -- <journal dir> <db>`).
 - **Example: "how many raw materials do I have?"**
   1. Take the latest `Materials` snapshot.
   2. Apply later deltas: `MaterialCollected`, `MaterialDiscarded`, `MaterialTrade`, `EngineerCraft`, `Synthesis`, `TechnologyBroker`, mission material rewards, `ScientificResearch`.

@@ -3,6 +3,7 @@
 //! Local persistence (ARCHITECTURE.md §5.19): one SQLite file with versioned migrations
 //! (`PRAGMA user_version`). Secrets go to the OS keyring later, never into SQLite.
 
+pub use rusqlite;
 use rusqlite::{Connection, Result};
 
 pub const MAX_ALIASES: usize = 200;
@@ -19,6 +20,18 @@ const MIGRATIONS: &[&str] = &[
      );",
 ];
 
+/// Put `conn` in WAL mode and apply the `migrations` it hasn't seen yet (`PRAGMA user_version`
+/// counts the applied ones). Other SQLite files (the journal history) use the same pattern.
+pub fn migrate(conn: Connection, migrations: &[&str]) -> Result<Connection> {
+    conn.pragma_update(None, "journal_mode", "WAL")?;
+    let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    for (i, m) in migrations.iter().enumerate().skip(v as usize) {
+        conn.execute_batch(m)?;
+        conn.pragma_update(None, "user_version", (i + 1) as i64)?;
+    }
+    Ok(conn)
+}
+
 pub struct Store {
     conn: Connection,
 }
@@ -31,13 +44,7 @@ impl Store {
         Self::init(Connection::open_in_memory()?)
     }
     fn init(conn: Connection) -> Result<Self> {
-        conn.pragma_update(None, "journal_mode", "WAL")?;
-        let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        for (i, m) in MIGRATIONS.iter().enumerate().skip(v as usize) {
-            conn.execute_batch(m)?;
-            conn.pragma_update(None, "user_version", (i + 1) as i64)?;
-        }
-        Ok(Self { conn })
+        Ok(Self { conn: migrate(conn, MIGRATIONS)? })
     }
     pub fn schema_version(&self) -> Result<i64> {
         self.conn.query_row("PRAGMA user_version", [], |r| r.get(0))

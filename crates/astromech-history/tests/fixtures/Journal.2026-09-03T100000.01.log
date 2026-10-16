@@ -1,0 +1,15 @@
+{ "timestamp":"2026-09-03T10:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.1.0.100", "build":"r300000/r0 " }
+{ "timestamp":"2026-09-03T10:00:05Z", "event":"LoadGame", "FID":"F0000001", "Commander":"Fixture", "Ship":"Python", "ShipID":4, "Credits":3000000 }
+{ "timestamp":"2026-09-03T10:00:06Z", "event":"Loadout", "Ship":"python", "ShipID":4, "ShipName":"Big Snake", "ShipIdent":"BS-04", "Modules":[] }
+{ "timestamp":"2026-09-03T10:00:07Z", "event":"Location", "Docked":false, "StarSystem":"Alpha Centauri", "SystemAddress":1, "Body":"Alpha Centauri A 1", "BodyType":"Planet" }
+{ "timestamp":"2026-09-03T10:10:00Z", "event":"Docked", "StationName":"Hutton Orbital", "StationType":"Outpost", "StarSystem":"Alpha Centauri", "SystemAddress":1, "MarketID":128000002 }
+{ "timestamp":"2026-09-03T10:11:00Z", "event":"SellOrganicData", "MarketID":128000002, "BioData":[ { "Genus":"$Codex_Ent_Bacterial_Genus_Name;", "Species":"$Codex_Ent_Bacterial_01_Name;", "Value":1000000, "Bonus":4000000 } ] }
+{ "timestamp":"2026-09-03T10:12:00Z", "event":"MultiSellExplorationData", "Discovered":[ { "SystemName":"Alpha Centauri", "NumBodies":2 } ], "BaseValue":80000, "Bonus":20000, "TotalEarnings":100000 }
+{ "timestamp":"2026-09-03T10:13:00Z", "event":"SearchAndRescue", "MarketID":128000002, "Name":"occupiedcryopod", "Name_Localised":"Occupied Escape Pod", "Count":2, "Reward":40000 }
+{ "timestamp":"2026-09-03T10:14:00Z", "event":"CommunityGoalReward", "CGID":700, "Name":"Fixture Goal", "System":"Alpha Centauri", "Reward":2000000 }
+{ "timestamp":"2026-09-03T10:15:00Z", "event":"SellMicroResources", "TotalCount":3, "MicroResources":[], "Price":15000, "MarketID":128000002 }
+{ "timestamp":"2026-09-03T10:16:00Z", "event":"RedeemVoucher", "Type":"CombatBond", "Amount":60000, "Faction":"Alliance" }
+{ "timestamp":"2026-09-03T10:17:00Z", "event":"RedeemVoucher", "Type":"codex", "Amount":5000 }
+{ "timestamp":"2026-09-03T10:18:00Z", "event":"MarketSell", "MarketID":128000002, "Type":"water", "Count":5, "SellPrice":300, "TotalSale":1500 }
+{ "timestamp":"2026-09-03T10:19:00Z", "event":"MissionCompleted", "Faction":"Alliance", "Name":"Mission_Donate_name", "MissionID":900002, "Donated":10000 }
+{ "timestamp":"2026-09-03T10:30:00Z", "event":"Shutdown" }
