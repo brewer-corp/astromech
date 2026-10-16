@@ -280,8 +280,22 @@ mod shopping_tests {
             v[0].shopping.lines.iter().map(|l| (l.symbol.as_str(), l.in_cargo, l.to_buy)).collect();
         assert_eq!(lines, [("steel", 40, 260), ("aluminium", 30, 120)]);
 
-        // An SRV's file or a broken one leaves the journal's hold.
-        for other in [r#"{"Vessel":"SRV","Count":2,"Inventory":[{"Name":"steel","Count":2}]}"#, "{not json"] {
+        // Everything moved to a carrier: the game writes an empty hold with no Inventory.
+        std::fs::write(
+            dir.path().join("Cargo.json"),
+            r#"{"timestamp":"2026-10-02T12:00:00Z","event":"Cargo","Vessel":"Ship","Count":0}"#,
+        )
+        .unwrap();
+        let v = crate::from_journal_dir(dir.path());
+        assert!(v[0].shopping.lines.iter().all(|l| l.in_cargo == 0), "{:?}", v[0].shopping.lines);
+        assert_eq!(v[0].shopping.to_buy_total, 450);
+
+        // An SRV's file, a broken one, or a count with no list leaves the journal's hold.
+        for other in [
+            r#"{"Vessel":"SRV","Count":2,"Inventory":[{"Name":"steel","Count":2}]}"#,
+            "{not json",
+            r#"{"Vessel":"Ship","Count":120}"#,
+        ] {
             std::fs::write(dir.path().join("Cargo.json"), other).unwrap();
             let v = crate::from_journal_dir(dir.path());
             assert_eq!(v[0].shopping.lines[0].in_cargo, 120, "{other}");

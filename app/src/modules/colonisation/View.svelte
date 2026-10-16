@@ -15,16 +15,23 @@
 
   // Polled like the other journal pages, so deliveries and purchases show within seconds (the
   // shell replays the journals only when they or Cargo.json change). The picked project stays.
+  /** Polls asked so far: a slow older answer must not overwrite a newer one. */
+  let asked = 0;
   $effect(() => {
-    const load = () =>
-      loadProjects()
+    const load = () => {
+      const n = ++asked;
+      return loadProjects()
         .then((p) => {
+          if (n !== asked) return;
           projects = p;
           err = null;
           const keep = untrack(() => picked);
           if (keep == null || !p.some((x) => x.market_id === keep)) picked = p[0]?.market_id ?? null;
         })
-        .catch((e: unknown) => (err = String(e)));
+        .catch((e: unknown) => {
+          if (n === asked) err = String(e);
+        });
+    };
     void load();
     const t = setInterval(() => void load(), 2000);
     return () => clearInterval(t);

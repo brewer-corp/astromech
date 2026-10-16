@@ -581,8 +581,9 @@ async fn trade_cargo(
     .await
 }
 
-/// What the colonisation view was built from: the journals and `Cargo.json` (size, mtime).
-type ColonisationKey = (astromech_materials::JournalVersion, Option<(u64, std::time::SystemTime)>);
+/// What the colonisation view was built from: the journals and `Cargo.json`'s bytes (a small
+/// file, compared whole so a change shows even where its mtime can't be read).
+type ColonisationKey = (astromech_materials::JournalVersion, Option<Vec<u8>>);
 
 #[allow(clippy::type_complexity)]
 struct ColonisationCache(std::sync::Mutex<Option<(ColonisationKey, std::sync::Arc<Vec<astromech_colonisation::ProjectView>>)>>);
@@ -597,7 +598,7 @@ async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
             return Err(format!("journal folder not found: {}", dir.display()));
         }
         let cache = app.state::<ColonisationCache>();
-        let cargo = std::fs::metadata(dir.join("Cargo.json")).ok().and_then(|m| Some((m.len(), m.modified().ok()?)));
+        let cargo = std::fs::read(dir.join("Cargo.json")).ok();
         let version = (astromech_materials::journal_version(&dir), cargo);
         let cached = cache.0.lock().map_err(|_| "busy".to_string())?.as_ref().filter(|(s, _)| *s == version).map(|(_, v)| v.clone());
         let v = match cached {

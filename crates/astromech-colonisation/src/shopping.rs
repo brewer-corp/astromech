@@ -62,14 +62,19 @@ impl Hold {
     }
 
     /// Take the ship's hold from `Cargo.json` (the game rewrites it on every change, including
-    /// carrier transfers the journal events above don't fold). An SRV's file, or one that
-    /// doesn't parse, leaves the hold as it was. Mission cargo is skipped, as in `Cargo` events.
+    /// carrier transfers the journal events above don't fold). An SRV's file, one that doesn't
+    /// parse, or one with a count but no list leaves the hold as it was. Mission cargo is skipped, as in `Cargo` events.
     pub fn apply_cargo_json(&mut self, bytes: &[u8]) {
         let Ok(v) = serde_json::from_slice::<serde_json::Value>(bytes) else { return };
         if v.get("Vessel").and_then(|x| x.as_str()).is_some_and(|x| !x.eq_ignore_ascii_case("ship")) {
             return;
         }
-        let Some(inv) = v.get("Inventory").and_then(|x| x.as_array()) else { return };
+        let inv = v.get("Inventory").and_then(|x| x.as_array()).map(Vec::as_slice).unwrap_or_default();
+        // As in `apply`: no list with a count > 0 means it wasn't given; an empty hold is written
+        // as `"Count":0` with no Inventory.
+        if inv.is_empty() && v.get("Count").and_then(|x| x.as_i64()).is_none_or(|c| c > 0) {
+            return;
+        }
         self.cargo.clear();
         for it in inv {
             if it.get("MissionID").is_some_and(|m| !m.is_null()) {

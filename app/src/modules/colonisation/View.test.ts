@@ -124,6 +124,24 @@ describe("Colonisation", () => {
     expect(screen.getByRole("heading", { name: "Orbital Construction Site: Test Relay" })).toBeTruthy();
   });
 
+  it("ignores a slow older poll that answers after a newer one", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    buy.mockImplementation(async (_n, o) => answer(o));
+    // The first poll answers late with the old list; the second answers at once with steel bought.
+    let late: (p: Project[]) => void = () => {};
+    const newer = fresh();
+    const steel = newer[0]?.shopping.lines[0];
+    if (!steel) throw new Error("sample changed");
+    steel.in_cargo = 912;
+    load.mockImplementationOnce(() => new Promise<Project[]>((r) => (late = r))).mockImplementation(async () => newer);
+    render(View);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(await screen.findByText("912 t aboard")).toBeTruthy();
+    late(fresh());
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.getByText("912 t aboard")).toBeTruthy();
+  });
+
   it("names commodities no market in range sells", async () => {
     load.mockResolvedValue(projects);
     buy.mockImplementation(async (_n, o) => answer(o, { ...recorded, unavailable: ["Insulating Membrane"] }));
