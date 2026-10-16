@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647281475+00:00"
 id: "astromech-ipb5"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-ipb5
 priority: "P1"
 relationships:
   blocks:
@@ -26,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal history and logbook"
-updated_at: "2026-10-16T18:26:24.795044272+00:00"
+updated_at: "2026-10-16T19:32:23.008321437+00:00"
 ---
 
 ## Goal

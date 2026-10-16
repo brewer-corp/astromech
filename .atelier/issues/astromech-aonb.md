@@ -28,9 +28,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journal history database and backfill"
-updated_at: "2026-10-15T20:36:13.651536478+00:00"
+updated_at: "2026-10-16T19:32:23.008325494+00:00"
 ---
 
 ## Goal
@@ -39,7 +39,7 @@ An `events` table, a resumable import of every `Journal.*.log`, and derived ledg
 
 ## Done when
 
-Importing a fixture set, killing it halfway and restarting gives the same ledgers as one clean import; a timing run on Sumeet's real logs is recorded as evidence.
+Importing a fixture set, killing it halfway and restarting gives the same ledgers as one clean import, and an import-time measurement on a large synthetic log set is recorded. The timing run on Sumeet's real logs is astromech-tqdh.
 
 ## Context
 
