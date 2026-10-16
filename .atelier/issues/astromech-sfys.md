@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646922536+00:00"
 id: "astromech-sfys"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-sfys
 priority: "P0"
 relationships:
   blocks:
@@ -32,7 +35,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Engineering material lookups"
-updated_at: "2026-10-16T18:26:24.250177932+00:00"
+updated_at: "2026-10-16T20:59:11.258187661+00:00"
 ---
 
 ## Goal
