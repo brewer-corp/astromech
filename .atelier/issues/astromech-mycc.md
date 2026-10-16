@@ -17,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ships page: dense card view of the fleet"
-updated_at: "2026-10-16T18:12:14.677258702+00:00"
+updated_at: "2026-10-16T18:30:38.066709050+00:00"
 ---
 
 ## Goal
