@@ -669,6 +669,51 @@ async fn trade_cargo(
     .await
 }
 
+/// The current ship's and commander's numbers for a trade route: cargo capacity and jump range
+/// from the latest `Loadout`, credits from `Status.json` (else the latest `LoadGame`), and the
+/// station docked at.
+#[tauri::command]
+async fn trade_route_defaults() -> Result<astromech_market::route::Defaults, String> {
+    blocking(move || {
+        let dir = journal_dir();
+        let gs = astromech_station::state_from_journal_dir(&dir);
+        let balance = std::fs::read(dir.join("Status.json"))
+            .ok()
+            .and_then(|b| serde_json::from_slice::<Value>(&b).ok())
+            .and_then(|v| v["Balance"].as_i64());
+        Ok(astromech_market::route::Defaults {
+            capacity: gs.cargo_capacity,
+            credits: balance.or(gs.credits),
+            range: gs.max_jump_range.filter(|r| *r > 1.0),
+            station: if gs.docked { gs.station.clone() } else { None },
+            system: gs.system.clone(),
+        })
+    })
+    .await
+}
+
+/// A single-hop or loop trade route from `origin` (a typed system name) or the commander's
+/// system (Spansh's trade router, polled off the UI thread until done or its timeout).
+#[tauri::command]
+async fn trade_route(
+    app: tauri::AppHandle,
+    ask: astromech_market::route::Ask,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let filters = filters.unwrap_or_default();
+        let polling = astromech_market::route::Polling::default();
+        let r = astromech_market::route::plan(g.remote(), &here.system, range, &ask, &filters, polling, now)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "here": here, "route": r }))
+    })
+    .await
+}
+
 /// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
 /// when the core uses its default data dir (not portable mode or a `data_dir` override).
 fn settings() -> Result<astromech_store::Store, String> {
@@ -880,6 +925,8 @@ fn main() {
             galaxy_systems,
             trade_search,
             trade_cargo,
+            trade_route_defaults,
+            trade_route,
             search_filters,
             set_search_filters,
             powerplay_overview,

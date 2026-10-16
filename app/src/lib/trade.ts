@@ -228,3 +228,92 @@ export function cargoResults(s: CargoSearch): Results {
     })),
   };
 }
+
+export type RouteKind = "single" | "loop";
+
+/** What a trade route is asked for (astromech_market::route::Ask). */
+export interface RouteAsk {
+  kind: RouteKind;
+  /** The station to start from; null: the docked one, else the one nearest the star. */
+  station: string | null;
+  capacity: number;
+  credits: number;
+  max_hop_ly: number;
+}
+
+/** The current ship's and commander's numbers (astromech_market::route::Defaults). */
+export interface RouteDefaults {
+  capacity: number | null;
+  credits: number | null;
+  range: number | null;
+  /** The station docked at. */
+  station: string | null;
+  system: string | null;
+}
+
+export interface RouteStop {
+  station: string;
+  system: string;
+  market_id: number;
+  arrival_ls: number | null;
+}
+
+export interface RouteCargo {
+  name: string;
+  tonnes: number;
+  buy: number;
+  sell: number;
+  profit_per_t: number;
+  profit: number;
+}
+
+export interface RouteLeg {
+  from: RouteStop;
+  to: RouteStop;
+  ly: number;
+  jumps: number;
+  /** Empty: nothing worth carrying (a loop's way back). */
+  cargo: RouteCargo[];
+  profit: number;
+  profit_per_t: number;
+  /** "Spansh" or "Ardent Insight". */
+  source: string;
+  seconds: number;
+}
+
+export interface TradeRoute {
+  kind: RouteKind;
+  /** Empty: nothing profitable within the limits. */
+  legs: RouteLeg[];
+  profit: number;
+  /** One run, estimated. */
+  minutes: number;
+  /** Estimated: Spansh gives no figure per hour. */
+  per_hour: number;
+  range: number;
+  fetched_at: number;
+}
+
+export interface RouteSearch {
+  here: { system: string; pos: [number, number, number] };
+  route: TradeRoute;
+}
+
+/** The time model behind the per-hour estimate (astromech_market::route). */
+export const ROUTE_ESTIMATE = "50 s a jump, 2 min to dock and trade, supercruise by distance from the star";
+
+type RouteSample = { defaults: RouteDefaults } & Record<RouteKind, TradeRoute>;
+const routeSample = () => (sample as unknown as { route: RouteSample; sell: TradeSearch }).route;
+
+/** The current ship's capacity and range, the commander's credits and the station docked at. */
+export async function tradeRouteDefaults(): Promise<RouteDefaults> {
+  if (inTauri) return await invoke<RouteDefaults>("trade_route_defaults");
+  return routeSample().defaults;
+}
+
+/** A single-hop or loop route from `origin` or the commander (Spansh; can take a minute). */
+export async function tradeRoute(ask: RouteAsk, origin: Origin = null, filters: Filters | null = null): Promise<RouteSearch> {
+  if (inTauri) return await invoke<RouteSearch>("trade_route", { ask, origin, filters });
+  const s = sample as unknown as { sell: TradeSearch };
+  return { here: origin ? { ...s.sell.here, system: origin } : s.sell.here, route: routeSample()[ask.kind] };
+}

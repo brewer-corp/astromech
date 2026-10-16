@@ -795,5 +795,124 @@
       }
     ],
     "side": "sell"
+  },
+  "route": {
+    "defaults": {
+      "capacity": 200,
+      "credits": 10000000,
+      "range": 31.5,
+      "station": "Abraham Lincoln",
+      "system": "Sol"
+    },
+    "single": {
+      "kind": "single",
+      "legs": [
+        {
+          "from": {
+            "station": "Abraham Lincoln",
+            "system": "Sol",
+            "market_id": 128016896,
+            "arrival_ls": 505.0
+          },
+          "to": {
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165",
+            "market_id": 4245314563,
+            "arrival_ls": 6.0
+          },
+          "ly": 23.7711049319862,
+          "jumps": 1,
+          "cargo": [
+            {
+              "name": "Biowaste",
+              "tonnes": 200,
+              "buy": 110,
+              "sell": 754,
+              "profit_per_t": 644,
+              "profit": 128800
+            }
+          ],
+          "profit": 128800,
+          "profit_per_t": 644,
+          "source": "Spansh",
+          "seconds": 210.18
+        }
+      ],
+      "profit": 128800,
+      "minutes": 3.503,
+      "per_hour": 2206109,
+      "range": 31.5,
+      "fetched_at": 1792192994
+    },
+    "loop": {
+      "kind": "loop",
+      "legs": [
+        {
+          "from": {
+            "station": "Abraham Lincoln",
+            "system": "Sol",
+            "market_id": 128016896,
+            "arrival_ls": 505.0
+          },
+          "to": {
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165",
+            "market_id": 4245314563,
+            "arrival_ls": 6.0
+          },
+          "ly": 23.7711049319862,
+          "jumps": 1,
+          "cargo": [
+            {
+              "name": "Biowaste",
+              "tonnes": 200,
+              "buy": 110,
+              "sell": 754,
+              "profit_per_t": 644,
+              "profit": 128800
+            }
+          ],
+          "profit": 128800,
+          "profit_per_t": 644,
+          "source": "Spansh",
+          "seconds": 210.18
+        },
+        {
+          "from": {
+            "station": "Starbase Pratchett",
+            "system": "LP 71-165",
+            "market_id": 4245314563,
+            "arrival_ls": 6.0
+          },
+          "to": {
+            "station": "Abraham Lincoln",
+            "system": "Sol",
+            "market_id": 128016896,
+            "arrival_ls": 505.0
+          },
+          "ly": 23.7711049319862,
+          "jumps": 1,
+          "cargo": [
+            {
+              "name": "Reactive Armour",
+              "tonnes": 200,
+              "buy": 1581,
+              "sell": 2674,
+              "profit_per_t": 1093,
+              "profit": 218600
+            }
+          ],
+          "profit": 218600,
+          "profit_per_t": 1093,
+          "source": "Ardent Insight",
+          "seconds": 225.15
+        }
+      ],
+      "profit": 347400,
+      "minutes": 7.2555000000000005,
+      "per_hour": 2872855,
+      "range": 31.5,
+      "fetched_at": 1792192994
+    }
   }
 }

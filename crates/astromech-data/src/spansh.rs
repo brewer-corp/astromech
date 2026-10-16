@@ -1,4 +1,4 @@
-//! Spansh: systems, stations and bodies search, and the neutron route plotter.
+//! Spansh: systems, stations and bodies search, and the neutron and trade route plotters.
 //!
 //! These APIs are undocumented. Request shapes were checked against spansh.co.uk on
 //! 16 Oct 2026. Spansh silently ignores a filter it doesn't recognise (and a recognised name
@@ -29,10 +29,19 @@
 //!
 //! An unknown reference system is HTTP 400 `{"error": "Invalid request"}`. `count` is capped
 //! at 10000.
+//!
+//! Route plotters are jobs: the submit (a form post) answers HTTP 202 `{"job", "status":
+//! "queued"}`; `/api/results/{job}` answers HTTP 202 with `"status": "queued"` (`"state":
+//! "started"`) while it works and HTTP 200 with `"status": "ok"` and the `result` when done
+//! (checked 16 Oct 2026 for neutron and trade routes). An unknown job is HTTP 404
+//! `{"error": "Unable to find route"}`. A trade job that finds nothing is done with an empty
+//! `result` list.
 
 use crate::{encode_segment, parse_json, ttl, Client, Error, Fetched, Request, Result, Service};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
+use std::time::{Duration, Instant};
 
 /// Where a search measures distance from.
 #[derive(Debug, Clone, PartialEq)]
@@ -421,12 +430,15 @@ pub struct NeutronPlan {
     pub system_jumps: Vec<Jump>,
 }
 
+/// Where a Spansh job (a route plotted on its servers) stands.
 #[derive(Debug, Clone, PartialEq)]
-pub enum RouteStatus {
-    /// Still being plotted: ask again in a few seconds.
+pub enum JobStatus<T> {
+    /// Still being worked out (`"status": "queued"`, HTTP 202): ask again in a few seconds.
     Pending,
-    Done(NeutronPlan),
+    Done(T),
 }
+
+pub type RouteStatus = JobStatus<NeutronPlan>;
 
 #[derive(Deserialize)]
 struct ResultEnvelope {
@@ -435,15 +447,137 @@ struct ResultEnvelope {
     result: Option<Value>,
 }
 
-fn parse_route_status(body: &str) -> Result<RouteStatus> {
+/// A `/api/results/{job}` answer. A failed job is an error object (`{"error": ...}`, as the
+/// site handles it), which [`parse_json`] turns into [`Error::Rejected`].
+fn parse_job_status<T: DeserializeOwned>(body: &str) -> Result<JobStatus<T>> {
     let s = Service::Spansh;
     let env: ResultEnvelope = parse_json(s, body)?;
     match (env.status.as_str(), env.result) {
-        ("queued", _) => Ok(RouteStatus::Pending),
+        ("queued", _) => Ok(JobStatus::Pending),
         ("ok", Some(r)) => serde_json::from_value(r)
-            .map(RouteStatus::Done)
+            .map(JobStatus::Done)
             .map_err(|e| Error::Schema { service: s, detail: e.to_string() }),
-        (other, _) => Err(Error::Schema { service: s, detail: format!("unexpected route status {other:?}") }),
+        (other, _) => Err(Error::Schema { service: s, detail: format!("unexpected job status {other:?}") }),
+    }
+}
+
+/// A trade route request (`/api/trade/route`), as Spansh's trade router sends it (checked
+/// 16 Oct 2026). Spansh starts from a station and needs both names: a missing one is HTTP 400
+/// `{"error": "system and station are required"}`, an unknown station
+/// `{"error": "Could not find station"}`. It has no loop option (a `loop` field is ignored),
+/// only a large-pad switch for pads, and no figure for profit per hour.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TradeRoute {
+    pub system: String,
+    pub station: String,
+    /// Legs to plan, each a buy at one station and a sale at the next.
+    pub max_hops: u32,
+    /// Light years between the systems of consecutive stations.
+    pub max_hop_distance: f64,
+    pub starting_capital: i64,
+    /// Tonnes.
+    pub max_cargo: u32,
+    /// Light seconds from the arrival star.
+    pub max_system_distance: u32,
+    /// Seconds; market data older than this is ignored. `None`: any age.
+    pub max_price_age: Option<u64>,
+    pub requires_large_pad: bool,
+    /// Planetary ports and settlements.
+    pub allow_planetary: bool,
+    /// Fleet carriers.
+    pub allow_player_owned: bool,
+}
+
+impl TradeRoute {
+    fn form(&self) -> Vec<(String, String)> {
+        let flag = |b: bool| if b { "1" } else { "0" }.to_string();
+        let mut f = vec![
+            ("system".into(), self.system.clone()),
+            ("station".into(), self.station.clone()),
+            ("max_hops".into(), self.max_hops.to_string()),
+            ("max_hop_distance".into(), self.max_hop_distance.to_string()),
+            ("starting_capital".into(), self.starting_capital.to_string()),
+            ("max_cargo".into(), self.max_cargo.to_string()),
+            ("max_system_distance".into(), self.max_system_distance.to_string()),
+            ("requires_large_pad".into(), flag(self.requires_large_pad)),
+            ("allow_prohibited".into(), flag(false)),
+            ("allow_planetary".into(), flag(self.allow_planetary)),
+            ("allow_player_owned".into(), flag(self.allow_player_owned)),
+            ("allow_restricted_access".into(), flag(false)),
+            ("unique".into(), flag(false)),
+            ("permit".into(), flag(false)),
+        ];
+        if let Some(age) = self.max_price_age {
+            f.push(("max_price_age".into(), age.to_string()));
+        }
+        f
+    }
+}
+
+/// A station on a trade route.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradeStop {
+    pub station: String,
+    pub system: String,
+    pub system_id64: i64,
+    pub market_id: i64,
+    /// Light seconds from the arrival star.
+    #[serde(default)]
+    pub distance_to_arrival: Option<f64>,
+    /// Unix seconds.
+    #[serde(default)]
+    pub market_updated_at: Option<i64>,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
+/// One market's side of a commodity.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradePrice {
+    pub buy_price: i64,
+    pub sell_price: i64,
+    pub supply: i64,
+    pub demand: i64,
+}
+
+/// A commodity carried on a leg.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradeCargo {
+    /// Display name, e.g. "Biowaste".
+    pub name: String,
+    /// Tonnes.
+    pub amount: i64,
+    /// Credits per tonne.
+    pub profit: i64,
+    pub total_profit: i64,
+    pub source_commodity: TradePrice,
+    pub destination_commodity: TradePrice,
+}
+
+/// One leg: buy at `source`, sell at `destination`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TradeHop {
+    pub source: TradeStop,
+    pub destination: TradeStop,
+    /// Light years between the two systems.
+    pub distance: f64,
+    pub commodities: Vec<TradeCargo>,
+    pub total_profit: i64,
+    pub cumulative_profit: i64,
+}
+
+/// How long [`Client::spansh_trade_route_wait`] waits between polls and in all.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Polling {
+    pub every: Duration,
+    pub timeout: Duration,
+}
+
+impl Default for Polling {
+    /// Trade jobs took 25–70 s on 16 Oct 2026.
+    fn default() -> Self {
+        Polling { every: Duration::from_secs(3), timeout: Duration::from_secs(180) }
     }
 }
 
@@ -486,8 +620,39 @@ impl Client {
 
     /// Not cached: a pending answer must be asked again, and a finished plan is the caller's.
     pub fn spansh_route_result(&self, job: &str) -> Result<RouteStatus> {
+        self.spansh_job(job)
+    }
+
+    /// Queue a trade route; poll [`Client::spansh_trade_result`] with the job.
+    pub fn spansh_trade_route(&self, r: &TradeRoute) -> Result<Job> {
+        Ok(self.fetch(Service::Spansh, &Request::post_form("/api/trade/route", r.form()), None)?.value)
+    }
+
+    /// A trade job's legs once done. An empty list: no route fits the request.
+    pub fn spansh_trade_result(&self, job: &str) -> Result<JobStatus<Vec<TradeHop>>> {
+        self.spansh_job(job)
+    }
+
+    /// Queue a trade route and poll until it is done. Blocks (run it off the UI thread); past
+    /// `polling.timeout` it gives up with [`Error::Timeout`].
+    pub fn spansh_trade_route_wait(&self, r: &TradeRoute, polling: Polling) -> Result<Vec<TradeHop>> {
+        let start = Instant::now();
+        let job = self.spansh_trade_route(r)?;
+        loop {
+            if let JobStatus::Done(hops) = self.spansh_trade_result(&job.job)? {
+                return Ok(hops);
+            }
+            if start.elapsed() + polling.every > polling.timeout {
+                return Err(Error::Timeout { service: Service::Spansh });
+            }
+            std::thread::sleep(polling.every);
+        }
+    }
+
+    /// Not cached: a pending answer must be asked again, and a finished one is the caller's.
+    fn spansh_job<T: DeserializeOwned>(&self, job: &str) -> Result<JobStatus<T>> {
         let req = Request::get(format!("/api/results/{}", encode_segment(job)));
-        Ok(self.fetch_with(Service::Spansh, &req, None, parse_route_status)?.value)
+        Ok(self.fetch_with(Service::Spansh, &req, None, parse_job_status)?.value)
     }
 }
 
