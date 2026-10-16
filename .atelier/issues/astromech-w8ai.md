@@ -20,9 +20,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:37:29.101284663+00:00"
+status: "done"
 title: "Name reading rules before TTS"
-updated_at: "2026-10-16T19:32:20.727655281+00:00"
+updated_at: "2026-10-16T19:37:29.101284663+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ A table test maps each example to the expected TTS input text.
 ## Context
 
 Needed whichever TTS engine we use. Prospector lines need ore names and percentages read right.
+
+## Close Reason
+
+speakable::normalise implemented and wired before TTS render; table test passes

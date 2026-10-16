@@ -14,6 +14,8 @@ relationships:
   - kind: "issue"
     id: "astromech-77a1"
   - kind: "issue"
+    id: "astromech-ddew"
+  - kind: "issue"
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
@@ -33,6 +35,9 @@ relationships:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-sdg7"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"

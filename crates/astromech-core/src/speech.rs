@@ -150,6 +150,8 @@ impl TtsSpeaker {
         let rendering2 = rendering.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
             let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
+                // Reading rules (names, numbers, units); the cache key follows the spoken text.
+                let text = &astromech_voice::speakable::normalise(text);
                 let f = cache.join(cache_name(text, colour, &model, &speaker, speed));
                 if f.is_file() {
                     return astromech_voice::wav::read_mono_f32(&f).ok().map(|(sr, s)| (sr, s, f));
