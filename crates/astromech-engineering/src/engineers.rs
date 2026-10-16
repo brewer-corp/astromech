@@ -46,13 +46,15 @@ pub fn info(name: &str) -> Option<&'static EngineerInfo> {
     catalog().iter().find(|e| key(&e.name) == k)
 }
 
-/// Highest grade of `blueprint` that `engineer` offers (0 if none).
-pub fn offers(engineer: &str, blueprint: &str) -> u8 {
+/// Highest grade of `blueprint` that `engineer` offers on modules of `group` (0 if none).
+pub fn offers(engineer: &str, blueprint: &str, group: &str) -> u8 {
     let k = key(engineer);
-    data::blueprint(blueprint)
-        .map(|(_, b)| {
-            b.grades.iter().filter(|g| g.engineers.iter().any(|e| key(e) == k)).map(|g| g.grade).max().unwrap_or(0)
-        })
+    let (Some((_, b)), Some(g)) = (data::blueprint(blueprint), data::group(group)) else { return 0 };
+    b.grades
+        .iter()
+        .filter(|r| g.engineers_for(blueprint, r.grade).iter().any(|e| key(e) == k))
+        .map(|r| r.grade)
+        .max()
         .unwrap_or(0)
 }
 

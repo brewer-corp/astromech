@@ -213,7 +213,7 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
             }
         }
     }
-    out.engineers = bp.grade(target).map(|r| r.engineers.clone()).unwrap_or_default();
+    out.engineers = allowed.map(|g| g.engineers_for(bp_id, target).to_vec()).unwrap_or_default();
     if out.steps.is_empty() && !out.experimental_needed && notes.is_empty() {
         notes.push("Already done.".into());
     }
