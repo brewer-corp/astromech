@@ -18,6 +18,9 @@ pub struct Query {
     pub states: &'static [&'static str],
     /// Drop systems below this population (Spansh's population filter is not used).
     pub min_population: i64,
+    /// Rank by [`crate::hge_score`] (population and distance) instead of jumps: High Grade
+    /// Emissions spawn reliably only in systems over a billion people.
+    pub by_population: bool,
 }
 
 /// Lookups the app offers: wake scanning (Famine) and the High Grade Emissions pools
@@ -29,6 +32,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &[],
         states: &["Famine"],
         min_population: 0,
+        by_population: false,
     },
     Query {
         id: "fed_composites",
@@ -36,6 +40,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &["Federation"],
         states: &[],
         min_population: 1_000_000,
+        by_population: true,
     },
     Query {
         id: "empire_shielding",
@@ -43,6 +48,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &["Empire"],
         states: &[],
         min_population: 1_000_000,
+        by_population: true,
     },
     Query {
         id: "proto",
@@ -50,6 +56,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &["Independent", "Alliance"],
         states: &["Boom"],
         min_population: 0,
+        by_population: true,
     },
     Query {
         id: "military",
@@ -57,6 +64,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &[],
         states: &["War", "Civil War"],
         min_population: 0,
+        by_population: true,
     },
     Query {
         id: "improvised",
@@ -64,6 +72,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &["Independent", "Alliance"],
         states: &["Civil Unrest"],
         min_population: 0,
+        by_population: true,
     },
     Query {
         id: "pharma",
@@ -71,6 +80,7 @@ pub const QUERIES: &[Query] = &[
         allegiances: &["Independent", "Alliance"],
         states: &["Outbreak"],
         min_population: 1_000_000,
+        by_population: true,
     },
 ];
 

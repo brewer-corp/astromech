@@ -5,6 +5,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/nearby.json";
+import hgeSample from "./fixtures/nearby-hge.json";
 import type { Filters, Origin } from "./search";
 
 export interface Faction {
@@ -24,6 +25,8 @@ export interface NearbyHit {
   population: number;
   updated_at: string | null;
   factions: Faction[];
+  /** High Grade Emissions lookups: population and distance score, 0 to about 150 (100 = a billion people here). */
+  score?: number;
 }
 
 export interface Nearby {
@@ -38,12 +41,20 @@ export interface Nearby {
 /** Systems matching `query` and `filters` near `origin` (a typed system name), or near the commander. */
 export async function nearby(query: string, origin: Origin = null, filters: Filters | null = null): Promise<Nearby> {
   if (!inTauri) {
-    const s = sample as unknown as Nearby;
+    const s = (query === "famine" ? sample : hgeSample) as unknown as Nearby;
     const days = filters?.max_age_days;
     const hits = days == null ? s.hits : s.hits.filter((h) => h.updated_at && Date.parse(s.fetched) - Date.parse(h.updated_at) <= days * 86400000);
     return { ...s, hits, query: { id: query, label: s.query.label }, here: origin ? { ...s.here, system: origin } : s.here };
   }
   return await invoke<Nearby>("galaxy_nearby", { query, origin, filters });
+}
+
+/** "2.0B", "85M", "35k", "uninhabited". */
+export function population(n: number): string {
+  if (n >= 1e9) return `${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `${Math.round(n / 1e6)}M`;
+  if (n >= 1e3) return `${Math.round(n / 1e3)}k`;
+  return n > 0 ? String(n) : "uninhabited";
 }
 
 /** "3 h ago", "2 d ago". */

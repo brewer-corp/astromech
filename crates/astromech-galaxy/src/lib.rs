@@ -46,6 +46,9 @@ pub struct NearbyHit {
     pub updated_at: Option<String>,
     /// Only the factions that match the query.
     pub factions: Vec<Faction>,
+    /// [`hge_score`] × 100 (100 = a billion people in this system), for lookups ranked by population.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub score: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -66,6 +69,23 @@ pub struct Galaxy {
     map: RwLock<Option<Arc<StarMap>>>,
     /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
     fill_failed: Mutex<Option<i64>>,
+}
+
+/// Population at which High Grade Emissions spawn reliably.
+pub const HGE_POPULATION: i64 = 1_000_000_000;
+
+/// How good a system is for High Grade Emissions, 0 to about 1.2: population over distance.
+/// A system over a billion people scores 1 to 1.5 for its population (more is better, up to
+/// ten billion); under a billion it scores at most 0.25, so it ranks well below. Distance
+/// halves the score at 50 ly. A 2-billion system 30 ly away (0.72) beats a 200-million system
+/// 5 ly away (0.05).
+pub fn hge_score(population: i64, ly: f64) -> f64 {
+    let pop = if population >= HGE_POPULATION {
+        1.0 + 0.5 * (population as f64 / HGE_POPULATION as f64).log10().min(1.0)
+    } else {
+        0.25 * population.max(0) as f64 / HGE_POPULATION as f64
+    };
+    pop / (1.0 + ly.max(0.0) / 50.0)
 }
 
 /// After an EDSM failure, wait this long before trying again.
@@ -274,6 +294,12 @@ impl Galaxy {
             let _ = s.insert_systems(matched.iter().map(|h| (h.id64, h.name.as_str(), h.pos())));
         }
         let map = self.map().ok();
+        let score = |h: &Hit| hge_score(h.population, dist(here.pos, h.pos()));
+        let mut matched = matched;
+        if q.by_population {
+            // Best score first; only those shown need a jump count.
+            matched.sort_by(|a, b| score(b).total_cmp(&score(a)));
+        }
         let mut out: Vec<NearbyHit> = matched
             .into_iter()
             .take(limit.max(1) * 2)
@@ -286,10 +312,13 @@ impl Galaxy {
                     population: h.population,
                     updated_at: h.updated_at.clone(),
                     factions: h.minor_faction_presences.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
+                    score: q.by_population.then(|| (score(&h) * 100.0).round() as u32),
                 }
             })
             .collect();
-        out.sort_by(|a, b| a.hop.jumps.cmp(&b.hop.jumps).then(a.hop.ly.total_cmp(&b.hop.ly)));
+        if !q.by_population {
+            out.sort_by(|a, b| a.hop.jumps.cmp(&b.hop.jumps).then(a.hop.ly.total_cmp(&b.hop.ly)));
+        }
         out.truncate(limit.max(1));
         Nearby { query: q.clone(), here: here.clone(), range, fetched, hits: out, warning }
     }
@@ -447,6 +476,49 @@ mod tests {
         let fresh = Filters { max_age_days: Some(1), ..Filters::default() };
         let none = g.nearby("famine", &here, 5.0, 2, &fresh).unwrap();
         assert!(none.hits.is_empty() && none.warning.is_none(), "{none:?}");
+    }
+
+    #[test]
+    fn hge_lookups_rank_by_population_and_distance() {
+        let sys = |id: i64, name: &str, x: f64, pop: i64| {
+            serde_json::json!({
+                "id64": id, "name": name, "x": x, "y": 0.0, "z": 0.0, "population": pop,
+                "updated_at": "2026-10-16T10:00:00Z",
+                "minor_faction_presences": [{ "name": format!("{name} Party"), "allegiance": "Federation",
+                    "state": "None", "active_states": [], "influence": 0.5 }],
+            })
+        };
+        // nearest first, as Spansh sorts them
+        let body = serde_json::json!({ "count": 3, "from": 0, "results": [
+            sys(1, "Small Fed", 5.0, 200_000_000),
+            sys(2, "Big Fed", 30.0, 2_000_000_000),
+            sys(3, "Far Giant", 400.0, 9_000_000_000),
+        ]})
+        .to_string();
+        let s = Store::in_memory().unwrap();
+        s.add_coverage(Sphere { center: [0.0; 3], radius: 1000.0 }, "test", "t").unwrap();
+        s.cache_put("spansh:fed_composites:0:0:0", now_s(), &body).unwrap();
+        s.cache_put("spansh:famine:0:0:0", now_s(), &body.replace("\"None\"", "\"Famine\"")).unwrap();
+        let g = Galaxy::with_store(s);
+        let here = Here { system: "Origin".into(), id64: None, pos: [0.0; 3] };
+
+        let n = g.nearby("fed_composites", &here, 20.0, 3, &Filters::default()).unwrap();
+        let ranked: Vec<(&str, Option<u32>)> = n.hits.iter().map(|h| (h.name.as_str(), h.score)).collect();
+        assert_eq!(ranked, [("Big Fed", Some(72)), ("Far Giant", Some(16)), ("Small Fed", Some(5))]);
+
+        // a faction-state lookup that isn't about HGEs keeps nearest first and has no score
+        let f = g.nearby("famine", &here, 20.0, 3, &Filters::default()).unwrap();
+        let ranked: Vec<(&str, Option<u32>)> = f.hits.iter().map(|h| (h.name.as_str(), h.score)).collect();
+        assert_eq!(ranked, [("Small Fed", None), ("Big Fed", None), ("Far Giant", None)]);
+    }
+
+    #[test]
+    fn hge_score_prefers_a_billion_people() {
+        assert!(hge_score(2_000_000_000, 30.0) > hge_score(200_000_000, 5.0));
+        assert!(hge_score(1_000_000_000, 100.0) > hge_score(999_000_000, 0.0));
+        assert!(hge_score(5_000_000_000, 10.0) > hge_score(2_000_000_000, 10.0));
+        assert!(hge_score(2_000_000_000, 10.0) > hge_score(2_000_000_000, 20.0));
+        assert_eq!(hge_score(0, 0.0), 0.0);
     }
 
     #[test]
