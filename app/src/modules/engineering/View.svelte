@@ -10,6 +10,7 @@
   import { openUrl } from "../../lib/core";
   import { inaraSystem, spanshSystem } from "../../lib/links";
   import Nearby from "../../lib/ui/Nearby.svelte";
+  import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let fleet = $state<Fleet | null>(null);
   let shipId = $state<number | null>(null);
@@ -220,7 +221,7 @@
       No ships in the journal yet · {fleet.source}
     {:else}
       {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
-      · {ship.current ? "flying now" : ship.system ? `stored at ${ship.system}` : "stored"}
+      · {#if ship.current}flying now{:else if ship.system}stored at <SystemChip name={ship.system} />{:else}stored{/if}
       · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
       · {fleet.source}
     {/if}
@@ -316,7 +317,7 @@
       {:else if trip}
         <h4>Engineer trip</h4>
         <p class="lo small">
-          {trip.start ? `From ${trip.start}` : "Start unknown"} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
+          {#if trip.start}From <SystemChip name={trip.start} />{:else}Start unknown{/if} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
           {#if !trip.exact}· ~ = straight-line estimate{/if}
         </p>
         {#if trip.stops.length}
@@ -324,7 +325,7 @@
             {#each trip.stops as s, i (i)}
               <li>
                 <span class="stop">{s.engineer}</span>
-                <span class="lo"> · {s.system} · <span class="q">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
+                <span class="lo"> · <SystemChip name={s.system} /> · <span class="q">{jumps(s.hop.jumps, s.hop.exact)}</span> ({s.hop.ly.toFixed(0)} ly){s.rank ? ` · rank ${s.rank}` : ""}</span>
                 {#each s.jobs as j (j.slot + j.kind)}
                   <span class="then">{j.slot_name}: {j.what}{j.note ? ` · ${j.note}` : ""}</span>
                 {/each}

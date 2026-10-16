@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:37:07.929958173+00:00"
+status: "done"
 title: "Materials: move the detail out of the side bar"
-updated_at: "2026-10-16T18:12:14.934041316+00:00"
+updated_at: "2026-10-16T18:37:07.929958173+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A screenshot at the default window size shows the detail below the grid, with no
 ## Context
 
 `app/src/modules/materials/View.svelte`.
+
+## Close Reason
+
+Detail moved below the grid at full width; screenshot at 1200x800 checked.
