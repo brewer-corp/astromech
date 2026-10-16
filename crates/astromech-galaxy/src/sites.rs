@@ -173,6 +173,10 @@ pub struct SiteHit {
     pub arrival_ls: Option<f64>,
     pub updated_at: Option<String>,
     pub detail: String,
+    /// Known farms: what the body is farmed for, spoken after its name ("polonium from
+    /// crystalline shards"), so the four HIP 36601 farms sound different.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -198,6 +202,7 @@ pub(crate) struct Candidate {
     pub arrival_ls: Option<f64>,
     pub updated_at: Option<String>,
     pub detail: String,
+    pub farm: Option<String>,
 }
 
 impl Candidate {
@@ -219,6 +224,7 @@ pub(crate) fn from_bodies(kind: &SiteKind, bodies: &[Body]) -> Vec<Candidate> {
             arrival_ls: b.distance_to_arrival,
             updated_at: b.updated_at.clone(),
             detail: kind.detail(b),
+            farm: None,
         })
         .collect()
 }
@@ -237,6 +243,7 @@ pub(crate) fn from_farms(origin: [f64; 3]) -> Vec<Candidate> {
                 arrival_ls: Some(f.arrival_ls),
                 updated_at: Some(astromech_materials::farm::farms_checked().to_string()),
                 detail: format!("{name} · {}", f.site.to_lowercase()),
+                farm: Some(format!("{} from {}", name.to_lowercase(), f.site.to_lowercase())),
             }
         })
         .collect();
@@ -273,11 +280,15 @@ pub fn spoken(s: &Sites) -> String {
         h.hop.jumps,
         if h.hop.jumps == 1 { "" } else { "s" }
     );
+    let body = match &h.farm {
+        Some(what) => format!("{}, {what}", h.body),
+        None => h.body.clone(),
+    };
     let mut line = if h.hop.ly < 0.05 {
-        format!("Nearest {}: {}, in this system", s.kind.noun, h.body)
+        format!("Nearest {}: {body}, in this system", s.kind.noun)
     } else {
         let ly = if h.hop.ly < 100.0 { format!("{:.1}", h.hop.ly) } else { thousands(h.hop.ly) };
-        format!("Nearest {}: {}, {ly} light years, {jumps}", s.kind.noun, h.body)
+        format!("Nearest {}: {body}, {ly} light years, {jumps}", s.kind.noun)
     };
     if let Some(ls) = h.arrival_ls {
         line.push_str(&format!(", {} light seconds from the arrival star", thousands(ls)));

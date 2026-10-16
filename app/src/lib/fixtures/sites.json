@@ -1,6 +1,6 @@
 {
   "brain_trees": {
-    "fetched": "2026-10-16T21:15:04Z",
+    "fetched": "2026-10-16T22:36:54Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -77,7 +77,7 @@
     "source": "Spansh"
   },
   "crashed_ships": {
-    "fetched": "2026-10-16T21:15:04Z",
+    "fetched": "2026-10-16T22:36:54Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -154,7 +154,7 @@
     "source": "Spansh"
   },
   "crystalline_shards": {
-    "fetched": "2026-10-16T21:15:04Z",
+    "fetched": "2026-10-16T22:36:54Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -231,7 +231,7 @@
     "source": "Spansh"
   },
   "geological": {
-    "fetched": "2026-10-16T21:15:04Z",
+    "fetched": "2026-10-16T22:36:54Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -308,7 +308,7 @@
     "source": "Spansh"
   },
   "raw_farms": {
-    "fetched": "2026-10-16T21:15:04Z",
+    "fetched": "2026-10-16T22:36:54Z",
     "here": {
       "id64": 10477373803,
       "pos": [
@@ -324,6 +324,7 @@
         "body": "Synuefe BY-F d12-39 A 2",
         "detail": "Polonium · brain trees",
         "exact": false,
+        "farm": "polonium from brain trees",
         "id64": 1350591039851,
         "jumps": 12,
         "ly": 388.01430587350774,
@@ -335,6 +336,7 @@
         "body": "HR 3230 3 a a",
         "detail": "Selenium · brain trees",
         "exact": false,
+        "farm": "selenium from brain trees",
         "id64": 182359951707,
         "jumps": 14,
         "ly": 423.0222837381767,
@@ -346,6 +348,7 @@
         "body": "HIP 36601 C 1 a",
         "detail": "Polonium · crystalline shards",
         "exact": false,
+        "farm": "polonium from crystalline shards",
         "id64": 84456968626,
         "jumps": 50,
         "ly": 1598.8619383945804,
@@ -357,6 +360,7 @@
         "body": "HIP 36601 C 1 d",
         "detail": "Ruthenium · crystalline shards",
         "exact": false,
+        "farm": "ruthenium from crystalline shards",
         "id64": 84456968626,
         "jumps": 50,
         "ly": 1598.8619383945804,
@@ -368,6 +372,7 @@
         "body": "HIP 36601 C 3 b",
         "detail": "Tellurium · crystalline shards",
         "exact": false,
+        "farm": "tellurium from crystalline shards",
         "id64": 84456968626,
         "jumps": 50,
         "ly": 1598.8619383945804,

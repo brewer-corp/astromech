@@ -103,9 +103,15 @@ fn known_farms_from_hip_36601() {
     assert_eq!(s.source, "astromech");
     assert_eq!(
         sites::spoken(&s),
-        "Nearest raw material farm: HIP 36601 C 1 a, in this system, 153,095 light seconds from the arrival star."
+        "Nearest raw material farm: HIP 36601 C 1 a, polonium from crystalline shards, in this system, \
+         153,095 light seconds from the arrival star."
     );
     assert!(!rec.log.lock().unwrap().iter().any(|l| l.contains("spansh")), "farms are bundled");
+    // the other HIP 36601 farms sound different
+    let d = Here { pos: [337.8125, 562.96875, -1457.84375], ..here.clone() };
+    let mut f = g.sites("raw_farms", &d, 30.0, 4, &Filters::default()).unwrap();
+    f.hits.remove(0);
+    assert!(sites::spoken(&f).contains("HIP 36601 C 1 d, ruthenium from crystalline shards"), "{}", sites::spoken(&f));
 }
 
 #[test]

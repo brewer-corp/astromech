@@ -322,6 +322,7 @@ impl Galaxy {
                 arrival_ls: c.arrival_ls,
                 updated_at: c.updated_at,
                 detail: c.detail,
+                farm: c.farm,
             })
             .collect();
         hits.sort_by(|a, b| {
