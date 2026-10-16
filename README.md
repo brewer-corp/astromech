@@ -95,8 +95,10 @@ an unexpected gear change can't hurt.
    `astromech-voice-worker.exe`, `astromech.sample.toml` and the licence files.
 2. **Speech models** (same files as the S9 test):
    - if you still have the S9 folder, copy its `models` folder next to `astromech-core.exe`
-     (it holds `sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8` and `kokoro-en-v0_19`), or set
-     `models_dir` in the config to that folder;
+     to reuse its speech-to-text model (`sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8`). Copy
+     it rather than pointing `models_dir` at it: the voice model is now
+     `kokoro-multi-lang-v1_0`, which is still downloaded, and astromech then deletes the old
+     `kokoro-en-v0_19` from its own copy only;
    - otherwise run `astromech-core.exe --download-models` (about 800 MB, SHA-256-checked).
 3. **Config:** run `astromech-core.exe --write-config`, then open `astromech.toml`. Keep the
    name exactly `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech
@@ -104,8 +106,8 @@ an unexpected gear change can't hurt.
    path it used. It also refuses to start without a `ptt` button (except `--listen`,
    `--health`, `--transcribe`, `--download-models`, `--list-mics`, `--eval` and
    `--calibrate-files`).
-   - `ptt` is preset to `{ device = "231D3201", key = "Joy_4" }` (the Omni Throttle left-stick
-     button 4 that worked as PTT in S9).
+   - `ptt` is commented out: uncomment it and put in your own button (the example is the Omni
+     Throttle left-stick button 4 that worked as PTT in S9), or set it in the app's setup.
    - Set `kill_switch` to a spare button. To see a button's name, run
      `astromech-core.exe --listen 20` and press it; it prints the line to paste.
 4. **Keyboard bind:** in Elite, give **Landing Gear** a keyboard key (e.g. as its secondary

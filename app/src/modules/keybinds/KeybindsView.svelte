@@ -46,7 +46,9 @@
       .filter((g) => g.rows.length),
   );
   const totalIssues = $derived(binds.rows.reduce((n, r) => n + issues(r).length, 0));
-  const isOpen = (name: string) => open[name] ?? (!!q || only !== "All" || hits.length > 0 || groups.length <= 3);
+  // A panel you toggled stays as you left it. Otherwise panels open only when a search or state
+  // filter asks to show their rows (a pressed control opens its own group); how many groups remain never decides.
+  const isOpen = (name: string) => open[name] ?? (!!q || only !== "All");
   const sel = $derived(binds.rows.find((r) => r.id === selId) ?? null);
 
   // Press a control: jump to everything bound to it.
@@ -55,6 +57,9 @@
     const p = binds.last;
     if (binds.presses === seen || !p || binds.capturing) return;
     seen = binds.presses;
+    // The window's own clicks reach Raw Input as Mouse_1-3 (INPUTSINK); a click isn't a game
+    // control. Side buttons (Mouse_4, Mouse_5) don't click, so they still find their bindings.
+    if (p.device === "Mouse" && /^Mouse_[123]$/.test(p.key)) return;
     if (document.activeElement === search && p.device === "Keyboard") return;
     const rows = binds.rowsFor(p.device, p.key);
     const ctl = binds.state ? controlFor(p.device, p.key, binds.state.overrides) : undefined;

@@ -68,7 +68,14 @@ pub struct Voice {
     pub threads: i32,
     /// Speak confirmations with Kokoro (otherwise print them).
     pub tts: bool,
-    pub speaker_id: i32,
+    /// Kokoro v1.0 voice by name ("bf_emma"; `astromech_voice::catalog::KOKORO_VOICES`).
+    /// Missing or unknown: the default voice (see [`Voice::settle_speaker`]).
+    #[serde(default)]
+    pub speaker: String,
+    /// Kokoro v0.19 speaker ID from configs written before v1.0. Read once, turned into
+    /// `speaker`, never written.
+    #[serde(default, skip_serializing)]
+    pub speaker_id: Option<i32>,
     pub speed: f32,
     /// Kokoro colour (V1-DESIGN.md §6.4). Default cockpit.
     pub colour: astromech_voice::colour::Colour,
@@ -132,7 +139,8 @@ impl Default for Voice {
             worker: String::new(),
             threads: astromech_voice::DEFAULT_THREADS,
             tts: true,
-            speaker_id: 0,
+            speaker: astromech_voice::catalog::DEFAULT_VOICE.into(),
+            speaker_id: None,
             speed: 1.0,
             colour: astromech_voice::colour::Colour::Cockpit,
             pre_roll_ms: 150,
@@ -144,6 +152,20 @@ impl Default for Voice {
         }
     }
 }
+impl Voice {
+    /// Make `speaker` a Kokoro v1.0 voice name: keep a known name; otherwise take the v1.0 voice
+    /// matching an old v0.19 `speaker_id`; otherwise the default voice.
+    pub fn settle_speaker(&mut self) {
+        use astromech_voice::catalog;
+        let old = self.speaker_id.take();
+        if catalog::voice_sid(&self.speaker).is_some() {
+            return;
+        }
+        let named = self.speaker.trim().is_empty().then(|| old.and_then(catalog::voice_from_v0_19)).flatten();
+        self.speaker = named.unwrap_or(catalog::DEFAULT_VOICE).to_string();
+    }
+}
+
 impl Default for Actions {
     fn default() -> Self {
         Self { hold_ms: 50, verify_timeout_ms: 2000, retries: None, dry_run: false }
@@ -181,7 +203,14 @@ pub fn look_alikes(dir: &Path) -> Vec<PathBuf> {
 impl Config {
     pub fn load(path: &Path) -> Result<Self> {
         let t = std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-        toml::from_str(&t).with_context(|| format!("parsing {}", path.display()))
+        Self::parse(&t).with_context(|| format!("parsing {}", path.display()))
+    }
+
+    /// Parse `astromech.toml` text, bringing old settings up to date.
+    pub fn parse(text: &str) -> Result<Self> {
+        let mut c: Self = toml::from_str(text)?;
+        c.voice.settle_speaker();
+        Ok(c)
     }
 
     pub fn exe_dir() -> PathBuf {
@@ -301,8 +330,11 @@ mod tests {
 
     #[test]
     fn sample_parses_and_buttons_match() {
-        let c: Config = toml::from_str(SAMPLE).unwrap();
-        let ptt = c.controls.ptt.clone().unwrap();
+        let c = Config::parse(SAMPLE).unwrap();
+        // The sample leaves push-to-talk to the user (onboarding treats a set one as set up).
+        assert!(c.controls.ptt.is_none());
+        let line = SAMPLE.lines().find(|l| l.starts_with("# ptt = ")).unwrap();
+        let ptt = toml::from_str::<Controls>(line.trim_start_matches("# ")).unwrap().ptt.unwrap();
         assert_eq!(ptt, Button { device: "231D3201".into(), key: "Joy_4".into() });
         assert!(ptt.matches(&ev("button", Some("231D3201"), "Joy_4")));
         assert!(!ptt.matches(&ev("button", Some("231D0200"), "Joy_4")));
@@ -313,12 +345,35 @@ mod tests {
         assert_eq!((c.actions.hold_ms, c.actions.verify_timeout_ms, c.actions.retries), (50, 2000, None));
         assert_eq!(c.voice.threads, 4);
         assert_eq!(c.voice.colour, astromech_voice::colour::Colour::Cockpit);
+        assert_eq!(c.voice.speaker, "bf_emma");
         assert!(c.update.check);
         assert_eq!(c.update.apply, crate::update::ApplyWhen::Ask);
         assert!(!c.eddn.enabled && !c.eddn.test);
-        let d: Config = toml::from_str("").unwrap();
+        let d = Config::parse("").unwrap();
         assert!(d.controls.ptt.is_none() && d.voice.tts);
         assert!(!d.eddn.enabled, "nothing is sent to EDDN unless switched on");
         assert_eq!(d.voice.colour, astromech_voice::colour::Colour::Cockpit);
+        assert_eq!(d.voice.speaker, astromech_voice::catalog::DEFAULT_VOICE);
+    }
+
+    #[test]
+    fn old_speaker_id_migrates_to_a_v1_voice_name() {
+        let speaker = |toml: &str| Config::parse(toml).unwrap().voice.speaker;
+        // v0.19 IDs 7-10 are the British voices, all also in v1.0 (at other IDs).
+        assert_eq!(speaker("[voice]\nspeaker_id = 7"), "bf_emma");
+        assert_eq!(speaker("[voice]\nspeaker_id = 9"), "bm_george");
+        assert_eq!(speaker("[voice]\nspeaker_id = 1"), "af_bella");
+        // 0 is v0.19's "af" blend, which v1.0 lacks; out-of-range IDs match nothing either.
+        assert_eq!(speaker("[voice]\nspeaker_id = 0"), "bf_emma");
+        assert_eq!(speaker("[voice]\nspeaker_id = 42"), "bf_emma");
+        // A name wins over a leftover ID; an unknown name falls back to the default.
+        assert_eq!(speaker("[voice]\nspeaker = \"bm_fable\"\nspeaker_id = 7"), "bm_fable");
+        assert_eq!(speaker("[voice]\nspeaker = \"nobody\""), "bf_emma");
+        assert_eq!(speaker("[voice]\ntts = true"), "bf_emma");
+        // The ID is not written back; the name is.
+        let c = Config::parse("[voice]\nspeaker_id = 10").unwrap();
+        assert_eq!(c.voice.speaker_id, None);
+        let out = toml::to_string(&c).unwrap();
+        assert!(out.contains("speaker = \"bm_lewis\"") && !out.contains("speaker_id"), "{out}");
     }
 }

@@ -27,10 +27,16 @@ pub struct Endpoint {
 pub struct Request {
     pub token: String,
     /// "status", "open_window", "save_diagnostics", "ack_crash", "quit", "check_update", "install_update",
-    /// "eddn_log", …
+    /// "eddn_log", "voice_test", "voice_test_poll", "voice_test_stop", "voice_test_live", ...
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
+    /// Argument for the voice tester: the phrase ("voice_test") or command id ("voice_test_live").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub args: Option<Value>,
 }
 
 pub type Handler = Arc<dyn Fn(&Request) -> Value + Send + Sync>;
@@ -110,7 +116,7 @@ pub fn call(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Value> {
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).context("connecting to the core")?;
     s.set_read_timeout(Some(Duration::from_secs(10)))?;
-    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from) };
+    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from), text: None, args: None };
     writeln!(s, "{}", serde_json::to_string(&req)?)?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line)?;
@@ -140,5 +146,16 @@ mod tests {
         drop(srv);
         assert!(!d.path().join(FILE).exists());
         assert!(call(d.path(), "status", None).is_err());
+    }
+
+    #[test]
+    fn text_argument_is_optional() {
+        let r: Request = serde_json::from_str(r#"{"token":"t","cmd":"voice_test","text":"gear down"}"#).unwrap();
+        assert_eq!(r.text.as_deref(), Some("gear down"));
+        // The window sends `"text": null` for commands without one.
+        let r: Request = serde_json::from_str(r#"{"token":"t","cmd":"status","text":null}"#).unwrap();
+        assert_eq!(r.text, None);
+        let r: Request = serde_json::from_str(r#"{"token":"t","cmd":"status"}"#).unwrap();
+        assert_eq!(r.text, None);
     }
 }

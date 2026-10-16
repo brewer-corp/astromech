@@ -11,8 +11,9 @@ bindings_dir = ""             # empty: %LOCALAPPDATA%\Frontier Developments\Elit
 game_dir = ""                 # optional: game install folder (built-in presets, DeviceMappings.xml)
 
 [controls]
-# Push-to-talk: hold, speak, release.
-ptt = { device = "231D3201", key = "Joy_4" }
+# Push-to-talk: hold, speak, release. Set it in the app (Settings → Push-to-talk → Change), or
+# uncomment this and use your own button.
+# ptt = { device = "231D3201", key = "Joy_4" }
 # Kill switch: press to cancel everything, release held keys and stop all actions.
 # Hold it for rearm_hold_ms to re-arm. Pick a button Elite doesn't use.
 kill_switch = { device = "Keyboard", key = "Key_ScrollLock" }
@@ -24,7 +25,7 @@ models_dir = ""               # empty: "models" next to the exe; or the s9 tool'
 worker = ""                   # empty: astromech-voice-worker.exe next to the exe
 threads = 4                   # S9: 4 was fastest on a Ryzen 9 7900X
 tts = true                    # speak confirmations with Kokoro; false = print only
-speaker_id = 0
+speaker = "bf_emma"           # Kokoro v1.0 voice; British: bf_alice bf_emma bf_isabella bf_lily bm_daniel bm_fable bm_george bm_lewis
 speed = 1.0                   # 1.0 = colour's own speed (Cockpit 0.94, Harsh 0.92)
 colour = "cockpit"            # natural | cockpit | harsh. Default cockpit (V1-DESIGN §6.4)
 pre_roll_ms = 150

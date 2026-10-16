@@ -1,0 +1,297 @@
+//! # astromech-data
+//!
+//! Remote game data from Spansh, Ardent Insight and EDSM through one [`Client`]:
+//!
+//! - every request carries the shared [`USER_AGENT`];
+//! - answers are cached in SQLite ([`Cache`]) and served without a request until their TTL ends
+//!   (see [`ttl`]);
+//! - every answer is checked against a typed schema before it is used or cached, and a mismatch
+//!   is an [`Error::Schema`] naming the service;
+//! - requests to each service are spaced out ([`Limiter`]);
+//! - failures are [`Error`]s whose `Display` is a plain-words sentence fit to show or speak.
+//!
+//! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Tests swap the [`Transport`] for
+//! recorded bodies.
+
+pub mod ardent;
+mod cache;
+pub mod edsm;
+mod limit;
+pub mod spansh;
+mod transport;
+
+pub use cache::Cache;
+pub use limit::Limiter;
+pub use transport::{encode_segment, Body, HttpTransport, Method, Request, Response, Transport, TransportError};
+
+use serde::de::DeserializeOwned;
+use std::fmt;
+use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::{Duration, Instant};
+
+pub const USER_AGENT: &str =
+    concat!("astromech/", env!("CARGO_PKG_VERSION"), " (+https://github.com/spadaval/astromech)");
+
+/// How long each kind of answer is reused, in seconds (ARCHITECTURE §5.8).
+pub mod ttl {
+    /// Positions, bodies and other slow-changing system data.
+    pub const SYSTEM: i64 = 7 * 24 * 3600;
+    /// Searches (stations, systems, bodies, nearest service).
+    pub const SEARCH: i64 = 3600;
+    /// Market prices and stock.
+    pub const MARKET: i64 = 15 * 60;
+    /// Traffic counts.
+    pub const TRAFFIC: i64 = 3600;
+}
+
+/// A remote data service.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Service {
+    Spansh,
+    Ardent,
+    Edsm,
+}
+
+impl Service {
+    pub const ALL: [Service; 3] = [Service::Spansh, Service::Ardent, Service::Edsm];
+
+    /// The name to show the commander.
+    pub fn name(self) -> &'static str {
+        match self {
+            Service::Spansh => "Spansh",
+            Service::Ardent => "Ardent Insight",
+            Service::Edsm => "EDSM",
+        }
+    }
+
+    pub fn base_url(self) -> &'static str {
+        match self {
+            Service::Spansh => "https://spansh.co.uk",
+            Service::Ardent => "https://api.ardent-insight.com",
+            Service::Edsm => "https://www.edsm.net",
+        }
+    }
+
+    /// Minimum gap between requests. None of the three publishes a limit for these endpoints;
+    /// one a second matches ARCHITECTURE §5.8 for EDSM and is polite for the others.
+    pub fn min_interval(self) -> Duration {
+        Duration::from_secs(1)
+    }
+
+    fn key(self) -> &'static str {
+        match self {
+            Service::Spansh => "spansh",
+            Service::Ardent => "ardent",
+            Service::Edsm => "edsm",
+        }
+    }
+}
+
+impl fmt::Display for Service {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
+    }
+}
+
+/// Why a lookup failed. `Display` is a sentence for the commander.
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("Can't reach {service}. Check your internet connection; if it's working, {service} may be down.")]
+    Offline { service: Service, detail: String },
+    #[error("{service} took too long to answer. Try again in a minute.")]
+    Timeout { service: Service },
+    #[error("{service} asked astromech to slow down. Try again in a minute.")]
+    RateLimited { service: Service },
+    #[error("{service} found nothing: {message}.")]
+    NotFound { service: Service, message: String },
+    #[error("{service} turned the request down: {message}.")]
+    Rejected { service: Service, message: String },
+    #[error("{service} is having trouble (HTTP {status}). Try again later.")]
+    Unavailable { service: Service, status: u16 },
+    #[error("{service} sent an answer astromech doesn't understand; its format may have changed ({detail}).")]
+    Schema { service: Service, detail: String },
+    #[error("astromech's local cache of online data failed ({0}).")]
+    Cache(String),
+}
+
+impl Error {
+    /// The service the error came from, if any.
+    pub fn service(&self) -> Option<Service> {
+        match self {
+            Error::Offline { service, .. }
+            | Error::Timeout { service }
+            | Error::RateLimited { service }
+            | Error::NotFound { service, .. }
+            | Error::Rejected { service, .. }
+            | Error::Unavailable { service, .. }
+            | Error::Schema { service, .. } => Some(*service),
+            Error::Cache(_) => None,
+        }
+    }
+}
+
+impl From<rusqlite::Error> for Error {
+    fn from(e: rusqlite::Error) -> Self {
+        Error::Cache(e.to_string())
+    }
+}
+
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
+/// An answer and where it came from.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Fetched<T> {
+    pub value: T,
+    /// When the answer was fetched from the service (unix seconds).
+    pub fetched_at: i64,
+    /// Served from the cache without a request.
+    pub cached: bool,
+}
+
+/// Unix time in seconds; a trait so tests can move time.
+pub trait Clock: Send + Sync {
+    fn now_s(&self) -> i64;
+}
+
+pub struct SystemClock;
+
+impl Clock for SystemClock {
+    fn now_s(&self) -> i64 {
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0)
+    }
+}
+
+/// The one way to the remote services.
+pub struct Client {
+    transport: Arc<dyn Transport>,
+    cache: Mutex<Cache>,
+    clock: Arc<dyn Clock>,
+    limiter: Mutex<Limiter>,
+    bases: Vec<(Service, String)>,
+}
+
+impl Client {
+    /// Real HTTP, the system clock and the default rate limits.
+    pub fn new(cache: Cache) -> Self {
+        Self::with_transport(cache, Arc::new(HttpTransport::new()))
+    }
+
+    pub fn with_transport(cache: Cache, transport: Arc<dyn Transport>) -> Self {
+        Client {
+            transport,
+            cache: Mutex::new(cache),
+            clock: Arc::new(SystemClock),
+            limiter: Mutex::new(Limiter::default()),
+            bases: Service::ALL.iter().map(|s| (*s, s.base_url().to_string())).collect(),
+        }
+    }
+
+    pub fn clock(mut self, clock: Arc<dyn Clock>) -> Self {
+        self.clock = clock;
+        self
+    }
+
+    pub fn limiter(mut self, limiter: Limiter) -> Self {
+        self.limiter = Mutex::new(limiter);
+        self
+    }
+
+    /// Send `service`'s requests to `base` instead (a mirror, or a test server).
+    pub fn base_url(mut self, service: Service, base: impl Into<String>) -> Self {
+        let base = base.into();
+        for (s, b) in &mut self.bases {
+            if *s == service {
+                *b = base.clone();
+            }
+        }
+        self
+    }
+
+    fn base(&self, service: Service) -> &str {
+        self.bases.iter().find(|(s, _)| *s == service).map(|(_, b)| b.as_str()).unwrap_or(service.base_url())
+    }
+
+    fn cache(&self) -> MutexGuard<'_, Cache> {
+        self.cache.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// One rate-limited request, without the cache. 2xx bodies are returned as-is; anything
+    /// else becomes an [`Error`].
+    pub fn send(&self, service: Service, req: &Request) -> Result<String> {
+        let wait = self.limiter.lock().unwrap_or_else(|e| e.into_inner()).reserve(service, Instant::now());
+        if !wait.is_zero() {
+            std::thread::sleep(wait);
+        }
+        let url = format!("{}{}", self.base(service), req.path);
+        let resp = self.transport.send(&url, req).map_err(|e| match e {
+            TransportError::Offline(detail) => Error::Offline { service, detail },
+            TransportError::Timeout => Error::Timeout { service },
+        })?;
+        match resp.status {
+            200..=299 => Ok(resp.body),
+            429 => Err(Error::RateLimited { service }),
+            404 => Err(Error::NotFound {
+                service,
+                message: error_message(&resp.body).unwrap_or_else(|| "no such page".into()),
+            }),
+            400..=499 => Err(Error::Rejected {
+                service,
+                message: error_message(&resp.body).unwrap_or_else(|| format!("HTTP {}", resp.status)),
+            }),
+            status => Err(Error::Unavailable { service, status }),
+        }
+    }
+
+    /// Cached when `ttl` is set: a stored answer younger than `ttl` seconds is served without a
+    /// request. A fresh answer is parsed (the schema check) before it is cached.
+    pub fn fetch_with<T>(
+        &self,
+        service: Service,
+        req: &Request,
+        ttl: Option<i64>,
+        parse: impl Fn(&str) -> Result<T>,
+    ) -> Result<Fetched<T>> {
+        let key = req.cache_key(service.key());
+        let now = self.clock.now_s();
+        if let Some(ttl) = ttl {
+            if let Some((at, body)) = self.cache().get(&key, now, ttl)? {
+                // A stored body that no longer parses (the types changed) is refetched.
+                if let Ok(value) = parse(&body) {
+                    return Ok(Fetched { value, fetched_at: at, cached: true });
+                }
+            }
+        }
+        let body = self.send(service, req)?;
+        let value = parse(&body)?;
+        if ttl.is_some() {
+            self.cache().put(&key, now, &body)?;
+        }
+        Ok(Fetched { value, fetched_at: now, cached: false })
+    }
+
+    /// [`Client::fetch_with`] using [`parse_json`].
+    pub fn fetch<T: DeserializeOwned>(&self, service: Service, req: &Request, ttl: Option<i64>) -> Result<Fetched<T>> {
+        self.fetch_with(service, req, ttl, |b| parse_json(service, b))
+    }
+}
+
+/// The schema check: the body must deserialize into `T`. A body that is an error object
+/// (`{"error": ...}`, as Spansh and Ardent send) is [`Error::Rejected`].
+pub fn parse_json<T: DeserializeOwned>(service: Service, body: &str) -> Result<T> {
+    let v: serde_json::Value =
+        serde_json::from_str(body).map_err(|e| Error::Schema { service, detail: format!("not JSON: {e}") })?;
+    if let Some(message) = error_object(&v) {
+        return Err(Error::Rejected { service, message });
+    }
+    serde_json::from_value(v).map_err(|e| Error::Schema { service, detail: e.to_string() })
+}
+
+fn error_object(v: &serde_json::Value) -> Option<String> {
+    let o = v.as_object()?;
+    let e = o.get("error")?.as_str()?;
+    Some(o.get("message").and_then(|m| m.as_str()).unwrap_or(e).to_string())
+}
+
+fn error_message(body: &str) -> Option<String> {
+    error_object(&serde_json::from_str(body).ok()?)
+}

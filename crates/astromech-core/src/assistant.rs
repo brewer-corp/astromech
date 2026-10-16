@@ -43,6 +43,17 @@ pub fn unavailable_reason(command: &str) -> &'static str {
     }
 }
 
+/// Add the personal aliases learned from "Did you mean …?" answers.
+pub fn add_aliases(g: &mut Grammar, store: &Store) {
+    if let Ok(list) = store.aliases() {
+        for (heard, cmd) in list {
+            if let Some(cmd) = Grammar::intern(&cmd) {
+                g.add_alias(&heard, cmd);
+            }
+        }
+    }
+}
+
 pub struct Assistant {
     grammar: Mutex<Grammar>,
     pub runner: Arc<Runner>,
@@ -56,15 +67,16 @@ impl Assistant {
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
-        if let Ok(list) = store.lock().unwrap().aliases() {
-            let mut g = self.grammar.lock().unwrap();
-            for (heard, cmd) in list {
-                if let Some(cmd) = Grammar::intern(&cmd) {
-                    g.add_alias(&heard, cmd);
-                }
-            }
-        }
+        add_aliases(&mut self.grammar.lock().unwrap(), &store.lock().unwrap());
         Self { store: Some(store), ..self }
+    }
+
+    /// What `transcript` would do now, without doing it (the voice command tester). Reads the
+    /// grammar, the game state and the binds check; never calls the runner.
+    pub fn dry_run(&self, transcript: &str, source: crate::tester::Source) -> crate::tester::DryRun {
+        let g = self.grammar.lock().unwrap();
+        let binds = self.runner.binds.read().unwrap();
+        crate::tester::dry_run(&g, transcript, &self.runner.hub.snapshot(), &binds, source)
     }
 
     fn say(&self, s: &str) {

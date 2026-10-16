@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -237,7 +237,12 @@ astromech/
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
-                         Spansh faction-state lookups (Famine, HGE pools), position from the journal
+                         Spansh faction-state lookups (Famine, HGE pools), position from the journal;
+                         its network calls go through astromech-data
+    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
+                         Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
+                         bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
+                         typed schema checks, per-service rate limit, plain-words errors (§5.8)
     astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
                          with the global rules (live-only, *_Localised and commander data stripped,
                          header from Fileheader/LoadGame, flags never null, augmentation cross-check),
@@ -448,6 +453,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - EDDN: optional listener and uploader, v2.
 - **Cache:** SQLite with TTLs (system data 7 days, search results 1 h, routes per session).
 - **Etiquette and resilience:** a `governor` limiter per host, a circuit breaker (5 failures → 60 s open), and `User-Agent: astromech/<ver> (+contact)`.
+- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits. Spansh's system-name autocomplete (a fuzzy match, not a prefix match) returns positions too, so a typed search origin resolves without EDSM (`Galaxy::locate`: local star map first, then the Spansh suggestion with exactly that name).
 
 ### 5.9 `astromech-capi` (feature-gated; v2+)
 - **Auth:** OAuth2 auth code with PKCE (S256) against `https://auth.frontierstore.net` (`/auth`, `/token`, `/decode`), `audience=frontier,steam,epic`, `scope=auth capi`.
@@ -481,10 +487,10 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - **Mic level / AGC (note):** S9 peaks were only 0.03–0.10 full scale on the BlackShark V3 (RMS ≈ 0.003–0.009). Accuracy was still fine, but quiet input is a risk for the misses. Show a level meter in setup and warn if peaks are below ~0.1. Apply a fixed software gain or simple peak normalisation per utterance before STT (cheap, since push-to-talk gives whole clips). Advise raising the Windows mic level. Full AGC isn't needed.
   - **Packaging:** the STT/TTS engine runs in a **separate worker process** with sherpa-onnx linked **statically** (no runtime DLLs, so no DLL-search problems). One crash-isolated helper keeps the main exe free of native ML code.
 - **TTS worker:**
-  - **Kokoro-82M** through sherpa-onnx `OfflineTts`.
+  - **Kokoro-82M v1.0** (`kokoro-multi-lang-v1_0`, 54 voices) through sherpa-onnx `OfflineTts`. Voices are configured by name (`astromech_voice::catalog::KOKORO_VOICES`, index = `sid`); each request also names the espeak-ng voice to phonemise with (`en` for British voices, `en-us` otherwise). The package's Chinese lexicon and jieba dictionary are not used: with a language set, sherpa-onnx 1.13.8 phonemises English with espeak-ng. An update from v0.19 downloads v1.0 (int8 if only the int8 v0.19 was installed) and, once the download is complete (its marker written), deletes the v0.19 folders from astromech's own models folder; a folder `models_dir` points at is left alone.
   - **Pre-render** fixed confirmations ("Landing gear deployed.", "Lights on.", "Didn't catch that.", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries). Cache after colouring.
   - **Voice colour (v0.14).** Kokoro talks like a person; Elite's COVAS (Verity / Victor) is a treated ship computer. Default colour **Cockpit** so astromech sits in the same register, not as a crewmate and not as a protocol droid. Product write-up: V1-DESIGN.md §6.4.
-    - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus existing `speaker_id` and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
+    - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus `speaker` (a Kokoro voice name, default `bf_emma`) and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
     - Cockpit chain on the PCM, in order: high-pass ~250 Hz, low-pass ~4 kHz; presence bump ~1.5–2 kHz; compressor; soft saturation (optional 16 kHz downsample/upsample); 1–2 ms comb; then a short two-tone pip (own earcon). Harsh is the same with a ~3.5 kHz cap and more grit. Natural is unprocessed.
     - Pure Rust, deterministic, unit-tested on a fixture WAV. Cheap compared with Kokoro; keep first-audio inside the existing S9 budget.
     - Recreate the register. Do not clone Frontier samples or the actors. No vocoder / ring-mod / R2 chirps as default (Star Wars trap, and the product name already leans that way). eSpeak-ng stays G2P only; a "Classic computer" eSpeak preset may come later.
@@ -1144,7 +1150,7 @@ The WebSocket plugin API with scoped tokens, the EDMesg bridge (COVAS:NEXT and E
 Resolved on 8 Oct and removed from this list: voice provider and budget (local only for the MVP), HOTAS device (controller-agnostic), echo (push-to-talk makes it moot), licence (MIT, §16.1), Oculus-native support (dropped), elevation (assume not elevated; warn on mismatch), key → Status latency (S5), journal models (S6), the binary licence and espeak-ng question (S8).
 
 **For Sumeet:**
-1. **Project name.** Ship-AI *timbre* is decided (v0.14: Cockpit PA on Kokoro). Product name is still open. Which Kokoro `speaker_id` is the flattest announcer is measured in M3.
+1. **Project name.** Ship-AI *timbre* is decided (v0.14: Cockpit PA on Kokoro). Product name is still open. Which Kokoro voice is the flattest announcer is measured in M3.
 2. **Push-to-talk style:** hold (default) or toggle. Should there be a second binding for "repeat last" or a dedicated confirm button?
 3. **Automation appetite vs EULA:** which opt-in rules he actually wants (auto-next-hop, honk-on-arrival). Each one is a grey-zone call.
 4. **cAPI and Inara:** worth registering with Frontier's Developer Zone, or applying for Inara whitelisting? Neither is needed for the MVP.
@@ -1624,6 +1630,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
     - a global **Ctrl+K command palette** that merges every module's commands and searches (actions, ships, blueprints, materials, systems);
     - notifications, connection and auth state, theme, layout persistence and module enable/disable.
   - Modules import only `lib/api`, `lib/ui` and their own code. Lint rules forbid cross-module imports; shared things go to `lib/`.
+  - **Search kit:** every "near me" lookup runs on `lib/ui/SearchKit.svelte` (model in `lib/search.ts`): the origin is the current system or a typed one with autocomplete, and rows show jumps at the current range, distance, pad size, arrival distance and data age. Each lookup's filters (pad, fleet carriers, Odyssey settlements, data age, arrival distance; it shows only those it can apply) are remembered in `astromech-store` settings under `search.filters.<lookup>`; the pad follows the current ship until the commander picks one (`astromech_galaxy::filters`). A lookup only adapts its answer into the kit's rows (`lib/ui/Nearby.svelte` does this for faction states).
 - **Cargo boundaries:**
   - Services depend on `astromech-proto`, `astromech-store` and `astromech-gamedata`, never on each other's internals. They cooperate through queries or through the event bus.
   - `astromech-api` depends on the services. `astromech-web`, `astromech-vr` and `astromech-tools` depend on `astromech-api`. Only `astromech-core` wires everything.

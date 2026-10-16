@@ -143,13 +143,18 @@ impl Store {
         Ok(rows.collect::<Result<_, _>>()?)
     }
 
-    pub fn system(&self, name: &str) -> Result<Option<(i64, [f64; 3])>> {
+    /// A system by name, any case: its id64, stored name and position.
+    pub fn system(&self, name: &str) -> Result<Option<(i64, String, [f64; 3])>> {
         Ok(self
             .db
-            .query_row("SELECT id64, x, y, z FROM systems WHERE name = ?1 COLLATE NOCASE LIMIT 1", params![name], |r| {
-                let c = |i: usize| -> rusqlite::Result<f64> { Ok(r.get::<_, i64>(i)? as f64 / 32.0) };
-                Ok((r.get(0)?, [c(1)?, c(2)?, c(3)?]))
-            })
+            .query_row(
+                "SELECT id64, name, x, y, z FROM systems WHERE name = ?1 COLLATE NOCASE LIMIT 1",
+                params![name],
+                |r| {
+                    let c = |i: usize| -> rusqlite::Result<f64> { Ok(r.get::<_, i64>(i)? as f64 / 32.0) };
+                    Ok((r.get(0)?, r.get(1)?, [c(2)?, c(3)?, c(4)?]))
+                },
+            )
             .optional()?)
     }
 
@@ -206,7 +211,7 @@ mod tests {
         assert_eq!(s.count().unwrap(), 2);
         assert_eq!(s.meta("preload").unwrap().as_deref(), Some("test preload"));
         assert!(s.coverage().unwrap()[0].contains([100.0, 0.0, 0.0]));
-        let (_, p) = s.system("alpha centauri").unwrap().unwrap();
+        let (_, _, p) = s.system("alpha centauri").unwrap().unwrap();
         assert_eq!(p, [3.03125, -0.09375, 3.15625]);
         assert_eq!(s.stars().unwrap().iter().find(|x| x.id64 == 1).unwrap().pos[0], 3.03125);
         s.cache_put("k", 100, "body").unwrap();

@@ -181,27 +181,25 @@ fn main() {
 }
 
 fn download_models(cfg: &Config) -> Result<()> {
-    use astromech_voice::{catalog, download, models};
+    use astromech_voice::{catalog, models};
     let base = cfg.models_dir();
-    let assets = [models::STT, models::TTS];
-    for a in &assets {
-        let have = download::is_installed(base.parent().unwrap_or(&base), a) || models::model_root(&base, a).is_dir();
-        println!("  {:>6.0} MB  {}  {}", catalog::mb(a.size), a.label, if have { "(already there)" } else { "" });
-    }
-    println!("Into {}. Download now? [y/N]", base.display());
-    let mut s = String::new();
-    std::io::stdin().read_line(&mut s)?;
-    if !s.trim().eq_ignore_ascii_case("y") {
-        bail!("cancelled");
-    }
-    // download::ensure extracts into <base>/<asset.dest> = <exe dir>/models when base is the exe dir.
-    let root = base.parent().map(Path::to_path_buf).unwrap_or_else(|| ".".into());
-    for a in &assets {
-        if models::model_root(&base, a).is_dir() {
-            continue;
+    let assets = models::missing(&base);
+    if assets.is_empty() {
+        println!("The speech models are already in {}.", base.display());
+    } else {
+        for a in &assets {
+            println!("  {:>6.0} MB  {}", catalog::mb(a.size), a.label);
         }
+        println!("Into {}. Download now? [y/N]", base.display());
+        let mut s = String::new();
+        std::io::stdin().read_line(&mut s)?;
+        if !s.trim().eq_ignore_ascii_case("y") {
+            bail!("cancelled");
+        }
+    }
+    for a in &assets {
         let mut last = 0u64;
-        download::ensure(&root, a, &mut |p| {
+        models::download(&base, a, &mut |p| {
             let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
             if pct != last {
                 last = pct;
@@ -210,6 +208,9 @@ fn download_models(cfg: &Config) -> Result<()> {
             }
         })?;
         println!();
+    }
+    for d in astromech_core::app::remove_retired_models(cfg) {
+        println!("Removed the replaced model {}", d.display());
     }
     println!("Done.");
     Ok(())
@@ -385,31 +386,16 @@ fn list_mics() -> Result<()> {
 }
 
 fn calibrate_files(cfg: &Config, files: &[PathBuf]) -> Result<()> {
-    anyhow::ensure!(files.len() >= 2, "--calibrate-files needs a silent WAV then at least one speech WAV");
-    let (rate, noise) = astromech_voice::wav::read_mono_f32(&files[0])?;
-    let mut speech = vec![];
-    let mut owned = vec![];
-    for p in &files[1..] {
-        let (r, s) = astromech_voice::wav::read_mono_f32(p)?;
-        anyhow::ensure!(r == rate, "{} is {r} Hz, silence was {rate} Hz", p.display());
-        owned.push(s);
-    }
-    for s in &owned {
-        speech.push(s.as_slice());
-    }
-    let c = astromech_voice::gain::calibrate(&noise, &speech, rate);
+    use astromech_core::calibration;
+    let (rate, noise, speech) = calibration::read_wavs(files)?;
+    let device = calibration::configured_device(&cfg.voice.mic);
+    let data = cfg.data_dir();
+    let c = calibration::calibrate_and_store(&calibration::open_store(&data)?, &device, rate, &noise, &speech)?;
     println!(
         "calibration: noise {:.0} dBFS, speech peak {:.0} dBFS, min_level_dbfs {:.0}, suggested gain {:+.0} dB",
         c.noise_dbfs, c.speech_peak_dbfs, c.min_level_dbfs, c.gain_db
     );
-    let name = if cfg.voice.mic.trim().is_empty() { "default" } else { cfg.voice.mic.trim() };
-    let data = cfg.data_dir();
-    std::fs::create_dir_all(&data)?;
-    let st = astromech_store::Store::open(&data.join("astromech.sqlite"))?;
-    st.set(&format!("mic.{name}.min_level_dbfs"), &format!("{:.1}", c.min_level_dbfs))?;
-    st.set(&format!("mic.{name}.noise_dbfs"), &format!("{:.1}", c.noise_dbfs))?;
-    st.set(&format!("mic.{name}.speech_peak_dbfs"), &format!("{:.1}", c.speech_peak_dbfs))?;
-    println!("stored under {} for mic {name}", data.join("astromech.sqlite").display());
+    println!("stored under {} for mic {device}", data.join("astromech.sqlite").display());
     println!("paste into astromech.toml: min_level_dbfs = {:.1}", c.min_level_dbfs);
     Ok(())
 }

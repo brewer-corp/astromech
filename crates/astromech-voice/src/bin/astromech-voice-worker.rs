@@ -51,7 +51,7 @@ fn handle(st: &mut State, req: Request) -> Response {
                 None => Response::err("OfflineRecognizer::create failed (see worker log)"),
             }
         }
-        Request::LoadTts { model, voices, tokens, data_dir, provider, threads } => {
+        Request::LoadTts { model, voices, tokens, data_dir, lang, provider, threads } => {
             st.tts = None;
             let c = OfflineTtsConfig {
                 model: OfflineTtsModelConfig {
@@ -60,6 +60,7 @@ fn handle(st: &mut State, req: Request) -> Response {
                         voices: Some(voices),
                         tokens: Some(tokens),
                         data_dir: Some(data_dir),
+                        lang: (!lang.is_empty()).then_some(lang),
                         ..Default::default()
                     },
                     num_threads: threads,
@@ -109,12 +110,13 @@ fn handle(st: &mut State, req: Request) -> Response {
                 ..Default::default()
             }
         }
-        Request::Tts { text, sid, speed, out_wav } => {
+        Request::Tts { text, sid, speed, out_wav, lang } => {
             let Some(tts) = st.tts.as_ref() else { return Response::err("TTS model not loaded") };
             let first: Arc<Mutex<(Option<f64>, u32)>> = Arc::new(Mutex::new((None, 0)));
             let f2 = first.clone();
             let t = Instant::now();
-            let cfg = GenerationConfig { sid, speed, ..Default::default() };
+            let extra = (!lang.is_empty()).then(|| [("lang".to_string(), serde_json::Value::String(lang))].into());
+            let cfg = GenerationConfig { sid, speed, extra, ..Default::default() };
             let cb = move |samples: &[f32], _progress: f32| -> bool {
                 let mut g = f2.lock().unwrap();
                 if g.0.is_none() && !samples.is_empty() {

@@ -1,0 +1,101 @@
+{
+ "count": 10000,
+ "from": 0,
+ "reference": {
+  "id64": 10477373803,
+  "name": "Sol",
+  "x": 0.0,
+  "y": 0.0,
+  "z": 0.0
+ },
+ "results": [
+  {
+   "id64": 108086401534265707,
+   "body_id": 3,
+   "name": "Earth",
+   "type": "Planet",
+   "subtype": "Earth-like world",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 504.856343,
+   "is_landable": false,
+   "gravity": 0.999057713877842,
+   "earth_masses": 1.0,
+   "terraforming_state": "Not terraformable",
+   "atmosphere": "No atmosphere",
+   "signals": [
+    {
+     "count": 5,
+     "name": "Human"
+    },
+    {
+     "count": 3,
+     "name": "Other"
+    }
+   ],
+   "estimated_mapping_value": 1030514,
+   "estimated_scan_value": 283628,
+   "updated_at": "2026-10-16T16:07:47Z"
+  },
+  {
+   "id64": 180143995572193643,
+   "body_id": 5,
+   "name": "Mars",
+   "type": "Planet",
+   "subtype": "Earth-like world",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 819.666097,
+   "is_landable": false,
+   "gravity": 0.377025390027531,
+   "earth_masses": 0.107,
+   "terraforming_state": "Terraformed",
+   "atmosphere": "No atmosphere",
+   "signals": [
+    {
+     "count": 8,
+     "name": "Human"
+    }
+   ],
+   "estimated_mapping_value": 896273,
+   "estimated_scan_value": 246681,
+   "updated_at": "2026-10-16T00:31:24Z"
+  }
+ ],
+ "search": {
+  "filters": {
+   "subtype": {
+    "value": [
+     "Earth-like world"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_system": "Sol",
+  "reference_system_details": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "size": 2,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "search_reference": "9553C422-C991-11F1-B937-F132111BDF40",
+ "size": 2
+}

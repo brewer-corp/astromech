@@ -1,0 +1,15 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-m2bj
+title: 'R3: shell settings() opens app_dir, not the core''s data dir in portable/override modes.'
+target: astromech-qz9u
+identity: review-agent (qz9u round 2)
+commit: 1d1921b9bf9ecc18b220d2e5023ae6d09b2e5ef1
+created_at: 2026-10-16T19:30:05.305369099Z
+event:
+  event: finding
+  recommendation: defer
+---
+
+R3: shell settings() opens app_dir, not the core's data dir in portable/override modes.
