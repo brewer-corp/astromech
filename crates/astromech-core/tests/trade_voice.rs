@@ -98,6 +98,7 @@ fn rig(offline: bool) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        galaxy: None,
     });
     let rec = Arc::new(Recorded { offline, ..Recorded::default() });
     let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
