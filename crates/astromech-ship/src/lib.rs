@@ -8,11 +8,13 @@
 //! the blueprint effects in `astromech-engineering`'s catalog. Values match what Coriolis shows
 //! for the same build, including its quirks (noted where they matter).
 //!
-//! Engineering is applied from the blueprint, grade, roll (`Quality`) and experimental, as
-//! Coriolis does for a `Loadout` without `Modifiers`, so a planned build and a fitted one go
-//! through the same path. A journal's `Modifiers` values are not read. Pre-engineered modules
-//! (SCO V1 drives, Expanded Capacity racks) get only their journal engineering, not their
-//! factory blueprints.
+//! Engineering comes from the journal's `Modifiers` when the module has them, as Coriolis
+//! imports a `Loadout`: they are the module's real values, roll by roll, including modules
+//! engineered before 3.0 (which show `Quality` 0). Without them (a planned module, or a craft
+//! that didn't report them) it comes from the blueprint, grade, roll (`Quality`) and
+//! experimental. Pre-engineered modules (SCO V1 drives, Expanded Capacity racks) get only their
+//! journal engineering, not their factory blueprints; their `Modifiers` carry the real values
+//! whatever `Quality` the journal writes for them.
 
 pub mod data;
 mod module;
@@ -146,7 +148,8 @@ pub struct ShipStats {
     pub speed: Option<f64>,
     /// Boost speed, m/s; `None` when it can't boost (the engine capacitor is too small).
     pub boost: Option<f64>,
-    /// Modules, blueprints or experimentals not in the tables, left out of the stats.
+    /// Modules, blueprints, experimentals or journal modifiers not in the tables, left out of the
+    /// stats.
     pub unresolved: Vec<String>,
 }
 
@@ -448,6 +451,7 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
                     Unapplied::Blueprint(b) => format!("{}: blueprint {b}", m.slot),
                     Unapplied::Grade(b, g) => format!("{}: blueprint {b} grade {g}", m.slot),
                     Unapplied::Experimental(x) => format!("{}: experimental {x}", m.slot),
+                    Unapplied::Modifier(l) => format!("{}: modifier {l}", m.slot),
                 });
             }
         }
@@ -680,6 +684,7 @@ mod tests {
             experimental: Some("special_imaginary".into()),
             experimental_localised: None,
             engineer: None,
+            modifiers: vec![],
         });
         let mut pp = snap("PowerPlant", "int_powerplant_size7_class5");
         pp.engineering = Some(ModEngineering {
@@ -689,6 +694,7 @@ mod tests {
             experimental: None,
             experimental_localised: None,
             engineer: None,
+            modifiers: vec![],
         });
         let modules = [
             pp,
