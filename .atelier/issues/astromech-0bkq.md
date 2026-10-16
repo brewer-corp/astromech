@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Callout delivery: speaker busy without a device, notifications off the pipeline thread"
-updated_at: "2026-10-16T19:59:10.873031495+00:00"
+updated_at: "2026-10-16T20:02:09.332425577+00:00"
 ---
 
 ## Goal
@@ -37,3 +37,7 @@ Tests cover busy() with no device and after a TTS thread failure (callouts resum
 ## Context
 
 Review findings R3, R4 and R5 on the reaction engine (astromech-ngyt, feature/astromech-cmhv). The prospector callouts (astromech-omi1) are the first rule to use this delivery path.
+
+## Notes
+
+- 2026-10-16 [note] Also (review of ngyt round 3, N1): if the STT thread panics, the voice-turn job count stays one too high and every later push-to-talk holds callouts for the full 60 s; add a drop guard in the STT loop that calls job_done when a job ends, including on panic.
