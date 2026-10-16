@@ -845,9 +845,9 @@ Total about **11 weeks**.
 ### 7.14 As built: reaction engine (16 Oct 2026)
 - `astromech-announce`: rules see each journal line and each changed Status.json and may return a callout (text, priority, speech / app toast / Windows notification). No rules ship yet; the prospector and scan callouts are the first.
 - **Silent replay:** the startup catch-up (the current journal from the top, then the first Status.json read) fires nothing and starts no cooldowns. Every line read after it is live, including a journal file the game starts later.
-- **Toggle and cooldown** per rule in `astromech.toml`: `[callouts.<id>] enabled = false`, `cooldown_s = 30`. No Settings page for them yet.
+- **Toggle and cooldown** per rule in `astromech.toml`: `[callouts.<id>] enabled = false`, `cooldown_s = 30`. Unknown ids and unusable cooldowns (negative, too large) are logged and the default kept. No Settings page for them yet.
 - **Quiet:** during docking (after `DockingGranted` until docked, cancelled, denied, timed out or gone) and combat (Status.json in danger or being interdicted, or `UnderAttack` in the last 30 s) only `Urgent` callouts speak; toasts and notifications still go.
-- **Speech queue:** one callout at a time, after the current line finishes; highest priority first; lines older than 10 s are dropped. A voice reply still cuts in.
+- **Speech queue:** one callout at a time, after the current line finishes; highest priority first; lines older than 10 s are dropped. Callouts also wait while push-to-talk is held and until the reply (or the voice tester's result) is out, up to 60 s. A voice reply still cuts in.
 - Toasts reach the window through the core's `status` reply (`toasts`) and show for 8 s. Windows notifications go through PowerShell's WinRT toast (⚠ not yet run on Windows). The VR overlay has no toasts yet.
 
 ## 9. Decided (11 Oct 2026)

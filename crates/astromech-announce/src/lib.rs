@@ -164,6 +164,7 @@ struct Slot {
 
 pub struct Engine {
     slots: Vec<Slot>,
+    problems: Vec<String>,
     live: bool,
     docking: bool,
     danger_flags: bool,
@@ -173,33 +174,49 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(rules: Vec<Box<dyn Rule>>, settings: &Settings) -> Self {
-        let slots = rules
+        let mut problems = vec![];
+        let slots: Vec<Slot> = rules
             .into_iter()
             .map(|rule| {
                 let s = settings.0.get(rule.id()).cloned().unwrap_or_default();
-                let cooldown = s
-                    .cooldown_s
-                    .filter(|c| c.is_finite() && *c >= 0.0)
-                    .map(Duration::from_secs_f64)
-                    .unwrap_or_else(|| rule.cooldown());
+                let cooldown = match s.cooldown_s.map(|c| (c, Duration::try_from_secs_f64(c))) {
+                    None => rule.cooldown(),
+                    Some((_, Ok(d))) => d,
+                    Some((c, Err(_))) => {
+                        let d = rule.cooldown();
+                        problems.push(format!(
+                            "[callouts.{}] cooldown_s = {c} is not a usable number of seconds; using {} s",
+                            rule.id(),
+                            d.as_secs_f64()
+                        ));
+                        d
+                    }
+                };
                 Slot { enabled: s.enabled.unwrap_or(true), cooldown, fired: None, rule }
             })
             .collect();
-        Self { slots, live: false, docking: false, danger_flags: false, attacked_until: None, last_status: None }
+        for id in settings.0.keys().filter(|id| !slots.iter().any(|s| s.rule.id() == id.as_str())) {
+            problems.push(format!("[callouts.{id}] names no callout; ignored"));
+        }
+        Self {
+            slots,
+            problems,
+            live: false,
+            docking: false,
+            danger_flags: false,
+            attacked_until: None,
+            last_status: None,
+        }
     }
 
-    /// Setting ids that name no rule (typos in `astromech.toml`).
-    pub fn unknown_settings<'a>(&self, settings: &'a Settings) -> Vec<&'a str> {
-        settings.0.keys().map(String::as_str).filter(|id| !self.slots.iter().any(|s| s.rule.id() == *id)).collect()
+    /// What was wrong with the settings (unknown rule ids, unusable cooldowns), for the log.
+    pub fn setting_problems(&self) -> &[String] {
+        &self.problems
     }
 
     /// The catch-up is over: events from now on are live and may fire.
     pub fn go_live(&mut self) {
         self.live = true;
-    }
-
-    pub fn is_live(&self) -> bool {
-        self.live
     }
 
     pub fn quiet(&self, now: Instant) -> Option<Quiet> {

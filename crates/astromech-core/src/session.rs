@@ -146,8 +146,8 @@ impl Session {
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(), &cfg.callouts);
-        for id in engine.unknown_settings(&cfg.callouts) {
-            log(&format!("[callouts.{id}] in the config names no callout; ignored"));
+        for p in engine.setting_problems() {
+            log(&format!("config: {p}"));
         }
         let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
         let deliver = Box::new(callouts::router(pending.clone(), toasts.clone(), callouts::default_notifier()));
@@ -232,7 +232,8 @@ impl Session {
             None
         };
 
-        let speech_out = SpeechOut::start(pending, speaker.clone()).context("starting the callout speaker")?;
+        let speech_out = SpeechOut::start(pending, speaker.clone(), &callouts::VOICE_TURN)
+            .context("starting the callout speaker")?;
 
         // 4. Policy + executor.
         let platform: Arc<dyn Platform> =
@@ -410,6 +411,8 @@ fn start_voice(
                     },
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
                 }
+                // After the reply (or the voice tester's result): callouts may speak again.
+                callouts::VOICE_TURN.job_done();
             }
         })?;
     }
@@ -478,8 +481,9 @@ fn start_voice(
                 Control::PttDown if VOICE_PAUSED.load(Ordering::SeqCst) => {
                     log("PTT down — voice is paused (tray menu), ignored");
                 }
-                Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => {}
+                Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => callouts::VOICE_TURN.ptt_up(),
                 Control::PttDown => {
+                    callouts::VOICE_TURN.ptt_down(std::time::Instant::now());
                     runner.speaker.interrupt();
                     report_mic(&mut mic);
                     down_at = std::time::Instant::now();
@@ -536,7 +540,10 @@ fn start_voice(
                                         });
                                     }
                                 }
-                                let _ = jtx.send(ClipJob { samples: n.samples, rate: m.sample_rate(), sidecar, meta });
+                                callouts::VOICE_TURN.job_queued(std::time::Instant::now());
+                                if jtx.send(ClipJob { samples: n.samples, rate: m.sample_rate(), sidecar, meta }).is_err() {
+                                    callouts::VOICE_TURN.job_done();
+                                }
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
                             Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),
@@ -546,6 +553,8 @@ fn start_voice(
                     } else {
                         log("PTT up without a PTT down (ignored)");
                     }
+                    // After any clip was queued as a job, so the hold doesn't lapse in between.
+                    callouts::VOICE_TURN.ptt_up();
                 }
                 Control::KillDown => {
                     if !runner.policy.is_killed() {

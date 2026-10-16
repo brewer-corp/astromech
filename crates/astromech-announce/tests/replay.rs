@@ -183,9 +183,26 @@ fn a_disabled_rule_never_fires() {
     assert!(r.out.iter().all(|o| o.0 != "scan"), "{:?}", r.out);
     // The other rule on the same events still fires.
     assert_eq!(r.out.iter().filter(|o| o.0 == "urgent").count(), 10);
-    assert!(r.engine.unknown_settings(&settings).is_empty());
-    let typo: Settings = toml::from_str("[sacn]\nenabled = false\n").unwrap();
-    assert_eq!(r.engine.unknown_settings(&typo), ["sacn"]);
+    assert!(r.engine.setting_problems().is_empty());
+}
+
+#[test]
+fn bad_settings_are_reported_not_fatal() {
+    let toml = "[sacn]\nenabled = false\n[scan]\ncooldown_s = 1e20\n";
+    let settings: Settings = toml::from_str(toml).unwrap();
+    let mut r = Replay::new(vec![scan()], &settings);
+    let problems = r.engine.setting_problems().to_vec();
+    assert_eq!(problems.len(), 2, "{problems:?}");
+    assert!(problems[0].contains("[callouts.scan] cooldown_s = 100000000000000000000") && problems[0].contains("30 s"));
+    assert!(problems[1].contains("[callouts.sacn] names no callout"));
+    // The rule keeps its own 30 s cooldown.
+    r.engine.go_live();
+    r.journal(&[scanned("20:00:00"), scanned("20:00:10"), scanned("20:00:31")].join("\n"));
+    assert_eq!(r.spoken().len(), 2);
+    // A negative cooldown is reported too.
+    let neg = Settings([("scan".to_string(), RuleSettings { cooldown_s: Some(-5.0), ..Default::default() })].into());
+    let e = Engine::new(vec![scan()], &neg);
+    assert!(e.setting_problems()[0].contains("cooldown_s = -5"), "{:?}", e.setting_problems());
 }
 
 #[test]

@@ -141,8 +141,69 @@ pub fn router(
     }
 }
 
+/// The commander talking to astromech: from push-to-talk down until each clip's reply has been
+/// handed to the speaker (which is then [`Speaker::busy`]). Callouts wait for it, so none is
+/// recorded into a clip or spoken over the reply. The PTT thread calls [`ptt_down`](Self::ptt_down)
+/// and [`ptt_up`](Self::ptt_up); a clip sent to speech-to-text is a job, finished by the STT
+/// thread after the reply (or the voice tester's result). A lost release or a stuck job stops
+/// holding after [`MAX_TURN`].
+pub struct VoiceTurn {
+    inner: Mutex<Turn>,
+}
+
+struct Turn {
+    held_since: Option<Instant>,
+    jobs: usize,
+    job_since: Option<Instant>,
+}
+
+/// The longest one voice turn holds callouts back.
+pub const MAX_TURN: Duration = Duration::from_secs(60);
+
+/// The session's voice turn (the PTT and STT threads are Windows-only).
+pub static VOICE_TURN: VoiceTurn = VoiceTurn::new();
+
+impl Default for VoiceTurn {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl VoiceTurn {
+    pub const fn new() -> Self {
+        Self { inner: Mutex::new(Turn { held_since: None, jobs: 0, job_since: None }) }
+    }
+
+    pub fn ptt_down(&self, now: Instant) {
+        self.inner.lock().unwrap().held_since = Some(now);
+    }
+
+    /// Call after the clip (if any) was queued with [`job_queued`](Self::job_queued).
+    pub fn ptt_up(&self) {
+        self.inner.lock().unwrap().held_since = None;
+    }
+
+    pub fn job_queued(&self, now: Instant) {
+        let mut t = self.inner.lock().unwrap();
+        t.jobs += 1;
+        t.job_since = Some(now);
+    }
+
+    pub fn job_done(&self) {
+        let mut t = self.inner.lock().unwrap();
+        t.jobs = t.jobs.saturating_sub(1);
+    }
+
+    pub fn active(&self, now: Instant) -> bool {
+        let t = self.inner.lock().unwrap();
+        let recent = |since: Option<Instant>| since.is_some_and(|s| now.saturating_duration_since(s) < MAX_TURN);
+        recent(t.held_since) || (t.jobs > 0 && recent(t.job_since))
+    }
+}
+
 /// The thread that speaks queued callouts, one at a time: it waits while the speaker is still
-/// talking so a callout doesn't cut off the one before it. Stops when dropped.
+/// talking so a callout doesn't cut off the one before it, and during a [`VoiceTurn`]. Stops
+/// when dropped.
 pub struct SpeechOut {
     stop: Arc<AtomicBool>,
     pending: Arc<Pending>,
@@ -150,7 +211,7 @@ pub struct SpeechOut {
 }
 
 impl SpeechOut {
-    pub fn start(pending: Arc<Pending>, speaker: Arc<dyn Speaker>) -> std::io::Result<Self> {
+    pub fn start(pending: Arc<Pending>, speaker: Arc<dyn Speaker>, turn: &'static VoiceTurn) -> std::io::Result<Self> {
         let stop = Arc::new(AtomicBool::new(false));
         let (stop2, p) = (stop.clone(), pending.clone());
         let thread = std::thread::Builder::new().name("callouts".into()).spawn(move || loop {
@@ -160,7 +221,7 @@ impl SpeechOut {
                     if stop2.load(Ordering::SeqCst) {
                         return;
                     }
-                    if !q.is_empty() && !speaker.busy() {
+                    if !q.is_empty() && !speaker.busy() && !turn.active(Instant::now()) {
                         if let Some(r) = q.pop(Instant::now()) {
                             break r;
                         }
@@ -217,13 +278,101 @@ mod tests {
         assert_eq!(toasts.recent().iter().map(|t| (t.id, t.text.as_str())).collect::<Vec<_>>(), [(1, "Toast only.")]);
         assert_eq!(*notes.0.lock().unwrap(), ["High line."]);
         let speaker = Arc::new(RecordingSpeaker::default());
-        let out = SpeechOut::start(pending, speaker.clone()).unwrap();
+        let out = SpeechOut::start(pending, speaker.clone(), Box::leak(Box::default())).unwrap();
         let end = Instant::now() + Duration::from_secs(5);
         while speaker.said.lock().unwrap().len() < 2 && Instant::now() < end {
             std::thread::sleep(Duration::from_millis(10));
         }
         drop(out);
         assert_eq!(speaker.take(), ["High line.", "Low line."]);
+    }
+
+    /// Records lines; reports busy while `busy` is set.
+    #[derive(Default)]
+    struct BusySpeaker {
+        busy: AtomicBool,
+        said: Mutex<Vec<String>>,
+    }
+    impl Speaker for BusySpeaker {
+        fn say(&self, text: &str) {
+            self.said.lock().unwrap().push(text.into());
+        }
+        fn busy(&self) -> bool {
+            self.busy.load(Ordering::SeqCst)
+        }
+    }
+
+    fn said_within(s: &BusySpeaker, n: usize, wait: Duration) -> Vec<String> {
+        let end = Instant::now() + wait;
+        while s.said.lock().unwrap().len() < n && Instant::now() < end {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        s.said.lock().unwrap().clone()
+    }
+
+    fn queue_one(pending: &Arc<Pending>) {
+        let route = router(pending.clone(), Arc::new(Toasts::default()), Arc::new(LogNotifier));
+        route(vec![reaction("a", "Callout.", Priority::Normal, Channels::SPEECH)]);
+    }
+
+    #[test]
+    fn waits_while_the_speaker_is_busy() {
+        let pending = Arc::new(Pending::default());
+        let speaker = Arc::new(BusySpeaker::default());
+        speaker.busy.store(true, Ordering::SeqCst);
+        let out = SpeechOut::start(pending.clone(), speaker.clone(), Box::leak(Box::default())).unwrap();
+        queue_one(&pending);
+        assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
+        speaker.busy.store(false, Ordering::SeqCst);
+        assert_eq!(said_within(&speaker, 1, Duration::from_secs(5)), ["Callout."]);
+        drop(out);
+    }
+
+    #[test]
+    fn waits_while_push_to_talk_is_held_and_until_the_reply_is_queued() {
+        let turn: &'static VoiceTurn = Box::leak(Box::default());
+        let pending = Arc::new(Pending::default());
+        let speaker = Arc::new(BusySpeaker::default());
+        let out = SpeechOut::start(pending.clone(), speaker.clone(), turn).unwrap();
+        // PTT down: the barge-in empties the speaker, so it is not busy, but the turn holds.
+        turn.ptt_down(Instant::now());
+        queue_one(&pending);
+        assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
+        // Released; the clip is with speech-to-text.
+        turn.job_queued(Instant::now());
+        turn.ptt_up();
+        assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
+        // The reply is handed to the speaker (busy), then the job ends: still waiting.
+        speaker.busy.store(true, Ordering::SeqCst);
+        turn.job_done();
+        assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
+        speaker.busy.store(false, Ordering::SeqCst);
+        assert_eq!(said_within(&speaker, 1, Duration::from_secs(5)), ["Callout."]);
+        drop(out);
+    }
+
+    #[test]
+    fn a_voice_turn_ends_with_its_jobs_or_after_the_limit() {
+        let t = VoiceTurn::new();
+        let t0 = Instant::now();
+        assert!(!t.active(t0));
+        // A clip gated out (too short, too quiet): down then up, no job.
+        t.ptt_down(t0);
+        assert!(t.active(t0));
+        t.ptt_up();
+        assert!(!t.active(t0));
+        // Two clips in flight: held until both are done.
+        t.job_queued(t0);
+        t.job_queued(t0);
+        t.job_done();
+        assert!(t.active(t0));
+        t.job_done();
+        assert!(!t.active(t0));
+        t.job_done(); // an extra done doesn't go below zero
+                      // A lost release or a stuck job stops holding after MAX_TURN.
+        t.ptt_down(t0);
+        t.job_queued(t0);
+        assert!(!t.active(t0 + MAX_TURN));
     }
 
     #[test]
