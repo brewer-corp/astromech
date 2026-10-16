@@ -150,6 +150,7 @@ dependencies = [
  "astromech-keybinds",
  "astromech-market",
  "astromech-materials",
+ "astromech-ship",
  "astromech-store",
  "serde",
  "serde_json",
@@ -157,6 +158,17 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-single-instance",
  "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
+name = "astromech-ship"
+version = "0.1.5"
+dependencies = [
+ "astromech-engineering",
+ "astromech-journal",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]

@@ -6,6 +6,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { inTauri } from "./core";
+import { fakeScenario } from "./fakecore";
 import fixture from "./fixtures/sample.json";
 
 export interface Modifier { device: string; key: string }
@@ -52,12 +53,27 @@ function memSetSlot(e: { path: string; action: string; slot: string; binding: Sl
   return { path: e.path, backup: b.path };
 }
 
+/** `?core=empty`: a PC where Elite never ran and no sticks are plugged in. */
+function emptyState(): State {
+  return {
+    ...structuredClone(mem.state),
+    bindings_found: false,
+    presets: [],
+    active: [],
+    backups: [],
+    inventory: { controllers: [] },
+    overrides: {},
+    notes: ["Game install not found: built-in presets aren't listed."],
+  };
+}
+
 async function call<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   if (inTauri) return await invoke<T>(cmd, args);
   switch (cmd) {
     case "binds_state":
     case "binds_refresh_devices":
-      return structuredClone(mem.state) as T;
+    case "binds_reset":
+      return (fakeScenario() === "empty" ? emptyState() : structuredClone(mem.state)) as T;
     case "binds_view": {
       const p = String(args.path);
       const v = memViews[p] ?? (memViews[p] = { ...structuredClone(mem.view), path: p, name: mem.state.presets.find((x) => x.path === p)?.name ?? "" });
@@ -94,6 +110,8 @@ async function call<T>(cmd: string, args: Record<string, unknown> = {}): Promise
 export const api = {
   state: () => call<State>("binds_state"),
   refreshDevices: () => call<State>("binds_refresh_devices"),
+  /** Discover folders and devices again (after onboarding changed the Bindings folder). */
+  reset: () => call<State>("binds_reset"),
   view: (path: string) => call<View>("binds_view", { path }),
   setSlot: (edit: { path: string; action: string; slot: string; analogue: boolean; binding: Slot | null }) =>
     call<{ path: string; backup: string }>("binds_set_slot", { edit }),

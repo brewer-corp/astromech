@@ -187,7 +187,7 @@ setup work at a desk: big readable text, one thing at a time.
 | **My controller** (default tab) | See one device as its manufacturer drew it, with what each control does; filter to one activity to see what matters for it and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; actions for other devices |
 | **Presets** | Which preset is active, switch, back up, restore | Bindings themselves |
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
-| **Engineering** | Pick any owned ship (modules from the newest `Loadout` for that ship in journal history), set blueprint / grade / experimental per module, and see need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), stat previews, Odyssey suit/weapon engineering |
+| **Engineering: Ships** | A card per owned ship (modules from the newest `Loadout` for that ship in journal history); a ship's detail (`#/engineering/<id>`) sets blueprint / grade / experimental per module and shows the ship's stats now and with the plan done (jump range, shields, distributor, weapons, hull; Coriolis's calculations) with the difference, and need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), swapping modules, several builds per ship, Odyssey suit/weapon engineering |
 | **Engineering: trip** | Which engineers to visit for the plan and in what order (fewest jumps), what to do at each stop, a note where grades could be rolled remotely (unlocked rank-5 engineer offers the blueprint, if pinned there), and which jobs need an engineer unlock. Every `EngineerCraft`, remote or in person, updates the ship at once, so the plan and trip shrink as you go | Tracking pinned blueprints (the game doesn't log them), unlock walkthroughs, neutron routing, per-base supercruise times |
 | **Trade: Commodities** | Where to sell or buy one commodity near you or a typed system, best price first, with demand or stock, pad, arrival distance and data age (Ardent Insight). **My cargo** (from `Cargo.json`): the stations paying the most for the whole load, each commodity capped by the station's demand, and the best station for each commodity on its own (demand for all of it); mission cargo, stolen goods and limpets are left out and listed. Sell, buy and My cargo each remember their filters (radius, minimum demand or stock, pad, age, arrival, carriers, Odyssey), and the voice questions use the same ones | Trade routes, galaxy-wide best prices, price history, black-market sales |
 | **Nearby lookups** (Materials and Engineering side panel) | Nearest systems for a farming source (Famine for wake scanning, the HGE faction pools) with jumps at the current ship's range and how old the report is | Plotting the route in game |
@@ -839,11 +839,37 @@ Total about **11 weeks**.
 ### 7.13 As built in M3 voice v1 (11 Oct 2026)
 - **Chosen mic:** `[voice] mic` is a name substring; empty uses the Windows default. The device is logged on every PTT clip. `--list-mics` prints devices.
 - **Level correction:** after the gate, `astromech_voice::gain` boosts speech frames toward −6 dBFS (max +30 dB) and leaves frames under the noise floor + 6 dB alone.
-- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI stays M4.
+- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI: §7.14.
 - **Personal aliases:** a did-you-mean "yes" stores transcript → command (cap 200). Policy still gates the command.
 - **Extra T1:** flight assist (flag bit 5 = FA *off*), HUD analysis/combat, panels and maps (`GuiFocus`), throttle to zero (unverified; refused near a body in supercruise), SRV handbrake / drive assist. Silent running on asks "Silent running produces heat. Confirm?" then presses.
 - **Status questions (T0):** fuel, cargo, jump range, location, jumps left, hull, shields, credits/rebuy, ship, legal state — from Status.json, journal `Loadout`/`LoadGame`, Cargo.json, NavRoute.json.
 - **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`.
+
+### 7.14 As built in M4 onboarding and calibration (16 Oct 2026)
+- **Calibration is one path.** `astromech_core::calibration` measures and stores the gate for the CLI
+  (`--calibrate-files`) and the window (Settings → Microphone → Calibration, onboarding step 5). The
+  key is the device name the session's recorder opens for `[voice] mic` (before, the CLI keyed it by
+  the setting as typed, so a substring like "BlackShark" never matched the session's lookup).
+- **Onboarding** is a full-window flow shown until finished or skipped (`onboarding.done` in SQLite):
+  find Elite (Bindings and journal folders, install optional; a folder can be pasted), controllers
+  (the window's device scan and a live last press), press-to-bind push-to-talk and kill switch, mic
+  by name with a level check, calibration, and a health check whose rows each have a fix (go to the
+  step, download models, or the press-to-bind dialog for a voice action with no keyboard key).
+  `#/setup` re-runs it and `#/setup/<step>` opens one step; Settings links there.
+- **Setup edits go through the core.** The control API takes `args`; `set_ptt`, `set_kill_switch`,
+  `set_mic` and `set_folders` edit `astromech.toml` with `toml_edit` (comments kept, never written
+  if the result doesn't parse) and swap the core's config. A running voice session picks them up
+  the next time Elite starts. Recording (`mic_check`, `calibrate_*`) happens in the core, on Windows.
+- **Voice responses** (Settings): speaker (English Kokoro v1.0 voices, British first), colour and
+  speed, written with `set_voice` through the same locked config edit. The running session's
+  speaker switches at once (`Speaker::set_voice`), so the next reply uses the new voice; the TTS
+  cache key already includes model, voice, speed and colour. Preview says "Landing gear deployed."
+  through the session's speaker, or a Kokoro the core starts for the preview while Elite isn't
+  running (released when a session starts or after a minute unused; refused while a session
+  loads, and when speech output is off). After a voice change the fixed phrases re-render in the
+  background, but replies always render first and warm-ups for voices no longer chosen are skipped.
+- **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
+  (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
 
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:

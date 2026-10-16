@@ -1,11 +1,12 @@
 /**
  * Ship engineering planner: fleet loadouts from the journal, plans per ship (kept in
- * localStorage), and the materials a plan needs, computed by the shell.
+ * localStorage), and the materials and ship stats a plan gives, computed by the shell.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import type { SourceNote } from "./materials";
 import sample from "./fixtures/engineering.json";
+import shipsSample from "./fixtures/ships.json";
 
 export interface Applied {
   blueprint: string;
@@ -34,7 +35,13 @@ export interface Ship {
   ident: string | null;
   system: string | null;
   current: boolean;
+  /** Being moved to a shipyard; `system` is where it is going, if known. */
+  in_transit: boolean;
   loadout_ts: string | null;
+  /** Unladen maximum from the last Loadout, in ly. */
+  max_jump_range: number | null;
+  value: number | null;
+  rebuy: number | null;
   modules: Fitted[];
   /** Open this loadout in Coriolis / EDSY. Absent when the saved Loadout is stale. */
   links?: { coriolis: string; edsy: string };
@@ -52,9 +59,20 @@ export interface GroupOptions {
   experimentals: Choice[];
 }
 
+export interface StoredModule {
+  item: string;
+  name: string;
+  /** Null while in transit. */
+  system: string | null;
+  value: number | null;
+  blueprint_name: string | null;
+  grade: number | null;
+}
+
 export interface Fleet {
   source: string;
   ships: Ship[];
+  stored_modules: StoredModule[];
   groups: Record<string, GroupOptions>;
 }
 
@@ -177,16 +195,85 @@ export interface Trip {
   exact: boolean;
 }
 
+export interface Capacitor {
+  /** MJ */
+  capacity: number;
+  /** MW at four pips */
+  recharge: number;
+}
+
+/** One build's stats (astromech-ship). Fractions for resistances; null where the ship has none. */
+export interface ShipStats {
+  hull_mass: number;
+  unladen_mass: number;
+  laden_mass: number;
+  fuel_capacity: number;
+  cargo_capacity: number;
+  passenger_capacity: number;
+  jump: { max: number; unladen: number; laden: number; total_unladen: number; total_laden: number } | null;
+  power: { generation: number; retracted: number; deployed: number };
+  shield: { strength: number; explosive: number; kinetic: number; thermal: number } | null;
+  armour: {
+    integrity: number;
+    explosive: number;
+    kinetic: number;
+    thermal: number;
+    caustic: number;
+    module_armour: number;
+    module_protection: number;
+  };
+  /** `sustained_dps` waits on decision astromech-bnnh and is not shown. */
+  weapons: { dps: number; sustained_dps: number; eps: number; sustained_eps: number };
+  distributor: { weapons: Capacitor; systems: Capacitor; engines: Capacitor } | null;
+  speed: number | null;
+  boost: number | null;
+  /** Modules, blueprints, grades or experimentals the calculations don't know: stats leave them out. */
+  unresolved: string[];
+  /** Seconds of fire at four pips to weapons until the capacitor is empty; null if it keeps up. */
+  time_to_drain: number | null;
+}
+
+export interface StatsComparison {
+  current: ShipStats;
+  planned: ShipStats;
+}
+
+/** The ship calculations don't know this hull: no stats, the ship shows as incomplete. */
+export interface UnknownHull {
+  unknown_hull: string;
+}
+
+export type Compared = StatsComparison | UnknownHull;
+
+/** What a ship card shows, from the current modules. */
+export interface Headline {
+  /** Maximum jump range, ly */
+  jump: number | null;
+  /** Shield strength, MJ */
+  shield: number | null;
+  dps: number | null;
+  /** What the calculations left out; "Hull: <ship>" when they don't know the hull. */
+  unresolved: string[];
+}
+
 export const DEFAULT_ROLLS = [1, 2, 3, 4, 5];
 
 const samplePlan = sample.plan as unknown as PlanResult;
 
+/** The sample journal's fleet, with the synthetic combat Krait whose stats the sample has (stored). */
+function sampleFleet(): Fleet {
+  const f = sample.fleet as unknown as Fleet;
+  const s = shipsSample.fleet as unknown as Fleet;
+  const extra = s.ships.map((x) => ({ ...x, current: false }));
+  return { ...f, ships: [...f.ships, ...extra], groups: { ...f.groups, ...s.groups } };
+}
+
 export async function loadFleet(): Promise<Fleet> {
-  if (!inTauri) return sample.fleet as unknown as Fleet;
+  if (!inTauri) return sampleFleet();
   try {
     return await invoke<Fleet>("engineering_fleet");
   } catch {
-    return { ...(sample.fleet as unknown as Fleet), source: "Sample journal (no live journal folder)" };
+    return { ...sampleFleet(), source: "Sample journal (no live journal folder)" };
   }
 }
 
@@ -194,6 +281,30 @@ export async function loadFleet(): Promise<Fleet> {
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
   if (!inTauri) return plan.ship_id === samplePlan.ship_id ? samplePlan : null;
   return await invoke<PlanResult>("engineering_plan", { plan });
+}
+
+const targetKey = (t: Target) => [t.slot, t.blueprint, t.grade, t.experimental ?? ""].join("|");
+
+/** Same ship and the same targets, in any order. */
+export function samePlan(a: Plan, b: Plan): boolean {
+  const ka = a.targets.map(targetKey).sort();
+  const kb = b.targets.map(targetKey).sort();
+  return a.ship_id === b.ship_id && ka.length === kb.length && ka.every((k, i) => k === kb[i]);
+}
+
+/** Current and planned stats. Outside the app only the sample's precomputed plans have them. */
+export async function shipStats(plan: Plan): Promise<Compared | null> {
+  if (!inTauri) {
+    const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
+    return c ? (c.stats as unknown as StatsComparison) : null;
+  }
+  return await invoke<Compared>("engineering_stats", { plan });
+}
+
+/** Card stats by ship id, for every ship with a known loadout. */
+export async function loadHeadlines(): Promise<Record<string, Headline>> {
+  if (!inTauri) return shipsSample.headlines as unknown as Record<string, Headline>;
+  return await invoke<Record<string, Headline>>("engineering_headlines");
 }
 
 const key = (shipId: number) => `astromech.engineering.plan.${shipId}`;
