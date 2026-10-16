@@ -10,10 +10,10 @@ priority: "P1"
 relationships:
   blocks:
   - kind: "issue"
+    id: "astromech-2myu"
+  - kind: "issue"
     id: "astromech-tqdh"
   children:
-  - kind: "issue"
-    id: "astromech-2myu"
   - kind: "issue"
     id: "astromech-3tlm"
   - kind: "issue"
@@ -37,7 +37,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal history and logbook"
-updated_at: "2026-10-16T19:44:54.110776026+00:00"
+updated_at: "2026-10-16T19:50:46.310847563+00:00"
 ---
 
 ## Goal
@@ -55,3 +55,7 @@ How long the import takes on years of logs.
 ## Design
 
 [ARCHITECTURE §18.5](docs/ARCHITECTURE.md).
+
+## Notes
+
+- 2026-10-16 [note] astromech-2myu (visit history in the arrival briefing) moved out of this parent: it also waits on the arrival briefing (astromech-nugx, another feature), which would hold this branch. It is now standalone, blocked by this parent and nugx.
