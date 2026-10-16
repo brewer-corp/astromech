@@ -11,12 +11,14 @@ pub mod map;
 pub mod remote;
 pub mod sites;
 pub mod store;
+pub mod visits;
 
 pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
 pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
+pub use visits::{visits_from_journal_dir, visits_from_lines, Visit};
 
 use anyhow::Result;
 use astromech_journal::JournalEvent;
@@ -46,6 +48,9 @@ pub struct NearbyHit {
     pub updated_at: Option<String>,
     /// Only the factions that match the query.
     pub factions: Vec<Faction>,
+    /// The factions and `updated_at` are from the commander's own visit (journal), newer than
+    /// Spansh's.
+    pub seen_on_visit: bool,
     /// [`hge_score`] × 100 (100 = a billion people in this system), for lookups ranked by population.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub score: Option<u32>,
@@ -204,6 +209,34 @@ impl Galaxy {
         Ok(self.map()?.hop(a, b, range))
     }
 
+    /// Remember the faction states seen on arrival (newest per system wins).
+    pub fn record_visits(&self, visits: &[Visit]) -> Result<()> {
+        let s = self.store();
+        for v in visits {
+            s.put_visit(v)?;
+        }
+        Ok(())
+    }
+
+    /// Replace a hit's factions and age with the commander's own visit when that is newer.
+    fn refresh_from_visits(&self, hits: &mut [Hit]) -> std::collections::HashSet<i64> {
+        let mut seen = std::collections::HashSet::new();
+        let s = self.store();
+        for h in hits {
+            let Ok(Some(v)) = s.visit(h.id64) else { continue };
+            let newer = match h.updated_at.as_deref().and_then(filters::parse_time) {
+                Some(t) => filters::parse_time(&v.seen).is_some_and(|seen| seen > t),
+                None => true,
+            };
+            if newer {
+                h.minor_faction_presences = v.factions;
+                h.updated_at = Some(v.seen);
+                seen.insert(h.id64);
+            }
+        }
+        seen
+    }
+
     /// Systems near `here` matching `query_id` and `filters`, nearest first, with jump counts
     /// at `range`.
     pub fn nearby(&self, query_id: &str, here: &Here, range: f64, limit: usize, filters: &Filters) -> Result<Nearby> {
@@ -228,11 +261,13 @@ impl Galaxy {
                 (now, b)
             }
         };
-        let hits = remote::parse_search(&body)?
+        let mut hits = remote::parse_search(&body)?;
+        let visited = self.refresh_from_visits(&mut hits);
+        let hits = hits
             .into_iter()
             .filter(|h| filters.keeps(&Facts { updated_at: h.updated_at.as_deref(), ..Facts::default() }, now))
             .collect();
-        Ok(self.rank(q, here, range, limit, hits, iso(fetched)))
+        Ok(self.rank(q, here, range, limit, hits, iso(fetched), &visited))
     }
 
     /// The nearest raw-material sites of `kind_id` ([`SITE_KINDS`]) to `here`, matching
@@ -283,7 +318,17 @@ impl Galaxy {
         Ok(Sites { kind: kind.clone(), here: here.clone(), range, source, fetched: iso(fetched), hits, warning })
     }
 
-    fn rank(&self, q: &Query, here: &Here, range: f64, limit: usize, hits: Vec<Hit>, fetched: String) -> Nearby {
+    #[allow(clippy::too_many_arguments)]
+    fn rank(
+        &self,
+        q: &Query,
+        here: &Here,
+        range: f64,
+        limit: usize,
+        hits: Vec<Hit>,
+        fetched: String,
+        visited: &std::collections::HashSet<i64>,
+    ) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
         let warning = (n > 0 && matched.is_empty() && q.min_population == 0).then(|| {
@@ -312,6 +357,7 @@ impl Galaxy {
                     population: h.population,
                     updated_at: h.updated_at.clone(),
                     factions: h.minor_faction_presences.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
+                    seen_on_visit: visited.contains(&h.id64),
                     score: q.by_population.then(|| (score(&h) * 100.0).round() as u32),
                 }
             })
@@ -519,6 +565,48 @@ mod tests {
         assert!(hge_score(5_000_000_000, 10.0) > hge_score(2_000_000_000, 10.0));
         assert!(hge_score(2_000_000_000, 10.0) > hge_score(2_000_000_000, 20.0));
         assert_eq!(hge_score(0, 0.0), 0.0);
+    }
+
+    #[test]
+    fn arrival_faction_states_replace_older_spansh_ones() {
+        let mut s = Store::in_memory().unwrap();
+        s.insert_systems([(1, "S", [0.0, 0.0, 0.0])]).unwrap();
+        s.add_coverage(Sphere { center: [0.0; 3], radius: 500.0 }, "test", "t").unwrap();
+        s.cache_put("spansh:famine:0:0:0", now_s(), include_str!("../tests/fixtures/spansh-famine.json")).unwrap();
+        let g = Galaxy::with_store(s);
+        let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
+        let before = g.nearby("famine", &here, 20.0, 5, &Filters::default()).unwrap();
+        let ross = before.hits.iter().find(|h| h.name == "Ross 154").unwrap();
+        assert_eq!((ross.updated_at.as_deref(), ross.seen_on_visit), (Some("2026-10-14T16:32:04Z"), false));
+        assert!(before.hits.iter().any(|h| h.name == "Tau Ceti"));
+
+        // replay the commander's arrivals on 16 Oct (Spansh's copy is from 14 Oct)
+        let lines: Vec<_> = include_str!("../tests/fixtures/journal-arrivals.log")
+            .lines()
+            .map(|l| astromech_journal::parse_line(l).unwrap())
+            .collect();
+        g.record_visits(&visits_from_lines(&lines)).unwrap();
+        let after = g.nearby("famine", &here, 20.0, 5, &Filters::default()).unwrap();
+        let ross = after.hits.iter().find(|h| h.name == "Ross 154").unwrap();
+        assert_eq!(ross.updated_at.as_deref(), Some("2026-10-16T12:00:00Z"), "age from the journal");
+        assert!(ross.seen_on_visit);
+        assert_eq!(ross.factions.len(), 1);
+        assert_eq!(ross.factions[0].active_states, ["Famine", "Civil Unrest"], "states from the journal");
+        // Tau Ceti's famine ended on arrival: no longer suggested
+        assert!(!after.hits.iter().any(|h| h.name == "Tau Ceti"), "{:?}", after.hits);
+        // an older visit doesn't undo the newer one
+        let mut old = visits_from_lines(&lines);
+        old.iter_mut().for_each(|v| v.seen = "2026-10-01T00:00:00Z".into());
+        g.record_visits(&old).unwrap();
+        let again = g.nearby("famine", &here, 20.0, 5, &Filters::default()).unwrap();
+        assert_eq!(again.hits, after.hits);
+        // and the boom shows up for the proto lookup
+        let s2 = g.store();
+        s2.cache_put("spansh:proto:0:0:0", now_s(), include_str!("../tests/fixtures/spansh-famine.json")).unwrap();
+        drop(s2);
+        let proto = g.nearby("proto", &here, 20.0, 5, &Filters::default()).unwrap();
+        let tau = proto.hits.iter().find(|h| h.name == "Tau Ceti").unwrap();
+        assert!(tau.seen_on_visit && tau.factions[0].name == "Independents of Tau Ceti");
     }
 
     #[test]

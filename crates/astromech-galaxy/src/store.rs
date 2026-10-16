@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS coverage(id INTEGER PRIMARY KEY, x REAL NOT NULL, y R
   z REAL NOT NULL, radius REAL NOT NULL, source TEXT NOT NULL, fetched TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS cache(key TEXT PRIMARY KEY, fetched INTEGER NOT NULL, body TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS visits(id64 INTEGER PRIMARY KEY, name TEXT NOT NULL, seen TEXT NOT NULL,
+  factions TEXT NOT NULL);
 ";
 
 /// A star system: id64 and position in light years.
@@ -180,6 +182,32 @@ impl Store {
     pub fn cache_put(&self, key: &str, now_s: i64, body: &str) -> Result<()> {
         self.db.execute("INSERT OR REPLACE INTO cache VALUES (?1, ?2, ?3)", params![key, now_s, body])?;
         Ok(())
+    }
+
+    /// Keep `v` unless a newer visit to the same system is stored.
+    pub fn put_visit(&self, v: &crate::visits::Visit) -> Result<()> {
+        self.db.execute(
+            "INSERT INTO visits VALUES (?1, ?2, ?3, ?4) ON CONFLICT(id64) DO UPDATE SET
+               name = excluded.name, seen = excluded.seen, factions = excluded.factions
+             WHERE excluded.seen > visits.seen",
+            params![v.id64, v.system, v.seen, serde_json::to_string(&v.factions)?],
+        )?;
+        Ok(())
+    }
+
+    pub fn visit(&self, id64: i64) -> Result<Option<crate::visits::Visit>> {
+        let row: Option<(String, String, String)> = self
+            .db
+            .query_row("SELECT name, seen, factions FROM visits WHERE id64 = ?1", params![id64], |r| {
+                Ok((r.get(0)?, r.get(1)?, r.get(2)?))
+            })
+            .optional()?;
+        Ok(match row {
+            Some((system, seen, f)) => {
+                Some(crate::visits::Visit { id64, system, seen, factions: serde_json::from_str(&f)? })
+            }
+            None => None,
+        })
     }
 }
 

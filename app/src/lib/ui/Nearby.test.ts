@@ -24,4 +24,12 @@ describe("Nearby", () => {
     expect(await screen.findByText("WISE 0855-0714")).toBeTruthy();
     expect(screen.queryByText(/^score /)).toBeNull();
   });
+
+  it("says when a system's states come from the commander's own visit", async () => {
+    render(Nearby, { query: "famine" });
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    const visited = screen.getAllByText(/seen on your visit/);
+    expect(visited).toHaveLength(1);
+    expect(visited[0]?.textContent).toMatch(/^Ross 154 Boys \(Independent, Famine\) · seen on your visit · reported /);
+  });
 });

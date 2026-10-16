@@ -276,6 +276,8 @@ struct JournalState {
     ledger: astromech_materials::Ledger,
     engineers: Vec<astromech_engineering::EngineerView>,
     here: Option<astromech_galaxy::Here>,
+    /// Faction states seen on arrival in the newest journals (fresher than Spansh's).
+    visits: Vec<astromech_galaxy::Visit>,
 }
 
 #[allow(clippy::type_complexity)]
@@ -297,6 +299,7 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
         ledger: astromech_materials::replay_journal_dir(&dir),
         engineers: astromech_engineering::engineers::from_journal_dir(&dir),
         here: astromech_galaxy::here_from_journal_dir(&dir),
+        visits: astromech_galaxy::visits_from_journal_dir(&dir, 20),
     });
     *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
     Ok(v)
@@ -432,6 +435,10 @@ async fn galaxy_nearby(
             Some(name) => g.locate(name).map_err(|e| e.to_string())?,
             None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
         };
+        if let Ok(s) = &st {
+            // Best effort: without them the lookup shows Spansh's (older) states.
+            let _ = g.record_visits(&s.visits);
+        }
         let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
         let n =
             g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;

@@ -16,7 +16,7 @@
   /** HGE lookups lead with the score and population they are ranked by. */
   function detail(h: Nearby["hits"][number]): string {
     const ranked = h.score == null ? [] : [`score ${h.score}`, `pop ${population(h.population)}`];
-    return [...ranked, states(h)].filter(Boolean).join(" · ");
+    return [...ranked, states(h), h.seen_on_visit ? "seen on your visit" : ""].filter(Boolean).join(" · ");
   }
 
   async function run(origin: Origin, filters: Filters): Promise<Results> {

@@ -25,6 +25,8 @@ export interface NearbyHit {
   population: number;
   updated_at: string | null;
   factions: Faction[];
+  /** The factions and `updated_at` come from the commander's own arrival (journal), newer than Spansh's. */
+  seen_on_visit?: boolean;
   /** High Grade Emissions lookups: population and distance score, 0 to about 150 (100 = a billion people here). */
   score?: number;
 }
