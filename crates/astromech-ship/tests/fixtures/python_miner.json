@@ -1,0 +1,245 @@
+{
+ "timestamp": "2026-10-16T12:00:00Z",
+ "event": "Loadout",
+ "Ship": "Python",
+ "ShipID": 5,
+ "ShipName": "Synthetic_Python",
+ "ShipIdent": "AM-5",
+ "Modules": [
+  {
+   "Slot": "CargoHatch",
+   "Item": "ModularCargoBayDoor",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Armour",
+   "Item": "Python_Armour_Grade2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Armour_Kinetic",
+    "Level": 1,
+    "Quality": 0.5
+   }
+  },
+  {
+   "Slot": "PowerPlant",
+   "Item": "Int_Powerplant_Size7_Class3",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MainEngines",
+   "Item": "Int_Engine_Size6_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Engine_Dirty",
+    "Level": 5,
+    "Quality": 0.95,
+    "ExperimentalEffect": "special_engine_haulage"
+   }
+  },
+  {
+   "Slot": "FrameShiftDrive",
+   "Item": "Int_Hyperdrive_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "FSD_LongRange",
+    "Level": 5,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_fsd_lightweight"
+   }
+  },
+  {
+   "Slot": "LifeSupport",
+   "Item": "Int_LifeSupport_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerDistributor",
+   "Item": "Int_PowerDistributor_Size7_Class4",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerDistributor_HighCapacity",
+    "Level": 4,
+    "Quality": 0.6,
+    "ExperimentalEffect": "special_powerdistributor_capacity"
+   }
+  },
+  {
+   "Slot": "Radar",
+   "Item": "Int_Sensors_Size6_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FuelTank",
+   "Item": "Int_FuelTank_Size5_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "LargeHardpoint1",
+   "Item": "Hpt_MiningLaser_Fixed_Medium",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "LargeHardpoint2",
+   "Item": "Hpt_MiningLaser_Fixed_Medium",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "LargeHardpoint3",
+   "Item": "Hpt_Mining_Abrblstr_Turret_Small",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MediumHardpoint1",
+   "Item": "Hpt_Mining_SubSurfDispMisle_Fixed_Medium",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MediumHardpoint2",
+   "Item": "Hpt_MiningLaser_Turret_Medium",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint1",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Thermic",
+    "Level": 3,
+    "Quality": 0.25
+   }
+  },
+  {
+   "Slot": "TinyHardpoint2",
+   "Item": "Hpt_MRAScanner_Size0_Class5",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint3",
+   "Item": "Hpt_ShieldBooster_Size0_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot01_Size6",
+   "Item": "Int_CargoRack_Size6_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot02_Size6",
+   "Item": "Int_CorrosionProofCargoRack_Size5_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot03_Size6",
+   "Item": "Int_Refinery_Size4_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot04_Size5",
+   "Item": "Int_ShieldGenerator_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldGenerator_Optimised",
+    "Level": 2,
+    "Quality": 0.8
+   }
+  },
+  {
+   "Slot": "Slot05_Size5",
+   "Item": "Int_DroneControl_Collection_Size5_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot06_Size4",
+   "Item": "Int_CargoRack_Size4_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot07_Size3",
+   "Item": "Int_DroneControl_Prospector_Size3_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot08_Size3",
+   "Item": "Int_CargoRack_Size3_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot09_Size2",
+   "Item": "Int_CargoRack_Size2_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot10_Size1",
+   "Item": "Int_DockingComputer_Advanced",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PlanetaryApproachSuite",
+   "Item": "Int_PlanetApproachSuite",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  }
+ ]
+}

@@ -15,6 +15,10 @@ pub struct Catalog {
     pub groups: BTreeMap<String, Group>,
     pub modules: HashMap<String, ModuleInfo>,
     pub ships: HashMap<String, String>,
+    /// How engineering changes each module stat, by stat name.
+    pub modifiers: BTreeMap<String, Modifier>,
+    /// Stat changes each experimental adds, by experimental id (including ones with no recipe).
+    pub effects: BTreeMap<String, BTreeMap<String, f64>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -30,6 +34,10 @@ pub struct GradeRecipe {
     pub materials: BTreeMap<String, i64>,
     #[serde(default)]
     pub engineers: Vec<String>,
+    /// Stat → `[worst, best]` change at this grade: a fraction for percentage stats, else an
+    /// amount (see [`Modifier`]).
+    #[serde(default)]
+    pub features: BTreeMap<String, [f64; 2]>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,6 +51,20 @@ pub struct Group {
     pub name: String,
     pub blueprints: Vec<String>,
     pub experimentals: Vec<String>,
+    /// Stats engineering may change on this group's modules.
+    #[serde(default)]
+    pub modifications: Vec<String>,
+}
+
+/// How engineering applies to one stat (coriolis-data `modifications.json`).
+#[derive(Debug, Deserialize)]
+pub struct Modifier {
+    /// `percentage` (a fraction of the stat) or `numeric` (an amount).
+    #[serde(rename = "type")]
+    pub kind: String,
+    /// `multiplicative`, `additive` or `overwrite`.
+    pub method: String,
+    pub higherbetter: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -117,6 +139,15 @@ pub fn experimental(name: &str) -> Option<(&'static str, &'static Experimental)>
 
 pub fn module(item: &str) -> Option<&'static ModuleInfo> {
     catalog().modules.get(&item.to_ascii_lowercase())
+}
+
+pub fn modifier(stat: &str) -> Option<&'static Modifier> {
+    catalog().modifiers.get(stat)
+}
+
+/// Stat changes of an experimental from the journal (`special_fsd_heavy`; ids are lowercase).
+pub fn effects(experimental: &str) -> Option<&'static BTreeMap<String, f64>> {
+    catalog().effects.get(&experimental.to_ascii_lowercase())
 }
 
 pub fn group(id: &str) -> Option<&'static Group> {
