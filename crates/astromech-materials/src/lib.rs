@@ -13,7 +13,9 @@ pub mod view;
 pub use catalog::{capacity, lookup, Kind, Spec};
 pub use hge::{Here, PoolMat, SourceNote};
 pub use ledger::{replay_bytes, replay_journal_dir, replay_lines, replay_path, Ledger};
-pub use view::{from_journal_dir, trader_view, Cell, FarmLine, GroupView, Inventory, KindView};
+pub use view::{
+    from_journal_dir, journal_version, trader_view, Cell, FarmLine, GroupView, Inventory, JournalVersion, KindView,
+};
 
 /// Inventory produced from the crate's fake journal fixtures (app window sample).
 pub fn sample_inventory() -> Inventory {
