@@ -33,6 +33,7 @@ astromech-ship = { path = "../../crates/astromech-ship" }
 astromech-galaxy = { path = "../../crates/astromech-galaxy" }
 astromech-market = { path = "../../crates/astromech-market" }
 astromech-history = { path = "../../crates/astromech-history" }
+astromech-odyssey = { path = "../../crates/astromech-odyssey" }
 astromech-station = { path = "../../crates/astromech-station" }
 astromech-store = { path = "../../crates/astromech-store" }
 astromech-powerplay = { path = "../../crates/astromech-powerplay" }

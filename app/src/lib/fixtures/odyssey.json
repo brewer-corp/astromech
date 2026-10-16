@@ -1,0 +1,3255 @@
+{
+  "picks": [
+    {
+      "from": 1,
+      "gear": "maverick",
+      "kind": "upgrade",
+      "to": 3
+    },
+    {
+      "id": "nightvision",
+      "kind": "mod",
+      "maker": null
+    },
+    {
+      "from": 1,
+      "gear": "karmap15",
+      "kind": "upgrade",
+      "to": 2
+    }
+  ],
+  "shopping": {
+    "barter_short": 77,
+    "credits": 4050000,
+    "credits_partial": false,
+    "picks": [
+      {
+        "credits": 2850000,
+        "credits_partial": false,
+        "error": null,
+        "fitted_by": [],
+        "lines": [
+          {
+            "barter": 11,
+            "category": "assets",
+            "have": 0,
+            "id": "carbonfibreplating",
+            "name": "Carbon Fibre Plating",
+            "need": 7,
+            "short": 7
+          },
+          {
+            "barter": null,
+            "category": "goods",
+            "have": 1,
+            "id": "healthmonitor",
+            "name": "Health Monitor",
+            "need": 3,
+            "short": 2
+          },
+          {
+            "barter": 23,
+            "category": "assets",
+            "have": 9,
+            "id": "graphene",
+            "name": "Graphene",
+            "need": 7,
+            "short": 0
+          },
+          {
+            "barter": null,
+            "category": "data",
+            "have": 4,
+            "id": "manufacturinginstructions",
+            "name": "Manufacturing Instructions",
+            "need": 3,
+            "short": 0
+          },
+          {
+            "barter": null,
+            "category": "goods",
+            "have": 3,
+            "id": "suitschematic",
+            "name": "Suit Schematic",
+            "need": 3,
+            "short": 0
+          }
+        ],
+        "pick": {
+          "from": 1,
+          "gear": "maverick",
+          "kind": "upgrade",
+          "to": 3
+        },
+        "ready": false,
+        "title": "Maverick Suit grade 1 → 3"
+      },
+      {
+        "credits": 1000000,
+        "credits_partial": false,
+        "error": null,
+        "fitted_by": [
+          {
+            "name": "Oden Geiger",
+            "system": "Candiaei",
+            "unconfirmed": false,
+            "unlocked": true
+          },
+          {
+            "name": "Yi Shen",
+            "system": "Einheriar",
+            "unconfirmed": false,
+            "unlocked": false
+          }
+        ],
+        "lines": [
+          {
+            "barter": null,
+            "category": "data",
+            "have": 0,
+            "id": "nocdata",
+            "name": "NOC Data",
+            "need": 3,
+            "short": 3
+          },
+          {
+            "barter": null,
+            "category": "data",
+            "have": 1,
+            "id": "radioactivitydata",
+            "name": "Radioactivity Data",
+            "need": 3,
+            "short": 2
+          },
+          {
+            "barter": null,
+            "category": "goods",
+            "have": 2,
+            "id": "surveillanceequipment",
+            "name": "Surveillance Equipment",
+            "need": 5,
+            "short": 3
+          },
+          {
+            "barter": null,
+            "category": "data",
+            "have": 0,
+            "id": "surveilleancelogs",
+            "name": "Surveillance Logs",
+            "need": 3,
+            "short": 3
+          },
+          {
+            "barter": 4,
+            "category": "assets",
+            "have": 6,
+            "id": "circuitswitch",
+            "name": "Circuit Switch",
+            "need": 5,
+            "short": 0
+          }
+        ],
+        "pick": {
+          "id": "nightvision",
+          "kind": "mod",
+          "maker": null
+        },
+        "ready": false,
+        "title": "Night Vision (suit)"
+      },
+      {
+        "credits": 200000,
+        "credits_partial": false,
+        "error": null,
+        "fitted_by": [],
+        "lines": [
+          {
+            "barter": null,
+            "category": "goods",
+            "have": 4,
+            "id": "compressionliquefiedgas",
+            "name": "Compression-Liquefied Gas",
+            "need": 1,
+            "short": 0
+          },
+          {
+            "barter": null,
+            "category": "data",
+            "have": 4,
+            "id": "manufacturinginstructions",
+            "name": "Manufacturing Instructions",
+            "need": 1,
+            "short": 0
+          },
+          {
+            "barter": 11,
+            "category": "assets",
+            "have": 9,
+            "id": "tungstencarbide",
+            "name": "Tungsten Carbide",
+            "need": 2,
+            "short": 0
+          },
+          {
+            "barter": 18,
+            "category": "assets",
+            "have": 3,
+            "id": "weaponcomponent",
+            "name": "Weapon Component",
+            "need": 2,
+            "short": 0
+          },
+          {
+            "barter": null,
+            "category": "goods",
+            "have": 2,
+            "id": "weaponschematic",
+            "name": "Weapon Schematic",
+            "need": 1,
+            "short": 0
+          }
+        ],
+        "pick": {
+          "from": 1,
+          "gear": "karmap15",
+          "kind": "upgrade",
+          "to": 2
+        },
+        "ready": true,
+        "title": "Karma P-15 grade 1 → 2"
+      }
+    ],
+    "total": [
+      {
+        "barter": 11,
+        "category": "assets",
+        "have": 0,
+        "id": "carbonfibreplating",
+        "name": "Carbon Fibre Plating",
+        "need": 7,
+        "short": 7
+      },
+      {
+        "barter": null,
+        "category": "goods",
+        "have": 1,
+        "id": "healthmonitor",
+        "name": "Health Monitor",
+        "need": 3,
+        "short": 2
+      },
+      {
+        "barter": null,
+        "category": "data",
+        "have": 0,
+        "id": "nocdata",
+        "name": "NOC Data",
+        "need": 3,
+        "short": 3
+      },
+      {
+        "barter": null,
+        "category": "data",
+        "have": 1,
+        "id": "radioactivitydata",
+        "name": "Radioactivity Data",
+        "need": 3,
+        "short": 2
+      },
+      {
+        "barter": null,
+        "category": "goods",
+        "have": 2,
+        "id": "surveillanceequipment",
+        "name": "Surveillance Equipment",
+        "need": 5,
+        "short": 3
+      },
+      {
+        "barter": null,
+        "category": "data",
+        "have": 0,
+        "id": "surveilleancelogs",
+        "name": "Surveillance Logs",
+        "need": 3,
+        "short": 3
+      },
+      {
+        "barter": 4,
+        "category": "assets",
+        "have": 6,
+        "id": "circuitswitch",
+        "name": "Circuit Switch",
+        "need": 5,
+        "short": 0
+      },
+      {
+        "barter": null,
+        "category": "goods",
+        "have": 4,
+        "id": "compressionliquefiedgas",
+        "name": "Compression-Liquefied Gas",
+        "need": 1,
+        "short": 0
+      },
+      {
+        "barter": 23,
+        "category": "assets",
+        "have": 9,
+        "id": "graphene",
+        "name": "Graphene",
+        "need": 7,
+        "short": 0
+      },
+      {
+        "barter": null,
+        "category": "data",
+        "have": 4,
+        "id": "manufacturinginstructions",
+        "name": "Manufacturing Instructions",
+        "need": 4,
+        "short": 0
+      },
+      {
+        "barter": null,
+        "category": "goods",
+        "have": 3,
+        "id": "suitschematic",
+        "name": "Suit Schematic",
+        "need": 3,
+        "short": 0
+      },
+      {
+        "barter": 11,
+        "category": "assets",
+        "have": 9,
+        "id": "tungstencarbide",
+        "name": "Tungsten Carbide",
+        "need": 2,
+        "short": 0
+      },
+      {
+        "barter": 18,
+        "category": "assets",
+        "have": 3,
+        "id": "weaponcomponent",
+        "name": "Weapon Component",
+        "need": 2,
+        "short": 0
+      },
+      {
+        "barter": null,
+        "category": "goods",
+        "have": 2,
+        "id": "weaponschematic",
+        "name": "Weapon Schematic",
+        "need": 1,
+        "short": 0
+      }
+    ]
+  },
+  "view": {
+    "backpack_ts": "2026-10-14T12:05:00Z",
+    "data_date": "2026-10-16",
+    "data_source": "Elite Dangerous Wiki (elite-dangerous.fandom.com) and EDCD/FDevIDs, via scripts/gen-odyssey.py",
+    "data_uncertain": [
+      "Added Melee Damage: credits not on the wiki",
+      "Headshot Damage (Kinematic Armaments weapons): wiki links RDX to Greater Range",
+      "Karma C-44 grade 4: credits not on the wiki",
+      "Karma C-44 grade 5: credits not on the wiki",
+      "Karma P-15 grade 5: credits not on the wiki",
+      "Manticore Intimidator grade 4: credits not on the wiki",
+      "Manticore Oppressor grade 2: credits not on the wiki",
+      "TK Aphelion grade 3: credits not on the wiki",
+      "TK Aphelion grade 5: credits not on the wiki",
+      "TK Eclipse grade 5: credits not on the wiki",
+      "engineer Hero Ferrari: Increased Sprint Duration (the wiki's tables and mod pages disagree)",
+      "engineer Rosa Dayette: Greater Range (the wiki's tables and mod pages disagree)",
+      "engineer Rosa Dayette: Scope (the wiki's tables and mod pages disagree)",
+      "engineer Rosa Dayette: Stability (the wiki's tables and mod pages disagree)",
+      "item Crop Yield Analysis: sale value not on the wiki",
+      "item Seed Genealogy: sale value not on the wiki",
+      "item Spyware: sale value not on the wiki",
+      "item Tactical Plans: sale value not on the wiki",
+      "item Virus: sale value not on the wiki"
+    ],
+    "engineers": [
+      {
+        "colonia": false,
+        "id": 400001,
+        "invite": "Complete 10 Restore or Reactivation missions",
+        "mods": [
+          {
+            "id": "addedmeleedamage",
+            "kind": "suit",
+            "name": "Added Melee Damage",
+            "unconfirmed": false
+          },
+          {
+            "id": "damageresistance",
+            "kind": "suit",
+            "name": "Damage Resistance",
+            "unconfirmed": false
+          },
+          {
+            "id": "extraammocapacity",
+            "kind": "suit",
+            "name": "Extra Ammo Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "magazinesize",
+            "kind": "weapon",
+            "name": "Magazine Size",
+            "unconfirmed": false
+          },
+          {
+            "id": "reloadspeed",
+            "kind": "weapon",
+            "name": "Reload Speed",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Jude Navarro",
+        "next": "To get invited: Complete 10 Restore or Reactivation missions",
+        "progress": "Known",
+        "referral_task": "Provide 5 Genetic Repair Meds",
+        "referred_by": [],
+        "refers": [
+          "Terra Velasquez"
+        ],
+        "system": "Aurai"
+      },
+      {
+        "colonia": false,
+        "id": 400002,
+        "invite": "Travel 100ly in Apex Interstellar Transport shuttles",
+        "mods": [
+          {
+            "id": "enhancedtracking",
+            "kind": "suit",
+            "name": "Enhanced Tracking",
+            "unconfirmed": false
+          },
+          {
+            "id": "extrabackpackcapacity",
+            "kind": "suit",
+            "name": "Extra Backpack Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "greaterrange",
+            "kind": "weapon",
+            "name": "Greater Range",
+            "unconfirmed": false
+          },
+          {
+            "id": "reducedtoolbatteryconsumption",
+            "kind": "suit",
+            "name": "Reduced Tool Battery Consumption",
+            "unconfirmed": false
+          },
+          {
+            "id": "stability",
+            "kind": "weapon",
+            "name": "Stability",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Domino Green",
+        "next": "Referral to Kit Fowler: Provide 5 Push",
+        "progress": "Unlocked",
+        "referral_task": "Provide 5 Push",
+        "referred_by": [],
+        "refers": [
+          "Kit Fowler"
+        ],
+        "system": "Orishis"
+      },
+      {
+        "colonia": false,
+        "id": 400003,
+        "invite": "Complete 10 Conflict Zone (On Foot)",
+        "mods": [
+          {
+            "id": "fasterhandling",
+            "kind": "weapon",
+            "name": "Faster Handling",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedjumpassist",
+            "kind": "suit",
+            "name": "Improved Jump Assist",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedairreserves",
+            "kind": "suit",
+            "name": "Increased Air Reserves",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedsprintduration",
+            "kind": "suit",
+            "name": "Increased Sprint Duration",
+            "unconfirmed": true
+          },
+          {
+            "id": "noisesuppressor",
+            "kind": "weapon",
+            "name": "Noise Suppressor",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Hero Ferrari",
+        "next": "Visit Siris to unlock",
+        "progress": "Invited",
+        "referral_task": "Provide 5 Settlement Defence Plans",
+        "referred_by": [],
+        "refers": [
+          "Wellington Beck"
+        ],
+        "system": "Siris"
+      },
+      {
+        "colonia": false,
+        "id": 400004,
+        "invite": "Sell 5 Opinion Polls to Bartenders",
+        "mods": [
+          {
+            "id": "addedmeleedamage",
+            "kind": "suit",
+            "name": "Added Melee Damage",
+            "unconfirmed": false
+          },
+          {
+            "id": "extraammocapacity",
+            "kind": "suit",
+            "name": "Extra Ammo Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "fastershieldregen",
+            "kind": "suit",
+            "name": "Faster Shield Regen",
+            "unconfirmed": false
+          },
+          {
+            "id": "magazinesize",
+            "kind": "weapon",
+            "name": "Magazine Size",
+            "unconfirmed": false
+          },
+          {
+            "id": "stowedreloading",
+            "kind": "weapon",
+            "name": "Stowed Reloading",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Kit Fowler",
+        "next": "Needs a referral from Domino Green",
+        "progress": "Unknown",
+        "referral_task": "Provide 5 Surveillance Equipment",
+        "referred_by": [
+          "Domino Green"
+        ],
+        "refers": [
+          "Yarden Bond"
+        ],
+        "system": "Capoya"
+      },
+      {
+        "colonia": false,
+        "id": 400005,
+        "invite": "Sell 15 total Classic Entertainment, Multimedia Entertainment, and/or Cat Media to Bartenders",
+        "mods": [
+          {
+            "id": "extrabackpackcapacity",
+            "kind": "suit",
+            "name": "Extra Backpack Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "greaterrange",
+            "kind": "weapon",
+            "name": "Greater Range",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedbatterycapacity",
+            "kind": "suit",
+            "name": "Improved Battery Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "reducedtoolbatteryconsumption",
+            "kind": "suit",
+            "name": "Reduced Tool Battery Consumption",
+            "unconfirmed": false
+          },
+          {
+            "id": "scope",
+            "kind": "weapon",
+            "name": "Scope",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Wellington Beck",
+        "next": "Needs a referral from Hero Ferrari",
+        "progress": "Unknown",
+        "referral_task": "Provide 5 InSight Entertainment Suites",
+        "referred_by": [
+          "Hero Ferrari"
+        ],
+        "refers": [
+          "Uma Laszlo"
+        ],
+        "system": "Jolapa"
+      },
+      {
+        "colonia": false,
+        "id": 400006,
+        "invite": "Complete 6 Covert Heist or Covert Theft missions",
+        "mods": [
+          {
+            "id": "combatmovementspeed",
+            "kind": "suit",
+            "name": "Combat Movement Speed",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedhipfireaccuracy",
+            "kind": "weapon",
+            "name": "Improved Hip Fire Accuracy",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedairreserves",
+            "kind": "suit",
+            "name": "Increased Air Reserves",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedsprintduration",
+            "kind": "suit",
+            "name": "Increased Sprint Duration",
+            "unconfirmed": false
+          },
+          {
+            "id": "noisesuppressor",
+            "kind": "weapon",
+            "name": "Noise Suppressor",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Terra Velasquez",
+        "next": "",
+        "progress": "Unlocked",
+        "referral_task": "Provide 15 Financial Projections",
+        "referred_by": [
+          "Jude Navarro"
+        ],
+        "refers": [
+          "Oden Geiger"
+        ],
+        "system": "Shou Xing"
+      },
+      {
+        "colonia": false,
+        "id": 400007,
+        "invite": "Reach unfriendly rep with Sirius Corporation",
+        "mods": [
+          {
+            "id": "damageresistance",
+            "kind": "suit",
+            "name": "Damage Resistance",
+            "unconfirmed": false
+          },
+          {
+            "id": "fastershieldregen",
+            "kind": "suit",
+            "name": "Faster Shield Regen",
+            "unconfirmed": false
+          },
+          {
+            "id": "headshotdamage",
+            "kind": "weapon",
+            "name": "Headshot Damage",
+            "unconfirmed": false
+          },
+          {
+            "id": "reloadspeed",
+            "kind": "weapon",
+            "name": "Reload Speed",
+            "unconfirmed": false
+          },
+          {
+            "id": "stowedreloading",
+            "kind": "weapon",
+            "name": "Stowed Reloading",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Uma Laszlo",
+        "next": "Needs a referral from Wellington Beck",
+        "progress": "Unknown",
+        "referral_task": null,
+        "referred_by": [
+          "Wellington Beck"
+        ],
+        "refers": [],
+        "system": "Xuane"
+      },
+      {
+        "colonia": false,
+        "id": 400008,
+        "invite": "Sell 20 total Biological Sample, Employee Genetic Data, and Genetic Research to Bartenders",
+        "mods": [
+          {
+            "id": "enhancedtracking",
+            "kind": "suit",
+            "name": "Enhanced Tracking",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedbatterycapacity",
+            "kind": "suit",
+            "name": "Improved Battery Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "nightvision",
+            "kind": "suit",
+            "name": "Night Vision",
+            "unconfirmed": false
+          },
+          {
+            "id": "scope",
+            "kind": "weapon",
+            "name": "Scope",
+            "unconfirmed": false
+          },
+          {
+            "id": "stability",
+            "kind": "weapon",
+            "name": "Stability",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Oden Geiger",
+        "next": "",
+        "progress": "Unlocked",
+        "referral_task": null,
+        "referred_by": [
+          "Terra Velasquez"
+        ],
+        "refers": [],
+        "system": "Candiaei"
+      },
+      {
+        "colonia": false,
+        "id": 400009,
+        "invite": "Sell 5 Smear Campaign Plans to Bartenders",
+        "mods": [
+          {
+            "id": "audiomasking",
+            "kind": "weapon",
+            "name": "Audio Masking",
+            "unconfirmed": false
+          },
+          {
+            "id": "combatmovementspeed",
+            "kind": "suit",
+            "name": "Combat Movement Speed",
+            "unconfirmed": false
+          },
+          {
+            "id": "fasterhandling",
+            "kind": "weapon",
+            "name": "Faster Handling",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedhipfireaccuracy",
+            "kind": "weapon",
+            "name": "Improved Hip Fire Accuracy",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedjumpassist",
+            "kind": "suit",
+            "name": "Improved Jump Assist",
+            "unconfirmed": false
+          },
+          {
+            "id": "quieterfootsteps",
+            "kind": "suit",
+            "name": "Quieter Footsteps",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Yarden Bond",
+        "next": "Needs a referral from Kit Fowler",
+        "progress": "Unknown",
+        "referral_task": null,
+        "referred_by": [
+          "Kit Fowler"
+        ],
+        "refers": [],
+        "system": "Bayan"
+      },
+      {
+        "colonia": true,
+        "id": 400010,
+        "invite": "Friendly reputation with Colonia Council",
+        "mods": [
+          {
+            "id": "combatmovementspeed",
+            "kind": "suit",
+            "name": "Combat Movement Speed",
+            "unconfirmed": false
+          },
+          {
+            "id": "fasterhandling",
+            "kind": "weapon",
+            "name": "Faster Handling",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedhipfireaccuracy",
+            "kind": "weapon",
+            "name": "Improved Hip Fire Accuracy",
+            "unconfirmed": false
+          },
+          {
+            "id": "improvedjumpassist",
+            "kind": "suit",
+            "name": "Improved Jump Assist",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedairreserves",
+            "kind": "suit",
+            "name": "Increased Air Reserves",
+            "unconfirmed": false
+          },
+          {
+            "id": "increasedsprintduration",
+            "kind": "suit",
+            "name": "Increased Sprint Duration",
+            "unconfirmed": false
+          },
+          {
+            "id": "noisesuppressor",
+            "kind": "weapon",
+            "name": "Noise Suppressor",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Baltanos",
+        "next": "To get invited: Friendly reputation with Colonia Council",
+        "progress": "Unknown",
+        "referral_task": "Provide 10 Faction Associates",
+        "referred_by": [],
+        "refers": [
+          "Yi Shen"
+        ],
+        "system": "Deriso"
+      },
+      {
+        "colonia": true,
+        "id": 400011,
+        "invite": "Visit 5 Settlements in Colonia",
+        "mods": [
+          {
+            "id": "addedmeleedamage",
+            "kind": "suit",
+            "name": "Added Melee Damage",
+            "unconfirmed": false
+          },
+          {
+            "id": "damageresistance",
+            "kind": "suit",
+            "name": "Damage Resistance",
+            "unconfirmed": false
+          },
+          {
+            "id": "extraammocapacity",
+            "kind": "suit",
+            "name": "Extra Ammo Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "fastershieldregen",
+            "kind": "suit",
+            "name": "Faster Shield Regen",
+            "unconfirmed": false
+          },
+          {
+            "id": "magazinesize",
+            "kind": "weapon",
+            "name": "Magazine Size",
+            "unconfirmed": false
+          },
+          {
+            "id": "reloadspeed",
+            "kind": "weapon",
+            "name": "Reload Speed",
+            "unconfirmed": false
+          },
+          {
+            "id": "stowedreloading",
+            "kind": "weapon",
+            "name": "Stowed Reloading",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Eleanor Bresa",
+        "next": "To get invited: Visit 5 Settlements in Colonia",
+        "progress": "Unknown",
+        "referral_task": "Provide 10 Digital Designs",
+        "referred_by": [],
+        "refers": [
+          "Yi Shen"
+        ],
+        "system": "Desy"
+      },
+      {
+        "colonia": true,
+        "id": 400012,
+        "invite": "Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia",
+        "mods": [
+          {
+            "id": "enhancedtracking",
+            "kind": "suit",
+            "name": "Enhanced Tracking",
+            "unconfirmed": false
+          },
+          {
+            "id": "extrabackpackcapacity",
+            "kind": "suit",
+            "name": "Extra Backpack Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "greaterrange",
+            "kind": "weapon",
+            "name": "Greater Range",
+            "unconfirmed": true
+          },
+          {
+            "id": "improvedbatterycapacity",
+            "kind": "suit",
+            "name": "Improved Battery Capacity",
+            "unconfirmed": false
+          },
+          {
+            "id": "reducedtoolbatteryconsumption",
+            "kind": "suit",
+            "name": "Reduced Tool Battery Consumption",
+            "unconfirmed": false
+          },
+          {
+            "id": "scope",
+            "kind": "weapon",
+            "name": "Scope",
+            "unconfirmed": true
+          },
+          {
+            "id": "stability",
+            "kind": "weapon",
+            "name": "Stability",
+            "unconfirmed": true
+          }
+        ],
+        "name": "Rosa Dayette",
+        "next": "To get invited: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia",
+        "progress": "Unknown",
+        "referral_task": "Provide 10 Manufacturing Instructions",
+        "referred_by": [],
+        "refers": [
+          "Yi Shen"
+        ],
+        "system": "Kojeara"
+      },
+      {
+        "colonia": true,
+        "id": 400013,
+        "invite": "Complete all referral tasks for Baltanos, Eleanor Bresa, & Rosa Dayette",
+        "mods": [
+          {
+            "id": "audiomasking",
+            "kind": "weapon",
+            "name": "Audio Masking",
+            "unconfirmed": false
+          },
+          {
+            "id": "headshotdamage",
+            "kind": "weapon",
+            "name": "Headshot Damage",
+            "unconfirmed": false
+          },
+          {
+            "id": "nightvision",
+            "kind": "suit",
+            "name": "Night Vision",
+            "unconfirmed": false
+          },
+          {
+            "id": "quieterfootsteps",
+            "kind": "suit",
+            "name": "Quieter Footsteps",
+            "unconfirmed": false
+          }
+        ],
+        "name": "Yi Shen",
+        "next": "Needs a referral from Baltanos, Eleanor Bresa and Rosa Dayette",
+        "progress": "Unknown",
+        "referral_task": null,
+        "referred_by": [
+          "Baltanos",
+          "Eleanor Bresa",
+          "Rosa Dayette"
+        ],
+        "refers": [],
+        "system": "Einheriar"
+      }
+    ],
+    "gear": [
+      {
+        "id": "maverick",
+        "kind": "suit",
+        "maker": null,
+        "name": "Maverick Suit"
+      },
+      {
+        "id": "dominator",
+        "kind": "suit",
+        "maker": null,
+        "name": "Dominator Suit"
+      },
+      {
+        "id": "artemis",
+        "kind": "suit",
+        "maker": null,
+        "name": "Artemis Suit"
+      },
+      {
+        "id": "karmaar50",
+        "kind": "weapon",
+        "maker": "kinematic",
+        "name": "Karma AR-50"
+      },
+      {
+        "id": "karmac44",
+        "kind": "weapon",
+        "maker": "kinematic",
+        "name": "Karma C-44"
+      },
+      {
+        "id": "karmal6",
+        "kind": "weapon",
+        "maker": "kinematic",
+        "name": "Karma L-6"
+      },
+      {
+        "id": "karmap15",
+        "kind": "weapon",
+        "maker": "kinematic",
+        "name": "Karma P-15"
+      },
+      {
+        "id": "manticoreexecutioner",
+        "kind": "weapon",
+        "maker": "manticore",
+        "name": "Manticore Executioner"
+      },
+      {
+        "id": "manticoreintimidator",
+        "kind": "weapon",
+        "maker": "manticore",
+        "name": "Manticore Intimidator"
+      },
+      {
+        "id": "manticoreoppressor",
+        "kind": "weapon",
+        "maker": "manticore",
+        "name": "Manticore Oppressor"
+      },
+      {
+        "id": "manticoretormentor",
+        "kind": "weapon",
+        "maker": "manticore",
+        "name": "Manticore Tormentor"
+      },
+      {
+        "id": "tkaphelion",
+        "kind": "weapon",
+        "maker": "takada",
+        "name": "TK Aphelion"
+      },
+      {
+        "id": "tkeclipse",
+        "kind": "weapon",
+        "maker": "takada",
+        "name": "TK Eclipse"
+      },
+      {
+        "id": "tkzenith",
+        "kind": "weapon",
+        "maker": "takada",
+        "name": "TK Zenith"
+      }
+    ],
+    "items": [
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "accidentlogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Accident Logs",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "aerogel",
+        "locker": 0,
+        "mission": 0,
+        "name": "Aerogel",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "agriculturalprocesssample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Agricultural Process Sample",
+        "value": 50000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "airqualityreports",
+        "locker": 0,
+        "mission": 0,
+        "name": "Air Quality Reports",
+        "value": 3000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "atmosphericdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Atmospheric Data",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "audiologs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Audio Logs",
+        "value": 17000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "axcombatlogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "AX Combat Logs",
+        "value": 24000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "ballisticsdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Ballistics Data",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "biochemicalagent",
+        "locker": 0,
+        "mission": 0,
+        "name": "Biochemical Agent",
+        "value": 125000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "geneticsample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Biological Sample",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "biologicalweapondata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Biological Weapon Data",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "biometricdata",
+        "locker": 2,
+        "mission": 0,
+        "name": "Biometric Data",
+        "value": 24000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "blacklistdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Blacklist Data",
+        "value": 14000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "bloodtestresults",
+        "locker": 0,
+        "mission": 0,
+        "name": "Blood Test Results",
+        "value": 18000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "buildingschematic",
+        "locker": 0,
+        "mission": 0,
+        "name": "Building Schematic",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "californium",
+        "locker": 0,
+        "mission": 0,
+        "name": "Californium",
+        "value": 100000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "campaignplans",
+        "locker": 0,
+        "mission": 0,
+        "name": "Campaign Plans",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": 11,
+        "category": "assets",
+        "id": "carbonfibreplating",
+        "locker": 0,
+        "mission": 0,
+        "name": "Carbon Fibre Plating",
+        "value": 600
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "castfossil",
+        "locker": 0,
+        "mission": 0,
+        "name": "Cast Fossil",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "catmedia",
+        "locker": 0,
+        "mission": 0,
+        "name": "Cat Media",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "censusdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Census Data",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": 7,
+        "category": "assets",
+        "id": "chemicalcatalyst",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Catalyst",
+        "value": 400
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "chemicalexperimentdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Experiment Data",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "chemicalformulae",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Formulae",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "chemicalinventory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Inventory",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "chemicalpatents",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Patents",
+        "value": 21000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "chemicalprocesssample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Process Sample",
+        "value": 50000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "chemicalsample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Sample",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "chemicalsuperbase",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Superbase",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "chemicalweapondata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Chemical Weapon Data",
+        "value": 34000
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "circuitboard",
+        "locker": 0,
+        "mission": 0,
+        "name": "Circuit Board",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": 4,
+        "category": "assets",
+        "id": "circuitswitch",
+        "locker": 6,
+        "mission": 0,
+        "name": "Circuit Switch",
+        "value": 200
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "classicentertainment",
+        "locker": 0,
+        "mission": 0,
+        "name": "Classic Entertainment",
+        "value": 7000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "medicaltrialrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Clinical Trial Records",
+        "value": 24000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "cocktailrecipes",
+        "locker": 0,
+        "mission": 0,
+        "name": "Cocktail Recipes",
+        "value": 3000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "combattrainingmaterial",
+        "locker": 0,
+        "mission": 0,
+        "name": "Combat Training Material",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "combatantperformance",
+        "locker": 0,
+        "mission": 0,
+        "name": "Combatant Performance",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "compactlibrary",
+        "locker": 0,
+        "mission": 0,
+        "name": "Compact Library",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "compressionliquefiedgas",
+        "locker": 4,
+        "mission": 0,
+        "name": "Compression-Liquefied Gas",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "conflicthistory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Conflict History",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "criminalrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Criminal Records",
+        "value": 22000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "cropyieldanalysis",
+        "locker": 0,
+        "mission": 0,
+        "name": "Crop Yield Analysis",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "culinaryrecipes",
+        "locker": 0,
+        "mission": 0,
+        "name": "Culinary Recipes",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "deepmantlesample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Deep Mantle Sample",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "degradedpowerregulator",
+        "locker": 0,
+        "mission": 0,
+        "name": "Degraded Power Regulator",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "digitaldesigns",
+        "locker": 0,
+        "mission": 0,
+        "name": "Digital Designs",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "dutyrota",
+        "locker": 0,
+        "mission": 0,
+        "name": "Duty Rota",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "consumables",
+        "id": "bypass",
+        "locker": 0,
+        "mission": 0,
+        "name": "E-Breach",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "electricalfuse",
+        "locker": 0,
+        "mission": 0,
+        "name": "Electrical Fuse",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "electricalwiring",
+        "locker": 0,
+        "mission": 0,
+        "name": "Electrical Wiring",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "electromagnet",
+        "locker": 0,
+        "mission": 0,
+        "name": "Electromagnet",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "employeedirectory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Employee Directory",
+        "value": 5000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "employeeexpenses",
+        "locker": 0,
+        "mission": 0,
+        "name": "Employee Expenses",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "employeegeneticdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Employee Genetic Data",
+        "value": 20000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "employmenthistory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Employee History",
+        "value": 3000
+      },
+      {
+        "backpack": 0,
+        "barter": 4,
+        "category": "assets",
+        "id": "encryptedmemorychip",
+        "locker": 0,
+        "mission": 0,
+        "name": "Encrypted Memory Chip",
+        "value": 200
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "consumables",
+        "id": "energycell",
+        "locker": 3,
+        "mission": 0,
+        "name": "Energy Cell",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "enhancedinterrogationrecordings",
+        "locker": 0,
+        "mission": 0,
+        "name": "Enhanced Interrogation Recordings",
+        "value": 30000
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "epinephrine",
+        "locker": 0,
+        "mission": 0,
+        "name": "Epinephrine",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "epoxyadhesive",
+        "locker": 0,
+        "mission": 0,
+        "name": "Epoxy Adhesive",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "espionagematerial",
+        "locker": 0,
+        "mission": 0,
+        "name": "Espionage Material",
+        "value": 29000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "evacuationprotocols",
+        "locker": 0,
+        "mission": 0,
+        "name": "Evacuation Protocols",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "explorationjournals",
+        "locker": 0,
+        "mission": 0,
+        "name": "Exploration Journals",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "extractionyielddata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Extraction Yield Data",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "factionassociates",
+        "locker": 0,
+        "mission": 0,
+        "name": "Faction Associates",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "factiondonatorlist",
+        "locker": 0,
+        "mission": 0,
+        "name": "Faction Donator List",
+        "value": 16000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "factionnews",
+        "locker": 0,
+        "mission": 0,
+        "name": "Faction News",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "financialprojections",
+        "locker": 0,
+        "mission": 0,
+        "name": "Financial Projections",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "fleetregistry",
+        "locker": 0,
+        "mission": 0,
+        "name": "Fleet Registry",
+        "value": 17000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "consumables",
+        "id": "amm_grenade_frag",
+        "locker": 0,
+        "mission": 0,
+        "name": "Frag Grenade",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "gmeds",
+        "locker": 0,
+        "mission": 0,
+        "name": "G-Meds",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "genesequencingdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Gene Sequencing Data",
+        "value": 17000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "geneticrepairmeds",
+        "locker": 0,
+        "mission": 0,
+        "name": "Genetic Repair Meds",
+        "value": 100000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "geneticresearch",
+        "locker": 0,
+        "mission": 0,
+        "name": "Genetic Research",
+        "value": 21000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "geologicaldata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Geological Data",
+        "value": 10000
+      },
+      {
+        "backpack": 2,
+        "barter": 23,
+        "category": "assets",
+        "id": "graphene",
+        "locker": 7,
+        "mission": 0,
+        "name": "Graphene",
+        "value": 1300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "healthmonitor",
+        "locker": 1,
+        "mission": 2,
+        "name": "Health Monitor",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "hush",
+        "locker": 0,
+        "mission": 0,
+        "name": "Hush",
+        "value": 75000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "hydroponicdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Hydroponic Data",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "incidentlogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Incident Logs",
+        "value": 7000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "inertiacanister",
+        "locker": 0,
+        "mission": 0,
+        "name": "Inertia Canister",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "infinity",
+        "locker": 0,
+        "mission": 0,
+        "name": "Infinity",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "influenceprojections",
+        "locker": 0,
+        "mission": 0,
+        "name": "Influence Projections",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "inorganiccontaminant",
+        "locker": 0,
+        "mission": 0,
+        "name": "Inorganic Contaminant",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "insight",
+        "locker": 0,
+        "mission": 0,
+        "name": "InSight",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "insightdatabank",
+        "locker": 0,
+        "mission": 0,
+        "name": "InSight Data Bank",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "insightentertainmentsuite",
+        "locker": 0,
+        "mission": 0,
+        "name": "InSight Entertainment Suite",
+        "value": 20000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "internalcorrespondence",
+        "locker": 0,
+        "mission": 0,
+        "name": "Internal Correspondence",
+        "value": 20000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "interrogationrecordings",
+        "locker": 0,
+        "mission": 0,
+        "name": "Interrogation Recordings",
+        "value": 23000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "interviewrecordings",
+        "locker": 0,
+        "mission": 0,
+        "name": "Interview Recordings",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "ionbattery",
+        "locker": 4,
+        "mission": 0,
+        "name": "Ion Battery",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "ionisedgas",
+        "locker": 0,
+        "mission": 0,
+        "name": "Ionised Gas",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "jobapplications",
+        "locker": 0,
+        "mission": 0,
+        "name": "Job Applications",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "kompromat",
+        "locker": 0,
+        "mission": 0,
+        "name": "Kompromat",
+        "value": 33000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "lazarus",
+        "locker": 0,
+        "mission": 0,
+        "name": "Lazarus",
+        "value": 125000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "literaryfiction",
+        "locker": 0,
+        "mission": 0,
+        "name": "Literary Fiction",
+        "value": 2000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "maintenancelogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Maintenance Logs",
+        "value": 2000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "manufacturinginstructions",
+        "locker": 4,
+        "mission": 0,
+        "name": "Manufacturing Instructions",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "medicalrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Medical Records",
+        "value": 19000
+      },
+      {
+        "backpack": 1,
+        "barter": null,
+        "category": "consumables",
+        "id": "healthpack",
+        "locker": 2,
+        "mission": 0,
+        "name": "Medkit",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "meetingminutes",
+        "locker": 0,
+        "mission": 0,
+        "name": "Meeting Minutes",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": 4,
+        "category": "assets",
+        "id": "memorychip",
+        "locker": 0,
+        "mission": 0,
+        "name": "Memory Chip",
+        "value": 200
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "metalcoil",
+        "locker": 0,
+        "mission": 0,
+        "name": "Metal Coil",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": 7,
+        "category": "assets",
+        "id": "microhydraulics",
+        "locker": 0,
+        "mission": 0,
+        "name": "Micro Hydraulics",
+        "value": 400
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "microsupercapacitor",
+        "locker": 0,
+        "mission": 0,
+        "name": "Micro Supercapacitor",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "microthrusters",
+        "locker": 0,
+        "mission": 0,
+        "name": "Micro Thrusters",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": 7,
+        "category": "assets",
+        "id": "microtransformer",
+        "locker": 0,
+        "mission": 0,
+        "name": "Micro Transformer",
+        "value": 400
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "microbialinhibitor",
+        "locker": 0,
+        "mission": 0,
+        "name": "Microbial Inhibitor",
+        "value": 20000
+      },
+      {
+        "backpack": 0,
+        "barter": 16,
+        "category": "assets",
+        "id": "microelectrode",
+        "locker": 0,
+        "mission": 0,
+        "name": "Microelectrode",
+        "value": 900
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "mineralsurvey",
+        "locker": 0,
+        "mission": 0,
+        "name": "Mineral Survey",
+        "value": 5000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "mininganalytics",
+        "locker": 0,
+        "mission": 0,
+        "name": "Mining Analytics",
+        "value": 7000
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "motor",
+        "locker": 0,
+        "mission": 0,
+        "name": "Motor",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "multimediaentertainment",
+        "locker": 0,
+        "mission": 0,
+        "name": "Multimedia Entertainment",
+        "value": 3000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "mutageniccatalyst",
+        "locker": 0,
+        "mission": 0,
+        "name": "Mutagenic Catalyst",
+        "value": 75000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "networkaccesshistory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Network Access History",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "networksecurityprotocols",
+        "locker": 0,
+        "mission": 0,
+        "name": "Network Security Protocols",
+        "value": 23000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "nextofkinrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Next of Kin Records",
+        "value": 13000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "nocdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "NOC Data",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "assets",
+        "id": "notarealthing",
+        "locker": 5,
+        "mission": 0,
+        "name": "Not A Real Thing",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "nutritionalconcentrate",
+        "locker": 0,
+        "mission": 0,
+        "name": "Nutritional Concentrate",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "operationalmanual",
+        "locker": 0,
+        "mission": 0,
+        "name": "Operational Manual",
+        "value": 7000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "opinionpolls",
+        "locker": 0,
+        "mission": 0,
+        "name": "Opinion Polls",
+        "value": 5000
+      },
+      {
+        "backpack": 0,
+        "barter": 11,
+        "category": "assets",
+        "id": "opticalfibre",
+        "locker": 0,
+        "mission": 0,
+        "name": "Optical Fibre",
+        "value": 600
+      },
+      {
+        "backpack": 0,
+        "barter": 9,
+        "category": "assets",
+        "id": "opticallens",
+        "locker": 0,
+        "mission": 0,
+        "name": "Optical Lens",
+        "value": 500
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "oxygenicbacteria",
+        "locker": 0,
+        "mission": 0,
+        "name": "Oxygenic Bacteria",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "patienthistory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Patient History",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "patrolroutes",
+        "locker": 0,
+        "mission": 0,
+        "name": "Patrol Routes",
+        "value": 14000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "payrollinformation",
+        "locker": 0,
+        "mission": 0,
+        "name": "Payroll Information",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "personalcomputer",
+        "locker": 0,
+        "mission": 0,
+        "name": "Personal Computer",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "personaldocuments",
+        "locker": 0,
+        "mission": 0,
+        "name": "Personal Documents",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "personallogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Personal Logs",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "petrifiedfossil",
+        "locker": 0,
+        "mission": 0,
+        "name": "Petrified Fossil",
+        "value": 75000
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "phneutraliser",
+        "locker": 0,
+        "mission": 0,
+        "name": "pH Neutraliser",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "pharmaceuticalpatents",
+        "locker": 0,
+        "mission": 0,
+        "name": "Pharmaceutical Patents",
+        "value": 21000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "photoalbums",
+        "locker": 0,
+        "mission": 0,
+        "name": "Photo Albums",
+        "value": 3000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "plantgrowthcharts",
+        "locker": 0,
+        "mission": 0,
+        "name": "Plant Growth Charts",
+        "value": 5000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "politicalaffiliations",
+        "locker": 0,
+        "mission": 0,
+        "name": "Political Affiliations",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "largecapacitypowerregulator",
+        "locker": 0,
+        "mission": 0,
+        "name": "Power Regulator",
+        "value": 50000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "prisonerlogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Prisoner Logs",
+        "value": 19000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "productionreports",
+        "locker": 0,
+        "mission": 0,
+        "name": "Production Reports",
+        "value": 11000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "productionschedule",
+        "locker": 0,
+        "mission": 0,
+        "name": "Production Schedule",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "propaganda",
+        "locker": 0,
+        "mission": 0,
+        "name": "Propaganda",
+        "value": 17000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "purchaserecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Purchase Records",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "purchaserequests",
+        "locker": 0,
+        "mission": 0,
+        "name": "Purchase Requests",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "push",
+        "locker": 1,
+        "mission": 0,
+        "name": "Push",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "pyrolyticcatalyst",
+        "locker": 0,
+        "mission": 0,
+        "name": "Pyrolytic Catalyst",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "radioactivitydata",
+        "locker": 1,
+        "mission": 0,
+        "name": "Radioactivity Data",
+        "value": 16000
+      },
+      {
+        "backpack": 0,
+        "barter": 7,
+        "category": "assets",
+        "id": "rdx",
+        "locker": 0,
+        "mission": 0,
+        "name": "RDX",
+        "value": 400
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "reactoroutputreview",
+        "locker": 0,
+        "mission": 0,
+        "name": "Reactor Output Review",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "recyclinglogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Recycling Logs",
+        "value": 2000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "refinementprocesssample",
+        "locker": 0,
+        "mission": 0,
+        "name": "Refinement Process Sample",
+        "value": 50000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "residentialdirectory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Residential Directory",
+        "value": 8000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "riskassessments",
+        "locker": 0,
+        "mission": 0,
+        "name": "Risk Assessments",
+        "value": 2000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "salesrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Sales Records",
+        "value": 7000
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "scrambler",
+        "locker": 0,
+        "mission": 0,
+        "name": "Scrambler",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "securityexpenses",
+        "locker": 0,
+        "mission": 0,
+        "name": "Security Expenses",
+        "value": 16000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "seedgeneaology",
+        "locker": 0,
+        "mission": 0,
+        "name": "Seed Genealogy",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "settlementassaultplans",
+        "locker": 0,
+        "mission": 0,
+        "name": "Settlement Assault Plans",
+        "value": 20000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "settlementdefenceplans",
+        "locker": 0,
+        "mission": 0,
+        "name": "Settlement Defence Plans",
+        "value": 22000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "shareholderinformation",
+        "locker": 0,
+        "mission": 0,
+        "name": "Shareholder Information",
+        "value": 17000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "consumables",
+        "id": "amm_grenade_emp",
+        "locker": 0,
+        "mission": 0,
+        "name": "Shield Disruptor",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "consumables",
+        "id": "amm_grenade_shield",
+        "locker": 0,
+        "mission": 0,
+        "name": "Shield Projector",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "shipschematic",
+        "locker": 0,
+        "mission": 0,
+        "name": "Ship Schematic",
+        "value": 25000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "slushfundlogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Slush Fund Logs",
+        "value": 27000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "smearcampaignplans",
+        "locker": 0,
+        "mission": 0,
+        "name": "Smear Campaign Plans",
+        "value": 26000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "spectralanalysisdata",
+        "locker": 12,
+        "mission": 0,
+        "name": "Spectral Analysis Data",
+        "value": 13000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "spyware",
+        "locker": 0,
+        "mission": 0,
+        "name": "Spyware",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "stellaractivitylogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Stellar Activity Logs",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "suitschematic",
+        "locker": 3,
+        "mission": 0,
+        "name": "Suit Schematic",
+        "value": 50000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "surveillanceequipment",
+        "locker": 2,
+        "mission": 0,
+        "name": "Surveillance Equipment",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "surveilleancelogs",
+        "locker": 0,
+        "mission": 0,
+        "name": "Surveillance Logs",
+        "value": 19000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "surveillancelogs",
+        "locker": 3,
+        "mission": 0,
+        "name": "Surveillance Logs",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "syntheticgenome",
+        "locker": 0,
+        "mission": 0,
+        "name": "Synthetic Genome",
+        "value": 100000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "syntheticpathogen",
+        "locker": 0,
+        "mission": 0,
+        "name": "Synthetic Pathogen",
+        "value": 75000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "tacticalplans",
+        "locker": 0,
+        "mission": 0,
+        "name": "Tactical Plans",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "taxrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Tax Records",
+        "value": 16000
+      },
+      {
+        "backpack": 0,
+        "barter": 11,
+        "category": "assets",
+        "id": "titaniumplating",
+        "locker": 0,
+        "mission": 0,
+        "name": "Titanium Plating",
+        "value": 600
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "topographicalsurveys",
+        "locker": 0,
+        "mission": 0,
+        "name": "Topographical Surveys",
+        "value": 12000
+      },
+      {
+        "backpack": 0,
+        "barter": 5,
+        "category": "assets",
+        "id": "transmitter",
+        "locker": 0,
+        "mission": 0,
+        "name": "Transmitter",
+        "value": 300
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "travelpermits",
+        "locker": 0,
+        "mission": 0,
+        "name": "Travel Permits",
+        "value": 2000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "troopdeploymentrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Troop Deployment Records",
+        "value": 16000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "trueformfossil",
+        "locker": 0,
+        "mission": 0,
+        "name": "True Form Fossil",
+        "value": 100000
+      },
+      {
+        "backpack": 0,
+        "barter": 11,
+        "category": "assets",
+        "id": "tungstencarbide",
+        "locker": 9,
+        "mission": 0,
+        "name": "Tungsten Carbide",
+        "value": 600
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "unionmembership",
+        "locker": 0,
+        "mission": 0,
+        "name": "Union Membership",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "universaltranslator",
+        "locker": 0,
+        "mission": 0,
+        "name": "Universal Translator",
+        "value": 10000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "vaccinationrecords",
+        "locker": 0,
+        "mission": 0,
+        "name": "Vaccination Records",
+        "value": 4000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "vaccineresearch",
+        "locker": 0,
+        "mission": 0,
+        "name": "Vaccine Research",
+        "value": 13000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "vehicleschematic",
+        "locker": 0,
+        "mission": 0,
+        "name": "Vehicle Schematic",
+        "value": 70000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "vipsecuritydetail",
+        "locker": 0,
+        "mission": 0,
+        "name": "VIP Security Detail",
+        "value": 18000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "virologydata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Virology Data",
+        "value": 14000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "virus",
+        "locker": 0,
+        "mission": 0,
+        "name": "Virus",
+        "value": null
+      },
+      {
+        "backpack": 0,
+        "barter": 11,
+        "category": "assets",
+        "id": "viscoelasticpolymer",
+        "locker": 0,
+        "mission": 0,
+        "name": "Viscoelastic Polymer",
+        "value": 600
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "visitorregister",
+        "locker": 0,
+        "mission": 0,
+        "name": "Visitor Register",
+        "value": 6000
+      },
+      {
+        "backpack": 0,
+        "barter": 18,
+        "category": "assets",
+        "id": "weaponcomponent",
+        "locker": 3,
+        "mission": 0,
+        "name": "Weapon Component",
+        "value": 1000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "weaponinventory",
+        "locker": 0,
+        "mission": 0,
+        "name": "Weapon Inventory",
+        "value": 9000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "goods",
+        "id": "weaponschematic",
+        "locker": 2,
+        "mission": 0,
+        "name": "Weapon Schematic",
+        "value": 35000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "weapontestdata",
+        "locker": 0,
+        "mission": 0,
+        "name": "Weapon Test Data",
+        "value": 15000
+      },
+      {
+        "backpack": 0,
+        "barter": null,
+        "category": "data",
+        "id": "xenodefenceprotocols",
+        "locker": 0,
+        "mission": 0,
+        "name": "Xeno-Defence Protocols",
+        "value": 25000
+      }
+    ],
+    "locker_ts": "2026-10-14T12:05:00Z",
+    "mods": [
+      {
+        "id": "addedmeleedamage",
+        "kind": "suit",
+        "makers": [],
+        "name": "Added Melee Damage"
+      },
+      {
+        "id": "combatmovementspeed",
+        "kind": "suit",
+        "makers": [],
+        "name": "Combat Movement Speed"
+      },
+      {
+        "id": "damageresistance",
+        "kind": "suit",
+        "makers": [],
+        "name": "Damage Resistance"
+      },
+      {
+        "id": "enhancedtracking",
+        "kind": "suit",
+        "makers": [],
+        "name": "Enhanced Tracking"
+      },
+      {
+        "id": "extraammocapacity",
+        "kind": "suit",
+        "makers": [],
+        "name": "Extra Ammo Capacity"
+      },
+      {
+        "id": "extrabackpackcapacity",
+        "kind": "suit",
+        "makers": [],
+        "name": "Extra Backpack Capacity"
+      },
+      {
+        "id": "fastershieldregen",
+        "kind": "suit",
+        "makers": [],
+        "name": "Faster Shield Regen"
+      },
+      {
+        "id": "improvedbatterycapacity",
+        "kind": "suit",
+        "makers": [],
+        "name": "Improved Battery Capacity"
+      },
+      {
+        "id": "improvedjumpassist",
+        "kind": "suit",
+        "makers": [],
+        "name": "Improved Jump Assist"
+      },
+      {
+        "id": "increasedairreserves",
+        "kind": "suit",
+        "makers": [],
+        "name": "Increased Air Reserves"
+      },
+      {
+        "id": "increasedsprintduration",
+        "kind": "suit",
+        "makers": [],
+        "name": "Increased Sprint Duration"
+      },
+      {
+        "id": "nightvision",
+        "kind": "suit",
+        "makers": [],
+        "name": "Night Vision"
+      },
+      {
+        "id": "quieterfootsteps",
+        "kind": "suit",
+        "makers": [],
+        "name": "Quieter Footsteps"
+      },
+      {
+        "id": "reducedtoolbatteryconsumption",
+        "kind": "suit",
+        "makers": [],
+        "name": "Reduced Tool Battery Consumption"
+      },
+      {
+        "id": "audiomasking",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Audio Masking"
+      },
+      {
+        "id": "fasterhandling",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Faster Handling"
+      },
+      {
+        "id": "greaterrange",
+        "kind": "weapon",
+        "makers": [
+          "kinematic",
+          "takada",
+          "manticore"
+        ],
+        "name": "Greater Range"
+      },
+      {
+        "id": "headshotdamage",
+        "kind": "weapon",
+        "makers": [
+          "kinematic",
+          "takada",
+          "manticore"
+        ],
+        "name": "Headshot Damage"
+      },
+      {
+        "id": "improvedhipfireaccuracy",
+        "kind": "weapon",
+        "makers": [
+          "kinematic",
+          "takada",
+          "manticore"
+        ],
+        "name": "Improved Hip Fire Accuracy"
+      },
+      {
+        "id": "magazinesize",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Magazine Size"
+      },
+      {
+        "id": "noisesuppressor",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Noise Suppressor"
+      },
+      {
+        "id": "reloadspeed",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Reload Speed"
+      },
+      {
+        "id": "scope",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Scope"
+      },
+      {
+        "id": "stability",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Stability"
+      },
+      {
+        "id": "stowedreloading",
+        "kind": "weapon",
+        "makers": [],
+        "name": "Stowed Reloading"
+      }
+    ],
+    "source": "Sample ShipLocker"
+  }
+}
