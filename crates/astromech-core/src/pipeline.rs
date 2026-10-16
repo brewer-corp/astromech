@@ -159,7 +159,7 @@ impl Tailer {
                 match astromech_journal::parse_line(&l) {
                     Ok(j) => {
                         st.journal_lines += 1;
-                        self.hub.apply_journal(&j.event);
+                        self.hub.apply_journal(&j);
                         if let (Some(f), Ok(raw)) = (&mut self.eddn, serde_json::from_str(&j.raw_json)) {
                             f.journal(&raw, self.live, wall_now());
                         }

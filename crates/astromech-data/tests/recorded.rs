@@ -308,6 +308,22 @@ fn spansh_searches_parse_recorded_answers() {
     assert_eq!(systems[0].name, "WISE 0855-0714");
     assert!(systems[0].minor_faction_presences.iter().any(|f| f.state.as_deref() == Some("Famine")));
 
+    // Powerplay fields (recorded 16 Oct 2026 near Lembava, unoccupied systems Li Yong-Rui can acquire).
+    rec.on("/api/systems/search", 200, fixture!("spansh-powerplay-acquisition.json"));
+    let q = Search::near(Reference::System("Lembava".into())).power_state(&["Unoccupied"]).power(&["Li Yong-Rui"]);
+    let systems = c.spansh_systems(&q).unwrap().value.results;
+    let (_, req) = rec.last();
+    let sent: serde_json::Value = match &req.body {
+        astromech_data::Body::Json(v) => v.clone(),
+        other => panic!("{other:?}"),
+    };
+    assert_eq!(sent["filters"]["power_state"], serde_json::json!({ "value": ["Unoccupied"] }));
+    assert_eq!(systems[0].power_state.as_deref(), Some("Unoccupied"));
+    assert_eq!(systems[0].controlling_power, None);
+    assert_eq!(systems[0].power_conflict_progress[0].power, "Li Yong-Rui");
+    assert_eq!(systems[0].power_conflict_progress[0].progress, 0.316925);
+    assert!(systems[2].power.iter().any(|p| p == "Pranav Antal"));
+
     let bodies = c.spansh_bodies(&near_sol()).unwrap().value.results;
     assert_eq!(bodies[0].name, "Earth");
     assert_eq!(bodies[0].subtype.as_deref(), Some("Earth-like world"));

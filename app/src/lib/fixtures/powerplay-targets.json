@@ -1,0 +1,305 @@
+{
+ "reinforce": {
+  "target": "reinforce",
+  "power": "Li Yong-Rui",
+  "here": {
+   "system": "Lembava",
+   "id64": 3824408316259,
+   "pos": [
+    -43.25,
+    -64.34375,
+    -77.6875
+   ]
+  },
+  "range": 20.0,
+  "within_ly": 40.0,
+  "fetched": "2026-10-16T20:30:00Z",
+  "hits": [
+   {
+    "name": "Lembava",
+    "id64": 3824408316259,
+    "ly": 0.0,
+    "jumps": 0,
+    "exact": false,
+    "controlling_power": "Li Yong-Rui",
+    "state": "Stronghold",
+    "control_progress": 0.250634,
+    "reinforcement": 0,
+    "undermining": 166,
+    "acquisition": null,
+    "others": [],
+    "updated_at": "2026-10-16T19:13:42Z"
+   },
+   {
+    "name": "Pikum",
+    "id64": 5068463941001,
+    "ly": 5.16,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": "Li Yong-Rui",
+    "state": "Stronghold",
+    "control_progress": 0.485226,
+    "reinforcement": 11984,
+    "undermining": 58758,
+    "acquisition": null,
+    "others": [],
+    "updated_at": "2026-10-16T19:24:04Z"
+   },
+   {
+    "name": "Piscium Sector BV-Y b3",
+    "id64": 7267487196553,
+    "ly": 5.54,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": "Li Yong-Rui",
+    "state": "Fortified",
+    "control_progress": 0.277808,
+    "reinforcement": 82,
+    "undermining": 3707,
+    "acquisition": null,
+    "others": [],
+    "updated_at": "2026-10-15T16:51:57Z"
+   },
+   {
+    "name": "Aasgananu",
+    "id64": 9466510452105,
+    "ly": 6.02,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": "Li Yong-Rui",
+    "state": "Stronghold",
+    "control_progress": 0.29313,
+    "reinforcement": 538,
+    "undermining": 11208,
+    "acquisition": null,
+    "others": [],
+    "updated_at": "2026-10-15T23:42:27Z"
+   },
+   {
+    "name": "NLTT 7805",
+    "id64": 1458174890690,
+    "ly": 6.58,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": "Li Yong-Rui",
+    "state": "Exploited",
+    "control_progress": 0.054283,
+    "reinforcement": 0,
+    "undermining": 0,
+    "acquisition": null,
+    "others": [],
+    "updated_at": "2026-10-15T17:43:46Z"
+   }
+  ]
+ },
+ "acquire": {
+  "target": "acquire",
+  "power": "Li Yong-Rui",
+  "here": {
+   "system": "Lembava",
+   "id64": 3824408316259,
+   "pos": [
+    -43.25,
+    -64.34375,
+    -77.6875
+   ]
+  },
+  "range": 20.0,
+  "within_ly": 40.0,
+  "fetched": "2026-10-16T20:30:00Z",
+  "hits": [
+   {
+    "name": "Piscium Sector YJ-A b2",
+    "id64": 5068195440001,
+    "ly": 10.27,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": null,
+    "state": "Unoccupied",
+    "control_progress": null,
+    "reinforcement": null,
+    "undermining": null,
+    "acquisition": 0.316925,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-16T10:57:37Z"
+   },
+   {
+    "name": "LP 353-51",
+    "id64": 670417429897,
+    "ly": 16.34,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": null,
+    "state": "Unoccupied",
+    "control_progress": null,
+    "reinforcement": null,
+    "undermining": null,
+    "acquisition": 0.24485,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-16T18:34:48Z"
+   },
+   {
+    "name": "Piscium Sector GW-W b1-6",
+    "id64": 13864288462225,
+    "ly": 16.53,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": null,
+    "state": "Unoccupied",
+    "control_progress": null,
+    "reinforcement": null,
+    "undermining": null,
+    "acquisition": 0.086375,
+    "others": [
+     "Li Yong-Rui",
+     "Pranav Antal"
+    ],
+    "updated_at": "2026-10-15T19:48:58Z"
+   },
+   {
+    "name": "Piscium Sector ZE-A c16",
+    "id64": 4481831867074,
+    "ly": 16.81,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": null,
+    "state": "Unoccupied",
+    "control_progress": null,
+    "reinforcement": null,
+    "undermining": null,
+    "acquisition": 0.82315,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-15T20:02:20Z"
+   },
+   {
+    "name": "Piscium Sector AV-Y b0",
+    "id64": 670148994441,
+    "ly": 18.88,
+    "jumps": 1,
+    "exact": false,
+    "controlling_power": null,
+    "state": "Unoccupied",
+    "control_progress": null,
+    "reinforcement": null,
+    "undermining": null,
+    "acquisition": 0.1256,
+    "others": [
+     "Li Yong-Rui",
+     "Pranav Antal"
+    ],
+    "updated_at": "2026-10-13T14:08:10Z"
+   }
+  ]
+ },
+ "undermine": {
+  "target": "undermine",
+  "power": "Li Yong-Rui",
+  "here": {
+   "system": "Lembava",
+   "id64": 3824408316259,
+   "pos": [
+    -43.25,
+    -64.34375,
+    -77.6875
+   ]
+  },
+  "range": 20.0,
+  "within_ly": 40.0,
+  "fetched": "2026-10-16T20:30:00Z",
+  "hits": [
+   {
+    "name": "Piscium Sector EB-X b1-3",
+    "id64": 7267218761105,
+    "ly": 21.78,
+    "jumps": 2,
+    "exact": false,
+    "controlling_power": "Pranav Antal",
+    "state": "Exploited",
+    "control_progress": 0.076543,
+    "reinforcement": 0,
+    "undermining": 9,
+    "acquisition": null,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-15T17:49:53Z"
+   },
+   {
+    "name": "BD+15 176",
+    "id64": 633541169866,
+    "ly": 34.3,
+    "jumps": 2,
+    "exact": false,
+    "controlling_power": "Pranav Antal",
+    "state": "Fortified",
+    "control_progress": 0.238509,
+    "reinforcement": 0,
+    "undermining": 2769,
+    "acquisition": null,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-14T04:24:52Z"
+   },
+   {
+    "name": "Arietis Sector KD-H a11-0",
+    "id64": 5363877038848,
+    "ly": 34.76,
+    "jumps": 2,
+    "exact": false,
+    "controlling_power": "Pranav Antal",
+    "state": "Exploited",
+    "control_progress": 0.07286,
+    "reinforcement": 0,
+    "undermining": 298,
+    "acquisition": null,
+    "others": [
+     "Aisling Duval",
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-16T02:06:31Z"
+   },
+   {
+    "name": "HIP 11437",
+    "id64": 2282741535426,
+    "ly": 34.78,
+    "jumps": 2,
+    "exact": false,
+    "controlling_power": "Pranav Antal",
+    "state": "Exploited",
+    "control_progress": 0.066837,
+    "reinforcement": 0,
+    "undermining": 6,
+    "acquisition": null,
+    "others": [
+     "Li Yong-Rui"
+    ],
+    "updated_at": "2026-10-15T18:07:32Z"
+   },
+   {
+    "name": "Tascheter Sector NY-R a4-1",
+    "id64": 22954989472544,
+    "ly": 34.91,
+    "jumps": 2,
+    "exact": false,
+    "controlling_power": "Jerome Archer",
+    "state": "Exploited",
+    "control_progress": 0.000543,
+    "reinforcement": 0,
+    "undermining": 9,
+    "acquisition": null,
+    "others": [
+     "Li Yong-Rui",
+     "Pranav Antal"
+    ],
+    "updated_at": "2026-10-16T16:29:43Z"
+   }
+  ]
+ }
+}

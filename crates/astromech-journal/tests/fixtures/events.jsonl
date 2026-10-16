@@ -41,6 +41,7 @@
 { "timestamp":"2026-10-10T20:00:40Z", "event":"Powerplay", "Power":"Test Power", "Rank":3, "Merits":1200, "Votes":0, "TimePledged":86400 }
 { "timestamp":"2026-10-10T20:00:41Z", "event":"PowerplayMerits", "Power":"Test Power", "MeritsGained":50, "TotalMerits":1250 }
 { "timestamp":"2026-10-10T20:00:42Z", "event":"PowerplayDefect", "FromPower":"Test Power", "ToPower":"Other Power" }
+{ "timestamp":"2026-10-10T20:00:43Z", "event":"PowerplayRank", "Power":"Other Power", "Rank":4 }
 { "timestamp":"2026-10-10T20:00:43Z", "event":"ColonisationConstructionDepot", "MarketID":3900000001, "ConstructionProgress":0.25, "ConstructionComplete":false, "ConstructionFailed":false, "ResourcesRequired":[ { "Name":"$steel_name;", "Name_Localised":"Steel", "RequiredAmount":800, "ProvidedAmount":200, "Payment":4000 } ] }
 { "timestamp":"2026-10-10T20:00:44Z", "event":"ColonisationContribution", "MarketID":3900000001, "Contributions":[ { "Name":"$steel_name;", "Name_Localised":"Steel", "Amount":120 } ] }
 { "timestamp":"2026-10-10T20:00:45Z", "event":"CarrierStats", "CarrierID":3700000001, "Callsign":"T1X-00Z", "Name":"TEST CARRIER", "DockingAccess":"all", "AllowNotorious":false, "FuelLevel":500, "JumpRangeCurr":500.0, "JumpRangeMax":500.0, "PendingDecommission":false, "SpaceUsage":{ "TotalCapacity":25000, "FreeSpace":20000 }, "Finance":{ "CarrierBalance":1000000, "ReserveBalance":500000 } }
@@ -58,3 +59,5 @@
 { "timestamp":"2026-10-10T20:00:57Z", "event":"ReceiveText", "From":"Test Pilot", "Message":"hello", "Channel":"local" }
 { "timestamp":"2026-10-10T20:00:58Z", "event":"Touchdown", "PlayerControlled":true, "Latitude":10.5, "Longitude":-20.25, "OnStation":false, "OnPlanet":true }
 { "timestamp":"2026-10-10T20:00:59Z", "event":"Disembark", "SRV":false, "Taxi":false, "Multicrew":false, "StarSystem":"Test Two", "Body":"Test Two A 1", "BodyID":5, "OnStation":false, "OnPlanet":true }
+{ "timestamp":"2026-10-10T20:01:00Z", "event":"FSDJump", "StarSystem":"Test Three", "SystemAddress":3, "StarPos":[4.0,5.0,6.0], "JumpDist":9.5, "SystemAllegiance":"Independent", "Population":1000, "ControllingPower":"Test Power", "Powers":["Test Power","Other Power"], "PowerplayState":"Fortified", "PowerplayStateControlProgress":0.277808, "PowerplayStateReinforcement":82, "PowerplayStateUndermining":3707 }
+{ "timestamp":"2026-10-10T20:01:01Z", "event":"Location", "StarSystem":"Test Four", "Docked":false, "SystemAllegiance":"", "Population":0, "Powers":["Test Power","Other Power"], "PowerplayState":"Unoccupied", "PowerplayConflictProgress":[{"Power":"Test Power","ConflictProgress":0.086375},{"Power":"Other Power","ConflictProgress":0.003175}] }

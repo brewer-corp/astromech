@@ -1,0 +1,21 @@
+[package]
+name = "astromech-powerplay"
+description = "Powerplay 2.0 from the journal: the commander's standing and the system's state, with the rank rules as data"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-journal.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
