@@ -49,9 +49,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:47:49.778334288+00:00"
+status: "done"
 title: "Journal and companion-file coverage"
-updated_at: "2026-10-16T18:27:56.810967600+00:00"
+updated_at: "2026-10-16T18:47:49.778334288+00:00"
 ---
 
 ## Goal
@@ -65,3 +66,7 @@ Parser tests on synthetic fixtures for every new event and file, including a raw
 ## Scope
 
 `astromech-journal` and `astromech-gamestate`. No new user-facing features.
+
+## Close Reason
+
+Both children done: 60+ journal events typed with raw JSON kept byte-for-byte (qgjp, scope note for Carrier*/Colonisation*; rest in astromech-rjww), and the seven companion files read on their events into game state, stale or missing files reported (9uqb). Review findings fixed in e71c2a3; R5/R7 in astromech-ogq4.
