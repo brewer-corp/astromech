@@ -156,6 +156,11 @@ impl Outbox {
         let mut d = Delivery::default();
         for (id, schema_ref, body, attempts) in due {
             let attempts = attempts + 1;
+            let wait = backoff(attempts);
+            // Count the attempt and schedule the retry before posting, so a failure anywhere
+            // after this point (a panic, a database error) can't leave the message due again.
+            self.conn
+                .execute("UPDATE outbox SET attempts = ?2, next_try = ?3 WHERE id = ?1", (id, attempts, now + wait))?;
             let failure = match transport.post(&body) {
                 Ok(r) if r.status == 200 => {
                     self.remove(id)?;
@@ -177,11 +182,6 @@ impl Outbox {
                 self.log(now, &schema_ref, Outcome::GaveUp, &format!("after {attempts} tries; last: {failure}"))?;
                 d.gave_up += 1;
             } else {
-                let wait = backoff(attempts);
-                self.conn.execute(
-                    "UPDATE outbox SET attempts = ?2, next_try = ?3 WHERE id = ?1",
-                    (id, attempts, now + wait),
-                )?;
                 self.log(now, &schema_ref, Outcome::Retry, &format!("{failure}; retry in {wait} s"))?;
                 d.retrying += 1;
             }
@@ -298,6 +298,26 @@ pub(crate) mod tests {
         assert_eq!(t.calls() as i64, MAX_ATTEMPTS);
         assert_eq!(o.recent(1).unwrap()[0].outcome, "gave_up");
         assert!(now >= (1..MAX_ATTEMPTS).map(backoff).sum::<i64>());
+    }
+
+    struct PanickingTransport;
+    impl Transport for PanickingTransport {
+        fn post(&self, _: &[u8]) -> std::result::Result<Response, String> {
+            panic!("transport bug")
+        }
+    }
+
+    #[test]
+    fn a_failure_mid_send_does_not_leave_the_message_due() {
+        let o = Outbox::in_memory().unwrap();
+        o.enqueue(REF, b"m", 1000).unwrap();
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| o.deliver_due(&PanickingTransport, 1000)));
+        assert!(r.is_err());
+        assert_eq!(o.pending().unwrap(), 1, "kept for a retry");
+        assert_eq!(o.next_due().unwrap(), Some(1000 + MIN_RETRY_SECS), "not due again straight away");
+        let t = FakeTransport::default();
+        assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS - 1).unwrap(), Delivery::default());
+        assert_eq!(t.calls(), 0);
     }
 
     #[test]

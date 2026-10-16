@@ -352,6 +352,7 @@ mod tests {
         );
         let mut c = live();
         c.observe(&json!({"event":"Fileheader"}));
+        c.observe(&json!({"event":"Commander","Name":"Jameson"}));
         let up = build(&SPEC, &c, &sw(), false, json!({"event":"Docked","StarSystem":"x"})).unwrap();
         assert_eq!((&up["header"]["gameversion"], &up["header"]["gamebuild"]), (&json!(""), &json!("")));
     }

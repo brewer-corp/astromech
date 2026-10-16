@@ -34,6 +34,12 @@ impl GameContext {
         let s = |k: &str| ev.get(k).and_then(Value::as_str).map(str::to_owned);
         match ev.get("event").and_then(Value::as_str) {
             Some("Fileheader") => {
+                // A new game session starts from nothing: the last session's commander, flags
+                // and system must not leak into it. A file continuing a session (after
+                // `Continued`, `part` 2 or more) has no new `LoadGame`, so it keeps them.
+                if ev.get("part").and_then(Value::as_u64).unwrap_or(1) <= 1 {
+                    *self = Self::default();
+                }
                 // Sent as-is (whitespace included), and as "" when absent.
                 self.gameversion = Some(s("gameversion").unwrap_or_default());
                 self.gamebuild = Some(s("build").unwrap_or_default());
@@ -102,6 +108,43 @@ mod tests {
         assert_eq!(c.gamebuild.as_deref(), Some("r308767/r0 "), "whitespace is passed through");
         assert_eq!(c.commander.as_deref(), Some("Jameson"));
         assert_eq!((c.horizons, c.odyssey), (Some(true), None), "absent Odyssey stays unknown");
+    }
+
+    #[test]
+    fn new_session_fileheader_resets_everything() {
+        let mut c = GameContext::default();
+        c.observe(&json!({"event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":"a"}));
+        c.observe(&json!({"event":"LoadGame","Commander":"Jameson","Horizons":true,"Odyssey":true}));
+        c.observe(
+            &json!({"event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803u64,"StarPos":[0.0,0.0,0.0]}),
+        );
+        c.observe(&json!({"event":"Fileheader","part":1,"gameversion":"4.0.0.1910","build":"b"}));
+        let expect = GameContext {
+            gameversion: Some("4.0.0.1910".into()),
+            gamebuild: Some("b".into()),
+            version_from_fileheader: true,
+            ..Default::default()
+        };
+        assert_eq!(c, expect, "commander, flags and system from the last session are gone");
+        // No `part` at all also starts a new session.
+        c.observe(&json!({"event":"Commander","Name":"Other"}));
+        c.observe(&json!({"event":"Fileheader","gameversion":"4.0.0.1910","build":"b"}));
+        assert_eq!(c.commander, None);
+    }
+
+    #[test]
+    fn continued_file_keeps_the_session() {
+        let mut c = GameContext::default();
+        c.observe(&json!({"event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":"a"}));
+        c.observe(&json!({"event":"LoadGame","Commander":"Jameson","Horizons":true,"Odyssey":true}));
+        c.observe(
+            &json!({"event":"Location","StarSystem":"Sol","SystemAddress":10477373803u64,"StarPos":[0.0,0.0,0.0]}),
+        );
+        c.observe(&json!({"event":"Continued","Part":2}));
+        c.observe(&json!({"event":"Fileheader","part":2,"gameversion":"4.0.0.1904","build":"a"}));
+        assert_eq!(c.commander.as_deref(), Some("Jameson"));
+        assert_eq!((c.horizons, c.odyssey), (Some(true), Some(true)));
+        assert!(c.system.is_some());
     }
 
     #[test]

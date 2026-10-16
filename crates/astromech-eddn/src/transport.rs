@@ -5,6 +5,21 @@ use std::time::Duration;
 /// The live EDDN gateway (HTTPS, port 4430, trailing slash required).
 pub const UPLOAD_URL: &str = "https://eddn.edcd.io:4430/upload/";
 
+/// Response text kept for the send log, in bytes.
+pub const MAX_BODY_TEXT: usize = 500;
+
+/// At most `max` bytes of `s`, cut on a character boundary (gateway errors quote message values).
+pub fn clip(s: &str, max: usize) -> &str {
+    if s.len() <= max {
+        return s;
+    }
+    let mut end = max;
+    while !s.is_char_boundary(end) {
+        end -= 1;
+    }
+    &s[..end]
+}
+
 /// An HTTP answer from the gateway (any status, including errors).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Response {
@@ -46,9 +61,8 @@ impl Transport for HttpTransport {
             Err(ureq::Error::Transport(t)) => return Err(t.to_string()),
         };
         let status = resp.status();
-        let mut body = resp.into_string().unwrap_or_default();
-        body.truncate(500);
-        Ok(Response { status, body })
+        let body = resp.into_string().unwrap_or_default();
+        Ok(Response { status, body: clip(&body, MAX_BODY_TEXT).to_owned() })
     }
 }
 
@@ -102,6 +116,20 @@ mod tests {
         assert!(head.contains("content-type: application/json"), "{head}");
         assert!(head.contains("user-agent: astromech/0.1.5"), "{head}");
         assert_eq!(body, b"\x1f\x8bgz");
+    }
+
+    #[test]
+    fn long_multibyte_body_is_clipped_on_a_char_boundary() {
+        // 499 ASCII bytes, then 3-byte characters: byte 500 falls inside one.
+        let body: &'static str = format!("FAIL: {}{}", "x".repeat(493), "\u{20ac}".repeat(10)).leak();
+        assert!(!body.is_char_boundary(MAX_BODY_TEXT));
+        let (url, h) = serve_once("400 Bad Request", body);
+        let r = HttpTransport::new(&url, "astromech/test").post(b"x").unwrap();
+        h.join().unwrap();
+        assert_eq!(r.status, 400);
+        assert_eq!(r.body, body[..499]);
+        assert_eq!(clip("\u{20ac}\u{20ac}", 4), "\u{20ac}");
+        assert_eq!(clip("abc", 10), "abc");
     }
 
     #[test]
