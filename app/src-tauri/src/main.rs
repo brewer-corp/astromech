@@ -377,7 +377,12 @@ async fn engineering_trip(
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
 /// or, without one, near the commander, with jumps at the current ship's range.
 #[tauri::command]
-async fn galaxy_nearby(app: tauri::AppHandle, query: String, origin: Option<String>) -> Result<Value, String> {
+async fn galaxy_nearby(
+    app: tauri::AppHandle,
+    query: String,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>());
         let g = galaxy(&app)?;
@@ -386,10 +391,34 @@ async fn galaxy_nearby(app: tauri::AppHandle, query: String, origin: Option<Stri
             None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
         };
         let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-        let n = g.nearby(&query, &here, range_of(current), 8).map_err(|e| e.to_string())?;
+        let n =
+            g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
+}
+
+/// The settings store shared with the core (`astromech.sqlite` in the app dir).
+fn settings() -> Result<astromech_store::Store, String> {
+    std::fs::create_dir_all(app_dir()).map_err(|e| e.to_string())?;
+    astromech_store::Store::open(&app_dir().join("astromech.sqlite")).map_err(|e| e.to_string())
+}
+
+/// A search's remembered filters, with the pad taken from the current ship unless set.
+#[tauri::command]
+async fn search_filters(app: tauri::AppHandle, lookup: String) -> Result<astromech_galaxy::Filters, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>()).ok();
+        let ship = st.as_ref().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let pad = ship.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+        astromech_galaxy::filters::load(&settings()?, &lookup, pad).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+#[tauri::command]
+async fn set_search_filters(lookup: String, filters: astromech_galaxy::Filters) -> Result<(), String> {
+    blocking(move || astromech_galaxy::filters::save(&settings()?, &lookup, &filters).map_err(|e| e.to_string())).await
 }
 
 /// System names starting with `prefix`, for the search origin box.
@@ -543,7 +572,9 @@ fn main() {
             engineering_engineers,
             engineering_trip,
             galaxy_nearby,
-            galaxy_systems
+            galaxy_systems,
+            search_filters,
+            set_search_filters
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

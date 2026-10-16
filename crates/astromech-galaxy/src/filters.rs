@@ -1,0 +1,205 @@
+//! Search filters for the "search near me" kit, remembered per lookup in `astromech-store`
+//! settings (`search.filters.<lookup>`). The landing pad follows the current ship until the
+//! commander picks one.
+
+use serde::{Deserialize, Serialize};
+
+/// Landing pad size, smallest first.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Pad {
+    S,
+    M,
+    L,
+}
+
+impl Pad {
+    /// The pad a ship needs, by its journal symbol (`Loadout.Ship`); `None` if unknown.
+    /// Player-visible game data (Elite Dangerous wiki, ship pages).
+    pub fn for_ship(symbol: &str) -> Option<Pad> {
+        let s = symbol.to_ascii_lowercase();
+        let pad = match s.as_str() {
+            "sidewinder" | "eagle" | "hauler" | "adder" | "empire_eagle" | "viper" | "viper_mkiv" | "cobramkiii"
+            | "cobramkiv" | "cobramkv" | "diamondback" | "diamondbackxl" | "dolphin" | "empire_courier" | "vulture"
+            | "smallcombat01_nx" => Pad::S,
+            "type6"
+            | "type8"
+            | "independant_trader"
+            | "asp"
+            | "asp_scout"
+            | "federation_dropship"
+            | "federation_dropship_mkii"
+            | "federation_gunship"
+            | "typex"
+            | "typex_2"
+            | "typex_3"
+            | "krait_mkii"
+            | "krait_light"
+            | "ferdelance"
+            | "mamba"
+            | "python"
+            | "python_nx"
+            | "mandalay"
+            | "corsair"
+            | "lakonminer"
+            | "mediumtransport01" => Pad::M,
+            "type7"
+            | "empire_trader"
+            | "orca"
+            | "type9"
+            | "belugaliner"
+            | "type9_military"
+            | "anaconda"
+            | "federation_corvette"
+            | "cutter"
+            | "panthermkii"
+            | "explorer_nx" => Pad::L,
+            _ => return None,
+        };
+        Some(pad)
+    }
+}
+
+/// One lookup's filters. A filter a result can't be judged on (a system has no pad) keeps it.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Filters {
+    /// Hide stations without a pad at least this big. `None`: any pad.
+    pub pad: Option<Pad>,
+    /// The commander picked `pad`; otherwise it follows the current ship.
+    pub pad_set: bool,
+    pub exclude_carriers: bool,
+    pub exclude_odyssey: bool,
+    /// Hide data older than this many days.
+    pub max_age_days: Option<u32>,
+    /// Hide stations farther than this from the arrival star, in light seconds.
+    pub max_arrival_ls: Option<u32>,
+}
+
+/// What a result offers the filters. `None` / `false` where the source doesn't say.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct Facts<'a> {
+    /// The largest pad at the station.
+    pub pad: Option<Pad>,
+    pub arrival_ls: Option<f64>,
+    pub fleet_carrier: bool,
+    pub odyssey: bool,
+    /// RFC 3339, as Spansh and Ardent send it.
+    pub updated_at: Option<&'a str>,
+}
+
+impl Filters {
+    /// With the pad taken from the current ship, unless the commander set it.
+    pub fn for_ship(mut self, ship_pad: Option<Pad>) -> Self {
+        if !self.pad_set {
+            self.pad = ship_pad;
+        }
+        self
+    }
+
+    pub fn keeps(&self, f: &Facts, now_s: i64) -> bool {
+        let pad = match (self.pad, f.pad) {
+            (Some(need), Some(has)) => has >= need,
+            _ => true,
+        };
+        let arrival = match (self.max_arrival_ls, f.arrival_ls) {
+            (Some(max), Some(ls)) => ls <= max as f64,
+            _ => true,
+        };
+        let age = match (self.max_age_days, f.updated_at.and_then(parse_time)) {
+            (Some(days), Some(t)) => now_s - t <= days as i64 * 86_400,
+            _ => true,
+        };
+        pad && arrival && age && !(self.exclude_carriers && f.fleet_carrier) && !(self.exclude_odyssey && f.odyssey)
+    }
+}
+
+fn parse_time(s: &str) -> Option<i64> {
+    chrono::DateTime::parse_from_rfc3339(s).ok().map(|t| t.timestamp())
+}
+
+fn key(lookup: &str) -> String {
+    format!("search.filters.{lookup}")
+}
+
+/// `lookup`'s saved filters (defaults if none or unreadable), with the pad resolved for the
+/// current ship.
+pub fn load(store: &astromech_store::Store, lookup: &str, ship_pad: Option<Pad>) -> anyhow::Result<Filters> {
+    let saved = store.get(&key(lookup))?.and_then(|v| serde_json::from_str::<Filters>(&v).ok()).unwrap_or_default();
+    Ok(saved.for_ship(ship_pad))
+}
+
+pub fn save(store: &astromech_store::Store, lookup: &str, filters: &Filters) -> anyhow::Result<()> {
+    store.set(&key(lookup), &serde_json::to_string(filters)?)?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn filters_survive_a_restart_for_their_lookup_only() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("astromech.sqlite");
+        {
+            let st = astromech_store::Store::open(&db).unwrap();
+            let f =
+                Filters { max_age_days: Some(7), exclude_carriers: true, ..load(&st, "faction.famine", None).unwrap() };
+            save(&st, "faction.famine", &f).unwrap();
+        }
+        // the app closes and opens again
+        let st = astromech_store::Store::open(&db).unwrap();
+        let famine = load(&st, "faction.famine", None).unwrap();
+        assert_eq!(famine.max_age_days, Some(7));
+        assert!(famine.exclude_carriers);
+        assert_eq!(load(&st, "faction.proto", None).unwrap(), Filters::default(), "other lookups are untouched");
+    }
+
+    #[test]
+    fn pad_follows_the_ship_unless_the_commander_set_it() {
+        let st = astromech_store::Store::in_memory().unwrap();
+        let krait = Pad::for_ship("krait_mkii");
+        let anaconda = Pad::for_ship("Anaconda");
+        assert_eq!((krait, anaconda), (Some(Pad::M), Some(Pad::L)));
+
+        // not set: follows whatever ship is current, even after saving other filters
+        save(&st, "outfitting", &Filters { max_age_days: Some(30), ..load(&st, "outfitting", krait).unwrap() })
+            .unwrap();
+        assert_eq!(load(&st, "outfitting", krait).unwrap().pad, Some(Pad::M));
+        assert_eq!(load(&st, "outfitting", anaconda).unwrap().pad, Some(Pad::L), "follows a ship change");
+        assert_eq!(load(&st, "outfitting", None).unwrap().pad, None, "unknown ship: any pad");
+
+        // set by the commander: kept across ship changes, including "any pad"
+        save(&st, "outfitting", &Filters { pad: Some(Pad::S), pad_set: true, ..Filters::default() }).unwrap();
+        assert_eq!(load(&st, "outfitting", anaconda).unwrap().pad, Some(Pad::S));
+        save(&st, "outfitting", &Filters { pad: None, pad_set: true, ..Filters::default() }).unwrap();
+        assert_eq!(load(&st, "outfitting", anaconda).unwrap().pad, None);
+        assert_eq!(load(&st, "trade", anaconda).unwrap().pad, Some(Pad::L), "another lookup still follows the ship");
+    }
+
+    #[test]
+    fn keeps_applies_each_filter() {
+        let now = parse_time("2026-10-16T12:00:00Z").unwrap();
+        let station = Facts {
+            pad: Some(Pad::M),
+            arrival_ls: Some(1200.0),
+            fleet_carrier: false,
+            odyssey: false,
+            updated_at: Some("2026-10-14T18:08:31Z"),
+        };
+        let all = Filters::default();
+        assert!(all.keeps(&station, now));
+        assert!(!Filters { pad: Some(Pad::L), ..all.clone() }.keeps(&station, now));
+        assert!(Filters { pad: Some(Pad::S), ..all.clone() }.keeps(&station, now));
+        assert!(!Filters { max_arrival_ls: Some(1000), ..all.clone() }.keeps(&station, now));
+        assert!(!Filters { max_age_days: Some(1), ..all.clone() }.keeps(&station, now));
+        assert!(Filters { max_age_days: Some(2), ..all.clone() }.keeps(&station, now));
+        let carrier = Facts { fleet_carrier: true, ..station };
+        assert!(!Filters { exclude_carriers: true, ..all.clone() }.keeps(&carrier, now));
+        let settlement = Facts { odyssey: true, ..station };
+        assert!(!Filters { exclude_odyssey: true, ..all.clone() }.keeps(&settlement, now));
+        // a system has no pad, arrival or carrier facts: only its age counts
+        let strict = Filters { pad: Some(Pad::L), max_arrival_ls: Some(10), exclude_carriers: true, ..all };
+        assert!(strict.keeps(&Facts { updated_at: Some("2026-10-16T11:00:00Z"), ..Facts::default() }, now));
+    }
+}

@@ -204,6 +204,7 @@ dependencies = [
  "astromech-data",
  "astromech-journal",
  "astromech-materials",
+ "astromech-store",
  "chrono",
  "rusqlite",
  "serde",

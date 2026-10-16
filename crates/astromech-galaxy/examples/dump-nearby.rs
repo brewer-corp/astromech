@@ -9,6 +9,9 @@ fn main() -> anyhow::Result<()> {
     s.cache_put("spansh:famine:0:0:0", now, include_str!("../tests/fixtures/spansh-famine.json"))?;
     let g = Galaxy::with_store(s);
     let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
-    print!("{}", serde_json::to_string_pretty(&g.nearby("famine", &here, 32.5, 8)?)?);
+    print!(
+        "{}",
+        serde_json::to_string_pretty(&g.nearby("famine", &here, 32.5, 8, &astromech_galaxy::Filters::default())?)?
+    );
     Ok(())
 }

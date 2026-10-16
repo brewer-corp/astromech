@@ -1,7 +1,8 @@
 /**
  * The "search near me" kit's model (docs/ARCHITECTURE.md §18): where a search starts (the
- * current system or a typed one), the rows every lookup shows, and system-name autocomplete
- * (Spansh, through the shell). Lookups adapt their own answers into {@link Results}.
+ * current system or a typed one), the rows every lookup shows, system-name autocomplete
+ * (Spansh, through the shell), and each lookup's remembered filters (the shell keeps them in
+ * astromech-store settings). Lookups adapt their own answers into {@link Results}.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
@@ -40,6 +41,52 @@ export interface Results {
   fetched: string;
   rows: Row[];
   warning?: string;
+}
+
+/** One lookup's filters (astromech_galaxy::Filters). */
+export interface Filters {
+  /** Hide stations without a pad at least this big; null: any pad. */
+  pad: Pad | null;
+  /** The commander picked `pad`; otherwise it follows the current ship. */
+  pad_set: boolean;
+  exclude_carriers: boolean;
+  exclude_odyssey: boolean;
+  max_age_days: number | null;
+  max_arrival_ls: number | null;
+}
+
+/** Which filters a lookup offers: system lookups only have an age; station lookups have all. */
+export type FilterKey = "pad" | "carriers" | "odyssey" | "age" | "arrival";
+
+export const DEFAULT_FILTERS: Filters = {
+  pad: null,
+  pad_set: false,
+  exclude_carriers: false,
+  exclude_odyssey: false,
+  max_age_days: null,
+  max_arrival_ls: null,
+};
+
+/** The browser preview's pretend ship (a medium-pad ship). */
+const PREVIEW_SHIP_PAD: Pad = "M";
+const previewKey = (lookup: string) => `astromech.search.${lookup}`;
+
+/** `lookup`'s remembered filters, the pad following the current ship unless the commander set it. */
+export async function loadFilters(lookup: string): Promise<Filters> {
+  if (inTauri) return await invoke<Filters>("search_filters", { lookup });
+  let saved: Partial<Filters> = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(previewKey(lookup)) ?? "{}") as Partial<Filters>;
+  } catch {
+    saved = {};
+  }
+  const f = { ...DEFAULT_FILTERS, ...saved };
+  return f.pad_set ? f : { ...f, pad: PREVIEW_SHIP_PAD };
+}
+
+export async function saveFilters(lookup: string, filters: Filters): Promise<void> {
+  if (inTauri) return await invoke("set_search_filters", { lookup, filters });
+  localStorage.setItem(previewKey(lookup), JSON.stringify(filters));
 }
 
 /** Public system names for the browser preview's autocomplete. */

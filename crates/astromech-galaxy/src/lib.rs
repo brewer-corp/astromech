@@ -5,10 +5,12 @@
 //! commander travels; live faction states from Spansh's system search; jump counts by A* over
 //! the known stars at the ship's range.
 
+pub mod filters;
 pub mod map;
 pub mod remote;
 pub mod store;
 
+pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
 pub use store::{dist, Sphere, Star, Store};
@@ -179,8 +181,9 @@ impl Galaxy {
         Ok(self.map()?.hop(a, b, range))
     }
 
-    /// Systems near `here` matching `query_id`, nearest first, with jump counts at `range`.
-    pub fn nearby(&self, query_id: &str, here: &Here, range: f64, limit: usize) -> Result<Nearby> {
+    /// Systems near `here` matching `query_id` and `filters`, nearest first, with jump counts
+    /// at `range`.
+    pub fn nearby(&self, query_id: &str, here: &Here, range: f64, limit: usize, filters: &Filters) -> Result<Nearby> {
         let q = query(query_id).ok_or_else(|| anyhow::anyhow!("unknown lookup {query_id}"))?;
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
@@ -202,7 +205,10 @@ impl Galaxy {
                 (now, b)
             }
         };
-        let hits = remote::parse_search(&body)?;
+        let hits = remote::parse_search(&body)?
+            .into_iter()
+            .filter(|h| filters.keeps(&Facts { updated_at: h.updated_at.as_deref(), ..Facts::default() }, now))
+            .collect();
         Ok(self.rank(q, here, range, limit, hits, iso(fetched)))
     }
 
@@ -309,7 +315,7 @@ mod tests {
         let g = Galaxy::with_remote(Store::in_memory().unwrap(), client);
         let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
 
-        let n = g.nearby("famine", &here, 5.0, 2).unwrap();
+        let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
         {
             let log = rec.log.lock().unwrap();
             assert_eq!(log.len(), 2, "one EDSM fill-in and one Spansh search: {log:?}");
@@ -322,7 +328,7 @@ mod tests {
         assert!(n.hits[0].hop.jumps >= 2);
         assert!(g.position("S10").unwrap().is_some(), "EDSM systems are stored");
 
-        let again = g.nearby("famine", &here, 5.0, 2).unwrap();
+        let again = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
         assert_eq!(rec.log.lock().unwrap().len(), 2, "covered and cached: no requests");
         assert_eq!(again.hits, n.hits);
         assert_eq!(again.fetched, n.fetched);
@@ -370,7 +376,7 @@ mod tests {
         s.cache_put(key, now_s(), body).unwrap();
         let g = Galaxy::with_store(s);
         // covered → no EDSM call; cached → no Spansh call
-        let n = g.nearby("famine", &here, 5.0, 2).unwrap();
+        let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
         assert_eq!(n.hits.len(), 2);
         assert_eq!(n.hits[0].name, "WISE 0855-0714");
         assert!(n.hits[0].hop.jumps >= 2);
@@ -381,6 +387,10 @@ mod tests {
         assert!(n.warning.is_none());
         // Spansh hits are added to the map
         assert!(g.position("Tau Ceti").unwrap().is_some());
+        // the lookup's filters apply to the cached answer: every fixture hit is older than a day
+        let fresh = Filters { max_age_days: Some(1), ..Filters::default() };
+        let none = g.nearby("famine", &here, 5.0, 2, &fresh).unwrap();
+        assert!(none.hits.is_empty() && none.warning.is_none(), "{none:?}");
     }
 
     #[test]

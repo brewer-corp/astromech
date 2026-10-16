@@ -1,37 +1,60 @@
 <script lang="ts">
   // The "search near me" kit every lookup uses: pick where to search from (current or typed
-  // system), run the lookup, and list the nearest results with jumps at the current range,
-  // distance, pad size, arrival distance and data age.
+  // system) and the lookup's remembered filters, run the lookup, and list the nearest results
+  // with jumps at the current range, distance, pad size, arrival distance and data age.
   import { ago, jumps } from "../galaxy";
-  import { arrivalLabel, padLabel, type Origin, type Results } from "../search";
+  import { arrivalLabel, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
+  import SearchFilters from "./SearchFilters.svelte";
 
   let {
     lookup,
+    offers,
     run,
     title = "Nearest",
     busyText = "Searching…",
   }: {
-    /** Stable id of the lookup; a change re-runs the search. */
+    /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
-    run: (origin: Origin) => Promise<Results>;
+    /** The filters this lookup can apply. */
+    offers: FilterKey[];
+    run: (origin: Origin, filters: Filters) => Promise<Results>;
     title?: string;
     busyText?: string;
   } = $props();
 
   let origin = $state<Origin>(null);
+  /** Filters loaded for `lookup` (null until they arrive). */
+  let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   let res = $state<Results | null>(null);
   let err = $state<string | null>(null);
   let busy = $state(false);
   let asked = 0;
 
   $effect(() => {
-    void lookup;
+    const l = lookup;
+    void loadFilters(l).then((filters) => {
+      if (l === lookup) saved = { lookup: l, filters };
+    });
+  });
+
+  async function change(filters: Filters) {
+    const l = lookup;
+    saved = { lookup: l, filters };
+    await saveFilters(l, filters);
+    // reload: the pad goes back to the ship's when the commander stops choosing one
+    const fresh = await loadFilters(l);
+    if (l === lookup && JSON.stringify(fresh) !== JSON.stringify(filters)) saved = { lookup: l, filters: fresh };
+  }
+
+  $effect(() => {
     const o = origin;
+    const s = saved;
+    if (!s || s.lookup !== lookup) return;
     const n = ++asked;
     busy = true;
     err = null;
-    run(o)
+    run(o, s.filters)
       .then((r) => {
         if (n === asked) res = r;
       })
@@ -53,6 +76,7 @@
 <div class="kit">
   <h4>{title}{res ? ` to ${res.origin}` : ""}</h4>
   <OriginInput {origin} onchange={(o) => (origin = o)} />
+  {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} onchange={(f) => void change(f)} />{/if}
   {#if busy && !res}
     <p class="lo">{busyText}</p>
   {:else if err}

@@ -1,7 +1,7 @@
 <script lang="ts">
   // Nearest systems for one faction-state lookup (Famine, an HGE pool), on the search kit.
   import { nearby, type Nearby } from "../galaxy";
-  import type { Origin, Results } from "../search";
+  import type { Filters, Origin, Results } from "../search";
   import SearchKit from "./SearchKit.svelte";
 
   let { query }: { query: string } = $props();
@@ -13,8 +13,8 @@
     return `${f.name} (${f.allegiance}${st ? `, ${st}` : ""})`;
   }
 
-  async function run(origin: Origin): Promise<Results> {
-    const r = await nearby(query, origin);
+  async function run(origin: Origin, filters: Filters): Promise<Results> {
+    const r = await nearby(query, origin, filters);
     return {
       origin: r.here.system,
       range: r.range,
@@ -26,4 +26,4 @@
   }
 </script>
 
-<SearchKit lookup={query} {run} busyText="Looking up live faction states…" />
+<SearchKit lookup={`faction.${query}`} offers={["age"]} {run} busyText="Looking up live faction states…" />

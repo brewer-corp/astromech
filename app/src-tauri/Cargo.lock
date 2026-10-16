@@ -75,6 +75,7 @@ dependencies = [
  "anyhow",
  "astromech-data",
  "astromech-journal",
+ "astromech-store",
  "chrono",
  "rusqlite",
  "serde",
@@ -134,12 +135,20 @@ dependencies = [
  "astromech-input",
  "astromech-keybinds",
  "astromech-materials",
+ "astromech-store",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-single-instance",
  "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
+name = "astromech-store"
+version = "0.1.5"
+dependencies = [
+ "rusqlite",
 ]
 
 [[package]]
