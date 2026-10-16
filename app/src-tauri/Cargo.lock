@@ -163,6 +163,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-odyssey"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-powerplay"
 version = "0.1.5"
 dependencies = [
@@ -184,6 +193,7 @@ dependencies = [
  "astromech-keybinds",
  "astromech-market",
  "astromech-materials",
+ "astromech-odyssey",
  "astromech-powerplay",
  "astromech-ship",
  "astromech-station",

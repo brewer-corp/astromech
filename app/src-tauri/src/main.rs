@@ -270,6 +270,49 @@ fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     Ok(v)
 }
 
+/// On-foot engineer progress, re-read when the journal changes (the scan reads every journal).
+struct OdysseyCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, astromech_odyssey::Progress)>>);
+
+/// The ShipLocker and Backpack (small files, read every call) and the engineer progress.
+fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, astromech_odyssey::Progress), String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    let holdings = astromech_odyssey::Holdings::from_journal_dir(&dir);
+    let version = astromech_materials::journal_version(&dir);
+    let mut g = cache.0.lock().map_err(|_| "busy".to_string())?;
+    let progress = match &*g {
+        Some((v, p)) if *v == version => p.clone(),
+        _ => {
+            let p = astromech_odyssey::progress_from_journal_dir(&dir);
+            *g = Some((version, p.clone()));
+            p
+        }
+    };
+    Ok((holdings, progress))
+}
+
+/// Odyssey micro-resources: inventory, engineers, and the blueprint picker's choices.
+#[tauri::command]
+async fn odyssey_view(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
+        serde_json::to_value(astromech_odyssey::view(&h, &p, "ShipLocker.json")).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// What the picked suit/weapon upgrades and modifications need, against the inventory.
+#[tauri::command]
+async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::Pick>) -> Result<Value, String> {
+    blocking(move || {
+        let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
+        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p)).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 #[allow(clippy::type_complexity)]
 struct PowerplayCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, std::sync::Arc<astromech_powerplay::Journal>)>>);
 
@@ -830,6 +873,7 @@ fn main() {
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
+        .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
@@ -853,6 +897,8 @@ fn main() {
             engineering_headlines,
             engineering_engineers,
             engineering_trip,
+            odyssey_view,
+            odyssey_shopping,
             galaxy_nearby,
             stations_nearby,
             galaxy_systems,
