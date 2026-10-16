@@ -24,6 +24,7 @@
 
   function where(s: Ship): string {
     if (s.current) return "Flying now";
+    if (s.in_transit) return s.system ? `In transit to ${s.system}` : "In transit";
     return s.system ? s.system : "Stored";
   }
 
@@ -94,6 +95,7 @@
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 10px; }
   .card { display: grid; grid-template-columns: auto 1fr auto; column-gap: 10px; row-gap: 2px; align-content: start; padding: 10px 12px; background: var(--cell-empty); border-left: 2px solid var(--accent-dim); }
   .card:hover { background: var(--row-hover); border-left-color: var(--accent); }
+  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .card.now { border-left-color: var(--accent); }
   .name { grid-column: 1 / 3; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .id { font-family: var(--mono); font-size: var(--fs-s); text-align: right; align-self: center; }

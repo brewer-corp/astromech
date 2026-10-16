@@ -753,6 +753,7 @@
         "current": true,
         "id": 3,
         "ident": "HL-03",
+        "in_transit": false,
         "loadout_ts": "2026-10-03T09:00:05Z",
         "max_jump_range": 18.0,
         "modules": [
@@ -789,6 +790,7 @@
         "current": false,
         "id": 7,
         "ident": "LW-07",
+        "in_transit": false,
         "loadout_ts": "2026-09-20T18:00:05Z",
         "max_jump_range": 32.5,
         "modules": [
@@ -872,7 +874,7 @@
         "name": "Long Way Round",
         "rebuy": 6700000,
         "ship_type": "krait_mkii",
-        "system": null,
+        "system": "Shinrarta Dezhra",
         "type_name": "Krait MkII",
         "value": 134000000
       },
@@ -880,6 +882,7 @@
         "current": false,
         "id": 12,
         "ident": null,
+        "in_transit": false,
         "loadout_ts": null,
         "max_jump_range": null,
         "modules": [],

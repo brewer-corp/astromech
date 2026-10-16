@@ -278,7 +278,7 @@ mod tests {
             ships,
             vec![
                 (3, None, Some(165_000_000), Some(12_000_000), Some(18.0)),
-                (7, None, Some(134_000_000), Some(6_700_000), Some(32.5)),
+                (7, Some("Shinrarta Dezhra"), Some(134_000_000), Some(6_700_000), Some(32.5)),
                 (12, Some("Sol"), Some(6_000_000), None, None),
             ]
         );
@@ -295,6 +295,24 @@ mod tests {
                 ("2F Pulse Laser", None, None, None),
             ]
         );
+    }
+
+    #[test]
+    fn transfer_marks_a_ship_in_transit_to_where_we_are() {
+        let mut b = FleetBuilder::default();
+        for p in astromech_journal::journal_logs(&fixture_dir()) {
+            for l in astromech_journal::parse_file(&p) {
+                b.apply(&l.timestamp, &l.event);
+            }
+        }
+        let l = astromech_journal::parse_line(
+            r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":12,"System":"Sol"}"#,
+        )
+        .unwrap();
+        b.apply(&l.timestamp, &l.event);
+        let asp = b.build("test").ships.into_iter().find(|s| s.id == 12).unwrap();
+        assert!(asp.in_transit);
+        assert_eq!(asp.system.as_deref(), Some("Shinrarta Dezhra"));
     }
 
     #[test]

@@ -32,6 +32,8 @@ pub struct Ship {
     pub ident: Option<String>,
     pub system: Option<String>,
     pub current: bool,
+    /// Being moved to a shipyard; `system` is where it was last known.
+    pub in_transit: bool,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
     /// Unladen maximum from the last `Loadout`.
@@ -113,6 +115,8 @@ pub struct FleetBuilder {
     stored: HashMap<i64, StoredShip>,
     stored_modules: Vec<StoredModule>,
     current: Option<i64>,
+    /// System of the last dock, for a ship left behind by a swap.
+    here: Option<String>,
 }
 
 impl FleetBuilder {
@@ -130,6 +134,20 @@ impl FleetBuilder {
                 modules_value,
                 ..
             } if !is_vehicle(ship.as_deref().unwrap_or("")) => {
+                // Flying out of another ship leaves it where we are docked: StoredShips was
+                // written before the swap and does not list it.
+                if let Some(prev) = self.current.filter(|p| p != id) {
+                    if let Some(old) = self.loadouts.get(&prev) {
+                        self.stored.entry(prev).or_insert_with(|| StoredShip {
+                            ship_id: prev,
+                            ship_type: old.ship_type.clone(),
+                            name: old.name.clone(),
+                            system: self.here.clone(),
+                            in_transit: false,
+                            value: old.value,
+                        });
+                    }
+                }
                 self.current = Some(*id);
                 self.stored.remove(id);
                 self.loadouts.insert(
@@ -150,6 +168,24 @@ impl FleetBuilder {
                 self.stored = ships.iter().map(|s| (s.ship_id, s.clone())).collect();
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
+            }
+            JournalEvent::Docked { star_system, .. } => self.here = Some(star_system.clone()),
+            JournalEvent::Location { star_system, docked, .. } => {
+                self.here = docked.then(|| star_system.clone());
+            }
+            JournalEvent::ShipTransfer { ship_id, ship_type } => {
+                // It arrives where we are; until the next StoredShips it counts as in transit.
+                let here = self.here.clone();
+                let s = self.stored.entry(*ship_id).or_insert_with(|| StoredShip {
+                    ship_id: *ship_id,
+                    ship_type: ship_type.clone(),
+                    name: None,
+                    system: None,
+                    in_transit: false,
+                    value: None,
+                });
+                s.system = here;
+                s.in_transit = true;
             }
             JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
             JournalEvent::EngineerCraft {
@@ -232,6 +268,7 @@ impl FleetBuilder {
             ident: seen.and_then(|s| s.ident.clone()),
             system: stored.and_then(|s| s.system.clone()),
             current: self.current == Some(id),
+            in_transit: stored.is_some_and(|s| s.in_transit),
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
             value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),
@@ -379,6 +416,9 @@ const FLEET_EVENTS: &[&str] = &[
     "\"Loadout\"",
     "\"StoredShips\"",
     "\"StoredModules\"",
+    "\"ShipyardTransfer\"",
+    "\"Docked\"",
+    "\"Location\"",
     "\"ShipyardSell\"",
     "\"ShipyardBuy\"",
     "\"SellShipOnRebuy\"",

@@ -56,6 +56,11 @@ pub enum JournalEvent {
     StoredModules {
         items: Vec<StoredModule>,
     },
+    /// A stored ship was ordered to the system the player is in (`ShipyardTransfer`).
+    ShipTransfer {
+        ship_id: i64,
+        ship_type: String,
+    },
     /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
     ShipSold {
         ship_id: i64,
@@ -176,6 +181,8 @@ pub struct StoredShip {
     pub ship_type: String,
     pub name: Option<String>,
     pub system: Option<String>,
+    /// On its way to `system` (or to wherever it was last written, if `system` is `None`).
+    pub in_transit: bool,
     pub value: Option<i64>,
 }
 
@@ -288,6 +295,12 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         },
         "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
         "StoredModules" => JournalEvent::StoredModules { items: stored_modules(&raw) },
+        "ShipyardTransfer" => match opt_i(&raw, "ShipID") {
+            Some(ship_id) => {
+                JournalEvent::ShipTransfer { ship_id, ship_type: s(&raw, "ShipType").to_ascii_lowercase() }
+            }
+            None => JournalEvent::Other { event, raw },
+        },
         "ShipyardSell" => match opt_i(&raw, "SellShipID") {
             Some(ship_id) => JournalEvent::ShipSold { ship_id },
             None => JournalEvent::Other { event, raw },
@@ -405,16 +418,14 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
         .filter_map(|k| v.get(*k).and_then(|x| x.as_array()))
         .flatten()
         .filter_map(|x| {
+            let in_transit = x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false);
             Some(StoredShip {
                 ship_id: opt_i(x, "ShipID")?,
                 ship_type: s(x, "ShipType").to_ascii_lowercase(),
                 name: opt_s(x, "Name"),
                 // In transit: no system yet (not the one the list was written in).
-                system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
-                    None
-                } else {
-                    opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem"))
-                },
+                system: if in_transit { None } else { opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")) },
+                in_transit,
                 value: opt_i(x, "Value"),
             })
         })
@@ -758,7 +769,11 @@ mod tests {
             _ => panic!("expected StoredShips"),
         }
         let l = parse_line(r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true}]}"#).unwrap();
-        assert!(matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none()));
+        assert!(
+            matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none() && ships[0].in_transit)
+        );
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipTransfer { ship_id: 4, ship_type: "asp".into() });
         let l = parse_line(
             r#"{"timestamp":"t","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$int_hyperdrive_size5_class5_name;","Name_Localised":"FSD","StarSystem":"Sol","BuyPrice":100,"EngineerModifications":"FSD_LongRange","Level":3,"Quality":0.5},{"Name":"$hpt_x;","InTransit":true}]}"#,
         )
