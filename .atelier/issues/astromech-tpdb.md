@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647402360+00:00"
 id: "astromech-tpdb"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-tpdb
 priority: "P0"
 relationships:
   blocks:
@@ -38,11 +41,18 @@ relationships:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-ogq4"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-rjww"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:47:49.778334288+00:00"
+status: "done"
 title: "Journal and companion-file coverage"
-updated_at: "2026-10-15T20:36:13.770967873+00:00"
+updated_at: "2026-10-16T18:47:49.778334288+00:00"
 ---
 
 ## Goal
@@ -56,3 +66,7 @@ Parser tests on synthetic fixtures for every new event and file, including a raw
 ## Scope
 
 `astromech-journal` and `astromech-gamestate`. No new user-facing features.
+
+## Close Reason
+
+Both children done: 60+ journal events typed with raw JSON kept byte-for-byte (qgjp, scope note for Carrier*/Colonisation*; rest in astromech-rjww), and the seven companion files read on their events into game state, stale or missing files reported (9uqb). Review findings fixed in e71c2a3; R5/R7 in astromech-ogq4.

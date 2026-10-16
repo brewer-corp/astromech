@@ -22,7 +22,8 @@
 
   $effect(() => {
     void loadMaterials().then((v) => (inv = v));
-    const t = setInterval(() => void loadMaterials().then((v) => (inv = v)), 2000);
+    // 1 s poll + recompute keeps journal changes on screen within 2 s (astromech-txzq).
+    const t = setInterval(() => void loadMaterials().then((v) => (inv = v)), 1000);
     return () => clearInterval(t);
   });
 

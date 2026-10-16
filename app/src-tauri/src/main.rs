@@ -207,9 +207,10 @@ fn journal_dir() -> PathBuf {
         .join("Elite Dangerous")
 }
 
-#[allow(clippy::type_complexity)]
-struct MaterialsCache(std::sync::Mutex<Option<((u64, u64, u64), Value)>>);
+struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
 
+/// Directory-listing metadata only. On Windows it can lag appends to the journal the game holds
+/// open, which delays the Engineering page (astromech-ztrb).
 fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
     let mut n = 0u64;
     let mut newest = 0u64;
@@ -235,23 +236,29 @@ fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
 }
 
 /// Engineering materials from the journal, laid out like the in-game traders.
+/// Off the main thread: the page polls every second and a recompute re-reads the session journal.
 #[tauri::command]
-fn materials_inventory(cache: tauri::State<MaterialsCache>) -> Result<Value, String> {
+async fn materials_inventory(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || materials_inventory_now(&app.state::<MaterialsCache>())).await
+}
+
+fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    let sig = journal_folder_sig(&dir);
+    // Not journal_folder_sig: on Windows that misses appends to the open journal (astromech-txzq).
+    let version = astromech_materials::journal_version(&dir);
     {
         let g = cache.0.lock().map_err(|_| "busy".to_string())?;
         if let Some((s, v)) = &*g {
-            if *s == sig {
+            if *s == version {
                 return Ok(v.clone());
             }
         }
     }
     let v = serde_json::to_value(astromech_materials::from_journal_dir(&dir)).map_err(|e| e.to_string())?;
-    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
+    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
     Ok(v)
 }
 
