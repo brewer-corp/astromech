@@ -44,6 +44,16 @@ pub fn edsy_url(loadout: &Value) -> String {
     format!("https://edsy.org/#/I={}", URL_SAFE_NO_PAD.encode(z))
 }
 
+/// URL prefixes the app may open in the browser for the builder and lookup links. The trailing
+/// separator in each keeps look-alike hosts (`https://spansh.co.uk.evil/`) out.
+const OPENABLE: &[&str] =
+    &["https://coriolis.io/import?", "https://edsy.org/#/I=", "https://spansh.co.uk/", "https://inara.cz/elite/"];
+
+/// Whether `url` is one of the links built here (the shell checks this before launching a browser).
+pub fn is_openable_url(url: &str) -> bool {
+    OPENABLE.iter().any(|p| url.starts_with(p)) && !url.chars().any(|c| c.is_control() || c == ' ')
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -74,6 +84,39 @@ mod tests {
         assert_eq!(serde_json::from_str::<Value>(&json).unwrap(), fixture());
     }
 
+    #[test]
+    fn only_our_links_are_openable() {
+        let f = fixture();
+        for ok in [
+            coriolis_url(&f),
+            edsy_url(&f),
+            "https://spansh.co.uk/system/10477373803".to_string(),
+            "https://spansh.co.uk/search/Col%2070%20Sector".to_string(),
+            "https://inara.cz/elite/starsystem/?search=Sol".to_string(),
+            "https://inara.cz/elite/stations/?search=Daedalus".to_string(),
+        ] {
+            assert!(is_openable_url(&ok), "{ok}");
+        }
+        for bad in [
+            "https://coriolis.io.evil.com/import?data=x",
+            "https://coriolis.io/outfit/asp",
+            "https://coriolis.io@evil.com/import?data=x",
+            "https://edsy.org.evil/#/I=abc",
+            "https://edsy.org/#/L=abc",
+            "https://spansh.co.uk.evil/system/1",
+            "https://spansh.co.uk@evil.com/",
+            "https://inara.cz/",
+            "https://inara.cz.evil/elite/",
+            "http://spansh.co.uk/system/1",
+            "file:///C:/Windows/System32/calc.exe",
+            "https://spansh.co.uk/ --evil",
+            "https://spansh.co.uk/\nx",
+            "",
+        ] {
+            assert!(!is_openable_url(bad), "{bad}");
+        }
+    }
+
     /// The URLs opened by hand in a browser (evidence on astromech-9mb9) still decode to the
     /// fixture, and the builders emit the same URL shape. The compressed bytes are not compared:
     /// they depend on which deflate backend cargo's feature unification picks for flate2.
@@ -98,7 +141,7 @@ mod tests {
     }
 
     const SNAPSHOT_CORIOLIS: &str =
-        "https://coriolis.io/import?data=eJy9Vt1uKjcQfpXI15vILCyccJcTkpAKmpRNq6pVhSbsAFa89so%2FOaFR3r1jLySg5rBwLg43rO35vhnPr1%2FZJZiFvoQKZsKtWL%2FVTdi1R%2Fmx88rGIBTrt9MznrAJWjTPyPr8rNt%2BS9jQSzlEkG5J2CAQNv4A6Umk2%2BpkvfN2QgQvv%2FiymoBa0HaHB7mxLrxEy%2Fp%2Fv7IdgluHJeuzC1tNL0ypvZneGCiwzRJ2R2Y44zFh90ZoUxucsFxqFxBRmr0lnxPeKje919%2FQVBLoMxf%2FYja9lGBt1kgdcfcBt5f%2BSi2EwuOog3NrnI3c9TcaoRbB91%2FJkxUt3O2AUOmXbq%2FdPe8kH%2Fu%2FQkk%2BZdf5YDrSalH7OHmnCUcoRQjlyTUYG7Y%2BTgNpm%2FMWp3tcvVSktUTlQF7N5zgL1tkKZwLkdG6L6RLhecU%2BEyTNM5DCYhEvZO3JGBQsoqoRPqNk%2FSxGXMwFmjrmI3gM%2B1E8ill7a2%2B0LqJz7owgC2GTSWlMmc0iO%2BPBUxsG8jwuolt3afj%2FaFo7PL0vuzwxyAMD3xrN4WdZ552GCiHbpqFI3FVOlCA%2FudonNvFs26hWp0fLt38S9psnl8ZcCWZ%2BN%2BeGK4pGYcTzQXnH3%2FPu2lDi5Esxd4MA3pvXIzHH3FeVNnXddGolaaOSLWBzXQ6EdUY8eqfND1TnFnqvqhyV1cYed48JFLCfNvTMB1BP25Y3t6wN6rvUw4qc46XFEVDfnd6I8pGqcYyF8GVza4liQzBFpalTtH6KlnSvlrGXTlyCUlpt1ORUKbJRS5Q68CqU1SiLr1pbh3Uq8UNT6UGo1YFaaN%2FlQj2NwKvZkhQ9eGPQTQPFcXrS%2FQkbb3ODCg1sSqN76H3CH2%2FVmMb8zWdaV8eVXuRPa8xe%2FglWIMw6HO2j6Ns1Zi99fMVMYPa0zd86jL9zAH%2BY%2FeguqspomC1zLxw2t6WIAbPahYXevn78rHv%2BOY%2B%2F8Lh69ETRy%2BolRb4iHrAVqxdhXHfS9XdBAzi0kD9PO%2Bn6fPMWEC%2FOGzy5iMDflaTnk4rDiN5ecdjQTI7gkYZCe0dSNLDQOiiDwpSn3dMWP%2BXtB37e57zPs7%2FY23%2Bbu0zI";
+        "https://coriolis.io/import?data=eJy9lllPIzkQgP8K8nOD3FeuN4YAYZUsTJpdrXY0iky6klg4dssHQwbx36fsJqSzmyHJPMxTt%2B2q%2BmzX4XohF0zP1QWr2JTbFenFrYhcORCbmRcyYlySXpqc0YiMwYB%2BAtKjZ630NSIDJ8QAmLAL1PUCfuJvJhyKtOIsb3fTCA08%2F%2BGW1ZjJOU5n1MuNVOkEGNL78kK2DNxYWJIeOTfV5FwvldOTa81KSElEbnEbVjuIyJ3mStcbjkghlPUaQRrF3vB5t5vTtPMa7QbcSDu5U99AV4Lhb8G%2FQz65EMyYfC8q6N15vQ0u7nQ7nSz9CHcp51zCcSh%2F%2BbWe2cmq10BzOfe%2B%2BoTrFQ7sTR%2FFkk6rnba6WbSZ%2F5Mt0QC5KvqToZLz2ifRuxm%2FBIJ7159cMW381GbVG00pjSme6%2FK5QuoSpGXicjaDqd%2BtqWDKmZjMTDlZAHtakV2CSJ4ywQ2U4YDGnIyYZPOAGsITCHReiBA%2B46DrGBmyBz8fxIOYMTfmWqkyXNat5rhDto68JITYepCfUX9TawvoCZiHa942Q%2F9nJt6y0%2B5s2wlB0Nfs297t0LM8ezeDiZM3zaAnbivLl0zsONqOPdG8uak4a%2BPw9WtEPju80hA7fps%2FjcHBCr1Rav50UBzS9zi80hg4xYLPbN8rN9MsadM8%2BSjuh3wGhasqpes8y2poshfaUGwEP2236d6s7nNjNX9wVukm88DcbmhvwGmaJq3sI3IB0ihtmje7%2F5BjVrIGJUnyzofH8%2BX5nsnHJmV%2FdVxrbUDdFqU%2FBQ0qvEcnDAwZFvzJNV8%2BYFqPoORuub9mBbEB02WlsOTETd%2FR3wRNjoGOnLD8gkmp5JpaYEKKvdAg9WsHxVwCUX5SylioQ5QeGqL3XK5%2BDYrztuDyccicnC6Qe%2B%2B0BjvxFo%2FDHny%2FIS%2FCWa9BgmbrhGwdelr%2FoXGtcwzUR3wxVao67sENuKTWOQY3hopx%2FebK9ChaWuscQwtt25hNH5u4%2BDBcdjzO9zpgz6tKKzZdFI5b2F9Igw7Tq%2F%2BqbVO%2FvveC67oU5kOv%2BeDQYjuvhxhEFZplpiL1wHcjWfL2X2J%2F4cvcP6dZ8ra%2BbnX4s3UaTs6D4l9SYDcpw1uLrWh4S7HlCMpDxUrl%2FFOD7zEYy5YemNCkdRrTU5re026P0h7N%2FyWvPwDl7ZHb";
     const SNAPSHOT_EDSY: &str =
-        "https://edsy.org/#/I=H4sIAAAAAAAA_71W3W4qNxB-lcjXm8gsLJxwlxOSkAqalE2rqlWFJuwAVrz2yj85oVHevWMvJKDmsHAuDjes7fm-Gc-vX9klmIW-hApmwq1Yv9VN2LVH-bHzysYgFOu30zOesAlaNM_I-vys235L2NBLOUSQbknYIBA2_gDpSaTb6mS983ZCBC-_-LKagFrQdocHubEuvETL-n-_sh2CW4cl67MLW00vTKm9md4YKLDNEnZHZjjjMWH3RmhTG5ywXGoXEFGavSWfE94qN73X39BUEugzF_9iNr2UYG3WSB1x9wG3l_5KLYTC46iDc2ucjdz1NxqhFsH3X8mTFS3c7YBQ6Zdur9097yQf-79CST5l1_lgOtJqUfs4eacJRyhFCOXJNRgbtj5OA2mb8xane1y9VKS1ROVAXs3nOAvW2QpnAuR0bovpEuF5xT4TJM0zkMJiES9k7ckYFCyiqhE-o2T9LEZczAWaOuYjeAz7UTyKWXtrb7QuonPujCALYZNJaUyZzSI748FTGwbyPC6iW3dp-P9oWjs8vS-7PDHIAwPfGs3hZ1nnnYYKIdumoUjcVU6UID-52ic28WzbqFanR8u3fxL2myeXxlwJZn4354YrikZhxPNBecff8-7aUOLkSzF3gwDem9cjMcfcV5U2dd10aiVpo5ItYHNdDoR1Rjx6p80PVOcWeq-qHJXVxh53jwkUsJ829MwHUE_blje3rA3qu9TDipzjpcURUN-d3ojykapxjIXwZXNriWJDMEWlqVO0foqWdK-WsZdOXIJSWm3U5FQpslFLlDrwKpTVKIuvWluHdSrxQ1PpQajVgVpo3-VCPY3Aq9mSFD14Y9BNA8VxetL9CRtvc4MKDWxKo3vofcIfb9WYxvzNZ1pXx5Ve5E9rzF7-CVYgzDoc7aPo2zVmL318xUxg9rTN3zqMv3MAf5j96C6qymiYLXMvHDa3pYgBs9qFhd6-fvyse_45j7_wuHr0RNHL6iVFviIesBWrF2Fcd9L1d0EDOLSQP0876fp88xYQL84bPLmIwN-VpOeTisOI3l5x2NBMjuCRhkJ7R1I0sNA6KIPClKfd0xY_5e0Hft7nvM-zv9jbf6XzD4srCgAA";
+        "https://edsy.org/#/I=H4sIAAAAAAAC_72WWU8jORCA_wryc4PcV643hgBhlSxMml2tdjSKTLqSWDh2ywdDBvHfp-wmpLObIck8zFO37ar6bNfheiEXTM_VBavYlNsV6cWtiFw5EJuZFzJiXJJempzRiIzBgH4C0qNnrfQ1IgMnxACYsAvU9QJ-4m8mHIq04ixvd9MIDTz_4ZbVmMk5TmfUy41U6QQY0vvyQrYM3FhYkh45N9XkXC-V05NrzUpISURucRtWO4jIneZK1xuOSCGU9RpBGsXe8Hm3m9O08xrtBtxIO7lT30BXguFvwb9DPrkQzJh8Lyro3Xm9DS7udDudLP0IdynnXMJxKH_5tZ7ZyarXQHM59776hOsVDuxNH8WSTqudtrpZtJn_ky3RALkq-pOhkvPaJ9G7Gb8EgnvXn1wxbfzUZtUbTSmNKZ7r8rlC6hKkZeJyNoOp362pYMqZmMxMOVkAe1qRXYJInjLBDZThgMacjJhk84AawhMIdF6IED7joOsYGbIHPx_Eg5gxN-ZaqTJc1q3muEO2jrwkhNh6kJ9Rf1NrC-gJmIdr3jZD_2cm3rLT7mzbCUHQ1-zb3u3Qszx7N4OJkzfNoCduK8uXTOw42o490by5qThr4_D1a0Q-O7zSEDt-mz-NwcEKvVFq_nRQHNL3OLzSGDjFgs9s3ys30yxp0zz5KO6HfAaFqyql6zzLamiyF9pQbAQ_bbfp3qzuc2M1f3BW6SbzwNxuaG_AaZomrewjcgHSKG2aN7v_kGNWsgYlSfLOh8fz5fmeyccmZX91XGttQN0WpT8FDSq8RycMDBkW_Mk1Xz5gWo-g5G65v2YFsQHTZaWw5MRN39HfBE2OgY6csPyCSankmlpgQoq90CD1awfFXAJRflLKWKhDlB4aovdcrn4NivO24PJxyJycLpB777QGO_EWj8MefL8hL8JZr0GCZuuEbB16Wv-hca1zDNRHfDFVqjruwQ24pNY5BjeGinH95sr0KFpa6xxDC23bmE0fm7j4MFx2PM73OmDPq0orNl0UjlvYX0iDDtOr_6ptU7--94LruhTmQ6_54NBiO6-HGEQVmmWmIvXAdyNZ8vZfYn_hy9w_p1nytr5udfizdRpOzoPiX1JgNynDW4utaHhLseUIykPFSuX8U4PvMRjLlh6Y0KR1GtNTmt7Tbo_SHs3_Ja8_AAxx51g6CwAA";
 }

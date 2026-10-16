@@ -11,7 +11,7 @@ describe("Spansh links", () => {
     expect(spanshStation({ marketId: null, name: "Jameson Memorial" })).toBe("https://spansh.co.uk/search/Jameson%20Memorial");
   });
   it("uses the market id for a station", () => {
-    expect(spanshStation({ marketId: 128016384, name: "Abraham Lincoln" })).toBe("https://spansh.co.uk/station/128016384");
+    expect(spanshStation({ marketId: 128016384, name: "Daedalus" })).toBe("https://spansh.co.uk/station/128016384");
   });
 });
 

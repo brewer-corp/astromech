@@ -16,6 +16,7 @@
   let plan = $state<Plan | null>(null);
   let result = $state<PlanResult | null>(null);
   let failed = $state<string | null>(null);
+  let linkErr = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
   let tripSeq = 0;
@@ -176,6 +177,15 @@
   function when(ts: string | null): string {
     return ts ? ts.replace("T", " ").replace(/:\d\dZ?$/, "") : "";
   }
+
+  async function open(url: string) {
+    linkErr = null;
+    try {
+      await openUrl(url);
+    } catch (e) {
+      linkErr = `Couldn't open the link: ${String(e)}`;
+    }
+  }
 </script>
 
 <section>
@@ -188,20 +198,21 @@
     {#if ship?.links}
       <span class="open">
         Open in
-        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && openUrl(ship.links.coriolis)}>Coriolis</button>
-        <button title="Open this loadout in EDSY" onclick={() => ship?.links && openUrl(ship.links.edsy)}>EDSY</button>
+        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
+        <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
       </span>
     {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
-      <span class="open lo" title="An engineering craft since the last Loadout: the saved loadout is out of date.">Coriolis / EDSY link after the next loadout</span>
+      <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
     {/if}
     {#if ship?.system}
       <span class="open">
         {ship.system}
-        <button onclick={() => ship?.system && openUrl(spanshSystem({ name: ship.system }))}>Spansh</button>
-        <button onclick={() => ship?.system && openUrl(inaraSystem(ship.system))}>Inara</button>
+        <button onclick={() => ship?.system && open(spanshSystem({ name: ship.system }))}>Spansh</button>
+        <button onclick={() => ship?.system && open(inaraSystem(ship.system))}>Inara</button>
       </span>
     {/if}
   </div>
+  {#if linkErr}<p class="lo wide">{linkErr}</p>{/if}
   <p class="sub">
     {#if !fleet}
       Reading the journal…

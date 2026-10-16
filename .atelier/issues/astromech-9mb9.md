@@ -9,13 +9,18 @@ workflow_branch:
   work_branch: task/astromech-9mb9
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-ww05"
   children: []
   attachments: []
   relates:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-qiey"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T19:06:48.783645601+00:00"

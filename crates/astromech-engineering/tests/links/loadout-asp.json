@@ -18,32 +18,30 @@
  "Rebuy": 750000,
  "Modules": [
   {
-   "Slot": "Armour",
+   "Health": 1.0,
    "Item": "Asp_Armour_Grade3",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "Armour",
+   "Value": 5995038
   },
   {
-   "Slot": "PowerPlant",
+   "Health": 1.0,
    "Item": "Int_Powerplant_Size5_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "PowerPlant",
+   "Value": 1898843
   },
   {
-   "Slot": "MainEngines",
+   "Health": 1.0,
    "Item": "Int_Engine_Size5_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "MainEngines",
+   "Value": 1898843
   },
   {
-   "Slot": "FrameShiftDrive",
-   "Item": "Int_Hyperdrive_Size5_Class5",
-   "On": true,
-   "Priority": 0,
-   "Health": 1.0,
    "Engineering": {
     "Engineer": "Felicity Farseer",
     "EngineerID": 300100,
@@ -79,105 +77,125 @@
       "LessIsGood": 0
      }
     ]
-   }
+   },
+   "Health": 1.0,
+   "Item": "Int_Hyperdrive_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Slot": "FrameShiftDrive",
+   "Value": 5927052
   },
   {
-   "Slot": "LifeSupport",
+   "Health": 1.0,
    "Item": "Int_LifeSupport_Size4_Class2",
    "On": true,
    "Priority": 0,
-   "Health": 1.0
+   "Slot": "LifeSupport",
+   "Value": 10770
   },
   {
-   "Slot": "PowerDistributor",
-   "Item": "Int_PowerDistributor_Size5_Class5",
+   "Health": 1.0,
+   "Item": "Int_PowerDistributor_Size4_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "PowerDistributor",
+   "Value": 333264
   },
   {
-   "Slot": "Radar",
-   "Item": "Int_Sensors_Size4_Class2",
+   "Health": 1.0,
+   "Item": "Int_Sensors_Size5_Class2",
    "On": true,
    "Priority": 0,
-   "Health": 1.0
+   "Slot": "Radar",
+   "Value": 22580
   },
   {
-   "Slot": "FuelTank",
+   "Health": 1.0,
    "Item": "Int_FuelTank_Size5_Class3",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "FuelTank",
+   "Value": 96000
   },
   {
+   "Health": 1.0,
+   "Item": "Hpt_PulseLaser_Gimbal_Medium",
+   "On": true,
+   "Priority": 1,
    "Slot": "MediumHardpoint1",
+   "Value": 100000
+  },
+  {
+   "Health": 1.0,
    "Item": "Hpt_PulseLaser_Gimbal_Medium",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
-  },
-  {
    "Slot": "MediumHardpoint2",
-   "Item": "Hpt_PulseLaser_Gimbal_Medium",
-   "On": true,
-   "Priority": 1,
-   "Health": 1.0
+   "Value": 100000
   },
   {
-   "Slot": "SmallHardpoint1",
+   "Health": 1.0,
    "Item": "Hpt_MultiCannon_Gimbal_Small",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "SmallHardpoint1",
+   "Value": 100000
   },
   {
-   "Slot": "TinyHardpoint1",
+   "Health": 1.0,
    "Item": "Hpt_ShieldBooster_Size0_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "TinyHardpoint1",
+   "Value": 100000
   },
   {
-   "Slot": "TinyHardpoint2",
+   "Health": 1.0,
    "Item": "Hpt_HeatSinkLauncher_Turret_Tiny",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "TinyHardpoint2",
+   "Value": 100000
   },
   {
-   "Slot": "Slot01_Size6",
+   "Health": 1.0,
    "Item": "Int_ShieldGenerator_Size6_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "Slot01_Size6",
+   "Value": 100000
   },
   {
-   "Slot": "Slot02_Size5",
+   "Health": 1.0,
    "Item": "Int_FuelScoop_Size5_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "Slot02_Size5",
+   "Value": 100000
   },
   {
-   "Slot": "Slot03_Size3",
+   "Health": 1.0,
    "Item": "Int_Repairer_Size3_Class5",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "Slot03_Size3",
+   "Value": 100000
   },
   {
-   "Slot": "Slot04_Size3",
+   "Health": 1.0,
    "Item": "Int_CargoRack_Size3_Class1",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "Slot04_Size3",
+   "Value": 100000
   },
   {
-   "Slot": "PlanetaryApproachSuite",
+   "Health": 1.0,
    "Item": "Int_PlanetApproachSuite",
    "On": true,
    "Priority": 1,
-   "Health": 1.0
+   "Slot": "PlanetaryApproachSuite",
+   "Value": 100000
   }
  ]
 }

@@ -214,6 +214,14 @@ mod tests {
         let craft = r#"{"timestamp":"2026-10-03T09:30:00Z","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":5,"Quality":1.0}"#;
         std::fs::write(&log, format!("{line}\n{craft}\n")).unwrap();
         assert_eq!(from_journal_dir(dir.path()).ships[0].links, None, "the saved Loadout is stale after a craft");
+
+        // The game writes a new Loadout after the craft: the links are back, for the new build.
+        let mut newer = loadout.clone();
+        newer["timestamp"] = "2026-10-03T09:45:00Z".into();
+        let newer_line = serde_json::to_string(&newer).unwrap();
+        std::fs::write(&log, format!("{line}\n{craft}\n{newer_line}\n")).unwrap();
+        let links = from_journal_dir(dir.path()).ships.remove(0).links.expect("a later Loadout restores the links");
+        assert_eq!(links.coriolis, links::coriolis_url(&newer));
     }
 
     #[test]
