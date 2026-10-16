@@ -521,8 +521,13 @@ mod tests {
             started.recv_timeout(Duration::from_secs(10)).expect("the next post");
             release.send(()).unwrap();
         }
-        drop(f);
+        // The worker isn't joined on drop, so wait for the last post to be recorded.
         let o = Outbox::open(&db).unwrap();
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while o.pending().unwrap() > 0 && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        drop(f);
         assert_eq!(o.pending().unwrap(), 0);
         assert!(o.recent(10).unwrap().iter().all(|e| e.outcome == "sent" && e.schema_ref.ends_with("/test")));
     }
