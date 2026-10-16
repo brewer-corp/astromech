@@ -32,6 +32,7 @@ astromech-engineering = { path = "../../crates/astromech-engineering" }
 astromech-ship = { path = "../../crates/astromech-ship" }
 astromech-galaxy = { path = "../../crates/astromech-galaxy" }
 astromech-history = { path = "../../crates/astromech-history" }
+astromech-station = { path = "../../crates/astromech-station" }
 astromech-store = { path = "../../crates/astromech-store" }
 
 [profile.release]

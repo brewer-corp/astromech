@@ -15,7 +15,7 @@
 
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
-use astromech_journal::companion::{load, triggers, CompanionKind, Trigger};
+use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
 use notify::{RecursiveMode, Watcher};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -113,6 +113,8 @@ struct Tailer {
     dir: PathBuf,
     hub: Arc<StateHub>,
     store: Option<astromech_store::Store>,
+    /// Every `Outfitting.json` seen, kept next to `store`'s file.
+    outfitting: Option<astromech_station::OutfittingBook>,
     tail: Option<JournalTail>,
     stats: Arc<std::sync::Mutex<Stats>>,
     log: Box<dyn Fn(&str) + Send>,
@@ -153,6 +155,13 @@ impl Tailer {
             st.companions_unused += reports.len() as u64;
         }
         for f in files {
+            // The game overwrites this file at every visit and the journal doesn't hold its
+            // module list: this is the only chance to keep it.
+            if let (CompanionFile::Outfitting(o), Some(book)) = (&f, &mut self.outfitting) {
+                if let Err(e) = book.record(o) {
+                    (self.log)(&format!("outfitting: can't keep {} ({}): {e}", o.station_name, o.timestamp));
+                }
+            }
             self.hub.update(|g| g.apply_companion(f));
         }
         for r in reports {
@@ -251,11 +260,19 @@ pub fn start(
         Some(p) => Some(astromech_store::Store::open(p).with_context(|| format!("opening {}", p.display()))?),
         None => None,
     };
+    // Next to the store: `outfitting.sqlite`. A book that won't open costs the history of
+    // outfitting, not the pipeline.
+    let outfitting = db.and_then(Path::parent).and_then(|d| {
+        astromech_station::OutfittingBook::open(&d.join(astromech_station::DB_FILE))
+            .map_err(|e| log(&format!("outfitting: can't open the book, not keeping Outfitting.json: {e}")))
+            .ok()
+    });
     let stats = Arc::new(std::sync::Mutex::new(Stats::default()));
     let mut t = Tailer {
         dir: dir.to_path_buf(),
         hub,
         store,
+        outfitting,
         tail: None,
         stats: stats.clone(),
         log: Box::new(log),
@@ -347,6 +364,7 @@ mod tests {
             dir: dir.to_path_buf(),
             hub: hub.clone(),
             store: None,
+            outfitting: None,
             tail: None,
             stats: Arc::new(std::sync::Mutex::new(Stats::default())),
             log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
@@ -389,5 +407,24 @@ mod tests {
         assert!(hub.snapshot().companions.market.is_some());
         assert!(t.pending.is_empty());
         assert_eq!(t.stats.lock().unwrap().companions_unused, 2);
+    }
+
+    #[test]
+    fn outfitting_file_is_kept_when_fresh_and_only_then() {
+        let d = tempfile::tempdir().unwrap();
+        let event = r#"{"timestamp":"2026-10-10T20:00:06Z","event":"Outfitting","MarketID":7,"StationName":"S","StarSystem":"Sys"}"#;
+        let file = r#"{"timestamp":"2026-10-10T20:00:06Z","event":"Outfitting","MarketID":7,"StationName":"S","StarSystem":"Sys","Items":[{"id":1,"Name":"int_hyperdrive_size5_class5","BuyPrice":9}]}"#;
+        let (mut t, _hub, _logs) = tailer(d.path());
+        t.outfitting = Some(astromech_station::OutfittingBook::in_memory().unwrap());
+        // Last visit's file: not this event's, so not kept.
+        std::fs::write(d.path().join("Outfitting.json"), file.replace("20:00:06", "19:00:06")).unwrap();
+        t.apply_lines(vec![event.into()]);
+        assert_eq!(t.outfitting.as_ref().unwrap().counts().unwrap(), (0, 0));
+        // The game finishes the write.
+        std::fs::write(d.path().join("Outfitting.json"), file).unwrap();
+        t.on_companion_files(&[CompanionKind::Outfitting]);
+        let book = t.outfitting.as_ref().unwrap();
+        assert_eq!(book.counts().unwrap(), (1, 1));
+        assert_eq!(book.find("5a frame shift", 5).unwrap()[0].station_name, "S");
     }
 }

@@ -1,0 +1,39 @@
+{
+  "here": {
+    "docked": true,
+    "station": "Test Orbital",
+    "system": "Test System",
+    "market_id": 128000001,
+    "station_type": "Coriolis",
+    "services": ["dock", "autodock", "commodities", "contacts", "exploration", "missions", "outfitting", "crewlounge", "rearm", "refuel", "repair", "shipyard", "tuning", "engineer"],
+    "economies": [
+      { "name": "$economy_HighTech;", "name_localised": "High Tech", "proportion": 0.7 },
+      { "name": "$economy_Refinery;", "name_localised": "Refinery", "proportion": 0.3 }
+    ],
+    "faction": { "name": "Test Holdings", "state": "Boom" },
+    "government": "Corporate",
+    "allegiance": "Federation",
+    "landing_pads": { "small": 4, "medium": 6, "large": 3 },
+    "dist_from_star_ls": 512.5,
+    "max_pad": "Large",
+    "ship": "Synthetic",
+    "outfitting": {
+      "seen": "2026-10-10T20:10:06Z",
+      "items": 5,
+      "upgrades": [
+        { "slot": "FrameShiftDrive", "slot_name": "Frame shift drive", "fitted": "5C Frame Shift Drive", "item": "int_hyperdrive_size5_class5", "name": "5A Frame Shift Drive", "price": 9000000 }
+      ]
+    }
+  },
+  "book": {
+    "stations": 2,
+    "snapshots": 2,
+    "found": [
+      { "market_id": 128000001, "station_name": "Test Orbital", "star_system": "Test System", "seen": "2026-10-10T20:10:06Z", "item": "int_hyperdrive_size5_class5", "name": "5A Frame Shift Drive", "price": 9000000, "distance_ly": null },
+      { "market_id": 128000001, "station_name": "Test Orbital", "star_system": "Test System", "seen": "2026-10-10T20:10:06Z", "item": "int_hyperdrive_size5_class4", "name": "5B Frame Shift Drive", "price": 2800000, "distance_ly": null },
+      { "market_id": 128000001, "station_name": "Test Orbital", "star_system": "Test System", "seen": "2026-10-10T20:10:06Z", "item": "hpt_pulselaser_fixed_small", "name": "1F Pulse Laser (fixed)", "price": 2200, "distance_ly": null },
+      { "market_id": 128000002, "station_name": "Other Port", "star_system": "Far System", "seen": "2026-10-12T09:30:00Z", "item": "int_hyperdrive_size5_class5", "name": "5A Frame Shift Drive", "price": 9500000, "distance_ly": 41.3 },
+      { "market_id": 128000002, "station_name": "Other Port", "star_system": "Far System", "seen": "2026-10-12T09:30:00Z", "item": "hpt_pulselaser_fixed_small", "name": "1F Pulse Laser (fixed)", "price": 2300, "distance_ly": 41.3 }
+    ]
+  }
+}
