@@ -37,7 +37,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Colonisation tracker"
-updated_at: "2026-10-16T19:32:22.606106233+00:00"
+updated_at: "2026-10-16T20:25:50.684347124+00:00"
 ---
 
 ## Goal
@@ -47,3 +47,7 @@ The user sees every construction project's progress, what's left to deliver in l
 ## Done when
 
 Journal replay tests for the tracker and shopping list; recorded-response tests for where to buy. Independent review. The game check (astromech-xf8j) runs after this merges. Delivers S5.
+
+## Notes
+
+- 2026-10-16 [note] Merge note: feature/astromech-ipb5 adds system_address to JournalEvent::Docked; crates/astromech-colonisation/src/lib.rs:224 matches Docked without .. and will need updating when either branch lands after the other (review of u3f4, R5).
