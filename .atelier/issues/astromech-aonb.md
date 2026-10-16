@@ -28,9 +28,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:45:13.592941036+00:00"
+status: "done"
 title: "Journal history database and backfill"
-updated_at: "2026-10-16T19:32:23.008325494+00:00"
+updated_at: "2026-10-16T19:45:13.592941036+00:00"
 ---
 
 ## Goal
@@ -44,3 +45,7 @@ Importing a fixture set, killing it halfway and restarting gives the same ledger
 ## Context
 
 Unblocks the logbook, "been here before", exploration history and session stats. Measure import time on years of logs.
+
+## Close Reason
+
+events table, resumable import and visits/earnings/ships/scans ledgers in astromech-history (c11b2a2); kill-at-every-line-then-resume equals a clean import; 400 MB synthetic import 7.5-8.1 s, 638 MB DB (evidence). Core wiring is astromech-3tlm; real-logs timing is astromech-tqdh.
