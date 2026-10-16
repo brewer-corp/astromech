@@ -233,7 +233,9 @@ astromech/
     astromech-overlay/   egui panels for the VR overlay (stub)
     astromech-store/     SQLite (rusqlite, bundled) config + migrations
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
-    astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records)
+    astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records),
+                         shopping list (remaining minus the hold, in loads); the app's Trade > Colonisation
+                         page replays the journal folder (nothing stored yet, astromech-0x68)
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
@@ -250,7 +252,8 @@ astromech/
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
                          jumps from astromech-galaxy), the commodity catalogue (data/catalog/commodities.json),
-                         and the cargo sale plan (whole load within demand caps, best per commodity)
+                         the cargo sale plan (whole load within demand caps, best per commodity), and where
+                         to buy a shopping list (stations stocking most of it first, then nearest)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,

@@ -6,6 +6,7 @@
 
 use crate::Project;
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
+use serde::Serialize;
 use std::collections::BTreeMap;
 
 /// The ship's hold, from `Loadout` (`CargoCapacity`) and `Cargo` (ship inventory).
@@ -76,8 +77,10 @@ pub fn commodity_id(name: &str) -> String {
     n.strip_suffix("_name;").unwrap_or(n).to_string()
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Line {
+    /// Market symbol ([`commodity_id`]), as Ardent and `Cargo.json` name it: `steel`.
+    pub symbol: String,
     pub name: String,
     pub name_localised: Option<String>,
     pub remaining: i64,
@@ -86,7 +89,7 @@ pub struct Line {
     pub to_buy: i64,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ShoppingList {
     /// Commodities still needed, largest `to_buy` first.
     pub lines: Vec<Line>,
@@ -105,6 +108,7 @@ pub fn shopping_list(project: &Project, hold: &Hold) -> ShoppingList {
             let remaining = r.remaining();
             let in_cargo = hold.cargo.get(&commodity_id(&r.name)).copied().unwrap_or(0).clamp(0, remaining);
             Line {
+                symbol: commodity_id(&r.name),
                 name: r.name.clone(),
                 name_localised: r.name_localised.clone(),
                 remaining,

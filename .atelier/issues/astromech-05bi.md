@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Where to buy each colonisation commodity"
-updated_at: "2026-10-15T20:36:13.649703140+00:00"
+updated_at: "2026-10-16T22:53:57.657453252+00:00"
 ---
 
 ## Goal

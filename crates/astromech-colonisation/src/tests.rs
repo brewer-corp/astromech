@@ -242,4 +242,27 @@ mod shopping_tests {
             assert_eq!(commodity_id(cargo), cargo);
         }
     }
+
+    #[test]
+    fn journal_folder_view_lists_projects_with_their_shopping_lists() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("Journal.2026-10-01T090000.01.log"), JOURNAL).unwrap();
+        std::fs::write(dir.path().join("Journal.2026-10-02T100000.01.log"), format!("{LOADOUT}\n{CARGO}\n")).unwrap();
+        let v = crate::from_journal_dir(dir.path());
+        // The project being built first, the finished one after.
+        assert_eq!(v.iter().map(|p| p.project.market_id).collect::<Vec<_>>(), [MARKET_A, MARKET_B]);
+        let a = &v[0].shopping;
+        let lines: Vec<(&str, i64, i64)> = a.lines.iter().map(|l| (l.symbol.as_str(), l.in_cargo, l.to_buy)).collect();
+        assert_eq!(lines, [("steel", 120, 180), ("aluminium", 0, 150)]);
+        assert_eq!((a.to_buy_total, a.capacity, a.loads), (330, Some(100), Some(4)));
+        assert!(v[1].shopping.lines.is_empty());
+
+        // The app reads the project's fields and its shopping list from one object.
+        let j = serde_json::to_value(&v[0]).unwrap();
+        assert_eq!(j["system_name"], "Test System");
+        assert_eq!(j["progress"], 0.5);
+        assert_eq!(j["shopping"]["lines"][0]["symbol"], "steel");
+        assert_eq!(j["shopping"]["lines"][0]["name_localised"], "Steel");
+        assert!(crate::from_journal_dir(&dir.path().join("missing")).is_empty());
+    }
 }

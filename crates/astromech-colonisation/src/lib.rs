@@ -348,6 +348,35 @@ pub fn replay_lines<'a>(t: &mut Tracker, lines: impl IntoIterator<Item = &'a str
     }
 }
 
+/// A project and what is left to buy for it, for the app.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ProjectView {
+    #[serde(flatten)]
+    pub project: Project,
+    pub shopping: shopping::ShoppingList,
+}
+
+/// Every project in the journals in `dir`, replayed from the start (nothing is stored), with
+/// its shopping list against the ship's hold at the end of the last journal. Projects still
+/// being built come first, the most recently updated first.
+pub fn from_journal_dir(dir: &std::path::Path) -> Vec<ProjectView> {
+    let mut t = Tracker::new();
+    let mut hold = shopping::Hold::default();
+    for f in astromech_journal::journal_logs(dir) {
+        for line in astromech_journal::parse_file(&f) {
+            t.apply(&line);
+            hold.apply(&line);
+        }
+    }
+    let mut out: Vec<ProjectView> =
+        t.projects().map(|p| ProjectView { project: p.clone(), shopping: shopping::shopping_list(p, &hold) }).collect();
+    out.sort_by(|a, b| {
+        let done = |v: &ProjectView| v.project.complete || v.project.failed;
+        done(a).cmp(&done(b)).then_with(|| b.project.depot_updated.cmp(&a.project.depot_updated))
+    });
+    out
+}
+
 pub mod shopping;
 
 #[cfg(test)]

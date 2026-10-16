@@ -1,0 +1,44 @@
+[
+  {
+    "market_id": 3900000001,
+    "station_name": "Planetary Construction Site: Test Hub",
+    "system_name": "Wolf 359",
+    "progress": 0.42,
+    "complete": false,
+    "failed": false,
+    "resources": [
+      { "name": "$steel_name;", "name_localised": "Steel", "required": 8200, "provided": 3288, "payment": 4000 },
+      { "name": "$CMMComposite_name;", "name_localised": "CMM Composite", "required": 4300, "provided": 480, "payment": 6800 },
+      { "name": "$CeramicComposites_name;", "name_localised": "Ceramic Composites", "required": 600, "provided": 88, "payment": 1200 },
+      { "name": "$InsulatingMembrane_name;", "name_localised": "Insulating Membrane", "required": 400, "provided": 0, "payment": 11000 },
+      { "name": "$aluminium_name;", "name_localised": "Aluminium", "required": 900, "provided": 900, "payment": 3000 }
+    ],
+    "first_seen": "2026-10-12T18:02:11Z",
+    "depot_updated": "2026-10-16T20:14:40Z",
+    "contributions": [],
+    "shopping": {
+      "lines": [
+        { "symbol": "steel", "name": "$steel_name;", "name_localised": "Steel", "remaining": 4912, "in_cargo": 0, "to_buy": 4912 },
+        { "symbol": "cmmcomposite", "name": "$CMMComposite_name;", "name_localised": "CMM Composite", "remaining": 3820, "in_cargo": 0, "to_buy": 3820 },
+        { "symbol": "ceramiccomposites", "name": "$CeramicComposites_name;", "name_localised": "Ceramic Composites", "remaining": 512, "in_cargo": 0, "to_buy": 512 },
+        { "symbol": "insulatingmembrane", "name": "$InsulatingMembrane_name;", "name_localised": "Insulating Membrane", "remaining": 400, "in_cargo": 90, "to_buy": 310 }
+      ],
+      "to_buy_total": 9554,
+      "capacity": 784,
+      "loads": 13
+    }
+  },
+  {
+    "market_id": 3900000002,
+    "station_name": "Orbital Construction Site: Test Relay",
+    "system_name": "Wolf 359",
+    "progress": 1.0,
+    "complete": true,
+    "failed": false,
+    "resources": [{ "name": "$steel_name;", "name_localised": "Steel", "required": 1200, "provided": 1200, "payment": 4000 }],
+    "first_seen": "2026-10-02T12:00:00Z",
+    "depot_updated": "2026-10-05T12:00:00Z",
+    "contributions": [],
+    "shopping": { "lines": [], "to_buy_total": 0, "capacity": 784, "loads": 0 }
+  }
+]
