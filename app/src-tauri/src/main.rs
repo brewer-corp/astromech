@@ -736,9 +736,9 @@ async fn colonisation_buy(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
-        let p = astromech_market::list::plan_search(&g, &here, range, &needs, &filters.unwrap_or_default(), 12, now)
+        let p = astromech_market::list::plan_search(&g, &here, range, &needs, &filters, 12, now)
             .map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "here": here, "range": range, "plan": p }))
     })
