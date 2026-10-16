@@ -104,8 +104,8 @@ an unexpected gear change can't hurt.
    path it used. It also refuses to start without a `ptt` button (except `--listen`,
    `--health`, `--transcribe`, `--download-models`, `--list-mics`, `--eval` and
    `--calibrate-files`).
-   - `ptt` is preset to `{ device = "231D3201", key = "Joy_4" }` (the Omni Throttle left-stick
-     button 4 that worked as PTT in S9).
+   - `ptt` is commented out: uncomment it and put in your own button (the example is the Omni
+     Throttle left-stick button 4 that worked as PTT in S9), or set it in the app's setup.
    - Set `kill_switch` to a spare button. To see a button's name, run
      `astromech-core.exe --listen 20` and press it; it prints the line to paste.
 4. **Keyboard bind:** in Elite, give **Landing Gear** a keyboard key (e.g. as its secondary

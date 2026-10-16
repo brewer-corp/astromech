@@ -161,8 +161,13 @@ pub fn write(path: &Path, edits: &[Edit]) -> Result<Config> {
     static N: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
     let n = N.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let tmp = path.with_extension(format!("toml.{}-{n}.tmp", std::process::id()));
-    std::fs::write(&tmp, &out).with_context(|| format!("writing {}", tmp.display()))?;
-    std::fs::rename(&tmp, path).with_context(|| format!("replacing {}", path.display()))?;
+    let res = std::fs::write(&tmp, &out)
+        .with_context(|| format!("writing {}", tmp.display()))
+        .and_then(|()| std::fs::rename(&tmp, path).with_context(|| format!("replacing {}", path.display())));
+    if res.is_err() {
+        let _ = std::fs::remove_file(&tmp);
+    }
+    res?;
     Config::load(path)
 }
 
@@ -188,12 +193,20 @@ pub fn mark_onboarded(store: &astromech_store::Store) -> Result<()> {
     Ok(())
 }
 
-/// At startup: someone upgrading from before onboarding already has a config with push-to-talk,
-/// so don't walk them through setup again.
+const MIGRATED: &str = "onboarding.migrated";
+
+/// At startup. Decided once, on the first start of a build with onboarding: someone upgrading
+/// already has a config with push-to-talk, so they aren't walked through setup again. After that
+/// first start only `onboarding.done` counts, because the wizard itself writes push-to-talk at its
+/// buttons step and a restart there (headset, reboot, crash) must not skip the remaining steps.
 pub fn onboarded_at_start(store: &astromech_store::Store, config_file_exists: bool, cfg: &Config) -> bool {
     if onboarded(store) {
         return true;
     }
+    if store.get(MIGRATED).ok().flatten().is_some() {
+        return false;
+    }
+    let _ = store.set(MIGRATED, env!("CARGO_PKG_VERSION"));
     if config_file_exists && cfg.controls.ptt.is_some() {
         return mark_onboarded(store).is_ok();
     }
@@ -220,7 +233,9 @@ mod tests {
         assert!(out.contains("# Kill switch: press to cancel everything"));
         assert!(out.contains("kill_switch = { device = \"Keyboard\", key = \"Key_ScrollLock\" }"));
         assert!(out.contains("# empty: Windows default recording device"), "{out}");
-        assert_eq!(out.lines().count(), crate::config::SAMPLE.lines().count());
+        // Push-to-talk is commented out in the sample, so it's added as one new line.
+        assert_eq!(out.lines().count(), crate::config::SAMPLE.lines().count() + 1);
+        assert!(out.contains("# ptt = { device = \"231D3201\""));
     }
 
     #[test]
@@ -235,7 +250,8 @@ mod tests {
         assert_eq!(c.controls.ptt, Some(b("231D3201", "Joy_4")));
         assert_eq!(c.controls.kill_switch, None);
         assert_eq!(c.game.bindings_dir, "D:\\Bindings");
-        assert!(!p.with_extension("toml.tmp").exists());
+        let files: Vec<_> = std::fs::read_dir(p.parent().unwrap()).unwrap().flatten().map(|e| e.file_name()).collect();
+        assert_eq!(files, vec![std::ffi::OsString::from("astromech.toml")], "a temp file was left behind");
     }
 
     #[test]
@@ -324,20 +340,41 @@ mod tests {
         write(&p, &[Edit::KillSwitch(Some(b("231D3201", "Joy_5")))]).unwrap();
     }
 
+    fn with_ptt() -> Config {
+        toml::from_str("[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }").unwrap()
+    }
+
     #[test]
     fn upgrading_users_with_push_to_talk_skip_onboarding() {
-        let with_ptt: Config = toml::from_str(crate::config::SAMPLE).unwrap();
-        let fresh = Config::default();
-        // A fresh install: no config file.
         let st = astromech_store::Store::in_memory().unwrap();
-        assert!(!onboarded_at_start(&st, false, &fresh));
-        // A config file without push-to-talk still needs setup.
-        assert!(!onboarded_at_start(&st, true, &fresh));
-        assert!(!onboarded(&st));
-        // An upgrade: config with push-to-talk. Marked once, remembered after.
-        assert!(onboarded_at_start(&st, true, &with_ptt));
+        // First start with onboarding: an existing config with push-to-talk is an upgrade.
+        assert!(onboarded_at_start(&st, true, &with_ptt()));
         assert!(onboarded(&st));
-        assert!(onboarded_at_start(&st, false, &fresh));
+        assert!(onboarded_at_start(&st, true, &with_ptt()));
+    }
+
+    #[test]
+    fn fresh_installs_need_onboarding() {
+        let st = astromech_store::Store::in_memory().unwrap();
+        assert!(!onboarded_at_start(&st, false, &Config::default()));
+        let st = astromech_store::Store::in_memory().unwrap();
+        // A config file without push-to-talk (e.g. --write-config's sample) still needs setup.
+        let sample: Config = toml::from_str(crate::config::SAMPLE).unwrap();
+        assert!(!onboarded_at_start(&st, true, &sample));
+        assert!(!onboarded(&st));
+    }
+
+    #[test]
+    fn ptt_written_by_the_wizard_then_restart_is_still_not_onboarded() {
+        let st = astromech_store::Store::in_memory().unwrap();
+        // First launch of a fresh install: no config yet.
+        assert!(!onboarded_at_start(&st, false, &Config::default()));
+        // The wizard's buttons step writes push-to-talk, then the PC restarts mid-setup.
+        assert!(!onboarded_at_start(&st, true, &with_ptt()));
+        assert!(!onboarded(&st));
+        // Finishing the wizard is what marks it done.
+        mark_onboarded(&st).unwrap();
+        assert!(onboarded_at_start(&st, true, &with_ptt()));
     }
 
     #[test]

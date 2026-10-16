@@ -291,7 +291,10 @@ mod tests {
     #[test]
     fn sample_parses_and_buttons_match() {
         let c: Config = toml::from_str(SAMPLE).unwrap();
-        let ptt = c.controls.ptt.clone().unwrap();
+        // The sample leaves push-to-talk to the user (onboarding treats a set one as set up).
+        assert!(c.controls.ptt.is_none());
+        let line = SAMPLE.lines().find(|l| l.starts_with("# ptt = ")).unwrap();
+        let ptt = toml::from_str::<Controls>(line.trim_start_matches("# ")).unwrap().ptt.unwrap();
         assert_eq!(ptt, Button { device: "231D3201".into(), key: "Joy_4".into() });
         assert!(ptt.matches(&ev("button", Some("231D3201"), "Joy_4")));
         assert!(!ptt.matches(&ev("button", Some("231D0200"), "Joy_4")));
