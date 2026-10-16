@@ -42,17 +42,18 @@ fn endpoint_file() -> PathBuf {
 }
 
 fn call(cmd: &str) -> Result<Value, String> {
-    call_with(cmd, None)
+    call_with(cmd, None, None)
 }
 
-/// One request to the core; `text` is the voice tester's phrase or command id.
-fn call_with(cmd: &str, text: Option<&str>) -> Result<Value, String> {
+/// One request to the core; `text` is the voice tester's phrase or command id, `args` a setup
+/// command's arguments (e.g. `set_ptt` with `{device, key}`).
+fn call_with(cmd: &str, text: Option<&str>, args: Option<Value>) -> Result<Value, String> {
     let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core isn't running".to_string())?;
     let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
     s.set_read_timeout(Some(Duration::from_secs(15))).map_err(|e| e.to_string())?;
-    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "text": text });
+    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "text": text, "args": args });
     writeln!(s, "{req}").map_err(|e| e.to_string())?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line).map_err(|e| e.to_string())?;
@@ -157,6 +158,13 @@ fn binds_refresh_devices(b: tauri::State<Binds>) -> Result<Value, String> {
         a.refresh_devices();
         Ok(serde_json::to_value(a.state())?)
     })
+}
+
+/// Forget the discovered folders and devices, e.g. after onboarding set the Bindings folder.
+#[tauri::command]
+fn binds_reset(b: tauri::State<Binds>) -> Result<Value, String> {
+    *b.0.lock().map_err(|_| "busy".to_string())? = None;
+    with_api(&b, |a| Ok(serde_json::to_value(a.state())?))
 }
 
 #[tauri::command]
@@ -401,6 +409,28 @@ async fn engineering_plan(app: tauri::AppHandle, plan: astromech_engineering::Pl
     .await
 }
 
+/// A ship's stats as fitted and with a build plan done.
+#[tauri::command]
+async fn engineering_stats(app: tauri::AppHandle, plan: astromech_engineering::Plan) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = st.fleet.ships.iter().find(|s| s.id == plan.ship_id).ok_or("ship not in the fleet")?;
+        let stats = astromech_ship::compare(ship, &plan.targets).map_err(|e| e.to_string())?;
+        serde_json::to_value(stats).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Shield, DPS and jump range for every ship card, from the current modules.
+#[tauri::command]
+async fn engineering_headlines(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        serde_json::to_value(astromech_ship::headlines(&st.fleet)).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Ship engineers: where they are, access and rank.
 #[tauri::command]
 async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
@@ -555,9 +585,10 @@ async fn core_status() -> Option<Value> {
     blocking(|| Ok(call("status").ok())).await.ok().flatten()
 }
 
-/// Blocking: a voice tester live run waits for Elite to come to the front.
+/// Blocking: a voice tester live run waits for Elite to come to the front; calibration and the
+/// mic check record for a few seconds.
 #[tauri::command]
-async fn core_call(cmd: String, text: Option<String>) -> Value {
+async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Value {
     // The window may only ask for these ("quit" and "open_window" stay with the tray).
     const ALLOWED: &[&str] = &[
         "status",
@@ -576,11 +607,26 @@ async fn core_call(cmd: String, text: Option<String>) -> Value {
         "voice_test_poll",
         "voice_test_stop",
         "voice_test_live",
+        "find_elite",
+        "set_ptt",
+        "set_kill_switch",
+        "set_mic",
+        "set_folders",
+        "mic_list",
+        "mic_check",
+        "calibrate_start",
+        "calibrate_record",
+        "calibrate_finish",
+        "calibrate_cancel",
+        "onboarding_done",
+        "set_voice",
+        "voice_settings",
+        "voice_preview",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });
     }
-    blocking(move || Ok(call_with(&cmd, text.as_deref()).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))))
+    blocking(move || Ok(call_with(&cmd, text.as_deref(), args).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))))
         .await
         .unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
 }
@@ -640,6 +686,7 @@ fn main() {
             open_external,
             binds_state,
             binds_refresh_devices,
+            binds_reset,
             binds_view,
             binds_set_slot,
             binds_copy,
@@ -649,6 +696,8 @@ fn main() {
             materials_inventory,
             engineering_fleet,
             engineering_plan,
+            engineering_stats,
+            engineering_headlines,
             engineering_engineers,
             engineering_trip,
             galaxy_nearby,

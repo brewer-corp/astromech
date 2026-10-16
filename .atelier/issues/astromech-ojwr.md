@@ -20,9 +20,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:54:32.489832937+00:00"
+status: "done"
 title: "Port Coriolis's ship calculations to Rust"
-updated_at: "2026-10-16T18:12:14.655360777+00:00"
+updated_at: "2026-10-16T18:54:32.489832937+00:00"
 ---
 
 ## Goal
@@ -40,3 +41,7 @@ Calculations and their tables only; no UI. Module and blueprint tables go in `da
 ## Context
 
 Coriolis's code is MIT, so porting its maths is fine. Its data is player-visible game data, which may live in the repo ([ARCHITECTURE §18.4](docs/ARCHITECTURE.md)). EDSY is CC BY-NC, so use it for reference only and never copy its code. Reuse the existing blueprint tables in `crates/astromech-engineering` rather than duplicating them. This supersedes astromech-4f6x.
+
+## Close Reason
+
+astromech-ship returns every stat in the goal; five synthetic reference builds (combat, exploration, mining; charge-enhanced and weapon-focused PDs, Mass Manager and Deep Charge, thermal-resistant boosters) match Coriolis to its displayed rounding in cargo test -p astromech-ship. Independent review outstanding (arranged by the orchestrator).

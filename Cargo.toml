@@ -29,6 +29,7 @@ astromech-intent = { path = "crates/astromech-intent" }
 astromech-materials = { path = "crates/astromech-materials" }
 astromech-engineering = { path = "crates/astromech-engineering" }
 astromech-galaxy = { path = "crates/astromech-galaxy" }
+astromech-ship = { path = "crates/astromech-ship" }
 astromech-data = { path = "crates/astromech-data" }
 astromech-powerplay = { path = "crates/astromech-powerplay" }
 anyhow = "1.0.104"

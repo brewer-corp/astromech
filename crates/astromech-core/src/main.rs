@@ -386,31 +386,16 @@ fn list_mics() -> Result<()> {
 }
 
 fn calibrate_files(cfg: &Config, files: &[PathBuf]) -> Result<()> {
-    anyhow::ensure!(files.len() >= 2, "--calibrate-files needs a silent WAV then at least one speech WAV");
-    let (rate, noise) = astromech_voice::wav::read_mono_f32(&files[0])?;
-    let mut speech = vec![];
-    let mut owned = vec![];
-    for p in &files[1..] {
-        let (r, s) = astromech_voice::wav::read_mono_f32(p)?;
-        anyhow::ensure!(r == rate, "{} is {r} Hz, silence was {rate} Hz", p.display());
-        owned.push(s);
-    }
-    for s in &owned {
-        speech.push(s.as_slice());
-    }
-    let c = astromech_voice::gain::calibrate(&noise, &speech, rate);
+    use astromech_core::calibration;
+    let (rate, noise, speech) = calibration::read_wavs(files)?;
+    let device = calibration::configured_device(&cfg.voice.mic);
+    let data = cfg.data_dir();
+    let c = calibration::calibrate_and_store(&calibration::open_store(&data)?, &device, rate, &noise, &speech)?;
     println!(
         "calibration: noise {:.0} dBFS, speech peak {:.0} dBFS, min_level_dbfs {:.0}, suggested gain {:+.0} dB",
         c.noise_dbfs, c.speech_peak_dbfs, c.min_level_dbfs, c.gain_db
     );
-    let name = if cfg.voice.mic.trim().is_empty() { "default" } else { cfg.voice.mic.trim() };
-    let data = cfg.data_dir();
-    std::fs::create_dir_all(&data)?;
-    let st = astromech_store::Store::open(&data.join("astromech.sqlite"))?;
-    st.set(&format!("mic.{name}.min_level_dbfs"), &format!("{:.1}", c.min_level_dbfs))?;
-    st.set(&format!("mic.{name}.noise_dbfs"), &format!("{:.1}", c.noise_dbfs))?;
-    st.set(&format!("mic.{name}.speech_peak_dbfs"), &format!("{:.1}", c.speech_peak_dbfs))?;
-    println!("stored under {} for mic {name}", data.join("astromech.sqlite").display());
+    println!("stored under {} for mic {device}", data.join("astromech.sqlite").display());
     println!("paste into astromech.toml: min_level_dbfs = {:.1}", c.min_level_dbfs);
     Ok(())
 }
