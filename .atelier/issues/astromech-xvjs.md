@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Run the EDDN sender in the core"
-updated_at: "2026-10-16T18:47:49.293873074+00:00"
+updated_at: "2026-10-16T19:27:26.841215201+00:00"
 ---
 
 ## Goal
@@ -35,3 +35,7 @@ Tests show:
 ## Context
 
 `astromech-eddn` (astromech-el1v) provides `Sender`, `Outbox::deliver_due` and the `eddn_log` query, but nothing in the core runs them yet. Found in the independent review of feature/astromech-tyjz.
+
+## Notes
+
+- 2026-10-16 [note] From review of lt2b/thau: (R1) don't enable outfitting/2 until PowerPlay and tech-broker modules are filtered: journal Outfitting.json has no sku, so the README's commander-status rule never fires; add a denylist of those module names (wiki-visible data) or file a decision. (R2) send companion-file messages only for live tailed events, not replay; if real logs show file and event timestamps always equal, require equality. (R5) write each companion::Unusable to the send log like Dropped results.

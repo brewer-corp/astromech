@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Send to EDDN from a live session"
-updated_at: "2026-10-16T18:26:24.888948899+00:00"
+updated_at: "2026-10-16T19:27:26.857232444+00:00"
 ---
 
 ## Goal
@@ -28,3 +28,7 @@ Confirm the sender against EDDN from the real game.
 ## Done when
 
 A session against the `/test` schemas, then a live session, each with no rejections (evidence).
+
+## Notes
+
+- 2026-10-16 [note] Also check in real logs: whether Market/Outfitting/Shipyard.json timestamps always equal their event's, and whether Outfitting.json lists commander-specific (PowerPlay, tech-broker) modules (review of lt2b/thau, R1/R2).
