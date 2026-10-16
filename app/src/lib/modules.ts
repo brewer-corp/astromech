@@ -4,6 +4,7 @@
  * lazy-loads a module's view only when it is opened.
  */
 import type { Component } from "svelte";
+import type { PaletteItem } from "./palette";
 
 /** Top-level tabs. Each module sits under one; the group's modules are its sub-tabs. */
 export const groups = [
@@ -30,6 +31,8 @@ export interface ModuleManifest {
   api: string[];
   /** Lazy view loader so modules do not bloat the first paint. */
   load: () => Promise<{ default: Component }>;
+  /** Command palette entries from data the window has, beyond the page itself (lazy-load the data). */
+  palette?: () => Promise<PaletteItem[]>;
 }
 
 const found = import.meta.glob<ModuleManifest>("../modules/*/manifest.ts", { eager: true, import: "default" });

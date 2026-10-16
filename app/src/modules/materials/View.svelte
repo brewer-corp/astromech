@@ -7,7 +7,12 @@
 
   let inv = $state<Inventory | null>(null);
   let kindId = $state("raw");
-  let selId = $state<string | null>(null);
+  // A material opens at #/materials/<id> (the command palette links there), so back and reload keep it.
+  const readSel = () => {
+    const m = /^#\/materials\/(.+)$/.exec(location.hash);
+    return m?.[1] ? decodeURIComponent(m[1]) : null;
+  };
+  let selId = $state<string | null>(readSel());
 
   const kind = $derived(inv?.kinds.find((k) => k.id === kindId) ?? inv?.kinds[0]);
   const tabs = $derived([
@@ -19,6 +24,20 @@
       ? inv?.other.find((c) => c.id === selId)
       : kind?.groups.flatMap((g) => g.cells).find((c) => c.id === selId),
   );
+
+  $effect(() => {
+    const onHash = () => (selId = readSel());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
+
+  // Show the tab the selected material is on.
+  $effect(() => {
+    if (!inv || !selId) return;
+    const id = selId;
+    const k = inv.other.some((c) => c.id === id) ? "other" : inv.kinds.find((kd) => kd.groups.some((g) => g.cells.some((c) => c.id === id)))?.id;
+    if (k) kindId = k;
+  });
 
   $effect(() => {
     void loadMaterials().then((v) => (inv = v));
@@ -34,18 +53,24 @@
 
   let about: HTMLElement | undefined = $state();
 
-  // The detail sits below the grid; on a short window it is off screen, so bring it up.
-  async function pick(id: string) {
-    selId = id;
-    await tick();
-    about?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  function pick(id: string | null) {
+    location.hash = id ? `#/materials/${encodeURIComponent(id)}` : "#/materials";
   }
+
+  // The detail sits below the grid; on a short window it is off screen, so bring it up once per pick.
+  let shownId: string | null = null;
+  $effect(() => {
+    if (!sel) return void (shownId = null);
+    if (sel.id === shownId) return;
+    shownId = sel.id;
+    void tick().then(() => about?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+  });
 </script>
 
 <section>
   <div class="acts">
     {#each tabs as k (k.id)}
-      <button class:on={kindId === k.id} onclick={() => { kindId = k.id; selId = null; }}>{k.title}</button>
+      <button class:on={kindId === k.id} onclick={() => { kindId = k.id; pick(null); }}>{k.title}</button>
     {/each}
   </div>
   <p class="sub">
