@@ -75,7 +75,7 @@ describe("command palette in the window", () => {
     await fireEvent.input(input, { target: { value: "2f pulse laser" } });
     await screen.findByText(/^Outfitting · fitted on/);
     await fireEvent.keyDown(input, { key: "Enter" });
-    expect(location.hash).toBe("#/outfitting/Pulse%20Laser/2F/Gimballed");
+    expect(location.hash).toBe("#/outfitting/Pulse%20Laser?class=2&rating=F&mount=Gimballed");
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "module", name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" }, null, expect.anything()));
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
@@ -88,22 +88,33 @@ describe("command palette in the window", () => {
   });
 
   it("keeps the Outfitting pick in the address for back and reload", async () => {
-    location.hash = "#/outfitting/Frame%20Shift%20Drive/5A";
+    location.hash = "#/outfitting/Frame%20Shift%20Drive?class=5&rating=A";
     render(App);
     await screen.findByText(/Abraham Lincoln/);
 
     await fireEvent.change(screen.getByRole("combobox", { name: "Class" }), { target: { value: "6" } });
-    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive/6A"));
+    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive?class=6&rating=A"));
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 6, rating: "A" }), null, expect.anything()));
 
     history.back();
-    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive/5A"));
+    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive?class=5&rating=A"));
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 5, rating: "A" }), null, expect.anything()));
 
     cleanup(); // reload
     stationsSpy.mockClear();
     render(App);
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ name: "Frame Shift Drive", class: 5 }), null, expect.anything()));
+  });
+
+  it("keeps a partial Outfitting pick when one part goes back to Any", async () => {
+    location.hash = "#/outfitting/Frame%20Shift%20Drive?class=5&rating=A";
+    render(App);
+    await screen.findByText(/Abraham Lincoln/);
+
+    await fireEvent.change(screen.getByRole("combobox", { name: "Rating" }), { target: { value: "" } });
+    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive?class=5"));
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 5, rating: null }), null, expect.anything()));
+    expect((screen.getByRole("combobox", { name: "Class" }) as HTMLSelectElement).value).toBe("5");
   });
 
   it("keeps the selected material through back and reload", async () => {

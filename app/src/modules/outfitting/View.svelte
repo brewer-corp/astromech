@@ -1,6 +1,6 @@
 <script lang="ts">
   // The nearest stations selling a module (by name, class, rating and mount), on the search kit.
-  // #/outfitting/<module>[/<class><rating>[/<mount>]] picks the module (the command palette links
+  // #/outfitting/<module>[?class=&rating=&mount=] picks the module (the command palette links
   // there), so back and reload keep it.
   import { CATEGORIES, MODULES, choices, moduleRoute, parseModuleRoute, settle } from "../../lib/outfitting";
   import type { Filters, Origin } from "../../lib/search";

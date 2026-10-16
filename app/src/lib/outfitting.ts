@@ -72,19 +72,27 @@ export function wantFor(symbol: string): ModuleWant | null {
 }
 
 /**
- * The Outfitting page's route for `w`: `outfitting/<module>[/<class><rating>[/<mount>]]`, e.g.
- * "outfitting/Frame%20Shift%20Drive/5A". Without a class and rating it searches any size.
+ * The Outfitting page's route for `w`: `outfitting/<module>[?class=&rating=&mount=]`, each part
+ * only when picked, e.g. "outfitting/Pulse%20Laser?mount=Fixed". Nothing picked searches any size.
  */
 export function moduleRoute(w: ModuleWant): string {
-  const size = w.class != null && w.rating ? `/${w.class}${w.rating}${w.mount ? `/${w.mount}` : ""}` : "";
-  return `outfitting/${encodeURIComponent(w.name)}${size}`;
+  const q = new URLSearchParams();
+  if (w.class != null) q.set("class", String(w.class));
+  if (w.rating) q.set("rating", w.rating);
+  if (w.mount) q.set("mount", w.mount);
+  const qs = q.toString();
+  return `outfitting/${encodeURIComponent(w.name)}${qs ? `?${qs}` : ""}`;
 }
 
 const MOUNTS: Mount[] = ["Fixed", "Gimballed", "Turreted"];
 
-/** The module a `#/outfitting/...` hash asks for, settled to what it comes in; null for no or an unknown module. */
+/**
+ * The module a `#/outfitting/...` hash asks for, settled to what it comes in; null for no or an
+ * unknown module. A size it doesn't come in, or a bad one, is dropped. Also reads the older
+ * `/<class><rating>[/<mount>]` form.
+ */
 export function parseModuleRoute(hash: string): ModuleWant | null {
-  const m = /^#\/outfitting\/([^/]+)(?:\/(\d)([A-I]))?(?:\/([A-Za-z]+))?$/.exec(hash);
+  const m = /^#\/outfitting\/([^/?]+)([^?]*)(?:\?(.*))?$/.exec(hash);
   if (!m?.[1]) return null;
   let name: string;
   try {
@@ -93,8 +101,17 @@ export function parseModuleRoute(hash: string): ModuleWant | null {
     return null;
   }
   if (!MODULES.some((x) => x.name === name)) return null;
-  const mount = MOUNTS.find((x) => x === m[4]) ?? null;
-  return settle({ name, class: m[2] ? Number(m[2]) : null, rating: m[3] ?? null, mount });
+  const old = /^\/(\d)([A-I])(?:\/(\w+))?$/.exec(m[2] ?? "");
+  const q = new URLSearchParams(m[3] ?? "");
+  const cls = q.get("class") ?? old?.[1] ?? "";
+  const rating = q.get("rating") ?? old?.[2] ?? "";
+  const mount = q.get("mount") ?? old?.[3];
+  return settle({
+    name,
+    class: /^\d$/.test(cls) ? Number(cls) : null,
+    rating: /^[A-I]$/.test(rating) ? rating : null,
+    mount: MOUNTS.find((x) => x === mount) ?? null,
+  });
 }
 
 /** The Shipyard page's route for a ship: `shipyard/<ship name>`. */

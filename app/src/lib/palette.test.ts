@@ -52,8 +52,8 @@ describe("palette matching", () => {
     expect(rank(all, "proto heat")[0]).toMatchObject({ label: "Proto Heat Radiators", route: "materials/protoheatradiators" });
     expect(rank(all, "heavy lifter")[0]).toMatchObject({ detail: "Ship · Anaconda", route: "engineering/3" });
     expect(rank(all, "frame shift drive")[0]).toMatchObject({ label: "Frame Shift Drive", route: "outfitting/Frame%20Shift%20Drive" });
-    expect(rank(all, "6a frame shift")[0]).toMatchObject({ detail: "Outfitting · fitted on Heavy Lifter", route: "outfitting/Frame%20Shift%20Drive/6A" });
-    expect(rank(all, "2f pulse laser")[0]?.route).toBe("outfitting/Pulse%20Laser/2F/Gimballed");
+    expect(rank(all, "6a frame shift")[0]).toMatchObject({ detail: "Outfitting · fitted on Heavy Lifter", route: "outfitting/Frame%20Shift%20Drive?class=6&rating=A" });
+    expect(rank(all, "2f pulse laser")[0]?.route).toBe("outfitting/Pulse%20Laser?class=2&rating=F&mount=Gimballed");
     expect(rank(all, "lightweight alloy")[0]).toMatchObject({ detail: "Module · Armour on Heavy Lifter", route: "engineering/3" });
     expect(rank(all, "anaconda")[0]).toMatchObject({ detail: "Shipyard", route: "shipyard/Anaconda" });
     expect(rank(all, "increased range")[0]?.detail).toMatch(/^Blueprint · /);
