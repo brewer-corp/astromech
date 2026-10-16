@@ -110,6 +110,8 @@ fn reply_and_answer_lines() -> (Vec<String>, Vec<String>) {
                 Plan::Confirm { prompt, confirm, failure, .. } => replies.extend([prompt, confirm, failure]),
                 Plan::Already(s) | Plan::Refused(s) => replies.push(s),
                 Plan::Speak(s) => answers.push(s),
+                // The lookup's answer is built from live data; what the plan says up front is fixed.
+                Plan::Lookup(_) => replies.push("Looking that up.".to_string()),
             }
         }
     }
