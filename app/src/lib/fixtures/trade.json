@@ -1,0 +1,799 @@
+{
+  "buy": {
+    "here": {
+      "id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "system": "Sol"
+    },
+    "range": 20.0,
+    "results": [
+      {
+        "commodity": "tritium",
+        "fetched_at": 1792184400,
+        "offers": [
+          {
+            "arrival_ls": 2265.68252,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 30.26941203075309,
+            "market_id": 4270845699,
+            "odyssey": true,
+            "pad": "L",
+            "price": 44738,
+            "station": "Bogacki Extraction Territory",
+            "station_type": "OnFootSettlement",
+            "system": "Core Sys Sector YU-P a5-3",
+            "updated_at": "2026-09-21T10:53:46.000Z",
+            "volume": 31
+          },
+          {
+            "arrival_ls": 9681.954677,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 19.4254635160271,
+            "market_id": 3228869376,
+            "odyssey": false,
+            "pad": "M",
+            "price": 46968,
+            "station": "Ray Freeport",
+            "station_type": "Outpost",
+            "system": "YZ Canis Minoris",
+            "updated_at": "2026-10-11T15:51:24.000Z",
+            "volume": 1872
+          },
+          {
+            "arrival_ls": 198.234835,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 16.552060389117724,
+            "market_id": 3228780288,
+            "odyssey": false,
+            "pad": "M",
+            "price": 47142,
+            "station": "Ivins City",
+            "station_type": "Outpost",
+            "system": "Gendalla",
+            "updated_at": "2026-10-10T22:51:32.000Z",
+            "volume": 2456
+          },
+          {
+            "arrival_ls": 1269.50918,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 28.7513926293145,
+            "market_id": 3228050688,
+            "odyssey": false,
+            "pad": "M",
+            "price": 47166,
+            "station": "Ham Dock",
+            "station_type": "Outpost",
+            "system": "Ross 41",
+            "updated_at": "2026-10-09T02:36:50.000Z",
+            "volume": 385
+          },
+          {
+            "arrival_ls": 4259.9136,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 30.046237155216293,
+            "market_id": 4278138627,
+            "odyssey": false,
+            "pad": "L",
+            "price": 47523,
+            "station": "Olympus Prime",
+            "station_type": "Orbis",
+            "system": "LHS 1731",
+            "updated_at": "2026-10-13T07:59:04.000Z",
+            "volume": 449876
+          },
+          {
+            "arrival_ls": 855.846074,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 16.579295729161718,
+            "market_id": 3228823808,
+            "odyssey": false,
+            "pad": "M",
+            "price": 53260,
+            "station": "Tevis Terminal",
+            "station_type": "Outpost",
+            "system": "70 Ophiuchi",
+            "updated_at": "2026-10-14T19:42:36.000Z",
+            "volume": 42883
+          },
+          {
+            "arrival_ls": 287.554455,
+            "commodity": "tritium",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 16.737985429853858,
+            "market_id": 3227913472,
+            "odyssey": false,
+            "pad": "M",
+            "price": 57215,
+            "station": "Grandin Gateway",
+            "station_type": "Outpost",
+            "system": "Altair",
+            "updated_at": "2026-10-09T01:00:09.000Z",
+            "volume": 21902
+          }
+        ],
+        "side": "buy",
+        "truncated": false
+      }
+    ],
+    "side": "buy"
+  },
+  "cargo": {
+    "fetched_at": 1792184400,
+    "kept": [
+      {
+        "name": "Gold",
+        "reason": "stolen",
+        "tonnes": 10
+      },
+      {
+        "name": "Limpet",
+        "reason": "limpets",
+        "tonnes": 30
+      },
+      {
+        "name": "Gold",
+        "reason": "mission cargo",
+        "tonnes": 12
+      }
+    ],
+    "load": [
+      {
+        "name": "Low Temperature Diamonds",
+        "symbol": "lowtemperaturediamond",
+        "tonnes": 300
+      },
+      {
+        "name": "Painite",
+        "symbol": "painite",
+        "tonnes": 200
+      },
+      {
+        "name": "Platinum",
+        "symbol": "platinum",
+        "tonnes": 100
+      }
+    ],
+    "per_commodity": [
+      {
+        "best": {
+          "arrival_ls": 2.336762,
+          "commodity": "lowtemperaturediamond",
+          "exact": false,
+          "fleet_carrier": false,
+          "jumps": 2,
+          "ly": 35.59084162832484,
+          "market_id": 4238296323,
+          "odyssey": false,
+          "pad": "L",
+          "price": 384562,
+          "station": "Sabine Point",
+          "station_type": "Coriolis",
+          "system": "Ross 79",
+          "updated_at": "2026-10-15T17:47:26.000Z",
+          "volume": 483
+        },
+        "carried": 300,
+        "commodity": "lowtemperaturediamond",
+        "name": "Low Temperature Diamonds"
+      },
+      {
+        "best": {
+          "arrival_ls": 22200.024499,
+          "commodity": "painite",
+          "exact": false,
+          "fleet_carrier": false,
+          "jumps": 1,
+          "ly": 18.769937316757346,
+          "market_id": 4221251331,
+          "odyssey": false,
+          "pad": "L",
+          "price": 211587,
+          "station": "Good Landing",
+          "station_type": "Orbis",
+          "system": "LHS 1827",
+          "updated_at": "2026-10-16T19:17:07.000Z",
+          "volume": 13884
+        },
+        "carried": 200,
+        "commodity": "painite",
+        "name": "Painite"
+      },
+      {
+        "best": {
+          "arrival_ls": 2404.246255,
+          "commodity": "platinum",
+          "exact": false,
+          "fleet_carrier": false,
+          "jumps": 2,
+          "ly": 32.38852577013193,
+          "market_id": 4382374403,
+          "odyssey": false,
+          "pad": "M",
+          "price": 294712,
+          "station": "Cousteau Vista",
+          "station_type": "Outpost",
+          "system": "LFT 65",
+          "updated_at": "2026-10-16T03:39:59.000Z",
+          "volume": 2479
+        },
+        "carried": 100,
+        "commodity": "platinum",
+        "name": "Platinum"
+      }
+    ],
+    "stations": [
+      {
+        "arrival_ls": 22200.024499,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 375061,
+            "proceeds": 112518300,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 211587,
+            "proceeds": 42317400,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 288390,
+            "proceeds": 28839000,
+            "sold": 100
+          }
+        ],
+        "ly": 18.769937316757346,
+        "market_id": 4221251331,
+        "odyssey": false,
+        "pad": "L",
+        "sold": 600,
+        "station": "Good Landing",
+        "system": "LHS 1827",
+        "total": 183674700,
+        "updated_at": "2026-10-16T19:17:07.000Z"
+      },
+      {
+        "arrival_ls": 2404.246255,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 2,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 361051,
+            "proceeds": 108315300,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 200592,
+            "proceeds": 40118400,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 294712,
+            "proceeds": 29471200,
+            "sold": 100
+          }
+        ],
+        "ly": 32.38852577013193,
+        "market_id": 4382374403,
+        "odyssey": false,
+        "pad": "M",
+        "sold": 600,
+        "station": "Cousteau Vista",
+        "system": "LFT 65",
+        "total": 177904900,
+        "updated_at": "2026-10-16T03:39:59.000Z"
+      },
+      {
+        "arrival_ls": 586.347471,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 2,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 342088,
+            "proceeds": 102626400,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 192878,
+            "proceeds": 38575600,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 289005,
+            "proceeds": 28900500,
+            "sold": 100
+          }
+        ],
+        "ly": 37.057888625433044,
+        "market_id": 4207014915,
+        "odyssey": false,
+        "pad": "L",
+        "sold": 600,
+        "station": "Makhai High",
+        "system": "Caer Bran",
+        "total": 170102500,
+        "updated_at": "2026-10-16T18:22:50.000Z"
+      },
+      {
+        "arrival_ls": 947.282728,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 2,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 329121,
+            "proceeds": 98736300,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 200592,
+            "proceeds": 40118400,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 294712,
+            "proceeds": 29471200,
+            "sold": 100
+          }
+        ],
+        "ly": 32.38852577013193,
+        "market_id": 4282042371,
+        "odyssey": false,
+        "pad": "L",
+        "sold": 600,
+        "station": "Radium Station",
+        "system": "LFT 65",
+        "total": 168325900,
+        "updated_at": "2026-10-16T20:13:35.000Z"
+      },
+      {
+        "arrival_ls": 2.336762,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 2,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 384562,
+            "proceeds": 115368600,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 117548,
+            "proceeds": 23509600,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 252368,
+            "proceeds": 25236800,
+            "sold": 100
+          }
+        ],
+        "ly": 35.59084162832484,
+        "market_id": 4238296323,
+        "odyssey": false,
+        "pad": "L",
+        "sold": 600,
+        "station": "Sabine Point",
+        "system": "Ross 79",
+        "total": 164115000,
+        "updated_at": "2026-10-15T17:47:26.000Z"
+      },
+      {
+        "arrival_ls": 287.554455,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 328220,
+            "proceeds": 98466000,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 183620,
+            "proceeds": 36724000,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 282158,
+            "proceeds": 28215800,
+            "sold": 100
+          }
+        ],
+        "ly": 16.737985429853858,
+        "market_id": 3227913472,
+        "odyssey": false,
+        "pad": "M",
+        "sold": 600,
+        "station": "Grandin Gateway",
+        "system": "Altair",
+        "total": 163405800,
+        "updated_at": "2026-10-09T01:00:09.000Z"
+      },
+      {
+        "arrival_ls": 214.989439,
+        "exact": false,
+        "fleet_carrier": true,
+        "jumps": 2,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 250678,
+            "proceeds": 75203400,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 200478,
+            "proceeds": 40095600,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 200356,
+            "proceeds": 20035600,
+            "sold": 100
+          }
+        ],
+        "ly": 20.242523697034418,
+        "market_id": 3700021024,
+        "odyssey": false,
+        "pad": "L",
+        "sold": 600,
+        "station": "FCX-024",
+        "system": "LTT 3572",
+        "total": 135334600,
+        "updated_at": "2026-10-13T18:24:30.000Z"
+      },
+      {
+        "arrival_ls": 855.846074,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "carried": 300,
+            "commodity": "lowtemperaturediamond",
+            "name": "Low Temperature Diamonds",
+            "price": 219708,
+            "proceeds": 65912400,
+            "sold": 300
+          },
+          {
+            "carried": 200,
+            "commodity": "painite",
+            "name": "Painite",
+            "price": 195192,
+            "proceeds": 39038400,
+            "sold": 200
+          },
+          {
+            "carried": 100,
+            "commodity": "platinum",
+            "name": "Platinum",
+            "price": 152856,
+            "proceeds": 0,
+            "sold": 0
+          }
+        ],
+        "ly": 16.579295729161718,
+        "market_id": 3228823808,
+        "odyssey": false,
+        "pad": "M",
+        "sold": 500,
+        "station": "Tevis Terminal",
+        "system": "70 Ophiuchi",
+        "total": 104950800,
+        "updated_at": "2026-09-18T23:38:10.000Z"
+      }
+    ]
+  },
+  "hold": [
+    {
+      "count": 200,
+      "mission": false,
+      "name": "Painite",
+      "stolen": 0,
+      "symbol": "painite"
+    },
+    {
+      "count": 100,
+      "mission": false,
+      "name": "platinum",
+      "stolen": 0,
+      "symbol": "platinum"
+    },
+    {
+      "count": 300,
+      "mission": false,
+      "name": "Low Temperature Diamonds",
+      "stolen": 0,
+      "symbol": "lowtemperaturediamond"
+    },
+    {
+      "count": 10,
+      "mission": false,
+      "name": "Gold",
+      "stolen": 10,
+      "symbol": "gold"
+    },
+    {
+      "count": 30,
+      "mission": false,
+      "name": "Limpet",
+      "stolen": 0,
+      "symbol": "drones"
+    },
+    {
+      "count": 12,
+      "mission": true,
+      "name": "Gold",
+      "stolen": 0,
+      "symbol": "gold"
+    }
+  ],
+  "sell": {
+    "here": {
+      "id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "system": "Sol"
+    },
+    "range": 20.0,
+    "results": [
+      {
+        "commodity": "painite",
+        "fetched_at": 1792184400,
+        "offers": [
+          {
+            "arrival_ls": 22200.024499,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 18.769937316757346,
+            "market_id": 4221251331,
+            "odyssey": false,
+            "pad": "L",
+            "price": 211587,
+            "station": "Good Landing",
+            "station_type": "Orbis",
+            "system": "LHS 1827",
+            "updated_at": "2026-10-16T19:17:07.000Z",
+            "volume": 13884
+          },
+          {
+            "arrival_ls": 2404.246255,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 32.38852577013193,
+            "market_id": 4382374403,
+            "odyssey": false,
+            "pad": "M",
+            "price": 200592,
+            "station": "Cousteau Vista",
+            "station_type": "Outpost",
+            "system": "LFT 65",
+            "updated_at": "2026-10-16T03:39:59.000Z",
+            "volume": 1960
+          },
+          {
+            "arrival_ls": 947.282728,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 32.38852577013193,
+            "market_id": 4282042371,
+            "odyssey": false,
+            "pad": "L",
+            "price": 200592,
+            "station": "Radium Station",
+            "station_type": "Orbis",
+            "system": "LFT 65",
+            "updated_at": "2026-10-16T20:13:35.000Z",
+            "volume": 26173
+          },
+          {
+            "arrival_ls": 214.989439,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": true,
+            "jumps": 2,
+            "ly": 20.242523697034418,
+            "market_id": 3700021024,
+            "odyssey": false,
+            "pad": "L",
+            "price": 200478,
+            "station": "FCX-024",
+            "station_type": "FleetCarrier",
+            "system": "LTT 3572",
+            "updated_at": "2026-10-13T18:24:30.000Z",
+            "volume": 1343
+          },
+          {
+            "arrival_ls": 855.846074,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 16.579295729161718,
+            "market_id": 3228823808,
+            "odyssey": false,
+            "pad": "M",
+            "price": 195192,
+            "station": "Tevis Terminal",
+            "station_type": "Outpost",
+            "system": "70 Ophiuchi",
+            "updated_at": "2026-10-14T19:42:36.000Z",
+            "volume": 1828
+          },
+          {
+            "arrival_ls": 586.347471,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 37.057888625433044,
+            "market_id": 4207014915,
+            "odyssey": false,
+            "pad": "L",
+            "price": 192878,
+            "station": "Makhai High",
+            "station_type": "Orbis",
+            "system": "Caer Bran",
+            "updated_at": "2026-10-16T18:22:50.000Z",
+            "volume": 29688
+          },
+          {
+            "arrival_ls": 1154.245977,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 33.007012749187105,
+            "market_id": 3815264000,
+            "odyssey": true,
+            "pad": "S",
+            "price": 186124,
+            "station": "Naudiyal Manufacturing Complex",
+            "station_type": "OnFootSettlement",
+            "system": "G 175-42",
+            "updated_at": "2026-09-17T18:29:55.000Z",
+            "volume": 15
+          },
+          {
+            "arrival_ls": 287.554455,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 1,
+            "ly": 16.737985429853858,
+            "market_id": 3227913472,
+            "odyssey": false,
+            "pad": "M",
+            "price": 183620,
+            "station": "Grandin Gateway",
+            "station_type": "Outpost",
+            "system": "Altair",
+            "updated_at": "2026-10-09T01:00:09.000Z",
+            "volume": 5098
+          },
+          {
+            "arrival_ls": 2.336762,
+            "commodity": "painite",
+            "exact": false,
+            "fleet_carrier": false,
+            "jumps": 2,
+            "ly": 35.59084162832484,
+            "market_id": 4238296323,
+            "odyssey": false,
+            "pad": "L",
+            "price": 117548,
+            "station": "Sabine Point",
+            "station_type": "Coriolis",
+            "system": "Ross 79",
+            "updated_at": "2026-10-15T17:47:26.000Z",
+            "volume": 1670
+          }
+        ],
+        "side": "sell",
+        "truncated": false
+      }
+    ],
+    "side": "sell"
+  }
+}

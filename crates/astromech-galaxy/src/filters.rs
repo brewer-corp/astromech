@@ -73,6 +73,10 @@ pub struct Filters {
     pub max_age_days: Option<u32>,
     /// Hide stations farther than this from the arrival star, in light seconds.
     pub max_arrival_ls: Option<u32>,
+    /// Search radius in light years. `None`: the lookup's default.
+    pub max_distance_ly: Option<u32>,
+    /// Hide markets with less demand (selling) or stock (buying) than this, in tonnes.
+    pub min_volume: Option<u32>,
 }
 
 /// What a result offers the filters. `None` / `false` where the source doesn't say.
@@ -85,6 +89,10 @@ pub struct Facts<'a> {
     pub odyssey: bool,
     /// RFC 3339, as Spansh and Ardent send it.
     pub updated_at: Option<&'a str>,
+    /// Light years from the search origin.
+    pub ly: Option<f64>,
+    /// Market demand or stock for the commodity searched, in tonnes.
+    pub volume: Option<i64>,
 }
 
 impl Filters {
@@ -109,7 +117,20 @@ impl Filters {
             (Some(days), Some(t)) => now_s - t <= days as i64 * 86_400,
             _ => true,
         };
-        pad && arrival && age && !(self.exclude_carriers && f.fleet_carrier) && !(self.exclude_odyssey && f.odyssey)
+        let near = match (self.max_distance_ly, f.ly) {
+            (Some(max), Some(ly)) => ly <= max as f64 + 1e-9,
+            _ => true,
+        };
+        let volume = match (self.min_volume, f.volume) {
+            (Some(min), Some(v)) => v >= min as i64,
+            _ => true,
+        };
+        pad && arrival
+            && age
+            && near
+            && volume
+            && !(self.exclude_carriers && f.fleet_carrier)
+            && !(self.exclude_odyssey && f.odyssey)
     }
 }
 
@@ -186,8 +207,14 @@ mod tests {
             fleet_carrier: false,
             odyssey: false,
             updated_at: Some("2026-10-14T18:08:31Z"),
+            ly: Some(42.5),
+            volume: Some(300),
         };
         let all = Filters::default();
+        assert!(!Filters { max_distance_ly: Some(40), ..all.clone() }.keeps(&station, now));
+        assert!(Filters { max_distance_ly: Some(50), ..all.clone() }.keeps(&station, now));
+        assert!(!Filters { min_volume: Some(301), ..all.clone() }.keeps(&station, now));
+        assert!(Filters { min_volume: Some(300), ..all.clone() }.keeps(&station, now));
         assert!(all.keeps(&station, now));
         assert!(!Filters { pad: Some(Pad::L), ..all.clone() }.keeps(&station, now));
         assert!(Filters { pad: Some(Pad::S), ..all.clone() }.keeps(&station, now));
@@ -199,7 +226,14 @@ mod tests {
         let settlement = Facts { odyssey: true, ..station };
         assert!(!Filters { exclude_odyssey: true, ..all.clone() }.keeps(&settlement, now));
         // a system has no pad, arrival or carrier facts: only its age counts
-        let strict = Filters { pad: Some(Pad::L), max_arrival_ls: Some(10), exclude_carriers: true, ..all };
+        let strict = Filters {
+            pad: Some(Pad::L),
+            max_arrival_ls: Some(10),
+            exclude_carriers: true,
+            max_distance_ly: Some(1),
+            min_volume: Some(1000),
+            ..all
+        };
         assert!(strict.keeps(&Facts { updated_at: Some("2026-10-16T11:00:00Z"), ..Facts::default() }, now));
     }
 }

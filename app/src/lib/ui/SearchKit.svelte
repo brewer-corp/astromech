@@ -4,7 +4,7 @@
   // with jumps at the current range, distance, pad size, arrival distance and data age.
   import { ago, jumps } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Results } from "../search";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterHints, type FilterKey, type Filters, type Origin, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
   import SystemChip from "./SystemChip.svelte";
@@ -12,16 +12,22 @@
   let {
     lookup,
     offers,
+    hints = {},
     run,
     title = "Nearest",
+    joiner = "to",
     busyText = "Searching…",
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
     /** The filters this lookup can apply. */
     offers: FilterKey[];
+    hints?: FilterHints;
+    /** A new function (e.g. another commodity) re-runs the search. */
     run: (origin: Origin, filters: Filters) => Promise<Results>;
     title?: string;
+    /** Between the title and the origin: "Nearest to Sol", "Best prices near Sol". */
+    joiner?: string;
     busyText?: string;
   } = $props();
 
@@ -80,9 +86,9 @@
 </script>
 
 <div class="kit">
-  <h4>{title}{#if res}&nbsp;to&nbsp;<SystemChip name={res.origin} />{/if}</h4>
+  <h4>{title}{#if res}&nbsp;{joiner}&nbsp;<SystemChip name={res.origin} />{/if}</h4>
   <OriginInput {origin} onchange={(o) => (origin = o)} />
-  {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} onchange={(f) => void change(f)} />{/if}
+  {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} {hints} onchange={(f) => void change(f)} />{/if}
   {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   {#if busy && !res}
     <p class="lo">{busyText}</p>
@@ -94,7 +100,7 @@
       {#each res.rows as r (r.key)}
         <li>
           <span class="sys">{r.station ? `${r.station} · ` : ""}<SystemChip name={r.system} /></span>
-          <span class="q">{jumps(r.jumps, r.exact)} · {r.ly.toFixed(1)} ly</span>
+          <span class="q">{r.lead ? `${r.lead} · ` : ""}{jumps(r.jumps, r.exact)} · {r.ly.toFixed(1)} ly</span>
           <span class="lo">{facts(r)}</span>
         </li>
       {:else}

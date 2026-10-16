@@ -225,9 +225,10 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
 /// The modules once the plan is done: each target's blueprint at its grade, fully rolled (the
 /// rolls [`cost_target`] counts finish every grade), with the target's experimental. As in the
 /// game, a module already above the target grade on the same blueprint keeps its grade and
-/// roll, and its experimental stays unless the target names another. Targets `cost_target`
-/// rejects (no module in the slot, an unknown blueprint, or one the module can't take) change
-/// nothing.
+/// roll, and its experimental stays unless the target names another. A targeted module's
+/// journal `Modifiers` are dropped, so its stats follow the planned blueprint and roll, unless
+/// the plan leaves it exactly as it is. Targets `cost_target` rejects (no module in the slot, an
+/// unknown blueprint, or one the module can't take) change nothing.
 pub fn planned_modules(modules: &[ModuleSnap], targets: &[Target]) -> Vec<ModuleSnap> {
     let mut out = modules.to_vec();
     for t in targets {
@@ -240,9 +241,9 @@ pub fn planned_modules(modules: &[ModuleSnap], targets: &[Target]) -> Vec<Module
         let lowest = bp.grades.iter().map(|g| g.grade).min().unwrap_or(1);
         let grade = t.grade.clamp(lowest, bp.max_grade());
         let same = m.engineering.take().filter(|e| e.blueprint.eq_ignore_ascii_case(bp_id));
-        let (level, quality) = match &same {
-            Some(e) if e.level > grade => (e.level, e.quality),
-            _ => (grade, 1.0),
+        let (level, quality, kept) = match &same {
+            Some(e) if e.level > grade => (e.level, e.quality, true),
+            _ => (grade, 1.0, false),
         };
         let named = t
             .experimental
@@ -250,6 +251,10 @@ pub fn planned_modules(modules: &[ModuleSnap], targets: &[Target]) -> Vec<Module
             .and_then(data::experimental)
             .map(|(id, _)| id)
             .filter(|id| group.is_some_and(|g| g.experimentals.iter().any(|x| x == id)));
+        let unchanged = |e: &ModEngineering| {
+            kept && named.is_none_or(|id| e.experimental.as_deref().is_some_and(|x| x.eq_ignore_ascii_case(id)))
+        };
+        let modifiers = same.as_ref().filter(|e| unchanged(e)).map(|e| e.modifiers.clone()).unwrap_or_default();
         let (experimental, experimental_localised) = match (named, same) {
             (Some(id), _) => (Some(id.to_string()), None),
             (None, Some(e)) => (e.experimental, e.experimental_localised),
@@ -262,6 +267,7 @@ pub fn planned_modules(modules: &[ModuleSnap], targets: &[Target]) -> Vec<Module
             experimental,
             experimental_localised,
             engineer: None,
+            modifiers,
         });
     }
     out

@@ -1,12 +1,19 @@
 <script lang="ts">
   // A lookup's filters, shown only where they apply (`offers`). The pad follows the current
   // ship until the commander picks one.
-  import type { FilterKey, Filters, Pad } from "../search";
+  import type { FilterHints, FilterKey, Filters, Pad } from "../search";
 
-  let { filters, offers, onchange }: { filters: Filters; offers: FilterKey[]; onchange: (f: Filters) => void } = $props();
+  let {
+    filters,
+    offers,
+    hints = {},
+    onchange,
+  }: { filters: Filters; offers: FilterKey[]; hints?: FilterHints; onchange: (f: Filters) => void } = $props();
 
-  const AGES = [1, 3, 7, 30, 90];
+  const AGES = [1, 3, 7, 30, 90, 365];
   const ARRIVALS = [1000, 5000, 25000];
+  const DISTANCES = [20, 50, 100, 200, 500];
+  const VOLUMES = [100, 500, 1000, 5000];
 
   const padValue = $derived(!filters.pad_set ? "ship" : (filters.pad ?? "any"));
 
@@ -19,12 +26,30 @@
 </script>
 
 <div class="filters">
+  {#if offers.includes("distance")}
+    <label>
+      <span>Within</span>
+      <select value={filters.max_distance_ly ?? ""} onchange={(e) => onchange({ ...filters, max_distance_ly: num(e.currentTarget.value) })}>
+        <option value="">{hints.distance ? `${hints.distance} ly` : "Default"}</option>
+        {#each DISTANCES.filter((d) => d !== hints.distance) as d (d)}<option value={d}>{d} ly</option>{/each}
+      </select>
+    </label>
+  {/if}
+  {#if offers.includes("volume")}
+    <label>
+      <span>{hints.volume ?? "Volume"}</span>
+      <select value={filters.min_volume ?? ""} onchange={(e) => onchange({ ...filters, min_volume: num(e.currentTarget.value) })}>
+        <option value="">Any</option>
+        {#each VOLUMES as v (v)}<option value={v}>At least {v.toLocaleString("en")} t</option>{/each}
+      </select>
+    </label>
+  {/if}
   {#if offers.includes("age")}
     <label>
       <span>Data age</span>
       <select value={filters.max_age_days ?? ""} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
-        <option value="">Any</option>
-        {#each AGES as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
+        <option value="">{hints.age ? `Up to ${hints.age} days` : "Any"}</option>
+        {#each AGES.filter((d) => d !== hints.age) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
       </select>
     </label>
   {/if}

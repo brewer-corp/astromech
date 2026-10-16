@@ -54,6 +54,13 @@ Spansh's bodies search at run time. `data/catalog/raw-farms.json` lists the well
 farms as reported by players on the Frontier forums, Steam and the Elite Dangerous wiki, each
 checked against Spansh's body data (16 Oct 2026); the system positions are from Spansh.
 
+## Market data
+`data/catalog/commodities.json` (market commodity names, categories and journal symbols) was
+written by hand from the in-game commodity list as shown on the Elite Dangerous wiki; the symbols
+were checked against Ardent Insight's commodity list. At run time the app asks Ardent Insight
+(api.ardent-insight.com, open source, fed by EDDN) for prices near you. Commodity names and
+prices are Elite Dangerous game data, © Frontier Developments plc.
+
 ## EDDN schemas
 `crates/astromech-eddn/tests/fixtures/schemas/` holds the 16 EDDN schema files the sender uses,
 copied unchanged from EDCD/EDDN (github.com/EDCD/EDDN, `schemas/` on the `live` branch, commit
