@@ -10,6 +10,8 @@ import type { PaletteItem } from "./palette";
 export const groups = [
   { id: "controls", title: "Controls" },
   { id: "engineering", title: "Engineering" },
+  { id: "galaxy", title: "Galaxy" },
+  { id: "trade", title: "Trade" },
   { id: "powerplay", title: "Powerplay" },
   { id: "logbook", title: "Logbook" },
   { id: "settings", title: "Settings" },

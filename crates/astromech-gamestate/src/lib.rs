@@ -6,7 +6,7 @@
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap};
+use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
@@ -61,6 +61,9 @@ pub struct GameState {
     pub station: Option<String>,
     /// `MarketID` of the station docked at; ties `Market.json` and friends to this dock.
     pub station_market_id: Option<i64>,
+    /// Services, economies, faction and pads of the station docked at, from `Docked` (or the
+    /// `Location` of a login while docked). Cleared with `station_market_id`.
+    pub station_info: Option<StationInfo>,
     pub docked: bool,
     pub gear_down: bool,
     pub supercruise: bool,
@@ -74,6 +77,8 @@ pub struct GameState {
     pub cargo_tonnes: Option<f64>,
     pub cargo_capacity: Option<i64>,
     pub cargo_items: Vec<(String, i64)>,
+    /// `Cargo.json`'s lines with their symbols (for "where should I sell my cargo?").
+    pub cargo_inventory: Vec<astromech_journal::CargoItem>,
     pub legal_state: Option<String>,
     pub credits: Option<i64>,
     pub rebuy: Option<i64>,
@@ -148,7 +153,7 @@ impl GameState {
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
             }
-            JournalEvent::Location { star_system, body, docked, station_name, market_id, .. } => {
+            JournalEvent::Location { star_system, body, docked, station_name, market_id, station, .. } => {
                 self.system = Some(star_system.clone());
                 self.body = body.clone();
                 self.docked = *docked;
@@ -158,9 +163,11 @@ impl GameState {
                         self.station = station_name.clone();
                     }
                     self.station_market_id = *market_id;
+                    self.station_info = station.clone();
                 } else {
                     self.station = None;
                     self.station_market_id = None;
+                    self.station_info = None;
                 }
             }
             JournalEvent::ApproachBody { star_system, body } => {
@@ -173,18 +180,21 @@ impl GameState {
                 if !from_carrier {
                     self.station = None;
                     self.station_market_id = None;
+                    self.station_info = None;
                     self.body = None;
                 }
             }
-            JournalEvent::Docked { station_name, star_system, market_id, .. } => {
+            JournalEvent::Docked { station_name, star_system, market_id, station, .. } => {
                 self.station = Some(station_name.clone());
                 self.station_market_id = *market_id;
+                self.station_info = Some(station.clone());
                 self.system = Some(star_system.clone());
                 self.docked = true;
             }
             JournalEvent::Undocked { .. } => {
                 self.docked = false;
                 self.station_market_id = None;
+                self.station_info = None;
             }
             _ => {}
         }
@@ -220,6 +230,7 @@ impl GameState {
     pub fn apply_cargo(&mut self, c: &CargoSnap) {
         self.cargo_tonnes = Some(c.count as f64);
         self.cargo_items = c.items.clone();
+        self.cargo_inventory = c.inventory.clone();
     }
 
     /// Keep a companion file that passed the freshness check (see `astromech_journal::companion`).

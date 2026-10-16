@@ -28,6 +28,8 @@ export interface Row {
   updated_at: string | null;
   /** Lookup-specific line, e.g. the matching faction and its states. */
   detail?: string;
+  /** Shown first on the distance line, e.g. a market's price. */
+  lead?: string;
 }
 
 export interface Results {
@@ -53,10 +55,27 @@ export interface Filters {
   exclude_odyssey: boolean;
   max_age_days: number | null;
   max_arrival_ls: number | null;
+  /** Search radius in ly; null: the lookup's default. */
+  max_distance_ly: number | null;
+  /** Hide markets with less demand (selling) or stock (buying) than this, in tonnes. */
+  min_volume: number | null;
 }
 
-/** Which filters a lookup offers: system lookups only have an age; station lookups have all. */
-export type FilterKey = "pad" | "carriers" | "odyssey" | "age" | "arrival";
+/**
+ * Which filters a lookup offers: system lookups only have an age; station lookups add pad,
+ * carriers, Odyssey and arrival; market lookups add the search radius and a demand or stock.
+ */
+export type FilterKey = "pad" | "carriers" | "odyssey" | "age" | "arrival" | "distance" | "volume";
+
+/** How a lookup labels its filters: what "volume" means, and its default radius. */
+export interface FilterHints {
+  /** "Demand" or "Stock". */
+  volume?: string;
+  /** The radius used when none is picked, in ly. */
+  distance?: number;
+  /** The data age used when none is picked, in days. */
+  age?: number;
+}
 
 export const DEFAULT_FILTERS: Filters = {
   pad: null,
@@ -65,6 +84,8 @@ export const DEFAULT_FILTERS: Filters = {
   exclude_odyssey: false,
   max_age_days: null,
   max_arrival_ls: null,
+  max_distance_ly: null,
+  min_volume: null,
 };
 
 /** The browser preview's pretend ship (a medium-pad ship). */

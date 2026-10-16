@@ -1,0 +1,572 @@
+{
+ "fsd_5a": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Abraham Lincoln",
+    "market_id": 128016896,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 505.034498,
+    "has_large_pad": true,
+    "large_pads": 5,
+    "medium_pads": 9,
+    "small_pads": 8,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:29:03Z",
+    "outfitting_updated_at": "2026-10-16T19:28:43Z",
+    "shipyard_updated_at": "2026-10-16T19:28:43Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "Stronghold Carrier",
+    "market_id": 3930444033,
+    "type": "Planetary Outpost",
+    "system_name": "Alpha Centauri",
+    "system_id64": 1178708478315,
+    "system_x": 3.03125,
+    "system_y": -0.09375,
+    "system_z": 3.15625,
+    "distance": 4.37712002205788,
+    "distance_to_arrival": 4460.862239,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-16T19:51:46Z",
+    "outfitting_updated_at": "2026-10-16T19:51:46Z",
+    "shipyard_updated_at": "2026-10-16T19:51:00Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "K3K-N8W",
+    "market_id": 3704808960,
+    "type": "Drake-Class Carrier",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-11T10:55:49Z",
+    "outfitting_updated_at": "2026-10-11T10:55:49Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "G6G-8KJ",
+    "market_id": 3703436032,
+    "type": "Drake-Class Carrier",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 0.0,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-09-02T22:49:24Z",
+    "outfitting_updated_at": "2024-09-25T10:19:17Z",
+    "shipyard_updated_at": "2024-12-21T23:44:10Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "J6B-6TK",
+    "market_id": 3705435136,
+    "type": "Drake-Class Carrier",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 4862.214516,
+    "has_large_pad": true,
+    "large_pads": 8,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2021-12-31T14:58:06Z",
+    "outfitting_updated_at": "2021-06-21T17:57:21Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "Jenner Orbital",
+    "market_id": 3228883456,
+    "type": "Outpost",
+    "system_name": "Luhman 16",
+    "system_id64": 22960358574928,
+    "system_x": 6.3125,
+    "system_y": 0.59375,
+    "system_z": 1.71875,
+    "distance": 6.56919301550807,
+    "distance_to_arrival": 10.066282,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T16:18:33Z",
+    "outfitting_updated_at": "2026-10-16T16:18:33Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "Yamazaki Landing",
+    "market_id": 3228873472,
+    "type": "Outpost",
+    "system_name": "WISE 0855-0714",
+    "system_id64": 58144730663760,
+    "system_x": 6.53125,
+    "system_y": -2.15625,
+    "system_z": 2.03125,
+    "distance": 7.17165372752338,
+    "distance_to_arrival": 943.489889,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 2,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T18:12:24Z",
+    "outfitting_updated_at": "2026-10-16T18:12:13Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   },
+   {
+    "name": "Stronghold Carrier",
+    "market_id": 3930469633,
+    "type": "Planetary Outpost",
+    "system_name": "Sirius",
+    "system_id64": 121569805492,
+    "system_x": 6.25,
+    "system_y": -1.28125,
+    "system_z": -5.75,
+    "distance": 8.58874854460765,
+    "distance_to_arrival": 952.332176,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 4,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-16T15:53:27Z",
+    "outfitting_updated_at": "2026-10-16T15:53:27Z",
+    "shipyard_updated_at": "2026-10-16T15:11:35Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "standard",
+      "class": 5,
+      "ed_symbol": "Int_Hyperdrive_Size5_Class5",
+      "name": "Frame Shift Drive",
+      "price": 5103950,
+      "rating": "A"
+     }
+    ]
+   }
+  ]
+ },
+ "multicannon_3c": {
+  "count": 10000,
+  "from": 0,
+  "reference": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "results": [
+   {
+    "name": "Galileo",
+    "market_id": 128016640,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 503.978843,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 9,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:19:19Z",
+    "outfitting_updated_at": "2026-10-16T19:19:19Z",
+    "shipyard_updated_at": "2026-10-16T19:19:19Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     },
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Gimbal_Large",
+      "name": "Multi-Cannon",
+      "price": 578440,
+      "rating": "C",
+      "weapon_mode": "Gimbal"
+     }
+    ]
+   },
+   {
+    "name": "Mars High",
+    "market_id": 128017664,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 819.859831,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:13:22Z",
+    "outfitting_updated_at": "2026-10-16T19:13:22Z",
+    "shipyard_updated_at": "2026-10-16T19:13:22Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     },
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Gimbal_Large",
+      "name": "Multi-Cannon",
+      "price": 578440,
+      "rating": "C",
+      "weapon_mode": "Gimbal"
+     }
+    ]
+   },
+   {
+    "name": "Burnell Station",
+    "market_id": 3228719104,
+    "type": "Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 363.135679,
+    "has_large_pad": false,
+    "large_pads": 0,
+    "medium_pads": 1,
+    "small_pads": 4,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T14:52:38Z",
+    "outfitting_updated_at": "2026-10-16T14:52:38Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     }
+    ]
+   },
+   {
+    "name": "Schottky Reformatory",
+    "market_id": 3534391296,
+    "type": "Planetary Outpost",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2621.136959,
+    "has_large_pad": true,
+    "large_pads": 2,
+    "medium_pads": 2,
+    "small_pads": 4,
+    "is_planetary": true,
+    "updated_at": "2026-10-05T18:04:09Z",
+    "outfitting_updated_at": "2026-10-05T18:04:09Z",
+    "shipyard_updated_at": "2026-10-05T17:57:54Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     }
+    ]
+   },
+   {
+    "name": "Daedalus",
+    "market_id": 128016384,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 225.213593,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 10,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:17:34Z",
+    "outfitting_updated_at": "2026-10-16T19:17:34Z",
+    "shipyard_updated_at": "2026-10-16T19:17:34Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     }
+    ]
+   },
+   {
+    "name": "M.Gorbachev",
+    "market_id": 128017152,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 504.8213,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 13,
+    "small_pads": 8,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:09:36Z",
+    "outfitting_updated_at": "2026-10-16T18:39:11Z",
+    "shipyard_updated_at": "2026-10-16T18:39:11Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     },
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Gimbal_Large",
+      "name": "Multi-Cannon",
+      "price": 578440,
+      "rating": "C",
+      "weapon_mode": "Gimbal"
+     }
+    ]
+   },
+   {
+    "name": "Li Qing Jao",
+    "market_id": 128017408,
+    "type": "Orbis Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 504.822562,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 11,
+    "small_pads": 6,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T19:24:31Z",
+    "outfitting_updated_at": "2026-10-16T19:24:31Z",
+    "shipyard_updated_at": "2026-10-16T19:24:31Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     },
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Gimbal_Large",
+      "name": "Multi-Cannon",
+      "price": 578440,
+      "rating": "C",
+      "weapon_mode": "Gimbal"
+     }
+    ]
+   },
+   {
+    "name": "Columbus",
+    "market_id": 128017920,
+    "type": "Ocellus Starport",
+    "system_name": "Sol",
+    "system_id64": 10477373803,
+    "system_x": 0.0,
+    "system_y": 0.0,
+    "system_z": 0.0,
+    "distance": 0.0,
+    "distance_to_arrival": 2615.265735,
+    "has_large_pad": true,
+    "large_pads": 6,
+    "medium_pads": 12,
+    "small_pads": 7,
+    "is_planetary": false,
+    "updated_at": "2026-10-16T18:26:28Z",
+    "outfitting_updated_at": "2026-10-16T18:26:28Z",
+    "shipyard_updated_at": "2026-10-16T18:26:28Z",
+    "services": [],
+    "modules": [
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Fixed_Large",
+      "name": "Multi-Cannon",
+      "price": 140400,
+      "rating": "C",
+      "weapon_mode": "Fixed"
+     },
+     {
+      "category": "hardpoint",
+      "class": 3,
+      "ed_symbol": "Hpt_MultiCannon_Gimbal_Large",
+      "name": "Multi-Cannon",
+      "price": 578440,
+      "rating": "C",
+      "weapon_mode": "Gimbal"
+     }
+    ]
+   }
+  ]
+ }
+}

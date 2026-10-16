@@ -125,6 +125,25 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
     if m.decision == Decision::NoMatch || m.command == "confirm" || m.command == "cancel" {
         return r;
     }
+    if astromech_tools::lookup::is_lookup(m.command) {
+        (r.would, r.message) =
+            match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref())) {
+                (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
+                (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+                (_, Some(w)) => {
+                    (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label()))
+                }
+            };
+        return r;
+    }
+    if let Some(ask) = astromech_tools::trade::from_command(m.command) {
+        // A lookup, not a press: say what it would look up, without asking Ardent.
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, astromech_tools::trade::describe(ask, m.slot.as_deref())),
+        };
+        return r;
+    }
     let Some(call) = from_command(m.command) else {
         r.would = Would::Unavailable;
         r.message = unavailable_reason(m.command).into();
@@ -156,7 +175,7 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
 /// A typed phrase while Elite isn't running (no session): the binds check is run on demand
 /// and there is no game state, so ship actions read as "not available" but still show their keys.
 pub fn dry_run_idle(cfg: &Config, transcript: &str) -> DryRun {
-    let mut grammar = Grammar::mvp(&["Sol"]);
+    let mut grammar = crate::assistant::grammar();
     if let Ok(st) = astromech_store::Store::open(&cfg.data_dir().join("astromech.sqlite")) {
         crate::assistant::add_aliases(&mut grammar, &st);
     }
@@ -303,6 +322,18 @@ mod tests {
         assert_eq!(r.message, "Did you mean gear down?");
         assert_eq!(r.live.as_deref(), Some("landing_gear.down"));
         assert_eq!(r.action.as_deref(), Some("LandingGearToggle"));
+    }
+
+    #[test]
+    fn lookups_say_what_they_would_look_up() {
+        let g = crate::assistant::grammar();
+        let b = BindsState::default();
+        let r = dry_run(&g, "nearest interstellar factors", &GameState::default(), &b, Source::Typed);
+        assert_eq!((r.would, r.live, r.keys), (Would::Speak, None, None));
+        assert_eq!(r.message, "Would look up the nearest Interstellar Factors on Spansh and say it.");
+        assert_eq!(r.intent.unwrap().command, "find.service");
+        let r = dry_run(&g, "nearest interstellar factor", &GameState::default(), &b, Source::Typed);
+        assert_eq!(r.would, Would::DidYouMean);
     }
 
     #[test]

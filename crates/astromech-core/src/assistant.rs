@@ -1,9 +1,11 @@
 //! Transcript → command. Applies the §5.12 thresholds and handles "Did you mean …?".
 
 use crate::actions::{Outcome, Runner};
+use astromech_galaxy::stations::Want;
 use astromech_intent::{Decision, Grammar};
 use astromech_proto::Origin;
 use astromech_store::Store;
+use astromech_tools::lookup;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -23,12 +25,17 @@ pub enum Handled {
     NotUnderstood,
     Cancelled,
     NotAvailable(&'static str),
+    /// A station lookup: the answer is spoken when Spansh replies.
+    Lookup {
+        command: &'static str,
+        want: Want,
+    },
     /// A noise-only transcript ("Mm-hmm.", "Yeah."): nothing said, nothing done.
     Ignored,
 }
 
 enum Pending {
-    Mean { command: &'static str, heard: String, at: Instant },
+    Mean { command: &'static str, slot: Option<String>, slot_text: Option<String>, heard: String, at: Instant },
     Act { command: &'static str, at: Instant },
 }
 
@@ -41,6 +48,11 @@ pub fn unavailable_reason(command: &str) -> &'static str {
         "plot_route" => "Route plotting isn't available yet.",
         _ => "That isn't available yet.",
     }
+}
+
+/// The command grammar with its slot lists: market commodities for the trade questions.
+pub fn grammar() -> Grammar {
+    crate::lookups::grammar(&["Sol"])
 }
 
 /// Add the personal aliases learned from "Did you mean …?" answers.
@@ -59,11 +71,31 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
+    /// Remote data for the lookups (Spansh stations, Ardent markets); shared with the
+    /// threads that answer station lookups.
+    remote: Arc<astromech_data::Client>,
+    /// Judges the age of market and station data.
+    clock: Arc<dyn astromech_data::Clock>,
 }
 
 impl Assistant {
     pub fn new(runner: Arc<Runner>) -> Self {
-        Self { grammar: Mutex::new(Grammar::mvp(&["Sol"])), runner, pending: Mutex::new(None), store: None }
+        Self {
+            grammar: Mutex::new(grammar()),
+            runner,
+            pending: Mutex::new(None),
+            store: None,
+            remote: Arc::new(astromech_data::Client::new(
+                astromech_data::Cache::in_memory().expect("an in-memory SQLite cache always opens"),
+            )),
+            clock: Arc::new(astromech_data::SystemClock),
+        }
+    }
+
+    /// Answer lookups through `remote`, judging data age by `clock` (tests pass recorded
+    /// answers and a fixed time).
+    pub fn with_remote(self, remote: astromech_data::Client, clock: Arc<dyn astromech_data::Clock>) -> Self {
+        Self { remote: Arc::new(remote), clock, ..self }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
@@ -93,7 +125,46 @@ impl Assistant {
         }
     }
 
-    fn dispatch(&self, command: &'static str, origin: Origin, confirmed: bool) -> Handled {
+    /// Look `want` up near the commander and say the answer when it arrives (off this thread:
+    /// Spansh can take seconds).
+    fn look_up(&self, command: &'static str, want: Want) -> Handled {
+        let game = self.runner.hub.snapshot();
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), want.lookup(), &game)
+        };
+        let (remote, speaker, w) = (self.remote.clone(), self.runner.speaker.clone(), want.clone());
+        let now = self.clock.now_s();
+        std::thread::spawn(move || speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now)));
+        Handled::Lookup { command, want }
+    }
+
+    fn dispatch(
+        &self,
+        command: &'static str,
+        (slot, slot_text): (Option<&str>, Option<&str>),
+        origin: Origin,
+        confirmed: bool,
+    ) -> Handled {
+        if lookup::is_lookup(command) {
+            return match lookup::want(command, slot, slot_text) {
+                Some(want) => self.look_up(command, want),
+                None => {
+                    self.say("Didn't catch what to look for.");
+                    Handled::NotUnderstood
+                }
+            };
+        }
+        if let Some(ask) = astromech_tools::trade::from_command(command) {
+            let game = self.runner.hub.snapshot();
+            let filters = {
+                let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+                crate::lookups::filters_for(st.as_deref(), ask.lookup(), &game)
+            };
+            let s = crate::trade::answer(&self.remote, &filters, ask, slot, &game, self.clock.now_s());
+            self.say(&s);
+            return Handled::Ran { command, outcome: Outcome::Spoken(s) };
+        }
         match astromech_tools::from_command(command) {
             Some(call) => {
                 let outcome =
@@ -148,10 +219,15 @@ impl Assistant {
                 self.say("Didn't catch that.");
                 Handled::NotUnderstood
             }
-            Decision::Execute => self.dispatch(m.command, origin, false),
+            Decision::Execute => self.dispatch(m.command, (m.slot.as_deref(), m.slot_text.as_deref()), origin, false),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
-                *self.pending.lock().unwrap() =
-                    Some(Pending::Mean { command: m.command, heard: transcript.to_string(), at: Instant::now() });
+                *self.pending.lock().unwrap() = Some(Pending::Mean {
+                    command: m.command,
+                    slot: m.slot.clone(),
+                    slot_text: m.slot_text.clone(),
+                    heard: transcript.to_string(),
+                    at: Instant::now(),
+                });
                 self.say(&format!("Did you mean {}?", m.phrase));
                 Handled::Asked { command: m.command, phrase: m.phrase }
             }
@@ -164,11 +240,14 @@ impl Assistant {
 
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
-            Pending::Mean { command, heard, .. } => {
-                self.learn(&heard, command);
-                self.dispatch(command, origin, false)
+            Pending::Mean { command, slot, slot_text, heard, .. } => {
+                // An alias stands for a command, not for its slot value: don't learn those.
+                if slot.is_none() {
+                    self.learn(&heard, command);
+                }
+                self.dispatch(command, (slot.as_deref(), slot_text.as_deref()), origin, false)
             }
-            Pending::Act { command, .. } => self.dispatch(command, origin, true),
+            Pending::Act { command, .. } => self.dispatch(command, (None, None), origin, true),
         }
     }
 }

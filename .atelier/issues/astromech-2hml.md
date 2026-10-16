@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:56:01.123473949+00:00"
 id: "astromech-2hml"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-2hml
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T22:10:54.279626863+00:00"
+status: "done"
 title: "Flaky test: gear_down confirmation latency floor"
-updated_at: "2026-10-16T20:56:01.123473949+00:00"
+updated_at: "2026-10-16T22:10:54.279626863+00:00"
 ---
 
 ## Goal
@@ -30,3 +34,7 @@ The test asserts the latency is logged and plausible without a tight wall-clock 
 ## Context
 
 Seen twice on feature/astromech-zf3s with no related changes (2026-10-16).
+
+## Close Reason
+
+Test no longer asserts a tight wall-clock floor; 20/20 runs under load

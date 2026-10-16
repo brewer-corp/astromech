@@ -1,0 +1,224 @@
+{
+  "want": "black market",
+  "here": {
+    "system": "Sol",
+    "id64": 10477373803,
+    "pos": [
+      0,
+      0,
+      0
+    ]
+  },
+  "range": 20.0,
+  "filters": {
+    "pad": null,
+    "pad_set": false,
+    "exclude_carriers": false,
+    "exclude_odyssey": false,
+    "max_age_days": null,
+    "max_arrival_ls": null
+  },
+  "fetched": "2026-10-16T19:30:00Z",
+  "hits": [
+    {
+      "name": "Ehrlich City",
+      "station_type": "Planetary Port",
+      "market_id": 3534390016,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 227.915269,
+      "pad": "L",
+      "updated_at": "2026-10-14T17:53:45Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Furukawa Enterprise",
+      "station_type": "Planetary Outpost",
+      "market_id": 3534391808,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 226.708874,
+      "pad": "L",
+      "updated_at": "2026-10-15T17:27:23Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Grebby Prospecting",
+      "station_type": "Settlement",
+      "market_id": 3802408960,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 2611.878719,
+      "pad": "L",
+      "updated_at": "2026-10-13T22:54:16Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Ikeda Tourist Zone",
+      "station_type": "Settlement",
+      "market_id": 3908612352,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 4719.432611,
+      "pad": "L",
+      "updated_at": "2026-10-08T16:17:50Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Kvitka's Origin",
+      "station_type": "Settlement",
+      "market_id": 3802405120,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 4718.638561,
+      "pad": "L",
+      "updated_at": "2026-10-13T22:21:16Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Rescue Ship - Li Qing Jao",
+      "station_type": "Mega ship",
+      "market_id": 128977009,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 496.966721,
+      "pad": null,
+      "updated_at": "2021-03-18T16:19:26Z",
+      "price": null,
+      "detail": null,
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Markus Extraction Exchange",
+      "station_type": "Settlement",
+      "market_id": 3868051200,
+      "system": "Alpha Centauri",
+      "system_id64": 1178708478315,
+      "pos": [
+        3.03125,
+        -0.09375,
+        3.15625
+      ],
+      "ly": 4.37712002205788,
+      "arrival_ls": 4298.270538,
+      "pad": "M",
+      "updated_at": "2026-10-01T22:45:54Z",
+      "price": null,
+      "detail": null,
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "T8J-N7L",
+      "station_type": "Drake-Class Carrier",
+      "market_id": 3705877504,
+      "system": "Alpha Centauri",
+      "system_id64": 1178708478315,
+      "pos": [
+        3.03125,
+        -0.09375,
+        3.15625
+      ],
+      "ly": 4.37712002205788,
+      "arrival_ls": 1845.128763,
+      "pad": "L",
+      "updated_at": "2026-09-01T07:15:12Z",
+      "price": null,
+      "detail": null,
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "V7T-33H",
+      "station_type": "Drake-Class Carrier",
+      "market_id": 3712964608,
+      "system": "Alpha Centauri",
+      "system_id64": 1178708478315,
+      "pos": [
+        3.03125,
+        -0.09375,
+        3.15625
+      ],
+      "ly": 4.37712002205788,
+      "arrival_ls": 0.0,
+      "pad": "L",
+      "updated_at": "2026-10-16T04:58:14Z",
+      "price": null,
+      "detail": null,
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "Kawle Genetics Complex",
+      "station_type": "Settlement",
+      "market_id": 3868050944,
+      "system": "Alpha Centauri",
+      "system_id64": 1178708478315,
+      "pos": [
+        3.03125,
+        -0.09375,
+        3.15625
+      ],
+      "ly": 4.37712002205788,
+      "arrival_ls": 4325.980656,
+      "pad": "L",
+      "updated_at": "2026-10-15T00:51:42Z",
+      "price": null,
+      "detail": null,
+      "jumps": 1,
+      "exact": true
+    }
+  ]
+}
