@@ -126,11 +126,14 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         return r;
     }
     if astromech_tools::lookup::is_lookup(m.command) {
-        (r.would, r.message) = match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref())) {
-            (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
-            (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
-            (_, Some(w)) => (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label())),
-        };
+        (r.would, r.message) =
+            match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref())) {
+                (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
+                (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+                (_, Some(w)) => {
+                    (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label()))
+                }
+            };
         return r;
     }
     let Some(call) = from_command(m.command) else {

@@ -1,10 +1,11 @@
-//! Station lookups: the nearest stations offering a service, over Spansh's stations search
+//! Station lookups: the nearest stations offering a service or selling a module, over Spansh's stations search
 //! (through `astromech-data`). The search kit's filters go to Spansh where it has a verified
 //! filter for them, so a strict filter still finds stations farther out; every hit is then
 //! re-checked here, because Spansh silently ignores a filter it doesn't recognise.
 
 use crate::filters::{Facts, Filters, Pad};
-use astromech_data::spansh::{Reference, Search, Station, CARRIER_TYPES, SETTLEMENT_TYPES, STATION_TYPES};
+use crate::outfitting::{size_label, ModuleWant};
+use astromech_data::spansh::{self, Reference, Search, Station, CARRIER_TYPES, SETTLEMENT_TYPES, STATION_TYPES};
 use astromech_data::Client;
 use serde::{Deserialize, Serialize};
 
@@ -159,7 +160,11 @@ impl Service {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Want {
-    Service { service: Service },
+    Service {
+        service: Service,
+    },
+    /// `{"kind": "module", "name": "Multi-Cannon", "class": 3, "rating": "C", "mount": "Gimballed"}`
+    Module(ModuleWant),
 }
 
 /// What a station offers of the thing asked for.
@@ -174,6 +179,7 @@ impl Want {
     pub fn label(&self) -> String {
         match self {
             Want::Service { service } => service.label().to_string(),
+            Want::Module(m) => m.label(),
         }
     }
 
@@ -181,6 +187,7 @@ impl Want {
     pub fn lookup(&self) -> &'static str {
         match self {
             Want::Service { .. } => "stations.service",
+            Want::Module(_) => "stations.module",
         }
     }
 
@@ -191,6 +198,7 @@ impl Want {
                 Spansh::Trader(kind) => q.material_trader(kind),
                 Spansh::Broker(kind) => q.technology_broker(kind),
             },
+            Want::Module(m) => q.module(&m.name, m.class, m.rating.as_deref()),
         }
     }
 
@@ -202,6 +210,14 @@ impl Want {
                 Spansh::Trader(kind) => s.material_trader.as_deref().is_some_and(|k| k.eq_ignore_ascii_case(kind)),
                 Spansh::Broker(kind) => s.technology_broker.as_deref().is_some_and(|k| k.eq_ignore_ascii_case(kind)),
             },
+            Want::Module(want) => {
+                let mut sold: Vec<&spansh::Module> = s.modules.iter().filter(|m| want.fits(m)).collect();
+                sold.sort_by_key(|m| m.price.unwrap_or(i64::MAX));
+                let first = sold.first()?;
+                let mut sizes: Vec<String> = sold.iter().map(|m| size_label(m)).collect();
+                sizes.dedup();
+                return Some(Offer { price: first.price, detail: Some(sizes.join(", ")) });
+            }
         };
         has.then(Offer::default)
     }
@@ -210,12 +226,14 @@ impl Want {
     fn age_field(&self) -> &'static str {
         match self {
             Want::Service { .. } => "updated_at",
+            Want::Module(_) => "outfitting_updated_at",
         }
     }
 
     fn updated_at<'a>(&self, s: &'a Station) -> Option<&'a str> {
         match self {
             Want::Service { .. } => s.updated_at.as_deref(),
+            Want::Module(_) => s.outfitting_updated_at.as_deref().or(s.updated_at.as_deref()),
         }
     }
 
@@ -503,6 +521,84 @@ mod tests {
         assert_eq!(pads, [None, Some(Pad::M), Some(Pad::L), Some(Pad::L), Some(Pad::L)]);
     }
 
+    /// Spansh's answers for a 5A Frame Shift Drive and a 3C Multi-Cannon near Sol (recorded
+    /// 16 Oct 2026, trimmed to eight stations and the asked-for module).
+    const MODULES: &str = include_str!("../tests/fixtures/spansh-modules.json");
+
+    fn module_page(key: &str) -> String {
+        serde_json::from_str::<Value>(MODULES).unwrap()[key].to_string()
+    }
+
+    #[test]
+    fn modules_are_listed_nearest_first_with_price_and_honour_the_pad() {
+        let (c, rec) = client(Some(module_page("fsd_5a")));
+        let fsd = Want::Module(ModuleWant::from_words("Frame Shift Drive", "5a"));
+        let all = find(&c, &fsd, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert_eq!(all.hits.len(), 8);
+        assert!(all.hits.windows(2).all(|w| w[0].ly <= w[1].ly), "nearest first");
+        assert_eq!(all.hits[0].name, "Abraham Lincoln");
+        assert_eq!(all.hits[0].price, Some(5_103_950));
+        assert_eq!(all.hits[0].detail.as_deref(), Some("5A Frame Shift Drive"));
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(
+            body["filters"]["modules"],
+            serde_json::json!([{ "name": ["Frame Shift Drive"], "class": ["5"], "rating": ["A"] }])
+        );
+
+        // A large-pad ship: the outposts (medium pads) go.
+        let large = Filters { pad: Some(Pad::L), ..Filters::default() };
+        let l = find(&c, &fsd, sol(), &large, 10, NOW).unwrap();
+        assert!(l.hits.len() < all.hits.len());
+        assert!(l.hits.iter().all(|h| h.pad == Some(Pad::L)), "{:?}", l.hits);
+        assert!(!l.hits.iter().any(|h| h.station_type.as_deref() == Some("Outpost")));
+        assert!(l.hits.windows(2).all(|w| w[0].ly <= w[1].ly));
+    }
+
+    #[test]
+    fn the_mount_is_checked_on_each_station() {
+        let (c, rec) = client(Some(module_page("multicannon_3c")));
+        let any = Want::Module(ModuleWant::from_words("Multi-Cannon", "3c"));
+        let gimballed = Want::Module(ModuleWant::from_words("Multi-Cannon", "3c gimballed"));
+        let all = find(&c, &any, sol(), &Filters::default(), 10, NOW).unwrap();
+        let g = find(&c, &gimballed, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert_eq!(all.hits.len(), 8);
+        let names: Vec<&str> = g.hits.iter().map(|h| h.name.as_str()).collect();
+        assert_eq!(names, ["Galileo", "Mars High", "M.Gorbachev", "Li Qing Jao", "Columbus"]);
+        assert_eq!(g.hits[0].price, Some(578_440));
+        assert_eq!(g.hits[0].detail.as_deref(), Some("3C Multi-Cannon (gimballed)"));
+        assert_eq!(all.hits[0].detail.as_deref(), Some("3C Multi-Cannon (fixed), 3C Multi-Cannon (gimballed)"));
+        assert_eq!(all.hits[0].price, Some(140_400), "the cheapest fitting module");
+        // Spansh can't filter the mount, so it isn't sent.
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(body["filters"]["modules"][0].as_object().unwrap().len(), 3);
+        // A module the page doesn't have: nothing, with a warning.
+        let rail = Want::Module(ModuleWant::from_words("Rail Gun", ""));
+        let none = find(&c, &rail, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert!(none.hits.is_empty() && none.warning.is_some());
+    }
+
+    #[test]
+    fn module_age_is_the_outfitting_age() {
+        let (c, rec) = client(Some(module_page("fsd_5a")));
+        let fsd = Want::Module(ModuleWant::from_words("Frame Shift Drive", "5a"));
+        let f = Filters { max_age_days: Some(3), ..Filters::default() };
+        let found = find(&c, &fsd, sol(), &f, 10, NOW).unwrap();
+        assert!(!found.hits.is_empty());
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert!(body["filters"]["outfitting_updated_at"].is_object());
+        assert!(body["filters"].get("updated_at").is_none());
+        let all: Value = serde_json::from_str(MODULES).unwrap();
+        for h in &found.hits {
+            let r = all["fsd_5a"]["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .find(|r| r["name"] == h.name.as_str() && r["system_name"] == h.system.as_str())
+                .unwrap();
+            assert_eq!(h.updated_at.as_deref(), r["outfitting_updated_at"].as_str());
+        }
+    }
+
     #[test]
     fn service_ids_round_trip() {
         for s in Service::ALL {
@@ -511,5 +607,14 @@ mod tests {
         assert_eq!(Service::InterstellarFactors.id(), "interstellar_factors");
         let w: Want = serde_json::from_str(r#"{"kind":"service","service":"guardian_broker"}"#).unwrap();
         assert_eq!(w, Want::Service { service: Service::GuardianBroker });
+        let m: Want = serde_json::from_str(
+            r#"{"kind":"module","name":"Multi-Cannon","class":3,"rating":"C","mount":"Gimballed"}"#,
+        )
+        .unwrap();
+        assert_eq!(m.label(), "3C Multi-Cannon (gimballed)");
+        let m: Want =
+            serde_json::from_str(r#"{"kind":"module","name":"Fuel Scoop","class":null,"rating":null,"mount":null}"#)
+                .unwrap();
+        assert_eq!(m.label(), "Fuel Scoop");
     }
 }

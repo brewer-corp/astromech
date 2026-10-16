@@ -14,7 +14,11 @@ use astromech_tools::lookup;
 /// The command grammar with the lookups' slot values.
 pub fn grammar(systems: &[&str]) -> Grammar {
     let services = lookup::service_values();
-    Grammar::mvp(systems).with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
+    Grammar::mvp(systems).with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None).with_slot(
+        "module",
+        lookup::module_values(),
+        Some(astromech_galaxy::outfitting::is_modifier),
+    )
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for that lookup, the pad
@@ -63,7 +67,7 @@ mod tests {
 
     fn heard(g: &Grammar, phrase: &str) -> (Option<Want>, Decision) {
         let m = g.best(phrase);
-        (lookup::want(m.command, m.slot.as_deref()), m.decision)
+        (lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref()), m.decision)
     }
 
     #[test]
@@ -98,6 +102,40 @@ mod tests {
         // and the ship commands still work
         assert_eq!(g.best("gear down").command, "landing_gear.down");
         assert_eq!(g.best("how much fuel").command, "status.fuel");
+    }
+
+    #[test]
+    fn module_phrases_resolve_to_lookups() {
+        let g = grammar(&["Sol"]);
+        let label = |phrase: &str| {
+            let (w, d) = heard(&g, phrase);
+            (w.map(|w| w.label()), d)
+        };
+        for (phrase, want) in [
+            ("nearest 6A frame shift drive", "6A Frame Shift Drive"),
+            ("Where can I buy a 6A FSD?", "6A Frame Shift Drive"),
+            ("nearest 5 A FSD", "5A Frame Shift Drive"),
+            ("where can I get a 3C gimballed multi-cannon", "3C Multi-Cannon (gimballed)"),
+            ("nearest 2E fixed multicannon", "2E Multi-Cannon (fixed)"),
+            ("nearest class 5 fuel scoop", "class 5 Fuel Scoop"),
+            ("find a detailed surface scanner", "Detailed Surface Scanner"),
+            ("where can I buy an advanced docking computer", "Advanced Docking Computer"),
+            ("nearest 4A shield generator", "4A Shield Generator"),
+            ("buy a guardian FSD booster", "Guardian FSD Booster"),
+        ] {
+            assert_eq!(label(phrase), (Some(want.to_string()), Decision::Execute), "{phrase:?}");
+        }
+        // the same request as typed in the app
+        let (w, _) = heard(&g, "nearest 6A frame shift drive");
+        let typed = Want::Module(astromech_galaxy::outfitting::ModuleWant {
+            name: "Frame Shift Drive".into(),
+            class: Some(6),
+            rating: Some("A".into()),
+            mount: None,
+        });
+        assert_eq!(w, Some(typed));
+        // services still win their phrases
+        assert_eq!(heard(&g, "nearest interstellar factors").0.map(|w| w.lookup()), Some("stations.service"));
     }
 
     #[test]

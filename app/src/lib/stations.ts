@@ -6,6 +6,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/stations.json";
+import moduleSample from "./fixtures/stations-module.json";
 import type { Filters, Origin, Pad, Results } from "./search";
 
 /** Service ids (astromech_galaxy::stations::Service) with the names shown for them. */
@@ -33,8 +34,18 @@ export const SERVICES = [
 
 export type ServiceId = (typeof SERVICES)[number]["id"];
 
+export type Mount = "Fixed" | "Gimballed" | "Turreted";
+
+/** A module to buy (astromech_galaxy::outfitting::ModuleWant); null: any. */
+export interface ModuleWant {
+  name: string;
+  class: number | null;
+  rating: string | null;
+  mount: Mount | null;
+}
+
 /** What a station lookup looks for (astromech_galaxy::stations::Want). */
-export type Want = { kind: "service"; service: ServiceId };
+export type Want = { kind: "service"; service: ServiceId } | ({ kind: "module" } & ModuleWant);
 
 export interface StationHit {
   name: string;
@@ -64,9 +75,9 @@ export interface StationsNearby {
 
 const PADS: Pad[] = ["S", "M", "L"];
 
-/** The browser preview: the sample answer, with the filters applied the way the shell does. */
-function preview(origin: Origin, f: Filters): StationsNearby {
-  const s = sample as unknown as StationsNearby;
+/** The browser preview: a sample answer, with the filters applied the way the shell does. */
+function preview(want: Want, origin: Origin, f: Filters): StationsNearby {
+  const s = (want.kind === "module" ? moduleSample : sample) as unknown as StationsNearby;
   const fetched = Date.parse(s.fetched);
   const hits = s.hits.filter(
     (h) =>
@@ -81,7 +92,7 @@ function preview(origin: Origin, f: Filters): StationsNearby {
 
 /** The nearest stations offering `want` near `origin` (or the commander) that pass `filters`. */
 export async function stations(want: Want, origin: Origin, filters: Filters): Promise<StationsNearby> {
-  if (!inTauri) return preview(origin, filters);
+  if (!inTauri) return preview(want, origin, filters);
   return await invoke<StationsNearby>("stations_nearby", { want, origin, filters });
 }
 

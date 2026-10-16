@@ -35,7 +35,7 @@ pub enum Handled {
 }
 
 enum Pending {
-    Mean { command: &'static str, slot: Option<String>, heard: String, at: Instant },
+    Mean { command: &'static str, slot: Option<String>, slot_text: Option<String>, heard: String, at: Instant },
     Act { command: &'static str, at: Instant },
 }
 
@@ -126,9 +126,15 @@ impl Assistant {
         Handled::Lookup { command, want }
     }
 
-    fn dispatch(&self, command: &'static str, slot: Option<&str>, origin: Origin, confirmed: bool) -> Handled {
+    fn dispatch(
+        &self,
+        command: &'static str,
+        (slot, slot_text): (Option<&str>, Option<&str>),
+        origin: Origin,
+        confirmed: bool,
+    ) -> Handled {
         if lookup::is_lookup(command) {
-            return match lookup::want(command, slot) {
+            return match lookup::want(command, slot, slot_text) {
                 Some(want) => self.look_up(command, want),
                 None => {
                     self.say("Didn't catch what to look for.");
@@ -190,11 +196,12 @@ impl Assistant {
                 self.say("Didn't catch that.");
                 Handled::NotUnderstood
             }
-            Decision::Execute => self.dispatch(m.command, m.slot.as_deref(), origin, false),
+            Decision::Execute => self.dispatch(m.command, (m.slot.as_deref(), m.slot_text.as_deref()), origin, false),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
                 *self.pending.lock().unwrap() = Some(Pending::Mean {
                     command: m.command,
                     slot: m.slot.clone(),
+                    slot_text: m.slot_text.clone(),
                     heard: transcript.to_string(),
                     at: Instant::now(),
                 });
@@ -210,11 +217,11 @@ impl Assistant {
 
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
-            Pending::Mean { command, slot, heard, .. } => {
+            Pending::Mean { command, slot, slot_text, heard, .. } => {
                 self.learn(&heard, command);
-                self.dispatch(command, slot.as_deref(), origin, false)
+                self.dispatch(command, (slot.as_deref(), slot_text.as_deref()), origin, false)
             }
-            Pending::Act { command, .. } => self.dispatch(command, None, origin, true),
+            Pending::Act { command, .. } => self.dispatch(command, (None, None), origin, true),
         }
     }
 }

@@ -161,6 +161,18 @@ pub const MVP: &[(&str, &[&str])] = &[
             "find {service}",
         ],
     ),
+    (
+        "find.module",
+        &[
+            "nearest {module}",
+            "where can i buy {module}",
+            "where can i get {module}",
+            "where's the nearest {module}",
+            "where is the nearest {module}",
+            "find {module}",
+            "buy {module}",
+        ],
+    ),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
@@ -187,7 +199,7 @@ const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your",
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
-const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "okay", "ok", "hey"];
+const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
 
 /// Lowercase, strip punctuation, fold common splits ("hard points" → "hardpoints"),
 /// and drop filler words.

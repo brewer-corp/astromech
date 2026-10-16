@@ -1,0 +1,4864 @@
+{
+ "source": "EDCD/FDevIDs@c356129 (scripts/gen-outfitting.py)",
+ "modules": [
+  {
+   "name": "Enhanced Performance Thrusters",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Frame Shift Drive",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Frame Shift Drive (SCO)",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Fuel Tank",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Life Support",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Agile Boost Thrusters",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Gravity Optimised Thrusters",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 7,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Supercharge Optimised Frame Shift Drive (SCO)",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 8,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Power Distributor",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Power Plant",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Sensors",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Thrusters",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Advanced Docking Computer",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Advanced Planetary Approach Suite",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Auto Field-Maintenance Unit",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Basic Discovery Scanner",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Bi-Weave Shield Generator",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Business Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "Cargo Rack",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Collector Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Corrosion Resistant Cargo Rack",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 1,
+     "rating": "F"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Decontamination Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Detailed Surface Scanner",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Economy Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Experimental Weapon Stabiliser",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "F"
+    },
+    {
+     "class": 5,
+     "rating": "F"
+    }
+   ]
+  },
+  {
+   "name": "First Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Frame Shift Drive Interdictor",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Fuel Scoop",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Fuel Transfer Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Guardian FSD Booster",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "H"
+    },
+    {
+     "class": 2,
+     "rating": "H"
+    },
+    {
+     "class": 3,
+     "rating": "H"
+    },
+    {
+     "class": 4,
+     "rating": "H"
+    },
+    {
+     "class": 5,
+     "rating": "H"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Hull Reinforcement",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Hybrid Power Distributor",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Hybrid Power Plant",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Module Reinforcement",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Shield Reinforcement",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Hatch Breaker Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 1,
+     "rating": "I"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Hull Reinforcement Package",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Large Planetary Vehicle Hangar",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "F"
+    },
+    {
+     "class": 4,
+     "rating": "F"
+    },
+    {
+     "class": 6,
+     "rating": "F"
+    }
+   ]
+  },
+  {
+   "name": "Luxury Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    }
+   ]
+  },
+  {
+   "name": "Meta Alloy Hull Reinforcement",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Mining Multi Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Cargo Rack",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Large Planetary Vehicle Hangar",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "F"
+    },
+    {
+     "class": 4,
+     "rating": "F"
+    },
+    {
+     "class": 6,
+     "rating": "F"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Mining Multi-Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Vessel Hangar",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "MkII Business Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "MkII Economy Class Passenger Cabin",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "Module Reinforcement Package",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Operations Multi Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Planetary Approach Suite",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Planetary Vehicle Hangar",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "G"
+    },
+    {
+     "class": 2,
+     "rating": "H"
+    },
+    {
+     "class": 4,
+     "rating": "G"
+    },
+    {
+     "class": 4,
+     "rating": "H"
+    },
+    {
+     "class": 6,
+     "rating": "G"
+    },
+    {
+     "class": 6,
+     "rating": "H"
+    }
+   ]
+  },
+  {
+   "name": "Prismatic Shield Generator",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    }
+   ]
+  },
+  {
+   "name": "Prospector Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Recon Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Refinery",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Repair Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Rescue Multi Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "Research Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Shield Cell Bank",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "B"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Shield Generator",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A"
+    },
+    {
+     "class": 1,
+     "rating": "C"
+    },
+    {
+     "class": 1,
+     "rating": "D"
+    },
+    {
+     "class": 1,
+     "rating": "E"
+    },
+    {
+     "class": 2,
+     "rating": "A"
+    },
+    {
+     "class": 2,
+     "rating": "B"
+    },
+    {
+     "class": 2,
+     "rating": "C"
+    },
+    {
+     "class": 2,
+     "rating": "D"
+    },
+    {
+     "class": 2,
+     "rating": "E"
+    },
+    {
+     "class": 3,
+     "rating": "A"
+    },
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    },
+    {
+     "class": 3,
+     "rating": "D"
+    },
+    {
+     "class": 3,
+     "rating": "E"
+    },
+    {
+     "class": 4,
+     "rating": "A"
+    },
+    {
+     "class": 4,
+     "rating": "B"
+    },
+    {
+     "class": 4,
+     "rating": "C"
+    },
+    {
+     "class": 4,
+     "rating": "D"
+    },
+    {
+     "class": 4,
+     "rating": "E"
+    },
+    {
+     "class": 5,
+     "rating": "A"
+    },
+    {
+     "class": 5,
+     "rating": "B"
+    },
+    {
+     "class": 5,
+     "rating": "C"
+    },
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 5,
+     "rating": "E"
+    },
+    {
+     "class": 6,
+     "rating": "A"
+    },
+    {
+     "class": 6,
+     "rating": "B"
+    },
+    {
+     "class": 6,
+     "rating": "C"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "E"
+    },
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "B"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "E"
+    },
+    {
+     "class": 8,
+     "rating": "A"
+    },
+    {
+     "class": 8,
+     "rating": "B"
+    },
+    {
+     "class": 8,
+     "rating": "C"
+    },
+    {
+     "class": 8,
+     "rating": "D"
+    },
+    {
+     "class": 8,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Standard Docking Computer",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Supercruise Assist",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Universal Multi Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 7,
+     "rating": "A"
+    },
+    {
+     "class": 7,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Vessel Hangar",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "D"
+    },
+    {
+     "class": 6,
+     "rating": "D"
+    },
+    {
+     "class": 7,
+     "rating": "D"
+    }
+   ]
+  },
+  {
+   "name": "Xeno Multi Limpet Controller",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "B"
+    },
+    {
+     "class": 3,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "AX Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "AX Multi-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "E",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Abrasion Blaster",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Advanced Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Advanced Multi-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Advanced Plasma Accelerator",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Beam Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Burst Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 4,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "E",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    },
+    {
+     "class": 4,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "B",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Concord Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Cytoscrambler Burst Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Enforcer Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Enhanced AX Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Enhanced AX Multi-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Enzyme Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Fragment Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Gauss Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Nanite Torpedo Pylon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "I",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "I",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Plasma Charger",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Guardian Shard Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Imperial Hammer Rail Gun",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Mine Launcher",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "I",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Mining Lance",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Mining Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Mining Volley Repeater",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Mk II Plasma Shock Accelerator",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Multi-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Pacifier Frag-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Pack-Hound Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Plasma Accelerator",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Pulse Disruptor Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Pulse Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "G",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Fixed"
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Gimballed"
+    }
+   ]
+  },
+  {
+   "name": "Rail Gun",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Remote Release Flak Launcher",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Remote Release Flechette Launcher",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Retributor Beam Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Rocket Propelled FSD Disruptor",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Seeker Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Seismic Charge Launcher",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Shock Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 1,
+     "rating": "F",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "D",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Turreted"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed"
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Shock Mine Launcher",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Sub-Surface Displacement Missile",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 1,
+     "rating": "B",
+     "mount": "Turreted"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Turreted"
+    }
+   ]
+  },
+  {
+   "name": "Sub-Surface Extraction Missile",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Torpedo Pylon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I",
+     "mount": "Fixed"
+    },
+    {
+     "class": 2,
+     "rating": "I",
+     "mount": "Fixed"
+    },
+    {
+     "class": 3,
+     "rating": "I",
+     "mount": "Fixed"
+    }
+   ]
+  },
+  {
+   "name": "Cargo Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "A"
+    },
+    {
+     "class": 0,
+     "rating": "B"
+    },
+    {
+     "class": 0,
+     "rating": "C"
+    },
+    {
+     "class": 0,
+     "rating": "D"
+    },
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Chaff Launcher",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Electronic Countermeasure",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "F"
+    }
+   ]
+  },
+  {
+   "name": "Enhanced Xeno Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Frame Shift Wake Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "A"
+    },
+    {
+     "class": 0,
+     "rating": "B"
+    },
+    {
+     "class": 0,
+     "rating": "C"
+    },
+    {
+     "class": 0,
+     "rating": "D"
+    },
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Heat Sink Launcher",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Kill Warrant Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "A"
+    },
+    {
+     "class": 0,
+     "rating": "B"
+    },
+    {
+     "class": 0,
+     "rating": "C"
+    },
+    {
+     "class": 0,
+     "rating": "D"
+    },
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Point Defence",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "I"
+    }
+   ]
+  },
+  {
+   "name": "Pulse Wave Analyser",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "A"
+    },
+    {
+     "class": 0,
+     "rating": "B"
+    },
+    {
+     "class": 0,
+     "rating": "C"
+    },
+    {
+     "class": 0,
+     "rating": "D"
+    },
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Pulse Wave Xeno Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "C"
+    }
+   ]
+  },
+  {
+   "name": "Shield Booster",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "A"
+    },
+    {
+     "class": 0,
+     "rating": "B"
+    },
+    {
+     "class": 0,
+     "rating": "C"
+    },
+    {
+     "class": 0,
+     "rating": "D"
+    },
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  },
+  {
+   "name": "Shutdown Field Neutraliser",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "F"
+    }
+   ]
+  },
+  {
+   "name": "Xeno Scanner",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "E"
+    }
+   ]
+  }
+ ],
+ "ships": [
+  {
+   "symbol": "adder",
+   "name": "Adder"
+  },
+  {
+   "symbol": "typex_3",
+   "name": "Alliance Challenger"
+  },
+  {
+   "symbol": "typex",
+   "name": "Alliance Chieftain"
+  },
+  {
+   "symbol": "typex_2",
+   "name": "Alliance Crusader"
+  },
+  {
+   "symbol": "anaconda",
+   "name": "Anaconda"
+  },
+  {
+   "symbol": "asp",
+   "name": "Asp Explorer"
+  },
+  {
+   "symbol": "asp_scout",
+   "name": "Asp Scout"
+  },
+  {
+   "symbol": "belugaliner",
+   "name": "Beluga Liner"
+  },
+  {
+   "symbol": "explorer_nx",
+   "name": "Caspian Explorer"
+  },
+  {
+   "symbol": "cobramkiii",
+   "name": "Cobra MkIII"
+  },
+  {
+   "symbol": "cobramkiv",
+   "name": "Cobra MkIV"
+  },
+  {
+   "symbol": "cobramkv",
+   "name": "Cobra MkV"
+  },
+  {
+   "symbol": "corsair",
+   "name": "Corsair"
+  },
+  {
+   "symbol": "diamondbackxl",
+   "name": "Diamondback Explorer"
+  },
+  {
+   "symbol": "diamondback",
+   "name": "Diamondback Scout"
+  },
+  {
+   "symbol": "dolphin",
+   "name": "Dolphin"
+  },
+  {
+   "symbol": "eagle",
+   "name": "Eagle"
+  },
+  {
+   "symbol": "federation_dropship_mkii",
+   "name": "Federal Assault Ship"
+  },
+  {
+   "symbol": "federation_corvette",
+   "name": "Federal Corvette"
+  },
+  {
+   "symbol": "federation_dropship",
+   "name": "Federal Dropship"
+  },
+  {
+   "symbol": "federation_gunship",
+   "name": "Federal Gunship"
+  },
+  {
+   "symbol": "ferdelance",
+   "name": "Fer-de-Lance"
+  },
+  {
+   "symbol": "hauler",
+   "name": "Hauler"
+  },
+  {
+   "symbol": "empire_trader",
+   "name": "Imperial Clipper"
+  },
+  {
+   "symbol": "empire_courier",
+   "name": "Imperial Courier"
+  },
+  {
+   "symbol": "cutter",
+   "name": "Imperial Cutter"
+  },
+  {
+   "symbol": "empire_eagle",
+   "name": "Imperial Eagle"
+  },
+  {
+   "symbol": "independant_trader",
+   "name": "Keelback"
+  },
+  {
+   "symbol": "smallcombat01_nx",
+   "name": "Kestrel Mk II"
+  },
+  {
+   "symbol": "krait_mkii",
+   "name": "Krait MkII"
+  },
+  {
+   "symbol": "krait_light",
+   "name": "Krait Phantom"
+  },
+  {
+   "symbol": "mediumtransport01",
+   "name": "Lynx Highliner"
+  },
+  {
+   "symbol": "mamba",
+   "name": "Mamba"
+  },
+  {
+   "symbol": "mandalay",
+   "name": "Mandalay"
+  },
+  {
+   "symbol": "orca",
+   "name": "Orca"
+  },
+  {
+   "symbol": "panthermkii",
+   "name": "Panther Clipper MkII"
+  },
+  {
+   "symbol": "python",
+   "name": "Python"
+  },
+  {
+   "symbol": "python_nx",
+   "name": "Python MkII"
+  },
+  {
+   "symbol": "sidewinder",
+   "name": "Sidewinder"
+  },
+  {
+   "symbol": "type9_military",
+   "name": "Type-10 Defender"
+  },
+  {
+   "symbol": "lakonminer",
+   "name": "Type-11 Prospector"
+  },
+  {
+   "symbol": "type6",
+   "name": "Type-6 Transporter"
+  },
+  {
+   "symbol": "type7",
+   "name": "Type-7 Transporter"
+  },
+  {
+   "symbol": "type8",
+   "name": "Type-8 Transporter"
+  },
+  {
+   "symbol": "type9",
+   "name": "Type-9 Heavy"
+  },
+  {
+   "symbol": "viper",
+   "name": "Viper MkIII"
+  },
+  {
+   "symbol": "viper_mkiv",
+   "name": "Viper MkIV"
+  },
+  {
+   "symbol": "vulture",
+   "name": "Vulture"
+  }
+ ]
+}

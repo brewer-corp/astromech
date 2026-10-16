@@ -2,6 +2,7 @@
 //! values for its grammar slot, and the short spoken answer. The search itself is
 //! `astromech_galaxy::stations::find`.
 
+use astromech_galaxy::outfitting::{self, ModuleWant};
 use astromech_galaxy::stations::{Found, Service, Want};
 
 /// Commands that look something up instead of pressing keys.
@@ -14,11 +15,22 @@ pub fn service_values() -> Vec<(&'static str, String)> {
     Service::ALL.iter().flat_map(|s| s.spoken().iter().map(move |said| (*said, s.id()))).collect()
 }
 
-/// What a matched lookup asks for. `slot` is the grammar slot's value; `None` if the command
-/// isn't a lookup or the slot doesn't name something it knows.
-pub fn want(command: &str, slot: Option<&str>) -> Option<Want> {
+/// Values for the grammar's `{module}` slot: (a way to say it, the module's name). Its free
+/// words are [`outfitting::is_modifier`] (class, rating, mount).
+pub fn module_values() -> Vec<(&'static str, &'static str)> {
+    outfitting::spoken_modules()
+}
+
+/// What a matched lookup asks for. `slot` is the grammar slot's value and `slot_text` the
+/// words it took (a module's class, rating and mount are read from them); `None` if the
+/// command isn't a lookup or the slot doesn't name something it knows.
+pub fn want(command: &str, slot: Option<&str>, slot_text: Option<&str>) -> Option<Want> {
     match command {
         "find.service" => Some(Want::Service { service: Service::from_id(slot?)? }),
+        "find.module" => {
+            let name = outfitting::module(slot?)?.name.as_str();
+            Some(Want::Module(ModuleWant::from_words(name, slot_text.unwrap_or(""))))
+        }
         _ => None,
     }
 }
@@ -40,6 +52,17 @@ fn arrival(ls: f64) -> String {
         format!("{ls:.0} light seconds from the star")
     } else {
         format!("{:.0} thousand light seconds from the star", ls / 1000.0)
+    }
+}
+
+/// "5.1 million credits", "578 thousand credits", "900 credits".
+fn credits(c: i64) -> String {
+    if c >= 1_000_000 {
+        format!("{:.1} million credits", c as f64 / 1e6)
+    } else if c >= 10_000 {
+        format!("{:.0} thousand credits", c as f64 / 1e3)
+    } else {
+        format!("{c} credits")
     }
 }
 
@@ -70,6 +93,9 @@ pub fn spoken(want: &Want, origin: &str, found: &Result<Found, String>, now_s: i
         s += &format!(", {}", arrival(ls));
     }
     s.push('.');
+    if let Some(p) = h.price {
+        s += &format!(" {}.", credits(p));
+    }
     if let Some(d) = days_old(h.updated_at.as_deref(), now_s).filter(|d| *d > OLD_DAYS) {
         s += &format!(" Reported {d} days ago.");
     }
@@ -111,12 +137,44 @@ mod tests {
             assert!(v.iter().any(|(said, id)| *id == s.id() && s.spoken().contains(said)), "{s:?}");
         }
         assert_eq!(
-            want("find.service", Some("interstellar_factors")),
+            want("find.service", Some("interstellar_factors"), None),
             Some(Want::Service { service: Service::InterstellarFactors })
         );
-        assert_eq!(want("find.service", Some("nonsense")), None);
-        assert_eq!(want("lights.on", None), None);
+        assert_eq!(want("find.service", Some("nonsense"), None), None);
+        assert_eq!(want("lights.on", None, None), None);
         assert!(is_lookup("find.service") && !is_lookup("status.fuel"));
+    }
+
+    #[test]
+    fn module_lookups_read_class_rating_and_mount_from_the_words() {
+        let w = want("find.module", Some("Multi-Cannon"), Some("3c gimballed multi cannon")).unwrap();
+        assert_eq!(w.label(), "3C Multi-Cannon (gimballed)");
+        assert_eq!(
+            want("find.module", Some("frame shift drive"), Some("6a fsd")).unwrap().label(),
+            "6A Frame Shift Drive"
+        );
+        assert_eq!(want("find.module", Some("no such module"), Some("5a")), None);
+        assert!(module_values().contains(&("fsd", "Frame Shift Drive")));
+    }
+
+    #[test]
+    fn module_answer_says_the_price() {
+        const MODULES: &str = include_str!("../../astromech-galaxy/tests/fixtures/spansh-modules.json");
+        struct Page;
+        impl Transport for Page {
+            fn send(&self, _url: &str, _req: &Request) -> Result<Response, TransportError> {
+                let all: serde_json::Value = serde_json::from_str(MODULES).unwrap();
+                Ok(Response { status: 200, body: all["multicannon_3c"].to_string() })
+            }
+        }
+        let c = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Page)).limiter(Limiter::none());
+        let w = want("find.module", Some("Multi-Cannon"), Some("3c gimballed")).unwrap();
+        let r = astromech_galaxy::stations::find(&c, &w, Reference::System("Sol".into()), &Filters::default(), 1, NOW)
+            .map_err(|e| e.to_string());
+        assert_eq!(
+            spoken(&w, "Sol", &r, NOW),
+            "Nearest 3C Multi-Cannon (gimballed): Galileo in Sol, in this system, 504 light seconds from the star. 578 thousand credits."
+        );
     }
 
     #[test]

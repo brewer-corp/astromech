@@ -7,6 +7,7 @@
 
 pub mod filters;
 pub mod map;
+pub mod outfitting;
 pub mod remote;
 pub mod stations;
 pub mod store;

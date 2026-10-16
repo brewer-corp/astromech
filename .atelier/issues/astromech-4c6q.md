@@ -18,9 +18,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Find a module near me"
-updated_at: "2026-10-15T20:36:13.654846620+00:00"
+updated_at: "2026-10-16T20:55:19.102310465+00:00"
 ---
 
 ## Goal

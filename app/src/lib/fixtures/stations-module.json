@@ -1,0 +1,184 @@
+{
+  "want": "5A Frame Shift Drive",
+  "here": {
+    "system": "Sol",
+    "id64": 10477373803,
+    "pos": [
+      0,
+      0,
+      0
+    ]
+  },
+  "range": 20.0,
+  "filters": {
+    "pad": null,
+    "pad_set": false,
+    "exclude_carriers": false,
+    "exclude_odyssey": false,
+    "max_age_days": null,
+    "max_arrival_ls": null
+  },
+  "fetched": "2026-10-16T19:55:00Z",
+  "hits": [
+    {
+      "name": "Abraham Lincoln",
+      "station_type": "Orbis Starport",
+      "market_id": 128016896,
+      "system": "Sol",
+      "system_id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "ly": 0.0,
+      "arrival_ls": 505.034498,
+      "pad": "L",
+      "updated_at": "2026-10-16T19:28:43Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 0,
+      "exact": true
+    },
+    {
+      "name": "Stronghold Carrier",
+      "station_type": "Planetary Outpost",
+      "market_id": 3930444033,
+      "system": "Alpha Centauri",
+      "system_id64": 1178708478315,
+      "pos": [
+        3.03125,
+        -0.09375,
+        3.15625
+      ],
+      "ly": 4.37712002205788,
+      "arrival_ls": 4460.862239,
+      "pad": "L",
+      "updated_at": "2026-10-16T19:51:46Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "K3K-N8W",
+      "station_type": "Drake-Class Carrier",
+      "market_id": 3704808960,
+      "system": "Barnard's Star",
+      "system_id64": 18263140541865,
+      "pos": [
+        -3.03125,
+        1.375,
+        4.9375
+      ],
+      "ly": 5.95466269510709,
+      "arrival_ls": 0.0,
+      "pad": "L",
+      "updated_at": "2026-10-11T10:55:49Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "G6G-8KJ",
+      "station_type": "Drake-Class Carrier",
+      "market_id": 3703436032,
+      "system": "Barnard's Star",
+      "system_id64": 18263140541865,
+      "pos": [
+        -3.03125,
+        1.375,
+        4.9375
+      ],
+      "ly": 5.95466269510709,
+      "arrival_ls": 0.0,
+      "pad": "L",
+      "updated_at": "2024-09-25T10:19:17Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "J6B-6TK",
+      "station_type": "Drake-Class Carrier",
+      "market_id": 3705435136,
+      "system": "Barnard's Star",
+      "system_id64": 18263140541865,
+      "pos": [
+        -3.03125,
+        1.375,
+        4.9375
+      ],
+      "ly": 5.95466269510709,
+      "arrival_ls": 4862.214516,
+      "pad": "L",
+      "updated_at": "2021-06-21T17:57:21Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "Jenner Orbital",
+      "station_type": "Outpost",
+      "market_id": 3228883456,
+      "system": "Luhman 16",
+      "system_id64": 22960358574928,
+      "pos": [
+        6.3125,
+        0.59375,
+        1.71875
+      ],
+      "ly": 6.56919301550807,
+      "arrival_ls": 10.066282,
+      "pad": "M",
+      "updated_at": "2026-10-16T16:18:33Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "Yamazaki Landing",
+      "station_type": "Outpost",
+      "market_id": 3228873472,
+      "system": "WISE 0855-0714",
+      "system_id64": 58144730663760,
+      "pos": [
+        6.53125,
+        -2.15625,
+        2.03125
+      ],
+      "ly": 7.17165372752338,
+      "arrival_ls": 943.489889,
+      "pad": "M",
+      "updated_at": "2026-10-16T18:12:13Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    },
+    {
+      "name": "Stronghold Carrier",
+      "station_type": "Planetary Outpost",
+      "market_id": 3930469633,
+      "system": "Sirius",
+      "system_id64": 121569805492,
+      "pos": [
+        6.25,
+        -1.28125,
+        -5.75
+      ],
+      "ly": 8.58874854460765,
+      "arrival_ls": 952.332176,
+      "pad": "L",
+      "updated_at": "2026-10-16T15:53:27Z",
+      "price": 5103950,
+      "detail": "5A Frame Shift Drive",
+      "jumps": 1,
+      "exact": true
+    }
+  ]
+}
