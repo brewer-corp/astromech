@@ -1,16 +1,18 @@
 <script lang="ts">
   // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
   // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
-  // My controller.
+  // My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // at #/setup or #/setup/<step>.
   import { groups, groupModules, findModule } from "./lib/modules";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
+  import Onboarding from "./lib/onboarding/Onboarding.svelte";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links.
   const MOVED: Record<string, string> = { activities: "controller" };
   const resolve = (r: string) => MOVED[r] ?? (r || DEFAULT);
-  const readRoute = () => resolve(location.hash.replace(/^#\//, ""));
-  const start = readRoute();
+  const fromHash = () => resolve(location.hash.replace(/^#\//, ""));
+  const start = fromHash();
   let route = $state(start);
   if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
@@ -18,6 +20,7 @@
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
+  const onboarding = $derived(route === "setup" || route.startsWith("setup/") || status?.onboarded === false);
 
   function go(id: string) {
     route = resolve(id);
@@ -25,10 +28,15 @@
   }
 
   $effect(() => {
-    const onHash = () => (route = readRoute());
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const hash = () => (route = fromHash());
+    window.addEventListener("hashchange", hash);
+    return () => window.removeEventListener("hashchange", hash);
   });
+
+  async function finishSetup() {
+    status = await coreStatus();
+    go(DEFAULT);
+  }
 
   $effect(() => {
     onRoute((r) => go(r));
@@ -39,6 +47,9 @@
   });
 </script>
 
+{#if onboarding}
+  <Onboarding start={route.split("/")[1]} onfinish={finishSetup} />
+{:else}
 <div class="frame">
   <header>
     <span class="app">ASTROMECH</span>
@@ -51,7 +62,7 @@
       {/each}
     </nav>
     {#if setup.length && current?.id !== "settings"}
-      <button class="setup" title={setup.join(", ")} onclick={() => go("settings")}>Finish setup</button>
+      <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
     {/if}
     <span class="state">{headerState(status)}</span>
   </header>
@@ -70,6 +81,7 @@
     {/if}
   </main>
 </div>
+{/if}
 
 <style>
   .frame { height: 100vh; display: grid; grid-template-rows: auto auto 1fr; }
