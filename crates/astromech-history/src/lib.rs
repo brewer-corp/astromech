@@ -26,6 +26,7 @@ use commander::FileCommander;
 
 use astromech_journal::parse_line;
 use astromech_store::rusqlite::{self, params, Connection, OptionalExtension};
+use std::collections::hash_map::{Entry, HashMap};
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 
@@ -173,12 +174,21 @@ const MIGRATIONS: &[&str] = &[
      CREATE INDEX scans_cmdr_ts ON scans(cmdr, ts);
      CREATE TABLE pending (task TEXT PRIMARY KEY);
      INSERT INTO pending VALUES ('commanders');",
+    // v3 — ledgers follow game time (astromech-u3f4): ships remember the time of the event that
+    // last set their type and name, and every ledger is rebuilt in game-time order.
+    "ALTER TABLE ships ADD COLUMN updated TEXT NOT NULL DEFAULT '';
+     INSERT OR IGNORE INTO pending VALUES ('rebuild');",
 ];
 
 /// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done
 /// redoes it on the next open: fill `events.cmdr` and `journal_files.cmdr` from the stored
 /// lines, then rebuild the ledgers.
 const PENDING_COMMANDERS: &str = "commanders";
+/// Rebuild every ledger (migration v3).
+const PENDING_REBUILD: &str = "rebuild";
+/// Prefix of a task to rebuild one commander's ledgers, left by an import that stored events
+/// older than ones that commander's ledgers already had.
+const PENDING_COMMANDER_REBUILD: &str = "rebuild:";
 
 #[derive(Debug, thiserror::Error)]
 pub enum HistoryError {
@@ -243,14 +253,32 @@ impl History {
         // journals are still there to re-import from.
         conn.pragma_update(None, "synchronous", "NORMAL")?;
         let mut h = Self { conn };
-        let pending: Option<String> = h
-            .conn
-            .query_row("SELECT task FROM pending WHERE task = ?1", [PENDING_COMMANDERS], |r| r.get(0))
-            .optional()?;
-        if pending.is_some() {
-            h.rederive_commanders()?;
-        }
+        h.run_pending()?;
         Ok(h)
+    }
+
+    /// Do the work migrations and interrupted imports left in `pending`.
+    fn run_pending(&mut self) -> Result<()> {
+        let tasks: Vec<String> = {
+            let mut st = self.conn.prepare("SELECT task FROM pending ORDER BY task")?;
+            let rows = st.query_map([], |r| r.get(0))?;
+            rows.collect::<rusqlite::Result<_>>()?
+        };
+        if tasks.iter().any(|t| t == PENDING_COMMANDERS) {
+            self.rederive_commanders()?;
+        } else if tasks.iter().any(|t| t == PENDING_REBUILD) {
+            let tx = self.conn.transaction()?;
+            rebuild(&tx)?;
+            tx.execute("DELETE FROM pending WHERE task = ?1", [PENDING_REBUILD])?;
+            tx.commit()?;
+        }
+        for cmdr in tasks.iter().filter_map(|t| t.strip_prefix(PENDING_COMMANDER_REBUILD)) {
+            let tx = self.conn.transaction()?;
+            rebuild_commander(&tx, cmdr)?;
+            tx.execute("DELETE FROM pending WHERE task = ?1", [format!("{PENDING_COMMANDER_REBUILD}{cmdr}")])?;
+            tx.commit()?;
+        }
+        Ok(())
     }
 
     /// Recompute each event's commander from the stored lines, then the ledgers (migration v2).
@@ -278,7 +306,7 @@ impl History {
             }
         }
         rebuild(&tx)?;
-        tx.execute("DELETE FROM pending WHERE task = ?1", [PENDING_COMMANDERS])?;
+        tx.execute("DELETE FROM pending WHERE task IN (?1, ?2)", [PENDING_COMMANDERS, PENDING_REBUILD])?;
         tx.commit()?;
         Ok(())
     }
@@ -291,8 +319,11 @@ impl History {
     /// Import every complete line not imported yet from the `Journal.*.log` files in `dir`,
     /// oldest file first.
     pub fn import(&mut self, dir: &Path, opts: &ImportOptions) -> Result<ImportReport> {
+        self.run_pending()?;
         let mut report = ImportReport::default();
         let mut seen = 0u64;
+        // Per commander, the newest event time its ledgers hold.
+        let mut newest: HashMap<String, String> = HashMap::new();
         for path in astromech_journal::journal_logs(dir) {
             let io = |source| HistoryError::Io { path: path.clone(), source };
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
@@ -335,6 +366,16 @@ impl History {
                             if let Some(id) = insert_event(&tx, file_id, offset, state.cmdr.as_deref(), &line)? {
                                 if let Some(cmdr) = &state.cmdr {
                                     ledgers::derive(&tx, id, cmdr, &line)?;
+                                    let top = match newest.entry(cmdr.clone()) {
+                                        Entry::Occupied(o) => o.into_mut(),
+                                        Entry::Vacant(v) => v.insert(newest_event(&tx, cmdr, id)?),
+                                    };
+                                    if line.timestamp < *top {
+                                        tx.prepare_cached("INSERT OR IGNORE INTO pending VALUES (?1)")?
+                                            .execute([format!("{PENDING_COMMANDER_REBUILD}{cmdr}")])?;
+                                    } else {
+                                        top.clone_from(&line.timestamp);
+                                    }
                                 }
                                 report.events += 1;
                             }
@@ -359,6 +400,7 @@ impl History {
             }
         }
         report.lines = seen;
+        self.run_pending()?;
         Ok(report)
     }
 
@@ -416,12 +458,34 @@ fn set_progress(c: &Connection, file_id: i64, offset: u64, new_lines: u64, state
     Ok(())
 }
 
-/// Clear the ledgers and derive them again from every stored event, in import order.
+/// Newest event time stored for `cmdr` before event `id`.
+fn newest_event(c: &Connection, cmdr: &str, id: i64) -> Result<String> {
+    Ok(c.prepare_cached("SELECT coalesce(max(ts), '') FROM events WHERE cmdr = ?1 AND id < ?2")?
+        .query_row(params![cmdr, id], |r| r.get(0))?)
+}
+
+/// Clear one commander's ledgers and derive them again from their events, in game-time order.
+fn rebuild_commander(c: &Connection, cmdr: &str) -> Result<()> {
+    for table in ["commanders", "visits", "earnings", "ships", "scans"] {
+        c.execute(&format!("DELETE FROM {table} WHERE cmdr = ?1"), [cmdr])?;
+    }
+    let mut st = c.prepare("SELECT id, json FROM events WHERE cmdr = ?1 ORDER BY ts, id")?;
+    let mut rows = st.query([cmdr])?;
+    while let Some(r) = rows.next()? {
+        let (id, json): (i64, String) = (r.get(0)?, r.get(1)?);
+        if let Ok(line) = parse_line(&json) {
+            ledgers::derive(c, id, cmdr, &line)?;
+        }
+    }
+    Ok(())
+}
+
+/// Clear the ledgers and derive them again from every stored event, in game-time order.
 fn rebuild(c: &Connection) -> Result<()> {
     c.execute_batch(
         "DELETE FROM commanders; DELETE FROM visits; DELETE FROM earnings; DELETE FROM ships; DELETE FROM scans;",
     )?;
-    let mut st = c.prepare("SELECT id, cmdr, json FROM events WHERE cmdr IS NOT NULL ORDER BY id")?;
+    let mut st = c.prepare("SELECT id, cmdr, json FROM events WHERE cmdr IS NOT NULL ORDER BY ts, id")?;
     let mut rows = st.query([])?;
     while let Some(r) = rows.next()? {
         let (id, cmdr, json): (i64, String, String) = (r.get(0)?, r.get(1)?, r.get(2)?);

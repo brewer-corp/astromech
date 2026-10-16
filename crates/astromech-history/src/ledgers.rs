@@ -1,6 +1,8 @@
-//! Ledgers derived from journal events. [`derive`] runs once per new event, in import order,
-//! and reads only what earlier events wrote, so an import resumed after a crash produces the
-//! same rows as one clean run. Every row belongs to one commander (`cmdr`, see `commander`),
+//! Ledgers derived from journal events. [`derive`] runs once per new event and reads only
+//! what earlier events (by game time) wrote, so an import resumed after a crash produces the
+//! same rows as one clean run. Events arriving older than what a commander's ledgers already
+//! hold (an old journal imported late) make the import rebuild that commander's ledgers in
+//! game-time order; ship rows also only take values from newer events than the ones they have. Every row belongs to one commander (`cmdr`, see `commander`),
 //! and lookups of earlier rows stay within that commander.
 //!
 //! - `commanders`: every commander key seen, with the latest name and whether it is Legacy.
@@ -104,10 +106,10 @@ pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLi
         J::Location { star_system, system_address, docked, station_name, market_id, .. } => {
             let last = c
                 .prepare_cached(
-                    "SELECT star_system, system_address FROM visits WHERE cmdr = ?1 AND kind = 'system'
-                     ORDER BY id DESC LIMIT 1",
+                    "SELECT star_system, system_address FROM visits WHERE cmdr = ?1 AND kind = 'system' AND ts <= ?2
+                     ORDER BY ts DESC, id DESC LIMIT 1",
                 )?
-                .query_row([cmdr], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1)?)))
+                .query_row([cmdr, e.ts], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1)?)))
                 .optional()?;
             let same = last.is_some_and(|(name, addr)| match (addr, system_address) {
                 (Some(a), Some(b)) => a == *b,
@@ -119,9 +121,10 @@ pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLi
             if let (true, Some(station)) = (*docked, station_name) {
                 let last = c
                     .prepare_cached(
-                        "SELECT kind, station_name, market_id FROM visits WHERE cmdr = ?1 ORDER BY id DESC LIMIT 1",
+                        "SELECT kind, station_name, market_id FROM visits WHERE cmdr = ?1 AND ts <= ?2
+                         ORDER BY ts DESC, id DESC LIMIT 1",
                     )?
-                    .query_row([cmdr], |r| {
+                    .query_row([cmdr, e.ts], |r| {
                         Ok((r.get::<_, String>(0)?, r.get::<_, Option<String>>(1)?, r.get::<_, Option<i64>>(2)?))
                     })
                     .optional()?;
@@ -137,17 +140,20 @@ pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLi
                 }
             }
         }
-        J::Docked { station_name, star_system, market_id } => {
-            let addr = e.system_address_of(star_system)?;
-            e.visit("station", star_system, addr, Some(station_name), *market_id, None)?;
+        J::Docked { station_name, star_system, market_id, system_address } => {
+            e.visit("station", star_system, *system_address, Some(station_name), *market_id, None)?;
         }
         J::Loadout { ship_id: Some(id), ship: Some(ship), ship_name, ship_ident, .. } => {
             c.prepare_cached(
-                "INSERT INTO ships(cmdr, ship_id, ship_type, name, ident, first_seen, last_flown)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)
-                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET ship_type = excluded.ship_type,
-                    name = coalesce(excluded.name, name), ident = coalesce(excluded.ident, ident),
-                    last_flown = excluded.last_flown",
+                "INSERT INTO ships(cmdr, ship_id, ship_type, name, ident, first_seen, last_flown, updated)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6, ?6)
+                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET
+                    first_seen = min(first_seen, excluded.first_seen),
+                    last_flown = max(coalesce(last_flown, ''), excluded.last_flown),
+                    ship_type = iif(excluded.updated >= updated, excluded.ship_type, ship_type),
+                    name = iif(excluded.updated >= updated, coalesce(excluded.name, name), name),
+                    ident = iif(excluded.updated >= updated, coalesce(excluded.ident, ident), ident),
+                    updated = max(updated, excluded.updated)",
             )?
             .execute(params![cmdr, id, ship.to_lowercase(), ship_name, ship_ident, e.ts])?;
         }
@@ -243,7 +249,7 @@ impl Ev<'_> {
                     .prepare_cached(
                         "SELECT body_name FROM scans
                          WHERE system_address = ?1 AND body_id = ?2 AND body_name IS NOT NULL
-                         ORDER BY event_id DESC LIMIT 1",
+                         ORDER BY ts DESC, event_id DESC LIMIT 1",
                     )?
                     .query_row(params![system_address, body], |r| r.get(0))
                     .optional()?;
@@ -295,10 +301,10 @@ impl Ev<'_> {
                 if let Some(id) = int("ShipID") {
                     self.c
                         .prepare_cached(
-                            "UPDATE ships SET name = coalesce(?3, name), ident = coalesce(?4, ident)
-                             WHERE cmdr = ?1 AND ship_id = ?2",
+                            "UPDATE ships SET name = coalesce(?3, name), ident = coalesce(?4, ident), updated = ?5
+                             WHERE cmdr = ?1 AND ship_id = ?2 AND updated <= ?5",
                         )?
-                        .execute(params![self.cmdr, id, text("UserShipName"), text("UserShipId")])?;
+                        .execute(params![self.cmdr, id, text("UserShipName"), text("UserShipId"), self.ts])?;
                 }
             }
             _ => {}
@@ -314,7 +320,10 @@ impl Ev<'_> {
         self.c
             .prepare_cached(
                 "INSERT INTO commanders(cmdr, name, legacy, first_seen, last_seen) VALUES (?1, ?2, ?3, ?4, ?4)
-                 ON CONFLICT(cmdr) DO UPDATE SET name = excluded.name, last_seen = excluded.last_seen",
+                 ON CONFLICT(cmdr) DO UPDATE SET
+                    name = iif(excluded.last_seen >= last_seen, excluded.name, name),
+                    first_seen = min(first_seen, excluded.first_seen),
+                    last_seen = max(last_seen, excluded.last_seen)",
             )?
             .execute(params![self.cmdr, name, legacy, self.ts])?;
         Ok(())
@@ -362,26 +371,15 @@ impl Ev<'_> {
     fn seen_ship(&self, ship_id: i64, ship_type: &str, name: Option<&str>) -> Result<()> {
         self.c
             .prepare_cached(
-                "INSERT INTO ships(cmdr, ship_id, ship_type, name, first_seen) VALUES (?1, ?2, ?3, ?4, ?5)
-                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET ship_type = excluded.ship_type,
-                    name = coalesce(excluded.name, name)",
+                "INSERT INTO ships(cmdr, ship_id, ship_type, name, first_seen, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?5)
+                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET
+                    first_seen = min(first_seen, excluded.first_seen),
+                    ship_type = iif(excluded.updated >= updated, excluded.ship_type, ship_type),
+                    name = iif(excluded.updated >= updated, coalesce(excluded.name, name), name),
+                    updated = max(updated, excluded.updated)",
             )?
             .execute(params![self.cmdr, ship_id, ship_type.to_lowercase(), name, self.ts])?;
         Ok(())
-    }
-
-    /// Address of this commander's last arrival in the system called `name` (`Docked` carries
-    /// only the name).
-    fn system_address_of(&self, name: &str) -> Result<Option<i64>> {
-        Ok(self
-            .c
-            .prepare_cached(
-                "SELECT system_address FROM visits WHERE cmdr = ?1 AND kind = 'system' AND star_system = ?2
-                 ORDER BY id DESC LIMIT 1",
-            )?
-            .query_row(params![self.cmdr, name], |r| r.get(0))
-            .optional()?
-            .flatten())
     }
 
     /// Name of the system with this address, from the arrivals recorded so far (any
@@ -390,7 +388,8 @@ impl Ev<'_> {
         let Some(a) = address else { return Ok(None) };
         self.c
             .prepare_cached(
-                "SELECT star_system FROM visits WHERE kind = 'system' AND system_address = ?1 ORDER BY id DESC LIMIT 1",
+                "SELECT star_system FROM visits WHERE kind = 'system' AND system_address = ?1
+                 ORDER BY ts DESC, id DESC LIMIT 1",
             )?
             .query_row([a], |r| r.get(0))
             .optional()
@@ -418,7 +417,7 @@ impl crate::History {
     pub fn visits(&self, cmdr: &str) -> crate::Result<Vec<Visit>> {
         let mut st = self.conn.prepare(
             "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist FROM visits
-             WHERE cmdr = ?1 ORDER BY id",
+             WHERE cmdr = ?1 ORDER BY ts, id",
         )?;
         let rows = st.query_map([cmdr], |r| {
             Ok(Visit {
@@ -437,7 +436,7 @@ impl crate::History {
     pub fn earnings(&self, cmdr: &str) -> crate::Result<Vec<Earning>> {
         let mut st = self
             .conn
-            .prepare("SELECT ts, kind, amount, cost, detail FROM earnings WHERE cmdr = ?1 ORDER BY event_id")?;
+            .prepare("SELECT ts, kind, amount, cost, detail FROM earnings WHERE cmdr = ?1 ORDER BY ts, event_id")?;
         let rows = st.query_map([cmdr], |r| {
             Ok(Earning { ts: r.get(0)?, kind: r.get(1)?, amount: r.get(2)?, cost: r.get(3)?, detail: r.get(4)? })
         })?;
@@ -467,7 +466,7 @@ impl crate::History {
     pub fn scans(&self, cmdr: &str) -> crate::Result<Vec<Scan>> {
         let mut st = self.conn.prepare(
             "SELECT ts, kind, system_address, star_system, body_name, body_id, class, landable, terraformable,
-                    was_discovered, was_mapped FROM scans WHERE cmdr = ?1 ORDER BY event_id",
+                    was_discovered, was_mapped FROM scans WHERE cmdr = ?1 ORDER BY ts, event_id",
         )?;
         let rows = st.query_map([cmdr], |r| {
             Ok(Scan {

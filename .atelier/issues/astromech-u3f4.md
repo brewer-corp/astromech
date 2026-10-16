@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "History: ledgers follow game time, not import order"
-updated_at: "2026-10-16T19:51:00.917282805+00:00"
+updated_at: "2026-10-16T19:57:04.578946654+00:00"
 ---
 
 ## Goal

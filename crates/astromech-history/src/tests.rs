@@ -336,3 +336,49 @@ fn v1_database_is_migrated() {
     let pending: i64 = h.conn().query_row("SELECT COUNT(*) FROM pending", [], |r| r.get(0)).unwrap();
     assert_eq!(pending, 0);
 }
+
+/// A restored backup: the oldest journal arrives after the newer ones. The ledgers end up the
+/// same as importing in order.
+#[test]
+fn older_journal_imported_late_gives_the_same_ledgers() {
+    let (clean, _) = clean_import();
+    let dir = tempfile::tempdir().unwrap();
+    let logs = astromech_journal::journal_logs(&fixtures());
+    let copy = |p: &PathBuf| std::fs::copy(p, dir.path().join(p.file_name().unwrap())).unwrap();
+    let mut h = History::in_memory().unwrap();
+    for p in &logs[1..] {
+        copy(p);
+    }
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    assert_ne!(snapshot(&h).ledgers, snapshot(&clean).ledgers, "the first file matters");
+    copy(&logs[0]);
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let (got, want) = (snapshot(&h), snapshot(&clean));
+    assert_eq!((got.commanders, got.ledgers), (want.commanders, want.ledgers));
+    let pending: i64 = h.conn().query_row("SELECT COUNT(*) FROM pending", [], |r| r.get(0)).unwrap();
+    assert_eq!(pending, 0);
+}
+
+/// Ship rows only take type and name from events newer than the ones they have.
+#[test]
+fn ship_rows_ignore_older_events() {
+    let h = History::in_memory().unwrap();
+    let line = |ts: &str, ship: &str, name: &str| {
+        parse_line(&format!(
+            r#"{{"timestamp":"{ts}","event":"Loadout","Ship":"{ship}","ShipID":7,"ShipName":"{name}","Modules":[]}}"#
+        ))
+        .unwrap()
+    };
+    ledgers::derive(h.conn(), 1, "F1", &line("2026-09-02T00:00:00Z", "python", "New")).unwrap();
+    ledgers::derive(h.conn(), 2, "F1", &line("2026-09-01T00:00:00Z", "cobramkiii", "Old")).unwrap();
+    let rename = parse_line(
+        r#"{"timestamp":"2026-09-01T12:00:00Z","event":"SetUserShipName","ShipID":7,"UserShipName":"Older"}"#,
+    )
+    .unwrap();
+    ledgers::derive(h.conn(), 3, "F1", &rename).unwrap();
+    let s = &h.ships("F1").unwrap()[0];
+    assert_eq!(
+        (s.ship_type.as_str(), s.name.as_deref(), s.first_seen.as_str(), s.last_flown.as_deref()),
+        ("python", Some("New"), "2026-09-01T00:00:00Z", Some("2026-09-02T00:00:00Z"))
+    );
+}
