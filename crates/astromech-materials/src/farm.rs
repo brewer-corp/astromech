@@ -10,6 +10,8 @@
 
 use crate::catalog::{self, Kind, Spec};
 use crate::hge::SourceNote;
+use serde::{Deserialize, Serialize};
+use std::sync::OnceLock;
 
 /// Encoded materials the Jameson Crash Site data points give directly.
 pub const JAMESON: &[&str] = &["adaptiveencryptors", "industrialfirmware", "consumerfirmware"];
@@ -17,14 +19,52 @@ pub const JAMESON: &[&str] = &["adaptiveencryptors", "industrialfirmware", "cons
 /// Encoded material most other encoded shortfalls are traded from.
 pub const ENCODED_ANCHOR: &str = "adaptiveencryptors";
 
-/// Reported grade 4 raw sites, per element.
-const RAW_SITES: &[(&str, &str)] = &[
-    ("polonium", "Synuefe BY-F d12-39 A 2 (brain trees); HIP 36601 C 1 a (shards)"),
-    ("ruthenium", "HIP 36601 C 1 d (shards)"),
-    ("tellurium", "HIP 36601 C 3 b (shards)"),
-    ("technetium", "HIP 36601 C 5 a (shards)"),
-    ("selenium", "HR 3230 3 a a"),
-];
+/// A well-known grade 4 raw farm (`data/catalog/raw-farms.json`).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Farm {
+    pub system: String,
+    pub id64: i64,
+    /// The system's position in ly.
+    pub pos: [f64; 3],
+    /// Body name without the system prefix, e.g. "C 1 a".
+    pub body: String,
+    /// "Crystalline Shards" or "Brain Trees".
+    pub site: String,
+    /// Material id it is farmed for.
+    pub material: String,
+    /// Light seconds from the arrival star.
+    pub arrival_ls: f64,
+}
+
+impl Farm {
+    /// Full body name, e.g. "HIP 36601 C 1 a".
+    pub fn body_name(&self) -> String {
+        format!("{} {}", self.system, self.body)
+    }
+}
+
+#[derive(Deserialize)]
+struct FarmsFile {
+    checked: String,
+    farms: Vec<Farm>,
+}
+
+fn farms_file() -> &'static FarmsFile {
+    static F: OnceLock<FarmsFile> = OnceLock::new();
+    F.get_or_init(|| {
+        serde_json::from_str(include_str!("../../../data/catalog/raw-farms.json")).expect("raw-farms.json")
+    })
+}
+
+/// The well-known grade 4 raw farms.
+pub fn farms() -> &'static [Farm] {
+    &farms_file().farms
+}
+
+/// When every farm was last checked to still have its site (RFC 3339).
+pub fn farms_checked() -> &'static str {
+    &farms_file().checked
+}
 
 const JAMESON_HINT: &str = "HIP 12099 1 B. Scan every data point from the SRV, exit to the main menu and log back in, scan again. Nearest encoded trader: Ray Gateway, Diaguandri.";
 
@@ -57,7 +97,12 @@ pub fn sources_for(spec: &Spec) -> Vec<SourceNote> {
     let mut out = vec![];
     match spec.kind {
         Kind::Raw if spec.on_trader && spec.grade == 4 => {
-            let site = RAW_SITES.iter().find(|(id, _)| *id == spec.id).map(|(_, s)| format!("Reported: {s}. "));
+            let sites: Vec<String> = farms()
+                .iter()
+                .filter(|f| f.material == spec.id)
+                .map(|f| format!("{} ({})", f.body_name(), f.site.to_lowercase()))
+                .collect();
+            let site = (!sites.is_empty()).then(|| format!("Reported: {}. ", sites.join("; ")));
             out.push(note(
                 "brain_tree",
                 "Guardian brain trees and crystalline shards drop grade 4 raw.".into(),
@@ -114,11 +159,23 @@ mod tests {
         assert_eq!(anchor(s("consumerfirmware")).id, "consumerfirmware");
         assert_eq!(anchor(s("dataminedwake")).id, "dataminedwake");
         assert_eq!(anchor(s("pharmaceuticalisolators")).id, "pharmaceuticalisolators");
-        assert!(sources_for(s("polonium"))[0].hint.contains("Synuefe"));
+        assert!(sources_for(s("polonium"))[0].hint.contains("Synuefe BY-F d12-39 A 2 (brain trees)"));
+        assert!(sources_for(s("polonium"))[0].hint.contains("HIP 36601 C 1 a (crystalline shards)"));
         assert_eq!(sources_for(s("arsenic"))[0].kind, "trade_down");
         assert!(sources_for(s("arsenic"))[0].summary.contains("1 → 9"));
         assert_eq!(sources_for(s("dataminedwake"))[0].kind, "wake_scan");
         assert_eq!(sources_for(s("industrialfirmware"))[0].kind, "jameson");
         assert!(sources_for(s("chemicalmanipulators")).is_empty());
+    }
+
+    #[test]
+    fn every_farm_names_a_grade_4_raw_material_and_a_position() {
+        assert!(farms().len() >= 9);
+        for f in farms() {
+            let m = catalog::lookup(&f.material).unwrap_or_else(|| panic!("{} names {}", f.body_name(), f.material));
+            assert_eq!((m.kind, m.grade), (Kind::Raw, 4), "{}", f.body_name());
+            assert!(f.pos.iter().any(|c| *c != 0.0) && f.arrival_ls > 0.0, "{}", f.body_name());
+            assert!(["Crystalline Shards", "Brain Trees"].contains(&f.site.as_str()));
+        }
     }
 }

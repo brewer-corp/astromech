@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T21:59:40.484855028+00:00"
+status: "done"
 title: "Rank HGE suggestions by distance and population"
-updated_at: "2026-10-16T18:12:15.141981342+00:00"
+updated_at: "2026-10-16T21:59:40.484855028+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ Lookup tests from a fixed position show a 2-billion system 30 ly away ranked abo
 ## Context
 
 `crates/astromech-materials/src/hge.rs` and `farm.rs`. Population comes from the galaxy data.
+
+## Close Reason
+
+HGE lookups rank by population and distance (hge_score); a 2B system at 30 ly ranks above a 200M system at 5 ly in the fixed-position test, and the score shows on each row. Evidence msxr, ckbk, 0nml.

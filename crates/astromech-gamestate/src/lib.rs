@@ -57,6 +57,8 @@ pub struct GameState {
     pub ship_name: Option<String>,
     pub ship_ident: Option<String>,
     pub system: Option<String>,
+    /// The current system's position in ly (`StarPos` of the last `Location` / `FSDJump`).
+    pub star_pos: Option<[f64; 3]>,
     pub body: Option<String>,
     pub station: Option<String>,
     /// `MarketID` of the station docked at; ties `Market.json` and friends to this dock.
@@ -153,7 +155,12 @@ impl GameState {
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
             }
-            JournalEvent::Location { star_system, body, docked, station_name, market_id, station, .. } => {
+            JournalEvent::Location {
+                star_system, body, docked, station_name, market_id, star_pos, station, ..
+            } => {
+                if self.system.as_ref() != Some(star_system) || star_pos.is_some() {
+                    self.star_pos = *star_pos;
+                }
                 self.system = Some(star_system.clone());
                 self.body = body.clone();
                 self.docked = *docked;
@@ -175,8 +182,9 @@ impl GameState {
                 self.body = Some(body.clone());
             }
             JournalEvent::LeaveBody { .. } => self.body = None,
-            JournalEvent::FsdJump { star_system, from_carrier, .. } => {
+            JournalEvent::FsdJump { star_system, from_carrier, star_pos, .. } => {
                 self.system = Some(star_system.clone());
+                self.star_pos = *star_pos;
                 if !from_carrier {
                     self.station = None;
                     self.station_market_id = None;
@@ -289,5 +297,20 @@ mod tests {
         );
         assert_eq!(g.system.as_deref(), Some("Alioth"));
         assert_eq!(g.station.as_deref(), Some("Jameson Memorial"));
+    }
+
+    #[test]
+    fn star_pos_follows_the_current_system() {
+        let mut g = GameState::default();
+        let apply = |g: &mut GameState, l: &str| g.apply_journal(&astromech_journal::parse_line(l).unwrap().event);
+        apply(&mut g, r#"{"timestamp":"t","event":"Location","StarSystem":"Sol","StarPos":[0,0,0],"Docked":false}"#);
+        apply(
+            &mut g,
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Deciat","StarPos":[122.625,-0.8125,-47.28125]}"#,
+        );
+        apply(&mut g, r#"{"timestamp":"t","event":"Location","StarSystem":"Deciat","Docked":false}"#);
+        assert_eq!(g.star_pos, Some([122.625, -0.8125, -47.28125]), "same system without StarPos: kept");
+        apply(&mut g, r#"{"timestamp":"t","event":"Location","StarSystem":"Alioth","Docked":false}"#);
+        assert_eq!(g.star_pos, None, "another system without StarPos: unknown, not stale");
     }
 }
