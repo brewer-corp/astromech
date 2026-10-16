@@ -26,9 +26,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Generalise the \"search near me\" UI kit"
-updated_at: "2026-10-15T20:36:13.651807874+00:00"
+updated_at: "2026-10-16T19:08:04.951628421+00:00"
 ---
 
 ## Goal
