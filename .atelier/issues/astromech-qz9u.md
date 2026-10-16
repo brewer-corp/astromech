@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.648377218+00:00"
 id: "astromech-qz9u"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-qz9u
 priority: "P0"
 relationships:
   blocks:
@@ -36,7 +39,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Remote data layer and the \"search near me\" kit"
-updated_at: "2026-10-15T20:36:13.872209072+00:00"
+updated_at: "2026-10-16T18:42:30.008070612+00:00"
 ---
 
 ## Goal
