@@ -523,19 +523,19 @@
    "name": "InSight",
    "category": "item",
    "barter": null,
-   "value": null
+   "value": 15000
   },
   "insightdatabank": {
    "name": "InSight Data Bank",
    "category": "item",
    "barter": null,
-   "value": null
+   "value": 25000
   },
   "insightentertainmentsuite": {
    "name": "InSight Entertainment Suite",
    "category": "item",
    "barter": null,
-   "value": null
+   "value": 20000
   },
   "internalcorrespondence": {
    "name": "Internal Correspondence",
@@ -2667,6 +2667,7 @@
   }
  ],
  "uncertain": [
+  "Added Melee Damage: credits not on the wiki",
   "Headshot Damage (Kinematic Armaments weapons): wiki links RDX to Greater Range",
   "Karma C-44 grade 4: credits not on the wiki",
   "Karma C-44 grade 5: credits not on the wiki",
@@ -2681,9 +2682,6 @@
   "engineer Rosa Dayette: Scope (the wiki's tables and mod pages disagree)",
   "engineer Rosa Dayette: Stability (the wiki's tables and mod pages disagree)",
   "item Crop Yield Analysis: sale value not on the wiki",
-  "item InSight Data Bank: sale value not on the wiki",
-  "item InSight Entertainment Suite: sale value not on the wiki",
-  "item InSight: sale value not on the wiki",
   "item Seed Genealogy: sale value not on the wiki",
   "item Spyware: sale value not on the wiki",
   "item Tactical Plans: sale value not on the wiki",

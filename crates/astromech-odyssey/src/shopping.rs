@@ -55,6 +55,9 @@ pub struct PickResult {
     pub fitted_by: Vec<FitBy>,
     /// Nothing is short.
     pub ready: bool,
+    /// Why this pick can't be costed (e.g. a saved pick the game data no longer has). It adds
+    /// nothing to the list; the other picks still count.
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -156,14 +159,39 @@ fn cost(pick: &Pick, progress: &Progress) -> Result<(Materials, i64, bool, Strin
     }
 }
 
-/// What each pick needs against `h`, and the shopping list for all of them.
-pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Result<Shopping, String> {
+/// A title for a pick that can't be costed, from its ids alone.
+fn raw_title(p: &Pick) -> String {
+    match p {
+        Pick::Upgrade { gear, from, to } => format!("{gear} grade {from} → {to}"),
+        Pick::Mod { id, maker: Some(mk) } => format!("{id} ({mk})"),
+        Pick::Mod { id, maker: None } => id.clone(),
+    }
+}
+
+/// What each pick needs against `h`, and the shopping list for all of them. A pick that can't be
+/// costed is reported on its own result and left out of the list.
+pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Shopping {
     let mut all = Materials::new();
     let mut credits = 0;
     let mut credits_partial = false;
     let mut results = Vec::with_capacity(picks.len());
     for p in picks {
-        let (m, cr, partial, title, fitted_by) = cost(p, progress)?;
+        let (m, cr, partial, title, fitted_by) = match cost(p, progress) {
+            Ok(c) => c,
+            Err(e) => {
+                results.push(PickResult {
+                    pick: p.clone(),
+                    title: raw_title(p),
+                    lines: vec![],
+                    credits: 0,
+                    credits_partial: false,
+                    fitted_by: vec![],
+                    ready: false,
+                    error: Some(e),
+                });
+                continue;
+            }
+        };
         add(&mut all, &m);
         credits += cr;
         credits_partial |= partial;
@@ -176,9 +204,10 @@ pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Result<Sho
             credits: cr,
             credits_partial: partial,
             fitted_by,
+            error: None,
         });
     }
     let total = needs(&all, h);
     let barter_short = total.iter().filter_map(|l| l.barter.map(|b| b * l.short)).sum();
-    Ok(Shopping { picks: results, total, credits, credits_partial, barter_short })
+    Shopping { picks: results, total, credits, credits_partial, barter_short }
 }

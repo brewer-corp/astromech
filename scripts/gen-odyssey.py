@@ -11,8 +11,9 @@ Sources (player-visible game facts, see NOTICE.md), fetched over HTTP and kept i
 - The Elite Dangerous Wiki (elite-dangerous.fandom.com) via its MediaWiki API: each suit and
   weapon page's Upgrades table, each modification page's cost and engineer list, each item's
   infobox (barter value, sale value), and the Engineers page's on-foot tables.
-Only facts are taken (numbers, names); no wiki prose. Facts the sources disagree on, or leave
-blank, are listed under "uncertain" in the output.
+Facts are taken (numbers, names) plus the Engineers page's short invite and referral task
+sentences, which are copied as written (CC BY-SA, credited in NOTICE.md). Facts the sources
+disagree on, or leave blank, are listed under "uncertain" in the output.
 """
 import csv, datetime, io, json, os, re, sys, urllib.parse, urllib.request
 
@@ -76,7 +77,8 @@ def fetch(cache, name, url):
 
 def wikitext(cache, title):
     q = urllib.parse.urlencode({"action": "parse", "format": "json", "prop": "wikitext", "redirects": 1, "page": title})
-    d = json.loads(fetch(cache, "wiki-" + key(title) + ".json", f"{WIKI}?{q}"))
+    # Titles are case-sensitive ("Insight" is missing, "InSight" is not), so the file name is too.
+    d = json.loads(fetch(cache, "wiki-" + urllib.parse.quote(title, safe="") + ".json", f"{WIKI}?{q}"))
     if "error" in d:
         return None
     return d["parse"]["wikitext"]["*"]
@@ -129,6 +131,8 @@ def parse_cost(cell, item_key, uncertain, where):
             cr = credits(part)
             if cr is None:
                 uncertain.append(f"{where}: credits not on the wiki")
+    if mats and cr is None and "CR" not in cell:
+        uncertain.append(f"{where}: credits not on the wiki")
     return mats, cr
 
 

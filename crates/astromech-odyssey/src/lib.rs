@@ -132,7 +132,7 @@ mod tests {
         // Maverick grade 1 → 2 needs 1 Suit Schematic, 1 Health Monitor, 1 Manufacturing
         // Instructions, 2 Carbon Fibre Plating, 2 Graphene and 600,000 CR.
         let pick = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
-        let s = shopping(std::slice::from_ref(&pick), &h, &p).unwrap();
+        let s = shopping(std::slice::from_ref(&pick), &h, &p);
         let r = &s.picks[0];
         assert_eq!(r.title, "Maverick Suit grade 1 → 2");
         assert_eq!(r.credits, 600_000);
@@ -142,7 +142,7 @@ mod tests {
         assert_eq!(short, [("carbonfibreplating", 2)]);
         assert!(!r.ready);
         // Grade 1 → 5 adds up every step.
-        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5 }], &h, &p).unwrap();
+        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5 }], &h, &p);
         let graphene = all.picks[0].lines.iter().find(|l| l.id == "graphene").unwrap();
         let steps: i64 = catalog().gear("maverick").unwrap().upgrades.iter().map(|u| u.materials["graphene"]).sum();
         assert_eq!((graphene.need, graphene.have), (steps, 9));
@@ -156,7 +156,7 @@ mod tests {
             Pick::Mod { id: "headshotdamage".into(), maker: Some("takada".into()) },
             Pick::Upgrade { gear: "karmap15".into(), from: 2, to: 3 },
         ];
-        let s = shopping(&picks, &h, &p).unwrap();
+        let s = shopping(&picks, &h, &p);
         assert_eq!(s.picks[1].title, "Headshot Damage (Takada weapons)");
         // Night Vision: Oden Geiger and Yi Shen fit it; the fixture has Oden unlocked.
         let fit: Vec<(&str, bool)> = s.picks[0].fitted_by.iter().map(|f| (f.name.as_str(), f.unlocked)).collect();
@@ -171,12 +171,37 @@ mod tests {
         let barter: i64 = s.total.iter().filter_map(|l| l.barter.map(|b| b * l.short)).sum();
         assert!(barter > 0);
         assert_eq!(s.barter_short, barter);
-        // Bad picks name what's wrong.
-        let e = shopping(&[Pick::Mod { id: "headshotdamage".into(), maker: None }], &h, &p).unwrap_err();
-        assert_eq!(e, "Headshot Damage: pick the weapon maker");
-        let e = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 3, to: 3 }], &h, &p).unwrap_err();
-        assert!(e.contains("from grade 3 to 3"), "{e}");
-        assert!(shopping(&[Pick::Upgrade { gear: "nope".into(), from: 1, to: 2 }], &h, &p).is_err());
+    }
+
+    #[test]
+    fn a_bad_pick_is_reported_on_its_own_and_the_rest_still_count() {
+        let (h, p) = sample();
+        let good = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
+        let alone = shopping(std::slice::from_ref(&good), &h, &p);
+        let picks = [
+            Pick::Mod { id: "headshotdamage".into(), maker: None },
+            good,
+            Pick::Upgrade { gear: "maverick".into(), from: 3, to: 3 },
+            Pick::Upgrade { gear: "nope".into(), from: 1, to: 2 },
+            Pick::Mod { id: "renamedmod".into(), maker: Some("takada".into()) },
+        ];
+        let s = shopping(&picks, &h, &p);
+        let errors: Vec<Option<&str>> = s.picks.iter().map(|r| r.error.as_deref()).collect();
+        assert_eq!(
+            errors,
+            [
+                Some("Headshot Damage: pick the weapon maker"),
+                None,
+                Some("Maverick Suit: can't upgrade from grade 3 to 3"),
+                Some("unknown suit or weapon `nope`"),
+                Some("unknown modification `renamedmod`"),
+            ]
+        );
+        assert_eq!(s.picks[3].title, "nope grade 1 → 2");
+        assert_eq!(s.picks[4].title, "renamedmod (takada)");
+        assert!(s.picks.iter().filter(|r| r.error.is_some()).all(|r| r.lines.is_empty() && !r.ready));
+        // The good pick's list is as if it were alone.
+        assert_eq!((s.total, s.credits), (alone.total, alone.credits));
     }
 
     #[test]

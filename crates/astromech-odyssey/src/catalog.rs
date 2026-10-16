@@ -158,6 +158,26 @@ mod tests {
     }
 
     #[test]
+    fn every_unpriced_cost_is_listed_as_uncertain() {
+        let c = catalog();
+        let listed = |what: &str| c.uncertain.iter().any(|u| u.starts_with(what) && u.contains("credits"));
+        for g in c.suits.iter().chain(&c.weapons) {
+            for u in g.upgrades.iter().filter(|u| u.credits.is_none()) {
+                assert!(listed(&format!("{} grade {}", g.name, u.grade)), "{} grade {}", g.name, u.grade);
+            }
+        }
+        let mut unpriced = 0;
+        for m in &c.mods {
+            for _ in m.costs.iter().filter(|c| c.credits.is_none()) {
+                unpriced += 1;
+                assert!(listed(&m.name), "{}", m.name);
+            }
+        }
+        // Added Melee Damage's page lists materials but no credits line.
+        assert!(unpriced >= 1);
+    }
+
+    #[test]
     fn known_wiki_values() {
         let c = catalog();
         // Maverick grade 2: 1 Suit Schematic, 1 Health Monitor, 1 Manufacturing Instructions,

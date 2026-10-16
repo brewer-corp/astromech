@@ -5,6 +5,8 @@
   import {
     hasPick,
     loadOdyssey,
+    pickKey,
+    samePicks,
     loadShopping,
     MAKERS,
     savedPicks,
@@ -13,6 +15,7 @@
     type Need,
     type OdysseyView,
     type Pick,
+    type PickResult,
     type Shopping,
   } from "../../lib/odyssey";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -109,10 +112,25 @@
     savePicks($state.snapshot(picks) as Pick[]);
   }
 
-  function remove(i: number) {
-    picks = picks.filter((_, j) => j !== i);
+  function remove(p: Pick) {
+    picks = picks.filter((x) => pickKey(x) !== pickKey(p));
     savePicks($state.snapshot(picks) as Pick[]);
   }
+
+  function plainTitle(p: Pick): string {
+    if (p.kind === "upgrade") return `${view?.gear.find((g) => g.id === p.gear)?.name ?? p.gear} grade ${p.from} → ${p.to}`;
+    const name = view?.mods.find((m) => m.id === p.id)?.name ?? p.id;
+    return p.maker ? `${name} (${MAKERS[p.maker] ?? p.maker} weapons)` : name;
+  }
+
+  // The cards come from the saved picks when there is no list (it failed, or the preview has
+  // only the sample's), so every pick can still be removed.
+  // The list, if it is for the picks as they are now (not a reply from before a change).
+  const list = $derived(shop && samePicks(shop.picks.map((r) => r.pick), picks) ? shop : null);
+  const cards = $derived<PickResult[]>(
+    list?.picks ??
+      picks.map((p) => ({ pick: p, title: plainTitle(p), lines: [], credits: 0, credits_partial: false, fitted_by: [], ready: false, error: null })),
+  );
 
   const shortOf = (lines: Need[]) => lines.filter((l) => l.short > 0);
 </script>
@@ -203,42 +221,47 @@
     {#if shopError}<p class="sub">Couldn't work out the list: {shopError}</p>{/if}
     {#if !picks.length}
       <p class="lo">Pick a suit or weapon upgrade, or a modification, to see what it needs and what you're short of.</p>
-    {:else if shop}
+    {:else}
       <div class="picks">
-        {#each shop.picks as r, i (i)}
-          <article class="pick" class:ready={r.ready}>
+        {#each cards as r (pickKey(r.pick))}
+          <article class="pick" class:ready={r.ready} class:bad={!!r.error}>
             <header>
               <h3>{r.title}</h3>
-              <span class="lo">{r.credits.toLocaleString()}{r.credits_partial ? "+" : ""} CR</span>
-              <button class="x" aria-label={`Remove ${r.title}`} onclick={() => remove(i)}>Remove</button>
+              {#if list && !r.error}<span class="lo">{r.credits.toLocaleString()}{r.credits_partial ? "+" : ""} CR</span>{/if}
+              <button class="x" aria-label={`Remove ${r.title}`} onclick={() => remove(r.pick)}>Remove</button>
             </header>
-            {#if r.ready}
-              <p class="ok">Everything's in the locker.</p>
-            {:else}
-              <ul class="missing">
-                {#each shortOf(r.lines) as l (l.id)}
-                  <li><span>{l.name}</span><span class="q">{l.have} / {l.need}</span><span class="q short">−{l.short}</span></li>
-                {/each}
-              </ul>
-            {/if}
-            {#if r.fitted_by.length}
-              <p class="lo">Fitted by: {#each r.fitted_by as f, j (f.name)}{j ? ", " : ""}<span class:fit-on={f.unlocked}>{f.name}{f.unconfirmed ? " (?)" : ""}</span>{/each}</p>
-            {:else if r.pick.kind === "upgrade"}
-              <p class="lo">Upgraded at Pioneer Supplies.</p>
+            {#if r.error}
+              <p class="err">{r.error}. Remove it and pick again.</p>
+            {:else if list}
+              {#if r.ready}
+                <p class="ok">Everything's in the locker.</p>
+              {:else}
+                <ul class="missing">
+                  {#each shortOf(r.lines) as l (l.id)}
+                    <li><span>{l.name}</span><span class="q">{l.have} / {l.need}</span><span class="q short">−{l.short}</span></li>
+                  {/each}
+                </ul>
+              {/if}
+              {#if r.fitted_by.length}
+                <p class="lo">Fitted by: {#each r.fitted_by as f, j (f.name)}{j ? ", " : ""}<span class:fit-on={f.unlocked}>{f.name}{f.unconfirmed ? " (?)" : ""}</span>{/each}</p>
+              {:else if r.pick.kind === "upgrade"}
+                <p class="lo">Upgraded at Pioneer Supplies.</p>
+              {/if}
             {/if}
           </article>
         {/each}
       </div>
 
+      {#if list}
       <h3 class="list">Shopping list</h3>
       <p class="sub">
-        {shop.credits.toLocaleString()}{shop.credits_partial ? "+" : ""} CR
-        {#if shop.barter_short}· short assets are worth {shop.barter_short.toLocaleString()} barter at a bartender{/if}
+        {list.credits.toLocaleString()}{list.credits_partial ? "+" : ""} CR
+        {#if list.barter_short}· short assets are worth {list.barter_short.toLocaleString()} barter at a bartender{/if}
       </p>
       <table class="inv">
         <thead><tr><th>Item</th><th>Need</th><th>Have</th><th>Short</th><th>Barter each</th></tr></thead>
         <tbody>
-          {#each shop.total as l (l.id)}
+          {#each list.total as l (l.id)}
             <tr class:done={l.short === 0}>
               <td>{l.name} <span class="lo">{l.category}</span></td>
               <td class="q">{l.need}</td>
@@ -249,8 +272,9 @@
           {/each}
         </tbody>
       </table>
-    {:else if !shopError}
-      <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
+      {:else if !shopError}
+        <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
+      {/if}
     {/if}
   {/if}
 
@@ -312,6 +336,8 @@
   .missing { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-s); }
   .missing li { display: grid; grid-template-columns: 1fr 4rem 3rem; gap: 8px; }
   .ok { color: var(--accent); font-size: var(--fs-s); }
+  .err { color: var(--text); }
+  .pick.bad h3 { color: var(--text-lo); }
   .pick p, .eng p { margin: 6px 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
   h3.list { margin: 22px 0 4px; }

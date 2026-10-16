@@ -1,12 +1,27 @@
 // On foot page. The view and the sample shopping list come from the fixture astromech-odyssey's
 // dump-odyssey-fixture example writes (lib/fixtures/odyssey.json) from its synthetic ShipLocker,
 // Backpack and journal; the numbers below are what the crate's tests check.
-import { afterEach, beforeEach, expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
+import sample from "../../lib/fixtures/odyssey.json";
+import type { Pick, Shopping } from "../../lib/odyssey";
 import View from "./View.svelte";
 
-beforeEach(() => localStorage.clear());
+// null: the real preview behaviour (the sample list for the sample picks).
+let shopping: ((picks: Pick[]) => Promise<Shopping | null>) | null = null;
+
+vi.mock("../../lib/odyssey", async (importActual) => {
+  const real = await importActual<typeof import("../../lib/odyssey")>();
+  return { ...real, loadShopping: (picks: Pick[]) => (shopping ? shopping(picks) : real.loadShopping(picks)) };
+});
+
+beforeEach(() => {
+  localStorage.clear();
+  shopping = null;
+});
 afterEach(cleanup);
+
+const saved = () => JSON.parse(localStorage.getItem("astromech.odyssey.picks") ?? "[]") as Pick[];
 
 function row(name: string): string[] {
   const tr = screen.getByText(name).closest("tr")!;
@@ -82,4 +97,41 @@ it("shows engineer unlocks, the next step and the referral chain", async () => {
   const hero = screen.getByText("Hero Ferrari").closest("article") as HTMLElement;
   expect(within(hero).getByText("Visit Siris to unlock")).toBeTruthy();
   expect(hero.textContent).toContain("Increased Sprint Duration (?)");
+});
+
+it("keeps every saved pick removable when the list can't be worked out", async () => {
+  const stale: Pick = { kind: "mod", id: "renamedmod", maker: null };
+  localStorage.setItem("astromech.odyssey.picks", JSON.stringify([{ kind: "upgrade", gear: "maverick", from: 1, to: 3 }, stale]));
+  shopping = async () => {
+    throw new Error("journal folder not found");
+  };
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
+  expect(await screen.findByText(/Couldn't work out the list: Error: journal folder not found/)).toBeTruthy();
+  expect(screen.getByText("Maverick Suit grade 1 → 3")).toBeTruthy();
+  await fireEvent.click(screen.getByRole("button", { name: "Remove renamedmod" }));
+  expect(saved()).toEqual([{ kind: "upgrade", gear: "maverick", from: 1, to: 3 }]);
+});
+
+it("shows a pick the game data no longer has on its own card, and the rest of the list", async () => {
+  const good = sample.picks[0] as Pick;
+  const stale: Pick = { kind: "upgrade", gear: "oldsuit", from: 1, to: 2 };
+  localStorage.setItem("astromech.odyssey.picks", JSON.stringify([good, stale]));
+  const list = sample.shopping as unknown as Shopping;
+  shopping = async (picks) => ({
+    ...list,
+    picks: [
+      { ...list.picks[0]!, pick: picks[0]!, error: null },
+      { pick: picks[1]!, title: "oldsuit grade 1 → 2", lines: [], credits: 0, credits_partial: false, fitted_by: [], ready: false, error: "unknown suit or weapon `oldsuit`" },
+    ],
+  });
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
+  const bad = (await screen.findByText("oldsuit grade 1 → 2")).closest("article") as HTMLElement;
+  expect(bad.textContent).toContain("unknown suit or weapon `oldsuit`. Remove it and pick again.");
+  const ok = screen.getByText("Maverick Suit grade 1 → 3").closest("article") as HTMLElement;
+  expect(ok.querySelectorAll(".missing li")).toHaveLength(2);
+  expect(screen.getByText("Shopping list")).toBeTruthy();
+  await fireEvent.click(within(bad).getByRole("button", { name: "Remove oldsuit grade 1 → 2" }));
+  expect(saved()).toEqual([good]);
 });

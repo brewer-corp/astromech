@@ -91,6 +91,8 @@ export interface PickResult {
   credits_partial: boolean;
   fitted_by: FitBy[];
   ready: boolean;
+  /** Why this pick can't be costed; it adds nothing to the list. */
+  error: string | null;
 }
 
 export interface Shopping {
@@ -108,7 +110,7 @@ export async function loadOdyssey(): Promise<OdysseyView> {
   return await invoke<OdysseyView>("odyssey_view");
 }
 
-const pickKey = (p: Pick) => (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`);
+export const pickKey = (p: Pick) => (p.kind === "upgrade" ? `u:${p.gear}:${p.from}:${p.to}` : `m:${p.id}:${p.maker ?? ""}`);
 
 export function samePicks(a: Pick[], b: Pick[]): boolean {
   return a.length === b.length && a.every((p, i) => pickKey(p) === pickKey(b[i]!));

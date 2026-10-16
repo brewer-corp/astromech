@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Check the Odyssey game data against the game"
-updated_at: "2026-10-16T22:14:30.771392296+00:00"
+updated_at: "2026-10-16T22:33:31.666781527+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ Each uncertain value is confirmed or corrected (in scripts/gen-odyssey.py as an 
 ## Context
 
 Follow-up of astromech-j4c9.
+
+## Notes
+
+- 2026-10-16 [note] Review of astromech-j4c9 (R4, astromech-ra7z): two suspicious wiki weapon upgrade prices to check in game. Manticore Intimidator grade 2 at 60,000 CR (other Manticore G2 steps are in the hundreds of thousands), and Manticore Tormentor grade 2 at 500,000 CR against 750,000 CR at grade 3 (G2 vs G3 ratio unlike the other weapons). Both are in data/catalog/odyssey.json as the wiki gives them and are not yet in its uncertain list.

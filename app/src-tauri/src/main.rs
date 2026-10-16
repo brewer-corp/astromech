@@ -308,7 +308,7 @@ async fn odyssey_view(app: tauri::AppHandle) -> Result<Value, String> {
 async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::Pick>) -> Result<Value, String> {
     blocking(move || {
         let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
-        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p)?).map_err(|e| e.to_string())
+        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p)).map_err(|e| e.to_string())
     })
     .await
 }

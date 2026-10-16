@@ -26,6 +26,7 @@
       {
         "credits": 2850000,
         "credits_partial": false,
+        "error": null,
         "fitted_by": [],
         "lines": [
           {
@@ -86,6 +87,7 @@
       {
         "credits": 1000000,
         "credits_partial": false,
+        "error": null,
         "fitted_by": [
           {
             "name": "Oden Geiger",
@@ -158,6 +160,7 @@
       {
         "credits": 200000,
         "credits_partial": false,
+        "error": null,
         "fitted_by": [],
         "lines": [
           {
@@ -350,6 +353,7 @@
     "data_date": "2026-10-16",
     "data_source": "Elite Dangerous Wiki (elite-dangerous.fandom.com) and EDCD/FDevIDs, via scripts/gen-odyssey.py",
     "data_uncertain": [
+      "Added Melee Damage: credits not on the wiki",
       "Headshot Damage (Kinematic Armaments weapons): wiki links RDX to Greater Range",
       "Karma C-44 grade 4: credits not on the wiki",
       "Karma C-44 grade 5: credits not on the wiki",
@@ -364,9 +368,6 @@
       "engineer Rosa Dayette: Scope (the wiki's tables and mod pages disagree)",
       "engineer Rosa Dayette: Stability (the wiki's tables and mod pages disagree)",
       "item Crop Yield Analysis: sale value not on the wiki",
-      "item InSight Data Bank: sale value not on the wiki",
-      "item InSight Entertainment Suite: sale value not on the wiki",
-      "item InSight: sale value not on the wiki",
       "item Seed Genealogy: sale value not on the wiki",
       "item Spyware: sale value not on the wiki",
       "item Tactical Plans: sale value not on the wiki",
@@ -1951,7 +1952,7 @@
         "locker": 0,
         "mission": 0,
         "name": "InSight",
-        "value": null
+        "value": 15000
       },
       {
         "backpack": 0,
@@ -1961,7 +1962,7 @@
         "locker": 0,
         "mission": 0,
         "name": "InSight Data Bank",
-        "value": null
+        "value": 25000
       },
       {
         "backpack": 0,
@@ -1971,7 +1972,7 @@
         "locker": 0,
         "mission": 0,
         "name": "InSight Entertainment Suite",
-        "value": null
+        "value": 20000
       },
       {
         "backpack": 0,
