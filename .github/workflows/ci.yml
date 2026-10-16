@@ -62,6 +62,9 @@ jobs:
       - name: frontend build
         working-directory: app
         run: pnpm build
+      - name: frontend tests
+        working-directory: app
+        run: pnpm test
 
   windows:
     name: Windows (MSVC build + tests, app shell)

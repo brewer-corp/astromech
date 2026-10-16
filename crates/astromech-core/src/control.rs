@@ -34,6 +34,9 @@ pub struct Request {
     /// Argument for the voice tester: the phrase ("voice_test") or command id ("voice_test_live").
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
+    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub args: Option<Value>,
 }
 
 pub type Handler = Arc<dyn Fn(&Request) -> Value + Send + Sync>;
@@ -113,7 +116,7 @@ pub fn call(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Value> {
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).context("connecting to the core")?;
     s.set_read_timeout(Some(Duration::from_secs(10)))?;
-    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from), text: None };
+    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from), text: None, args: None };
     writeln!(s, "{}", serde_json::to_string(&req)?)?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line)?;
