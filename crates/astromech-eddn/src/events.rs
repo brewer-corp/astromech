@@ -60,7 +60,7 @@ pub type Outgoing = (&'static SchemaSpec, Value);
 #[derive(Debug, Default)]
 pub struct EventSchemas {
     signals: Vec<Value>,
-    /// `BodyName`/`BodyID` from the last `ApproachBody` or `Location`, cleared by `LeaveBody`
+    /// `Body`/`BodyID` from the last `ApproachBody` or `Location`, cleared by `LeaveBody`
     /// and `FSDJump`.
     journal_body: Option<(String, u64)>,
     /// `BodyName` from the latest `Status.json`.
@@ -137,9 +137,8 @@ impl EventSchemas {
     fn track_body(&mut self, event: &str, ev: &Value) {
         let body = |name_key: &str| Some((ev.get(name_key)?.as_str()?.to_owned(), ev.get("BodyID")?.as_u64()?));
         match event {
-            "ApproachBody" => self.journal_body = body("BodyName"),
-            // Location names its body `Body`.
-            "Location" => self.journal_body = body("Body"),
+            // Both name the body `Body` (journal manual); `BodyName` is a fallback.
+            "ApproachBody" | "Location" => self.journal_body = body("Body").or_else(|| body("BodyName")),
             "LeaveBody" | "FSDJump" => self.journal_body = None,
             _ => {}
         }
@@ -335,8 +334,9 @@ mod schema_tests {
     }
 
     fn approach(name: &str, id: u64) -> Value {
+        // The real shape: `Body` and `BodyID`, no `BodyName`.
         json!({"timestamp":"2026-10-16T12:08:30Z","event":"ApproachBody","StarSystem":"Shinrarta Dezhra",
-            "SystemAddress":SHINRARTA,"Body":name,"BodyName":name,"BodyID":id})
+            "SystemAddress":SHINRARTA,"Body":name,"BodyID":id})
     }
 
     #[test]
