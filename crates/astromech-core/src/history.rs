@@ -97,17 +97,20 @@ fn run(
     let mut history: Option<History> = None;
     let mut first = true;
     loop {
+        // Running from here: opening can migrate and rebuild the ledgers, which takes seconds.
+        p.lock().unwrap().running = true;
         if history.is_none() {
             match History::open(db) {
                 Ok(h) => history = Some(h),
                 Err(e) => {
                     log(&format!("history: can't open {}: {e}", db.display()));
-                    p.lock().unwrap().error = Some(e.to_string());
+                    let mut g = p.lock().unwrap();
+                    g.running = false;
+                    g.error = Some(e.to_string());
                 }
             }
         }
         if let Some(h) = history.as_mut() {
-            p.lock().unwrap().running = true;
             let r = h.import_with(dir, &ImportOptions::default(), |r| {
                 let mut g = p.lock().unwrap();
                 (g.files, g.lines, g.bytes, g.bytes_total) = (r.files, r.lines, r.bytes, r.bytes_total);

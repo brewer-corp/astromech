@@ -493,3 +493,26 @@ fn session_summary_totals() {
     assert_eq!((last.total, last.data_sold, last.trade_profit), (7221500, 5100000, 1500));
     assert!(h.session(None, Some("2020-01-01T00:00:00Z")).unwrap().is_none());
 }
+
+/// Part 2 of a session (`Fileheader` `part: 2` after `Continued`) doesn't name the commander;
+/// its lines still belong to the one part 1 named, on import and when commanders are
+/// recomputed from the stored lines.
+#[test]
+fn continuation_part_keeps_the_commander() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("history.sqlite");
+    let systems =
+        |h: &History| -> Vec<String> { h.visits("F0000003").unwrap().into_iter().map(|v| v.star_system).collect() };
+    {
+        let mut h = History::open(&db).unwrap();
+        h.import(&fixtures().join("continued"), &ImportOptions::default()).unwrap();
+        assert_eq!(systems(&h), ["Sol", "Alpha Centauri"]);
+        let unowned: i64 =
+            h.conn().query_row("SELECT COUNT(*) FROM events WHERE cmdr IS NULL", [], |r| r.get(0)).unwrap();
+        assert_eq!(unowned, 1, "only part 1's Fileheader");
+        h.conn().execute("INSERT INTO pending VALUES ('commanders')", []).unwrap();
+        h.conn().execute("UPDATE events SET cmdr = NULL", []).unwrap();
+    }
+    let h = History::open(&db).unwrap();
+    assert_eq!(systems(&h), ["Sol", "Alpha Centauri"]);
+}

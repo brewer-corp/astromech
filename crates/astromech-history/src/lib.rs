@@ -310,8 +310,10 @@ impl History {
     fn rederive_commanders(&mut self) -> Result<()> {
         let tx = self.conn.transaction()?;
         {
-            let mut files = tx.prepare("SELECT id FROM journal_files")?;
+            // Oldest first, so a continuation part can start from the part before it.
+            let mut files = tx.prepare("SELECT id FROM journal_files ORDER BY name")?;
             let ids: Vec<i64> = files.query_map([], |r| r.get(0))?.collect::<rusqlite::Result<_>>()?;
+            let mut previous = FileCommander::default();
             let mut events = tx.prepare("SELECT id, json FROM events WHERE file_id = ?1 ORDER BY offset")?;
             let mut set = tx.prepare("UPDATE events SET cmdr = ?2 WHERE id = ?1")?;
             for file_id in ids {
@@ -320,6 +322,9 @@ impl History {
                 while let Some(r) = rows.next()? {
                     let json: String = r.get(1)?;
                     if let Ok(line) = parse_line(&json) {
+                        if commander::continues(&line) {
+                            state = previous.clone();
+                        }
                         state.observe(&line);
                     }
                     set.execute(params![r.get::<_, i64>(0)?, state.cmdr])?;
@@ -328,6 +333,7 @@ impl History {
                     "UPDATE journal_files SET cmdr = ?2, legacy = ?3 WHERE id = ?1",
                     params![file_id, state.cmdr, state.legacy],
                 )?;
+                previous = state;
             }
         }
         rebuild(&tx)?;
@@ -357,6 +363,7 @@ impl History {
         self.run_pending()?;
         let mut report = ImportReport::default();
         let mut todo = vec![];
+        let mut previous: Option<i64> = None;
         for path in astromech_journal::journal_logs(dir) {
             let len = std::fs::metadata(&path).map_err(|source| HistoryError::Io { path: path.clone(), source })?.len();
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
@@ -365,14 +372,15 @@ impl History {
                 report.shrunk.push(name);
             } else if len > start {
                 report.bytes_total += len - start;
-                todo.push((path, file_id, start, state));
+                todo.push((path, file_id, start, state, previous));
             }
+            previous = Some(file_id);
         }
         progress(&report);
         let mut seen = 0u64;
         // Per commander, the newest event time its ledgers hold.
         let mut newest: HashMap<String, String> = HashMap::new();
-        for (path, file_id, start, mut state) in todo {
+        for (path, file_id, start, mut state, previous) in todo {
             let io = |source| HistoryError::Io { path: path.clone(), source };
             let mut file = std::fs::File::open(&path).map_err(io)?;
             file.seek(SeekFrom::Start(start)).map_err(io)?;
@@ -402,6 +410,13 @@ impl History {
                 if !text.is_empty() {
                     match parse_line(text) {
                         Ok(line) => {
+                            if commander::continues(&line) {
+                                // Part 2+ of a session doesn't name the commander again.
+                                state = match previous {
+                                    Some(id) => commander_at_end(&tx, id)?,
+                                    None => FileCommander::default(),
+                                };
+                            }
                             state.observe(&line);
                             if let Some(id) = insert_event(&tx, file_id, offset, state.cmdr.as_deref(), &line)? {
                                 if let Some(cmdr) = &state.cmdr {
@@ -447,7 +462,7 @@ impl History {
         Ok(report)
     }
 
-    /// Recompute every ledger from `events`, in import order.
+    /// Recompute every ledger from `events`, in game-time order.
     pub fn rebuild_ledgers(&mut self) -> Result<()> {
         let tx = self.conn.transaction()?;
         rebuild(&tx)?;
@@ -499,6 +514,13 @@ fn set_progress(c: &Connection, file_id: i64, offset: u64, new_lines: u64, state
     c.prepare_cached("UPDATE journal_files SET offset = ?2, lines = lines + ?3, cmdr = ?4, legacy = ?5 WHERE id = ?1")?
         .execute(params![file_id, offset as i64, new_lines as i64, state.cmdr, state.legacy])?;
     Ok(())
+}
+
+/// The commander state at the end of what was imported from file `file_id`.
+fn commander_at_end(c: &Connection, file_id: i64) -> Result<FileCommander> {
+    Ok(c.query_row("SELECT cmdr, legacy FROM journal_files WHERE id = ?1", [file_id], |r| {
+        Ok(FileCommander { cmdr: r.get(0)?, legacy: r.get(1)? })
+    })?)
 }
 
 /// Newest event time stored for `cmdr` before event `id`.

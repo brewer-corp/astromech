@@ -3,7 +3,8 @@
 //! A journal file names its commander near the top (`Commander`, then `LoadGame`, both with
 //! the Frontier id `FID`), and can name another one later after a return to the main menu.
 //! Lines are attributed to the commander named last in the same file; lines before that
-//! (`Fileheader`) have none.
+//! (`Fileheader`) have none. A continuation part (`Fileheader` `part` > 1) starts from the
+//! commander the previous part ended with.
 //!
 //! The key is the `FID` (or `name:<Commander>` in journals old enough to lack it). Legacy-mode
 //! journals (game 3.x after Update 14 split the galaxies on 29 Nov 2022) get `/legacy` on
@@ -46,6 +47,16 @@ impl FileCommander {
         };
         self.cmdr = Some(if self.legacy { format!("{base}{LEGACY_SUFFIX}") } else { base });
     }
+}
+
+/// A `Fileheader` with `part` > 1: the game started a new file mid-session (after
+/// `Continued`) and won't name the commander again, so it carries on from the previous part.
+pub(crate) fn continues(line: &JournalLine) -> bool {
+    matches!(line.event, JournalEvent::FileHeader { .. })
+        && serde_json::from_str::<serde_json::Value>(&line.raw_json)
+            .ok()
+            .and_then(|v| v.get("part").and_then(|p| p.as_i64()))
+            .is_some_and(|p| p > 1)
 }
 
 /// `FID` from a `LoadGame` line (the typed event doesn't keep it).
