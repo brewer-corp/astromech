@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:35:59.069050092+00:00"
+status: "done"
 title: "Type the journal events the toolbox work needs"
-updated_at: "2026-10-15T20:36:13.651279078+00:00"
+updated_at: "2026-10-16T18:46:13.844119737+00:00"
 ---
 
 ## Goal
@@ -40,3 +41,11 @@ Events: `Market`, `Outfitting`, `Shipyard`, `Cargo`, `MarketBuy`/`MarketSell`, `
 
 Journal manual v35 (July 2022) is the last published version; check newer fields against
 real logs. Partly built: the 15 events above.
+
+## Notes
+
+- 2026-10-16 [note] Scope as built: of the Carrier* family only CarrierStats, CarrierJumpRequest, CarrierJumpCancelled and CarrierJump (the existing FsdJump variant) are typed; of Colonisation* only ColonisationConstructionDepot and ColonisationContribution. The rest are filed as a backlog task.
+
+## Close Reason
+
+Typed the toolbox events as JournalEvent::Extra(ExtraEvent); JournalLine.raw_json keeps the original line; per-event and byte-for-byte tests pass.

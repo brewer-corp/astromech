@@ -9,9 +9,13 @@
 //! - Because Windows may not report appends to a file the game keeps open until it flushes
 //!   metadata, every Status.json notification (several per second in game) also reads the
 //!   journal tail. ⚠ Unverified on the real game how often that is needed.
+//! - Companion files (`Market.json`, ...): read after the journal event that announces them,
+//!   once (no waiting: that would stall the journal). A file that is missing or older than its
+//!   event is logged and not used; it is tried again when the game next writes that file.
 
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
+use astromech_journal::companion::{load, triggers, CompanionKind, Trigger};
 use notify::{RecursiveMode, Watcher};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -84,6 +88,9 @@ pub struct Stats {
     pub journal_lines: u64,
     pub bad_lines: u64,
     pub rollovers: u64,
+    /// Companion files read and kept / reported as missing, half-written or older than their event.
+    pub companions_read: u64,
+    pub companions_unused: u64,
 }
 
 pub struct Pipeline {
@@ -109,20 +116,59 @@ struct Tailer {
     tail: Option<JournalTail>,
     stats: Arc<std::sync::Mutex<Stats>>,
     log: Box<dyn Fn(&str) + Send>,
+    /// Companion events whose file was not usable yet; tried again when the game touches the file.
+    pending: Vec<Trigger>,
 }
 
 impl Tailer {
+    /// Apply journal lines to the state, then read the companion files their events announced.
     fn apply_lines(&mut self, lines: Vec<String>) {
-        let mut st = self.stats.lock().unwrap();
-        for l in lines {
-            match astromech_journal::parse_line(&l) {
-                Ok(j) => {
-                    st.journal_lines += 1;
-                    self.hub.apply_journal(&j.event);
+        let mut parsed = Vec::with_capacity(lines.len());
+        {
+            let mut st = self.stats.lock().unwrap();
+            for l in lines {
+                match astromech_journal::parse_line(&l) {
+                    Ok(j) => {
+                        st.journal_lines += 1;
+                        self.hub.apply_journal(&j.event);
+                        parsed.push(j);
+                    }
+                    Err(_) => st.bad_lines += 1,
                 }
-                Err(_) => st.bad_lines += 1,
             }
         }
+        // Events first, files after: a slow file never delays the journal state.
+        let found = triggers(&parsed);
+        if !found.is_empty() {
+            self.pending.retain(|p| !found.iter().any(|t| t.kind == p.kind));
+            self.load_companions(found);
+        }
+    }
+
+    fn load_companions(&mut self, found: Vec<Trigger>) {
+        let (files, reports) = load(&self.dir, &found);
+        {
+            let mut st = self.stats.lock().unwrap();
+            st.companions_read += files.len() as u64;
+            st.companions_unused += reports.len() as u64;
+        }
+        for f in files {
+            self.hub.update(|g| g.apply_companion(f));
+        }
+        for r in reports {
+            (self.log)(&format!("companion file {r}"));
+            self.pending.push(Trigger { kind: r.kind, event_ts: r.event_ts });
+        }
+    }
+
+    /// The game wrote one of these files: try the events that were waiting for it.
+    fn on_companion_files(&mut self, kinds: &[CompanionKind]) {
+        let waiting: Vec<Trigger> = self.pending.iter().filter(|p| kinds.contains(&p.kind)).cloned().collect();
+        if waiting.is_empty() {
+            return;
+        }
+        self.pending.retain(|p| !kinds.contains(&p.kind));
+        self.load_companions(waiting);
     }
 
     fn save(&self) {
@@ -206,7 +252,15 @@ pub fn start(
         None => None,
     };
     let stats = Arc::new(std::sync::Mutex::new(Stats::default()));
-    let mut t = Tailer { dir: dir.to_path_buf(), hub, store, tail: None, stats: stats.clone(), log: Box::new(log) };
+    let mut t = Tailer {
+        dir: dir.to_path_buf(),
+        hub,
+        store,
+        tail: None,
+        stats: stats.clone(),
+        log: Box::new(log),
+        pending: vec![],
+    };
     if let Some(n) = astromech_journal::newest_journal(dir) {
         t.open(n, true);
     } else {
@@ -228,30 +282,34 @@ pub fn start(
                 };
                 let mut status = false;
                 let mut journal = false;
-                for p in &ev.paths {
-                    let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-                    if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
-                        status = true;
-                    } else if is_journal(p) {
-                        journal = true;
-                    }
-                }
-                // Coalesce a burst of notifications.
-                while let Ok(Ok(e)) = rx.try_recv() {
-                    for p in &e.paths {
+                let mut companions: Vec<CompanionKind> = vec![];
+                let mut classify = |paths: &[PathBuf]| {
+                    for p in paths {
                         let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
                         if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
                             status = true;
+                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
+                            if !companions.contains(&k) {
+                                companions.push(k);
+                            }
                         } else if is_journal(p) {
                             journal = true;
                         }
                     }
+                };
+                classify(&ev.paths);
+                // Coalesce a burst of notifications.
+                while let Ok(Ok(e)) = rx.try_recv() {
+                    classify(&e.paths);
                 }
                 if status {
                     t.on_status();
                 }
                 if journal || status {
                     t.on_journal_activity();
+                }
+                if !companions.is_empty() {
+                    t.on_companion_files(&companions);
                 }
             }
         })
@@ -279,5 +337,57 @@ mod tests {
         let l = t.read_new();
         assert_eq!(l, vec!["{\"timestamp\":\"t\",\"event\":\"B\"}".to_string()]);
         assert!(t.committed() > c);
+    }
+
+    fn tailer(dir: &Path) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
+        let hub = Arc::new(StateHub::new());
+        let logs = Arc::new(std::sync::Mutex::new(vec![]));
+        let l2 = logs.clone();
+        let t = Tailer {
+            dir: dir.to_path_buf(),
+            hub: hub.clone(),
+            store: None,
+            tail: None,
+            stats: Arc::new(std::sync::Mutex::new(Stats::default())),
+            log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
+            pending: vec![],
+        };
+        (t, hub, logs)
+    }
+
+    const MARKET_EVENT: &str =
+        r#"{"timestamp":"2026-10-10T20:00:05Z","event":"Market","MarketID":7,"StationName":"S","StarSystem":"Sys"}"#;
+    const MARKET_FILE: &str = r#"{"timestamp":"2026-10-10T20:00:05Z","event":"Market","MarketID":7,"StationName":"S","StarSystem":"Sys","Items":[]}"#;
+
+    #[test]
+    fn companion_file_is_read_after_its_event() {
+        let d = tempfile::tempdir().unwrap();
+        std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
+        let (mut t, hub, logs) = tailer(d.path());
+        t.apply_lines(vec![MARKET_EVENT.into()]);
+        assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
+        assert!(logs.lock().unwrap().is_empty());
+        assert_eq!(t.stats.lock().unwrap().companions_read, 1);
+    }
+
+    #[test]
+    fn missing_or_stale_file_is_logged_then_used_once_the_game_writes_it() {
+        let d = tempfile::tempdir().unwrap();
+        let (mut t, hub, logs) = tailer(d.path());
+        t.apply_lines(vec![MARKET_EVENT.into()]);
+        assert!(hub.snapshot().companions.market.is_none());
+        assert!(logs.lock().unwrap()[0].contains("Market.json") && logs.lock().unwrap()[0].contains("missing"));
+        // Last visit's file: reported again, still not used.
+        let old = MARKET_FILE.replace("20:00:05", "19:00:05");
+        std::fs::write(d.path().join("Market.json"), old).unwrap();
+        t.on_companion_files(&[CompanionKind::Market]);
+        assert!(hub.snapshot().companions.market.is_none());
+        assert!(logs.lock().unwrap()[1].contains("older"));
+        // The game finishes the write.
+        std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
+        t.on_companion_files(&[CompanionKind::Market]);
+        assert!(hub.snapshot().companions.market.is_some());
+        assert!(t.pending.is_empty());
+        assert_eq!(t.stats.lock().unwrap().companions_unused, 2);
     }
 }
