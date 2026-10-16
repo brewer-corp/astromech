@@ -8,15 +8,21 @@
 //!   data stripped, per-schema elisions ([`SchemaSpec`]), the augmentation cross-check, gzip and
 //!   the 1 MiB limit;
 //! - [`outbox`]: the SQLite outbox with retry and backoff, and the send log Diagnostics shows;
-//! - [`transport`]: the HTTP upload, behind a trait.
+//! - [`transport`]: the HTTP upload, behind a trait;
+//! - [`companion`]: commodity/3, outfitting/2 and shipyard/2 from `Market.json`, `Outfitting.json`
+//!   and `Shipyard.json`.
 //!
 //! Each schema slice (commodity/3, journal/1, …) defines its [`SchemaSpec`] and maps its journal
 //! event to the schema's shape before calling [`Sender::submit`].
 
+pub mod companion;
 pub mod context;
 pub mod message;
 pub mod outbox;
 pub mod transport;
+
+#[cfg(test)]
+pub(crate) mod testutil;
 
 pub use context::{GameContext, SystemFix};
 pub use message::{Augment, Dropped, Elision, SchemaSpec, Software, SystemField};

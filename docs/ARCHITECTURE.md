@@ -242,7 +242,8 @@ astromech/
                          with the global rules (live-only, *_Localised and commander data stripped,
                          header from Fileheader/LoadGame, flags never null, augmentation cross-check),
                          per-schema SchemaSpec elisions, SQLite outbox (eddn.sqlite) with retry and
-                         backoff, /test schemas, send log shown in Diagnostics
+                         backoff, /test schemas, send log shown in Diagnostics; commodity/3,
+                         outfitting/2 and shipyard/2 built from the companion files' JSON
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
