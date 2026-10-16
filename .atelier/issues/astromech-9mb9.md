@@ -4,6 +4,9 @@ id: "astromech-9mb9"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-9mb9
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Open the current ship in Coriolis or EDSY, and link out to Inara/Spansh"
-updated_at: "2026-10-15T20:36:13.660048378+00:00"
+updated_at: "2026-10-16T18:55:36.769082024+00:00"
 ---
 
 ## Goal
