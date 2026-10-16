@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Show and refresh faction-state freshness"
-updated_at: "2026-10-15T20:36:13.650677537+00:00"
+updated_at: "2026-10-16T21:59:40.523523450+00:00"
 ---
 
 ## Goal
