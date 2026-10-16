@@ -25,9 +25,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:44:16.114284670+00:00"
+status: "done"
 title: "Switch text-to-speech to Kokoro v1.0"
-updated_at: "2026-10-16T18:27:57.077247515+00:00"
+updated_at: "2026-10-16T18:44:16.114284670+00:00"
 ---
 
 ## Goal
@@ -49,3 +50,7 @@ Voice blending is out of scope.
 ## Context
 
 `crates/astromech-voice/src/catalog.rs` (`TTS_KOKORO_EN*`), `models.rs`, `crates/astromech-core/src/config.rs` (`speaker_id`) and `speech.rs`. The speech cache key includes the speaker, so add the model version to it, or clear the cache on the switch. Unverified: the package size, and whether the bundled Chinese lexicon matters. Decided by Sumeet on 2026-10-16 (astromech-rnwk).
+
+## Close Reason
+
+Kokoro v1.0 (fp32 and int8, pinned SHA-256s, 54-voice list) is in the catalog and loads in the worker; the voice is configured by name (default bf_emma) with v0.19 speaker_id migration; a v0.19 install downloads v1.0 on startup and deletes the v0.19 folders afterwards. All 8 British voices rendered through TtsSpeaker on Linux and transcribed by Parakeet (evidence).
