@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T22:29:24.654652876+00:00"
+status: "done"
 title: "Command palette (Ctrl+K)"
-updated_at: "2026-10-16T22:19:23.236328869+00:00"
+updated_at: "2026-10-16T22:29:24.654652876+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ From any page, Ctrl+K then a module name opens its nearby search (UI check).
 ## Context
 
 [ARCHITECTURE §18.2](docs/ARCHITECTURE.md).
+
+## Close Reason
+
+Ctrl+K from any page opens a palette of every page plus materials and the fleet's ships, fitted modules, blueprints and experimentals; Enter opens the route with the item selected, a material landing on its nearby search (UI-checked in the browser preview: Powerplay -> 'proto heat' -> #/materials/protoheatradiators with Nearest shown). Systems, stations and commodities have no landing page yet (astromech-4c6q, xqdl, tw2y). Review outstanding.
