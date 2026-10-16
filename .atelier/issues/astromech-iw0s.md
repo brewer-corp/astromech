@@ -7,7 +7,9 @@ labels:
 - "size-s"
 priority: "P2"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-um0g"
   children: []
   attachments: []
   relates: []

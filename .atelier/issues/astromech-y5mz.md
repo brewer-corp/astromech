@@ -28,7 +28,7 @@ A harness that measures the app window's cost: memory idle and in use, frame-tim
 
 ## Done when
 
-One command runs the measurements and writes a report against each budget; it runs on a dev machine without Elite (evidence).
+One command runs the measurements and writes a report against each budget. It's built and tested on Linux against WebKitGTK (evidence); its first WebView2 run is on Windows in astromech-7ck3.
 
 ## Context
 
