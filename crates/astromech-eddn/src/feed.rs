@@ -1,0 +1,445 @@
+//! What the core drives: every journal event in order, `Status.json`, and the companion files
+//! the events announce. The feed works out which schemas each one goes to, queues the messages,
+//! writes every skip to the send log, and wakes the delivery [`Worker`].
+//!
+//! Only live data is sent. The core replays the current journal from its `Fileheader` at
+//! startup to rebuild state; those events are fed with `live: false`, so the header, flags,
+//! commander and last system are right, but nothing from them is queued. EDDN's consumers
+//! take a message as what the game shows now, and a catch-up of an hour-old journal (or one
+//! from the last session) would publish stale prices and positions as current. A journal the
+//! game starts while astromech runs is live from its first line.
+//!
+//! Companion files (`Market.json`, `NavRoute.json`, ...) are sent only for a live event: the
+//! event is remembered until the core hands over its file.
+
+use crate::companion::{self, game_timestamp, Unusable, SEND_OUTFITTING};
+use crate::events::{self, Built, EventSchemas, Skipped};
+use crate::journal;
+use crate::message::{SchemaSpec, Software};
+use crate::outbox::Outbox;
+use crate::transport::Transport;
+use crate::worker::{Courier, Worker};
+use crate::Sender;
+use serde_json::Value;
+use std::collections::HashMap;
+use std::path::Path;
+use std::sync::Arc;
+use std::time::Instant;
+
+type Log = Arc<dyn Fn(&str) + Send + Sync>;
+
+/// The journal events whose data is in a companion file, and the schema each feeds.
+fn companion_spec(event: &str) -> Option<&'static SchemaSpec> {
+    Some(match event {
+        "Market" => &companion::COMMODITY,
+        "Outfitting" => &companion::OUTFITTING,
+        "Shipyard" => &companion::SHIPYARD,
+        "NavRoute" => &events::NAV_ROUTE,
+        "FCMaterials" => &events::FC_MATERIALS_JOURNAL,
+        _ => return None,
+    })
+}
+
+pub struct Feed {
+    sender: Sender,
+    events: EventSchemas,
+    /// Live companion events waiting for their file, by event name.
+    awaiting: HashMap<String, Value>,
+    /// The last event was live (so a run of signals pending from the replay has been dropped).
+    live: bool,
+    worker: Option<Worker>,
+    /// The app log, for what can't go in the send log (the outbox itself failing).
+    log: Log,
+}
+
+impl Feed {
+    /// A feed that only queues (tests, or delivery run elsewhere).
+    pub fn new(sender: Sender) -> Self {
+        Self {
+            sender,
+            events: EventSchemas::default(),
+            awaiting: HashMap::new(),
+            live: false,
+            worker: None,
+            log: Arc::new(|_: &str| {}),
+        }
+    }
+
+    /// Open the outbox at `db` twice (one connection queues, the worker's delivers) and start
+    /// delivering over `transport`. `test` sends to the `/test` schemas.
+    pub fn start(
+        db: &Path,
+        software: Software,
+        test: bool,
+        transport: Box<dyn Transport + Send>,
+        log: impl Fn(&str) + Send + Sync + 'static,
+    ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let log: Log = Arc::new(log);
+        let sender = Sender::new(Outbox::open(db)?, software, test);
+        let courier = Courier::new(Outbox::open(db)?, transport, Instant::now());
+        let worker_log = log.clone();
+        let worker = Worker::spawn(courier, move |m| worker_log(m))?;
+        Ok(Self { worker: Some(worker), log, ..Self::new(sender) })
+    }
+
+    /// One journal event (raw JSON), in order. `live` is false while replaying a journal that
+    /// was written before astromech started.
+    pub fn journal(&mut self, ev: &Value, live: bool, now: i64) {
+        // Observe before routing: an Odyssey client writes a system's signals before the
+        // FSDJump that arrives there, and the batch must be checked against the new system.
+        self.sender.observe(ev);
+        let name = ev.get("event").and_then(Value::as_str).unwrap_or_default();
+        if !live {
+            // Keep the schemas' own state (the body for codexentry) but send nothing.
+            let _ = self.events.on_event(ev, &self.sender.ctx);
+            self.awaiting.remove(name);
+            return;
+        }
+        if !self.live {
+            // A signal run that began in the replay isn't sent.
+            let _ = self.events.flush(&self.sender.ctx);
+            self.live = true;
+        }
+        let mut built = self.events.on_event(ev, &self.sender.ctx);
+        built.extend(journal::message(ev));
+        if let Some(spec) = companion_spec(name) {
+            if name == "Outfitting" && !SEND_OUTFITTING {
+                built.push(Err(Skipped {
+                    spec,
+                    reason: "outfitting/2 is off until PowerPlay and tech-broker modules are filtered".into(),
+                }));
+            } else {
+                self.awaiting.insert(name.to_owned(), ev.clone());
+            }
+        }
+        self.queue(built, now);
+    }
+
+    /// Every `Status.json` the game writes.
+    pub fn status(&mut self, status: &Value) {
+        self.events.observe_status(status);
+    }
+
+    /// Is a live `event` (`Market`, `NavRoute`, ...) waiting for its file?
+    pub fn awaiting(&self, event: &str) -> bool {
+        self.awaiting.contains_key(event)
+    }
+
+    /// The companion file for a live `event`, as read. Ignored unless that event is waiting. A
+    /// file older than the event is the last one, not this event's: the event keeps waiting
+    /// for the game to write the new one. Anything else unusable is logged and the event dropped.
+    pub fn companion_file(&mut self, event: &str, file: &Value, now: i64) {
+        let (Some(ev), Some(spec)) = (self.awaiting.get(event), companion_spec(event)) else {
+            return;
+        };
+        if let (Some(f), Some(e)) = (game_timestamp(file), game_timestamp(ev)) {
+            if f < e {
+                return;
+            }
+        }
+        let ev = self.awaiting.remove(event).expect("checked above");
+        let built: Result<_, Unusable> = match event {
+            "NavRoute" => events::navroute(&ev, file),
+            "FCMaterials" => events::fcmaterials(&ev, file),
+            _ => companion::message(&ev, file),
+        };
+        self.queue(vec![built.map_err(|u| Skipped { spec, reason: u.to_string() })], now);
+    }
+
+    /// Send a pending signal run now: at the end of a journal, and on shutdown.
+    pub fn flush(&mut self, now: i64) {
+        if self.live {
+            let run = self.events.flush(&self.sender.ctx);
+            self.queue(run.into_iter().map(Ok).collect(), now);
+        }
+    }
+
+    pub fn sender(&self) -> &Sender {
+        &self.sender
+    }
+
+    fn queue(&mut self, built: Vec<Built>, now: i64) {
+        let mut queued = false;
+        for b in built {
+            let r = match b {
+                Ok((spec, msg)) => self.sender.submit(spec, msg, now).map(|r| queued |= r.is_ok()),
+                Err(s) => self.sender.skip(s.spec, &s.reason, now),
+            };
+            // The outbox is unwritable (disk full, locked for longer than the busy timeout):
+            // this message is lost, which EDDN prefers to a late or wrong one.
+            if let Err(e) = r {
+                (self.log)(&format!("EDDN outbox: {e}"));
+            }
+        }
+        if queued {
+            if let Some(w) = &self.worker {
+                w.wake();
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::message::gunzip;
+    use crate::outbox::tests::{status, FakeTransport};
+    use crate::testutil::{fixture, software, SHINRARTA, SHINRARTA_POS};
+    use crate::transport::Response;
+    use serde_json::json;
+    use std::sync::mpsc::{channel, Receiver, Sender as Tx};
+    use std::sync::Mutex;
+    use std::time::Duration;
+
+    const T0: &str = "2026-10-16T11:59:00Z";
+
+    fn feed() -> Feed {
+        Feed::new(Sender::new(Outbox::in_memory().unwrap(), software(), false))
+    }
+
+    /// A session's opening lines: header, commander, location.
+    fn session(build: &str, cmdr: &str) -> Vec<Value> {
+        vec![
+            json!({"timestamp":T0,"event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":build}),
+            json!({"timestamp":T0,"event":"Commander","Name":cmdr,"FID":"F1"}),
+            json!({"timestamp":T0,"event":"LoadGame","Commander":cmdr,"FID":"F1","Horizons":true,"Odyssey":true}),
+            location(),
+        ]
+    }
+
+    fn location() -> Value {
+        json!({"timestamp":T0,"event":"Location","StarSystem":"Shinrarta Dezhra","SystemAddress":SHINRARTA,
+            "StarPos":SHINRARTA_POS,"Body":"Shinrarta Dezhra A","BodyID":1,"BodyType":"Star"})
+    }
+
+    fn docked(ts: &str) -> Value {
+        json!({"timestamp":ts,"event":"Docked","StationName":"Jameson Memorial","MarketID":128666762u64,
+            "StarSystem":"Shinrarta Dezhra","SystemAddress":SHINRARTA,"StationType":"Orbis"})
+    }
+
+    fn market_event(ts: &str) -> Value {
+        json!({"timestamp":ts,"event":"Market","MarketID":128666762u64,"StationName":"Jameson Memorial",
+            "StarSystem":"Shinrarta Dezhra"})
+    }
+
+    fn signal(ts: &str) -> Value {
+        json!({"timestamp":ts,"event":"FSSSignalDiscovered","SystemAddress":SHINRARTA,"SignalName":"Beacon"})
+    }
+
+    fn feed_all(f: &mut Feed, evs: &[Value], live: bool) {
+        for ev in evs {
+            f.journal(ev, live, 100);
+        }
+    }
+
+    /// Deliver everything queued and return the uploads, oldest first.
+    fn sent(f: &Feed) -> Vec<Value> {
+        let n = f.sender().outbox().pending().unwrap();
+        let t = FakeTransport::new((0..n).map(|_| status(200)));
+        f.sender().outbox().deliver_due(&t, 100, true).unwrap();
+        let ups = t.posted.borrow().iter().map(|b| gunzip(b)).collect();
+        ups
+    }
+
+    fn schemas(ups: &[Value]) -> Vec<String> {
+        ups.iter().map(|u| u["$schemaRef"].as_str().unwrap().rsplit("schemas/").next().unwrap().to_owned()).collect()
+    }
+
+    fn log(f: &Feed) -> Vec<(String, String)> {
+        let mut l: Vec<_> =
+            f.sender().outbox().recent(100).unwrap().into_iter().map(|e| (e.outcome, e.detail)).collect();
+        l.reverse();
+        l
+    }
+
+    #[test]
+    fn a_replayed_journal_sets_the_context_but_sends_nothing() {
+        let mut f = feed();
+        let mut replay = session("r1 ", "Jameson");
+        replay.extend([docked("2026-10-16T12:00:00Z"), market_event("2026-10-16T12:00:01Z")]);
+        replay.push(json!({"timestamp":"2026-10-16T12:00:02Z","event":"Scan","SystemAddress":SHINRARTA}));
+        feed_all(&mut f, &replay, false);
+        f.companion_file("Market", &fixture("Market.json"), 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "nothing from the catch-up is queued");
+        assert!(log(&f).is_empty(), "and nothing is logged as skipped either");
+
+        // The first live line is sent with the header, flags and commander from the replay.
+        f.journal(&docked("2026-10-16T12:05:00Z"), true, 100);
+        let ups = sent(&f);
+        assert_eq!(schemas(&ups), ["journal/1"]);
+        assert_eq!(ups[0]["header"]["uploaderID"], "Jameson");
+        assert_eq!(
+            (&ups[0]["header"]["gameversion"], &ups[0]["header"]["gamebuild"]),
+            (&json!("4.0.0.1904"), &json!("r1 "))
+        );
+        assert_eq!((&ups[0]["message"]["horizons"], &ups[0]["message"]["odyssey"]), (&json!(true), &json!(true)));
+        assert_eq!(ups[0]["message"]["StarPos"], json!(SHINRARTA_POS), "augmented from the replayed Location");
+    }
+
+    #[test]
+    fn a_new_journal_is_read_from_its_fileheader() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        // The game starts a new session while astromech runs: that journal is live throughout.
+        feed_all(&mut f, &session("r2 ", "Other"), true);
+        f.journal(&docked("2026-10-16T13:00:00Z"), true, 100);
+        let ups = sent(&f);
+        assert_eq!(schemas(&ups), ["journal/1", "journal/1"], "Location, then Docked");
+        for u in &ups {
+            assert_eq!((&u["header"]["uploaderID"], &u["header"]["gamebuild"]), (&json!("Other"), &json!("r2 ")));
+        }
+    }
+
+    #[test]
+    fn a_live_journal_without_its_fileheader_sends_nothing() {
+        let mut f = feed();
+        f.journal(&docked("2026-10-16T12:05:00Z"), true, 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0);
+        assert_eq!(log(&f), [("dropped".into(), "game version not known yet".into())]);
+    }
+
+    #[test]
+    fn companion_files_are_sent_only_for_live_events() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&market_event("2026-10-16T12:00:00Z"), false, 100);
+        assert!(!f.awaiting("Market"));
+        f.companion_file("Market", &fixture("Market.json"), 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0);
+
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, 100);
+        assert!(f.awaiting("Market"));
+        // Last visit's file: the event keeps waiting for the new one, and nothing is logged.
+        let mut old = fixture("Market.json");
+        old["timestamp"] = json!("2026-10-16T11:00:00Z");
+        f.companion_file("Market", &old, 100);
+        assert!(f.awaiting("Market"));
+        assert!(log(&f).is_empty());
+        f.companion_file("Market", &fixture("Market.json"), 100);
+        assert!(!f.awaiting("Market"));
+        // The same file again (the game rewrote it) sends nothing more.
+        f.companion_file("Market", &fixture("Market.json"), 100);
+        assert_eq!(schemas(&sent(&f)), ["commodity/3"]);
+    }
+
+    #[test]
+    fn an_unusable_companion_file_is_logged() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, 100);
+        let mut other = fixture("Market.json");
+        other["MarketID"] = json!(1);
+        f.companion_file("Market", &other, 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0);
+        let l = f.sender().outbox().recent(1).unwrap();
+        assert_eq!(
+            (l[0].outcome.as_str(), l[0].schema_ref.as_str()),
+            ("dropped", "https://eddn.edcd.io/schemas/commodity/3")
+        );
+        assert!(l[0].detail.contains("MarketID"), "{}", l[0].detail);
+        assert!(!f.awaiting("Market"));
+    }
+
+    #[test]
+    fn outfitting_is_not_sent_yet() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(
+            &json!({"timestamp":"2026-10-16T12:00:00Z","event":"Outfitting","MarketID":128666762u64,
+            "StationName":"Jameson Memorial","StarSystem":"Shinrarta Dezhra"}),
+            true,
+            100,
+        );
+        assert!(!f.awaiting("Outfitting"));
+        f.companion_file("Outfitting", &fixture("Outfitting.json"), 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0);
+        let l = f.sender().outbox().recent(1).unwrap();
+        assert_eq!(l[0].schema_ref, "https://eddn.edcd.io/schemas/outfitting/2");
+        assert!(l[0].detail.contains("outfitting/2 is off"), "{}", l[0].detail);
+    }
+
+    #[test]
+    fn navroute_waits_for_the_file_its_event_announced() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        let ts = "2026-10-16T12:10:00Z";
+        f.journal(&json!({"timestamp":ts,"event":"NavRoute"}), true, 100);
+        let route = json!([{"StarSystem":"Shinrarta Dezhra","SystemAddress":SHINRARTA,"StarPos":SHINRARTA_POS,"StarClass":"K"}]);
+        f.companion_file(
+            "NavRoute",
+            &json!({"timestamp":"2026-10-16T11:00:00Z","event":"NavRoute","Route":route}),
+            100,
+        );
+        assert!(f.awaiting("NavRoute"), "the last plot's file");
+        f.companion_file("NavRoute", &json!({"timestamp":ts,"event":"NavRoute","Route":route}), 100);
+        assert_eq!(schemas(&sent(&f)), ["navroute/1"]);
+    }
+
+    #[test]
+    fn skipped_events_are_logged() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&json!({"timestamp":"2026-10-16T12:00:00Z","event":"Scan","SystemAddress":SHINRARTA}), true, 100);
+        assert_eq!(log(&f), [("dropped".into(), "Scan event has no StarSystem".into())]);
+    }
+
+    #[test]
+    fn a_signal_run_from_the_replay_is_not_sent_and_a_live_one_is_flushed() {
+        let mut f = feed();
+        let mut replay = session("r1 ", "Jameson");
+        replay.push(signal("2026-10-16T12:00:00Z"));
+        feed_all(&mut f, &replay, false);
+        f.journal(&signal("2026-10-16T12:01:00Z"), true, 100);
+        f.flush(100);
+        let ups = sent(&f);
+        assert_eq!(schemas(&ups), ["fsssignaldiscovered/1"]);
+        let ts: Vec<&Value> =
+            ups[0]["message"]["signals"].as_array().unwrap().iter().map(|s| &s["timestamp"]).collect();
+        assert_eq!(ts, [&json!("2026-10-16T12:01:00Z")]);
+    }
+
+    /// Posts block until the test lets them go.
+    struct Gate {
+        started: Mutex<Tx<()>>,
+        release: Mutex<Receiver<()>>,
+    }
+    impl Transport for Gate {
+        fn post(&self, _: &[u8]) -> Result<Response, String> {
+            self.started.lock().unwrap().send(()).unwrap();
+            // Bounded, so a failing test can't hang on the worker's join.
+            self.release.lock().unwrap().recv_timeout(Duration::from_secs(10)).map_err(|e| e.to_string())?;
+            Ok(Response { status: 200, body: "OK".into() })
+        }
+    }
+
+    #[test]
+    fn queuing_never_waits_for_a_post_in_progress() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("eddn.sqlite");
+        let (started_tx, started) = channel();
+        let (release, release_rx) = channel();
+        let gate = Gate { started: Mutex::new(started_tx), release: Mutex::new(release_rx) };
+        let mut f = Feed::start(&db, software(), true, Box::new(gate), |_| {}).unwrap();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&docked("2026-10-16T12:05:00Z"), true, 100);
+        started.recv_timeout(Duration::from_secs(10)).expect("the worker posts the first message");
+
+        // The post is stuck. Observing and queuing still complete at once.
+        let t = Instant::now();
+        f.journal(&docked("2026-10-16T12:06:00Z"), true, 100);
+        f.journal(&docked("2026-10-16T12:07:00Z"), true, 100);
+        assert!(t.elapsed() < Duration::from_secs(2), "{:?}", t.elapsed());
+        assert!(started.try_recv().is_err(), "still on the first post");
+        assert_eq!(Outbox::open(&db).unwrap().pending().unwrap(), 3);
+
+        release.send(()).unwrap();
+        for _ in 0..2 {
+            started.recv_timeout(Duration::from_secs(10)).expect("the next post");
+            release.send(()).unwrap();
+        }
+        drop(f);
+        let o = Outbox::open(&db).unwrap();
+        assert_eq!(o.pending().unwrap(), 0);
+        assert!(o.recent(10).unwrap().iter().all(|e| e.outcome == "sent" && e.schema_ref.ends_with("/test")));
+    }
+}

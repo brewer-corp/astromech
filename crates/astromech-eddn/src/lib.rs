@@ -14,7 +14,10 @@
 //! - [`journal`]: `journal/1` (`Docked`, `FSDJump`, `Scan`, `Location`, `SAASignalsFound`,
 //!   `CarrierJump`);
 //! - [`events`]: the event-specific schemas (`fssdiscoveryscan`, `fsssignaldiscovered` batched
-//!   per run, `codexentry`, `navroute`, …).
+//!   per run, `codexentry`, `navroute`, …);
+//! - [`feed`]: what the core drives: every journal event and companion file in, the right
+//!   messages queued, nothing from a replay;
+//! - [`worker`]: delivery on its own thread and database connection.
 //!
 //! Each schema slice (commodity/3, journal/1, …) defines its [`SchemaSpec`] and maps its journal
 //! event to the schema's shape before calling [`Sender::submit`].
@@ -22,19 +25,23 @@
 pub mod companion;
 pub mod context;
 pub mod events;
+pub mod feed;
 pub mod journal;
 pub mod message;
 pub mod outbox;
 pub mod transport;
+pub mod worker;
 
 #[cfg(test)]
 pub(crate) mod testutil;
 
 pub use context::{GameContext, SystemFix};
-pub use events::{EventSchemas, Outgoing};
+pub use events::{Built, EventSchemas, Outgoing, Skipped};
+pub use feed::Feed;
 pub use message::{Augment, Dropped, Elision, SchemaSpec, Software, SystemField};
 pub use outbox::{Delivery, LogEntry, Outbox, Outcome};
 pub use transport::{HttpTransport, Response, Transport, UPLOAD_URL};
+pub use worker::{Courier, Worker};
 
 use serde_json::Value;
 
@@ -74,9 +81,9 @@ impl Sender {
         }
     }
 
-    /// One delivery pass over everything due at `now`.
-    pub fn deliver(&self, transport: &dyn Transport, now: i64) -> rusqlite::Result<Delivery> {
-        self.outbox.deliver_due(transport, now)
+    /// Write a skipped event (or unusable companion file) to the send log, like a drop.
+    pub fn skip(&self, spec: &SchemaSpec, reason: &str, now: i64) -> rusqlite::Result<()> {
+        self.outbox.log(now, &message::schema_ref(spec, self.test), Outcome::Dropped, reason)
     }
 
     pub fn outbox(&self) -> &Outbox {
@@ -109,7 +116,7 @@ mod tests {
         let ev = json!({"timestamp":"2026-10-16T12:00:00Z","event":"Docked","StationName_Localised":"x","FID":"F1"});
         assert_eq!(s.submit(&SPEC, ev, 100).unwrap(), Ok(()));
         let t = FakeTransport::new([status(200)]);
-        assert_eq!(s.deliver(&t, 100).unwrap().sent, 1);
+        assert_eq!(s.outbox().deliver_due(&t, 100, true).unwrap().sent, 1);
         let up = message::gunzip(&t.posted.borrow()[0]);
         assert_eq!(up["$schemaRef"], "https://eddn.edcd.io/schemas/journal/1/test");
         assert_eq!(
@@ -127,7 +134,7 @@ mod tests {
         assert!(matches!(s.submit(&SPEC, json!({"event":"Docked"}), 100).unwrap(), Err(Dropped::Beta(_))));
         assert_eq!(s.outbox().pending().unwrap(), 0);
         let t = FakeTransport::default();
-        assert_eq!(s.deliver(&t, 100).unwrap(), Delivery::default());
+        assert_eq!(s.outbox().deliver_due(&t, 100, true).unwrap(), Delivery::default());
         assert_eq!(t.calls(), 0);
         let log = s.outbox().recent(1).unwrap();
         assert_eq!(log[0].outcome, "dropped");

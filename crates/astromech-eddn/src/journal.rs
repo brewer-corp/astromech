@@ -5,6 +5,7 @@
 //! `CodexEntry` is also allowed by the schema, but its README sends it on `codexentry/1` instead
 //! ([`crate::events`]), so it is not sent here.
 
+use crate::events::{Built, Skipped};
 use crate::message::{Augment, Elision, SchemaSpec, SystemField};
 use serde_json::Value;
 
@@ -56,21 +57,38 @@ pub const JOURNAL: SchemaSpec = SchemaSpec {
 /// sent on `journal/1`.
 ///
 /// The schema requires `StarSystem`, `StarPos` and `SystemAddress`, and the README allows adding
-/// only some of them, so an event missing one it can't be given is not sent: the gateway would
+/// only some of them, so an event missing one it can't be given is skipped: the gateway would
 /// reject it.
-pub fn message(ev: &Value) -> Option<(&'static SchemaSpec, Value)> {
+pub fn message(ev: &Value) -> Option<Built> {
     let needs: &[&str] = match ev.get("event")?.as_str()? {
         "FSDJump" | "Location" | "CarrierJump" => &["StarSystem", "SystemAddress", "StarPos"],
         "Docked" | "Scan" => &["StarSystem", "SystemAddress"],
         "SAASignalsFound" => &["SystemAddress"],
         _ => return None,
     };
-    has_all(ev, needs).then(|| (&JOURNAL, ev.clone()))
+    Some(require(&JOURNAL, ev, needs))
 }
 
 /// Every key in `keys` is present and not `null`.
 pub(crate) fn has_all(ev: &Value, keys: &[&str]) -> bool {
-    keys.iter().all(|k| ev.get(*k).is_some_and(|v| !v.is_null()))
+    missing(ev, keys).is_none()
+}
+
+/// The first key in `keys` that is absent or `null`.
+pub(crate) fn missing<'a>(ev: &Value, keys: &[&'a str]) -> Option<&'a str> {
+    keys.iter().copied().find(|k| ev.get(*k).is_none_or(Value::is_null))
+}
+
+/// `ev` as the message for `spec` if it has every key in `needs`, otherwise why it's skipped.
+pub(crate) fn require(spec: &'static SchemaSpec, ev: &Value, needs: &[&str]) -> Built {
+    match missing(ev, needs) {
+        None => Ok((spec, ev.clone())),
+        Some(k) => Err(Skipped { spec, reason: format!("{} event has no {k}", event_name(ev)) }),
+    }
+}
+
+fn event_name(ev: &Value) -> &str {
+    ev.get("event").and_then(Value::as_str).unwrap_or("?")
 }
 
 #[cfg(test)]
@@ -81,24 +99,31 @@ mod tests {
     #[test]
     fn only_the_six_events_are_sent() {
         for e in ["Docked", "Scan"] {
-            assert!(message(&json!({"event":e,"StarSystem":"Sol","SystemAddress":1})).is_some(), "{e}");
+            assert!(message(&json!({"event":e,"StarSystem":"Sol","SystemAddress":1})).unwrap().is_ok(), "{e}");
         }
         for e in ["FSDJump", "Location", "CarrierJump"] {
             let ev = json!({"event":e,"StarSystem":"Sol","SystemAddress":1,"StarPos":[0.0,0.0,0.0]});
-            assert!(message(&ev).is_some(), "{e}");
+            assert!(message(&ev).unwrap().is_ok(), "{e}");
         }
-        assert!(message(&json!({"event":"SAASignalsFound","SystemAddress":1})).is_some());
+        assert!(message(&json!({"event":"SAASignalsFound","SystemAddress":1})).unwrap().is_ok());
         for e in ["CodexEntry", "Music", "FSSDiscoveryScan"] {
             assert!(message(&json!({"event":e,"StarSystem":"Sol","SystemAddress":1})).is_none(), "{e}");
         }
     }
 
     #[test]
-    fn events_missing_a_field_that_cannot_be_added_are_not_sent() {
-        assert!(message(&json!({"event":"Scan","SystemAddress":1})).is_none(), "StarSystem isn't added for Scan");
-        assert!(message(&json!({"event":"FSDJump","StarSystem":"Sol","SystemAddress":1})).is_none());
-        assert!(message(&json!({"event":"SAASignalsFound"})).is_none());
-        assert!(message(&json!({"event":"Docked","StarSystem":"Sol","SystemAddress":null})).is_none());
+    fn events_missing_a_field_that_cannot_be_added_are_skipped_with_a_reason() {
+        let reason = |ev: Value| message(&ev).expect("a journal/1 event").unwrap_err().reason;
+        assert_eq!(reason(json!({"event":"Scan","SystemAddress":1})), "Scan event has no StarSystem");
+        assert_eq!(
+            reason(json!({"event":"FSDJump","StarSystem":"Sol","SystemAddress":1})),
+            "FSDJump event has no StarPos"
+        );
+        assert_eq!(reason(json!({"event":"SAASignalsFound"})), "SAASignalsFound event has no SystemAddress");
+        assert_eq!(
+            reason(json!({"event":"Docked","StarSystem":"Sol","SystemAddress":null})),
+            "Docked event has no SystemAddress"
+        );
     }
 }
 
@@ -137,7 +162,7 @@ mod schema_tests {
 
     /// Route one journal event the way the sender does and validate the result.
     fn send(ctx: &crate::GameContext, ev: Value) -> Value {
-        let (spec, msg) = journal::message(&ev).expect("journal/1 event");
+        let (spec, msg) = journal::message(&ev).expect("journal/1 event").unwrap();
         let up = upload(ctx, spec, msg);
         assert_valid(&schema_file(spec), &up);
         assert!(!up.to_string().contains("_Localised"), "{up:#}");
@@ -256,7 +281,7 @@ mod schema_tests {
     fn scan_from_another_system_is_dropped_not_augmented() {
         let ev = json!({"timestamp":"2026-10-16T12:06:00Z","event":"Scan","BodyName":"Sol 3","BodyID":3,
             "StarSystem":"Sol","SystemAddress":10477373803u64});
-        let (spec, msg) = journal::message(&ev).unwrap();
+        let (spec, msg) = journal::message(&ev).unwrap().unwrap();
         let sw = Software { name: "astromech".into(), version: "0.1.5".into() };
         assert!(matches!(build(spec, &live_context(), &sw, false, msg), Err(Dropped::LocationMismatch(_))));
         assert_eq!(spec.name, JOURNAL.name);

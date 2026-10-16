@@ -12,8 +12,9 @@
 //! [`EventSchemas::observe_status`]. `navroute` and `fcmaterials_journal` are built from the
 //! companion file the `NavRoute`/`FCMaterials` event announces ([`navroute`], [`fcmaterials`]).
 
+use crate::companion::{self, Unusable};
 use crate::context::GameContext;
-use crate::journal::has_all;
+use crate::journal::{has_all, require};
 use crate::message::{Augment, Elision, SchemaSpec, SystemField};
 use serde_json::{json, Value};
 
@@ -55,12 +56,22 @@ const MISSION_TARGET: &str = "$USS_Type_MissionTarget;";
 
 pub type Outgoing = (&'static SchemaSpec, Value);
 
+/// A schema's event that wasn't turned into a message, and why (for the send log).
+#[derive(Debug, Clone)]
+pub struct Skipped {
+    pub spec: &'static SchemaSpec,
+    pub reason: String,
+}
+
+/// A message to submit, or why the event was skipped.
+pub type Built = Result<Outgoing, Skipped>;
+
 /// The state the event schemas need across events: the pending `FSSSignalDiscovered` run and the
 /// body the commander is at (for `codexentry`).
 #[derive(Debug, Default)]
 pub struct EventSchemas {
     signals: Vec<Value>,
-    /// `BodyName`/`BodyID` from the last `ApproachBody` or `Location`, cleared by `LeaveBody`
+    /// `Body`/`BodyID` from the last `ApproachBody` or `Location`, cleared by `LeaveBody`
     /// and `FSDJump`.
     journal_body: Option<(String, u64)>,
     /// `BodyName` from the latest `Status.json`.
@@ -72,7 +83,8 @@ impl EventSchemas {
     ///
     /// `FSSSignalDiscovered` events are held; the next event of any other kind ends the run and
     /// sends it as one `fsssignaldiscovered` message, before that event's own message.
-    pub fn on_event(&mut self, ev: &Value, ctx: &GameContext) -> Vec<Outgoing> {
+    /// An event missing a key its schema requires is returned as [`Skipped`].
+    pub fn on_event(&mut self, ev: &Value, ctx: &GameContext) -> Vec<Built> {
         let Some(event) = ev.get("event").and_then(Value::as_str) else {
             return Vec::new();
         };
@@ -80,9 +92,9 @@ impl EventSchemas {
             self.signals.push(ev.clone());
             return Vec::new();
         }
-        let mut out: Vec<Outgoing> = self.flush(ctx).into_iter().collect();
+        let mut out: Vec<Built> = self.flush(ctx).into_iter().map(Ok).collect();
         self.track_body(event, ev);
-        let single = |spec: &'static SchemaSpec, needs: &[&str]| has_all(ev, needs).then(|| (spec, ev.clone()));
+        let single = |spec: &'static SchemaSpec, needs: &[&str]| Some(require(spec, ev, needs));
         let msg = match event {
             "FSSDiscoveryScan" => {
                 single(&FSS_DISCOVERY_SCAN, &["timestamp", "SystemName", "SystemAddress", "BodyCount", "NonBodyCount"])
@@ -94,7 +106,7 @@ impl EventSchemas {
             "NavBeaconScan" => single(&NAV_BEACON_SCAN, &["timestamp", "SystemAddress", "NumBodies"]),
             "ScanBaryCentre" => single(&SCAN_BARY_CENTRE, &["timestamp", "StarSystem", "SystemAddress", "BodyID"]),
             "CodexEntry" => single(&CODEX_ENTRY, &["timestamp", "System", "SystemAddress", "EntryID"])
-                .map(|(spec, m)| (spec, self.codex_body(m))),
+                .map(|b| b.map(|(spec, m)| (spec, self.codex_body(m)))),
             "ApproachSettlement" => single(
                 &APPROACH_SETTLEMENT,
                 &["timestamp", "SystemAddress", "Name", "BodyID", "BodyName", "Latitude", "Longitude"],
@@ -137,9 +149,8 @@ impl EventSchemas {
     fn track_body(&mut self, event: &str, ev: &Value) {
         let body = |name_key: &str| Some((ev.get(name_key)?.as_str()?.to_owned(), ev.get("BodyID")?.as_u64()?));
         match event {
-            "ApproachBody" => self.journal_body = body("BodyName"),
-            // Location names its body `Body`.
-            "Location" => self.journal_body = body("Body"),
+            // Both name the body `Body` (journal manual); `BodyName` is a fallback.
+            "ApproachBody" | "Location" => self.journal_body = body("Body").or_else(|| body("BodyName")),
             "LeaveBody" | "FSDJump" => self.journal_body = None,
             _ => {}
         }
@@ -162,26 +173,28 @@ impl EventSchemas {
 }
 
 /// The `navroute` message from `NavRoute.json`, read when the journal's `NavRoute` event `ev`
-/// announces it. `None` if the file isn't the one that event announced (its `timestamp` differs:
-/// a stale file) or the route is empty (as after `NavRouteClear`).
-pub fn navroute(ev: &Value, file: &Value) -> Option<Outgoing> {
-    let route = file.get("Route")?.as_array()?;
-    (fresh(ev, file, "NavRoute") && !route.is_empty()).then(|| (&NAV_ROUTE, file.clone()))
+/// announces it. Unusable if the file isn't the one that event announced
+/// ([`companion::check_trigger`]) or the route is empty (as after `NavRouteClear`).
+pub fn navroute(ev: &Value, file: &Value) -> Result<Outgoing, Unusable> {
+    companion::check_trigger("NavRoute", ev, file)?;
+    match file.get("Route").and_then(Value::as_array) {
+        None => Err(Unusable::Missing("Route")),
+        Some(r) if r.is_empty() => Err(Unusable::Empty),
+        Some(_) => Ok((&NAV_ROUTE, file.clone())),
+    }
 }
 
 /// The `fcmaterials_journal` message from `FCMaterials.json`, read when the journal's
-/// `FCMaterials` event `ev` announces it. `None` for a stale or incomplete file.
-pub fn fcmaterials(ev: &Value, file: &Value) -> Option<Outgoing> {
-    (fresh(ev, file, "FCMaterials") && has_all(file, &["MarketID", "CarrierName", "CarrierID", "Items"]))
-        .then(|| (&FC_MATERIALS_JOURNAL, file.clone()))
-}
-
-fn fresh(ev: &Value, file: &Value, event: &str) -> bool {
-    let ts = file.get("timestamp").and_then(Value::as_str);
-    ev.get("event").and_then(Value::as_str) == Some(event)
-        && file.get("event").and_then(Value::as_str) == Some(event)
-        && ts.is_some()
-        && ts == ev.get("timestamp").and_then(Value::as_str)
+/// `FCMaterials` event `ev` announces it. Unusable for a file that isn't that event's, or an
+/// incomplete one.
+pub fn fcmaterials(ev: &Value, file: &Value) -> Result<Outgoing, Unusable> {
+    companion::check_trigger("FCMaterials", ev, file)?;
+    for k in ["MarketID", "CarrierName", "CarrierID", "Items"] {
+        if !has_all(file, &[k]) {
+            return Err(Unusable::Missing(k));
+        }
+    }
+    Ok((&FC_MATERIALS_JOURNAL, file.clone()))
 }
 
 #[cfg(test)]
@@ -190,6 +203,7 @@ mod schema_tests {
     // against its live schema file, plus the `fsssignaldiscovered` batching and the `codexentry`
     // body rules.
 
+    use crate::companion::Unusable;
     use crate::events::{self, EventSchemas, Outgoing};
     use crate::testutil::*;
     use crate::GameContext;
@@ -208,7 +222,7 @@ mod schema_tests {
         let mut out = Vec::new();
         for ev in evs {
             ctx.observe(ev);
-            out.extend(schemas.on_event(ev, ctx));
+            out.extend(schemas.on_event(ev, ctx).into_iter().map(|b| b.expect("not skipped")));
         }
         out
     }
@@ -299,7 +313,12 @@ mod schema_tests {
         // Without a required field the gateway would reject it, so it isn't sent.
         let mut partial = ev;
         partial.as_object_mut().unwrap().remove("Latitude");
-        assert!(EventSchemas::default().on_event(&partial, &live_context()).is_empty());
+        let out = EventSchemas::default().on_event(&partial, &live_context());
+        let [Err(skip)] = &out[..] else { panic!("{out:?}") };
+        assert_eq!(
+            (skip.spec.name, skip.reason.as_str()),
+            ("approachsettlement", "ApproachSettlement event has no Latitude")
+        );
     }
 
     #[test]
@@ -335,8 +354,9 @@ mod schema_tests {
     }
 
     fn approach(name: &str, id: u64) -> Value {
+        // The real shape: `Body` and `BodyID`, no `BodyName`.
         json!({"timestamp":"2026-10-16T12:08:30Z","event":"ApproachBody","StarSystem":"Shinrarta Dezhra",
-            "SystemAddress":SHINRARTA,"Body":name,"BodyName":name,"BodyID":id})
+            "SystemAddress":SHINRARTA,"Body":name,"BodyID":id})
     }
 
     #[test]
@@ -380,9 +400,9 @@ mod schema_tests {
         assert!(EventSchemas::default().on_event(&ev, &live_context()).is_empty());
         // A file from an earlier plot, or a cleared route, is not sent.
         let stale = json!({"timestamp":"2026-10-16T11:00:00Z","event":"NavRoute","Route":file["Route"]});
-        assert!(events::navroute(&ev, &stale).is_none());
+        assert!(events::navroute(&ev, &stale).is_err());
         let cleared = json!({"timestamp":"2026-10-16T12:10:00Z","event":"NavRoute","Route":[]});
-        assert!(events::navroute(&ev, &cleared).is_none());
+        assert_eq!(events::navroute(&ev, &cleared).unwrap_err(), Unusable::Empty);
     }
 
     #[test]
@@ -396,7 +416,11 @@ mod schema_tests {
         let m = validated(&live_context(), &events::fcmaterials(&ev, &file).unwrap());
         assert_eq!(m["Items"][0], json!({"id":128961524,"Name":"$aerogel_name;","Price":500,"Stock":0,"Demand":10}));
         let stale = json!({"timestamp":"2026-10-15T09:00:00Z","event":"FCMaterials","MarketID":1,"CarrierName":"A","CarrierID":"B","Items":[]});
-        assert!(events::fcmaterials(&ev, &stale).is_none());
+        assert!(events::fcmaterials(&ev, &stale).is_err());
+        // Another carrier's file, even a newer one, is not this event's.
+        let mut other = file.clone();
+        other["MarketID"] = json!(3700000002u64);
+        assert!(matches!(events::fcmaterials(&ev, &other), Err(Unusable::Mismatch(_))));
     }
 
     // fsssignaldiscovered batching.

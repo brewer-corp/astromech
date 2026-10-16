@@ -5,7 +5,7 @@
 //!   detection with idle/active sessions, the app window, crash marker and diagnostics;
 //! - [`session`]: one active session, everything that runs while Elite does;
 //! - [`pipeline`]: journal tail (with file rollover) + Status.json watching, feeding
-//!   [`hub::StateHub`]; read positions persist in `astromech-store`;
+//!   [`hub::StateHub`] and, when switched on, the EDDN feed; read positions persist in `astromech-store`;
 //! - [`health`]: the binds health check at startup and on every Bindings-folder change;
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
