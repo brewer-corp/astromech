@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Search kit follow-ups: shared settings path, safe migrations, origin Enter, live pad, age filter"
-updated_at: "2026-10-16T19:27:17.482285552+00:00"
+updated_at: "2026-10-16T19:54:30.160316024+00:00"
 ---
 
 ## Goal
@@ -40,3 +40,7 @@ Each item has a test or check that fails before the fix: a concurrent first-open
 ## Context
 
 Found in the independent review of feature/astromech-qz9u at 1d1921b (astromech-pxy2, astromech-1imw).
+
+## Notes
+
+- 2026-10-16 [note] Also (review of qz9u round 3, N1): two overlapping filter changes can clobber each other in SearchKit when the first save fails; use a per-change counter like the search's asked counter.
