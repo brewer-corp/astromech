@@ -11,6 +11,7 @@ pub mod fleet;
 pub mod links;
 pub mod plan;
 pub mod trip;
+pub mod unlocks;
 
 pub use engineers::EngineerView;
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, ShipLinks, Stored};

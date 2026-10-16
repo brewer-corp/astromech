@@ -275,6 +275,8 @@ struct JournalState {
     fleet: astromech_engineering::Fleet,
     ledger: astromech_materials::Ledger,
     engineers: Vec<astromech_engineering::EngineerView>,
+    /// Every ship and suit engineer with the commander's progress and what is left to unlock.
+    unlocks: astromech_engineering::unlocks::Tree,
     here: Option<astromech_galaxy::Here>,
     /// Faction states seen on arrival in the newest journals (fresher than Spansh's).
     visits: Vec<astromech_galaxy::Visit>,
@@ -294,10 +296,12 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
             return Ok(v.clone());
         }
     }
+    let progress = astromech_engineering::engineers::builder_from_journal_dir(&dir);
     let v = std::sync::Arc::new(JournalState {
         fleet: astromech_engineering::from_journal_dir(&dir),
         ledger: astromech_materials::replay_journal_dir(&dir),
-        engineers: astromech_engineering::engineers::from_journal_dir(&dir),
+        engineers: progress.build(),
+        unlocks: astromech_engineering::unlocks::tree(&progress),
         here: astromech_galaxy::here_from_journal_dir(&dir),
         visits: astromech_galaxy::visits_from_journal_dir(&dir, 20),
     });
@@ -382,6 +386,17 @@ async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>())?;
         serde_json::to_value(serde_json::json!({ "engineers": st.engineers, "here": st.here })).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The engineer unlock guide: every ship and suit engineer as a tech tree with the commander's
+/// progress and what is left to unlock each.
+#[tauri::command]
+async fn engineering_unlocks(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        serde_json::to_value(&st.unlocks).map_err(|e| e.to_string())
     })
     .await
 }
@@ -670,6 +685,7 @@ fn main() {
             engineering_stats,
             engineering_headlines,
             engineering_engineers,
+            engineering_unlocks,
             engineering_trip,
             galaxy_nearby,
             galaxy_sites,

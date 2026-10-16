@@ -1,0 +1,516 @@
+{
+  "nodes": [
+    {
+      "name": "Tod \"The Blaster\" McQuinn",
+      "kind": "ship",
+      "system": "Wolf 397",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Earn 15 bounty vouchers.",
+      "next": true
+    },
+    {
+      "name": "Felicity Farseer",
+      "kind": "ship",
+      "system": "Deciat",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "unlocked",
+      "rank": 5,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "Elvira Martuuk",
+      "kind": "ship",
+      "system": "Khun",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "unlocked",
+      "rank": 2,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "Liz Ryder",
+      "kind": "ship",
+      "system": "Eurybia",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "unlocked",
+      "rank": 1,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "The Dweller",
+      "kind": "ship",
+      "system": "Wyrd",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Deal in stolen or illicit goods at 5 Black Markets.",
+      "next": true
+    },
+    {
+      "name": "Lei Cheung",
+      "kind": "ship",
+      "system": "Laksak",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "The Dweller"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock The Dweller first.",
+      "next": false
+    },
+    {
+      "name": "Selene Jean",
+      "kind": "ship",
+      "system": "Kuk",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Tod \"The Blaster\" McQuinn"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Tod \"The Blaster\" McQuinn first.",
+      "next": false
+    },
+    {
+      "name": "Hera Tani",
+      "kind": "ship",
+      "system": "Kuwemaki",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Liz Ryder"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Liz Ryder: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Broo Tarquin",
+      "kind": "ship",
+      "system": "Muang",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Hera Tani"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Hera Tani first.",
+      "next": false
+    },
+    {
+      "name": "Marco Qwent",
+      "kind": "ship",
+      "system": "Sirius",
+      "permit": true,
+      "depth": 1,
+      "introduced_by": [
+        "Elvira Martuuk"
+      ],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Ally reputation with Sirius Corporation.",
+      "next": true
+    },
+    {
+      "name": "Zacariah Nemo",
+      "kind": "ship",
+      "system": "Yoru",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Elvira Martuuk"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Didi Vatermann",
+      "kind": "ship",
+      "system": "Leesti",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Selene Jean"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Selene Jean first.",
+      "next": false
+    },
+    {
+      "name": "Colonel Bris Dekker",
+      "kind": "ship",
+      "system": "Sol",
+      "permit": true,
+      "depth": 2,
+      "introduced_by": [
+        "Juri Ishmaak"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Juri Ishmaak",
+      "kind": "ship",
+      "system": "Giryak",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Felicity Farseer"
+      ],
+      "status": "unlocked",
+      "rank": 3,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "Professor Palin",
+      "kind": "ship",
+      "system": "Arque",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Marco Qwent"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Marco Qwent first.",
+      "next": false
+    },
+    {
+      "name": "Chloe Sedesi",
+      "kind": "ship",
+      "system": "Shenve",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Marco Qwent"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Marco Qwent first.",
+      "next": false
+    },
+    {
+      "name": "Bill Turner",
+      "kind": "ship",
+      "system": "Alioth",
+      "permit": true,
+      "depth": 2,
+      "introduced_by": [
+        "Selene Jean"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Selene Jean first.",
+      "next": false
+    },
+    {
+      "name": "Lori Jameson",
+      "kind": "ship",
+      "system": "Shinrarta Dezhra",
+      "permit": true,
+      "depth": 2,
+      "introduced_by": [
+        "Marco Qwent"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Marco Qwent first.",
+      "next": false
+    },
+    {
+      "name": "Ram Tah",
+      "kind": "ship",
+      "system": "Meene",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Lei Cheung"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Lei Cheung first.",
+      "next": false
+    },
+    {
+      "name": "Tiana Fortune",
+      "kind": "ship",
+      "system": "Achenar",
+      "permit": true,
+      "depth": 2,
+      "introduced_by": [
+        "Hera Tani"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Hera Tani first.",
+      "next": false
+    },
+    {
+      "name": "The Sarge",
+      "kind": "ship",
+      "system": "Beta-3 Tucani",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Juri Ishmaak"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Juri Ishmaak: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Etienne Dorn",
+      "kind": "ship",
+      "system": "Los",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Liz Ryder"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Liz Ryder: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Marsha Hicks",
+      "kind": "ship",
+      "system": "Tir",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "The Dweller"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock The Dweller first.",
+      "next": false
+    },
+    {
+      "name": "Mel Brandon",
+      "kind": "ship",
+      "system": "Luchtaine",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Elvira Martuuk"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Introduction from Elvira Martuuk: raise your rank with them past grade 3.",
+      "next": true
+    },
+    {
+      "name": "Petra Olmanova",
+      "kind": "ship",
+      "system": "Asura",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Tod \"The Blaster\" McQuinn"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Tod \"The Blaster\" McQuinn first.",
+      "next": false
+    },
+    {
+      "name": "Domino Green",
+      "kind": "suit",
+      "system": "Orishis",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "unlocked",
+      "rank": 0,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "Hero Ferrari",
+      "kind": "suit",
+      "system": "Siris",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Complete 10 Conflict Zones.",
+      "next": true
+    },
+    {
+      "name": "Jude Navarro",
+      "kind": "suit",
+      "system": "Aurai",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "unlocked",
+      "rank": 0,
+      "left": null,
+      "next": false
+    },
+    {
+      "name": "Kit Fowler",
+      "kind": "suit",
+      "system": "Capoya",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Domino Green"
+      ],
+      "status": "invited",
+      "rank": null,
+      "left": "Visit them at Capoya to unlock.",
+      "next": true
+    },
+    {
+      "name": "Oden Geiger",
+      "kind": "suit",
+      "system": "Candiaei",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Terra Velasquez"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Terra Velasquez first.",
+      "next": false
+    },
+    {
+      "name": "Terra Velasquez",
+      "kind": "suit",
+      "system": "Shou Xing",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Jude Navarro"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Referral from Jude Navarro: Provide 5 Genetic Repair Meds.",
+      "next": true
+    },
+    {
+      "name": "Uma Laszlo",
+      "kind": "suit",
+      "system": "Xuane",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Wellington Beck"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Wellington Beck first.",
+      "next": false
+    },
+    {
+      "name": "Wellington Beck",
+      "kind": "suit",
+      "system": "Jolapa",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Hero Ferrari"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Hero Ferrari first.",
+      "next": false
+    },
+    {
+      "name": "Yarden Bond",
+      "kind": "suit",
+      "system": "Bayan",
+      "permit": false,
+      "depth": 2,
+      "introduced_by": [
+        "Kit Fowler"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Kit Fowler first.",
+      "next": false
+    },
+    {
+      "name": "Baltanos",
+      "kind": "suit",
+      "system": "Deriso",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Friendly reputation with Colonia Council.",
+      "next": true
+    },
+    {
+      "name": "Eleanor Bresa",
+      "kind": "suit",
+      "system": "Desy",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Visit 5 Settlements in Colonia.",
+      "next": true
+    },
+    {
+      "name": "Rosa Dayette",
+      "kind": "suit",
+      "system": "Kojeara",
+      "permit": false,
+      "depth": 0,
+      "introduced_by": [],
+      "status": "known",
+      "rank": null,
+      "left": "Invitation: Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia.",
+      "next": true
+    },
+    {
+      "name": "Yi Shen",
+      "kind": "suit",
+      "system": "Einheriar",
+      "permit": false,
+      "depth": 1,
+      "introduced_by": [
+        "Baltanos",
+        "Eleanor Bresa",
+        "Rosa Dayette"
+      ],
+      "status": "locked",
+      "rank": null,
+      "left": "Unlock Baltanos first. Unlock Eleanor Bresa first. Unlock Rosa Dayette first.",
+      "next": false
+    }
+  ]
+}

@@ -93,6 +93,11 @@ impl EngineerBuilder {
         }
     }
 
+    /// The newest `(Progress, Rank)` logged for `name`, if any.
+    pub fn progress(&self, name: &str) -> Option<(&str, Option<u8>)> {
+        self.progress.get(&key(name)).map(|(p, r, _)| (p.as_str(), *r))
+    }
+
     pub fn build(&self) -> Vec<EngineerView> {
         catalog()
             .iter()
@@ -116,6 +121,11 @@ impl EngineerBuilder {
 }
 
 pub fn from_journal_dir(dir: &Path) -> Vec<EngineerView> {
+    builder_from_journal_dir(dir).build()
+}
+
+/// Every `EngineerProgress` in the journals in `dir`, newest per engineer.
+pub fn builder_from_journal_dir(dir: &Path) -> EngineerBuilder {
     let mut b = EngineerBuilder::default();
     for p in astromech_journal::journal_logs(dir) {
         let Ok(text) = std::fs::read_to_string(&p) else { continue };
@@ -125,5 +135,5 @@ pub fn from_journal_dir(dir: &Path) -> Vec<EngineerView> {
             }
         }
     }
-    b.build()
+    b
 }
