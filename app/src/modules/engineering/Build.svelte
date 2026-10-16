@@ -24,6 +24,7 @@
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
   let stats = $state<StatsComparison | null>(null);
+  let unknownHull = $state<string | null>(null);
   let statsNote = $state<string | null>(null);
   let statsSeq = 0;
 
@@ -94,12 +95,14 @@
     shipStats($state.snapshot(p) as Plan)
       .then((r) => {
         if (mine !== statsSeq) return;
-        stats = r;
+        unknownHull = r && "unknown_hull" in r ? r.unknown_hull : null;
+        stats = r && "current" in r ? r : null;
         statsNote = r ? null : "Ship stats are worked out in the app. Outside it, only the sample Krait's sample plans have them.";
       })
       .catch((e: unknown) => {
         if (mine !== statsSeq) return;
         stats = null;
+        unknownHull = null;
         statsNote = String(e);
       });
   });
@@ -335,7 +338,7 @@
 
   <div class="side">
   {#if !(selFarm || sel) && ship?.loadout_ts}
-    <section class="panel" aria-label="Ship stats"><Stats {stats} note={statsNote} /></section>
+    <section class="panel" aria-label="Ship stats"><Stats {stats} note={statsNote} {unknownHull} /></section>
   {/if}
   <aside class="about">
     {#if selFarm || sel}<button class="link back" onclick={() => (selMat = null)}>← Ship stats</button>{/if}

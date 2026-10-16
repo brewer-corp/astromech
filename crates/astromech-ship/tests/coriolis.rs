@@ -24,7 +24,7 @@
 
 use astromech_engineering::{planned_modules, FleetBuilder, Target};
 use astromech_journal::{parse_line, JournalEvent, ModuleSnap};
-use astromech_ship::{compare, stats, ShipStats};
+use astromech_ship::{compare, headlines, stats, Compared, ShipStats};
 
 /// Decimals Coriolis shows for each stat (`int`, `f1`, `f2`, `round`, `round1`, `pct1`).
 fn decimals(key: &str) -> i32 {
@@ -146,7 +146,7 @@ fn check_plan(variant: &str, targets: &[(&str, &str, &str)], expected: &[(&str, 
     let mut fleet = FleetBuilder::default();
     let l = parse_line(&line("krait_mkii_combat")).unwrap();
     fleet.apply(&l.timestamp, &l.event);
-    let c = compare(&fleet.build("test").ships[0], &targets).unwrap();
+    let Compared::Stats(c) = compare(&fleet.build("test").ships[0], &targets).unwrap() else { panic!("hull unknown") };
     assert_eq!(c.current.stats, stats(&ship, &base).unwrap());
     assert_eq!(c.planned.time_to_drain, c.planned.stats.time_to_drain(4.0));
     check_stats(variant, &c.planned.stats, expected);
@@ -603,4 +603,19 @@ fn plan_thermal_boosters_4() {
             ("boost", Some("519")),
         ],
     );
+}
+
+/// The card stats come from the same calculations: the Krait MkII combat fixture's shield, DPS
+/// and maximum jump as Coriolis shows them (`krait_mkii_combat` above).
+#[test]
+fn card_headline_for_the_krait_mkii_combat_build() {
+    let mut fleet = FleetBuilder::default();
+    let l = parse_line(&line("krait_mkii_combat")).unwrap();
+    fleet.apply(&l.timestamp, &l.event);
+    let h = headlines(&fleet.build("test"));
+    let k = &h[&1];
+    assert!(k.unresolved.is_empty());
+    assert_eq!(format!("{:.0}", k.shield.unwrap()), "1428");
+    assert_eq!(format!("{:.1}", k.dps.unwrap()), "107.2");
+    assert_eq!(format!("{:.2}", k.jump.unwrap()), "24.87");
 }

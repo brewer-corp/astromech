@@ -236,6 +236,24 @@ export interface StatsComparison {
   planned: ShipStats;
 }
 
+/** The ship calculations don't know this hull: no stats, the ship shows as incomplete. */
+export interface UnknownHull {
+  unknown_hull: string;
+}
+
+export type Compared = StatsComparison | UnknownHull;
+
+/** What a ship card shows, from the current modules. */
+export interface Headline {
+  /** Maximum jump range, ly */
+  jump: number | null;
+  /** Shield strength, MJ */
+  shield: number | null;
+  dps: number | null;
+  /** What the calculations left out; "Hull: <ship>" when they don't know the hull. */
+  unresolved: string[];
+}
+
 export const DEFAULT_ROLLS = [1, 2, 3, 4, 5];
 
 const samplePlan = sample.plan as unknown as PlanResult;
@@ -273,12 +291,18 @@ export function samePlan(a: Plan, b: Plan): boolean {
 }
 
 /** Current and planned stats. Outside the app only the sample's precomputed plans have them. */
-export async function shipStats(plan: Plan): Promise<StatsComparison | null> {
+export async function shipStats(plan: Plan): Promise<Compared | null> {
   if (!inTauri) {
     const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
     return c ? (c.stats as unknown as StatsComparison) : null;
   }
-  return await invoke<StatsComparison>("engineering_stats", { plan });
+  return await invoke<Compared>("engineering_stats", { plan });
+}
+
+/** Card stats by ship id, for every ship with a known loadout. */
+export async function loadHeadlines(): Promise<Record<string, Headline>> {
+  if (!inTauri) return shipsSample.headlines as unknown as Record<string, Headline>;
+  return await invoke<Record<string, Headline>>("engineering_headlines");
 }
 
 const key = (shipId: number) => `astromech.engineering.plan.${shipId}`;

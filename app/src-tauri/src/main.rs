@@ -343,6 +343,16 @@ async fn engineering_stats(app: tauri::AppHandle, plan: astromech_engineering::P
     .await
 }
 
+/// Shield, DPS and jump range for every ship card, from the current modules.
+#[tauri::command]
+async fn engineering_headlines(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        serde_json::to_value(astromech_ship::headlines(&st.fleet)).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Ship engineers: where they are, access and rank.
 #[tauri::command]
 async fn engineering_engineers(app: tauri::AppHandle) -> Result<Value, String> {
@@ -542,6 +552,7 @@ fn main() {
             engineering_fleet,
             engineering_plan,
             engineering_stats,
+            engineering_headlines,
             engineering_engineers,
             engineering_trip,
             galaxy_nearby

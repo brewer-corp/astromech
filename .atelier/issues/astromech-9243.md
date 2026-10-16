@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Shield and DPS headline stats on the Ships cards"
-updated_at: "2026-10-16T19:29:46.498113122+00:00"
+updated_at: "2026-10-16T19:31:01.183705509+00:00"
 ---
 
 ## Goal

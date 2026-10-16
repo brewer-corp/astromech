@@ -1,11 +1,13 @@
 <script lang="ts">
-  // Ships page: a dense card per ship of the journal fleet, and the modules in storage with
-  // where they are. Opening a card shows that ship's detail (Build.svelte) at #/engineering/<id>,
-  // so back and reload keep it.
-  import { loadFleet, type Fleet, type Ship } from "../../lib/engineering";
+  // Ships page: a dense card per ship of the journal fleet (shield, DPS and jump range from the
+  // ship calculations, astromech-ship), and the modules in storage with where they are. Opening
+  // a card shows that ship's detail (Build.svelte) at #/engineering/<id>, so back and reload
+  // keep it.
+  import { loadFleet, loadHeadlines, type Fleet, type Headline, type Ship } from "../../lib/engineering";
   import Build from "./Build.svelte";
 
   let fleet = $state<Fleet | null>(null);
+  let headlines = $state<Record<string, Headline>>({});
   const readOpen = () => {
     const m = /^#\/engineering\/(-?\d+)$/.exec(location.hash);
     return m ? Number(m[1]) : null;
@@ -19,7 +21,12 @@
   });
 
   $effect(() => {
-    const tick = () => void loadFleet().then((f) => (fleet = f));
+    const tick = () => {
+      void loadFleet().then((f) => (fleet = f));
+      void loadHeadlines()
+        .then((h) => (headlines = h))
+        .catch(() => (headlines = {}));
+    };
     tick();
     const t = setInterval(tick, 5000);
     return () => clearInterval(t);
@@ -62,6 +69,8 @@
     <div class="cards">
       {#each fleet?.ships ?? [] as s (s.id)}
         {@const p = progress(s)}
+        {@const h = headlines[s.id]}
+        {@const jump = h?.jump ?? s.max_jump_range}
         <button class="card" class:now={s.current} onclick={() => (location.hash = `#/engineering/${s.id}`)}>
           <span class="name">{s.name ?? "Unnamed"}</span>
           <span class="id lo">{s.ident ?? `#${s.id}`}</span>
@@ -69,7 +78,13 @@
           <span class="where" class:accent={s.current}>{where(s)}</span>
           <span class="k">Value</span><span class="q">{cr(s.value)}</span>
           <span class="k">Rebuy</span><span class="q">{cr(s.rebuy)}</span>
-          <span class="k">Jump</span><span class="q">{s.max_jump_range ? `${s.max_jump_range.toFixed(1)} ly` : "–"}</span>
+          <span class="k">Jump</span><span class="q">{jump ? `${jump.toFixed(1)} ly` : "–"}</span>
+          <span class="k">Shield</span><span class="q">{h?.shield != null ? `${h.shield.toFixed(0)} MJ` : "–"}</span>
+          <span class="k">DPS</span><span class="q">{h?.dps != null ? h.dps.toFixed(1) : "–"}</span>
+          {#if h?.unresolved.length}
+            <span class="k">Stats</span>
+            <span class="q inc" title={h.unresolved.join("\n")}><b>!</b> Incomplete</span>
+          {/if}
           <span class="k">Engineered</span>
           {#if s.loadout_ts}
             <span class="q">{p.done} / {p.total}</span>
@@ -113,6 +128,7 @@
   .type { grid-column: 1 / 3; font-size: var(--fs-s); }
   .where { grid-column: 3; font-size: var(--fs-s); text-align: right; color: var(--text); white-space: nowrap; }
   .accent { color: var(--accent); }
+  .inc b { color: var(--accent); }
   .k { grid-column: 1 / 3; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .card .q { grid-column: 3; font-family: var(--mono); font-size: var(--fs-s); text-align: right; }
   .bar { grid-column: 1 / -1; height: 4px; background: var(--cell-opt); margin-top: 2px; }

@@ -1928,5 +1928,25 @@
     ],
     "source": "Sample journal",
     "stored_modules": []
+  },
+  "headlines": {
+    "1": {
+      "dps": 107.15106711888536,
+      "jump": 24.871416247126863,
+      "shield": 1427.7411609011328,
+      "unresolved": []
+    },
+    "3": {
+      "dps": 0.0,
+      "jump": null,
+      "shield": null,
+      "unresolved": []
+    },
+    "7": {
+      "dps": 9.571428571428571,
+      "jump": 32.91275930505209,
+      "shield": 420.3061813558357,
+      "unresolved": []
+    }
   }
 }

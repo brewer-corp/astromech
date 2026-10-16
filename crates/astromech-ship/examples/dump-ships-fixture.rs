@@ -1,7 +1,8 @@
 //! Print the Ships page's stats fixture: the synthetic Krait MkII combat build from
 //! `tests/fixtures` as a fleet ship, and its current and planned stats for the build plans the
-//! Coriolis tests check (`tests/coriolis.rs`, `check_plan`), plus an empty plan.
-//! `cargo run -q -p astromech-ship --example dump-fixture > app/src/lib/fixtures/ships.json`
+//! Coriolis tests check (`tests/coriolis.rs`, `check_plan`), plus an empty plan; and the ship
+//! card stats for it and for the sample journal's fleet.
+//! `cargo run -q -p astromech-ship --example dump-ships-fixture > app/src/lib/fixtures/ships.json`
 use astromech_engineering::{FleetBuilder, Plan, Rolls, Target};
 
 fn main() {
@@ -35,6 +36,9 @@ fn main() {
             serde_json::json!({ "plan": plan, "stats": stats })
         })
         .collect();
-    let v = serde_json::json!({ "fleet": fleet, "cases": cases });
+    // Card stats for this fleet and the sample journal's (the app window's sample fleet).
+    let mut headlines = astromech_ship::headlines(&astromech_engineering::sample_fleet());
+    headlines.extend(astromech_ship::headlines(&fleet));
+    let v = serde_json::json!({ "fleet": fleet, "cases": cases, "headlines": headlines });
     println!("{}", serde_json::to_string_pretty(&v).unwrap());
 }

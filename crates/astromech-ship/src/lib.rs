@@ -21,6 +21,7 @@ use astromech_engineering::{planned_modules, Target};
 use astromech_journal::ModuleSnap;
 use module::{Module, Unapplied};
 use serde::Serialize;
+use std::collections::BTreeMap;
 
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum Error {
@@ -52,16 +53,73 @@ impl From<ShipStats> for Side {
     }
 }
 
+/// What the ship detail gets: both builds' stats, or the hull the calculations don't have
+/// (no stats at all; the page shows the ship as incomplete).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(untagged)]
+pub enum Compared {
+    Stats(Box<Comparison>),
+    UnknownHull { unknown_hull: String },
+}
+
 /// Current stats of a fleet ship and its stats with `targets` done
 /// ([`astromech_engineering::planned_modules`]).
-pub fn compare(ship: &astromech_engineering::Ship, targets: &[Target]) -> Result<Comparison, Error> {
+pub fn compare(ship: &astromech_engineering::Ship, targets: &[Target]) -> Result<Compared, Error> {
     if ship.loadout.is_empty() {
         return Err(Error::NoLoadout);
     }
-    Ok(Comparison {
-        current: stats(&ship.ship_type, &ship.loadout)?.into(),
-        planned: stats(&ship.ship_type, &planned_modules(&ship.loadout, targets))?.into(),
-    })
+    let both = || -> Result<Comparison, Error> {
+        Ok(Comparison {
+            current: stats(&ship.ship_type, &ship.loadout)?.into(),
+            planned: stats(&ship.ship_type, &planned_modules(&ship.loadout, targets))?.into(),
+        })
+    };
+    match both() {
+        Ok(c) => Ok(Compared::Stats(Box::new(c))),
+        Err(Error::UnknownShip(s)) => Ok(Compared::UnknownHull { unknown_hull: s }),
+        Err(e) => Err(e),
+    }
+}
+
+/// What a ship card shows, from the current modules.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Headline {
+    /// Maximum jump range, ly.
+    pub jump: Option<f64>,
+    /// Shield strength, MJ.
+    pub shield: Option<f64>,
+    pub dps: Option<f64>,
+    /// What the calculations left out; `Hull: <ship>` when they don't know the hull at all.
+    pub unresolved: Vec<String>,
+}
+
+/// Card stats for every fleet ship with a known loadout, by ship id.
+pub fn headlines(fleet: &astromech_engineering::Fleet) -> BTreeMap<i64, Headline> {
+    fleet
+        .ships
+        .iter()
+        .filter(|s| !s.loadout.is_empty())
+        .map(|s| {
+            let h = match stats(&s.ship_type, &s.loadout) {
+                Ok(st) => Headline {
+                    jump: st.jump.as_ref().map(|j| j.max),
+                    shield: st.shield.as_ref().map(|sh| sh.strength),
+                    dps: Some(st.weapons.dps),
+                    unresolved: st.unresolved,
+                },
+                Err(e) => Headline {
+                    jump: None,
+                    shield: None,
+                    dps: None,
+                    unresolved: vec![match e {
+                        Error::UnknownShip(t) => format!("Hull: {t}"),
+                        e => e.to_string(),
+                    }],
+                },
+            };
+            (s.id, h)
+        })
+        .collect()
 }
 
 /// Everything the Ships page shows for one build.
@@ -667,5 +725,36 @@ mod tests {
         assert_eq!(c.recharge_at(4.0), 8.0);
         assert!((c.recharge_at(2.0) - 8.0 * 0.5f64.powf(1.1)).abs() < 1e-12);
         assert_eq!(c.recharge_at(0.0), 0.0);
+    }
+
+    fn fleet(loadouts: &[&str]) -> astromech_engineering::Fleet {
+        let mut b = astromech_engineering::FleetBuilder::default();
+        for (i, l) in loadouts.iter().enumerate() {
+            let line = format!(
+                r#"{{"timestamp":"2026-10-16T12:00:0{i}Z","event":"Loadout","Ship":"{l}","ShipID":{i},"Modules":[{{"Slot":"PowerPlant","Item":"Int_Powerplant_Size7_Class5"}},{{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5"}}]}}"#
+            );
+            let l = astromech_journal::parse_line(&line).unwrap();
+            b.apply(&l.timestamp, &l.event);
+        }
+        b.build("test")
+    }
+
+    #[test]
+    fn unknown_hull_is_incomplete_not_an_error() {
+        let f = fleet(&["krait_mkii", "mediumtransport01"]);
+        let h = headlines(&f);
+        assert_eq!(h.len(), 2);
+        let krait = &h[&0];
+        assert!(krait.unresolved.is_empty() && krait.jump.is_some() && krait.shield.is_none());
+        assert_eq!(krait.dps, Some(0.0));
+        let unknown = &h[&1];
+        assert_eq!((unknown.jump, unknown.shield, unknown.dps), (None, None, None));
+        assert_eq!(unknown.unresolved, ["Hull: mediumtransport01"]);
+        let ship = f.ships.iter().find(|s| s.id == 1).unwrap();
+        assert_eq!(compare(ship, &[]), Ok(Compared::UnknownHull { unknown_hull: "mediumtransport01".into() }));
+        assert_eq!(
+            serde_json::to_value(compare(ship, &[]).unwrap()).unwrap(),
+            serde_json::json!({ "unknown_hull": "mediumtransport01" })
+        );
     }
 }

@@ -3,7 +3,11 @@
   // Numbers use the precision Coriolis shows, so they can be checked against it.
   import type { ShipStats, StatsComparison } from "../../lib/engineering";
 
-  let { stats, note }: { stats: StatsComparison | null; note: string | null } = $props();
+  let {
+    stats,
+    note,
+    unknownHull = null,
+  }: { stats: StatsComparison | null; note: string | null; unknownHull?: string | null } = $props();
 
   interface Row {
     label: string;
@@ -104,7 +108,11 @@
 </script>
 
 <div class="stats">
-  {#if !stats}
+  {#if unknownHull}
+    <p class="warn" title="Hull: {unknownHull}">
+      <span class="mark">!</span> Incomplete: this hull isn't in the ship data, so there are no stats for it.
+    </p>
+  {:else if !stats}
     <p class="lo">{note ?? "Working out the stats…"}</p>
   {:else}
     {#if unresolved.length}

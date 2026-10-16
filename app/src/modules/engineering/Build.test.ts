@@ -1,4 +1,4 @@
-// Ship detail component tests. The stats come from the fixture astromech-ship's dump-fixture
+// Ship detail component tests. The stats come from the fixture astromech-ship's dump-ships-fixture
 // example writes (lib/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
 // for each build plan. The expected numbers are what Coriolis shows for those builds, the same
 // values crates/astromech-ship/tests/coriolis.rs checks (krait_mkii_combat and plan_*); a change
@@ -6,19 +6,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import ships from "../../lib/fixtures/ships.json";
-import type { Fleet, Plan, StatsComparison } from "../../lib/engineering";
+import type { Compared, Fleet, Plan, StatsComparison } from "../../lib/engineering";
 import Build from "./Build.svelte";
 
 const asked: Plan[] = [];
 /** Answer every plan with this instead of the fixture. */
-let override: StatsComparison | null = null;
+let override: Compared | null = null;
 
 vi.mock("../../lib/engineering", async (importActual) => {
   const real = await importActual<typeof import("../../lib/engineering")>();
   return {
     ...real,
     // The shell's engineering_stats, answered from the fixture: a plan it doesn't have fails.
-    shipStats: async (plan: Plan): Promise<StatsComparison | null> => {
+    shipStats: async (plan: Plan): Promise<Compared | null> => {
       asked.push(plan);
       if (override) return override;
       if (plan.ship_id !== ships.fleet.ships[0]!.id) return null;
@@ -116,6 +116,16 @@ describe("ship detail stats", () => {
     render(Build, { fleet, shipId: krait, onback: () => {} });
     const warn = await screen.findByText(/Incomplete: 1 item isn't in the ship data/);
     expect(warn.getAttribute("title")).toBe("MainEngines: int_engine_size9_class9");
+  });
+});
+
+describe("ship detail with an unknown hull", () => {
+  it("shows the ship as incomplete instead of an error", async () => {
+    override = { unknown_hull: "mediumtransport01" };
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    const warn = await screen.findByText(/Incomplete: this hull isn't in the ship data/);
+    expect(warn.getAttribute("title")).toBe("Hull: mediumtransport01");
+    expect(screen.queryByRole("rowgroup", { name: "Shields" })).toBeNull();
   });
 });
 
