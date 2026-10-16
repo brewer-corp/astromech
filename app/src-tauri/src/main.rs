@@ -398,7 +398,8 @@ async fn galaxy_nearby(
     .await
 }
 
-/// The settings store shared with the core (`astromech.sqlite` in the app dir).
+/// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
+/// when the core uses its default data dir (not portable mode or a `data_dir` override).
 fn settings() -> Result<astromech_store::Store, String> {
     std::fs::create_dir_all(app_dir()).map_err(|e| e.to_string())?;
     astromech_store::Store::open(&app_dir().join("astromech.sqlite")).map_err(|e| e.to_string())
@@ -421,7 +422,7 @@ async fn set_search_filters(lookup: String, filters: astromech_galaxy::Filters) 
     blocking(move || astromech_galaxy::filters::save(&settings()?, &lookup, &filters).map_err(|e| e.to_string())).await
 }
 
-/// System names starting with `prefix`, for the search origin box.
+/// System names resembling `prefix` (Spansh's fuzzy autocomplete), for the search origin box.
 #[tauri::command]
 async fn galaxy_systems(app: tauri::AppHandle, prefix: String) -> Result<Vec<String>, String> {
     blocking(move || galaxy(&app)?.system_names(&prefix).map_err(|e| e.to_string())).await

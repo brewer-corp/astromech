@@ -125,7 +125,7 @@ impl Galaxy {
         Ok(self.store().system(system)?.map(|x| x.2))
     }
 
-    /// Up to a handful of system names starting with `prefix` (Spansh's autocomplete), for
+    /// Up to a handful of system names resembling `prefix` (Spansh's fuzzy autocomplete), for
     /// typing a search origin.
     pub fn system_names(&self, prefix: &str) -> Result<Vec<String>> {
         Ok(self.remote.spansh_system_names(prefix)?.value.into_iter().map(|s| s.name).collect())

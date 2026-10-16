@@ -14,7 +14,9 @@
 //!
 //! System-name autocomplete (`/api/systems/field_values/system_names?q=`) answers
 //! `{"values": [names], "min_max": [{id64, name, x, y, z}]}`, up to a handful of names that
-//! start with `q`; no match is two empty lists.
+//! resemble `q`; no match is two empty lists. The match is fuzzy, not a prefix match:
+//! `q=Col 285 Sector AB-C b1` answered `Col 285 Sector AB-E b12-4`, so check names exactly
+//! before treating a suggestion as the system typed.
 //!
 //! An unknown reference system is HTTP 400 `{"error": "Invalid request"}`. `count` is capped
 //! at 10000.
@@ -415,8 +417,8 @@ impl Client {
         self.fetch(Service::Spansh, &Request::post_json("/api/bodies/search", q.body()), Some(ttl::SEARCH))
     }
 
-    /// Systems whose names start with `prefix` (Spansh's autocomplete), with positions. A
-    /// blank prefix answers nothing without a request.
+    /// Systems whose names resemble `prefix` (Spansh's fuzzy autocomplete, not only names
+    /// starting with it), with positions. A blank prefix answers nothing without a request.
     pub fn spansh_system_names(&self, prefix: &str) -> Result<Fetched<Vec<SystemName>>> {
         let prefix = prefix.trim();
         if prefix.is_empty() {

@@ -92,7 +92,10 @@ export async function saveFilters(lookup: string, filters: Filters): Promise<voi
 /** Public system names for the browser preview's autocomplete. */
 const PREVIEW_SYSTEMS = ["Sol", "Shinrarta Dezhra", "Shingon", "Shinigami", "Deciat", "Colonia", "Achenar", "Alioth", "Maia"];
 
-/** System names starting with `prefix` (at most a handful). Blank asks nothing. */
+/**
+ * System names resembling `prefix`, at most a handful: Spansh's autocomplete is fuzzy, not a
+ * prefix match (the browser preview only does prefixes). Blank asks nothing.
+ */
 export async function systemNames(prefix: string): Promise<string[]> {
   const p = prefix.trim();
   if (!p) return [];

@@ -3,7 +3,8 @@
   // system) and the lookup's remembered filters, run the lookup, and list the nearest results
   // with jumps at the current range, distance, pad size, arrival distance and data age.
   import { ago, jumps } from "../galaxy";
-  import { arrivalLabel, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Results } from "../search";
+  import { changeFilters, openFilters, type FilterStore } from "../filterstate";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
 
@@ -28,23 +29,27 @@
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   let res = $state<Results | null>(null);
   let err = $state<string | null>(null);
+  let filterErr = $state<string | null>(null);
+  const store: FilterStore = { load: loadFilters, save: saveFilters };
   let busy = $state(false);
   let asked = 0;
 
   $effect(() => {
     const l = lookup;
-    void loadFilters(l).then((filters) => {
-      if (l === lookup) saved = { lookup: l, filters };
+    filterErr = null;
+    void openFilters(store, l, DEFAULT_FILTERS).then((st) => {
+      if (l === lookup) saved = { lookup: l, filters: st.filters };
     });
   });
 
-  async function change(filters: Filters) {
+  async function change(next: Filters) {
     const l = lookup;
-    saved = { lookup: l, filters };
-    await saveFilters(l, filters);
-    // reload: the pad goes back to the ship's when the commander stops choosing one
-    const fresh = await loadFilters(l);
-    if (l === lookup && JSON.stringify(fresh) !== JSON.stringify(filters)) saved = { lookup: l, filters: fresh };
+    const prev = saved?.filters ?? DEFAULT_FILTERS;
+    saved = { lookup: l, filters: next };
+    const st = await changeFilters(store, l, prev, next);
+    if (l !== lookup) return;
+    filterErr = st.error;
+    if (JSON.stringify(st.filters) !== JSON.stringify(next)) saved = { lookup: l, filters: st.filters };
   }
 
   $effect(() => {
@@ -77,6 +82,7 @@
   <h4>{title}{res ? ` to ${res.origin}` : ""}</h4>
   <OriginInput {origin} onchange={(o) => (origin = o)} />
   {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} onchange={(f) => void change(f)} />{/if}
+  {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   {#if busy && !res}
     <p class="lo">{busyText}</p>
   {:else if err}
