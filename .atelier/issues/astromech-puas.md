@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T21:05:56.033038524+00:00"
+status: "done"
 title: "Find a ship near me"
-updated_at: "2026-10-16T21:01:41.315740544+00:00"
+updated_at: "2026-10-16T21:05:56.033038524+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A recorded-response test returns the nearest shipyards selling the ship, in dist
 ## Context
 
 Same Spansh endpoint as the module search, with a ship filter.
+
+## Close Reason
+
+Recorded-response test returns the nearest shipyards in distance order with ships too big for a station's pads excluded; voice phrases and spoken answer tested
