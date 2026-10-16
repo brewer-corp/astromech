@@ -27,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:50:11.149453734+00:00"
+status: "done"
 title: "Trade near me"
-updated_at: "2026-10-16T20:16:03.804840811+00:00"
+updated_at: "2026-10-16T20:50:11.149453734+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ The user can ask where to sell or buy a commodity near them, and where to sell t
 ## Done when
 
 Lookups against recorded Ardent responses, voice phrase tests. Independent review. The game check (astromech-1per) runs after this merges. Delivers S2.
+
+## Close Reason
+
+Both children done: lookups against recorded Ardent responses and voice phrase tests pass (xqdl at 391bf16, sd56 at b7f8ebf). Done claim for review: independent review and atelier merge are outstanding; the game check astromech-1per runs after the merge.
