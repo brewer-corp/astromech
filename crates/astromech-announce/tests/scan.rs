@@ -89,3 +89,19 @@ fn stolen_goods_speak_through_docking_quiet_and_scans_repeat_once_per_cooldown()
     clean.feed_at(granted, 0);
     assert_eq!(clean.feed_at(&scanned("20:00:05", "Cargo"), 5), [("Cargo scan.".to_string(), false, Priority::Normal)]);
 }
+
+#[test]
+fn a_shown_only_scan_does_not_swallow_the_urgent_stolen_goods_line() {
+    // On approach: station security runs a crime scan (shown, not spoken, during docking),
+    // then a cargo scan seconds later finds the stolen goods.
+    let mut r = Run::new(STOLEN_CARGO, None);
+    let granted = r#"{"timestamp":"2026-10-16T20:00:00Z","event":"DockingGranted","StationName":"S","LandingPad":7,"MarketID":1}"#;
+    r.feed_at(granted, 0);
+    assert_eq!(r.feed_at(&scanned("20:00:03", "Crime"), 3), [("Crime scan.".to_string(), false, Priority::Normal)]);
+    assert_eq!(
+        r.feed_at(&scanned("20:00:06", "Cargo"), 6),
+        [("Cargo scan. Stolen goods aboard.".to_string(), true, Priority::Urgent)]
+    );
+    // The urgent line starts its own cooldown: a lower-priority scan right after stays quiet.
+    assert!(r.feed_at(&scanned("20:00:09", "Crime"), 9).is_empty());
+}

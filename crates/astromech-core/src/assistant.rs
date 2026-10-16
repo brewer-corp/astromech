@@ -35,11 +35,11 @@ enum Pending {
 /// The spoken answer for a command the grammar knows but the app can't run yet.
 pub fn unavailable_reason(command: &str) -> &'static str {
     match command {
-        "supercruise" => "Supercruise isn't available yet. Flight commands come later.",
-        "hyperspace_jump" => "Hyperspace jumps aren't available yet. Flight commands come later.",
-        "request_docking" => "Docking requests aren't available yet.",
-        "plot_route" => "Route plotting isn't available yet.",
-        _ => "That isn't available yet.",
+        "supercruise" => "Supercruise is not available yet. Flight commands come later.",
+        "hyperspace_jump" => "Hyperspace jumps are not available yet. Flight commands come later.",
+        "request_docking" => "Docking requests are not available yet.",
+        "plot_route" => "Route plotting is not available yet.",
+        _ => "That command is not available yet.",
     }
 }
 

@@ -2,7 +2,8 @@
 //! high-value ore is at or above that ore's threshold gets one short line naming the ore and
 //! its percentage ("Platinum 34%."; at most two ores, or one after a motherlode, to keep to the
 //! copy guide's word budget); a motherlode always gets a line ("Motherlode. Void Opals.").
-//! Everything else stays quiet.
+//! Everything else stays quiet. A depleted rock (`Remaining` 0) gets only its motherlode line.
+//! `Content` (low / medium / high) isn't read: the prospector panel shows it.
 //!
 //! Thresholds are per ore: [`ORES`] gives the defaults (a static value order until the mining
 //! sale advisor exists); the commander's changes are [`Thresholds`] (stored by the core, edited
@@ -134,11 +135,15 @@ impl Rule for Prospector {
     }
     fn react(&self, input: &Input, _: &GameState) -> Option<Callout> {
         let Input::Journal(l) = input else { return None };
-        let JournalEvent::Extra(ExtraEvent::ProspectedAsteroid { materials, motherlode_material, .. }) = &l.event
+        let JournalEvent::Extra(ExtraEvent::ProspectedAsteroid { materials, motherlode_material, remaining, .. }) =
+            &l.event
         else {
             return None;
         };
-        let m: Vec<(&str, f64)> = materials.iter().map(|m| (m.name.as_str(), m.proportion)).collect();
+        // A depleted rock (`Remaining` 0) has no surface ore left to mine; its core still does.
+        let depleted = remaining.is_some_and(|r| r <= 0.0);
+        let m: Vec<(&str, f64)> =
+            if depleted { vec![] } else { materials.iter().map(|m| (m.name.as_str(), m.proportion)).collect() };
         let t = self.thresholds.read().unwrap();
         let text = line(&m, motherlode_material.as_deref(), &t)?;
         Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })

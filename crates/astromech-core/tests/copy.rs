@@ -2,7 +2,8 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{prospector, scan};
+use astromech_announce::{builtin, prospector, scan};
+use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
 use astromech_tools::{flags, from_command, plan_with, Plan};
@@ -20,6 +21,13 @@ fn spoken_words(line: &str) -> usize {
 
 /// Every line the callout rules can produce, including the longest combinations.
 fn callout_lines() -> Vec<String> {
+    let mut ids: Vec<&str> = builtin(Default::default()).iter().map(|r| r.id()).collect();
+    ids.sort();
+    assert_eq!(
+        ids,
+        ["prospector", "scan"],
+        "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
+    );
     let mut v = vec![];
     let t = prospector::Thresholds::default();
     let ores: Vec<&str> = prospector::ORES.iter().map(|o| o.symbol).collect();
@@ -28,6 +36,8 @@ fn callout_lines() -> Vec<String> {
         for b in &ores {
             v.extend(prospector::line(&[(a, 99.9), (b, 99.9)], None, &t));
             v.extend(prospector::line(&[(a, 99.9), (b, 99.9)], Some(a), &t));
+            // A motherlode plus two other ores above threshold (only one is read).
+            v.extend(prospector::line(&[(a, 99.9), (b, 99.9)], Some("opal"), &t));
         }
         v.extend(prospector::line(&[], Some(a), &t));
     }
@@ -90,6 +100,9 @@ fn states() -> Vec<GameState> {
 fn reply_and_answer_lines() -> (Vec<String>, Vec<String>) {
     let (mut replies, mut answers) = (fixed_phrases(), vec![]);
     for (id, _) in astromech_intent::MVP {
+        if astromech_intent::UNAVAILABLE.contains(id) {
+            replies.push(unavailable_reason(id).to_string());
+        }
         let Some(call) = from_command(id) else { continue };
         for g in states() {
             match plan_with(call, &g) {
@@ -136,6 +149,7 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Cargo scan. Stolen goods aboard."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));
+    assert!(replies.iter().any(|l| l.starts_with("Supercruise is not available")), "{replies:?}");
     assert!(answers.iter().any(|l| l.starts_with("Fuel:")), "{answers:?}");
     let mut bad = check("callout", &callouts, CALLOUT_WORDS);
     bad.extend(check("reply", &replies, REPLY_WORDS));

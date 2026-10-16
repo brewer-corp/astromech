@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, api, web, gamedata, history, ship, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -566,7 +566,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - Normalisation joins game words: "super cruise / crews / cruz" and "superus" → `supercruise`, "frame shift" → `frameshift`, "hyper space" → `hyperspace`.
   - Mishearings too ambiguous to press on ("you're/your" for "gear") are scored with the replacement but capped at **0.80**, so they always get "Did you mean …?".
   - Real-game cases, all unit-tested: "Bunding gear down." 0.905 → execute; "Year down." 0.875 → execute; "You're down." → ask; "Gear down." → execute; "Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus." → `supercruise`.
-- **Known but unavailable (v0.13).** `supercruise`, `hyperspace_jump`, `request_docking` and `plot_route` are in the grammar so they don't fall through to "didn't catch that". They answer "I can't do that yet. Supercruise isn't in this preview; …".
+- **Known but unavailable (v0.13).** `supercruise`, `hyperspace_jump`, `request_docking` and `plot_route` are in the grammar so they don't fall through to "Say again". They answer "Supercruise is not available yet. Flight commands come later." (and the like).
 - **Noise-only transcripts (v0.13).** A transcript made only of noise words (mm, mm-hmm, hmm, uh, um, ah, oh, yeah, okay) is ignored silently. The exception is "yeah"/"okay" while a "Did you mean …?" is open, which counts as yes.
 - **Optional later: second-pass reprocessing** (Sumeet's suggestion). When the score is in the "ask" band, re-decode the same clip with a larger or second model (e.g. Parakeet v3, or a Whisper-class model), or run a small local LLM correction constrained to the grammar's phrases. Latency only matters in that band. Not in the MVP.
 - **Context gating:** in an SRV, "lights" maps to the SRV lights action, and so on.

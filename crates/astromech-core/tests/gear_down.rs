@@ -283,7 +283,7 @@ fn real_game_round_two() {
     for t in ["Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus."] {
         assert!(matches!(a.handle(t, Origin::Voice), Handled::NotAvailable("supercruise")), "{t}");
     }
-    assert!(r.speaker.take().iter().all(|s| s.starts_with("Supercruise isn't available yet")));
+    assert!(r.speaker.take().iter().all(|s| s.starts_with("Supercruise is not available yet")));
     // "You're down." asks; "Yeah." confirms it.
     assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
     match a.handle("Yeah.", Origin::Voice) {

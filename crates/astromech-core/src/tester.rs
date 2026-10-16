@@ -297,7 +297,7 @@ mod tests {
         let b = BindsState::default();
         let r = dry_run(&g, "engage supercruise", &flying(FLAG_IN_MAIN_SHIP), &b, Source::Typed);
         assert_eq!((r.would, r.live.as_deref()), (Would::Unavailable, None));
-        assert!(r.message.starts_with("Supercruise isn't available yet"));
+        assert!(r.message.starts_with("Supercruise is not available yet"));
         let r = dry_run(&g, "You're down.", &flying(FLAG_IN_MAIN_SHIP), &b, Source::Voice);
         assert_eq!(r.would, Would::DidYouMean);
         assert_eq!(r.message, "Did you mean gear down?");

@@ -24,7 +24,7 @@
     },
     "keys": null,
     "live": null,
-    "message": "Supercruise isn't available yet. Flight commands come later.",
+    "message": "Supercruise is not available yet. Flight commands come later.",
     "source": "typed",
     "transcript": "engage supercruise",
     "would": "unavailable"

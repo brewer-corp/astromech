@@ -293,7 +293,9 @@ fn catch_up_leaves_docking_quiet_in_place() {
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
-    let mut r = Replay::new(builtin(Default::default()), &Settings::default());
+    let rules = builtin(Default::default());
+    assert_eq!(rules.len(), 2, "a callout rule was added or removed: give it a line in this catch-up test");
+    let mut r = Replay::new(rules, &Settings::default());
     let rock = r#"{"timestamp":"2026-10-16T19:59:00Z","event":"ProspectedAsteroid","Materials":[{"Name":"Platinum","Proportion":40.0}],"MotherlodeMaterial":"Opal","Remaining":100.0}"#;
     r.journal(&[rock.to_string(), scanned("19:59:10")].join("\n"));
     assert!(r.out.is_empty(), "{:?}", r.out);

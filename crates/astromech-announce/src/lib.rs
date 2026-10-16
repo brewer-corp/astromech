@@ -9,7 +9,8 @@
 //!   The engine still tracks docking and combat from those events so quiet is right at once.
 //! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
 //!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
-//!   cooldown, so a burst of the same event gives one callout.
+//!   cooldown, so a burst of the same event gives one callout; only a callout of higher
+//!   priority than the one that started the cooldown gets through.
 //! - **Quiet during docking and combat** (see [`Quiet`]): speech is dropped unless the callout
 //!   is [`Priority::Urgent`]; toasts and notifications still go.
 //! - **Status.json is deduplicated**: a rewrite with the same contents is not an event.
@@ -162,7 +163,8 @@ struct Slot {
     rule: Box<dyn Rule>,
     enabled: bool,
     cooldown: Duration,
-    fired: Option<Instant>,
+    /// When the rule last fired, and at what priority.
+    fired: Option<(Instant, Priority)>,
 }
 
 pub struct Engine {
@@ -267,7 +269,9 @@ impl Engine {
         let mut out = vec![];
         for s in self.slots.iter_mut().filter(|s| s.enabled) {
             let Some(c) = s.rule.react(input, state) else { continue };
-            if s.fired.is_some_and(|t| now.saturating_duration_since(t) < s.cooldown) {
+            // A higher priority isn't held back by a cooldown a lower one started (a shown-only
+            // crime scan must not swallow the urgent stolen-goods line seconds later).
+            if s.fired.is_some_and(|(t, p)| c.priority <= p && now.saturating_duration_since(t) < s.cooldown) {
                 continue;
             }
             let mut channels = c.channels;
@@ -277,7 +281,7 @@ impl Engine {
             if channels.is_empty() {
                 continue;
             }
-            s.fired = Some(now);
+            s.fired = Some((now, c.priority));
             out.push(Reaction { rule: s.rule.id(), text: c.text, priority: c.priority, channels, at: now });
         }
         out

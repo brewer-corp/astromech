@@ -7,10 +7,14 @@ use astromech_journal::parse_line;
 use std::time::{Duration, Instant};
 
 fn prospected(ts: &str, materials: &[(&str, f64)], motherlode: Option<&str>) -> String {
+    prospected_left(ts, materials, motherlode, 100.0)
+}
+
+fn prospected_left(ts: &str, materials: &[(&str, f64)], motherlode: Option<&str>, remaining: f64) -> String {
     let m: Vec<String> = materials.iter().map(|(n, p)| format!(r#"{{"Name":"{n}","Proportion":{p}}}"#)).collect();
     let ml = motherlode.map(|m| format!(r#","MotherlodeMaterial":"{m}""#)).unwrap_or_default();
     format!(
-        r#"{{"timestamp":"2026-10-16T{ts}Z","event":"ProspectedAsteroid","Materials":[{}],"Content":"$AsteroidMaterialContent_High;"{ml},"Remaining":100.0}}"#,
+        r#"{{"timestamp":"2026-10-16T{ts}Z","event":"ProspectedAsteroid","Materials":[{}],"Content":"$AsteroidMaterialContent_High;"{ml},"Remaining":{remaining:.1}}}"#,
         m.join(",")
     )
 }
@@ -94,4 +98,16 @@ fn threshold_changes_from_settings_apply_at_once() {
     assert!(r.feed(&rock).is_empty());
     *r.thresholds.write().unwrap() = Thresholds::default();
     assert_eq!(r.feed(&rock), ["Platinum 34%."]);
+}
+
+#[test]
+fn a_depleted_rock_gets_only_its_motherlode_line() {
+    let mut r = Run::new();
+    assert!(r.feed(&prospected_left("20:00:00", &[("Platinum", 34.0)], None, 0.0)).is_empty());
+    assert_eq!(
+        r.feed(&prospected_left("20:00:01", &[("Platinum", 34.0)], Some("Opal"), 0.0)),
+        ["Motherlode. Void Opals."]
+    );
+    // Partly mined is still worth it.
+    assert_eq!(r.feed(&prospected_left("20:00:02", &[("Platinum", 34.0)], None, 40.0)), ["Platinum 34%."]);
 }
