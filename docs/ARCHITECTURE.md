@@ -236,6 +236,10 @@ astromech/
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
+    astromech-odyssey/   Odyssey on-foot micro-resources: ShipLocker.json + Backpack.json inventory,
+                         suit/weapon grade upgrades and modifications with what's missing, a shopping
+                         list, on-foot engineers (EngineerProgress 4000xx, referral chain), bartender
+                         values; game data from data/catalog/odyssey.json
     astromech-ship/      ship stats from fitted modules and engineering (mass, jump range, power,
                          shields, armour, weapons, distributor, speed), ported from Coriolis;
                          base stats from data/catalog/ships.json
@@ -1691,7 +1695,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 |---|---|---|---|
 | **M1** (after the MVP voice phase; K0–K7 in KEYBINDS §14) | **Keybinds** | `astromech-keybinds`, device inventory | "What's my landing-gear key?", "what does my pinky button do?", Binds Doctor summary, profile status. `bindings_apply_fix` (tier 2, existing) |
 | **M2** | **Ship & loadout** | `astromech-ship`, `astromech-gamedata`, `astromech-history` (StoredShips) | Laden and max jump range, "how much cargo space is free?", "where's my Krait?", module and engineering summary, rebuy |
-| **M3** | **Engineering & materials** | `astromech-materials`, `astromech-engineering` | "How many raw mats do I have?", "what do I need for G5 FSD increased range?", "what can I trade arsenic for?", engineer unlock status |
+| **M3** | **Engineering & materials** | `astromech-materials`, `astromech-engineering`, `astromech-odyssey` | "How many raw mats do I have?", "what do I need for G5 FSD increased range?", "what can I trade arsenic for?", engineer unlock status |
 | **M4** | **Logbook & history** | `astromech-history` (FTS) | "How much did I earn today?", "have I been to this system?", "when did I last dock at Jameson Memorial?" |
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
 | **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?" |

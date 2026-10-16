@@ -1,0 +1,2692 @@
+{
+ "source": "Elite Dangerous Wiki (elite-dangerous.fandom.com) and EDCD/FDevIDs, via scripts/gen-odyssey.py",
+ "generated": "2026-10-16",
+ "note": "Suit and weapon grade upgrades are bought at Pioneer Supplies; modifications are fitted by the engineers listed.",
+ "items": {
+  "accidentlogs": {
+   "name": "Accident Logs",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "aerogel": {
+   "name": "Aerogel",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "agriculturalprocesssample": {
+   "name": "Agricultural Process Sample",
+   "category": "item",
+   "barter": null,
+   "value": 50000
+  },
+  "airqualityreports": {
+   "name": "Air Quality Reports",
+   "category": "data",
+   "barter": null,
+   "value": 3000
+  },
+  "amm_grenade_emp": {
+   "name": "Shield Disruptor",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "amm_grenade_frag": {
+   "name": "Frag Grenade",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "amm_grenade_shield": {
+   "name": "Shield Projector",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "atmosphericdata": {
+   "name": "Atmospheric Data",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "audiologs": {
+   "name": "Audio Logs",
+   "category": "data",
+   "barter": null,
+   "value": 17000
+  },
+  "axcombatlogs": {
+   "name": "AX Combat Logs",
+   "category": "data",
+   "barter": null,
+   "value": 24000
+  },
+  "ballisticsdata": {
+   "name": "Ballistics Data",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "biochemicalagent": {
+   "name": "Biochemical Agent",
+   "category": "item",
+   "barter": null,
+   "value": 125000
+  },
+  "biologicalweapondata": {
+   "name": "Biological Weapon Data",
+   "category": "data",
+   "barter": null,
+   "value": 35000
+  },
+  "biometricdata": {
+   "name": "Biometric Data",
+   "category": "data",
+   "barter": null,
+   "value": 24000
+  },
+  "blacklistdata": {
+   "name": "Blacklist Data",
+   "category": "data",
+   "barter": null,
+   "value": 14000
+  },
+  "bloodtestresults": {
+   "name": "Blood Test Results",
+   "category": "data",
+   "barter": null,
+   "value": 18000
+  },
+  "buildingschematic": {
+   "name": "Building Schematic",
+   "category": "item",
+   "barter": null,
+   "value": 25000
+  },
+  "bypass": {
+   "name": "E-Breach",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "californium": {
+   "name": "Californium",
+   "category": "item",
+   "barter": null,
+   "value": 100000
+  },
+  "campaignplans": {
+   "name": "Campaign Plans",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "carbonfibreplating": {
+   "name": "Carbon Fibre Plating",
+   "category": "component",
+   "barter": 11,
+   "value": 600
+  },
+  "castfossil": {
+   "name": "Cast Fossil",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "catmedia": {
+   "name": "Cat Media",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "censusdata": {
+   "name": "Census Data",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "chemicalcatalyst": {
+   "name": "Chemical Catalyst",
+   "category": "component",
+   "barter": 7,
+   "value": 400
+  },
+  "chemicalexperimentdata": {
+   "name": "Chemical Experiment Data",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "chemicalformulae": {
+   "name": "Chemical Formulae",
+   "category": "data",
+   "barter": null,
+   "value": 10000
+  },
+  "chemicalinventory": {
+   "name": "Chemical Inventory",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "chemicalpatents": {
+   "name": "Chemical Patents",
+   "category": "data",
+   "barter": null,
+   "value": 21000
+  },
+  "chemicalprocesssample": {
+   "name": "Chemical Process Sample",
+   "category": "item",
+   "barter": null,
+   "value": 50000
+  },
+  "chemicalsample": {
+   "name": "Chemical Sample",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "chemicalsuperbase": {
+   "name": "Chemical Superbase",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "chemicalweapondata": {
+   "name": "Chemical Weapon Data",
+   "category": "data",
+   "barter": null,
+   "value": 34000
+  },
+  "circuitboard": {
+   "name": "Circuit Board",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "circuitswitch": {
+   "name": "Circuit Switch",
+   "category": "component",
+   "barter": 4,
+   "value": 200
+  },
+  "classicentertainment": {
+   "name": "Classic Entertainment",
+   "category": "data",
+   "barter": null,
+   "value": 7000
+  },
+  "cocktailrecipes": {
+   "name": "Cocktail Recipes",
+   "category": "data",
+   "barter": null,
+   "value": 3000
+  },
+  "combatantperformance": {
+   "name": "Combatant Performance",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "combattrainingmaterial": {
+   "name": "Combat Training Material",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "compactlibrary": {
+   "name": "Compact Library",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "compressionliquefiedgas": {
+   "name": "Compression-Liquefied Gas",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "conflicthistory": {
+   "name": "Conflict History",
+   "category": "data",
+   "barter": null,
+   "value": 15000
+  },
+  "criminalrecords": {
+   "name": "Criminal Records",
+   "category": "data",
+   "barter": null,
+   "value": 22000
+  },
+  "cropyieldanalysis": {
+   "name": "Crop Yield Analysis",
+   "category": "data",
+   "barter": null,
+   "value": null
+  },
+  "culinaryrecipes": {
+   "name": "Culinary Recipes",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "deepmantlesample": {
+   "name": "Deep Mantle Sample",
+   "category": "item",
+   "barter": null,
+   "value": 25000
+  },
+  "degradedpowerregulator": {
+   "name": "Degraded Power Regulator",
+   "category": "item",
+   "barter": null,
+   "value": 15000
+  },
+  "digitaldesigns": {
+   "name": "Digital Designs",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "dutyrota": {
+   "name": "Duty Rota",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "electricalfuse": {
+   "name": "Electrical Fuse",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "electricalwiring": {
+   "name": "Electrical Wiring",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "electromagnet": {
+   "name": "Electromagnet",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "employeedirectory": {
+   "name": "Employee Directory",
+   "category": "data",
+   "barter": null,
+   "value": 5000
+  },
+  "employeeexpenses": {
+   "name": "Employee Expenses",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "employeegeneticdata": {
+   "name": "Employee Genetic Data",
+   "category": "data",
+   "barter": null,
+   "value": 20000
+  },
+  "employmenthistory": {
+   "name": "Employee History",
+   "category": "data",
+   "barter": null,
+   "value": 3000
+  },
+  "encryptedmemorychip": {
+   "name": "Encrypted Memory Chip",
+   "category": "component",
+   "barter": 4,
+   "value": 200
+  },
+  "energycell": {
+   "name": "Energy Cell",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "enhancedinterrogationrecordings": {
+   "name": "Enhanced Interrogation Recordings",
+   "category": "data",
+   "barter": null,
+   "value": 30000
+  },
+  "epinephrine": {
+   "name": "Epinephrine",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "epoxyadhesive": {
+   "name": "Epoxy Adhesive",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "espionagematerial": {
+   "name": "Espionage Material",
+   "category": "data",
+   "barter": null,
+   "value": 29000
+  },
+  "evacuationprotocols": {
+   "name": "Evacuation Protocols",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "explorationjournals": {
+   "name": "Exploration Journals",
+   "category": "data",
+   "barter": null,
+   "value": 10000
+  },
+  "extractionyielddata": {
+   "name": "Extraction Yield Data",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "factionassociates": {
+   "name": "Faction Associates",
+   "category": "data",
+   "barter": null,
+   "value": 15000
+  },
+  "factiondonatorlist": {
+   "name": "Faction Donator List",
+   "category": "data",
+   "barter": null,
+   "value": 16000
+  },
+  "factionnews": {
+   "name": "Faction News",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "financialprojections": {
+   "name": "Financial Projections",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "fleetregistry": {
+   "name": "Fleet Registry",
+   "category": "data",
+   "barter": null,
+   "value": 17000
+  },
+  "genesequencingdata": {
+   "name": "Gene Sequencing Data",
+   "category": "data",
+   "barter": null,
+   "value": 17000
+  },
+  "geneticrepairmeds": {
+   "name": "Genetic Repair Meds",
+   "category": "item",
+   "barter": null,
+   "value": 100000
+  },
+  "geneticresearch": {
+   "name": "Genetic Research",
+   "category": "data",
+   "barter": null,
+   "value": 21000
+  },
+  "geneticsample": {
+   "name": "Biological Sample",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "geologicaldata": {
+   "name": "Geological Data",
+   "category": "data",
+   "barter": null,
+   "value": 10000
+  },
+  "gmeds": {
+   "name": "G-Meds",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "graphene": {
+   "name": "Graphene",
+   "category": "component",
+   "barter": 23,
+   "value": 1300
+  },
+  "healthmonitor": {
+   "name": "Health Monitor",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "healthpack": {
+   "name": "Medkit",
+   "category": "consumable",
+   "barter": null,
+   "value": null
+  },
+  "hush": {
+   "name": "Hush",
+   "category": "item",
+   "barter": null,
+   "value": 75000
+  },
+  "hydroponicdata": {
+   "name": "Hydroponic Data",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "incidentlogs": {
+   "name": "Incident Logs",
+   "category": "data",
+   "barter": null,
+   "value": 7000
+  },
+  "inertiacanister": {
+   "name": "Inertia Canister",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "infinity": {
+   "name": "Infinity",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "influenceprojections": {
+   "name": "Influence Projections",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "inorganiccontaminant": {
+   "name": "Inorganic Contaminant",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "insight": {
+   "name": "InSight",
+   "category": "item",
+   "barter": null,
+   "value": null
+  },
+  "insightdatabank": {
+   "name": "InSight Data Bank",
+   "category": "item",
+   "barter": null,
+   "value": null
+  },
+  "insightentertainmentsuite": {
+   "name": "InSight Entertainment Suite",
+   "category": "item",
+   "barter": null,
+   "value": null
+  },
+  "internalcorrespondence": {
+   "name": "Internal Correspondence",
+   "category": "data",
+   "barter": null,
+   "value": 20000
+  },
+  "interrogationrecordings": {
+   "name": "Interrogation Recordings",
+   "category": "data",
+   "barter": null,
+   "value": 23000
+  },
+  "interviewrecordings": {
+   "name": "Interview Recordings",
+   "category": "data",
+   "barter": null,
+   "value": 15000
+  },
+  "ionbattery": {
+   "name": "Ion Battery",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "ionisedgas": {
+   "name": "Ionised Gas",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "jobapplications": {
+   "name": "Job Applications",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "kompromat": {
+   "name": "Kompromat",
+   "category": "data",
+   "barter": null,
+   "value": 33000
+  },
+  "largecapacitypowerregulator": {
+   "name": "Power Regulator",
+   "category": "item",
+   "barter": null,
+   "value": 50000
+  },
+  "lazarus": {
+   "name": "Lazarus",
+   "category": "item",
+   "barter": null,
+   "value": 125000
+  },
+  "literaryfiction": {
+   "name": "Literary Fiction",
+   "category": "data",
+   "barter": null,
+   "value": 2000
+  },
+  "maintenancelogs": {
+   "name": "Maintenance Logs",
+   "category": "data",
+   "barter": null,
+   "value": 2000
+  },
+  "manufacturinginstructions": {
+   "name": "Manufacturing Instructions",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "medicalrecords": {
+   "name": "Medical Records",
+   "category": "data",
+   "barter": null,
+   "value": 19000
+  },
+  "medicaltrialrecords": {
+   "name": "Clinical Trial Records",
+   "category": "data",
+   "barter": null,
+   "value": 24000
+  },
+  "meetingminutes": {
+   "name": "Meeting Minutes",
+   "category": "data",
+   "barter": null,
+   "value": 1000
+  },
+  "memorychip": {
+   "name": "Memory Chip",
+   "category": "component",
+   "barter": 4,
+   "value": 200
+  },
+  "metalcoil": {
+   "name": "Metal Coil",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "microbialinhibitor": {
+   "name": "Microbial Inhibitor",
+   "category": "item",
+   "barter": null,
+   "value": 20000
+  },
+  "microelectrode": {
+   "name": "Microelectrode",
+   "category": "component",
+   "barter": 16,
+   "value": 900
+  },
+  "microhydraulics": {
+   "name": "Micro Hydraulics",
+   "category": "component",
+   "barter": 7,
+   "value": 400
+  },
+  "microsupercapacitor": {
+   "name": "Micro Supercapacitor",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "microthrusters": {
+   "name": "Micro Thrusters",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "microtransformer": {
+   "name": "Micro Transformer",
+   "category": "component",
+   "barter": 7,
+   "value": 400
+  },
+  "mineralsurvey": {
+   "name": "Mineral Survey",
+   "category": "data",
+   "barter": null,
+   "value": 5000
+  },
+  "mininganalytics": {
+   "name": "Mining Analytics",
+   "category": "data",
+   "barter": null,
+   "value": 7000
+  },
+  "motor": {
+   "name": "Motor",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "multimediaentertainment": {
+   "name": "Multimedia Entertainment",
+   "category": "data",
+   "barter": null,
+   "value": 3000
+  },
+  "mutageniccatalyst": {
+   "name": "Mutagenic Catalyst",
+   "category": "item",
+   "barter": null,
+   "value": 75000
+  },
+  "networkaccesshistory": {
+   "name": "Network Access History",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "networksecurityprotocols": {
+   "name": "Network Security Protocols",
+   "category": "data",
+   "barter": null,
+   "value": 23000
+  },
+  "nextofkinrecords": {
+   "name": "Next of Kin Records",
+   "category": "data",
+   "barter": null,
+   "value": 13000
+  },
+  "nocdata": {
+   "name": "NOC Data",
+   "category": "data",
+   "barter": null,
+   "value": 25000
+  },
+  "nutritionalconcentrate": {
+   "name": "Nutritional Concentrate",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "operationalmanual": {
+   "name": "Operational Manual",
+   "category": "data",
+   "barter": null,
+   "value": 7000
+  },
+  "opinionpolls": {
+   "name": "Opinion Polls",
+   "category": "data",
+   "barter": null,
+   "value": 5000
+  },
+  "opticalfibre": {
+   "name": "Optical Fibre",
+   "category": "component",
+   "barter": 11,
+   "value": 600
+  },
+  "opticallens": {
+   "name": "Optical Lens",
+   "category": "component",
+   "barter": 9,
+   "value": 500
+  },
+  "oxygenicbacteria": {
+   "name": "Oxygenic Bacteria",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "patienthistory": {
+   "name": "Patient History",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "patrolroutes": {
+   "name": "Patrol Routes",
+   "category": "data",
+   "barter": null,
+   "value": 14000
+  },
+  "payrollinformation": {
+   "name": "Payroll Information",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "personalcomputer": {
+   "name": "Personal Computer",
+   "category": "item",
+   "barter": null,
+   "value": 15000
+  },
+  "personaldocuments": {
+   "name": "Personal Documents",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "personallogs": {
+   "name": "Personal Logs",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "petrifiedfossil": {
+   "name": "Petrified Fossil",
+   "category": "item",
+   "barter": null,
+   "value": 75000
+  },
+  "pharmaceuticalpatents": {
+   "name": "Pharmaceutical Patents",
+   "category": "data",
+   "barter": null,
+   "value": 21000
+  },
+  "phneutraliser": {
+   "name": "pH Neutraliser",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "photoalbums": {
+   "name": "Photo Albums",
+   "category": "data",
+   "barter": null,
+   "value": 3000
+  },
+  "plantgrowthcharts": {
+   "name": "Plant Growth Charts",
+   "category": "data",
+   "barter": null,
+   "value": 5000
+  },
+  "politicalaffiliations": {
+   "name": "Political Affiliations",
+   "category": "data",
+   "barter": null,
+   "value": 10000
+  },
+  "prisonerlogs": {
+   "name": "Prisoner Logs",
+   "category": "data",
+   "barter": null,
+   "value": 19000
+  },
+  "productionreports": {
+   "name": "Production Reports",
+   "category": "data",
+   "barter": null,
+   "value": 11000
+  },
+  "productionschedule": {
+   "name": "Production Schedule",
+   "category": "data",
+   "barter": null,
+   "value": 10000
+  },
+  "propaganda": {
+   "name": "Propaganda",
+   "category": "data",
+   "barter": null,
+   "value": 17000
+  },
+  "purchaserecords": {
+   "name": "Purchase Records",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "purchaserequests": {
+   "name": "Purchase Requests",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "push": {
+   "name": "Push",
+   "category": "item",
+   "barter": null,
+   "value": 25000
+  },
+  "pyrolyticcatalyst": {
+   "name": "Pyrolytic Catalyst",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "radioactivitydata": {
+   "name": "Radioactivity Data",
+   "category": "data",
+   "barter": null,
+   "value": 16000
+  },
+  "rdx": {
+   "name": "RDX",
+   "category": "component",
+   "barter": 7,
+   "value": 400
+  },
+  "reactoroutputreview": {
+   "name": "Reactor Output Review",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "recyclinglogs": {
+   "name": "Recycling Logs",
+   "category": "data",
+   "barter": null,
+   "value": 2000
+  },
+  "refinementprocesssample": {
+   "name": "Refinement Process Sample",
+   "category": "item",
+   "barter": null,
+   "value": 50000
+  },
+  "residentialdirectory": {
+   "name": "Residential Directory",
+   "category": "data",
+   "barter": null,
+   "value": 8000
+  },
+  "riskassessments": {
+   "name": "Risk Assessments",
+   "category": "data",
+   "barter": null,
+   "value": 2000
+  },
+  "salesrecords": {
+   "name": "Sales Records",
+   "category": "data",
+   "barter": null,
+   "value": 7000
+  },
+  "scrambler": {
+   "name": "Scrambler",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "securityexpenses": {
+   "name": "Security Expenses",
+   "category": "data",
+   "barter": null,
+   "value": 16000
+  },
+  "seedgeneaology": {
+   "name": "Seed Genealogy",
+   "category": "data",
+   "barter": null,
+   "value": null
+  },
+  "settlementassaultplans": {
+   "name": "Settlement Assault Plans",
+   "category": "data",
+   "barter": null,
+   "value": 20000
+  },
+  "settlementdefenceplans": {
+   "name": "Settlement Defence Plans",
+   "category": "data",
+   "barter": null,
+   "value": 22000
+  },
+  "shareholderinformation": {
+   "name": "Shareholder Information",
+   "category": "data",
+   "barter": null,
+   "value": 17000
+  },
+  "shipschematic": {
+   "name": "Ship Schematic",
+   "category": "item",
+   "barter": null,
+   "value": 25000
+  },
+  "slushfundlogs": {
+   "name": "Slush Fund Logs",
+   "category": "data",
+   "barter": null,
+   "value": 27000
+  },
+  "smearcampaignplans": {
+   "name": "Smear Campaign Plans",
+   "category": "data",
+   "barter": null,
+   "value": 26000
+  },
+  "spectralanalysisdata": {
+   "name": "Spectral Analysis Data",
+   "category": "data",
+   "barter": null,
+   "value": 13000
+  },
+  "spyware": {
+   "name": "Spyware",
+   "category": "data",
+   "barter": null,
+   "value": null
+  },
+  "stellaractivitylogs": {
+   "name": "Stellar Activity Logs",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "suitschematic": {
+   "name": "Suit Schematic",
+   "category": "item",
+   "barter": null,
+   "value": 50000
+  },
+  "surveillanceequipment": {
+   "name": "Surveillance Equipment",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "surveilleancelogs": {
+   "name": "Surveillance Logs",
+   "category": "data",
+   "barter": null,
+   "value": 19000
+  },
+  "syntheticgenome": {
+   "name": "Synthetic Genome",
+   "category": "item",
+   "barter": null,
+   "value": 100000
+  },
+  "syntheticpathogen": {
+   "name": "Synthetic Pathogen",
+   "category": "item",
+   "barter": null,
+   "value": 75000
+  },
+  "tacticalplans": {
+   "name": "Tactical Plans",
+   "category": "data",
+   "barter": null,
+   "value": null
+  },
+  "taxrecords": {
+   "name": "Tax Records",
+   "category": "data",
+   "barter": null,
+   "value": 16000
+  },
+  "titaniumplating": {
+   "name": "Titanium Plating",
+   "category": "component",
+   "barter": 11,
+   "value": 600
+  },
+  "topographicalsurveys": {
+   "name": "Topographical Surveys",
+   "category": "data",
+   "barter": null,
+   "value": 12000
+  },
+  "transmitter": {
+   "name": "Transmitter",
+   "category": "component",
+   "barter": 5,
+   "value": 300
+  },
+  "travelpermits": {
+   "name": "Travel Permits",
+   "category": "data",
+   "barter": null,
+   "value": 2000
+  },
+  "troopdeploymentrecords": {
+   "name": "Troop Deployment Records",
+   "category": "data",
+   "barter": null,
+   "value": 16000
+  },
+  "trueformfossil": {
+   "name": "True Form Fossil",
+   "category": "item",
+   "barter": null,
+   "value": 100000
+  },
+  "tungstencarbide": {
+   "name": "Tungsten Carbide",
+   "category": "component",
+   "barter": 11,
+   "value": 600
+  },
+  "unionmembership": {
+   "name": "Union Membership",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "universaltranslator": {
+   "name": "Universal Translator",
+   "category": "item",
+   "barter": null,
+   "value": 10000
+  },
+  "vaccinationrecords": {
+   "name": "Vaccination Records",
+   "category": "data",
+   "barter": null,
+   "value": 4000
+  },
+  "vaccineresearch": {
+   "name": "Vaccine Research",
+   "category": "data",
+   "barter": null,
+   "value": 13000
+  },
+  "vehicleschematic": {
+   "name": "Vehicle Schematic",
+   "category": "item",
+   "barter": null,
+   "value": 70000
+  },
+  "vipsecuritydetail": {
+   "name": "VIP Security Detail",
+   "category": "data",
+   "barter": null,
+   "value": 18000
+  },
+  "virologydata": {
+   "name": "Virology Data",
+   "category": "data",
+   "barter": null,
+   "value": 14000
+  },
+  "virus": {
+   "name": "Virus",
+   "category": "data",
+   "barter": null,
+   "value": null
+  },
+  "viscoelasticpolymer": {
+   "name": "Viscoelastic Polymer",
+   "category": "component",
+   "barter": 11,
+   "value": 600
+  },
+  "visitorregister": {
+   "name": "Visitor Register",
+   "category": "data",
+   "barter": null,
+   "value": 6000
+  },
+  "weaponcomponent": {
+   "name": "Weapon Component",
+   "category": "component",
+   "barter": 18,
+   "value": 1000
+  },
+  "weaponinventory": {
+   "name": "Weapon Inventory",
+   "category": "data",
+   "barter": null,
+   "value": 9000
+  },
+  "weaponschematic": {
+   "name": "Weapon Schematic",
+   "category": "item",
+   "barter": null,
+   "value": 35000
+  },
+  "weapontestdata": {
+   "name": "Weapon Test Data",
+   "category": "data",
+   "barter": null,
+   "value": 15000
+  },
+  "xenodefenceprotocols": {
+   "name": "Xeno-Defence Protocols",
+   "category": "data",
+   "barter": null,
+   "value": 25000
+  }
+ },
+ "suits": [
+  {
+   "id": "maverick",
+   "name": "Maverick Suit",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "suitschematic": 1,
+      "healthmonitor": 1,
+      "manufacturinginstructions": 1,
+      "carbonfibreplating": 2,
+      "graphene": 2
+     },
+     "credits": 600000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "suitschematic": 2,
+      "healthmonitor": 2,
+      "manufacturinginstructions": 2,
+      "carbonfibreplating": 5,
+      "graphene": 5
+     },
+     "credits": 2250000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "suitschematic": 4,
+      "healthmonitor": 4,
+      "manufacturinginstructions": 4,
+      "carbonfibreplating": 9,
+      "graphene": 9
+     },
+     "credits": 4500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "suitschematic": 5,
+      "healthmonitor": 5,
+      "manufacturinginstructions": 5,
+      "carbonfibreplating": 12,
+      "graphene": 12
+     },
+     "credits": 7500000
+    }
+   ]
+  },
+  {
+   "id": "dominator",
+   "name": "Dominator Suit",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "suitschematic": 1,
+      "healthmonitor": 1,
+      "manufacturinginstructions": 1,
+      "titaniumplating": 2,
+      "graphene": 2
+     },
+     "credits": 600000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "suitschematic": 2,
+      "healthmonitor": 2,
+      "manufacturinginstructions": 2,
+      "titaniumplating": 5,
+      "graphene": 5
+     },
+     "credits": 2250000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "suitschematic": 4,
+      "healthmonitor": 4,
+      "manufacturinginstructions": 4,
+      "titaniumplating": 9,
+      "graphene": 9
+     },
+     "credits": 4500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "suitschematic": 5,
+      "healthmonitor": 5,
+      "manufacturinginstructions": 5,
+      "titaniumplating": 12,
+      "graphene": 12
+     },
+     "credits": 7500000
+    }
+   ]
+  },
+  {
+   "id": "artemis",
+   "name": "Artemis Suit",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "suitschematic": 1,
+      "healthmonitor": 1,
+      "manufacturinginstructions": 1,
+      "aerogel": 2,
+      "graphene": 2
+     },
+     "credits": 600000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "suitschematic": 2,
+      "healthmonitor": 2,
+      "manufacturinginstructions": 2,
+      "aerogel": 5,
+      "graphene": 5
+     },
+     "credits": 2250000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "suitschematic": 4,
+      "healthmonitor": 4,
+      "manufacturinginstructions": 4,
+      "aerogel": 9,
+      "graphene": 9
+     },
+     "credits": 4500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "suitschematic": 5,
+      "healthmonitor": 5,
+      "manufacturinginstructions": 5,
+      "aerogel": 12,
+      "graphene": 12
+     },
+     "credits": 7500000
+    }
+   ]
+  }
+ ],
+ "weapons": [
+  {
+   "id": "karmaar50",
+   "name": "Karma AR-50",
+   "maker": "kinematic",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "compressionliquefiedgas": 1,
+      "manufacturinginstructions": 1,
+      "tungstencarbide": 2,
+      "weaponcomponent": 2
+     },
+     "credits": 500000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "compressionliquefiedgas": 2,
+      "manufacturinginstructions": 2,
+      "tungstencarbide": 5,
+      "weaponcomponent": 5
+     },
+     "credits": 1875000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "compressionliquefiedgas": 4,
+      "manufacturinginstructions": 4,
+      "tungstencarbide": 9,
+      "weaponcomponent": 9
+     },
+     "credits": 3750000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "compressionliquefiedgas": 5,
+      "manufacturinginstructions": 5,
+      "tungstencarbide": 12,
+      "weaponcomponent": 12
+     },
+     "credits": 6250000
+    }
+   ]
+  },
+  {
+   "id": "karmac44",
+   "name": "Karma C-44",
+   "maker": "kinematic",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "compressionliquefiedgas": 1,
+      "manufacturinginstructions": 1,
+      "tungstencarbide": 2,
+      "weaponcomponent": 2
+     },
+     "credits": 300000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "compressionliquefiedgas": 2,
+      "manufacturinginstructions": 2,
+      "tungstencarbide": 5,
+      "weaponcomponent": 5
+     },
+     "credits": 1125000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "compressionliquefiedgas": 4,
+      "manufacturinginstructions": 4,
+      "tungstencarbide": 9,
+      "weaponcomponent": 9
+     },
+     "credits": null
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "compressionliquefiedgas": 5,
+      "manufacturinginstructions": 5,
+      "tungstencarbide": 12,
+      "weaponcomponent": 12
+     },
+     "credits": null
+    }
+   ]
+  },
+  {
+   "id": "karmal6",
+   "name": "Karma L-6",
+   "maker": "kinematic",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "compressionliquefiedgas": 1,
+      "manufacturinginstructions": 1,
+      "tungstencarbide": 2,
+      "weaponcomponent": 2
+     },
+     "credits": 700000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "compressionliquefiedgas": 2,
+      "manufacturinginstructions": 2,
+      "tungstencarbide": 5,
+      "weaponcomponent": 5
+     },
+     "credits": 2625000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "compressionliquefiedgas": 4,
+      "manufacturinginstructions": 4,
+      "tungstencarbide": 9,
+      "weaponcomponent": 9
+     },
+     "credits": 5250000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "compressionliquefiedgas": 5,
+      "manufacturinginstructions": 5,
+      "tungstencarbide": 12,
+      "weaponcomponent": 12
+     },
+     "credits": 8750000
+    }
+   ]
+  },
+  {
+   "id": "karmap15",
+   "name": "Karma P-15",
+   "maker": "kinematic",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "compressionliquefiedgas": 1,
+      "manufacturinginstructions": 1,
+      "tungstencarbide": 2,
+      "weaponcomponent": 2
+     },
+     "credits": 200000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "compressionliquefiedgas": 2,
+      "manufacturinginstructions": 2,
+      "tungstencarbide": 5,
+      "weaponcomponent": 5
+     },
+     "credits": 750000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "compressionliquefiedgas": 4,
+      "manufacturinginstructions": 4,
+      "tungstencarbide": 9,
+      "weaponcomponent": 9
+     },
+     "credits": 1500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "compressionliquefiedgas": 5,
+      "manufacturinginstructions": 5,
+      "tungstencarbide": 12,
+      "weaponcomponent": 12
+     },
+     "credits": null
+    }
+   ]
+  },
+  {
+   "id": "manticoreexecutioner",
+   "name": "Manticore Executioner",
+   "maker": "manticore",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "chemicalsuperbase": 2,
+      "microelectrode": 2
+     },
+     "credits": 700000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "chemicalsuperbase": 5,
+      "microelectrode": 5
+     },
+     "credits": 2625000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "chemicalsuperbase": 9,
+      "microelectrode": 9
+     },
+     "credits": 5250000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "chemicalsuperbase": 12,
+      "microelectrode": 12
+     },
+     "credits": 8750000
+    }
+   ]
+  },
+  {
+   "id": "manticoreintimidator",
+   "name": "Manticore Intimidator",
+   "maker": "manticore",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "chemicalsuperbase": 2,
+      "microelectrode": 2
+     },
+     "credits": 60000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "chemicalsuperbase": 5,
+      "microelectrode": 5
+     },
+     "credits": 1500000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "chemicalsuperbase": 9,
+      "microelectrode": 9
+     },
+     "credits": null
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "chemicalsuperbase": 12,
+      "microelectrode": 12
+     },
+     "credits": 4500000
+    }
+   ]
+  },
+  {
+   "id": "manticoreoppressor",
+   "name": "Manticore Oppressor",
+   "maker": "manticore",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "chemicalsuperbase": 2,
+      "microelectrode": 2
+     },
+     "credits": null
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "chemicalsuperbase": 5,
+      "microelectrode": 5
+     },
+     "credits": 1875000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "chemicalsuperbase": 9,
+      "microelectrode": 9
+     },
+     "credits": 3750000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "chemicalsuperbase": 12,
+      "microelectrode": 12
+     },
+     "credits": 5625000
+    }
+   ]
+  },
+  {
+   "id": "manticoretormentor",
+   "name": "Manticore Tormentor",
+   "maker": "manticore",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "chemicalsuperbase": 2,
+      "microelectrode": 2
+     },
+     "credits": 500000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "chemicalsuperbase": 5,
+      "microelectrode": 5
+     },
+     "credits": 750000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "chemicalsuperbase": 9,
+      "microelectrode": 9
+     },
+     "credits": 1500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "chemicalsuperbase": 12,
+      "microelectrode": 12
+     },
+     "credits": 2500000
+    }
+   ]
+  },
+  {
+   "id": "tkaphelion",
+   "name": "TK Aphelion",
+   "maker": "takada",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "microelectrode": 2,
+      "opticalfibre": 2
+     },
+     "credits": 500000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "microelectrode": 5,
+      "opticalfibre": 5
+     },
+     "credits": null
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "microelectrode": 9,
+      "opticalfibre": 9
+     },
+     "credits": 3750000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "microelectrode": 12,
+      "opticalfibre": 12
+     },
+     "credits": null
+    }
+   ]
+  },
+  {
+   "id": "tkeclipse",
+   "name": "TK Eclipse",
+   "maker": "takada",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "microelectrode": 2,
+      "opticalfibre": 2
+     },
+     "credits": 300000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "microelectrode": 5,
+      "opticalfibre": 5
+     },
+     "credits": 1125000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "microelectrode": 9,
+      "opticalfibre": 9
+     },
+     "credits": 2250000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "microelectrode": 12,
+      "opticalfibre": 12
+     },
+     "credits": null
+    }
+   ]
+  },
+  {
+   "id": "tkzenith",
+   "name": "TK Zenith",
+   "maker": "takada",
+   "upgrades": [
+    {
+     "grade": 2,
+     "materials": {
+      "weaponschematic": 1,
+      "ionisedgas": 1,
+      "manufacturinginstructions": 1,
+      "microelectrode": 2,
+      "opticalfibre": 2
+     },
+     "credits": 200000
+    },
+    {
+     "grade": 3,
+     "materials": {
+      "weaponschematic": 2,
+      "ionisedgas": 2,
+      "manufacturinginstructions": 2,
+      "microelectrode": 5,
+      "opticalfibre": 5
+     },
+     "credits": 750000
+    },
+    {
+     "grade": 4,
+     "materials": {
+      "weaponschematic": 4,
+      "ionisedgas": 4,
+      "manufacturinginstructions": 4,
+      "microelectrode": 9,
+      "opticalfibre": 9
+     },
+     "credits": 1500000
+    },
+    {
+     "grade": 5,
+     "materials": {
+      "weaponschematic": 5,
+      "ionisedgas": 5,
+      "manufacturinginstructions": 5,
+      "microelectrode": 12,
+      "opticalfibre": 12
+     },
+     "credits": 2500000
+    }
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "id": "addedmeleedamage",
+   "name": "Added Melee Damage",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "epinephrine": 5,
+      "microthrusters": 8,
+      "combattrainingmaterial": 5,
+      "combatantperformance": 5
+     },
+     "credits": null
+    }
+   ]
+  },
+  {
+   "id": "combatmovementspeed",
+   "name": "Combat Movement Speed",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "evacuationprotocols": 5,
+      "geneticresearch": 3,
+      "epinephrine": 5,
+      "phneutraliser": 8
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "damageresistance",
+   "name": "Damage Resistance",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "titaniumplating": 3,
+      "carbonfibreplating": 3,
+      "epoxyadhesive": 8,
+      "weaponinventory": 5,
+      "ballisticsdata": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "enhancedtracking",
+   "name": "Enhanced Tracking",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "transmitter": 3,
+      "circuitboard": 3,
+      "topographicalsurveys": 5,
+      "stellaractivitylogs": 5,
+      "spectralanalysisdata": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "extraammocapacity",
+   "name": "Extra Ammo Capacity",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "weaponcomponent": 3,
+      "recyclinglogs": 8,
+      "weapontestdata": 5,
+      "productionreports": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "extrabackpackcapacity",
+   "name": "Extra Backpack Capacity",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "epoxyadhesive": 5,
+      "memorychip": 3,
+      "weaponinventory": 5,
+      "chemicalinventory": 5,
+      "digitaldesigns": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "fastershieldregen",
+   "name": "Faster Shield Regen",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "reactoroutputreview": 5,
+      "ionbattery": 3,
+      "microtransformer": 8,
+      "electricalwiring": 8
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "improvedbatterycapacity",
+   "name": "Improved Battery Capacity",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "reactoroutputreview": 5,
+      "maintenancelogs": 8,
+      "ionbattery": 3,
+      "microsupercapacitor": 5,
+      "electricalwiring": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "improvedjumpassist",
+   "name": "Improved Jump Assist",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "gmeds": 5,
+      "microthrusters": 3,
+      "motor": 5,
+      "topographicalsurveys": 5
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "increasedairreserves",
+   "name": "Increased Air Reserves",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "oxygenicbacteria": 5,
+      "phneutraliser": 8,
+      "pharmaceuticalpatents": 3,
+      "airqualityreports": 8
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "increasedsprintduration",
+   "name": "Increased Sprint Duration",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "oxygenicbacteria": 5,
+      "chemicalcatalyst": 8,
+      "troopdeploymentrecords": 3,
+      "genesequencingdata": 3,
+      "medicaltrialrecords": 3
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "nightvision",
+   "name": "Night Vision",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "surveillanceequipment": 5,
+      "surveilleancelogs": 3,
+      "radioactivitydata": 3,
+      "nocdata": 3,
+      "circuitswitch": 5
+     },
+     "credits": 1000000
+    }
+   ]
+  },
+  {
+   "id": "quieterfootsteps",
+   "name": "Quieter Footsteps",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "settlementassaultplans": 3,
+      "tacticalplans": 5,
+      "patrolroutes": 5,
+      "microhydraulics": 3,
+      "viscoelasticpolymer": 8
+     },
+     "credits": 1000000
+    }
+   ]
+  },
+  {
+   "id": "reducedtoolbatteryconsumption",
+   "name": "Reduced Tool Battery Consumption",
+   "kind": "suit",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "electricalfuse": 3,
+      "microtransformer": 5,
+      "electricalwiring": 8,
+      "reactoroutputreview": 5
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "audiomasking",
+   "name": "Audio Masking",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "audiologs": 3,
+      "patrolroutes": 5,
+      "scrambler": 5,
+      "transmitter": 8,
+      "circuitboard": 3
+     },
+     "credits": 1000000
+    }
+   ]
+  },
+  {
+   "id": "fasterhandling",
+   "name": "Faster Handling",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "viscoelasticpolymer": 3,
+      "operationalmanual": 5,
+      "combatantperformance": 5,
+      "combattrainingmaterial": 5
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "greaterrange",
+   "name": "Greater Range",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": "kinematic",
+     "materials": {
+      "metalcoil": 10,
+      "rdx": 10,
+      "weaponcomponent": 5,
+      "ballisticsdata": 10,
+      "topographicalsurveys": 10
+     },
+     "credits": 500000
+    },
+    {
+     "maker": "takada",
+     "materials": {
+      "opticallens": 3,
+      "microtransformer": 8,
+      "circuitboard": 3,
+      "stellaractivitylogs": 5,
+      "riskassessments": 8
+     },
+     "credits": 500000
+    },
+    {
+     "maker": "manticore",
+     "materials": {
+      "electromagnet": 10,
+      "motor": 5,
+      "electricalfuse": 5,
+      "chemicalformulae": 10,
+      "mineralsurvey": 15
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "headshotdamage",
+   "name": "Headshot Damage",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": "kinematic",
+     "materials": {
+      "weapontestdata": 10,
+      "medicalrecords": 5,
+      "chemicalcatalyst": 10,
+      "rdx": 15,
+      "weaponcomponent": 5
+     },
+     "credits": 500000
+    },
+    {
+     "maker": "takada",
+     "materials": {
+      "spectralanalysisdata": 10,
+      "biometricdata": 5,
+      "ionbattery": 10,
+      "opticallens": 5,
+      "scrambler": 10
+     },
+     "credits": 750000
+    },
+    {
+     "maker": "manticore",
+     "materials": {
+      "chemicalexperimentdata": 10,
+      "bloodtestresults": 5,
+      "ionbattery": 10,
+      "electromagnet": 10,
+      "microsupercapacitor": 15
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "improvedhipfireaccuracy",
+   "name": "Improved Hip Fire Accuracy",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": "kinematic",
+     "materials": {
+      "extractionyielddata": 10,
+      "biometricdata": 5,
+      "combatantperformance": 10,
+      "viscoelasticpolymer": 10,
+      "rdx": 10
+     },
+     "credits": 500000
+    },
+    {
+     "maker": "takada",
+     "materials": {
+      "radioactivitydata": 3,
+      "combatantperformance": 5,
+      "metalcoil": 5,
+      "opticallens": 3,
+      "electricalwiring": 8
+     },
+     "credits": 500000
+    },
+    {
+     "maker": "manticore",
+     "materials": {
+      "chemicalpatents": 5,
+      "combatantperformance": 10,
+      "chemicalcatalyst": 10,
+      "electromagnet": 10,
+      "metalcoil": 10
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "magazinesize",
+   "name": "Magazine Size",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "weaponcomponent": 3,
+      "tungstencarbide": 3,
+      "metalcoil": 5,
+      "weapontestdata": 5,
+      "securityexpenses": 3
+     },
+     "credits": 750000
+    }
+   ]
+  },
+  {
+   "id": "noisesuppressor",
+   "name": "Noise Suppressor",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "viscoelasticpolymer": 8,
+      "weaponcomponent": 3,
+      "atmosphericdata": 5,
+      "mininganalytics": 5
+     },
+     "credits": 1000000
+    }
+   ]
+  },
+  {
+   "id": "reloadspeed",
+   "name": "Reload Speed",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "microhydraulics": 5,
+      "electromagnet": 5,
+      "operationalmanual": 5,
+      "productionreports": 5,
+      "combattrainingmaterial": 5
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "scope",
+   "name": "Scope",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "spectralanalysisdata": 5,
+      "biometricdata": 3,
+      "opticallens": 5,
+      "opticalfibre": 3
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "stability",
+   "name": "Stability",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "viscoelasticpolymer": 5,
+      "microhydraulics": 5,
+      "mininganalytics": 5,
+      "riskassessments": 8
+     },
+     "credits": 500000
+    }
+   ]
+  },
+  {
+   "id": "stowedreloading",
+   "name": "Stowed Reloading",
+   "kind": "weapon",
+   "costs": [
+    {
+     "maker": null,
+     "materials": {
+      "digitaldesigns": 5,
+      "operationalmanual": 5,
+      "productionschedule": 5,
+      "circuitboard": 3,
+      "encryptedmemorychip": 8
+     },
+     "credits": 1000000
+    }
+   ]
+  }
+ ],
+ "engineers": [
+  {
+   "id": 400001,
+   "name": "Jude Navarro",
+   "system": "Aurai",
+   "id64": 7268024067513,
+   "colonia": false,
+   "mods": [
+    "addedmeleedamage",
+    "damageresistance",
+    "extraammocapacity",
+    "magazinesize",
+    "reloadspeed"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [],
+   "invite": "Complete 10 Restore or Reactivation missions",
+   "referral_task": "Provide 5 Genetic Repair Meds"
+  },
+  {
+   "id": 400002,
+   "name": "Domino Green",
+   "system": "Orishis",
+   "id64": 5068464399785,
+   "colonia": false,
+   "mods": [
+    "enhancedtracking",
+    "extrabackpackcapacity",
+    "greaterrange",
+    "reducedtoolbatteryconsumption",
+    "stability"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [],
+   "invite": "Travel 100ly in Apex Interstellar Transport shuttles",
+   "referral_task": "Provide 5 Push"
+  },
+  {
+   "id": 400003,
+   "name": "Hero Ferrari",
+   "system": "Siris",
+   "id64": 7269634614689,
+   "colonia": false,
+   "mods": [
+    "fasterhandling",
+    "improvedjumpassist",
+    "increasedairreserves",
+    "increasedsprintduration",
+    "noisesuppressor"
+   ],
+   "unconfirmed_mods": [
+    "increasedsprintduration"
+   ],
+   "referred_by": [],
+   "invite": "Complete 10 Conflict Zone (On Foot)",
+   "referral_task": "Provide 5 Settlement Defence Plans"
+  },
+  {
+   "id": 400004,
+   "name": "Kit Fowler",
+   "system": "Capoya",
+   "id64": 2827975936355,
+   "colonia": false,
+   "mods": [
+    "addedmeleedamage",
+    "extraammocapacity",
+    "fastershieldregen",
+    "magazinesize",
+    "stowedreloading"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Domino Green"
+   ],
+   "invite": "Sell 5 Opinion Polls to Bartenders",
+   "referral_task": "Provide 5 Surveillance Equipment"
+  },
+  {
+   "id": 400005,
+   "name": "Wellington Beck",
+   "system": "Jolapa",
+   "id64": 2832832893634,
+   "colonia": false,
+   "mods": [
+    "extrabackpackcapacity",
+    "greaterrange",
+    "improvedbatterycapacity",
+    "reducedtoolbatteryconsumption",
+    "scope"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Hero Ferrari"
+   ],
+   "invite": "Sell 15 total Classic Entertainment, Multimedia Entertainment, and/or Cat Media to Bartenders",
+   "referral_task": "Provide 5 InSight Entertainment Suites"
+  },
+  {
+   "id": 400006,
+   "name": "Terra Velasquez",
+   "system": "Shou Xing",
+   "id64": 3721329101171,
+   "colonia": false,
+   "mods": [
+    "combatmovementspeed",
+    "improvedhipfireaccuracy",
+    "increasedairreserves",
+    "increasedsprintduration",
+    "noisesuppressor"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Jude Navarro"
+   ],
+   "invite": "Complete 6 Covert Heist or Covert Theft missions",
+   "referral_task": "Provide 15 Financial Projections"
+  },
+  {
+   "id": 400007,
+   "name": "Uma Laszlo",
+   "system": "Xuane",
+   "id64": 16065190962585,
+   "colonia": false,
+   "mods": [
+    "damageresistance",
+    "fastershieldregen",
+    "headshotdamage",
+    "reloadspeed",
+    "stowedreloading"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Wellington Beck"
+   ],
+   "invite": "Reach unfriendly rep with Sirius Corporation",
+   "referral_task": null
+  },
+  {
+   "id": 400008,
+   "name": "Oden Geiger",
+   "system": "Candiaei",
+   "id64": 8879744226018,
+   "colonia": false,
+   "mods": [
+    "enhancedtracking",
+    "improvedbatterycapacity",
+    "nightvision",
+    "scope",
+    "stability"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Terra Velasquez"
+   ],
+   "invite": "Sell 20 total Biological Sample, Employee Genetic Data, and Genetic Research to Bartenders",
+   "referral_task": null
+  },
+  {
+   "id": 400009,
+   "name": "Yarden Bond",
+   "system": "Bayan",
+   "id64": 670686455169,
+   "colonia": false,
+   "mods": [
+    "audiomasking",
+    "combatmovementspeed",
+    "fasterhandling",
+    "improvedhipfireaccuracy",
+    "improvedjumpassist",
+    "quieterfootsteps"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Kit Fowler"
+   ],
+   "invite": "Sell 5 Smear Campaign Plans to Bartenders",
+   "referral_task": null
+  },
+  {
+   "id": 400010,
+   "name": "Baltanos",
+   "system": "Deriso",
+   "id64": 71536135676490,
+   "colonia": true,
+   "mods": [
+    "combatmovementspeed",
+    "fasterhandling",
+    "improvedhipfireaccuracy",
+    "improvedjumpassist",
+    "increasedairreserves",
+    "increasedsprintduration",
+    "noisesuppressor"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [],
+   "invite": "Friendly reputation with Colonia Council",
+   "referral_task": "Provide 10 Faction Associates"
+  },
+  {
+   "id": 400011,
+   "name": "Eleanor Bresa",
+   "system": "Desy",
+   "id64": 38001031029322,
+   "colonia": true,
+   "mods": [
+    "addedmeleedamage",
+    "damageresistance",
+    "extraammocapacity",
+    "fastershieldregen",
+    "magazinesize",
+    "reloadspeed",
+    "stowedreloading"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [],
+   "invite": "Visit 5 Settlements in Colonia",
+   "referral_task": "Provide 10 Digital Designs"
+  },
+  {
+   "id": 400012,
+   "name": "Rosa Dayette",
+   "system": "Kojeara",
+   "id64": 59166629864010,
+   "colonia": true,
+   "mods": [
+    "enhancedtracking",
+    "extrabackpackcapacity",
+    "greaterrange",
+    "improvedbatterycapacity",
+    "reducedtoolbatteryconsumption",
+    "scope",
+    "stability"
+   ],
+   "unconfirmed_mods": [
+    "greaterrange",
+    "scope",
+    "stability"
+   ],
+   "referred_by": [],
+   "invite": "Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia",
+   "referral_task": "Provide 10 Manufacturing Instructions"
+  },
+  {
+   "id": 400013,
+   "name": "Yi Shen",
+   "system": "Einheriar",
+   "id64": 13736779007129,
+   "colonia": true,
+   "mods": [
+    "audiomasking",
+    "headshotdamage",
+    "nightvision",
+    "quieterfootsteps"
+   ],
+   "unconfirmed_mods": [],
+   "referred_by": [
+    "Baltanos",
+    "Eleanor Bresa",
+    "Rosa Dayette"
+   ],
+   "invite": "Complete all referral tasks for Baltanos, Eleanor Bresa, & Rosa Dayette",
+   "referral_task": null
+  }
+ ],
+ "uncertain": [
+  "Headshot Damage (Kinematic Armaments weapons): wiki links RDX to Greater Range",
+  "Karma C-44 grade 4: credits not on the wiki",
+  "Karma C-44 grade 5: credits not on the wiki",
+  "Karma P-15 grade 5: credits not on the wiki",
+  "Manticore Intimidator grade 4: credits not on the wiki",
+  "Manticore Oppressor grade 2: credits not on the wiki",
+  "TK Aphelion grade 3: credits not on the wiki",
+  "TK Aphelion grade 5: credits not on the wiki",
+  "TK Eclipse grade 5: credits not on the wiki",
+  "engineer Hero Ferrari: Increased Sprint Duration (the wiki's tables and mod pages disagree)",
+  "engineer Rosa Dayette: Greater Range (the wiki's tables and mod pages disagree)",
+  "engineer Rosa Dayette: Scope (the wiki's tables and mod pages disagree)",
+  "engineer Rosa Dayette: Stability (the wiki's tables and mod pages disagree)",
+  "item Crop Yield Analysis: sale value not on the wiki",
+  "item InSight Data Bank: sale value not on the wiki",
+  "item InSight Entertainment Suite: sale value not on the wiki",
+  "item InSight: sale value not on the wiki",
+  "item Seed Genealogy: sale value not on the wiki",
+  "item Spyware: sale value not on the wiki",
+  "item Tactical Plans: sale value not on the wiki",
+  "item Virus: sale value not on the wiki"
+ ]
+}

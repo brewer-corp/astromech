@@ -291,6 +291,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-odyssey"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-overlay"
 version = "0.1.5"
 dependencies = [
