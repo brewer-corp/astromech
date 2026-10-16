@@ -9,6 +9,8 @@ export interface Size {
   class: number;
   rating: string;
   mount?: Mount;
+  /** The journal `Item` symbols for this size. */
+  symbols?: string[];
 }
 
 export interface ModuleKind {
@@ -59,4 +61,53 @@ export function settle(w: ModuleWant): ModuleWant {
   const withRating = { ...withClass, rating };
   const mount = w.mount != null && choices(withRating).mounts.includes(w.mount) ? w.mount : null;
   return { ...withRating, mount };
+}
+
+const BY_SYMBOL = new Map(MODULES.flatMap((m) => m.sizes.flatMap((s) => (s.symbols ?? []).map((sym) => [sym.toLowerCase(), { m, s }] as const))));
+
+/** What to buy to get a fitted module again, from its journal `Item` symbol; null when the catalogue doesn't sell it (armour). */
+export function wantFor(symbol: string): ModuleWant | null {
+  const hit = BY_SYMBOL.get(symbol.toLowerCase());
+  return hit ? { name: hit.m.name, class: hit.s.class, rating: hit.s.rating, mount: hit.s.mount ?? null } : null;
+}
+
+/**
+ * The Outfitting page's route for `w`: `outfitting/<module>[/<class><rating>[/<mount>]]`, e.g.
+ * "outfitting/Frame%20Shift%20Drive/5A". Without a class and rating it searches any size.
+ */
+export function moduleRoute(w: ModuleWant): string {
+  const size = w.class != null && w.rating ? `/${w.class}${w.rating}${w.mount ? `/${w.mount}` : ""}` : "";
+  return `outfitting/${encodeURIComponent(w.name)}${size}`;
+}
+
+const MOUNTS: Mount[] = ["Fixed", "Gimballed", "Turreted"];
+
+/** The module a `#/outfitting/...` hash asks for, settled to what it comes in; null for no or an unknown module. */
+export function parseModuleRoute(hash: string): ModuleWant | null {
+  const m = /^#\/outfitting\/([^/]+)(?:\/(\d)([A-I]))?(?:\/([A-Za-z]+))?$/.exec(hash);
+  if (!m?.[1]) return null;
+  let name: string;
+  try {
+    name = decodeURIComponent(m[1]);
+  } catch {
+    return null;
+  }
+  if (!MODULES.some((x) => x.name === name)) return null;
+  const mount = MOUNTS.find((x) => x === m[4]) ?? null;
+  return settle({ name, class: m[2] ? Number(m[2]) : null, rating: m[3] ?? null, mount });
+}
+
+/** The Shipyard page's route for a ship: `shipyard/<ship name>`. */
+export const shipRoute = (name: string) => `shipyard/${encodeURIComponent(name)}`;
+
+/** The ship a `#/shipyard/<name>` hash asks for, or null for no or an unknown ship. */
+export function parseShipRoute(hash: string): string | null {
+  const m = /^#\/shipyard\/(.+)$/.exec(hash);
+  if (!m?.[1]) return null;
+  try {
+    const name = decodeURIComponent(m[1]);
+    return SHIPS.some((s) => s.name === name) ? name : null;
+  } catch {
+    return null;
+  }
 }

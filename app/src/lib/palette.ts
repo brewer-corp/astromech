@@ -1,8 +1,9 @@
 /**
  * The Ctrl+K command palette's model (docs/ARCHITECTURE.md §18.2): every page, plus the entries
- * each module's manifest offers from data the window already has (materials, the fleet's
- * ships, modules and blueprints). Picking one opens its route: a material opens selected, with
- * its nearby search; a ship, module, blueprint or experimental opens the ship's page.
+ * each module's manifest offers from data the window already has (materials, the outfitting
+ * catalogue's modules and ships, the fleet's ships, modules and blueprints). Picking one opens
+ * its route: a material, a module or a catalogue ship opens its nearby search; one of my ships,
+ * a blueprint or an experimental opens that ship's page.
  */
 import type { ModuleManifest } from "./modules";
 

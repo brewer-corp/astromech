@@ -1,12 +1,20 @@
 <script lang="ts">
   // The nearest shipyards selling a ship, on the search kit. Stations whose pads are too small
   // for the ship are left out by the shell, whatever pad is picked.
-  import { SHIPS } from "../../lib/outfitting";
+  // #/shipyard/<ship> picks the ship (the command palette links there), so back and reload keep it.
+  import { SHIPS, parseShipRoute, shipRoute } from "../../lib/outfitting";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
 
-  let ship = $state("Krait MkII");
+  const DEFAULT = "Krait MkII";
+  let ship = $state(parseShipRoute(location.hash) ?? DEFAULT);
+
+  $effect(() => {
+    const onHash = () => (ship = parseShipRoute(location.hash) ?? DEFAULT);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   // A new function per ship, so the kit searches again when it changes.
   const run = $derived.by(() => {
@@ -18,7 +26,7 @@
 <section>
   <label class="pick">
     <span>Ship</span>
-    <select bind:value={ship}>
+    <select value={ship} onchange={(e) => (location.hash = `#/${shipRoute(e.currentTarget.value)}`)}>
       {#each SHIPS as s (s.symbol)}<option value={s.name}>{s.name}</option>{/each}
     </select>
   </label>

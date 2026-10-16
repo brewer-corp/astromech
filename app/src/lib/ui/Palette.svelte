@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Ctrl+K command palette (docs/ARCHITECTURE.md §18.2): type a page, material, module or
-  // blueprint; arrows and Enter pick, Esc closes. A pick opens the entry's route: a material opens
-  // selected with its nearby search, a ship, module or blueprint opens that ship's page. Works from any page, but not while another
+  // blueprint; arrows and Enter pick, Esc closes. A pick opens the entry's route: a material,
+  // module or catalogue ship opens its nearby search; one of my ships or a blueprint its page. Works from any page, but not while another
   // modal (a bind capture) has the keyboard. The entries load each time it opens.
   import { tick } from "svelte";
   import { rank, type PaletteItem } from "../palette";

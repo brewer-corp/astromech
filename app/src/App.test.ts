@@ -2,6 +2,12 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import App from "./App.svelte";
 
+const stationsSpy = vi.fn();
+vi.mock("./lib/stations", async (orig) => {
+  const real = await orig<typeof import("./lib/stations")>();
+  return { ...real, stations: (...a: Parameters<typeof real.stations>) => (stationsSpy(...a), real.stations(...a)) };
+});
+
 vi.mock("./lib/core", async (orig) => ({
   ...(await orig<typeof import("./lib/core")>()),
   coreStatus: () => Promise.resolve(null),
@@ -43,20 +49,61 @@ describe("command palette in the window", () => {
     expect(screen.getByRole("button", { name: /Encoded/i }).className).toContain("on");
   });
 
-  it("opens a ship's page for a fitted module", async () => {
+  it("opens a module's nearby outfitting search", async () => {
     location.hash = "#/powerplay";
     render(App);
     await screen.findByText("My standing");
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     const input = await screen.findByRole("combobox", { name: "Go to" });
-    await fireEvent.input(input, { target: { value: "6a frame shift" } });
-    await screen.findByText("Module · Frame shift drive on Heavy Lifter");
+    await fireEvent.input(input, { target: { value: "frame shift" } });
+    await screen.findAllByText("Outfitting · Core internals");
     await fireEvent.keyDown(input, { key: "Enter" });
 
-    expect(location.hash).toBe("#/engineering/3");
-    expect(await screen.findByRole("button", { name: "← Ships" })).toBeTruthy(); // the ship detail, not the fleet
-    expect(screen.getByText(/Heavy Lifter/, { selector: "*:not(button):not(span.l)" })).toBeTruthy();
+    expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive");
+    expect(await screen.findByText(/Abraham Lincoln/)).toBeTruthy();
+    expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "module", name: "Frame Shift Drive", class: null, rating: null, mount: null }, null, expect.anything());
+  });
+
+  it("opens a fitted module's search at its size, and a ship's shipyard search", async () => {
+    location.hash = "#/outfitting";
+    render(App);
+    await screen.findByText(/Abraham Lincoln/);
+
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    let input = await screen.findByRole("combobox", { name: "Go to" });
+    await fireEvent.input(input, { target: { value: "2f pulse laser" } });
+    await screen.findByText(/^Outfitting · fitted on/);
+    await fireEvent.keyDown(input, { key: "Enter" });
+    expect(location.hash).toBe("#/outfitting/Pulse%20Laser/2F/Gimballed");
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "module", name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" }, null, expect.anything()));
+
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    input = await screen.findByRole("combobox", { name: "Go to" });
+    await fireEvent.input(input, { target: { value: "anaconda" } });
+    await screen.findByText("Shipyard", { selector: ".d" });
+    await fireEvent.keyDown(input, { key: "Enter" });
+    expect(location.hash).toBe("#/shipyard/Anaconda");
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "ship", ship: "Anaconda" }, null, expect.anything()));
+  });
+
+  it("keeps the Outfitting pick in the address for back and reload", async () => {
+    location.hash = "#/outfitting/Frame%20Shift%20Drive/5A";
+    render(App);
+    await screen.findByText(/Abraham Lincoln/);
+
+    await fireEvent.change(screen.getByRole("combobox", { name: "Class" }), { target: { value: "6" } });
+    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive/6A"));
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 6, rating: "A" }), null, expect.anything()));
+
+    history.back();
+    await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive/5A"));
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 5, rating: "A" }), null, expect.anything()));
+
+    cleanup(); // reload
+    stationsSpy.mockClear();
+    render(App);
+    await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ name: "Frame Shift Drive", class: 5 }), null, expect.anything()));
   });
 
   it("keeps the selected material through back and reload", async () => {
