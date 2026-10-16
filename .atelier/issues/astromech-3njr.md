@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:22:40.588319764+00:00"
+status: "done"
 title: "Ship detail with live build stats"
-updated_at: "2026-10-16T19:06:39.583822502+00:00"
+updated_at: "2026-10-16T19:22:40.588319764+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ The plan model is in `app/src/lib/engineering.ts` and `crates/astromech-engineer
 
 - 2026-10-16 [note] From review of the Ships page (astromech-mycc): opening a card does not change the URL, so reload and back leave the detail. Make the ship detail routable (for example #/engineering/<ship id>).
 - 2026-10-16 [note] From review of astromech-ojwr: (R3) an unknown grade on a known blueprint is skipped silently; add it to unresolved. (R5) add a unit test that G5 at Quality 0 equals the G4 maximum. (R4) MediumTransport01, size-8 FSDs and starter *_free modules are not in coriolis-data, so show the ship as incomplete when unresolved is not empty. Sustained DPS display waits on decision astromech-bnnh.
+
+## Close Reason
+
+Ship detail shows current and planned stats with the difference; component tests with the Krait MkII combat fixture show the distributor experimental, FSD blueprint and thermal booster count changing the planned stat and difference to the Coriolis values in tests/coriolis.rs (plan_*); the materials, trades, farming and trip panels are covered by a component test. R3, R4 and R5 are handled, and the detail is routable. Card headline stats split to astromech-9243. Independent review outstanding (arranged by the orchestrator).
