@@ -74,7 +74,8 @@ impl Notifier for LogNotifier {
 }
 
 /// A Windows toast notification through PowerShell's WinRT bridge (no extra dependencies; the
-/// text goes in an environment variable, never into the script). ⚠ Not yet run on Windows.
+/// text goes in an environment variable, never into the script). Blocks until PowerShell exits
+/// and logs a failure, so run it behind [`Background`]. ⚠ Not yet run on Windows.
 #[cfg(windows)]
 pub struct WindowsNotifier;
 #[cfg(windows)]
@@ -92,23 +93,72 @@ impl Notifier for WindowsNotifier {
         let r = std::process::Command::new("powershell.exe")
             .args(["-NoProfile", "-NonInteractive", "-Command", SCRIPT])
             .env("ASTROMECH_NOTIFY", text)
+            .stdin(std::process::Stdio::null())
             .creation_flags(CREATE_NO_WINDOW)
-            .spawn();
-        if let Err(e) = r {
-            log(&format!("notification failed ({e}): {text}"));
+            .output();
+        match r {
+            Ok(o) if o.status.success() => {}
+            Ok(o) => {
+                let err = String::from_utf8_lossy(&o.stderr);
+                let first = err.lines().map(str::trim).find(|l| !l.is_empty()).unwrap_or("no error text");
+                log(&format!("notification failed (PowerShell {}): {first}; text: {text}", o.status));
+            }
+            Err(e) => log(&format!("notification failed (couldn't start PowerShell: {e}); text: {text}")),
         }
     }
 }
 
-pub fn default_notifier() -> Arc<dyn Notifier> {
+/// At most one notification per this long; the rest are logged and skipped.
+pub const NOTIFY_GAP: Duration = Duration::from_secs(15);
+
+/// Runs a slow notifier on its own thread, one at a time, at most one per `gap`. `notify`
+/// never blocks: with a few already waiting, a new one is logged and dropped. The thread ends
+/// when this is dropped.
+pub struct Background {
+    tx: Mutex<std::sync::mpsc::SyncSender<String>>,
+}
+
+impl Background {
+    pub fn start(inner: Arc<dyn Notifier>, gap: Duration) -> std::io::Result<Self> {
+        let (tx, rx) = std::sync::mpsc::sync_channel::<String>(4);
+        std::thread::Builder::new().name("notify".into()).spawn(move || {
+            let mut last: Option<Instant> = None;
+            while let Ok(text) = rx.recv() {
+                let now = Instant::now();
+                if last.is_some_and(|l| now.saturating_duration_since(l) < gap) {
+                    log(&format!("notification skipped (one per {} s): {text}", gap.as_secs()));
+                    continue;
+                }
+                last = Some(now);
+                inner.notify(&text);
+            }
+        })?;
+        Ok(Self { tx: Mutex::new(tx) })
+    }
+}
+
+impl Notifier for Background {
+    fn notify(&self, text: &str) {
+        if let Err(e) = self.tx.lock().unwrap().try_send(text.into()) {
+            log(&format!(
+                "notification dropped ({}): {text}",
+                if matches!(e, std::sync::mpsc::TrySendError::Full(_)) {
+                    "too many waiting"
+                } else {
+                    "notifier stopped"
+                }
+            ));
+        }
+    }
+}
+
+/// The platform's notifier behind [`Background`].
+pub fn default_notifier() -> std::io::Result<Arc<dyn Notifier>> {
     #[cfg(windows)]
-    {
-        Arc::new(WindowsNotifier)
-    }
+    let inner: Arc<dyn Notifier> = Arc::new(WindowsNotifier);
     #[cfg(not(windows))]
-    {
-        Arc::new(LogNotifier)
-    }
+    let inner: Arc<dyn Notifier> = Arc::new(LogNotifier);
+    Ok(Arc::new(Background::start(inner, NOTIFY_GAP)?))
 }
 
 /// Spoken callouts waiting for the speaker, shared by the pipeline (push) and [`SpeechOut`].
@@ -144,8 +194,8 @@ pub fn router(
 /// The commander talking to astromech: from push-to-talk down until each clip's reply has been
 /// handed to the speaker (which is then [`Speaker::busy`]). Callouts wait for it, so none is
 /// recorded into a clip or spoken over the reply. The PTT thread calls [`ptt_down`](Self::ptt_down)
-/// and [`ptt_up`](Self::ptt_up); a clip sent to speech-to-text is a job, finished by the STT
-/// thread after the reply (or the voice tester's result). A lost release or a stuck job stops
+/// and [`ptt_up`](Self::ptt_up); a clip sent to speech-to-text is a job, finished when the STT
+/// thread drops it after the reply (or the voice tester's result). A lost release or a stuck job stops
 /// holding after [`MAX_TURN`].
 pub struct VoiceTurn {
     inner: Mutex<Turn>,
@@ -155,6 +205,15 @@ struct Turn {
     held_since: Option<Instant>,
     jobs: usize,
     job_since: Option<Instant>,
+}
+
+/// One queued clip; see [`VoiceTurn::job_queued`].
+pub struct TurnJob<'a>(&'a VoiceTurn);
+
+impl Drop for TurnJob<'_> {
+    fn drop(&mut self) {
+        self.0.job_done();
+    }
 }
 
 /// The longest one voice turn holds callouts back.
@@ -183,13 +242,17 @@ impl VoiceTurn {
         self.inner.lock().unwrap().held_since = None;
     }
 
-    pub fn job_queued(&self, now: Instant) {
+    /// A clip went to speech-to-text. The job lasts until the returned guard is dropped: keep it
+    /// with the clip, so a reply, a failed send, a discarded clip or a panic all end it.
+    #[must_use]
+    pub fn job_queued(&self, now: Instant) -> TurnJob<'_> {
         let mut t = self.inner.lock().unwrap();
         t.jobs += 1;
         t.job_since = Some(now);
+        TurnJob(self)
     }
 
-    pub fn job_done(&self) {
+    fn job_done(&self) {
         let mut t = self.inner.lock().unwrap();
         t.jobs = t.jobs.saturating_sub(1);
     }
@@ -339,12 +402,12 @@ mod tests {
         queue_one(&pending);
         assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
         // Released; the clip is with speech-to-text.
-        turn.job_queued(Instant::now());
+        let job = turn.job_queued(Instant::now());
         turn.ptt_up();
         assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
         // The reply is handed to the speaker (busy), then the job ends: still waiting.
         speaker.busy.store(true, Ordering::SeqCst);
-        turn.job_done();
+        drop(job);
         assert!(said_within(&speaker, 1, Duration::from_millis(300)).is_empty());
         speaker.busy.store(false, Ordering::SeqCst);
         assert_eq!(said_within(&speaker, 1, Duration::from_secs(5)), ["Callout."]);
@@ -362,17 +425,58 @@ mod tests {
         t.ptt_up();
         assert!(!t.active(t0));
         // Two clips in flight: held until both are done.
-        t.job_queued(t0);
-        t.job_queued(t0);
-        t.job_done();
+        let a = t.job_queued(t0);
+        let b = t.job_queued(t0);
+        drop(a);
         assert!(t.active(t0));
-        t.job_done();
+        drop(b);
         assert!(!t.active(t0));
-        t.job_done(); // an extra done doesn't go below zero
-                      // A lost release or a stuck job stops holding after MAX_TURN.
+        // A panic while handling a clip, or a clip still queued when the STT thread dies, ends
+        // its job.
+        let (tx, rx) = std::sync::mpsc::channel();
+        tx.send(t.job_queued(t0)).unwrap();
+        tx.send(t.job_queued(t0)).unwrap();
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
+            let _job = rx.recv().unwrap();
+            panic!("speech-to-text crashed");
+        }));
+        assert!(r.is_err());
+        assert!(!t.active(t0));
+        // A lost release or a stuck job stops holding after MAX_TURN.
         t.ptt_down(t0);
-        t.job_queued(t0);
+        let stuck = t.job_queued(t0);
         assert!(!t.active(t0 + MAX_TURN));
+        drop(stuck);
+    }
+
+    /// A notifier that takes a while, like PowerShell.
+    struct Slow(Mutex<Vec<String>>);
+    impl Notifier for Slow {
+        fn notify(&self, text: &str) {
+            std::thread::sleep(Duration::from_millis(200));
+            self.0.lock().unwrap().push(text.into());
+        }
+    }
+
+    #[test]
+    fn notifications_run_in_the_background_at_most_one_per_gap() {
+        let slow = Arc::new(Slow(Mutex::new(vec![])));
+        let n = Background::start(slow.clone(), Duration::from_secs(60)).unwrap();
+        let t0 = Instant::now();
+        n.notify("First.");
+        n.notify("Second.");
+        n.notify("Third.");
+        assert!(t0.elapsed() < Duration::from_millis(100), "notify blocked for {:?}", t0.elapsed());
+        std::thread::sleep(Duration::from_millis(700));
+        assert_eq!(*slow.0.lock().unwrap(), ["First."]);
+        // After the gap the next one goes.
+        let fast = Arc::new(Slow(Mutex::new(vec![])));
+        let n = Background::start(fast.clone(), Duration::from_millis(300)).unwrap();
+        n.notify("A.");
+        std::thread::sleep(Duration::from_millis(600));
+        n.notify("B.");
+        std::thread::sleep(Duration::from_millis(400));
+        assert_eq!(*fast.0.lock().unwrap(), ["A.", "B."]);
     }
 
     #[test]

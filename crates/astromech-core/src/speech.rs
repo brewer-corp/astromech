@@ -6,10 +6,10 @@ use astromech_voice::client::Worker;
 use astromech_voice::proto::Request;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Something that says short confirmations. Must not block for long.
 pub trait Speaker: Send + Sync {
@@ -97,12 +97,73 @@ impl Stt for WorkerStt {
 pub struct TtsSpeaker {
     tx: Mutex<Sender<Job>>,
     mixer: astromech_voice::mixer::Mixer,
-    /// Lines sent to the TTS thread and not yet handed to the mixer.
-    rendering: Arc<AtomicUsize>,
+    activity: Arc<Activity>,
+    stopped_logged: AtomicBool,
+}
+
+/// What a speaker is doing, for [`Speaker::busy`]: lines handed over and not yet playing, and
+/// when the line playing without the mixer (Windows `PlaySoundW`, no output device) ends.
+#[derive(Default)]
+pub struct Activity {
+    rendering: AtomicUsize,
+    ends: Mutex<Option<Instant>>,
+    /// The thread that renders lines has stopped (it panicked); lines are printed only.
+    stopped: AtomicBool,
+}
+
+/// One line in progress; finished when dropped, including when rendering panics.
+pub struct Line(Arc<Activity>);
+
+impl Drop for Line {
+    fn drop(&mut self) {
+        self.0.rendering.fetch_sub(1, Ordering::SeqCst);
+    }
+}
+
+/// Marks the activity stopped when the rendering thread ends (dropped on panic too).
+pub struct Alive(Arc<Activity>);
+
+impl Drop for Alive {
+    fn drop(&mut self) {
+        self.0.stopped.store(true, Ordering::SeqCst);
+    }
+}
+
+impl Activity {
+    /// A line was handed over. Returns None (and counts nothing) once the renderer stopped.
+    pub fn begin(self: &Arc<Self>) -> Option<Line> {
+        if self.stopped.load(Ordering::SeqCst) {
+            return None;
+        }
+        self.rendering.fetch_add(1, Ordering::SeqCst);
+        Some(Line(self.clone()))
+    }
+
+    /// Guard for the rendering thread's lifetime.
+    pub fn worker(self: &Arc<Self>) -> Alive {
+        Alive(self.clone())
+    }
+
+    /// A line of `len` started playing outside the mixer at `now`.
+    pub fn playing(&self, now: Instant, len: Duration) {
+        *self.ends.lock().unwrap() = Some(now + len);
+    }
+
+    /// Playback was cut.
+    pub fn cut(&self) {
+        *self.ends.lock().unwrap() = None;
+    }
+
+    /// `mixer_queued`: samples still in the mixer.
+    pub fn busy(&self, now: Instant, mixer_queued: usize) -> bool {
+        self.rendering.load(Ordering::SeqCst) > 0
+            || mixer_queued > 0
+            || self.ends.lock().unwrap().is_some_and(|t| now < t)
+    }
 }
 
 enum Job {
-    Speak(String),
+    Speak(String, Line),
     Warm(String),
 }
 
@@ -146,9 +207,10 @@ impl TtsSpeaker {
         let mix = mixer.clone();
         let (tx, rx) = channel::<Job>();
         let pre_tx = tx.clone();
-        let rendering = Arc::new(AtomicUsize::new(0));
-        let rendering2 = rendering.clone();
+        let activity = Arc::new(Activity::default());
+        let act = activity.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
+            let _alive = act.worker();
             let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
                 // Reading rules (names, numbers, units); the cache key follows the spoken text.
                 let text = &astromech_voice::speakable::normalise(text);
@@ -189,15 +251,20 @@ impl TtsSpeaker {
                     Job::Warm(t) => {
                         let _ = render(&mut worker, &t);
                     }
-                    Job::Speak(t) => {
+                    Job::Speak(t, _line) => {
+                        // `_line` ends this line when the arm is left, also by a panic.
                         let token = mix.token();
                         if let Some((sr, samples, f)) = render(&mut worker, &t) {
                             if mix.has_device() {
                                 mix.play(token, &samples, sr);
-                            } else {
+                            } else if token == mix.token() {
                                 #[cfg(windows)]
-                                if let Err(e) = astromech_voice::player::play_wav_async(&f) {
-                                    eprintln!("{e:#}");
+                                match astromech_voice::player::play_wav_async(&f) {
+                                    Ok(()) => act.playing(
+                                        Instant::now(),
+                                        Duration::from_secs_f64(samples.len() as f64 / sr.max(1) as f64),
+                                    ),
+                                    Err(e) => eprintln!("{e:#}"),
                                 }
                                 #[cfg(not(windows))]
                                 {
@@ -205,7 +272,6 @@ impl TtsSpeaker {
                                 }
                             }
                         }
-                        rendering2.fetch_sub(1, Ordering::SeqCst);
                     }
                 }
             }
@@ -213,23 +279,28 @@ impl TtsSpeaker {
         for p in prerender {
             let _ = pre_tx.send(Job::Warm(p));
         }
-        Ok(Self { tx: Mutex::new(tx), mixer, rendering })
+        Ok(Self { tx: Mutex::new(tx), mixer, activity, stopped_logged: AtomicBool::new(false) })
     }
 }
 
 impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
-        self.rendering.fetch_add(1, Ordering::SeqCst);
-        if self.tx.lock().unwrap().send(Job::Speak(text.to_string())).is_err() {
-            self.rendering.fetch_sub(1, Ordering::SeqCst);
+        // A send to a stopped thread hands the line back, and dropping it ends it.
+        let sent = match self.activity.begin() {
+            Some(line) => self.tx.lock().unwrap().send(Job::Speak(text.to_string(), line)).is_ok(),
+            None => false,
+        };
+        if !sent && !self.stopped_logged.swap(true, Ordering::SeqCst) {
+            crate::logging::log("text-to-speech stopped (see worker-tts.log); replies are printed only");
         }
     }
     fn busy(&self) -> bool {
-        self.rendering.load(Ordering::SeqCst) > 0 || self.mixer.queued() > 0
+        self.activity.busy(Instant::now(), self.mixer.queued())
     }
     fn interrupt(&self) {
         self.mixer.cut();
+        self.activity.cut();
         #[cfg(windows)]
         astromech_voice::player::stop();
     }
@@ -272,6 +343,47 @@ pub fn fixed_phrases() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    #[test]
+    fn busy_while_a_line_renders_or_plays_without_a_device() {
+        let a = Arc::new(Activity::default());
+        let t0 = Instant::now();
+        assert!(!a.busy(t0, 0));
+        let line = a.begin().unwrap();
+        assert!(a.busy(t0, 0));
+        drop(line);
+        assert!(!a.busy(t0, 0));
+        assert!(a.busy(t0, 10), "samples left in the mixer");
+        // No output device: PlaySoundW plays a 1.5 s line; busy until it ends, or until cut.
+        a.playing(t0, Duration::from_millis(1500));
+        assert!(a.busy(t0 + Duration::from_millis(1400), 0));
+        assert!(!a.busy(t0 + Duration::from_millis(1500), 0));
+        a.playing(t0, Duration::from_millis(1500));
+        a.cut();
+        assert!(!a.busy(t0, 0));
+    }
+
+    #[test]
+    fn a_panicking_renderer_does_not_leave_the_speaker_busy() {
+        let a = Arc::new(Activity::default());
+        let (tx, rx) = channel::<Line>();
+        tx.send(a.begin().unwrap()).unwrap();
+        tx.send(a.begin().unwrap()).unwrap(); // still queued when the thread dies
+        let act = a.clone();
+        let t = std::thread::spawn(move || {
+            let _alive = act.worker();
+            let _line = rx.recv().unwrap();
+            panic!("render failed");
+        });
+        assert!(t.join().is_err());
+        assert!(!a.busy(Instant::now(), 0));
+        // Later lines are not counted (they are printed only).
+        assert!(a.begin().is_none());
+        assert!(!a.busy(Instant::now(), 0));
+        drop(tx);
+    }
+
     #[test]
     fn cache_names_are_stable() {
         use astromech_voice::colour::Colour;

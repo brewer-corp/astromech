@@ -150,7 +150,11 @@ impl Session {
             log(&format!("config: {p}"));
         }
         let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
-        let deliver = Box::new(callouts::router(pending.clone(), toasts.clone(), callouts::default_notifier()));
+        let deliver = Box::new(callouts::router(
+            pending.clone(),
+            toasts.clone(),
+            callouts::default_notifier().context("starting the notification thread")?,
+        ));
         let pipe = crate::pipeline::start(
             &jdir,
             hub.clone(),
@@ -311,6 +315,8 @@ struct ClipJob {
     rate: u32,
     sidecar: Option<std::path::PathBuf>,
     meta: serde_json::Value,
+    /// Holds callouts until this clip is handled (dropped).
+    _turn: callouts::TurnJob<'static>,
 }
 
 #[cfg(windows)]
@@ -411,8 +417,8 @@ fn start_voice(
                     },
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
                 }
-                // After the reply (or the voice tester's result): callouts may speak again.
-                callouts::VOICE_TURN.job_done();
+                // `job` (and its voice turn) ends here, after the reply or the voice tester's
+                // result; a panic above ends it too.
             }
         })?;
     }
@@ -540,10 +546,13 @@ fn start_voice(
                                         });
                                     }
                                 }
-                                callouts::VOICE_TURN.job_queued(std::time::Instant::now());
-                                if jtx.send(ClipJob { samples: n.samples, rate: m.sample_rate(), sidecar, meta }).is_err() {
-                                    callouts::VOICE_TURN.job_done();
-                                }
+                                let _ = jtx.send(ClipJob {
+                                    samples: n.samples,
+                                    rate: m.sample_rate(),
+                                    sidecar,
+                                    meta,
+                                    _turn: callouts::VOICE_TURN.job_queued(std::time::Instant::now()),
+                                });
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
                             Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),

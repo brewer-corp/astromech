@@ -130,6 +130,7 @@ impl Tailer {
     /// Apply journal lines to the state, then read the companion files their events announced.
     fn apply_lines(&mut self, lines: Vec<String>) {
         let mut parsed = Vec::with_capacity(lines.len());
+        let mut fired = vec![];
         {
             let mut st = self.stats.lock().unwrap();
             for l in lines {
@@ -138,14 +139,17 @@ impl Tailer {
                         st.journal_lines += 1;
                         self.hub.apply_journal(&j.event);
                         if let Some(c) = &mut self.callouts {
-                            let fired = self.hub.read(|g| c.engine.journal(&j, g, Instant::now()));
-                            (c.deliver)(fired);
+                            fired.extend(self.hub.read(|g| c.engine.journal(&j, g, Instant::now())));
                         }
                         parsed.push(j);
                     }
                     Err(_) => st.bad_lines += 1,
                 }
             }
+        }
+        // Delivered with no lock held.
+        if let (Some(c), false) = (&self.callouts, fired.is_empty()) {
+            (c.deliver)(fired);
         }
         // Events first, files after: a slow file never delays the journal state.
         let found = triggers(&parsed);
@@ -424,6 +428,15 @@ mod tests {
             engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
             deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
         });
+        // Delivery happens with the stats lock released (a slow sink must not hold it).
+        let stats = t.stats.clone();
+        let unlocked = Arc::new(std::sync::Mutex::new(vec![]));
+        let u2 = unlocked.clone();
+        let inner = std::mem::replace(&mut t.callouts.as_mut().unwrap().deliver, Box::new(|_| {}));
+        t.callouts.as_mut().unwrap().deliver = Box::new(move |rs| {
+            u2.lock().unwrap().push(stats.try_lock().is_ok());
+            inner(rs)
+        });
         t.catch_up();
         assert_eq!(t.stats.lock().unwrap().journal_lines, 2);
         assert!(hub.snapshot().status_seen);
@@ -437,6 +450,8 @@ mod tests {
         std::fs::write(d.path().join("Journal.2026-10-16T201000.01.log"), scanned("20:10:00")).unwrap();
         t.on_journal_activity();
         assert_eq!(fired.lock().unwrap().len(), 3);
+        let u = unlocked.lock().unwrap();
+        assert!(!u.is_empty() && u.iter().all(|ok| *ok), "{u:?}");
     }
 
     const MARKET_EVENT: &str =

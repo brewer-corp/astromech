@@ -17,9 +17,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Callout delivery: speaker busy without a device, notifications off the pipeline thread"
-updated_at: "2026-10-16T20:02:09.332425577+00:00"
+updated_at: "2026-10-16T20:02:31.309078825+00:00"
 ---
 
 ## Goal
