@@ -157,7 +157,7 @@ impl GameState {
                     self.body = None;
                 }
             }
-            JournalEvent::Docked { station_name, star_system, market_id } => {
+            JournalEvent::Docked { station_name, star_system, market_id, .. } => {
                 self.station = Some(station_name.clone());
                 self.station_market_id = *market_id;
                 self.system = Some(star_system.clone());
