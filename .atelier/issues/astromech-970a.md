@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Outfitting lookup follow-ups: mount warning, A-rated, armour and unsold modules, unknown voice system"
-updated_at: "2026-10-16T21:54:25.413632136+00:00"
+updated_at: "2026-10-16T21:59:20.912850340+00:00"
 ---
 
 ## Goal
@@ -38,3 +38,7 @@ Each item has a test that fails before the fix: a mount-only empty page without 
 ## Context
 
 Found in the independent review of feature/astromech-m30a at 02376ce.
+
+## Notes
+
+- 2026-10-16 [note] Also (review of m30a round 2, N1): when Spansh gives a symbol FDevIDs lacks, fall back to the name so a real seller isn't dropped.
