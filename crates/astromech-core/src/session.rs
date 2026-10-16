@@ -400,13 +400,10 @@ fn start_voice(
     let min_hold = cfg.voice.min_hold_ms;
     let mut min_level = cfg.voice.min_level_dbfs;
     if let Some(m) = &mic {
-        let key = format!("mic.{}.min_level_dbfs", m.device_name());
         if let Ok(st) = astromech_store::Store::open(&cfg.data_dir().join("astromech.sqlite")) {
-            if let Ok(Some(v)) = st.get(&key) {
-                if let Ok(n) = v.parse::<f32>() {
-                    log(&format!("microphone: using calibrated min_level_dbfs {n:.0} for {}", m.device_name()));
-                    min_level = n;
-                }
+            if let Some(n) = crate::calibration::stored_gate(&st, &m.device_name()) {
+                log(&format!("microphone: using calibrated min_level_dbfs {n:.0} for {}", m.device_name()));
+                min_level = n;
             }
         }
     }
