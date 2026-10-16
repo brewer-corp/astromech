@@ -16,3 +16,8 @@ astromech-proto.workspace = true
 astromech-policy.workspace = true
 astromech-status.workspace = true
 astromech-gamestate.workspace = true
+astromech-market.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+astromech-journal.workspace = true

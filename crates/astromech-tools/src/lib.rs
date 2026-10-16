@@ -11,6 +11,8 @@ use astromech_gamestate::GameState;
 use astromech_proto::Tier;
 use astromech_status as st;
 
+pub mod trade;
+
 pub use astromech_policy;
 
 /// Status.json flag bits used here (Frontier's Status file documentation).
@@ -71,6 +73,8 @@ pub enum Query {
     Credits,
     Ship,
     Legal,
+    Powerplay,
+    SystemPower,
 }
 
 /// One typed tool call.
@@ -256,6 +260,8 @@ pub fn from_command(id: &str) -> Option<ToolCall> {
             "credits" => Query::Credits,
             "ship" => Query::Ship,
             "legal" => Query::Legal,
+            "powerplay" => Query::Powerplay,
+            "system_power" => Query::SystemPower,
             _ => return None,
         };
         return Some(ToolCall::Query(q));
@@ -571,6 +577,12 @@ pub fn answer(q: Query, g: &GameState) -> String {
             Some(st) => format!("Legal state: {st}."),
             None => "No legal-state data yet.".into(),
         },
+        Query::Powerplay => g.powerplay.spoken(),
+        Query::SystemPower => match (&g.system_power, &g.system) {
+            (Some(s), _) => s.spoken(g.powerplay.power.as_deref()),
+            (None, Some(sys)) => format!("No Powerplay activity in {sys}."),
+            (None, None) => "Location not known yet.".into(),
+        },
     }
 }
 
@@ -749,5 +761,45 @@ mod tests {
         assert!(answer(Query::Ship, &g).contains("Test"));
         assert!(answer(Query::Legal, &g).contains("Clean"));
         assert!(answer(Query::Credits, &g).contains("1000000"));
+    }
+
+    #[test]
+    fn powerplay_rank_is_answered_from_the_journal() {
+        let mut g = GameState::default();
+        assert_eq!(from_command("status.powerplay"), Some(ToolCall::Query(Query::Powerplay)));
+        assert_eq!(answer(Query::Powerplay, &g), "Not pledged to a power.");
+        for l in [
+            r#"{"timestamp":"2026-10-16T18:00:05Z","event":"LoadGame","Commander":"Test"}"#,
+            r#"{"timestamp":"2026-10-16T18:00:06Z","event":"Powerplay","Power":"Li Yong-Rui","Rank":8,"Merits":45000,"TimePledged":1}"#,
+            r#"{"timestamp":"2026-10-16T18:30:00Z","event":"PowerplayMerits","Power":"Li Yong-Rui","MeritsGained":100,"TotalMerits":45100}"#,
+        ] {
+            g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        }
+        assert_eq!(
+            answer(Query::Powerplay, &g),
+            "Pledged to Li Yong-Rui, rank 8, 45100 merits. 1900 merits to rank 9: Care package. 100 merits this session."
+        );
+    }
+
+    #[test]
+    fn system_powerplay_is_answered_from_the_last_jump() {
+        let mut g = GameState::default();
+        assert_eq!(from_command("status.system_power"), Some(ToolCall::Query(Query::SystemPower)));
+        assert_eq!(answer(Query::SystemPower, &g), "Location not known yet.");
+        let feed = |g: &mut GameState, l: &str| g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        feed(
+            &mut g,
+            r#"{"timestamp":"t","event":"Powerplay","Power":"Li Yong-Rui","Rank":8,"Merits":45000,"TimePledged":1}"#,
+        );
+        feed(&mut g, r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Test Empty","JumpDist":5.0}"#);
+        assert_eq!(answer(Query::SystemPower, &g), "No Powerplay activity in Test Empty.");
+        feed(
+            &mut g,
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Lembava","JumpDist":5.0,"ControllingPower":"Li Yong-Rui","Powers":["Li Yong-Rui"],"PowerplayState":"Stronghold","PowerplayStateControlProgress":0.250634,"PowerplayStateReinforcement":0,"PowerplayStateUndermining":166}"#,
+        );
+        assert_eq!(
+            answer(Query::SystemPower, &g),
+            "Li Yong-Rui stronghold, 25 percent. Reinforcement 0, undermining 166. Your power: reinforce here."
+        );
     }
 }

@@ -8,12 +8,13 @@
 pub mod data;
 pub mod engineers;
 pub mod fleet;
+pub mod links;
 pub mod plan;
 pub mod trip;
 
 pub use engineers::EngineerView;
-pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship};
-pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
+pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, ShipLinks, Stored};
+pub use plan::{evaluate, planned_modules, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 pub use trip::{plan_trip, Hop, Trip};
 
 /// Fleet read from the crate's fake journal fixtures (app window sample).
@@ -199,6 +200,31 @@ mod tests {
     }
 
     #[test]
+    fn ship_links_follow_the_loadout_until_a_craft() {
+        let loadout: serde_json::Value = serde_json::from_str(include_str!("../tests/links/loadout-asp.json")).unwrap();
+        let dir = tempfile::tempdir().unwrap();
+        let log = dir.path().join("Journal.2026-10-03T090000.01.log");
+        let line = serde_json::to_string(&loadout).unwrap();
+        std::fs::write(&log, format!("{line}\n")).unwrap();
+        let ship = from_journal_dir(dir.path()).ships.remove(0);
+        let links = ship.links.expect("a flown ship has links");
+        assert_eq!(links.coriolis, links::coriolis_url(&loadout));
+        assert_eq!(links.edsy, links::edsy_url(&loadout));
+
+        let craft = r#"{"timestamp":"2026-10-03T09:30:00Z","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":5,"Quality":1.0}"#;
+        std::fs::write(&log, format!("{line}\n{craft}\n")).unwrap();
+        assert_eq!(from_journal_dir(dir.path()).ships[0].links, None, "the saved Loadout is stale after a craft");
+
+        // The game writes a new Loadout after the craft: the links are back, for the new build.
+        let mut newer = loadout.clone();
+        newer["timestamp"] = "2026-10-03T09:45:00Z".into();
+        let newer_line = serde_json::to_string(&newer).unwrap();
+        std::fs::write(&log, format!("{line}\n{craft}\n{newer_line}\n")).unwrap();
+        let links = from_journal_dir(dir.path()).ships.remove(0).links.expect("a later Loadout restores the links");
+        assert_eq!(links.coriolis, links::coriolis_url(&newer));
+    }
+
+    #[test]
     fn trip_in_person_stops_and_remote_note() {
         let fleet = from_journal_dir(&fixture_dir());
         let ship = fleet.ships.iter().find(|s| s.id == 7).unwrap();
@@ -270,6 +296,52 @@ mod tests {
     }
 
     #[test]
+    fn fixture_fleet_lists_every_ship_and_stored_module() {
+        let f = sample_fleet();
+        let ships: Vec<_> =
+            f.ships.iter().map(|s| (s.id, s.system.as_deref(), s.value, s.rebuy, s.max_jump_range)).collect();
+        assert_eq!(
+            ships,
+            vec![
+                (3, None, Some(165_000_000), Some(12_000_000), Some(18.0)),
+                (7, Some("Shinrarta Dezhra"), Some(134_000_000), Some(6_700_000), Some(32.5)),
+                (12, Some("Sol"), Some(6_000_000), None, None),
+            ]
+        );
+        let stored: Vec<_> = f
+            .stored_modules
+            .iter()
+            .map(|m| (m.name.as_str(), m.system.as_deref(), m.blueprint_name.as_deref(), m.grade))
+            .collect();
+        assert_eq!(
+            stored,
+            vec![
+                ("5A Frame Shift Drive", Some("Shinrarta Dezhra"), Some("Increased range"), Some(3)),
+                ("5A Shield Generator", Some("Sol"), None, None),
+                ("2F Pulse Laser", None, None, None),
+            ]
+        );
+    }
+
+    #[test]
+    fn transfer_marks_a_ship_in_transit_to_where_we_are() {
+        let mut b = FleetBuilder::default();
+        for p in astromech_journal::journal_logs(&fixture_dir()) {
+            for l in astromech_journal::parse_file(&p) {
+                b.apply(&l.timestamp, &l.event);
+            }
+        }
+        let l = astromech_journal::parse_line(
+            r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":12,"System":"Sol"}"#,
+        )
+        .unwrap();
+        b.apply(&l.timestamp, &l.event);
+        let asp = b.build("test").ships.into_iter().find(|s| s.id == 12).unwrap();
+        assert!(asp.in_transit);
+        assert_eq!(asp.system.as_deref(), Some("Shinrarta Dezhra"));
+    }
+
+    #[test]
     fn crafts_update_the_fleet_and_shrink_the_trip() {
         use astromech_journal::JournalEvent;
         let craft = |bp: &str, level: u8, quality: f64, slot: &str, exp: Option<&str>| JournalEvent::EngineerCraft {
@@ -281,6 +353,7 @@ mod tests {
             slot: Some(slot.into()),
             experimental: exp.map(str::to_string),
             experimental_localised: None,
+            modifiers: vec![],
             preview: false,
             ingredients: vec![],
         };
@@ -321,6 +394,30 @@ mod tests {
         let trip = plan_trip(krait, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
         let jobs: Vec<&str> = trip.stops.iter().flat_map(|s| s.jobs.iter().map(|j| j.what.as_str())).collect();
         assert_eq!(jobs, vec!["Dirty G3 → G5"]);
+    }
+
+    #[test]
+    fn crafts_replace_the_modules_modifiers() {
+        let mut b = FleetBuilder::default();
+        let mut apply = |line: &str| {
+            let l = astromech_journal::parse_line(line).unwrap();
+            b.apply(&l.timestamp, &l.event);
+        };
+        apply(
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","Engineering":{"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.0,"Modifiers":[{"Label":"FSDOptimalMass","Value":1501.5,"OriginalValue":1050.0,"LessIsGood":0}]}},{"Slot":"PowerPlant","Item":"Int_Powerplant_Size7_Class5","Engineering":{"BlueprintName":"PowerPlant_Boosted","Level":3,"Quality":0.0,"Modifiers":[{"Label":"PowerCapacity","Value":45.0,"OriginalValue":40.0,"LessIsGood":0}]}}]}"#,
+        );
+        apply(
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":5,"Quality":0.2,"Modifiers":[{"Label":"FSDOptimalMass","Value":1522.5,"OriginalValue":1050.0,"LessIsGood":0}]}"#,
+        );
+        apply(
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"PowerPlant","Engineer":"Felicity Farseer","BlueprintName":"PowerPlant_Boosted","Level":4,"Quality":0.1}"#,
+        );
+        let fleet = b.build("t");
+        let eng =
+            |slot: &str| fleet.ships[0].loadout.iter().find(|m| m.slot == slot).unwrap().engineering.clone().unwrap();
+        assert_eq!(eng("FrameShiftDrive").modifiers[0].value, 1522.5);
+        // A craft that doesn't report the stats leaves them to the blueprint and roll.
+        assert!(eng("PowerPlant").modifiers.is_empty());
     }
 
     #[test]
@@ -405,5 +502,72 @@ mod tests {
         let c = plan::cost_target(krait, &t("FrameShiftDrive", "Engine_Dirty", 5), &rolls);
         assert!(c.note.unwrap().contains("cannot take"));
         assert!(c.materials.is_empty());
+    }
+    #[test]
+    fn planned_modules_follow_the_plan_like_the_game() {
+        let f = from_journal_dir(&fixture_dir());
+        let krait = f.ships.iter().find(|s| s.id == 7).unwrap();
+        let t = |slot: &str, bp: &str, g, x: Option<&str>| Target {
+            slot: slot.into(),
+            blueprint: bp.into(),
+            grade: g,
+            experimental: x.map(Into::into),
+        };
+        let eng = |mods: &[astromech_journal::ModuleSnap], slot: &str| {
+            let e = mods.iter().find(|m| m.slot == slot).unwrap().engineering.clone();
+            e.map(|e| (e.blueprint, e.level, e.quality, e.experimental))
+        };
+        // Up to the target grade, fully rolled, with the target's experimental.
+        let p = planned_modules(&krait.loadout, &[t("FrameShiftDrive", "fsd_longrange", 5, Some("special_fsd_heavy"))]);
+        assert_eq!(
+            eng(&p, "FrameShiftDrive"),
+            Some(("FSD_LongRange".into(), 5, 1.0, Some("special_fsd_heavy".into())))
+        );
+        // Already above the target on the same blueprint: grade, roll and experimental stay.
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Dirty", 2, None)]);
+        assert_eq!(
+            eng(&p, "MainEngines"),
+            Some(("Engine_Dirty".into(), 3, 0.5, Some("special_engine_overloaded".into())))
+        );
+        // Same blueprint, higher grade: the experimental stays; another blueprint drops it.
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Dirty", 5, None)]);
+        assert_eq!(
+            eng(&p, "MainEngines"),
+            Some(("Engine_Dirty".into(), 5, 1.0, Some("special_engine_overloaded".into())))
+        );
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Reinforced", 5, None)]);
+        assert_eq!(eng(&p, "MainEngines"), Some(("Engine_Reinforced".into(), 5, 1.0, None)));
+        // A grade past the blueprint's top clamps to it; an experimental the module can't take is
+        // ignored; targets cost_target rejects change nothing.
+        let p = planned_modules(
+            &krait.loadout,
+            &[
+                t("TinyHardpoint1", "ShieldBooster_Thermic", 9, Some("special_fsd_heavy")),
+                t("FrameShiftDrive", "Engine_Dirty", 5, None),
+                t("PowerPlant", "Not_A_Blueprint", 5, None),
+                t("Slot09_Size1", "FSD_LongRange", 5, None),
+            ],
+        );
+        assert_eq!(eng(&p, "TinyHardpoint1"), Some(("ShieldBooster_Thermic".into(), 5, 1.0, None)));
+        assert_eq!(eng(&p, "FrameShiftDrive"), eng(&krait.loadout, "FrameShiftDrive"));
+        assert_eq!(eng(&p, "PowerPlant"), eng(&krait.loadout, "PowerPlant"));
+        assert_eq!(p.len(), krait.loadout.len());
+        // The journal's stats stay only on a module the plan leaves as it is.
+        let mut fitted = krait.loadout.clone();
+        let thr = fitted.iter_mut().find(|m| m.slot == "MainEngines").unwrap();
+        thr.engineering.as_mut().unwrap().modifiers = vec![astromech_journal::EngModifier {
+            label: "EngineOptimalMass".into(),
+            value: 1600.0,
+            original_value: 1440.0,
+        }];
+        let mods = |p: &[astromech_journal::ModuleSnap]| {
+            p.iter().find(|m| m.slot == "MainEngines").unwrap().engineering.as_ref().unwrap().modifiers.len()
+        };
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 2, None)])), 1);
+        let same_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_overloaded"));
+        assert_eq!(mods(&planned_modules(&fitted, &[same_x])), 1);
+        let other_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_lightweight"));
+        assert_eq!(mods(&planned_modules(&fitted, &[other_x])), 0);
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 5, None)])), 0);
     }
 }

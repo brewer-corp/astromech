@@ -104,6 +104,16 @@ pub struct Actions {
     pub dry_run: bool,
 }
 
+/// Sharing game data with EDDN (`astromech-eddn`). Off unless switched on in Settings → Data
+/// sharing (`set_eddn`).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Eddn {
+    pub enabled: bool,
+    /// Send to the `/test` schemas. Debug builds always do.
+    pub test: bool,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -112,6 +122,7 @@ pub struct Config {
     pub voice: Voice,
     pub actions: Actions,
     pub update: crate::update::Settings,
+    pub eddn: Eddn,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
 }
@@ -320,7 +331,10 @@ mod tests {
     #[test]
     fn sample_parses_and_buttons_match() {
         let c = Config::parse(SAMPLE).unwrap();
-        let ptt = c.controls.ptt.clone().unwrap();
+        // The sample leaves push-to-talk to the user (onboarding treats a set one as set up).
+        assert!(c.controls.ptt.is_none());
+        let line = SAMPLE.lines().find(|l| l.starts_with("# ptt = ")).unwrap();
+        let ptt = toml::from_str::<Controls>(line.trim_start_matches("# ")).unwrap().ptt.unwrap();
         assert_eq!(ptt, Button { device: "231D3201".into(), key: "Joy_4".into() });
         assert!(ptt.matches(&ev("button", Some("231D3201"), "Joy_4")));
         assert!(!ptt.matches(&ev("button", Some("231D0200"), "Joy_4")));
@@ -334,8 +348,10 @@ mod tests {
         assert_eq!(c.voice.speaker, "bf_emma");
         assert!(c.update.check);
         assert_eq!(c.update.apply, crate::update::ApplyWhen::Ask);
+        assert!(!c.eddn.enabled && !c.eddn.test);
         let d = Config::parse("").unwrap();
         assert!(d.controls.ptt.is_none() && d.voice.tts);
+        assert!(!d.eddn.enabled, "nothing is sent to EDDN unless switched on");
         assert_eq!(d.voice.colour, astromech_voice::colour::Colour::Cockpit);
         assert_eq!(d.voice.speaker, astromech_voice::catalog::DEFAULT_VOICE);
     }

@@ -29,7 +29,12 @@ astromech-keybinds = { path = "../../crates/astromech-keybinds" }
 astromech-input = { path = "../../crates/astromech-input" }
 astromech-materials = { path = "../../crates/astromech-materials" }
 astromech-engineering = { path = "../../crates/astromech-engineering" }
+astromech-ship = { path = "../../crates/astromech-ship" }
 astromech-galaxy = { path = "../../crates/astromech-galaxy" }
+astromech-market = { path = "../../crates/astromech-market" }
+astromech-history = { path = "../../crates/astromech-history" }
+astromech-store = { path = "../../crates/astromech-store" }
+astromech-powerplay = { path = "../../crates/astromech-powerplay" }
 
 [profile.release]
 opt-level = "s"

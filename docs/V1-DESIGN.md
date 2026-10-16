@@ -21,8 +21,8 @@ clone Frontier samples or the actors. Details in §6.4; DSP chain in ARCHITECTUR
 - VKB sticks ship with a fixed factory profile, so the stock button numbers are known. We ship
   them as built-in maps. Asking the user to press buttons is only for sticks someone remapped.
 - The full list is good when you know what you want, but not for finding actions you didn't
-  know about. New **Activities** view: one picture per activity (exploration, trading, …) with
-  the actions that matter for it, on your own sticks.
+  know about. On the **My controller** page, an activity
+  filter (exploration, trading, …) lights the actions that matter for it on your stick.
 
 **Revision 2 (10 Oct, 10:30 PM ET).** Sumeet rejected the revision-1 mockups as decoration,
 not design: random colours, cards, icons, boxes and dividers, four equal-weight panels, a
@@ -72,10 +72,9 @@ those problems; see §3 for why this beats a pictorial main view.
 
 | Feature | What it does | Seed / source |
 |---|---|---|
-| **Activities** (discovery view, opens first) | Pick an activity (exploration, trading, combat, …). See its important actions on your own sticks, using the maker's sheet, plus keyboard bindings and a short "not bound yet" list with "Bind this". | new (§3.3) |
 | **All keybinds** (full reference) | The game's Controls list, cloned and improved: same categories and expandable groups, primary/secondary columns and an "about this setting" panel, plus search, "press a button to jump to it", larger type, and inline health/conflict markers. | new; data from `astromech-keybinds` |
 | **Health check** | Runs on app start, device plug/unplug, Bindings folder changes, before launch and on import. Missing devices / PID drift (wrong-firmware warning with reflash steps), buttons above Joy_32, axes the device doesn't have, keyboard-only presets, actions voice needs that have no keyboard key. Shown **inline** in the list (marker on the row, explanation in the about panel) and as an "Issues" filter, not on a separate dashboard. | k0 + `astromech-core::health` |
-| **My controller** | The maker's reference sheet for one device, with every binding in the sheet's own boxes. For VKB: their sheets, bundled with credit, plus built-in stock button maps (§3.2). A device without a sheet gets the list filtered to that device. | new |
+| **My controller** (opens first) | The maker's reference sheet for one device, with every binding in the sheet's own boxes. An activity filter (exploration, trading, combat, …) lights just that activity's actions and adds a short "not bound yet" list with "Bind this" and the keyboard-only bindings (§3.3); "All" shows everything. For VKB: their sheets, bundled with credit, plus built-in stock button maps (§3.2). A device without a sheet gets the list filtered to that device. | new |
 | **Presets** | Every preset in the Bindings folder and which one is active per context (`StartPreset*.start`), duplicate `PresetName`s and file-name mismatches, backups and restore. | `astromech-keybinds::active`, k0 |
 | **Small edits, on a copy** | Exactly one class of edit in v1: **assign a keyboard key to an action's empty slot** (the fix voice needs), plus the manual "replace device ID in a copy" from KEYBINDS §7.3. Always: back up, write a copy, tell the user to reselect the preset. | KEYBINDS §7 |
 | **Key tester** | Live press log (device, Elite name, bound actions, bounce detection), in Diagnostics. Read-only Raw Input, proven in S7 not to disturb the game. The same listener powers "press a button to jump to it". | s7-input-listener |
@@ -114,6 +113,8 @@ those problems; see §3 for why this beats a pictorial main view.
 | "Credits?" / "Rebuy?" | LoadGame, Loadout `Rebuy` |
 | "What's my ship?" | Loadout `Ship`, `ShipName`, `ShipIdent` |
 | "Legal state?" | Status.json `LegalState` |
+| "Where can I sell painite?" / "Where can I buy tritium?" (best station, system, distance, price, demand or stock; age if over a day) | Ardent Insight, from the current system, with the Trade page's filters |
+| "Where should I sell my cargo?" (best station for the whole load, total credits, how much of the load it takes) | `Cargo.json` and Ardent Insight, with the Trade page's My cargo filters |
 
 **Shell.**
 - A native tray menu (status, open, pause voice, kill switch, check for updates, quit), one
@@ -182,27 +183,30 @@ setup work at a desk: big readable text, one thing at a time.
 | Screen | Single purpose | Deliberately NOT here |
 |---|---|---|
 | **Onboarding** (first run; individual steps re-runnable) | Get from install to "gear down works" in under 5 minutes | Any setting not needed for that; explanations beyond one line per step |
-| **Activities** (default tab) | Show what matters for one activity and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; activities you didn't pick |
 | **All keybinds** | Find and understand any binding; fix what's broken | Device pictures, statistics, voice settings, a separate health dashboard, colour-coded categories |
-| **My controller** | See one device as its manufacturer drew it, with what each control does | Editing; actions for other devices; anything not on that device |
+| **My controller** (default tab) | See one device as its manufacturer drew it, with what each control does; filter to one activity to see what matters for it and what's missing | Every action in the game (that's All keybinds); editing beyond "Bind this"; actions for other devices |
 | **Presets** | Which preset is active, switch, back up, restore | Bindings themselves |
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
-| **Engineering** | Pick any owned ship (modules from the newest `Loadout` for that ship in journal history), set blueprint / grade / experimental per module, and see need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), stat previews, Odyssey suit/weapon engineering |
+| **Engineering: Ships** | A card per owned ship (modules from the newest `Loadout` for that ship in journal history); a ship's detail (`#/engineering/<id>`) sets blueprint / grade / experimental per module and shows the ship's stats now and with the plan done (jump range, shields, distributor, weapons, hull; Coriolis's calculations) with the difference, and need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), swapping modules, several builds per ship, Odyssey suit/weapon engineering |
 | **Engineering: trip** | Which engineers to visit for the plan and in what order (fewest jumps), what to do at each stop, a note where grades could be rolled remotely (unlocked rank-5 engineer offers the blueprint, if pinned there), and which jobs need an engineer unlock. Every `EngineerCraft`, remote or in person, updates the ship at once, so the plan and trip shrink as you go | Tracking pinned blueprints (the game doesn't log them), unlock walkthroughs, neutron routing, per-base supercruise times |
+| **Trade: Commodities** | Where to sell or buy one commodity near you or a typed system, best price first, with demand or stock, pad, arrival distance and data age (Ardent Insight). **My cargo** (from `Cargo.json`): the stations paying the most for the whole load, each commodity capped by the station's demand, and the best station for each commodity on its own (demand for all of it); mission cargo, stolen goods and limpets are left out and listed. Sell, buy and My cargo each remember their filters (radius, default 100 ly; minimum demand or stock; pad; data age, default 30 days; arrival; carriers; Odyssey), and the voice questions use the same ones. Construction sites and Ardent's placeholder rows (demand 999,999) are never offered | Trade routes, galaxy-wide best prices, price history, black-market sales |
 | **Nearby lookups** (Materials and Engineering side panel) | Nearest systems for a farming source (Famine for wake scanning, the HGE faction pools) with jumps at the current ship's range and how old the report is | Plotting the route in game |
+| **Powerplay** | My Powerplay standing from the journal: power, rank, merits (lifetime, this weekly cycle, this session), time pledged, the next rank and its reward (rules in `data/catalog/powerplay.json`); the current system's Powerplay state from the last jump (controlling power, state, control progress, reinforcement vs undermining this cycle, other active powers, acquisition progress) and what it offers my power; **Where to work**: my power's nearest acquisition, reinforcement and undermining systems within 20/40/80 ly (Spansh, on the search kit) with state and progress | Weekly assignments (not in the journal), the galaxy map's Powerplay views |
 | **Settings** | Every voice and control setting in **one list** | Calibration flows, press logs, live transcripts, anything that isn't a setting |
 | **Diagnostics** | Prove what the app sees: key tester (live press log), device list, health report, logs, "Save diagnostics" | Settings (except links to them) |
+| **Voice tester** (next to Diagnostics) | Try a voice command safely: type a phrase, or use push-to-talk while the page is open, and see the transcript, the matched intent and its confidence, what astromech would say and the keys it would send. Tests are dry runs; **Run live** sends the command through the policy like a spoken one, once Elite is the active window (it waits 5 s for you to switch, with a countdown; needs Elite running; it skips the confirmation a spoken command would ask). While the page is open and visible, push-to-talk only tests; closing, hiding or minimising it hands push-to-talk back within 3 s | Editing the grammar or aliases, the eval harness |
 | **Tray menu** (native, dark) | Is it running, open the window, pause voice, kill switch (while active), quit; one extra line only when something needs attention (crash, Finish setup, Restart to update) | Any status beyond one line; any webview; settings, updates, files (all in the window) |
 
-Navigation is three plain text tabs in the window header, like the game's top-level options,
-each with its pages as sub-tabs: **Controls** (Activities, All keybinds, My controller, Presets,
-Key tester), **Engineering** (Builds, Materials) and **Settings** (General, Diagnostics). While
+Navigation is plain text tabs in the window header, like the game's top-level options,
+each with its pages as sub-tabs: **Controls** (My controller, All keybinds, Presets,
+Key tester), **Engineering** (Builds, Materials), **Trade** (Commodities), **Powerplay** and
+**Settings** (General, Diagnostics, Voice tester). While
 setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
-**How the three binding views fit together.** They show the same bindings three ways:
-- **Activities** answers "what do I need for this?". It's curated and short.
+**How the three binding views fit together.** They show the same bindings two ways:
+- **My controller** answers "what does each control on this stick do?" ("All"), and "what do I
+  need for this?" with an activity chosen. The activity lists are curated and short.
 - **All keybinds** answers "where is everything?". It's complete and searchable.
-- **My controller** answers "what does each control on this stick do?".
 Every action links to the others: "Show in all keybinds", "Show on my controller".
 
 **Pressing a control.** In any of these views, pressing a button, hat or axis on a stick (or a
@@ -239,9 +243,8 @@ flow, not a tab.
 ### 3.1 Three views, three questions
 | View | Question it answers | Shape |
 |---|---|---|
-| **Activities** (opens first) | "What do I need for exploring, trading, …? What am I missing?" | Your sticks (the maker's sheets) with that activity's actions lit up, plus keyboard bindings and a "not bound yet" list |
 | **All keybinds** | "Where is X? What's on this key?" | The game's Controls list, improved |
-| **My controller** | "What does every control on this stick do?" | One sheet, every binding |
+| **My controller** (opens first) | "What does every control on this stick do?" With an activity: "What do I need for exploring, trading, …? What am I missing?" | One sheet, every binding; an activity filter lights its actions and adds a "not bound yet" list |
 
 Why not one view? The list is the only view that covers everything (keyboard, every context,
 both slots), and it's never wrong, because it's the file. But you can only find what you
@@ -318,8 +321,9 @@ clicks it on the sheet. Only controls that disagree are ever asked about.
 pictures are the fallback, then a plain grid of buttons and axes.
 
 ### 3.3 Activities
-Each activity shows your sticks with its actions lit up in their boxes. Each lit box shows the
-action and its other slot (often a key). Below the sheets:
+Activities are a filter on My controller, not a separate view. The page shows one stick at a
+time (a switcher picks which device); choosing an activity lights its actions in their boxes.
+Each lit box shows the action and its other slot (often a key). Below the sheet:
 - **Not bound yet:** the activity's important actions with no binding, each with "Bind this".
   Pressing a free control then binds it, in a copy of the preset.
 - **Elsewhere:** the activity's actions bound only to the keyboard or mouse.
@@ -836,15 +840,41 @@ Total about **11 weeks**.
 ### 7.13 As built in M3 voice v1 (11 Oct 2026)
 - **Chosen mic:** `[voice] mic` is a name substring; empty uses the Windows default. The device is logged on every PTT clip. `--list-mics` prints devices.
 - **Level correction:** after the gate, `astromech_voice::gain` boosts speech frames toward −6 dBFS (max +30 dB) and leaves frames under the noise floor + 6 dB alone.
-- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI stays M4.
+- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI: §7.14.
 - **Personal aliases:** a did-you-mean "yes" stores transcript → command (cap 200). Policy still gates the command.
 - **Extra T1:** flight assist (flag bit 5 = FA *off*), HUD analysis/combat, panels and maps (`GuiFocus`), throttle to zero (unverified; refused near a body in supercruise), SRV handbrake / drive assist. Silent running on asks "Silent running produces heat. Confirm?" then presses.
 - **Status questions (T0):** fuel, cargo, jump range, location, jumps left, hull, shields, credits/rebuy, ship, legal state — from Status.json, journal `Loadout`/`LoadGame`, Cargo.json, NavRoute.json.
 - **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`.
 
+### 7.14 As built in M4 onboarding and calibration (16 Oct 2026)
+- **Calibration is one path.** `astromech_core::calibration` measures and stores the gate for the CLI
+  (`--calibrate-files`) and the window (Settings → Microphone → Calibration, onboarding step 5). The
+  key is the device name the session's recorder opens for `[voice] mic` (before, the CLI keyed it by
+  the setting as typed, so a substring like "BlackShark" never matched the session's lookup).
+- **Onboarding** is a full-window flow shown until finished or skipped (`onboarding.done` in SQLite):
+  find Elite (Bindings and journal folders, install optional; a folder can be pasted), controllers
+  (the window's device scan and a live last press), press-to-bind push-to-talk and kill switch, mic
+  by name with a level check, calibration, and a health check whose rows each have a fix (go to the
+  step, download models, or the press-to-bind dialog for a voice action with no keyboard key).
+  `#/setup` re-runs it and `#/setup/<step>` opens one step; Settings links there.
+- **Setup edits go through the core.** The control API takes `args`; `set_ptt`, `set_kill_switch`,
+  `set_mic` and `set_folders` edit `astromech.toml` with `toml_edit` (comments kept, never written
+  if the result doesn't parse) and swap the core's config. A running voice session picks them up
+  the next time Elite starts. Recording (`mic_check`, `calibrate_*`) happens in the core, on Windows.
+- **Voice responses** (Settings): speaker (English Kokoro v1.0 voices, British first), colour and
+  speed, written with `set_voice` through the same locked config edit. The running session's
+  speaker switches at once (`Speaker::set_voice`), so the next reply uses the new voice; the TTS
+  cache key already includes model, voice, speed and colour. Preview says "Landing gear deployed."
+  through the session's speaker, or a Kokoro the core starts for the preview while Elite isn't
+  running (released when a session starts or after a minute unused; refused while a session
+  loads, and when speech output is off). After a voice change the fixed phrases re-render in the
+  background, but replies always render first and warm-ups for voices no longer chosen are skipped.
+- **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
+  (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
+
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:
-1. **Default screen:** the window opens on **Activities**.
+1. **Default screen:** the window opens on **My controller** (the Activities page was merged into it as a filter on 16 Oct 2026).
 2. **Row labels:** **mixed case**, not the game's all-caps labels.
 3. **v1 voice adds safe toggles:** flight assist, silent running (asks for a **spoken
    confirmation** first), HUD mode, panels, and throttle to zero.

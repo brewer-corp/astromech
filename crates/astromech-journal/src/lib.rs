@@ -13,6 +13,7 @@
 pub mod companion;
 mod detail;
 
+use detail::system_powerplay;
 pub use detail::*;
 use std::path::{Path, PathBuf};
 
@@ -48,6 +49,8 @@ pub enum JournalEvent {
         max_jump_range: Option<f64>,
         fuel_capacity_main: Option<f64>,
         rebuy: Option<i64>,
+        hull_value: Option<i64>,
+        modules_value: Option<i64>,
         ship_id: Option<i64>,
         modules: Vec<ModuleSnap>,
     },
@@ -55,6 +58,15 @@ pub enum JournalEvent {
     /// The ship being flown is not listed.
     StoredShips {
         ships: Vec<StoredShip>,
+    },
+    /// Modules in storage (`StoredModules`, written when outfitting opens).
+    StoredModules {
+        items: Vec<StoredModule>,
+    },
+    /// A stored ship was ordered to the system the player is in (`ShipyardTransfer`).
+    ShipTransfer {
+        ship_id: i64,
+        ship_type: String,
     },
     /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
     ShipSold {
@@ -72,6 +84,8 @@ pub enum JournalEvent {
         /// Set when starting docked (`Docked: true`).
         station_name: Option<String>,
         market_id: Option<i64>,
+        /// The system's Powerplay fields, if it has any.
+        powerplay: Option<Box<SystemPowerplay>>,
     },
     ApproachBody {
         star_system: String,
@@ -91,6 +105,8 @@ pub enum JournalEvent {
         from_carrier: bool,
         system_address: Option<i64>,
         star_pos: Option<[f64; 3]>,
+        /// The system's Powerplay fields, if it has any.
+        powerplay: Option<Box<SystemPowerplay>>,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -105,6 +121,7 @@ pub enum JournalEvent {
         station_name: String,
         star_system: String,
         market_id: Option<i64>,
+        system_address: Option<i64>,
     },
     Undocked {
         station_name: String,
@@ -132,6 +149,8 @@ pub enum JournalEvent {
         /// applied, `ApplyExperimentalEffect`).
         experimental: Option<String>,
         experimental_localised: Option<String>,
+        /// The module's engineered stats after this roll (`Modifiers`).
+        modifiers: Vec<EngModifier>,
         /// A preview (no change to the module).
         preview: bool,
         ingredients: Vec<MaterialStack>,
@@ -164,6 +183,10 @@ pub struct ModuleSnap {
     pub slot: String,
     /// Outfitting symbol, lowercase (`int_hyperdrive_size5_class5`).
     pub item: String,
+    /// Powered on (`On`; missing counts as on).
+    pub on: bool,
+    /// Power priority group, 0–4 (`Priority`; the game shows it as 1–5).
+    pub priority: u8,
     pub engineering: Option<ModEngineering>,
 }
 
@@ -177,6 +200,21 @@ pub struct ModEngineering {
     pub experimental: Option<String>,
     pub experimental_localised: Option<String>,
     pub engineer: Option<String>,
+    /// The module's engineered stats as the game reports them (`Modifiers`): the real roll of
+    /// each stat, which `level` and `quality` only approximate (and say nothing about for
+    /// modules engineered before 3.0, which show `Quality` 0). Empty when not written.
+    pub modifiers: Vec<EngModifier>,
+}
+
+/// One entry of an engineering `Modifiers` list: a stat's value on the module and on the
+/// unengineered module, in the journal's units (resistances and shield or hull multipliers in
+/// percent). Entries with only a text value (`ValueStr`) are not kept.
+#[derive(Debug, Clone, PartialEq)]
+pub struct EngModifier {
+    /// `FSDOptimalMass`, `ShieldGenStrength`, `KineticResistance`, ...
+    pub label: String,
+    pub value: f64,
+    pub original_value: f64,
 }
 
 /// One entry of `StoredShips` (`ShipsHere` and `ShipsRemote`).
@@ -186,6 +224,23 @@ pub struct StoredShip {
     pub ship_type: String,
     pub name: Option<String>,
     pub system: Option<String>,
+    /// On its way to `system` (or to wherever it was last written, if `system` is `None`).
+    pub in_transit: bool,
+    pub value: Option<i64>,
+}
+
+/// One entry of `StoredModules`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StoredModule {
+    /// Outfitting symbol, lowercase.
+    pub item: String,
+    pub localised: Option<String>,
+    /// `None` while in transit.
+    pub system: Option<String>,
+    pub value: Option<i64>,
+    /// Blueprint symbol and grade, if the stored module is engineered.
+    pub blueprint: Option<String>,
+    pub level: Option<u8>,
 }
 
 /// One engineer on `EngineerProgress`. `progress` is `Known`, `Invited`, `Acquainted` or
@@ -222,7 +277,24 @@ pub struct JournalLine {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct CargoSnap {
     pub count: i64,
+    /// (display name, count), most first: for speaking the hold's contents.
     pub items: Vec<(String, i64)>,
+    /// Every `Inventory` line as the game wrote it, in file order.
+    pub inventory: Vec<CargoItem>,
+}
+
+/// One `Cargo.json` inventory line.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct CargoItem {
+    /// Lowercase symbol, as markets use it: "lowtemperaturediamond".
+    pub symbol: String,
+    /// `Name_Localised` if the game gave one, else the symbol.
+    pub name: String,
+    pub count: i64,
+    /// Of `count`, how many are stolen (only a black market buys those).
+    pub stolen: i64,
+    /// Mission cargo: not the commander's to sell.
+    pub mission: bool,
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -280,10 +352,19 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             max_jump_range: opt_f(&raw, "MaxJumpRange"),
             fuel_capacity_main: raw.get("FuelCapacity").and_then(|f| opt_f(f, "Main")),
             rebuy: opt_i(&raw, "Rebuy"),
+            hull_value: opt_i(&raw, "HullValue"),
+            modules_value: opt_i(&raw, "ModulesValue"),
             ship_id: opt_i(&raw, "ShipID"),
             modules: modules(&raw),
         },
         "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
+        "StoredModules" => JournalEvent::StoredModules { items: stored_modules(&raw) },
+        "ShipyardTransfer" => match opt_i(&raw, "ShipID") {
+            Some(ship_id) => {
+                JournalEvent::ShipTransfer { ship_id, ship_type: s(&raw, "ShipType").to_ascii_lowercase() }
+            }
+            None => JournalEvent::Other { event, raw },
+        },
         "ShipyardSell" => match opt_i(&raw, "SellShipID") {
             Some(ship_id) => JournalEvent::ShipSold { ship_id },
             None => JournalEvent::Other { event, raw },
@@ -308,6 +389,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             star_pos: star_pos(&raw),
             station_name: opt_s(&raw, "StationName"),
             market_id: opt_i(&raw, "MarketID"),
+            powerplay: system_powerplay(&raw),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
@@ -320,6 +402,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             from_carrier: event == "CarrierJump",
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
+            powerplay: system_powerplay(&raw),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -339,6 +422,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             station_name: s(&raw, "StationName"),
             star_system: s(&raw, "StarSystem"),
             market_id: opt_i(&raw, "MarketID"),
+            system_address: opt_i(&raw, "SystemAddress"),
         },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
         "Materials" => JournalEvent::Materials {
@@ -367,6 +451,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             experimental: opt_s(&raw, "ExperimentalEffect").or_else(|| opt_s(&raw, "ApplyExperimentalEffect")),
             experimental_localised: opt_s(&raw, "ExperimentalEffect_Localised")
                 .or_else(|| opt_s(&raw, "ApplyExperimentalEffect_Localised")),
+            modifiers: eng_modifiers(&raw),
             preview: raw.get("IsPreview").and_then(|x| x.as_bool()).unwrap_or(false),
             ingredients: stacks_signed(&raw, "Ingredients", -1),
         },
@@ -396,6 +481,8 @@ fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
         .map(|m| ModuleSnap {
             slot: s(m, "Slot"),
             item: s(m, "Item").to_ascii_lowercase(),
+            on: m.get("On").and_then(|x| x.as_bool()).unwrap_or(true),
+            priority: opt_i(m, "Priority").unwrap_or(0).clamp(0, 4) as u8,
             engineering: m.get("Engineering").filter(|e| e.is_object()).map(|e| ModEngineering {
                 blueprint: s(e, "BlueprintName"),
                 level: opt_i(e, "Level").unwrap_or(0).clamp(0, 5) as u8,
@@ -403,9 +490,23 @@ fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
                 experimental: opt_s(e, "ExperimentalEffect"),
                 experimental_localised: opt_s(e, "ExperimentalEffect_Localised"),
                 engineer: opt_s(e, "Engineer"),
+                modifiers: eng_modifiers(e),
             }),
         })
         .filter(|m| !m.item.is_empty())
+        .collect()
+}
+
+fn eng_modifiers(v: &serde_json::Value) -> Vec<EngModifier> {
+    let Some(a) = v.get("Modifiers").and_then(|x| x.as_array()) else { return vec![] };
+    a.iter()
+        .filter_map(|m| {
+            Some(EngModifier {
+                label: opt_s(m, "Label")?,
+                value: opt_f(m, "Value")?,
+                original_value: opt_f(m, "OriginalValue")?,
+            })
+        })
         .collect()
 }
 
@@ -415,16 +516,42 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
         .filter_map(|k| v.get(*k).and_then(|x| x.as_array()))
         .flatten()
         .filter_map(|x| {
+            let in_transit = x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false);
             Some(StoredShip {
                 ship_id: opt_i(x, "ShipID")?,
                 ship_type: s(x, "ShipType").to_ascii_lowercase(),
                 name: opt_s(x, "Name"),
                 // In transit: no system yet (not the one the list was written in).
+                system: if in_transit { None } else { opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")) },
+                in_transit,
+                value: opt_i(x, "Value"),
+            })
+        })
+        .collect()
+}
+
+fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
+    v.get("Items")
+        .and_then(|x| x.as_array())
+        .into_iter()
+        .flatten()
+        .filter_map(|x| {
+            Some(StoredModule {
+                // "$int_hyperdrive_size5_class5_name;" → "int_hyperdrive_size5_class5"
+                item: opt_s(x, "Name")?
+                    .trim_start_matches('$')
+                    .trim_end_matches(';')
+                    .trim_end_matches("_name")
+                    .to_ascii_lowercase(),
+                localised: opt_s(x, "Name_Localised"),
                 system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
                     None
                 } else {
-                    opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem"))
+                    opt_s(x, "StarSystem")
                 },
+                value: opt_i(x, "BuyPrice"),
+                blueprint: opt_s(x, "EngineerModifications"),
+                level: opt_i(x, "Level").map(|l| l.clamp(0, 5) as u8),
             })
         })
         .collect()
@@ -550,19 +677,24 @@ pub fn parse_cargo(bytes: &[u8]) -> Option<CargoSnap> {
     let v: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let count = v.get("Count").and_then(|x| x.as_i64()).unwrap_or(0);
     let mut items = vec![];
+    let mut inventory = vec![];
     if let Some(inv) = v.get("Inventory").and_then(|x| x.as_array()) {
         for it in inv {
-            let name = it
-                .get("Name_Localised")
-                .and_then(|x| x.as_str())
-                .or_else(|| it.get("Name").and_then(|x| x.as_str()))
-                .unwrap_or("item");
+            let symbol = it.get("Name").and_then(|x| x.as_str()).unwrap_or("item").to_lowercase();
+            let name = it.get("Name_Localised").and_then(|x| x.as_str()).map(str::to_string).unwrap_or(symbol.clone());
             let n = it.get("Count").and_then(|x| x.as_i64()).unwrap_or(0);
-            items.push((name.to_string(), n));
+            items.push((name.clone(), n));
+            inventory.push(CargoItem {
+                symbol,
+                name,
+                count: n,
+                stolen: it.get("Stolen").and_then(|x| x.as_i64()).unwrap_or(0),
+                mission: it.get("MissionID").is_some_and(|m| !m.is_null()),
+            });
         }
     }
     items.sort_by_key(|a| std::cmp::Reverse(a.1));
-    Some(CargoSnap { count, items })
+    Some(CargoSnap { count, items, inventory })
 }
 
 /// NavRoute.json in the journal folder. First entry is the current system.
@@ -648,6 +780,7 @@ mod tests {
                 from_carrier: false,
                 system_address: None,
                 star_pos: None,
+                powerplay: None,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
@@ -714,16 +847,20 @@ mod tests {
     #[test]
     fn loadout_modules_and_fleet_events() {
         let l = parse_line(
-            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Priority":2,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[{"Label":"Mass","Value":24.5,"OriginalValue":20.0,"LessIsGood":1},{"Label":"WeaponMode","ValueStr":"$WeaponMode_Pulse;","LessIsGood":0},{"Label":"FSDOptimalMass","Value":1472,"OriginalValue":1050.0,"LessIsGood":0}]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
         )
         .unwrap();
         match l.event {
             JournalEvent::Loadout { ship_id, modules, .. } => {
                 assert_eq!(ship_id, Some(7));
                 assert_eq!(modules[0].item, "int_hyperdrive_size5_class5");
+                assert!(modules[0].on);
+                assert_eq!(modules[0].priority, 2);
                 let e = modules[0].engineering.as_ref().unwrap();
                 assert_eq!((e.blueprint.as_str(), e.level, e.quality), ("FSD_LongRange", 4, 0.5));
                 assert_eq!(e.experimental.as_deref(), Some("special_fsd_heavy"));
+                let m = |label: &str, value, original_value| EngModifier { label: label.into(), value, original_value };
+                assert_eq!(e.modifiers, [m("Mass", 24.5, 20.0), m("FSDOptimalMass", 1472.0, 1050.0)]);
                 assert!(modules[1].engineering.is_none());
             }
             _ => panic!("expected Loadout"),
@@ -742,7 +879,24 @@ mod tests {
             _ => panic!("expected StoredShips"),
         }
         let l = parse_line(r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true}]}"#).unwrap();
-        assert!(matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none()));
+        assert!(
+            matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none() && ships[0].in_transit)
+        );
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipTransfer { ship_id: 4, ship_type: "asp".into() });
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$int_hyperdrive_size5_class5_name;","Name_Localised":"FSD","StarSystem":"Sol","BuyPrice":100,"EngineerModifications":"FSD_LongRange","Level":3,"Quality":0.5},{"Name":"$hpt_x;","InTransit":true}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredModules { items } => {
+                assert_eq!(items.len(), 2);
+                assert_eq!(items[0].item, "int_hyperdrive_size5_class5");
+                assert_eq!((items[0].system.as_deref(), items[0].level), (Some("Sol"), Some(3)));
+                assert_eq!(items[1].system, None);
+            }
+            _ => panic!("expected StoredModules"),
+        }
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();
@@ -773,13 +927,23 @@ mod tests {
         let l = parse_line(r#"{"timestamp":"t","event":"EngineerProgress","Engineer":"Liz Ryder","EngineerID":300080,"Progress":"Unlocked","Rank":1,"RankProgress":20}"#).unwrap();
         assert!(matches!(l.event, JournalEvent::EngineerProgress { ref engineers } if engineers[0].rank == Some(1)));
         let l = parse_line(
-            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Ingredients":[{"Name":"arsenic","Count":1}],"Engineer":"Felicity Farseer","EngineerID":300100,"BlueprintID":128673694,"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.4}"#,
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Ingredients":[{"Name":"arsenic","Count":1}],"Engineer":"Felicity Farseer","EngineerID":300100,"BlueprintID":128673694,"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.4,"Modifiers":[{"Label":"FSDOptimalMass","Value":1396.5,"OriginalValue":1050.0,"LessIsGood":0}]}"#,
         )
         .unwrap();
         match l.event {
-            JournalEvent::EngineerCraft { engineer, blueprint, level, quality, ingredients, preview, .. } => {
+            JournalEvent::EngineerCraft {
+                engineer,
+                blueprint,
+                level,
+                quality,
+                ingredients,
+                preview,
+                modifiers,
+                ..
+            } => {
                 assert_eq!((engineer.as_str(), blueprint.as_str(), level), ("Felicity Farseer", "FSD_LongRange", 5));
                 assert_eq!((quality, preview), (0.4, false));
+                assert_eq!((modifiers[0].label.as_str(), modifiers[0].value), ("FSDOptimalMass", 1396.5));
                 assert_eq!(ingredients[0].count, -1);
             }
             _ => panic!("expected EngineerCraft"),
@@ -810,6 +974,13 @@ mod tests {
         .unwrap();
         assert_eq!(c.count, 5);
         assert_eq!(c.items[0], ("Gold".into(), 3));
+        assert_eq!(
+            c.inventory[1],
+            CargoItem { symbol: "painite".into(), name: "painite".into(), count: 2, stolen: 0, mission: false }
+        );
+        let c = parse_cargo(br#"{ "Count":9, "Inventory":[{"Name":"Gold","Count":4,"Stolen":1},{"Name":"drones","Name_Localised":"Limpet","Count":5,"MissionID":42}] }"#).unwrap();
+        assert_eq!((c.inventory[0].symbol.as_str(), c.inventory[0].stolen), ("gold", 1));
+        assert!(c.inventory[1].mission && c.inventory[1].name == "Limpet");
         let r = parse_nav_route(
             br#"{ "event":"NavRoute", "Route":[{"StarSystem":"Sol"},{"StarSystem":"Barnard's Star"}] }"#,
         )
@@ -847,6 +1018,23 @@ mod tests {
         .unwrap();
         assert!(
             matches!(l.event, JournalEvent::FsdJump { from_carrier: true, ref star_system, .. } if star_system == "Alioth")
+        );
+    }
+
+    #[test]
+    fn docked_keeps_system_address() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"Docked","StationName":"Hutton Orbital","StarSystem":"Alpha Centauri","SystemAddress":1,"MarketID":2}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::Docked {
+                station_name: "Hutton Orbital".into(),
+                star_system: "Alpha Centauri".into(),
+                market_id: Some(2),
+                system_address: Some(1),
+            }
         );
     }
 }

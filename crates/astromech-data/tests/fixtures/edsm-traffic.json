@@ -1,0 +1,27 @@
+{
+ "id": 27,
+ "id64": 10477373803,
+ "name": "Sol",
+ "traffic": {
+  "total": 28211,
+  "week": 232,
+  "day": 43
+ },
+ "breakdown": {
+  "Anaconda": 2,
+  "Caspian Explorer": 7,
+  "Cobra Mk III": 1,
+  "Cobra Mk V": 2,
+  "Corsair": 4,
+  "Federal Corvette": 3,
+  "Kestrel Mk II": 2,
+  "Krait Mk II": 1,
+  "Krait Phantom": 1,
+  "Mamba": 1,
+  "Mandalay": 7,
+  "Panther Clipper Mk II": 3,
+  "Python Mk II": 2,
+  "Sidewinder": 1,
+  "Type-11 Prospector": 2
+ }
+}

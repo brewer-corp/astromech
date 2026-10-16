@@ -1,0 +1,226 @@
+{
+ "count": 225,
+ "from": 0,
+ "reference": {
+  "id64": 3824408316259,
+  "name": "Lembava",
+  "x": -43.25,
+  "y": -64.34375,
+  "z": -77.6875
+ },
+ "results": [
+  {
+   "allegiance": "Independent",
+   "body_count": 3,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "distance": 10.2741236700509,
+   "government": "Corporate",
+   "id": "5068195440001",
+   "id64": 5068195440001,
+   "is_being_colonised": true,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector YJ-A b2",
+   "needs_permit": false,
+   "population": 219233,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_conflict_progress": [
+    {
+     "power": "Li Yong-Rui",
+     "progress": 0.316925
+    }
+   ],
+   "power_state": "Unoccupied",
+   "primary_economy": "High Tech",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Extraction",
+   "security": "Low",
+   "updated_at": "2026-10-16T10:57:37Z",
+   "x": -46.71875,
+   "y": -70.5625,
+   "z": -85.09375
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 17,
+   "controlling_minor_faction": "Pan Galactic Mining Corp.",
+   "controlling_minor_faction_state": "None",
+   "distance": 16.3406426300345,
+   "government": "Corporate",
+   "id": "670417429897",
+   "id64": 670417429897,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "LP 353-51",
+   "needs_permit": false,
+   "population": 198980,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_conflict_progress": [
+    {
+     "power": "Li Yong-Rui",
+     "progress": 0.24485
+    }
+   ],
+   "power_state": "Unoccupied",
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Extraction",
+   "security": "Low",
+   "updated_at": "2026-10-16T18:34:48Z",
+   "x": -38.625,
+   "y": -53.5625,
+   "z": -66.3125
+  },
+  {
+   "allegiance": "Empire",
+   "body_count": 3,
+   "controlling_minor_faction": "Tangaroa Empire League",
+   "controlling_minor_faction_state": "None",
+   "distance": 16.5301275611382,
+   "government": "Patronage",
+   "id": "13864288462225",
+   "id64": 13864288462225,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector GW-W b1-6",
+   "needs_permit": false,
+   "population": 317541,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_conflict_progress": [
+    {
+     "power": "Li Yong-Rui",
+     "progress": 0.086375
+    },
+    {
+     "power": "Pranav Antal",
+     "progress": 0.003175
+    }
+   ],
+   "power_state": "Unoccupied",
+   "primary_economy": "Military",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "None",
+   "security": "Low",
+   "updated_at": "2026-10-15T19:48:58Z",
+   "x": -45.65625,
+   "y": -72.3125,
+   "z": -63.40625
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 1,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "distance": 16.8051215221729,
+   "government": "Corporate",
+   "id": "4481831867074",
+   "id64": 4481831867074,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector ZE-A c16",
+   "needs_permit": false,
+   "population": 222089,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_conflict_progress": [
+    {
+     "power": "Li Yong-Rui",
+     "progress": 0.82315
+    }
+   ],
+   "power_state": "Unoccupied",
+   "primary_economy": "High Tech",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Military",
+   "security": "Medium",
+   "updated_at": "2026-10-15T20:02:20Z",
+   "x": -34.90625,
+   "y": -75.25,
+   "z": -68.0
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 8,
+   "controlling_minor_faction": "Ukrainian Pilots Federation",
+   "controlling_minor_faction_state": "Expansion",
+   "distance": 18.8808196740104,
+   "government": "Corporate",
+   "id": "670148994441",
+   "id64": 670148994441,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector AV-Y b0",
+   "needs_permit": false,
+   "population": 205201,
+   "power": [
+    "Li Yong-Rui",
+    "Pranav Antal"
+   ],
+   "power_conflict_progress": [
+    {
+     "power": "Li Yong-Rui",
+     "progress": 0.1256
+    },
+    {
+     "power": "Pranav Antal",
+     "progress": 0.0
+    }
+   ],
+   "power_state": "Unoccupied",
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Extraction",
+   "security": "Medium",
+   "updated_at": "2026-10-13T14:08:10Z",
+   "x": -60.375,
+   "y": -59.46875,
+   "z": -83.96875
+  }
+ ],
+ "search": {
+  "filters": {
+   "distance": {
+    "max": "40",
+    "min": "0"
+   },
+   "power": {
+    "value": [
+     "Li Yong-Rui"
+    ]
+   },
+   "power_state": {
+    "value": [
+     "Unoccupied"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_system": "Lembava",
+  "reference_system_details": {
+   "id64": 3824408316259,
+   "name": "Lembava",
+   "x": -43.25,
+   "y": -64.34375,
+   "z": -77.6875
+  },
+  "size": 5,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "search_reference": "4E9C2430-C99F-11F1-9B52-9278CFC25992",
+ "size": 5
+}

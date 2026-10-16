@@ -1,0 +1,224 @@
+{
+ "count": 224,
+ "from": 0,
+ "reference": {
+  "id64": 10477373803,
+  "name": "Sol",
+  "x": 0.0,
+  "y": 0.0,
+  "z": 0.0
+ },
+ "results": [
+  {
+   "id": "128016640",
+   "market_id": 128016640,
+   "name": "Galileo",
+   "type": "Ocellus Starport",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 503.96403,
+   "has_large_pad": true,
+   "large_pads": 6,
+   "medium_pads": 13,
+   "small_pads": 9,
+   "is_planetary": false,
+   "services": [
+    {
+     "name": "Dock"
+    },
+    {
+     "name": "Autodock"
+    },
+    {
+     "name": "Market"
+    },
+    {
+     "name": "Contacts"
+    },
+    {
+     "name": "Shipyard"
+    }
+   ],
+   "modules": [
+    {
+     "category": "standard",
+     "class": 1,
+     "ed_symbol": "Adder_Armour_Grade1",
+     "name": "Lightweight Alloy",
+     "rating": "I",
+     "ship": "Adder"
+    },
+    {
+     "category": "standard",
+     "class": 1,
+     "ed_symbol": "Adder_Armour_Grade2",
+     "name": "Reinforced Alloy",
+     "price": 35120,
+     "rating": "I",
+     "ship": "Adder"
+    }
+   ],
+   "ships": [
+    {
+     "name": "Adder",
+     "price": 87810,
+     "symbol": "Adder"
+    },
+    {
+     "name": "Beluga Liner",
+     "price": 84532780,
+     "symbol": "BelugaLiner"
+    }
+   ],
+   "market": [
+    {
+     "buy_price": 45673,
+     "category": "Metals",
+     "commodity": "Gold",
+     "demand": 1,
+     "sell_price": 44707,
+     "supply": 29189
+    },
+    {
+     "buy_price": 34894,
+     "category": "Metals",
+     "commodity": "Silver",
+     "demand": 1,
+     "sell_price": 33726,
+     "supply": 104611
+    }
+   ],
+   "updated_at": "2026-10-16T18:20:55Z",
+   "market_updated_at": "2026-10-16T18:20:54Z"
+  },
+  {
+   "id": "128016384",
+   "market_id": 128016384,
+   "name": "Daedalus",
+   "type": "Orbis Starport",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 225.336627,
+   "has_large_pad": true,
+   "large_pads": 6,
+   "medium_pads": 13,
+   "small_pads": 10,
+   "is_planetary": false,
+   "services": [
+    {
+     "name": "Dock"
+    },
+    {
+     "name": "Autodock"
+    },
+    {
+     "name": "Market"
+    },
+    {
+     "name": "Contacts"
+    },
+    {
+     "name": "Shipyard"
+    }
+   ],
+   "modules": [
+    {
+     "category": "standard",
+     "class": 1,
+     "ed_symbol": "Adder_Armour_Grade1",
+     "name": "Lightweight Alloy",
+     "rating": "I",
+     "ship": "Adder"
+    },
+    {
+     "category": "standard",
+     "class": 1,
+     "ed_symbol": "Adder_Armour_Grade2",
+     "name": "Reinforced Alloy",
+     "price": 35120,
+     "rating": "I",
+     "ship": "Adder"
+    }
+   ],
+   "ships": [
+    {
+     "name": "Adder",
+     "price": 87810,
+     "symbol": "Adder"
+    },
+    {
+     "name": "Beluga Liner",
+     "price": 84532780,
+     "symbol": "BelugaLiner"
+    }
+   ],
+   "market": [
+    {
+     "buy_price": 45673,
+     "category": "Metals",
+     "commodity": "Gold",
+     "demand": 1,
+     "sell_price": 44707,
+     "supply": 1661
+    },
+    {
+     "buy_price": 34896,
+     "category": "Metals",
+     "commodity": "Silver",
+     "demand": 1,
+     "sell_price": 33728,
+     "supply": 106144
+    }
+   ],
+   "updated_at": "2026-10-16T16:53:53Z",
+   "market_updated_at": "2026-10-16T16:53:53Z"
+  }
+ ],
+ "search": {
+  "filters": {
+   "distance": {
+    "max": "40",
+    "min": "0"
+   },
+   "market": [
+    {
+     "name": "Gold",
+     "supply": {
+      "comparison": "<=>",
+      "value": [
+       1000,
+       999999999
+      ]
+     }
+    }
+   ]
+  },
+  "page": 0,
+  "reference_system": "Sol",
+  "reference_system_details": {
+   "id64": 10477373803,
+   "name": "Sol",
+   "x": 0.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "size": 3,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "search_reference": "DBD94B24-C991-11F1-A8A2-8F5D34D4EB66",
+ "size": 3
+}

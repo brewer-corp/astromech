@@ -27,6 +27,11 @@ astromech-voice.workspace = true
 astromech-policy.workspace = true
 astromech-tools.workspace = true
 astromech-store.workspace = true
+astromech-data.workspace = true
+astromech-galaxy.workspace = true
+astromech-market.workspace = true
+astromech-eddn.workspace = true
+astromech-history.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -34,6 +39,7 @@ chrono.workspace = true
 clap = { version = "4.6", features = ["derive"] }
 notify = "8.2"
 toml = "0.9"
+toml_edit = "0.25"
 zip = { version = "9", default-features = false, features = ["deflate"] }
 sha2.workspace = true
 ureq.workspace = true

@@ -1,0 +1,21 @@
+/* Shared by the onboarding steps (Onboarding.svelte imports it): the Settings list look. */
+.setup-step { display: grid; gap: 16px; }
+.setup-step p { margin: 0; line-height: 1.5; }
+.setup-step dl { display: grid; grid-template-columns: 12rem 1fr; gap: var(--gap); margin: 0; }
+.setup-step dt, .setup-step dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
+.setup-step dt { color: var(--text-lo); }
+.setup-step dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
+.setup-step dd.warn, .setup-step dd.on { background: var(--cell); color: var(--text-hi); }
+.setup-step dd > span { min-width: 0; overflow-wrap: anywhere; }
+.setup-step dd > span + span { flex: none; white-space: nowrap; }
+.setup-step dd { padding-top: 4px; padding-bottom: 4px; }
+.setup-step .mono { font-family: var(--mono); font-size: var(--fs-s); }
+.setup-step .lo { color: var(--text-lo); }
+.setup-step .warn-text { color: var(--accent); }
+.setup-step .acts { display: flex; gap: 28px; align-items: center; }
+.setup-step button { all: unset; cursor: pointer; flex: none; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+.setup-step button:disabled { color: var(--text-lo); cursor: default; }
+.setup-step button:not(:disabled):hover, .setup-step button:focus-visible { color: var(--text-hi); }
+.setup-step input { all: unset; flex: 1; height: var(--row); padding: 0 12px; background: var(--cell-opt); color: var(--text-hi); border-bottom: 2px solid var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+.setup-step .press { height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--cell-empty); color: var(--text-lo); font-size: var(--fs-l); }
+.setup-step .press.got { background: var(--cell); color: var(--text-hi); }

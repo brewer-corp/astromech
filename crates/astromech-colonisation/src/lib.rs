@@ -221,7 +221,7 @@ impl Tracker {
     pub fn apply(&mut self, line: &JournalLine) {
         let ts = line.timestamp.as_str();
         match &line.event {
-            JournalEvent::Docked { station_name, star_system, market_id } => {
+            JournalEvent::Docked { station_name, star_system, market_id, .. } => {
                 if self.here.0.as_deref() != Some(star_system.as_str()) {
                     self.here = (Some(star_system.clone()), None);
                 }

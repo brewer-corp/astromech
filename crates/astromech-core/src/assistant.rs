@@ -28,7 +28,7 @@ pub enum Handled {
 }
 
 enum Pending {
-    Mean { command: &'static str, heard: String, at: Instant },
+    Mean { command: &'static str, slot: Option<String>, heard: String, at: Instant },
     Act { command: &'static str, at: Instant },
 }
 
@@ -43,28 +43,64 @@ pub fn unavailable_reason(command: &str) -> &'static str {
     }
 }
 
+/// The command grammar with its slot lists: market commodities for the trade questions.
+pub fn grammar() -> Grammar {
+    Grammar::mvp(&["Sol"]).with_slot("commodity", &astromech_market::catalog::spoken_names())
+}
+
+/// Add the personal aliases learned from "Did you mean …?" answers.
+pub fn add_aliases(g: &mut Grammar, store: &Store) {
+    if let Ok(list) = store.aliases() {
+        for (heard, cmd) in list {
+            if let Some(cmd) = Grammar::intern(&cmd) {
+                g.add_alias(&heard, cmd);
+            }
+        }
+    }
+}
+
 pub struct Assistant {
     grammar: Mutex<Grammar>,
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
+    /// Remote data for the trade questions (Ardent Insight).
+    remote: astromech_data::Client,
+    /// Judges the age of market data.
+    clock: Arc<dyn astromech_data::Clock>,
 }
 
 impl Assistant {
     pub fn new(runner: Arc<Runner>) -> Self {
-        Self { grammar: Mutex::new(Grammar::mvp(&["Sol"])), runner, pending: Mutex::new(None), store: None }
+        Self {
+            grammar: Mutex::new(grammar()),
+            runner,
+            pending: Mutex::new(None),
+            store: None,
+            remote: astromech_data::Client::new(
+                astromech_data::Cache::in_memory().expect("an in-memory SQLite cache always opens"),
+            ),
+            clock: Arc::new(astromech_data::SystemClock),
+        }
+    }
+
+    /// Answer trade questions through `remote`, judging data age by `clock` (tests pass
+    /// recorded answers and a fixed time).
+    pub fn with_remote(self, remote: astromech_data::Client, clock: Arc<dyn astromech_data::Clock>) -> Self {
+        Self { remote, clock, ..self }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
-        if let Ok(list) = store.lock().unwrap().aliases() {
-            let mut g = self.grammar.lock().unwrap();
-            for (heard, cmd) in list {
-                if let Some(cmd) = Grammar::intern(&cmd) {
-                    g.add_alias(&heard, cmd);
-                }
-            }
-        }
+        add_aliases(&mut self.grammar.lock().unwrap(), &store.lock().unwrap());
         Self { store: Some(store), ..self }
+    }
+
+    /// What `transcript` would do now, without doing it (the voice command tester). Reads the
+    /// grammar, the game state and the binds check; never calls the runner.
+    pub fn dry_run(&self, transcript: &str, source: crate::tester::Source) -> crate::tester::DryRun {
+        let g = self.grammar.lock().unwrap();
+        let binds = self.runner.binds.read().unwrap();
+        crate::tester::dry_run(&g, transcript, &self.runner.hub.snapshot(), &binds, source)
     }
 
     fn say(&self, s: &str) {
@@ -81,7 +117,17 @@ impl Assistant {
         }
     }
 
-    fn dispatch(&self, command: &'static str, origin: Origin, confirmed: bool) -> Handled {
+    fn dispatch(&self, command: &'static str, slot: Option<&str>, origin: Origin, confirmed: bool) -> Handled {
+        if let Some(ask) = astromech_tools::trade::from_command(command) {
+            let game = self.runner.hub.snapshot();
+            let filters = {
+                let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+                crate::trade::filters_for(st.as_deref(), ask, &game)
+            };
+            let s = crate::trade::answer(&self.remote, &filters, ask, slot, &game, self.clock.now_s());
+            self.say(&s);
+            return Handled::Ran { command, outcome: Outcome::Spoken(s) };
+        }
         match astromech_tools::from_command(command) {
             Some(call) => {
                 let outcome =
@@ -136,10 +182,14 @@ impl Assistant {
                 self.say("Didn't catch that.");
                 Handled::NotUnderstood
             }
-            Decision::Execute => self.dispatch(m.command, origin, false),
+            Decision::Execute => self.dispatch(m.command, m.slot.as_deref(), origin, false),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
-                *self.pending.lock().unwrap() =
-                    Some(Pending::Mean { command: m.command, heard: transcript.to_string(), at: Instant::now() });
+                *self.pending.lock().unwrap() = Some(Pending::Mean {
+                    command: m.command,
+                    slot: m.slot.clone(),
+                    heard: transcript.to_string(),
+                    at: Instant::now(),
+                });
                 self.say(&format!("Did you mean {}?", m.phrase));
                 Handled::Asked { command: m.command, phrase: m.phrase }
             }
@@ -152,11 +202,14 @@ impl Assistant {
 
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
-            Pending::Mean { command, heard, .. } => {
-                self.learn(&heard, command);
-                self.dispatch(command, origin, false)
+            Pending::Mean { command, slot, heard, .. } => {
+                // An alias stands for a command, not for its slot value: don't learn those.
+                if slot.is_none() {
+                    self.learn(&heard, command);
+                }
+                self.dispatch(command, slot.as_deref(), origin, false)
             }
-            Pending::Act { command, .. } => self.dispatch(command, origin, true),
+            Pending::Act { command, .. } => self.dispatch(command, None, origin, true),
         }
     }
 }

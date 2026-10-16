@@ -3,6 +3,7 @@
 //! Local persistence (ARCHITECTURE.md §5.19): one SQLite file with versioned migrations
 //! (`PRAGMA user_version`). Secrets go to the OS keyring later, never into SQLite.
 
+pub use rusqlite;
 pub use rusqlite::Error as StoreError;
 use rusqlite::{Connection, Result};
 
@@ -27,6 +28,29 @@ const MIGRATIONS: &[&str] = &[
      );",
 ];
 
+/// Put `conn` in WAL mode and apply the `migrations` it hasn't seen yet (`PRAGMA user_version`
+/// counts the applied ones). Other SQLite files (the journal history) use the same pattern.
+///
+/// Each migration and its `user_version` bump run in one `BEGIN IMMEDIATE` transaction (SQLite
+/// DDL is transactional), so a crash or a failing statement leaves the file at the previous
+/// version, never half-migrated; the version is re-read inside the transaction, so two
+/// processes opening a new file at once don't both apply it. Migrations must not use PRAGMAs.
+pub fn migrate(mut conn: Connection, migrations: &[&str]) -> Result<Connection> {
+    conn.pragma_update(None, "journal_mode", "WAL")?;
+    let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    for (i, m) in migrations.iter().enumerate().skip(v as usize) {
+        let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+        let v: i64 = tx.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+        if v > i as i64 {
+            continue; // another connection applied it meanwhile
+        }
+        tx.execute_batch(m)?;
+        tx.pragma_update(None, "user_version", (i + 1) as i64)?;
+        tx.commit()?;
+    }
+    Ok(conn)
+}
+
 pub struct Store {
     conn: Connection,
 }
@@ -39,13 +63,7 @@ impl Store {
         Self::init(Connection::open_in_memory()?)
     }
     fn init(conn: Connection) -> Result<Self> {
-        conn.pragma_update(None, "journal_mode", "WAL")?;
-        let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        for (i, m) in MIGRATIONS.iter().enumerate().skip(v as usize) {
-            conn.execute_batch(m)?;
-            conn.pragma_update(None, "user_version", (i + 1) as i64)?;
-        }
-        Ok(Self { conn })
+        Ok(Self { conn: migrate(conn, MIGRATIONS)? })
     }
     pub fn schema_version(&self) -> Result<i64> {
         self.conn.query_row("PRAGMA user_version", [], |r| r.get(0))
@@ -149,6 +167,26 @@ mod tests {
         s.set_journal_offset("J.log", 10, 5).unwrap();
         s.set_journal_offset("J.log", 20, 20).unwrap();
         assert_eq!(s.journal_offset("J.log").unwrap(), Some((20, 20)));
+    }
+
+    /// A migration that fails part-way (a crash mid-migration) leaves the file at the previous
+    /// version with none of that migration applied, and the next open succeeds.
+    #[test]
+    fn failed_migration_rolls_back_whole() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("t.sqlite");
+        let v1 = "CREATE TABLE a (x INTEGER);";
+        let broken = "ALTER TABLE a ADD COLUMN y INTEGER; CREATE TABLE b (z INTEGER); SELECT * FROM missing;";
+        assert!(migrate(Connection::open(&db).unwrap(), &[v1, broken]).is_err());
+        let c = Connection::open(&db).unwrap();
+        assert_eq!(c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 1);
+        assert!(c.prepare("SELECT y FROM a").is_err(), "the ALTER was rolled back");
+        assert!(c.prepare("SELECT z FROM b").is_err(), "the CREATE was rolled back");
+        drop(c);
+        let fixed = "ALTER TABLE a ADD COLUMN y INTEGER; CREATE TABLE b (z INTEGER);";
+        let c = migrate(Connection::open(&db).unwrap(), &[v1, fixed]).unwrap();
+        assert_eq!(c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
+        c.prepare("SELECT y FROM a").unwrap();
     }
 
     #[test]
