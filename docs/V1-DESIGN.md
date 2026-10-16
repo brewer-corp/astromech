@@ -113,6 +113,7 @@ those problems; see §3 for why this beats a pictorial main view.
 | "Credits?" / "Rebuy?" | LoadGame, Loadout `Rebuy` |
 | "What's my ship?" | Loadout `Ship`, `ShipName`, `ShipIdent` |
 | "Legal state?" | Status.json `LegalState` |
+| "Where can I sell painite?" / "Where can I buy tritium?" (best station, system, distance, price, demand or stock; age if over a day) | Ardent Insight, from the current system, with the Trade page's filters |
 
 **Shell.**
 - A native tray menu (status, open, pause voice, kill switch, check for updates, quit), one
@@ -187,16 +188,17 @@ setup work at a desk: big readable text, one thing at a time.
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
 | **Engineering** | Pick any owned ship (modules from the newest `Loadout` for that ship in journal history), set blueprint / grade / experimental per module, and see need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), stat previews, Odyssey suit/weapon engineering |
 | **Engineering: trip** | Which engineers to visit for the plan and in what order (fewest jumps), what to do at each stop, a note where grades could be rolled remotely (unlocked rank-5 engineer offers the blueprint, if pinned there), and which jobs need an engineer unlock. Every `EngineerCraft`, remote or in person, updates the ship at once, so the plan and trip shrink as you go | Tracking pinned blueprints (the game doesn't log them), unlock walkthroughs, neutron routing, per-base supercruise times |
+| **Trade: Commodities** | Where to sell or buy one commodity near you or a typed system, best price first, with demand or stock, pad, arrival distance and data age (Ardent Insight). Sell and buy each remember their filters (radius, minimum demand or stock, pad, age, arrival, carriers, Odyssey), and the voice questions use the same ones | Trade routes, galaxy-wide best prices, price history |
 | **Nearby lookups** (Materials and Engineering side panel) | Nearest systems for a farming source (Famine for wake scanning, the HGE faction pools) with jumps at the current ship's range and how old the report is | Plotting the route in game |
 | **Settings** | Every voice and control setting in **one list** | Calibration flows, press logs, live transcripts, anything that isn't a setting |
 | **Diagnostics** | Prove what the app sees: key tester (live press log), device list, health report, logs, "Save diagnostics" | Settings (except links to them) |
 | **Voice tester** (next to Diagnostics) | Try a voice command safely: type a phrase, or use push-to-talk while the page is open, and see the transcript, the matched intent and its confidence, what astromech would say and the keys it would send. Tests are dry runs; **Run live** sends the command through the policy like a spoken one, once Elite is the active window (it waits 5 s for you to switch, with a countdown; needs Elite running; it skips the confirmation a spoken command would ask). While the page is open and visible, push-to-talk only tests; closing, hiding or minimising it hands push-to-talk back within 3 s | Editing the grammar or aliases, the eval harness |
 | **Tray menu** (native, dark) | Is it running, open the window, pause voice, kill switch (while active), quit; one extra line only when something needs attention (crash, Finish setup, Restart to update) | Any status beyond one line; any webview; settings, updates, files (all in the window) |
 
-Navigation is three plain text tabs in the window header, like the game's top-level options,
+Navigation is four plain text tabs in the window header, like the game's top-level options,
 each with its pages as sub-tabs: **Controls** (My controller, All keybinds, Presets,
-Key tester), **Engineering** (Builds, Materials) and **Settings** (General, Diagnostics, Voice
-tester). While
+Key tester), **Engineering** (Builds, Materials), **Trade** (Commodities) and **Settings**
+(General, Diagnostics, Voice tester). While
 setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
 **How the three binding views fit together.** They show the same bindings two ways:

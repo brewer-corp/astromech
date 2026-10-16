@@ -239,6 +239,9 @@ astromech/
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools), position from the journal;
                          its network calls go through astromech-data
+    astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
+                         imports/exports, re-checked against the lookup's filters, best price first,
+                         jumps from astromech-galaxy), the commodity catalogue (data/catalog/commodities.json)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
@@ -437,7 +440,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - EDDN: optional listener and uploader, v2.
 - **Cache:** SQLite with TTLs (system data 7 days, search results 1 h, routes per session).
 - **Etiquette and resilience:** a `governor` limiter per host, a circuit breaker (5 failures → 60 s open), and `User-Agent: astromech/<ver> (+contact)`.
-- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits. Spansh's system-name autocomplete (a fuzzy match, not a prefix match) returns positions too, so a typed search origin resolves without EDSM (`Galaxy::locate`: local star map first, then the Spansh suggestion with exactly that name).
+- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits. Spansh's system-name autocomplete (a fuzzy match, not a prefix match) returns positions too, so a typed search origin resolves without EDSM (`Galaxy::locate`: local star map first, then the Spansh suggestion with exactly that name). Ardent's nearby imports come best sell price first and exports cheapest first, at most 1000 rows (observed 16 Oct 2026); its `distance` is rounded to whole light years, so lookups measure from the origin's coordinates when they have them.
 
 ### 5.9 `astromech-capi` (feature-gated; v2+)
 - **Auth:** OAuth2 auth code with PKCE (S256) against `https://auth.frontierstore.net` (`/auth`, `/token`, `/decode`), `audience=frontier,steam,epic`, `scope=auth capi`.
@@ -1684,7 +1687,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M3** | **Engineering & materials** | `astromech-materials`, `astromech-engineering` | "How many raw mats do I have?", "what do I need for G5 FSD increased range?", "what can I trade arsenic for?", engineer unlock status |
 | **M4** | **Logbook & history** | `astromech-history` (FTS) | "How much did I earn today?", "have I been to this system?", "when did I last dock at Jameson Memorial?" |
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
-| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?" |
+| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
 | M8+ | Missions/CGs, Fleet carrier, Powerplay, Galaxy map, 3D ship | — | Deferred |
 

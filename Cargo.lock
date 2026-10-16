@@ -147,11 +147,14 @@ name = "astromech-core"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-input",
  "astromech-intent",
  "astromech-journal",
  "astromech-keybinds",
+ "astromech-market",
  "astromech-policy",
  "astromech-proto",
  "astromech-status",
@@ -267,6 +270,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-market"
+version = "0.1.5"
+dependencies = [
+ "astromech-data",
+ "astromech-galaxy",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-materials"
 version = "0.1.5"
 dependencies = [
@@ -318,9 +332,11 @@ name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
  "astromech-gamestate",
+ "astromech-market",
  "astromech-policy",
  "astromech-proto",
  "astromech-status",
+ "chrono",
 ]
 
 [[package]]
