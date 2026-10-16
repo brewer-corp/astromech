@@ -33,6 +33,7 @@ astromech-announce = { path = "crates/astromech-announce" }
 astromech-ship = { path = "crates/astromech-ship" }
 astromech-data = { path = "crates/astromech-data" }
 astromech-powerplay = { path = "crates/astromech-powerplay" }
+astromech-eddn = { path = "crates/astromech-eddn" }
 astromech-history = { path = "crates/astromech-history" }
 anyhow = "1.0.104"
 serde = { version = "1", features = ["derive"] }

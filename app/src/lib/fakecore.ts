@@ -7,6 +7,7 @@
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
+import eddnSample from "./fixtures/eddn-log.json";
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -32,6 +33,7 @@ interface State {
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
+  eddn: boolean;
 }
 
 let state: State | null = null;
@@ -75,6 +77,7 @@ function fresh(scenario: Scenario): State {
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
+    eddn: false,
   };
 }
 
@@ -260,6 +263,12 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
       st.prospector[c.ore] = c.reset ? (PROSPECTOR_DEFAULTS[c.ore] ?? null) : (c.threshold ?? null);
       return prospectorReply(st);
     }
+    case "eddn_log":
+      // Sharing was on earlier (the sample's history); the switch is this PC's setting.
+      return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
+    case "set_eddn":
+      st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
+      return { ok: true, applies_next_session: false };
     case "onboarding_done":
       st.onboarded = true;
       return { ok: true };

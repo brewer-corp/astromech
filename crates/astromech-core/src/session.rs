@@ -162,11 +162,13 @@ impl Session {
             toasts.clone(),
             callouts::default_notifier().context("starting the notification thread")?,
         ));
-        let pipe = crate::pipeline::start(
+        let eddn = crate::pipeline::eddn_feed(cfg, &data);
+        let pipe = crate::pipeline::start_with_eddn(
             &jdir,
             hub.clone(),
             Some(&data.join("astromech.sqlite")),
             log,
+            eddn,
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;

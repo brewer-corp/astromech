@@ -1,0 +1,10 @@
+{ "timestamp":"2026-10-16T12:01:00Z", "event":"Outfitting", "MarketID":128666762, "StationName":"Jameson Memorial", "StarSystem":"Shinrarta Dezhra", "Horizons":true, "Items":[
+{ "id":128049513, "Name":"hpt_chafflauncher_tiny", "BuyPrice":8500 },
+{ "id":128064338, "Name":"int_engine_size3_class5_fast", "BuyPrice":5103953 },
+{ "id":128049250, "Name":"sidewinder_armour_grade1", "BuyPrice":0 },
+{ "id":128672317, "Name":"int_planetapproachsuite", "BuyPrice":500 },
+{ "id":128667655, "Name":"paintjob_cobramkiii_default_52", "BuyPrice":0 },
+{ "id":128672319, "Name":"bobble_ship", "BuyPrice":0 },
+{ "id":128672320, "Name":"decal_combat_mostly_harmless", "BuyPrice":0 },
+{ "id":128049513, "Name":"hpt_chafflauncher_tiny", "BuyPrice":8500 }
+] }

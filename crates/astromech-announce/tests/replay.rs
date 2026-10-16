@@ -156,7 +156,7 @@ fn scanned(ts: &str) -> String {
 #[test]
 fn a_rule_fires_once_per_event_within_its_cooldown() {
     let mut r = Replay::new(vec![scan()], &Settings::default());
-    r.engine.go_live();
+    r.engine.set_live(true);
     // Three scans inside the 30 s cooldown, an unrelated event, then one after it.
     let lines =
         [scanned("20:00:00"), scanned("20:00:05"), ev("20:00:10", "Music"), scanned("20:00:29"), scanned("20:00:31")];
@@ -167,7 +167,7 @@ fn a_rule_fires_once_per_event_within_its_cooldown() {
     let settings =
         Settings([("scan".to_string(), RuleSettings { cooldown_s: Some(2.0), ..Default::default() })].into());
     let mut r = Replay::new(vec![scan()], &settings);
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&[scanned("20:00:00"), scanned("20:00:01"), scanned("20:00:02")].join("\n"));
     assert_eq!(r.spoken().len(), 2);
 }
@@ -177,7 +177,7 @@ fn a_disabled_rule_never_fires() {
     let toml = "[scan]\nenabled = false\n";
     let settings: Settings = toml::from_str(toml).unwrap();
     let mut r = Replay::new(vec![scan(), Box::new(UrgentRule)], &settings);
-    r.engine.go_live();
+    r.engine.set_live(true);
     let lines: Vec<String> = (0..10).map(|i| scanned(&format!("20:0{i}:00"))).collect();
     r.journal(&lines.join("\n"));
     assert!(r.out.iter().all(|o| o.0 != "scan"), "{:?}", r.out);
@@ -196,7 +196,7 @@ fn bad_settings_are_reported_not_fatal() {
     assert!(problems[0].contains("[callouts.scan] cooldown_s = 100000000000000000000") && problems[0].contains("30 s"));
     assert!(problems[1].contains("[callouts.sacn] names no callout"));
     // The rule keeps its own 30 s cooldown.
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&[scanned("20:00:00"), scanned("20:00:10"), scanned("20:00:31")].join("\n"));
     assert_eq!(r.spoken().len(), 2);
     // A negative cooldown is reported too.
@@ -215,7 +215,7 @@ fn nothing_is_spoken_during_the_journal_catch_up() {
     r.status("2026-10-16T19:59:58Z", FLAG_GEAR);
     assert!(r.out.is_empty(), "{:?}", r.out);
     // The live point.
-    r.engine.go_live();
+    r.engine.set_live(true);
     // The same Status.json again is not an event; a scan one second after the last replayed
     // one still fires (replay did not start the cooldown).
     r.status("2026-10-16T19:59:58Z", FLAG_GEAR);
@@ -229,7 +229,7 @@ fn nothing_is_spoken_during_the_journal_catch_up() {
 fn quiet_during_docking() {
     let both = Box::new(ScanRule { priority: Priority::High, channels: Channels::SPEECH | Channels::TOAST });
     let mut r = Replay::new(vec![both, Box::new(UrgentRule), Box::new(PadRule)], &Settings::default());
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&ev("20:00:00", "DockingRequested"));
     assert_eq!(r.engine.quiet(r.at("2026-10-16T20:00:00Z")), None);
     // The grant starts the approach; the grant itself is not "during docking", so its pad
@@ -254,7 +254,7 @@ fn quiet_during_combat() {
     let no_cooldown =
         Settings([("scan".to_string(), RuleSettings { cooldown_s: Some(0.0), ..Default::default() })].into());
     let mut r = Replay::new(vec![scan(), Box::new(UrgentRule)], &no_cooldown);
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.status("2026-10-16T20:00:00Z", FLAG_IN_DANGER);
     r.journal(&scanned("20:00:01"));
     assert_eq!(r.spoken(), ["Stolen goods aboard."]);
@@ -280,13 +280,13 @@ fn catch_up_leaves_docking_quiet_in_place() {
     let mut r = Replay::new(vec![scan()], &Settings::default());
     // Astromech started while the commander was on approach.
     r.journal(&[ev("19:59:00", "DockingRequested"), ev("19:59:01", "DockingGranted")].join("\n"));
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&scanned("20:00:00"));
     assert!(r.spoken().is_empty());
     // An UnderAttack in the catch-up is history: no combat quiet after it.
     let mut r = Replay::new(vec![scan()], &Settings::default());
     r.journal(&ev("19:59:59", "UnderAttack"));
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&scanned("20:00:00"));
     assert_eq!(r.spoken(), ["Cargo scan."]);
 }
@@ -299,7 +299,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rock = r#"{"timestamp":"2026-10-16T19:59:00Z","event":"ProspectedAsteroid","Materials":[{"Name":"Platinum","Proportion":40.0}],"MotherlodeMaterial":"Opal","Remaining":100.0}"#;
     r.journal(&[rock.to_string(), scanned("19:59:10")].join("\n"));
     assert!(r.out.is_empty(), "{:?}", r.out);
-    r.engine.go_live();
+    r.engine.set_live(true);
     r.journal(&[rock.replace("19:59:00", "20:00:00"), scanned("20:00:10")].join("\n"));
     assert_eq!(r.spoken(), ["Motherlode. Void Opals. Platinum 40%.", "Cargo scan."]);
 }

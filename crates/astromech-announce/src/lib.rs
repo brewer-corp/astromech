@@ -4,9 +4,10 @@
 //! Status.json changes and may answer with a [`Callout`]: a short line for speech, an in-app
 //! toast and/or a Windows notification. The [`Engine`] decides what actually fires:
 //!
-//! - **Replay is silent.** Until [`Engine::go_live`] (the pipeline calls it once the startup
-//!   catch-up of the current journal and the first Status.json read are applied) no rule runs.
-//!   The engine still tracks docking and combat from those events so quiet is right at once.
+//! - **Replay is silent.** While not live ([`Engine::set_live`]; the pipeline says which events
+//!   are: not the startup catch-up of the journal and Status.json, not a journal re-read as a
+//!   replay) no rule runs. The engine still tracks docking and combat from those events so quiet
+//!   is right at once.
 //! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
 //!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
 //!   cooldown, so a burst of the same event gives one callout; only a callout of higher
@@ -219,9 +220,10 @@ impl Engine {
         &self.problems
     }
 
-    /// The catch-up is over: events from now on are live and may fire.
-    pub fn go_live(&mut self) {
-        self.live = true;
+    /// Whether the next events are live (may fire) or replayed history. The pipeline decides
+    /// per event: replayed journal lines and the startup catch-up are not live.
+    pub fn set_live(&mut self, live: bool) {
+        self.live = live;
     }
 
     pub fn quiet(&self, now: Instant) -> Option<Quiet> {

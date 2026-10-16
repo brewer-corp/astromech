@@ -24,7 +24,7 @@ impl Run {
     fn new(cargo: &[u8], cooldown_s: Option<f64>) -> Self {
         let settings = Settings([("scan".to_string(), RuleSettings { cooldown_s, ..Default::default() })].into());
         let mut engine = Engine::new(builtin(Default::default()), &settings);
-        engine.go_live();
+        engine.set_live(true);
         let mut state = GameState::default();
         state.apply_cargo(&parse_cargo(cargo).unwrap());
         Self { engine, state, t0: Instant::now(), n: 0 }

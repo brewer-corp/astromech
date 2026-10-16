@@ -27,7 +27,7 @@ pub struct Endpoint {
 pub struct Request {
     pub token: String,
     /// "status", "open_window", "save_diagnostics", "ack_crash", "quit", "check_update", "install_update",
-    /// "voice_test", "voice_test_poll", "voice_test_stop", "voice_test_live",
+    /// "eddn_log", "voice_test", "voice_test_poll", "voice_test_stop", "voice_test_live",
     /// "prospector_thresholds", "prospector_set" (text: the change as JSON), ...
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -28,6 +28,7 @@ astromech-policy.workspace = true
 astromech-tools.workspace = true
 astromech-store.workspace = true
 astromech-announce.workspace = true
+astromech-eddn.workspace = true
 astromech-history.workspace = true
 anyhow.workspace = true
 serde.workspace = true

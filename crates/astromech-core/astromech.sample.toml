@@ -50,3 +50,7 @@ dry_run = false               # true: log key presses, don't send them
 check = true                  # poll GitHub for a signed payload (including mid-session)
 apply = "ask"                 # ask | on_quit | never. on_quit = when astromech quits
 feed = ""                     # empty: GitHub latest.json
+
+[eddn]
+enabled = false               # share market, shipyard, exploration and route data with EDDN (live play only)
+test = false                  # send to EDDN's /test schemas instead (debug builds always do)

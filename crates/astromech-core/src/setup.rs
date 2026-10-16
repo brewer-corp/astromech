@@ -56,6 +56,8 @@ pub enum Edit {
     Speaker(String),
     Speed(f32),
     Colour(astromech_voice::colour::Colour),
+    /// `[eddn] enabled` (Settings → Data sharing).
+    Eddn(bool),
 }
 
 /// Kokoro speeds Settings may set (1.0 is the colour's own pace).
@@ -64,7 +66,7 @@ pub const SPEEDS: std::ops::RangeInclusive<f32> = 0.7..=1.3;
 impl Edit {
     /// From a control-API request: `set_ptt` / `set_kill_switch` with `{device, key}` (or null
     /// to clear), `set_mic` with `{mic}`, `set_folders` with `{bindings_dir}` or `{journal_dir}`,
-    /// `set_voice` with any of `{speaker, speed, colour}`.
+    /// `set_voice` with any of `{speaker, speed, colour}`, `set_eddn` with `{enabled}`.
     pub fn from_request(cmd: &str, args: Option<&Value>) -> Result<Vec<Edit>> {
         let null = Value::Null;
         let a = args.unwrap_or(&null);
@@ -121,6 +123,9 @@ impl Edit {
                 }
                 v
             }
+            "set_eddn" => {
+                vec![Edit::Eddn(a.get("enabled").and_then(Value::as_bool).context("expected {enabled: true|false}")?)]
+            }
             c => bail!("unknown command {c:?}"),
         })
     }
@@ -147,6 +152,7 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             // Two decimals, so 0.9 is written as 0.9 and not 0.8999999761581421.
             Edit::Speed(x) => ("voice", "speed", Some(toml_edit::value((f64::from(*x) * 100.0).round() / 100.0))),
             Edit::Colour(c) => ("voice", "colour", Some(toml_edit::value(c.as_str()))),
+            Edit::Eddn(on) => ("eddn", "enabled", Some(toml_edit::value(*on))),
         };
         if !doc.contains_key(table) {
             doc[table] = toml_edit::table();
@@ -323,6 +329,22 @@ mod tests {
             let j: Value = serde_json::from_str(bad).unwrap();
             assert!(Edit::from_request("set_voice", Some(&j)).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn the_eddn_switch_is_saved_and_keeps_its_comment() {
+        let j = |s: &str| serde_json::from_str::<Value>(s).unwrap();
+        let on = Edit::from_request("set_eddn", Some(&j(r#"{"enabled":true}"#))).unwrap();
+        assert_eq!(on, [Edit::Eddn(true)]);
+        assert!(Edit::from_request("set_eddn", Some(&j(r#"{"enabled":"yes"}"#))).is_err());
+        assert!(Edit::from_request("set_eddn", None).is_err());
+        let out = apply(crate::config::SAMPLE, &on).unwrap();
+        assert!(Config::parse(&out).unwrap().eddn.enabled);
+        assert!(out.contains("enabled = true               # share market"), "{out}");
+        let off = apply(&out, &[Edit::Eddn(false)]).unwrap();
+        assert!(!Config::parse(&off).unwrap().eddn.enabled);
+        // A config without the section gets one.
+        assert!(Config::parse(&apply("", &on).unwrap()).unwrap().eddn.enabled);
     }
 
     #[test]
