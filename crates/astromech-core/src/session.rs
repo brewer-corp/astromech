@@ -177,13 +177,17 @@ impl Session {
                 &models,
                 cfg.voice.threads,
                 &data,
-                cfg.voice.speaker_id,
+                &cfg.voice.speaker,
                 cfg.voice.speed,
                 cfg.voice.colour,
                 speech::fixed_phrases(),
             ) {
                 Ok(s) => {
-                    log(&format!("Kokoro text-to-speech loaded ({})", cfg.voice.colour.as_str()));
+                    log(&format!(
+                        "Kokoro text-to-speech loaded ({}, {})",
+                        cfg.voice.speaker,
+                        cfg.voice.colour.as_str()
+                    ));
                     Arc::new(s)
                 }
                 Err(e) => {

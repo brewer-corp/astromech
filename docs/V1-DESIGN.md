@@ -646,8 +646,10 @@ COVAS in the other ear):
 A small formant shift is a later knob if Cockpit is still too human. Vocoder, ring-mod, and
 R2-style chirps stay out: they push the name into Star Wars.
 
-**Speaker.** Walk Kokoro's English `speaker_id`s on one line ("Landing gear deployed.") and
-keep the flattest announcer as the Cockpit default. `speaker_id` remains a setting.
+**Speaker.** Kokoro v1.0 (`kokoro-multi-lang-v1_0`) has 54 voices, 8 of them British. The
+voice is a setting by name (`[voice] speaker`, default `bf_emma`), picked in Settings. British
+voices are phonemised as British English. Old configs with a v0.19 `speaker_id` move to the
+same voice by name, or to the default.
 
 **Copy.** Official, short, no contractions, no jokes, little "I" in callouts. Prefer
 "Landing gear deployed." / "already deployed." Refusals stay one clause:
@@ -861,4 +863,4 @@ Settled with Sumeet before implementation started:
    §6.4). Natural and Harsh are the other presets. No Frontier-sample clone, no vocoder default.
 
 Still open, not blocking: activity list and catalogue review (§3.3), VR mic choice, second-pass
-model latency budget, product name, which Kokoro `speaker_id` is the flattest announcer.
+model latency budget, product name, which Kokoro voice is the flattest announcer.
