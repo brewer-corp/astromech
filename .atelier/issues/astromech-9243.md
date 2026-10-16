@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:35:49.530803423+00:00"
+status: "done"
 title: "Shield and DPS headline stats on the Ships cards"
-updated_at: "2026-10-16T19:31:01.183705509+00:00"
+updated_at: "2026-10-16T19:35:49.530803423+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ The detail asks the shell for one ship at a time (`engineering_stats`). The card
 ## Notes
 
 - 2026-10-16 [note] Also (review of 3njr, R4): a hull missing from coriolis-data makes compare return UnknownShip, shown as raw error text; give it the Incomplete treatment on the cards and in the detail.
+
+## Close Reason
+
+Cards show shield, DPS and jump range from astromech_ship on current modules, marked incomplete when unresolved is non-empty or the hull is unknown (also in the detail); component test shows the Krait MkII combat build at 1428 MJ and 107.2 DPS, matching tests/coriolis.rs. Shell command engineering_headlines (Windows CI only).
