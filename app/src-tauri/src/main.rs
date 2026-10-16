@@ -594,23 +594,28 @@ async fn engineering_trip(
 }
 
 /// Where a search starts: `origin` (a typed system name) or, without one, the commander's
-/// system; and the jump range to count with (the current ship's).
+/// system; the jump range to count with (the current ship's); and `filters` with the pad
+/// following the current ship unless the commander set one (resolved on every search, so a
+/// ship change applies at once).
 fn search_origin(
     app: &tauri::AppHandle,
     g: &astromech_galaxy::Galaxy,
     origin: Option<&str>,
-) -> Result<(astromech_galaxy::Here, f64), String> {
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<(astromech_galaxy::Here, f64, astromech_galaxy::Filters), String> {
     let st = engineering_state(&app.state::<EngineeringCache>());
     let here = match origin.map(str::trim).filter(|o| !o.is_empty()) {
         Some(name) => g.locate(name).map_err(|e| e.to_string())?,
         None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
     };
     let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-    Ok((here, range_of(current)))
+    let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+    Ok((here, range_of(current), filters.unwrap_or_default().for_ship(pad)))
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
-/// or, without one, near the commander, with jumps at the current ship's range.
+/// or, without one, near the commander, with jumps at the current ship's range. The pad follows
+/// the current ship at search time unless the commander set one.
 #[tauri::command]
 async fn galaxy_nearby(
     app: tauri::AppHandle,
@@ -620,8 +625,26 @@ async fn galaxy_nearby(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
-        let n = g.nearby(&query, &here, range, 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let n = g.nearby(&query, &here, range, 8, &filters).map_err(|e| e.to_string())?;
+        serde_json::to_value(n).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The nearest stations offering `want` (a service, module or ship) near `origin` or the
+/// commander. The pad follows the current ship at search time unless the commander set one.
+#[tauri::command]
+async fn stations_nearby(
+    app: tauri::AppHandle,
+    want: astromech_galaxy::stations::Want,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let n = g.stations(&want, &here, range, 10, &filters).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
@@ -639,10 +662,10 @@ async fn trade_search(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let list: Vec<&str> = commodities.iter().map(String::as_str).collect();
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
-        let s = astromech_market::search(&g, &here, range, side, &list, &filters.unwrap_or_default(), 8, now)
+        let s = astromech_market::search(&g, &here, range, side, &list, &filters, 8, now)
             .map_err(|e| e.to_string())?;
         serde_json::to_value(s).map_err(|e| e.to_string())
     })
@@ -659,10 +682,10 @@ async fn trade_cargo(
 ) -> Result<Value, String> {
     blocking(move || {
         let g = galaxy(&app)?;
-        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let hold = astromech_market::cargo::from_journal_dir(&journal_dir());
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
-        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters.unwrap_or_default(), 8, now)
+        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters, 8, now)
             .map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "here": here, "range": range, "plan": p, "hold": hold }))
     })
@@ -879,6 +902,7 @@ fn main() {
             odyssey_view,
             odyssey_shopping,
             galaxy_nearby,
+            stations_nearby,
             galaxy_systems,
             trade_search,
             trade_cargo,

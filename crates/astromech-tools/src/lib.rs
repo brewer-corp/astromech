@@ -15,6 +15,8 @@ pub mod trade;
 
 pub use astromech_policy;
 
+pub mod lookup;
+
 /// Status.json flag bits used here (Frontier's Status file documentation).
 pub mod flags {
     pub use astromech_status::{
