@@ -34,7 +34,7 @@ export interface Ship {
   ident: string | null;
   system: string | null;
   current: boolean;
-  /** Being moved to a shipyard; `system` is where it was last known. */
+  /** Being moved to a shipyard; `system` is where it is going, if known. */
   in_transit: boolean;
   loadout_ts: string | null;
   /** Unladen maximum from the last Loadout, in ly. */

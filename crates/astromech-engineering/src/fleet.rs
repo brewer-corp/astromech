@@ -32,7 +32,7 @@ pub struct Ship {
     pub ident: Option<String>,
     pub system: Option<String>,
     pub current: bool,
-    /// Being moved to a shipyard; `system` is where it was last known.
+    /// Being moved to a shipyard; `system` is where it is going, if known.
     pub in_transit: bool,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
