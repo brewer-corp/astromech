@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Keep stored modules and ship locations current between visits"
-updated_at: "2026-10-16T18:58:34.478833170+00:00"
+updated_at: "2026-10-16T19:02:52.923262726+00:00"
 ---
 
 ## Goal
@@ -29,3 +29,7 @@ Keep the fleet's stored-module list and ship locations current between shipyard 
 ## Done when
 
 Journal fixtures with each of those events show the Ships page's stored-module list and ship locations changing as the game would, and the parser keeps TransferCost, TransferTime and Hot.
+
+## Notes
+
+- 2026-10-16 [note] Also: the remembered docked system is never reset at a session boundary, so a Loadout for another ship after a journal gap stores the old ship at a stale system. Consider triggering on ShipyardSwap/ShipyardBuy StoreShipID with the docked system instead (review of mycc round 2, N2).
