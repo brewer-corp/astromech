@@ -51,7 +51,8 @@ const OPENABLE: &[&str] =
 
 /// Whether `url` is one of the links built here (the shell checks this before launching a browser).
 pub fn is_openable_url(url: &str) -> bool {
-    OPENABLE.iter().any(|p| url.starts_with(p)) && !url.chars().any(|c| c.is_control() || c == ' ')
+    // explorer.exe parses its own command line: quotes and commas could turn a URL into switches.
+    OPENABLE.iter().any(|p| url.starts_with(p)) && !url.chars().any(|c| c.is_control() || matches!(c, ' ' | '"' | ','))
 }
 
 #[cfg(test)]
@@ -111,6 +112,8 @@ mod tests {
             "file:///C:/Windows/System32/calc.exe",
             "https://spansh.co.uk/ --evil",
             "https://spansh.co.uk/\nx",
+            "https://spansh.co.uk/\",/root,C:\\Windows",
+            "https://inara.cz/elite/,/select,C:\\Windows",
             "",
         ] {
             assert!(!is_openable_url(bad), "{bad}");
