@@ -332,6 +332,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-ship"
+version = "0.1.5"
+dependencies = [
+ "astromech-engineering",
+ "astromech-journal",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "astromech-status"
 version = "0.1.5"
 dependencies = [

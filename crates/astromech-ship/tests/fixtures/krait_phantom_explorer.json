@@ -1,0 +1,208 @@
+{
+ "timestamp": "2026-10-16T12:00:00Z",
+ "event": "Loadout",
+ "Ship": "Krait_Light",
+ "ShipID": 4,
+ "ShipName": "Synthetic_Phantom",
+ "ShipIdent": "AM-4",
+ "Modules": [
+  {
+   "Slot": "CargoHatch",
+   "Item": "ModularCargoBayDoor",
+   "On": false,
+   "Priority": 4,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Armour",
+   "Item": "Krait_Light_Armour_Grade1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Armour_Advanced",
+    "Level": 3,
+    "Quality": 0.5
+   }
+  },
+  {
+   "Slot": "PowerPlant",
+   "Item": "Int_Powerplant_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerPlant_Boosted",
+    "Level": 1,
+    "Quality": 1.0
+   }
+  },
+  {
+   "Slot": "MainEngines",
+   "Item": "Int_Engine_Size6_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Engine_Dirty",
+    "Level": 2,
+    "Quality": 0.2
+   }
+  },
+  {
+   "Slot": "FrameShiftDrive",
+   "Item": "Int_Hyperdrive_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "FSD_LongRange",
+    "Level": 4,
+    "Quality": 0.33,
+    "ExperimentalEffect": "special_fsd_fuelcapacity"
+   }
+  },
+  {
+   "Slot": "LifeSupport",
+   "Item": "Int_LifeSupport_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerDistributor",
+   "Item": "Int_PowerDistributor_Size5_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerDistributor_PriorityEngines",
+    "Level": 3,
+    "Quality": 0.7,
+    "ExperimentalEffect": "special_powerdistributor_lightweight"
+   }
+  },
+  {
+   "Slot": "Radar",
+   "Item": "Int_Sensors_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FuelTank",
+   "Item": "Int_FuelTank_Size5_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "MediumHardpoint1",
+   "Item": "Hpt_PulseLaser_Gimbal_Medium",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint1",
+   "Item": "Hpt_ShieldBooster_Size0_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Resistive",
+    "Level": 1,
+    "Quality": 0.5
+   }
+  },
+  {
+   "Slot": "TinyHardpoint2",
+   "Item": "Hpt_ShieldBooster_Size0_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot01_Size6",
+   "Item": "Int_FuelScoop_Size6_Class5",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot02_Size5",
+   "Item": "Int_GuardianFSDBooster_Size5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot03_Size5",
+   "Item": "Int_ShieldGenerator_Size4_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldGenerator_Kinetic",
+    "Level": 1,
+    "Quality": 0.6
+   }
+  },
+  {
+   "Slot": "Slot04_Size5",
+   "Item": "Int_Repairer_Size4_Class2",
+   "On": false,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot05_Size3",
+   "Item": "Int_FuelTank_Size3_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot06_Size3",
+   "Item": "Int_CargoRack_Size3_Class1",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot07_Size3",
+   "Item": "Int_BuggyBay_Size2_Class1",
+   "On": false,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot08_Size2",
+   "Item": "Int_DockingComputer_Advanced",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot09_Size1",
+   "Item": "Int_DetailedSurfaceScanner_Tiny",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PlanetaryApproachSuite",
+   "Item": "int_planetapproachsuite_advanced",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  }
+ ]
+}

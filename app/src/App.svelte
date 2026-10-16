@@ -15,7 +15,8 @@
   const start = fromHash();
   let route = $state(start);
   if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
-  const current = $derived(findModule(route) ?? findModule(DEFAULT));
+  // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
+  const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
