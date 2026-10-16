@@ -548,6 +548,22 @@ async fn engineering_trip(
     .await
 }
 
+/// Where a search starts: `origin` (a typed system name) or, without one, the commander's
+/// system; and the jump range to count with (the current ship's).
+fn search_origin(
+    app: &tauri::AppHandle,
+    g: &astromech_galaxy::Galaxy,
+    origin: Option<&str>,
+) -> Result<(astromech_galaxy::Here, f64), String> {
+    let st = engineering_state(&app.state::<EngineeringCache>());
+    let here = match origin.map(str::trim).filter(|o| !o.is_empty()) {
+        Some(name) => g.locate(name).map_err(|e| e.to_string())?,
+        None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
+    };
+    let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+    Ok((here, range_of(current)))
+}
+
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
 /// or, without one, near the commander, with jumps at the current ship's range.
 #[tauri::command]
@@ -558,16 +574,52 @@ async fn galaxy_nearby(
     filters: Option<astromech_galaxy::Filters>,
 ) -> Result<Value, String> {
     blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>());
         let g = galaxy(&app)?;
-        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
-            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
-            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
-        };
-        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-        let n =
-            g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let n = g.nearby(&query, &here, range, 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Where to sell or buy `commodities` (journal symbols) near `origin` or the commander, best
+/// price first (Ardent Insight), with jumps at the current ship's range.
+#[tauri::command]
+async fn trade_search(
+    app: tauri::AppHandle,
+    side: astromech_market::Side,
+    commodities: Vec<String>,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let list: Vec<&str> = commodities.iter().map(String::as_str).collect();
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let s = astromech_market::search(&g, &here, range, side, &list, &filters.unwrap_or_default(), 8, now)
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(s).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Where to sell the cargo in the hold (`Cargo.json`) near `origin` or the commander: the best
+/// stations for the whole load and the best for each commodity.
+#[tauri::command]
+async fn trade_cargo(
+    app: tauri::AppHandle,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let hold = astromech_market::cargo::from_journal_dir(&journal_dir());
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters.unwrap_or_default(), 8, now)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "here": here, "range": range, "plan": p, "hold": hold }))
     })
     .await
 }
@@ -781,6 +833,8 @@ fn main() {
             odyssey_shopping,
             galaxy_nearby,
             galaxy_systems,
+            trade_search,
+            trade_cargo,
             search_filters,
             set_search_filters,
             powerplay_overview,
