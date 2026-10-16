@@ -10,6 +10,8 @@ relationships:
     id: "astromech-huab"
   children:
   - kind: "issue"
+    id: "astromech-a50f"
+  - kind: "issue"
     id: "astromech-cgrw"
   - kind: "issue"
     id: "astromech-gl7q"
@@ -31,7 +33,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "M3 exit: voice in the COVAS register"
-updated_at: "2026-10-16T18:11:02.759661237+00:00"
+updated_at: "2026-10-16T18:20:15.335710899+00:00"
 ---
 
 ## Goal

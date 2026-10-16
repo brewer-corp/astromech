@@ -10,9 +10,9 @@ relationships:
   - kind: "issue"
     id: "astromech-05k2"
   - kind: "issue"
-    id: "astromech-rh44"
+    id: "astromech-6230"
   - kind: "issue"
-    id: "astromech-rqyv"
+    id: "astromech-rh44"
   attachments: []
   relates:
   - kind: "issue"
@@ -22,7 +22,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "M5: v1.0 release"
-updated_at: "2026-10-15T20:36:13.785112695+00:00"
+updated_at: "2026-10-16T18:20:01.766342946+00:00"
 ---
 
 ## Goal

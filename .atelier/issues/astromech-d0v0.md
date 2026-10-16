@@ -6,17 +6,16 @@ labels:
 - "size-m"
 priority: "P2"
 relationships:
-  blocks:
-  - kind: "issue"
-    id: "astromech-rnwk"
+  blocks: []
   children: []
   attachments: []
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-16T18:20:15.417732067+00:00"
+status: "superseded"
 title: "Render a Kokoro v1.0 blended-voice A/B set"
-updated_at: "2026-10-16T04:33:15.327719467+00:00"
+updated_at: "2026-10-16T18:20:15.417732067+00:00"
 ---
 
 ## Goal
@@ -30,3 +29,7 @@ An A/B set against the v0.19 default is rendered from the real TTS path and atta
 ## Context
 
 Only if the British default and headset tuning fall short. Unverified: download size and speaker list.
+
+## Close Reason
+
+Superseded 2026-10-16: Sumeet decided to switch to Kokoro v1.0 without an A/B trial (astromech-a50f).

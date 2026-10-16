@@ -15,14 +15,11 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:20:01.755996922+00:00"
+status: "done"
 title: "Sign v1.0, or ship it unsigned?"
-updated_at: "2026-10-16T18:16:37.479514593+00:00"
+updated_at: "2026-10-16T18:20:01.755996922+00:00"
 ---
-
-## Context
-
-When decided, update V1-DESIGN §7.4 and ARCHITECTURE §16.3 to match. The v1.0 release item (astromech-rh44) waits on this.
 
 ## Question
 
@@ -35,3 +32,11 @@ Should v1.0 ship as a signed Windows build, and through which route?
 - **Ship unsigned**, as releases do today (V1-DESIGN §7.4, `release.yml`). Users click through SmartScreen; the install docs explain it.
 
 Any signed route still builds SmartScreen reputation over time; no certificate type skips that now. The CI work (signing the installer, the core and the voice worker) is about the same for both signed routes.
+
+## Decision
+
+Ship v1.0 unsigned (Sumeet, 2026-10-16). Revisit signing once there is evidence people use astromech; Azure Artifact Signing is the likely route then. V1-DESIGN §7.4 and ARCHITECTURE §16.3 already describe unsigned releases, so no doc change is needed.
+
+## Close Reason
+
+Ship v1.0 unsigned; revisit signing once astromech has users.
