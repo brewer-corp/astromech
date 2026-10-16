@@ -1,0 +1,8 @@
+{ "timestamp":"2026-10-10T20:00:00Z", "event":"Docked", "StationName":"Test Orbital", "StarSystem":"Test System", "MarketID":128000001 }
+{ "timestamp":"2026-10-10T20:00:05Z", "event":"Market", "MarketID":128000001, "StationName":"Test Orbital", "StationType":"Coriolis", "StarSystem":"Test System" }
+{ "timestamp":"2026-10-10T20:00:06Z", "event":"Outfitting", "MarketID":128000001, "StationName":"Test Orbital", "StarSystem":"Test System" }
+{ "timestamp":"2026-10-10T20:00:07Z", "event":"Shipyard", "MarketID":128000001, "StationName":"Test Orbital", "StarSystem":"Test System" }
+{ "timestamp":"2026-10-10T20:00:08Z", "event":"ModuleInfo", "Modules":[] }
+{ "timestamp":"2026-10-10T20:00:09Z", "event":"ShipLocker" }
+{ "timestamp":"2026-10-10T20:00:10Z", "event":"Backpack" }
+{ "timestamp":"2026-10-10T20:00:11Z", "event":"FCMaterials", "MarketID":3700000001, "CarrierName":"TEST CARRIER", "CarrierID":"3700000001" }
