@@ -417,17 +417,58 @@ async fn engineering_trip(
     .await
 }
 
-/// Systems near the commander matching a lookup (`famine`, or an HGE pool id), with jumps.
+/// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
+/// or, without one, near the commander, with jumps at the current ship's range.
 #[tauri::command]
-async fn galaxy_nearby(app: tauri::AppHandle, query: String) -> Result<Value, String> {
+async fn galaxy_nearby(
+    app: tauri::AppHandle,
+    query: String,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
     blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        let here = st.here.clone().ok_or("no position in the journal yet")?;
-        let current = st.fleet.ships.iter().find(|s| s.current);
-        let n = galaxy(&app)?.nearby(&query, &here, range_of(current), 8).map_err(|e| e.to_string())?;
+        let st = engineering_state(&app.state::<EngineeringCache>());
+        let g = galaxy(&app)?;
+        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
+            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
+            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
+        };
+        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let n =
+            g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
+}
+
+/// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
+/// when the core uses its default data dir (not portable mode or a `data_dir` override).
+fn settings() -> Result<astromech_store::Store, String> {
+    std::fs::create_dir_all(app_dir()).map_err(|e| e.to_string())?;
+    astromech_store::Store::open(&app_dir().join("astromech.sqlite")).map_err(|e| e.to_string())
+}
+
+/// A search's remembered filters, with the pad taken from the current ship unless set.
+#[tauri::command]
+async fn search_filters(app: tauri::AppHandle, lookup: String) -> Result<astromech_galaxy::Filters, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>()).ok();
+        let ship = st.as_ref().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let pad = ship.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+        astromech_galaxy::filters::load(&settings()?, &lookup, pad).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+#[tauri::command]
+async fn set_search_filters(lookup: String, filters: astromech_galaxy::Filters) -> Result<(), String> {
+    blocking(move || astromech_galaxy::filters::save(&settings()?, &lookup, &filters).map_err(|e| e.to_string())).await
+}
+
+/// System names resembling `prefix` (Spansh's fuzzy autocomplete), for the search origin box.
+#[tauri::command]
+async fn galaxy_systems(app: tauri::AppHandle, prefix: String) -> Result<Vec<String>, String> {
+    blocking(move || galaxy(&app)?.system_names(&prefix).map_err(|e| e.to_string())).await
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -583,6 +624,9 @@ fn main() {
             engineering_engineers,
             engineering_trip,
             galaxy_nearby,
+            galaxy_systems,
+            search_filters,
+            set_search_filters,
             logbook,
             session_summary
         ])

@@ -1,0 +1,12 @@
+{
+ "job": "00000000-0000-0000-0000-000000000001",
+ "status": "queued",
+ "state": "started",
+ "parameters": {
+  "efficiency": "60",
+  "from": "Sol",
+  "range": "50",
+  "to": "Colonia",
+  "via": []
+ }
+}

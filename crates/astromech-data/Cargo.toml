@@ -1,0 +1,19 @@
+[package]
+name = "astromech-data"
+description = "Remote game data: Spansh, Ardent Insight and EDSM behind one client with a User-Agent, a SQLite TTL cache, schema checks, rate limits and plain-words errors"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+ureq.workspace = true

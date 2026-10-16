@@ -1,0 +1,19 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-7f9q
+title: jsb9 detached, related to h74l; circuit breaker split to astromech-ahga.
+target: astromech-qz9u
+identity: orchestrator (Claude, not a code author)
+commit: 02251f2bcd0d9f91ca503dc379b3fb2d2f064024
+created_at: 2026-10-16T19:05:09.080847219Z
+event:
+  event: disposition
+  finding: astromech-dagd
+  decision: fix_now
+  supersedes: null
+  resolution_commit: f847b9f8d2e23cf61d7e96a645ccf9200a08c9fa
+  follow_up: null
+---
+
+jsb9 detached, related to h74l; circuit breaker split to astromech-ahga.
