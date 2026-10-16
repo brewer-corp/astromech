@@ -17,6 +17,8 @@ pub struct GameState {
     pub system: Option<String>,
     pub body: Option<String>,
     pub station: Option<String>,
+    /// `MarketID` of the station docked at; ties `Market.json` and friends to this dock.
+    pub station_market_id: Option<i64>,
     pub docked: bool,
     pub gear_down: bool,
     pub supercruise: bool,
@@ -97,11 +99,13 @@ impl GameState {
                 self.system = Some(star_system.clone());
                 if !from_carrier {
                     self.station = None;
+                    self.station_market_id = None;
                     self.body = None;
                 }
             }
-            JournalEvent::Docked { station_name, star_system } => {
+            JournalEvent::Docked { station_name, star_system, market_id } => {
                 self.station = Some(station_name.clone());
+                self.station_market_id = *market_id;
                 self.system = Some(star_system.clone());
                 self.docked = true;
             }
