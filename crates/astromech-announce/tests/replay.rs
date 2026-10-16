@@ -125,7 +125,7 @@ impl Replay {
     fn journal(&mut self, lines: &str) {
         for l in lines.lines().map(str::trim).filter(|l| !l.is_empty()) {
             let j = parse_line(l).unwrap();
-            self.state.apply_journal(&j.event);
+            self.state.apply_line(&j);
             let now = self.at(&j.timestamp);
             let rs = self.engine.journal(&j, &self.state, now);
             self.record(rs);

@@ -1,0 +1,33 @@
+{
+  "standing": {
+    "power": "Li Yong-Rui",
+    "rank": 9,
+    "merits": 47129,
+    "time_pledged_secs": 22680000,
+    "session_merits": 1329,
+    "week_merits": 1829,
+    "week_ends": "2026-10-22T07:00:00+00:00",
+    "next": {
+      "rank": 10,
+      "merits": 55000,
+      "to_go": 7871,
+      "reward": "Care package",
+      "note": null
+    }
+  },
+  "here": "Piscium Sector EB-X b1-3",
+  "system": {
+    "system": "Piscium Sector EB-X b1-3",
+    "controlling_power": "Pranav Antal",
+    "state": "Exploited",
+    "control_progress": 0.076543,
+    "reinforcement": 0,
+    "undermining": 9,
+    "contesting": [
+      "Li Yong-Rui"
+    ],
+    "acquisition": [],
+    "work": "undermine",
+    "summary": "Pranav Antal exploited, 8% \u00b7 reinforcement 0, undermining 9 \u00b7 also Li Yong-Rui"
+  }
+}

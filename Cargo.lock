@@ -220,6 +220,7 @@ dependencies = [
  "astromech-data",
  "astromech-journal",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-store",
  "chrono",
  "rusqlite",
@@ -234,6 +235,7 @@ version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-status",
  "chrono",
  "serde",
@@ -319,6 +321,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-powerplay"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "chrono",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-proto"
 version = "0.1.5"
 dependencies = [
@@ -357,6 +370,7 @@ name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
  "astromech-gamestate",
+ "astromech-journal",
  "astromech-policy",
  "astromech-proto",
  "astromech-status",

@@ -2,16 +2,18 @@
 //!
 //! Where things are and how many jumps away. A local SQLite star map, seeded from a bundled
 //! preload (500 ly around Sol, `scripts/gen-starmap.py`) and filled in from EDSM as the
-//! commander travels; live faction states from Spansh's system search; jump counts by A* over
-//! the known stars at the ship's range.
+//! commander travels; live faction states and Powerplay targets from Spansh's system search;
+//! jump counts by A* over the known stars at the ship's range.
 
 pub mod filters;
 pub mod map;
+pub mod powerplay;
 pub mod remote;
 pub mod store;
 
 pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
+pub use powerplay::{Target, TargetHit, Targets};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
 pub use store::{dist, Sphere, Star, Store};
 

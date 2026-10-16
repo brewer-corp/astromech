@@ -33,7 +33,7 @@ impl Run {
     /// (text, spoken, priority) for one journal line, `secs` after the start.
     fn feed_at(&mut self, line: &str, secs: u64) -> Vec<(String, bool, Priority)> {
         let j = parse_line(line).unwrap();
-        self.state.apply_journal(&j.event);
+        self.state.apply_line(&j);
         let out = self.engine.journal(&j, &self.state, self.t0 + Duration::from_secs(secs));
         out.into_iter().map(|r| (r.text, r.channels.speech, r.priority)).collect()
     }

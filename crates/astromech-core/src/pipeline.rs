@@ -137,7 +137,7 @@ impl Tailer {
                 match astromech_journal::parse_line(&l) {
                     Ok(j) => {
                         st.journal_lines += 1;
-                        self.hub.apply_journal(&j.event);
+                        self.hub.apply_journal(&j);
                         if let Some(c) = &mut self.callouts {
                             fired.extend(self.hub.read(|g| c.engine.journal(&j, g, Instant::now())));
                         }
