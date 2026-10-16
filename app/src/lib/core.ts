@@ -94,9 +94,14 @@ export type CoreCmd =
   | "voice_test"
   | "voice_test_poll"
   | "voice_test_stop"
-  | "voice_test_live";
+  | "voice_test_live"
+  | "prospector_thresholds"
+  | "prospector_set";
 
-/** `text` is the voice tester's phrase ("voice_test") or command id ("voice_test_live"). */
+/**
+ * `text` is the voice tester's phrase ("voice_test"), command id ("voice_test_live") or a
+ * prospector threshold change as JSON ("prospector_set").
+ */
 export async function coreCall(cmd: CoreCmd, text?: string): Promise<Record<string, unknown>> {
   if (!inTauri) return { ok: false, error: "not running inside the app" };
   return await invoke<Record<string, unknown>>("core_call", { cmd, text });

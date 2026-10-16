@@ -477,6 +477,8 @@ async fn core_call(cmd: String, text: Option<String>) -> Value {
         "voice_test_poll",
         "voice_test_stop",
         "voice_test_live",
+        "prospector_thresholds",
+        "prospector_set",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });

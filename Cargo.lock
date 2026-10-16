@@ -221,6 +221,7 @@ dependencies = [
  "astromech-journal",
  "astromech-materials",
  "astromech-status",
+ "chrono",
  "serde",
  "tempfile",
 ]

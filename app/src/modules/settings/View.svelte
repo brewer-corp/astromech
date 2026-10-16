@@ -3,6 +3,7 @@
   // Everything the tray used to carry lives here now. Push-to-talk is still set in the config
   // file until the press-to-bind flow lands.
   import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd } from "../../lib/core";
+  import ProspectorThresholds from "./ProspectorThresholds.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -78,6 +79,10 @@
         under <span class="mono">[controls]</span> and restart astromech (tray → Quit, then open it again).
       </p>
     {/if}
+
+    <h3>Prospector callouts</h3>
+    <ProspectorThresholds />
+    <p class="hint">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
 
     <h3>Updates</h3>
     <dl>

@@ -7,12 +7,72 @@
 
 use crate::logging::log;
 use crate::speech::Speaker;
+use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
 use serde::Serialize;
+use serde_json::{json, Value};
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::time::{Duration, Instant};
+
+/// Where the prospector thresholds live in `astromech-store` (JSON of
+/// [`Thresholds`]). The config file has no write path yet, so Settings stores them here.
+pub const PROSPECTOR_KEY: &str = "callouts.prospector.thresholds";
+
+/// The stored prospector thresholds (defaults if none or unreadable, logged).
+pub fn load_thresholds(store: &astromech_store::Store) -> Thresholds {
+    match store.get(PROSPECTOR_KEY) {
+        Ok(Some(v)) => serde_json::from_str(&v).unwrap_or_else(|e| {
+            log(&format!("prospector thresholds in the database are unreadable ({e}); using the defaults"));
+            Thresholds::default()
+        }),
+        Ok(None) => Thresholds::default(),
+        Err(e) => {
+            log(&format!("couldn't read the prospector thresholds ({e}); using the defaults"));
+            Thresholds::default()
+        }
+    }
+}
+
+/// Every ore with its default and current threshold (`null`: not called out), for Settings.
+pub fn thresholds_json(t: &Thresholds) -> Value {
+    let ores: Vec<Value> = prospector::ORES
+        .iter()
+        .map(|o| json!({"ore": o.symbol, "name": o.name, "default": o.default, "threshold": t.get(o.symbol)}))
+        .collect();
+    json!({"ok": true, "ores": ores})
+}
+
+/// A change from Settings: `{"ore": "platinum", "threshold": 25}` (`null` turns it off) or
+/// `{"ore": "platinum", "reset": true}`.
+pub fn apply_threshold_change(t: &mut Thresholds, text: &str) -> Result<(), String> {
+    #[derive(serde::Deserialize)]
+    struct Change {
+        ore: String,
+        #[serde(default)]
+        threshold: Option<f64>,
+        #[serde(default)]
+        reset: bool,
+    }
+    let c: Change = serde_json::from_str(text).map_err(|e| format!("bad threshold change: {e}"))?;
+    if c.reset {
+        prospector::ore(&c.ore).ok_or_else(|| format!("unknown ore {:?}", c.ore))?;
+        t.reset(&c.ore);
+        Ok(())
+    } else {
+        t.set(&c.ore, c.threshold)
+    }
+}
+
+/// Apply a Settings change to the stored thresholds; returns the new set.
+pub fn change_thresholds(store: &astromech_store::Store, text: &str) -> Result<Thresholds, String> {
+    let mut t = load_thresholds(store);
+    apply_threshold_change(&mut t, text)?;
+    let v = serde_json::to_string(&t).map_err(|e| e.to_string())?;
+    store.set(PROSPECTOR_KEY, &v).map_err(|e| format!("saving the prospector thresholds: {e}"))?;
+    Ok(t)
+}
 
 /// The engine plus where its reactions go. Lives on the pipeline thread.
 pub struct Callouts {
@@ -477,6 +537,28 @@ mod tests {
         n.notify("B.");
         std::thread::sleep(Duration::from_millis(400));
         assert_eq!(*fast.0.lock().unwrap(), ["A.", "B."]);
+    }
+
+    #[test]
+    fn prospector_thresholds_are_stored_and_changed_from_settings() {
+        let store = astromech_store::Store::in_memory().unwrap();
+        assert_eq!(load_thresholds(&store), Thresholds::default());
+        let t = change_thresholds(&store, r#"{"ore":"platinum","threshold":35}"#).unwrap();
+        assert_eq!(t.get("platinum"), Some(35.0));
+        change_thresholds(&store, r#"{"ore":"painite","threshold":null}"#).unwrap();
+        let t = load_thresholds(&store);
+        assert_eq!((t.get("platinum"), t.get("painite")), (Some(35.0), None));
+        let v = thresholds_json(&t);
+        let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
+        assert_eq!((plat["default"].as_f64(), plat["threshold"].as_f64()), (Some(20.0), Some(35.0)));
+        change_thresholds(&store, r#"{"ore":"platinum","reset":true}"#).unwrap();
+        assert_eq!(load_thresholds(&store).get("platinum"), Some(20.0));
+        // Bad input is refused and nothing is stored.
+        assert!(change_thresholds(&store, r#"{"ore":"platinum","threshold":250}"#).is_err());
+        assert!(change_thresholds(&store, r#"{"ore":"iron","threshold":5}"#).is_err());
+        assert!(change_thresholds(&store, "not json").is_err());
+        store.set(PROSPECTOR_KEY, "{broken").unwrap();
+        assert_eq!(load_thresholds(&store), Thresholds::default());
     }
 
     #[test]

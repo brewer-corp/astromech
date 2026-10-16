@@ -16,6 +16,7 @@ astromech-journal.workspace = true
 astromech-status.workspace = true
 astromech-materials.workspace = true
 serde.workspace = true
+chrono.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

@@ -3,6 +3,8 @@
 //! The reducer: folds journal events and Status.json snapshots into one [`GameState`]
 //! (ARCHITECTURE.md §5.2). Pure and synchronous so it can be replay-tested.
 
+pub mod mining;
+
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };

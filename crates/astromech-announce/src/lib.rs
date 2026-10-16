@@ -18,7 +18,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! No rules are registered yet ([`builtin`]); the prospector and scan callouts add theirs.
+//! The rules that ship are in [`builtin`]: [`prospector`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
@@ -106,9 +106,11 @@ pub trait Rule: Send {
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
 }
 
-/// The rules that ship. Empty until the first callouts land.
-pub fn builtin() -> Vec<Box<dyn Rule>> {
-    vec![]
+pub mod prospector;
+
+/// The rules that ship. `prospector`: the thresholds the core keeps (Settings changes them).
+pub fn builtin(prospector: prospector::SharedThresholds) -> Vec<Box<dyn Rule>> {
+    vec![Box::new(prospector::Prospector { thresholds: prospector })]
 }
 
 /// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.

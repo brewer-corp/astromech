@@ -448,6 +448,32 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
+            "prospector_thresholds" => {
+                match astromech_store::Store::open(&self.cfg.data_dir().join("astromech.sqlite")) {
+                    Ok(st) => crate::callouts::thresholds_json(&crate::callouts::load_thresholds(&st)),
+                    Err(e) => json!({"ok": false, "error": format!("opening the database: {e}")}),
+                }
+            }
+            "prospector_set" => {
+                let text = r.text.clone().unwrap_or_default();
+                let res = std::fs::create_dir_all(self.cfg.data_dir())
+                    .map_err(|e| e.to_string())
+                    .and_then(|_| {
+                        astromech_store::Store::open(&self.cfg.data_dir().join("astromech.sqlite"))
+                            .map_err(|e| format!("opening the database: {e}"))
+                    })
+                    .and_then(|st| crate::callouts::change_thresholds(&st, &text));
+                match res {
+                    Ok(t) => {
+                        if let Some(s) = self.session.lock().unwrap().as_ref() {
+                            *s.prospector.write().unwrap() = t.clone();
+                        }
+                        log(&format!("prospector thresholds changed: {text}"));
+                        crate::callouts::thresholds_json(&t)
+                    }
+                    Err(e) => json!({"ok": false, "error": e}),
+                }
+            }
             "voice_test" => {
                 let text = r.text.clone().unwrap_or_default();
                 let res = {

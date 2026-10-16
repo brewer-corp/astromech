@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Prospector callouts"
-updated_at: "2026-10-15T20:36:13.659338625+00:00"
+updated_at: "2026-10-16T20:07:37.040402694+00:00"
 ---
 
 ## Goal
