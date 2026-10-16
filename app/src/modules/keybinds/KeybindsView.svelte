@@ -46,7 +46,9 @@
       .filter((g) => g.rows.length),
   );
   const totalIssues = $derived(binds.rows.reduce((n, r) => n + issues(r).length, 0));
-  const isOpen = (name: string) => open[name] ?? (!!q || only !== "All" || hits.length > 0 || groups.length <= 3);
+  // A panel you toggled stays as you left it. Otherwise panels open only when a search, state
+  // filter or pressed control asks to show their rows; how many groups remain never decides.
+  const isOpen = (name: string) => open[name] ?? (!!q || only !== "All" || hits.length > 0);
   const sel = $derived(binds.rows.find((r) => r.id === selId) ?? null);
 
   // Press a control: jump to everything bound to it.
