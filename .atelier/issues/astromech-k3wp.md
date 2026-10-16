@@ -35,9 +35,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T23:04:41.272087976+00:00"
+status: "done"
 title: "Colonisation tracker"
-updated_at: "2026-10-16T20:25:50.684347124+00:00"
+updated_at: "2026-10-16T23:04:46.392764407+00:00"
 ---
 
 ## Goal
@@ -51,3 +52,8 @@ Journal replay tests for the tracker and shopping list; recorded-response tests 
 ## Notes
 
 - 2026-10-16 [note] Merge note: feature/astromech-ipb5 adds system_address to JournalEvent::Docked; crates/astromech-colonisation/src/lib.rs:224 matches Docked without .. and will need updating when either branch lands after the other (review of u3f4, R5).
+- 2026-10-16 [note] Docked system_address merge note settled in a64fd2e (Merge main into feature/astromech-k3wp): the colonisation Docked match takes the new field with `..`; astromech-store re-exports both rusqlite (main) and StoreError (this branch).
+
+## Close Reason
+
+All children done on this branch: construction tracker (6qk1) and shopping list (i9w7) with journal replay tests, reviewed; where to buy (05bi) with recorded Ardent tests (evidence dn8s), component tests and UI check. Independent review of 05bi and the main merge (a64fd2e) is outstanding and gates atelier merge; the game check astromech-xf8j runs after the merge.
