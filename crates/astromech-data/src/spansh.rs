@@ -12,6 +12,10 @@
 //! - `minor_faction_presences` (systems): `[{"allegiance": {"value": [..]}, "state": {"value": [..]}}]`;
 //! - `subtype` (bodies): `{"value": [..]}`.
 //!
+//! System-name autocomplete (`/api/systems/field_values/system_names?q=`) answers
+//! `{"values": [names], "min_max": [{id64, name, x, y, z}]}`, up to a handful of names that
+//! start with `q`; no match is two empty lists.
+//!
 //! An unknown reference system is HTTP 400 `{"error": "Invalid request"}`. `count` is capped
 //! at 10000.
 
@@ -312,6 +316,27 @@ pub struct Body {
     pub estimated_scan_value: Option<i64>,
 }
 
+/// An autocomplete suggestion: a system Spansh knows, with its position.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SystemName {
+    pub id64: i64,
+    pub name: String,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+}
+
+impl SystemName {
+    pub fn pos(&self) -> [f64; 3] {
+        [self.x, self.y, self.z]
+    }
+}
+
+#[derive(Deserialize)]
+struct SystemNames {
+    min_max: Vec<SystemName>,
+}
+
 /// A neutron-boosted route request.
 #[derive(Debug, Clone, PartialEq)]
 pub struct NeutronRoute {
@@ -388,6 +413,19 @@ impl Client {
 
     pub fn spansh_bodies(&self, q: &Search) -> Result<Fetched<Page<Body>>> {
         self.fetch(Service::Spansh, &Request::post_json("/api/bodies/search", q.body()), Some(ttl::SEARCH))
+    }
+
+    /// Systems whose names start with `prefix` (Spansh's autocomplete), with positions. A
+    /// blank prefix answers nothing without a request.
+    pub fn spansh_system_names(&self, prefix: &str) -> Result<Fetched<Vec<SystemName>>> {
+        let prefix = prefix.trim();
+        if prefix.is_empty() {
+            return Ok(Fetched { value: vec![], fetched_at: self.clock.now_s(), cached: true });
+        }
+        let req = Request::get("/api/systems/field_values/system_names").query("q", prefix);
+        self.fetch_with(Service::Spansh, &req, Some(ttl::SEARCH), |b| {
+            Ok(parse_json::<SystemNames>(Service::Spansh, b)?.min_max)
+        })
     }
 
     /// Queue a neutron route; poll [`Client::spansh_route_result`] with the job.

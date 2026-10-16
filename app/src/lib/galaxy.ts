@@ -5,6 +5,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/nearby.json";
+import type { Origin } from "./search";
 
 export interface Faction {
   name: string;
@@ -34,9 +35,13 @@ export interface Nearby {
   warning?: string;
 }
 
-export async function nearby(query: string): Promise<Nearby> {
-  if (!inTauri) return { ...(sample as unknown as Nearby), query: { id: query, label: (sample as unknown as Nearby).query.label } };
-  return await invoke<Nearby>("galaxy_nearby", { query });
+/** Systems matching `query` near `origin` (a typed system name), or near the commander. */
+export async function nearby(query: string, origin: Origin = null): Promise<Nearby> {
+  if (!inTauri) {
+    const s = sample as unknown as Nearby;
+    return { ...s, query: { id: query, label: s.query.label }, here: origin ? { ...s.here, system: origin } : s.here };
+  }
+  return await invoke<Nearby>("galaxy_nearby", { query, origin });
 }
 
 /** "3 h ago", "2 d ago". */

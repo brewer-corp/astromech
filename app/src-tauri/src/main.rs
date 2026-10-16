@@ -374,17 +374,28 @@ async fn engineering_trip(
     .await
 }
 
-/// Systems near the commander matching a lookup (`famine`, or an HGE pool id), with jumps.
+/// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
+/// or, without one, near the commander, with jumps at the current ship's range.
 #[tauri::command]
-async fn galaxy_nearby(app: tauri::AppHandle, query: String) -> Result<Value, String> {
+async fn galaxy_nearby(app: tauri::AppHandle, query: String, origin: Option<String>) -> Result<Value, String> {
     blocking(move || {
-        let st = engineering_state(&app.state::<EngineeringCache>())?;
-        let here = st.here.clone().ok_or("no position in the journal yet")?;
-        let current = st.fleet.ships.iter().find(|s| s.current);
-        let n = galaxy(&app)?.nearby(&query, &here, range_of(current), 8).map_err(|e| e.to_string())?;
+        let st = engineering_state(&app.state::<EngineeringCache>());
+        let g = galaxy(&app)?;
+        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
+            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
+            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
+        };
+        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let n = g.nearby(&query, &here, range_of(current), 8).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
+}
+
+/// System names starting with `prefix`, for the search origin box.
+#[tauri::command]
+async fn galaxy_systems(app: tauri::AppHandle, prefix: String) -> Result<Vec<String>, String> {
+    blocking(move || galaxy(&app)?.system_names(&prefix).map_err(|e| e.to_string())).await
 }
 
 /// Presses from every stick, pad and key, for "press a control to find it", the key tester
@@ -531,7 +542,8 @@ fn main() {
             engineering_plan,
             engineering_engineers,
             engineering_trip,
-            galaxy_nearby
+            galaxy_nearby,
+            galaxy_systems
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

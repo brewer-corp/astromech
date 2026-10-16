@@ -120,7 +120,28 @@ impl Galaxy {
     }
 
     pub fn position(&self, system: &str) -> Result<Option<[f64; 3]>> {
-        Ok(self.store().system(system)?.map(|x| x.1))
+        Ok(self.store().system(system)?.map(|x| x.2))
+    }
+
+    /// Up to a handful of system names starting with `prefix` (Spansh's autocomplete), for
+    /// typing a search origin.
+    pub fn system_names(&self, prefix: &str) -> Result<Vec<String>> {
+        Ok(self.remote.spansh_system_names(prefix)?.value.into_iter().map(|s| s.name).collect())
+    }
+
+    /// Where a typed system is: the local map first, else Spansh (exact name, any case).
+    pub fn locate(&self, name: &str) -> Result<Here> {
+        let name = name.trim();
+        if let Some((id64, system, pos)) = self.store().system(name)? {
+            return Ok(Here { system, id64: Some(id64), pos });
+        }
+        self.remote
+            .spansh_system_names(name)?
+            .value
+            .into_iter()
+            .find(|s| s.name.eq_ignore_ascii_case(name))
+            .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
+            .ok_or_else(|| anyhow::anyhow!("Spansh doesn't know a system called {name}."))
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -263,6 +284,8 @@ mod tests {
                 self.sphere.clone()
             } else if url.ends_with("/api/systems/search") {
                 include_str!("../tests/fixtures/spansh-famine.json").to_string()
+            } else if url.ends_with("/api/systems/field_values/system_names") {
+                SHIN.to_string()
             } else {
                 panic!("unexpected request {url}")
             };
@@ -303,6 +326,34 @@ mod tests {
         assert_eq!(rec.log.lock().unwrap().len(), 2, "covered and cached: no requests");
         assert_eq!(again.hits, n.hits);
         assert_eq!(again.fetched, n.fetched);
+    }
+
+    /// Spansh's autocomplete for "Shin" (recorded 16 Oct 2026, trimmed).
+    const SHIN: &str = r#"{"min_max":[{"id64":1733321298650,"name":"Shingon","x":121.6875,"y":-3.09375,"z":47.1875},
+        {"id64":3932277478106,"name":"Shinrarta Dezhra","x":55.71875,"y":17.59375,"z":27.15625}],
+        "values":["Shingon","Shinrarta Dezhra"]}"#;
+
+    #[test]
+    fn typed_origin_is_found_in_the_map_then_on_spansh() {
+        let rec = Arc::new(Recorded { sphere: "[]".into(), log: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let mut s = Store::in_memory().unwrap();
+        s.insert_systems([(10477373803, "Sol", [0.0, 0.0, 0.0])]).unwrap();
+        let g = Galaxy::with_remote(s, client);
+
+        let sol = g.locate(" sol ").unwrap();
+        assert_eq!((sol.system.as_str(), sol.id64, sol.pos), ("Sol", Some(10477373803), [0.0; 3]));
+        assert!(rec.log.lock().unwrap().is_empty(), "a known system needs no request");
+
+        let names = g.system_names("Shin").unwrap();
+        assert_eq!(names, ["Shingon", "Shinrarta Dezhra"]);
+        let sd = g.locate("shinrarta dezhra").unwrap();
+        assert_eq!(sd.system, "Shinrarta Dezhra", "Spansh's spelling");
+        assert_eq!(sd.id64, Some(3932277478106));
+        assert_eq!(sd.pos, [55.71875, 17.59375, 27.15625]);
+
+        let err = g.locate("Shin").unwrap_err().to_string();
+        assert_eq!(err, "Spansh doesn't know a system called Shin.", "a prefix is not a system");
     }
 
     #[test]

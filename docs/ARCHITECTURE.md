@@ -437,7 +437,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - EDDN: optional listener and uploader, v2.
 - **Cache:** SQLite with TTLs (system data 7 days, search results 1 h, routes per session).
 - **Etiquette and resilience:** a `governor` limiter per host, a circuit breaker (5 failures → 60 s open), and `User-Agent: astromech/<ver> (+contact)`.
-- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits.
+- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits. Spansh's system-name autocomplete returns positions too, so a typed search origin resolves without EDSM (`Galaxy::locate`: local star map first, then Spansh).
 
 ### 5.9 `astromech-capi` (feature-gated; v2+)
 - **Auth:** OAuth2 auth code with PKCE (S256) against `https://auth.frontierstore.net` (`/auth`, `/token`, `/decode`), `audience=frontier,steam,epic`, `scope=auth capi`.
@@ -1614,6 +1614,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
     - a global **Ctrl+K command palette** that merges every module's commands and searches (actions, ships, blueprints, materials, systems);
     - notifications, connection and auth state, theme, layout persistence and module enable/disable.
   - Modules import only `lib/api`, `lib/ui` and their own code. Lint rules forbid cross-module imports; shared things go to `lib/`.
+  - **Search kit:** every "near me" lookup runs on `lib/ui/SearchKit.svelte` (model in `lib/search.ts`): the origin is the current system or a typed one with autocomplete, and rows show jumps at the current range, distance, pad size, arrival distance and data age. A lookup only adapts its answer into the kit's rows (`lib/ui/Nearby.svelte` does this for faction states).
 - **Cargo boundaries:**
   - Services depend on `astromech-proto`, `astromech-store` and `astromech-gamedata`, never on each other's internals. They cooperate through queries or through the event bus.
   - `astromech-api` depends on the services. `astromech-web`, `astromech-vr` and `astromech-tools` depend on `astromech-api`. Only `astromech-core` wires everything.

@@ -315,6 +315,35 @@ fn spansh_searches_parse_recorded_answers() {
 }
 
 #[test]
+fn spansh_system_names_autocomplete() {
+    let (c, rec, _) = client();
+    rec.on("/api/systems/field_values/system_names", 200, fixture!("spansh-system-names.json"));
+
+    let names = c.spansh_system_names(" Shin ").unwrap();
+    assert!(!names.cached);
+    let (url, req) = rec.last();
+    assert_eq!(url, "https://spansh.co.uk/api/systems/field_values/system_names");
+    assert_eq!(req.method, Method::Get);
+    assert_eq!(req.query, vec![("q".to_string(), "Shin".to_string())], "the prefix is trimmed");
+    let n: Vec<&str> = names.value.iter().map(|s| s.name.as_str()).collect();
+    assert_eq!(n, ["Shingon", "Shinigami", "Shinarui", "Shinrarta Dezhra"]);
+    let jameson = &names.value[3];
+    assert_eq!(jameson.id64, 3932277478106);
+    assert_eq!(jameson.pos(), [55.71875, 17.59375, 27.15625]);
+
+    assert!(c.spansh_system_names("Shin").unwrap().cached, "the same prefix is served from the cache");
+    assert_eq!(rec.requests(), 1);
+
+    assert!(c.spansh_system_names("  ").unwrap().value.is_empty());
+    assert_eq!(rec.requests(), 1, "a blank prefix asks nothing");
+
+    rec.on("/api/systems/field_values/system_names", 200, r#"{"min_max":[],"values":[]}"#);
+    assert!(c.spansh_system_names("zzqxv").unwrap().value.is_empty(), "no match is an empty list");
+    rec.on("/api/systems/field_values/system_names", 200, r#"{"values":["Sol"]}"#);
+    assert_schema_error(c.spansh_system_names("Sol"), Service::Spansh);
+}
+
+#[test]
 fn spansh_route_job_round_trip() {
     let (c, rec, _) = client();
     rec.on("/api/route", 202, fixture!("spansh-route-queued.json"));
