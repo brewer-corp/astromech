@@ -87,6 +87,8 @@ pub struct GameState {
     /// Powerplay standing (since the core started: the week total needs older journals, which
     /// the app window replays itself).
     pub powerplay: astromech_powerplay::Standing,
+    /// The current system's Powerplay state (`None`: no Powerplay activity, or not known yet).
+    pub system_power: Option<astromech_powerplay::SystemPower>,
     #[serde(skip)]
     pub companions: Companions,
 }
@@ -109,6 +111,9 @@ impl GameState {
 
     fn apply_at(&mut self, ts: &str, ev: &JournalEvent) {
         self.powerplay.apply(ts, ev);
+        if let Some(s) = astromech_powerplay::SystemPower::from_event(ev) {
+            self.system_power = s;
+        }
         match ev {
             JournalEvent::LoadGame { commander, ship, ship_name, ship_ident, credits } => {
                 self.commander = Some(commander.clone());

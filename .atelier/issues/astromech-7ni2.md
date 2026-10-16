@@ -19,6 +19,8 @@ relationships:
   - kind: "issue"
     id: "astromech-7ix7"
   - kind: "issue"
+    id: "astromech-gtza"
+  - kind: "issue"
     id: "astromech-h1dz"
   - kind: "issue"
     id: "astromech-ny26"
@@ -31,7 +33,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Powerplay basics"
-updated_at: "2026-10-16T20:16:05.288831167+00:00"
+updated_at: "2026-10-16T20:41:03.299391322+00:00"
 ---
 
 ## Goal

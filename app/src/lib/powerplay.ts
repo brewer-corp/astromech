@@ -1,5 +1,6 @@
 /**
- * Powerplay from the journal (the shell replays it): the commander's standing.
+ * Powerplay from the journal (the shell replays it): the commander's standing and the current
+ * system's Powerplay state.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
@@ -25,8 +26,43 @@ export interface Standing {
   next: NextRank | null;
 }
 
+/** What a system offers the pledged power. */
+export type Work = "reinforce" | "undermine" | "acquire";
+
+export interface SystemPower {
+  system: string;
+  controlling_power: string | null;
+  /** As the journal writes it: Exploited, Fortified, Stronghold, Unoccupied. */
+  state: string | null;
+  /** Progress through the state's band, a fraction (may be below 0 or above 1). */
+  control_progress: number | null;
+  reinforcement: number | null;
+  undermining: number | null;
+  /** Powers other than the controller active here. */
+  contesting: string[];
+  /** Unoccupied systems: acquisition progress, highest first. */
+  acquisition: { power: string; progress: number }[];
+  work: Work | null;
+  summary: string;
+}
+
 export interface Overview {
   standing: Standing;
+  /** The current system (last jump or location). */
+  here: string | null;
+  /** Its Powerplay state; null when it has none. */
+  system: SystemPower | null;
+}
+
+export const WORK_LABEL: Record<Work, string> = {
+  reinforce: "Your power's system: reinforce",
+  undermine: "Undermining target",
+  acquire: "Acquisition target",
+};
+
+/** "28%". */
+export function pct(f: number | null | undefined): string {
+  return f == null ? "–" : `${Math.round(f * 100)}%`;
 }
 
 export async function loadOverview(): Promise<Overview> {

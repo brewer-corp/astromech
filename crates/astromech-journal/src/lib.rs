@@ -13,6 +13,7 @@
 pub mod companion;
 mod detail;
 
+use detail::system_powerplay;
 pub use detail::*;
 use std::path::{Path, PathBuf};
 
@@ -72,6 +73,8 @@ pub enum JournalEvent {
         /// Set when starting docked (`Docked: true`).
         station_name: Option<String>,
         market_id: Option<i64>,
+        /// The system's Powerplay fields, if it has any.
+        powerplay: Option<Box<SystemPowerplay>>,
     },
     ApproachBody {
         star_system: String,
@@ -91,6 +94,8 @@ pub enum JournalEvent {
         from_carrier: bool,
         system_address: Option<i64>,
         star_pos: Option<[f64; 3]>,
+        /// The system's Powerplay fields, if it has any.
+        powerplay: Option<Box<SystemPowerplay>>,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -308,6 +313,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             star_pos: star_pos(&raw),
             station_name: opt_s(&raw, "StationName"),
             market_id: opt_i(&raw, "MarketID"),
+            powerplay: system_powerplay(&raw),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
@@ -320,6 +326,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             from_carrier: event == "CarrierJump",
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
+            powerplay: system_powerplay(&raw),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -648,6 +655,7 @@ mod tests {
                 from_carrier: false,
                 system_address: None,
                 star_pos: None,
+                powerplay: None,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();

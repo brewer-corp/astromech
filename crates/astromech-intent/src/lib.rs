@@ -105,6 +105,10 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("status.ship", &["what's my ship", "what ship", "current ship", "ship name"]),
     ("status.legal", &["legal state", "wanted", "notoriety", "legal status"]),
     (
+        "status.system_power",
+        &["who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here"],
+    ),
+    (
         "status.powerplay",
         &["what's my powerplay rank", "powerplay rank", "powerplay status", "how many merits", "merits"],
     ),
@@ -633,6 +637,8 @@ mod tests {
             ("what's my powerplay rank", "status.powerplay"),
             ("Power play rank", "status.powerplay"),
             ("How many merits?", "status.powerplay"),
+            ("Who controls this system?", "status.system_power"),
+            ("system powerplay", "status.system_power"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

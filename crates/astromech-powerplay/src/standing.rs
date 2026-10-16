@@ -184,11 +184,6 @@ impl Standing {
     }
 }
 
-/// Journal lines that can change the standing, found without parsing every line.
-fn may_matter(line: &str) -> bool {
-    line.contains("\"Powerplay") || line.contains("\"LoadGame\"")
-}
-
 /// Fold journal lines in order.
 pub fn standing_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -> Standing {
     let mut s = Standing::default();
@@ -200,14 +195,5 @@ pub fn standing_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>)
 
 /// The standing after every journal in `dir`, oldest first.
 pub fn standing_from_journal_dir(dir: &Path) -> Standing {
-    let mut s = Standing::default();
-    for p in astromech_journal::journal_logs(dir) {
-        let Ok(text) = std::fs::read_to_string(&p) else { continue };
-        for line in text.lines().filter(|l| may_matter(l)) {
-            if let Ok(l) = astromech_journal::parse_line(line.trim()) {
-                s.apply(&l.timestamp, &l.event);
-            }
-        }
-    }
-    s
+    crate::from_journal_dir(dir).standing
 }

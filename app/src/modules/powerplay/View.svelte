@@ -1,6 +1,7 @@
 <script lang="ts">
-  // Powerplay for daily use, from the journal: my standing.
-  import { loadOverview, num, pledged, until, type Overview } from "../../lib/powerplay";
+  // Powerplay for daily use, from the journal: my standing and the current system's state.
+  import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
+  import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let ov = $state<Overview | null>(null);
   let err = $state<string | null>(null);
@@ -19,6 +20,9 @@
   });
 
   const st = $derived(ov?.standing);
+  const sys = $derived(ov?.system);
+  /** The control bar's fill, clamped to the band. */
+  const fill = $derived(Math.max(0, Math.min(1, sys?.control_progress ?? 0)) * 100);
 </script>
 
 <section>
@@ -54,6 +58,43 @@
       <p class="lo small">Week merits count what the journal logs since Thursday 07:00 UTC; weekly assignment rewards aren’t logged.</p>
     {/if}
   </div>
+
+  <div class="panel">
+    <h3>This system</h3>
+    {#if !ov}
+      <p class="lo">Reading the journal…</p>
+    {:else if !ov.here}
+      <p class="lo">No jump or location in the journal yet.</p>
+    {:else if !sys}
+      <p><SystemChip name={ov.here} /></p>
+      <p class="lo">No Powerplay activity here.</p>
+    {:else}
+      <p><SystemChip name={sys.system} /></p>
+      {#if sys.work}<p class="work">{WORK_LABEL[sys.work]}</p>{/if}
+      <dl>
+        {#if sys.controlling_power}
+          <dt>Controlled by</dt><dd>{sys.controlling_power}</dd>
+          <dt>State</dt><dd>{sys.state ?? "unknown"}</dd>
+          <dt>Control</dt>
+          <dd>
+            <span class="bar" title="Progress through the {sys.state?.toLowerCase() ?? ''} band"><span style:width="{fill}%"></span></span>
+            <span class="q">{pct(sys.control_progress)}</span>
+          </dd>
+          <dt>This cycle</dt>
+          <dd>reinforcement <span class="q">{num(sys.reinforcement)}</span> · undermining <span class="q">{num(sys.undermining)}</span></dd>
+          {#if sys.contesting.length}<dt>Also active</dt><dd>{sys.contesting.join(", ")}</dd>{/if}
+        {:else}
+          <dt>State</dt><dd>{sys.state ?? "Unoccupied"}</dd>
+          {#each sys.acquisition as a (a.power)}
+            <dt>Acquiring</dt><dd>{a.power} <span class="q">{pct(a.progress)}</span></dd>
+          {:else}
+            {#if sys.contesting.length}<dt>Powers</dt><dd>{sys.contesting.join(", ")}</dd>{/if}
+          {/each}
+        {/if}
+      </dl>
+      <p class="lo small">As of your last jump. The game shows this in the system map, not on the HUD.</p>
+    {/if}
+  </div>
 </section>
 
 <style>
@@ -65,6 +106,9 @@
   dt { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
   dd { margin: 0; color: var(--text); }
   .q { font-family: var(--mono); color: var(--text-hi); }
+  .work { color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  .bar { display: inline-block; width: 8rem; height: 6px; background: var(--cell-empty); vertical-align: middle; margin-right: 8px; }
+  .bar span { display: block; height: 100%; background: var(--accent); }
   .lo { color: var(--text-lo); }
   .small { font-size: var(--fs-s); margin-top: 12px; }
   p { margin: 0 0 8px; line-height: 1.45; }
