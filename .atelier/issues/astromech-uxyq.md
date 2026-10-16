@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Send to EDDN from a live session"
-updated_at: "2026-10-16T19:27:26.857232444+00:00"
+updated_at: "2026-10-16T19:39:36.925931881+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,4 @@ A session against the `/test` schemas, then a live session, each with no rejecti
 ## Notes
 
 - 2026-10-16 [note] Also check in real logs: whether Market/Outfitting/Shipyard.json timestamps always equal their event's, and whether Outfitting.json lists commander-specific (PowerPlay, tech-broker) modules (review of lt2b/thau, R1/R2).
+- 2026-10-16 [note] Also from review of w20r/5el6: check NavRoute.json and FCMaterials.json timestamps against their events (navroute and fcmaterials_journal require equality), and run real journal lines through the /test schemas, since every event schema sets additionalProperties false (R2, R4).
