@@ -43,6 +43,28 @@ export interface CoreStatus {
   models_progress?: string | null;
   models_dir?: string;
   update?: UpdateStatus;
+  /** The last few callout toasts, oldest first. */
+  toasts?: Toast[];
+}
+
+/** One callout shown as a toast. `id` increases by one per toast within a core session. */
+export interface Toast {
+  id: number;
+  rule: string;
+  text: string;
+  time: string;
+}
+
+/**
+ * Toasts newer than `lastSeen`, and the new `lastSeen`. The first poll (`lastSeen` null) shows
+ * nothing, so opening the window doesn't replay old callouts. Ids restart with a new core
+ * session; a newest id below `lastSeen` means that happened, and everything listed is new.
+ */
+export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toast[]; last: number } {
+  const newest = list.at(-1)?.id ?? 0;
+  if (lastSeen === null) return { show: [], last: newest };
+  const from = newest < lastSeen ? 0 : lastSeen;
+  return { show: list.filter((t) => t.id > from), last: newest };
 }
 
 export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;

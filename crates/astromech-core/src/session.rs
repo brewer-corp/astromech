@@ -6,6 +6,7 @@
 
 use crate::actions::Runner;
 use crate::assistant::Assistant;
+use crate::callouts::{self, Callouts, SpeechOut, Toasts};
 use crate::config::Config;
 use crate::health::{self, BindsState};
 use crate::hub::StateHub;
@@ -41,8 +42,11 @@ pub struct Session {
     pub voice: String,
     /// Speech-to-text, until [`Session::start_buttons`] hands it to the PTT thread.
     pub stt: Option<Box<dyn Stt>>,
+    /// Callout toasts for the app window.
+    pub toasts: Arc<Toasts>,
     stop: Arc<AtomicBool>,
     _pipe: crate::pipeline::Pipeline,
+    _callouts: SpeechOut,
     _hw: Option<health::HealthWatch>,
 }
 
@@ -138,11 +142,23 @@ impl Session {
         .map_err(|e| log(&format!("not watching the Bindings folder: {e:#}")))
         .ok();
 
-        // 2. Game state pipeline.
+        // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-        let pipe = crate::pipeline::start(&jdir, hub.clone(), Some(&data.join("astromech.sqlite")), log)
-            .with_context(|| format!("journal folder {}", jdir.display()))?;
+        let engine = astromech_announce::Engine::new(astromech_announce::builtin(), &cfg.callouts);
+        for id in engine.unknown_settings(&cfg.callouts) {
+            log(&format!("[callouts.{id}] in the config names no callout; ignored"));
+        }
+        let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
+        let deliver = Box::new(callouts::router(pending.clone(), toasts.clone(), callouts::default_notifier()));
+        let pipe = crate::pipeline::start(
+            &jdir,
+            hub.clone(),
+            Some(&data.join("astromech.sqlite")),
+            log,
+            Some(Callouts { engine, deliver }),
+        )
+        .with_context(|| format!("journal folder {}", jdir.display()))?;
         let g = hub.snapshot();
         log(&format!(
             "game state: {} | system {} | status flags {}",
@@ -216,6 +232,8 @@ impl Session {
             None
         };
 
+        let speech_out = SpeechOut::start(pending, speaker.clone()).context("starting the callout speaker")?;
+
         // 4. Policy + executor.
         let platform: Arc<dyn Platform> =
             if cfg.actions.dry_run { Arc::new(DryRun(real_platform())) } else { real_platform() };
@@ -263,8 +281,10 @@ impl Session {
             speaker,
             voice,
             stt,
+            toasts,
             stop: Arc::new(AtomicBool::new(false)),
             _pipe: pipe,
+            _callouts: speech_out,
             _hw: hw,
         })
     }

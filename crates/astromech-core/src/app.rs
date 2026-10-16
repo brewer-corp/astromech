@@ -100,7 +100,10 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
-        let killed = self.session.lock().unwrap().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+        let (killed, toasts) = match self.session.lock().unwrap().as_ref() {
+            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent()),
+            None => (false, vec![]),
+        };
         json!({
             "ok": true,
             "version": env!("CARGO_PKG_VERSION"),
@@ -124,6 +127,7 @@ impl Core {
             "models_progress": *self.models.lock().unwrap(),
             "models_dir": self.cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
+            "toasts": toasts,
         })
     }
 

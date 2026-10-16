@@ -12,7 +12,12 @@
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file.
+//! - Callouts: every journal line and Status.json read also goes to the reaction engine
+//!   ([`crate::callouts`]). The live point is the end of the startup catch-up: the replay of the
+//!   current journal file and the first Status.json read are silent; every line read after that
+//!   (including a new journal file the game starts later) is live.
 
+use crate::callouts::Callouts;
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
 use astromech_journal::companion::{load, triggers, CompanionKind, Trigger};
@@ -23,7 +28,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Tail one journal file from a byte offset.
 pub struct JournalTail {
@@ -118,6 +123,7 @@ struct Tailer {
     log: Box<dyn Fn(&str) + Send>,
     /// Companion events whose file was not usable yet; tried again when the game touches the file.
     pending: Vec<Trigger>,
+    callouts: Option<Callouts>,
 }
 
 impl Tailer {
@@ -131,6 +137,10 @@ impl Tailer {
                     Ok(j) => {
                         st.journal_lines += 1;
                         self.hub.apply_journal(&j.event);
+                        if let Some(c) = &mut self.callouts {
+                            let fired = self.hub.read(|g| c.engine.journal(&j, g, Instant::now()));
+                            (c.deliver)(fired);
+                        }
                         parsed.push(j);
                     }
                     Err(_) => st.bad_lines += 1,
@@ -219,8 +229,25 @@ impl Tailer {
         if let Some(s) = astromech_status::read_status_retry(&p, 5) {
             self.stats.lock().unwrap().status_reads += 1;
             self.hub.apply_status(&s);
+            if let Some(c) = &mut self.callouts {
+                let fired = self.hub.read(|g| c.engine.status(&s, g, Instant::now()));
+                (c.deliver)(fired);
+            }
         }
         self.on_companions();
+    }
+
+    /// Startup: replay the current journal to rebuild state, read Status.json, then go live.
+    fn catch_up(&mut self) {
+        if let Some(n) = astromech_journal::newest_journal(&self.dir) {
+            self.open(n, true);
+        } else {
+            (self.log)("no journal file yet; waiting for the game to create one");
+        }
+        self.on_status();
+        if let Some(c) = &mut self.callouts {
+            c.engine.go_live();
+        }
     }
 
     fn on_companions(&mut self) {
@@ -238,11 +265,13 @@ impl Tailer {
 }
 
 /// Start watching `dir`. `db` is the store file for read positions (None: don't persist).
+/// `callouts`: the reaction engine and where its reactions go (None: no callouts).
 pub fn start(
     dir: &Path,
     hub: Arc<StateHub>,
     db: Option<&Path>,
     log: impl Fn(&str) + Send + 'static,
+    callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
     let (tx, rx) = channel::<notify::Result<notify::Event>>();
     let mut watcher = notify::recommended_watcher(tx).context("creating file watcher")?;
@@ -260,13 +289,9 @@ pub fn start(
         stats: stats.clone(),
         log: Box::new(log),
         pending: vec![],
+        callouts,
     };
-    if let Some(n) = astromech_journal::newest_journal(dir) {
-        t.open(n, true);
-    } else {
-        (t.log)("no journal file yet; waiting for the game to create one");
-    }
-    t.on_status();
+    t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
     let stop2 = stop.clone();
     let thread = std::thread::Builder::new()
@@ -351,8 +376,67 @@ mod tests {
             stats: Arc::new(std::sync::Mutex::new(Stats::default())),
             log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
             pending: vec![],
+            callouts: None,
         };
         (t, hub, logs)
+    }
+
+    /// "Cargo scan." on every `Scanned`, no cooldown.
+    struct ScanRule;
+    impl astromech_announce::Rule for ScanRule {
+        fn id(&self) -> &'static str {
+            "scan"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::ZERO
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
+            _: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            use astromech_announce::*;
+            matches!(input, Input::Journal(l) if l.name == "Scanned").then(|| Callout {
+                text: "Cargo scan.".into(),
+                priority: Priority::Normal,
+                channels: Channels::SPEECH,
+            })
+        }
+    }
+
+    fn scanned(ts: &str) -> String {
+        format!("{{\"timestamp\":\"2026-10-16T{ts}Z\",\"event\":\"Scanned\",\"ScanType\":\"Cargo\"}}\r\n")
+    }
+
+    #[test]
+    fn callouts_are_silent_for_the_startup_catch_up_and_live_after_it() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-16T195000.01.log");
+        std::fs::write(&p, scanned("19:50:00") + &scanned("19:55:00")).unwrap();
+        // A half-written line at the end of the catch-up belongs to the live part.
+        let mut f = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+        write!(f, "{{\"timestamp\":\"2026-10-16T20:00:00Z\",\"event\":\"Scan").unwrap();
+        std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert_eq!(t.stats.lock().unwrap().journal_lines, 2);
+        assert!(hub.snapshot().status_seen);
+        assert!(fired.lock().unwrap().is_empty(), "{:?}", fired.lock().unwrap());
+        // Live: the rest of the half line, then a new line.
+        write!(f, "ned\",\"ScanType\":\"Cargo\"}}\r\n{}", scanned("20:00:05")).unwrap();
+        f.flush().unwrap();
+        t.on_journal_activity();
+        assert_eq!(*fired.lock().unwrap(), ["Cargo scan.", "Cargo scan."]);
+        // A journal file the game starts later is live from its first line.
+        std::fs::write(d.path().join("Journal.2026-10-16T201000.01.log"), scanned("20:10:00")).unwrap();
+        t.on_journal_activity();
+        assert_eq!(fired.lock().unwrap().len(), 3);
     }
 
     const MARKET_EVENT: &str =

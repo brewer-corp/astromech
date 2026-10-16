@@ -24,6 +24,11 @@ impl StateHub {
         self.state.lock().unwrap().0.clone()
     }
 
+    /// Look at the current state without copying it. Keep `f` short: writers wait for it.
+    pub fn read<R>(&self, f: impl FnOnce(&GameState) -> R) -> R {
+        f(&self.state.lock().unwrap().0)
+    }
+
     /// Version counter: increases on every change.
     pub fn version(&self) -> u64 {
         self.state.lock().unwrap().1

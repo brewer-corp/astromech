@@ -27,6 +27,7 @@ astromech-voice.workspace = true
 astromech-policy.workspace = true
 astromech-tools.workspace = true
 astromech-store.workspace = true
+astromech-announce.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

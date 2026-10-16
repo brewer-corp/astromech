@@ -113,7 +113,8 @@ fn rig(flags: u64, delays: &[u64]) -> Rig {
     let game = FakeGame::new(&journal, flags, delays);
     let hub = Arc::new(StateHub::new());
     let pipe =
-        astromech_core::pipeline::start(&journal, hub.clone(), Some(&dir.path().join("db.sqlite")), |_| {}).unwrap();
+        astromech_core::pipeline::start(&journal, hub.clone(), Some(&dir.path().join("db.sqlite")), |_| {}, None)
+            .unwrap();
     let binds = Arc::new(RwLock::new(health::run_check(&bindings, Some(&dir.path().join("nogame")), false)));
     let speaker = Arc::new(RecordingSpeaker::default());
     let logs = Arc::new(std::sync::Mutex::new(Vec::<String>::new()));
@@ -316,7 +317,7 @@ fn journal_rollover_and_saved_positions() {
     std::fs::write(&a, "{\"timestamp\":\"2026-10-10T18:00:00Z\",\"event\":\"Fileheader\",\"part\":1,\"gameversion\":\"4.2\",\"build\":\"r1\"}\r\n{\"timestamp\":\"2026-10-10T18:00:01Z\",\"event\":\"Location\",\"StarSystem\":\"Sol\",\"Docked\":true}\r\n").unwrap();
     let db = j.join("db.sqlite");
     let hub = Arc::new(StateHub::new());
-    let p = astromech_core::pipeline::start(j, hub.clone(), Some(&db), |_| {}).unwrap();
+    let p = astromech_core::pipeline::start(j, hub.clone(), Some(&db), |_| {}, None).unwrap();
     assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"));
     std::thread::sleep(Duration::from_millis(50));
     use std::io::Write;

@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -238,6 +238,8 @@ astromech/
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools), position from the journal
+    astromech-announce/  event -> reaction engine: rules over journal + Status.json, per-rule toggle and
+                         cooldown, quiet in docking and combat, silent journal catch-up, speech queue
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
@@ -578,6 +580,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 ### 5.15 `astromech-announce`
 - **Deterministic rules:** event → condition → phrase template (`minijinja`), with variants, cooldowns and priority.
   - Examples: fuel scoop reminder, "route has N jumps, next star is non-scoopable", docking pad number (`DockingGranted.LandingPad`), arrival summaries, mission expiry.
+- **As built (16 Oct 2026):** the engine and speech queue are in `astromech-announce`; core's `callouts` delivers speech, app toasts and Windows notifications. Rules are Rust (`Rule` trait), not templates yet. Behaviour: V1-DESIGN.md §7.14.
 - **Delivery:** spoken by local Kokoro TTS. In the later cloud phase, rules marked "conversational" may instead be handed to a live session as commentary. **The LLM never decides *whether* to alert on safety-relevant events.**
 
 ### 5.16 `astromech-ui` (shared renderer)

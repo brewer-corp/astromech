@@ -6,8 +6,9 @@ use astromech_voice::client::Worker;
 use astromech_voice::proto::Request;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{channel, Sender};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 /// Something that says short confirmations. Must not block for long.
@@ -15,6 +16,10 @@ pub trait Speaker: Send + Sync {
     fn say(&self, text: &str);
     /// Stop talking now (push-to-talk barge-in). Default: nothing to cut.
     fn interrupt(&self) {}
+    /// Still rendering or playing a line (callouts wait for it). Default: never.
+    fn busy(&self) -> bool {
+        false
+    }
 }
 
 /// Prints instead of speaking.
@@ -92,6 +97,8 @@ impl Stt for WorkerStt {
 pub struct TtsSpeaker {
     tx: Mutex<Sender<Job>>,
     mixer: astromech_voice::mixer::Mixer,
+    /// Lines sent to the TTS thread and not yet handed to the mixer.
+    rendering: Arc<AtomicUsize>,
 }
 
 enum Job {
@@ -139,6 +146,8 @@ impl TtsSpeaker {
         let mix = mixer.clone();
         let (tx, rx) = channel::<Job>();
         let pre_tx = tx.clone();
+        let rendering = Arc::new(AtomicUsize::new(0));
+        let rendering2 = rendering.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
             let render = |w: &mut Worker, text: &str| -> Option<(u32, Vec<f32>, PathBuf)> {
                 let f = cache.join(cache_name(text, colour, &model, &speaker, speed));
@@ -194,6 +203,7 @@ impl TtsSpeaker {
                                 }
                             }
                         }
+                        rendering2.fetch_sub(1, Ordering::SeqCst);
                     }
                 }
             }
@@ -201,14 +211,20 @@ impl TtsSpeaker {
         for p in prerender {
             let _ = pre_tx.send(Job::Warm(p));
         }
-        Ok(Self { tx: Mutex::new(tx), mixer })
+        Ok(Self { tx: Mutex::new(tx), mixer, rendering })
     }
 }
 
 impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
-        let _ = self.tx.lock().unwrap().send(Job::Speak(text.to_string()));
+        self.rendering.fetch_add(1, Ordering::SeqCst);
+        if self.tx.lock().unwrap().send(Job::Speak(text.to_string())).is_err() {
+            self.rendering.fetch_sub(1, Ordering::SeqCst);
+        }
+    }
+    fn busy(&self) -> bool {
+        self.rendering.load(Ordering::SeqCst) > 0 || self.mixer.queued() > 0
     }
     fn interrupt(&self) {
         self.mixer.cut();

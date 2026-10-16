@@ -1,0 +1,346 @@
+//! # astromech-announce
+//!
+//! The event → reaction engine (ARCHITECTURE.md §5.15). Rules look at journal lines and
+//! Status.json changes and may answer with a [`Callout`]: a short line for speech, an in-app
+//! toast and/or a Windows notification. The [`Engine`] decides what actually fires:
+//!
+//! - **Replay is silent.** Until [`Engine::go_live`] (the pipeline calls it once the startup
+//!   catch-up of the current journal and the first Status.json read are applied) no rule runs.
+//!   The engine still tracks docking and combat from those events so quiet is right at once.
+//! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
+//!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
+//!   cooldown, so a burst of the same event gives one callout.
+//! - **Quiet during docking and combat** (see [`Quiet`]): speech is dropped unless the callout
+//!   is [`Priority::Urgent`]; toasts and notifications still go.
+//! - **Status.json is deduplicated**: a rewrite with the same contents is not an event.
+//!
+//! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
+//! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
+//! and the game state after it, never the replayed history.
+//!
+//! No rules are registered yet ([`builtin`]); the prospector and scan callouts add theirs.
+
+use astromech_gamestate::GameState;
+use astromech_journal::JournalLine;
+use astromech_status::{StatusSnap, FLAG_BEING_INTERDICTED, FLAG_IN_DANGER};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::time::{Duration, Instant};
+
+/// How much a callout matters. Higher goes first; only `Urgent` speaks while it is quiet.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Priority {
+    Low,
+    Normal,
+    High,
+    /// Speaks even during docking and combat (e.g. a cargo scan with stolen goods aboard).
+    Urgent,
+}
+
+/// Where a callout goes. Any combination.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Channels {
+    pub speech: bool,
+    /// A toast in the app window (and the overlay, once it has one).
+    pub toast: bool,
+    /// A Windows notification.
+    pub notification: bool,
+}
+
+impl Channels {
+    pub const SPEECH: Channels = Channels { speech: true, toast: false, notification: false };
+    pub const TOAST: Channels = Channels { speech: false, toast: true, notification: false };
+    pub const NOTIFICATION: Channels = Channels { speech: false, toast: false, notification: true };
+
+    pub fn is_empty(&self) -> bool {
+        !(self.speech || self.toast || self.notification)
+    }
+}
+
+impl std::ops::BitOr for Channels {
+    type Output = Channels;
+    fn bitor(self, o: Channels) -> Channels {
+        Channels {
+            speech: self.speech || o.speech,
+            toast: self.toast || o.toast,
+            notification: self.notification || o.notification,
+        }
+    }
+}
+
+/// What a rule wants said or shown.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Callout {
+    pub text: String,
+    pub priority: Priority,
+    pub channels: Channels,
+}
+
+/// A callout that fired, with the rule that made it and when.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Reaction {
+    pub rule: &'static str,
+    pub text: String,
+    pub priority: Priority,
+    pub channels: Channels,
+    pub at: Instant,
+}
+
+/// One event for the rules.
+#[derive(Debug, Clone, Copy)]
+pub enum Input<'a> {
+    Journal(&'a JournalLine),
+    /// A Status.json read that differs from the previous one (`before` is None for the first).
+    Status {
+        now: &'a StatusSnap,
+        before: Option<&'a StatusSnap>,
+    },
+}
+
+/// A reaction rule. Stateless: decide from the event and the state after it.
+pub trait Rule: Send {
+    /// Stable id, used in `[callouts.<id>]`.
+    fn id(&self) -> &'static str;
+    /// Cooldown unless the settings give one.
+    fn cooldown(&self) -> Duration;
+    fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
+}
+
+/// The rules that ship. Empty until the first callouts land.
+pub fn builtin() -> Vec<Box<dyn Rule>> {
+    vec![]
+}
+
+/// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct RuleSettings {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cooldown_s: Option<f64>,
+}
+
+/// All `[callouts.*]` tables, by rule id.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct Settings(pub BTreeMap<String, RuleSettings>);
+
+/// Why speech is held back.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Quiet {
+    /// After `DockingGranted` (the approach) until `Docked`, `DockingCancelled`,
+    /// `DockingDenied`, `DockingTimeout`, or leaving (`Undocked`, `SupercruiseEntry`,
+    /// `FSDJump`, `Died`, a new game). The grant itself is not quiet, so its pad line speaks.
+    Docking,
+    /// Status.json says in danger or being interdicted, or an `UnderAttack` in the last
+    /// [`ATTACK_QUIET`].
+    Combat,
+}
+
+/// How long one `UnderAttack` keeps it quiet.
+pub const ATTACK_QUIET: Duration = Duration::from_secs(30);
+
+const DOCKING_STARTS: &[&str] = &["DockingGranted"];
+const DOCKING_ENDS: &[&str] = &[
+    "Docked",
+    "DockingCancelled",
+    "DockingDenied",
+    "DockingTimeout",
+    "Undocked",
+    "SupercruiseEntry",
+    "FSDJump",
+    "Died",
+    "LoadGame",
+    "Shutdown",
+];
+
+struct Slot {
+    rule: Box<dyn Rule>,
+    enabled: bool,
+    cooldown: Duration,
+    fired: Option<Instant>,
+}
+
+pub struct Engine {
+    slots: Vec<Slot>,
+    live: bool,
+    docking: bool,
+    danger_flags: bool,
+    attacked_until: Option<Instant>,
+    last_status: Option<StatusSnap>,
+}
+
+impl Engine {
+    pub fn new(rules: Vec<Box<dyn Rule>>, settings: &Settings) -> Self {
+        let slots = rules
+            .into_iter()
+            .map(|rule| {
+                let s = settings.0.get(rule.id()).cloned().unwrap_or_default();
+                let cooldown = s
+                    .cooldown_s
+                    .filter(|c| c.is_finite() && *c >= 0.0)
+                    .map(Duration::from_secs_f64)
+                    .unwrap_or_else(|| rule.cooldown());
+                Slot { enabled: s.enabled.unwrap_or(true), cooldown, fired: None, rule }
+            })
+            .collect();
+        Self { slots, live: false, docking: false, danger_flags: false, attacked_until: None, last_status: None }
+    }
+
+    /// Setting ids that name no rule (typos in `astromech.toml`).
+    pub fn unknown_settings<'a>(&self, settings: &'a Settings) -> Vec<&'a str> {
+        settings.0.keys().map(String::as_str).filter(|id| !self.slots.iter().any(|s| s.rule.id() == *id)).collect()
+    }
+
+    /// The catch-up is over: events from now on are live and may fire.
+    pub fn go_live(&mut self) {
+        self.live = true;
+    }
+
+    pub fn is_live(&self) -> bool {
+        self.live
+    }
+
+    pub fn quiet(&self, now: Instant) -> Option<Quiet> {
+        if self.danger_flags || self.attacked_until.is_some_and(|t| now < t) {
+            Some(Quiet::Combat)
+        } else if self.docking {
+            Some(Quiet::Docking)
+        } else {
+            None
+        }
+    }
+
+    /// A journal line, already applied to `state`.
+    pub fn journal(&mut self, line: &JournalLine, state: &GameState, now: Instant) -> Vec<Reaction> {
+        // The event is judged against the mode before it: `DockingGranted` (the pad) is not
+        // "during docking"; what follows it is.
+        let quiet = self.quiet(now);
+        let name = line.name.as_str();
+        if DOCKING_STARTS.contains(&name) {
+            self.docking = true;
+        } else if DOCKING_ENDS.contains(&name) {
+            self.docking = false;
+        }
+        if name == "UnderAttack" && self.live {
+            self.attacked_until = Some(now + ATTACK_QUIET);
+        }
+        self.fire(&Input::Journal(line), state, now, quiet)
+    }
+
+    /// A Status.json read, already applied to `state`. Unchanged contents are ignored.
+    pub fn status(&mut self, snap: &StatusSnap, state: &GameState, now: Instant) -> Vec<Reaction> {
+        if self.last_status.as_ref() == Some(snap) {
+            return vec![];
+        }
+        let quiet = self.quiet(now);
+        self.danger_flags = snap.flags & (FLAG_IN_DANGER | FLAG_BEING_INTERDICTED) != 0;
+        let before = self.last_status.replace(snap.clone());
+        self.fire(&Input::Status { now: snap, before: before.as_ref() }, state, now, quiet)
+    }
+
+    fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
+        if !self.live {
+            return vec![];
+        }
+        let mut out = vec![];
+        for s in self.slots.iter_mut().filter(|s| s.enabled) {
+            let Some(c) = s.rule.react(input, state) else { continue };
+            if s.fired.is_some_and(|t| now.saturating_duration_since(t) < s.cooldown) {
+                continue;
+            }
+            let mut channels = c.channels;
+            if quiet.is_some() && c.priority < Priority::Urgent {
+                channels.speech = false;
+            }
+            if channels.is_empty() {
+                continue;
+            }
+            s.fired = Some(now);
+            out.push(Reaction { rule: s.rule.id(), text: c.text, priority: c.priority, channels, at: now });
+        }
+        out
+    }
+}
+
+/// Spoken callouts waiting for the speaker: highest priority first, then oldest. Lines older
+/// than `max_age` are dropped (late is wrong); when full, the lowest priority goes first.
+#[derive(Debug)]
+pub struct SpeechQueue {
+    items: Vec<Reaction>,
+    cap: usize,
+    max_age: Duration,
+}
+
+impl Default for SpeechQueue {
+    fn default() -> Self {
+        Self::new(8, Duration::from_secs(10))
+    }
+}
+
+impl SpeechQueue {
+    pub fn new(cap: usize, max_age: Duration) -> Self {
+        Self { items: vec![], cap: cap.max(1), max_age }
+    }
+
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
+
+    pub fn push(&mut self, r: Reaction) {
+        self.items.push(r);
+        if self.items.len() > self.cap {
+            // Lowest priority; among those the oldest (items are in arrival order).
+            let lowest = self.items.iter().map(|r| r.priority).min().unwrap_or(Priority::Low);
+            if let Some(i) = self.items.iter().position(|r| r.priority == lowest) {
+                self.items.remove(i);
+            }
+        }
+    }
+
+    pub fn pop(&mut self, now: Instant) -> Option<Reaction> {
+        let max_age = self.max_age;
+        self.items.retain(|r| now.saturating_duration_since(r.at) <= max_age);
+        let top = self.items.iter().map(|r| r.priority).max()?;
+        let i = self.items.iter().position(|r| r.priority == top)?;
+        Some(self.items.remove(i))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn r(text: &str, priority: Priority, at: Instant) -> Reaction {
+        Reaction { rule: "t", text: text.into(), priority, channels: Channels::SPEECH, at }
+    }
+
+    #[test]
+    fn queue_orders_by_priority_then_age_and_drops_stale_and_low() {
+        let t0 = Instant::now();
+        let mut q = SpeechQueue::new(3, Duration::from_secs(10));
+        q.push(r("low", Priority::Low, t0));
+        q.push(r("normal 1", Priority::Normal, t0));
+        q.push(r("urgent", Priority::Urgent, t0));
+        q.push(r("normal 2", Priority::Normal, t0)); // full: "low" goes
+        assert_eq!(q.len(), 3);
+        let order: Vec<String> = std::iter::from_fn(|| q.pop(t0)).map(|r| r.text).collect();
+        assert_eq!(order, ["urgent", "normal 1", "normal 2"]);
+        q.push(r("old", Priority::High, t0));
+        assert_eq!(q.pop(t0 + Duration::from_secs(11)), None);
+        assert!(q.is_empty());
+    }
+
+    #[test]
+    fn settings_read_from_toml() {
+        let s: Settings = toml::from_str("[prospector]\nenabled = false\n[scan]\ncooldown_s = 2.5\n").unwrap();
+        assert_eq!(s.0["prospector"].enabled, Some(false));
+        assert_eq!(s.0["scan"].cooldown_s, Some(2.5));
+        assert_eq!(toml::to_string(&s).unwrap(), "[prospector]\nenabled = false\n\n[scan]\ncooldown_s = 2.5\n");
+    }
+}

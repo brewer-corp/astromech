@@ -4,6 +4,7 @@
   // Activities.
   import { groups, groupModules, findModule } from "./lib/modules";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
+  import Toasts from "./lib/ui/Toasts.svelte";
 
   const DEFAULT = "activities";
   let route = $state(location.hash.replace(/^#\//, "") || DEFAULT);
@@ -56,6 +57,7 @@
       {/await}
     {/if}
   </main>
+  <Toasts {status} />
 </div>
 
 <style>
