@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:39:41.534932869+00:00"
+status: "done"
 title: "Ships page: dense card view of the fleet"
-updated_at: "2026-10-16T18:30:38.066709050+00:00"
+updated_at: "2026-10-16T18:39:41.534932869+00:00"
 ---
 
 ## Goal
@@ -37,3 +38,7 @@ Take the game's card idea, but make it denser. Headline stats come from the ship
 ## Context
 
 `StoredShips` and `Loadout` already feed the engineering module. Add `StoredModules`.
+
+## Close Reason
+
+Ships page replaces Builds at #/engineering: dense cards, stored modules, card opens the existing build detail. Fixture fleet test and screenshot recorded; independent review outstanding (orchestrator).

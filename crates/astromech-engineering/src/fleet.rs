@@ -8,7 +8,7 @@
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
 use crate::data;
-use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredShip};
+use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredModule, StoredShip};
 use serde::Serialize;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
@@ -17,6 +17,8 @@ use std::path::Path;
 pub struct Fleet {
     pub source: String,
     pub ships: Vec<Ship>,
+    /// Modules in storage, from the last `StoredModules`.
+    pub stored_modules: Vec<Stored>,
     /// Engineering options for every module group on these ships.
     pub groups: BTreeMap<String, GroupOptions>,
 }
@@ -30,11 +32,30 @@ pub struct Ship {
     pub ident: Option<String>,
     pub system: Option<String>,
     pub current: bool,
+    /// Being moved to a shipyard; `system` is where it is going, if known.
+    pub in_transit: bool,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
     /// Unladen maximum from the last `Loadout`.
     pub max_jump_range: Option<f64>,
+    /// What the ship is worth: the shipyard's value for a stored ship, else hull plus modules.
+    pub value: Option<i64>,
+    /// Insurance excess if the ship is lost, from its last `Loadout`.
+    pub rebuy: Option<i64>,
     pub modules: Vec<Fitted>,
+}
+
+/// A module in storage.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Stored {
+    pub item: String,
+    pub name: String,
+    /// `None` while in transit.
+    pub system: Option<String>,
+    pub value: Option<i64>,
+    /// Blueprint name and grade when engineered.
+    pub blueprint_name: Option<String>,
+    pub grade: Option<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -82,6 +103,8 @@ struct Seen {
     name: Option<String>,
     ident: Option<String>,
     max_jump_range: Option<f64>,
+    rebuy: Option<i64>,
+    value: Option<i64>,
     modules: Vec<ModuleSnap>,
 }
 
@@ -90,15 +113,41 @@ struct Seen {
 pub struct FleetBuilder {
     loadouts: HashMap<i64, Seen>,
     stored: HashMap<i64, StoredShip>,
+    stored_modules: Vec<StoredModule>,
     current: Option<i64>,
+    /// System of the last dock, for a ship left behind by a swap.
+    here: Option<String>,
 }
 
 impl FleetBuilder {
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
         match ev {
             JournalEvent::Loadout {
-                ship_id: Some(id), ship, ship_name, ship_ident, modules, max_jump_range, ..
+                ship_id: Some(id),
+                ship,
+                ship_name,
+                ship_ident,
+                modules,
+                max_jump_range,
+                rebuy,
+                hull_value,
+                modules_value,
+                ..
             } if !is_vehicle(ship.as_deref().unwrap_or("")) => {
+                // Flying out of another ship leaves it where we are docked: StoredShips was
+                // written before the swap and does not list it.
+                if let Some(prev) = self.current.filter(|p| p != id) {
+                    if let Some(old) = self.loadouts.get(&prev) {
+                        self.stored.entry(prev).or_insert_with(|| StoredShip {
+                            ship_id: prev,
+                            ship_type: old.ship_type.clone(),
+                            name: old.name.clone(),
+                            system: self.here.clone(),
+                            in_transit: false,
+                            value: old.value,
+                        });
+                    }
+                }
                 self.current = Some(*id);
                 self.stored.remove(id);
                 self.loadouts.insert(
@@ -109,6 +158,8 @@ impl FleetBuilder {
                         name: ship_name.clone(),
                         ident: ship_ident.clone(),
                         max_jump_range: *max_jump_range,
+                        rebuy: *rebuy,
+                        value: hull_value.map(|h| h + modules_value.unwrap_or(0)),
                         modules: modules.clone(),
                     },
                 );
@@ -118,6 +169,25 @@ impl FleetBuilder {
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
+            JournalEvent::Docked { star_system, .. } => self.here = Some(star_system.clone()),
+            JournalEvent::Location { star_system, docked, .. } => {
+                self.here = docked.then(|| star_system.clone());
+            }
+            JournalEvent::ShipTransfer { ship_id, ship_type } => {
+                // It arrives where we are; until the next StoredShips it counts as in transit.
+                let here = self.here.clone();
+                let s = self.stored.entry(*ship_id).or_insert_with(|| StoredShip {
+                    ship_id: *ship_id,
+                    ship_type: ship_type.clone(),
+                    name: None,
+                    system: None,
+                    in_transit: false,
+                    value: None,
+                });
+                s.system = here;
+                s.in_transit = true;
+            }
+            JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
             JournalEvent::EngineerCraft {
                 engineer,
                 blueprint,
@@ -179,7 +249,8 @@ impl FleetBuilder {
                 }
             }
         }
-        Fleet { source: source.into(), ships, groups }
+        let stored_modules = self.stored_modules.iter().map(stored_module).collect();
+        Fleet { source: source.into(), ships, stored_modules, groups }
     }
 
     fn ship(&self, id: i64) -> Ship {
@@ -197,8 +268,11 @@ impl FleetBuilder {
             ident: seen.and_then(|s| s.ident.clone()),
             system: stored.and_then(|s| s.system.clone()),
             current: self.current == Some(id),
+            in_transit: stored.is_some_and(|s| s.in_transit),
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
+            value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),
+            rebuy: seen.and_then(|s| s.rebuy),
             modules,
         }
     }
@@ -221,6 +295,21 @@ pub fn group_options(id: &str) -> Option<GroupOptions> {
             .map(|(id, e)| Choice { id: id.to_string(), name: e.name.clone(), max_grade: None })
             .collect(),
     })
+}
+
+fn stored_module(m: &StoredModule) -> Stored {
+    let name =
+        data::module(&m.item).map(|i| i.display()).or_else(|| m.localised.clone()).unwrap_or_else(|| m.item.clone());
+    let bp = m.blueprint.as_deref();
+    Stored {
+        item: m.item.clone(),
+        name,
+        system: m.system.clone(),
+        value: m.value,
+        blueprint_name: bp
+            .map(|b| data::blueprint(b).map(|(_, d)| d.name.clone()).unwrap_or_else(|| b.replace('_', " "))),
+        grade: bp.and(m.level),
+    }
 }
 
 fn fitted(m: &ModuleSnap) -> Option<Fitted> {
@@ -326,6 +415,10 @@ fn slot_order(slot: &str) -> (u8, u8, String) {
 const FLEET_EVENTS: &[&str] = &[
     "\"Loadout\"",
     "\"StoredShips\"",
+    "\"StoredModules\"",
+    "\"ShipyardTransfer\"",
+    "\"Docked\"",
+    "\"Location\"",
     "\"ShipyardSell\"",
     "\"ShipyardBuy\"",
     "\"SellShipOnRebuy\"",

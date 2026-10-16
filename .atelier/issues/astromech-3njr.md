@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ship detail with live build stats"
-updated_at: "2026-10-16T18:12:14.692273628+00:00"
+updated_at: "2026-10-16T18:58:37.510698426+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ Engineering changes only. Swapping in a different module, and saving more than o
 ## Context
 
 The plan model is in `app/src/lib/engineering.ts` and `crates/astromech-engineering/src/plan.rs`.
+
+## Notes
+
+- 2026-10-16 [note] From review of the Ships page (astromech-mycc): opening a card does not change the URL, so reload and back leave the detail. Make the ship detail routable (for example #/engineering/<ship id>).

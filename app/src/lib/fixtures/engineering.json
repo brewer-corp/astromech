@@ -753,6 +753,7 @@
         "current": true,
         "id": 3,
         "ident": "HL-03",
+        "in_transit": false,
         "loadout_ts": "2026-10-03T09:00:05Z",
         "max_jump_range": 18.0,
         "modules": [
@@ -779,14 +780,17 @@
           }
         ],
         "name": "Heavy Lifter",
+        "rebuy": 12000000,
         "ship_type": "anaconda",
         "system": null,
-        "type_name": "Anaconda"
+        "type_name": "Anaconda",
+        "value": 165000000
       },
       {
         "current": false,
         "id": 7,
         "ident": "LW-07",
+        "in_transit": false,
         "loadout_ts": "2026-09-20T18:00:05Z",
         "max_jump_range": 32.5,
         "modules": [
@@ -868,24 +872,55 @@
           }
         ],
         "name": "Long Way Round",
+        "rebuy": 6700000,
         "ship_type": "krait_mkii",
-        "system": null,
-        "type_name": "Krait MkII"
+        "system": "Shinrarta Dezhra",
+        "type_name": "Krait MkII",
+        "value": 134000000
       },
       {
         "current": false,
         "id": 12,
         "ident": null,
+        "in_transit": false,
         "loadout_ts": null,
         "max_jump_range": null,
         "modules": [],
         "name": null,
+        "rebuy": null,
         "ship_type": "asp",
         "system": "Sol",
-        "type_name": "Asp Explorer"
+        "type_name": "Asp Explorer",
+        "value": 6000000
       }
     ],
-    "source": "Sample journal"
+    "source": "Sample journal",
+    "stored_modules": [
+      {
+        "blueprint_name": "Increased range",
+        "grade": 3,
+        "item": "int_hyperdrive_size5_class5",
+        "name": "5A Frame Shift Drive",
+        "system": "Shinrarta Dezhra",
+        "value": 5000000
+      },
+      {
+        "blueprint_name": null,
+        "grade": null,
+        "item": "int_shieldgenerator_size5_class5",
+        "name": "5A Shield Generator",
+        "system": "Sol",
+        "value": 3500000
+      },
+      {
+        "blueprint_name": null,
+        "grade": null,
+        "item": "hpt_pulselaser_gimbal_medium",
+        "name": "2F Pulse Laser",
+        "system": null,
+        "value": 90000
+      }
+    ]
   },
   "plan": {
     "farm": [
