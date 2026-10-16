@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-10-16T22:29:24.654652876+00:00"
 status: "done"
 title: "Command palette (Ctrl+K)"
-updated_at: "2026-10-16T22:29:24.654652876+00:00"
+updated_at: "2026-10-16T23:31:24.983410271+00:00"
 ---
 
 ## Goal
@@ -35,6 +35,10 @@ From any page, Ctrl+K then a module name opens its nearby search (UI check).
 ## Context
 
 [ARCHITECTURE §18.2](docs/ARCHITECTURE.md).
+
+## Notes
+
+- 2026-10-16 [note] Since closing: ship modules now reach their nearby search too (i64s, 438e48d). Ctrl+K then a module name opens #/outfitting/<module>, a fitted module at its exact size, and a ship name opens #/shipyard/<ship>. Systems, stations and commodities are still not in the palette.
 
 ## Close Reason
 
