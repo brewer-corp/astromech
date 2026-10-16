@@ -5,7 +5,7 @@ Thanks for your interest! astromech is pre-alpha, so expect big changes.
 - Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first, and open an issue before large changes.
 - Before a PR: `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `cargo deny check`, and in `app/`:
-  `pnpm lint && pnpm check && pnpm build`.
+  `pnpm lint && pnpm check && pnpm build && pnpm test`.
 - UI changes: run the Vite app (`cd app && pnpm dev`) and check it with headless Chrome:
   `scripts/ui --url http://127.0.0.1:5173/#/materials --wait Iron --screenshot /tmp/materials.png --text`.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Generate data/catalog/engineering.json: ship engineering blueprints, experimentals, which
-module takes which, and display names for journal module / ship symbols.
+module takes which, and display names for journal module / ship symbols. Also what each blueprint
+grade and experimental does to a module's stats, for astromech-ship's calculations.
 
 Usage: scripts/gen-engineering.py <coriolis-data checkout> <FDevIDs checkout>
 
 Sources (player-visible game data, see NOTICE.md):
-- EDCD/coriolis-data: modifications/{blueprints,specials,modules}.json, modules/*/*.json
+- EDCD/coriolis-data: modifications/{blueprints,specials,modules,modifications,modifierActions}.json,
+  modules/*/*.json
 - EDCD/FDevIDs: material.csv (journal material symbols), outfitting.csv, shipyard.csv
 Material names in coriolis are display names; they are mapped to journal symbols (lowercase,
 letters and digits only, the same key astromech-materials uses).
@@ -48,6 +50,8 @@ def main(cor, fdev):
     bps_raw = load("modifications/blueprints.json")
     specials_raw = load("modifications/specials.json")
     mod_map = load("modifications/modules.json")
+    stat_defs = load("modifications/modifications.json")
+    actions = load("modifications/modifierActions.json")
 
     engineers = collections.defaultdict(lambda: collections.defaultdict(set))
     for g in mod_map.values():
@@ -64,6 +68,8 @@ def main(cor, fdev):
                     "grade": int(grade),
                     "materials": recipe(x["components"]),
                     "engineers": sorted(engineers[fd][int(grade)]),
+                    # stat -> [worst, best] roll, as a fraction (percentage stats) or an amount
+                    "features": {k: v for k, v in sorted(x.get("features", {}).items())},
                 }
             )
         blueprints[fd] = {"name": b["name"], "grades": grades}
@@ -117,15 +123,33 @@ def main(cor, fdev):
         if not bps and not exps:
             continue
         name = GROUP_NAMES.get(g) or (group_votes[g].most_common(1)[0][0] if group_votes[g] else g)
-        groups[g] = {"name": name, "blueprints": bps, "experimentals": exps}
+        groups[g] = {"name": name, "blueprints": bps, "experimentals": exps,
+                     "modifications": sorted(m.get("modifications", []))}
 
     ships = {r["symbol"].lower(): r["name"].strip() for r in rows("shipyard.csv")}
+
+    # How engineering changes each stat (coriolis Module.js semantics): "type" is percentage
+    # (stored x10000) or numeric (x100); "method" multiplicative, additive or overwrite.
+    modifiers = {
+        k: {"type": d["type"], "method": d["method"], "higherbetter": d.get("higherbetter", False)}
+        for k, d in sorted(stat_defs.items())
+        if d["type"] in ("percentage", "numeric")
+    }
+    # What each experimental does on top of the blueprint (numeric effects only; the damage-type
+    # overrides don't change any total astromech shows).
+    effects = {
+        sp: {k: v for k, v in sorted(actions[sp].items()) if isinstance(v, (int, float))}
+        for sp in sorted(specials_raw)
+        if sp in actions
+    }
 
     out = {
         "source": f"EDCD/coriolis-data@{head(cor)}, EDCD/FDevIDs@{head(fdev)} (scripts/gen-engineering.py)",
         "blueprints": blueprints,
         "experimentals": experimentals,
         "groups": groups,
+        "modifiers": modifiers,
+        "effects": effects,
         "modules": dict(sorted(modules.items())),
         "ships": dict(sorted(ships.items())),
     }

@@ -48,6 +48,8 @@ pub enum JournalEvent {
         max_jump_range: Option<f64>,
         fuel_capacity_main: Option<f64>,
         rebuy: Option<i64>,
+        hull_value: Option<i64>,
+        modules_value: Option<i64>,
         ship_id: Option<i64>,
         modules: Vec<ModuleSnap>,
     },
@@ -55,6 +57,15 @@ pub enum JournalEvent {
     /// The ship being flown is not listed.
     StoredShips {
         ships: Vec<StoredShip>,
+    },
+    /// Modules in storage (`StoredModules`, written when outfitting opens).
+    StoredModules {
+        items: Vec<StoredModule>,
+    },
+    /// A stored ship was ordered to the system the player is in (`ShipyardTransfer`).
+    ShipTransfer {
+        ship_id: i64,
+        ship_type: String,
     },
     /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
     ShipSold {
@@ -165,6 +176,10 @@ pub struct ModuleSnap {
     pub slot: String,
     /// Outfitting symbol, lowercase (`int_hyperdrive_size5_class5`).
     pub item: String,
+    /// Powered on (`On`; missing counts as on).
+    pub on: bool,
+    /// Power priority group, 0–4 (`Priority`; the game shows it as 1–5).
+    pub priority: u8,
     pub engineering: Option<ModEngineering>,
 }
 
@@ -187,6 +202,23 @@ pub struct StoredShip {
     pub ship_type: String,
     pub name: Option<String>,
     pub system: Option<String>,
+    /// On its way to `system` (or to wherever it was last written, if `system` is `None`).
+    pub in_transit: bool,
+    pub value: Option<i64>,
+}
+
+/// One entry of `StoredModules`.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StoredModule {
+    /// Outfitting symbol, lowercase.
+    pub item: String,
+    pub localised: Option<String>,
+    /// `None` while in transit.
+    pub system: Option<String>,
+    pub value: Option<i64>,
+    /// Blueprint symbol and grade, if the stored module is engineered.
+    pub blueprint: Option<String>,
+    pub level: Option<u8>,
 }
 
 /// One engineer on `EngineerProgress`. `progress` is `Known`, `Invited`, `Acquainted` or
@@ -281,10 +313,19 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             max_jump_range: opt_f(&raw, "MaxJumpRange"),
             fuel_capacity_main: raw.get("FuelCapacity").and_then(|f| opt_f(f, "Main")),
             rebuy: opt_i(&raw, "Rebuy"),
+            hull_value: opt_i(&raw, "HullValue"),
+            modules_value: opt_i(&raw, "ModulesValue"),
             ship_id: opt_i(&raw, "ShipID"),
             modules: modules(&raw),
         },
         "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
+        "StoredModules" => JournalEvent::StoredModules { items: stored_modules(&raw) },
+        "ShipyardTransfer" => match opt_i(&raw, "ShipID") {
+            Some(ship_id) => {
+                JournalEvent::ShipTransfer { ship_id, ship_type: s(&raw, "ShipType").to_ascii_lowercase() }
+            }
+            None => JournalEvent::Other { event, raw },
+        },
         "ShipyardSell" => match opt_i(&raw, "SellShipID") {
             Some(ship_id) => JournalEvent::ShipSold { ship_id },
             None => JournalEvent::Other { event, raw },
@@ -398,6 +439,8 @@ fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
         .map(|m| ModuleSnap {
             slot: s(m, "Slot"),
             item: s(m, "Item").to_ascii_lowercase(),
+            on: m.get("On").and_then(|x| x.as_bool()).unwrap_or(true),
+            priority: opt_i(m, "Priority").unwrap_or(0).clamp(0, 4) as u8,
             engineering: m.get("Engineering").filter(|e| e.is_object()).map(|e| ModEngineering {
                 blueprint: s(e, "BlueprintName"),
                 level: opt_i(e, "Level").unwrap_or(0).clamp(0, 5) as u8,
@@ -417,16 +460,42 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
         .filter_map(|k| v.get(*k).and_then(|x| x.as_array()))
         .flatten()
         .filter_map(|x| {
+            let in_transit = x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false);
             Some(StoredShip {
                 ship_id: opt_i(x, "ShipID")?,
                 ship_type: s(x, "ShipType").to_ascii_lowercase(),
                 name: opt_s(x, "Name"),
                 // In transit: no system yet (not the one the list was written in).
+                system: if in_transit { None } else { opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")) },
+                in_transit,
+                value: opt_i(x, "Value"),
+            })
+        })
+        .collect()
+}
+
+fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
+    v.get("Items")
+        .and_then(|x| x.as_array())
+        .into_iter()
+        .flatten()
+        .filter_map(|x| {
+            Some(StoredModule {
+                // "$int_hyperdrive_size5_class5_name;" → "int_hyperdrive_size5_class5"
+                item: opt_s(x, "Name")?
+                    .trim_start_matches('$')
+                    .trim_end_matches(';')
+                    .trim_end_matches("_name")
+                    .to_ascii_lowercase(),
+                localised: opt_s(x, "Name_Localised"),
                 system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
                     None
                 } else {
-                    opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem"))
+                    opt_s(x, "StarSystem")
                 },
+                value: opt_i(x, "BuyPrice"),
+                blueprint: opt_s(x, "EngineerModifications"),
+                level: opt_i(x, "Level").map(|l| l.clamp(0, 5) as u8),
             })
         })
         .collect()
@@ -716,13 +785,15 @@ mod tests {
     #[test]
     fn loadout_modules_and_fleet_events() {
         let l = parse_line(
-            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Priority":2,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
         )
         .unwrap();
         match l.event {
             JournalEvent::Loadout { ship_id, modules, .. } => {
                 assert_eq!(ship_id, Some(7));
                 assert_eq!(modules[0].item, "int_hyperdrive_size5_class5");
+                assert!(modules[0].on);
+                assert_eq!(modules[0].priority, 2);
                 let e = modules[0].engineering.as_ref().unwrap();
                 assert_eq!((e.blueprint.as_str(), e.level, e.quality), ("FSD_LongRange", 4, 0.5));
                 assert_eq!(e.experimental.as_deref(), Some("special_fsd_heavy"));
@@ -744,7 +815,24 @@ mod tests {
             _ => panic!("expected StoredShips"),
         }
         let l = parse_line(r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true}]}"#).unwrap();
-        assert!(matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none()));
+        assert!(
+            matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none() && ships[0].in_transit)
+        );
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ShipTransfer { ship_id: 4, ship_type: "asp".into() });
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$int_hyperdrive_size5_class5_name;","Name_Localised":"FSD","StarSystem":"Sol","BuyPrice":100,"EngineerModifications":"FSD_LongRange","Level":3,"Quality":0.5},{"Name":"$hpt_x;","InTransit":true}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredModules { items } => {
+                assert_eq!(items.len(), 2);
+                assert_eq!(items[0].item, "int_hyperdrive_size5_class5");
+                assert_eq!((items[0].system.as_deref(), items[0].level), (Some("Sol"), Some(3)));
+                assert_eq!(items[1].system, None);
+            }
+            _ => panic!("expected StoredModules"),
+        }
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();
