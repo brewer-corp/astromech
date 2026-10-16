@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDDN commodity/3"
-updated_at: "2026-10-15T20:36:13.660178701+00:00"
+updated_at: "2026-10-16T19:15:44.543727774+00:00"
 ---
 
 ## Goal
