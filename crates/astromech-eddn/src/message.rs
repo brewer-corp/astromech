@@ -187,9 +187,9 @@ pub fn build(
 /// last location event. Returns the fix to augment from, or why the message must be dropped.
 pub fn cross_check<'a>(msg: &Map<String, Value>, fix: Option<&'a SystemFix>) -> Result<&'a SystemFix, Dropped> {
     let fix = fix.ok_or(Dropped::NoLocation)?;
-    let name = msg.get("StarSystem").map(|v| v.as_str());
     let address = msg.get("SystemAddress").map(|v| v.as_u64());
-    if name.is_none() && address.is_none() {
+    let names: Vec<&str> = SYSTEM_NAME_KEYS.iter().copied().filter(|k| msg.contains_key(*k)).collect();
+    if names.is_empty() && address.is_none() {
         return Err(Dropped::NoLocation);
     }
     if let Some(a) = address {
@@ -200,16 +200,17 @@ pub fn cross_check<'a>(msg: &Map<String, Value>, fix: Option<&'a SystemFix>) -> 
             )));
         }
     }
-    if let Some(n) = name {
-        if n != Some(fix.name.as_str()) {
-            return Err(Dropped::LocationMismatch(format!(
-                "StarSystem {} vs last location {:?}",
-                msg["StarSystem"], fix.name
-            )));
+    for k in names {
+        if msg[k].as_str() != Some(fix.name.as_str()) {
+            return Err(Dropped::LocationMismatch(format!("{k} {} vs last location {:?}", msg[k], fix.name)));
         }
     }
     Ok(fix)
 }
+
+/// Keys that name the message's system: `StarSystem` in most events, `SystemName` in
+/// `FSSDiscoveryScan`/`FSSAllBodiesFound`, `System` in `CodexEntry`. Every one present is checked.
+const SYSTEM_NAME_KEYS: &[&str] = &["StarSystem", "SystemName", "System"];
 
 /// Remove every key ending in `_Localised`, at any depth.
 pub fn strip_localised(m: &mut Map<String, Value>) {
@@ -411,6 +412,18 @@ mod tests {
         // Name matches, address doesn't: still a mismatch.
         let scan = json!({"event":"Scan","StarSystem":"Shinrarta Dezhra","SystemAddress":2u64});
         assert!(matches!(build(&SPEC, &live(), &sw(), false, scan), Err(Dropped::LocationMismatch(_))));
+    }
+
+    #[test]
+    fn every_system_name_key_is_cross_checked() {
+        let fix = live().system;
+        for k in ["StarSystem", "SystemName", "System"] {
+            let mut m = Map::new();
+            m.insert(k.into(), json!("Lave"));
+            assert!(matches!(cross_check(&m, fix.as_ref()), Err(Dropped::LocationMismatch(_))), "{k}");
+            m.insert(k.into(), json!("Shinrarta Dezhra"));
+            assert!(cross_check(&m, fix.as_ref()).is_ok(), "{k} alone is enough to check against");
+        }
     }
 
     #[test]

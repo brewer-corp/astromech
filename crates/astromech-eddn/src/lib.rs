@@ -8,17 +8,24 @@
 //!   data stripped, per-schema elisions ([`SchemaSpec`]), the augmentation cross-check, gzip and
 //!   the 1 MiB limit;
 //! - [`outbox`]: the SQLite outbox with retry and backoff, and the send log Diagnostics shows;
-//! - [`transport`]: the HTTP upload, behind a trait.
+//! - [`transport`]: the HTTP upload, behind a trait;
+//! - [`journal`]: `journal/1` (`Docked`, `FSDJump`, `Scan`, `Location`, `SAASignalsFound`,
+//!   `CarrierJump`);
+//! - [`events`]: the event-specific schemas (`fssdiscoveryscan`, `fsssignaldiscovered` batched
+//!   per run, `codexentry`, `navroute`, …).
 //!
 //! Each schema slice (commodity/3, journal/1, …) defines its [`SchemaSpec`] and maps its journal
 //! event to the schema's shape before calling [`Sender::submit`].
 
 pub mod context;
+pub mod events;
+pub mod journal;
 pub mod message;
 pub mod outbox;
 pub mod transport;
 
 pub use context::{GameContext, SystemFix};
+pub use events::{EventSchemas, Outgoing};
 pub use message::{Augment, Dropped, Elision, SchemaSpec, Software, SystemField};
 pub use outbox::{Delivery, LogEntry, Outbox, Outcome};
 pub use transport::{HttpTransport, Response, Transport, UPLOAD_URL};
