@@ -26,9 +26,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDDN sender core"
-updated_at: "2026-10-15T20:36:13.659763417+00:00"
+updated_at: "2026-10-16T18:27:56.445131623+00:00"
 ---
 
 ## Goal

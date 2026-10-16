@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646802031+00:00"
 id: "astromech-tyjz"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-tyjz
 priority: "P0"
 relationships:
   blocks:
@@ -34,7 +37,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDDN sender"
-updated_at: "2026-10-16T18:26:24.889278273+00:00"
+updated_at: "2026-10-16T18:27:56.445127064+00:00"
 ---
 
 ## Goal
