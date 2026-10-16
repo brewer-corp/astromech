@@ -74,7 +74,7 @@ fn imports_every_line_once() {
     assert_eq!(r.events, 46);
     assert_eq!(h.event_count().unwrap(), 46);
     let total: u64 = journal_logs_size();
-    assert_eq!(r.bytes, total);
+    assert_eq!((r.bytes, r.bytes_total), (total, total));
     // Nothing new: nothing read, nothing stored.
     let again = h.import(&fixtures(), &ImportOptions::default()).unwrap();
     assert_eq!(again, ImportReport::default());
@@ -203,6 +203,18 @@ fn scans_ledger() {
             scan("2026-09-02T10:40:00Z", "organic", "Alpha Centauri A 1", 4, Some("Bacterium Aurasus")),
         ]
     );
+}
+
+#[test]
+fn import_reports_progress() {
+    let mut h = History::in_memory().unwrap();
+    let mut seen = vec![];
+    let opts = ImportOptions { batch_lines: 10, ..Default::default() };
+    let r = h.import_with(&fixtures(), &opts, |p| seen.push(p.clone())).unwrap();
+    assert_eq!((seen[0].bytes, seen[0].bytes_total), (0, journal_logs_size()));
+    assert!(seen.windows(2).all(|w| w[0].bytes <= w[1].bytes && w[0].lines <= w[1].lines));
+    assert!(seen.len() > 4, "after each batch and each file: {}", seen.len());
+    assert_eq!(seen.last(), Some(&r));
 }
 
 /// The done-when: kill the import at every possible line, restart it on the same database

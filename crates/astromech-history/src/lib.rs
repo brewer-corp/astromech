@@ -226,6 +226,9 @@ pub struct ImportReport {
     pub files: usize,
     pub lines: u64,
     pub bytes: u64,
+    /// Bytes not imported yet when the run started (the most it will read; an unfinished last
+    /// line stays behind), for a progress bar.
+    pub bytes_total: u64,
     /// New rows in `events`.
     pub events: u64,
     /// Lines that are not a journal event (bad JSON, no `event` or `timestamp`); skipped.
@@ -319,28 +322,42 @@ impl History {
     /// Import every complete line not imported yet from the `Journal.*.log` files in `dir`,
     /// oldest file first.
     pub fn import(&mut self, dir: &Path, opts: &ImportOptions) -> Result<ImportReport> {
+        self.import_with(dir, opts, |_| {})
+    }
+
+    /// [`History::import`], calling `progress` with the report so far after every batch.
+    pub fn import_with(
+        &mut self,
+        dir: &Path,
+        opts: &ImportOptions,
+        mut progress: impl FnMut(&ImportReport),
+    ) -> Result<ImportReport> {
         self.run_pending()?;
         let mut report = ImportReport::default();
+        let mut todo = vec![];
+        for path in astromech_journal::journal_logs(dir) {
+            let len = std::fs::metadata(&path).map_err(|source| HistoryError::Io { path: path.clone(), source })?.len();
+            let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+            let (file_id, start, state) = self.file_state(&name)?;
+            if len < start {
+                report.shrunk.push(name);
+            } else if len > start {
+                report.bytes_total += len - start;
+                todo.push((path, file_id, start, state));
+            }
+        }
+        progress(&report);
         let mut seen = 0u64;
         // Per commander, the newest event time its ledgers hold.
         let mut newest: HashMap<String, String> = HashMap::new();
-        for path in astromech_journal::journal_logs(dir) {
+        for (path, file_id, start, mut state) in todo {
             let io = |source| HistoryError::Io { path: path.clone(), source };
-            let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-            let len = std::fs::metadata(&path).map_err(io)?.len();
-            let (file_id, start, mut state) = self.file_state(&name)?;
-            if len < start {
-                report.shrunk.push(name);
-                continue;
-            }
-            if len == start {
-                continue;
-            }
             let mut file = std::fs::File::open(&path).map_err(io)?;
             file.seek(SeekFrom::Start(start)).map_err(io)?;
             let mut reader = BufReader::with_capacity(1 << 16, file);
             let mut buf = Vec::with_capacity(4096);
             let mut pos = start;
+            let mut committed = start;
             let mut batch = 0usize;
             let mut file_lines = 0u64;
             let mut tx = self.conn.transaction()?;
@@ -354,6 +371,7 @@ impl History {
                     return Err(HistoryError::Crashed); // `tx` drops: the open batch rolls back
                 }
                 seen += 1;
+                report.lines += 1;
                 let offset = pos;
                 pos += n as u64;
                 file_lines += 1;
@@ -387,6 +405,9 @@ impl History {
                 if batch >= opts.batch_lines.max(1) {
                     set_progress(&tx, file_id, pos, file_lines, &state)?;
                     tx.commit()?;
+                    report.bytes += pos - committed;
+                    committed = pos;
+                    progress(&report);
                     tx = self.conn.transaction()?;
                     file_lines = 0;
                     batch = 0;
@@ -394,12 +415,12 @@ impl History {
             }
             set_progress(&tx, file_id, pos, file_lines, &state)?;
             tx.commit()?;
+            report.bytes += pos - committed;
             if pos > start {
                 report.files += 1;
-                report.bytes += pos - start;
             }
+            progress(&report);
         }
-        report.lines = seen;
         self.run_pending()?;
         Ok(report)
     }

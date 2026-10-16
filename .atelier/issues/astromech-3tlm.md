@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Keep the journal history current from the core"
-updated_at: "2026-10-16T19:44:54.109968208+00:00"
+updated_at: "2026-10-16T20:01:28.288015583+00:00"
 ---
 
 ## Goal

@@ -148,6 +148,7 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-gamestate",
+ "astromech-history",
  "astromech-input",
  "astromech-intent",
  "astromech-journal",
