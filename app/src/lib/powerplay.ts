@@ -1,10 +1,12 @@
 /**
  * Powerplay from the journal (the shell replays it): the commander's standing and the current
- * system's Powerplay state.
+ * system's Powerplay state; and the pledged power's nearby targets (Spansh, through the shell).
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/powerplay.json";
+import sampleTargets from "./fixtures/powerplay-targets.json";
+import type { Filters, Origin } from "./search";
 
 export interface NextRank {
   rank: number;
@@ -88,4 +90,65 @@ export function until(iso: string, now = Date.now()): string {
   const d = Math.floor(s / 86400);
   const h = Math.floor((s % 86400) / 3600);
   return d ? `${d} d ${h} h` : `${h} h ${Math.floor((s % 3600) / 60)} min`;
+}
+
+/** Kinds of nearby target (astromech_galaxy::Target). */
+export type Target = "acquire" | "reinforce" | "undermine";
+
+export const TARGETS: { id: Target; title: string; busy: string }[] = [
+  { id: "acquire", title: "Acquire", busy: "Looking for unoccupied systems your power can take…" },
+  { id: "reinforce", title: "Reinforce", busy: "Looking for your power's systems…" },
+  { id: "undermine", title: "Undermine", busy: "Looking for other powers' systems…" },
+];
+
+export interface TargetHit {
+  name: string;
+  id64: number;
+  ly: number;
+  jumps: number;
+  exact: boolean;
+  controlling_power: string | null;
+  state: string | null;
+  control_progress: number | null;
+  reinforcement: number | null;
+  undermining: number | null;
+  /** Unoccupied systems: the pledged power's acquisition progress. */
+  acquisition: number | null;
+  others: string[];
+  updated_at: string | null;
+}
+
+export interface Targets {
+  target: Target;
+  power: string;
+  here: { system: string; pos: [number, number, number] };
+  range: number;
+  within_ly: number;
+  fetched: string;
+  hits: TargetHit[];
+  warning?: string;
+}
+
+/** The pledged power's `target` systems within `withinLy` of `origin` (or the commander). */
+export async function loadTargets(target: Target, origin: Origin, filters: Filters | null, withinLy: number): Promise<Targets> {
+  if (!inTauri) {
+    const s = (sampleTargets as unknown as Record<Target, Targets>)[target];
+    const hits = s.hits.filter((h) => h.ly <= withinLy);
+    return { ...s, hits, within_ly: withinLy, here: origin ? { ...s.here, system: origin } : s.here };
+  }
+  return await invoke<Targets>("powerplay_targets", { target, origin, filters, withinLy });
+}
+
+/** The row detail: state and progress, and which other powers are there besides `power`. */
+export function targetDetail(h: TargetHit, power: string): string {
+  const parts: string[] = [];
+  if (h.controlling_power) {
+    parts.push(`${h.controlling_power} ${h.state?.toLowerCase() ?? ""} ${pct(h.control_progress)}`.replace(/\s+/g, " ").trim());
+    if (h.reinforcement != null && h.undermining != null) parts.push(`reinforcement ${num(h.reinforcement)} / undermining ${num(h.undermining)}`);
+  } else {
+    parts.push(`Unoccupied, acquisition ${pct(h.acquisition)}`);
+  }
+  const others = h.others.filter((p) => p !== power);
+  if (others.length) parts.push(`also ${others.join(", ")}`);
+  return parts.join(" · ");
 }

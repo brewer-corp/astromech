@@ -240,7 +240,8 @@ astromech/
                          cycle, next rank and reward), the system's state on arrival and its spoken
                          line; rank rules from data/catalog/powerplay.json
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
-                         Spansh faction-state lookups (Famine, HGE pools), position from the journal;
+                         Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
+                         (acquire / reinforce / undermine for the pledged power), position from the journal;
                          its network calls go through astromech-data
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
@@ -1689,7 +1690,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
 | **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?" |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
-| Toolbox S4 | **Powerplay** | `astromech-powerplay` | "What's my Powerplay rank?", "who controls this system?" |
+| Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?" |
 | M8+ | Missions/CGs, Fleet carrier, Galaxy map, 3D ship | — | Deferred |
 
 Each module ships with its voice queries in the same release: a module isn't "done" until its `voice_exposed` queries have phrase templates and tests.

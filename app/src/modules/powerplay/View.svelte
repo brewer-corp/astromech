@@ -1,7 +1,9 @@
 <script lang="ts">
-  // Powerplay for daily use, from the journal: my standing and the current system's state.
+  // Powerplay for daily use: my standing and the current system's state from the journal, and
+  // where my power wants work nearby (Spansh).
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import Targets from "./Targets.svelte";
 
   let ov = $state<Overview | null>(null);
   let err = $state<string | null>(null);
@@ -93,6 +95,15 @@
         {/if}
       </dl>
       <p class="lo small">As of your last jump. The game shows this in the system map, not on the HUD.</p>
+    {/if}
+  </div>
+
+  <div class="panel">
+    <h3>Where to work</h3>
+    {#if st && !st.power}
+      <p class="lo">Pledge to a power to see where it wants work.</p>
+    {:else}
+      <Targets />
     {/if}
   </div>
 </section>

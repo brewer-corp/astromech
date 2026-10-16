@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Nearby Powerplay targets"
-updated_at: "2026-10-15T20:36:13.655892700+00:00"
+updated_at: "2026-10-16T20:43:46.393110088+00:00"
 ---
 
 ## Goal
