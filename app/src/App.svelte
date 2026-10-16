@@ -6,8 +6,10 @@
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
 
   const DEFAULT = "activities";
-  let route = $state(location.hash.replace(/^#\//, "") || DEFAULT);
-  const current = $derived(findModule(route) ?? findModule(DEFAULT));
+  const readRoute = () => location.hash.replace(/^#\//, "") || DEFAULT;
+  let route = $state(readRoute());
+  // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
+  const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
@@ -16,6 +18,12 @@
     route = id;
     location.hash = `#/${id}`;
   }
+
+  $effect(() => {
+    const onHash = () => (route = readRoute());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   $effect(() => {
     onRoute((r) => go(r || DEFAULT));

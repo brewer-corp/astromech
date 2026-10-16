@@ -17,6 +17,8 @@ relationships:
   - kind: "issue"
     id: "astromech-3njr"
   - kind: "issue"
+    id: "astromech-9243"
+  - kind: "issue"
     id: "astromech-mycc"
   - kind: "issue"
     id: "astromech-ojwr"
@@ -41,7 +43,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ships page with live build stats"
-updated_at: "2026-10-16T18:30:37.947145766+00:00"
+updated_at: "2026-10-16T19:21:37.805541102+00:00"
 ---
 
 ## Goal

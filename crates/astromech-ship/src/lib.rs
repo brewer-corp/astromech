@@ -17,6 +17,7 @@
 pub mod data;
 mod module;
 
+use astromech_engineering::{planned_modules, Target};
 use astromech_journal::ModuleSnap;
 use module::{Module, Unapplied};
 use serde::Serialize;
@@ -25,6 +26,42 @@ use serde::Serialize;
 pub enum Error {
     #[error("unknown ship {0:?}")]
     UnknownShip(String),
+    #[error("no loadout for this ship in the journal")]
+    NoLoadout,
+}
+
+/// A ship's stats as fitted and once its build plan is done.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Comparison {
+    pub current: Side,
+    pub planned: Side,
+}
+
+/// One build's stats, with the figures the Ships page shows that are worked out from them.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Side {
+    #[serde(flatten)]
+    pub stats: ShipStats,
+    /// Seconds of fire with four pips to weapons until the weapon capacitor is empty.
+    pub time_to_drain: Option<f64>,
+}
+
+impl From<ShipStats> for Side {
+    fn from(stats: ShipStats) -> Self {
+        Side { time_to_drain: stats.time_to_drain(4.0), stats }
+    }
+}
+
+/// Current stats of a fleet ship and its stats with `targets` done
+/// ([`astromech_engineering::planned_modules`]).
+pub fn compare(ship: &astromech_engineering::Ship, targets: &[Target]) -> Result<Comparison, Error> {
+    if ship.loadout.is_empty() {
+        return Err(Error::NoLoadout);
+    }
+    Ok(Comparison {
+        current: stats(&ship.ship_type, &ship.loadout)?.into(),
+        planned: stats(&ship.ship_type, &planned_modules(&ship.loadout, targets))?.into(),
+    })
 }
 
 /// Everything the Ships page shows for one build.
@@ -351,6 +388,7 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
             for u in module.engineer(&m.item, e) {
                 unresolved.push(match u {
                     Unapplied::Blueprint(b) => format!("{}: blueprint {b}", m.slot),
+                    Unapplied::Grade(b, g) => format!("{}: blueprint {b} grade {g}", m.slot),
                     Unapplied::Experimental(x) => format!("{}: experimental {x}", m.slot),
                 });
             }
@@ -585,8 +623,17 @@ mod tests {
             experimental_localised: None,
             engineer: None,
         });
+        let mut pp = snap("PowerPlant", "int_powerplant_size7_class5");
+        pp.engineering = Some(ModEngineering {
+            blueprint: "PowerPlant_Boosted".into(),
+            level: 0,
+            quality: 1.0,
+            experimental: None,
+            experimental_localised: None,
+            engineer: None,
+        });
         let modules = [
-            snap("PowerPlant", "int_powerplant_size7_class5"),
+            pp,
             fsd,
             snap("Slot01_Size6", "int_not_a_module"),
             snap("PaintJob", "paintjob_krait_mkii_militaire_earth_yellow"),
@@ -595,6 +642,7 @@ mod tests {
         assert_eq!(
             s.unresolved,
             [
+                "PowerPlant: blueprint PowerPlant_Boosted grade 0",
                 "FrameShiftDrive: blueprint FSD_Imaginary",
                 "FrameShiftDrive: experimental special_imaginary",
                 "Slot01_Size6: int_not_a_module"

@@ -13,7 +13,7 @@ pub mod trip;
 
 pub use engineers::EngineerView;
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, Stored};
-pub use plan::{evaluate, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
+pub use plan::{evaluate, planned_modules, FarmStep, MatLine, Plan, PlanResult, Rolls, Target, TargetCost, Trade};
 pub use trip::{plan_trip, Hop, Trip};
 
 /// Fleet read from the crate's fake journal fixtures (app window sample).
@@ -451,5 +451,55 @@ mod tests {
         let c = plan::cost_target(krait, &t("FrameShiftDrive", "Engine_Dirty", 5), &rolls);
         assert!(c.note.unwrap().contains("cannot take"));
         assert!(c.materials.is_empty());
+    }
+    #[test]
+    fn planned_modules_follow_the_plan_like_the_game() {
+        let f = from_journal_dir(&fixture_dir());
+        let krait = f.ships.iter().find(|s| s.id == 7).unwrap();
+        let t = |slot: &str, bp: &str, g, x: Option<&str>| Target {
+            slot: slot.into(),
+            blueprint: bp.into(),
+            grade: g,
+            experimental: x.map(Into::into),
+        };
+        let eng = |mods: &[astromech_journal::ModuleSnap], slot: &str| {
+            let e = mods.iter().find(|m| m.slot == slot).unwrap().engineering.clone();
+            e.map(|e| (e.blueprint, e.level, e.quality, e.experimental))
+        };
+        // Up to the target grade, fully rolled, with the target's experimental.
+        let p = planned_modules(&krait.loadout, &[t("FrameShiftDrive", "fsd_longrange", 5, Some("special_fsd_heavy"))]);
+        assert_eq!(
+            eng(&p, "FrameShiftDrive"),
+            Some(("FSD_LongRange".into(), 5, 1.0, Some("special_fsd_heavy".into())))
+        );
+        // Already above the target on the same blueprint: grade, roll and experimental stay.
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Dirty", 2, None)]);
+        assert_eq!(
+            eng(&p, "MainEngines"),
+            Some(("Engine_Dirty".into(), 3, 0.5, Some("special_engine_overloaded".into())))
+        );
+        // Same blueprint, higher grade: the experimental stays; another blueprint drops it.
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Dirty", 5, None)]);
+        assert_eq!(
+            eng(&p, "MainEngines"),
+            Some(("Engine_Dirty".into(), 5, 1.0, Some("special_engine_overloaded".into())))
+        );
+        let p = planned_modules(&krait.loadout, &[t("MainEngines", "Engine_Reinforced", 5, None)]);
+        assert_eq!(eng(&p, "MainEngines"), Some(("Engine_Reinforced".into(), 5, 1.0, None)));
+        // A grade past the blueprint's top clamps to it; an experimental the module can't take is
+        // ignored; targets cost_target rejects change nothing.
+        let p = planned_modules(
+            &krait.loadout,
+            &[
+                t("TinyHardpoint1", "ShieldBooster_Thermic", 9, Some("special_fsd_heavy")),
+                t("FrameShiftDrive", "Engine_Dirty", 5, None),
+                t("PowerPlant", "Not_A_Blueprint", 5, None),
+                t("Slot09_Size1", "FSD_LongRange", 5, None),
+            ],
+        );
+        assert_eq!(eng(&p, "TinyHardpoint1"), Some(("ShieldBooster_Thermic".into(), 5, 1.0, None)));
+        assert_eq!(eng(&p, "FrameShiftDrive"), eng(&krait.loadout, "FrameShiftDrive"));
+        assert_eq!(eng(&p, "PowerPlant"), eng(&krait.loadout, "PowerPlant"));
+        assert_eq!(p.len(), krait.loadout.len());
     }
 }

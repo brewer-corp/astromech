@@ -1,11 +1,13 @@
 <script lang="ts">
-  // Build planner for one ship of the fleet: set a blueprint / grade / experimental per
-  // module, and see the materials it costs against the inventory, trades and what to farm.
+  // Ship detail: the build plan for one ship of the fleet (blueprint / grade / experimental per
+  // module), its stats now and with the plan done, and the materials it costs against the
+  // inventory, trades, what to farm and the engineer trip.
   import { untrack } from "svelte";
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shipTitle,
-    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
+    DEFAULT_ROLLS, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shipStats, shipTitle,
+    type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
+  import Stats from "./Stats.svelte";
   import { jumps } from "../../lib/galaxy";
   import Nearby from "../../lib/ui/Nearby.svelte";
 
@@ -21,6 +23,9 @@
   let engineers = $state<Engineers | null>(null);
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
+  let stats = $state<StatsComparison | null>(null);
+  let statsNote = $state<string | null>(null);
+  let statsSeq = 0;
 
   const ship = $derived(fleet.ships.find((s) => s.id === shipId));
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet.groups[m.group]) ?? []);
@@ -77,6 +82,25 @@
         if (mine !== seq) return;
         result = null;
         failed = String(e);
+      });
+  });
+
+  // Stats now and with the plan done, on every plan edit and fleet re-read.
+  $effect(() => {
+    const p = plan;
+    void fleet;
+    if (!p) return;
+    const mine = ++statsSeq;
+    shipStats($state.snapshot(p) as Plan)
+      .then((r) => {
+        if (mine !== statsSeq) return;
+        stats = r;
+        statsNote = r ? null : "Ship stats are worked out in the app. Outside it, only the sample Krait's sample plans have them.";
+      })
+      .catch((e: unknown) => {
+        if (mine !== statsSeq) return;
+        stats = null;
+        statsNote = String(e);
       });
   });
 
@@ -194,26 +218,25 @@
   {:else if ship && plan}
     <div class="main">
       <div class="mods">
-        <div class="h">Slot</div><div class="h">Module</div><div class="h">Now</div><div class="h">Blueprint</div><div class="h">Grade</div><div class="h">Experimental</div>
+        <div class="h">Slot</div><div class="h">Module · now</div><div class="h">Blueprint</div><div class="h">Grade</div><div class="h">Experimental</div>
         {#each mods as m (m.slot)}
           {@const t = target(m.slot)}
           {@const g = fleet.groups[m.group ?? ""]}
           <div class="slot">{m.slot_name}</div>
-          <div>{m.name}</div>
-          <div class="lo">{current(m)}</div>
-          <select class:idle={!t} value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
+          <div class="mod">{m.name}<span class="lo">{current(m)}</span></div>
+          <select aria-label="{m.slot_name} blueprint" class:idle={!t} value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
             <option value="">No change</option>
             {#each g?.blueprints ?? [] as b (b.id)}
               <option value={b.id}>{b.name}</option>
             {/each}
           </select>
-          <select disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
+          <select aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
             {#if !t}<option value="">–</option>{/if}
             {#each Array.from({ length: maxGrade(m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
               <option value={n}>G{n}</option>
             {/each}
           </select>
-          <select disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
+          <select aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
             <option value="">{g?.experimentals.length ? "None" : "–"}</option>
             {#each g?.experimentals ?? [] as x (x.id)}
               <option value={x.id}>{x.name}</option>
@@ -310,7 +333,12 @@
     </div>
   {/if}
 
+  <div class="side">
+  {#if !(selFarm || sel) && ship?.loadout_ts}
+    <section class="panel" aria-label="Ship stats"><Stats {stats} note={statsNote} /></section>
+  {/if}
   <aside class="about">
+    {#if selFarm || sel}<button class="link back" onclick={() => (selMat = null)}>← Ship stats</button>{/if}
     {#if selFarm && !sel}
       <h3>{selFarm.name}</h3>
       <p>Grade {selFarm.grade} · collect {selFarm.collect}{selFarm.then?.length ? ", then trade (topping up from stock):" : ""}</p>
@@ -365,10 +393,12 @@
       <p class="lo">Trades only spend what the plan doesn't need: 6:1 per grade up, 1:3 per grade down, ×6 across categories.</p>
     {/if}
   </aside>
+  </div>
 </section>
 
 <style>
-  section { padding: 8px 0 28px; display: grid; grid-template-columns: 1fr 17rem; grid-template-rows: auto auto 1fr; gap: 0 40px; min-height: 0; }
+  section { padding: 8px 0 28px; display: grid; grid-template-columns: minmax(0, 1fr) 21rem; grid-template-rows: auto auto 1fr; gap: 0 32px; min-height: 0; }
+  section.panel { display: block; padding: 0 0 18px; }
   .acts, .sub, .wide { grid-column: 1 / -1; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
@@ -376,11 +406,13 @@
   .acts button:hover { color: var(--text); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
   .main { min-width: 0; }
-  .mods { display: grid; grid-template-columns: 9rem minmax(10rem, 1.2fr) minmax(9rem, 1fr) 11rem 4.5rem 10rem; gap: var(--gap) 10px; align-items: center; }
+  .mods { display: grid; grid-template-columns: 8.5rem minmax(9rem, 1fr) 10.5rem 4rem 9.5rem; gap: var(--gap) 10px; align-items: center; }
+  .mod { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+  .mod .lo { font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .h { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-bottom: 4px; }
   .r { text-align: right; }
   .slot { color: var(--text-lo); font-size: var(--fs-s); }
-  .cost { grid-column: 4 / -1; color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); margin: -2px 0 6px; }
+  .cost { grid-column: 3 / -1; color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); margin: -2px 0 6px; }
   .span { grid-column: 1 / -1; }
   select { all: unset; height: 30px; line-height: 30px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   select.idle { background: var(--cell-empty); color: var(--text); }
@@ -404,7 +436,8 @@
 
   .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
-  .about { border-left: 2px solid var(--accent); padding-left: 24px; grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; }
+  .side { grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 2px solid var(--accent); padding-left: 16px; }
+  .back { display: block; margin-bottom: 10px; color: var(--text-lo); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 8px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }

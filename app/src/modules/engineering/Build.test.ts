@@ -1,0 +1,141 @@
+// Ship detail component tests. The stats come from the fixture astromech-ship's dump-fixture
+// example writes (lib/fixtures/ships.json): the synthetic Krait MkII combat build and its stats
+// for each build plan. The expected numbers are what Coriolis shows for those builds, the same
+// values crates/astromech-ship/tests/coriolis.rs checks (krait_mkii_combat and plan_*); a change
+// is the planned value minus the current one, both as shown.
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
+import ships from "../../lib/fixtures/ships.json";
+import type { Fleet, Plan, StatsComparison } from "../../lib/engineering";
+import Build from "./Build.svelte";
+
+const asked: Plan[] = [];
+/** Answer every plan with this instead of the fixture. */
+let override: StatsComparison | null = null;
+
+vi.mock("../../lib/engineering", async (importActual) => {
+  const real = await importActual<typeof import("../../lib/engineering")>();
+  return {
+    ...real,
+    // The shell's engineering_stats, answered from the fixture: a plan it doesn't have fails.
+    shipStats: async (plan: Plan): Promise<StatsComparison | null> => {
+      asked.push(plan);
+      if (override) return override;
+      if (plan.ship_id !== ships.fleet.ships[0]!.id) return null;
+      const c = ships.cases.find((c) => real.samePlan(c.plan as unknown as Plan, plan));
+      if (!c) throw new Error(`no fixture stats for ${JSON.stringify(plan.targets)}`);
+      return c.stats as unknown as StatsComparison;
+    },
+  };
+});
+
+const fleet = ships.fleet as unknown as Fleet;
+const krait = fleet.ships[0]!.id;
+
+/** Now, Plan and Change for one stat. */
+function stat(group: string, label: string): string[] {
+  const g = screen.getByRole("rowgroup", { name: group });
+  const th = within(g).getByRole("rowheader", { name: label });
+  return [...th.parentElement!.querySelectorAll("td")].map((td) => td.textContent ?? "");
+}
+
+async function pick(label: string, value: string) {
+  await fireEvent.change(screen.getByRole("combobox", { name: label }), { target: { value } });
+}
+
+beforeEach(() => {
+  localStorage.clear();
+  asked.length = 0;
+  override = null;
+});
+afterEach(cleanup);
+
+describe("ship detail stats", () => {
+  it("shows current stats as the plan until the plan changes", async () => {
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    await waitFor(() => expect(stat("Distributor", "WEP capacity (MJ)")).toEqual(["92.2", "92.2", ""]));
+    expect(stat("Jump range (ly)", "Max")).toEqual(["24.87", "24.87", ""]);
+    expect(stat("Shields", "Strength (MJ)")).toEqual(["1428", "1428", ""]);
+    expect(stat("Shields", "Thermal")).toEqual(["36.2", "36.2", ""]);
+    expect(stat("Distributor", "Time to drain")).toEqual(["1:10", "1:10", ""]);
+    expect(stat("Weapons and hull", "DPS")).toEqual(["107.2", "107.2", ""]);
+    expect(screen.queryByText(/Incomplete/)).toBeNull();
+  });
+
+  it("switching the distributor experimental changes drain against recharge", async () => {
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    await waitFor(() => screen.getByRole("rowgroup", { name: "Distributor" }));
+    // Weapon focused G5 with the fitted Super Conduits, rolled to 100 % (plan_pd_super_conduits).
+    await pick("Power distributor blueprint", "PowerDistributor_PriorityWeapons");
+    await waitFor(() => expect(stat("Distributor", "WEP capacity (MJ)")).toEqual(["92.2", "93.7", "+1.5"]));
+    expect(stat("Distributor", "WEP recharge (MW)")).toEqual(["9.0", "9.1", "+0.1"]);
+    expect(stat("Distributor", "Time to drain")).toEqual(["1:10", "1:18", "+0:08"]);
+    // Then Cluster Capacitors (plan_pd_cluster_capacitors): more capacity, slower recharge.
+    await pick("Power distributor experimental", "special_powerdistributor_capacity");
+    await waitFor(() => expect(stat("Distributor", "WEP capacity (MJ)")).toEqual(["92.2", "105.4", "+13.2"]));
+    expect(stat("Distributor", "WEP recharge (MW)")).toEqual(["9.0", "8.6", "-0.4"]);
+    expect(stat("Distributor", "Time to drain")).toEqual(["1:10", "1:01", "-0:09"]);
+    expect(stat("Distributor", "SYS recharge (MW)")).toEqual(["4.0", "3.7", "-0.3"]);
+    expect(asked.at(-1)!.targets).toEqual([
+      { slot: "PowerDistributor", blueprint: "PowerDistributor_PriorityWeapons", grade: 5, experimental: "special_powerdistributor_capacity" },
+    ]);
+  });
+
+  it("switching the FSD blueprint changes the jump range", async () => {
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    await waitFor(() => screen.getByRole("rowgroup", { name: "Jump range (ly)" }));
+    // Faster boot sequence G5, keeping Mass Manager (plan_fsd_fast_boot).
+    await pick("Frame shift drive blueprint", "FSD_FastBoot");
+    await waitFor(() => expect(stat("Jump range (ly)", "Max")).toEqual(["24.87", "18.71", "-6.16"]));
+    expect(stat("Jump range (ly)", "Full tank")).toEqual(["24.05", "18.09", "-5.96"]);
+    expect(stat("Jump range (ly)", "Laden")).toEqual(["23.15", "17.41", "-5.74"]);
+    expect(stat("Jump range (ly)", "Total")).toEqual(["163.74", "123.19", "-40.55"]);
+    expect(stat("Ship", "Mass (t)")).toEqual(["820", "814", "-6"]);
+  });
+
+  it("each thermal-resistant booster raises thermal resistance and lowers shield strength", async () => {
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    await waitFor(() => screen.getByRole("rowgroup", { name: "Shields" }));
+    // Three thermal-resistant boosters instead of two (plan_thermal_boosters_3)...
+    await pick("Utility 1 blueprint", "ShieldBooster_Thermic");
+    await waitFor(() => expect(stat("Shields", "Thermal")).toEqual(["36.2", "43.9", "+7.7"]));
+    expect(stat("Shields", "Strength (MJ)")).toEqual(["1428", "1197", "-231"]);
+    expect(stat("Shields", "Kinetic")).toEqual(["43.4", "41.2", "-2.2"]);
+    // ...then four (plan_thermal_boosters_4).
+    await pick("Utility 2 blueprint", "ShieldBooster_Thermic");
+    await waitFor(() => expect(stat("Shields", "Thermal")).toEqual(["36.2", "49.5", "+13.3"]));
+    expect(stat("Shields", "Strength (MJ)")).toEqual(["1428", "967", "-461"]);
+    expect(stat("Shields", "Explosive")).toEqual(["52.9", "49.0", "-3.9"]);
+  });
+
+  it("marks the ship incomplete when the calculations leave something out", async () => {
+    const c = structuredClone(ships.cases[0]!.stats) as unknown as StatsComparison;
+    c.current.unresolved = ["MainEngines: int_engine_size9_class9"];
+    c.planned.unresolved = ["MainEngines: int_engine_size9_class9"];
+    override = c;
+    render(Build, { fleet, shipId: krait, onback: () => {} });
+    const warn = await screen.findByText(/Incomplete: 1 item isn't in the ship data/);
+    expect(warn.getAttribute("title")).toBe("MainEngines: int_engine_size9_class9");
+  });
+});
+
+describe("ship detail panels", () => {
+  it("still shows the shopping list, trades or farming, the engineer trip and material details", async () => {
+    const { loadFleet } = await import("../../lib/engineering");
+    const sample = await loadFleet();
+    // The sample journal's Krait (id 7) and its sample plan, as on the Builds page.
+    render(Build, { fleet: sample, shipId: 7, onback: () => {} });
+    await screen.findByRole("heading", { name: "Shopping list" });
+    expect(screen.getByRole("heading", { name: "Trade at a material trader" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Still to collect" })).toBeTruthy();
+    await screen.findByRole("heading", { name: "Engineer trip" });
+    expect(screen.getByText("Ship stats are worked out in the app. Outside it, only the sample Krait's sample plans have them.")).toBeTruthy();
+    const first = document.querySelector<HTMLButtonElement>("button.mrow")!;
+    const name = first.querySelector(".mn")!.textContent!.replace(/^G\d /, "").replace(" ⚠", "");
+    await fireEvent.click(first);
+    expect(screen.getByRole("heading", { level: 3, name })).toBeTruthy();
+    expect(screen.getByText(/^Used by:/)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "← Ship stats" }));
+    expect(screen.getByRole("heading", { level: 3, name: "Engineering" })).toBeTruthy();
+  });
+});

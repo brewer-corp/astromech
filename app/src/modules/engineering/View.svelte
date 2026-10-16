@@ -1,11 +1,22 @@
 <script lang="ts">
   // Ships page: a dense card per ship of the journal fleet, and the modules in storage with
-  // where they are. Opening a card shows that ship's build plan (Build.svelte).
+  // where they are. Opening a card shows that ship's detail (Build.svelte) at #/engineering/<id>,
+  // so back and reload keep it.
   import { loadFleet, type Fleet, type Ship } from "../../lib/engineering";
   import Build from "./Build.svelte";
 
   let fleet = $state<Fleet | null>(null);
-  let open = $state<number | null>(null);
+  const readOpen = () => {
+    const m = /^#\/engineering\/(-?\d+)$/.exec(location.hash);
+    return m ? Number(m[1]) : null;
+  };
+  let open = $state<number | null>(readOpen());
+
+  $effect(() => {
+    const onHash = () => (open = readOpen());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   $effect(() => {
     const tick = () => void loadFleet().then((f) => (fleet = f));
@@ -36,7 +47,7 @@
 </script>
 
 {#if fleet && open !== null}
-  <Build {fleet} shipId={open} onback={() => (open = null)} />
+  <Build {fleet} shipId={open} onback={() => (location.hash = "#/engineering")} />
 {:else}
   <section>
     <p class="sub">
@@ -51,7 +62,7 @@
     <div class="cards">
       {#each fleet?.ships ?? [] as s (s.id)}
         {@const p = progress(s)}
-        <button class="card" class:now={s.current} onclick={() => (open = s.id)}>
+        <button class="card" class:now={s.current} onclick={() => (location.hash = `#/engineering/${s.id}`)}>
           <span class="name">{s.name ?? "Unnamed"}</span>
           <span class="id lo">{s.ident ?? `#${s.id}`}</span>
           <span class="type lo">{s.type_name}</span>

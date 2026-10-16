@@ -41,6 +41,8 @@ pub(crate) struct Module {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum Unapplied {
     Blueprint(String),
+    /// A grade the blueprint doesn't have: (blueprint, grade).
+    Grade(String, u8),
     Experimental(String),
 }
 
@@ -63,13 +65,14 @@ impl Module {
             &e.blueprint
         };
         match eng::blueprint(bp_name) {
-            Some((_, bp)) => {
-                if let Some(grade) = bp.grade(e.level) {
+            Some((_, bp)) => match bp.grade(e.level) {
+                Some(grade) => {
                     for (stat, range) in &grade.features {
                         self.set_quality(stat, *range, e.quality);
                     }
                 }
-            }
+                None => missing.push(Unapplied::Grade(e.blueprint.clone(), e.level)),
+            },
             None => missing.push(Unapplied::Blueprint(e.blueprint.clone())),
         }
         if let Some(sp) = &e.experimental {
@@ -289,5 +292,48 @@ fn scale(kind: &str) -> f64 {
         "percentage" => 10000.0,
         "numeric" => 100.0,
         _ => 1.0,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn engineered(item: &str, blueprint: &str, level: u8, quality: f64) -> (Module, Vec<Unapplied>) {
+        let mut m = Module::new(crate::data::module(item).unwrap());
+        let e = ModEngineering {
+            blueprint: blueprint.into(),
+            level,
+            quality,
+            experimental: None,
+            experimental_localised: None,
+            engineer: None,
+        };
+        let missing = m.engineer(item, &e);
+        (m, missing)
+    }
+
+    #[test]
+    fn grade_5_at_roll_0_is_the_grade_4_maximum() {
+        // Each grade's range starts where the one below ends, for every ranged stat.
+        let fsd = "int_hyperdrive_size5_class5";
+        let (g5, _) = engineered(fsd, "FSD_LongRange", 5, 0.0);
+        let (g4, _) = engineered(fsd, "FSD_LongRange", 4, 1.0);
+        assert_eq!(g5.get("optmass"), g4.get("optmass"));
+        assert!(g5.get("optmass") > engineered(fsd, "FSD_LongRange", 4, 0.5).0.get("optmass"));
+        let pd = "int_powerdistributor_size7_class5";
+        let (g5, _) = engineered(pd, "PowerDistributor_PriorityWeapons", 5, 0.0);
+        let (g4, _) = engineered(pd, "PowerDistributor_PriorityWeapons", 4, 1.0);
+        assert_eq!(g5.get("wepcap"), g4.get("wepcap"));
+        assert_eq!(g5.get("weprate"), g4.get("weprate"));
+        // The fixed drawbacks still follow the grade.
+        assert!(g5.get("engcap") < g4.get("engcap"));
+    }
+
+    #[test]
+    fn unknown_grade_is_reported() {
+        let (m, missing) = engineered("int_hyperdrive_size5_class5", "FSD_LongRange", 0, 1.0);
+        assert_eq!(missing, [Unapplied::Grade("FSD_LongRange".into(), 0)]);
+        assert_eq!(m.get("optmass"), m.base("optmass"));
     }
 }

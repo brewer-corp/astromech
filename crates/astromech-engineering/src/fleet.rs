@@ -43,6 +43,10 @@ pub struct Ship {
     /// Insurance excess if the ship is lost, from its last `Loadout`.
     pub rebuy: Option<i64>,
     pub modules: Vec<Fitted>,
+    /// The `Loadout` modules as the journal wrote them, crafts since included: what ship stats
+    /// are worked out from.
+    #[serde(skip)]
+    pub loadout: Vec<ModuleSnap>,
 }
 
 /// A module in storage.
@@ -274,6 +278,7 @@ impl FleetBuilder {
             value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),
             rebuy: seen.and_then(|s| s.rebuy),
             modules,
+            loadout: seen.map(|s| s.modules.clone()).unwrap_or_default(),
         }
     }
 }

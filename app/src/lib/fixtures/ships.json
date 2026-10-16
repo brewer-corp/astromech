@@ -1,0 +1,1932 @@
+{
+  "cases": [
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": []
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": [
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "experimental": "special_powerdistributor_fast",
+            "grade": 5,
+            "slot": "PowerDistributor"
+          }
+        ]
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 93.696,
+              "recharge": 9.13536
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 78.4087412280936,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": [
+          {
+            "blueprint": "PowerDistributor_PriorityWeapons",
+            "experimental": "special_powerdistributor_capacity",
+            "grade": 5,
+            "slot": "PowerDistributor"
+          }
+        ]
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 37.638,
+              "recharge": 3.332
+            },
+            "systems": {
+              "capacity": 37.638,
+              "recharge": 3.724
+            },
+            "weapons": {
+              "capacity": 105.408,
+              "recharge": 8.608319999999999
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 61.21223047360782,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": [
+          {
+            "blueprint": "FSD_FastBoot",
+            "experimental": "special_fsd_heavy",
+            "grade": 5,
+            "slot": "FrameShiftDrive"
+          }
+        ]
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 517.2990923216872,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 17.409444714979852,
+            "max": 18.71438448119866,
+            "total_laden": 118.45170183446932,
+            "total_unladen": 123.19214089524738,
+            "unladen": 18.093736205134192
+          },
+          "laden_mass": 845.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.0908,
+            "generation": 44.1,
+            "retracted": 23.1812
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 376.21752168849974,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 813.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": [
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "experimental": "special_shieldbooster_thermic",
+            "grade": 5,
+            "slot": "TinyHardpoint1"
+          }
+        ]
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 517.9346123766209,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.438169228857966,
+            "max": 25.205098664865556,
+            "total_laden": 159.4852907077206,
+            "total_unladen": 165.90402839438303,
+            "unladen": 24.3645447526447
+          },
+          "laden_mass": 841.0,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 27.8808,
+            "generation": 44.1,
+            "retracted": 22.9712
+          },
+          "shield": {
+            "explosive": 0.5096407361536,
+            "kinetic": 0.41156888338432007,
+            "strength": 1197.4563792466113,
+            "thermal": 0.43898308982899903
+          },
+          "speed": 376.6797180920879,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 809.0,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "rolls": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "ship_id": 1,
+        "targets": [
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "experimental": "special_shieldbooster_thermic",
+            "grade": 5,
+            "slot": "TinyHardpoint1"
+          },
+          {
+            "blueprint": "ShieldBooster_Thermic",
+            "experimental": "special_shieldbooster_thermic",
+            "grade": 5,
+            "slot": "TinyHardpoint2"
+          }
+        ]
+      },
+      "stats": {
+        "current": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 516.457182425713,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.149362618478083,
+            "max": 24.871416247126863,
+            "total_laden": 157.4860232783277,
+            "total_unladen": 163.74166259828544,
+            "unladen": 24.052609181573324
+          },
+          "laden_mass": 851.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 28.180799999999998,
+            "generation": 44.1,
+            "retracted": 23.271199999999997
+          },
+          "shield": {
+            "explosive": 0.5285007078399999,
+            "kinetic": 0.4342008494080001,
+            "strength": 1427.7411609011328,
+            "thermal": 0.36166067099862875
+          },
+          "speed": 375.60522358233675,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 819.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        },
+        "planned": {
+          "armour": {
+            "caustic": 0.0,
+            "explosive": -0.18412113248000028,
+            "integrity": 2142.864,
+            "kinetic": -0.014973292970000163,
+            "module_armour": 235.0,
+            "module_protection": 0.6,
+            "thermal": 0.360666689045
+          },
+          "boost": 519.4311464314591,
+          "cargo_capacity": 32.0,
+          "distributor": {
+            "engines": {
+              "capacity": 33.456,
+              "recharge": 3.536
+            },
+            "systems": {
+              "capacity": 33.456,
+              "recharge": 3.952
+            },
+            "weapons": {
+              "capacity": 92.232,
+              "recharge": 9.02434
+            }
+          },
+          "fuel_capacity": 32.0,
+          "hull_mass": 320.0,
+          "jump": {
+            "laden": 23.734273059670244,
+            "max": 25.547856407708196,
+            "total_laden": 161.535979011358,
+            "total_unladen": 168.1242795555937,
+            "unladen": 24.684677546936953
+          },
+          "laden_mass": 830.5,
+          "passenger_capacity": 0.0,
+          "power": {
+            "deployed": 27.5808,
+            "generation": 44.1,
+            "retracted": 22.6712
+          },
+          "shield": {
+            "explosive": 0.4900263655997439,
+            "kinetic": 0.3880316387196928,
+            "strength": 967.1715975920897,
+            "thermal": 0.49542845557516924
+          },
+          "speed": 377.7681064956066,
+          "time_to_drain": 70.6223510285497,
+          "unladen_mass": 798.5,
+          "unresolved": [],
+          "weapons": {
+            "dps": 107.15106711888536,
+            "eps": 11.689845423777072,
+            "sustained_dps": 92.46226469740792,
+            "sustained_eps": 10.330328807462873
+          }
+        }
+      }
+    }
+  ],
+  "fleet": {
+    "groups": {
+      "am": {
+        "blueprints": [
+          {
+            "id": "AFM_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [],
+        "name": "Auto Field-Maintenance Unit"
+      },
+      "bh": {
+        "blueprints": [
+          {
+            "id": "Armour_Advanced",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Armour_Explosive",
+            "max_grade": 5,
+            "name": "Blast resistant"
+          },
+          {
+            "id": "Armour_HeavyDuty",
+            "max_grade": 5,
+            "name": "Heavy duty"
+          },
+          {
+            "id": "Armour_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "Armour_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_armour_kinetic",
+            "name": "Angled Plating"
+          },
+          {
+            "id": "special_armour_explosive",
+            "name": "Layered Plating"
+          },
+          {
+            "id": "special_armour_chunky",
+            "name": "Deep Plating"
+          },
+          {
+            "id": "special_armour_thermic",
+            "name": "Reflective Plating"
+          }
+        ],
+        "name": "Armour"
+      },
+      "bl": {
+        "blueprints": [
+          {
+            "id": "Weapon_Efficient",
+            "max_grade": 5,
+            "name": "Efficient"
+          },
+          {
+            "id": "Weapon_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Weapon_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          },
+          {
+            "id": "Weapon_Overcharged",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "Weapon_ShortRange",
+            "max_grade": 5,
+            "name": "Short range"
+          },
+          {
+            "id": "Weapon_Sturdy",
+            "max_grade": 5,
+            "name": "Sturdy"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_concordant_sequence",
+            "name": "Concordant sequence"
+          },
+          {
+            "id": "special_regeneration_sequence",
+            "name": "Regeneration sequence"
+          },
+          {
+            "id": "special_thermal_conduit",
+            "name": "Thermal conduit"
+          },
+          {
+            "id": "special_thermalshock",
+            "name": "Thermal shock"
+          },
+          {
+            "id": "special_thermal_vent",
+            "name": "Thermal vent"
+          },
+          {
+            "id": "special_weapon_damage",
+            "name": "Oversized"
+          },
+          {
+            "id": "special_weapon_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_weapon_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_weapon_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Beam Laser"
+      },
+      "cr": {
+        "blueprints": [
+          {
+            "id": "CargoRack_IncreasedCapacity",
+            "max_grade": 5,
+            "name": "Expanded Capacity"
+          }
+        ],
+        "experimentals": [],
+        "name": "Cargo Rack"
+      },
+      "fi": {
+        "blueprints": [
+          {
+            "id": "FSDinterdictor_Expanded",
+            "max_grade": 5,
+            "name": "Expanded capture arc"
+          },
+          {
+            "id": "FSDinterdictor_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          }
+        ],
+        "experimentals": [],
+        "name": "Frame Shift Drive Interdictor"
+      },
+      "fs": {
+        "blueprints": [
+          {
+            "id": "FuelScoop_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [],
+        "name": "Fuel Scoop"
+      },
+      "fsd": {
+        "blueprints": [
+          {
+            "id": "FSD_FastBoot",
+            "max_grade": 5,
+            "name": "Faster boot sequence"
+          },
+          {
+            "id": "FSD_LongRange",
+            "max_grade": 5,
+            "name": "Increased range"
+          },
+          {
+            "id": "FSD_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_fsd_fuelcapacity",
+            "name": "Deep Charge"
+          },
+          {
+            "id": "special_fsd_heavy",
+            "name": "Mass Manager"
+          },
+          {
+            "id": "special_fsd_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_fsd_lightweight",
+            "name": "Stripped Down"
+          },
+          {
+            "id": "special_fsd_cooled",
+            "name": "Thermal Spread"
+          }
+        ],
+        "name": "Frame Shift Drive"
+      },
+      "hr": {
+        "blueprints": [
+          {
+            "id": "HullReinforcement_Advanced",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "HullReinforcement_Explosive",
+            "max_grade": 5,
+            "name": "Blast resistant"
+          },
+          {
+            "id": "HullReinforcement_HeavyDuty",
+            "max_grade": 5,
+            "name": "Heavy duty"
+          },
+          {
+            "id": "HullReinforcement_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "HullReinforcement_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_hullreinforcement_thermic",
+            "name": "Reflective Plating"
+          },
+          {
+            "id": "special_hullreinforcement_kinetic",
+            "name": "Angled Plating"
+          },
+          {
+            "id": "special_hullreinforcement_explosive",
+            "name": "Layered Plating"
+          },
+          {
+            "id": "special_hullreinforcement_chunky",
+            "name": "Deep Plating"
+          }
+        ],
+        "name": "Hull Reinforcement Package"
+      },
+      "ls": {
+        "blueprints": [
+          {
+            "id": "LifeSupport_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "LifeSupport_Reinforced",
+            "max_grade": 5,
+            "name": "Reinforced"
+          },
+          {
+            "id": "LifeSupport_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [],
+        "name": "Life Support"
+      },
+      "mc": {
+        "blueprints": [
+          {
+            "id": "MC_Overcharged",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "Weapon_Efficient",
+            "max_grade": 5,
+            "name": "Efficient"
+          },
+          {
+            "id": "Weapon_HighCapacity",
+            "max_grade": 5,
+            "name": "High capacity"
+          },
+          {
+            "id": "Weapon_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Weapon_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          },
+          {
+            "id": "Weapon_RapidFire",
+            "max_grade": 5,
+            "name": "Rapid fire"
+          },
+          {
+            "id": "Weapon_ShortRange",
+            "max_grade": 5,
+            "name": "Short range"
+          },
+          {
+            "id": "Weapon_Sturdy",
+            "max_grade": 5,
+            "name": "Sturdy"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_auto_loader",
+            "name": "Auto loader"
+          },
+          {
+            "id": "special_corrosive_shell",
+            "name": "Corrosive shell"
+          },
+          {
+            "id": "special_emissive_munitions",
+            "name": "Emissive munitions"
+          },
+          {
+            "id": "special_incendiary_rounds",
+            "name": "Incendiary rounds"
+          },
+          {
+            "id": "special_smart_rounds",
+            "name": "Smart rounds"
+          },
+          {
+            "id": "special_thermalshock",
+            "name": "Thermal shock"
+          },
+          {
+            "id": "special_weapon_damage",
+            "name": "Oversized"
+          },
+          {
+            "id": "special_weapon_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_weapon_rateoffire",
+            "name": "Multi-servos"
+          },
+          {
+            "id": "special_weapon_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_weapon_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Multi-Cannon"
+      },
+      "pd": {
+        "blueprints": [
+          {
+            "id": "PowerDistributor_HighCapacity",
+            "max_grade": 5,
+            "name": "High charge capacity"
+          },
+          {
+            "id": "PowerDistributor_HighFrequency",
+            "max_grade": 5,
+            "name": "Charge enhanced"
+          },
+          {
+            "id": "PowerDistributor_PriorityEngines",
+            "max_grade": 5,
+            "name": "Engine focused"
+          },
+          {
+            "id": "PowerDistributor_PrioritySystems",
+            "max_grade": 5,
+            "name": "System focused"
+          },
+          {
+            "id": "PowerDistributor_PriorityWeapons",
+            "max_grade": 5,
+            "name": "Weapon focused"
+          },
+          {
+            "id": "PowerDistributor_Shielded",
+            "max_grade": 5,
+            "name": "Shielded"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_powerdistributor_capacity",
+            "name": "Cluster Capacitors"
+          },
+          {
+            "id": "special_powerdistributor_fast",
+            "name": "Super Conduits"
+          },
+          {
+            "id": "special_powerdistributor_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_powerdistributor_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_powerdistributor_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Power Distributor"
+      },
+      "pp": {
+        "blueprints": [
+          {
+            "id": "PowerPlant_Armoured",
+            "max_grade": 5,
+            "name": "Armoured"
+          },
+          {
+            "id": "PowerPlant_Boosted",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "PowerPlant_Stealth",
+            "max_grade": 5,
+            "name": "Low emissions"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_powerplant_highcharge",
+            "name": "Monstered"
+          },
+          {
+            "id": "special_powerplant_cooled",
+            "name": "Thermal Spread"
+          },
+          {
+            "id": "special_powerplant_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_powerplant_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Power Plant"
+      },
+      "s": {
+        "blueprints": [
+          {
+            "id": "Sensor_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Sensor_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          },
+          {
+            "id": "Sensor_WideAngle",
+            "max_grade": 5,
+            "name": "Wide angle"
+          }
+        ],
+        "experimentals": [],
+        "name": "Sensors"
+      },
+      "sb": {
+        "blueprints": [
+          {
+            "id": "ShieldBooster_Explosive",
+            "max_grade": 5,
+            "name": "Blast resistant"
+          },
+          {
+            "id": "ShieldBooster_HeavyDuty",
+            "max_grade": 5,
+            "name": "Heavy duty"
+          },
+          {
+            "id": "ShieldBooster_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "ShieldBooster_Resistive",
+            "max_grade": 5,
+            "name": "Resistance augmented"
+          },
+          {
+            "id": "ShieldBooster_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_shieldbooster_thermic",
+            "name": "Thermo Block"
+          },
+          {
+            "id": "special_shieldbooster_kinetic",
+            "name": "Force Block"
+          },
+          {
+            "id": "special_shieldbooster_explosive",
+            "name": "Blast Block"
+          },
+          {
+            "id": "special_shieldbooster_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_shieldbooster_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_shieldbooster_chunky",
+            "name": "Super Capacitors"
+          }
+        ],
+        "name": "Shield Booster"
+      },
+      "sg": {
+        "blueprints": [
+          {
+            "id": "ShieldGenerator_Kinetic",
+            "max_grade": 5,
+            "name": "Kinetic resistant"
+          },
+          {
+            "id": "ShieldGenerator_Optimised",
+            "max_grade": 5,
+            "name": "Enhanced low power"
+          },
+          {
+            "id": "ShieldGenerator_Reinforced",
+            "max_grade": 5,
+            "name": "Reinforced"
+          },
+          {
+            "id": "ShieldGenerator_Thermic",
+            "max_grade": 5,
+            "name": "Thermal resistant"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_shield_regenerative",
+            "name": "Fast Charge"
+          },
+          {
+            "id": "special_shield_resistive",
+            "name": "Multi-weave"
+          },
+          {
+            "id": "special_shield_health",
+            "name": "Hi-Cap"
+          },
+          {
+            "id": "special_shield_efficient",
+            "name": "Lo-draw"
+          },
+          {
+            "id": "special_shield_thermic",
+            "name": "Thermo Block"
+          },
+          {
+            "id": "special_shield_kinetic",
+            "name": "Force Block"
+          },
+          {
+            "id": "special_shield_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_shield_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Shield Generator"
+      },
+      "t": {
+        "blueprints": [
+          {
+            "id": "Engine_Dirty",
+            "max_grade": 5,
+            "name": "Dirty"
+          },
+          {
+            "id": "Engine_Reinforced",
+            "max_grade": 5,
+            "name": "Reinforced"
+          },
+          {
+            "id": "Engine_Tuned",
+            "max_grade": 5,
+            "name": "Clean"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_engine_cooled",
+            "name": "Thermal Spread"
+          },
+          {
+            "id": "special_engine_haulage",
+            "name": "Drive Distributors"
+          },
+          {
+            "id": "special_engine_overloaded",
+            "name": "Drag Drives"
+          },
+          {
+            "id": "special_engine_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_engine_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Thrusters"
+      },
+      "ul": {
+        "blueprints": [
+          {
+            "id": "Weapon_Efficient",
+            "max_grade": 5,
+            "name": "Efficient"
+          },
+          {
+            "id": "Weapon_Focused",
+            "max_grade": 5,
+            "name": "Focused"
+          },
+          {
+            "id": "Weapon_LightWeight",
+            "max_grade": 5,
+            "name": "Lightweight"
+          },
+          {
+            "id": "Weapon_LongRange",
+            "max_grade": 5,
+            "name": "Long range"
+          },
+          {
+            "id": "Weapon_Overcharged",
+            "max_grade": 5,
+            "name": "Overcharged"
+          },
+          {
+            "id": "Weapon_RapidFire",
+            "max_grade": 5,
+            "name": "Rapid fire"
+          },
+          {
+            "id": "Weapon_ShortRange",
+            "max_grade": 5,
+            "name": "Short range"
+          },
+          {
+            "id": "Weapon_Sturdy",
+            "max_grade": 5,
+            "name": "Sturdy"
+          }
+        ],
+        "experimentals": [
+          {
+            "id": "special_concordant_sequence",
+            "name": "Concordant sequence"
+          },
+          {
+            "id": "special_distortion_field",
+            "name": "Inertial impact"
+          },
+          {
+            "id": "special_phasing_sequence",
+            "name": "Phasing sequence"
+          },
+          {
+            "id": "special_scramble_spectrum",
+            "name": "Scramble spectrum"
+          },
+          {
+            "id": "special_thermalshock",
+            "name": "Thermal shock"
+          },
+          {
+            "id": "special_weapon_damage",
+            "name": "Oversized"
+          },
+          {
+            "id": "special_weapon_efficient",
+            "name": "Flow Control"
+          },
+          {
+            "id": "special_weapon_rateoffire",
+            "name": "Multi-servos"
+          },
+          {
+            "id": "special_weapon_toughened",
+            "name": "Double Braced"
+          },
+          {
+            "id": "special_weapon_lightweight",
+            "name": "Stripped Down"
+          }
+        ],
+        "name": "Burst Laser"
+      }
+    },
+    "ships": [
+      {
+        "current": true,
+        "id": 1,
+        "ident": "AM-1",
+        "in_transit": false,
+        "loadout_ts": "2026-10-16T12:00:00Z",
+        "max_jump_range": null,
+        "modules": [
+          {
+            "engineering": {
+              "blueprint": "Armour_HeavyDuty",
+              "blueprint_name": "Heavy duty",
+              "engineer": "Synthetic",
+              "experimental": "special_armour_chunky",
+              "experimental_name": "Deep Plating",
+              "grade": 5,
+              "quality": 0.8
+            },
+            "group": "bh",
+            "item": "krait_mkii_armour_grade3",
+            "name": "Military Grade Composite",
+            "slot": "Armour",
+            "slot_name": "Armour"
+          },
+          {
+            "engineering": {
+              "blueprint": "PowerPlant_Boosted",
+              "blueprint_name": "Overcharged",
+              "engineer": "Synthetic",
+              "experimental": "special_powerplant_highcharge",
+              "experimental_name": "Monstered",
+              "grade": 5,
+              "quality": 1.0
+            },
+            "group": "pp",
+            "item": "int_powerplant_size7_class5",
+            "name": "7A Power Plant",
+            "slot": "PowerPlant",
+            "slot_name": "Power plant"
+          },
+          {
+            "engineering": {
+              "blueprint": "Engine_Dirty",
+              "blueprint_name": "Dirty",
+              "engineer": "Synthetic",
+              "experimental": "special_engine_overloaded",
+              "experimental_name": "Drag Drives",
+              "grade": 5,
+              "quality": 0.6
+            },
+            "group": "t",
+            "item": "int_engine_size6_class5",
+            "name": "6A Thrusters",
+            "slot": "MainEngines",
+            "slot_name": "Thrusters"
+          },
+          {
+            "engineering": {
+              "blueprint": "FSD_LongRange",
+              "blueprint_name": "Increased range",
+              "engineer": "Synthetic",
+              "experimental": "special_fsd_heavy",
+              "experimental_name": "Mass Manager",
+              "grade": 5,
+              "quality": 0.9
+            },
+            "group": "fsd",
+            "item": "int_hyperdrive_size5_class5",
+            "name": "5A Frame Shift Drive",
+            "slot": "FrameShiftDrive",
+            "slot_name": "Frame shift drive"
+          },
+          {
+            "group": "ls",
+            "item": "int_lifesupport_size4_class4",
+            "name": "4B Life Support",
+            "slot": "LifeSupport",
+            "slot_name": "Life support"
+          },
+          {
+            "engineering": {
+              "blueprint": "PowerDistributor_PriorityWeapons",
+              "blueprint_name": "Weapon focused",
+              "engineer": "Synthetic",
+              "experimental": "special_powerdistributor_fast",
+              "experimental_name": "Super Conduits",
+              "grade": 5,
+              "quality": 0.75
+            },
+            "group": "pd",
+            "item": "int_powerdistributor_size7_class5",
+            "name": "7A Power Distributor",
+            "slot": "PowerDistributor",
+            "slot_name": "Power distributor"
+          },
+          {
+            "group": "s",
+            "item": "int_sensors_size6_class2",
+            "name": "6D Sensors",
+            "slot": "Radar",
+            "slot_name": "Sensors"
+          },
+          {
+            "group": null,
+            "item": "int_fueltank_size5_class3",
+            "name": "5C Fuel Tank",
+            "slot": "FuelTank",
+            "slot_name": "Fuel tank"
+          },
+          {
+            "engineering": {
+              "blueprint": "Weapon_Overcharged",
+              "blueprint_name": "Overcharged",
+              "engineer": "Synthetic",
+              "experimental": "special_auto_loader",
+              "experimental_name": "Auto loader",
+              "grade": 5,
+              "quality": 0.5
+            },
+            "group": "mc",
+            "item": "hpt_multicannon_gimbal_large",
+            "name": "3C Multi-Cannon",
+            "slot": "LargeHardpoint1",
+            "slot_name": "Large hardpoint 1"
+          },
+          {
+            "engineering": {
+              "blueprint": "Weapon_Overcharged",
+              "blueprint_name": "Overcharged",
+              "engineer": "Synthetic",
+              "experimental": "special_corrosive_shell",
+              "experimental_name": "Corrosive shell",
+              "grade": 5,
+              "quality": 0.5
+            },
+            "group": "mc",
+            "item": "hpt_multicannon_gimbal_large",
+            "name": "3C Multi-Cannon",
+            "slot": "LargeHardpoint2",
+            "slot_name": "Large hardpoint 2"
+          },
+          {
+            "engineering": {
+              "blueprint": "Weapon_Efficient",
+              "blueprint_name": "Efficient",
+              "engineer": "Synthetic",
+              "experimental": "special_thermal_vent",
+              "experimental_name": "Thermal vent",
+              "grade": 5,
+              "quality": 0.7
+            },
+            "group": "bl",
+            "item": "hpt_beamlaser_gimbal_large",
+            "name": "3C Beam Laser",
+            "slot": "LargeHardpoint3",
+            "slot_name": "Large hardpoint 3"
+          },
+          {
+            "engineering": {
+              "blueprint": "Weapon_Focused",
+              "blueprint_name": "Focused",
+              "engineer": "Synthetic",
+              "experimental": "special_scramble_spectrum",
+              "experimental_name": "Scramble spectrum",
+              "grade": 3,
+              "quality": 0.4
+            },
+            "group": "ul",
+            "item": "hpt_pulselaserburst_gimbal_medium",
+            "name": "2F Regenerative Burst Laser",
+            "slot": "MediumHardpoint1",
+            "slot_name": "Medium hardpoint 1"
+          },
+          {
+            "group": "ul",
+            "item": "hpt_pulselaserburst_gimbal_medium",
+            "name": "2F Regenerative Burst Laser",
+            "slot": "MediumHardpoint2",
+            "slot_name": "Medium hardpoint 2"
+          },
+          {
+            "engineering": {
+              "blueprint": "ShieldBooster_HeavyDuty",
+              "blueprint_name": "Heavy duty",
+              "engineer": "Synthetic",
+              "experimental": "special_shieldbooster_thermic",
+              "experimental_name": "Thermo Block",
+              "grade": 5,
+              "quality": 1.0
+            },
+            "group": "sb",
+            "item": "hpt_shieldbooster_size0_class5",
+            "name": "0A Shield Booster",
+            "slot": "TinyHardpoint1",
+            "slot_name": "Utility 1"
+          },
+          {
+            "engineering": {
+              "blueprint": "ShieldBooster_HeavyDuty",
+              "blueprint_name": "Heavy duty",
+              "engineer": "Synthetic",
+              "experimental": "special_shieldbooster_thermic",
+              "experimental_name": "Thermo Block",
+              "grade": 5,
+              "quality": 1.0
+            },
+            "group": "sb",
+            "item": "hpt_shieldbooster_size0_class5",
+            "name": "0A Shield Booster",
+            "slot": "TinyHardpoint2",
+            "slot_name": "Utility 2"
+          },
+          {
+            "engineering": {
+              "blueprint": "ShieldBooster_Thermic",
+              "blueprint_name": "Thermal resistant",
+              "engineer": "Synthetic",
+              "experimental": "special_shieldbooster_chunky",
+              "experimental_name": "Super Capacitors",
+              "grade": 5,
+              "quality": 0.5
+            },
+            "group": "sb",
+            "item": "hpt_shieldbooster_size0_class5",
+            "name": "0A Shield Booster",
+            "slot": "TinyHardpoint3",
+            "slot_name": "Utility 3"
+          },
+          {
+            "engineering": {
+              "blueprint": "ShieldBooster_Thermic",
+              "blueprint_name": "Thermal resistant",
+              "engineer": "Synthetic",
+              "experimental": "special_shieldbooster_chunky",
+              "experimental_name": "Super Capacitors",
+              "grade": 5,
+              "quality": 0.5
+            },
+            "group": "sb",
+            "item": "hpt_shieldbooster_size0_class5",
+            "name": "0A Shield Booster",
+            "slot": "TinyHardpoint4",
+            "slot_name": "Utility 4"
+          },
+          {
+            "group": null,
+            "item": "int_planetapproachsuite",
+            "name": "1I Planetary Approach Suite",
+            "slot": "PlanetaryApproachSuite",
+            "slot_name": "PlanetaryApproachSuite"
+          },
+          {
+            "engineering": {
+              "blueprint": "ShieldGenerator_Reinforced",
+              "blueprint_name": "Reinforced",
+              "engineer": "Synthetic",
+              "experimental": "special_shield_health",
+              "experimental_name": "Hi-Cap",
+              "grade": 5,
+              "quality": 0.9
+            },
+            "group": "sg",
+            "item": "int_shieldgenerator_size6_class5",
+            "name": "6A Shield Generator",
+            "slot": "Slot01_Size6",
+            "slot_name": "Optional 1 (size 6)"
+          },
+          {
+            "group": "cr",
+            "item": "int_cargorack_size5_class1",
+            "name": "5E Extended Cargo Rack",
+            "slot": "Slot02_Size6",
+            "slot_name": "Optional 2 (size 6)"
+          },
+          {
+            "engineering": {
+              "blueprint": "HullReinforcement_HeavyDuty",
+              "blueprint_name": "Heavy duty",
+              "engineer": "Synthetic",
+              "experimental": "special_hullreinforcement_thermic",
+              "experimental_name": "Reflective Plating",
+              "grade": 5,
+              "quality": 0.8
+            },
+            "group": "hr",
+            "item": "int_hullreinforcement_size5_class2",
+            "name": "5D Hull Reinforcement Package",
+            "slot": "Slot03_Size5",
+            "slot_name": "Optional 3 (size 5)"
+          },
+          {
+            "engineering": {
+              "blueprint": "HullReinforcement_Thermic",
+              "blueprint_name": "Thermal resistant",
+              "engineer": "Synthetic",
+              "experimental": null,
+              "experimental_name": null,
+              "grade": 3,
+              "quality": 1.0
+            },
+            "group": "hr",
+            "item": "int_hullreinforcement_size5_class2",
+            "name": "5D Hull Reinforcement Package",
+            "slot": "Slot04_Size5",
+            "slot_name": "Optional 4 (size 5)"
+          },
+          {
+            "group": null,
+            "item": "int_modulereinforcement_size4_class2",
+            "name": "4D Module Reinforcement Package",
+            "slot": "Slot05_Size4",
+            "slot_name": "Optional 5 (size 4)"
+          },
+          {
+            "group": "fi",
+            "item": "int_fsdinterdictor_size3_class5",
+            "name": "3A Frame Shift Drive Interdictor",
+            "slot": "Slot06_Size3",
+            "slot_name": "Optional 6 (size 3)"
+          },
+          {
+            "group": "am",
+            "item": "int_repairer_size3_class4",
+            "name": "3B Auto Field-Maintenance Unit",
+            "slot": "Slot07_Size3",
+            "slot_name": "Optional 7 (size 3)"
+          },
+          {
+            "group": "fs",
+            "item": "int_fuelscoop_size2_class5",
+            "name": "2A Fuel Scoop",
+            "slot": "Slot08_Size2",
+            "slot_name": "Optional 8 (size 2)"
+          },
+          {
+            "group": null,
+            "item": "int_dockingcomputer_advanced",
+            "name": "1E Advanced Docking Computer",
+            "slot": "Slot09_Size1",
+            "slot_name": "Optional 9 (size 1)"
+          }
+        ],
+        "name": "Synthetic_Krait",
+        "rebuy": null,
+        "ship_type": "krait_mkii",
+        "system": null,
+        "type_name": "Krait MkII",
+        "value": null
+      }
+    ],
+    "source": "Sample journal",
+    "stored_modules": []
+  }
+}

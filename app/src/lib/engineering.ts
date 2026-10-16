@@ -1,11 +1,12 @@
 /**
  * Ship engineering planner: fleet loadouts from the journal, plans per ship (kept in
- * localStorage), and the materials a plan needs, computed by the shell.
+ * localStorage), and the materials and ship stats a plan gives, computed by the shell.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import type { SourceNote } from "./materials";
 import sample from "./fixtures/engineering.json";
+import shipsSample from "./fixtures/ships.json";
 
 export interface Applied {
   blueprint: string;
@@ -192,16 +193,67 @@ export interface Trip {
   exact: boolean;
 }
 
+export interface Capacitor {
+  /** MJ */
+  capacity: number;
+  /** MW at four pips */
+  recharge: number;
+}
+
+/** One build's stats (astromech-ship). Fractions for resistances; null where the ship has none. */
+export interface ShipStats {
+  hull_mass: number;
+  unladen_mass: number;
+  laden_mass: number;
+  fuel_capacity: number;
+  cargo_capacity: number;
+  passenger_capacity: number;
+  jump: { max: number; unladen: number; laden: number; total_unladen: number; total_laden: number } | null;
+  power: { generation: number; retracted: number; deployed: number };
+  shield: { strength: number; explosive: number; kinetic: number; thermal: number } | null;
+  armour: {
+    integrity: number;
+    explosive: number;
+    kinetic: number;
+    thermal: number;
+    caustic: number;
+    module_armour: number;
+    module_protection: number;
+  };
+  /** `sustained_dps` waits on decision astromech-bnnh and is not shown. */
+  weapons: { dps: number; sustained_dps: number; eps: number; sustained_eps: number };
+  distributor: { weapons: Capacitor; systems: Capacitor; engines: Capacitor } | null;
+  speed: number | null;
+  boost: number | null;
+  /** Modules, blueprints, grades or experimentals the calculations don't know: stats leave them out. */
+  unresolved: string[];
+  /** Seconds of fire at four pips to weapons until the capacitor is empty; null if it keeps up. */
+  time_to_drain: number | null;
+}
+
+export interface StatsComparison {
+  current: ShipStats;
+  planned: ShipStats;
+}
+
 export const DEFAULT_ROLLS = [1, 2, 3, 4, 5];
 
 const samplePlan = sample.plan as unknown as PlanResult;
 
+/** The sample journal's fleet, with the synthetic combat Krait whose stats the sample has (stored). */
+function sampleFleet(): Fleet {
+  const f = sample.fleet as unknown as Fleet;
+  const s = shipsSample.fleet as unknown as Fleet;
+  const extra = s.ships.map((x) => ({ ...x, current: false }));
+  return { ...f, ships: [...f.ships, ...extra], groups: { ...f.groups, ...s.groups } };
+}
+
 export async function loadFleet(): Promise<Fleet> {
-  if (!inTauri) return sample.fleet as unknown as Fleet;
+  if (!inTauri) return sampleFleet();
   try {
     return await invoke<Fleet>("engineering_fleet");
   } catch {
-    return { ...(sample.fleet as unknown as Fleet), source: "Sample journal (no live journal folder)" };
+    return { ...sampleFleet(), source: "Sample journal (no live journal folder)" };
   }
 }
 
@@ -209,6 +261,24 @@ export async function loadFleet(): Promise<Fleet> {
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
   if (!inTauri) return plan.ship_id === samplePlan.ship_id ? samplePlan : null;
   return await invoke<PlanResult>("engineering_plan", { plan });
+}
+
+const targetKey = (t: Target) => [t.slot, t.blueprint, t.grade, t.experimental ?? ""].join("|");
+
+/** Same ship and the same targets, in any order. */
+export function samePlan(a: Plan, b: Plan): boolean {
+  const ka = a.targets.map(targetKey).sort();
+  const kb = b.targets.map(targetKey).sort();
+  return a.ship_id === b.ship_id && ka.length === kb.length && ka.every((k, i) => k === kb[i]);
+}
+
+/** Current and planned stats. Outside the app only the sample's precomputed plans have them. */
+export async function shipStats(plan: Plan): Promise<StatsComparison | null> {
+  if (!inTauri) {
+    const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
+    return c ? (c.stats as unknown as StatsComparison) : null;
+  }
+  return await invoke<StatsComparison>("engineering_stats", { plan });
 }
 
 const key = (shipId: number) => `astromech.engineering.plan.${shipId}`;

@@ -14,12 +14,17 @@
 //!   the import and outfitting pages do, and prints the summary-table values (`RUST=1` prints
 //!   the blocks below).
 //!
+//! `tests/fixtures/plans/` holds the Krait MkII combat fixture with a build plan done, one file
+//! per plan (see `check_plan`): the same Coriolis run on those gives the planned values, and the
+//! Ships page's component tests (`app/src/modules/engineering/Build.test.ts`) show them.
+//!
 //! A value matches when it is within half a unit of Coriolis's last displayed digit: speeds,
 //! masses, shields and armour to the unit, jump ranges and power to 0.01, resistances to 0.1 %,
 //! DPS to 0.1, distributor values to 0.1 and time to drain to the second.
 
-use astromech_journal::{parse_line, JournalEvent};
-use astromech_ship::{stats, ShipStats};
+use astromech_engineering::{planned_modules, FleetBuilder, Target};
+use astromech_journal::{parse_line, JournalEvent, ModuleSnap};
+use astromech_ship::{compare, stats, ShipStats};
 
 /// Decimals Coriolis shows for each stat (`int`, `f1`, `f2`, `round`, `round1`, `pct1`).
 fn decimals(key: &str) -> i32 {
@@ -80,17 +85,30 @@ fn value(s: &ShipStats, key: &str) -> Option<f64> {
     })
 }
 
-fn check(fixture: &str, expected: &[(&str, Option<&str>)]) {
+/// The fixture as one journal line.
+fn line(fixture: &str) -> String {
     let path = format!("{}/tests/fixtures/{fixture}.json", env!("CARGO_MANIFEST_DIR"));
     let json: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
-    let JournalEvent::Loadout { ship, modules, .. } = parse_line(&json.to_string()).unwrap().event else {
+    json.to_string()
+}
+
+fn loadout(fixture: &str) -> (String, Vec<ModuleSnap>) {
+    let JournalEvent::Loadout { ship, modules, .. } = parse_line(&line(fixture)).unwrap().event else {
         panic!("{fixture}: not a Loadout")
     };
-    let s = stats(ship.as_deref().unwrap(), &modules).unwrap();
+    (ship.unwrap(), modules)
+}
+
+fn check(fixture: &str, expected: &[(&str, Option<&str>)]) {
+    let (ship, modules) = loadout(fixture);
+    check_stats(fixture, &stats(&ship, &modules).unwrap(), expected);
+}
+
+fn check_stats(fixture: &str, s: &ShipStats, expected: &[(&str, Option<&str>)]) {
     assert!(s.unresolved.is_empty(), "{fixture}: unresolved {:?}", s.unresolved);
     let mut wrong = vec![];
     for (key, want) in expected {
-        let got = value(&s, key);
+        let got = value(s, key);
         let ok = match (want, got) {
             (None, None) => true,
             // Time to drain shows whole seconds, m:ss.
@@ -106,6 +124,32 @@ fn check(fixture: &str, expected: &[(&str, Option<&str>)]) {
         }
     }
     assert!(wrong.is_empty(), "{fixture}:\n  {}", wrong.join("\n  "));
+}
+
+/// A build plan for the Krait MkII combat fixture, against `plans/krait_mkii_combat.<variant>`:
+/// the fixture with each target's `Engineering` replaced by the planned blueprint, grade,
+/// `Quality` 1.0 and experimental, which is what Coriolis was run on.
+fn check_plan(variant: &str, targets: &[(&str, &str, &str)], expected: &[(&str, Option<&str>)]) {
+    let targets: Vec<Target> = targets
+        .iter()
+        .map(|(slot, blueprint, experimental)| Target {
+            slot: slot.to_string(),
+            blueprint: blueprint.to_string(),
+            grade: 5,
+            experimental: Some(experimental.to_string()),
+        })
+        .collect();
+    let (ship, base) = loadout("krait_mkii_combat");
+    let (_, want) = loadout(&format!("plans/krait_mkii_combat.{variant}"));
+    assert_eq!(planned_modules(&base, &targets), want, "{variant}: the plan doesn't give the fixture's modules");
+    // Through the fleet, as the app asks for it.
+    let mut fleet = FleetBuilder::default();
+    let l = parse_line(&line("krait_mkii_combat")).unwrap();
+    fleet.apply(&l.timestamp, &l.event);
+    let c = compare(&fleet.build("test").ships[0], &targets).unwrap();
+    assert_eq!(c.current.stats, stats(&ship, &base).unwrap());
+    assert_eq!(c.planned.time_to_drain, c.planned.stats.time_to_drain(4.0));
+    check_stats(variant, &c.planned.stats, expected);
 }
 
 #[test]
@@ -324,6 +368,239 @@ fn python_miner() {
             ("eng_recharge", Some("3")),
             ("speed", Some("369")),
             ("boost", Some("481")),
+        ],
+    );
+}
+
+// The distributor with its experimental: Super Conduits (as fitted, rolled to 100 %), then
+// Cluster Capacitors.
+#[test]
+fn plan_pd_super_conduits() {
+    check_plan(
+        "pd_super_conduits",
+        &[("PowerDistributor", "PowerDistributor_PriorityWeapons", "special_powerdistributor_fast")],
+        &[
+            ("hull_mass", Some("320")),
+            ("unladen_mass", Some("820")),
+            ("laden_mass", Some("852")),
+            ("fuel_capacity", Some("32")),
+            ("cargo_capacity", Some("32")),
+            ("jump_max", Some("24.87")),
+            ("jump_unladen", Some("24.05")),
+            ("jump_laden", Some("23.15")),
+            ("jump_total_unladen", Some("163.74")),
+            ("jump_total_laden", Some("157.49")),
+            ("power_generation", Some("44.10")),
+            ("power_retracted", Some("23.27")),
+            ("power_deployed", Some("28.18")),
+            ("shield", Some("1428")),
+            ("shield_explosive", Some("52.9")),
+            ("shield_kinetic", Some("43.4")),
+            ("shield_thermal", Some("36.2")),
+            ("armour", Some("2143")),
+            ("hull_explosive", Some("-18.4")),
+            ("hull_kinetic", Some("-1.5")),
+            ("hull_thermal", Some("36.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("107.2")),
+            ("sustained_dps", Some("92.5")),
+            ("eps", Some("11.7")),
+            ("time_to_drain", Some("1:18")),
+            ("wep_capacity", Some("93.7")),
+            ("wep_recharge", Some("9.1")),
+            ("sys_capacity", Some("33.5")),
+            ("sys_recharge", Some("4")),
+            ("eng_capacity", Some("33.5")),
+            ("eng_recharge", Some("3.5")),
+            ("speed", Some("376")),
+            ("boost", Some("516")),
+        ],
+    );
+}
+
+#[test]
+fn plan_pd_cluster_capacitors() {
+    check_plan(
+        "pd_cluster_capacitors",
+        &[("PowerDistributor", "PowerDistributor_PriorityWeapons", "special_powerdistributor_capacity")],
+        &[
+            ("hull_mass", Some("320")),
+            ("unladen_mass", Some("820")),
+            ("laden_mass", Some("852")),
+            ("fuel_capacity", Some("32")),
+            ("cargo_capacity", Some("32")),
+            ("jump_max", Some("24.87")),
+            ("jump_unladen", Some("24.05")),
+            ("jump_laden", Some("23.15")),
+            ("jump_total_unladen", Some("163.74")),
+            ("jump_total_laden", Some("157.49")),
+            ("power_generation", Some("44.10")),
+            ("power_retracted", Some("23.27")),
+            ("power_deployed", Some("28.18")),
+            ("shield", Some("1428")),
+            ("shield_explosive", Some("52.9")),
+            ("shield_kinetic", Some("43.4")),
+            ("shield_thermal", Some("36.2")),
+            ("armour", Some("2143")),
+            ("hull_explosive", Some("-18.4")),
+            ("hull_kinetic", Some("-1.5")),
+            ("hull_thermal", Some("36.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("107.2")),
+            ("sustained_dps", Some("92.5")),
+            ("eps", Some("11.7")),
+            ("time_to_drain", Some("1:01")),
+            ("wep_capacity", Some("105.4")),
+            ("wep_recharge", Some("8.6")),
+            ("sys_capacity", Some("37.6")),
+            ("sys_recharge", Some("3.7")),
+            ("eng_capacity", Some("37.6")),
+            ("eng_recharge", Some("3.3")),
+            ("speed", Some("376")),
+            ("boost", Some("516")),
+        ],
+    );
+}
+
+// The drive from Increased range to Faster boot sequence, keeping Mass Manager.
+#[test]
+fn plan_fsd_fast_boot() {
+    check_plan(
+        "fsd_fast_boot",
+        &[("FrameShiftDrive", "FSD_FastBoot", "special_fsd_heavy")],
+        &[
+            ("hull_mass", Some("320")),
+            ("unladen_mass", Some("814")),
+            ("laden_mass", Some("846")),
+            ("fuel_capacity", Some("32")),
+            ("cargo_capacity", Some("32")),
+            ("jump_max", Some("18.71")),
+            ("jump_unladen", Some("18.09")),
+            ("jump_laden", Some("17.41")),
+            ("jump_total_unladen", Some("123.19")),
+            ("jump_total_laden", Some("118.45")),
+            ("power_generation", Some("44.10")),
+            ("power_retracted", Some("23.18")),
+            ("power_deployed", Some("28.09")),
+            ("shield", Some("1428")),
+            ("shield_explosive", Some("52.9")),
+            ("shield_kinetic", Some("43.4")),
+            ("shield_thermal", Some("36.2")),
+            ("armour", Some("2143")),
+            ("hull_explosive", Some("-18.4")),
+            ("hull_kinetic", Some("-1.5")),
+            ("hull_thermal", Some("36.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("107.2")),
+            ("sustained_dps", Some("92.5")),
+            ("eps", Some("11.7")),
+            ("time_to_drain", Some("1:10")),
+            ("wep_capacity", Some("92.2")),
+            ("wep_recharge", Some("9")),
+            ("sys_capacity", Some("33.5")),
+            ("sys_recharge", Some("4")),
+            ("eng_capacity", Some("33.5")),
+            ("eng_recharge", Some("3.5")),
+            ("speed", Some("376")),
+            ("boost", Some("517")),
+        ],
+    );
+}
+
+// Three, then four, thermal-resistant shield boosters in place of two (Heavy duty swapped for
+// Thermal resistance with Thermo Block).
+#[test]
+fn plan_thermal_boosters_3() {
+    check_plan(
+        "thermal_boosters_3",
+        &[("TinyHardpoint1", "ShieldBooster_Thermic", "special_shieldbooster_thermic")],
+        &[
+            ("hull_mass", Some("320")),
+            ("unladen_mass", Some("809")),
+            ("laden_mass", Some("841")),
+            ("fuel_capacity", Some("32")),
+            ("cargo_capacity", Some("32")),
+            ("jump_max", Some("25.21")),
+            ("jump_unladen", Some("24.36")),
+            ("jump_laden", Some("23.44")),
+            ("jump_total_unladen", Some("165.90")),
+            ("jump_total_laden", Some("159.49")),
+            ("power_generation", Some("44.10")),
+            ("power_retracted", Some("22.97")),
+            ("power_deployed", Some("27.88")),
+            ("shield", Some("1197")),
+            ("shield_explosive", Some("51.0")),
+            ("shield_kinetic", Some("41.2")),
+            ("shield_thermal", Some("43.9")),
+            ("armour", Some("2143")),
+            ("hull_explosive", Some("-18.4")),
+            ("hull_kinetic", Some("-1.5")),
+            ("hull_thermal", Some("36.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("107.2")),
+            ("sustained_dps", Some("92.5")),
+            ("eps", Some("11.7")),
+            ("time_to_drain", Some("1:10")),
+            ("wep_capacity", Some("92.2")),
+            ("wep_recharge", Some("9")),
+            ("sys_capacity", Some("33.5")),
+            ("sys_recharge", Some("4")),
+            ("eng_capacity", Some("33.5")),
+            ("eng_recharge", Some("3.5")),
+            ("speed", Some("377")),
+            ("boost", Some("518")),
+        ],
+    );
+}
+
+#[test]
+fn plan_thermal_boosters_4() {
+    check_plan(
+        "thermal_boosters_4",
+        &[
+            ("TinyHardpoint1", "ShieldBooster_Thermic", "special_shieldbooster_thermic"),
+            ("TinyHardpoint2", "ShieldBooster_Thermic", "special_shieldbooster_thermic"),
+        ],
+        &[
+            ("hull_mass", Some("320")),
+            ("unladen_mass", Some("799")),
+            ("laden_mass", Some("831")),
+            ("fuel_capacity", Some("32")),
+            ("cargo_capacity", Some("32")),
+            ("jump_max", Some("25.55")),
+            ("jump_unladen", Some("24.68")),
+            ("jump_laden", Some("23.73")),
+            ("jump_total_unladen", Some("168.12")),
+            ("jump_total_laden", Some("161.54")),
+            ("power_generation", Some("44.10")),
+            ("power_retracted", Some("22.67")),
+            ("power_deployed", Some("27.58")),
+            ("shield", Some("967")),
+            ("shield_explosive", Some("49.0")),
+            ("shield_kinetic", Some("38.8")),
+            ("shield_thermal", Some("49.5")),
+            ("armour", Some("2143")),
+            ("hull_explosive", Some("-18.4")),
+            ("hull_kinetic", Some("-1.5")),
+            ("hull_thermal", Some("36.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("107.2")),
+            ("sustained_dps", Some("92.5")),
+            ("eps", Some("11.7")),
+            ("time_to_drain", Some("1:10")),
+            ("wep_capacity", Some("92.2")),
+            ("wep_recharge", Some("9")),
+            ("sys_capacity", Some("33.5")),
+            ("sys_recharge", Some("4")),
+            ("eng_capacity", Some("33.5")),
+            ("eng_recharge", Some("3.5")),
+            ("speed", Some("378")),
+            ("boost", Some("519")),
         ],
     );
 }
