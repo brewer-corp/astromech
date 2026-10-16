@@ -3,6 +3,9 @@ created_at: "2026-10-16T19:06:19.433290279+00:00"
 id: "astromech-fdyn"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-fdyn
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Use the journal's engineering Modifiers for current ship stats"
-updated_at: "2026-10-16T19:06:19.433290279+00:00"
+updated_at: "2026-10-16T20:59:11.818705974+00:00"
 ---
 
 ## Goal
