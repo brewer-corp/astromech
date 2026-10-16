@@ -30,7 +30,8 @@ calibration wizard inside settings and a press log inside the button config. Thi
 starts from the tasks (§2), derives a minimal visual system from the game's own Controls screen
 (§4), and only then draws (§5). Decisions applied:
 - **VR is out of the app entirely.** No overlay, no in-headset UI. Voice still has to work
-  while he flies in VR (§6), but nothing on screen needs to.
+  while he flies in VR (§6), but nothing on screen needs to. *Update 15 Oct:* not yet, rather than never
+  (see §1.4).
 - **Releases are unsigned.**
 - **Signed in-app updates.** The core checks GitHub Releases (`latest.json` + ed25519). Apply
   quits astromech, overlays the zip, and relaunches; Elite may still be running. First install
@@ -132,7 +133,9 @@ those problems; see §3 for why this beats a pictorial main view.
 
 ### 1.4 Out of scope for v1 (and probably for good)
 - **Any UI in VR** (decided 10 Oct): no SteamVR overlay, no in-headset panels. The app is used
-  at the desk; in VR the only interface is voice and spoken replies.
+  at the desk; in VR the only interface is voice and spoken replies. *Update 15 Oct:* this is
+  "not yet", a prioritisation call rather than a permanent one; the overlay is tracked as the
+  "VR overlay" epic, after the daily lookups.
 - Colour themes or following the in-game HUD colour (decided): the stock orange palette only.
 - Cloud LLM / always-listening wake word (privacy, latency, cost; PTT is the right UX in a cockpit).
 - Macros, timers, auto-honk and any automation that acts without a spoken request (EULA grey zone, ARCHITECTURE §11).
@@ -149,7 +152,7 @@ Value and effort are relative (S ≈ ≤ 3 days, M ≈ 1–2 weeks, L ≈ 3+ wee
 | 2 | **Diagnostics bundle export** (zip: logs, redacted config, health report, device list, clip stats, versions; saved clips only if the Debug setting is on and the box is ticked) | High | S | **v1** | Every remote debug round so far needed this. |
 | 3 | **Binds backup/restore** | High | S | **v1** | Prerequisite for any edit; cheap. |
 | 4 | **Personal phrase learning**: when the user confirms a did-you-mean, store "you're down → gear down" as a per-user alias that executes next time (still capped by policy) | High | S | **v1** | The most direct fix for *his* recurring mishearings; stays local. |
-| 5 | **Spoken game-event callouts** (read-only, journal): low fuel, fuel scoop full, interdiction, under attack, heat warning, hull damage, scan complete; each with a toggle; master toggle default **on with three events**: low fuel, interdiction, heat | Med–High | S–M | **v1 (small set)** | Reuses the journal pipeline and Kokoro. Never presses keys. |
+| 5 | **Spoken game-event callouts** (read-only, journal): low fuel, fuel scoop full, interdiction, under attack, heat warning, hull damage, scan complete; each with a toggle; master toggle default **on with three events**: low fuel, interdiction, heat | Med–High | S–M | **v1 (small set)** | Reuses the journal pipeline and Kokoro. Never presses keys. *Superseded 15 Oct:* low fuel, interdiction and heat are prominent on the HUD, so they aren't spoken; the reaction epics in the tracker replace this list. |
 | 6 | Binds diff between two presets / before-after an update | Med | S | later | Small but not core. |
 | 7 | Print/PDF reference card | Med | S | later | |
 
@@ -845,7 +848,9 @@ Settled with Sumeet before implementation started:
    confirmation** first), HUD mode, panels, and throttle to zero.
 4. **Game callouts:** **only a low-fuel warning**, on by default at **25%**, threshold
    configurable in Settings. No interdiction or heat callouts: the game already alerts those
-   clearly.
+   clearly. *Update 15 Oct:* the low-fuel warning is prominent on the HUD too, so
+   it isn't spoken either; the fuel callout says the next scoopable star on the route, and
+   warns only when there isn't enough fuel to reach one (tracker: "Fuel: next scoopable star").
 5. **Autostart:** **start with Windows on by default** (tray only, idle until Elite runs), with
    an opt-out in setup and in Settings.
 6. **Six uncertain VKB buttons** (ministick push, both base-switch directions, rapid-fire

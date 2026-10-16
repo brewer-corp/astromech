@@ -1,0 +1,42 @@
+---
+created_at: "2026-10-15T20:36:13.647047088+00:00"
+id: "astromech-znhx"
+issue_type: "feature"
+labels: []
+priority: "P1"
+relationships:
+  blocks:
+  - kind: "issue"
+    id: "astromech-e8ux"
+  children:
+  - kind: "issue"
+    id: "astromech-0jqu"
+  - kind: "issue"
+    id: "astromech-7vpa"
+  - kind: "issue"
+    id: "astromech-8e8c"
+  - kind: "issue"
+    id: "astromech-a63r"
+  attachments: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
+schema: "atelier.issue"
+schema_version: 2
+status: "backlog"
+title: "Exobiology"
+updated_at: "2026-10-15T20:36:13.716404361+00:00"
+---
+
+## Goal
+
+The user knows which bodies have biology worth sampling, what it's likely to be worth, and when they've moved far enough between samples. This replaces OD Explorer's and BioScan's exobiology features.
+
+## Done when
+
+Every child issue is done. Delivers S8.
+
+## Unknowns
+
+Licences of the species prediction tables; how complete Spansh's body signal and genus data are.

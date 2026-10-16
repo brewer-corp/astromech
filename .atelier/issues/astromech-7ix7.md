@@ -1,0 +1,34 @@
+---
+created_at: "2026-10-15T20:36:13.655892700+00:00"
+id: "astromech-7ix7"
+issue_type: "task"
+labels:
+- "size-m"
+priority: "P0"
+relationships:
+  blocks:
+  - kind: "issue"
+    id: "astromech-bf25"
+  - kind: "issue"
+    id: "astromech-w1q2"
+  children: []
+  attachments: []
+  relates: []
+schema: "atelier.issue"
+schema_version: 2
+status: "todo"
+title: "Nearby Powerplay targets"
+updated_at: "2026-10-15T20:36:13.655892700+00:00"
+---
+
+## Goal
+
+Acquisition, reinforcement and undermining systems for my power within N ly, with state and progress.
+
+## Done when
+
+A recorded Spansh response returns systems for the pledged power in distance order.
+
+## Context
+
+Spansh systems search with Powerplay filters. Unverified: the field names.

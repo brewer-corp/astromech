@@ -14,3 +14,8 @@ results/
 app/src-tauri/binaries/
 # Star map preload: published by .github/workflows/starmap.yml, downloaded by release builds; not committed
 app/src-tauri/resources/starmap.db
+
+# Atelier local runtime state
+/.atelier/agent.json
+/.atelier/runtime/
+/.atelier-bundle-stage-*/
