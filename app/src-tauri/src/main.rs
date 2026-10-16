@@ -524,6 +524,7 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "download_models",
         "open_config",
         "eddn_log",
+        "set_eddn",
         "voice_test",
         "voice_test_poll",
         "voice_test_stop",

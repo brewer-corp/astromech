@@ -104,8 +104,8 @@ pub struct Actions {
     pub dry_run: bool,
 }
 
-/// Sharing game data with EDDN (`astromech-eddn`). Off unless switched on: Settings → Data
-/// sharing (astromech-09s3) will own this.
+/// Sharing game data with EDDN (`astromech-eddn`). Off unless switched on in Settings → Data
+/// sharing (`set_eddn`).
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Eddn {

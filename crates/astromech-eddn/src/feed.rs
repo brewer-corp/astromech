@@ -28,6 +28,7 @@ use crate::Sender;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -72,6 +73,8 @@ pub struct Feed {
     live: bool,
     /// Lines fed as live are arriving too old to send (logged once when this starts and ends).
     stale: bool,
+    /// The user's switch. Off: events still keep the context current, but nothing is queued.
+    sharing: Arc<AtomicBool>,
     worker: Option<Worker>,
     /// The app log, for what can't go in the send log (the outbox itself failing).
     log: Log,
@@ -86,26 +89,29 @@ impl Feed {
             awaiting: HashMap::new(),
             live: false,
             stale: false,
+            sharing: Arc::new(AtomicBool::new(true)),
             worker: None,
             log: Arc::new(|_: &str| {}),
         }
     }
 
     /// Open the outbox at `db` twice (one connection queues, the worker's delivers) and start
-    /// delivering over `transport`. `test` sends to the `/test` schemas.
+    /// delivering over `transport`. `test` sends to the `/test` schemas. `sharing` is the user's
+    /// switch, read on every event and before every post.
     pub fn start(
         db: &Path,
         software: Software,
         test: bool,
         transport: Box<dyn Transport + Send>,
+        sharing: Arc<AtomicBool>,
         log: impl Fn(&str) + Send + Sync + 'static,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let log: Log = Arc::new(log);
         let sender = Sender::new(Outbox::open(db)?, software, test);
-        let courier = Courier::new(Outbox::open(db)?, transport, Instant::now());
+        let courier = Courier::new(Outbox::open(db)?, transport, Instant::now(), sharing.clone());
         let worker_log = log.clone();
         let worker = Worker::spawn(courier, move |m| worker_log(m))?;
-        Ok(Self { worker: Some(worker), log, ..Self::new(sender) })
+        Ok(Self { worker: Some(worker), log, sharing, ..Self::new(sender) })
     }
 
     /// One journal event (raw JSON), in order. `live` is false while replaying a journal that
@@ -115,6 +121,8 @@ impl Feed {
         // FSDJump that arrives there, and the batch must be checked against the new system.
         self.sender.observe(ev);
         let name = ev.get("event").and_then(Value::as_str).unwrap_or_default();
+        // Switched off, live lines are handled like a replay: nothing queued or logged.
+        let live = live && self.sharing.load(Ordering::SeqCst);
         let age = unix_time(ev).map(|t| now - t);
         let stale = live && age.is_some_and(|a| a > MAX_EVENT_AGE_SECS);
         if live && stale != self.stale {
@@ -318,7 +326,7 @@ mod tests {
     fn sent(f: &Feed) -> Vec<Value> {
         let n = f.sender().outbox().pending().unwrap();
         let t = FakeTransport::new((0..n).map(|_| status(200)));
-        f.sender().outbox().deliver_due(&t, 100, true, &crate::outbox::tests::GO).unwrap();
+        f.sender().outbox().deliver_due(&t, 100, true, &crate::outbox::tests::no_stop).unwrap();
         let ups = t.posted.borrow().iter().map(|b| gunzip(b)).collect();
         ups
     }
@@ -501,7 +509,8 @@ mod tests {
         let (started_tx, started) = channel();
         let (release, release_rx) = channel();
         let gate = Gate { started: Mutex::new(started_tx), release: Mutex::new(release_rx) };
-        let mut f = Feed::start(&db, software(), true, Box::new(gate), |_| {}).unwrap();
+        let mut f =
+            Feed::start(&db, software(), true, Box::new(gate), Arc::new(AtomicBool::new(true)), |_| {}).unwrap();
         feed_all(&mut f, &session("r1 ", "Jameson"), false);
         // Real time: the worker gives up on messages queued long ago by its own clock.
         let now = wall_now();
@@ -543,7 +552,7 @@ mod tests {
         let queued = Outbox::open(&db).unwrap();
         queued.enqueue("https://eddn.edcd.io/schemas/journal/1/test", b"one", wall_now()).unwrap();
         queued.enqueue("https://eddn.edcd.io/schemas/journal/1/test", b"two", wall_now()).unwrap();
-        let f = Feed::start(&db, software(), true, Box::new(gate), |_| {}).unwrap();
+        let f = Feed::start(&db, software(), true, Box::new(gate), Arc::new(AtomicBool::new(true)), |_| {}).unwrap();
         started.recv_timeout(Duration::from_secs(10)).expect("the worker posts");
 
         let t = Instant::now();
@@ -572,5 +581,24 @@ mod tests {
         assert_eq!(lines.lock().unwrap().len(), 2);
         assert_eq!(lines.lock().unwrap()[1], "EDDN: live journal lines are current again, sending");
         assert_eq!(f.sender().outbox().pending().unwrap(), 2);
+    }
+
+    #[test]
+    fn switched_off_nothing_is_queued_and_switching_on_resumes_with_the_right_context() {
+        let mut f = feed();
+        f.sharing.store(false, Ordering::SeqCst);
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&docked("2026-10-16T12:05:00Z"), true, 100);
+        f.journal(&market_event("2026-10-16T12:05:01Z"), true, 100);
+        f.journal(&json!({"timestamp":"2026-10-16T12:05:02Z","event":"Scan","SystemAddress":SHINRARTA}), true, 100);
+        assert!(!f.awaiting("Market"));
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "the outbox stays empty");
+        assert!(log(&f).is_empty(), "and nothing is logged");
+
+        f.sharing.store(true, Ordering::SeqCst);
+        f.journal(&docked("2026-10-16T12:06:00Z"), true, 100);
+        let ups = sent(&f);
+        assert_eq!(schemas(&ups), ["journal/1"]);
+        assert_eq!(ups[0]["header"]["uploaderID"], "Jameson");
     }
 }

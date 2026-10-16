@@ -18,9 +18,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Settings → Data sharing"
-updated_at: "2026-10-16T20:18:55.697268890+00:00"
+updated_at: "2026-10-16T20:38:59.168739486+00:00"
 ---
 
 ## Goal

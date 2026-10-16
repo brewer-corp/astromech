@@ -315,20 +315,32 @@ pub fn start(
     start_with_eddn(dir, hub, db, log, None)
 }
 
-/// The EDDN feed, if `[eddn] enabled` (off by default). Debug builds send to the `/test`
-/// schemas whatever the config says. A feed that can't start is logged and left off.
+/// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
+/// event and by its worker before every post, so switching it takes effect at once. The core
+/// sets it from the config at start and on every edit.
+pub static EDDN_SHARING: std::sync::LazyLock<Arc<AtomicBool>> = std::sync::LazyLock::new(Arc::default);
+
+/// Whether EDDN messages go to the `/test` schemas: when the config says so, and always in a
+/// debug build.
+pub fn eddn_test(cfg: &crate::config::Config) -> bool {
+    cfg.eddn.test || cfg!(debug_assertions)
+}
+
+/// The EDDN feed. It runs even while sharing is off, so the header, commander and location are
+/// right the moment it's switched on; off, it queues nothing and its worker posts nothing. A
+/// feed that can't start is logged and left out.
 pub fn eddn_feed(cfg: &crate::config::Config, data_dir: &Path) -> Option<astromech_eddn::Feed> {
-    if !cfg.eddn.enabled {
-        return None;
-    }
-    let test = cfg.eddn.test || cfg!(debug_assertions);
+    let test = eddn_test(cfg);
     let version = env!("CARGO_PKG_VERSION");
     let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
     let transport = astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &format!("astromech/{version}"));
     let db = data_dir.join(astromech_eddn::DB_FILE);
-    match astromech_eddn::Feed::start(&db, software, test, Box::new(transport), crate::logging::log) {
+    let sharing = EDDN_SHARING.clone();
+    let on = sharing.load(Ordering::SeqCst);
+    match astromech_eddn::Feed::start(&db, software, test, Box::new(transport), sharing, crate::logging::log) {
         Ok(f) => {
-            crate::logging::log(&format!("EDDN: sharing live data{}", if test { " (test schemas)" } else { "" }));
+            let state = if on { "sharing live data" } else { "off (Settings → Data sharing)" };
+            crate::logging::log(&format!("EDDN: {state}{}", if test { ", test schemas" } else { "" }));
             Some(f)
         }
         Err(e) => {

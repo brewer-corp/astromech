@@ -258,7 +258,9 @@ astromech/
                          Worker: delivery on its own thread and SQLite connection, so no lock is held
                          across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
                          also wait a minute on the monotonic clock; messages over 30 min old are given
-                         up; stopping never waits for a post. Off unless [eddn] enabled = true
+                         up, and at most 2000 are kept; stopping never waits for a post. Off until
+                         switched on in Settings → Data sharing ([eddn] enabled), which takes effect at
+                         once: off, nothing is queued and the queue is discarded
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)

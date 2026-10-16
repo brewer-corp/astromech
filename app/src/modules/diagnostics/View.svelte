@@ -2,7 +2,7 @@
   // Diagnostics (docs/V1-DESIGN.md §2.2): what astromech sees right now, and Save diagnostics for
   // a bug report. Settings live in Settings; the key tester is under Controls.
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
-  import { eddnLog, schemaName, type EddnLog } from "../../lib/eddn";
+  import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
   let shell = $state("…");
@@ -27,9 +27,6 @@
     await refresh();
   }
 
-  // Date and time: the log keeps entries across days and restarts.
-  const time = (at: number) =>
-    new Date(at * 1000).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const outcome: Record<string, string> = { sent: "Sent", rejected: "Rejected", retry: "Will retry", gave_up: "Gave up", dropped: "Not sent" };
 
   const game = (g: CoreStatus["game"]) =>
@@ -40,6 +37,19 @@
     !status ? `${shell} (background process not running)` : status.version === shell ? shell : `window ${shell}, background ${status.version}`,
   );
 </script>
+
+{#snippet rows(entries: EddnLogEntry[])}
+  <ol class="eddn">
+    {#each entries as e, i (i)}
+      <li class={e.outcome}>
+        <span class="mono">{when(e.at)}</span>
+        <span>{schemaName(e.schema_ref)}</span>
+        <span>{outcome[e.outcome] ?? e.outcome}</span>
+        <span class="mono detail">{e.detail}</span>
+      </li>
+    {/each}
+  </ol>
+{/snippet}
 
 <section>
   {#if status?.crash_pending}
@@ -65,20 +75,18 @@
   {#if !eddn}
     <p class="note">—</p>
   {:else}
-    <p class="note">{eddn.pending} waiting to send</p>
+    <p class="note">{eddn.enabled ? "Sharing on" : "Sharing off"} · {eddn.pending} waiting to send</p>
+    <h3>Gateway answers</h3>
     {#if eddn.log.length}
-      <ol class="eddn">
-        {#each eddn.log as e, i (i)}
-          <li class={e.outcome}>
-            <span class="mono">{time(e.at)}</span>
-            <span>{schemaName(e.schema_ref)}</span>
-            <span>{outcome[e.outcome] ?? e.outcome}</span>
-            <span class="mono detail">{e.detail}</span>
-          </li>
-        {/each}
-      </ol>
+      {@render rows(eddn.log)}
     {:else}
       <p class="note">Nothing sent to EDDN yet.</p>
+    {/if}
+    <h3>Not sent</h3>
+    {#if eddn.skipped.length}
+      {@render rows(eddn.skipped)}
+    {:else}
+      <p class="note">Nothing skipped.</p>
     {/if}
   {/if}
 </section>
@@ -96,6 +104,7 @@
   button:not(:disabled):hover { color: var(--text-hi); }
   .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }
   h2 { margin: 32px 0 12px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-weight: 600; }
+  h3 { margin: 20px 0 0; color: var(--text-lo); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .eddn { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
   .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); color: var(--text); }
   .eddn li > span { padding: 0 12px; }

@@ -11,7 +11,7 @@
 //! before each post and returns at once. A post in flight finishes (or times out) on the
 //! detached thread; its attempt and retry time were saved before it started.
 
-use crate::outbox::{Delivery, Outbox, MIN_RETRY_SECS};
+use crate::outbox::{Delivery, Outbox, Outcome, MIN_RETRY_SECS};
 use crate::transport::Transport;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender as Tx};
@@ -35,16 +35,32 @@ pub struct Courier {
     hold_until: Instant,
     /// Set to end the pass in progress before its next post.
     stop: Arc<AtomicBool>,
+    /// The user's switch: while off, nothing is posted and the queue is discarded.
+    sharing: Arc<AtomicBool>,
 }
 
 impl Courier {
-    pub fn new(outbox: Outbox, transport: Box<dyn Transport + Send>, started: Instant) -> Self {
-        Self { outbox, transport, hold_until: started + MIN_RETRY, stop: Arc::default() }
+    pub fn new(
+        outbox: Outbox,
+        transport: Box<dyn Transport + Send>,
+        started: Instant,
+        sharing: Arc<AtomicBool>,
+    ) -> Self {
+        Self { outbox, transport, hold_until: started + MIN_RETRY, stop: Arc::default(), sharing }
     }
 
     /// Deliver what's due: `wall` is Unix seconds, `mono` the monotonic time of the same moment.
+    /// Switched off, it posts nothing and discards the queue instead.
     pub fn pass(&mut self, wall: i64, mono: Instant) -> rusqlite::Result<Delivery> {
-        let d = self.outbox.deliver_due(self.transport.as_ref(), wall, mono >= self.hold_until, &self.stop)?;
+        if !self.sharing.load(Ordering::SeqCst) {
+            let n = self.outbox.purge()?;
+            if n > 0 {
+                self.outbox.log(wall, "eddn", Outcome::GaveUp, &format!("switched off: {n} queued discarded"))?;
+            }
+            return Ok(Delivery { gave_up: n, ..Default::default() });
+        }
+        let stop = || self.stop.load(Ordering::SeqCst) || !self.sharing.load(Ordering::SeqCst);
+        let d = self.outbox.deliver_due(self.transport.as_ref(), wall, mono >= self.hold_until, &stop)?;
         if d.retrying > 0 || d.stopped {
             self.hold_until = mono + MIN_RETRY;
         }
@@ -165,7 +181,7 @@ mod tests {
         let script = Script::new([status(503), status(200)]);
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 1000).unwrap();
-        let mut c = Courier::new(o, Box::new(script.clone()), t0);
+        let mut c = Courier::new(o, Box::new(script.clone()), t0, Arc::new(AtomicBool::new(true)));
         assert_eq!(c.pass(1000, t0).unwrap().retrying, 1, "a new message goes straight away");
         // The wall clock jumps 20 minutes ahead 5 s later: the message's next_try has passed,
         // but only 5 s went by on the monotonic clock.
@@ -181,9 +197,9 @@ mod tests {
         let t0 = Instant::now();
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 0).unwrap();
-        o.deliver_due(&Script::new([status(413)]), 0, true, &crate::outbox::tests::GO).unwrap();
+        o.deliver_due(&Script::new([status(413)]), 0, true, &crate::outbox::tests::no_stop).unwrap();
         let script = Script::new([status(200)]);
-        let mut c = Courier::new(o, Box::new(script.clone()), t0);
+        let mut c = Courier::new(o, Box::new(script.clone()), t0, Arc::new(AtomicBool::new(true)));
         assert_eq!(c.pass(600, t0 + Duration::from_secs(1)).unwrap(), Delivery::default());
         assert_eq!(c.pass(600, t0 + MIN_RETRY).unwrap().sent, 1);
     }
@@ -194,10 +210,51 @@ mod tests {
         let script = Script::new([status(413), status(200)]);
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"old", 0).unwrap();
-        let mut c = Courier::new(o, Box::new(script.clone()), t0);
+        let mut c = Courier::new(o, Box::new(script.clone()), t0, Arc::new(AtomicBool::new(true)));
         c.pass(0, t0).unwrap();
         c.outbox().enqueue(REF, b"new", 1).unwrap();
         assert_eq!(c.pass(1, t0 + Duration::from_secs(1)).unwrap().sent, 1);
         assert_eq!(c.outbox().pending().unwrap(), 1, "the failed one still waits");
+    }
+
+    #[test]
+    fn switched_off_it_posts_nothing_and_discards_the_queue() {
+        let t0 = Instant::now();
+        let script = Script::new([]);
+        let sharing = Arc::new(AtomicBool::new(true));
+        let o = Outbox::in_memory().unwrap();
+        o.enqueue(REF, b"a", 1000).unwrap();
+        o.enqueue(REF, b"b", 1000).unwrap();
+        let mut c = Courier::new(o, Box::new(script.clone()), t0, sharing.clone());
+        sharing.store(false, Ordering::SeqCst);
+        assert_eq!(c.pass(1000, t0).unwrap().gave_up, 2);
+        assert_eq!(script.calls(), 0);
+        assert_eq!(c.outbox().pending().unwrap(), 0);
+        assert_eq!(c.outbox().recent(1).unwrap()[0].detail, "switched off: 2 queued discarded");
+        // Nothing left: no more rows.
+        c.pass(1001, t0).unwrap();
+        assert_eq!(c.outbox().recent(10).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn switching_off_mid_pass_stops_before_the_next_post() {
+        let t0 = Instant::now();
+        let sharing = Arc::new(AtomicBool::new(true));
+        /// Switches sharing off during its first post.
+        struct OffAfterOne(Arc<AtomicBool>, Arc<Mutex<usize>>);
+        impl Transport for OffAfterOne {
+            fn post(&self, _: &[u8]) -> Result<Response, String> {
+                *self.1.lock().unwrap() += 1;
+                self.0.store(false, Ordering::SeqCst);
+                Ok(Response { status: 200, body: "OK".into() })
+            }
+        }
+        let calls = Arc::new(Mutex::new(0));
+        let o = Outbox::in_memory().unwrap();
+        o.enqueue(REF, b"a", 1000).unwrap();
+        o.enqueue(REF, b"b", 1000).unwrap();
+        let mut c = Courier::new(o, Box::new(OffAfterOne(sharing.clone(), calls.clone())), t0, sharing);
+        assert_eq!(c.pass(1000, t0).unwrap().sent, 1);
+        assert_eq!(*calls.lock().unwrap(), 1);
     }
 }
