@@ -27,9 +27,9 @@ describe("Station", () => {
     const table = await screen.findByRole("table", { name: "Stations that sold it" });
     const rows = within(table).getAllByRole("row").slice(1);
     expect(rows).toHaveLength(2);
-    expect(rows[0]!.textContent).toContain("Test Orbital");
-    expect(rows[1]!.textContent).toContain("Other Port");
-    expect(rows[1]!.textContent).toContain("9,500,000 cr");
+    expect(rows[0]!.textContent).toContain("Other Port");
+    expect(rows[0]!.textContent).toContain("9,500,000 cr");
+    expect(rows[1]!.textContent).toContain("Test Orbital");
   });
 
   it("says so when no remembered station sold it", async () => {

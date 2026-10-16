@@ -112,11 +112,12 @@ fn rank(rating: Option<&str>) -> Option<u8> {
 
 /// What the current build needs, by one simple rule: for each fitted module, the module on sale
 /// of the same kind and size (same group, name, class and mount) with a better rating, the
-/// best rating first and the cheapest of those. Empty slots are not counted (the catalog has no
+/// best rating first and the cheapest of those. Engineered modules are skipped: a light build
+/// runs engineered D-rated modules on purpose, so a higher rating is not better there. Empty slots are not counted (the catalog has no
 /// slot sizes per hull), nor are other kinds of module.
 pub fn upgrades(fitted: &[Fitted], items: &[Item]) -> Vec<Upgrade> {
     let mut out = vec![];
-    for f in fitted {
+    for f in fitted.iter().filter(|f| f.engineering.is_none()) {
         let Some(have) = data::module(&f.item) else { continue };
         let Some(have_rank) = rank(have.rating.as_deref()) else { continue };
         let best = items
@@ -144,4 +145,39 @@ pub fn upgrades(fitted: &[Fitted], items: &[Item]) -> Vec<Upgrade> {
         }
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use astromech_engineering::Applied;
+
+    fn fitted(engineered: bool) -> Fitted {
+        Fitted {
+            slot: "Radar".into(),
+            slot_name: "Sensors".into(),
+            item: "int_sensors_size5_class2".into(),
+            name: "5D Sensors".into(),
+            group: None,
+            engineering: engineered.then(|| Applied {
+                blueprint: "Sensor_LightWeight".into(),
+                blueprint_name: "Lightweight".into(),
+                grade: 5,
+                quality: 1.0,
+                experimental: None,
+                experimental_name: None,
+                engineer: None,
+            }),
+        }
+    }
+
+    fn on_sale() -> Vec<Item> {
+        vec![Item { item: "int_sensors_size5_class5".into(), name: "5A Sensors".into(), price: 1_000_000 }]
+    }
+
+    #[test]
+    fn engineered_modules_are_not_upgrade_candidates() {
+        assert_eq!(upgrades(&[fitted(false)], &on_sale()).len(), 1, "stock D sensors want the 5A");
+        assert!(upgrades(&[fitted(true)], &on_sale()).is_empty());
+    }
 }
