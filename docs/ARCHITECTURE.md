@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, data, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, announce, api, web, gamedata, history, ship, engineering, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -237,7 +237,12 @@ astromech/
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
-                         Spansh faction-state lookups (Famine, HGE pools), position from the journal
+                         Spansh faction-state lookups (Famine, HGE pools), position from the journal;
+                         its network calls go through astromech-data
+    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
+                         Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
+                         bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
+                         typed schema checks, per-service rate limit, plain-words errors (§5.8)
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
@@ -432,6 +437,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - EDDN: optional listener and uploader, v2.
 - **Cache:** SQLite with TTLs (system data 7 days, search results 1 h, routes per session).
 - **Etiquette and resilience:** a `governor` limiter per host, a circuit breaker (5 failures → 60 s open), and `User-Agent: astromech/<ver> (+contact)`.
+- **As built (v0.1.5, astromech-h74l):** one `Client` with a swappable `Transport` (tests use recorded bodies). The cache is a `remote_cache` table holding raw bodies that passed the schema check; TTLs are 7 days for system data, 1 h for searches and traffic, 15 min for markets; route polling and EDSM sphere fill-in are not cached. Rate limiting is a small per-service slot limiter (1 request/s each), not `governor`. No circuit breaker yet. Verified Spansh filter shapes are listed in `astromech_data::spansh`; Spansh ignores unknown or mis-shaped filters, so callers re-check hits.
 
 ### 5.9 `astromech-capi` (feature-gated; v2+)
 - **Auth:** OAuth2 auth code with PKCE (S256) against `https://auth.frontierstore.net` (`/auth`, `/token`, `/decode`), `audience=frontier,steam,epic`, `scope=auth capi`.

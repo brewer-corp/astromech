@@ -57,6 +57,7 @@ pub struct Nearby {
 
 pub struct Galaxy {
     store: Mutex<Store>,
+    remote: astromech_data::Client,
     map: RwLock<Option<Arc<StarMap>>>,
     /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
     fill_failed: Mutex<Option<i64>>,
@@ -84,7 +85,12 @@ impl Galaxy {
     }
 
     pub fn with_store(s: Store) -> Self {
-        Galaxy { store: Mutex::new(s), map: RwLock::new(None), fill_failed: Mutex::new(None) }
+        Self::with_remote(s, astromech_data::Client::new(astromech_data::Cache::in_memory().expect("in-memory SQLite")))
+    }
+
+    /// `remote` answers the Spansh and EDSM requests (tests pass a recorded transport).
+    pub fn with_remote(s: Store, remote: astromech_data::Client) -> Self {
+        Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
@@ -127,7 +133,7 @@ impl Galaxy {
         if self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()).is_some_and(|t| now - t < FILL_RETRY_S) {
             return Ok(false);
         }
-        let rows = match remote::edsm_sphere(p, FILL_RADIUS).and_then(|b| remote::parse_sphere(&b)) {
+        let rows = match remote::edsm_sphere(&self.remote, p, FILL_RADIUS) {
             Ok(r) => r,
             Err(e) => {
                 *self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()) = Some(now);
@@ -169,7 +175,7 @@ impl Galaxy {
         let (fetched, body) = match cached {
             Some(c) => c,
             None => {
-                let b = remote::spansh_search(q, here.pos, 50)?;
+                let b = remote::spansh_search(&self.remote, q, here.pos, 50)?;
                 remote::parse_search(&b)?;
                 self.store().cache_put(&key, now, &b)?;
                 (now, b)
@@ -207,7 +213,7 @@ impl Galaxy {
                     hop,
                     population: h.population,
                     updated_at: h.updated_at.clone(),
-                    factions: h.factions.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
+                    factions: h.minor_faction_presences.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
                 }
             })
             .collect();

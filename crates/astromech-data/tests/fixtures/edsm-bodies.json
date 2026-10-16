@@ -1,0 +1,86 @@
+{
+ "id": 6903,
+ "id64": 1178708478315,
+ "name": "Alpha Centauri",
+ "bodyCount": 9,
+ "bodies": [
+  {
+   "id": 8141559,
+   "id64": 72058772746406251,
+   "bodyId": 2,
+   "name": "Alpha Centauri",
+   "type": "Star",
+   "subType": "G (White-Yellow) Star",
+   "parents": [
+    {
+     "Null": 1
+    },
+    {
+     "Null": 0
+    }
+   ],
+   "distanceToArrival": 0,
+   "isMainStar": true,
+   "isScoopable": true,
+   "age": 9440,
+   "spectralClass": "G",
+   "luminosity": "V",
+   "absoluteMagnitude": 4.357269,
+   "solarMasses": 1.175781,
+   "solarRadius": 1.1026000977713875,
+   "surfaceTemperature": 6557,
+   "orbitalPeriod": 9348.906645620254,
+   "semiMajorAxis": 4.632701249584096,
+   "orbitalEccentricity": 0.5179,
+   "orbitalInclination": 79.205114,
+   "argOfPeriapsis": 116.656503,
+   "rotationalPeriod": 4.159450264155093,
+   "rotationalPeriodTidallyLocked": false,
+   "axialTilt": 0.175421,
+   "updateTime": "2026-10-15 20:05:34"
+  },
+  {
+   "id": 168,
+   "id64": 360289148898117995,
+   "bodyId": 10,
+   "name": "Eden",
+   "type": "Planet",
+   "subType": "High metal content world",
+   "parents": [
+    {
+     "Star": 4
+    },
+    {
+     "Null": 0
+    }
+   ],
+   "distanceToArrival": 6395226,
+   "isLandable": false,
+   "gravity": 0.9165421720808258,
+   "earthMasses": 0.66,
+   "radius": 5412.28,
+   "surfaceTemperature": 1223,
+   "surfacePressure": 2213.2862768319765,
+   "volcanismType": "Minor Metallic Magma",
+   "atmosphereType": "Hot thick Water",
+   "atmosphereComposition": {
+    "Water": 99.95
+   },
+   "solidComposition": {
+    "Rock": 70,
+    "Metal": 30,
+    "Ice": 0
+   },
+   "terraformingState": null,
+   "orbitalPeriod": 30.999999769305557,
+   "semiMajorAxis": 0.010000006813696581,
+   "orbitalEccentricity": 0.01,
+   "orbitalInclination": 77.100063,
+   "argOfPeriapsis": 194.047054,
+   "rotationalPeriod": 1.0495200603356483,
+   "rotationalPeriodTidallyLocked": true,
+   "axialTilt": -0.213485,
+   "updateTime": "2026-10-15 20:05:34"
+  }
+ ]
+}
