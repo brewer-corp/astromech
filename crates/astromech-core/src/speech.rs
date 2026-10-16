@@ -6,8 +6,7 @@ use astromech_voice::client::Worker;
 use astromech_voice::proto::Request;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::{channel, Sender};
-use std::sync::Mutex;
+use std::sync::{Arc, Condvar, Mutex};
 use std::time::Duration;
 
 /// Something that says short confirmations. Must not block for long.
@@ -17,6 +16,10 @@ pub trait Speaker: Send + Sync {
     fn interrupt(&self) {}
     /// Speak later lines with this voice (Settings → Voice responses). Default: no voice to change.
     fn set_voice(&self, _voice: &VoiceParams) {}
+    /// Does `say` make a sound (Kokoro), or only print? Default: only prints.
+    fn speaks_aloud(&self) -> bool {
+        false
+    }
 }
 
 /// What Kokoro renders a line with. Settings can change it while voice runs; the next line uses it.
@@ -81,6 +84,68 @@ pub fn voice_choices() -> Vec<VoiceChoice> {
         .collect();
     v.sort_by_key(|c| (c.accent != "British", c.name));
     v
+}
+
+/// Settings' voice preview while no session runs: a Kokoro started on the first preview, reused
+/// for the next ones, and released after [`PREVIEW_IDLE`] without a line (it holds the model in
+/// memory) or when a session starts (it has its own).
+#[derive(Default)]
+pub struct PreviewSlot {
+    inner: Mutex<Option<(Arc<dyn Speaker>, std::time::Instant)>>,
+}
+
+/// How long an unused preview Kokoro stays loaded.
+pub const PREVIEW_IDLE: Duration = Duration::from_secs(60);
+
+impl PreviewSlot {
+    /// Say `line`. Under the slot's lock: `route` may answer instead (an error, or speaking through
+    /// a running session); otherwise the preview speaker is started if needed with `start`.
+    pub fn say(
+        &self,
+        line: &str,
+        route: impl FnOnce() -> Option<Result<()>>,
+        start: impl FnOnce() -> Result<Arc<dyn Speaker>>,
+    ) -> Result<()> {
+        let mut g = self.inner.lock().unwrap();
+        if let Some(r) = route() {
+            return r;
+        }
+        let sp = match g.take() {
+            Some((sp, _)) => sp,
+            None => start()?,
+        };
+        if !sp.speaks_aloud() {
+            return Err(anyhow!("speech output is off"));
+        }
+        sp.say(line);
+        *g = Some((sp, std::time::Instant::now()));
+        Ok(())
+    }
+
+    pub fn set_voice(&self, v: &VoiceParams) {
+        if let Some((sp, _)) = self.inner.lock().unwrap().as_ref() {
+            sp.set_voice(v);
+        }
+    }
+
+    /// Release the preview speaker; true if there was one.
+    pub fn take(&self) -> bool {
+        self.inner.lock().unwrap().take().is_some()
+    }
+
+    /// Release it if nothing was said for `idle`; true if released.
+    pub fn release_idle(&self, now: std::time::Instant, idle: Duration) -> bool {
+        let mut g = self.inner.lock().unwrap();
+        if g.as_ref().is_some_and(|(_, t)| now.saturating_duration_since(*t) >= idle) {
+            *g = None;
+            return true;
+        }
+        false
+    }
+
+    pub fn loaded(&self) -> bool {
+        self.inner.lock().unwrap().is_some()
+    }
 }
 
 /// The line the Settings preview speaks (a fixed phrase, so it's usually cached already).
@@ -179,15 +244,20 @@ impl Synth for Worker {
 /// ([`Speaker::set_voice`]); each line is rendered with the voice current when it was said, and
 /// the cache is keyed by model, voice, speed and colour.
 pub struct TtsSpeaker {
-    tx: Mutex<Sender<Job>>,
+    queue: Arc<(Mutex<Queue>, Condvar)>,
     mixer: astromech_voice::mixer::Mixer,
-    voice: Mutex<VoiceParams>,
+    /// The current voice, shared with the render thread so it can skip stale warm-ups.
+    voice: Arc<Mutex<VoiceParams>>,
     prerender: Vec<String>,
 }
 
-enum Job {
-    Speak(String, VoiceParams),
-    Warm(String, VoiceParams),
+/// Lines waiting to render. Replies (`speak`) always go before warm-ups, so a voice change's
+/// background re-render of the fixed phrases never delays the next reply or a preview.
+#[derive(Default)]
+struct Queue {
+    speak: VecDeque<(String, VoiceParams)>,
+    warm: VecDeque<(String, VoiceParams)>,
+    closed: bool,
 }
 
 /// Cache file for one rendered line. `model` names the model folder, so a model update
@@ -246,7 +316,9 @@ impl TtsSpeaker {
         let cache = data_dir.join("tts-cache");
         std::fs::create_dir_all(&cache)?;
         let mix = mixer.clone();
-        let (tx, rx) = channel::<Job>();
+        let queue: Arc<(Mutex<Queue>, Condvar)> = Arc::default();
+        let current = Arc::new(Mutex::new(voice));
+        let (q, cur) = (queue.clone(), current.clone());
         std::thread::Builder::new().name("tts".into()).spawn(move || {
             let mut render = |text: &str, v: &VoiceParams| -> Option<(u32, Vec<f32>, PathBuf)> {
                 let f = cache.join(cache_name(text, v.colour, &model, &v.speaker, v.speed));
@@ -274,12 +346,32 @@ impl TtsSpeaker {
                 }
                 Some((sr, out, f))
             };
-            while let Ok(job) = rx.recv() {
-                match job {
-                    Job::Warm(t, v) => {
-                        let _ = render(&t, &v);
+            loop {
+                let job = {
+                    let (m, cv) = &*q;
+                    let mut g = m.lock().unwrap();
+                    loop {
+                        if let Some(j) = g.speak.pop_front() {
+                            break Some((true, j));
+                        }
+                        if let Some(j) = g.warm.pop_front() {
+                            break Some((false, j));
+                        }
+                        if g.closed {
+                            break None;
+                        }
+                        g = cv.wait(g).unwrap();
                     }
-                    Job::Speak(t, v) => {
+                };
+                let Some((speak, (t, v))) = job else { break };
+                match speak {
+                    false => {
+                        // A warm-up for a voice that's no longer selected would never be played.
+                        if *cur.lock().unwrap() == v {
+                            let _ = render(&t, &v);
+                        }
+                    }
+                    true => {
                         let token = mix.token();
                         if let Some((sr, samples, f)) = render(&t, &v) {
                             if mix.has_device() {
@@ -299,10 +391,27 @@ impl TtsSpeaker {
                 }
             }
         })?;
-        for p in &prerender {
-            let _ = tx.send(Job::Warm(p.clone(), voice.clone()));
-        }
-        Ok(Self { tx: Mutex::new(tx), mixer, voice: Mutex::new(voice), prerender })
+        let s = Self { queue, mixer, voice: current, prerender };
+        s.warm_up();
+        Ok(s)
+    }
+
+    fn push(&self, f: impl FnOnce(&mut Queue)) {
+        let (m, cv) = &*self.queue;
+        f(&mut m.lock().unwrap());
+        cv.notify_one();
+    }
+
+    /// Render the fixed phrases in the current voice, in the background.
+    fn warm_up(&self) {
+        let v = self.voice.lock().unwrap().clone();
+        self.push(|q| q.warm.extend(self.prerender.iter().map(|p| (p.clone(), v.clone()))));
+    }
+}
+
+impl Drop for TtsSpeaker {
+    fn drop(&mut self) {
+        self.push(|q| q.closed = true);
     }
 }
 
@@ -310,7 +419,7 @@ impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
         let v = self.voice.lock().unwrap().clone();
-        let _ = self.tx.lock().unwrap().send(Job::Speak(text.to_string(), v));
+        self.push(|q| q.speak.push_back((text.to_string(), v)));
     }
     fn interrupt(&self) {
         self.mixer.cut();
@@ -319,11 +428,13 @@ impl Speaker for TtsSpeaker {
     }
     fn set_voice(&self, voice: &VoiceParams) {
         *self.voice.lock().unwrap() = voice.clone();
-        // Render the fixed phrases in the new voice in the background, as at startup.
-        let tx = self.tx.lock().unwrap();
-        for p in &self.prerender {
-            let _ = tx.send(Job::Warm(p.clone(), voice.clone()));
-        }
+        // Render the fixed phrases in the new voice in the background, as at startup; earlier
+        // voices' warm-ups still queued are dropped.
+        self.push(|q| q.warm.retain(|(_, v)| v == voice));
+        self.warm_up();
+    }
+    fn speaks_aloud(&self) -> bool {
+        true
     }
 }
 
@@ -365,7 +476,6 @@ pub fn fixed_phrases() -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
 
     /// Records which voice rendered each line and writes a short tone.
     struct FakeSynth(Arc<Mutex<Vec<(String, String)>>>);
@@ -417,6 +527,99 @@ mod tests {
                 ("Cancelled.".into(), "bm_george".into()),
             ]
         );
+    }
+
+    /// Like FakeSynth, but each render takes a while (Kokoro on a CPU).
+    struct SlowSynth(Arc<Mutex<Vec<(String, String)>>>);
+    impl Synth for SlowSynth {
+        fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()> {
+            std::thread::sleep(Duration::from_millis(20));
+            FakeSynth(self.0.clone()).tts(text, voice, out_wav)
+        }
+    }
+
+    /// Review R1: a voice change re-renders the fixed phrases in the background, but a reply said
+    /// after it goes first, and warm-ups for voices no longer selected are skipped.
+    #[test]
+    fn replies_go_before_the_warm_up_backlog() {
+        use astromech_voice::colour::Colour;
+        let d = tempfile::tempdir().unwrap();
+        let log = Arc::new(Mutex::new(vec![]));
+        let v = |n: &str| VoiceParams::new(n, 1.0, Colour::Cockpit).unwrap();
+        let phrases: Vec<String> = (0..12).map(|i| format!("Phrase {i}.")).collect();
+        let s = TtsSpeaker::with_synth(
+            SlowSynth(log.clone()),
+            "kokoro-test",
+            d.path(),
+            v("bf_emma"),
+            astromech_voice::mixer::Mixer::silent(24000),
+            phrases.clone(),
+        )
+        .unwrap();
+        // Click through two voices to a third, then preview.
+        s.set_voice(&v("bf_lily"));
+        s.set_voice(&v("bm_daniel"));
+        s.set_voice(&v("bm_george"));
+        s.say(PREVIEW_LINE);
+        // Wait for George's twelve warm-ups and the reply (plus at most one stale line).
+        let t0 = std::time::Instant::now();
+        while log.lock().unwrap().iter().filter(|(_, v)| v == "bm_george").count() < 13
+            && t0.elapsed() < Duration::from_secs(5)
+        {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        let got = log.lock().unwrap().clone();
+        let at = got.iter().position(|(t, _)| t == PREVIEW_LINE).unwrap();
+        // Only a warm-up already rendering (and, on a loaded machine, one picked up between the
+        // last voice change and the reply) can go before it; not the backlog of twelve.
+        assert!(at <= 2, "reply rendered at {at}: {got:?}");
+        assert_eq!(got[at].1, "bm_george");
+        // Lily and Daniel were never rendered beyond one in-progress line; George got all twelve.
+        let by = |n: &str| got.iter().filter(|(_, v)| v == n).count();
+        assert!(by("bf_lily") + by("bm_daniel") + by("bf_emma") <= 1, "{got:?}");
+        assert_eq!(got.iter().filter(|(t, v)| v == "bm_george" && t != PREVIEW_LINE).count(), 12, "{got:?}");
+    }
+
+    struct Loud(RecordingSpeaker);
+    impl Speaker for Loud {
+        fn say(&self, text: &str) {
+            self.0.say(text)
+        }
+        fn speaks_aloud(&self) -> bool {
+            true
+        }
+    }
+
+    /// Review R2/R4: the preview Kokoro starts once, is reused, can be refused or routed, is
+    /// released when idle, and a speaker that only prints is reported as speech being off.
+    #[test]
+    fn preview_slot_lifecycle() {
+        let slot = PreviewSlot::default();
+        let starts = std::cell::Cell::new(0);
+        let loud = Arc::new(Loud(RecordingSpeaker::default()));
+        let start = || {
+            starts.set(starts.get() + 1);
+            Ok(loud.clone() as Arc<dyn Speaker>)
+        };
+        slot.say(PREVIEW_LINE, || None, start).unwrap();
+        slot.say(PREVIEW_LINE, || None, start).unwrap();
+        assert_eq!(starts.get(), 1);
+        assert_eq!(loud.0.take().len(), 2);
+        // While a session starts, previews are refused without loading anything.
+        assert!(slot.take());
+        let e = slot.say(PREVIEW_LINE, || Some(Err(anyhow!("voice is starting"))), start).unwrap_err();
+        assert_eq!(e.to_string(), "voice is starting");
+        assert!(!slot.loaded() && starts.get() == 1);
+        // Idle release.
+        slot.say(PREVIEW_LINE, || None, start).unwrap();
+        let now = std::time::Instant::now();
+        assert!(!slot.release_idle(now, PREVIEW_IDLE));
+        assert!(slot.release_idle(now + PREVIEW_IDLE, PREVIEW_IDLE));
+        assert!(!slot.loaded());
+        // Speech output off: a speaker that only prints.
+        let e = slot.say(PREVIEW_LINE, || None, || Ok(Arc::new(ConsoleSpeaker) as Arc<dyn Speaker>)).unwrap_err();
+        assert_eq!(e.to_string(), "speech output is off");
+        assert!(!slot.loaded());
     }
 
     #[test]

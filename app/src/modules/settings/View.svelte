@@ -38,6 +38,8 @@
     { id: "cockpit", label: "Cockpit" },
     { id: "harsh", label: "Harsh" },
   ];
+  // A hand-edited speed (0.94, 2.0) shows as the nearest step the picker offers.
+  const shownSpeed = $derived(voice ? Math.min(voice.speeds[1], Math.max(voice.speeds[0], Math.round(voice.speed * 10) / 10)).toFixed(1) : "");
   const speeds = $derived.by(() => {
     if (!voice) return [];
     const [lo, hi] = voice.speeds;
@@ -165,7 +167,7 @@
         </dd>
         <dt>Speed</dt>
         <dd>
-          <select aria-label="Speed" value={voice.speed.toFixed(1)} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
+          <select aria-label="Speed" value={shownSpeed} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
             {#each speeds as x (x)}
               <option value={x.toFixed(1)}>{x === 1 ? "Normal (the colour's own pace)" : `${x.toFixed(1)}×`}</option>
             {/each}

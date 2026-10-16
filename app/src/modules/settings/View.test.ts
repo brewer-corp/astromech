@@ -59,6 +59,18 @@ describe("Settings → Voice responses", () => {
     expect(fakePreviews()).toEqual(["bf_lily"]);
   });
 
+  it.each([
+    [0.94, "0.9"],
+    [2.0, "1.3"],
+    [0.5, "0.7"],
+  ])("shows a hand-edited speed %s as the nearest step %s", async (speed, shown) => {
+    on("ready");
+    await fakeCall("set_voice", { speed });
+    render(View);
+    const select = (await screen.findByLabelText("Speed")) as HTMLSelectElement;
+    expect(select.value).toBe(shown);
+  });
+
   it("refuses a preview before the speech models are downloaded", async () => {
     on("new");
     render(View);

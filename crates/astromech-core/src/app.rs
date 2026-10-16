@@ -45,8 +45,9 @@ pub struct Core {
     pub cfg: std::sync::RwLock<Config>,
     /// Held across a whole setup edit (read, write the file, swap `cfg`).
     pub config_lock: Mutex<()>,
-    /// Kokoro for Settings' voice preview while no session runs (dropped when one starts).
-    pub preview: Mutex<Option<Arc<crate::speech::TtsSpeaker>>>,
+    /// Kokoro for Settings' voice preview while no session runs (released when one starts, or
+    /// after a minute unused).
+    pub preview: crate::speech::PreviewSlot,
     pub config_note: Option<String>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
@@ -184,8 +185,9 @@ impl Core {
             return;
         }
         log(&format!("{why}: going active (loading the binds check, game state and voice)"));
-        // The session loads its own Kokoro; free the preview's.
-        self.preview.lock().unwrap().take();
+        // The session loads its own Kokoro; free the preview's. (`starting` is already set, so no
+        // new preview Kokoro can load while the session does.)
+        self.preview.take();
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
@@ -198,6 +200,11 @@ impl Core {
                 log(&format!("active in {} ms: {}", t0.elapsed().as_millis(), s.voice));
                 *self.voice.lock().unwrap() = s.voice.clone();
                 *self.session.lock().unwrap() = Some(s);
+                // A voice saved in Settings while the session loaded: use it now.
+                let (old, new) = (&cfg.voice, self.cfg().voice);
+                if (old.speaker.as_str(), old.speed, old.colour) != (new.speaker.as_str(), new.speed, new.colour) {
+                    self.apply_voice();
+                }
             }
             Err(e) => {
                 log(&format!("couldn't go active: {e:#}"));
@@ -435,9 +442,7 @@ impl Core {
                 if let Some(s) = self.session.lock().unwrap().as_ref() {
                     s.speaker.set_voice(&v);
                 }
-                if let Some(p) = self.preview.lock().unwrap().as_ref() {
-                    crate::speech::Speaker::set_voice(&**p, &v);
-                }
+                self.preview.set_voice(&v);
                 log(&format!("voice: {} ({}, speed {})", v.speaker, v.colour.as_str(), cfg.voice.speed));
             }
             Err(e) => log(&format!("voice: {e:#}")),
@@ -445,21 +450,33 @@ impl Core {
     }
 
     /// Settings' preview: say a sample line in the configured voice, through the session's
-    /// speaker if voice is running, else a Kokoro started for the preview.
+    /// speaker if voice is running, else a Kokoro started for the preview. Refused while a
+    /// session loads (it would load a second Kokoro) and when speech output is off.
     fn preview_voice(&self) -> Value {
-        use crate::speech::{Speaker, PREVIEW_LINE};
-        if let Some(s) = self.session.lock().unwrap().as_ref() {
-            s.speaker.say(PREVIEW_LINE);
-            return json!({"ok": true, "line": PREVIEW_LINE});
-        }
+        use crate::speech::PREVIEW_LINE;
         let cfg = self.cfg();
-        if models_missing(&cfg) {
-            return json!({"ok": false, "error": "download the speech models first (Speech models, above)"});
-        }
-        let mut p = self.preview.lock().unwrap();
-        if p.is_none() {
+        let route = || -> Option<Result<()>> {
+            if self.starting.load(Ordering::SeqCst) {
+                return Some(Err(anyhow::anyhow!("voice is starting; try again in a moment")));
+            }
+            if let Some(s) = self.session.lock().unwrap().as_ref() {
+                if !s.speaker.speaks_aloud() {
+                    return Some(Err(anyhow::anyhow!("speech output is off (see the log)")));
+                }
+                s.speaker.say(PREVIEW_LINE);
+                return Some(Ok(()));
+            }
+            if !cfg.voice.tts {
+                return Some(Err(anyhow::anyhow!("speech output is off ([voice] tts = false in the config)")));
+            }
+            if models_missing(&cfg) {
+                return Some(Err(anyhow::anyhow!("download the speech models first (Speech models, above)")));
+            }
+            None
+        };
+        let start = || -> Result<Arc<dyn crate::speech::Speaker>> {
             let v = &cfg.voice;
-            match crate::speech::TtsSpeaker::start(
+            let s = crate::speech::TtsSpeaker::start(
                 &cfg.worker_exe(),
                 &cfg.models_dir(),
                 v.threads,
@@ -468,15 +485,15 @@ impl Core {
                 v.speed,
                 v.colour,
                 vec![],
-            ) {
-                Ok(s) => *p = Some(Arc::new(s)),
-                Err(e) => return json!({"ok": false, "error": format!("couldn't start text-to-speech: {e:#}")}),
-            }
+            )
+            .map_err(|e| anyhow::anyhow!("couldn't start text-to-speech: {e:#}"))?;
+            log("voice preview: Kokoro loaded (released after a minute unused)");
+            Ok(Arc::new(s))
+        };
+        match self.preview.say(PREVIEW_LINE, route, start) {
+            Ok(()) => json!({"ok": true, "line": PREVIEW_LINE}),
+            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         }
-        if let Some(s) = p.as_ref() {
-            s.say(PREVIEW_LINE);
-        }
-        json!({"ok": true, "line": PREVIEW_LINE})
     }
 
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
@@ -859,7 +876,7 @@ pub fn run(opts: Opts) -> i32 {
                 .unwrap_or(false),
         ),
         config_lock: Mutex::new(()),
-        preview: Mutex::new(None),
+        preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
         config_note,
         game: Mutex::new(Game::NotRunning),
@@ -900,6 +917,18 @@ pub fn run(opts: Opts) -> i32 {
 
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
+
+    // Release the voice preview's Kokoro once it has sat unused.
+    let c = core.clone();
+    std::thread::Builder::new()
+        .name("preview-idle".into())
+        .spawn(move || loop {
+            std::thread::sleep(Duration::from_secs(10));
+            if c.preview.release_idle(Instant::now(), crate::speech::PREVIEW_IDLE) {
+                log("voice preview: Kokoro released (unused for a minute)");
+            }
+        })
+        .expect("spawn preview reaper");
 
     if core.cfg().update.check {
         let c = core.clone();

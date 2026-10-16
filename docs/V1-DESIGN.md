@@ -862,7 +862,9 @@ Total about **11 weeks**.
   speaker switches at once (`Speaker::set_voice`), so the next reply uses the new voice; the TTS
   cache key already includes model, voice, speed and colour. Preview says "Landing gear deployed."
   through the session's speaker, or a Kokoro the core starts for the preview while Elite isn't
-  running (dropped when a session starts).
+  running (released when a session starts or after a minute unused; refused while a session
+  loads, and when speech output is off). After a voice change the fixed phrases re-render in the
+  background, but replies always render first and warm-ups for voices no longer chosen are skipped.
 - **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
   (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
 
