@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice command tester next to Diagnostics"
-updated_at: "2026-10-16T18:12:14.981858462+00:00"
+updated_at: "2026-10-16T18:39:29.640457701+00:00"
 ---
 
 ## Goal
