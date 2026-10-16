@@ -3,6 +3,9 @@ created_at: "2026-10-16T18:12:14.627110771+00:00"
 id: "astromech-z4jb"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-z4jb
 priority: "P0"
 relationships:
   blocks:
@@ -29,7 +32,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ships page with live build stats"
-updated_at: "2026-10-16T18:26:24.338138621+00:00"
+updated_at: "2026-10-16T18:30:37.947145766+00:00"
 ---
 
 ## Goal

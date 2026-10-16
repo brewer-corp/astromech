@@ -20,9 +20,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Port Coriolis's ship calculations to Rust"
-updated_at: "2026-10-16T18:12:14.655360777+00:00"
+updated_at: "2026-10-16T18:30:37.947148642+00:00"
 ---
 
 ## Goal
