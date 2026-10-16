@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:11:56.522186501+00:00"
+status: "done"
 title: "Logbook"
-updated_at: "2026-10-16T20:05:28.944728855+00:00"
+updated_at: "2026-10-16T20:11:56.522186501+00:00"
 ---
 
 ## Goal
@@ -26,3 +27,7 @@ Visited systems and stations, first and last visit, count, timeline, and full-te
 ## Done when
 
 For the fixture history, a search finds a visited station with the right counts.
+
+## Close Reason
+
+Logbook: places with counts and first/last visit, totals, timeline, substring search over system/station names; History::logbook + read-only shell command + Logbook tab with SystemChip. Fixture search 'hutton' finds Hutton Orbital with 2 visits (Rust + vitest). 27e5c4b. Shell compile is on Windows CI.
