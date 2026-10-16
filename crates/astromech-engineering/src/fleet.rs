@@ -218,6 +218,7 @@ impl FleetBuilder {
                 slot: Some(slot),
                 experimental,
                 experimental_localised,
+                modifiers,
                 preview: false,
                 ..
             } => {
@@ -235,6 +236,9 @@ impl FleetBuilder {
                     experimental: experimental.clone().or(kept),
                     experimental_localised: experimental_localised.clone().or(kept_name),
                     engineer: Some(engineer.clone()),
+                    // The craft reports the module's stats after it; none means the stats
+                    // follow the blueprint and roll.
+                    modifiers: modifiers.clone(),
                 });
                 seen.ts = ts.to_string();
                 seen.crafted = true;
