@@ -1,0 +1,98 @@
+{
+  "query": {
+    "id": "fed_composites",
+    "label": "Federation faction",
+    "allegiances": [
+      "Federation"
+    ],
+    "states": [],
+    "min_population": 1000000,
+    "by_population": true
+  },
+  "here": {
+    "system": "Sol",
+    "id64": 10477373803,
+    "pos": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "range": 32.5,
+  "fetched": "2026-10-16T22:01:33Z",
+  "hits": [
+    {
+      "name": "Tau Ceti",
+      "id64": 3107509506770,
+      "ly": 11.937050056965498,
+      "jumps": 1,
+      "exact": false,
+      "population": 5000152143,
+      "updated_at": "2026-10-14T17:55:17Z",
+      "factions": [
+        {
+          "name": "Independents of Tau Ceti",
+          "allegiance": "Federation",
+          "state": "None",
+          "active_states": [],
+          "influence": 0.128257
+        },
+        {
+          "name": "South Haven",
+          "allegiance": "Federation",
+          "state": "None",
+          "active_states": [],
+          "influence": 0.125251
+        },
+        {
+          "name": "Tau Ceti Crimson Legal Solutions",
+          "allegiance": "Federation",
+          "state": "None",
+          "active_states": [],
+          "influence": 0.126253
+        }
+      ],
+      "seen_on_visit": false,
+      "score": 109
+    },
+    {
+      "name": "Ross 154",
+      "id64": 7268024264105,
+      "ly": 9.688961583291576,
+      "jumps": 1,
+      "exact": false,
+      "population": 2006272,
+      "updated_at": "2026-10-14T16:32:04Z",
+      "factions": [
+        {
+          "name": "Barnard's Star Advanced Corp.",
+          "allegiance": "Federation",
+          "state": "None",
+          "active_states": [],
+          "influence": 0.151
+        },
+        {
+          "name": "Independents of Ross 154",
+          "allegiance": "Federation",
+          "state": "Civil War",
+          "active_states": [
+            "Outbreak",
+            "Civil War"
+          ],
+          "influence": 0.072
+        },
+        {
+          "name": "Ross 154 Vision Partners",
+          "allegiance": "Federation",
+          "state": "Civil War",
+          "active_states": [
+            "Civil War"
+          ],
+          "influence": 0.072
+        }
+      ],
+      "seen_on_visit": false,
+      "score": 0
+    }
+  ]
+}

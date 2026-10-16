@@ -1,0 +1,568 @@
+{
+ "count": 4272,
+ "from": 0,
+ "results": [
+  {
+   "id64": 2017612815337998555,
+   "name": "Oochorrs SB-J d10-5 B 6 a",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Oochorrs SB-J d10-5",
+   "system_id64": 182276016347,
+   "system_x": 14.25,
+   "system_y": -203.40625,
+   "system_z": -1411.5,
+   "distance": 1426.15196071073,
+   "distance_to_arrival": 26248.686781,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 22,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 15.204686
+    },
+    {
+     "name": "Chromium",
+     "share": 8.336053
+    },
+    {
+     "name": "Germanium",
+     "share": 5.387978
+    },
+    {
+     "name": "Iron",
+     "share": 18.535551
+    },
+    {
+     "name": "Manganese",
+     "share": 7.654994
+    },
+    {
+     "name": "Nickel",
+     "share": 14.019516
+    },
+    {
+     "name": "Niobium",
+     "share": 1.266806
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.734302
+    },
+    {
+     "name": "Sulphur",
+     "share": 18.081522
+    },
+    {
+     "name": "Technetium",
+     "share": 0.662942
+    },
+    {
+     "name": "Tin",
+     "share": 1.115654
+    }
+   ],
+   "updated_at": "2026-10-13T22:29:33Z",
+   "landmarks": [
+    {
+     "latitude": 0.0,
+     "longitude": 0.0,
+     "subtype": "Crystalline Shards",
+     "type": "Crystalline Shard"
+    },
+    {
+     "latitude": -4.0,
+     "longitude": -141.0,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    },
+    {
+     "latitude": -27.44638,
+     "longitude": -141.58702,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  },
+  {
+   "id64": 1441152514299761074,
+   "name": "Oochorrs AC-T c20-2 BC 2 b",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Oochorrs AC-T c20-2",
+   "system_id64": 633541202354,
+   "system_x": -44.4375,
+   "system_y": -29.71875,
+   "system_z": -1428.9375,
+   "distance": 1429.9371575052,
+   "distance_to_arrival": 42624.63058,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 15,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 23.034994
+    },
+    {
+     "name": "Germanium",
+     "share": 3.545281
+    },
+    {
+     "name": "Iron",
+     "share": 12.169724
+    },
+    {
+     "name": "Manganese",
+     "share": 5.025971
+    },
+    {
+     "name": "Mercury",
+     "share": 0.531432
+    },
+    {
+     "name": "Nickel",
+     "share": 9.204668
+    },
+    {
+     "name": "Phosphorus",
+     "share": 14.747399
+    },
+    {
+     "name": "Polonium",
+     "share": 0.313973
+    },
+    {
+     "name": "Sulphur",
+     "share": 27.393377
+    },
+    {
+     "name": "Tin",
+     "share": 0.725898
+    },
+    {
+     "name": "Zinc",
+     "share": 3.307275
+    }
+   ],
+   "updated_at": "2026-10-14T04:12:06Z",
+   "landmarks": [
+    {
+     "latitude": -38.0,
+     "longitude": -89.0,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    },
+    {
+     "latitude": -42.0,
+     "longitude": -123.0,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  },
+  {
+   "id64": 540432588892803506,
+   "name": "Outotz LF-N c20-2 9",
+   "type": "Planet",
+   "subtype": "High metal content world",
+   "system_name": "Outotz LF-N c20-2",
+   "system_id64": 633608343986,
+   "system_x": -16.96875,
+   "system_y": 13.90625,
+   "system_z": -1430.28125,
+   "distance": 1430.44950150894,
+   "distance_to_arrival": 12428.307414,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 11,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Arsenic",
+     "share": 2.218219
+    },
+    {
+     "name": "Carbon",
+     "share": 14.267109
+    },
+    {
+     "name": "Germanium",
+     "share": 4.960089
+    },
+    {
+     "name": "Iron",
+     "share": 24.112209
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.574514
+    },
+    {
+     "name": "Nickel",
+     "share": 18.237467
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.134048
+    },
+    {
+     "name": "Sulphur",
+     "share": 16.966547
+    },
+    {
+     "name": "Tellurium",
+     "share": 1.284673
+    },
+    {
+     "name": "Tungsten",
+     "share": 1.324003
+    },
+    {
+     "name": "Vanadium",
+     "share": 5.92112
+    }
+   ],
+   "updated_at": "2026-10-14T00:04:00Z",
+   "landmarks": [
+    {
+     "latitude": -61.513695,
+     "longitude": 175.26181,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  },
+  {
+   "id64": 2630102816663900602,
+   "name": "Outotz TA-M c21-2 B 3 e",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Outotz TA-M c21-2",
+   "system_id64": 634279530938,
+   "system_x": 380.3125,
+   "system_y": 101.84375,
+   "system_z": -1415.25,
+   "distance": 1468.99363836959,
+   "distance_to_arrival": 158518.121036,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 17,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 22.665905
+    },
+    {
+     "name": "Chromium",
+     "share": 5.427904
+    },
+    {
+     "name": "Iron",
+     "share": 12.069163
+    },
+    {
+     "name": "Mercury",
+     "share": 0.527041
+    },
+    {
+     "name": "Molybdenum",
+     "share": 0.788109
+    },
+    {
+     "name": "Nickel",
+     "share": 9.12861
+    },
+    {
+     "name": "Phosphorus",
+     "share": 14.511103
+    },
+    {
+     "name": "Ruthenium",
+     "share": 0.745348
+    },
+    {
+     "name": "Selenium",
+     "share": 4.2186
+    },
+    {
+     "name": "Sulphur",
+     "share": 26.954454
+    },
+    {
+     "name": "Vanadium",
+     "share": 2.963767
+    }
+   ],
+   "updated_at": "2026-10-15T20:26:39Z",
+   "landmarks": [
+    {
+     "latitude": -14.040071,
+     "longitude": 148.615143,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  },
+  {
+   "id64": 2522016425607008698,
+   "name": "Outotz TA-M c21-2 B 3 c",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Outotz TA-M c21-2",
+   "system_id64": 634279530938,
+   "system_x": 380.3125,
+   "system_y": 101.84375,
+   "system_z": -1415.25,
+   "distance": 1468.99363836959,
+   "distance_to_arrival": 158517.215467,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 24,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Cadmium",
+     "share": 0.954798
+    },
+    {
+     "name": "Carbon",
+     "share": 23.090879
+    },
+    {
+     "name": "Chromium",
+     "share": 5.529675
+    },
+    {
+     "name": "Germanium",
+     "share": 3.559002
+    },
+    {
+     "name": "Iron",
+     "share": 12.295455
+    },
+    {
+     "name": "Nickel",
+     "share": 9.299767
+    },
+    {
+     "name": "Niobium",
+     "share": 0.840329
+    },
+    {
+     "name": "Phosphorus",
+     "share": 14.783178
+    },
+    {
+     "name": "Ruthenium",
+     "share": 0.759323
+    },
+    {
+     "name": "Sulphur",
+     "share": 27.459839
+    },
+    {
+     "name": "Zirconium",
+     "share": 1.427756
+    }
+   ],
+   "updated_at": "2026-10-16T01:18:11Z",
+   "landmarks": [
+    {
+     "latitude": 4.01333,
+     "longitude": 36.865837,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    },
+    {
+     "latitude": 18.439945,
+     "longitude": -178.56691,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  },
+  {
+   "id64": 2594074019644936634,
+   "name": "Outotz TA-M c21-2 B 3 d",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Outotz TA-M c21-2",
+   "system_id64": 634279530938,
+   "system_x": 380.3125,
+   "system_y": 101.84375,
+   "system_z": -1415.25,
+   "distance": 1468.99363836959,
+   "distance_to_arrival": 158518.116911,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 18,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Biological"
+    },
+    {
+     "count": 2,
+     "name": "Geological"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 22.331326
+    },
+    {
+     "name": "Chromium",
+     "share": 5.347781
+    },
+    {
+     "name": "Germanium",
+     "share": 3.441932
+    },
+    {
+     "name": "Iron",
+     "share": 11.891006
+    },
+    {
+     "name": "Manganese",
+     "share": 4.910865
+    },
+    {
+     "name": "Nickel",
+     "share": 8.993859
+    },
+    {
+     "name": "Niobium",
+     "share": 0.812687
+    },
+    {
+     "name": "Phosphorus",
+     "share": 14.296898
+    },
+    {
+     "name": "Sulphur",
+     "share": 26.55657
+    },
+    {
+     "name": "Tin",
+     "share": 0.706839
+    },
+    {
+     "name": "Yttrium",
+     "share": 0.710236
+    }
+   ],
+   "updated_at": "2026-10-15T22:55:02Z",
+   "landmarks": [
+    {
+     "latitude": 17.171108,
+     "longitude": 171.418762,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    },
+    {
+     "latitude": -20.878969,
+     "longitude": 112.434265,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    },
+    {
+     "latitude": 75.380226,
+     "longitude": -42.025261,
+     "subtype": "Crystalline Shards",
+     "type": "Shards"
+    }
+   ]
+  }
+ ],
+ "search": {
+  "filters": {
+   "landmark_subtype": {
+    "value": [
+     "Crystalline Shards"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "size": 10,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "size": 10
+}

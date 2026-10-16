@@ -18,6 +18,13 @@ import collections, csv, glob, json, os, re, subprocess, sys
 MATERIAL_ALIASES = {"adaptive encyptors capture": "adaptive encryptors capture"}
 ENGINEER_ALIASES = {"Felicty Farseer": "Felicity Farseer"}
 GROUP_NAMES = {"bh": "Armour", "mr": "Missile Rack"}
+# coriolis-data's per-module engineers, corrected where the Elite Dangerous wiki disagrees
+# (every engineer spot-checked on 16 Oct 2026, astromech-qhi4):
+# - the manifest (cargo) scanner has the surface scanner's engineers; the wiki gives it the wake
+#   scanner's engineers and grades;
+# - Ram Tah does hatch breaker limpet controllers to G3, not G4.
+SAME_ENGINEERS_AS = {"cs": "ws"}
+MAX_GRADE = {("hb", "Ram Tah"): 3}
 
 
 def key(s):
@@ -53,11 +60,18 @@ def main(cor, fdev):
     stat_defs = load("modifications/modifications.json")
     actions = load("modifications/modifierActions.json")
 
-    engineers = collections.defaultdict(lambda: collections.defaultdict(set))
-    for g in mod_map.values():
-        for bp, b in g.get("blueprints", {}).items():
-            for grade, x in b.get("grades", {}).items():
-                engineers[bp][int(grade)].update(ENGINEER_ALIASES.get(e, e) for e in x.get("engineers", []))
+    # Who offers each blueprint grade depends on the module: Overcharged on a beam laser is not
+    # the same engineers as on a multi-cannon. Keep it per module group (astromech-qhi4).
+    def group_engineers(g):
+        out = {}
+        for bp, b in sorted(g.get("blueprints", {}).items()):
+            grades = {
+                str(int(grade)): sorted(ENGINEER_ALIASES.get(e, e) for e in x.get("engineers", []))
+                for grade, x in sorted(b.get("grades", {}).items(), key=lambda t: int(t[0]))
+            }
+            if any(grades.values()):
+                out[bp] = grades
+        return out
 
     blueprints = {}
     for fd, b in sorted(bps_raw.items()):
@@ -67,7 +81,6 @@ def main(cor, fdev):
                 {
                     "grade": int(grade),
                     "materials": recipe(x["components"]),
-                    "engineers": sorted(engineers[fd][int(grade)]),
                     # stat -> [worst, best] roll, as a fraction (percentage stats) or an amount
                     "features": {k: v for k, v in sorted(x.get("features", {}).items())},
                 }
@@ -116,6 +129,16 @@ def main(cor, fdev):
         modules[r["symbol"].lower()] = entry
         group_votes[g][r["name"].strip()] += 1
 
+    def fixed_engineers(g):
+        engs = group_engineers(mod_map[SAME_ENGINEERS_AS.get(g, g)])
+        for (fg, who), top in MAX_GRADE.items():
+            if fg == g:
+                for grades in engs.values():
+                    for grade, names in grades.items():
+                        if int(grade) > top:
+                            grades[grade] = [n for n in names if n != who]
+        return engs
+
     groups = {}
     for g, m in sorted(mod_map.items()):
         bps = sorted(b for b in m.get("blueprints", {}) if b in blueprints)
@@ -123,8 +146,9 @@ def main(cor, fdev):
         if not bps and not exps:
             continue
         name = GROUP_NAMES.get(g) or (group_votes[g].most_common(1)[0][0] if group_votes[g] else g)
+        engs = {b: grades for b, grades in fixed_engineers(g).items() if b in blueprints}
         groups[g] = {"name": name, "blueprints": bps, "experimentals": exps,
-                     "modifications": sorted(m.get("modifications", []))}
+                     "modifications": sorted(m.get("modifications", [])), "engineers": engs}
 
     ships = {r["symbol"].lower(): r["name"].strip() for r in rows("shipyard.csv")}
 

@@ -105,21 +105,7 @@ fn job_from(t: &TargetCost, kind: &str, ship: &Ship) -> Job {
 
 /// Engineers who work on this module group (any blueprint, any grade).
 fn group_engineers(group: &str) -> Vec<String> {
-    let mut out: Vec<String> = vec![];
-    if let Some(g) = data::group(group) {
-        for b in &g.blueprints {
-            if let Some((_, bp)) = data::blueprint(b) {
-                for r in &bp.grades {
-                    for e in &r.engineers {
-                        if !out.iter().any(|x| engineers::key(x) == engineers::key(e)) {
-                            out.push(e.clone());
-                        }
-                    }
-                }
-            }
-        }
-    }
-    out
+    data::group(group).map(|g| g.all_engineers().into_iter().map(str::to_string).collect()).unwrap_or_default()
 }
 
 /// Plan the trip. `start` is the commander's position, `hop` counts jumps between two points.
@@ -137,10 +123,11 @@ pub fn plan_trip(
     let mut jobs: Vec<(Job, Vec<String>)> = vec![];
     // Targets that can't apply have no steps and no experimental, so they make no jobs.
     for t in targets {
+        let group = ship.modules.iter().find(|m| m.slot == t.slot).and_then(|m| m.group.clone()).unwrap_or_default();
         if !t.steps.is_empty() {
             let mut job = job_from(t, "grades", ship);
             let offer: Vec<&EngineerView> =
-                engs.iter().filter(|e| engineers::offers(&e.name, &t.blueprint) >= job.grade).collect();
+                engs.iter().filter(|e| engineers::offers(&e.name, &t.blueprint, &group) >= job.grade).collect();
             let cands: Vec<String> = offer.iter().filter(|e| e.unlocked()).map(|e| engineers::key(&e.name)).collect();
             if cands.is_empty() {
                 blocked.push(Blocked {
@@ -175,8 +162,6 @@ pub fn plan_trip(
         }
         if t.experimental_needed {
             let job = job_from(t, "experimental", ship);
-            let group =
-                ship.modules.iter().find(|m| m.slot == t.slot).and_then(|m| m.group.clone()).unwrap_or_default();
             let all = group_engineers(&group);
             let cands: Vec<String> = all
                 .iter()

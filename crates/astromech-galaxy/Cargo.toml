@@ -18,10 +18,10 @@ rusqlite = { version = "0.40", features = ["bundled"] }
 serde.workspace = true
 serde_json.workspace = true
 astromech-data.workspace = true
+astromech-materials.workspace = true
 astromech-store.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
-astromech-materials.workspace = true

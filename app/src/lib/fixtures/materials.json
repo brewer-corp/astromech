@@ -1036,7 +1036,7 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by an Empire faction.",
-                  "hint": "Prefer high-population Empire systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "hint": "Empire systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
                   "query": "empire_shielding"
                 }
               ]
@@ -1093,7 +1093,7 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
                   "query": "fed_composites"
                 }
               ]
@@ -1112,7 +1112,7 @@
                 {
                   "kind": "hge",
                   "summary": "High Grade Emissions spawned by a Federation faction.",
-                  "hint": "Prefer high-population Federation systems; honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
+                  "hint": "Federation systems over a billion people (the list ranks by population and distance); honk or scan the nav beacon. Check Contacts → INFO for Faction / State.",
                   "query": "fed_composites"
                 }
               ]
@@ -1874,7 +1874,7 @@
         "name": "Core Dynamics Composites"
       }
     ],
-    "line": "Shinrarta Dezhra · Federation · pop 85M · HGEs here: Proprietary Composites / Core Dynamics Composites · High Grade Emissions on the scanner"
+    "line": "Shinrarta Dezhra · Federation · pop 85M · HGEs here: Proprietary Composites / Core Dynamics Composites (rare under a billion people) · High Grade Emissions on the scanner"
   },
   "farm": [
     {

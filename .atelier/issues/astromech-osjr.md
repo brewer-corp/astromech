@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T21:55:33.676453444+00:00"
+status: "done"
 title: "Raw material sites near me"
-updated_at: "2026-10-15T20:36:13.650544008+00:00"
+updated_at: "2026-10-16T21:55:33.676453444+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ From a fixed position, the nearest site of each kind is returned with the right 
 ## Context
 
 `crates/astromech-materials/src/farm.rs` has a hand-picked list without coordinates; add them. Player-visible wiki data is fine to commit (CONTRIBUTING).
+
+## Close Reason
+
+Nearest site of each kind (crystalline shards, brain trees, crashed ships, geological sites, known farms) from fixed positions with distance and jump count; voice 'nearest crystalline shards' resolves to it. Evidence ps8n, gjsv, mtxa, q4tg. Decision astromech-cw8i filed on the Crystalline Structures reading.

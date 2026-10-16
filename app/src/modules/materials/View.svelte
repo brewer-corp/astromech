@@ -3,6 +3,7 @@
   import { tick } from "svelte";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
+  import Sites from "../../lib/ui/Sites.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let inv = $state<Inventory | null>(null);
@@ -134,6 +135,7 @@
         {/each}
       </ul>
     {/if}
+    {#if kindId === "raw"}<Sites />{/if}
     </div>
   {/if}
 

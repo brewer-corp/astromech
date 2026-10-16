@@ -15,9 +15,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T22:15:45.441250993+00:00"
+status: "done"
 title: "Engineering unlock guide as a tech tree"
-updated_at: "2026-10-16T18:12:15.174541300+00:00"
+updated_at: "2026-10-16T22:15:45.441250993+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ Given a fixture `EngineerProgress`, the tree marks known, invited, unlocked and 
 ## Context
 
 Related: tech broker unlocks (astromech-a41c) and Powerplay module unlocks (astromech-f01x).
+
+## Close Reason
+
+Tech tree of every ship and suit engineer with progress from EngineerProgress and what is left for each locked one; unlock data in data/catalog/engineer-unlocks.json credited in NOTICE.md. Evidence recorded.
