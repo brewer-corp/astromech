@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:56:01.123473949+00:00"
 id: "astromech-2hml"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-2hml
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Flaky test: gear_down confirmation latency floor"
-updated_at: "2026-10-16T20:56:01.123473949+00:00"
+updated_at: "2026-10-16T22:07:34.250538848+00:00"
 ---
 
 ## Goal
