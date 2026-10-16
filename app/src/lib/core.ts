@@ -68,7 +68,8 @@ export type CoreCmd =
   | "resume_voice"
   | "kill_switch"
   | "download_models"
-  | "open_config";
+  | "open_config"
+  | "eddn_log";
 
 export async function coreCall(cmd: CoreCmd): Promise<Record<string, unknown>> {
   if (!inTauri) return { ok: false, error: "not running inside the app" };

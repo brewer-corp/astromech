@@ -443,8 +443,26 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
+            "eddn_log" => eddn_log(&self.cfg.data_dir()),
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
+    }
+}
+
+/// The EDDN send log for Diagnostics: messages waiting in the outbox and the latest outcomes.
+/// Reads `eddn.sqlite` only if it exists, so asking never creates it.
+pub fn eddn_log(data_dir: &Path) -> Value {
+    let p = data_dir.join(astromech_eddn::DB_FILE);
+    if !p.is_file() {
+        return json!({"ok": true, "pending": 0, "log": []});
+    }
+    let read = || -> Result<(usize, Vec<astromech_eddn::LogEntry>)> {
+        let o = astromech_eddn::Outbox::open(&p)?;
+        Ok((o.pending()?, o.recent(50)?))
+    };
+    match read() {
+        Ok((pending, log)) => json!({"ok": true, "pending": pending, "log": log}),
+        Err(e) => json!({"ok": false, "error": format!("reading {}: {e}", p.display())}),
     }
 }
 
@@ -730,4 +748,23 @@ fn headless(rx: &Receiver<Ui>) -> i32 {
         }
     }
     0
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn eddn_log_reads_the_outbox_without_creating_it() {
+        let d = tempfile::tempdir().unwrap();
+        assert_eq!(eddn_log(d.path()), json!({"ok": true, "pending": 0, "log": []}));
+        assert!(!d.path().join(astromech_eddn::DB_FILE).exists());
+        let o = astromech_eddn::Outbox::open(&d.path().join(astromech_eddn::DB_FILE)).unwrap();
+        o.enqueue("https://eddn.edcd.io/schemas/journal/1", b"m", 10).unwrap();
+        o.log(11, "https://eddn.edcd.io/schemas/journal/1", astromech_eddn::Outcome::Dropped, "beta").unwrap();
+        let v = eddn_log(d.path());
+        assert_eq!(v["pending"], 1);
+        assert_eq!(v["log"][0]["outcome"], "dropped");
+        assert_eq!(v["log"][0]["detail"], "beta");
+    }
 }

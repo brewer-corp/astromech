@@ -11,6 +11,7 @@
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
+//! - [`app::eddn_log`]: the EDDN send log for the Diagnostics page (`astromech-eddn`);
 //! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
 

@@ -460,6 +460,7 @@ fn core_call(cmd: String) -> Value {
         "kill_switch",
         "download_models",
         "open_config",
+        "eddn_log",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });

@@ -238,6 +238,11 @@ astromech/
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools), position from the journal
+    astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
+                         with the global rules (live-only, *_Localised and commander data stripped,
+                         header from Fileheader/LoadGame, flags never null, augmentation cross-check),
+                         per-schema SchemaSpec elisions, SQLite outbox (eddn.sqlite) with retry and
+                         backoff, /test schemas, send log shown in Diagnostics
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)

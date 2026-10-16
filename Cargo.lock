@@ -147,6 +147,7 @@ name = "astromech-core"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-eddn",
  "astromech-gamestate",
  "astromech-input",
  "astromech-intent",
@@ -172,6 +173,18 @@ dependencies = [
  "ureq",
  "windows-sys 0.61.2",
  "zip 9.0.1",
+]
+
+[[package]]
+name = "astromech-eddn"
+version = "0.1.5"
+dependencies = [
+ "flate2",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "ureq",
 ]
 
 [[package]]
