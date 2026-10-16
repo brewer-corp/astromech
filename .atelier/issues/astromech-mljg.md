@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T23:36:22.305688530+00:00"
+status: "done"
 title: "Trade route finder"
-updated_at: "2026-10-16T23:15:21.426016089+00:00"
+updated_at: "2026-10-16T23:36:22.305688530+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A recorded Spansh job/poll exchange produces a route, and the Trade page shows i
 ## Context
 
 Spansh `/api/trade/route` (job, then poll). Sending a route to the route follower is astromech-5akj (Go for every search-kit result), which waits on the follower landing (astromech-5sbu).
+
+## Close Reason
+
+Route mode on the Trade page: single hop from Spansh's trade router (job polled off the UI thread, 3-minute timeout) and loops with the way back from Ardent markets; profit per ton per leg and an estimated profit per hour (Spansh gives none). Recorded job/poll replay tests, component tests and a scripts/ui check. Sending a route to the follower stays with astromech-5akj.
