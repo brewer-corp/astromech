@@ -4,6 +4,9 @@ id: "astromech-zig3"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-zig3
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Docked-here facts and an outfitting history"
-updated_at: "2026-10-15T20:36:13.655361500+00:00"
+updated_at: "2026-10-16T21:15:44.439180329+00:00"
 ---
 
 ## Goal
