@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ship detail with live build stats"
-updated_at: "2026-10-16T19:06:19.488705550+00:00"
+updated_at: "2026-10-16T19:06:39.583822502+00:00"
 ---
 
 ## Goal
