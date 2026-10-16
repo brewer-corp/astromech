@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Trade lookups: share the market cache between voice and app; partial buyer fallback per commodity"
-updated_at: "2026-10-16T21:04:20.112097882+00:00"
+updated_at: "2026-10-16T21:08:27.696089910+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ Voice and the Trade page give the same trade answers, and a large mined load alw
 ## Context
 
 From independent review of astromech-zf3s (findings R3, R5). R3: `Assistant` in astromech-core builds its own in-memory `astromech_data::Client`, never shared with the shell's galaxy client, so the two can disagree for up to the 15-minute market TTL. A file-backed `Cache` in the shared data dir is one way. R5: `astromech_market::cargo::plan` per-commodity best uses `single_filters` (demand >= tonnes carried); mined loads of hundreds of tonnes often find none while partial buyers exist.
+
+## Notes
+
+- 2026-10-16 [note] Also (review of zf3s round 2): R6 the age and distance selects show blank for a saved value equal to the default hint (normalise to empty); R7 the truncation check runs before placeholders are dropped, so 1000 placeholder rows would cut real markets.
