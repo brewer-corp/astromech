@@ -20,9 +20,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:39:19.924584974+00:00"
+status: "done"
 title: "Watch the companion files"
-updated_at: "2026-10-16T18:36:08.537978959+00:00"
+updated_at: "2026-10-16T18:39:19.924584974+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ Replaying a journal fixture with each event, against fixture companion files, le
 ## Context
 
 `Cargo.json` and `NavRoute.json` are already watched. The game rewrites a file around its event, so read after the event, with a short retry.
+
+## Close Reason
+
+Seven companion files parsed, read after their event with a short retry, kept in game state; missing, half-written or stale files are logged and not used. Replay tests pass.
