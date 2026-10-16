@@ -5,6 +5,8 @@
 //!   cargo run -p astromech-core --example render-voices -- \
 //!     --worker target/debug/astromech-voice-worker --models <models dir> --out <dir>
 //!
+//! The models folder must hold a completed download (`--download-models`, or an extracted
+//! archive plus its `.<asset id>.ok` marker holding the archive's SHA-256).
 //! Default voices: the British ones. On Linux the worker needs the sherpa-onnx shared
 //! libraries (`LD_LIBRARY_PATH=target/debug`, after building it with `--features sherpa`).
 

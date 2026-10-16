@@ -3,7 +3,10 @@
 //! Layout under `base` (the exe folder):
 //!   downloads/<archive>          temporary; deleted after a successful extract
 //!   <asset.dest>/...             extracted files
-//!   <asset.dest>/.<id>.ok        marker containing the verified sha256
+//!   <asset.dest>/.<id>.ok        marker containing the verified sha256, written last
+//!
+//! [`ensure_in`] and [`is_installed_in`] take the extraction folder itself instead (the
+//! speech models go wherever `models_dir` points).
 //!
 //! If the user drops a manually downloaded archive into `downloads/`, it is used
 //! (after the same checksum check) instead of downloading again.
@@ -34,15 +37,21 @@ pub struct Progress {
     pub elapsed: Duration,
 }
 
-pub fn marker_path(base: &Path, a: &Asset) -> PathBuf {
-    base.join(a.dest).join(format!(".{}.ok", a.id))
+/// The marker for `a` extracted into `dest`.
+pub fn marker_in(dest: &Path, a: &Asset) -> PathBuf {
+    dest.join(format!(".{}.ok", a.id))
 }
 
 /// Installed = marker with the right digest AND the extracted file/folder still there
 /// (so a folder deleted by hand or by antivirus is fetched again instead of failing later).
+/// The marker is written after extraction finishes, so a half-extracted folder doesn't count.
+pub fn is_installed_in(dest: &Path, a: &Asset) -> bool {
+    fs::read_to_string(marker_in(dest, a)).map(|s| s.trim() == a.sha256).unwrap_or(false)
+        && dest.join(a.installed_path()).exists()
+}
+
 pub fn is_installed(base: &Path, a: &Asset) -> bool {
-    fs::read_to_string(marker_path(base, a)).map(|s| s.trim() == a.sha256).unwrap_or(false)
-        && base.join(a.dest).join(a.installed_path()).exists()
+    is_installed_in(&base.join(a.dest), a)
 }
 
 pub fn sha256_file(path: &Path, mut progress: impl FnMut(u64)) -> Result<String> {
@@ -66,20 +75,25 @@ fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02x}")).collect()
 }
 
-/// Make sure `a` is downloaded, verified and extracted. Returns the extraction folder.
+/// Make sure `a` is downloaded, verified and extracted into `<base>/<a.dest>`. Returns that folder.
 pub fn ensure(base: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<PathBuf> {
     let dest = base.join(a.dest);
-    if is_installed(base, a) {
-        return Ok(dest);
+    ensure_in(&dest, &base.join("downloads"), a, progress)?;
+    Ok(dest)
+}
+
+/// Make sure `a` is downloaded (into `dl_dir`), verified and extracted into `dest`.
+pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+    if is_installed_in(dest, a) {
+        return Ok(());
     }
     if let Some(m) = a.zip_member {
-        fs::create_dir_all(&dest)?;
+        fs::create_dir_all(dest)?;
         fetch_zip_member(&a.url(), m, &dest.join(a.file), a, progress)?;
-        fs::write(marker_path(base, a), a.sha256)?;
-        return Ok(dest);
+        fs::write(marker_in(dest, a), a.sha256)?;
+        return Ok(());
     }
-    let dl_dir = base.join("downloads");
-    fs::create_dir_all(&dl_dir)?;
+    fs::create_dir_all(dl_dir)?;
     let archive = dl_dir.join(a.file);
     let t0 = Instant::now();
 
@@ -98,10 +112,10 @@ pub fn ensure(base: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Res
     if !have_verified {
         fetch(&a.url(), &archive, a, progress)?;
     }
-    extract(&archive, &dest, a, progress)?;
-    fs::write(marker_path(base, a), a.sha256)?;
+    extract(&archive, dest, a, progress)?;
+    fs::write(marker_in(dest, a), a.sha256)?;
     fs::remove_file(&archive).ok();
-    Ok(dest)
+    Ok(())
 }
 
 fn agent() -> ureq::Agent {

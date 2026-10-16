@@ -23,6 +23,12 @@ relationships:
   - kind: "issue"
     id: "astromech-610m"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-dbza"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-mcdt"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T18:44:16.114284670+00:00"
