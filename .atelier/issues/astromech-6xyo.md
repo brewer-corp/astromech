@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:53:31.889432194+00:00"
 id: "astromech-6xyo"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-6xyo
 priority: "P1"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Tidy EDDN switch-off and give-up reporting"
-updated_at: "2026-10-16T20:58:07.943137638+00:00"
+updated_at: "2026-10-16T23:55:30.602673417+00:00"
 ---
 
 ## Goal
