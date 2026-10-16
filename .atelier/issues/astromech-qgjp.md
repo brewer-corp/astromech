@@ -13,7 +13,7 @@ relationships:
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
-title: "Type the journal events the toolbox epics need"
+title: "Type the journal events the toolbox work needs"
 updated_at: "2026-10-15T20:36:13.651279078+00:00"
 ---
 

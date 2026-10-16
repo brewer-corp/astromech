@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.648020132+00:00"
 id: "astromech-94j4"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -20,18 +20,22 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "draft"
+status: "backlog"
 title: "Spansh plotters in the app"
 updated_at: "2026-10-15T20:36:13.798453258+00:00"
 ---
 
+## Goal
+
+The user plots neutron and exact routes inside astromech, using the real jump range from the current loadout, and the route goes straight to the follower. This replaces Spansh's plotter pages.
+
+## Done when
+
+Neutron and exact routes, plotted from recorded Spansh responses with the jump range from the current loadout, load into the route follower; one route is flown in the real game. Independent review.
+
 ## Scope
 
 Already built: the route follower, clipboard and galaxy-map paste ([PLOTTING.md](docs/PLOTTING.md) layer 1, branch `route-clipboard`).
-
-## Outcome
-
-The user plots neutron and exact routes inside astromech, using the real jump range from the current loadout, and the route goes straight to the follower. This replaces Spansh's plotter pages.
 
 ## Unknowns
 

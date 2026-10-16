@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647281475+00:00"
 id: "astromech-ipb5"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -27,17 +27,13 @@ title: "Journal history and logbook"
 updated_at: "2026-10-15T20:36:13.730100607+00:00"
 ---
 
-## Outcome
+## Goal
 
 Every journal ever written is imported into a local history, and the logbook, session summary and "been here before" use it. This replaces EDSM's flight log as the user's personal record.
 
-## Proof
+## Done when
 
-Import tests on fixture logs (including a resumed import), a timing run on Sumeet's real logs recorded as evidence, and UI checks of the logbook. Independent review.
-
-## Delivers
-
-S8, through landings per body.
+Import tests on fixture logs (including a resumed import), a timing run on Sumeet's real logs recorded as evidence, and UI checks of the logbook. Independent review. Delivers S8, through landings per body.
 
 ## Unknowns
 

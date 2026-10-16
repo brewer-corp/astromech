@@ -3,7 +3,7 @@ created_at: "2026-10-15T20:36:13.660992128+00:00"
 id: "astromech-3zoz"
 issue_type: "task"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-s"
 priority: "P1"
 relationships:

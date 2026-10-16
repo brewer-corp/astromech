@@ -3,11 +3,12 @@ created_at: "2026-10-15T20:36:13.654441995+00:00"
 id: "astromech-w3z0"
 issue_type: "task"
 labels:
-- "needs-cmdr"
 - "size-l"
 priority: "P1"
 relationships:
-  blocks: []
+  blocks:
+  - kind: "issue"
+    id: "astromech-dq9y"
   children: []
   attachments: []
   relates:
@@ -18,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Plotting macro"
-updated_at: "2026-10-15T20:36:13.654441995+00:00"
+updated_at: "2026-10-16T04:33:15.491186047+00:00"
 ---
 
 ## Goal
@@ -27,7 +28,7 @@ Layer 2 of [PLOTTING.md](docs/PLOTTING.md): plot the next hop in the galaxy map 
 
 ## Done when
 
-The macro plots the next waypoint in the real game from each state in PLOTTING.md's test list (evidence).
+The key sequence for each state in PLOTTING.md's test list is generated and covered by tests, using the binds from the user's bindings file.
 
 ## Context
 

@@ -47,6 +47,6 @@ The milestone exit tests from [V1-DESIGN §8](docs/V1-DESIGN.md). M0–M2 shippe
 - S4 **M5 release:** v1.0 on GitHub Releases with an up-to-date README, signed if the
   signing decision says so.
 
-The "callouts" part of M4 (V1-DESIGN §1.5 #5) is replaced by the reaction epics under
+The "callouts" part of M4 (V1-DESIGN §1.5 #5) is replaced by the reaction work under
 "Replace the daily toolbox": low fuel, interdiction and heat are prominent on the HUD, so they
 aren't spoken.

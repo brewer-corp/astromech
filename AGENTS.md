@@ -13,15 +13,21 @@ under `.atelier/`, committed with the code they describe. There is no separate b
 - `atelier work missions`, `atelier work ready` and `atelier issue show <id>` orient you.
 - Missions: "Replace the daily toolbox" ([strategy](docs/strategies/replace-the-toolbox.md))
   and "Ship v1.0".
-- `atelier start <id>` creates the work branch (`<issue_type>/<id>`) from `main`. Integrate
-  with `atelier merge <id>` after independent review, never a plain `git merge` into `main`.
-  Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards `main` to the
-  reviewed branch; pushing `main` then marks the PR merged.
-- Someday work, and the children of a draft epic, sit in the `backlog` status so
-  `atelier work ready` shows only near-term work. New work items start in `todo`;
-  `atelier issue transition <id> defer` moves one to `backlog`, and `plan` moves it back.
-- Records labelled `needs-cmdr` need Sumeet at the PC or in the game. Prepare everything
-  else, then hand off.
+- `atelier start <id>` creates the work branch (`<issue_type>/<id>`) from `main`. An issue
+  with children owns one branch that its children share, and merges when they're all done.
+  Integrate with `atelier merge <id>` after independent review, never a plain `git merge`
+  into `main`. Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards
+  `main` to the reviewed branch; pushing `main` then marks the PR merged.
+- Planning changes that touch only `.atelier/` records and strategies (filing, grooming,
+  re-prioritising, recording a decision) are committed straight to `main`.
+- Someday work sits in the `backlog` status so `atelier work ready` shows only near-term
+  work. File it with `atelier issue create --status backlog`; `atelier issue transition
+  <id> defer` parks an item and `plan` brings it back. Children of a parked parent are
+  parked too.
+- Work only Sumeet can do (at the PC, in the game or headset, or a judgement call) is
+  labelled `needs-human`, and design questions are `decision` records. Both are listed
+  under "Needs a Human", not as ready work. Don't do them; finish the work they wait on
+  and hand off.
 
 ## Where things are
 

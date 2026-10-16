@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647898425+00:00"
 id: "astromech-m30a"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -29,17 +29,13 @@ title: "Nearby outfitting, ships and services"
 updated_at: "2026-10-15T20:36:13.791807637+00:00"
 ---
 
-## Outcome
+## Goal
 
 From the current or a typed system, the user finds the nearest station selling a module (by group, class, rating and mount), a ship, or a service, in the app and by voice. This replaces Inara's nearest-module search for daily use.
 
-## Proof
+## Done when
 
-Lookups against recorded Spansh/Ardent responses, voice phrase tests, and a check in the real game that the top answer sells the item. Independent review.
-
-## Delivers
-
-S1
+Lookups against recorded Spansh/Ardent responses, voice phrase tests, and a check in the real game that the top answer sells the item. Independent review. Delivers S1.
 
 ## Unknowns
 

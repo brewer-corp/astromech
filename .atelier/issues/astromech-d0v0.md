@@ -3,21 +3,20 @@ created_at: "2026-10-15T20:36:13.663219581+00:00"
 id: "astromech-d0v0"
 issue_type: "task"
 labels:
-- "needs-cmdr"
 - "size-m"
 priority: "P2"
 relationships:
   blocks:
   - kind: "issue"
-    id: "astromech-85w1"
+    id: "astromech-rnwk"
   children: []
   attachments: []
   relates: []
 schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
-title: "Trial Kokoro v1.0 with voice blending"
-updated_at: "2026-10-15T20:36:13.663219581+00:00"
+title: "Render a Kokoro v1.0 blended-voice A/B set"
+updated_at: "2026-10-16T04:33:15.327719467+00:00"
 ---
 
 ## Goal
@@ -26,7 +25,7 @@ Trial `kokoro-multi-lang-v1_0` in sherpa-onnx for more British voices, and blend
 
 ## Done when
 
-An A/B set with Sumeet's verdict against the v0.19 default (evidence).
+An A/B set against the v0.19 default is rendered from the real TTS path and attached as evidence, with the download size and speaker list recorded.
 
 ## Context
 

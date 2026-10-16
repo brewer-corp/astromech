@@ -1,9 +1,9 @@
 ---
 created_at: "2026-10-15T20:36:13.657456145+00:00"
 id: "astromech-rqyv"
-issue_type: "task"
+issue_type: "decision"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-s"
 priority: "P1"
 relationships:
@@ -15,19 +15,20 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
-title: "Decide: sign v1.0 or ship it unsigned"
+status: "todo"
+title: "Sign v1.0, or ship it unsigned?"
 updated_at: "2026-10-15T20:36:13.657456145+00:00"
 ---
 
-## Goal
+## Question
 
-Releases are unsigned today (V1-DESIGN §7.4 and §9 #7, the README, `release.yml`), while ARCHITECTURE §16 plans free OSS signing through the SignPath Foundation. Decide for v1.0.
+Should v1.0 ship as a signed Windows build?
 
-## Done when
+## Options
 
-Sumeet's decision is recorded as a note here, and V1-DESIGN or ARCHITECTURE §16 is updated to match.
+- **Sign through the SignPath Foundation** (ARCHITECTURE §16): free for OSS. SignPath needs an OSI licence for every component (GPL-3.0 binaries qualify) and may hesitate over software that injects input. Removes the SmartScreen warning once reputation builds.
+- **Ship unsigned**, as releases do today (V1-DESIGN §7.4 and §9 #7, the README, `release.yml`). Users click through SmartScreen; the install docs explain it.
 
 ## Context
 
-SignPath needs OSI licences for every component (GPL-3.0 binaries qualify) and may hesitate over software that injects input (ARCHITECTURE §16).
+When decided, update V1-DESIGN or ARCHITECTURE §16 to match. The v1.0 release item (astromech-rh44) waits on this.

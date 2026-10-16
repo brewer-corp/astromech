@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.646922536+00:00"
 id: "astromech-sfys"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -27,21 +27,17 @@ title: "Engineering material lookups"
 updated_at: "2026-10-15T20:36:13.709595697+00:00"
 ---
 
-## Scope
-
-Already built: builds, shopping list, trader maths, engineer trips (#11–#14); HGE pools by faction and state, and Boom/Famine/War/Outbreak/Civil Unrest system lookups. The HGE signal callout is in the arrival-callouts epic.
-
-## Outcome
+## Goal
 
 The user can find the nearest raw-material sites, including crystalline shards, with a jump count, and sees how fresh the Boom/Famine/War state behind an HGE suggestion is. This replaces the Inara and wiki lookups for material farming.
 
-## Proof
+## Done when
 
-Lookup tests from fixed positions and a check in the real game. Independent review.
+Lookup tests from fixed positions and a check in the real game. Independent review. Delivers S3.
 
-## Delivers
+## Scope
 
-S3
+Already built: builds, shopping list, trader maths, engineer trips (#11–#14); HGE pools by faction and state, and Boom/Famine/War/Outbreak/Civil Unrest system lookups. The HGE signal callout belongs to the arrival callouts (astromech-77a1).
 
 ## Unknowns
 

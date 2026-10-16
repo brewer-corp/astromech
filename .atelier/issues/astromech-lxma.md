@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647655442+00:00"
 id: "astromech-lxma"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -15,6 +15,8 @@ relationships:
     id: "astromech-ny3y"
   - kind: "issue"
     id: "astromech-orel"
+  - kind: "issue"
+    id: "astromech-we0f"
   attachments: []
   relates:
   - kind: "issue"
@@ -24,24 +26,20 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "M4 exit: onboarding and settings"
-updated_at: "2026-10-15T20:36:13.784286014+00:00"
+updated_at: "2026-10-16T04:33:15.460439623+00:00"
 ---
+
+## Goal
+
+A fresh install walks the user from first launch to a working "gear down" by voice in under 5 minutes, and voice and calibration are set in Settings, not config files.
+
+## Done when
+
+A timed fresh-install run on a clean Windows account (evidence), plus UI checks. Independent review. Delivers v1.0 S2.
 
 ## Scope
 
 Already built: Settings, key tester and Save diagnostics.
-
-## Outcome
-
-A fresh install walks the user from first launch to a working "gear down" by voice in under 5 minutes, and voice and calibration are set in Settings, not config files.
-
-## Proof
-
-A timed fresh-install run on a clean Windows account (evidence), plus UI checks. Independent review.
-
-## Delivers
-
-v1.0 S2
 
 ## Design
 

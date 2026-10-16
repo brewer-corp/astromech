@@ -3,7 +3,7 @@ created_at: "2026-10-15T20:36:13.656533845+00:00"
 id: "astromech-cgrw"
 issue_type: "validation"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-s"
 priority: "P0"
 relationships:

@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.646672720+00:00"
 id: "astromech-k3wp"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -29,14 +29,10 @@ title: "Colonisation tracker"
 updated_at: "2026-10-15T20:36:13.684561151+00:00"
 ---
 
-## Outcome
+## Goal
 
 The user sees every construction project's progress, what's left to deliver in loads for the current ship, and where to buy each commodity. This replaces Raven Colonial's Architect Tracker and EDCoPilot's tracker.
 
-## Proof
+## Done when
 
-Journal replay tests for the tracker and shopping list; recorded-response tests for where to buy; a delivery run in the real game. Independent review.
-
-## Delivers
-
-S5
+Journal replay tests for the tracker and shopping list; recorded-response tests for where to buy; a delivery run in the real game. Independent review. Delivers S5.

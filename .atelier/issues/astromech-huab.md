@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647779974+00:00"
 id: "astromech-huab"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -20,19 +20,21 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "draft"
+status: "backlog"
 title: "M5: v1.0 release"
 updated_at: "2026-10-15T20:36:13.785112695+00:00"
 ---
 
-## Scope
-
-Ships after the toolbox minimum (daily lookups, EDDN, core callouts) feels solid, so it waits for those epics.
-
-## Outcome
+## Goal
 
 v1.0 is on GitHub Releases with an up-to-date README (signed or not, as decided), and the MVP criteria are measured and reported together.
 
-## Delivers
+## Done when
+
+Every child issue is done, delivering:
 
 v1.0 S3, S4
+
+## Scope
+
+Ships after the toolbox minimum (daily lookups, EDDN, core callouts) feels solid, so it waits for those items.

@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647165729+00:00"
 id: "astromech-p4ls"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -24,16 +24,18 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "draft"
+status: "backlog"
 title: "Exploration system view"
 updated_at: "2026-10-15T20:36:13.723223916+00:00"
 ---
 
-## Outcome
+## Goal
 
 While exploring, the user sees bodies as they're scanned with their estimated value, hears high-value finds, tracks unsold data, and sees where they've landed before. This replaces OD Explorer's system view.
 
-## Delivers
+## Done when
+
+Every child issue is done, delivering:
 
 S8
 

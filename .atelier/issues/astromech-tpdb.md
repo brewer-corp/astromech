@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647402360+00:00"
 id: "astromech-tpdb"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -37,18 +37,14 @@ title: "Journal and companion-file coverage"
 updated_at: "2026-10-15T20:36:13.770967873+00:00"
 ---
 
+## Goal
+
+Every journal event and companion file the lookup, EDDN and reaction work needs is parsed into a typed form, with the original JSON kept alongside, and companion files are re-read when their journal event fires.
+
+## Done when
+
+Parser tests on synthetic fixtures for every new event and file, including a raw JSON round-trip test (EDDN needs the original keys). Independent review. Delivers S3, S4, S5, S6, S7, S8.
+
 ## Scope
 
 `astromech-journal` and `astromech-gamestate`. No new user-facing features.
-
-## Outcome
-
-Every journal event and companion file the lookup, EDDN and reaction epics need is parsed into a typed form, with the original JSON kept alongside, and companion files are re-read when their journal event fires.
-
-## Proof
-
-Parser tests on synthetic fixtures for every new event and file, including a raw JSON round-trip test (EDDN needs the original keys). Independent review.
-
-## Delivers
-
-S3, S4, S5, S6, S7, S8

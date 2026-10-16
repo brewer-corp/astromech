@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.648747508+00:00"
 id: "astromech-nf25"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P2"
 relationships:
@@ -10,23 +10,29 @@ relationships:
   - kind: "issue"
     id: "astromech-d4p9"
   - kind: "issue"
+    id: "astromech-leio"
+  - kind: "issue"
     id: "astromech-um0g"
   attachments: []
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "draft"
+status: "backlog"
 title: "VR overlay"
-updated_at: "2026-10-15T20:36:13.885777811+00:00"
+updated_at: "2026-10-16T04:33:15.549578430+00:00"
 ---
+
+## Goal
+
+In VR, the user sees the PTT and confirmation toast and a kneeboard with the lookups that matter mid-flight, in a SteamVR overlay next to Elite.
+
+## Done when
+
+Every child is done, including the headset check (astromech-leio). Independent review.
 
 ## Scope
 
 Deferred: no UI in VR *yet*. This is a prioritisation call (Sumeet, 15 Oct 2026), not a permanent one; it comes after the daily lookups. Voice-only in VR until then. Keep designs overlay-friendly where it's cheap.
-
-## Outcome
-
-In VR, the user sees the PTT and confirmation toast and a kneeboard with the lookups that matter mid-flight, in a SteamVR overlay next to Elite.
 
 ## Unknowns
 

@@ -3,7 +3,7 @@ created_at: "2026-10-15T20:36:13.664211831+00:00"
 id: "astromech-d4p9"
 issue_type: "spike"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-m"
 priority: "P2"
 relationships:

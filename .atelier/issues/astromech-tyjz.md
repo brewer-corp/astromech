@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.646802031+00:00"
 id: "astromech-tyjz"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -35,17 +35,13 @@ title: "EDDN sender"
 updated_at: "2026-10-15T20:36:13.697686132+00:00"
 ---
 
-## Outcome
+## Goal
 
 astromech sends commodity, outfitting, shipyard, journal and the other live EDDN schemas from the live game, following the EDCD sender rules, with per-service settings. This is what EDMC does for EDDN.
 
-## Proof
+## Done when
 
-Message tests per schema against the EDDN schema files; a session against the `/test` schemas with no rejections; then a live session with no rejections, recorded as evidence. Independent review.
-
-## Delivers
-
-S6
+Message tests per schema against the EDDN schema files; a session against the `/test` schemas with no rejections; then a live session with no rejections, recorded as evidence. Independent review. Delivers S6.
 
 ## Unknowns
 

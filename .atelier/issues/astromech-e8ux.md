@@ -3,7 +3,7 @@ created_at: "2026-10-15T20:36:13.666255952+00:00"
 id: "astromech-e8ux"
 issue_type: "validation"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-m"
 priority: "P1"
 relationships:

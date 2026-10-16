@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.647047088+00:00"
 id: "astromech-znhx"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P1"
 relationships:
@@ -24,16 +24,18 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "draft"
+status: "backlog"
 title: "Exobiology"
 updated_at: "2026-10-15T20:36:13.716404361+00:00"
 ---
 
-## Outcome
+## Goal
 
 The user knows which bodies have biology worth sampling, what it's likely to be worth, and when they've moved far enough between samples. This replaces OD Explorer's and BioScan's exobiology features.
 
-## Delivers
+## Done when
+
+Every child issue is done, delivering:
 
 S8
 

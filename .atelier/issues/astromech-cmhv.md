@@ -1,7 +1,7 @@
 ---
 created_at: "2026-10-15T20:36:13.648255681+00:00"
 id: "astromech-cmhv"
-issue_type: "epic"
+issue_type: "feature"
 labels: []
 priority: "P0"
 relationships:
@@ -35,21 +35,17 @@ title: "Reaction engine with prospector and scan callouts"
 updated_at: "2026-10-15T20:36:13.824107559+00:00"
 ---
 
-## Scope
-
-Only what the HUD doesn't show, or shows somewhere easy to miss mid-action (strategy Shape). V1-DESIGN §1.5 #5's default callouts (low fuel, interdiction, heat) are replaced by this list.
-
-## Outcome
+## Goal
 
 Journal and Status events drive rules that speak, toast or notify, and the two callouts Sumeet values most work: prospector results for high-value ores, and being scanned. This replaces EDCoPilot's mining and scan announcements.
 
-## Proof
+## Done when
 
-Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy, and a mining session in the real game. Independent review.
+Journal replay tests per rule (spoken text, cooldown, quiet while replaying), a word-budget test on all callout copy, and a mining session in the real game. Independent review. Delivers S7.
 
-## Delivers
+## Scope
 
-S7
+Only what the HUD doesn't show, or shows somewhere easy to miss mid-action (strategy Shape). V1-DESIGN §1.5 #5's default callouts (low fuel, interdiction, heat) are replaced by this list.
 
 ## Design
 

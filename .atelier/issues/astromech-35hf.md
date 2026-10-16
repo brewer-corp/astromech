@@ -3,7 +3,7 @@ created_at: "2026-10-15T20:36:13.657198996+00:00"
 id: "astromech-35hf"
 issue_type: "spike"
 labels:
-- "needs-cmdr"
+- "needs-human"
 - "size-s"
 priority: "P0"
 relationships:

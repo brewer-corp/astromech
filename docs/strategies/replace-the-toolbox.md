@@ -92,13 +92,13 @@ Environment: Windows, next to a running Elite (desktop or VR), one local user.
 
 # Authority
 
-The orchestrator may change the epic breakdown, sequencing, and which data source answers a
+The orchestrator may change how the work is broken down, sequencing, and which data source answers a
 lookup. Changes to S1–S9, adding a service that needs an account or sends data on the user's
 behalf, and anything touching the EULA line come back to Sumeet.
 
 # Risks and Unknowns
 
-- Spansh's search and route APIs are undocumented and can change without notice. Each epic
+- Spansh's search and route APIs are undocumented and can change without notice. Each item
   that uses one checks the request shape first.
 - The Inara whitelist and the cAPI client-id approval have lead time we don't control.
 - Powerplay and colonisation rules change often. Keep their rules tables as data.
