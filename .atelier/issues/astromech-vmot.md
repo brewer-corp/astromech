@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "System names as chips with a copy button"
-updated_at: "2026-10-16T18:12:14.949841375+00:00"
+updated_at: "2026-10-16T18:31:41.584991854+00:00"
 ---
 
 ## Goal

@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Merge My controller into Activities"
-updated_at: "2026-10-16T18:12:14.918064336+00:00"
+updated_at: "2026-10-16T18:31:41.552776245+00:00"
 ---
 
 ## Goal

@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "All keybinds: group panels expand together"
-updated_at: "2026-10-16T18:12:14.965390748+00:00"
+updated_at: "2026-10-16T18:31:41.484953765+00:00"
 ---
 
 ## Goal

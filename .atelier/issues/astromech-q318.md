@@ -3,6 +3,9 @@ created_at: "2026-10-16T18:12:14.888713530+00:00"
 id: "astromech-q318"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-q318
 priority: "P1"
 relationships:
   blocks:
@@ -28,7 +31,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "v1.0 UI refinement"
-updated_at: "2026-10-16T18:26:24.706345657+00:00"
+updated_at: "2026-10-16T18:31:41.484951731+00:00"
 ---
 
 ## Goal

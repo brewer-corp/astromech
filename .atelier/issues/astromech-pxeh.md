@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Materials: move the detail out of the side bar"
-updated_at: "2026-10-16T18:12:14.934041316+00:00"
+updated_at: "2026-10-16T18:31:41.568936397+00:00"
 ---
 
 ## Goal
