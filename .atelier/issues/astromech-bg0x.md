@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:17:12.227557488+00:00"
+status: "done"
 title: "Session summary"
-updated_at: "2026-10-16T20:11:58.259366597+00:00"
+updated_at: "2026-10-16T20:17:12.227557488+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A fixture session gives the expected totals.
 ## Notes
 
 - 2026-10-16 [note] From review of astromech-aonb: (R3) CarrierJump visits carry jump_dist 0.0 and look like FSD jumps; store NULL or a via column before counting jumps and distance. (R7) decide which credit events count as earnings (PowerplaySalary, ModuleSell, ship sales, SellDrones are left out today).
+
+## Close Reason
+
+History::session totals (credits by activity, per hour, trade profit, FSD jumps/distance, carrier jumps apart, bounties awarded, data sold) tested on fixture sessions; earnings list explicit (R7); carrier jumps via/NULL distance (R3); Session tab in the app. Voice/logout split to astromech-oo8y. e1a22ac.
