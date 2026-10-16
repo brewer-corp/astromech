@@ -61,11 +61,13 @@
       </p>
       <ul>
         <li>station markets, shipyards and carrier materials when you open them;</li>
-        <li>systems you jump to, bodies you scan, signals and codex finds;</li>
+        <li>stations you dock at, where you are when you log in, and systems you jump to;</li>
+        <li>bodies you scan, signals and codex finds;</li>
         <li>routes you plot, and docking granted or denied.</li>
       </ul>
       <p>
-        Your commander name goes with each message, as EDDN requires. Your credits, reputation, cargo, missions and
+        Your commander name goes with each message (EDDN asks for it and obfuscates it before passing messages on).
+        Your credits, reputation, cargo, missions and
         anything personal are removed first. Only live play is sent: never the game's beta, never old journals when
         astromech starts, and nothing older than 30 minutes.
       </p>

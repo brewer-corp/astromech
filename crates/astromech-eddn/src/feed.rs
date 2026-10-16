@@ -206,6 +206,11 @@ impl Feed {
     }
 
     fn queue(&mut self, built: Vec<Built>, now: i64) {
+        // Every path to the outbox comes through here: switched off, nothing is queued or
+        // logged, whatever was pending (a signal run, a companion file) when it was switched.
+        if !self.sharing.load(Ordering::SeqCst) {
+            return;
+        }
         let mut queued = false;
         for b in built {
             let r = match b {
@@ -600,5 +605,20 @@ mod tests {
         let ups = sent(&f);
         assert_eq!(schemas(&ups), ["journal/1"]);
         assert_eq!(ups[0]["header"]["uploaderID"], "Jameson");
+    }
+
+    #[test]
+    fn switched_off_a_pending_run_or_companion_file_queues_nothing() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, 100);
+        f.journal(&signal("2026-10-16T12:01:00Z"), true, 100);
+        assert!(f.awaiting("Market"));
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "the run is pending, not queued");
+        f.sharing.store(false, Ordering::SeqCst);
+        f.flush(100);
+        f.companion_file("Market", &fixture("Market.json"), 100);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "the outbox stays empty");
+        assert!(log(&f).is_empty());
     }
 }
