@@ -1,0 +1,205 @@
+{
+ "count": 276,
+ "from": 0,
+ "reference": {
+  "id64": 3824408316259,
+  "name": "Lembava",
+  "x": -43.25,
+  "y": -64.34375,
+  "z": -77.6875
+ },
+ "results": [
+  {
+   "allegiance": "Independent",
+   "body_count": 18,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Li Yong-Rui",
+   "distance": 0.0,
+   "government": "Corporate",
+   "id": "3824408316259",
+   "id64": 3824408316259,
+   "is_being_colonised": false,
+   "is_colonised": false,
+   "known_permit": false,
+   "name": "Lembava",
+   "needs_permit": false,
+   "population": 44070788,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_state": "Stronghold",
+   "power_state_control_progress": 0.250634,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 166,
+   "primary_economy": "High Tech",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Refinery",
+   "security": "Medium",
+   "updated_at": "2026-10-16T19:13:42Z",
+   "x": -43.25,
+   "y": -64.34375,
+   "z": -77.6875
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 33,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Li Yong-Rui",
+   "distance": 5.15785959725544,
+   "government": "Corporate",
+   "id": "5068463941001",
+   "id64": 5068463941001,
+   "is_being_colonised": false,
+   "is_colonised": false,
+   "known_permit": false,
+   "name": "Pikum",
+   "needs_permit": false,
+   "population": 6521229,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_state": "Stronghold",
+   "power_state_control_progress": 0.485226,
+   "power_state_reinforcement": 11984,
+   "power_state_undermining": 58758,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Refinery",
+   "security": "High",
+   "updated_at": "2026-10-16T19:24:04Z",
+   "x": -39.0,
+   "y": -63.125,
+   "z": -75.03125
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 8,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Li Yong-Rui",
+   "distance": 5.53866029040417,
+   "government": "Corporate",
+   "id": "7267487196553",
+   "id64": 7267487196553,
+   "is_being_colonised": true,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "Piscium Sector BV-Y b3",
+   "needs_permit": false,
+   "population": 59893997,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_state": "Fortified",
+   "power_state_control_progress": 0.277808,
+   "power_state_reinforcement": 82,
+   "power_state_undermining": 3707,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Agriculture",
+   "security": "Low",
+   "updated_at": "2026-10-15T16:51:57Z",
+   "x": -41.6875,
+   "y": -63.34375,
+   "z": -72.46875
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 29,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Li Yong-Rui",
+   "distance": 6.02436459305046,
+   "government": "Corporate",
+   "id": "9466510452105",
+   "id64": 9466510452105,
+   "is_being_colonised": false,
+   "is_colonised": false,
+   "known_permit": false,
+   "name": "Aasgananu",
+   "needs_permit": false,
+   "population": 12274011,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_state": "Stronghold",
+   "power_state_control_progress": 0.29313,
+   "power_state_reinforcement": 538,
+   "power_state_undermining": 11208,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "Extraction",
+   "security": "Medium",
+   "updated_at": "2026-10-15T23:42:27Z",
+   "x": -38.8125,
+   "y": -62.90625,
+   "z": -73.875
+  },
+  {
+   "allegiance": "Independent",
+   "body_count": 4,
+   "controlling_minor_faction": "Pikum Public Group",
+   "controlling_minor_faction_state": "Expansion",
+   "controlling_power": "Li Yong-Rui",
+   "distance": 6.58448697697854,
+   "government": "Corporate",
+   "id": "1458174890690",
+   "id64": 1458174890690,
+   "is_being_colonised": true,
+   "is_colonised": true,
+   "known_permit": false,
+   "name": "NLTT 7805",
+   "needs_permit": false,
+   "population": 802233,
+   "power": [
+    "Li Yong-Rui"
+   ],
+   "power_state": "Exploited",
+   "power_state_control_progress": 0.054283,
+   "power_state_reinforcement": 0,
+   "power_state_undermining": 0,
+   "primary_economy": "Industrial",
+   "region": "Inner Orion Spur",
+   "secondary_economy": "High Tech",
+   "security": "Medium",
+   "updated_at": "2026-10-15T17:43:46Z",
+   "x": -39.0625,
+   "y": -67.03125,
+   "z": -73.375
+  }
+ ],
+ "search": {
+  "filters": {
+   "controlling_power": {
+    "value": [
+     "Li Yong-Rui"
+    ]
+   },
+   "distance": {
+    "max": "40",
+    "min": "0"
+   }
+  },
+  "page": 0,
+  "reference_system": "Lembava",
+  "reference_system_details": {
+   "id64": 3824408316259,
+   "name": "Lembava",
+   "x": -43.25,
+   "y": -64.34375,
+   "z": -77.6875
+  },
+  "size": 5,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "search_reference": "52BC19F8-C99F-11F1-A5B0-A62C3419F610",
+ "size": 5
+}

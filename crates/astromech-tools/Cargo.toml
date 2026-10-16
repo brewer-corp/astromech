@@ -21,4 +21,5 @@ chrono.workspace = true
 
 [dev-dependencies]
 astromech-data.workspace = true
+astromech-journal.workspace = true
 serde_json.workspace = true

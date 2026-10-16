@@ -15,7 +15,16 @@
 //! - `distance_to_arrival`, `updated_at`, `outfitting_updated_at`, `shipyard_updated_at`
 //!   (stations): `{"value": [min, max], "comparison": "<=>"}` (`{"min", "max"}` is ignored);
 //! - `minor_faction_presences` (systems): `[{"allegiance": {"value": [..]}, "state": {"value": [..]}}]`;
-//! - `subtype` (bodies): `{"value": [..]}`.
+//! - `subtype` (bodies): `{"value": [..]}`;
+//! - `controlling_power`, `power` (any power active there, controller included) and
+//!   `power_state` (systems; `Unoccupied`, `Exploited`, `Fortified`, `Stronghold`):
+//!   `{"value": [..]}`, matching any listed value (checked 16 Oct 2026: an unknown filter name
+//!   left the count at 204, `power_state: Unoccupied` cut it to 63).
+//!
+//! Systems answer Powerplay as `controlling_power`, `power` (list), `power_state`,
+//! `power_state_control_progress` (a fraction of the state's band),
+//! `power_state_reinforcement`, `power_state_undermining`, and for unoccupied systems
+//! `power_conflict_progress: [{"power", "progress"}]`.
 //!
 //! System-name autocomplete (`/api/systems/field_values/system_names?q=`) answers
 //! `{"values": [names], "min_max": [{id64, name, x, y, z}]}`, up to a handful of names that
@@ -177,6 +186,21 @@ impl Search {
         self.push("market", json!({ "name": commodity, side: range }))
     }
 
+    /// Systems controlled by any of `powers`.
+    pub fn controlling_power(self, powers: &[&str]) -> Self {
+        self.filter("controlling_power", json!({ "value": powers }))
+    }
+
+    /// Systems where any of `powers` is active (controlling, acquiring or undermining).
+    pub fn power(self, powers: &[&str]) -> Self {
+        self.filter("power", json!({ "value": powers }))
+    }
+
+    /// Systems in any of these Powerplay states.
+    pub fn power_state(self, states: &[&str]) -> Self {
+        self.filter("power_state", json!({ "value": states }))
+    }
+
     /// The JSON body Spansh's site posts.
     pub fn body(&self) -> Value {
         let mut b = json!({
@@ -241,10 +265,29 @@ pub struct System {
     pub controlling_power: Option<String>,
     #[serde(default)]
     pub power_state: Option<String>,
+    /// Every power active in the system, the controller included.
+    #[serde(default)]
+    pub power: Vec<String>,
+    /// Progress through the state's band, a fraction.
+    #[serde(default)]
+    pub power_state_control_progress: Option<f64>,
+    #[serde(default)]
+    pub power_state_reinforcement: Option<i64>,
+    #[serde(default)]
+    pub power_state_undermining: Option<i64>,
+    /// Unoccupied systems: each power's acquisition progress.
+    #[serde(default)]
+    pub power_conflict_progress: Vec<PowerProgress>,
     #[serde(default)]
     pub updated_at: Option<String>,
     #[serde(default)]
     pub minor_faction_presences: Vec<Faction>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PowerProgress {
+    pub power: String,
+    pub progress: f64,
 }
 
 impl System {
@@ -573,6 +616,14 @@ mod tests {
         assert_eq!(f["distance_to_arrival"], json!({ "value": ["0", "1000"], "comparison": "<=>" }));
         assert_eq!(f["outfitting_updated_at"]["value"][0], "2026-10-15T00:00:00Z");
         assert_eq!(f["outfitting_updated_at"]["comparison"], "<=>");
+        let p = Search::near(Reference::System("Lembava".into()))
+            .power_state(&["Unoccupied"])
+            .power(&["Li Yong-Rui"])
+            .controlling_power(&["Pranav Antal", "Yuri Grom"])
+            .body();
+        assert_eq!(p["filters"]["power_state"]["value"][0], "Unoccupied");
+        assert_eq!(p["filters"]["power"]["value"][0], "Li Yong-Rui");
+        assert_eq!(p["filters"]["controlling_power"]["value"][1], "Yuri Grom");
         let c = Search::near(Reference::Coords([1.0, 2.0, 3.0])).body();
         assert_eq!(c["reference_coords"]["z"], 3.0);
         assert!(c.get("reference_system").is_none());

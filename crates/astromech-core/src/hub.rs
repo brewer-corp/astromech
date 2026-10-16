@@ -2,7 +2,7 @@
 //! verification (waiting for a flag), subscribers (the future API).
 
 use astromech_gamestate::GameState;
-use astromech_journal::JournalEvent;
+use astromech_journal::JournalLine;
 use astromech_status::StatusSnap;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Condvar, Mutex};
@@ -55,8 +55,8 @@ impl StateHub {
         self.update(|g| g.apply_status(s));
     }
 
-    pub fn apply_journal(&self, e: &JournalEvent) {
-        self.update(|g| g.apply_journal(e));
+    pub fn apply_journal(&self, l: &JournalLine) {
+        self.update(|g| g.apply_line(l));
     }
 
     /// Wait until `flag` is set (`expect`) or clear, up to `timeout`. Returns early (false)

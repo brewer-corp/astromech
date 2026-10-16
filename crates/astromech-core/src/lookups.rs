@@ -102,6 +102,17 @@ mod tests {
         // and the ship commands still work
         assert_eq!(g.best("gear down").command, "landing_gear.down");
         assert_eq!(g.best("how much fuel").command, "status.fuel");
+        // and the Powerplay questions, with the lookup slots in the grammar
+        for (t, c) in [
+            ("what's my powerplay rank", "status.powerplay"),
+            ("Power play rank", "status.powerplay"),
+            ("How many merits?", "status.powerplay"),
+            ("Who controls this system?", "status.system_power"),
+            ("system powerplay", "status.system_power"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
     }
 
     #[test]

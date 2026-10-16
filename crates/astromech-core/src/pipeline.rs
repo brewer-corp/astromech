@@ -130,7 +130,7 @@ impl Tailer {
                 match astromech_journal::parse_line(&l) {
                     Ok(j) => {
                         st.journal_lines += 1;
-                        self.hub.apply_journal(&j.event);
+                        self.hub.apply_journal(&j);
                         parsed.push(j);
                     }
                     Err(_) => st.bad_lines += 1,
