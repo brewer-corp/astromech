@@ -1,0 +1,6 @@
+{ "timestamp":"2026-10-16T12:02:00Z", "event":"Shipyard", "MarketID":128666762, "StationName":"Jameson Memorial", "StarSystem":"Shinrarta Dezhra", "Horizons":true, "AllowCobraMkIV":false, "PriceList":[
+{ "id":128049249, "ShipType":"sidewinder", "ShipPrice":32000 },
+{ "id":128049267, "ShipType":"adder", "ShipPrice":87808 },
+{ "id":128671223, "ShipType":"empire_courier", "ShipType_Localised":"Imperial Courier", "ShipPrice":2542931 },
+{ "id":128049309, "ShipType":"anaconda", "ShipPrice":146969450 }
+] }

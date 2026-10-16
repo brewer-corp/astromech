@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646802031+00:00"
 id: "astromech-tyjz"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-tyjz
 priority: "P0"
 relationships:
   blocks:
@@ -25,16 +28,25 @@ relationships:
     id: "astromech-thau"
   - kind: "issue"
     id: "astromech-w20r"
+  - kind: "issue"
+    id: "astromech-xvjs"
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-6xyo"
+    type: "related"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-n16x"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:46:33.162186989+00:00"
+status: "done"
 title: "EDDN sender"
-updated_at: "2026-10-16T18:26:24.889278273+00:00"
+updated_at: "2026-10-16T20:46:33.162186989+00:00"
 ---
 
 ## Goal
@@ -48,3 +60,11 @@ Message tests per schema against the EDDN schema files. Independent review. The 
 ## Unknowns
 
 Whether the `blackmarket` schema is still live.
+
+## Notes
+
+- 2026-10-16 [note] Unknown answered (EDCD schemas/blackmarket-README.md, live branch, read 16 Oct 2026): the blackmarket schema is deprecated; the same data goes in commodity/3's prohibited array since Sep 2017. Don't send blackmarket.
+
+## Close Reason
+
+All children done: sender core with outbox, retry rules and beta gate (el1v); commodity/3, outfitting/2, shipyard/2 (lt2b, thau); journal/1 and 12 event schemas (w20r, 5el6); running in the core from live lines only, off by default, outfitting/2 gated (xvjs); Settings → Data sharing (09s3). Message tests validate against the live schema files. The live-session check is astromech-uxyq, after the merge.
