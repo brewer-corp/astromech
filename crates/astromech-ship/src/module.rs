@@ -1,6 +1,7 @@
 //! One fitted module and its engineered stats: a port of Coriolis's `Module.js` value rules and
 //! of how a journal `Engineering` block becomes modifications (`JournalUtils.js`,
-//! `BlueprintFunctions.js`, and the build-code round trip in `Ship.js`).
+//! `BlueprintFunctions.js`, and the build-code round trip in `Ship.js`), from its `Modifiers`
+//! when the journal wrote them, else from the blueprint, grade and roll.
 //!
 //! Coriolis keeps each modification as a scaled integer: hundredths of a percent for percentage
 //! stats (`0.1234` → `1234`) and hundredths for numeric ones. Missing values follow JavaScript:
@@ -8,10 +9,96 @@
 
 use crate::data::ModuleDef;
 use astromech_engineering::data as eng;
-use astromech_journal::ModEngineering;
+use astromech_journal::{EngModifier, ModEngineering};
 use std::collections::{BTreeMap, HashMap};
 
 const RESISTANCES: [&str; 4] = ["explres", "kinres", "thermres", "causres"];
+
+/// The stat each journal `Modifiers` label sets, by label in lowercase without
+/// `OutfittingFieldType_` or `PerSecond` (how Coriolis matches them). From coriolis-data
+/// `modifications/modifierActions.json`, whose `OutfittingFieldType_*` entries each set one stat
+/// to the modifier's change, plus two labels the game writes that Coriolis doesn't match:
+/// `MaxFuelPerJump` and `CausticResistance`.
+const LABELS: &[(&str, &str)] = &[
+    ("ammoclipsize", "clip"),
+    ("ammomaximum", "ammo"),
+    ("armourpenetration", "piercing"),
+    ("boottime", "boot"),
+    ("brokenregenrate", "brokenregen"),
+    ("cargocapacity", "cargo"),
+    ("causticresistance", "causres"),
+    ("damage", "damage"),
+    ("damagefalloffrange", "fallofffromrange"),
+    ("defencemodifierhealthaddition", "hullreinforcement"),
+    ("defencemodifierhealthmultiplier", "hullboost"),
+    ("defencemodifiershieldmultiplier", "shieldboost"),
+    ("distributordraw", "distdraw"),
+    ("dss_ratemult", "scanrate"),
+    ("energyperregen", "distdraw"),
+    ("engineheatrate", "thermload"),
+    ("engineoptimalmass", "optmass"),
+    ("engineoptperformance", "optmul"),
+    ("enginescapacity", "engcap"),
+    ("enginesrecharge", "engrate"),
+    ("explosiveresistance", "explres"),
+    ("fsdheatrate", "thermload"),
+    ("fsdinterdictorfacinglimit", "facinglimit"),
+    ("fsdinterdictorrange", "ranget"),
+    ("fsdmaxfuelperjump", "maxfuel"),
+    ("fsdoptimalmass", "optmass"),
+    ("heatefficiency", "eff"),
+    ("integrity", "integrity"),
+    ("jitter", "jitter"),
+    ("kineticresistance", "kinres"),
+    ("mass", "mass"),
+    ("maxangle", "angle"),
+    ("maxfuelperjump", "maxfuel"),
+    ("maximumrange", "range"),
+    ("powercapacity", "pgen"),
+    ("powerdraw", "power"),
+    ("range", "range"),
+    ("rateoffire", "rof"),
+    ("regenrate", "regen"),
+    ("reloadtime", "reload"),
+    ("scannerrange", "range"),
+    ("scannertimetoscan", "scantime"),
+    ("sensortargetscanangle", "angle"),
+    ("shieldbankduration", "duration"),
+    ("shieldbankheat", "thermload"),
+    ("shieldbankreinforcement", "shieldreinforcement"),
+    ("shieldbankspinup", "spinup"),
+    ("shieldgenoptimalmass", "optmass"),
+    ("shieldgenstrength", "optmul"),
+    ("shotspeed", "shotspeed"),
+    ("systemscapacity", "syscap"),
+    ("systemsrecharge", "sysrate"),
+    ("thermalload", "thermload"),
+    ("thermicresistance", "thermres"),
+    ("weapon_burst_rof", "burstrof"),
+    ("weapon_burst_size", "burst"),
+    ("weapon_clip_size_override", "clip"),
+    ("weaponscapacity", "wepcap"),
+    ("weaponsrecharge", "weprate"),
+];
+
+/// What a journal `Modifiers` label means for the stats.
+#[derive(Debug, PartialEq)]
+enum Label {
+    Stat(&'static str),
+    /// Worked out from other stats. `DamagePerSecond` is damage times rate of fire, both of which
+    /// have their own entries (Coriolis reads it as damage, counting a rate-of-fire change twice).
+    Derived,
+    Unknown,
+}
+
+fn label(label: &str) -> Label {
+    let key = label.to_ascii_lowercase().replace("outfittingfieldtype_", "");
+    if key == "damagepersecond" {
+        return Label::Derived;
+    }
+    let key = key.replace("persecond", "");
+    LABELS.iter().find(|(l, _)| *l == key).map_or(Label::Unknown, |(_, s)| Label::Stat(s))
+}
 
 /// JavaScript's `Math.round`: halves round up.
 pub(crate) fn js_round(x: f64) -> f64 {
@@ -44,6 +131,8 @@ pub(crate) enum Unapplied {
     /// A grade the blueprint doesn't have: (blueprint, grade).
     Grade(String, u8),
     Experimental(String),
+    /// A journal `Modifiers` label not in [`LABELS`].
+    Modifier(String),
 }
 
 impl Module {
@@ -51,11 +140,32 @@ impl Module {
         Module { def, mods: HashMap::new(), special: None, effects: None }
     }
 
-    /// Applies a journal `Engineering` block the way Coriolis imports it when the event carries no
-    /// `Modifiers`: every blueprint feature at the roll given by `quality`, the experimental's
-    /// effects on top. Returns what could not be found.
+    /// Applies a journal `Engineering` block the way Coriolis imports it (`_addModifications`):
+    /// with `Modifiers`, each stat's journal value, less the experimental's share, which the
+    /// experimental puts back; without, every blueprint feature at the roll given by `quality`,
+    /// the experimental's effects on top. Returns what was left out of the stats.
     pub fn engineer(&mut self, symbol: &str, e: &ModEngineering) -> Vec<Unapplied> {
         let mut missing = vec![];
+        let unknown_experimental = self.experimental(symbol, e);
+        if e.modifiers.is_empty() {
+            missing.extend(self.blueprint(symbol, e));
+            missing.extend(unknown_experimental.map(Unapplied::Experimental));
+        } else {
+            // The journal values already hold the blueprint and the experimental, known or not.
+            for m in &e.modifiers {
+                match label(&m.label) {
+                    Label::Stat(stat) => self.set_from_journal(stat, m),
+                    Label::Derived => {}
+                    Label::Unknown => missing.push(Unapplied::Modifier(m.label.clone())),
+                }
+            }
+        }
+        self.round_trip();
+        missing
+    }
+
+    /// Every blueprint feature at the roll given by `quality` (`setQualityCB`).
+    fn blueprint(&mut self, symbol: &str, e: &ModEngineering) -> Option<Unapplied> {
         // Multi-cannons write their overcharged blueprint as Weapon_Overcharged (getBlueprint).
         let bp_name = if e.blueprint.eq_ignore_ascii_case("weapon_overcharged")
             && symbol.to_ascii_lowercase().contains("multicannon")
@@ -64,17 +174,16 @@ impl Module {
         } else {
             &e.blueprint
         };
-        match eng::blueprint(bp_name) {
-            Some((_, bp)) => match bp.grade(e.level) {
-                Some(grade) => {
-                    for (stat, range) in &grade.features {
-                        self.set_quality(stat, *range, e.quality);
-                    }
-                }
-                None => missing.push(Unapplied::Grade(e.blueprint.clone(), e.level)),
-            },
-            None => missing.push(Unapplied::Blueprint(e.blueprint.clone())),
+        let Some((_, bp)) = eng::blueprint(bp_name) else { return Some(Unapplied::Blueprint(e.blueprint.clone())) };
+        let Some(grade) = bp.grade(e.level) else { return Some(Unapplied::Grade(e.blueprint.clone(), e.level)) };
+        for (stat, range) in &grade.features {
+            self.set_quality(stat, *range, e.quality);
         }
+        None
+    }
+
+    /// Takes on the experimental's effects; returns its id when they aren't known.
+    fn experimental(&mut self, symbol: &str, e: &ModEngineering) -> Option<String> {
         if let Some(sp) = &e.experimental {
             let sp = sp.to_ascii_lowercase();
             // _addModifications: plasma slug has a variant per weapon.
@@ -92,11 +201,55 @@ impl Module {
                 self.effects = effects;
                 self.special = Some(sp);
             } else {
-                missing.push(Unapplied::Experimental(sp));
+                return Some(sp);
             }
         }
-        self.round_trip();
-        missing
+        None
+    }
+
+    /// One journal modifier as the change to `stat` (`_addModifications`), then
+    /// `setModValue(stat, value, true)`: the experimental's part of the change comes off, as
+    /// [`Module::mod_value`] adds it back.
+    fn set_from_journal(&mut self, stat: &str, m: &EngModifier) {
+        let (v, o) = (m.value, m.original_value);
+        let mut value = (v / o * 100.0 - 100.0) * 100.0;
+        if value == f64::INFINITY {
+            value = v * 100.0;
+        }
+        if m.label.contains("DamageFalloffRange") {
+            value = (v / self.base("range").unwrap_or(f64::NAN) - 1.0) * 100.0;
+        }
+        if m.label.contains("Resistance") {
+            value = v * 100.0 - o * 100.0;
+        }
+        if m.label.contains("ShieldMultiplier") || m.label.contains("DefenceModifierHealthMultiplier") {
+            value = ((100.0 + v) / (100.0 + o) * 100.0 - 100.0) * 100.0;
+        }
+        let action = self.effects.and_then(|e| e.get(stat)).copied();
+        let value = match (action, eng::modifier(stat)) {
+            (Some(a), Some(md)) => {
+                if RESISTANCES.contains(&stat) {
+                    let base = self.base(stat);
+                    let res = base.unwrap_or(0.0) + value / 10000.0;
+                    let x = a / 100.0;
+                    Some(((x - res) / (x - 1.0) - base.unwrap_or(f64::NAN)) * 10000.0)
+                } else if md.method == "additive" {
+                    // Coriolis subtracts `a` unscaled here (only Jitter, which no stat uses).
+                    Some(value - a * 100.0)
+                } else if md.method == "overwrite" {
+                    None
+                } else {
+                    Some(((value / 10000.0 + 1.0) / (1.0 + a) - 1.0) * 10000.0)
+                }
+            }
+            _ => Some(value),
+        };
+        // A value the build code can't hold (no original value, say) is lost in Coriolis's round
+        // trip, like a zero.
+        match value.filter(|v| *v != 0.0 && v.is_finite()) {
+            Some(v) => self.mods.insert(stat.to_string(), v),
+            None => self.mods.remove(stat),
+        };
     }
 
     /// `setQualityCB` then `setModValue(name, value, false)`.
@@ -308,6 +461,7 @@ mod tests {
             experimental: None,
             experimental_localised: None,
             engineer: None,
+            modifiers: vec![],
         };
         let missing = m.engineer(item, &e);
         (m, missing)
@@ -335,5 +489,66 @@ mod tests {
         let (m, missing) = engineered("int_hyperdrive_size5_class5", "FSD_LongRange", 0, 1.0);
         assert_eq!(missing, [Unapplied::Grade("FSD_LongRange".into(), 0)]);
         assert_eq!(m.get("optmass"), m.base("optmass"));
+    }
+
+    fn journal(
+        item: &str,
+        blueprint: &str,
+        experimental: Option<&str>,
+        mods: &[(&str, f64, f64)],
+    ) -> (Module, Vec<Unapplied>) {
+        let mut m = Module::new(crate::data::module(item).unwrap());
+        let e = ModEngineering {
+            blueprint: blueprint.into(),
+            level: 5,
+            quality: 0.0,
+            experimental: experimental.map(Into::into),
+            experimental_localised: None,
+            engineer: None,
+            modifiers: mods
+                .iter()
+                .map(|(l, v, o)| EngModifier { label: l.to_string(), value: *v, original_value: *o })
+                .collect(),
+        };
+        let missing = m.engineer(item, &e);
+        (m, missing)
+    }
+
+    #[test]
+    fn modifiers_set_the_stats_and_unknown_labels_are_reported() {
+        let fsd = "int_hyperdrive_size5_class5";
+        // Quality 0 would be +45 %; the journal says +53.1 %. Labels match without
+        // `OutfittingFieldType_`, in any case; the blueprint isn't needed.
+        let (m, missing) = journal(
+            fsd,
+            "FSD_Legacy",
+            None,
+            &[("FSDOptimalMass", 1607.55, 1050.0), ("outfittingfieldtype_Mass", 26.0, 20.0), ("Shininess", 2.0, 1.0)],
+        );
+        assert_eq!(missing, [Unapplied::Modifier("Shininess".into())]);
+        assert!((m.get("optmass").unwrap() - 1607.55).abs() < 1e-9);
+        assert!((m.get("mass").unwrap() - 26.0).abs() < 1e-9);
+        assert_eq!(m.get("integrity"), m.base("integrity"));
+        // The experimental's part comes off the stored change and back on in the stat.
+        let (m, missing) = journal(
+            fsd,
+            "FSD_LongRange",
+            Some("special_fsd_heavy"),
+            &[("FSDOptimalMass", 1050.0 * 1.5 * 1.04, 1050.0)],
+        );
+        assert!(missing.is_empty());
+        assert_eq!(m.mods.get("optmass"), Some(&5000.0));
+        assert!((m.get("optmass").unwrap() - 1638.0).abs() < 1e-9);
+        // Resistances are percentage points; damage per second is derived, not a stat.
+        let (m, missing) = journal(
+            "int_hullreinforcement_size4_class2",
+            "HullReinforcement_Kinetic",
+            None,
+            &[("KineticResistance", 12.5, 2.0), ("CausticResistance", 1.0, 0.0), ("DamagePerSecond", 9.0, 3.0)],
+        );
+        assert!(missing.is_empty());
+        assert!((m.get("kinres").unwrap() - 0.125).abs() < 1e-9);
+        assert!((m.get("causres").unwrap() - 0.01).abs() < 1e-9);
+        assert_eq!(m.get("damage"), None);
     }
 }

@@ -149,6 +149,8 @@ pub enum JournalEvent {
         /// applied, `ApplyExperimentalEffect`).
         experimental: Option<String>,
         experimental_localised: Option<String>,
+        /// The module's engineered stats after this roll (`Modifiers`).
+        modifiers: Vec<EngModifier>,
         /// A preview (no change to the module).
         preview: bool,
         ingredients: Vec<MaterialStack>,
@@ -198,6 +200,21 @@ pub struct ModEngineering {
     pub experimental: Option<String>,
     pub experimental_localised: Option<String>,
     pub engineer: Option<String>,
+    /// The module's engineered stats as the game reports them (`Modifiers`): the real roll of
+    /// each stat, which `level` and `quality` only approximate (and say nothing about for
+    /// modules engineered before 3.0, which show `Quality` 0). Empty when not written.
+    pub modifiers: Vec<EngModifier>,
+}
+
+/// One entry of an engineering `Modifiers` list: a stat's value on the module and on the
+/// unengineered module, in the journal's units (resistances and shield or hull multipliers in
+/// percent). Entries with only a text value (`ValueStr`) are not kept.
+#[derive(Debug, Clone, PartialEq)]
+pub struct EngModifier {
+    /// `FSDOptimalMass`, `ShieldGenStrength`, `KineticResistance`, ...
+    pub label: String,
+    pub value: f64,
+    pub original_value: f64,
 }
 
 /// One entry of `StoredShips` (`ShipsHere` and `ShipsRemote`).
@@ -434,6 +451,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             experimental: opt_s(&raw, "ExperimentalEffect").or_else(|| opt_s(&raw, "ApplyExperimentalEffect")),
             experimental_localised: opt_s(&raw, "ExperimentalEffect_Localised")
                 .or_else(|| opt_s(&raw, "ApplyExperimentalEffect_Localised")),
+            modifiers: eng_modifiers(&raw),
             preview: raw.get("IsPreview").and_then(|x| x.as_bool()).unwrap_or(false),
             ingredients: stacks_signed(&raw, "Ingredients", -1),
         },
@@ -472,9 +490,23 @@ fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
                 experimental: opt_s(e, "ExperimentalEffect"),
                 experimental_localised: opt_s(e, "ExperimentalEffect_Localised"),
                 engineer: opt_s(e, "Engineer"),
+                modifiers: eng_modifiers(e),
             }),
         })
         .filter(|m| !m.item.is_empty())
+        .collect()
+}
+
+fn eng_modifiers(v: &serde_json::Value) -> Vec<EngModifier> {
+    let Some(a) = v.get("Modifiers").and_then(|x| x.as_array()) else { return vec![] };
+    a.iter()
+        .filter_map(|m| {
+            Some(EngModifier {
+                label: opt_s(m, "Label")?,
+                value: opt_f(m, "Value")?,
+                original_value: opt_f(m, "OriginalValue")?,
+            })
+        })
         .collect()
 }
 
@@ -815,7 +847,7 @@ mod tests {
     #[test]
     fn loadout_modules_and_fleet_events() {
         let l = parse_line(
-            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Priority":2,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Priority":2,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[{"Label":"Mass","Value":24.5,"OriginalValue":20.0,"LessIsGood":1},{"Label":"WeaponMode","ValueStr":"$WeaponMode_Pulse;","LessIsGood":0},{"Label":"FSDOptimalMass","Value":1472,"OriginalValue":1050.0,"LessIsGood":0}]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
         )
         .unwrap();
         match l.event {
@@ -827,6 +859,8 @@ mod tests {
                 let e = modules[0].engineering.as_ref().unwrap();
                 assert_eq!((e.blueprint.as_str(), e.level, e.quality), ("FSD_LongRange", 4, 0.5));
                 assert_eq!(e.experimental.as_deref(), Some("special_fsd_heavy"));
+                let m = |label: &str, value, original_value| EngModifier { label: label.into(), value, original_value };
+                assert_eq!(e.modifiers, [m("Mass", 24.5, 20.0), m("FSDOptimalMass", 1472.0, 1050.0)]);
                 assert!(modules[1].engineering.is_none());
             }
             _ => panic!("expected Loadout"),
@@ -893,13 +927,23 @@ mod tests {
         let l = parse_line(r#"{"timestamp":"t","event":"EngineerProgress","Engineer":"Liz Ryder","EngineerID":300080,"Progress":"Unlocked","Rank":1,"RankProgress":20}"#).unwrap();
         assert!(matches!(l.event, JournalEvent::EngineerProgress { ref engineers } if engineers[0].rank == Some(1)));
         let l = parse_line(
-            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Ingredients":[{"Name":"arsenic","Count":1}],"Engineer":"Felicity Farseer","EngineerID":300100,"BlueprintID":128673694,"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.4}"#,
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Module":"int_hyperdrive_size5_class5","Ingredients":[{"Name":"arsenic","Count":1}],"Engineer":"Felicity Farseer","EngineerID":300100,"BlueprintID":128673694,"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.4,"Modifiers":[{"Label":"FSDOptimalMass","Value":1396.5,"OriginalValue":1050.0,"LessIsGood":0}]}"#,
         )
         .unwrap();
         match l.event {
-            JournalEvent::EngineerCraft { engineer, blueprint, level, quality, ingredients, preview, .. } => {
+            JournalEvent::EngineerCraft {
+                engineer,
+                blueprint,
+                level,
+                quality,
+                ingredients,
+                preview,
+                modifiers,
+                ..
+            } => {
                 assert_eq!((engineer.as_str(), blueprint.as_str(), level), ("Felicity Farseer", "FSD_LongRange", 5));
                 assert_eq!((quality, preview), (0.4, false));
+                assert_eq!((modifiers[0].label.as_str(), modifiers[0].value), ("FSDOptimalMass", 1396.5));
                 assert_eq!(ingredients[0].count, -1);
             }
             _ => panic!("expected EngineerCraft"),

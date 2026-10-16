@@ -1,0 +1,775 @@
+{
+ "timestamp": "2026-10-16T12:00:00Z",
+ "event": "Loadout",
+ "Ship": "FerDeLance",
+ "ShipID": 2,
+ "ShipName": "Synthetic_FdL",
+ "ShipIdent": "AM-2",
+ "Modules": [
+  {
+   "Slot": "CargoHatch",
+   "Item": "ModularCargoBayDoor",
+   "On": false,
+   "Priority": 4,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Armour",
+   "Item": "FerDeLance_Armour_Reactive",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Armour_Thermic",
+    "Level": 5,
+    "Quality": 0.6,
+    "ExperimentalEffect": "special_armour_explosive",
+    "Modifiers": [
+     {
+      "Label": "ExplosiveResistance",
+      "Value": 17.568,
+      "OriginalValue": 20.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": 16.0,
+      "OriginalValue": 25.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": 14.7467,
+      "OriginalValue": -40.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DefenceModifierHealthMultiplier",
+      "Value": 239.5,
+      "OriginalValue": 250.0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "PowerPlant",
+   "Item": "Int_Powerplant_Size6_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerPlant_Armoured",
+    "Level": 4,
+    "Quality": 0.5,
+    "Modifiers": [
+     {
+      "Label": "HeatEfficiency",
+      "Value": 0.3625,
+      "OriginalValue": 0.4,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Integrity",
+      "Value": 236.699,
+      "OriginalValue": 124,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Mass",
+      "Value": 23.2,
+      "OriginalValue": 20,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "PowerCapacity",
+      "Value": 27.5507,
+      "OriginalValue": 25.2,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "MainEngines",
+   "Item": "Int_Engine_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Engine_Tuned",
+    "Level": 5,
+    "Quality": 0.3,
+    "ExperimentalEffect": "special_engine_cooled",
+    "Modifiers": [
+     {
+      "Label": "Integrity",
+      "Value": 89.04,
+      "OriginalValue": 106,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "EngineOptimalMass",
+      "Value": 756.0,
+      "OriginalValue": 840,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "EngineOptPerformance",
+      "Value": 1.2392,
+      "OriginalValue": 1,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 7.0992,
+      "OriginalValue": 6.12,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "Mass",
+      "Value": 21.0,
+      "OriginalValue": 20,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "FrameShiftDrive",
+   "Item": "Int_Hyperdrive_Size4_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "FSD_LongRange",
+    "Level": 3,
+    "Quality": 0.2,
+    "Modifiers": [
+     {
+      "Label": "Integrity",
+      "Value": 91.0,
+      "OriginalValue": 100,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Mass",
+      "Value": 12.0,
+      "OriginalValue": 10,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "FSDOptimalMass",
+      "Value": 665.2073,
+      "OriginalValue": 525,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 0.4905,
+      "OriginalValue": 0.45,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "LifeSupport",
+   "Item": "Int_LifeSupport_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerDistributor",
+   "Item": "Int_PowerDistributor_Size6_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerDistributor_HighFrequency",
+    "Level": 5,
+    "Quality": 0.85,
+    "ExperimentalEffect": "special_powerdistributor_fast",
+    "Modifiers": [
+     {
+      "Label": "EnginesCapacity",
+      "Value": 31.92,
+      "OriginalValue": 35,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "EnginesRecharge",
+      "Value": 4.7929,
+      "OriginalValue": 3.2,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "SystemsCapacity",
+      "Value": 31.92,
+      "OriginalValue": 35,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "SystemsRecharge",
+      "Value": 4.7304,
+      "OriginalValue": 3.2,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "WeaponsCapacity",
+      "Value": 45.6,
+      "OriginalValue": 50,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "WeaponsRecharge",
+      "Value": 7.5833,
+      "OriginalValue": 5.2,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "Radar",
+   "Item": "Int_Sensors_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FuelTank",
+   "Item": "Int_FuelTank_Size3_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "HugeHardpoint1",
+   "Item": "Hpt_MultiCannon_Gimbal_Huge",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_Overcharged",
+    "Level": 5,
+    "Quality": 1.0,
+    "ExperimentalEffect": "special_incendiary_rounds",
+    "Modifiers": [
+     {
+      "Label": "AmmoClipSize",
+      "Value": 76.5,
+      "OriginalValue": 90,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DamagePerSecond",
+      "Value": 19.743,
+      "OriginalValue": 11.6498,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Damage",
+      "Value": 5.8637,
+      "OriginalValue": 3.46,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DistributorDraw",
+      "Value": 0.4995,
+      "OriginalValue": 0.37,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "ThermalLoad",
+      "Value": 1.7595,
+      "OriginalValue": 0.51,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "RateOfFire",
+      "Value": 0.3126,
+      "OriginalValue": 0.297,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "MediumHardpoint1",
+   "Item": "Hpt_Railgun_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_ShortRange",
+    "Level": 5,
+    "Quality": 0.65,
+    "ExperimentalEffect": "special_super_penetrator",
+    "Modifiers": [
+     {
+      "Label": "DamagePerSecond",
+      "Value": 82.4619,
+      "OriginalValue": 50.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Damage",
+      "Value": 68.4433,
+      "OriginalValue": 41.5,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "MaximumRange",
+      "Value": 1500.0,
+      "OriginalValue": 3000,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermalLoad",
+      "Value": 28.0,
+      "OriginalValue": 20,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "ReloadTime",
+      "Value": 1.5,
+      "OriginalValue": 1,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "MediumHardpoint2",
+   "Item": "Hpt_Railgun_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_HighCapacity",
+    "Level": 4,
+    "Quality": 0.35,
+    "ExperimentalEffect": "special_feedback_cascade",
+    "Modifiers": [
+     {
+      "Label": "AmmoMaximum",
+      "Value": 140.427,
+      "OriginalValue": 80,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "AmmoClipSize",
+      "Value": 1.7078,
+      "OriginalValue": 1,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Mass",
+      "Value": 6.0,
+      "OriginalValue": 4,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 1.8908,
+      "OriginalValue": 1.63,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "RateOfFire",
+      "Value": 0.7802,
+      "OriginalValue": 0.83,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "DamagePerSecond",
+      "Value": 42.5556,
+      "OriginalValue": 50.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Damage",
+      "Value": 33.2,
+      "OriginalValue": 41.5,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "MediumHardpoint3",
+   "Item": "Hpt_PulseLaserBurst_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_RapidFire",
+    "Level": 4,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_weapon_efficient",
+    "Modifiers": [
+     {
+      "Label": "DamagePerSecond",
+      "Value": 7.4661,
+      "OriginalValue": 5.6032,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Damage",
+      "Value": 3.3888,
+      "OriginalValue": 3.53,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DistributorDraw",
+      "Value": 0.408,
+      "OriginalValue": 0.5,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "Jitter",
+      "Value": 0.5,
+      "OriginalValue": 0.0,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "RateOfFire",
+      "Value": 0.4539,
+      "OriginalValue": 0.63,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 0.945,
+      "OriginalValue": 1.05,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "MediumHardpoint4",
+   "Item": "Hpt_BeamLaser_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_ShortRange",
+    "Level": 2,
+    "Quality": 0.3,
+    "ExperimentalEffect": "special_regeneration_sequence",
+    "Modifiers": [
+     {
+      "Label": "DamagePerSecond",
+      "Value": 19.6856,
+      "OriginalValue": 15.96,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Damage",
+      "Value": 19.6856,
+      "OriginalValue": 15.96,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "MaximumRange",
+      "Value": 2400.0,
+      "OriginalValue": 3000,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermalLoad",
+      "Value": 5.61,
+      "OriginalValue": 5.1,
+      "LessIsGood": 1
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "TinyHardpoint1",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Kinetic",
+    "Level": 5,
+    "Quality": 0.9,
+    "ExperimentalEffect": "special_shieldbooster_kinetic",
+    "Modifiers": [
+     {
+      "Label": "ExplosiveResistance",
+      "Value": -4.0,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": 25.3011,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": -4.0,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DefenceModifierShieldMultiplier",
+      "Value": 18.8,
+      "OriginalValue": 20.0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "TinyHardpoint2",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Resistive",
+    "Level": 4,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_shieldbooster_thermic",
+    "Modifiers": [
+     {
+      "Label": "ExplosiveResistance",
+      "Value": 14.0,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "Integrity",
+      "Value": 43.2,
+      "OriginalValue": 48,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": 14.0,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "PowerDraw",
+      "Value": 1.44,
+      "OriginalValue": 1.2,
+      "LessIsGood": 1
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": 15.72,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DefenceModifierShieldMultiplier",
+      "Value": 18.8,
+      "OriginalValue": 20.0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "TinyHardpoint3",
+   "Item": "Hpt_ShieldBooster_Size0_Class4",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Explosive",
+    "Level": 3,
+    "Quality": 0.75,
+    "Modifiers": [
+     {
+      "Label": "ExplosiveResistance",
+      "Value": 15.7351,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": -2.5,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": -2.5,
+      "OriginalValue": 0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "TinyHardpoint4",
+   "Item": "Hpt_ShieldBooster_Size0_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint5",
+   "Item": "Hpt_ChaffLauncher_Tiny",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint6",
+   "Item": "Hpt_PlasmaPointDefence_Turret_Tiny",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot01_Size5",
+   "Item": "Int_ShieldGenerator_Size5_Class3_Fast",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldGenerator_Thermic",
+    "Level": 5,
+    "Quality": 0.7,
+    "ExperimentalEffect": "special_shield_regenerative",
+    "Modifiers": [
+     {
+      "Label": "Integrity",
+      "Value": 133.5905,
+      "OriginalValue": 96,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": 26.92,
+      "OriginalValue": 40.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": 30.4436,
+      "OriginalValue": -20.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "BrokenRegenRate",
+      "Value": 6.44,
+      "OriginalValue": 5.6,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ExplosiveResistance",
+      "Value": 49.25,
+      "OriginalValue": 50.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "RegenRate",
+      "Value": 2.53,
+      "OriginalValue": 2.2,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "Slot02_Size4",
+   "Item": "Int_HullReinforcement_Size4_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "HullReinforcement_Kinetic",
+    "Level": 5,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_hullreinforcement_explosive",
+    "Modifiers": [
+     {
+      "Label": "ExplosiveResistance",
+      "Value": -5.644,
+      "OriginalValue": 2.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "DefenceModifierHealthAddition",
+      "Value": 353.2072,
+      "OriginalValue": 330,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "KineticResistance",
+      "Value": 39.5924,
+      "OriginalValue": 2.0,
+      "LessIsGood": 0
+     },
+     {
+      "Label": "ThermicResistance",
+      "Value": -7.8,
+      "OriginalValue": 2.0,
+      "LessIsGood": 0
+     }
+    ]
+   }
+  },
+  {
+   "Slot": "Slot03_Size4",
+   "Item": "Int_ModuleReinforcement_Size4_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot04_Size2",
+   "Item": "Int_ShieldCellBank_Size2_Class5",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot05_Size1",
+   "Item": "Int_DockingComputer_Standard",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot06_Size1",
+   "Item": "Int_Repairer_Size1_Class5",
+   "On": false,
+   "Priority": 4,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PlanetaryApproachSuite",
+   "Item": "Int_PlanetApproachSuite",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  }
+ ]
+}

@@ -1,10 +1,13 @@
 //! Reference builds against Coriolis.
 //!
 //! Each fixture in `tests/fixtures/` is a synthetic journal `Loadout` (made by hand, no personal
-//! journal) without `Modifiers`, so Coriolis applies each blueprint at the fixture's `Quality`
-//! the way astromech-ship does. The expected values are what Coriolis shows for that build, as
-//! strings in its display format, produced by running Coriolis's own calculation code on the
-//! fixture with node:
+//! journal). Most have no `Modifiers`, so Coriolis applies each blueprint at the fixture's
+//! `Quality`. `fer_de_lance_modifiers` (`fer_de_lance_combat` with every stat rolled on its own,
+//! as the game does) and `anaconda_legacy` (`anaconda_explorer` with a drive and shield
+//! generator engineered before 3.0: `Quality` 0, the real values only in `Modifiers`) carry
+//! `Modifiers` in the game's units, which Coriolis then reads instead. The expected values are
+//! what Coriolis shows for that build, as strings in its display format, produced by running
+//! Coriolis's own calculation code on the fixture with node:
 //!
 //! - Coriolis EDCD/coriolis@68c042ca6e3db62372cbbb2077cf972345511712 (master, 24 Apr 2026) and
 //!   EDCD/coriolis-data@0db9234b5b9ce8c939ea84133d7ce336eea88e27, the same data as
@@ -14,9 +17,9 @@
 //!   the import and outfitting pages do, and prints the summary-table values (`RUST=1` prints
 //!   the blocks below).
 //!
-//! `tests/fixtures/plans/` holds the Krait MkII combat fixture with a build plan done, one file
-//! per plan (see `check_plan`): the same Coriolis run on those gives the planned values, and the
-//! Ships page's component tests (`app/src/modules/engineering/Build.test.ts`) show them.
+//! `tests/fixtures/plans/` holds fixtures with a build plan done, one file per plan (see
+//! `check_plan`): the same Coriolis run on those gives the planned values, and the Ships page's
+//! component tests (`app/src/modules/engineering/Build.test.ts`) show the Krait MkII ones.
 //!
 //! A value matches when it is within half a unit of Coriolis's last displayed digit: speeds,
 //! masses, shields and armour to the unit, jump ranges and power to 0.01, resistances to 0.1 %,
@@ -126,10 +129,10 @@ fn check_stats(fixture: &str, s: &ShipStats, expected: &[(&str, Option<&str>)]) 
     assert!(wrong.is_empty(), "{fixture}:\n  {}", wrong.join("\n  "));
 }
 
-/// A build plan for the Krait MkII combat fixture, against `plans/krait_mkii_combat.<variant>`:
-/// the fixture with each target's `Engineering` replaced by the planned blueprint, grade,
-/// `Quality` 1.0 and experimental, which is what Coriolis was run on.
-fn check_plan(variant: &str, targets: &[(&str, &str, &str)], expected: &[(&str, Option<&str>)]) {
+/// A build plan for the `fixture`, against `plans/<fixture>.<variant>`: the fixture with each
+/// target's `Engineering` replaced by the planned blueprint, grade, `Quality` 1.0 and
+/// experimental (no `Modifiers`), which is what Coriolis was run on.
+fn check_plan(fixture: &str, variant: &str, targets: &[(&str, &str, &str)], expected: &[(&str, Option<&str>)]) {
     let targets: Vec<Target> = targets
         .iter()
         .map(|(slot, blueprint, experimental)| Target {
@@ -139,12 +142,12 @@ fn check_plan(variant: &str, targets: &[(&str, &str, &str)], expected: &[(&str, 
             experimental: Some(experimental.to_string()),
         })
         .collect();
-    let (ship, base) = loadout("krait_mkii_combat");
-    let (_, want) = loadout(&format!("plans/krait_mkii_combat.{variant}"));
+    let (ship, base) = loadout(fixture);
+    let (_, want) = loadout(&format!("plans/{fixture}.{variant}"));
     assert_eq!(planned_modules(&base, &targets), want, "{variant}: the plan doesn't give the fixture's modules");
     // Through the fleet, as the app asks for it.
     let mut fleet = FleetBuilder::default();
-    let l = parse_line(&line("krait_mkii_combat")).unwrap();
+    let l = parse_line(&line(fixture)).unwrap();
     fleet.apply(&l.timestamp, &l.event);
     let Compared::Stats(c) = compare(&fleet.build("test").ships[0], &targets).unwrap() else { panic!("hull unknown") };
     assert_eq!(c.current.stats, stats(&ship, &base).unwrap());
@@ -377,6 +380,7 @@ fn python_miner() {
 #[test]
 fn plan_pd_super_conduits() {
     check_plan(
+        "krait_mkii_combat",
         "pd_super_conduits",
         &[("PowerDistributor", "PowerDistributor_PriorityWeapons", "special_powerdistributor_fast")],
         &[
@@ -422,6 +426,7 @@ fn plan_pd_super_conduits() {
 #[test]
 fn plan_pd_cluster_capacitors() {
     check_plan(
+        "krait_mkii_combat",
         "pd_cluster_capacitors",
         &[("PowerDistributor", "PowerDistributor_PriorityWeapons", "special_powerdistributor_capacity")],
         &[
@@ -468,6 +473,7 @@ fn plan_pd_cluster_capacitors() {
 #[test]
 fn plan_fsd_fast_boot() {
     check_plan(
+        "krait_mkii_combat",
         "fsd_fast_boot",
         &[("FrameShiftDrive", "FSD_FastBoot", "special_fsd_heavy")],
         &[
@@ -515,6 +521,7 @@ fn plan_fsd_fast_boot() {
 #[test]
 fn plan_thermal_boosters_3() {
     check_plan(
+        "krait_mkii_combat",
         "thermal_boosters_3",
         &[("TinyHardpoint1", "ShieldBooster_Thermic", "special_shieldbooster_thermic")],
         &[
@@ -560,6 +567,7 @@ fn plan_thermal_boosters_3() {
 #[test]
 fn plan_thermal_boosters_4() {
     check_plan(
+        "krait_mkii_combat",
         "thermal_boosters_4",
         &[
             ("TinyHardpoint1", "ShieldBooster_Thermic", "special_shieldbooster_thermic"),
@@ -601,6 +609,154 @@ fn plan_thermal_boosters_4() {
             ("eng_recharge", Some("3.5")),
             ("speed", Some("378")),
             ("boost", Some("519")),
+        ],
+    );
+}
+
+// Every stat of every engineered module from `Modifiers`, each rolled apart from `Quality`.
+#[test]
+fn fer_de_lance_modifiers() {
+    check(
+        "fer_de_lance_modifiers",
+        &[
+            ("hull_mass", Some("250")),
+            ("unladen_mass", Some("487")),
+            ("laden_mass", Some("487")),
+            ("fuel_capacity", Some("8")),
+            ("cargo_capacity", Some("0")),
+            ("jump_max", Some("15.22")),
+            ("jump_unladen", Some("15.06")),
+            ("jump_laden", Some("15.06")),
+            ("jump_total_unladen", Some("43.00")),
+            ("jump_total_laden", Some("43.00")),
+            ("power_generation", Some("27.55")),
+            ("power_retracted", Some("18.19")),
+            ("power_deployed", Some("24.89")),
+            ("shield", Some("629")),
+            ("shield_explosive", Some("61.8")),
+            ("shield_kinetic", Some("50.4")),
+            ("shield_thermal", Some("37.5")),
+            ("armour", Some("1117")),
+            ("hull_explosive", Some("12.9")),
+            ("hull_kinetic", Some("43.7")),
+            ("hull_thermal", Some("8.1")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("235")),
+            ("dps", Some("123.7")),
+            ("sustained_dps", Some("135.0")),
+            ("eps", Some("11.8")),
+            ("time_to_drain", Some("0:19")),
+            ("wep_capacity", Some("45.6")),
+            ("wep_recharge", Some("7.6")),
+            ("sys_capacity", Some("31.9")),
+            ("sys_recharge", Some("4.7")),
+            ("eng_capacity", Some("31.9")),
+            ("eng_recharge", Some("4.8")),
+            ("speed", Some("354")),
+            ("boost", Some("477")),
+        ],
+    );
+}
+
+// A pre-3.0 Increased range drive (+53.1 % optimal mass) and Reinforced shield generator, both
+// `Quality` 0: the stats come from their `Modifiers`, not grade 5 (or 3) at the bottom of its roll.
+#[test]
+fn anaconda_legacy() {
+    check(
+        "anaconda_legacy",
+        &[
+            ("hull_mass", Some("400")),
+            ("unladen_mass", Some("609")),
+            ("laden_mass", Some("613")),
+            ("fuel_capacity", Some("64")),
+            ("cargo_capacity", Some("4")),
+            ("jump_max", Some("71.16")),
+            ("jump_unladen", Some("65.59")),
+            ("jump_laden", Some("65.23")),
+            ("jump_total_unladen", Some("546.39")),
+            ("jump_total_laden", Some("543.23")),
+            ("power_generation", Some("22.93")),
+            ("power_retracted", Some("15.24")),
+            ("power_deployed", Some("15.24")),
+            ("shield", Some("356")),
+            ("shield_explosive", Some("50.0")),
+            ("shield_kinetic", Some("40.0")),
+            ("shield_thermal", Some("-20.0")),
+            ("armour", Some("898")),
+            ("hull_explosive", Some("-21.3")),
+            ("hull_kinetic", Some("-2.8")),
+            ("hull_thermal", Some("14.6")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("0")),
+            ("dps", Some("0.0")),
+            ("sustained_dps", Some("0.0")),
+            ("eps", Some("0.0")),
+            ("time_to_drain", None),
+            ("wep_capacity", Some("35.7")),
+            ("wep_recharge", Some("3.8")),
+            ("sys_capacity", Some("24.4")),
+            ("sys_recharge", Some("2.3")),
+            ("eng_capacity", Some("33.6")),
+            ("eng_recharge", Some("2.9")),
+            ("speed", Some("230")),
+            ("boost", Some("306")),
+        ],
+    );
+    // Read from the blueprint and roll alone, the drive would be at +45 %.
+    let (ship, mut modules) = loadout("anaconda_legacy");
+    for m in &mut modules {
+        if let Some(e) = &mut m.engineering {
+            e.modifiers.clear();
+        }
+    }
+    let rolled = stats(&ship, &modules).unwrap().jump.unwrap().max;
+    assert!(rolled < 69.0, "blueprint and roll give {rolled} ly");
+}
+
+// The legacy drive replaced by Increased range G5 with Mass Manager: the planned drive follows the
+// blueprint, every other module keeps its journal values.
+#[test]
+fn plan_legacy_fsd_long_range() {
+    check_plan(
+        "anaconda_legacy",
+        "fsd_long_range",
+        &[("FrameShiftDrive", "FSD_LongRange", "special_fsd_heavy")],
+        &[
+            ("hull_mass", Some("400")),
+            ("unladen_mass", Some("609")),
+            ("laden_mass", Some("613")),
+            ("fuel_capacity", Some("64")),
+            ("cargo_capacity", Some("4")),
+            ("jump_max", Some("74.37")),
+            ("jump_unladen", Some("68.51")),
+            ("jump_laden", Some("68.13")),
+            ("jump_total_unladen", Some("570.86")),
+            ("jump_total_laden", Some("567.53")),
+            ("power_generation", Some("22.93")),
+            ("power_retracted", Some("15.24")),
+            ("power_deployed", Some("15.24")),
+            ("shield", Some("356")),
+            ("shield_explosive", Some("50.0")),
+            ("shield_kinetic", Some("40.0")),
+            ("shield_thermal", Some("-20.0")),
+            ("armour", Some("898")),
+            ("hull_explosive", Some("-21.3")),
+            ("hull_kinetic", Some("-2.8")),
+            ("hull_thermal", Some("14.6")),
+            ("hull_caustic", Some("0.0")),
+            ("module_armour", Some("0")),
+            ("dps", Some("0.0")),
+            ("sustained_dps", Some("0.0")),
+            ("eps", Some("0.0")),
+            ("time_to_drain", None),
+            ("wep_capacity", Some("35.7")),
+            ("wep_recharge", Some("3.8")),
+            ("sys_capacity", Some("24.4")),
+            ("sys_recharge", Some("2.3")),
+            ("eng_capacity", Some("33.6")),
+            ("eng_recharge", Some("2.9")),
+            ("speed", Some("230")),
+            ("boost", Some("306")),
         ],
     );
 }
