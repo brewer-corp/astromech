@@ -21,8 +21,8 @@ clone Frontier samples or the actors. Details in §6.4; DSP chain in ARCHITECTUR
 - VKB sticks ship with a fixed factory profile, so the stock button numbers are known. We ship
   them as built-in maps. Asking the user to press buttons is only for sticks someone remapped.
 - The full list is good when you know what you want, but not for finding actions you didn't
-  know about. New **Activities** view: one picture per activity (exploration, trading, …) with
-  the actions that matter for it, on your own sticks.
+  know about. On the **My controller** page, an activity
+  filter (exploration, trading, …) lights the actions that matter for it on your stick.
 
 **Revision 2 (10 Oct, 10:30 PM ET).** Sumeet rejected the revision-1 mockups as decoration,
 not design: random colours, cards, icons, boxes and dividers, four equal-weight panels, a
@@ -317,8 +317,9 @@ clicks it on the sheet. Only controls that disagree are ever asked about.
 pictures are the fallback, then a plain grid of buttons and axes.
 
 ### 3.3 Activities
-Each activity shows your sticks with its actions lit up in their boxes. Each lit box shows the
-action and its other slot (often a key). Below the sheets:
+Activities are a filter on My controller, not a separate view. The page shows one stick at a
+time (a switcher picks which device); choosing an activity lights its actions in their boxes.
+Each lit box shows the action and its other slot (often a key). Below the sheet:
 - **Not bound yet:** the activity's important actions with no binding, each with "Bind this".
   Pressing a free control then binds it, in a copy of the preset.
 - **Elsewhere:** the activity's actions bound only to the keyboard or mouse.

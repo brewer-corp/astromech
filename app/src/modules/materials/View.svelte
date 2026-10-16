@@ -1,5 +1,6 @@
 <script lang="ts">
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
+  import { tick } from "svelte";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -30,8 +31,13 @@
     return `linear-gradient(90deg, var(--cell) ${p * 100}%, var(--cell-empty) ${p * 100}%)`;
   }
 
-  function pick(id: string) {
+  let about: HTMLElement | undefined = $state();
+
+  // The detail sits below the grid; on a short window it is off screen, so bring it up.
+  async function pick(id: string) {
     selId = id;
+    await tick();
+    about?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 </script>
 
@@ -100,7 +106,7 @@
     </div>
   {/if}
 
-  <aside class="about">
+  <aside class="about" bind:this={about}>
     {#if sel}
       <h3>{sel.name}</h3>
       <p>Grade {sel.grade} · {sel.rarity}</p>
