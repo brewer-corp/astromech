@@ -7,8 +7,10 @@
 //!
 //! Field names for the depot and contribution events are the typed ones in `astromech-journal`
 //! (post-v35 community docs, flagged uncertain there). Claims and beacons are not typed in the
-//! journal crate yet, so they are read tolerantly from the raw JSON of `Other` (`SystemName` or
-//! `StarSystem`, `SystemAddress`); anything missing stays `None`.
+//! journal crate yet, so they are read from the raw JSON of `Other`. Claim and release lines are
+//! read the way EDDI reads them (`StarSystem`, `SystemAddress`, with `SystemName` as a
+//! fallback). `ColonisationBeaconDeployed` carries no keys beyond the timestamp, so a beacon is
+//! placed in the system of the last `Location`, `FSDJump` or `Docked` seen.
 //!
 //! Applying is idempotent: a journal line replayed after a restore (older than what the state
 //! already holds, or an identical contribution) changes nothing.
@@ -147,6 +149,8 @@ pub struct Tracker {
     claims: BTreeMap<String, Claim>,
     beacons: BTreeMap<String, Beacon>,
     docked: Option<(i64, String, String)>,
+    /// System of the last `Location`, `FSDJump` or `Docked`.
+    here: (Option<String>, Option<i64>),
     dirty: BTreeSet<(&'static str, String)>,
 }
 
@@ -217,8 +221,17 @@ impl Tracker {
     pub fn apply(&mut self, line: &JournalLine) {
         let ts = line.timestamp.as_str();
         match &line.event {
-            JournalEvent::Docked { station_name, star_system, market_id: Some(id) } => {
-                self.docked = Some((*id, station_name.clone(), star_system.clone()));
+            JournalEvent::Docked { station_name, star_system, market_id } => {
+                if self.here.0.as_deref() != Some(star_system.as_str()) {
+                    self.here = (Some(star_system.clone()), None);
+                }
+                if let Some(id) = market_id {
+                    self.docked = Some((*id, station_name.clone(), star_system.clone()));
+                }
+            }
+            JournalEvent::Location { star_system, system_address, .. }
+            | JournalEvent::FsdJump { star_system, system_address, .. } => {
+                self.here = (Some(star_system.clone()), *system_address);
             }
             JournalEvent::Extra(ExtraEvent::ColonisationConstructionDepot(d)) => {
                 let Some(id) = d.market_id else { return };
@@ -260,7 +273,7 @@ impl Tracker {
             JournalEvent::Other { event, raw } => match event.as_str() {
                 "ColonisationSystemClaim" => self.claim(ts, raw),
                 "ColonisationSystemClaimRelease" => self.release(ts, raw),
-                "ColonisationBeaconDeployed" => self.beacon(ts, raw),
+                "ColonisationBeaconDeployed" => self.beacon(ts),
                 _ => {}
             },
             _ => {}
@@ -302,8 +315,8 @@ impl Tracker {
         self.dirty.insert((CLAIM, key));
     }
 
-    fn beacon(&mut self, ts: &str, raw: &Value) {
-        let (name, addr) = system_of(raw);
+    fn beacon(&mut self, ts: &str) {
+        let (name, addr) = self.here.clone();
         let key = format!("{ts}|{}", system_key(&name, addr).unwrap_or_default());
         if self.beacons.contains_key(&key) {
             return;
@@ -314,7 +327,7 @@ impl Tracker {
 }
 
 fn system_of(raw: &Value) -> (Option<String>, Option<i64>) {
-    let name = ["SystemName", "StarSystem"]
+    let name = ["StarSystem", "SystemName"]
         .iter()
         .find_map(|k| raw.get(*k).and_then(Value::as_str))
         .filter(|s| !s.is_empty())

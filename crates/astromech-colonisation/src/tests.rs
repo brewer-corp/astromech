@@ -52,7 +52,7 @@ fn claims_and_beacons() {
     assert!(!gone.active());
     let beacons: Vec<_> = t.beacons().collect();
     assert_eq!(beacons.len(), 1);
-    assert_eq!(beacons[0].system_name.as_deref(), Some("Test System"));
+    assert_eq!((beacons[0].system_name.as_deref(), beacons[0].system_address), (Some("Test System"), Some(1001)));
 }
 
 #[test]
@@ -130,7 +130,7 @@ fn claim_without_address_keys_by_name_and_empty_events_are_tolerated() {
     replay_lines(
         &mut t,
         [
-            r#"{"timestamp":"2026-10-01T00:00:00Z","event":"ColonisationSystemClaim","StarSystem":"Named Only"}"#,
+            r#"{"timestamp":"2026-10-01T00:00:00Z","event":"ColonisationSystemClaim","SystemName":"Named Only"}"#,
             r#"{"timestamp":"2026-10-01T00:00:01Z","event":"ColonisationBeaconDeployed"}"#,
             r#"{"timestamp":"2026-10-01T00:00:02Z","event":"ColonisationContribution","Contributions":[]}"#,
         ],

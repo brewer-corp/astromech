@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-10-16T19:37:20.036674183+00:00"
 status: "done"
 title: "Construction tracker"
-updated_at: "2026-10-16T19:37:20.036674183+00:00"
+updated_at: "2026-10-16T19:41:42.603185946+00:00"
 ---
 
 ## Goal
@@ -35,6 +35,10 @@ Replaying a fixture sequence of depot and contribution events gives the expected
 ## Context
 
 Journal only.
+
+## Notes
+
+- 2026-10-16 [note] The journal's ColonisationConstructionDepot has no deadline field (EDDI reads only MarketID, ConstructionProgress, ConstructionComplete, ConstructionFailed, ResourcesRequired[]), so no deadline is tracked.
 
 ## Close Reason
 

@@ -25,6 +25,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-0x68"
+    type: "related"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
 schema: "atelier.issue"
