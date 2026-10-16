@@ -13,6 +13,8 @@
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
 //!   notifications);
+//! - [`calibration`]: the per-device mic gate, shared by `--calibrate-files` and the window;
+//! - [`setup`]: onboarding's checks and the config edits the window makes;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
 //! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
@@ -21,6 +23,7 @@ pub mod actions;
 pub mod app;
 pub mod assistant;
 pub mod autostart;
+pub mod calibration;
 pub mod callouts;
 pub mod config;
 pub mod control;
@@ -35,6 +38,7 @@ pub mod instance;
 pub mod logging;
 pub mod pipeline;
 pub mod session;
+pub mod setup;
 pub mod speech;
 pub mod tester;
 #[cfg(windows)]

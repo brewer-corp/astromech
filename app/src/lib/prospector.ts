@@ -24,6 +24,7 @@ export function parseThreshold(input: string): number | null | "invalid" {
 async function reply(r: Promise<Record<string, unknown>>): Promise<OreThreshold[]> {
   const v = await r;
   if (!v.ok) throw new Error(String(v.error ?? "the core didn't answer"));
+  if (!Array.isArray(v.ores)) throw new Error("the core's reply has no thresholds (is it an older version?)");
   return v.ores as OreThreshold[];
 }
 

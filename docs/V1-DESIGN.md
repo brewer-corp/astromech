@@ -866,13 +866,38 @@ Total about **11 weeks**.
 ### 7.13 As built in M3 voice v1 (11 Oct 2026)
 - **Chosen mic:** `[voice] mic` is a name substring; empty uses the Windows default. The device is logged on every PTT clip. `--list-mics` prints devices.
 - **Level correction:** after the gate, `astromech_voice::gain` boosts speech frames toward −6 dBFS (max +30 dB) and leaves frames under the noise floor + 6 dB alone.
-- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI stays M4.
+- **Calibration:** `--calibrate-files silent.wav speech1.wav …` stores per-device `min_level_dbfs` in SQLite. Settings UI: §7.14.
 - **Personal aliases:** a did-you-mean "yes" stores transcript → command (cap 200). Policy still gates the command.
 - **Extra T1:** flight assist (flag bit 5 = FA *off*), HUD analysis/combat, panels and maps (`GuiFocus`), throttle to zero (unverified; refused near a body in supercruise), SRV handbrake / drive assist. Silent running on asks "Silent running produces heat. Confirm?" then presses.
 - **Status questions (T0):** fuel, cargo, jump range, location, jumps left, hull, shields, credits/rebuy, ship, legal state — from Status.json, journal `Loadout`/`LoadGame`, Cargo.json, NavRoute.json.
 - **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`.
 
-### 7.14 As built: reaction engine (16 Oct 2026)
+### 7.14 As built in M4 onboarding and calibration (16 Oct 2026)
+- **Calibration is one path.** `astromech_core::calibration` measures and stores the gate for the CLI
+  (`--calibrate-files`) and the window (Settings → Microphone → Calibration, onboarding step 5). The
+  key is the device name the session's recorder opens for `[voice] mic` (before, the CLI keyed it by
+  the setting as typed, so a substring like "BlackShark" never matched the session's lookup).
+- **Onboarding** is a full-window flow shown until finished or skipped (`onboarding.done` in SQLite):
+  find Elite (Bindings and journal folders, install optional; a folder can be pasted), controllers
+  (the window's device scan and a live last press), press-to-bind push-to-talk and kill switch, mic
+  by name with a level check, calibration, and a health check whose rows each have a fix (go to the
+  step, download models, or the press-to-bind dialog for a voice action with no keyboard key).
+  `#/setup` re-runs it and `#/setup/<step>` opens one step; Settings links there.
+- **Setup edits go through the core.** The control API takes `args`; `set_ptt`, `set_kill_switch`,
+  `set_mic` and `set_folders` edit `astromech.toml` with `toml_edit` (comments kept, never written
+  if the result doesn't parse) and swap the core's config. A running voice session picks them up
+  the next time Elite starts. Recording (`mic_check`, `calibrate_*`) happens in the core, on Windows.
+- **Voice responses** (Settings): speaker (English Kokoro v1.0 voices, British first), colour and
+  speed, written with `set_voice` through the same locked config edit. The running session's
+  speaker switches at once (`Speaker::set_voice`), so the next reply uses the new voice; the TTS
+  cache key already includes model, voice, speed and colour. Preview says "Landing gear deployed."
+  through the session's speaker, or a Kokoro the core starts for the preview while Elite isn't
+  running (released when a session starts or after a minute unused; refused while a session
+  loads, and when speech output is off). After a voice change the fixed phrases re-render in the
+  background, but replies always render first and warm-ups for voices no longer chosen are skipped.
+- **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
+  (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
+### 7.15 As built: reaction engine (16 Oct 2026)
 - `astromech-announce`: rules see each journal line and each changed Status.json and may return a callout (text, priority, speech / app toast / Windows notification). Rules that ship:
   - **Prospector** (`prospector`): on `ProspectedAsteroid`, a rock with a high-value ore at or above its threshold gets "Platinum 34%." (at most two ores, most valuable first; one after a motherlode, and not the motherlode's own ore); a motherlode always gets "Motherlode. Void Opals."; a depleted rock (`Remaining` 0) gets only its motherlode line; anything else is silent. Default thresholds: platinum 20%, painite, Low Temperature Diamonds and osmium 25%, palladium, bromellite and tritium 30%. Thresholds are edited per ore in Settings → Prospector callouts and stored in the database (`callouts.prospector.thresholds`), since the window can't write the config file yet. No cooldown by default (each limpet reports a different rock). The refined count and tons per hour of the current mining run are computed (`astromech_gamestate::mining`) but not shown yet.
   - **Being scanned** (`scan`): on `Scanned`, "Cargo scan.", "Crime scan.", "Cabin scan.", "Data scan." (other types: "Scan."). A cargo scan with stolen goods aboard (`Stolen` in `Cargo.json`) adds "Stolen goods aboard." and is urgent, so it speaks during docking and combat; other scans are shown, not spoken, then. 30 s cooldown, which a higher-priority line still gets through (a shown-only crime scan on approach doesn't swallow the stolen-goods line). The scanning ship isn't named, and goods prohibited in the system aren't checked (no local data source).
