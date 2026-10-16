@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Onboarding wizard"
-updated_at: "2026-10-16T04:33:15.446125854+00:00"
+updated_at: "2026-10-16T18:55:36.603312109+00:00"
 ---
 
 ## Goal

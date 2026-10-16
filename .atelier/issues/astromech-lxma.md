@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647655442+00:00"
 id: "astromech-lxma"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-lxma
 priority: "P1"
 relationships:
   blocks:
@@ -26,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "M4 exit: onboarding and settings"
-updated_at: "2026-10-16T18:26:25.080130220+00:00"
+updated_at: "2026-10-16T18:55:36.485909498+00:00"
 ---
 
 ## Goal
