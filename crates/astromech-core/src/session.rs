@@ -105,6 +105,7 @@ pub fn short(h: &crate::assistant::Handled) -> String {
             match outcome {
                 Outcome::Sent(_) => "pressed, verifying".to_string(),
                 Outcome::Spoken(s) => s.clone(),
+                Outcome::LookingUp(_) => "looking it up".to_string(),
                 o => format!("{o:?}"),
             }
         ),

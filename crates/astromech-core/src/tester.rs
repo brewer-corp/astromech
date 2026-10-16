@@ -195,6 +195,7 @@ pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, St
         },
         Outcome::Already(s) | Outcome::Refused(s) | Outcome::NoBinding(s) | Outcome::Spoken(s) => s,
         Outcome::NeedsConfirm(s) => s,
+        Outcome::LookingUp(h) => h.join().unwrap_or_else(|_| "The lookup failed.".into()),
         Outcome::Denied(d) => d.spoken(),
         Outcome::PressFailed(e) => e.spoken(),
     })

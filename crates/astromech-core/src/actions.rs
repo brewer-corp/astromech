@@ -35,6 +35,9 @@ pub enum Outcome {
     /// Pressed; the handle resolves when verification ends.
     Sent(JoinHandle<Verified>),
     Spoken(String),
+    /// A site lookup is running off the caller's thread ("Looking that up." was said); the
+    /// handle resolves to the answer once it has been spoken.
+    LookingUp(JoinHandle<String>),
     /// Silent running on: spoken warning, nothing pressed yet.
     NeedsConfirm(String),
 }
@@ -53,22 +56,35 @@ pub struct Runner {
 }
 
 impl Runner {
-    /// The nearest site of `kind` to the commander's system, as spoken. Jumps are counted at the
-    /// ship's maximum range (20 ly if unknown); the lookup's filters in the app don't apply.
-    pub fn nearest_site(&self, kind: &str) -> String {
+    /// Start the nearest-site lookup for `kind`. Spansh and EDSM can take many seconds, so the
+    /// lookup runs on its own thread and speaks its answer when it arrives: the speech thread is
+    /// free for the next command at once. Jumps are counted at the ship's maximum range (20 ly if
+    /// unknown); the lookup's filters in the app don't apply.
+    pub fn nearest_site(&self, kind: &'static str) -> Outcome {
         let g = self.hub.snapshot();
         let (Some(system), Some(pos)) = (g.system.clone(), g.star_pos) else {
-            return "Your position isn't known yet. It comes from the next jump or login.".into();
+            let m = "Your position isn't known yet. It comes from the next jump or login.".to_string();
+            self.speaker.say(&m);
+            return Outcome::Spoken(m);
         };
-        let Some(galaxy) = &self.galaxy else {
-            return "Site lookups aren't available: the star map couldn't be opened.".into();
+        let Some(galaxy) = self.galaxy.clone() else {
+            let m = "Site lookups aren't available: the star map couldn't be opened.".to_string();
+            self.speaker.say(&m);
+            return Outcome::Spoken(m);
         };
         let range = g.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
         let here = astromech_galaxy::Here { system, id64: None, pos };
-        match galaxy.sites(kind, &here, range, 1, &astromech_galaxy::Filters::default()) {
-            Ok(s) => astromech_galaxy::sites::spoken(&s),
-            Err(e) => format!("Couldn't look that up. {e}"),
-        }
+        self.speaker.say("Looking that up.");
+        let speaker = self.speaker.clone();
+        let h = std::thread::spawn(move || {
+            let m = match galaxy.sites(kind, &here, range, 1, &astromech_galaxy::Filters::default()) {
+                Ok(s) => astromech_galaxy::sites::spoken(&s),
+                Err(e) => format!("Couldn't look that up. {e}"),
+            };
+            speaker.say(&m);
+            m
+        });
+        Outcome::LookingUp(h)
     }
 
     pub fn run(&self, call: ToolCall, origin: Origin) -> Outcome {
@@ -99,11 +115,7 @@ impl Runner {
                 say(&m);
                 return Outcome::Spoken(m);
             }
-            Plan::Lookup(kind) => {
-                let m = self.nearest_site(kind);
-                say(&m);
-                return Outcome::Spoken(m);
-            }
+            Plan::Lookup(kind) => return self.nearest_site(kind),
             Plan::Confirm { prompt, .. } => {
                 say(&prompt);
                 return Outcome::NeedsConfirm(prompt);
