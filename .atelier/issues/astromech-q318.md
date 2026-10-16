@@ -23,17 +23,25 @@ relationships:
   - kind: "issue"
     id: "astromech-pxeh"
   - kind: "issue"
+    id: "astromech-rhfn"
+  - kind: "issue"
     id: "astromech-vmot"
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-54hd"
+    type: "related"
+  - kind: "issue"
     id: "astromech-610m"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-xtly"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "v1.0 UI refinement"
-updated_at: "2026-10-16T18:31:41.484951731+00:00"
+updated_at: "2026-10-16T18:56:53.793654541+00:00"
 ---
 
 ## Goal
