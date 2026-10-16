@@ -10,7 +10,7 @@ fn main() -> anyhow::Result<()> {
     let pos = g.position(system)?.ok_or_else(|| anyhow::anyhow!("{system} is not in the store"))?;
     let here = astromech_galaxy::Here { system: system.clone(), id64: None, pos };
     let t = std::time::Instant::now();
-    let n = g.nearby(query, &here, range, 6)?;
+    let n = g.nearby(query, &here, range, 6, &astromech_galaxy::Filters::default())?;
     println!(
         "{} near {} at {range} ly ({:?}){}",
         n.query.label,

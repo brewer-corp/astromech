@@ -48,6 +48,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
+name = "astromech-data"
+version = "0.1.5"
+dependencies = [
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "ureq",
+]
+
+[[package]]
 name = "astromech-engineering"
 version = "0.1.5"
 dependencies = [
@@ -64,12 +75,13 @@ name = "astromech-galaxy"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-data",
  "astromech-journal",
+ "astromech-store",
  "chrono",
  "rusqlite",
  "serde",
  "serde_json",
- "ureq",
 ]
 
 [[package]]
@@ -126,6 +138,7 @@ dependencies = [
  "astromech-keybinds",
  "astromech-materials",
  "astromech-ship",
+ "astromech-store",
  "serde",
  "serde_json",
  "tauri",
@@ -143,6 +156,13 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "astromech-store"
+version = "0.1.5"
+dependencies = [
+ "rusqlite",
 ]
 
 [[package]]
@@ -4221,8 +4241,6 @@ dependencies = [
  "once_cell",
  "rustls",
  "rustls-pki-types",
- "serde",
- "serde_json",
  "url",
  "webpki-roots 0.26.11",
 ]

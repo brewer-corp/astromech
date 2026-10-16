@@ -1,0 +1,241 @@
+{
+ "count": 83,
+ "from": 0,
+ "results": [
+  {
+   "id64": 58144730663760,
+   "name": "WISE 0855-0714",
+   "x": 6.53125,
+   "y": -2.15625,
+   "z": 2.03125,
+   "distance": 7.17165372752338,
+   "updated_at": "2026-10-14T18:08:31Z",
+   "population": 34825,
+   "allegiance": "Independent",
+   "minor_faction_presences": [
+    {
+     "active_states": [
+      "Expansion"
+     ],
+     "allegiance": "Federation",
+     "government": "Corporate",
+     "influence": 0.211111,
+     "name": "Earth Defense Fleet",
+     "recovering_states": [
+      "Outbreak"
+     ],
+     "state": "Expansion"
+    },
+    {
+     "active_states": [
+      "Civil Liberty",
+      "Infrastructure Failure"
+     ],
+     "allegiance": "Independent",
+     "government": "Cooperative",
+     "influence": 0.627273,
+     "name": "Hutton Orbital Truckers Co-Operative",
+     "pending_states": [
+      "Expansion"
+     ],
+     "state": "Civil Liberty"
+    },
+    {
+     "allegiance": "Federation",
+     "government": "Confederacy",
+     "influence": 0.058586,
+     "name": "WISE 0855-0714 Coalition",
+     "state": "None"
+    },
+    {
+     "active_states": [
+      "Famine",
+      "Infrastructure Failure"
+     ],
+     "allegiance": "Independent",
+     "government": "Anarchy",
+     "influence": 0.010101,
+     "name": "WISE 0855-0714 Gold Gang",
+     "state": "Famine"
+    },
+    {
+     "allegiance": "Federation",
+     "government": "Corporate",
+     "influence": 0.092929,
+     "name": "WISE 0855-0714 United Exchange",
+     "state": "None"
+    }
+   ]
+  },
+  {
+   "id64": 7268024264105,
+   "name": "Ross 154",
+   "x": -1.9375,
+   "y": -1.84375,
+   "z": 9.3125,
+   "distance": 9.68896158329158,
+   "updated_at": "2026-10-14T16:32:04Z",
+   "population": 2006272,
+   "allegiance": "Independent",
+   "minor_faction_presences": [
+    {
+     "allegiance": "Federation",
+     "government": "Corporate",
+     "influence": 0.151,
+     "name": "Barnard's Star Advanced Corp.",
+     "pending_states": [
+      "Outbreak"
+     ],
+     "state": "None"
+    },
+    {
+     "active_states": [
+      "Outbreak",
+      "Civil War"
+     ],
+     "allegiance": "Federation",
+     "government": "Democracy",
+     "influence": 0.072,
+     "name": "Independents of Ross 154",
+     "state": "Civil War"
+    },
+    {
+     "active_states": [
+      "Famine"
+     ],
+     "allegiance": "Independent",
+     "government": "Anarchy",
+     "influence": 0.01,
+     "name": "Ross 154 Boys",
+     "recovering_states": [
+      "Pirate Attack"
+     ],
+     "state": "Famine"
+    },
+    {
+     "active_states": [
+      "Infrastructure Failure"
+     ],
+     "allegiance": "Independent",
+     "government": "Dictatorship",
+     "influence": 0.104,
+     "name": "Ross 154 Dominion",
+     "state": "Infrastructure Failure"
+    },
+    {
+     "allegiance": "Independent",
+     "government": "Corporate",
+     "influence": 0.084,
+     "name": "Ross 154 Group",
+     "recovering_states": [
+      "Pirate Attack"
+     ],
+     "state": "None"
+    },
+    {
+     "active_states": [
+      "Civil War"
+     ],
+     "allegiance": "Federation",
+     "government": "Corporate",
+     "influence": 0.072,
+     "name": "Ross 154 Vision Partners",
+     "recovering_states": [
+      "Pirate Attack"
+     ],
+     "state": "Civil War"
+    },
+    {
+     "active_states": [
+      "Boom"
+     ],
+     "allegiance": "Independent",
+     "government": "Democracy",
+     "influence": 0.507,
+     "name": "The Dark Wheel",
+     "recovering_states": [
+      "Public Holiday",
+      "Expansion"
+     ],
+     "state": "Boom"
+    }
+   ]
+  },
+  {
+   "id64": 3107509506770,
+   "name": "Tau Ceti",
+   "x": -0.375,
+   "y": -11.40625,
+   "z": -3.5,
+   "distance": 11.9370500569655,
+   "updated_at": "2026-10-14T17:55:17Z",
+   "population": 5000152143,
+   "allegiance": "Independent",
+   "minor_faction_presences": [
+    {
+     "active_states": [
+      "Expansion"
+     ],
+     "allegiance": "Independent",
+     "government": "Feudal",
+     "influence": 0.368737,
+     "name": "Equestrian Naval Fleet",
+     "state": "Expansion"
+    },
+    {
+     "allegiance": "Federation",
+     "government": "Democracy",
+     "influence": 0.128257,
+     "name": "Independents of Tau Ceti",
+     "state": "None"
+    },
+    {
+     "allegiance": "Independent",
+     "government": "Dictatorship",
+     "influence": 0.078156,
+     "name": "Liberty Party of Tau Ceti",
+     "state": "None"
+    },
+    {
+     "allegiance": "Independent",
+     "government": "Corporate",
+     "influence": 0.154309,
+     "name": "Sirius Corporation",
+     "recovering_states": [
+      "Expansion"
+     ],
+     "state": "None"
+    },
+    {
+     "allegiance": "Federation",
+     "government": "Democracy",
+     "influence": 0.125251,
+     "name": "South Haven",
+     "state": "None"
+    },
+    {
+     "active_states": [
+      "Famine"
+     ],
+     "allegiance": "Independent",
+     "government": "Anarchy",
+     "influence": 0.019038,
+     "name": "Tau Ceti Crimson Boys",
+     "recovering_states": [
+      "Blight"
+     ],
+     "state": "Famine"
+    },
+    {
+     "allegiance": "Federation",
+     "government": "Corporate",
+     "influence": 0.126253,
+     "name": "Tau Ceti Crimson Legal Solutions",
+     "state": "None"
+    }
+   ]
+  }
+ ],
+ "search_reference": "2D95ECA4-C804-11F1-86F6-9D5BE0CDECA1",
+ "size": 3
+}
