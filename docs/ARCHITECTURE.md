@@ -247,11 +247,13 @@ astromech/
                          journal/1 and the event schemas (fsssignaldiscovered batched per run,
                          codexentry body cross-check); all tested against the live schema files.
                          Feed: what the core drives; only live-tailed lines and their companion files
-                         are queued (the startup replay only rebuilds the header and location);
+                         are queued (the startup replay, an older or already-read journal, and lines
+                         over 5 min old only rebuild the header and location);
                          outfitting/2 is off until commander-specific modules are filtered.
                          Worker: delivery on its own thread and SQLite connection, so no lock is held
                          across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
-                         also wait a minute on the monotonic clock. Off unless [eddn] enabled = true
+                         also wait a minute on the monotonic clock; messages over 30 min old are given
+                         up; stopping never waits for a post. Off unless [eddn] enabled = true
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)

@@ -15,7 +15,8 @@
 //! - EDDN (when switched on): every journal line goes to the [`astromech_eddn::Feed`] in order,
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
-//!   journal the game starts while we run is live from its `Fileheader`. Delivery runs on the
+//!   journal the game starts while we run (later by name, not opened before) is live from its
+//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
 
 use crate::hub::StateHub;
@@ -87,6 +88,12 @@ fn is_journal(p: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// Is journal `a` later than `b`? Names carry the start time (`Journal.2026-10-16T120000.01.log`,
+/// or `Journal.161016120000.01.log` before 2021), so they sort in time order.
+fn later(a: &Path, b: &Path) -> bool {
+    a.file_name() > b.file_name()
+}
+
 /// The journal event and text of a companion file EDDN has a schema for.
 fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
     Some(match f {
@@ -138,6 +145,8 @@ struct Tailer {
     eddn: Option<astromech_eddn::Feed>,
     /// False while replaying a journal written before we started.
     live: bool,
+    /// Journals opened this run: opening one again is a replay, never live.
+    opened: std::collections::HashSet<PathBuf>,
 }
 
 impl Tailer {
@@ -169,8 +178,8 @@ impl Tailer {
         self.eddn_nav_route();
     }
 
-    /// `NavRoute.json` for a live `NavRoute` event: read after the event and on every change
-    /// until the feed has the file the event announced.
+    /// `NavRoute.json` for a live `NavRoute` event: read after the event and whenever the game
+    /// writes the file, until the feed has the file the event announced.
     fn eddn_nav_route(&mut self) {
         let Some(f) = self.eddn.as_mut().filter(|f| f.awaiting("NavRoute")) else { return };
         let file = std::fs::read(self.dir.join("NavRoute.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
@@ -224,6 +233,7 @@ impl Tailer {
         let mut t = JournalTail::new(path.clone(), 0);
         let lines = t.read_new();
         let n = lines.len();
+        self.opened.insert(path.clone());
         self.live = !replay;
         self.apply_lines(lines);
         self.live = true;
@@ -252,7 +262,11 @@ impl Tailer {
                     self.stats.lock().unwrap().rollovers += 1;
                 }
                 self.flush_eddn();
-                self.open(n, false);
+                // Newest by mtime isn't always the game's new journal: a backup or sync tool can
+                // touch an old one, or another client can write the same folder. Only a journal
+                // not opened yet this run and later by name than the current one is live.
+                let live = !self.opened.contains(&n) && self.tail.as_ref().is_none_or(|t| later(&n, &t.path));
+                self.open(n, !live);
             }
         }
         self.save();
@@ -281,7 +295,6 @@ impl Tailer {
                 self.hub.update(|g| g.apply_route(&r));
             }
         }
-        self.eddn_nav_route();
     }
 
     /// End of a journal, or shutdown: send a pending signal run.
@@ -351,6 +364,7 @@ pub fn start_with_eddn(
         pending: vec![],
         eddn,
         live: true,
+        opened: Default::default(),
     };
     if let Some(n) = astromech_journal::newest_journal(dir) {
         t.open(n, true);
@@ -374,11 +388,13 @@ pub fn start_with_eddn(
                 let mut status = false;
                 let mut journal = false;
                 let mut companions: Vec<CompanionKind> = vec![];
+                let mut nav_route = false;
                 let mut classify = |paths: &[PathBuf]| {
                     for p in paths {
                         let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
                         if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
                             status = true;
+                            nav_route |= name == "NavRoute.json";
                         } else if let Some(k) = CompanionKind::from_file_name(&name) {
                             if !companions.contains(&k) {
                                 companions.push(k);
@@ -401,6 +417,9 @@ pub fn start_with_eddn(
                 }
                 if !companions.is_empty() {
                     t.on_companion_files(&companions);
+                }
+                if nav_route {
+                    t.eddn_nav_route();
                 }
             }
             t.flush_eddn();
@@ -445,6 +464,7 @@ mod tests {
             pending: vec![],
             eddn: None,
             live: true,
+            opened: Default::default(),
         };
         (t, hub, logs)
     }
@@ -488,14 +508,26 @@ mod tests {
     // EDDN: the feed sees every line from each journal's Fileheader, but only live lines and
     // their companion files are queued.
 
-    const SESSION: &str = concat!(
-        r#"{"timestamp":"2026-10-16T11:00:00Z","event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":"r1 "}"#,
-        "\n",
-        r#"{"timestamp":"2026-10-16T11:00:01Z","event":"LoadGame","Commander":"Jameson","FID":"F1","Horizons":true,"Odyssey":true}"#,
-        "\n",
-        r#"{"timestamp":"2026-10-16T11:00:02Z","event":"Location","StarSystem":"Sys","SystemAddress":5,"StarPos":[1.0,2.0,3.0]}"#,
-        "\n",
-    );
+    /// A session's opening lines, stamped `ts`.
+    fn session(ts: &str, build: &str) -> String {
+        [
+            format!(r#"{{"timestamp":"{ts}","event":"Fileheader","part":1,"gameversion":"4.0.0.1904","build":"{build}"}}"#),
+            format!(r#"{{"timestamp":"{ts}","event":"LoadGame","Commander":"Jameson","FID":"F1","Horizons":true,"Odyssey":true}}"#),
+            format!(r#"{{"timestamp":"{ts}","event":"Location","StarSystem":"Sys","SystemAddress":5,"StarPos":[1.0,2.0,3.0]}}"#),
+            String::new(),
+        ]
+        .join("\n")
+    }
+
+    /// The game's timestamp `secs_ago` seconds before now (live lines must be recent).
+    fn ts(secs_ago: i64) -> String {
+        (chrono::Utc::now() - chrono::Duration::seconds(secs_ago)).format("%Y-%m-%dT%H:%M:%SZ").to_string()
+    }
+
+    fn touch(p: &Path, secs_from_now: u64) {
+        let t = std::time::SystemTime::now() + Duration::from_secs(secs_from_now);
+        std::fs::File::options().write(true).open(p).unwrap().set_modified(t).unwrap();
+    }
 
     fn docked(ts: &str) -> String {
         format!(
@@ -530,29 +562,60 @@ mod tests {
     fn eddn_gets_nothing_from_the_startup_replay_and_live_lines_after_it() {
         let d = tempfile::tempdir().unwrap();
         let j = d.path().join("Journal.2026-10-16T110000.01.log");
-        std::fs::write(&j, format!("{SESSION}{}\n{MARKET_EVENT}\n", docked("2026-10-16T11:00:03Z"))).unwrap();
-        std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
+        let market_event = MARKET_EVENT.replace("2026-10-10T20:00:05Z", &ts(60));
+        let market_file = MARKET_FILE.replace("2026-10-10T20:00:05Z", &ts(60));
+        std::fs::write(&j, format!("{}{}\n{market_event}\n", session(&ts(120), "r1 "), docked(&ts(90)))).unwrap();
+        std::fs::write(d.path().join("Market.json"), &market_file).unwrap();
         let (mut t, db) = eddn_tailer(d.path());
         t.open(j.clone(), true);
         assert_eq!(eddn_state(&db), (0, vec![]), "nothing from the catch-up, companion file included");
 
-        append(&j, &docked("2026-10-16T11:05:00Z"));
+        append(&j, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db), (1, vec![]), "the live Docked");
 
         // A live Market event reaches the feed with its file: commodity/3 is queued.
-        append(&j, MARKET_EVENT);
+        let market_event = MARKET_EVENT.replace("2026-10-10T20:00:05Z", &ts(0));
+        std::fs::write(d.path().join("Market.json"), MARKET_FILE.replace("2026-10-10T20:00:05Z", &ts(0))).unwrap();
+        append(&j, &market_event);
         t.on_journal_activity();
         assert_eq!(eddn_state(&db), (2, vec![]));
 
         // The game starts a new journal: live from its Fileheader, which is replayed into the
         // feed, so its Location is sent with the new header.
         let j2 = d.path().join("Journal.2026-10-16T120000.01.log");
-        std::fs::write(&j2, SESSION.replace("r1 ", "r2 ")).unwrap();
-        let later = std::time::SystemTime::now() + Duration::from_secs(5);
-        std::fs::File::options().write(true).open(&j2).unwrap().set_modified(later).unwrap();
+        std::fs::write(&j2, session(&ts(0), "r2 ")).unwrap();
+        touch(&j2, 5);
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 3);
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
+    }
+
+    #[test]
+    fn an_older_journal_touched_later_is_read_as_a_replay() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        // Recent timestamps, so only the file choice keeps them from being sent.
+        std::fs::write(&j1, format!("{}{}\n", session(&ts(30), "r1 "), docked(&ts(20)))).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        // A backup tool rewrites the older journal: newest by mtime, but earlier by name.
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]), "an older journal is never live");
+
+        // Back to the newer one (seen already this run): also a replay.
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]));
+        // Lines the game appends to it are live again.
+        append(&j2, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
     }
 }

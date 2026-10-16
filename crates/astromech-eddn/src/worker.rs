@@ -6,11 +6,16 @@
 //! (each message's `next_try`), so a clock jump can't cause an early retry. The worker starts
 //! with that minute already running: after a restart, messages left from the last run wait a
 //! minute too.
+//!
+//! Stopping never waits for the network: dropping the [`Worker`] sets a flag the pass checks
+//! before each post and returns at once. A post in flight finishes (or times out) on the
+//! detached thread; its attempt and retry time were saved before it started.
 
 use crate::outbox::{Delivery, Outbox, MIN_RETRY_SECS};
 use crate::transport::Transport;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender as Tx};
-use std::thread::JoinHandle;
+use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// How long the worker sleeps when nothing is queued (a submit wakes it sooner).
@@ -28,16 +33,18 @@ pub struct Courier {
     transport: Box<dyn Transport + Send>,
     /// No retry before this instant: a minute after the last failure (or the start).
     hold_until: Instant,
+    /// Set to end the pass in progress before its next post.
+    stop: Arc<AtomicBool>,
 }
 
 impl Courier {
     pub fn new(outbox: Outbox, transport: Box<dyn Transport + Send>, started: Instant) -> Self {
-        Self { outbox, transport, hold_until: started + MIN_RETRY }
+        Self { outbox, transport, hold_until: started + MIN_RETRY, stop: Arc::default() }
     }
 
     /// Deliver what's due: `wall` is Unix seconds, `mono` the monotonic time of the same moment.
     pub fn pass(&mut self, wall: i64, mono: Instant) -> rusqlite::Result<Delivery> {
-        let d = self.outbox.deliver_due(self.transport.as_ref(), wall, mono >= self.hold_until)?;
+        let d = self.outbox.deliver_due(self.transport.as_ref(), wall, mono >= self.hold_until, &self.stop)?;
         if d.retrying > 0 || d.stopped {
             self.hold_until = mono + MIN_RETRY;
         }
@@ -67,17 +74,18 @@ enum Signal {
     Stop,
 }
 
-/// The delivery thread. Dropping it stops the thread after the post in progress, if any.
+/// The delivery thread. Dropping it returns at once; the thread ends before its next post.
 pub struct Worker {
     tx: Tx<Signal>,
-    thread: Option<JoinHandle<()>>,
+    stop: Arc<AtomicBool>,
 }
 
 impl Worker {
     /// Start delivering. `log` gets each pass that did something, and database errors.
     pub fn spawn(mut courier: Courier, log: impl Fn(&str) + Send + 'static) -> std::io::Result<Self> {
         let (tx, rx) = channel();
-        let thread = std::thread::Builder::new().name("eddn".into()).spawn(move || loop {
+        let stop = courier.stop.clone();
+        std::thread::Builder::new().name("eddn".into()).spawn(move || loop {
             match courier.pass(wall_now(), Instant::now()) {
                 Ok(d) if d != Delivery::default() => log(&format!(
                     "EDDN: {} sent, {} rejected, {} to retry, {} given up{}",
@@ -89,6 +97,9 @@ impl Worker {
                 )),
                 Ok(_) => {}
                 Err(e) => log(&format!("EDDN outbox: {e}")),
+            }
+            if courier.stop.load(Ordering::SeqCst) {
+                return;
             }
             let wait = courier.wait(wall_now(), Instant::now());
             match rx.recv_timeout(wait) {
@@ -103,7 +114,7 @@ impl Worker {
                 Ok(Signal::Stop) | Err(RecvTimeoutError::Disconnected) => return,
             }
         })?;
-        Ok(Self { tx, thread: Some(thread) })
+        Ok(Self { tx, stop })
     }
 
     /// Something was queued: deliver it now. Never blocks.
@@ -114,10 +125,8 @@ impl Worker {
 
 impl Drop for Worker {
     fn drop(&mut self) {
+        self.stop.store(true, Ordering::SeqCst);
         let _ = self.tx.send(Signal::Stop);
-        if let Some(t) = self.thread.take() {
-            let _ = t.join();
-        }
     }
 }
 
@@ -158,12 +167,13 @@ mod tests {
         o.enqueue(REF, b"m", 1000).unwrap();
         let mut c = Courier::new(o, Box::new(script.clone()), t0);
         assert_eq!(c.pass(1000, t0).unwrap().retrying, 1, "a new message goes straight away");
-        // The wall clock jumps an hour ahead 5 s later: the message's next_try has passed,
+        // The wall clock jumps 20 minutes ahead 5 s later: the message's next_try has passed,
         // but only 5 s went by on the monotonic clock.
-        assert_eq!(c.pass(1000 + 3600, t0 + Duration::from_secs(5)).unwrap(), Delivery::default());
+        let jumped = 1000 + 20 * 60;
+        assert_eq!(c.pass(jumped, t0 + Duration::from_secs(5)).unwrap(), Delivery::default());
         assert_eq!(script.calls(), 1);
-        assert!(c.wait(1000 + 3600, t0 + Duration::from_secs(5)) >= Duration::from_secs(MIN_RETRY_SECS as u64 - 5));
-        assert_eq!(c.pass(1000 + 3600, t0 + MIN_RETRY).unwrap().sent, 1);
+        assert!(c.wait(jumped, t0 + Duration::from_secs(5)) >= Duration::from_secs(MIN_RETRY_SECS as u64 - 5));
+        assert_eq!(c.pass(jumped, t0 + MIN_RETRY).unwrap().sent, 1);
     }
 
     #[test]
@@ -171,11 +181,11 @@ mod tests {
         let t0 = Instant::now();
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 0).unwrap();
-        o.deliver_due(&Script::new([status(413)]), 0, true).unwrap();
+        o.deliver_due(&Script::new([status(413)]), 0, true, &crate::outbox::tests::GO).unwrap();
         let script = Script::new([status(200)]);
         let mut c = Courier::new(o, Box::new(script.clone()), t0);
-        assert_eq!(c.pass(10_000, t0 + Duration::from_secs(1)).unwrap(), Delivery::default());
-        assert_eq!(c.pass(10_000, t0 + MIN_RETRY).unwrap().sent, 1);
+        assert_eq!(c.pass(600, t0 + Duration::from_secs(1)).unwrap(), Delivery::default());
+        assert_eq!(c.pass(600, t0 + MIN_RETRY).unwrap().sent, 1);
     }
 
     #[test]

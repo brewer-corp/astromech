@@ -193,7 +193,10 @@ impl Core {
         if !self.starting.load(Ordering::SeqCst) {
             *self.voice.lock().unwrap() = "voice not loaded".into();
         }
-        if let Some(s) = self.session.lock().unwrap().take() {
+        // Out of the lock before dropping: closing a session waits for its threads, and the
+        // status, tray and kill switch all need this lock meanwhile.
+        let session = self.session.lock().unwrap().take();
+        if let Some(s) = session {
             log(&format!("{why}: going idle (unloading voice, closing the microphone)"));
             s.speaker.interrupt();
             s.runner.policy.kill();

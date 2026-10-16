@@ -116,7 +116,7 @@ mod tests {
         let ev = json!({"timestamp":"2026-10-16T12:00:00Z","event":"Docked","StationName_Localised":"x","FID":"F1"});
         assert_eq!(s.submit(&SPEC, ev, 100).unwrap(), Ok(()));
         let t = FakeTransport::new([status(200)]);
-        assert_eq!(s.outbox().deliver_due(&t, 100, true).unwrap().sent, 1);
+        assert_eq!(s.outbox().deliver_due(&t, 100, true, &crate::outbox::tests::GO).unwrap().sent, 1);
         let up = message::gunzip(&t.posted.borrow()[0]);
         assert_eq!(up["$schemaRef"], "https://eddn.edcd.io/schemas/journal/1/test");
         assert_eq!(
@@ -134,7 +134,7 @@ mod tests {
         assert!(matches!(s.submit(&SPEC, json!({"event":"Docked"}), 100).unwrap(), Err(Dropped::Beta(_))));
         assert_eq!(s.outbox().pending().unwrap(), 0);
         let t = FakeTransport::default();
-        assert_eq!(s.outbox().deliver_due(&t, 100, true).unwrap(), Delivery::default());
+        assert_eq!(s.outbox().deliver_due(&t, 100, true, &crate::outbox::tests::GO).unwrap(), Delivery::default());
         assert_eq!(t.calls(), 0);
         let log = s.outbox().recent(1).unwrap();
         assert_eq!(log[0].outcome, "dropped");

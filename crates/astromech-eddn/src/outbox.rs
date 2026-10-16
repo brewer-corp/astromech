@@ -12,12 +12,16 @@
 use crate::transport::Transport;
 use rusqlite::{Connection, OptionalExtension, Result};
 use serde::Serialize;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// The first retry waits this long; each later one doubles it, up to [`MAX_BACKOFF_SECS`].
 pub const MIN_RETRY_SECS: i64 = 60;
 pub const MAX_BACKOFF_SECS: i64 = 3600;
 /// Tries per message (the first send plus retries) before it's dropped as undeliverable.
 pub const MAX_ATTEMPTS: i64 = 8;
+/// A message queued longer ago than this is given up: it's no longer live data (for example,
+/// queued before astromech last quit).
+pub const MAX_AGE_SECS: i64 = 30 * 60;
 /// Send-log rows kept for messages that reached the gateway (sent, rejected, retry, gave up).
 pub const LOG_KEEP: i64 = 500;
 /// Send-log rows kept for messages never queued (`dropped`), counted apart so a burst of them
@@ -167,8 +171,28 @@ impl Outbox {
     /// tried yet are sent (the caller's own clock says a minute hasn't passed since a failure).
     ///
     /// A connection error, `408` or `5xx` means the gateway is down or overloaded, so the pass
-    /// stops there and every other due message waits as long as the one that failed.
-    pub fn deliver_due(&self, transport: &dyn Transport, now: i64, retries: bool) -> Result<Delivery> {
+    /// stops there and every other due message waits as long as the one that failed. `stop` is
+    /// checked before each post. Messages older than [`MAX_AGE_SECS`] are given up first.
+    pub fn deliver_due(
+        &self,
+        transport: &dyn Transport,
+        now: i64,
+        retries: bool,
+        stop: &AtomicBool,
+    ) -> Result<Delivery> {
+        let mut d = Delivery::default();
+        let old: Vec<(i64, String, i64)> = {
+            let mut st =
+                self.conn.prepare("SELECT id, schema_ref, created FROM outbox WHERE created < ?1 ORDER BY id")?;
+            let rows = st.query_map([now - MAX_AGE_SECS], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?;
+            rows.collect::<Result<_>>()?
+        };
+        for (id, schema_ref, created) in old {
+            self.remove(id)?;
+            let mins = (now - created) / 60;
+            self.log(now, &schema_ref, Outcome::GaveUp, &format!("too old: queued {mins} min ago"))?;
+            d.gave_up += 1;
+        }
         let due: Vec<(i64, String, Vec<u8>, i64)> = {
             let mut st = self.conn.prepare(
                 "SELECT id, schema_ref, body, attempts FROM outbox
@@ -177,8 +201,10 @@ impl Outbox {
             let rows = st.query_map((now, retries), |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))?;
             rows.collect::<Result<_>>()?
         };
-        let mut d = Delivery::default();
         for (id, schema_ref, body, attempts) in due {
+            if stop.load(Ordering::SeqCst) {
+                break;
+            }
             let attempts = attempts + 1;
             let wait = backoff(attempts);
             // Count the attempt and schedule the retry before posting, so a failure anywhere
@@ -235,6 +261,9 @@ pub(crate) mod tests {
     use std::cell::RefCell;
     use std::collections::VecDeque;
 
+    /// Never set: a pass that isn't being stopped.
+    pub static GO: AtomicBool = AtomicBool::new(false);
+
     /// Answers from a script and records every body it was given.
     #[derive(Default)]
     pub struct FakeTransport {
@@ -269,7 +298,7 @@ pub(crate) mod tests {
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 1000).unwrap();
         let t = FakeTransport::new([status(200)]);
-        assert_eq!(o.deliver_due(&t, 1000, true).unwrap(), Delivery { sent: 1, ..Default::default() });
+        assert_eq!(o.deliver_due(&t, 1000, true, &GO).unwrap(), Delivery { sent: 1, ..Default::default() });
         assert_eq!(o.pending().unwrap(), 0);
         assert_eq!(o.recent(10).unwrap()[0].outcome, "sent");
     }
@@ -279,9 +308,9 @@ pub(crate) mod tests {
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 1000).unwrap();
         let t = FakeTransport::new([status(400)]);
-        assert_eq!(o.deliver_due(&t, 1000, true).unwrap().rejected, 1);
+        assert_eq!(o.deliver_due(&t, 1000, true, &GO).unwrap().rejected, 1);
         assert_eq!(o.pending().unwrap(), 0, "a 400 must leave the outbox");
-        assert_eq!(o.deliver_due(&t, 1000 + 10 * MAX_BACKOFF_SECS, true).unwrap(), Delivery::default());
+        assert_eq!(o.deliver_due(&t, 1000 + 10 * MAX_BACKOFF_SECS, true, &GO).unwrap(), Delivery::default());
         assert_eq!(t.calls(), 1, "never posted again");
         let log = o.recent(1).unwrap();
         assert_eq!((log[0].outcome.as_str(), log[0].detail.as_str()), ("rejected", "HTTP 400: FAIL: 400"));
@@ -292,8 +321,8 @@ pub(crate) mod tests {
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 1000).unwrap();
         let t = FakeTransport::new([status(426)]);
-        assert_eq!(o.deliver_due(&t, 1000, true).unwrap().rejected, 1);
-        assert_eq!(o.deliver_due(&t, 1000 + 10 * MAX_BACKOFF_SECS, true).unwrap(), Delivery::default());
+        assert_eq!(o.deliver_due(&t, 1000, true, &GO).unwrap().rejected, 1);
+        assert_eq!(o.deliver_due(&t, 1000 + 10 * MAX_BACKOFF_SECS, true, &GO).unwrap(), Delivery::default());
         assert_eq!(t.calls(), 1);
     }
 
@@ -303,15 +332,15 @@ pub(crate) mod tests {
             let o = Outbox::in_memory().unwrap();
             o.enqueue(REF, b"m", 1000).unwrap();
             let t = FakeTransport::new([failure.clone(), status(200)]);
-            assert_eq!(o.deliver_due(&t, 1000, true).unwrap().retrying, 1, "{failure:?}");
+            assert_eq!(o.deliver_due(&t, 1000, true, &GO).unwrap().retrying, 1, "{failure:?}");
             assert_eq!(o.pending().unwrap(), 1);
             assert_eq!(o.next_due().unwrap(), Some(1000 + MIN_RETRY_SECS));
             // Every second up to 59 s later: nothing is posted.
             for s in 1..MIN_RETRY_SECS {
-                assert_eq!(o.deliver_due(&t, 1000 + s, true).unwrap(), Delivery::default());
+                assert_eq!(o.deliver_due(&t, 1000 + s, true, &GO).unwrap(), Delivery::default());
             }
             assert_eq!(t.calls(), 1, "{failure:?} retried too soon");
-            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS, true).unwrap().sent, 1);
+            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS, true, &GO).unwrap().sent, 1);
             assert_eq!(t.calls(), 2);
         }
     }
@@ -325,7 +354,9 @@ pub(crate) mod tests {
         let mut now = 0;
         for _ in 0..MAX_ATTEMPTS {
             now = o.next_due().unwrap().unwrap();
-            o.deliver_due(&t, now, true).unwrap();
+            // Keep it young: this test is about the number of tries, not the age limit.
+            o.conn.execute("UPDATE outbox SET created = ?1", [now]).unwrap();
+            o.deliver_due(&t, now, true, &GO).unwrap();
         }
         assert_eq!(o.pending().unwrap(), 0);
         assert_eq!(t.calls() as i64, MAX_ATTEMPTS);
@@ -344,13 +375,14 @@ pub(crate) mod tests {
     fn a_failure_mid_send_does_not_leave_the_message_due() {
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"m", 1000).unwrap();
-        let r =
-            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| o.deliver_due(&PanickingTransport, 1000, true)));
+        let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            o.deliver_due(&PanickingTransport, 1000, true, &GO)
+        }));
         assert!(r.is_err());
         assert_eq!(o.pending().unwrap(), 1, "kept for a retry");
         assert_eq!(o.next_due().unwrap(), Some(1000 + MIN_RETRY_SECS), "not due again straight away");
         let t = FakeTransport::default();
-        assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS - 1, true).unwrap(), Delivery::default());
+        assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS - 1, true, &GO).unwrap(), Delivery::default());
         assert_eq!(t.calls(), 0);
     }
 
@@ -360,7 +392,7 @@ pub(crate) mod tests {
         o.enqueue(REF, b"bad", 0).unwrap();
         o.enqueue(REF, b"good", 0).unwrap();
         let t = FakeTransport::new([status(413), status(200)]);
-        let d = o.deliver_due(&t, 0, true).unwrap();
+        let d = o.deliver_due(&t, 0, true, &GO).unwrap();
         assert_eq!((d.retrying, d.sent), (1, 1));
         assert_eq!(*t.posted.borrow(), [b"bad".to_vec(), b"good".to_vec()]);
     }
@@ -381,19 +413,19 @@ pub(crate) mod tests {
                 o.enqueue(REF, b, 1000).unwrap();
             }
             let t = FakeTransport::new([failure.clone()]);
-            let d = o.deliver_due(&t, 1000, true).unwrap();
+            let d = o.deliver_due(&t, 1000, true, &GO).unwrap();
             assert_eq!(d, Delivery { retrying: 1, stopped: true, ..Default::default() }, "{failure:?}");
             assert_eq!(t.calls(), 1, "{failure:?}: one request, not one per queued message");
             // The untried messages wait for the retry time too, and keep their tries.
             assert_eq!(o.next_due().unwrap(), Some(1000 + MIN_RETRY_SECS));
-            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS - 1, true).unwrap(), Delivery::default());
+            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS - 1, true, &GO).unwrap(), Delivery::default());
             let tries: Vec<i64> = {
                 let mut st = o.conn.prepare("SELECT attempts FROM outbox ORDER BY id").unwrap();
                 st.query_map([], |r| r.get(0)).unwrap().collect::<Result<_>>().unwrap()
             };
             assert_eq!(tries, [1, 0, 0]);
             let t = FakeTransport::new([status(200), status(200), status(200)]);
-            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS, true).unwrap().sent, 3);
+            assert_eq!(o.deliver_due(&t, 1000 + MIN_RETRY_SECS, true, &GO).unwrap().sent, 3);
         }
     }
 
@@ -402,11 +434,11 @@ pub(crate) mod tests {
         let o = Outbox::in_memory().unwrap();
         o.enqueue(REF, b"old", 0).unwrap();
         let t = FakeTransport::new([status(413)]);
-        assert_eq!(o.deliver_due(&t, 0, true).unwrap().retrying, 1);
+        assert_eq!(o.deliver_due(&t, 0, true, &GO).unwrap().retrying, 1);
         o.enqueue(REF, b"new", 0).unwrap();
         let t = FakeTransport::new([status(200)]);
-        // The wall clock says the retry is long due; the caller says it isn't allowed yet.
-        assert_eq!(o.deliver_due(&t, 10 * MAX_BACKOFF_SECS, false).unwrap().sent, 1);
+        // The wall clock says the retry is due; the caller says it isn't allowed yet.
+        assert_eq!(o.deliver_due(&t, 10 * MIN_RETRY_SECS, false, &GO).unwrap().sent, 1);
         assert_eq!(*t.posted.borrow(), [b"new".to_vec()]);
         assert_eq!(o.pending().unwrap(), 1);
     }
@@ -435,5 +467,29 @@ pub(crate) mod tests {
         assert_eq!(all.len() as i64, DROP_KEEP + 3);
         let kept: Vec<&str> = all.iter().rev().take(3).map(|e| e.outcome.as_str()).collect();
         assert_eq!(kept, ["sent", "rejected", "retry"]);
+    }
+
+    #[test]
+    fn messages_older_than_the_age_limit_are_given_up() {
+        let o = Outbox::in_memory().unwrap();
+        o.enqueue(REF, b"old", 1000).unwrap();
+        o.enqueue(REF, b"young", 1000 + MAX_AGE_SECS).unwrap();
+        let t = FakeTransport::new([status(200)]);
+        let d = o.deliver_due(&t, 1000 + MAX_AGE_SECS + 1, true, &GO).unwrap();
+        assert_eq!((d.gave_up, d.sent), (1, 1));
+        assert_eq!(*t.posted.borrow(), [b"young".to_vec()], "the old one is never posted");
+        let log = o.recent(10).unwrap();
+        let gave_up = log.iter().find(|e| e.outcome == "gave_up").unwrap();
+        assert_eq!(gave_up.detail, "too old: queued 30 min ago");
+    }
+
+    #[test]
+    fn a_stopped_pass_posts_nothing_more() {
+        let o = Outbox::in_memory().unwrap();
+        o.enqueue(REF, b"m", 1000).unwrap();
+        let t = FakeTransport::default();
+        let d = o.deliver_due(&t, 1000, true, &AtomicBool::new(true)).unwrap();
+        assert_eq!((d, t.calls()), (Delivery::default(), 0));
+        assert_eq!(o.next_due().unwrap(), Some(1000), "untouched");
     }
 }
