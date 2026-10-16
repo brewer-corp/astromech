@@ -18,9 +18,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:37:20.036674183+00:00"
+status: "done"
 title: "Construction tracker"
-updated_at: "2026-10-16T19:32:22.606107946+00:00"
+updated_at: "2026-10-16T19:37:20.036674183+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Replaying a fixture sequence of depot and contribution events gives the expected
 ## Context
 
 Journal only.
+
+## Close Reason
+
+astromech-colonisation tracks depots, contributions, claims and beacons per MarketID, persisted in astromech-store; replay and restart tests pass.

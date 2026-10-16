@@ -233,6 +233,7 @@ astromech/
     astromech-overlay/   egui panels for the VR overlay (stub)
     astromech-store/     SQLite (rusqlite, bundled) config + migrations
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
+    astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records)
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
