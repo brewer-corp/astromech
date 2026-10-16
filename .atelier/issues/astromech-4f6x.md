@@ -18,9 +18,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-16T18:12:14.789814203+00:00"
+status: "superseded"
 title: "Core ship stats from the loadout"
-updated_at: "2026-10-15T20:36:13.665982432+00:00"
+updated_at: "2026-10-16T18:12:14.789814203+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A fixture loadout gives stats matching the in-game values recorded with it.
 ## Context
 
 Mostly journal numbers (partly built). Lets the plotters use the real range.
+
+## Close Reason
+
+Superseded 2026-10-16 by astromech-ojwr (Port Coriolis's ship calculations to Rust), which covers these stats and more.

@@ -12,11 +12,17 @@ relationships:
     id: "astromech-huab"
   children:
   - kind: "issue"
+    id: "astromech-361l"
+  - kind: "issue"
+    id: "astromech-bwmz"
+  - kind: "issue"
     id: "astromech-fipx"
   - kind: "issue"
     id: "astromech-n0qb"
   - kind: "issue"
     id: "astromech-osjr"
+  - kind: "issue"
+    id: "astromech-qhi4"
   attachments: []
   relates:
   - kind: "issue"
@@ -26,7 +32,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Engineering material lookups"
-updated_at: "2026-10-16T04:38:22.993919433+00:00"
+updated_at: "2026-10-16T18:12:15.175151598+00:00"
 ---
 
 ## Goal

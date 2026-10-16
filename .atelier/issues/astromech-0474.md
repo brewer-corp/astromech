@@ -24,16 +24,19 @@ relationships:
   - kind: "issue"
     id: "astromech-610m"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-orel"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "M3 exit: voice in the COVAS register"
-updated_at: "2026-10-16T04:33:15.248102193+00:00"
+updated_at: "2026-10-16T18:11:02.759661237+00:00"
 ---
 
 ## Goal
 
-Voice replies use a flat British voice through the Cockpit chain that Sumeet judges to sit in the same register as in-game COVAS, and recognition passes the 95% execute-or-ask bar on the VR clip set.
+Voice replies use the speaker the user picks in Settings (astromech-orel), through the Cockpit chain tuned in the headset to sit in the same register as in-game COVAS, and recognition passes the 95% execute-or-ask bar on the VR clip set.
 
 ## Done when
 
@@ -41,7 +44,7 @@ The eval run's report, and Sumeet's verdict from the headset, recorded as eviden
 
 ## Scope
 
-Already built: Kokoro TTS with the Cockpit colour chain (band-limit, presence, compression, saturation, comb, pip), Natural/Cockpit/Harsh presets, the coloured confirmation cache and a cuttable mixer (`astromech_voice::colour`, `mixer`; V1-DESIGN §6.4, §7.12).
+Already built: Kokoro TTS with the Cockpit colour chain (band-limit, presence, compression, saturation, comb, pip), Natural/Cockpit/Harsh presets, the coloured confirmation cache and a cuttable mixer (`astromech_voice::colour`, `mixer`; V1-DESIGN §6.4, §7.12). The speaker is already a per-request `sid` and part of the TTS cache key, so switching voices needs no restart. Which speaker ships as the default is not a v1.0 question.
 
 ## Design
 

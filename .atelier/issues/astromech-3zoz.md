@@ -18,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Ask Inara's author to whitelist astromech"
-updated_at: "2026-10-15T20:36:13.660992128+00:00"
+updated_at: "2026-10-16T18:12:00.667231289+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ Inara's author has replied (approved or refused), recorded as a note on this iss
 ## Context
 
 Sumeet sends the request from his Inara account; prepare the wording and the app description for him.
+
+## Notes
+
+- 2026-10-16 [note] 2026-10-16, Sumeet: Inara upload is set aside for now; EDDN comes first.

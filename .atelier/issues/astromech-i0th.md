@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:11:02.691039914+00:00"
+status: "superseded"
 title: "Render the British-voice A/B set"
-updated_at: "2026-10-16T04:33:15.221232690+00:00"
+updated_at: "2026-10-16T18:11:02.691039914+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ The A/B set is rendered from the real TTS path and attached as evidence, with ea
 ## Context
 
 The speaker walk was planned in V1-DESIGN §6.4 and never done.
+
+## Close Reason
+
+Superseded 2026-10-16: Sumeet chose to make the voice a Settings choice (astromech-orel) instead of picking one default. The default can be tuned later.

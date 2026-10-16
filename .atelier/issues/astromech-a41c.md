@@ -9,7 +9,10 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-361l"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "backlog"

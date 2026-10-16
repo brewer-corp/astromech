@@ -16,9 +16,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Run the plotting macro in the real game"
-updated_at: "2026-10-16T04:33:15.504710255+00:00"
+updated_at: "2026-10-16T18:11:08.512512131+00:00"
 ---
 
 ## Goal

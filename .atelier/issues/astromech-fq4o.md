@@ -15,9 +15,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Inara profile sync"
-updated_at: "2026-10-15T20:36:13.660858408+00:00"
+updated_at: "2026-10-16T18:11:02.566047470+00:00"
 ---
 
 ## Goal

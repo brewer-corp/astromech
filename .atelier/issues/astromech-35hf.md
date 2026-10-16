@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:11:08.483677440+00:00"
+status: "superseded"
 title: "Spike: galaxy-map paste in the real game"
-updated_at: "2026-10-15T20:36:13.657198996+00:00"
+updated_at: "2026-10-16T18:11:08.483677440+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Each case has a recorded pass or fail in the real game (evidence), and PLOTTING.
 ## Context
 
 Blocks the plotting macro.
+
+## Close Reason
+
+Sumeet confirmed on 2026-10-16 that pasting into the galaxy-map search works in the real game, so no spike is needed. Selecting the search box and plotting the jump are the hard parts; the plotting macro (astromech-w3z0) is deferred.

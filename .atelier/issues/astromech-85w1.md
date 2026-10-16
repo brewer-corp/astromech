@@ -6,9 +6,7 @@ labels:
 - "size-m"
 priority: "P3"
 relationships:
-  blocks:
-  - kind: "issue"
-    id: "astromech-qhad"
+  blocks: []
   children: []
   attachments: []
   relates: []

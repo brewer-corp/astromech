@@ -9,22 +9,25 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-z4jb"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
-title: "Full ship stat calculator"
-updated_at: "2026-10-15T20:36:13.666122874+00:00"
+title: "Several hypothetical builds per ship, and module swaps"
+updated_at: "2026-10-16T18:12:14.862997258+00:00"
 ---
 
 ## Goal
 
-Shields, armour, resistances, DPS, heat and engineering effects; compare builds; what-if edits.
+Coriolis-style build editing: keep several hypothetical builds per ship, swap in different modules, and compare builds side by side. This builds on the Ships page, which allows one build (the engineering plan) per ship.
 
 ## Done when
 
-Stats match EDSY for a set of reference builds.
+A ship can hold two named builds with different modules, and the comparison view shows their stat differences, matching the ship calculation tests.
 
 ## Context
 
-Coriolis data is Frontier IP; EDSY is CC BY-NC ([ARCHITECTURE §18.4](docs/ARCHITECTURE.md)). Wiki-visible stats are fine. A big project; link out until there's a clear reason.
+Deferred by Sumeet on 2026-10-16 until the one-build Ships page ships.

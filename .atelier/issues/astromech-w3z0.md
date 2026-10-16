@@ -17,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "backlog"
 title: "Plotting macro"
-updated_at: "2026-10-16T04:33:15.491186047+00:00"
+updated_at: "2026-10-16T18:11:08.525148742+00:00"
 ---
 
 ## Goal
@@ -33,3 +33,7 @@ The key sequence for each state in PLOTTING.md's test list is generated and cove
 ## Context
 
 Designed already. One press per hop; no auto-plotting (strategy Scope).
+
+## Notes
+
+- 2026-10-16 [note] 2026-10-16, Sumeet: pasting into the galaxy-map search works. Selecting the search box and plotting the jump are much harder, so this macro is deferred. Copying the next system to the clipboard stays in scope.
