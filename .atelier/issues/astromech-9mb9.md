@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:06:48.783645601+00:00"
+status: "done"
 title: "Open the current ship in Coriolis or EDSY, and link out to Inara/Spansh"
-updated_at: "2026-10-16T18:55:36.769082024+00:00"
+updated_at: "2026-10-16T19:06:48.783645601+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Build Coriolis and EDSY import URLs from the current loadout, and Inara/Spansh l
 ## Done when
 
 A fixture loadout's link opens the same build in Coriolis and in EDSY (checked by hand once, then a URL snapshot test).
+
+## Close Reason
+
+Coriolis and EDSY import links built from the raw Loadout (Rust, round-trip and snapshot tests), opened in headless Chrome in both; Spansh/Inara builders in app/src/lib/links.ts with vitest; buttons on the Builds page. Independent review outstanding.
