@@ -29,7 +29,13 @@ relationships:
     id: "astromech-xqdl"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-ahga"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-jsb9"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T18:56:24.987431487+00:00"

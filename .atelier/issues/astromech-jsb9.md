@@ -9,12 +9,15 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-h74l"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Wrap the remaining remote endpoints in astromech-data"
-updated_at: "2026-10-16T18:56:18.009741511+00:00"
+updated_at: "2026-10-16T19:02:54.519142079+00:00"
 ---
 
 ## Goal
@@ -30,4 +33,3 @@ Each added endpoint has typed results and a recorded-response test in `crates/as
 - Spansh: system-name autocomplete (`/api/systems/field_values/system_names?q=`), `/api/nearest`, documented `/api/system/{id64}` and `/api/station/{marketId}`; the other plotters (road to riches, exobiology, trade, fleet carrier) belong to astromech-94j4.
 - Spansh systems filters for state, Powerplay and population are reachable through `Search::filter` but their shapes are unverified; add typed helpers once a lookup checks them.
 - EDSM flight log needs a per-commander API key (settings and keyring).
-- Resilience: ARCHITECTURE §5.8 plans a circuit breaker (5 failures, 60 s open); not built.

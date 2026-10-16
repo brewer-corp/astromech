@@ -29,19 +29,20 @@ relationships:
   - kind: "issue"
     id: "astromech-h74l"
   - kind: "issue"
-    id: "astromech-jsb9"
-  - kind: "issue"
     id: "astromech-pxy2"
   attachments: []
   relates:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-zs2q"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Remote data layer and the \"search near me\" kit"
-updated_at: "2026-10-16T18:56:18.010856312+00:00"
+updated_at: "2026-10-16T19:02:54.519761424+00:00"
 ---
 
 ## Goal

@@ -248,6 +248,62 @@ pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
+
+    /// Answers EDSM sphere and Spansh systems search with recorded bodies; logs request URLs.
+    struct Recorded {
+        sphere: String,
+        log: Mutex<Vec<String>>,
+    }
+
+    impl Transport for Recorded {
+        fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
+            self.log.lock().unwrap().push(url.to_string());
+            let body = if url.ends_with("/api-v1/sphere-systems") {
+                self.sphere.clone()
+            } else if url.ends_with("/api/systems/search") {
+                include_str!("../tests/fixtures/spansh-famine.json").to_string()
+            } else {
+                panic!("unexpected request {url}")
+            };
+            Ok(Response { status: 200, body })
+        }
+    }
+
+    #[test]
+    fn nearby_fetches_through_the_data_client_then_reuses_the_cache() {
+        // EDSM knows a dense line of stars from Sol towards the fixture systems.
+        let sphere: Vec<serde_json::Value> = (0..40)
+            .map(|i| {
+                serde_json::json!({
+                    "name": format!("S{i}"), "id64": 1000 + i,
+                    "coords": { "x": i as f64 * 0.5, "y": -(i as f64) * 0.1, "z": i as f64 * 0.3 },
+                })
+            })
+            .collect();
+        let rec = Arc::new(Recorded { sphere: serde_json::Value::from(sphere).to_string(), log: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let g = Galaxy::with_remote(Store::in_memory().unwrap(), client);
+        let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
+
+        let n = g.nearby("famine", &here, 5.0, 2).unwrap();
+        {
+            let log = rec.log.lock().unwrap();
+            assert_eq!(log.len(), 2, "one EDSM fill-in and one Spansh search: {log:?}");
+            assert!(log[0].starts_with("https://www.edsm.net/api-v1/sphere-systems"));
+            assert_eq!(log[1], "https://spansh.co.uk/api/systems/search");
+        }
+        assert_eq!(n.hits.len(), 2);
+        assert_eq!(n.hits[0].name, "WISE 0855-0714");
+        assert!(n.hits[0].hop.exact, "jump counts use the filled-in map");
+        assert!(n.hits[0].hop.jumps >= 2);
+        assert!(g.position("S10").unwrap().is_some(), "EDSM systems are stored");
+
+        let again = g.nearby("famine", &here, 5.0, 2).unwrap();
+        assert_eq!(rec.log.lock().unwrap().len(), 2, "covered and cached: no requests");
+        assert_eq!(again.hits, n.hits);
+        assert_eq!(again.fetched, n.fetched);
+    }
 
     #[test]
     fn nearby_ranks_cached_hits_by_jumps() {
