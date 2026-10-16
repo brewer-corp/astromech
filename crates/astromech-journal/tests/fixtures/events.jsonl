@@ -30,7 +30,7 @@
 { "timestamp":"2026-10-10T20:00:29Z", "event":"NavBeaconScan", "SystemAddress":2, "NumBodies":9 }
 { "timestamp":"2026-10-10T20:00:30Z", "event":"Missions", "Active":[ { "MissionID":1, "Name":"Mission_Delivery", "PassengerMission":false, "Expires":3600 } ], "Failed":[], "Complete":[ { "MissionID":2, "Name":"Mission_Courier", "PassengerMission":false, "Expires":0 } ] }
 { "timestamp":"2026-10-10T20:00:31Z", "event":"MissionAccepted", "Faction":"Test Faction", "Name":"Mission_Delivery", "LocalisedName":"Deliver", "Commodity":"$Gold_Name;", "Count":10, "DestinationSystem":"Test Two", "DestinationStation":"Test Orbital", "Expiry":"2026-10-12T20:00:00Z", "MissionID":1, "Reward":50000, "Influence":"++", "Reputation":"++" }
-{ "timestamp":"2026-10-10T20:00:32Z", "event":"MissionCompleted", "Faction":"Test Faction", "Name":"Mission_Delivery", "MissionID":1, "Reward":50000, "MaterialsReward":[ { "Name":"iron", "Category":"Raw", "Count":3 } ] }
+{ "timestamp":"2026-10-10T20:00:32Z", "event":"MissionCompleted", "Faction":"Test Faction", "Name":"Mission_Delivery", "MissionID":1, "Reward":50000, "Donation":"1000000", "MaterialsReward":[ { "Name":"iron", "Category":"Raw", "Count":3 } ] }
 { "timestamp":"2026-10-10T20:00:33Z", "event":"MissionAbandoned", "Name":"Mission_Delivery", "MissionID":3 }
 { "timestamp":"2026-10-10T20:00:34Z", "event":"MissionFailed", "Name":"Mission_Delivery", "MissionID":4, "Fine":1000 }
 { "timestamp":"2026-10-10T20:00:35Z", "event":"MissionRedirected", "MissionID":1, "MissionName":"Mission_Delivery", "NewDestinationStation":"Test Port", "NewDestinationSystem":"Test Three", "OldDestinationStation":"Test Orbital", "OldDestinationSystem":"Test Two" }
@@ -52,7 +52,7 @@
 { "timestamp":"2026-10-10T20:00:51Z", "event":"Progress", "Combat":10, "Trade":20, "Explore":30, "Soldier":0, "Exobiologist":40, "Empire":50, "Federation":60, "CQC":0 }
 { "timestamp":"2026-10-10T20:00:52Z", "event":"Reputation", "Empire":10.5, "Federation":20.0, "Independent":-5.0 }
 { "timestamp":"2026-10-10T20:00:53Z", "event":"Interdicted", "Submitted":false, "Interdictor":"Test Pirate", "IsPlayer":false, "Faction":"Pirates" }
-{ "timestamp":"2026-10-10T20:00:54Z", "event":"ShipTargeted", "TargetLocked":true, "Ship":"viper", "ScanStage":3, "PilotName":"$cmdr_decorated_name;", "PilotRank":"Dangerous", "ShieldHealth":100.0, "HullHealth":90.5, "Faction":"Pirates", "LegalStatus":"Wanted", "Bounty":4000 }
+{ "timestamp":"2026-10-10T20:00:54Z", "event":"ShipTargeted", "TargetLocked":true, "Ship":"viper", "ScanStage":3, "PilotName":"$cmdr_decorated_name;", "PilotRank":"Dangerous", "ShieldHealth":100.0, "HullHealth":90.5, "Faction":"Pirates", "LegalStatus":"Wanted", "Bounty":4000, "Subsystem":"$int_powerplant;", "Subsystem_Localised":"Power Plant", "SubsystemHealth":55.5 }
 { "timestamp":"2026-10-10T20:00:55Z", "event":"Scanned", "ScanType":"Cargo" }
 { "timestamp":"2026-10-10T20:00:56Z", "event":"FuelScoop", "Scooped":4.5, "Total":28.5 }
 { "timestamp":"2026-10-10T20:00:57Z", "event":"ReceiveText", "From":"Test Pilot", "Message":"hello", "Channel":"local" }

@@ -201,12 +201,20 @@ fn missions() {
     assert_eq!((m.mission_id, m.faction.as_str(), m.count, m.reward), (1, "Test Faction", Some(10), Some(50000)));
     assert_eq!(m.destination_station.as_deref(), Some("Test Orbital"));
     assert_eq!(m.expiry.as_deref(), Some("2026-10-12T20:00:00Z"));
-    let E::MissionCompleted { mission_id, reward, materials_reward, .. } = ex("MissionCompleted") else { panic!() };
+    let E::MissionCompleted { mission_id, reward, donation, materials_reward, .. } = ex("MissionCompleted") else {
+        panic!()
+    };
     assert_eq!((mission_id, reward, materials_reward[0].count), (Some(1), Some(50000), 3));
+    assert_eq!(donation, Some(1_000_000), "`Donation` is a string in real lines");
+    let l = parse_line(r#"{"timestamp":"t","event":"MissionCompleted","Name":"m","Donated":500,"Donation":"500"}"#)
+        .unwrap();
+    assert!(matches!(l.event, JournalEvent::Extra(E::MissionCompleted { donation: Some(500), .. })));
     let E::MissionEnded { failed, mission_id, .. } = ex("MissionAbandoned") else { panic!() };
     assert_eq!((failed, mission_id), (false, Some(3)));
     let E::MissionEnded { failed, fine, .. } = ex("MissionFailed") else { panic!() };
     assert_eq!((failed, fine), (true, Some(1000)));
+    let l = parse_line(r#"{"timestamp":"t","event":"MissionRedirected","MissionID":1,"Name":"Mission_X"}"#).unwrap();
+    assert!(matches!(l.event, JournalEvent::Extra(E::MissionRedirected { ref name, .. }) if name == "Mission_X"));
     let E::MissionRedirected { new_destination_system, new_destination_station, .. } = ex("MissionRedirected") else {
         panic!()
     };
@@ -319,6 +327,7 @@ fn combat_events() {
         (Some("viper"), Some(3), Some(4000), Some(90.5))
     );
     assert_eq!(t.legal_status.as_deref(), Some("Wanted"));
+    assert_eq!((t.subsystem.as_deref(), t.subsystem_health), (Some("$int_powerplant;"), Some(55.5)));
     let E::Scanned { scan_type } = ex("Scanned") else { panic!() };
     assert_eq!(scan_type, "Cargo");
 }

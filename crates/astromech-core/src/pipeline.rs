@@ -10,12 +10,12 @@
 //!   metadata, every Status.json notification (several per second in game) also reads the
 //!   journal tail. ⚠ Unverified on the real game how often that is needed.
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
-//!   with a short retry. A file that is missing or older than its event is logged and not used;
-//!   it is tried again when the game next writes that file.
+//!   once (no waiting: that would stall the journal). A file that is missing or older than its
+//!   event is logged and not used; it is tried again when the game next writes that file.
 
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
-use astromech_journal::companion::{load, triggers, CompanionKind, Retry, Trigger};
+use astromech_journal::companion::{load, triggers, CompanionKind, Trigger};
 use notify::{RecursiveMode, Watcher};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
@@ -122,9 +122,7 @@ struct Tailer {
 
 impl Tailer {
     /// Apply journal lines to the state, then read the companion files their events announced.
-    /// `retry` is how long to wait for a file the game is still writing: live lines wait briefly,
-    /// replayed history reads once (the files can only hold the latest visit).
-    fn apply_lines(&mut self, lines: Vec<String>, retry: Retry) {
+    fn apply_lines(&mut self, lines: Vec<String>) {
         let mut parsed = Vec::with_capacity(lines.len());
         {
             let mut st = self.stats.lock().unwrap();
@@ -143,12 +141,12 @@ impl Tailer {
         let found = triggers(&parsed);
         if !found.is_empty() {
             self.pending.retain(|p| !found.iter().any(|t| t.kind == p.kind));
-            self.load_companions(found, retry);
+            self.load_companions(found);
         }
     }
 
-    fn load_companions(&mut self, found: Vec<Trigger>, retry: Retry) {
-        let (files, reports) = load(&self.dir, &found, retry);
+    fn load_companions(&mut self, found: Vec<Trigger>) {
+        let (files, reports) = load(&self.dir, &found);
         {
             let mut st = self.stats.lock().unwrap();
             st.companions_read += files.len() as u64;
@@ -170,7 +168,7 @@ impl Tailer {
             return;
         }
         self.pending.retain(|p| !kinds.contains(&p.kind));
-        self.load_companions(waiting, Retry::ONCE);
+        self.load_companions(waiting);
     }
 
     fn save(&self) {
@@ -185,7 +183,7 @@ impl Tailer {
         let mut t = JournalTail::new(path.clone(), 0);
         let lines = t.read_new();
         let n = lines.len();
-        self.apply_lines(lines, Retry::ONCE);
+        self.apply_lines(lines);
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         self.hub.update(|g| g.journal_file = Some(name.clone()));
         match (replay, saved) {
@@ -203,7 +201,7 @@ impl Tailer {
         let newest = astromech_journal::newest_journal(&self.dir);
         if let Some(t) = &mut self.tail {
             let lines = t.read_new();
-            self.apply_lines(lines, Retry::LIVE);
+            self.apply_lines(lines);
         }
         if let Some(n) = newest {
             if self.tail.as_ref().map(|t| t.path != n).unwrap_or(true) {
@@ -366,7 +364,7 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
         let (mut t, hub, logs) = tailer(d.path());
-        t.apply_lines(vec![MARKET_EVENT.into()], Retry::ONCE);
+        t.apply_lines(vec![MARKET_EVENT.into()]);
         assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
         assert!(logs.lock().unwrap().is_empty());
         assert_eq!(t.stats.lock().unwrap().companions_read, 1);
@@ -376,7 +374,7 @@ mod tests {
     fn missing_or_stale_file_is_logged_then_used_once_the_game_writes_it() {
         let d = tempfile::tempdir().unwrap();
         let (mut t, hub, logs) = tailer(d.path());
-        t.apply_lines(vec![MARKET_EVENT.into()], Retry::ONCE);
+        t.apply_lines(vec![MARKET_EVENT.into()]);
         assert!(hub.snapshot().companions.market.is_none());
         assert!(logs.lock().unwrap()[0].contains("Market.json") && logs.lock().unwrap()[0].contains("missing"));
         // Last visit's file: reported again, still not used.

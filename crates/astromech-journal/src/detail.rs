@@ -21,7 +21,7 @@ pub(crate) fn arr<'a>(v: &'a Value, k: &str) -> impl Iterator<Item = &'a Value> 
     v.get(k).and_then(Value::as_array).into_iter().flatten()
 }
 
-/// Localised text is optional and only worth keeping when it differs from the symbol.
+/// The `<key>_Localised` text, when the game wrote one.
 pub(crate) fn loc(v: &Value, k: &str) -> Option<String> {
     opt_s(v, &format!("{k}_Localised"))
 }
@@ -294,6 +294,7 @@ pub struct ShipTargeted {
     pub shield_health: Option<f64>,
     pub hull_health: Option<f64>,
     pub subsystem: Option<String>,
+    pub subsystem_health: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -823,7 +824,9 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             name: s(v, "Name"),
             faction: opt_s(v, "Faction"),
             reward: opt_i(v, "Reward"),
-            donation: opt_i(v, "Donation"),
+            // The game writes the integer as `Donated` and a string as `Donation`.
+            donation: opt_i(v, "Donated")
+                .or_else(|| v.get("Donation").and_then(Value::as_str).and_then(|d| d.parse().ok())),
             materials_reward: stacks(v, "MaterialsReward", None),
         },
         "MissionAbandoned" | "MissionFailed" => E::MissionEnded {
@@ -834,7 +837,7 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
         },
         "MissionRedirected" => E::MissionRedirected {
             mission_id: opt_i(v, "MissionID"),
-            name: s(v, "MissionName"),
+            name: opt_s(v, "MissionName").or_else(|| opt_s(v, "Name")).unwrap_or_default(),
             new_destination_system: opt_s(v, "NewDestinationSystem"),
             new_destination_station: opt_s(v, "NewDestinationStation"),
         },
@@ -869,7 +872,7 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             remaining: opt_f(v, "Remaining"),
         },
         "MiningRefined" => E::MiningRefined { commodity: s(v, "Type") },
-        e if e == "Powerplay" || e.starts_with("Powerplay") => E::Powerplay(powerplay(e, v)),
+        e if e.starts_with("Powerplay") => E::Powerplay(powerplay(e, v)),
         "ColonisationConstructionDepot" => E::ColonisationConstructionDepot(Box::new(ConstructionDepot {
             market_id: opt_i(v, "MarketID"),
             progress: opt_f(v, "ConstructionProgress").unwrap_or(0.0),
@@ -956,7 +959,8 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             power: opt_s(v, "Power"),
             shield_health: opt_f(v, "ShieldHealth"),
             hull_health: opt_f(v, "HullHealth"),
-            subsystem: opt_s(v, "SubSystem"),
+            subsystem: opt_s(v, "Subsystem"),
+            subsystem_health: opt_f(v, "SubsystemHealth"),
         })),
         "Scanned" => E::Scanned { scan_type: s(v, "ScanType") },
         "FuelScoop" => {

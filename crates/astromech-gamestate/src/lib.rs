@@ -129,10 +129,20 @@ impl GameState {
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
             }
-            JournalEvent::Location { star_system, body, docked, .. } => {
+            JournalEvent::Location { star_system, body, docked, station_name, market_id, .. } => {
                 self.system = Some(star_system.clone());
                 self.body = body.clone();
                 self.docked = *docked;
+                // Logging in docked: `Location` carries the station, there is no `Docked`.
+                if *docked {
+                    if station_name.is_some() {
+                        self.station = station_name.clone();
+                    }
+                    self.station_market_id = *market_id;
+                } else {
+                    self.station = None;
+                    self.station_market_id = None;
+                }
             }
             JournalEvent::ApproachBody { star_system, body } => {
                 self.system = Some(star_system.clone());
@@ -153,7 +163,10 @@ impl GameState {
                 self.system = Some(star_system.clone());
                 self.docked = true;
             }
-            JournalEvent::Undocked { .. } => self.docked = false,
+            JournalEvent::Undocked { .. } => {
+                self.docked = false;
+                self.station_market_id = None;
+            }
             _ => {}
         }
         self.materials.apply("", ev);

@@ -41,6 +41,12 @@ relationships:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-ogq4"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-rjww"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"

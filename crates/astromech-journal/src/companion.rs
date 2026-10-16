@@ -1,8 +1,8 @@
 //! Companion files the game writes next to the journal (`Market.json`, `Outfitting.json`, ...).
 //!
 //! The journal event (`Market`, `Outfitting`, ...) only says the file changed; the data is in
-//! the file. The game rewrites the file around its event, so we read after the event, retry
-//! briefly, and refuse a file that is missing or whose `timestamp` is older than the event: that
+//! the file. The game rewrites the file around its event, so we read after the event, try
+//! again when the game next writes the file, and refuse a file that is missing or whose `timestamp` is older than the event: that
 //! is last visit's data, and sending it on as this visit's would be wrong. Each snapshot keeps
 //! the file's text as read (`raw_json`) for the EDDN sender.
 //!
@@ -12,7 +12,6 @@
 use super::{arr, flag, loc, micro_resources, opt_b, opt_f, opt_i, opt_s, s, JournalLine, MicroResource};
 use serde_json::Value;
 use std::path::Path;
-use std::time::Duration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum CompanionKind {
@@ -225,31 +224,6 @@ pub enum CompanionFile {
     FcMaterials(FcMaterialsSnap),
 }
 
-impl CompanionFile {
-    pub fn kind(&self) -> CompanionKind {
-        match self {
-            Self::Market(_) => CompanionKind::Market,
-            Self::Outfitting(_) => CompanionKind::Outfitting,
-            Self::Shipyard(_) => CompanionKind::Shipyard,
-            Self::ModulesInfo(_) => CompanionKind::ModulesInfo,
-            Self::ShipLocker(_) => CompanionKind::ShipLocker,
-            Self::Backpack(_) => CompanionKind::Backpack,
-            Self::FcMaterials(_) => CompanionKind::FcMaterials,
-        }
-    }
-
-    pub fn timestamp(&self) -> &str {
-        match self {
-            Self::Market(x) => &x.timestamp,
-            Self::Outfitting(x) => &x.timestamp,
-            Self::Shipyard(x) => &x.timestamp,
-            Self::ModulesInfo(x) => &x.timestamp,
-            Self::ShipLocker(x) | Self::Backpack(x) => &x.timestamp,
-            Self::FcMaterials(x) => &x.timestamp,
-        }
-    }
-}
-
 fn parse_ts(t: &str) -> Option<chrono::DateTime<chrono::Utc>> {
     chrono::DateTime::parse_from_rfc3339(t).ok().map(|d| d.to_utc())
 }
@@ -369,39 +343,11 @@ pub fn parse_fresh(kind: CompanionKind, bytes: Option<&[u8]>, event_ts: &str) ->
     })
 }
 
-/// How hard to try before reporting a file as unusable.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Retry {
-    pub attempts: u32,
-    pub delay: Duration,
-}
-
-impl Retry {
-    /// Read once. For replaying history, where waiting cannot help.
-    pub const ONCE: Retry = Retry { attempts: 1, delay: Duration::ZERO };
-    /// Live: the game is usually done within a frame or two. 3 reads over ~80 ms.
-    pub const LIVE: Retry = Retry { attempts: 3, delay: Duration::from_millis(40) };
-}
-
-/// Read `dir/<file>` for `kind`, retrying while it is missing, half-written or stale.
-pub fn read_companion(
-    dir: &Path,
-    kind: CompanionKind,
-    event_ts: &str,
-    retry: Retry,
-) -> Result<CompanionFile, CompanionIssue> {
-    let mut last = CompanionIssue::Missing;
-    for n in 0..retry.attempts.max(1) {
-        if n > 0 {
-            std::thread::sleep(retry.delay);
-        }
-        let bytes = std::fs::read(dir.join(kind.file_name())).ok();
-        match parse_fresh(kind, bytes.as_deref(), event_ts) {
-            Ok(f) => return Ok(f),
-            Err(e) => last = e,
-        }
-    }
-    Err(last)
+/// Read `dir/<file>` for `kind` once. A file the game has not finished writing is reported; the
+/// caller tries again when the game next touches the file (waiting here would stall the journal).
+pub fn read_companion(dir: &Path, kind: CompanionKind, event_ts: &str) -> Result<CompanionFile, CompanionIssue> {
+    let bytes = std::fs::read(dir.join(kind.file_name())).ok();
+    parse_fresh(kind, bytes.as_deref(), event_ts)
 }
 
 /// The companion events in `lines`, newest per kind, in order of appearance. Earlier events of
@@ -418,11 +364,11 @@ pub fn triggers(lines: &[JournalLine]) -> Vec<Trigger> {
 }
 
 /// Read the file for each trigger. Files that can't be used come back as reports.
-pub fn load(dir: &Path, triggers: &[Trigger], retry: Retry) -> (Vec<CompanionFile>, Vec<CompanionReport>) {
+pub fn load(dir: &Path, triggers: &[Trigger]) -> (Vec<CompanionFile>, Vec<CompanionReport>) {
     let mut files = vec![];
     let mut reports = vec![];
     for t in triggers {
-        match read_companion(dir, t.kind, &t.event_ts, retry) {
+        match read_companion(dir, t.kind, &t.event_ts) {
             Ok(f) => files.push(f),
             Err(issue) => reports.push(CompanionReport { kind: t.kind, event_ts: t.event_ts.clone(), issue }),
         }

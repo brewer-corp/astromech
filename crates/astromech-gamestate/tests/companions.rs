@@ -2,9 +2,7 @@
 //! state; a file that is missing, half-written or older than its event is reported, not used.
 
 use astromech_gamestate::GameState;
-use astromech_journal::companion::{
-    load, read_companion, triggers, CompanionIssue, CompanionKind, CompanionReport, Retry,
-};
+use astromech_journal::companion::{load, read_companion, triggers, CompanionIssue, CompanionKind, CompanionReport};
 use astromech_journal::{parse_line, JournalLine};
 use std::path::{Path, PathBuf};
 
@@ -20,13 +18,13 @@ fn lines(journal: &str) -> Vec<JournalLine> {
 
 /// What the app does, minus the file watcher: fold the events, then read the companion files
 /// their events announced.
-fn replay(journal: &str, dir: &Path, retry: Retry) -> (GameState, Vec<CompanionReport>) {
+fn replay(journal: &str, dir: &Path) -> (GameState, Vec<CompanionReport>) {
     let lines = lines(journal);
     let mut g = GameState::default();
     for l in &lines {
         g.apply_journal(&l.event);
     }
-    let (files, reports) = load(dir, &triggers(&lines), retry);
+    let (files, reports) = load(dir, &triggers(&lines));
     for f in files {
         g.apply_companion(f);
     }
@@ -39,7 +37,7 @@ fn file_text(name: &str) -> String {
 
 #[test]
 fn each_event_leaves_its_snapshot_in_game_state() {
-    let (g, reports) = replay(JOURNAL, &fixture_dir(), Retry::ONCE);
+    let (g, reports) = replay(JOURNAL, &fixture_dir());
     assert_eq!(reports, vec![]);
     let c = &g.companions;
 
@@ -101,7 +99,7 @@ fn each_event_leaves_its_snapshot_in_game_state() {
 fn a_file_older_than_its_event_is_reported_and_not_used() {
     // Same files, events a minute later: the files are last visit's data.
     let later = JOURNAL.replace("2026-10-10T20:00:", "2026-10-10T20:01:");
-    let (g, reports) = replay(&later, &fixture_dir(), Retry::ONCE);
+    let (g, reports) = replay(&later, &fixture_dir());
     assert_eq!(g.companions, Default::default());
     assert_eq!(reports.len(), 7);
     assert!(reports.iter().all(|r| matches!(r.issue, CompanionIssue::Stale { .. })));
@@ -115,10 +113,10 @@ fn a_file_older_than_its_event_is_reported_and_not_used() {
 
 #[test]
 fn a_stale_file_does_not_replace_the_snapshot_already_held() {
-    let (mut g, _) = replay(JOURNAL, &fixture_dir(), Retry::ONCE);
+    let (mut g, _) = replay(JOURNAL, &fixture_dir());
     let held = g.companions.market.clone().unwrap();
     let later = lines(&JOURNAL.replace("2026-10-10T20:00:", "2026-10-10T20:01:"));
-    let (files, reports) = load(&fixture_dir(), &triggers(&later), Retry::ONCE);
+    let (files, reports) = load(&fixture_dir(), &triggers(&later));
     assert!(files.is_empty() && !reports.is_empty());
     for f in files {
         g.apply_companion(f);
@@ -129,7 +127,7 @@ fn a_stale_file_does_not_replace_the_snapshot_already_held() {
 #[test]
 fn a_missing_file_is_reported() {
     let empty = tempfile::tempdir().unwrap();
-    let (g, reports) = replay(JOURNAL, empty.path(), Retry::ONCE);
+    let (g, reports) = replay(JOURNAL, empty.path());
     assert_eq!(g.companions, Default::default());
     assert_eq!(reports.len(), 7);
     assert!(reports.iter().all(|r| r.issue == CompanionIssue::Missing));
@@ -140,7 +138,7 @@ fn a_half_written_file_is_reported() {
     let d = tempfile::tempdir().unwrap();
     let text = file_text("Market.json");
     std::fs::write(d.path().join("Market.json"), &text[..text.len() / 2]).unwrap();
-    let (g, reports) = replay(JOURNAL, d.path(), Retry::ONCE);
+    let (g, reports) = replay(JOURNAL, d.path());
     assert!(g.companions.market.is_none());
     let r = reports.iter().find(|r| r.kind == CompanionKind::Market).unwrap();
     assert!(matches!(r.issue, CompanionIssue::Unreadable(_)), "{r:?}");
@@ -155,31 +153,38 @@ fn only_the_latest_event_of_a_kind_is_checked() {
         r#"{"timestamp":"2026-10-10T19:00:00Z","event":"Market","MarketID":1,"StationName":"A","StarSystem":"S"}"#,
         r#"{"timestamp":"2026-10-10T20:00:05Z","event":"Market","MarketID":128000001,"StationName":"Test Orbital","StarSystem":"Test System"}"#,
     );
-    let (g, reports) = replay(&journal, &fixture_dir(), Retry::ONCE);
+    let (g, reports) = replay(&journal, &fixture_dir());
     assert_eq!(reports, vec![]);
     assert!(g.companions.market.is_some());
     assert_eq!(triggers(&lines(&journal)).len(), 1);
 }
 
 #[test]
-fn a_file_the_game_writes_a_moment_late_is_picked_up_by_the_retry() {
+fn a_read_never_waits_for_a_file_the_game_has_not_written_yet() {
     let d = tempfile::tempdir().unwrap();
-    let path = d.path().join("Market.json");
-    let text = file_text("Market.json");
-    let writer = std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_millis(60));
-        std::fs::write(path, text).unwrap();
-    });
-    let retry = Retry { attempts: 20, delay: std::time::Duration::from_millis(20) };
-    let got = read_companion(d.path(), CompanionKind::Market, "2026-10-10T20:00:05Z", retry);
-    writer.join().unwrap();
-    assert!(got.is_ok(), "{got:?}");
-    // And with no retry the same early read is a report.
-    let d2 = tempfile::tempdir().unwrap();
+    let start = std::time::Instant::now();
     assert_eq!(
-        read_companion(d2.path(), CompanionKind::Market, "2026-10-10T20:00:05Z", Retry::ONCE).unwrap_err(),
+        read_companion(d.path(), CompanionKind::Market, "2026-10-10T20:00:05Z").unwrap_err(),
         CompanionIssue::Missing
     );
+    assert!(start.elapsed() < std::time::Duration::from_millis(30));
+    // The late write is picked up by the next read (the watcher's pending path in the app).
+    std::fs::write(d.path().join("Market.json"), file_text("Market.json")).unwrap();
+    assert!(read_companion(d.path(), CompanionKind::Market, "2026-10-10T20:00:05Z").is_ok());
+}
+
+#[test]
+fn station_market_id_follows_docking_login_and_undocking() {
+    let mut g = GameState::default();
+    let ev = |l: &str| parse_line(l).unwrap().event;
+    g.apply_journal(&ev(r#"{"timestamp":"t","event":"Location","StarSystem":"S","Docked":true,"StationName":"Test Orbital","MarketID":42}"#));
+    assert_eq!((g.station.as_deref(), g.station_market_id, g.docked), (Some("Test Orbital"), Some(42), true));
+    g.apply_journal(&ev(r#"{"timestamp":"t","event":"Undocked","StationName":"Test Orbital"}"#));
+    assert_eq!((g.station_market_id, g.docked), (None, false));
+    g.apply_journal(&ev(r#"{"timestamp":"t","event":"Docked","StationName":"Other","StarSystem":"S","MarketID":43}"#));
+    assert_eq!(g.station_market_id, Some(43));
+    g.apply_journal(&ev(r#"{"timestamp":"t","event":"Location","StarSystem":"S","Docked":false}"#));
+    assert_eq!((g.station.clone(), g.station_market_id), (None, None));
 }
 
 #[test]

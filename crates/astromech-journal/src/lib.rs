@@ -69,6 +69,9 @@ pub enum JournalEvent {
         factions: Vec<FactionSnap>,
         system_address: Option<i64>,
         star_pos: Option<[f64; 3]>,
+        /// Set when starting docked (`Docked: true`).
+        station_name: Option<String>,
+        market_id: Option<i64>,
     },
     ApproachBody {
         star_system: String,
@@ -303,6 +306,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             factions: factions(&raw),
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
+            station_name: opt_s(&raw, "StationName"),
+            market_id: opt_i(&raw, "MarketID"),
         },
         "ApproachBody" => JournalEvent::ApproachBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
         "LeaveBody" => JournalEvent::LeaveBody { star_system: s(&raw, "StarSystem"), body: s(&raw, "Body") },
