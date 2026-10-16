@@ -1038,3 +1038,68 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
         _ => return None,
     })
 }
+
+/// What a station offers, from `Docked` (and `Location` when logging in docked).
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct StationInfo {
+    /// `Orbis`, `Outpost`, `FleetCarrier`, ...
+    pub station_type: Option<String>,
+    /// Services as the game names them: `outfitting`, `shipyard`, `refuel`, ...
+    pub services: Vec<String>,
+    pub economies: Vec<StationEconomy>,
+    pub faction: Option<StationFaction>,
+    pub government: Option<String>,
+    pub allegiance: Option<String>,
+    pub landing_pads: Option<LandingPads>,
+    /// Distance from the arrival star, in light seconds.
+    pub dist_from_star_ls: Option<f64>,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+pub struct StationEconomy {
+    /// `$economy_Refinery;`
+    pub name: String,
+    pub name_localised: Option<String>,
+    /// Share of the station's economy, 0.0-1.0.
+    pub proportion: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+pub struct StationFaction {
+    pub name: String,
+    /// `FactionState` (Boom, War, ...). Missing for factions without one (fleet carriers).
+    pub state: Option<String>,
+}
+
+/// How many pads of each size the station has.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+pub struct LandingPads {
+    pub small: i64,
+    pub medium: i64,
+    pub large: i64,
+}
+
+pub(crate) fn station_info(v: &Value) -> StationInfo {
+    StationInfo {
+        station_type: opt_s(v, "StationType"),
+        services: arr(v, "StationServices").filter_map(|x| x.as_str().map(str::to_string)).collect(),
+        economies: arr(v, "StationEconomies")
+            .map(|e| StationEconomy {
+                name: s(e, "Name"),
+                name_localised: loc(e, "Name"),
+                proportion: opt_f(e, "Proportion").unwrap_or(0.0),
+            })
+            .collect(),
+        faction: v
+            .get("StationFaction")
+            .and_then(|f| opt_s(f, "Name").map(|name| StationFaction { name, state: opt_s(f, "FactionState") })),
+        government: loc(v, "StationGovernment").or_else(|| opt_s(v, "StationGovernment")),
+        allegiance: opt_s(v, "StationAllegiance"),
+        landing_pads: v.get("LandingPads").map(|p| LandingPads {
+            small: opt_i(p, "Small").unwrap_or(0),
+            medium: opt_i(p, "Medium").unwrap_or(0),
+            large: opt_i(p, "Large").unwrap_or(0),
+        }),
+        dist_from_star_ls: opt_f(v, "DistFromStarLS"),
+    }
+}

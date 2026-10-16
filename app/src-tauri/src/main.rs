@@ -462,6 +462,51 @@ async fn session_summary() -> Result<Value, String> {
     .await
 }
 
+/// The station docked at: services, economies, faction and its state, pads, and which modules its
+/// outfitting sells that the ship flown would be better for. `docked: false` when not docked.
+#[tauri::command]
+async fn docked_here(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = st.fleet.ships.iter().find(|s| s.current);
+        let state = astromech_station::state_from_journal_dir(&journal_dir());
+        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(astromech_station::DockedHere::new(&state, ship, book.as_ref())).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Where a module was seen, from every `Outfitting.json` the core kept (`outfitting.sqlite`, read
+/// only): stations, nearest first when their distance from here is known, else newest first.
+#[tauri::command]
+async fn outfitting_search(app: tauri::AppHandle, query: String) -> Result<Value, String> {
+    blocking(move || {
+        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+            .map_err(|e| e.to_string())?;
+        let Some(book) = book else {
+            return Ok(serde_json::json!({ "stations": 0, "snapshots": 0, "found": [] }));
+        };
+        let mut found = book.find(&query, 100).map_err(|e| e.to_string())?;
+        // Distance from here, where the local star map knows both ends (no network).
+        let here = engineering_state(&app.state::<EngineeringCache>()).ok().and_then(|s| s.here.clone());
+        if let (Some(h), Ok(g)) = (here, galaxy(&app)) {
+            for f in &mut found {
+                f.distance_ly = g.position(&f.star_system).ok().flatten().map(|p| astromech_galaxy::dist(h.pos, p));
+            }
+            found.sort_by(|a, b| match (a.distance_ly, b.distance_ly) {
+                (Some(x), Some(y)) => x.total_cmp(&y),
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (None, None) => std::cmp::Ordering::Equal,
+            });
+        }
+        let (stations, snapshots) = book.counts().map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "stations": stations, "snapshots": snapshots, "found": found }))
+    })
+    .await
+}
+
 /// Every owned ship with its modules and current engineering.
 #[tauri::command]
 async fn engineering_fleet(app: tauri::AppHandle) -> Result<Value, String> {
@@ -840,6 +885,8 @@ fn main() {
             powerplay_overview,
             powerplay_targets,
             logbook,
+            docked_here,
+            outfitting_search,
             session_summary
         ])
         .setup(move |app| {
