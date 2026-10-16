@@ -11,6 +11,8 @@ use astromech_gamestate::GameState;
 use astromech_proto::Tier;
 use astromech_status as st;
 
+pub mod trade;
+
 pub use astromech_policy;
 
 /// Status.json flag bits used here (Frontier's Status file documentation).

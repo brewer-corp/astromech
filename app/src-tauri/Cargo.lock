@@ -142,6 +142,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-market"
+version = "0.1.5"
+dependencies = [
+ "astromech-data",
+ "astromech-galaxy",
+ "astromech-journal",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-materials"
 version = "0.1.5"
 dependencies = [
@@ -170,6 +182,7 @@ dependencies = [
  "astromech-history",
  "astromech-input",
  "astromech-keybinds",
+ "astromech-market",
  "astromech-materials",
  "astromech-powerplay",
  "astromech-ship",

@@ -353,6 +353,7 @@ mod tests {
             slot: Some(slot.into()),
             experimental: exp.map(str::to_string),
             experimental_localised: None,
+            modifiers: vec![],
             preview: false,
             ingredients: vec![],
         };
@@ -393,6 +394,30 @@ mod tests {
         let trip = plan_trip(krait, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
         let jobs: Vec<&str> = trip.stops.iter().flat_map(|s| s.jobs.iter().map(|j| j.what.as_str())).collect();
         assert_eq!(jobs, vec!["Dirty G3 → G5"]);
+    }
+
+    #[test]
+    fn crafts_replace_the_modules_modifiers() {
+        let mut b = FleetBuilder::default();
+        let mut apply = |line: &str| {
+            let l = astromech_journal::parse_line(line).unwrap();
+            b.apply(&l.timestamp, &l.event);
+        };
+        apply(
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","Engineering":{"BlueprintName":"FSD_LongRange","Level":5,"Quality":0.0,"Modifiers":[{"Label":"FSDOptimalMass","Value":1501.5,"OriginalValue":1050.0,"LessIsGood":0}]}},{"Slot":"PowerPlant","Item":"Int_Powerplant_Size7_Class5","Engineering":{"BlueprintName":"PowerPlant_Boosted","Level":3,"Quality":0.0,"Modifiers":[{"Label":"PowerCapacity","Value":45.0,"OriginalValue":40.0,"LessIsGood":0}]}}]}"#,
+        );
+        apply(
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"FrameShiftDrive","Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":5,"Quality":0.2,"Modifiers":[{"Label":"FSDOptimalMass","Value":1522.5,"OriginalValue":1050.0,"LessIsGood":0}]}"#,
+        );
+        apply(
+            r#"{"timestamp":"t","event":"EngineerCraft","Slot":"PowerPlant","Engineer":"Felicity Farseer","BlueprintName":"PowerPlant_Boosted","Level":4,"Quality":0.1}"#,
+        );
+        let fleet = b.build("t");
+        let eng =
+            |slot: &str| fleet.ships[0].loadout.iter().find(|m| m.slot == slot).unwrap().engineering.clone().unwrap();
+        assert_eq!(eng("FrameShiftDrive").modifiers[0].value, 1522.5);
+        // A craft that doesn't report the stats leaves them to the blueprint and roll.
+        assert!(eng("PowerPlant").modifiers.is_empty());
     }
 
     #[test]
@@ -527,5 +552,22 @@ mod tests {
         assert_eq!(eng(&p, "FrameShiftDrive"), eng(&krait.loadout, "FrameShiftDrive"));
         assert_eq!(eng(&p, "PowerPlant"), eng(&krait.loadout, "PowerPlant"));
         assert_eq!(p.len(), krait.loadout.len());
+        // The journal's stats stay only on a module the plan leaves as it is.
+        let mut fitted = krait.loadout.clone();
+        let thr = fitted.iter_mut().find(|m| m.slot == "MainEngines").unwrap();
+        thr.engineering.as_mut().unwrap().modifiers = vec![astromech_journal::EngModifier {
+            label: "EngineOptimalMass".into(),
+            value: 1600.0,
+            original_value: 1440.0,
+        }];
+        let mods = |p: &[astromech_journal::ModuleSnap]| {
+            p.iter().find(|m| m.slot == "MainEngines").unwrap().engineering.as_ref().unwrap().modifiers.len()
+        };
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 2, None)])), 1);
+        let same_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_overloaded"));
+        assert_eq!(mods(&planned_modules(&fitted, &[same_x])), 1);
+        let other_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_lightweight"));
+        assert_eq!(mods(&planned_modules(&fitted, &[other_x])), 0);
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 5, None)])), 0);
     }
 }

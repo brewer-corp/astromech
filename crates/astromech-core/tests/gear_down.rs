@@ -166,8 +166,13 @@ fn confirmation_is_logged_with_latency() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[600]);
     let logs = r.logs.clone();
     let Verified::Confirmed { ms } = sent(r.runner.run(GEAR_DOWN, Origin::Voice)) else { panic!() };
-    assert!((550..1500).contains(&ms), "{ms}");
-    assert!(logs.lock().unwrap()[0].contains("confirmed in"));
+    // The runner starts its clock after the key press returns, while the fake game's delay
+    // starts inside the press, so the measured latency is the delay minus the press time. Don't
+    // assert a tight floor: only that it is clearly a real wait (well over half the delay) and
+    // under the 2 s verify timeout.
+    assert!((300..1900).contains(&ms), "{ms}");
+    let logs = logs.lock().unwrap();
+    assert!(logs[0].contains(&format!("confirmed in {ms} ms")), "the logged latency is the returned one: {logs:?}");
 }
 
 #[test]

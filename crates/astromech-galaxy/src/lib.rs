@@ -97,6 +97,12 @@ impl Galaxy {
         Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
+    /// The remote-data client this galaxy's lookups go through (other lookups share it, and
+    /// its cache).
+    pub fn remote(&self) -> &astromech_data::Client {
+        &self.remote
+    }
+
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
         self.store.lock().unwrap_or_else(|e| e.into_inner())
     }
