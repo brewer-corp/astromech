@@ -245,8 +245,14 @@ astromech/
                          backoff, /test schemas, send log shown in Diagnostics; commodity/3,
                          outfitting/2 and shipyard/2 built from the companion files' JSON;
                          journal/1 and the event schemas (fsssignaldiscovered batched per run,
-                         codexentry body cross-check); all tested against the live schema files
-    astromech-core/      composition root (v0.11: console app): journal/Status pipeline, binds health
+                         codexentry body cross-check); all tested against the live schema files.
+                         Feed: what the core drives; only live-tailed lines and their companion files
+                         are queued (the startup replay only rebuilds the header and location);
+                         outfitting/2 is off until commander-specific modules are filtered.
+                         Worker: delivery on its own thread and SQLite connection, so no lock is held
+                         across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
+                         also wait a minute on the monotonic clock. Off unless [eddn] enabled = true
+    astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
   app/src-tauri/         astromech-shell: Tauri v2 window (own workspace; built on Windows CI only, since Linux needs webkit2gtk)

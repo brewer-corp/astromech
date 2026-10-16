@@ -20,6 +20,10 @@ use std::fmt;
 
 pub const COMMODITY: SchemaSpec = SchemaSpec { name: "commodity", version: 3, elide: &[], augment: &[], flags: true };
 pub const OUTFITTING: SchemaSpec = SchemaSpec { name: "outfitting", version: 2, elide: &[], augment: &[], flags: true };
+/// outfitting/2 is not sent yet. Its README drops commander-specific modules (PowerPlay,
+/// tech-broker) by their `sku`, but the journal's `Outfitting.json` has no `sku`, so they would
+/// pass; it stays off until they're filtered by name (review R1 of astromech-thau).
+pub const SEND_OUTFITTING: bool = false;
 pub const SHIPYARD: SchemaSpec = SchemaSpec { name: "shipyard", version: 2, elide: &[], augment: &[], flags: true };
 
 /// Why a companion file gave no message. "No data is better than bad data": a file that can't
@@ -85,13 +89,21 @@ pub fn message(event: &Value, file: &Value) -> Result<(&'static SchemaSpec, Valu
     Ok((spec, Value::Object(msg)))
 }
 
-fn check_trigger(name: &str, event: &Value, file: &Value) -> Result<(), Unusable> {
+/// The one trigger rule for every schema built from a companion file (commodity, outfitting,
+/// shipyard, navroute, fcmaterials_journal): the file names the same event, the same `MarketID`
+/// (or none, for `NavRoute`), and its `timestamp` is not older than the event's (an older file
+/// is the last visit's). Callers use it only for events tailed live, never for a replay.
+///
+/// ⚠ Whether the game always stamps the file with exactly its event's `timestamp` is not yet
+/// checked against real logs (astromech-uxyq). If it is, this should require equality, which
+/// would also refuse a newer file written for a later event.
+pub fn check_trigger(name: &str, event: &Value, file: &Value) -> Result<(), Unusable> {
     let file_event = file.get("event").and_then(Value::as_str);
-    if file_event != Some(name) {
+    if file_event != Some(name) || event.get("event").and_then(Value::as_str) != Some(name) {
         return Err(Unusable::Mismatch(format!("file event {file_event:?}, journal event {name:?}")));
     }
     let (fm, em) = (file.get("MarketID").and_then(Value::as_u64), event.get("MarketID").and_then(Value::as_u64));
-    if fm.is_none() || fm != em {
+    if fm != em {
         return Err(Unusable::Mismatch(format!("file MarketID {fm:?}, event MarketID {em:?}")));
     }
     let (ft, et) = (game_timestamp(file), game_timestamp(event));
@@ -103,7 +115,7 @@ fn check_trigger(name: &str, event: &Value, file: &Value) -> Result<(), Unusable
 }
 
 /// The game's `timestamp`, if it has the game's `YYYY-MM-DDTHH:MM:SSZ` shape.
-fn game_timestamp(v: &Value) -> Option<&str> {
+pub(crate) fn game_timestamp(v: &Value) -> Option<&str> {
     let t = v.get("timestamp")?.as_str()?;
     let b = t.as_bytes();
     let shaped = b.len() == 20

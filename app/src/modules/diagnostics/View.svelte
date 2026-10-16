@@ -27,7 +27,9 @@
     await refresh();
   }
 
-  const time = (at: number) => new Date(at * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  // Date and time: the log keeps entries across days and restarts.
+  const time = (at: number) =>
+    new Date(at * 1000).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const outcome: Record<string, string> = { sent: "Sent", rejected: "Rejected", retry: "Will retry", gave_up: "Gave up", dropped: "Not sent" };
 
   const game = (g: CoreStatus["game"]) =>
@@ -95,7 +97,7 @@
   .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }
   h2 { margin: 32px 0 12px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-weight: 600; }
   .eddn { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .eddn li { display: grid; grid-template-columns: 7rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); color: var(--text); }
+  .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); color: var(--text); }
   .eddn li > span { padding: 0 12px; }
   .eddn .detail { color: var(--text-lo); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .eddn li.rejected, .eddn li.gave_up, .eddn li.dropped { color: var(--text-lo); }
