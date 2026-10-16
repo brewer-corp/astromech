@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Rank HGE suggestions by distance and population"
-updated_at: "2026-10-16T18:12:15.141981342+00:00"
+updated_at: "2026-10-16T21:55:33.712766977+00:00"
 ---
 
 ## Goal
