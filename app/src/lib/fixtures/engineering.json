@@ -753,6 +753,10 @@
         "current": true,
         "id": 3,
         "ident": "HL-03",
+        "links": {
+          "coriolis": "https://coriolis.io/import?data=eJyFkV1PwjAUhv%2BKOdeFdCOA7o5AcBj8CHilMcuRHaGxW5euXUSy%2F27bLRoTP3rT5u1z3vf09ARz1Hs1xwp3whwhiccTBktL8ks6wTWKEpJRPOQMNlSTbgiSaMinLYPUSpkSSnMIEnPw25Utqg2We0%2BdB03lVlINyeMJvsErQwUkMCtxp8ocs5kulNXZpcacImBw63KNtsTgTgulQz8Rg61UxpcFGlr2s%2BuqNFl6rEjnWjSUbcU7TbK5xLoe%2F2LNP62XGgvaHsSLWfjiPzPCCDe4ew0R0y7i%2F%2B79xqOuBtonP9pn64mYh%2BXAg6gciP10oFNWC%2FcX%2FTGn0lul6wEf9dc3rnEvETbHs7V7AGl3Q01HrhXmyhqnGFFQbbDwCTGPJ4OIO5N7fpFwnvDxA7QfbZSpvw%3D%3D",
+          "edsy": "https://edsy.org/#/I=H4sIAAAAAAAA_4WRXU_CMBSG_4o514V0I4DujkBwGPwIeKUxy5EdobFbl65dRLL_btstGhM_etPm7XPe9_T0BHPUezXHCnfCHCGJxxMGS0vySzrBNYoSklE85Aw2VJNuCJJoyKctg9RKmRJKcwgSc_DblS2qDZZ7T50HTeVWUg3J4wm-wStDBSQwK3GnyhyzmS6U1dmlxpwiYHDrco22xOBOC6VDPxGDrVTGlwUaWvaz66o0WXqsSOdaNJRtxTtNsrnEuh7_Ys0_rZcaC9oexItZ-OI_M8IIN7h7DRHTLuL_7v3Go64G2ic_2mfriZiH5cCDqByI_XSgU1YL9xf9MafSW6XrAR_11zeucS8RNseztXsAaXdDTUeuFebKGqcYUVBtsPAJMY8ng4g7k3t-kXCe8PEDtB_5NqmFHQIAAA"
+        },
         "loadout_ts": "2026-10-03T09:00:05Z",
         "max_jump_range": 18.0,
         "modules": [
@@ -787,6 +791,10 @@
         "current": false,
         "id": 7,
         "ident": "LW-07",
+        "links": {
+          "coriolis": "https://coriolis.io/import?data=eJyVVNtu2kAQ%2FRW0zw5aQ4DEb00IlxRaCmkjtYqsBQ9kxXrX2gsNRfx7Z20DjUSA8oI913OOZ2ZD7pleqHuWsRm3axLRgHQciINhQ4aMSxLVa1X0jcGAXgHGVZv1bUB6TogeMGFfSRT6AG%2F4wYTDkOtrmv8CrPD26NJszOQC8koNtKnECTAk%2BrUh7yr0LaQkIp814zYeLvv9%2BJNOldNxV7MEQhKQrwjHagcBGWmudA4zDMhEKIuJRTTZBhvyIBdcAmguF57IHcLK8MX225hQu2m26q0mQtnbv7AU8ZGR%2Bg16JJi08Z1SxkKCTXe10N8Bwb04lQ7TxpsOXl%2B5TmnoWQ9gBYJEBVc%2B56A925eAfHNMFKCr1Gt4hH0fe%2BcwshzGhP%2BBVnwvmDGNswIc4J8UoSRbuOM211jlHc2RVnMwRunKCPFK73zLsE4K0jLxMJ%2FDzLczGcw4EzEUhdQKtFD4pZKjCfFAzbCaQXdE2potKm3NVzgHe73qH%2BtFq40TepVMvFbN01rRvVZ%2Btos8c4lYnUkbCchFMcnnhuISQrVTjHprlC%2Fx%2BuSsGpey6miEO3nlc5uLmzM71qOX4ZQ5YWDAcK3jLk%2Bn%2BCGHkHCXnpcuD%2BsxnWQKFQpPdkEwIJJim3ROhl5K5onL9QVdvF5Fly5I0Mwq%2FX%2Bj4P9oWOR82GWE82If1TT%2B5zy1Yc6csDE9f5t26WT7sr%2BA5bW8pbtrOYapw6xmq3xHVhnmLvOO6ZJzUtj8rWmVjwmuGMYMnq9oq3SXI%2BvHtfLM1pWxctLv5HcpcDvlEEXBG31DPTsc1CIfF1c5i1EWt9ZYlvrONVprXtHbqxp9Cm8iSiPa%2BEm2fwE7DAdz",
+          "edsy": "https://edsy.org/#/I=H4sIAAAAAAAA_5VU227aQBD9FbTPDlpDgMRvTQiXFFoKaSO1iqwFD2TFetfaCw1F_HtnbQONRIDygj3Xc45nZkPumV6oe5axGbdrEtGAdByIg2FDhoxLEtVrVfSNwYBeAcZVm_VtQHpOiB4wYV9JFPoAb_jBhMOQ62ua_wKs8Pbo0mzM5ALySg20qcQJMCT6tSHvKvQtpCQinzXjNh4u-_34k06V03FXswRCEpCvCMdqBwEZaa50DjMMyEQoi4lFNNkGG_IgF1wCaC4XnsgdwsrwxfbbmFC7abbqrSZC2du_sBTxkZH6DXokmLTxnVLGQoJNd7XQ3wHBvTiVDtPGmw5eX7lOaehZD2AFgkQFVz7noD3bl4B8c0wUoKvUa3iEfR975zCyHMaE_4FWfC-YMY2zAhzgnxShJFu44zbXWOUdzZFWczBG6coI8UrvfMuwTgrSMvEwn8PMtzMZzDgTMRSF1Aq0UPilkqMJ8UDNsJpBd0Tami0qbc1XOAd7veof60WrjRN6lUy8Vs3TWtG9Vn62izxziVidSRsJyEUxyeeG4hJCtVOMemuUL_H65Kwal7LqaIQ7eeVzm4ubMzvWo5fhlDlhYMBwreMuT6f4IYeQcJeely4P6zGdZAoVCk92QTAgkmKbdE6GXkrmicv1BV28XkWXLkjQzCr9f6Pg_2hY5HzYZYTzYh_VNP7nPLVhzpywMT1_m3bpZPuyv4Dltbylu2s5hqnDrGarfEdWGeYu847pknNS2PytaZWPCa4Yxgyer2irdJcj68e18szWlbFy0u_kdylwO-UQRcEbfUM9OxzUIh8XVzmLURa31liW-s41Wmte0durGn0KbyJKI9r4SbZ_ASfKjH87BgAA"
+        },
         "loadout_ts": "2026-09-20T18:00:05Z",
         "max_jump_range": 32.5,
         "modules": [

@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T18:38:21.444033447+00:00"
+status: "done"
 title: "All keybinds: group panels expand together"
-updated_at: "2026-10-16T18:12:14.965390748+00:00"
+updated_at: "2026-10-16T18:38:21.444033447+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A component test opens one group and shows the others stay closed, and the test 
 ## Context
 
 `app/src/modules/keybinds/KeybindsView.svelte`: `open` state and `isOpen()` (around lines 18, 49 and 66). Reproduce the bug before changing anything.
+
+## Close Reason
+
+Done-when met: component tests pass (kbcm's failed on the old code); see evidence

@@ -7,9 +7,10 @@
 //! Each `EngineerCraft` (in person or remote) updates the flown ship's module straight away, so
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
-use crate::data;
+use crate::{data, links};
 use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredShip};
 use serde::Serialize;
+use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 
@@ -35,6 +36,17 @@ pub struct Ship {
     /// Unladen maximum from the last `Loadout`.
     pub max_jump_range: Option<f64>,
     pub modules: Vec<Fitted>,
+    /// Builder links for this loadout. `None` when the raw `Loadout` was not kept, or an
+    /// `EngineerCraft` since then means it no longer matches the ship.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<ShipLinks>,
+}
+
+/// Where to open a ship's build in the community outfitting tools.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ShipLinks {
+    pub coriolis: String,
+    pub edsy: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -83,6 +95,10 @@ struct Seen {
     ident: Option<String>,
     max_jump_range: Option<f64>,
     modules: Vec<ModuleSnap>,
+    /// The `Loadout` line as written, for the builder links.
+    raw: Option<Value>,
+    /// An `EngineerCraft` changed a module since `raw` was written.
+    crafted: bool,
 }
 
 /// Folds fleet events in journal order.
@@ -110,6 +126,8 @@ impl FleetBuilder {
                         ident: ship_ident.clone(),
                         max_jump_range: *max_jump_range,
                         modules: modules.clone(),
+                        raw: None,
+                        crafted: false,
                     },
                 );
             }
@@ -145,6 +163,7 @@ impl FleetBuilder {
                     engineer: Some(engineer.clone()),
                 });
                 seen.ts = ts.to_string();
+                seen.crafted = true;
             }
             JournalEvent::ShipSold { ship_id } => {
                 self.loadouts.remove(ship_id);
@@ -154,6 +173,14 @@ impl FleetBuilder {
                 }
             }
             _ => {}
+        }
+    }
+
+    /// Keep the raw `Loadout` line that was just applied (`ts` and `ship_id` must match it).
+    pub fn keep_raw(&mut self, ts: &str, raw: Value) {
+        let Some(id) = raw.get("ShipID").and_then(Value::as_i64) else { return };
+        if let Some(seen) = self.loadouts.get_mut(&id).filter(|s| s.ts == ts) {
+            seen.raw = Some(raw);
         }
     }
 
@@ -200,6 +227,10 @@ impl FleetBuilder {
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
             modules,
+            links: seen
+                .filter(|s| !s.crafted)
+                .and_then(|s| s.raw.as_ref())
+                .map(|raw| ShipLinks { coriolis: links::coriolis_url(raw), edsy: links::edsy_url(raw) }),
         }
     }
 }
@@ -342,6 +373,11 @@ pub fn from_journal_dir(dir: &Path) -> Fleet {
         for line in text.lines().filter(|l| FLEET_EVENTS.iter().any(|e| l.contains(e))) {
             if let Ok(l) = astromech_journal::parse_line(line.trim()) {
                 b.apply(&l.timestamp, &l.event);
+                if matches!(l.event, astromech_journal::JournalEvent::Loadout { .. }) {
+                    if let Ok(raw) = serde_json::from_str::<Value>(line.trim()) {
+                        b.keep_raw(&l.timestamp, raw);
+                    }
+                }
             }
         }
     }

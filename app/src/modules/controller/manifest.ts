@@ -4,8 +4,8 @@ const manifest: ModuleManifest = {
   id: "controller",
   group: "controls",
   title: "My controller",
-  summary: "One stick as its maker drew it, with what each control does",
-  order: 20,
+  summary: "One stick as its maker drew it: every binding, or one activity with what is not bound yet",
+  order: 0,
   api: ["binds"],
   load: () => import("./View.svelte"),
 };
