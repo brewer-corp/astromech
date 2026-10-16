@@ -265,4 +265,26 @@ mod shopping_tests {
         assert_eq!(j["shopping"]["lines"][0]["name_localised"], "Steel");
         assert!(crate::from_journal_dir(&dir.path().join("missing")).is_empty());
     }
+
+    #[test]
+    fn cargo_json_overrides_the_replayed_hold() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("Journal.2026-10-01T090000.01.log"), JOURNAL).unwrap();
+        // The journal says 120 t steel aboard; a carrier transfer (not folded) left 40 t, plus
+        // 30 t aluminium. Mission cargo in the file is not deliverable.
+        std::fs::write(dir.path().join("Journal.2026-10-02T100000.01.log"), format!("{LOADOUT}\n{CARGO}\n")).unwrap();
+        let file = r#"{"timestamp":"2026-10-02T11:00:00Z","event":"Cargo","Vessel":"Ship","Count":80,"Inventory":[{"Name":"steel","Count":40,"Stolen":0},{"Name":"aluminium","Name_Localised":"Aluminium","Count":30,"Stolen":0},{"Name":"aluminium","Count":10,"Stolen":0,"MissionID":7}]}"#;
+        std::fs::write(dir.path().join("Cargo.json"), file).unwrap();
+        let v = crate::from_journal_dir(dir.path());
+        let lines: Vec<(&str, i64, i64)> =
+            v[0].shopping.lines.iter().map(|l| (l.symbol.as_str(), l.in_cargo, l.to_buy)).collect();
+        assert_eq!(lines, [("steel", 40, 260), ("aluminium", 30, 120)]);
+
+        // An SRV's file or a broken one leaves the journal's hold.
+        for other in [r#"{"Vessel":"SRV","Count":2,"Inventory":[{"Name":"steel","Count":2}]}"#, "{not json"] {
+            std::fs::write(dir.path().join("Cargo.json"), other).unwrap();
+            let v = crate::from_journal_dir(dir.path());
+            assert_eq!(v[0].shopping.lines[0].in_cargo, 120, "{other}");
+        }
+    }
 }

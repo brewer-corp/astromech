@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import projectsSample from "../../lib/fixtures/colonisation.json";
 import tradeSample from "../../lib/fixtures/trade.json";
@@ -27,6 +27,13 @@ beforeEach(() => {
   buy.mockReset();
   localStorage.clear();
 });
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+/** A fresh copy each poll, as the shell sends: same content, new objects. */
+const fresh = (): Project[] => structuredClone(projects);
 
 describe("Colonisation", () => {
   it("lists what is left to buy and where, stations stocking most of the list first, from the site", async () => {
@@ -74,6 +81,47 @@ describe("Colonisation", () => {
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), "Wolf 359", expect.anything()));
     await fireEvent.click(await screen.findByTitle("Search from the current system"));
     await waitFor(() => expect(buy).toHaveBeenLastCalledWith(expect.anything(), null, expect.anything()));
+  });
+
+  it("refreshes after a purchase, keeps the picked project, and re-searches only when the list changes", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    load.mockImplementation(async () => fresh());
+    buy.mockImplementation(async (_n, o) => answer(o));
+    render(View);
+    expect(await screen.findByText("Efremov Plant", { exact: false })).toBeTruthy();
+    const searches = buy.mock.calls.length;
+    const polls = load.mock.calls.length;
+
+    // A poll with nothing changed: no new search.
+    await vi.advanceTimersByTimeAsync(2000);
+    await waitFor(() => expect(load.mock.calls.length).toBeGreaterThan(polls));
+    expect(buy.mock.calls.length).toBe(searches);
+
+    // 912 t of steel bought: the list, the total and the search follow.
+    load.mockImplementation(async () => {
+      const p = fresh();
+      const site = p[0];
+      const steel = site?.shopping.lines[0];
+      if (!site || !steel) throw new Error("sample changed");
+      steel.in_cargo = 912;
+      steel.to_buy = 4000;
+      site.shopping.to_buy_total = 8642;
+      site.shopping.loads = 12;
+      return p;
+    });
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(await screen.findByText("912 t aboard")).toBeTruthy();
+    expect(screen.getByText("8,642 t in all · 12 loads at 784 t")).toBeTruthy();
+    await waitFor(() => expect(buy.mock.calls.length).toBe(searches + 1));
+    expect(buy.mock.lastCall?.[0][0]).toEqual({ symbol: "steel", name: "Steel", tonnes: 4000 });
+
+    // The picked project stays picked across polls.
+    await fireEvent.click(screen.getByRole("button", { name: /Test Relay/ }));
+    expect(await screen.findByText("Nothing left to deliver.")).toBeTruthy();
+    const after = load.mock.calls.length;
+    await vi.advanceTimersByTimeAsync(4000);
+    await waitFor(() => expect(load.mock.calls.length).toBeGreaterThan(after + 1));
+    expect(screen.getByRole("heading", { name: "Orbital Construction Site: Test Relay" })).toBeTruthy();
   });
 
   it("names commodities no market in range sells", async () => {

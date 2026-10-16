@@ -2,9 +2,10 @@
   // Colonisation construction projects from the journals: what is left to buy for the picked
   // project, in loads for the current ship, and where to buy it, stations stocking the most of
   // the list first, searched from the construction site's system (or near you).
+  import { untrack } from "svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
-  import { buyList, buyResults, loadProjects, LOOKUP, needsOf, projectName, type Project } from "../../lib/colonisation";
+  import { buyList, buyResults, loadProjects, LOOKUP, needsOf, projectName, type Need, type Project } from "../../lib/colonisation";
   import type { Filters, Origin, Results } from "../../lib/search";
   import { credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS } from "../../lib/trade";
 
@@ -12,17 +13,31 @@
   let err = $state<string | null>(null);
   let picked = $state<number | null>(null);
 
+  // Polled like the other journal pages, so deliveries and purchases show within seconds (the
+  // shell replays the journals only when they or Cargo.json change). The picked project stays.
   $effect(() => {
-    loadProjects()
-      .then((p) => {
-        projects = p;
-        picked = p[0]?.market_id ?? null;
-      })
-      .catch((e: unknown) => (err = String(e)));
+    const load = () =>
+      loadProjects()
+        .then((p) => {
+          projects = p;
+          err = null;
+          const keep = untrack(() => picked);
+          if (keep == null || !p.some((x) => x.market_id === keep)) picked = p[0]?.market_id ?? null;
+        })
+        .catch((e: unknown) => (err = String(e)));
+    void load();
+    const t = setInterval(() => void load(), 2000);
+    return () => clearInterval(t);
   });
 
   const project = $derived(projects?.find((p) => p.market_id === picked) ?? null);
-  const needs = $derived(project ? needsOf(project) : []);
+  /** What is left to buy; replaced only when it changes, so a poll doesn't re-run the search. */
+  let lastNeeds: Need[] = [];
+  const needs = $derived.by(() => {
+    const next = project ? needsOf(project) : [];
+    if (JSON.stringify(next) !== JSON.stringify(lastNeeds)) lastNeeds = next;
+    return lastNeeds;
+  });
 
   const run = $derived.by(() => {
     const list = needs;
@@ -43,7 +58,7 @@
 </script>
 
 <section>
-  {#if err}
+  {#if err && !projects}
     <p class="lo">{err}</p>
   {:else if !projects}
     <p class="lo">Reading the journals…</p>

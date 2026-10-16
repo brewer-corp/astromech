@@ -357,8 +357,8 @@ pub struct ProjectView {
 }
 
 /// Every project in the journals in `dir`, replayed from the start (nothing is stored), with
-/// its shopping list against the ship's hold at the end of the last journal. Projects still
-/// being built come first, the most recently updated first.
+/// its shopping list against the ship's hold: `Cargo.json` when it is there, else the hold the
+/// journal events leave. Projects still being built come first, the most recently updated first.
 pub fn from_journal_dir(dir: &std::path::Path) -> Vec<ProjectView> {
     let mut t = Tracker::new();
     let mut hold = shopping::Hold::default();
@@ -367,6 +367,9 @@ pub fn from_journal_dir(dir: &std::path::Path) -> Vec<ProjectView> {
             t.apply(&line);
             hold.apply(&line);
         }
+    }
+    if let Ok(b) = std::fs::read(dir.join("Cargo.json")) {
+        hold.apply_cargo_json(&b);
     }
     let mut out: Vec<ProjectView> =
         t.projects().map(|p| ProjectView { project: p.clone(), shopping: shopping::shopping_list(p, &hold) }).collect();

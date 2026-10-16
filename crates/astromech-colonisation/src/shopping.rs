@@ -61,6 +61,25 @@ impl Hold {
         }
     }
 
+    /// Take the ship's hold from `Cargo.json` (the game rewrites it on every change, including
+    /// carrier transfers the journal events above don't fold). An SRV's file, or one that
+    /// doesn't parse, leaves the hold as it was. Mission cargo is skipped, as in `Cargo` events.
+    pub fn apply_cargo_json(&mut self, bytes: &[u8]) {
+        let Ok(v) = serde_json::from_slice::<serde_json::Value>(bytes) else { return };
+        if v.get("Vessel").and_then(|x| x.as_str()).is_some_and(|x| !x.eq_ignore_ascii_case("ship")) {
+            return;
+        }
+        let Some(inv) = v.get("Inventory").and_then(|x| x.as_array()) else { return };
+        self.cargo.clear();
+        for it in inv {
+            if it.get("MissionID").is_some_and(|m| !m.is_null()) {
+                continue;
+            }
+            let name = it.get("Name").and_then(|x| x.as_str()).unwrap_or_default();
+            self.add(name, it.get("Count").and_then(|x| x.as_i64()).unwrap_or(0));
+        }
+    }
+
     fn add(&mut self, name: &str, delta: i64) {
         if name.is_empty() {
             return;

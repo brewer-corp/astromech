@@ -581,12 +581,14 @@ async fn trade_cargo(
     .await
 }
 
+/// What the colonisation view was built from: the journals and `Cargo.json` (size, mtime).
+type ColonisationKey = (astromech_materials::JournalVersion, Option<(u64, std::time::SystemTime)>);
+
 #[allow(clippy::type_complexity)]
-struct ColonisationCache(
-    std::sync::Mutex<Option<(astromech_materials::JournalVersion, std::sync::Arc<Vec<astromech_colonisation::ProjectView>>)>>,
-);
+struct ColonisationCache(std::sync::Mutex<Option<(ColonisationKey, std::sync::Arc<Vec<astromech_colonisation::ProjectView>>)>>);
 
 /// Colonisation projects from the journals, being built first, each with what is left to buy.
+/// The app polls this; the journals are replayed only when they or `Cargo.json` change.
 #[tauri::command]
 async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
@@ -595,7 +597,8 @@ async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
             return Err(format!("journal folder not found: {}", dir.display()));
         }
         let cache = app.state::<ColonisationCache>();
-        let version = astromech_materials::journal_version(&dir);
+        let cargo = std::fs::metadata(dir.join("Cargo.json")).ok().and_then(|m| Some((m.len(), m.modified().ok()?)));
+        let version = (astromech_materials::journal_version(&dir), cargo);
         let cached = cache.0.lock().map_err(|_| "busy".to_string())?.as_ref().filter(|(s, _)| *s == version).map(|(_, v)| v.clone());
         let v = match cached {
             Some(v) => v,
