@@ -1,4 +1,5 @@
-//! Print sample trade searches from the recorded Ardent answers (no network), for the app's
+//! Print sample trade searches and a cargo plan from the recorded Ardent answers and a fixture
+//! hold (no network), for the app's
 //! browser preview (`app/src/lib/fixtures/trade.json`):
 //! `cargo run -q -p astromech-market --example dump-trade > app/src/lib/fixtures/trade.json`
 use astromech_data::{Cache, Client, Clock, Limiter, Request, Response, Transport, TransportError};
@@ -12,6 +13,10 @@ impl Transport for Recorded {
     fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
         let body = if url.contains("/painite/nearby/imports") {
             include_str!("../tests/fixtures/ardent-sell-painite-sol.json")
+        } else if url.contains("/platinum/nearby/imports") {
+            include_str!("../tests/fixtures/ardent-sell-platinum-sol.json")
+        } else if url.contains("/lowtemperaturediamond/nearby/imports") {
+            include_str!("../tests/fixtures/ardent-sell-lowtemperaturediamond-sol.json")
         } else if url.contains("/tritium/nearby/exports") {
             include_str!("../tests/fixtures/ardent-buy-tritium-sol.json")
         } else {
@@ -41,6 +46,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let f = Filters { max_distance_ly: Some(40), ..Filters::default() };
     let sell = search(&g, &here, 20.0, Side::Sell, &["painite"], &f, 12, EVENING)?;
     let buy = search(&g, &here, 20.0, Side::Buy, &["tritium"], &f, 12, EVENING)?;
-    println!("{}", serde_json::to_string_pretty(&serde_json::json!({ "sell": sell, "buy": buy }))?);
+    let hold = astromech_journal::parse_cargo(include_bytes!("../tests/fixtures/cargo-mined.json")).unwrap_or_default();
+    let cargo = astromech_market::cargo::plan_search(&g, &here, 20.0, &hold.inventory, &f, 8, EVENING)?;
+    let out = serde_json::json!({ "sell": sell, "buy": buy, "cargo": cargo, "hold": hold.inventory });
+    println!("{}", serde_json::to_string_pretty(&out)?);
     Ok(())
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FILTERS } from "./search";
-import { credits, findCommodity, suggestCommodities, toResults, tradeSearch } from "./trade";
+import { cargoResults, credits, findCommodity, suggestCommodities, toResults, tradeCargo, tradeSearch } from "./trade";
 
 describe("trade lookups", () => {
   it("finds commodities by name, alias or symbol", () => {
@@ -22,5 +22,14 @@ describe("trade lookups", () => {
     expect(buy.origin).toBe("Shinrarta Dezhra");
     expect(buy.rows[0]).toMatchObject({ station: "Ray Freeport", detail: "stock 1,872" });
     expect(credits(2565)).toBe("2,565");
+  });
+
+  it("lists the whole-load stations with their total and how much they take", async () => {
+    const c = await tradeCargo(null, DEFAULT_FILTERS);
+    expect(c.plan.load.map((l) => [l.name, l.tonnes])).toEqual([["Low Temperature Diamonds", 300], ["Painite", 200], ["Platinum", 100]]);
+    const r = cargoResults(c);
+    expect(r.rows[0]).toMatchObject({ station: "Good Landing", lead: "183,674,700 cr", detail: "takes all 600 t" });
+    expect(r.rows.find((x) => x.station === "Tevis Terminal")?.detail).toBe("takes 500 of 600 t");
+    expect(c.plan.kept.map((k) => k.reason)).toEqual(["stolen", "limpets", "mission cargo"]);
   });
 });

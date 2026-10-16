@@ -147,6 +147,10 @@ pub const MVP: &[(&str, &[&str])] = &[
         "trade.buy",
         &["where to buy {commodity}", "where can i buy {commodity}", "cheapest {commodity}", "buy {commodity}"],
     ),
+    (
+        "trade.sell_cargo",
+        &["where to sell my cargo", "where should i sell my cargo", "best place to sell my cargo", "sell my cargo"],
+    ),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
@@ -771,6 +775,19 @@ mod tests {
         let m = g.best("Where can I sell low temperature diamond?");
         assert_eq!((m.command, m.slot.as_deref()), ("trade.sell", Some("Low Temperature Diamonds")), "{m:?}");
         assert_eq!(m.decision, Decision::Ask, "a near name asks: {m:?}");
+        for t in [
+            "Where should I sell my cargo?",
+            "sell my cargo",
+            "Where to sell my cargo.",
+            "Best place to sell the cargo",
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                ("trade.sell_cargo", None, Decision::Execute),
+                "{t}"
+            );
+        }
         // The status question is unchanged.
         assert_eq!((g.best("cargo").command, g.best("cargo").decision), ("status.cargo", Decision::Execute));
         // Not a commodity: at most "Did you mean …?", never a lookup on a guess.

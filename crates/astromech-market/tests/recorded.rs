@@ -214,3 +214,145 @@ fn app_search_keeps_the_best_few_with_jump_counts() {
     assert_eq!(json["results"][0]["offers"][0]["jumps"], 2);
     assert_eq!(json["side"], "sell");
 }
+
+// --- astromech-sd56: sell my cargo (a fixture hold of three mined commodities) ---
+
+use astromech_market::cargo::{plan, sellable, single_filters};
+
+fn hold() -> Vec<astromech_journal::CargoItem> {
+    astromech_journal::parse_cargo(fixture!("cargo-mined.json").as_bytes()).unwrap().inventory
+}
+
+/// Within 40 ly, prices up to a week old.
+fn week() -> Filters {
+    Filters { max_distance_ly: Some(40), max_age_days: Some(7), ..Filters::default() }
+}
+
+#[test]
+fn the_hold_leaves_out_mission_cargo_stolen_goods_and_limpets() {
+    let (load, kept) = sellable(&hold());
+    let load: Vec<(&str, &str, i64)> = load.iter().map(|l| (l.symbol.as_str(), l.name.as_str(), l.tonnes)).collect();
+    assert_eq!(
+        load,
+        [
+            ("lowtemperaturediamond", "Low Temperature Diamonds", 300),
+            ("painite", "Painite", 200),
+            ("platinum", "Platinum", 100)
+        ],
+        "most first; the catalogue names platinum, which Cargo.json left unnamed"
+    );
+    let kept: Vec<(&str, i64, &str)> = kept.iter().map(|k| (k.name.as_str(), k.tonnes, k.reason)).collect();
+    assert_eq!(kept, [("Gold", 10, "stolen"), ("Limpet", 30, "limpets"), ("Gold", 12, "mission cargo")]);
+}
+
+// --- Done when: the whole-load answer maximises total proceeds within demand caps ---
+
+#[test]
+fn whole_load_answer_maximises_proceeds_within_demand_caps() {
+    let (c, rec) = client();
+    let p = plan(&c, &sol(), &hold(), &week(), 20.0, now()).unwrap();
+    assert_eq!(rec.requests(), 3, "one request per commodity; none for the kept cargo");
+
+    // Worked by hand from the fixtures: 300 × 375,061 + 200 × 211,587 + 100 × 288,390.
+    let best = &p.stations[0];
+    assert_eq!((best.station.as_str(), best.system.as_str()), ("Good Landing", "LHS 1827"));
+    assert_eq!(best.total, 112_518_300 + 42_317_400 + 28_839_000);
+    assert_eq!((best.sold, best.lines.len()), (600, 3));
+
+    // Independently: every market's take for the whole hold, capped by its demand, from the
+    // single-commodity lookups. None beats the answer, and the list is in order.
+    let mut totals: std::collections::BTreeMap<i64, i64> = Default::default();
+    for (sym, tonnes) in [("lowtemperaturediamond", 300), ("painite", 200), ("platinum", 100)] {
+        let any = Filters { min_volume: None, ..week() };
+        for o in &prices(&c, &sol(), Side::Sell, &[sym], &any, 20.0, now()).unwrap()[0].offers {
+            *totals.entry(o.market_id).or_default() += tonnes.min(o.volume) * o.price;
+        }
+    }
+    assert_eq!(best.total, *totals.values().max().unwrap());
+    assert_eq!(p.stations.len(), totals.values().filter(|t| **t > 0).count());
+    assert!(p.stations.windows(2).all(|w| w[0].total >= w[1].total));
+    for s in &p.stations {
+        assert_eq!(s.total, totals[&s.market_id], "{}", s.station);
+    }
+}
+
+#[test]
+fn demand_caps_keep_a_small_buyer_from_winning_a_big_load() {
+    let (c, _) = client();
+    // 1,000 t of LTDs: Sabine Point pays the most (384,562) but wants only 483 t.
+    let mut inv = hold();
+    inv[2].count = 1000;
+    let p = plan(&c, &sol(), &inv, &week(), 20.0, now()).unwrap();
+    let sabine = p.stations.iter().find(|s| s.station == "Sabine Point").unwrap();
+    let ltd = sabine.lines.iter().find(|l| l.commodity == "lowtemperaturediamond").unwrap();
+    assert_eq!((ltd.carried, ltd.sold, ltd.proceeds), (1000, 483, 483 * 384_562));
+    assert_eq!(p.stations[0].station, "Good Landing", "takes all 1,000 t at 375,061");
+    // On its own, the LTDs go to the best market that takes all of them.
+    let ltds = p.per_commodity.iter().find(|x| x.commodity == "lowtemperaturediamond").unwrap();
+    assert_eq!(ltds.best.as_ref().map(|o| o.station.as_str()), Some("Good Landing"));
+}
+
+// --- Done when: per-commodity answers match the single-commodity sell lookup ---
+
+#[test]
+fn per_commodity_answers_match_the_single_commodity_sell_lookup() {
+    let (c, _) = client();
+    let p = plan(&c, &sol(), &hold(), &week(), 20.0, now()).unwrap();
+    assert_eq!(p.per_commodity.len(), 3);
+    for x in &p.per_commodity {
+        // What the Commodities page shows for this commodity with demand of at least the load.
+        let single = single_filters(&week(), x.carried);
+        assert_eq!(single.min_volume, Some(x.carried as u32));
+        let lookup = prices(&c, &sol(), Side::Sell, &[x.commodity.as_str()], &single, 20.0, now()).unwrap();
+        assert_eq!(x.best.as_ref(), lookup[0].offers.first(), "{}", x.name);
+    }
+    let names: Vec<(&str, Option<&str>)> =
+        p.per_commodity.iter().map(|x| (x.name.as_str(), x.best.as_ref().map(|o| o.station.as_str()))).collect();
+    assert_eq!(
+        names,
+        [
+            ("Low Temperature Diamonds", Some("Sabine Point")),
+            ("Painite", Some("Good Landing")),
+            ("Platinum", Some("Cousteau Vista"))
+        ]
+    );
+}
+
+/// Ardent's answer is full (1,000 rows) of markets wanting 10 t, so the per-commodity answer
+/// asks again with the demand it needs instead of trusting the cut-off list.
+#[test]
+fn a_full_answer_is_asked_again_with_the_demand_needed() {
+    struct Full(Mutex<Vec<Vec<(String, String)>>>);
+    impl Transport for Full {
+        fn send(&self, _url: &str, req: &Request) -> Result<Response, TransportError> {
+            self.0.lock().unwrap().push(req.query.clone());
+            let row = |id: i64, demand: i64, price: i64| {
+                serde_json::json!({ "commodityName": "silver", "marketId": id, "stationName": format!("S{id}"),
+                    "stationType": "Coriolis", "distanceToArrival": 100.0, "maxLandingPadSize": 3,
+                    "systemAddress": 1, "systemName": "Near", "systemX": 1.0, "systemY": 0.0, "systemZ": 0.0,
+                    "buyPrice": 0, "sellPrice": price, "stock": 0, "demand": demand,
+                    "updatedAt": "2026-10-16T20:00:00.000Z", "distance": 1 })
+            };
+            let rows: Vec<serde_json::Value> = if req.query.iter().any(|(k, _)| k == "minVolume") {
+                vec![row(5000, 900, 40_000)]
+            } else {
+                (0..1000).map(|i| row(i, 10, 50_000 - i)).collect()
+            };
+            Ok(Response { status: 200, body: serde_json::Value::from(rows).to_string() })
+        }
+    }
+    let t = Arc::new(Full(Mutex::new(vec![])));
+    let c = Client::with_transport(Cache::in_memory().unwrap(), t.clone()).limiter(Limiter::none());
+    let inv = vec![astromech_journal::CargoItem {
+        symbol: "silver".into(),
+        name: "Silver".into(),
+        count: 500,
+        ..Default::default()
+    }];
+    let p = plan(&c, &sol(), &inv, &week(), 20.0, now()).unwrap();
+    let asked = t.0.lock().unwrap();
+    assert_eq!(asked.len(), 2);
+    assert!(asked[1].contains(&("minVolume".into(), "500".into())), "{:?}", asked[1]);
+    assert_eq!(p.per_commodity[0].best.as_ref().map(|o| o.market_id), Some(5000));
+    assert_eq!(p.stations[0].total, 10 * 50_000, "the whole load still uses every listed market");
+}

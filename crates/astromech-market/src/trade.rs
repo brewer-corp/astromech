@@ -160,11 +160,15 @@ pub fn rank(
     filters: &Filters,
     now_s: i64,
 ) -> Vec<Offer> {
+    rank_offers(side, listings.iter().filter_map(|l| offer(side, l, origin, range)).collect(), filters, now_s)
+}
+
+/// The `offers` that pass `filters`, best first.
+pub fn rank_offers(side: Side, offers: Vec<Offer>, filters: &Filters, now_s: i64) -> Vec<Offer> {
     let filters =
         Filters { max_distance_ly: Some(filters.max_distance_ly.unwrap_or(DEFAULT_DISTANCE_LY)), ..filters.clone() };
-    let mut out: Vec<Offer> = listings
-        .iter()
-        .filter_map(|l| offer(side, l, origin, range))
+    let mut out: Vec<Offer> = offers
+        .into_iter()
         .filter(|o| {
             let facts = Facts {
                 pad: o.pad,

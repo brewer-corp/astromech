@@ -1,7 +1,8 @@
 /**
  * Trade lookups (astromech-market): where to sell or buy a commodity near a system, best price
- * first, from Ardent Insight through the shell. The browser preview answers from a recorded
- * search (fixtures/trade.json) with the filters applied roughly.
+ * first, and where to sell the cargo in the hold, from Ardent Insight through the shell. The
+ * browser preview answers from recorded searches and a fixture hold (fixtures/trade.json) with
+ * the filters applied roughly.
  */
 import { invoke } from "@tauri-apps/api/core";
 import catalog from "../../../data/catalog/commodities.json";
@@ -87,8 +88,10 @@ export const DEFAULT_DISTANCE_LY = 100;
 
 const PAD_RANK: Record<Pad, number> = { S: 1, M: 2, L: 3 };
 
-function previewKeeps(o: Offer, f: Filters, now: number): boolean {
-  if (f.min_volume != null && o.volume < f.min_volume) return false;
+type Market = Pick<Offer, "ly" | "fleet_carrier" | "odyssey" | "pad" | "arrival_ls" | "updated_at"> & { volume?: number };
+
+function previewKeeps(o: Market, f: Filters, now: number): boolean {
+  if (f.min_volume != null && o.volume != null && o.volume < f.min_volume) return false;
   if (o.ly > (f.max_distance_ly ?? DEFAULT_DISTANCE_LY)) return false;
   if (f.exclude_carriers && o.fleet_carrier) return false;
   if (f.exclude_odyssey && o.odyssey) return false;
@@ -133,6 +136,92 @@ export function toResults(s: TradeSearch): Results {
       updated_at: o.updated_at,
       lead: `${credits(o.price)} cr`,
       detail: [`${volume} ${credits(o.volume)}`, o.fleet_carrier ? "fleet carrier" : "", o.odyssey ? "Odyssey settlement" : ""].filter(Boolean).join(" · "),
+    })),
+  };
+}
+
+/** One commodity sold at a station (astromech_market::cargo::SaleLine). */
+export interface SaleLine {
+  commodity: string;
+  name: string;
+  carried: number;
+  /** Tonnes the station takes: what is carried, capped by its demand. */
+  sold: number;
+  price: number;
+  proceeds: number;
+}
+
+/** A station's offer for the whole load. */
+export interface StationSale {
+  market_id: number;
+  station: string;
+  system: string;
+  ly: number;
+  jumps: number;
+  exact: boolean;
+  pad: Pad | null;
+  arrival_ls: number | null;
+  fleet_carrier: boolean;
+  odyssey: boolean;
+  updated_at: string;
+  total: number;
+  sold: number;
+  lines: SaleLine[];
+}
+
+export interface CargoPlan {
+  load: { symbol: string; name: string; tonnes: number }[];
+  kept: { name: string; tonnes: number; reason: string }[];
+  stations: StationSale[];
+  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null }[];
+  fetched_at: number;
+}
+
+export interface CargoSearch {
+  here: { system: string; pos: [number, number, number] };
+  range: number;
+  plan: CargoPlan;
+}
+
+/** Where to sell the hold (Cargo.json) near `origin` or the commander. */
+export async function tradeCargo(origin: Origin = null, filters: Filters | null = null): Promise<CargoSearch> {
+  if (inTauri) return await invoke<CargoSearch>("trade_cargo", { origin, filters });
+  const s = sample as unknown as { cargo: CargoPlan; sell: TradeSearch };
+  const now = s.cargo.fetched_at * 1000;
+  const keep = (m: Market) => !filters || previewKeeps(m, { ...filters, min_volume: null }, now);
+  return {
+    here: origin ? { ...s.sell.here, system: origin } : s.sell.here,
+    range: s.sell.range,
+    plan: {
+      ...s.cargo,
+      stations: s.cargo.stations.filter(keep),
+      per_commodity: s.cargo.per_commodity.map((c) => ({ ...c, best: c.best && keep(c.best) ? c.best : null })),
+    },
+  };
+}
+
+/** The whole-load stations as the search kit's rows. */
+export function cargoResults(s: CargoSearch): Results {
+  const carried = s.plan.load.reduce((n, l) => n + l.tonnes, 0);
+  return {
+    origin: s.here.system,
+    range: s.range,
+    source: "Ardent Insight",
+    fetched: new Date(s.plan.fetched_at * 1000).toISOString(),
+    rows: s.plan.stations.map((x) => ({
+      key: x.market_id,
+      system: x.system,
+      station: x.station,
+      ly: x.ly,
+      jumps: x.jumps,
+      exact: x.exact,
+      pad: x.pad,
+      arrival_ls: x.arrival_ls,
+      updated_at: x.updated_at,
+      lead: `${credits(x.total)} cr`,
+      detail: [x.sold === carried ? `takes all ${credits(carried)} t` : `takes ${credits(x.sold)} of ${credits(carried)} t`, x.fleet_carrier ? "fleet carrier" : "", x.odyssey ? "Odyssey settlement" : ""]
+        .filter(Boolean)
+        .join(" · "),
     })),
   };
 }

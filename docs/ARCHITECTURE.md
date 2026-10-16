@@ -241,7 +241,8 @@ astromech/
                          its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
-                         jumps from astromech-galaxy), the commodity catalogue (data/catalog/commodities.json)
+                         jumps from astromech-galaxy), the commodity catalogue (data/catalog/commodities.json),
+                         and the cargo sale plan (whole load within demand caps, best per commodity)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
@@ -1687,7 +1688,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M3** | **Engineering & materials** | `astromech-materials`, `astromech-engineering` | "How many raw mats do I have?", "what do I need for G5 FSD increased range?", "what can I trade arsenic for?", engineer unlock status |
 | **M4** | **Logbook & history** | `astromech-history` (FTS) | "How much did I earn today?", "have I been to this system?", "when did I last dock at Jameson Memorial?" |
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
-| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters |
+| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters; "where should I sell my cargo" (astromech-sd56) plans the hold from `Cargo.json`: whole-load proceeds within demand caps, plus the single-commodity lookup per commodity |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
 | M8+ | Missions/CGs, Fleet carrier, Powerplay, Galaxy map, 3D ship | — | Deferred |
 

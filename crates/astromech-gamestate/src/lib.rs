@@ -74,6 +74,8 @@ pub struct GameState {
     pub cargo_tonnes: Option<f64>,
     pub cargo_capacity: Option<i64>,
     pub cargo_items: Vec<(String, i64)>,
+    /// `Cargo.json`'s lines with their symbols (for "where should I sell my cargo?").
+    pub cargo_inventory: Vec<astromech_journal::CargoItem>,
     pub legal_state: Option<String>,
     pub credits: Option<i64>,
     pub rebuy: Option<i64>,
@@ -201,6 +203,7 @@ impl GameState {
     pub fn apply_cargo(&mut self, c: &CargoSnap) {
         self.cargo_tonnes = Some(c.count as f64);
         self.cargo_items = c.items.clone();
+        self.cargo_inventory = c.inventory.clone();
     }
 
     /// Keep a companion file that passed the freshness check (see `astromech_journal::companion`).

@@ -442,6 +442,26 @@ async fn trade_search(
     .await
 }
 
+/// Where to sell the cargo in the hold (`Cargo.json`) near `origin` or the commander: the best
+/// stations for the whole load and the best for each commodity.
+#[tauri::command]
+async fn trade_cargo(
+    app: tauri::AppHandle,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range) = search_origin(&app, &g, origin.as_deref())?;
+        let hold = astromech_market::cargo::from_journal_dir(&journal_dir());
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let p = astromech_market::cargo::plan_search(&g, &here, range, &hold, &filters.unwrap_or_default(), 8, now)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "here": here, "range": range, "plan": p, "hold": hold }))
+    })
+    .await
+}
+
 /// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
 /// when the core uses its default data dir (not portable mode or a `data_dir` override).
 fn settings() -> Result<astromech_store::Store, String> {
@@ -627,6 +647,7 @@ fn main() {
             galaxy_nearby,
             galaxy_systems,
             trade_search,
+            trade_cargo,
             search_filters,
             set_search_filters
         ])

@@ -14,6 +14,7 @@ workspace = true
 [dependencies]
 astromech-data.workspace = true
 astromech-galaxy.workspace = true
+astromech-journal.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true

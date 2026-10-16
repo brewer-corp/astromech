@@ -124,6 +124,7 @@ version = "0.1.5"
 dependencies = [
  "astromech-data",
  "astromech-galaxy",
+ "astromech-journal",
  "chrono",
  "serde",
  "serde_json",

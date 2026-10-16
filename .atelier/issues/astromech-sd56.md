@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Sell my cargo"
-updated_at: "2026-10-15T20:36:13.661534850+00:00"
+updated_at: "2026-10-16T20:40:53.685090906+00:00"
 ---
 
 ## Goal

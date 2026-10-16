@@ -3,6 +3,7 @@
 //! sentences: the station, its system and distance, the price and the demand or stock. Plain
 //! text; data older than a day says how old it is.
 
+use astromech_market::cargo::CargoPlan;
 use astromech_market::{Offer, Prices, Side};
 
 /// A trade question the grammar recognises.
@@ -12,13 +13,23 @@ pub enum Ask {
     Sell,
     /// "Where can I buy tritium?"
     Buy,
+    /// "Where should I sell my cargo?"
+    SellCargo,
 }
 
 impl Ask {
     pub fn side(self) -> Side {
         match self {
-            Ask::Sell => Side::Sell,
+            Ask::Sell | Ask::SellCargo => Side::Sell,
             Ask::Buy => Side::Buy,
+        }
+    }
+
+    /// The id the app remembers this question's filters under (voice uses the same ones).
+    pub fn lookup(self) -> &'static str {
+        match self {
+            Ask::Sell | Ask::Buy => self.side().lookup(),
+            Ask::SellCargo => astromech_market::cargo::LOOKUP,
         }
     }
 }
@@ -28,6 +39,7 @@ pub fn from_command(id: &str) -> Option<Ask> {
     match id {
         "trade.sell" => Some(Ask::Sell),
         "trade.buy" => Some(Ask::Buy),
+        "trade.sell_cargo" => Some(Ask::SellCargo),
         _ => None,
     }
 }
@@ -38,6 +50,7 @@ pub fn describe(ask: Ask, commodity: Option<&str>) -> String {
     match ask {
         Ask::Sell => format!("Looks up where to sell {what} near you on Ardent Insight."),
         Ask::Buy => format!("Looks up where to buy {what} near you on Ardent Insight."),
+        Ask::SellCargo => "Looks up where to sell the cargo in your hold near you on Ardent Insight.".into(),
     }
 }
 
@@ -90,16 +103,49 @@ pub fn place(o: &Offer) -> String {
 pub fn answer(ask: Ask, name: &str, p: &Prices, max_ly: u32, now_s: i64) -> String {
     let Some(best) = p.offers.first() else {
         return match ask {
-            Ask::Sell => format!("No market within {max_ly} light years buys {name} with your filters."),
             Ask::Buy => format!("No market within {max_ly} light years sells {name} with your filters."),
+            _ => format!("No market within {max_ly} light years buys {name} with your filters."),
         };
     };
     let price = thousands(best.price);
     let volume = thousands(best.volume);
     let s = match ask {
-        Ask::Sell => format!("Best price for {name}: {}. {price} credits, demand {volume}.", place(best)),
         Ask::Buy => format!("Cheapest {name}: {}. {price} credits, {volume} in stock.", place(best)),
+        _ => format!("Best price for {name}: {}. {price} credits, demand {volume}.", place(best)),
     };
+    s + &age(&best.updated_at, now_s)
+}
+
+/// The answer to "where should I sell my cargo?": the best station for the whole load, what
+/// it pays and how much of the load it takes.
+pub fn cargo_answer(p: &CargoPlan, max_ly: u32, now_s: i64) -> String {
+    let carried: i64 = p.load.iter().map(|l| l.tonnes).sum();
+    if carried == 0 {
+        return if p.kept.is_empty() {
+            "Your hold is empty.".into()
+        } else {
+            "Nothing in your hold to sell: mission cargo, stolen goods and limpets are left out.".into()
+        };
+    }
+    let Some(best) = p.stations.first() else {
+        return format!("No market within {max_ly} light years buys your cargo with your filters.");
+    };
+    let what = match p.load.as_slice() {
+        [one] => one.name.clone(),
+        _ => "your cargo".into(),
+    };
+    let share = if best.sold == carried {
+        format!("all {} tonnes", thousands(carried))
+    } else {
+        format!("{} of {} tonnes", thousands(best.sold), thousands(carried))
+    };
+    let s = format!(
+        "Best for {what}: {} in {}, {}. {} credits for {share}.",
+        best.station,
+        best.system,
+        light_years(best.hop.ly),
+        thousands(best.total)
+    );
     s + &age(&best.updated_at, now_s)
 }
 

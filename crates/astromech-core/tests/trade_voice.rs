@@ -38,6 +38,10 @@ impl Transport for Recorded {
         }
         let body = if url.ends_with("/system/name/Sol/commodity/name/painite/nearby/imports") {
             fixture!("ardent-sell-painite-sol.json")
+        } else if url.ends_with("/system/name/Sol/commodity/name/platinum/nearby/imports") {
+            fixture!("ardent-sell-platinum-sol.json")
+        } else if url.ends_with("/system/name/Sol/commodity/name/lowtemperaturediamond/nearby/imports") {
+            fixture!("ardent-sell-lowtemperaturediamond-sol.json")
         } else if url.ends_with("/system/name/Sol/commodity/name/tritium/nearby/exports") {
             fixture!("ardent-buy-tritium-sol.json")
         } else {
@@ -174,4 +178,38 @@ fn the_voice_tester_says_what_it_would_look_up_without_asking_ardent() {
     assert_eq!(d.message, "Looks up where to sell Low Temperature Diamonds near you on Ardent Insight.");
     assert_eq!(d.intent.unwrap().command, "trade.sell");
     assert!(d.live.is_none() && d.keys.is_none(), "nothing to press or run live");
+    let d = dry_run(&g, "Where should I sell my cargo?", &game, &BindsState::default(), Source::Typed);
+    assert_eq!(
+        (d.would, d.message.as_str()),
+        (Would::Speak, "Looks up where to sell the cargo in your hold near you on Ardent Insight.")
+    );
+}
+
+#[test]
+fn where_should_i_sell_my_cargo_names_the_best_station_for_the_whole_load() {
+    let r = rig(false);
+    // 200 t painite, 100 t platinum, 300 t LTDs; stolen gold, limpets and mission gold stay.
+    let hold = astromech_journal::parse_cargo(fixture!("cargo-mined.json").as_bytes()).unwrap();
+    r.hub.update(|g| g.apply_cargo(&hold));
+
+    let s = spoken(r.assistant.handle("Where should I sell my cargo?", Origin::Voice));
+    assert_eq!(
+        s,
+        "Best for your cargo: Good Landing in LHS 1827, 19 light years. 183,674,700 credits for all 600 tonnes."
+    );
+    assert_eq!(r.rec.log.lock().unwrap().len(), 3, "one lookup per commodity sold");
+
+    // The cargo lookup's own filters (the Trade page's My cargo): within 15 ly, only a buyer
+    // for part of the platinum is left.
+    let f = Filters { max_distance_ly: Some(15), ..Filters::default() };
+    astromech_galaxy::filters::save(&r.store.lock().unwrap(), "trade.cargo", &f).unwrap();
+    let s = spoken(r.assistant.handle("sell my cargo", Origin::Voice));
+    assert_eq!(
+        s,
+        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago."
+    );
+
+    r.hub.update(|g| g.cargo_inventory.retain(|i| i.mission || i.symbol == "drones"));
+    let s = spoken(r.assistant.handle("Where to sell my cargo", Origin::Voice));
+    assert_eq!(s, "Nothing in your hold to sell: mission cargo, stolen goods and limpets are left out.");
 }
