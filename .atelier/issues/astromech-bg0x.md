@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Session summary"
-updated_at: "2026-10-15T20:36:13.659477764+00:00"
+updated_at: "2026-10-16T19:50:26.422344794+00:00"
 ---
 
 ## Goal
@@ -26,3 +26,7 @@ On demand or at logout: credits earned by activity, jumps, distance, bounties an
 ## Done when
 
 A fixture session gives the expected totals.
+
+## Notes
+
+- 2026-10-16 [note] From review of astromech-aonb: (R3) CarrierJump visits carry jump_dist 0.0 and look like FSD jumps; store NULL or a via column before counting jumps and distance. (R7) decide which credit events count as earnings (PowerplaySalary, ModuleSell, ship sales, SellDrones are left out today).
