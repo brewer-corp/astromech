@@ -17,9 +17,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:56:10.572228079+00:00"
+status: "done"
 title: "History: commander id on events and ledgers"
-updated_at: "2026-10-16T19:52:13.479863951+00:00"
+updated_at: "2026-10-16T19:56:10.572228079+00:00"
 ---
 
 ## Goal
@@ -33,3 +34,7 @@ Each file's commander (from Commander/LoadGame FID) is stored; ledgers are keyed
 ## Context
 
 Found in review of astromech-aonb (R1). Must land before the logbook (fxp0) or session summary (bg0x) ship.
+
+## Close Reason
+
+Commander per file/event (FID, /legacy for post-Update-14 3.x), ledgers keyed by commander, two-commander fixture test, v2 migration with pending rederive + rebuild tested from a v1 database.
