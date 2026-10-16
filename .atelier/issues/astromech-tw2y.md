@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:55:14.623967863+00:00"
+status: "done"
 title: "Find the nearest service"
-updated_at: "2026-10-16T20:16:04.662395080+00:00"
+updated_at: "2026-10-16T20:55:14.623967863+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,11 @@ Each service has a recorded-response test, and trader and broker searches return
 ## Context
 
 Ardent `nearest/{service}` for the basic services; Spansh for trader and broker type, which Ardent doesn't distinguish.
+
+## Notes
+
+- 2026-10-16 [note] Data source: Spansh for every service, not Ardent nearest/{service} (Ardent knows 10 of 19 services, can't split trader/broker types, filters only by pad; the kit needs carrier/settlement/arrival/age filters). Shell main.rs changes (stations_nearby, search_origin) are not compiled locally (no webkit/glib); Windows CI builds them.
+
+## Close Reason
+
+Each service has a recorded-response test; trader and broker searches return only the asked-for type; voice phrases and spoken answers tested
