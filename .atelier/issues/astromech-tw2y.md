@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Find the nearest service"
-updated_at: "2026-10-15T20:36:13.655229203+00:00"
+updated_at: "2026-10-16T20:16:04.662395080+00:00"
 ---
 
 ## Goal

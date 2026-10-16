@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647898425+00:00"
 id: "astromech-m30a"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-m30a
 priority: "P0"
 relationships:
   blocks:
@@ -28,7 +31,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Nearby outfitting, ships and services"
-updated_at: "2026-10-16T18:26:24.044656173+00:00"
+updated_at: "2026-10-16T20:16:04.662392596+00:00"
 ---
 
 ## Goal
