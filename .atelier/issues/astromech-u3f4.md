@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T20:01:22.423494150+00:00"
+status: "done"
 title: "History: ledgers follow game time, not import order"
-updated_at: "2026-10-16T19:57:04.578946654+00:00"
+updated_at: "2026-10-16T20:01:22.423494150+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Ship updates are guarded by timestamp, last-visit lookups order by ts, and impor
 ## Context
 
 `crates/astromech-history`. Found in review of astromech-aonb (R2).
+
+## Close Reason
+
+Ledgers follow game time: ts-ordered rebuilds and lookups, ship rows guarded by event time, late older events trigger a per-commander rebuild (test: oldest file imported last equals in-order). R4: Docked.system_address used for visits. 8069aac.
