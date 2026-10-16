@@ -23,11 +23,12 @@ pub fn grammar(systems: &[&str]) -> Grammar {
         .with_slot("ship", lookup::ship_values(), None)
 }
 
-/// The filters a voice lookup uses: the app's remembered ones for that lookup, the pad
-/// following the current ship unless the commander set it.
-pub fn filters_for(store: Option<&Store>, want: &Want, game: &GameState) -> Filters {
+/// The filters a voice lookup uses: the app's remembered ones for `lookup` (`search.filters.
+/// <lookup>`), the pad following the current ship unless the commander set it. Shared by the
+/// station and trade lookups.
+pub fn filters_for(store: Option<&Store>, lookup: &str, game: &GameState) -> Filters {
     let pad = game.ship.as_deref().and_then(Pad::for_ship);
-    store.and_then(|s| filters::load(s, want.lookup(), pad).ok()).unwrap_or_default().for_ship(pad)
+    store.and_then(|s| filters::load(s, lookup, pad).ok()).unwrap_or_default().for_ship(pad)
 }
 
 /// The spoken answer to `want` near the commander's current system.
@@ -203,7 +204,7 @@ mod tests {
         let want = Want::Service { service: Service::Refuel };
         filters::save(&store, want.lookup(), &Filters { exclude_odyssey: true, ..Filters::default() }).unwrap();
         let game = GameState { system: Some("Sol".into()), ship: Some("Anaconda".into()), ..Default::default() };
-        let f = filters_for(Some(&store), &want, &game);
+        let f = filters_for(Some(&store), want.lookup(), &game);
         assert_eq!((f.pad, f.exclude_odyssey), (Some(Pad::L), true));
         assert_eq!(
             answer(&client, &f, &want, &game, NOW),

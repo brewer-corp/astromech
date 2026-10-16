@@ -6,20 +6,13 @@
 //! is spoken by the assistant; nothing is pressed.
 
 use astromech_data::Client;
-use astromech_galaxy::{filters, Filters, Pad};
+use astromech_galaxy::Filters;
 use astromech_gamestate::GameState;
 use astromech_market::{cargo, catalog, prices, trade::DEFAULT_DISTANCE_LY, Origin};
-use astromech_store::Store;
 use astromech_tools::trade::{answer as spoken, cargo_answer, Ask};
 
 /// Jump range for the estimated jump counts when the ship's isn't known.
 const DEFAULT_RANGE_LY: f64 = 20.0;
-
-/// The lookup's remembered filters for the current ship (defaults if none are stored).
-pub fn filters_for(store: Option<&Store>, ask: Ask, game: &GameState) -> Filters {
-    let pad = game.ship.as_deref().and_then(Pad::for_ship);
-    store.and_then(|s| filters::load(s, ask.lookup(), pad).ok()).unwrap_or_else(|| Filters::default().for_ship(pad))
-}
 
 /// The spoken answer to a trade question. `commodity` is the grammar's slot value (a
 /// catalogue name).

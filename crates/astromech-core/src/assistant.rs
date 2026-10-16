@@ -131,7 +131,7 @@ impl Assistant {
         let game = self.runner.hub.snapshot();
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
-            crate::lookups::filters_for(st.as_deref(), &want, &game)
+            crate::lookups::filters_for(st.as_deref(), want.lookup(), &game)
         };
         let (remote, speaker, w) = (self.remote.clone(), self.runner.speaker.clone(), want.clone());
         let now = self.clock.now_s();
@@ -159,7 +159,7 @@ impl Assistant {
             let game = self.runner.hub.snapshot();
             let filters = {
                 let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
-                crate::trade::filters_for(st.as_deref(), ask, &game)
+                crate::lookups::filters_for(st.as_deref(), ask.lookup(), &game)
             };
             let s = crate::trade::answer(&self.remote, &filters, ask, slot, &game, self.clock.now_s());
             self.say(&s);
