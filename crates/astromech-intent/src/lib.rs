@@ -173,6 +173,18 @@ pub const MVP: &[(&str, &[&str])] = &[
             "buy {module}",
         ],
     ),
+    (
+        "find.ship",
+        &[
+            "where can i buy {ship}",
+            "where can i get {ship}",
+            "nearest {ship}",
+            "where's the nearest {ship}",
+            "find {ship}",
+            "buy {ship}",
+            "who sells {ship}",
+        ],
+    ),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
@@ -224,6 +236,11 @@ pub fn normalise(s: &str) -> Vec<String> {
             ("hard", Some("points" | "point")) => Some("hardpoints"),
             ("head", Some("lights" | "light")) => Some("headlights"),
             ("night", Some("visions")) => Some("night vision"),
+            // Ship marks: "Mk II", "Mark two", "Mk 2" → "mkii" (as in "Krait MkII").
+            ("mk" | "mark", Some("ii" | "two" | "2")) => Some("mkii"),
+            ("mk" | "mark", Some("iii" | "three" | "3")) => Some("mkiii"),
+            ("mk" | "mark", Some("iv" | "four" | "4")) => Some("mkiv"),
+            ("mk" | "mark", Some("v" | "five" | "5")) => Some("mkv"),
             _ => None,
         };
         if let Some(j) = joined {
@@ -855,6 +872,9 @@ mod tests {
         assert_eq!(normalise("nearest 5 A FSD"), ["nearest", "5a", "fsd"]);
         assert_eq!(normalise("five a frame shift drive"), ["5a", "frameshift", "drive"]);
         assert_eq!(normalise("buy a krait"), ["buy", "krait"], "\"a\" is still filler elsewhere");
+        assert_eq!(normalise("Python Mk II"), normalise("python mark two"));
+        assert_eq!(normalise("Kestrel Mk II"), ["kestrel", "mkii"]);
+        assert_eq!(normalise("Cobra MkIII"), normalise("cobra mark 3"));
     }
 
     #[test]

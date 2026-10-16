@@ -14,11 +14,11 @@ use astromech_tools::lookup;
 /// The command grammar with the lookups' slot values.
 pub fn grammar(systems: &[&str]) -> Grammar {
     let services = lookup::service_values();
-    Grammar::mvp(systems).with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None).with_slot(
-        "module",
-        lookup::module_values(),
-        Some(astromech_galaxy::outfitting::is_modifier),
-    )
+    let modifier: astromech_intent::FreeWord = astromech_galaxy::outfitting::is_modifier;
+    Grammar::mvp(systems)
+        .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
+        .with_slot("module", lookup::module_values(), Some(modifier))
+        .with_slot("ship", lookup::ship_values(), None)
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for that lookup, the pad
@@ -136,6 +136,29 @@ mod tests {
         assert_eq!(w, Some(typed));
         // services still win their phrases
         assert_eq!(heard(&g, "nearest interstellar factors").0.map(|w| w.lookup()), Some("stations.service"));
+    }
+
+    #[test]
+    fn ship_phrases_resolve_to_lookups() {
+        let g = grammar(&["Sol"]);
+        let ship = |s: &str| Some(Want::Ship { ship: s.into() });
+        for (phrase, want) in [
+            ("Where can I buy a Krait?", ship("Krait MkII")),
+            ("where can I buy a Krait MkII", ship("Krait MkII")),
+            ("nearest Anaconda", ship("Anaconda")),
+            ("who sells the Python Mk II", ship("Python MkII")),
+            ("where can I get a Type-9", ship("Type-9 Heavy")),
+            ("nearest Imperial Cutter", ship("Imperial Cutter")),
+            ("buy a Mandalay", ship("Mandalay")),
+            ("nearest Cobra Mark Three", ship("Cobra MkIII")),
+            ("where can I buy a Viper Mk 4", ship("Viper MkIV")),
+            ("where's the nearest Fer-de-Lance", ship("Fer-de-Lance")),
+        ] {
+            assert_eq!(heard(&g, phrase), (want, Decision::Execute), "{phrase:?}");
+        }
+        // modules and services keep their phrases
+        assert_eq!(heard(&g, "where can I buy a 6A FSD").0.map(|w| w.lookup()), Some("stations.module"));
+        assert_eq!(heard(&g, "nearest black market").0.map(|w| w.lookup()), Some("stations.service"));
     }
 
     #[test]

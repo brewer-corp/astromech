@@ -7,6 +7,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import sample from "./fixtures/stations.json";
 import moduleSample from "./fixtures/stations-module.json";
+import shipSample from "./fixtures/stations-ship.json";
 import type { Filters, Origin, Pad, Results } from "./search";
 
 /** Service ids (astromech_galaxy::stations::Service) with the names shown for them. */
@@ -45,7 +46,7 @@ export interface ModuleWant {
 }
 
 /** What a station lookup looks for (astromech_galaxy::stations::Want). */
-export type Want = { kind: "service"; service: ServiceId } | ({ kind: "module" } & ModuleWant);
+export type Want = { kind: "service"; service: ServiceId } | ({ kind: "module" } & ModuleWant) | { kind: "ship"; ship: string };
 
 export interface StationHit {
   name: string;
@@ -77,7 +78,7 @@ const PADS: Pad[] = ["S", "M", "L"];
 
 /** The browser preview: a sample answer, with the filters applied the way the shell does. */
 function preview(want: Want, origin: Origin, f: Filters): StationsNearby {
-  const s = (want.kind === "module" ? moduleSample : sample) as unknown as StationsNearby;
+  const s = (want.kind === "module" ? moduleSample : want.kind === "ship" ? shipSample : sample) as unknown as StationsNearby;
   const fetched = Date.parse(s.fetched);
   const hits = s.hits.filter(
     (h) =>

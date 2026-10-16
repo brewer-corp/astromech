@@ -1,4 +1,4 @@
-//! Station lookups: the nearest stations offering a service or selling a module, over Spansh's stations search
+//! Station lookups: the nearest stations offering a service or selling a module or ship, over Spansh's stations search
 //! (through `astromech-data`). The search kit's filters go to Spansh where it has a verified
 //! filter for them, so a strict filter still finds stations farther out; every hit is then
 //! re-checked here, because Spansh silently ignores a filter it doesn't recognise.
@@ -165,6 +165,10 @@ pub enum Want {
     },
     /// `{"kind": "module", "name": "Multi-Cannon", "class": 3, "rating": "C", "mount": "Gimballed"}`
     Module(ModuleWant),
+    /// A ship, by its name in game ("Krait MkII").
+    Ship {
+        ship: String,
+    },
 }
 
 /// What a station offers of the thing asked for.
@@ -180,6 +184,7 @@ impl Want {
         match self {
             Want::Service { service } => service.label().to_string(),
             Want::Module(m) => m.label(),
+            Want::Ship { ship } => ship.clone(),
         }
     }
 
@@ -188,6 +193,7 @@ impl Want {
         match self {
             Want::Service { .. } => "stations.service",
             Want::Module(_) => "stations.module",
+            Want::Ship { .. } => "stations.ship",
         }
     }
 
@@ -199,6 +205,7 @@ impl Want {
                 Spansh::Broker(kind) => q.technology_broker(kind),
             },
             Want::Module(m) => q.module(&m.name, m.class, m.rating.as_deref()),
+            Want::Ship { ship } => q.ship(ship),
         }
     }
 
@@ -218,6 +225,10 @@ impl Want {
                 sizes.dedup();
                 return Some(Offer { price: first.price, detail: Some(sizes.join(", ")) });
             }
+            Want::Ship { ship } => {
+                let sold = s.ships.iter().find(|x| x.name.eq_ignore_ascii_case(ship))?;
+                return Some(Offer { price: sold.price, detail: None });
+            }
         };
         has.then(Offer::default)
     }
@@ -227,6 +238,7 @@ impl Want {
         match self {
             Want::Service { .. } => "updated_at",
             Want::Module(_) => "outfitting_updated_at",
+            Want::Ship { .. } => "shipyard_updated_at",
         }
     }
 
@@ -234,7 +246,18 @@ impl Want {
         match self {
             Want::Service { .. } => s.updated_at.as_deref(),
             Want::Module(_) => s.outfitting_updated_at.as_deref().or(s.updated_at.as_deref()),
+            Want::Ship { .. } => s.shipyard_updated_at.as_deref().or(s.updated_at.as_deref()),
         }
+    }
+
+    /// `filters` with the pad raised to what the thing asked for needs: a ship can only be
+    /// bought where it can land.
+    pub fn filters(&self, filters: &Filters) -> Filters {
+        let need = match self {
+            Want::Ship { ship } => crate::outfitting::ship_pad(ship),
+            _ => None,
+        };
+        Filters { pad: filters.pad.max(need), ..filters.clone() }
     }
 
     /// The Spansh request for this lookup near `reference` with `filters`. `now_s` dates the
@@ -318,6 +341,7 @@ pub fn find(
     limit: usize,
     now_s: i64,
 ) -> astromech_data::Result<Found> {
+    let filters = &want.filters(filters);
     let page = client.spansh_stations(&want.search(reference, filters, now_s))?;
     let results = &page.value.results;
     let offered: Vec<(&Station, Offer)> = results.iter().filter_map(|s| Some((s, want.offer(s)?))).collect();
@@ -597,6 +621,61 @@ mod tests {
                 .unwrap();
             assert_eq!(h.updated_at.as_deref(), r["outfitting_updated_at"].as_str());
         }
+    }
+
+    /// Spansh's answers for an Anaconda, a Krait MkII and a Type-9 near Sol (recorded 16 Oct
+    /// 2026, trimmed to eight stations and the asked-for ship).
+    const SHIPS: &str = include_str!("../tests/fixtures/spansh-ships.json");
+
+    fn ship_page(key: &str) -> Value {
+        serde_json::from_str::<Value>(SHIPS).unwrap()[key].clone()
+    }
+
+    #[test]
+    fn shipyards_are_nearest_first_with_price() {
+        let (c, rec) = client(Some(ship_page("krait_mkii").to_string()));
+        let krait = Want::Ship { ship: "Krait MkII".into() };
+        let found = find(&c, &krait, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert_eq!(found.hits.len(), 8);
+        assert_eq!(found.hits[0].name, "Ehrlich City");
+        assert_eq!(found.hits[0].price, Some(45_814_205));
+        assert!(found.hits.windows(2).all(|w| w[0].ly <= w[1].ly), "nearest first");
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(body["filters"]["ships"], serde_json::json!([{ "name": ["Krait MkII"] }]));
+        assert!(body["filters"].get("has_large_pad").is_none(), "a Krait needs only a medium pad");
+        let all = ship_page("krait_mkii");
+        let r = all["results"].as_array().unwrap().iter().find(|r| r["name"] == "Ehrlich City").unwrap();
+        assert_eq!(found.hits[0].updated_at.as_deref(), r["shipyard_updated_at"].as_str(), "shipyard age");
+        // a page without the ship: nothing, with a warning
+        let mamba = find(&c, &Want::Ship { ship: "Mamba".into() }, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert!(mamba.hits.is_empty() && mamba.warning.is_some());
+    }
+
+    #[test]
+    fn ships_too_big_for_a_stations_pads_are_left_out() {
+        // The recorded Type-9 page, with Columbus standing in for a shipyard that has no large
+        // pad (every recorded Type-9 shipyard has one, as in game).
+        let mut page = ship_page("type9");
+        for r in page["results"].as_array_mut().unwrap() {
+            if r["name"] == "Columbus" {
+                r["large_pads"] = 0.into();
+                r["has_large_pad"] = false.into();
+            }
+        }
+        let (c, rec) = client(Some(page.to_string()));
+        let t9 = Want::Ship { ship: "Type-9 Heavy".into() };
+        // Even with "any pad" picked, a Type-9 needs a large pad.
+        let any = Filters { pad: None, pad_set: true, ..Filters::default() };
+        let found = find(&c, &t9, sol(), &any, 10, NOW).unwrap();
+        let names: Vec<&str> = found.hits.iter().map(|h| h.name.as_str()).collect();
+        assert!(!names.contains(&"Columbus"), "{names:?}");
+        assert_eq!(names.len(), 7);
+        assert!(found.hits.iter().all(|h| h.pad == Some(Pad::L)));
+        assert_eq!(rec.bodies.lock().unwrap().last().unwrap()["filters"]["has_large_pad"]["value"], true);
+        // A Krait (medium) keeps a medium-only station, unless the commander's pad says large.
+        assert_eq!(Want::Ship { ship: "Krait MkII".into() }.filters(&any).pad, Some(Pad::M));
+        let large = Filters { pad: Some(Pad::L), ..Filters::default() };
+        assert_eq!(Want::Ship { ship: "Krait MkII".into() }.filters(&large).pad, Some(Pad::L));
     }
 
     #[test]

@@ -92,6 +92,63 @@ pub fn module(name: &str) -> Option<&'static ModuleKind> {
     catalog().modules.iter().find(|m| m.name.eq_ignore_ascii_case(name))
 }
 
+/// The catalogue's ship called `name` (any case).
+pub fn ship(name: &str) -> Option<&'static ShipKind> {
+    catalog().ships.iter().find(|s| s.name.eq_ignore_ascii_case(name))
+}
+
+/// The pad the ship called `name` needs.
+pub fn ship_pad(name: &str) -> Option<crate::Pad> {
+    ship(name).and_then(|s| crate::Pad::for_ship(&s.symbol))
+}
+
+/// Short names commanders use for ships, and the ship each stands for. Every ship's own name
+/// is a way to say it too (see [`spoken_ships`]).
+const SHIP_ALIASES: &[(&str, &str)] = &[
+    ("krait", "Krait MkII"),
+    ("phantom", "Krait Phantom"),
+    ("conda", "Anaconda"),
+    ("corvette", "Federal Corvette"),
+    ("cutter", "Imperial Cutter"),
+    ("clipper", "Imperial Clipper"),
+    ("courier", "Imperial Courier"),
+    ("asp", "Asp Explorer"),
+    ("asp x", "Asp Explorer"),
+    ("chieftain", "Alliance Chieftain"),
+    ("challenger", "Alliance Challenger"),
+    ("crusader", "Alliance Crusader"),
+    ("fer de lance", "Fer-de-Lance"),
+    ("fdl", "Fer-de-Lance"),
+    ("cobra", "Cobra MkIII"),
+    ("viper", "Viper MkIII"),
+    ("dbx", "Diamondback Explorer"),
+    ("diamondback", "Diamondback Explorer"),
+    ("dbs", "Diamondback Scout"),
+    ("type 6", "Type-6 Transporter"),
+    ("type 7", "Type-7 Transporter"),
+    ("type 8", "Type-8 Transporter"),
+    ("type 9", "Type-9 Heavy"),
+    ("type 10", "Type-10 Defender"),
+    ("type 11", "Type-11 Prospector"),
+    ("t9", "Type-9 Heavy"),
+    ("t10", "Type-10 Defender"),
+    ("beluga", "Beluga Liner"),
+    ("panther", "Panther Clipper MkII"),
+    ("panther clipper", "Panther Clipper MkII"),
+    ("lynx", "Lynx Highliner"),
+    ("kestrel", "Kestrel Mk II"),
+    ("caspian", "Caspian Explorer"),
+    ("assault ship", "Federal Assault Ship"),
+    ("dropship", "Federal Dropship"),
+    ("gunship", "Federal Gunship"),
+];
+
+/// Every way to say a ship: (said, ship name), for the voice grammar's `{ship}` slot.
+pub fn spoken_ships() -> Vec<(&'static str, &'static str)> {
+    let names = catalog().ships.iter().map(|s| (s.name.as_str(), s.name.as_str()));
+    names.chain(SHIP_ALIASES.iter().copied()).collect()
+}
+
 /// Short names commanders use, and the module each stands for. Every module's own name is a
 /// way to say it too (see [`spoken_modules`]).
 const MODULE_ALIASES: &[(&str, &str)] = &[
@@ -262,6 +319,14 @@ mod tests {
         for (said, name) in MODULE_ALIASES {
             assert!(module(name).is_some(), "alias {said:?} names unknown module {name:?}");
         }
+        for (said, name) in SHIP_ALIASES {
+            assert!(ship(name).is_some(), "alias {said:?} names unknown ship {name:?}");
+        }
+        for s in &catalog().ships {
+            assert!(ship_pad(&s.name).is_some(), "no pad size for {} ({})", s.name, s.symbol);
+        }
+        assert_eq!(ship_pad("Anaconda"), Some(crate::Pad::L));
+        assert_eq!(ship_pad("krait mkii"), Some(crate::Pad::M));
     }
 
     #[test]

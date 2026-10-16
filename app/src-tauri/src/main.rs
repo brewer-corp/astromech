@@ -420,8 +420,8 @@ async fn galaxy_nearby(
     .await
 }
 
-/// The nearest stations offering `want` (a service) near `origin` or the commander. The pad
-/// follows the current ship at search time unless the commander set one.
+/// The nearest stations offering `want` (a service, module or ship) near `origin` or the
+/// commander. The pad follows the current ship at search time unless the commander set one.
 #[tauri::command]
 async fn stations_nearby(
     app: tauri::AppHandle,

@@ -21,6 +21,11 @@ pub fn module_values() -> Vec<(&'static str, &'static str)> {
     outfitting::spoken_modules()
 }
 
+/// Values for the grammar's `{ship}` slot: (a way to say it, the ship's name).
+pub fn ship_values() -> Vec<(&'static str, &'static str)> {
+    outfitting::spoken_ships()
+}
+
 /// What a matched lookup asks for. `slot` is the grammar slot's value and `slot_text` the
 /// words it took (a module's class, rating and mount are read from them); `None` if the
 /// command isn't a lookup or the slot doesn't name something it knows.
@@ -31,6 +36,7 @@ pub fn want(command: &str, slot: Option<&str>, slot_text: Option<&str>) -> Optio
             let name = outfitting::module(slot?)?.name.as_str();
             Some(Want::Module(ModuleWant::from_words(name, slot_text.unwrap_or(""))))
         }
+        "find.ship" => Some(Want::Ship { ship: outfitting::ship(slot?)?.name.clone() }),
         _ => None,
     }
 }
@@ -155,6 +161,31 @@ mod tests {
         );
         assert_eq!(want("find.module", Some("no such module"), Some("5a")), None);
         assert!(module_values().contains(&("fsd", "Frame Shift Drive")));
+        assert_eq!(
+            want("find.ship", Some("krait mkii"), Some("krait")),
+            Some(Want::Ship { ship: "Krait MkII".into() })
+        );
+        assert!(ship_values().contains(&("conda", "Anaconda")));
+    }
+
+    #[test]
+    fn ship_answer_says_the_price() {
+        const SHIPS: &str = include_str!("../../astromech-galaxy/tests/fixtures/spansh-ships.json");
+        struct Page;
+        impl Transport for Page {
+            fn send(&self, _url: &str, _req: &Request) -> Result<Response, TransportError> {
+                let all: serde_json::Value = serde_json::from_str(SHIPS).unwrap();
+                Ok(Response { status: 200, body: all["krait_mkii"].to_string() })
+            }
+        }
+        let c = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Page)).limiter(Limiter::none());
+        let w = want("find.ship", Some("Krait MkII"), Some("krait")).unwrap();
+        let r = astromech_galaxy::stations::find(&c, &w, Reference::System("Sol".into()), &Filters::default(), 1, NOW)
+            .map_err(|e| e.to_string());
+        assert_eq!(
+            spoken(&w, "Sol", &r, NOW),
+            "Nearest Krait MkII: Ehrlich City in Sol, in this system, 228 light seconds from the star. 45.8 million credits."
+        );
     }
 
     #[test]
