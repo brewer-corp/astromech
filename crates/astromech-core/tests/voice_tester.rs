@@ -84,6 +84,7 @@ fn rig() -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        galaxy: None,
     });
     let assistant = Assistant::new(runner.clone());
     Rig { _dir: dir, exec, speaker, runner, assistant }

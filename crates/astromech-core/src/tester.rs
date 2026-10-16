@@ -125,6 +125,17 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
     if m.decision == Decision::NoMatch || m.command == "confirm" || m.command == "cancel" {
         return r;
     }
+    if astromech_tools::lookup::is_lookup(m.command) {
+        (r.would, r.message) =
+            match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref())) {
+                (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
+                (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+                (_, Some(w)) => {
+                    (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label()))
+                }
+            };
+        return r;
+    }
     if let Some(ask) = astromech_tools::trade::from_command(m.command) {
         // A lookup, not a press: say what it would look up, without asking Ardent.
         (r.would, r.message) = match m.decision {
@@ -157,6 +168,10 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         Plan::Already(s) => (Would::Already, s),
         Plan::Refused(s) => (Would::Refused, s),
         Plan::Speak(s) => (Would::Speak, s),
+        Plan::Lookup(kind) => {
+            let noun = astromech_galaxy::site_kind(kind).map_or(kind, |k| k.noun);
+            (Would::Speak, format!("Would look up the nearest {noun} and say where it is."))
+        }
     };
     r
 }
@@ -199,6 +214,7 @@ pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, St
         },
         Outcome::Already(s) | Outcome::Refused(s) | Outcome::NoBinding(s) | Outcome::Spoken(s) => s,
         Outcome::NeedsConfirm(s) => s,
+        Outcome::LookingUp(h) => h.join().unwrap_or_else(|_| "The lookup failed.".into()),
         Outcome::Denied(d) => d.spoken(),
         Outcome::PressFailed(e) => e.spoken(),
     })
@@ -311,6 +327,18 @@ mod tests {
         assert_eq!(r.message, "Did you mean gear down?");
         assert_eq!(r.live.as_deref(), Some("landing_gear.down"));
         assert_eq!(r.action.as_deref(), Some("LandingGearToggle"));
+    }
+
+    #[test]
+    fn lookups_say_what_they_would_look_up() {
+        let g = crate::assistant::grammar();
+        let b = BindsState::default();
+        let r = dry_run(&g, "nearest interstellar factors", &GameState::default(), &b, Source::Typed);
+        assert_eq!((r.would, r.live, r.keys), (Would::Speak, None, None));
+        assert_eq!(r.message, "Would look up the nearest Interstellar Factors on Spansh and say it.");
+        assert_eq!(r.intent.unwrap().command, "find.service");
+        let r = dry_run(&g, "nearest interstellar factor", &GameState::default(), &b, Source::Typed);
+        assert_eq!(r.would, Would::DidYouMean);
     }
 
     #[test]

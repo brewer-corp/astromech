@@ -1,0 +1,547 @@
+{
+ "count": 206,
+ "from": 0,
+ "results": [
+  {
+   "id64": 36028807496337771,
+   "name": "Mercury",
+   "type": "Planet",
+   "subtype": "Metal-rich body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 226.322086,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 6,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 6,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 10.810926
+    },
+    {
+     "name": "Chromium",
+     "share": 10.572534
+    },
+    {
+     "name": "Germanium",
+     "share": 3.806087
+    },
+    {
+     "name": "Iron",
+     "share": 23.508457
+    },
+    {
+     "name": "Manganese",
+     "share": 9.708753
+    },
+    {
+     "name": "Mercury",
+     "share": 1.026576
+    },
+    {
+     "name": "Nickel",
+     "share": 17.780811
+    },
+    {
+     "name": "Phosphorus",
+     "share": 6.92134
+    },
+    {
+     "name": "Ruthenium",
+     "share": 1.451797
+    },
+    {
+     "name": "Sulphur",
+     "share": 12.85643
+    },
+    {
+     "name": "Tin",
+     "share": 1.556283
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": 32.4862076,
+     "longitude": 53.6337638,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    },
+    {
+     "latitude": -19.4086445,
+     "longitude": -126.65389625,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    }
+   ]
+  },
+  {
+   "id64": 1188950312103184747,
+   "name": "Charon",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Sol",
+   "system_id64": 10477373803,
+   "system_x": 0.0,
+   "system_y": 0.0,
+   "system_z": 0.0,
+   "distance": 0.0,
+   "distance_to_arrival": 20454.241655,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 11,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 1,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Antimony",
+     "share": 1.090533
+    },
+    {
+     "name": "Cadmium",
+     "share": 1.643444
+    },
+    {
+     "name": "Carbon",
+     "share": 14.647561
+    },
+    {
+     "name": "Chromium",
+     "share": 9.517944
+    },
+    {
+     "name": "Iron",
+     "share": 21.163534
+    },
+    {
+     "name": "Mercury",
+     "share": 0.924177
+    },
+    {
+     "name": "Nickel",
+     "share": 16.00721
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.37762
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.418983
+    },
+    {
+     "name": "Zinc",
+     "share": 5.751456
+    },
+    {
+     "name": "Zirconium",
+     "share": 2.457522
+    }
+   ],
+   "updated_at": "2026-10-16T00:31:24Z",
+   "landmarks": [
+    {
+     "latitude": -45.810032,
+     "longitude": -80.741409,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    },
+    {
+     "latitude": -17.732283666667,
+     "longitude": -145.46225466667,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    }
+   ]
+  },
+  {
+   "id64": 288231554860190059,
+   "name": "2042 L1",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Alpha Centauri",
+   "system_id64": 1178708478315,
+   "system_x": 3.03125,
+   "system_y": -0.09375,
+   "system_z": 3.15625,
+   "distance": 4.37712002205788,
+   "distance_to_arrival": 4329.870221,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 6,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 17,
+     "name": "Human"
+    },
+    {
+     "count": 1,
+     "name": "Other"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 14.510067
+    },
+    {
+     "name": "Germanium",
+     "share": 5.100143
+    },
+    {
+     "name": "Iron",
+     "share": 20.956608
+    },
+    {
+     "name": "Manganese",
+     "share": 8.654865
+    },
+    {
+     "name": "Nickel",
+     "share": 15.8507
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.289593
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.255474
+    },
+    {
+     "name": "Technetium",
+     "share": 0.749533
+    },
+    {
+     "name": "Tin",
+     "share": 1.336068
+    },
+    {
+     "name": "Tungsten",
+     "share": 1.150728
+    },
+    {
+     "name": "Vanadium",
+     "share": 5.146214
+    }
+   ],
+   "updated_at": "2026-10-16T18:26:22Z",
+   "landmarks": [
+    {
+     "latitude": 69.221893,
+     "longitude": -127.2527085,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    },
+    {
+     "latitude": 68.082618666667,
+     "longitude": -127.516149,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    }
+   ]
+  },
+  {
+   "id64": 504406815530816210,
+   "name": "Major's Mine",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Epsilon Eridani",
+   "system_id64": 3657265320658,
+   "system_x": 1.9375,
+   "system_y": -7.75,
+   "system_z": -6.84375,
+   "distance": 10.5191881964579,
+   "distance_to_arrival": 483.03696,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 25,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 12,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 14.277276
+    },
+    {
+     "name": "Chromium",
+     "share": 9.271547
+    },
+    {
+     "name": "Iron",
+     "share": 20.615664
+    },
+    {
+     "name": "Manganese",
+     "share": 8.514058
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.346191
+    },
+    {
+     "name": "Nickel",
+     "share": 15.592822
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.140558
+    },
+    {
+     "name": "Sulphur",
+     "share": 16.978638
+    },
+    {
+     "name": "Technetium",
+     "share": 0.737339
+    },
+    {
+     "name": "Tungsten",
+     "share": 1.132007
+    },
+    {
+     "name": "Zirconium",
+     "share": 2.393903
+    }
+   ],
+   "updated_at": "2026-10-16T01:02:43Z",
+   "landmarks": [
+    {
+     "latitude": -76.059521501942,
+     "longitude": -118.24013101554,
+     "subtype": "Crashed Ship",
+     "type": "Crashed Ship"
+    }
+   ]
+  },
+  {
+   "id64": 216173690600035026,
+   "name": "Mitterand Hollow",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Epsilon Indi",
+   "system_id64": 908486251218,
+   "system_x": 3.125,
+   "system_y": -8.875,
+   "system_z": 7.125,
+   "distance": 11.8024097115801,
+   "distance_to_arrival": 260.529171,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 15,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 3,
+     "name": "Geological"
+    },
+    {
+     "count": 20,
+     "name": "Human"
+    },
+    {
+     "count": 4,
+     "name": "Other"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Cadmium",
+     "share": 1.645277
+    },
+    {
+     "name": "Carbon",
+     "share": 14.568093
+    },
+    {
+     "name": "Chromium",
+     "share": 9.52856
+    },
+    {
+     "name": "Germanium",
+     "share": 5.151981
+    },
+    {
+     "name": "Iron",
+     "share": 21.187138
+    },
+    {
+     "name": "Nickel",
+     "share": 16.025063
+    },
+    {
+     "name": "Niobium",
+     "share": 1.448028
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.326743
+    },
+    {
+     "name": "Sulphur",
+     "share": 17.32448
+    },
+    {
+     "name": "Tellurium",
+     "share": 1.334374
+    },
+    {
+     "name": "Zirconium",
+     "share": 2.460263
+    }
+   ],
+   "updated_at": "2026-10-16T15:17:06Z",
+   "landmarks": [
+    {
+     "latitude": -1.177308,
+     "longitude": -169.058655,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    },
+    {
+     "latitude": -51.0145415,
+     "longitude": 62.975273,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    },
+    {
+     "latitude": -32.1989906,
+     "longitude": 78.0788282,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    }
+   ]
+  },
+  {
+   "id64": 252202487618998994,
+   "name": "Alisonworld",
+   "type": "Planet",
+   "subtype": "Rocky body",
+   "system_name": "Epsilon Indi",
+   "system_id64": 908486251218,
+   "system_x": 3.125,
+   "system_y": -8.875,
+   "system_z": 7.125,
+   "distance": 11.8024097115801,
+   "distance_to_arrival": 683.637045,
+   "is_landable": true,
+   "signals": [
+    {
+     "count": 26,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 6,
+     "name": "Human"
+    }
+   ],
+   "materials": [
+    {
+     "name": "Carbon",
+     "share": 14.214429
+    },
+    {
+     "name": "Chromium",
+     "share": 9.297239
+    },
+    {
+     "name": "Iron",
+     "share": 20.672785
+    },
+    {
+     "name": "Manganese",
+     "share": 8.537649
+    },
+    {
+     "name": "Mercury",
+     "share": 0.902746
+    },
+    {
+     "name": "Molybdenum",
+     "share": 1.349921
+    },
+    {
+     "name": "Nickel",
+     "share": 15.636028
+    },
+    {
+     "name": "Phosphorus",
+     "share": 9.100322
+    },
+    {
+     "name": "Selenium",
+     "share": 2.645603
+    },
+    {
+     "name": "Sulphur",
+     "share": 16.9039
+    },
+    {
+     "name": "Technetium",
+     "share": 0.739382
+    }
+   ],
+   "updated_at": "2026-10-13T18:53:45Z",
+   "landmarks": [
+    {
+     "latitude": -69.588615,
+     "longitude": -72.200836,
+     "subtype": "Wrecked Ship",
+     "type": "Wrecked Ship"
+    }
+   ]
+  }
+ ],
+ "search": {
+  "filters": {
+   "landmark_subtype": {
+    "value": [
+     "Crashed Ship",
+     "Wrecked Ship"
+    ]
+   }
+  },
+  "page": 0,
+  "reference_coords": {
+   "x": 0,
+   "y": 0,
+   "z": 0
+  },
+  "size": 10,
+  "sort": [
+   {
+    "distance": {
+     "direction": "asc"
+    }
+   }
+  ]
+ },
+ "size": 10
+}

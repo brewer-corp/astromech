@@ -32,8 +32,6 @@ pub struct GradeRecipe {
     pub grade: u8,
     /// Material id (as in `astromech_materials::catalog`) → count per roll.
     pub materials: BTreeMap<String, i64>,
-    #[serde(default)]
-    pub engineers: Vec<String>,
     /// Stat → `[worst, best]` change at this grade: a fraction for percentage stats, else an
     /// amount (see [`Modifier`]).
     #[serde(default)]
@@ -54,6 +52,35 @@ pub struct Group {
     /// Stats engineering may change on this group's modules.
     #[serde(default)]
     pub modifications: Vec<String>,
+    /// Blueprint id → grade ("1".."5") → engineers who offer it on this group's modules. The
+    /// same blueprint has different engineers on different modules (Overcharged on a beam laser
+    /// is not the multi-cannon list).
+    #[serde(default)]
+    pub engineers: BTreeMap<String, BTreeMap<String, Vec<String>>>,
+}
+
+impl Group {
+    /// Engineers who offer `blueprint` at `grade` on this group's modules.
+    pub fn engineers_for(&self, blueprint: &str, grade: u8) -> &[String] {
+        let id = blueprint_id(blueprint);
+        self.engineers.get(id.unwrap_or(blueprint)).and_then(|g| g.get(&grade.to_string())).map_or(&[], |v| v)
+    }
+
+    /// Every engineer who works on this group's modules, any blueprint and grade.
+    pub fn all_engineers(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = vec![];
+        for e in self.engineers.values().flat_map(|g| g.values()).flatten() {
+            if !out.contains(&e.as_str()) {
+                out.push(e);
+            }
+        }
+        out
+    }
+}
+
+/// The catalogue's spelling of a blueprint id (lookups are case-insensitive).
+fn blueprint_id(name: &str) -> Option<&'static str> {
+    blueprint(name).map(|(id, _)| id)
 }
 
 /// How engineering applies to one stat (coriolis-data `modifications.json`).

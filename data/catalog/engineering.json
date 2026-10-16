@@ -9,11 +9,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Petra Olmanova"
-     ],
      "features": {
       "integrity": [
        0,
@@ -31,11 +26,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Petra Olmanova"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -54,11 +44,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Petra Olmanova"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -77,10 +62,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Petra Olmanova"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -99,9 +80,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -123,11 +101,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0,
@@ -157,10 +130,6 @@
       "conductivecomponents": 1,
       "iron": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.03,
@@ -191,10 +160,6 @@
       "highdensitycomposites": 1,
       "iron": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.06,
@@ -225,10 +190,6 @@
       "germanium": 1,
       "fedproprietarycomposites": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.09,
@@ -259,10 +220,6 @@
       "militarygradealloys": 1,
       "tin": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.12,
@@ -296,11 +253,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0,
@@ -322,10 +274,6 @@
       "carbon": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.12,
@@ -347,10 +295,6 @@
       "salvagedalloys": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.19,
@@ -373,10 +317,6 @@
       "mercury": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.26,
@@ -399,10 +339,6 @@
       "phasealloys": 1,
       "ruthenium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.33,
@@ -428,11 +364,6 @@
      "materials": {
       "carbon": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0,
@@ -462,10 +393,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.01,
@@ -496,10 +423,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.02,
@@ -530,10 +453,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.03,
@@ -564,10 +483,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.04,
@@ -601,11 +516,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -627,10 +537,6 @@
       "nickel": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.06,
@@ -653,10 +559,6 @@
       "salvagedalloys": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.08,
@@ -679,10 +581,6 @@
       "fedproprietarycomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.1,
@@ -705,10 +603,6 @@
       "molybdenum": 1,
       "phasealloys": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.12,
@@ -734,11 +628,6 @@
      "materials": {
       "heatconductionwiring": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -760,10 +649,6 @@
       "heatdispersionplate": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.06,
@@ -786,10 +671,6 @@
       "salvagedalloys": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.08,
@@ -812,10 +693,6 @@
       "heatvanes": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.1,
@@ -838,10 +715,6 @@
       "phasealloys": 1,
       "protoheatradiators": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.12,
@@ -865,7 +738,6 @@
     {
      "grade": 5,
      "materials": {},
-     "engineers": [],
      "features": {
       "cargo": [
        0.344,
@@ -883,12 +755,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -906,12 +772,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -930,12 +790,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -954,12 +808,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -978,11 +826,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -1004,12 +847,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -1027,12 +864,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -1051,12 +882,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -1075,12 +900,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -1099,11 +918,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -1125,12 +939,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -1148,12 +956,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -1172,12 +974,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -1196,12 +992,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -1220,11 +1010,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -1246,13 +1031,6 @@
      "materials": {
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.03,
@@ -1282,13 +1060,6 @@
       "mechanicalequipment": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.06,
@@ -1319,12 +1090,6 @@
       "mechanicalcomponents": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.09,
@@ -1355,11 +1120,6 @@
       "consumerfirmware": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.12,
@@ -1390,11 +1150,6 @@
       "industrialfirmware": 1,
       "pharmaceuticalisolators": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.15,
@@ -1428,13 +1183,6 @@
      "materials": {
       "carbon": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0,
@@ -1456,13 +1204,6 @@
       "heatconductionwiring": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.3,
@@ -1485,12 +1226,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.5,
@@ -1513,11 +1248,6 @@
       "heatdispersionplate": 1,
       "highdensitycomposites": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.7,
@@ -1540,11 +1270,6 @@
       "imperialshielding": 1,
       "fedproprietarycomposites": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.9,
@@ -1570,13 +1295,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "optmass": [
        -0.02,
@@ -1598,13 +1316,6 @@
       "conductivecomponents": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.04,
@@ -1635,12 +1346,6 @@
       "legacyfirmware": 1,
       "emissiondata": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.08,
@@ -1671,11 +1376,6 @@
       "decodedemissiondata": 1,
       "consumerfirmware": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.12,
@@ -1706,11 +1406,6 @@
       "conductiveceramics": 1,
       "tin": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.16,
@@ -1744,14 +1439,6 @@
      "materials": {
       "gridresistors": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "boot": [
        0,
@@ -1777,14 +1464,6 @@
       "chromium": 1,
       "gridresistors": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "boot": [
        -0.2,
@@ -1811,14 +1490,6 @@
       "heatdispersionplate": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "boot": [
        -0.35,
@@ -1845,11 +1516,6 @@
       "heatexchangers": 1,
       "hybridcapacitors": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        -0.5,
@@ -1876,11 +1542,6 @@
       "heatvanes": 1,
       "tellurium": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        -0.65,
@@ -1910,14 +1571,6 @@
      "materials": {
       "disruptedwakeechoes": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.03,
@@ -1943,14 +1596,6 @@
       "disruptedwakeechoes": 1,
       "chemicalprocessors": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.06,
@@ -1977,14 +1622,6 @@
       "phosphorus": 1,
       "wakesolutions": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        -0.09,
@@ -2011,11 +1648,6 @@
       "hyperspacetrajectories": 1,
       "manganese": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.12,
@@ -2042,11 +1674,6 @@
       "chemicalmanipulators": 1,
       "dataminedwake": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.15,
@@ -2076,14 +1703,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0,
@@ -2109,14 +1728,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.25,
@@ -2143,14 +1754,6 @@
       "shieldingsensors": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Chloe Sedesi",
-      "Colonel Bris Dekker",
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Professor Palin"
-     ],
      "features": {
       "integrity": [
        0.5,
@@ -2177,11 +1780,6 @@
       "highdensitycomposites": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.75,
@@ -2208,11 +1806,6 @@
       "fedproprietarycomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Felicity Farseer",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        1,
@@ -2242,12 +1835,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        0,
@@ -2269,11 +1856,6 @@
       "mechanicalequipment": 1,
       "encryptedfiles": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        0.4,
@@ -2296,11 +1878,6 @@
       "mechanicalcomponents": 1,
       "encryptioncodes": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        0.6,
@@ -2323,10 +1900,6 @@
       "mechanicalequipment": 1,
       "wakesolutions": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon"
-     ],
      "features": {
       "facinglimit": [
        0.8,
@@ -2349,9 +1922,6 @@
       "hyperspacetrajectories": 1,
       "mechanicalcomponents": 1
      },
-     "engineers": [
-      "Mel Brandon"
-     ],
      "features": {
       "facinglimit": [
        1,
@@ -2377,12 +1947,6 @@
      "materials": {
       "encryptedfiles": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Felicity Farseer",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        -0.1,
@@ -2408,11 +1972,6 @@
       "disruptedwakeechoes": 1,
       "encryptioncodes": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        -0.15,
@@ -2439,11 +1998,6 @@
       "fsdtelemetry": 1,
       "symmetrickeys": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon",
-      "Tiana Fortune"
-     ],
      "features": {
       "facinglimit": [
        -0.2,
@@ -2470,10 +2024,6 @@
       "wakesolutions": 1,
       "scanarchives": 1
      },
-     "engineers": [
-      "Colonel Bris Dekker",
-      "Mel Brandon"
-     ],
      "features": {
       "facinglimit": [
        -0.25,
@@ -2500,9 +2050,6 @@
       "scandatabanks": 1,
       "hyperspacetrajectories": 1
      },
-     "engineers": [
-      "Mel Brandon"
-     ],
      "features": {
       "facinglimit": [
        -0.3,
@@ -2532,11 +2079,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        0,
@@ -2554,11 +2096,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -2577,11 +2114,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -2600,10 +2132,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -2622,9 +2150,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -2646,12 +2171,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -2669,12 +2188,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -2693,12 +2206,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -2717,12 +2224,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -2741,11 +2242,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -2767,12 +2263,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -2790,12 +2280,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -2814,12 +2298,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -2838,12 +2316,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -2862,11 +2334,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -2888,12 +2355,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -2911,12 +2372,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -2935,12 +2390,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -2959,12 +2408,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -2983,11 +2426,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -3009,12 +2447,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -3032,12 +2464,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -3056,12 +2482,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -3080,12 +2500,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -3104,11 +2518,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -3130,12 +2539,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -3153,12 +2556,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -3177,12 +2574,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -3201,12 +2592,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -3225,11 +2610,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -3251,12 +2631,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -3274,12 +2648,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -3298,12 +2666,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -3322,12 +2684,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -3346,11 +2702,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -3372,11 +2723,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "hullboost": [
        0,
@@ -3398,10 +2744,6 @@
       "conductivecomponents": 1,
       "iron": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "hullboost": [
        0.08,
@@ -3424,10 +2766,6 @@
       "highdensitycomposites": 1,
       "iron": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "hullboost": [
        0.12,
@@ -3450,10 +2788,6 @@
       "germanium": 1,
       "fedproprietarycomposites": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "hullboost": [
        0.16,
@@ -3476,10 +2810,6 @@
       "militarygradealloys": 1,
       "tin": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "hullboost": [
        0.2,
@@ -3505,11 +2835,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0,
@@ -3535,10 +2860,6 @@
       "carbon": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.12,
@@ -3565,10 +2886,6 @@
       "vanadium": 1,
       "zirconium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.19,
@@ -3595,10 +2912,6 @@
       "mercury": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.26,
@@ -3625,10 +2938,6 @@
       "phasealloys": 1,
       "ruthenium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.33,
@@ -3658,11 +2967,6 @@
      "materials": {
       "carbon": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0,
@@ -3692,10 +2996,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.03,
@@ -3726,10 +3026,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.06,
@@ -3760,10 +3056,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.09,
@@ -3794,10 +3086,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        0.12,
@@ -3831,11 +3119,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.02,
@@ -3861,10 +3144,6 @@
       "nickel": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -3891,10 +3170,6 @@
       "salvagedalloys": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.06,
@@ -3921,10 +3196,6 @@
       "fedproprietarycomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.08,
@@ -3951,10 +3222,6 @@
       "molybdenum": 1,
       "phasealloys": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.1,
@@ -3984,11 +3251,6 @@
      "materials": {
       "heatconductionwiring": 1
      },
-     "engineers": [
-      "Liz Ryder",
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.02,
@@ -4014,10 +3276,6 @@
       "heatdispersionplate": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -4044,10 +3302,6 @@
       "salvagedalloys": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.06,
@@ -4074,10 +3328,6 @@
       "heatvanes": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.08,
@@ -4104,10 +3354,6 @@
       "phasealloys": 1,
       "protoheatradiators": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Selene Jean"
-     ],
      "features": {
       "explres": [
        -0.1,
@@ -4137,11 +3383,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -4159,11 +3400,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -4182,11 +3418,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -4205,10 +3436,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -4227,9 +3454,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Etienne Dorn"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -4251,11 +3475,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        0,
@@ -4273,11 +3492,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -4296,11 +3510,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -4319,10 +3528,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -4341,9 +3546,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Etienne Dorn"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -4365,11 +3567,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        0,
@@ -4387,11 +3584,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -4410,11 +3602,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -4433,10 +3620,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Lori Jameson"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -4455,9 +3638,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Etienne Dorn"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -4479,11 +3659,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "clip": [
        -0.03,
@@ -4509,11 +3684,6 @@
       "conductivecomponents": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "clip": [
        -0.06,
@@ -4540,11 +3710,6 @@
       "electrochemicalarrays": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "clip": [
        -0.09,
@@ -4571,10 +3736,6 @@
       "polymercapacitors": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "clip": [
        -0.12,
@@ -4601,10 +3762,6 @@
       "embeddedfirmware": 1,
       "zirconium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "clip": [
        -0.15,
@@ -4636,10 +3793,6 @@
       "niobium": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Ram Tah"
-     ],
      "features": {
       "ammo": [
        0,
@@ -4667,10 +3820,6 @@
       "niobium": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Ram Tah"
-     ],
      "features": {
       "ammo": [
        0.49,
@@ -4696,18 +3845,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -4725,18 +3862,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -4755,18 +3880,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -4785,16 +3898,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -4813,16 +3916,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -4846,10 +3939,6 @@
       "niobium": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Petra Olmanova",
-      "Ram Tah"
-     ],
      "features": {
       "ammo": [
        0,
@@ -4875,18 +3964,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -4904,18 +3981,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -4934,18 +3999,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -4964,16 +4017,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -4992,16 +4035,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -5023,18 +4056,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -5052,18 +4073,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -5082,18 +4091,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -5112,16 +4109,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -5140,16 +4127,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Petra Olmanova",
-      "Ram Tah",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -5171,12 +4148,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0,
@@ -5214,12 +4185,6 @@
       "chromium": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.1,
@@ -5258,12 +4223,6 @@
       "highdensitycomposites": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.18,
@@ -5302,10 +4261,6 @@
       "fedproprietarycomposites": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.26,
@@ -5344,10 +4299,6 @@
       "militarysupercapacitors": 1,
       "fedproprietarycomposites": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.34,
@@ -5389,12 +4340,6 @@
      "materials": {
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.01,
@@ -5428,12 +4373,6 @@
       "chemicalprocessors": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.02,
@@ -5468,12 +4407,6 @@
       "gridresistors": 1,
       "consumerfirmware": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.03,
@@ -5508,10 +4441,6 @@
       "industrialfirmware": 1,
       "hybridcapacitors": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.04,
@@ -5546,10 +4475,6 @@
       "industrialfirmware": 1,
       "exquisitefocuscrystals": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.05,
@@ -5587,12 +4512,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0,
@@ -5626,12 +4545,6 @@
       "conductivecomponents": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.2,
@@ -5666,12 +4579,6 @@
       "chromium": 1,
       "electrochemicalarrays": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.3,
@@ -5706,10 +4613,6 @@
       "selenium": 1,
       "scanarchives": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.4,
@@ -5744,10 +4647,6 @@
       "scandatabanks": 1,
       "militarysupercapacitors": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        0.5,
@@ -5785,12 +4684,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.03,
@@ -5824,12 +4717,6 @@
       "conductivecomponents": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.06,
@@ -5864,12 +4751,6 @@
       "chromium": 1,
       "electrochemicalarrays": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.09,
@@ -5904,10 +4785,6 @@
       "selenium": 1,
       "scanarchives": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.12,
@@ -5942,10 +4819,6 @@
       "scandatabanks": 1,
       "militarysupercapacitors": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.15,
@@ -5983,12 +4856,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.03,
@@ -6022,12 +4889,6 @@
       "conductivecomponents": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.06,
@@ -6062,12 +4923,6 @@
       "hybridcapacitors": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.09,
@@ -6102,10 +4957,6 @@
       "electrochemicalarrays": 1,
       "scanarchives": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.12,
@@ -6140,10 +4991,6 @@
       "polymercapacitors": 1,
       "tellurium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "engcap": [
        -0.15,
@@ -6181,12 +5028,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "integrity": [
        0,
@@ -6208,12 +5049,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "integrity": [
        0.4,
@@ -6236,12 +5071,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent",
-      "The Dweller"
-     ],
      "features": {
       "integrity": [
        0.8,
@@ -6264,10 +5093,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -6290,10 +5115,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "The Dweller"
-     ],
      "features": {
       "integrity": [
        1.6,
@@ -6319,12 +5140,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0,
@@ -6350,11 +5165,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.04,
@@ -6381,11 +5191,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.06,
@@ -6412,11 +5217,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.08,
@@ -6443,10 +5243,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani"
-     ],
      "features": {
       "eff": [
        -0.1,
@@ -6476,12 +5272,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0.05,
@@ -6503,11 +5293,6 @@
       "conductivecomponents": 1,
       "heatconductionwiring": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0.1,
@@ -6530,11 +5315,6 @@
       "heatconductionwiring": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0.15,
@@ -6557,11 +5337,6 @@
       "conductiveceramics": 1,
       "heatdispersionplate": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0.2,
@@ -6584,10 +5359,6 @@
       "conductiveceramics": 1,
       "tellurium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani"
-     ],
      "features": {
       "eff": [
        0.25,
@@ -6613,12 +5384,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        0,
@@ -6640,11 +5405,6 @@
       "iron": 1,
       "archivedemissiondata": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.25,
@@ -6667,11 +5427,6 @@
       "iron": 1,
       "archivedemissiondata": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.35,
@@ -6694,11 +5449,6 @@
       "heatvanes": 1,
       "emissiondata": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani",
-      "Marco Qwent"
-     ],
      "features": {
       "eff": [
        -0.45,
@@ -6721,10 +5471,6 @@
       "niobium": 1,
       "protoheatradiators": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Hera Tani"
-     ],
      "features": {
       "eff": [
        -0.55,
@@ -6750,12 +5496,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -6773,12 +5513,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -6797,12 +5531,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -6821,12 +5549,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -6845,11 +5567,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -6871,12 +5588,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -6894,12 +5605,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -6918,12 +5623,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -6942,12 +5641,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -6966,11 +5659,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -6992,12 +5680,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0,
@@ -7015,12 +5697,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -7039,12 +5715,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -7063,12 +5733,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Ram Tah",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -7087,11 +5751,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "The Sarge",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -7113,11 +5772,6 @@
      "materials": {
       "wornshieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        0,
@@ -7135,11 +5789,6 @@
       "carbon": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        0.6,
@@ -7158,11 +5807,6 @@
       "highdensitycomposites": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        1.2,
@@ -7181,10 +5825,6 @@
       "shieldingsensors": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        1.8,
@@ -7203,9 +5843,6 @@
       "fedcorecomposites": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Marsha Hicks"
-     ],
      "features": {
       "integrity": [
        2.4,
@@ -7227,16 +5864,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.1,
@@ -7258,16 +5885,6 @@
       "hybridcapacitors": 1,
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.15,
@@ -7290,16 +5907,6 @@
       "iron": 1,
       "emissiondata": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.2,
@@ -7322,14 +5929,6 @@
       "electrochemicalarrays": 1,
       "germanium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.25,
@@ -7352,14 +5951,6 @@
       "niobium": 1,
       "polymercapacitors": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.3,
@@ -7385,16 +5976,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0,
@@ -7416,16 +5997,6 @@
       "germanium": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0.4,
@@ -7448,16 +6019,6 @@
       "germanium": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0.8,
@@ -7480,14 +6041,6 @@
       "mechanicalequipment": 1,
       "niobium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        1.2,
@@ -7510,14 +6063,6 @@
       "mechanicalcomponents": 1,
       "tin": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        1.6,
@@ -7543,16 +6088,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "mass": [
        0.2,
@@ -7570,16 +6105,6 @@
       "germanium": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "mass": [
        0.4,
@@ -7598,16 +6123,6 @@
       "mechanicalscrap": 1,
       "phasealloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "mass": [
        0.6,
@@ -7626,14 +6141,6 @@
       "niobium": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson"
-     ],
      "features": {
       "mass": [
        0.8,
@@ -7652,14 +6159,6 @@
       "protoradiolicalloys": 1,
       "tin": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson"
-     ],
      "features": {
       "mass": [
        1,
@@ -7681,16 +6180,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -7712,16 +6201,6 @@
       "uncutfocuscrystals": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -7744,16 +6223,6 @@
       "symmetrickeys": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.3,
@@ -7776,14 +6245,6 @@
       "focuscrystals": 1,
       "manganese": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.4,
@@ -7806,14 +6267,6 @@
       "arsenic": 1,
       "refinedfocuscrystals": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "integrity": [
        -0.5,
@@ -7839,16 +6292,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.05,
@@ -7870,16 +6313,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.1,
@@ -7902,16 +6335,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.15,
@@ -7934,14 +6357,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.2,
@@ -7964,14 +6379,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.25,
@@ -7997,16 +6404,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.1,
@@ -8028,16 +6425,6 @@
       "hybridcapacitors": 1,
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.15,
@@ -8060,16 +6447,6 @@
       "iron": 1,
       "emissiondata": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.2,
@@ -8092,14 +6469,6 @@
       "electrochemicalarrays": 1,
       "germanium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.25,
@@ -8122,14 +6491,6 @@
       "niobium": 1,
       "polymercapacitors": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        -0.3,
@@ -8155,16 +6516,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0,
@@ -8186,16 +6537,6 @@
       "germanium": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0.4,
@@ -8218,16 +6559,6 @@
       "germanium": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Felicity Farseer",
-      "Hera Tani",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        0.8,
@@ -8250,14 +6581,6 @@
       "mechanicalequipment": 1,
       "niobium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        1.2,
@@ -8280,14 +6603,6 @@
       "mechanicalcomponents": 1,
       "tin": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Lei Cheung",
-      "Lori Jameson",
-      "Tiana Fortune"
-     ],
      "features": {
       "angle": [
        1.6,
@@ -8313,12 +6628,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Felicity Farseer",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0,
@@ -8340,11 +6649,6 @@
       "conductivecomponents": 1,
       "iron": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.07,
@@ -8367,11 +6671,6 @@
       "focuscrystals": 1,
       "iron": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.12,
@@ -8394,10 +6693,6 @@
       "refinedfocuscrystals": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.17,
@@ -8420,10 +6715,6 @@
       "exquisitefocuscrystals": 1,
       "niobium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.22,
@@ -8449,12 +6740,6 @@
      "materials": {
       "gridresistors": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Felicity Farseer",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0,
@@ -8480,11 +6765,6 @@
       "shieldcyclerecordings": 1,
       "hybridcapacitors": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.03,
@@ -8511,11 +6791,6 @@
       "hybridcapacitors": 1,
       "niobium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.06,
@@ -8542,10 +6817,6 @@
       "shieldsoakanalysis": 1,
       "tin": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.09,
@@ -8572,10 +6843,6 @@
       "polymercapacitors": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.12,
@@ -8605,12 +6872,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Felicity Farseer",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.01,
@@ -8632,11 +6893,6 @@
       "germanium": 1,
       "gridresistors": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.0175,
@@ -8659,11 +6915,6 @@
       "hybridcapacitors": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.025,
@@ -8686,10 +6937,6 @@
       "refinedfocuscrystals": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.0325,
@@ -8712,10 +6959,6 @@
       "exquisitefocuscrystals": 1,
       "phasealloys": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -8741,12 +6984,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Felicity Farseer",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.05,
@@ -8776,11 +7013,6 @@
       "conductivecomponents": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.08,
@@ -8811,11 +7043,6 @@
       "focuscrystals": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.11,
@@ -8846,10 +7073,6 @@
       "manganese": 1,
       "refinedfocuscrystals": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.14,
@@ -8880,10 +7103,6 @@
       "imperialshielding": 1,
       "refinedfocuscrystals": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        0.17,
@@ -8917,12 +7136,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Felicity Farseer",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.01,
@@ -8944,11 +7157,6 @@
       "germanium": 1,
       "heatconductionwiring": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.0175,
@@ -8971,11 +7179,6 @@
       "heatconductionwiring": 1,
       "heatdispersionplate": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.025,
@@ -8998,10 +7201,6 @@
       "refinedfocuscrystals": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.0325,
@@ -9024,10 +7223,6 @@
       "exquisitefocuscrystals": 1,
       "heatexchangers": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Mel Brandon"
-     ],
      "features": {
       "explres": [
        -0.04,
@@ -9053,11 +7248,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        0.1,
@@ -9083,10 +7273,6 @@
       "chromium": 1,
       "gridresistors": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        0.15,
@@ -9113,10 +7299,6 @@
       "precipitatedalloys": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        0.2,
@@ -9143,9 +7325,6 @@
       "precipitatedalloys": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        0.25,
@@ -9175,11 +7354,6 @@
      "materials": {
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Elvira Martuuk",
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        0,
@@ -9209,10 +7383,6 @@
       "conductivecomponents": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        -0.08,
@@ -9243,10 +7413,6 @@
       "industrialfirmware": 1,
       "scrambledemissiondata": 1
      },
-     "engineers": [
-      "Lori Jameson",
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        -0.16,
@@ -9277,9 +7443,6 @@
       "industrialfirmware": 1,
       "yttrium": 1
      },
-     "engineers": [
-      "Mel Brandon"
-     ],
      "features": {
       "boot": [
        -0.24,
@@ -9313,12 +7476,6 @@
      "materials": {
       "shieldcyclerecordings": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0,
@@ -9340,12 +7497,6 @@
       "shieldcyclerecordings": 1,
       "consumerfirmware": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.2,
@@ -9368,12 +7519,6 @@
       "consumerfirmware": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.25,
@@ -9396,10 +7541,6 @@
       "shieldsoakanalysis": 1,
       "mercury": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.3,
@@ -9422,10 +7563,6 @@
       "ruthenium": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.35,
@@ -9451,12 +7588,6 @@
      "materials": {
       "shieldcyclerecordings": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.05,
@@ -9486,12 +7617,6 @@
       "shieldcyclerecordings": 1,
       "germanium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.1,
@@ -9522,12 +7647,6 @@
       "germanium": 1,
       "precipitatedalloys": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.15,
@@ -9558,10 +7677,6 @@
       "niobium": 1,
       "thermicalloys": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -9592,10 +7707,6 @@
       "tin": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        -0.25,
@@ -9629,12 +7740,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "brokenregen": [
        -0.1,
@@ -9668,12 +7773,6 @@
       "conductivecomponents": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "brokenregen": [
        -0.1,
@@ -9708,12 +7807,6 @@
       "mechanicalcomponents": 1,
       "phosphorus": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "brokenregen": [
        -0.1,
@@ -9748,10 +7841,6 @@
       "configurablecomponents": 1,
       "manganese": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "brokenregen": [
        -0.1,
@@ -9786,10 +7875,6 @@
       "conductivepolymers": 1,
       "improvisedcomponents": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "brokenregen": [
        -0.1,
@@ -9827,12 +7912,6 @@
      "materials": {
       "shieldcyclerecordings": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0,
@@ -9854,12 +7933,6 @@
       "shieldcyclerecordings": 1,
       "germanium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.2,
@@ -9882,12 +7955,6 @@
       "germanium": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Didi Vatermann",
-      "Elvira Martuuk",
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.25,
@@ -9910,10 +7977,6 @@
       "shieldsoakanalysis": 1,
       "mercury": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.3,
@@ -9936,10 +7999,6 @@
       "ruthenium": 1,
       "shielddensityreports": 1
      },
-     "engineers": [
-      "Lei Cheung",
-      "Mel Brandon"
-     ],
      "features": {
       "integrity": [
        0.35,
@@ -9965,11 +8024,6 @@
      "materials": {
       "carbon": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "burst": [
        2,
@@ -9995,11 +8049,6 @@
       "carbon": 1,
       "mechanicalequipment": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "burst": [
        2,
@@ -10026,11 +8075,6 @@
       "industrialfirmware": 1,
       "mechanicalequipment": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "burst": [
        2,
@@ -10057,10 +8101,6 @@
       "securityfirmware": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Zacariah Nemo"
-     ],
      "features": {
       "burst": [
        2,
@@ -10087,10 +8127,6 @@
       "highdensitycomposites": 1,
       "embeddedfirmware": 1
      },
-     "engineers": [
-      "Marsha Hicks",
-      "Zacariah Nemo"
-     ],
      "features": {
       "burst": [
        2,
@@ -10120,17 +8156,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0,
@@ -10148,17 +8173,6 @@
       "heatdispersionplate": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.08,
@@ -10185,17 +8199,6 @@
       "scrambledemissiondata": 1,
       "heatexchangers": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.12,
@@ -10222,17 +8225,6 @@
       "archivedemissiondata": 1,
       "selenium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.16,
@@ -10259,16 +8251,6 @@
       "protoheatradiators": 1,
       "emissiondata": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.2,
@@ -10298,14 +8280,6 @@
      "materials": {
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Mel Brandon",
-      "The Dweller",
-      "Zacariah Nemo"
-     ],
      "features": {
       "falloff": [
        0,
@@ -10335,14 +8309,6 @@
       "conductivecomponents": 1,
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Mel Brandon",
-      "The Dweller",
-      "Zacariah Nemo"
-     ],
      "features": {
       "falloff": [
        0.36,
@@ -10373,13 +8339,6 @@
       "conductiveceramics": 1,
       "iron": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Mel Brandon",
-      "The Dweller"
-     ],
      "features": {
       "falloff": [
        0.52,
@@ -10410,13 +8369,6 @@
       "germanium": 1,
       "polymercapacitors": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Mel Brandon",
-      "The Dweller"
-     ],
      "features": {
       "falloff": [
        0.68,
@@ -10447,12 +8399,6 @@
       "niobium": 1,
       "refinedfocuscrystals": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Mel Brandon"
-     ],
      "features": {
       "falloff": [
        0.84,
@@ -10486,16 +8432,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "ammo": [
        0,
@@ -10525,16 +8461,6 @@
       "mechanicalscrap": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "ammo": [
        0.36,
@@ -10565,16 +8491,6 @@
       "niobium": 1,
       "vanadium": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "ammo": [
        0.52,
@@ -10605,16 +8521,6 @@
       "mechanicalequipment": 1,
       "tin": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "ammo": [
        0.68,
@@ -10645,16 +8551,6 @@
       "militarysupercapacitors": 1,
       "fedproprietarycomposites": 1
      },
-     "engineers": [
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "ammo": [
        0.84,
@@ -10688,20 +8584,6 @@
      "materials": {
       "phosphorus": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        -0.2,
@@ -10719,20 +8601,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "distdraw": [
        0,
@@ -10759,20 +8627,6 @@
       "manganese": 1,
       "salvagedalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "distdraw": [
        -0.2,
@@ -10799,20 +8653,6 @@
       "phasealloys": 1,
       "protolightalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "distdraw": [
        -0.25,
@@ -10839,19 +8679,6 @@
       "protolightalloys": 1,
       "protoradiolicalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "distdraw": [
        -0.3,
@@ -10881,17 +8708,6 @@
      "materials": {
       "sulphur": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "fallofffromrange": [
        0.2,
@@ -10921,17 +8737,6 @@
       "consumerfirmware": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "fallofffromrange": [
        0.2,
@@ -10962,17 +8767,6 @@
       "consumerfirmware": 1,
       "sulphur": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "fallofffromrange": [
        0.4,
@@ -11003,16 +8797,6 @@
       "focuscrystals": 1,
       "consumerfirmware": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "fallofffromrange": [
        0.6,
@@ -11043,15 +8827,6 @@
       "industrialfirmware": 1,
       "thermicalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "fallofffromrange": [
        0.8,
@@ -11085,17 +8860,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0,
@@ -11117,17 +8881,6 @@
       "conductivecomponents": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.3,
@@ -11150,17 +8903,6 @@
       "electrochemicalarrays": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.4,
@@ -11183,16 +8925,6 @@
       "polymercapacitors": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.5,
@@ -11215,15 +8947,6 @@
       "embeddedfirmware": 1,
       "zirconium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Sarge",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.6,
@@ -11249,20 +8972,6 @@
      "materials": {
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        -0.01,
@@ -11288,20 +8997,6 @@
       "heatdispersionplate": 1,
       "mechanicalscrap": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        -0.02,
@@ -11332,20 +9027,6 @@
       "precipitatedalloys": 1,
       "legacyfirmware": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        -0.03,
@@ -11376,20 +9057,6 @@
       "consumerfirmware": 1,
       "thermicalloys": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        -0.04,
@@ -11420,19 +9087,6 @@
       "precipitatedalloys": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        -0.05,
@@ -11466,17 +9120,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.15,
@@ -11494,17 +9137,6 @@
       "consumerfirmware": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.27,
@@ -11527,17 +9159,6 @@
       "consumerfirmware": 1,
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "damage": [
        0.39,
@@ -11560,16 +9181,6 @@
       "electrochemicalarrays": 1,
       "consumerfirmware": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "damage": [
        0.51,
@@ -11592,15 +9203,6 @@
       "configurablecomponents": 1,
       "industrialfirmware": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn"
-     ],
      "features": {
       "damage": [
        0.63,
@@ -11626,20 +9228,6 @@
      "materials": {
       "nickel": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        0,
@@ -11665,20 +9253,6 @@
       "nickel": 1,
       "shieldemitters": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        1.5,
@@ -11705,20 +9279,6 @@
       "shieldemitters": 1,
       "tungsten": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        2,
@@ -11745,20 +9305,6 @@
       "tungsten": 1,
       "zinc": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Dweller",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        2.5,
@@ -11785,19 +9331,6 @@
       "molybdenum": 1,
       "technetium": 1
      },
-     "engineers": [
-      "Bill Turner",
-      "Broo Tarquin",
-      "Etienne Dorn",
-      "Juri Ishmaak",
-      "Liz Ryder",
-      "Marsha Hicks",
-      "Mel Brandon",
-      "Petra Olmanova",
-      "The Sarge",
-      "Tod \"The Blaster\" McQuinn",
-      "Zacariah Nemo"
-     ],
      "features": {
       "integrity": [
        3,
@@ -12586,7 +10119,209 @@
     "rof",
     "shotspeed",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "MC_Overcharged": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_Efficient": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_HighCapacity": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    }
+   }
   },
   "am": {
    "name": "Auto Field-Maintenance Unit",
@@ -12597,7 +10332,33 @@
    "modifications": [
     "integrity",
     "power"
-   ]
+   ],
+   "engineers": {
+    "AFM_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Lori Jameson",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Petra Olmanova"
+     ]
+    }
+   }
   },
   "amr": {
    "name": "Advanced Missile Rack",
@@ -12624,7 +10385,89 @@
     "reload",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_HighCapacity": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "4": [
+      "Liz Ryder"
+     ],
+     "5": [
+      "Liz Ryder"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "4": [
+      "Liz Ryder"
+     ],
+     "5": [
+      "Liz Ryder"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "4": [
+      "Liz Ryder"
+     ],
+     "5": [
+      "Liz Ryder"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder"
+     ],
+     "4": [
+      "Liz Ryder"
+     ],
+     "5": [
+      "Liz Ryder"
+     ]
+    }
+   }
   },
   "bh": {
    "name": "Armour",
@@ -12648,7 +10491,124 @@
     "kinres",
     "mass",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "Armour_Advanced": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "Armour_Explosive": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "Armour_HeavyDuty": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "Armour_Kinetic": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "Armour_Thermic": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    }
+   }
   },
   "bl": {
    "name": "Beam Laser",
@@ -12684,7 +10644,159 @@
     "power",
     "range",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_Efficient": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "bsg": {
    "name": "Bi-Weave Shield Generator",
@@ -12716,7 +10828,121 @@
     "power",
     "regen",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "ShieldGenerator_Kinetic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Optimised": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Reinforced": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Thermic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "c": {
    "name": "Cannon",
@@ -12761,7 +10987,201 @@
     "rof",
     "shotspeed",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_Efficient": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_HighCapacity": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge"
+     ]
+    }
+   }
   },
   "cc": {
    "name": "Collector Limpet Controller",
@@ -12775,7 +11195,102 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "CollectionLimpet_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "CollectionLimpet_Reinforced": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "CollectionLimpet_Shielded": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "ch": {
    "name": "Chaff Launcher",
@@ -12792,7 +11307,81 @@
     "mass",
     "power",
     "reload"
-   ]
+   ],
+   "engineers": {
+    "Misc_ChaffCapacity": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_LightWeight": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    }
+   }
   },
   "cr": {
    "name": "Cargo Rack",
@@ -12802,7 +11391,8 @@
    "experimentals": [],
    "modifications": [
     "cargo"
-   ]
+   ],
+   "engineers": {}
   },
   "cs": {
    "name": "Cargo Scanner",
@@ -12822,7 +11412,195 @@
     "power",
     "range",
     "scantime"
-   ]
+   ],
+   "engineers": {
+    "Misc_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_LongRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_WideAngle": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Sensor_FastScan": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "csl": {
    "name": "Caustic Sink Launcher",
@@ -12839,7 +11617,81 @@
     "mass",
     "power",
     "reload"
-   ]
+   ],
+   "engineers": {
+    "Misc_HeatSinkCapacity": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_LightWeight": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    }
+   }
   },
   "ec": {
    "name": "Electronic Countermeasure",
@@ -12853,7 +11705,75 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "Misc_LightWeight": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    }
+   }
   },
   "fc": {
    "name": "Fragment Cannon",
@@ -12898,7 +11818,184 @@
     "rof",
     "shotspeed",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_DoubleShot": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_Efficient": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_HighCapacity": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Zacariah Nemo"
+     ]
+    }
+   }
   },
   "fi": {
    "name": "Frame Shift Drive Interdictor",
@@ -12914,7 +12011,59 @@
     "mass",
     "power",
     "ranget"
-   ]
+   ],
+   "engineers": {
+    "FSDinterdictor_Expanded": {
+     "1": [
+      "Colonel Bris Dekker",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Colonel Bris Dekker",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Colonel Bris Dekker",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Colonel Bris Dekker",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Mel Brandon"
+     ]
+    },
+    "FSDinterdictor_LongRange": {
+     "1": [
+      "Colonel Bris Dekker",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Colonel Bris Dekker",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Colonel Bris Dekker",
+      "Mel Brandon",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Colonel Bris Dekker",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "fs": {
    "name": "Fuel Scoop",
@@ -12925,7 +12074,33 @@
    "modifications": [
     "integrity",
     "power"
-   ]
+   ],
+   "engineers": {
+    "FuelScoop_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "2": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "3": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "4": [
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "5": [
+      "Marsha Hicks"
+     ]
+    }
+   }
   },
   "fsd": {
    "name": "Frame Shift Drive",
@@ -12949,7 +12124,117 @@
     "optmass",
     "power",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "FSD_FastBoot": {
+     "1": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ]
+    },
+    "FSD_LongRange": {
+     "1": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ]
+    },
+    "FSD_Shielded": {
+     "1": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Colonel Bris Dekker",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "fx": {
    "name": "Fuel Transfer Limpet Controller",
@@ -12963,7 +12248,102 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "FuelTransferLimpet_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "FuelTransferLimpet_Reinforced": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "FuelTransferLimpet_Shielded": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "hb": {
    "name": "Hatch Breaker Limpet Controller",
@@ -12977,7 +12357,99 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "HatchBreakerLimpet_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "HatchBreakerLimpet_Reinforced": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "HatchBreakerLimpet_Shielded": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "hr": {
    "name": "Hull Reinforcement Package",
@@ -13001,7 +12473,124 @@
     "kinres",
     "mass",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "HullReinforcement_Advanced": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "HullReinforcement_Explosive": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "HullReinforcement_HeavyDuty": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "HullReinforcement_Kinetic": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    },
+    "HullReinforcement_Thermic": {
+     "1": [
+      "Liz Ryder",
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Selene Jean"
+     ]
+    }
+   }
   },
   "hs": {
    "name": "Heat Sink Launcher",
@@ -13018,7 +12607,81 @@
     "mass",
     "power",
     "reload"
-   ]
+   ],
+   "engineers": {
+    "Misc_HeatSinkCapacity": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_LightWeight": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    }
+   }
   },
   "kw": {
    "name": "Kill Warrant Scanner",
@@ -13038,7 +12701,195 @@
     "power",
     "range",
     "scantime"
-   ]
+   ],
+   "engineers": {
+    "Misc_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_LongRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_WideAngle": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Sensor_FastScan": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "ls": {
    "name": "Life Support",
@@ -13053,7 +12904,84 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "LifeSupport_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Etienne Dorn"
+     ]
+    },
+    "LifeSupport_Reinforced": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Etienne Dorn"
+     ]
+    },
+    "LifeSupport_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Lori Jameson"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Etienne Dorn"
+     ]
+    }
+   }
   },
   "mc": {
    "name": "Multi-Cannon",
@@ -13098,7 +13026,209 @@
     "rof",
     "shotspeed",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "MC_Overcharged": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_Efficient": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_HighCapacity": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn",
+      "Zacariah Nemo"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    }
+   }
   },
   "mr": {
    "name": "Missile Rack",
@@ -13125,7 +13255,109 @@
     "reload",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_HighCapacity": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    }
+   }
   },
   "nl": {
    "name": "Mine Launcher",
@@ -13164,7 +13396,109 @@
     "reload",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_HighCapacity": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Juri Ishmaak",
+      "Petra Olmanova"
+     ]
+    }
+   }
   },
   "pa": {
    "name": "Plasma Accelerator",
@@ -13209,7 +13543,201 @@
     "rof",
     "shotspeed",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_Efficient": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_Focused": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Zacariah Nemo"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn"
+     ]
+    }
+   }
   },
   "pc": {
    "name": "Prospector Limpet Controller",
@@ -13223,7 +13751,102 @@
     "integrity",
     "mass",
     "power"
-   ]
+   ],
+   "engineers": {
+    "ProspectingLimpet_LightWeight": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "ProspectingLimpet_Reinforced": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    },
+    "ProspectingLimpet_Shielded": {
+     "1": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Marsha Hicks",
+      "Ram Tah",
+      "The Sarge",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Marsha Hicks",
+      "The Sarge",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "pd": {
    "name": "Power Distributor",
@@ -13253,7 +13876,177 @@
     "sysrate",
     "wepcap",
     "weprate"
-   ]
+   ],
+   "engineers": {
+    "PowerDistributor_HighCapacity": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    },
+    "PowerDistributor_HighFrequency": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    },
+    "PowerDistributor_PriorityEngines": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    },
+    "PowerDistributor_PrioritySystems": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    },
+    "PowerDistributor_PriorityWeapons": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    },
+    "PowerDistributor_Shielded": {
+     "1": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent",
+      "The Dweller"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "The Dweller"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "The Dweller"
+     ]
+    }
+   }
   },
   "pl": {
    "name": "Pulse Laser",
@@ -13293,7 +14086,217 @@
     "range",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_Efficient": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Focused": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "po": {
    "name": "Point Defence",
@@ -13310,7 +14313,81 @@
     "mass",
     "power",
     "reload"
-   ]
+   ],
+   "engineers": {
+    "Misc_LightWeight": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_PointDefenseCapacity": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "2": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "3": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "4": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ],
+     "5": [
+      "Petra Olmanova",
+      "Ram Tah"
+     ]
+    }
+   }
   },
   "pp": {
    "name": "Power Plant",
@@ -13330,7 +14407,90 @@
     "integrity",
     "mass",
     "pgen"
-   ]
+   ],
+   "engineers": {
+    "PowerPlant_Armoured": {
+     "1": [
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Hera Tani"
+     ]
+    },
+    "PowerPlant_Boosted": {
+     "1": [
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Hera Tani"
+     ]
+    },
+    "PowerPlant_Stealth": {
+     "1": [
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Hera Tani",
+      "Marco Qwent"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Hera Tani"
+     ]
+    }
+   }
   },
   "psg": {
    "name": "Prismatic Shield Generator",
@@ -13362,7 +14522,121 @@
     "power",
     "regen",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "ShieldGenerator_Kinetic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Optimised": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Reinforced": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Thermic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "rf": {
    "name": "Refinery",
@@ -13373,7 +14647,33 @@
    "modifications": [
     "integrity",
     "power"
-   ]
+   ],
+   "engineers": {
+    "Refineries_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "2": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "3": [
+      "Bill Turner",
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "4": [
+      "Lori Jameson",
+      "Marsha Hicks"
+     ],
+     "5": [
+      "Marsha Hicks"
+     ]
+    }
+   }
   },
   "rg": {
    "name": "Rail Gun",
@@ -13411,7 +14711,134 @@
     "reload",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_HighCapacity": {
+     "1": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "2": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "3": [
+      "Etienne Dorn",
+      "The Sarge",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tod \"The Blaster\" McQuinn"
+     ]
+    }
+   }
   },
   "s": {
    "name": "Sensors",
@@ -13427,7 +14854,153 @@
     "mass",
     "power",
     "range"
-   ]
+   ],
+   "engineers": {
+    "Sensor_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ]
+    },
+    "Sensor_LongRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ]
+    },
+    "Sensor_WideAngle": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ]
+    }
+   }
   },
   "sb": {
    "name": "Shield Booster",
@@ -13454,7 +15027,139 @@
     "power",
     "shieldboost",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "ShieldBooster_Explosive": {
+     "1": [
+      "Didi Vatermann",
+      "Felicity Farseer",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldBooster_HeavyDuty": {
+     "1": [
+      "Didi Vatermann",
+      "Felicity Farseer",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldBooster_Kinetic": {
+     "1": [
+      "Didi Vatermann",
+      "Felicity Farseer",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldBooster_Resistive": {
+     "1": [
+      "Didi Vatermann",
+      "Felicity Farseer",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldBooster_Thermic": {
+     "1": [
+      "Didi Vatermann",
+      "Felicity Farseer",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Didi Vatermann",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "scb": {
    "name": "Shield Cell Bank",
@@ -13479,7 +15184,45 @@
     "shieldreinforcement",
     "spinup",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "ShieldCellBank_Rapid": {
+     "1": [
+      "Elvira Martuuk",
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Mel Brandon"
+     ]
+    },
+    "ShieldCellBank_Specialised": {
+     "1": [
+      "Elvira Martuuk",
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Lori Jameson",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "sg": {
    "name": "Shield Generator",
@@ -13511,7 +15254,121 @@
     "power",
     "regen",
     "thermres"
-   ]
+   ],
+   "engineers": {
+    "ShieldGenerator_Kinetic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Optimised": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Reinforced": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    },
+    "ShieldGenerator_Thermic": {
+     "1": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "2": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "3": [
+      "Didi Vatermann",
+      "Elvira Martuuk",
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "4": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Lei Cheung",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "ss": {
    "name": "Detailed Surface Scanner",
@@ -13525,7 +15382,57 @@
     "proberadius",
     "range",
     "scanrate"
-   ]
+   ],
+   "engineers": {
+    "Sensor_Expanded": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Felicity Farseer",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson"
+     ],
+     "5": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Hera Tani",
+      "Juri Ishmaak",
+      "Lei Cheung",
+      "Lori Jameson"
+     ]
+    }
+   }
   },
   "t": {
    "name": "Thrusters",
@@ -13548,7 +15455,105 @@
     "optmul",
     "power",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Engine_Dirty": {
+     "1": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "5": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ]
+    },
+    "Engine_Reinforced": {
+     "1": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "5": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ]
+    },
+    "Engine_Tuned": {
+     "1": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "2": [
+      "Chloe Sedesi",
+      "Elvira Martuuk",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "3": [
+      "Chloe Sedesi",
+      "Felicity Farseer",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "4": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ],
+     "5": [
+      "Chloe Sedesi",
+      "Mel Brandon",
+      "Professor Palin"
+     ]
+    }
+   }
   },
   "tp": {
    "name": "Torpedo Pylon",
@@ -13581,7 +15586,59 @@
     "range",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_LightWeight": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "2": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "3": [
+      "Juri Ishmaak",
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "4": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ],
+     "5": [
+      "Liz Ryder",
+      "Petra Olmanova"
+     ]
+    }
+   }
   },
   "ul": {
    "name": "Burst Laser",
@@ -13623,7 +15680,209 @@
     "range",
     "rof",
     "thermload"
-   ]
+   ],
+   "engineers": {
+    "Weapon_Efficient": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Focused": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LightWeight": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_LongRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Overcharged": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_RapidFire": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_ShortRange": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    },
+    "Weapon_Sturdy": {
+     "1": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "2": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "3": [
+      "Broo Tarquin",
+      "Mel Brandon",
+      "The Dweller"
+     ],
+     "4": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ],
+     "5": [
+      "Broo Tarquin",
+      "Mel Brandon"
+     ]
+    }
+   }
   },
   "ws": {
    "name": "Frame Shift Wake Scanner",
@@ -13643,7 +15902,195 @@
     "power",
     "range",
     "scantime"
-   ]
+   ],
+   "engineers": {
+    "Misc_LightWeight": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Reinforced": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Misc_Shielded": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_LongRange": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Scanner_WideAngle": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    },
+    "Sensor_FastScan": {
+     "1": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "2": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "3": [
+      "Bill Turner",
+      "Etienne Dorn",
+      "Juri Ishmaak",
+      "Lori Jameson",
+      "Tiana Fortune"
+     ],
+     "4": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ],
+     "5": [
+      "Etienne Dorn",
+      "Tiana Fortune"
+     ]
+    }
+   }
   }
  },
  "modifiers": {

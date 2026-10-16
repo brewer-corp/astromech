@@ -11,6 +11,7 @@ pub mod fleet;
 pub mod links;
 pub mod plan;
 pub mod trip;
+pub mod unlocks;
 
 pub use engineers::EngineerView;
 pub use fleet::{from_journal_dir, Applied, Fitted, Fleet, FleetBuilder, Ship, ShipLinks, Stored};
@@ -257,6 +258,78 @@ mod tests {
         assert!(trip.stops.is_empty());
         assert_eq!(trip.blocked.len(), 3);
         assert!(trip.blocked[0].unlock.iter().any(|(n, _)| n == "Felicity Farseer"));
+    }
+
+    /// A Vulture with a medium beam laser, from a synthetic `Loadout`.
+    fn beam_vulture() -> Ship {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(
+            dir.path().join("Journal.2026-10-16T090000.01.log"),
+            r#"{"timestamp":"2026-10-16T09:00:00Z","event":"Loadout","Ship":"vulture","ShipID":9,"ShipName":"Beam","ShipIdent":"BM-01","HullValue":1,"ModulesValue":1,"HullHealth":1.0,"UnladenMass":300.0,"CargoCapacity":0,"MaxJumpRange":12.0,"FuelCapacity":{"Main":8.0,"Reserve":0.5},"Rebuy":1,"Modules":[{"Slot":"MediumHardpoint1","Item":"hpt_beamlaser_fixed_medium","On":true,"Priority":0,"Health":1.0}]}"#,
+        )
+        .unwrap();
+        from_journal_dir(dir.path()).ships.remove(0)
+    }
+
+    #[test]
+    fn trip_skips_engineers_capped_below_the_grade_for_this_module() {
+        // Overcharged G4 on a beam laser: Broo Tarquin and Mel Brandon go to G5; The Dweller
+        // stops at G3 on beam lasers (he does G4 on pulse lasers). Tod McQuinn doesn't work on
+        // lasers at all.
+        let ship = beam_vulture();
+        let plan = Plan {
+            ship_id: ship.id,
+            targets: vec![Target {
+                slot: "MediumHardpoint1".into(),
+                blueprint: "Weapon_Overcharged".into(),
+                grade: 4,
+                experimental: Some("special_thermal_vent".into()),
+            }],
+            rolls: Rolls::default(),
+        };
+        let r = evaluate(&ship, &plan, &astromech_materials::Ledger::default());
+        assert!(r.targets[0].note.is_none(), "{:?}", r.targets[0].note);
+        let engs = engineers_with(&[
+            ("The Dweller", "Unlocked", Some(5)),
+            ("Tod 'The Blaster' McQuinn", "Unlocked", Some(5)),
+            ("Broo Tarquin", "Known", None),
+            ("Mel Brandon", "Invited", None),
+        ]);
+        let trip = plan_trip(&ship, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
+        let grades =
+            trip.blocked.iter().find(|b| b.job.kind == "grades").expect("grades blocked, not sent to The Dweller");
+        let who: Vec<&str> = grades.unlock.iter().map(|(n, _)| n.as_str()).collect();
+        assert_eq!(who, ["Broo Tarquin", "Mel Brandon"]);
+        // the experimental: The Dweller works on beam lasers, Tod McQuinn doesn't
+        let stops: Vec<(&str, Vec<&str>)> = trip
+            .stops
+            .iter()
+            .map(|s| (s.engineer.as_str(), s.jobs.iter().map(|j| j.kind.as_str()).collect()))
+            .collect();
+        assert_eq!(stops, [("The Dweller", vec!["experimental"])]);
+        assert_eq!(r.targets[0].engineers, ["Broo Tarquin", "Mel Brandon"], "who can apply G4 here");
+
+        // Overcharged G3: The Dweller can do it
+        let plan = Plan { targets: vec![Target { grade: 3, ..plan.targets[0].clone() }], ..plan };
+        let r = evaluate(&ship, &plan, &astromech_materials::Ledger::default());
+        let trip = plan_trip(&ship, &r.targets, &engs, Some(("Sol", [0.0; 3])), 20.0, &straight(20.0));
+        assert!(trip.blocked.is_empty(), "{:?}", trip.blocked);
+        assert_eq!(trip.stops.len(), 1);
+        assert_eq!(trip.stops[0].engineer, "The Dweller");
+    }
+
+    #[test]
+    fn engineer_grades_are_per_module() {
+        let o = engineers::offers;
+        assert_eq!(o("The Dweller", "Weapon_Overcharged", "pl"), 4);
+        assert_eq!(o("The Dweller", "Weapon_Overcharged", "bl"), 3);
+        assert_eq!(o("Broo Tarquin", "Weapon_Overcharged", "mc"), 0, "no lasers engineer on multi-cannons");
+        assert_eq!(o("Felicity Farseer", "FSD_LongRange", "fsd"), 5);
+        // corrected from the wiki (scripts/check-engineer-grades.py)
+        assert_eq!(o("Ram Tah", "HatchBreakerLimpet_LightWeight", "hb"), 3);
+        assert_eq!(o("Bill Turner", "Misc_LightWeight", "cs"), 3);
+        assert_eq!(o("Etienne Dorn", "Scanner_LongRange", "cs"), 5);
+        assert_eq!(o("Lei Cheung", "Misc_LightWeight", "cs"), 0);
     }
 
     #[test]

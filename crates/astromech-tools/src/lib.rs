@@ -15,6 +15,8 @@ pub mod trade;
 
 pub use astromech_policy;
 
+pub mod lookup;
+
 /// Status.json flag bits used here (Frontier's Status file documentation).
 pub mod flags {
     pub use astromech_status::{
@@ -80,11 +82,21 @@ pub enum Query {
 /// One typed tool call.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ToolCall {
-    Toggle { toggle: Toggle, target: Target },
+    Toggle {
+        toggle: Toggle,
+        target: Target,
+    },
     Screen(Screen),
     ThrottleZero,
     Query(Query),
+    /// The nearest raw-material site of a kind (`astromech_galaxy::SITE_KINDS` id): a network
+    /// lookup the runner answers, nothing pressed.
+    Nearest(&'static str),
 }
+
+/// Site kinds a voice query can ask for (`sites.<kind>` commands); the same ids as
+/// `astromech_galaxy::SITE_KINDS`.
+pub const SITE_KINDS: &[&str] = &["crystalline_shards", "brain_trees", "crashed_ships", "geological", "raw_farms"];
 
 pub struct Spec {
     /// Stable tool name (policy dedupe key and logs).
@@ -248,6 +260,9 @@ pub fn from_command(id: &str) -> Option<ToolCall> {
     if id == "throttle.zero" {
         return Some(ToolCall::ThrottleZero);
     }
+    if let Some(kind) = id.strip_prefix("sites.") {
+        return SITE_KINDS.iter().find(|k| **k == kind).map(|k| ToolCall::Nearest(k));
+    }
     if let Some(rest) = id.strip_prefix("status.") {
         let q = match rest {
             "fuel" => Query::Fuel,
@@ -318,6 +333,8 @@ pub enum Plan {
     Refused(String),
     /// Read-only spoken answer (T0).
     Speak(String),
+    /// Read-only answer that needs a lookup (T0): the nearest site of this kind.
+    Lookup(&'static str),
     /// Ask before pressing (silent running on).
     Confirm { prompt: String, action: &'static str, verify: Verify, confirm: String, failure: String },
 }
@@ -348,6 +365,7 @@ pub fn plan_with(call: ToolCall, g: &GameState) -> Plan {
         ToolCall::Screen(s) => plan_screen(s, g),
         ToolCall::ThrottleZero => plan_throttle(g),
         ToolCall::Query(q) => Plan::Speak(answer(q, g)),
+        ToolCall::Nearest(kind) => Plan::Lookup(kind),
     }
 }
 
@@ -601,6 +619,7 @@ pub fn tool_name(call: ToolCall) -> &'static str {
         ToolCall::Screen(s) => s.name(),
         ToolCall::ThrottleZero => "set_speed_zero",
         ToolCall::Query(_) => "get_status",
+        ToolCall::Nearest(_) => "find_nearest_site",
     }
 }
 
@@ -610,6 +629,7 @@ pub fn action_noun(call: ToolCall) -> &'static str {
         ToolCall::Screen(s) => s.noun(),
         ToolCall::ThrottleZero => "Throttle",
         ToolCall::Query(_) => "Status",
+        ToolCall::Nearest(_) => "Site lookup",
     }
 }
 
@@ -618,7 +638,7 @@ pub fn elite_action(call: ToolCall) -> Option<&'static str> {
         ToolCall::Toggle { toggle, .. } => Some(toggle.spec().action),
         ToolCall::Screen(s) => Some(s.action()),
         ToolCall::ThrottleZero => Some("SetSpeedZero"),
-        ToolCall::Query(_) => None,
+        ToolCall::Query(_) | ToolCall::Nearest(_) => None,
     }
 }
 
@@ -652,6 +672,9 @@ mod tests {
         assert_eq!(from_command("galaxy_map.open"), Some(ToolCall::Screen(Screen::GalaxyMap)));
         assert_eq!(from_command("throttle.zero"), Some(ToolCall::ThrottleZero));
         assert_eq!(from_command("status.fuel"), Some(ToolCall::Query(Query::Fuel)));
+        assert_eq!(from_command("sites.crystalline_shards"), Some(ToolCall::Nearest("crystalline_shards")));
+        assert_eq!(from_command("sites.nowhere"), None);
+        assert_eq!(plan_with(ToolCall::Nearest("brain_trees"), &GameState::default()), Plan::Lookup("brain_trees"));
     }
 
     #[test]

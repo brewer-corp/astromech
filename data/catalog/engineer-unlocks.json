@@ -1,0 +1,428 @@
+{
+ "source": "Elite Dangerous wiki, Engineers page, Engineer Summary (scripts/gen-engineer-unlocks.py, 16 Oct 2026)",
+ "engineers": [
+  {
+   "name": "Tod \"The Blaster\" McQuinn",
+   "kind": "ship",
+   "system": "Wolf 397",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Earn 15 bounty vouchers",
+   "unlock": "Provide 100,000 CR worth of bounty vouchers",
+   "reputation": "Craft modules, hand in Alliance vouchers to Trophy Camp"
+  },
+  {
+   "name": "Felicity Farseer",
+   "kind": "ship",
+   "system": "Deciat",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Explorer rank of Scout or higher",
+   "unlock": "Provide 1 unit of Meta-Alloys",
+   "reputation": "Craft modules, sell exploration data at Farseer Inc"
+  },
+  {
+   "name": "Elvira Martuuk",
+   "kind": "ship",
+   "system": "Khun",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Travel at least 300 ly from starting system",
+   "unlock": "Provide 3 units of Soontill Relics",
+   "reputation": "Craft modules, sell exploration data at Long Sight Base"
+  },
+  {
+   "name": "Liz Ryder",
+   "kind": "ship",
+   "system": "Eurybia",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Cordial or higher reputation with Eurybia Blue Mafia; complete mission from Chris & Silva's Paradise Hideout",
+   "unlock": "Provide 200 units of Landmines",
+   "reputation": "Craft modules, sell commodities to Demolition Unlimited"
+  },
+  {
+   "name": "The Dweller",
+   "kind": "ship",
+   "system": "Wyrd",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Deal in stolen or illicit goods at 5 Black Markets",
+   "unlock": "Pay 500,000 CR",
+   "reputation": "Craft modules, sell commodities to Black Hide"
+  },
+  {
+   "name": "Lei Cheung",
+   "kind": "ship",
+   "system": "Laksak",
+   "permit": false,
+   "introduced_by": [
+    "The Dweller"
+   ],
+   "invite": "Trade with at least 50 markets",
+   "unlock": "Provide 200 units of Gold",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Selene Jean",
+   "kind": "ship",
+   "system": "Kuk",
+   "permit": false,
+   "introduced_by": [
+    "Tod \"The Blaster\" McQuinn"
+   ],
+   "invite": "Mine at least 500 tons of ore",
+   "unlock": "Provide 10 Painite",
+   "reputation": "Craft modules, sell commodities or exploration data to Prospector's Rest"
+  },
+  {
+   "name": "Hera Tani",
+   "kind": "ship",
+   "system": "Kuwemaki",
+   "permit": false,
+   "introduced_by": [
+    "Liz Ryder"
+   ],
+   "invite": "Imperial Navy rank of Outsider or higher",
+   "unlock": "Provide 50 Kamitra Cigars",
+   "reputation": "Craft modules, sell commodities to The Jet's Hole"
+  },
+  {
+   "name": "Broo Tarquin",
+   "kind": "ship",
+   "system": "Muang",
+   "permit": false,
+   "introduced_by": [
+    "Hera Tani"
+   ],
+   "invite": "Combat rank of Competent or higher",
+   "unlock": "Provide 50 Fujin Tea",
+   "reputation": "Craft modules, hand in bounty vouchers at Broo's Legacy"
+  },
+  {
+   "name": "Marco Qwent",
+   "kind": "ship",
+   "system": "Sirius",
+   "permit": true,
+   "introduced_by": [
+    "Elvira Martuuk"
+   ],
+   "invite": "Ally reputation with Sirius Corporation",
+   "unlock": "Provide 25 Modular Terminals",
+   "reputation": "Craft modules, sell commodities to Qwent Research Base"
+  },
+  {
+   "name": "Zacariah Nemo",
+   "kind": "ship",
+   "system": "Yoru",
+   "permit": false,
+   "introduced_by": [
+    "Elvira Martuuk"
+   ],
+   "invite": "Friendly or higher with Party of Yoru",
+   "unlock": "Provide 25 units of Xihe Biomorphic Companions",
+   "reputation": "Craft modules, sell commodities to Nemo Cyber Party Base"
+  },
+  {
+   "name": "Didi Vatermann",
+   "kind": "ship",
+   "system": "Leesti",
+   "permit": false,
+   "introduced_by": [
+    "Selene Jean"
+   ],
+   "invite": "Trade rank of Merchant or higher",
+   "unlock": "Provide 50 units of Lavian Brandy",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Colonel Bris Dekker",
+   "kind": "ship",
+   "system": "Sol",
+   "permit": true,
+   "introduced_by": [
+    "Juri Ishmaak"
+   ],
+   "invite": "Friendly or higher reputation with the Federation",
+   "unlock": "Provide 1,000,000 CR worth of combat bonds",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Juri Ishmaak",
+   "kind": "ship",
+   "system": "Giryak",
+   "permit": false,
+   "introduced_by": [
+    "Felicity Farseer"
+   ],
+   "invite": "Earn at least 50 combat bonds",
+   "unlock": "Provide 100,000 CR worth of combat bonds",
+   "reputation": "Craft modules, hand in combat bonds to Pater's Memorial"
+  },
+  {
+   "name": "Professor Palin",
+   "kind": "ship",
+   "system": "Arque",
+   "permit": false,
+   "introduced_by": [
+    "Marco Qwent"
+   ],
+   "invite": "Travel at least 5,000 ly from starting system",
+   "unlock": "Provide 25 units of Sensor Fragments",
+   "reputation": "Craft modules, sell exploration data to Abel Laboratory"
+  },
+  {
+   "name": "Chloe Sedesi",
+   "kind": "ship",
+   "system": "Shenve",
+   "permit": false,
+   "introduced_by": [
+    "Marco Qwent"
+   ],
+   "invite": "Travel at least 5,000 ly from starting system",
+   "unlock": "Provide 25 units of Sensor Fragments",
+   "reputation": "Craft modules, sell exploration data to Cinder Dock"
+  },
+  {
+   "name": "Bill Turner",
+   "kind": "ship",
+   "system": "Alioth",
+   "permit": true,
+   "introduced_by": [
+    "Selene Jean"
+   ],
+   "invite": "Friendly or higher reputation with the Alliance",
+   "unlock": "Provide 50 units of Bromellite",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Lori Jameson",
+   "kind": "ship",
+   "system": "Shinrarta Dezhra",
+   "permit": true,
+   "introduced_by": [
+    "Marco Qwent"
+   ],
+   "invite": "Combat rank of Dangerous or higher",
+   "unlock": "Provide 25 units of Konnga Ale",
+   "reputation": "Craft modules, sell exploration data to Jameson Base"
+  },
+  {
+   "name": "Ram Tah",
+   "kind": "ship",
+   "system": "Meene",
+   "permit": false,
+   "introduced_by": [
+    "Lei Cheung"
+   ],
+   "invite": "Explorer rank of Surveyor or higher",
+   "unlock": "Provide 50 Classified Scan Databanks",
+   "reputation": "Craft modules, sell exploration data to Phoenix Base"
+  },
+  {
+   "name": "Tiana Fortune",
+   "kind": "ship",
+   "system": "Achenar",
+   "permit": true,
+   "introduced_by": [
+    "Hera Tani"
+   ],
+   "invite": "Friendly or higher reputation with the Empire",
+   "unlock": "Provide 50 units of Decoded Emission Data",
+   "reputation": "Craft modules, sell commodities to Fortune's Loss"
+  },
+  {
+   "name": "The Sarge",
+   "kind": "ship",
+   "system": "Beta-3 Tucani",
+   "permit": false,
+   "introduced_by": [
+    "Juri Ishmaak"
+   ],
+   "invite": "Federal Navy rank of Midshipman or higher",
+   "unlock": "Provide 50 units of Aberrant Shield Pattern Analysis",
+   "reputation": "Craft modules, sell exploration data to The Beach"
+  },
+  {
+   "name": "Etienne Dorn",
+   "kind": "ship",
+   "system": "Los",
+   "permit": false,
+   "introduced_by": [
+    "Liz Ryder"
+   ],
+   "invite": "Trade rank of Dealer or higher",
+   "unlock": "Provide 25 units of Occupied Escape Pods",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Marsha Hicks",
+   "kind": "ship",
+   "system": "Tir",
+   "permit": false,
+   "introduced_by": [
+    "The Dweller"
+   ],
+   "invite": "Explorer rank of Surveyor or higher",
+   "unlock": "Provide 10 units of Osmium",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Mel Brandon",
+   "kind": "ship",
+   "system": "Luchtaine",
+   "permit": false,
+   "introduced_by": [
+    "Elvira Martuuk"
+   ],
+   "invite": "Friendly or higher reputation with Colonia Council",
+   "unlock": "Provide 100,000 credits of bounty vouchers",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Petra Olmanova",
+   "kind": "ship",
+   "system": "Asura",
+   "permit": false,
+   "introduced_by": [
+    "Tod \"The Blaster\" McQuinn"
+   ],
+   "invite": "Combat rank of Expert or higher",
+   "unlock": "Provide 200 units of Progenitor Cells",
+   "reputation": "Craft modules"
+  },
+  {
+   "name": "Domino Green",
+   "kind": "suit",
+   "system": "Orishis",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Travel 100ly in Apex Interstellar Transport shuttles",
+   "referral": "Provide 5 Push"
+  },
+  {
+   "name": "Hero Ferrari",
+   "kind": "suit",
+   "system": "Siris",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Complete 10 Conflict Zones",
+   "referral": "Provide 5 Settlement Defence Plans"
+  },
+  {
+   "name": "Jude Navarro",
+   "kind": "suit",
+   "system": "Aurai",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Complete 10 Restore or Reactivation missions",
+   "referral": "Provide 5 Genetic Repair Meds"
+  },
+  {
+   "name": "Kit Fowler",
+   "kind": "suit",
+   "system": "Capoya",
+   "permit": false,
+   "introduced_by": [
+    "Domino Green"
+   ],
+   "invite": "Sell 5 Opinion Polls to Bartenders",
+   "referral": "Provide 5 Surveillance Equipment"
+  },
+  {
+   "name": "Oden Geiger",
+   "kind": "suit",
+   "system": "Candiaei",
+   "permit": false,
+   "introduced_by": [
+    "Terra Velasquez"
+   ],
+   "invite": "Sell 20 total Biological Sample, Employee Genetic Data, and Genetic Research to Bartenders",
+   "referral": null
+  },
+  {
+   "name": "Terra Velasquez",
+   "kind": "suit",
+   "system": "Shou Xing",
+   "permit": false,
+   "introduced_by": [
+    "Jude Navarro"
+   ],
+   "invite": "Complete 6 Covert Heist or Covert Theft missions",
+   "referral": "Provide 15 Financial Projections"
+  },
+  {
+   "name": "Uma Laszlo",
+   "kind": "suit",
+   "system": "Xuane",
+   "permit": false,
+   "introduced_by": [
+    "Wellington Beck"
+   ],
+   "invite": "Reach unfriendly rep with Sirius Corporation",
+   "referral": null
+  },
+  {
+   "name": "Wellington Beck",
+   "kind": "suit",
+   "system": "Jolapa",
+   "permit": false,
+   "introduced_by": [
+    "Hero Ferrari"
+   ],
+   "invite": "Sell 15 total Classic Entertainment, Multimedia Entertainment, and/or Cat Media to Bartenders",
+   "referral": "Provide 5 InSight Entertainment Suites"
+  },
+  {
+   "name": "Yarden Bond",
+   "kind": "suit",
+   "system": "Bayan",
+   "permit": false,
+   "introduced_by": [
+    "Kit Fowler"
+   ],
+   "invite": "Sell 5 Smear Campaign Plans to Bartenders",
+   "referral": null
+  },
+  {
+   "name": "Baltanos",
+   "kind": "suit",
+   "system": "Deriso",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Friendly reputation with Colonia Council",
+   "referral": "Provide 10 Faction Associates"
+  },
+  {
+   "name": "Eleanor Bresa",
+   "kind": "suit",
+   "system": "Desy",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Visit 5 Settlements in Colonia",
+   "referral": "Provide 10 Digital Designs"
+  },
+  {
+   "name": "Rosa Dayette",
+   "kind": "suit",
+   "system": "Kojeara",
+   "permit": false,
+   "introduced_by": [],
+   "invite": "Sell 10 total Culinary Recipes or Cocktail Recipes to Bartenders in Colonia",
+   "referral": "Provide 10 Manufacturing Instructions"
+  },
+  {
+   "name": "Yi Shen",
+   "kind": "suit",
+   "system": "Einheriar",
+   "permit": false,
+   "introduced_by": [
+    "Baltanos",
+    "Eleanor Bresa",
+    "Rosa Dayette"
+   ],
+   "invite": "Complete all referral tasks for Baltanos, Eleanor Bresa, & Rosa Dayette",
+   "referral": null
+  }
+ ]
+}
