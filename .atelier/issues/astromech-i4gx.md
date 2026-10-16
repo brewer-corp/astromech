@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "History: commander id on events and ledgers"
-updated_at: "2026-10-16T19:50:25.749334885+00:00"
+updated_at: "2026-10-16T19:51:00.767285663+00:00"
 ---
 
 ## Goal
