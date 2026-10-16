@@ -42,9 +42,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T19:20:15.736208158+00:00"
+status: "done"
 title: "Remote data layer and the \"search near me\" kit"
-updated_at: "2026-10-16T19:02:54.519761424+00:00"
+updated_at: "2026-10-16T19:20:15.736208158+00:00"
 ---
 
 ## Goal
@@ -66,3 +67,7 @@ How Spansh's undocumented search endpoints behave on bad input and under load.
 ## Design
 
 [ARCHITECTURE §18](docs/ARCHITECTURE.md) (one domain layer); [REPORT §4](docs/REPORT.md) (services).
+
+## Close Reason
+
+All children done: astromech-data crate with cache, schema checks, rate limits and plain-words errors (h74l); one search kit with current or typed origin and Spansh autocomplete, the faction-state lookup on it (pxy2); per-lookup remembered filters (1imw). Go to the route follower is astromech-5akj.
