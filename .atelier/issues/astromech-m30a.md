@@ -32,9 +32,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-16T21:56:44.985148181+00:00"
+status: "done"
 title: "Nearby outfitting, ships and services"
-updated_at: "2026-10-16T21:06:14.582373816+00:00"
+updated_at: "2026-10-16T21:56:44.985148181+00:00"
 ---
 
 ## Goal
@@ -52,3 +53,7 @@ The Spansh stations-search request shape for module and ship filters.
 ## Notes
 
 - 2026-10-16 [note] All three children done (tw2y, 4c6q, puas). Left in review, not closed: Done-when requires independent review, which hasn't happened. Unknown resolved: Spansh module filter is modules:[{name,class,rating}] (mount not filterable; checked via ed_symbol), ships:[{name}]; documented in astromech_data::spansh. Shell main.rs not compiled locally (no glib/webkit); Windows CI must build it.
+
+## Close Reason
+
+All children done; lookups tested against recorded Spansh responses with voice phrase tests; independently reviewed (approve once R1 fixed and main merged: done at b73a94b); R4-R7 filed as astromech-970a. Game check astromech-4su3 follows the merge.
