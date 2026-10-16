@@ -148,6 +148,10 @@ pub struct ModuleSnap {
     pub slot: String,
     /// Outfitting symbol, lowercase (`int_hyperdrive_size5_class5`).
     pub item: String,
+    /// Powered on (`On`; missing counts as on).
+    pub on: bool,
+    /// Power priority group, 0–4 (`Priority`; the game shows it as 1–5).
+    pub priority: u8,
     pub engineering: Option<ModEngineering>,
 }
 
@@ -362,6 +366,8 @@ fn modules(v: &serde_json::Value) -> Vec<ModuleSnap> {
         .map(|m| ModuleSnap {
             slot: s(m, "Slot"),
             item: s(m, "Item").to_ascii_lowercase(),
+            on: m.get("On").and_then(|x| x.as_bool()).unwrap_or(true),
+            priority: opt_i(m, "Priority").unwrap_or(0).clamp(0, 4) as u8,
             engineering: m.get("Engineering").filter(|e| e.is_object()).map(|e| ModEngineering {
                 blueprint: s(e, "BlueprintName"),
                 level: opt_i(e, "Level").unwrap_or(0).clamp(0, 5) as u8,
@@ -678,13 +684,15 @@ mod tests {
     #[test]
     fn loadout_modules_and_fleet_events() {
         let l = parse_line(
-            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
+            r#"{"timestamp":"t","event":"Loadout","Ship":"krait_mkii","ShipID":7,"ShipName":"Kestrel","Modules":[{"Slot":"FrameShiftDrive","Item":"Int_Hyperdrive_Size5_Class5","On":true,"Priority":2,"Engineering":{"Engineer":"Felicity Farseer","BlueprintName":"FSD_LongRange","Level":4,"Quality":0.5,"ExperimentalEffect":"special_fsd_heavy","ExperimentalEffect_Localised":"Mass Manager","Modifiers":[]}},{"Slot":"Armour","Item":"Krait_MkII_Armour_Grade1"}]}"#,
         )
         .unwrap();
         match l.event {
             JournalEvent::Loadout { ship_id, modules, .. } => {
                 assert_eq!(ship_id, Some(7));
                 assert_eq!(modules[0].item, "int_hyperdrive_size5_class5");
+                assert!(modules[0].on);
+                assert_eq!(modules[0].priority, 2);
                 let e = modules[0].engineering.as_ref().unwrap();
                 assert_eq!((e.blueprint.as_str(), e.level, e.quality), ("FSD_LongRange", 4, 0.5));
                 assert_eq!(e.experimental.as_deref(), Some("special_fsd_heavy"));

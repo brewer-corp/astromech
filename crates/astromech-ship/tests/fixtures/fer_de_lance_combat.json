@@ -1,0 +1,301 @@
+{
+ "timestamp": "2026-10-16T12:00:00Z",
+ "event": "Loadout",
+ "Ship": "FerDeLance",
+ "ShipID": 2,
+ "ShipName": "Synthetic_FdL",
+ "ShipIdent": "AM-2",
+ "Modules": [
+  {
+   "Slot": "CargoHatch",
+   "Item": "ModularCargoBayDoor",
+   "On": false,
+   "Priority": 4,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Armour",
+   "Item": "FerDeLance_Armour_Reactive",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Armour_Thermic",
+    "Level": 5,
+    "Quality": 0.6,
+    "ExperimentalEffect": "special_armour_explosive"
+   }
+  },
+  {
+   "Slot": "PowerPlant",
+   "Item": "Int_Powerplant_Size6_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerPlant_Armoured",
+    "Level": 4,
+    "Quality": 0.5
+   }
+  },
+  {
+   "Slot": "MainEngines",
+   "Item": "Int_Engine_Size5_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Engine_Tuned",
+    "Level": 5,
+    "Quality": 0.3,
+    "ExperimentalEffect": "special_engine_cooled"
+   }
+  },
+  {
+   "Slot": "FrameShiftDrive",
+   "Item": "Int_Hyperdrive_Size4_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "FSD_LongRange",
+    "Level": 3,
+    "Quality": 0.2
+   }
+  },
+  {
+   "Slot": "LifeSupport",
+   "Item": "Int_LifeSupport_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PowerDistributor",
+   "Item": "Int_PowerDistributor_Size6_Class5",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "PowerDistributor_HighFrequency",
+    "Level": 5,
+    "Quality": 0.85,
+    "ExperimentalEffect": "special_powerdistributor_fast"
+   }
+  },
+  {
+   "Slot": "Radar",
+   "Item": "Int_Sensors_Size4_Class2",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0
+  },
+  {
+   "Slot": "FuelTank",
+   "Item": "Int_FuelTank_Size3_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "HugeHardpoint1",
+   "Item": "Hpt_MultiCannon_Gimbal_Huge",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_Overcharged",
+    "Level": 5,
+    "Quality": 1.0,
+    "ExperimentalEffect": "special_incendiary_rounds"
+   }
+  },
+  {
+   "Slot": "MediumHardpoint1",
+   "Item": "Hpt_Railgun_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_ShortRange",
+    "Level": 5,
+    "Quality": 0.65,
+    "ExperimentalEffect": "special_super_penetrator"
+   }
+  },
+  {
+   "Slot": "MediumHardpoint2",
+   "Item": "Hpt_Railgun_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_HighCapacity",
+    "Level": 4,
+    "Quality": 0.35,
+    "ExperimentalEffect": "special_feedback_cascade"
+   }
+  },
+  {
+   "Slot": "MediumHardpoint3",
+   "Item": "Hpt_PulseLaserBurst_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_RapidFire",
+    "Level": 4,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_weapon_efficient"
+   }
+  },
+  {
+   "Slot": "MediumHardpoint4",
+   "Item": "Hpt_BeamLaser_Fixed_Medium",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "Weapon_ShortRange",
+    "Level": 2,
+    "Quality": 0.3,
+    "ExperimentalEffect": "special_regeneration_sequence"
+   }
+  },
+  {
+   "Slot": "TinyHardpoint1",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Kinetic",
+    "Level": 5,
+    "Quality": 0.9,
+    "ExperimentalEffect": "special_shieldbooster_kinetic"
+   }
+  },
+  {
+   "Slot": "TinyHardpoint2",
+   "Item": "Hpt_ShieldBooster_Size0_Class5",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Resistive",
+    "Level": 4,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_shieldbooster_thermic"
+   }
+  },
+  {
+   "Slot": "TinyHardpoint3",
+   "Item": "Hpt_ShieldBooster_Size0_Class4",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldBooster_Explosive",
+    "Level": 3,
+    "Quality": 0.75
+   }
+  },
+  {
+   "Slot": "TinyHardpoint4",
+   "Item": "Hpt_ShieldBooster_Size0_Class3",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint5",
+   "Item": "Hpt_ChaffLauncher_Tiny",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "TinyHardpoint6",
+   "Item": "Hpt_PlasmaPointDefence_Turret_Tiny",
+   "On": true,
+   "Priority": 2,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot01_Size5",
+   "Item": "Int_ShieldGenerator_Size5_Class3_Fast",
+   "On": true,
+   "Priority": 0,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "ShieldGenerator_Thermic",
+    "Level": 5,
+    "Quality": 0.7,
+    "ExperimentalEffect": "special_shield_regenerative"
+   }
+  },
+  {
+   "Slot": "Slot02_Size4",
+   "Item": "Int_HullReinforcement_Size4_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0,
+   "Engineering": {
+    "Engineer": "Synthetic",
+    "BlueprintName": "HullReinforcement_Kinetic",
+    "Level": 5,
+    "Quality": 0.5,
+    "ExperimentalEffect": "special_hullreinforcement_explosive"
+   }
+  },
+  {
+   "Slot": "Slot03_Size4",
+   "Item": "Int_ModuleReinforcement_Size4_Class2",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot04_Size2",
+   "Item": "Int_ShieldCellBank_Size2_Class5",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot05_Size1",
+   "Item": "Int_DockingComputer_Standard",
+   "On": true,
+   "Priority": 3,
+   "Health": 1.0
+  },
+  {
+   "Slot": "Slot06_Size1",
+   "Item": "Int_Repairer_Size1_Class5",
+   "On": false,
+   "Priority": 4,
+   "Health": 1.0
+  },
+  {
+   "Slot": "PlanetaryApproachSuite",
+   "Item": "Int_PlanetApproachSuite",
+   "On": true,
+   "Priority": 1,
+   "Health": 1.0
+  }
+ ]
+}
