@@ -25,6 +25,7 @@ astromech-policy = { path = "crates/astromech-policy" }
 astromech-tools = { path = "crates/astromech-tools" }
 astromech-overlay = { path = "crates/astromech-overlay" }
 astromech-store = { path = "crates/astromech-store" }
+astromech-colonisation = { path = "crates/astromech-colonisation" }
 astromech-intent = { path = "crates/astromech-intent" }
 astromech-materials = { path = "crates/astromech-materials" }
 astromech-engineering = { path = "crates/astromech-engineering" }

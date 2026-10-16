@@ -17,6 +17,7 @@
     title = "Nearest",
     joiner = "to",
     busyText = "Searching…",
+    start = null,
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
@@ -29,9 +30,12 @@
     /** Between the title and the origin: "Nearest to Sol", "Best prices near Sol". */
     joiner?: string;
     busyText?: string;
+    /** Where to search from until the commander picks another system; a new one resets the box. */
+    start?: Origin;
   } = $props();
 
-  let origin = $state<Origin>(null);
+  // Follows `start`; the commander's pick (or ×) overrides it until `start` changes.
+  let origin = $derived<Origin>(start);
   /** Filters loaded for `lookup` (null until they arrive). */
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
   let res = $state<Results | null>(null);

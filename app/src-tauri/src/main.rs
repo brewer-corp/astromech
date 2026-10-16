@@ -732,6 +732,59 @@ async fn trade_cargo(
     .await
 }
 
+/// What the colonisation view was built from: the journals and `Cargo.json`'s bytes (a small
+/// file, compared whole so a change shows even where its mtime can't be read).
+type ColonisationKey = (astromech_materials::JournalVersion, Option<Vec<u8>>);
+
+#[allow(clippy::type_complexity)]
+struct ColonisationCache(std::sync::Mutex<Option<(ColonisationKey, std::sync::Arc<Vec<astromech_colonisation::ProjectView>>)>>);
+
+/// Colonisation projects from the journals, being built first, each with what is left to buy.
+/// The app polls this; the journals are replayed only when they or `Cargo.json` change.
+#[tauri::command]
+async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let dir = journal_dir();
+        if !dir.is_dir() {
+            return Err(format!("journal folder not found: {}", dir.display()));
+        }
+        let cache = app.state::<ColonisationCache>();
+        let cargo = std::fs::read(dir.join("Cargo.json")).ok();
+        let version = (astromech_materials::journal_version(&dir), cargo);
+        let cached = cache.0.lock().map_err(|_| "busy".to_string())?.as_ref().filter(|(s, _)| *s == version).map(|(_, v)| v.clone());
+        let v = match cached {
+            Some(v) => v,
+            None => {
+                let v = std::sync::Arc::new(astromech_colonisation::from_journal_dir(&dir));
+                *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
+                v
+            }
+        };
+        serde_json::to_value(&*v).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// Where to buy `needs` (a project's shopping list) near `origin` (the construction site's
+/// system, a typed one) or the commander: stations stocking most of the list first (Ardent).
+#[tauri::command]
+async fn colonisation_buy(
+    app: tauri::AppHandle,
+    needs: Vec<astromech_market::list::Need>,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let p = astromech_market::list::plan_search(&g, &here, range, &needs, &filters, 12, now)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "here": here, "range": range, "plan": p }))
+    })
+    .await
+}
+
 /// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
 /// when the core uses its default data dir (not portable mode or a `data_dir` override).
 fn settings() -> Result<astromech_store::Store, String> {
@@ -918,6 +971,7 @@ fn main() {
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
+        .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
@@ -948,6 +1002,8 @@ fn main() {
             galaxy_systems,
             trade_search,
             trade_cargo,
+            colonisation_projects,
+            colonisation_buy,
             search_filters,
             set_search_filters,
             powerplay_overview,

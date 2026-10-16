@@ -1,5 +1,5 @@
-//! Print sample trade searches and a cargo plan from the recorded Ardent answers and a fixture
-//! hold (no network), for the app's
+//! Print sample trade searches, a cargo plan and where to buy a colonisation shopping list from
+//! the recorded Ardent answers and a fixture hold (no network), for the app's
 //! browser preview (`app/src/lib/fixtures/trade.json`):
 //! `cargo run -q -p astromech-market --example dump-trade > app/src/lib/fixtures/trade.json`
 use astromech_data::{Cache, Client, Clock, Limiter, Request, Response, Transport, TransportError};
@@ -19,6 +19,14 @@ impl Transport for Recorded {
             include_str!("../tests/fixtures/ardent-sell-lowtemperaturediamond-sol.json")
         } else if url.contains("/tritium/nearby/exports") {
             include_str!("../tests/fixtures/ardent-buy-tritium-sol.json")
+        } else if url.contains("/steel/nearby/exports") {
+            include_str!("../tests/fixtures/ardent-buy-steel-sol.json")
+        } else if url.contains("/ceramiccomposites/nearby/exports") {
+            include_str!("../tests/fixtures/ardent-buy-ceramiccomposites-sol.json")
+        } else if url.contains("/cmmcomposite/nearby/exports") {
+            include_str!("../tests/fixtures/ardent-buy-cmmcomposite-sol.json")
+        } else if url.contains("/insulatingmembrane/nearby/exports") {
+            include_str!("../tests/fixtures/ardent-buy-insulatingmembrane-sol.json")
         } else {
             "[]"
         };
@@ -48,7 +56,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let buy = search(&g, &here, 20.0, Side::Buy, &["tritium"], &f, 12, EVENING)?;
     let hold = astromech_journal::parse_cargo(include_bytes!("../tests/fixtures/cargo-mined.json")).unwrap_or_default();
     let cargo = astromech_market::cargo::plan_search(&g, &here, 20.0, &hold.inventory, &f, 8, EVENING)?;
-    let out = serde_json::json!({ "sell": sell, "buy": buy, "cargo": cargo, "hold": hold.inventory });
+    // The shopping list of the preview's construction site (app/src/lib/fixtures/colonisation.json).
+    let need = |symbol: &str, name: &str, tonnes| astromech_market::list::Need {
+        symbol: symbol.into(),
+        name: name.into(),
+        tonnes,
+    };
+    let needs = [
+        need("steel", "Steel", 4_912),
+        need("cmmcomposite", "CMM Composite", 3_820),
+        need("ceramiccomposites", "Ceramic Composites", 512),
+        need("insulatingmembrane", "Insulating Membrane", 310),
+    ];
+    let f20 = Filters { max_distance_ly: Some(20), ..Filters::default() };
+    let list = astromech_market::list::plan_search(&g, &here, 20.0, &needs, &f20, 12, EVENING)?;
+    let out = serde_json::json!({ "sell": sell, "buy": buy, "cargo": cargo, "hold": hold.inventory, "list": list });
     println!("{}", serde_json::to_string_pretty(&out)?);
     Ok(())
 }

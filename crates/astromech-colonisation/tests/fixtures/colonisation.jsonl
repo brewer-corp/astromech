@@ -1,0 +1,11 @@
+{"timestamp":"2026-10-01T09:00:00Z","event":"ColonisationSystemClaim","StarSystem":"Test System","SystemAddress":1001}
+{"timestamp":"2026-10-01T09:05:00Z","event":"ColonisationSystemClaim","StarSystem":"Other System","SystemAddress":1002}
+{"timestamp":"2026-10-01T09:08:00Z","event":"Location","StarSystem":"Test System","SystemAddress":1001,"Docked":false}
+{"timestamp":"2026-10-01T09:10:00Z","event":"ColonisationBeaconDeployed"}
+{"timestamp":"2026-10-01T10:00:00Z","event":"Docked","StationName":"Planetary Construction Site: Test Hub","StationType":"SurfaceStation","StarSystem":"Test System","SystemAddress":1001,"MarketID":3900000001}
+{"timestamp":"2026-10-01T10:00:05Z","event":"ColonisationConstructionDepot","MarketID":3900000001,"ConstructionProgress":0.25,"ConstructionComplete":false,"ConstructionFailed":false,"ResourcesRequired":[{"Name":"$steel_name;","Name_Localised":"Steel","RequiredAmount":800,"ProvidedAmount":200,"Payment":4000},{"Name":"$aluminium_name;","Name_Localised":"Aluminium","RequiredAmount":200,"ProvidedAmount":0,"Payment":3000}]}
+{"timestamp":"2026-10-01T10:10:00Z","event":"ColonisationContribution","MarketID":3900000001,"Contributions":[{"Name":"$steel_name;","Amount":120}]}
+{"timestamp":"2026-10-01T10:20:00Z","event":"ColonisationContribution","MarketID":3900000001,"Contributions":[{"Name":"$steel_name;","Amount":180},{"Name":"$aluminium_name;","Amount":50}]}
+{"timestamp":"2026-10-01T10:30:00Z","event":"ColonisationConstructionDepot","MarketID":3900000001,"ConstructionProgress":0.5,"ConstructionComplete":false,"ConstructionFailed":false,"ResourcesRequired":[{"Name":"$steel_name;","Name_Localised":"Steel","RequiredAmount":800,"ProvidedAmount":500,"Payment":4000},{"Name":"$aluminium_name;","Name_Localised":"Aluminium","RequiredAmount":200,"ProvidedAmount":50,"Payment":3000}]}
+{"timestamp":"2026-10-01T12:00:00Z","event":"ColonisationConstructionDepot","MarketID":3900000002,"ConstructionProgress":1.0,"ConstructionComplete":true,"ConstructionFailed":false,"ResourcesRequired":[{"Name":"$steel_name;","RequiredAmount":100,"ProvidedAmount":100,"Payment":4000}]}
+{"timestamp":"2026-10-02T09:00:00Z","event":"ColonisationSystemClaimRelease","StarSystem":"Other System","SystemAddress":1002}
