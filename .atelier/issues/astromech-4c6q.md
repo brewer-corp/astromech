@@ -18,9 +18,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T21:01:40.792116909+00:00"
+status: "done"
 title: "Find a module near me"
-updated_at: "2026-10-16T20:55:19.102310465+00:00"
+updated_at: "2026-10-16T21:01:40.792116909+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ For a recorded Spansh response, the list is in distance order and honours pad si
 ## Context
 
 Spansh stations search with a module filter. Unverified: the request shape; check it in the site's network traffic first.
+
+## Close Reason
+
+Recorded Spansh module responses list in distance order and honour pad size; 'nearest 6A frame shift drive' resolves to the same query as the app
