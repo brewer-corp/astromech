@@ -1,0 +1,181 @@
+---
+created_at: "2026-10-16T22:07:00.005217266+00:00"
+id: "astromech-thkg"
+evidence_type: "test"
+commit: "8dde3e6c94c3137b55bdd95489102c9f5ca60a1a"
+result: "pass"
+captured_at: "2026-10-16T22:06:23.515081300+00:00"
+command: "sh -c 'cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && python3 scripts/check-deps.py && (cd app/src-tauri && cargo metadata --locked --offline --format-version 1 >/dev/null) && cd app && pnpm lint && pnpm check && pnpm build && pnpm test'"
+exit_status: "0"
+agent_identity: "claude-opus-5.5"
+target:
+  kind: "issue"
+  id: "astromech-sd56"
+  role: "validates"
+relationships:
+  blocks: []
+  children: []
+  attachments:
+  - kind: "issue"
+    id: "astromech-sd56"
+    role: "validates"
+  relates: []
+schema: "atelier.evidence"
+schema_version: 2
+status: "recorded"
+title: "Full pre-PR checks after merging main at 8dde3e6 (rerun after the pre-existing gear_down confirmation_is_logged_with_latency timing flake in the previous run): fmt, clippy -D warnings, workspace tests, dependency rules, shell Cargo.lock --locked, app lint/check/build/vitest"
+updated_at: "2026-10-16T22:07:00.005799030+00:00"
+---
+
+## Summary
+
+Full pre-PR checks after merging main at 8dde3e6 (rerun after the pre-existing gear_down confirmation_is_logged_with_latency timing flake in the previous run): fmt, clippy -D warnings, workspace tests, dependency rules, shell Cargo.lock --locked, app lint/check/build/vitest
+
+## Command
+
+```console
+sh -c 'cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && python3 scripts/check-deps.py && (cd app/src-tauri && cargo metadata --locked --offline --format-version 1 >/dev/null) && cd app && pnpm lint && pnpm check && pnpm build && pnpm test'
+```
+
+Exit status: 0
+
+## Stdout
+
+Bytes: 32081
+Truncated: yes
+
+```text
+
+running 60 tests
+test calibration::tests::device_name_matches_what_the_session_opens ... ok
+test autostart::tests::state_round_trip ... ok
+test autostart::tests::command_line_quotes_the_path ... ok
+test control::tests::text_argument_is_optional ... ok
+test controls::tests::describes_missing_and_implausible_buttons ... ok
+test config::tests::finds_look_alike_config_names ... ok
+test controls::tests::first_report_is_the_ptt_press ... ok
+test controls::tests::ptt_after_axis_traffic_and_kill_switch ... ok
+test controls::tests::bounce_gives_one_clip ... ok
+test controls::tests::debug_input_logs_every_button ... ok
+test config::tests::sample_parses_and_buttons_match ... ok
+test app::tests::retired_models_stay_in_a_folder_models_dir_points_at ... ok
+test config::tests::old_speaker_id_migrates_to_a_v1_voice_name ... ok
+test crash::tests::marker_round_trip ... ok
+test controls::tests::replay_fixture_reaches_ptt ... ok
+test calibration::tests::level_check_verdicts ... ok
+test calibration::tests::steps_and_errors ... ok
+test health::tests::reports_missing_keyboard_binding ... ok
+test gamewatch::tests::launcher_game_exit ... ok
+test pipeline::tests::companion_file_is_read_after_its_event ... ok
+test logging::tests::rolls_over_and_prunes ... ok
+test pipeline::tests::missing_or_stale_file_is_logged_then_used_once_the_game_writes_it ... ok
+test pipeline::tests::tail_keeps_partial_lines ... ok
+test setup::tests::a_broken_config_is_not_overwritten ... ok
+test gamewatch::tests::finds_newest_journal ... ok
+test gamewatch::tests::game_without_launcher ... ok
+test setup::tests::edits_keep_comments_and_other_settings ... ok
+test diagnostics::tests::bundles_logs_and_reports ... ok
+test gamewatch::tests::lists_processes ... ok
+test eval::tests::loads_sidecars_and_labels ... ok
+test setup::tests::finds_elite_from_its_folders ... ok
+test setup::tests::requests_become_edits ... ok
+test setup::tests::voice_settings_persist ... ok
+test control::tests::round_trip_and_token ... ok
+test setup::tests::ptt_and_kill_switch_must_differ ... ok
+test setup::tests::writes_a_new_file_and_clears_a_button ... ok
+test speech::gate_tests::gates_short_quiet_and_passes_speech ... ok
+test setup::tests::upgrading_users_with_push_to_talk_skip_onboarding ... ok
+test speech::tests::preview_slot_lifecycle ... ok
+test setup::tests::onboarding_flag ... ok
+test speech::tests::voice_choices_are_english_british_first ... ok
+test setup::tests::fresh_installs_need_onboarding ... ok
+test speech::tests::cache_names_are_stable ... ok
+test tester::tests::lease_expires ... ok
+test update::tests::baked_public_key_parses ... ok
+test setup::tests::ptt_written_by_the_wizard_then_restart_is_still_not_onboarded ... ok
+test update::tests::copy_skips_data_dir ... ok
+test update::tests::version_order ... ok
+test update::tests::zip_roundtrip_and_hash ... ok
+test tester::tests::noise_and_nonsense_have_no_keys ... ok
+test tester::tests::plan_reflects_game_state ... ok
+test tester::tests::unavailable_and_did_you_mean ... ok
+test speech::tests::set_voice_changes_the_next_reply ... ok
+test update::tests::signs_and_verifies_manifest ... ok
+test calibration::tests::window_and_cli_store_the_same_gate ... ok
+test history::tests::a_stuck_backfill_never_blocks_the_pipeline ... ok
+test history::tests::imports_at_startup_then_follows_new_lines ... ok
+test history::tests::follows_appends_without_notifications ... ok
+test setup::tests::concurrent_edits_all_survive_in_file_and_memory ... ok
+test speech::tests::replies_go_before_the_warm_up_backlog ... ok
+
+test result: ok. 60 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 15 tests
+test no_keyboard_binding_refuses_clearly ... ok
+test state_rules_press_nothing ... ok
+test night_vision_without_keyboard_key_is_refused_clearly ... ok
+test silent_running_asks_then_runs ... ok
+test status_questions_are_spoken_not_pressed ... ok
+test did_you_mean_then_yes_executes ... ok
+test voice_path_with_fake_stt ... ok
+test did_you
+```
+
+## Stderr
+
+Bytes: 5303
+Truncated: yes
+
+```text
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.25s
+warning: output filename collision at /home/supadava/projects/astromech-wt-feature-astromech-zf3s/target/debug/examples/dump-fixture
+  |
+  = note: the example target `dump-fixture` in package `astromech-materials v0.1.5 (/home/supadava/projects/astromech-wt-feature-astromech-zf3s/crates/astromech-materials)` has the same output filename as the example target `dump-fixture` in package `astromech-engineering v0.1.5 (/home/supadava/projects/astromech-wt-feature-astromech-zf3s/crates/astromech-engineering)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+warning: output filename collision at /home/supadava/projects/astromech-wt-feature-astromech-zf3s/target/debug/examples/dump-fixture.dwp
+  |
+  = note: the example target `dump-fixture` in package `astromech-materials v0.1.5 (/home/supadava/projects/astromech-wt-feature-astromech-zf3s/crates/astromech-materials)` has the same output filename as the example target `dump-fixture` in package `astromech-engineering v0.1.5 (/home/supadava/projects/astromech-wt-feature-astromech-zf3s/crates/astromech-engineering)`
+  = note: this may become a hard error in the future; see <https://github.com/rust-lang/cargo/issues/6313>
+  = help: consider changing their names to be unique or compiling them separately
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/lib.rs (target/debug/deps/astromech_core-8f4c581e8910d41b)
+     Running unittests src/main.rs (target/debug/deps/astromech_core-180a4a1efc0dbc20)
+     Running tests/gear_down.rs (target/debug/deps/gear_down-b4946cc7d5121515)
+     Running tests/trade_voice.rs (target/debug/deps/trade_voice-4b2dac4c3e895d71)
+     Running tests/voice_tester.rs (target/debug/deps/voice_tester-0e4390cd8e0bf9b1)
+     Running unittests src/lib.rs (target/debug/deps/astromech_data-85b9b081ec1c75ec)
+     Running tests/recorded.rs (target/debug/deps/recorded-b5ec8213d366a513)
+     Running unittests src/lib.rs (target/debug/deps/astromech_engineering-942fbfe589df60b0)
+     Running unittests src/lib.rs (target/debug/deps/astromech_galaxy-b591a561b9f40aae)
+     Running tests/powerplay.rs (target/debug/deps/powerplay-554269ec4e6822df)
+     Running unittests src/lib.rs (target/debug/deps/astromech_gamestate-1f7fe0e1a53e3e05)
+     Running tests/companions.rs (target/debug/deps/companions-16c3a42d06c4eb7f)
+     Running unittests src/lib.rs (target/debug/deps/astromech_history-b5dac7a6fec64879)
+     Running unittests src/lib.rs (target/debug/deps/astromech_input-8c30d105fc6d1015)
+     Running tests/listen.rs (target/debug/deps/listen-60b2d3a5beaad99d)
+     Running unittests src/lib.rs (target/debug/deps/astromech_intent-9331dbbdc7bbec35)
+     Running unittests src/lib.rs (target/debug/deps/astromech_journal-0aadfc2f5d71280c)
+     Running tests/events.rs (target/debug/deps/events-1b704c4477c61bee)
+     Running unittests src/lib.rs (target/debug/deps/astromech_keybinds-514a54a502c408af)
+     Running unittests src/lib.rs (target/debug/deps/astromech_market-0fa858da071ffa7c)
+     Running tests/recorded.rs (target/debug/deps/recorded-1d906b3de445ce6d)
+     Running unittests src/lib.rs (target/debug/deps/astromech_materials-8416b38c54a0aceb)
+     Running tests/live_journal.rs (target/debug/deps/live_journal-b2b1dd777f8a5d42)
+     Running unittests src/lib.rs (target/debug/deps/astromech_overlay-c73768c8bd01a11f)
+     Running unittests src/lib.rs (target/debug/deps/astromech_policy-d7bc19546b5b1b63)
+     Running unittests src/lib.rs (target/debug/deps/astromech_powerplay-1daaf7d0369c5894)
+     Running tests/arrival.rs (target/debug/deps/arrival-a9b54f786b2d034e)
+     Running tests/standing.rs (target/debug/deps/standing-c16e9ae08297b37e)
+     Running unittests src/lib
+```
+

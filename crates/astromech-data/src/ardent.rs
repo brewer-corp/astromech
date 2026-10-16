@@ -9,6 +9,10 @@ use serde::{Deserialize, Serialize};
 /// Ardent caps `maxDistance` at 500 ly.
 pub const MAX_DISTANCE_LY: f64 = 500.0;
 
+/// The most listings a nearby search returns (observed 16 Oct 2026). Imports come best sell
+/// price first and exports cheapest first, so a full answer has dropped only worse prices.
+pub const NEARBY_LIMIT: usize = 1000;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Trade {
     /// Stations selling the commodity (where to buy).
@@ -138,8 +142,9 @@ fn system_path(system: &str) -> String {
 }
 
 impl Client {
-    /// Stations near `system` that export (sell) or import (buy) `commodity`, nearest first.
-    /// `commodity` is Ardent's id, e.g. "gold".
+    /// Stations near `system` that export (sell) or import (buy) `commodity`: imports by the
+    /// price they pay, highest first; exports by the price they ask, lowest first; at most
+    /// [`NEARBY_LIMIT`]. `commodity` is Ardent's id (the journal symbol), e.g. "gold".
     pub fn ardent_nearby(
         &self,
         system: &str,

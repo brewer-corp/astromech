@@ -284,6 +284,9 @@ impl Want {
         if let Some(ls) = filters.max_arrival_ls {
             q = q.max_arrival(ls as f64);
         }
+        if let Some(ly) = filters.max_distance_ly {
+            q = q.within(ly as f64);
+        }
         if let Some(days) = filters.max_age_days {
             let since = (now_s - days as i64 * 86_400).div_euclid(3600) * 3600;
             q = q.updated_since(self.age_field(), &crate::iso(since));
@@ -362,6 +365,8 @@ pub fn find(
                 fleet_carrier: CARRIER_TYPES.contains(&t),
                 odyssey: SETTLEMENT_TYPES.contains(&t),
                 updated_at: want.updated_at(s),
+                ly: Some(s.distance),
+                volume: None,
             };
             filters.keeps(&facts, now_s)
         })

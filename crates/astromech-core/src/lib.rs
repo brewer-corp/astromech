@@ -12,6 +12,7 @@
 //! - [`lookups`]: station lookups by voice (Spansh, with the app's remembered filters);
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
+//! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`calibration`]: the per-device mic gate, shared by `--calibrate-files` and the window;
 //! - [`setup`]: onboarding's checks and the config edits the window makes;
@@ -43,6 +44,7 @@ pub mod session;
 pub mod setup;
 pub mod speech;
 pub mod tester;
+pub mod trade;
 #[cfg(windows)]
 pub mod tray;
 pub mod update;

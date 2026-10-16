@@ -11,11 +11,13 @@ use astromech_intent::Grammar;
 use astromech_store::Store;
 use astromech_tools::lookup;
 
-/// The command grammar with the lookups' slot values.
+/// The command grammar with the lookups' slot values: market commodities (trade), station
+/// services, modules and ships.
 pub fn grammar(systems: &[&str]) -> Grammar {
     let services = lookup::service_values();
     let modifier: astromech_intent::FreeWord = astromech_galaxy::outfitting::is_modifier;
     Grammar::mvp(systems)
+        .with_slot("commodity", astromech_market::catalog::spoken_names(), None)
         .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
         .with_slot("module", lookup::module_values(), Some(modifier))
         .with_slot("ship", lookup::ship_values(), None)
@@ -170,6 +172,27 @@ mod tests {
         // modules and services keep their phrases
         assert_eq!(heard(&g, "where can I buy a 6A FSD").0.map(|w| w.lookup()), Some("stations.module"));
         assert_eq!(heard(&g, "nearest black market").0.map(|w| w.lookup()), Some("stations.service"));
+    }
+
+    #[test]
+    fn buy_goes_to_the_commodity_module_or_ship_the_slot_names() {
+        let g = grammar(&["Sol"]);
+        for (phrase, command, slot) in [
+            ("buy gold", "trade.buy", "Gold"),
+            ("where can I buy tritium", "trade.buy", "Tritium"),
+            ("buy a Krait", "find.ship", "Krait MkII"),
+            ("where can I buy an Anaconda", "find.ship", "Anaconda"),
+            ("buy a 5A FSD", "find.module", "Frame Shift Drive"),
+            ("where can I buy a fuel scoop", "find.module", "Fuel Scoop"),
+            ("where can I sell painite", "trade.sell", "Painite"),
+        ] {
+            let m = g.best(phrase);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                (command, Some(slot), Decision::Execute),
+                "{phrase:?}"
+            );
+        }
     }
 
     #[test]

@@ -12,7 +12,7 @@
 //!
 //! Phrases may contain one slot, `{name}`, filled by one or more words of the transcript and
 //! resolved against values the caller supplies for that slot (`{system}`: known system names;
-//! the lookups add `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
+//! the lookups add `{commodity}`, `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
 //! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
 //! "gimballed").
 
@@ -43,6 +43,8 @@ pub struct Match {
     pub slot: Option<String>,
     /// The transcript words the slot took, normalised and joined with spaces.
     pub slot_text: Option<String>,
+    /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
+    pub slot_exact: bool,
     pub score: f32,
     pub decision: Decision,
 }
@@ -158,6 +160,25 @@ pub const MVP: &[(&str, &[&str])] = &[
         &["hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system"],
     ),
     ("plot_route", &["plot route to {system}", "set course for {system}"]),
+    // Trade lookups (Ardent Insight): answered by the core, not pressed.
+    (
+        "trade.sell",
+        &[
+            "where to sell {commodity}",
+            "where can i sell {commodity}",
+            "best place to sell {commodity}",
+            "best price for {commodity}",
+            "sell {commodity}",
+        ],
+    ),
+    (
+        "trade.buy",
+        &["where to buy {commodity}", "where can i buy {commodity}", "cheapest {commodity}", "buy {commodity}"],
+    ),
+    (
+        "trade.sell_cargo",
+        &["where to sell my cargo", "where should i sell my cargo", "best place to sell my cargo", "sell my cargo"],
+    ),
     // Station lookups (the slots' values come from astromech-galaxy).
     (
         "find.service",
@@ -504,13 +525,16 @@ impl Grammar {
             return Fill { text, ..Fill::default() };
         }
         let mut best = Fill { text, ..Fill::default() };
+        let joined = said.concat();
         for (toks, written, value) in &slot.values {
-            let sim = align(&said, toks);
+            // Word by word, or run together: a name the recogniser split or merged
+            // ("pain night" for Painite, "multicannon" for Multi-Cannon) still comes close.
+            let sim = align(&said, toks).max(word_sim(&joined, &toks.concat()));
             if sim > best.sim {
                 best.sim = sim;
                 best.value = value.clone();
                 best.said = written.clone();
-                best.exact = said == *toks;
+                best.exact = joined == toks.concat();
                 if best.exact {
                     break;
                 }
@@ -521,11 +545,6 @@ impl Grammar {
 
     /// All phrases scored, best first.
     pub fn rank(&self, transcript: &str) -> Vec<Match> {
-        self.ranked(transcript).into_iter().map(|(m, _)| m).collect()
-    }
-
-    /// [`Grammar::rank`], each with whether its slot (if any) was one of its exact phrasings.
-    fn ranked(&self, transcript: &str) -> Vec<(Match, bool)> {
         let u = normalise(transcript);
         let misheard: Option<Vec<String>> = u.iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w)).then(|| {
             u.iter()
@@ -544,7 +563,7 @@ impl Grammar {
         };
         let fill_u = |name: &str, i: usize, k: usize| fill(false, name, i, k);
         let fill_alt = |name: &str, i: usize, k: usize| fill(true, name, i, k);
-        let mut v: Vec<(Match, bool)> = self
+        let mut v: Vec<Match> = self
             .phrases
             .iter()
             .map(|(p, toks)| {
@@ -564,36 +583,39 @@ impl Grammar {
                     },
                     None => p.text.clone(),
                 };
-                let exact = filled.as_ref().is_none_or(|f| f.exact);
-                let m = Match {
+                Match {
                     command: p.command,
                     phrase,
                     slot: filled.as_ref().map(|f| f.value.clone()),
+                    slot_exact: filled.as_ref().is_some_and(|f| f.exact),
                     slot_text: filled.map(|f| f.text),
                     score,
                     decision: Decision::NoMatch,
-                };
-                (m, exact)
+                }
             })
             .collect();
-        v.sort_by(|a, b| b.0.score.total_cmp(&a.0.score));
+        v.sort_by(|a, b| b.score.total_cmp(&a.score));
         v
     }
 
     /// Best match with its decision.
     pub fn best(&self, transcript: &str) -> Match {
-        let ranked = self.ranked(transcript);
-        let Some((mut best, exact)) = ranked.first().cloned() else {
+        let ranked = self.rank(transcript);
+        let Some(mut best) = ranked.first().cloned() else {
             return Match {
                 command: "",
                 phrase: String::new(),
                 slot: None,
                 slot_text: None,
+                slot_exact: false,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
         };
-        let runner = ranked.iter().find(|(m, _)| m.command != best.command).map(|(m, _)| m.score).unwrap_or(0.0);
+        // When the best heard its slot exactly, another command whose slot is only a near match
+        // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
+        let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
+        let runner = ranked.iter().find(rival).map(|m| m.score).unwrap_or(0.0);
         let clear = best.score - runner >= MARGIN;
         best.decision = if best.score >= EXECUTE && clear {
             Decision::Execute
@@ -603,7 +625,7 @@ impl Grammar {
             Decision::NoMatch
         };
         // A slot filled by anything but one of its exact phrasings always asks.
-        if best.decision == Decision::Execute && !exact {
+        if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
             best.decision = Decision::Ask;
         }
         best
@@ -817,6 +839,81 @@ mod tests {
         for t in ["Yes.", "Gear down.", "", "Okay, gear down."] {
             assert!(!is_noise_only(t), "{t}");
         }
+    }
+
+    /// A few market commodities as the core passes them (spoken form, canonical name).
+    fn trade() -> Grammar {
+        g().with_slot(
+            "commodity",
+            [
+                ("Gold", "Gold"),
+                ("Silver", "Silver"),
+                ("Painite", "Painite"),
+                ("Platinum", "Platinum"),
+                ("Low Temperature Diamonds", "Low Temperature Diamonds"),
+                ("LTDs", "Low Temperature Diamonds"),
+                ("Void Opal", "Void Opal"),
+                ("void opals", "Void Opal"),
+                ("Tritium", "Tritium"),
+                ("Water", "Water"),
+                ("Coltan", "Coltan"),
+            ],
+            None,
+        )
+    }
+
+    #[test]
+    fn trade_phrases_fill_the_commodity_slot() {
+        let g = trade();
+        for (t, cmd, slot) in [
+            ("Where can I sell painite?", "trade.sell", "Painite"),
+            ("where to sell gold", "trade.sell", "Gold"),
+            ("Best price for low temperature diamonds.", "trade.sell", "Low Temperature Diamonds"),
+            ("Where can I sell LTDs?", "trade.sell", "Low Temperature Diamonds"),
+            ("Sell void opals.", "trade.sell", "Void Opal"),
+            ("Where can I buy tritium?", "trade.buy", "Tritium"),
+            ("Where to buy water", "trade.buy", "Water"),
+            ("cheapest silver", "trade.buy", "Silver"),
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                (cmd, Some(slot), Decision::Execute),
+                "{t:?} -> {m:?}"
+            );
+        }
+        // "Did you mean …?" names the slot the way it was said.
+        assert_eq!(g.best("Where can I sell LTDs?").phrase, "where can i sell LTDs");
+    }
+
+    #[test]
+    fn misheard_commodities_ask() {
+        let g = trade();
+        // Parakeet's spelling of a name it doesn't know: close, so ask, never execute.
+        let m = g.best("Where can I sell pain night?");
+        assert_eq!((m.command, m.slot.as_deref(), m.decision), ("trade.sell", Some("Painite"), Decision::Ask), "{m:?}");
+        assert_eq!(m.phrase, "where can i sell Painite");
+        let m = g.best("Where can I sell low temperature diamond?");
+        assert_eq!((m.command, m.slot.as_deref()), ("trade.sell", Some("Low Temperature Diamonds")), "{m:?}");
+        assert_eq!(m.decision, Decision::Ask, "a near name asks: {m:?}");
+        for t in [
+            "Where should I sell my cargo?",
+            "sell my cargo",
+            "Where to sell my cargo.",
+            "Best place to sell the cargo",
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.slot.as_deref(), m.decision),
+                ("trade.sell_cargo", None, Decision::Execute),
+                "{t}"
+            );
+        }
+        // The status question is unchanged.
+        assert_eq!((g.best("cargo").command, g.best("cargo").decision), ("status.cargo", Decision::Execute));
+        // Not a commodity: at most "Did you mean …?", never a lookup on a guess.
+        assert_ne!(g.best("Where can I sell the weather in Paris").decision, Decision::Execute);
+        assert_eq!(g.best("What's the weather like in Paris tomorrow").decision, Decision::NoMatch);
     }
 
     #[test]

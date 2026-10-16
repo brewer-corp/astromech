@@ -50,6 +50,11 @@ pub fn unavailable_reason(command: &str) -> &'static str {
     }
 }
 
+/// The command grammar with its slot lists: market commodities for the trade questions.
+pub fn grammar() -> Grammar {
+    crate::lookups::grammar(&["Sol"])
+}
+
 /// Add the personal aliases learned from "Did you mean …?" answers.
 pub fn add_aliases(g: &mut Grammar, store: &Store) {
     if let Ok(list) = store.aliases() {
@@ -66,20 +71,31 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
-    /// Spansh, for the station lookups.
+    /// Remote data for the lookups (Spansh stations, Ardent markets); shared with the
+    /// threads that answer station lookups.
     remote: Arc<astromech_data::Client>,
+    /// Judges the age of market and station data.
+    clock: Arc<dyn astromech_data::Clock>,
 }
 
 impl Assistant {
     pub fn new(runner: Arc<Runner>) -> Self {
-        let cache = astromech_data::Cache::in_memory().expect("in-memory SQLite");
         Self {
-            grammar: Mutex::new(crate::lookups::grammar(&["Sol"])),
+            grammar: Mutex::new(grammar()),
             runner,
             pending: Mutex::new(None),
             store: None,
-            remote: Arc::new(astromech_data::Client::new(cache)),
+            remote: Arc::new(astromech_data::Client::new(
+                astromech_data::Cache::in_memory().expect("an in-memory SQLite cache always opens"),
+            )),
+            clock: Arc::new(astromech_data::SystemClock),
         }
+    }
+
+    /// Answer lookups through `remote`, judging data age by `clock` (tests pass recorded
+    /// answers and a fixed time).
+    pub fn with_remote(self, remote: astromech_data::Client, clock: Arc<dyn astromech_data::Clock>) -> Self {
+        Self { remote: Arc::new(remote), clock, ..self }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
@@ -100,8 +116,7 @@ impl Assistant {
     }
 
     fn learn(&self, heard: &str, command: &'static str) {
-        // A lookup's alias would lose what it looks for (the slot).
-        if heard.trim().is_empty() || command == "confirm" || command == "cancel" || lookup::is_lookup(command) {
+        if heard.trim().is_empty() || command == "confirm" || command == "cancel" {
             return;
         }
         self.grammar.lock().unwrap().add_alias(heard, command);
@@ -115,14 +130,12 @@ impl Assistant {
     fn look_up(&self, command: &'static str, want: Want) -> Handled {
         let game = self.runner.hub.snapshot();
         let filters = {
-            let st = self.store.as_ref().map(|s| s.lock().unwrap());
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), &want, &game)
         };
         let (remote, speaker, w) = (self.remote.clone(), self.runner.speaker.clone(), want.clone());
-        std::thread::spawn(move || {
-            let now = chrono::Utc::now().timestamp();
-            speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now));
-        });
+        let now = self.clock.now_s();
+        std::thread::spawn(move || speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now)));
         Handled::Lookup { command, want }
     }
 
@@ -141,6 +154,16 @@ impl Assistant {
                     Handled::NotUnderstood
                 }
             };
+        }
+        if let Some(ask) = astromech_tools::trade::from_command(command) {
+            let game = self.runner.hub.snapshot();
+            let filters = {
+                let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+                crate::trade::filters_for(st.as_deref(), ask, &game)
+            };
+            let s = crate::trade::answer(&self.remote, &filters, ask, slot, &game, self.clock.now_s());
+            self.say(&s);
+            return Handled::Ran { command, outcome: Outcome::Spoken(s) };
         }
         match astromech_tools::from_command(command) {
             Some(call) => {
@@ -218,7 +241,10 @@ impl Assistant {
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
             Pending::Mean { command, slot, slot_text, heard, .. } => {
-                self.learn(&heard, command);
+                // An alias stands for a command, not for its slot value: don't learn those.
+                if slot.is_none() {
+                    self.learn(&heard, command);
+                }
                 self.dispatch(command, (slot.as_deref(), slot_text.as_deref()), origin, false)
             }
             Pending::Act { command, .. } => self.dispatch(command, (None, None), origin, true),

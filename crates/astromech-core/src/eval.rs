@@ -51,7 +51,7 @@ pub fn load_dir(dir: &Path) -> Result<Vec<EvalItem>> {
 
 pub fn run(dir: &Path) -> Result<EvalReport> {
     let items = load_dir(dir)?;
-    let g = crate::lookups::grammar(&["Sol"]);
+    let g = crate::assistant::grammar();
     Ok(evaluate(&g, &items))
 }
 

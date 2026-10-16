@@ -113,6 +113,8 @@ those problems; see §3 for why this beats a pictorial main view.
 | "Credits?" / "Rebuy?" | LoadGame, Loadout `Rebuy` |
 | "What's my ship?" | Loadout `Ship`, `ShipName`, `ShipIdent` |
 | "Legal state?" | Status.json `LegalState` |
+| "Where can I sell painite?" / "Where can I buy tritium?" (best station, system, distance, price, demand or stock; age if over a day) | Ardent Insight, from the current system, with the Trade page's filters |
+| "Where should I sell my cargo?" (best station for the whole load, total credits, how much of the load it takes) | `Cargo.json` and Ardent Insight, with the Trade page's My cargo filters |
 
 **Shell.**
 - A native tray menu (status, open, pause voice, kill switch, check for updates, quit), one
@@ -187,6 +189,7 @@ setup work at a desk: big readable text, one thing at a time.
 | **Materials** | Engineering materials in the three trader grids (raw / manufactured / encoded), with grade, category, storage cap, and High Grade Emissions notes (faction + state) | Blueprints, shopping lists, nearest trader |
 | **Engineering: Ships** | A card per owned ship (modules from the newest `Loadout` for that ship in journal history); a ship's detail (`#/engineering/<id>`) sets blueprint / grade / experimental per module and shows the ship's stats now and with the plan done (jump range, shields, distributor, weapons, hull; Coriolis's calculations) with the difference, and need / have / short, trader swaps from surplus, and what is still to collect. Plans are kept per ship; rolls per grade are an editable estimate | Building a ship from scratch (outfitting designer), swapping modules, several builds per ship, Odyssey suit/weapon engineering |
 | **Engineering: trip** | Which engineers to visit for the plan and in what order (fewest jumps), what to do at each stop, a note where grades could be rolled remotely (unlocked rank-5 engineer offers the blueprint, if pinned there), and which jobs need an engineer unlock. Every `EngineerCraft`, remote or in person, updates the ship at once, so the plan and trip shrink as you go | Tracking pinned blueprints (the game doesn't log them), unlock walkthroughs, neutron routing, per-base supercruise times |
+| **Trade: Commodities** | Where to sell or buy one commodity near you or a typed system, best price first, with demand or stock, pad, arrival distance and data age (Ardent Insight). **My cargo** (from `Cargo.json`): the stations paying the most for the whole load, each commodity capped by the station's demand, and the best station for each commodity on its own (demand for all of it); mission cargo, stolen goods and limpets are left out and listed. Sell, buy and My cargo each remember their filters (radius, default 100 ly; minimum demand or stock; pad; data age, default 30 days; arrival; carriers; Odyssey), and the voice questions use the same ones. Construction sites and Ardent's placeholder rows (demand 999,999) are never offered | Trade routes, galaxy-wide best prices, price history, black-market sales |
 | **Nearby lookups** (Materials and Engineering side panel) | Nearest systems for a farming source (Famine for wake scanning, the HGE faction pools) with jumps at the current ship's range and how old the report is | Plotting the route in game |
 | **Galaxy: Services** | The nearest stations with a service (Interstellar Factors, a material trader or technology broker by type, Universal Cartographics, Vista Genomics, Pioneer Supplies, bartender, Frontline Solutions, Apex, refuel, repair, rearm, black market, search and rescue) near the current or a typed system, on the search kit with pad, fleet-carrier, settlement, data-age and arrival filters. The same lookup by voice ("where's the nearest Interstellar Factors?") answers with the nearest station | Booking, plotting the route |
 | **Galaxy: Outfitting** | The nearest stations selling a module, picked by name, class, rating and mount (only the sizes the module comes in are offered; `data/catalog/outfitting.json`), with price, pad, arrival distance and outfitting data age, on the search kit. By voice: "where can I buy a 6A FSD?", "nearest 3C gimballed multi-cannon" | Build planning (Coriolis, EDSY), stored modules |
@@ -200,7 +203,8 @@ setup work at a desk: big readable text, one thing at a time.
 Navigation is plain text tabs in the window header, like the game's top-level options,
 each with its pages as sub-tabs: **Controls** (My controller, All keybinds, Presets,
 Key tester), **Engineering** (Builds, Materials), **Galaxy** (Services, Outfitting, Shipyard),
-**Powerplay**, **Logbook** and **Settings** (General, Diagnostics, Voice tester). While
+**Trade** (Commodities), **Powerplay**, **Logbook** and **Settings** (General, Diagnostics, Voice
+tester). While
 setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
 **How the three binding views fit together.** They show the same bindings two ways:
