@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import KeybindsView from "./KeybindsView.svelte";
+import { binds } from "../../lib/store.svelte";
 
 // Group headers are the buttons with a +/- box; the browser fallback serves the sample preset.
+Element.prototype.scrollIntoView = () => {};
 const header = (name: string) => screen.getByText(name, { selector: ".gname" }).closest("button")!;
 const isOpen = (name: string) => header(name).classList.contains("open");
 
@@ -43,5 +45,17 @@ describe("All keybinds group panels", () => {
     await fireEvent.click(header(first));
 
     expect(names().filter(isOpen)).toEqual([first]);
+  });
+
+  it("ignores a mouse click that arrives as a Mouse_1 press (Raw Input forwards the window's own clicks)", async () => {
+    const { container } = render(KeybindsView);
+    await screen.findByText("Flight", { selector: ".gname" });
+    await fireEvent.click(header("Flight"));
+
+    binds.press({ device: "Mouse", key: "Mouse_1", kind: "button", down: true } as never);
+    await new Promise((r) => setTimeout(r, 10));
+
+    const names = [...container.querySelectorAll(".grp .gname")].map((e) => e.textContent!);
+    expect(names.filter(isOpen)).toEqual(["Flight"]);
   });
 });
