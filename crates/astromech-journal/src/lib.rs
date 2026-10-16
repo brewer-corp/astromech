@@ -121,6 +121,7 @@ pub enum JournalEvent {
         station_name: String,
         star_system: String,
         market_id: Option<i64>,
+        system_address: Option<i64>,
     },
     Undocked {
         station_name: String,
@@ -387,6 +388,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             station_name: s(&raw, "StationName"),
             star_system: s(&raw, "StarSystem"),
             market_id: opt_i(&raw, "MarketID"),
+            system_address: opt_i(&raw, "SystemAddress"),
         },
         "Undocked" => JournalEvent::Undocked { station_name: s(&raw, "StationName") },
         "Materials" => JournalEvent::Materials {
@@ -943,6 +945,23 @@ mod tests {
         .unwrap();
         assert!(
             matches!(l.event, JournalEvent::FsdJump { from_carrier: true, ref star_system, .. } if star_system == "Alioth")
+        );
+    }
+
+    #[test]
+    fn docked_keeps_system_address() {
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"Docked","StationName":"Hutton Orbital","StarSystem":"Alpha Centauri","SystemAddress":1,"MarketID":2}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::Docked {
+                station_name: "Hutton Orbital".into(),
+                star_system: "Alpha Centauri".into(),
+                market_id: Some(2),
+                system_address: Some(1),
+            }
         );
     }
 }

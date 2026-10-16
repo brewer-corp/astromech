@@ -10,6 +10,7 @@ export const groups = [
   { id: "controls", title: "Controls" },
   { id: "engineering", title: "Engineering" },
   { id: "powerplay", title: "Powerplay" },
+  { id: "logbook", title: "Logbook" },
   { id: "settings", title: "Settings" },
 ] as const;
 

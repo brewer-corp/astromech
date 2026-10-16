@@ -388,6 +388,37 @@ async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Sen
     tauri::async_runtime::spawn_blocking(f).await.map_err(|e| e.to_string())?
 }
 
+/// The logbook from the history the core keeps (`history.sqlite`, read only): places visited
+/// matching `query`, their counts and first/last visit, and the timeline.
+#[tauri::command]
+async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
+    blocking(move || {
+        let db = app_dir().join("history.sqlite");
+        if !db.is_file() {
+            return Err("no journal history yet: the core builds it from the journals once it runs".into());
+        }
+        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
+        let book = h.logbook(cmdr.as_deref(), &query, 200).map_err(|e| e.to_string())?;
+        serde_json::to_value(book).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The latest game session's summary (credits by activity, per hour, jumps, bounties), from the
+/// same history; `null` before the first session.
+#[tauri::command]
+async fn session_summary() -> Result<Value, String> {
+    blocking(move || {
+        let db = app_dir().join("history.sqlite");
+        if !db.is_file() {
+            return Err("no journal history yet: the core builds it from the journals once it runs".into());
+        }
+        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
+        serde_json::to_value(h.session(None, None).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Every owned ship with its modules and current engineering.
 #[tauri::command]
 async fn engineering_fleet(app: tauri::AppHandle) -> Result<Value, String> {
@@ -705,7 +736,9 @@ fn main() {
             search_filters,
             set_search_filters,
             powerplay_overview,
-            powerplay_targets
+            powerplay_targets,
+            logbook,
+            session_summary
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

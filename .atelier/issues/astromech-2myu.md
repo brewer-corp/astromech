@@ -11,12 +11,15 @@ relationships:
     id: "astromech-tqdh"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Visit history in the arrival briefing"
-updated_at: "2026-10-15T20:36:13.658518406+00:00"
+updated_at: "2026-10-16T19:50:46.260119955+00:00"
 ---
 
 ## Goal
