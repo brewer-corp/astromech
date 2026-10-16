@@ -40,9 +40,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:46:33.162186989+00:00"
+status: "done"
 title: "EDDN sender"
-updated_at: "2026-10-16T18:47:49.294349072+00:00"
+updated_at: "2026-10-16T20:46:33.162186989+00:00"
 ---
 
 ## Goal
@@ -60,3 +61,7 @@ Whether the `blackmarket` schema is still live.
 ## Notes
 
 - 2026-10-16 [note] Unknown answered (EDCD schemas/blackmarket-README.md, live branch, read 16 Oct 2026): the blackmarket schema is deprecated; the same data goes in commodity/3's prohibited array since Sep 2017. Don't send blackmarket.
+
+## Close Reason
+
+All children done: sender core with outbox, retry rules and beta gate (el1v); commodity/3, outfitting/2, shipyard/2 (lt2b, thau); journal/1 and 12 event schemas (w20r, 5el6); running in the core from live lines only, off by default, outfitting/2 gated (xvjs); Settings → Data sharing (09s3). Message tests validate against the live schema files. The live-session check is astromech-uxyq, after the merge.
