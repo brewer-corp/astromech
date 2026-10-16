@@ -9,20 +9,20 @@
 use super::{opt_f, opt_i, opt_s, s, stacks, MaterialStack};
 use serde_json::Value;
 
-fn opt_b(v: &Value, k: &str) -> Option<bool> {
+pub(crate) fn opt_b(v: &Value, k: &str) -> Option<bool> {
     v.get(k).and_then(Value::as_bool)
 }
 
-fn flag(v: &Value, k: &str) -> bool {
+pub(crate) fn flag(v: &Value, k: &str) -> bool {
     opt_b(v, k).unwrap_or(false)
 }
 
-fn arr<'a>(v: &'a Value, k: &str) -> impl Iterator<Item = &'a Value> {
+pub(crate) fn arr<'a>(v: &'a Value, k: &str) -> impl Iterator<Item = &'a Value> {
     v.get(k).and_then(Value::as_array).into_iter().flatten()
 }
 
 /// Localised text is optional and only worth keeping when it differs from the symbol.
-fn loc(v: &Value, k: &str) -> Option<String> {
+pub(crate) fn loc(v: &Value, k: &str) -> Option<String> {
     opt_s(v, &format!("{k}_Localised"))
 }
 
@@ -591,7 +591,7 @@ fn mission_refs(v: &Value, k: &str) -> Vec<MissionRef> {
         .collect()
 }
 
-fn micro_resources(v: &Value) -> Vec<MicroResource> {
+pub(crate) fn micro_resources(v: &Value) -> Vec<MicroResource> {
     ["Items", "Components", "Consumables", "Data"]
         .into_iter()
         .flat_map(|cat| {

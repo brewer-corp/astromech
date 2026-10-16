@@ -10,7 +10,7 @@
 //! ([`JournalLine::raw_json`]) so the EDDN sender can forward the game's own keys.
 //! Companion files (`Market.json`, `Cargo.json`, ...) are in [`companion`].
 
-//pub mod companion;
+pub mod companion;
 mod detail;
 
 pub use detail::*;
