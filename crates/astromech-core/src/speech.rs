@@ -314,15 +314,15 @@ pub fn fixed_phrases() -> Vec<String> {
         for w in [s.on_word, s.off_word] {
             v.push(format!("{} {w}.", s.noun));
         }
-        v.push(format!("{} didn't respond.", s.noun));
+        v.push(format!("{} did not respond.", s.noun));
     }
     for s in [
-        "Didn't catch that.",
+        "Say again.",
         "Cancelled.",
         "Already on it.",
         "Kill switch on. All actions stopped.",
         "Re-armed.",
-        "Elite isn't the active window, so I didn't press anything.",
+        "Elite is not the active window. Nothing pressed.",
         "Silent running produces heat. Confirm?",
         "Silent running on.",
         "Flight assist on.",
@@ -334,7 +334,7 @@ pub fn fixed_phrases() -> Vec<String> {
         "Panel closed.",
         "Throttle zero.",
         "No route plotted.",
-        "Didn't catch that.",
+        "Say again.",
     ] {
         v.push(s.into());
     }

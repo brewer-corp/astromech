@@ -145,7 +145,7 @@ impl Assistant {
         }
         match m.decision {
             Decision::Execute if m.command == "confirm" || m.command == "cancel" => {
-                self.say("Didn't catch that.");
+                self.say("Say again.");
                 Handled::NotUnderstood
             }
             Decision::Execute => self.dispatch(m.command, origin, false),
@@ -156,7 +156,7 @@ impl Assistant {
                 Handled::Asked { command: m.command, phrase: m.phrase }
             }
             _ => {
-                self.say("Didn't catch that.");
+                self.say("Say again.");
                 Handled::NotUnderstood
             }
         }

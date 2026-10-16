@@ -1,7 +1,8 @@
 //! Prospector callouts (`ProspectedAsteroid`): speak only rocks worth mining. A rock whose
 //! high-value ore is at or above that ore's threshold gets one short line naming the ore and
-//! its percentage ("Platinum 34%."); a motherlode always gets a line ("Motherlode. Void
-//! Opals."). Everything else stays quiet.
+//! its percentage ("Platinum 34%."; at most two ores, or one after a motherlode, to keep to the
+//! copy guide's word budget); a motherlode always gets a line ("Motherlode. Void Opals.").
+//! Everything else stays quiet.
 //!
 //! Thresholds are per ore: [`ORES`] gives the defaults (a static value order until the mining
 //! sale advisor exists); the commander's changes are [`Thresholds`] (stored by the core, edited
@@ -102,11 +103,17 @@ pub fn line(materials: &[(&str, f64)], motherlode: Option<&str>, t: &Thresholds)
         .iter()
         .filter_map(|(sym, p)| {
             let i = ORES.iter().position(|o| o.symbol.eq_ignore_ascii_case(sym))?;
+            // Already named as the motherlode.
+            if motherlode.is_some_and(|m| m.eq_ignore_ascii_case(sym)) {
+                return None;
+            }
             (*p >= t.get(sym)?).then_some((i, &ORES[i], *p))
         })
         .collect();
     hits.sort_by_key(|h| h.0);
-    for (_, o, p) in hits.into_iter().take(2) {
+    hits.dedup_by_key(|h| h.0);
+    let room = if parts.is_empty() { 2 } else { 1 };
+    for (_, o, p) in hits.into_iter().take(room) {
         parts.push(format!("{} {:.0}%.", o.name, p.floor()));
     }
     (!parts.is_empty()).then(|| parts.join(" "))

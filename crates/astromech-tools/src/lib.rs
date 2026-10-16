@@ -352,7 +352,7 @@ fn in_ship_or_srv(f: u64) -> bool {
 fn plan_toggle(toggle: Toggle, target: Target, g: &GameState) -> Plan {
     let sp = toggle.spec();
     let Some(f) = g.flags() else {
-        return Plan::Refused("Game state not available yet. Is Elite running and are you in your ship?".into());
+        return Plan::Refused("No game state yet. Is Elite running?".into());
     };
     let has = |b: u64| f & b != 0;
     let refuse = |why: &str| Plan::Refused(format!("{} not available: {why}.", sp.noun));
@@ -417,7 +417,7 @@ fn plan_toggle(toggle: Toggle, target: Target, g: &GameState) -> Plan {
         action: sp.action,
         verify: Verify::Flag { bit: sp.flag, expect_set },
         confirm,
-        failure: format!("{} didn't respond.", sp.noun),
+        failure: format!("{} did not respond.", sp.noun),
     };
     if toggle == Toggle::SilentRunning && want_on {
         return Plan::Confirm {
@@ -425,7 +425,7 @@ fn plan_toggle(toggle: Toggle, target: Target, g: &GameState) -> Plan {
             action: sp.action,
             verify: Verify::Flag { bit: sp.flag, expect_set: true },
             confirm: "Silent running on.".into(),
-            failure: "Silent running didn't respond.".into(),
+            failure: "Silent running did not respond.".into(),
         };
     }
     press
@@ -433,7 +433,7 @@ fn plan_toggle(toggle: Toggle, target: Target, g: &GameState) -> Plan {
 
 fn plan_screen(s: Screen, g: &GameState) -> Plan {
     let Some(f) = g.flags() else {
-        return Plan::Refused("Game state not available yet. Is Elite running and are you in your ship?".into());
+        return Plan::Refused("No game state yet. Is Elite running?".into());
     };
     if !in_ship_or_srv(f) {
         return Plan::Refused(format!("{} not available: not in ship or SRV.", s.noun()));
@@ -454,13 +454,13 @@ fn plan_screen(s: Screen, g: &GameState) -> Plan {
         action: s.action(),
         verify: Verify::GuiFocus(want),
         confirm,
-        failure: format!("{} didn't respond.", s.noun()),
+        failure: format!("{} did not respond.", s.noun()),
     }
 }
 
 fn plan_throttle(g: &GameState) -> Plan {
     let Some(f) = g.flags() else {
-        return Plan::Refused("Game state not available yet. Is Elite running and are you in your ship?".into());
+        return Plan::Refused("No game state yet. Is Elite running?".into());
     };
     if f & flags::IN_MAIN_SHIP == 0 {
         return Plan::Refused("Throttle to zero not available: not in ship.".into());
@@ -472,7 +472,7 @@ fn plan_throttle(g: &GameState) -> Plan {
         action: "SetSpeedZero",
         verify: Verify::None,
         confirm: "Throttle zero.".into(),
-        failure: "Throttle didn't respond.".into(),
+        failure: "Throttle did not respond.".into(),
     }
 }
 
@@ -520,7 +520,9 @@ pub fn answer(q: Query, g: &GameState) -> String {
             };
             let mut s = format!("System {sys}.");
             if let Some(b) = &g.body {
-                s += &format!(" Body {b}.");
+                // "Synuefe BY-F d12-39 A 1" in that system is just "A 1".
+                let short = b.strip_prefix(sys.as_str()).map(str::trim).filter(|r| !r.is_empty()).unwrap_or(b);
+                s += &format!(" Body {short}.");
             }
             if let Some(stn) = &g.station {
                 s += &format!(" Docked at {stn}.");
@@ -739,6 +741,12 @@ mod tests {
         assert!(answer(Query::Fuel, &g).contains("16.0"));
         assert!(answer(Query::Fuel, &g).contains("50 percent"));
         assert_eq!(answer(Query::Location, &g), "System Sol.");
+        let mut there = g.clone();
+        there.system = Some("Synuefe BY-F d12-39".into());
+        there.body = Some("Synuefe BY-F d12-39 A 1".into());
+        assert_eq!(answer(Query::Location, &there), "System Synuefe BY-F d12-39. Body A 1.");
+        there.body = Some("Hutton Orbital".into());
+        assert_eq!(answer(Query::Location, &there), "System Synuefe BY-F d12-39. Body Hutton Orbital.");
         assert!(answer(Query::Jumps, &g).contains("Barnard's Star"));
         assert_eq!(answer(Query::Hull, &g), "Hull: 80 percent.");
         assert_eq!(answer(Query::Shields, &g), "Shields are up.");

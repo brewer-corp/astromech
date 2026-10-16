@@ -252,7 +252,7 @@ fn voice_path_with_fake_stt() {
     assert!(matches!(a.handle(&next(), Origin::Voice), Handled::NotUnderstood));
     assert_eq!(
         r.speaker.take(),
-        vec!["Did you mean deploy hardpoints?", "Cancelled.", "Landing gear deployed.", "Didn't catch that."]
+        vec!["Did you mean deploy hardpoints?", "Cancelled.", "Landing gear deployed.", "Say again."]
     );
 }
 

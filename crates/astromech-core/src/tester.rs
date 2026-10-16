@@ -63,7 +63,7 @@ pub enum Would {
     Unavailable,
     /// "Did you mean …?"
     DidYouMean,
-    /// "Didn't catch that."
+    /// "Say again."
     NotUnderstood,
     /// A noise-only transcript: nothing said, nothing done.
     Ignored,
@@ -103,7 +103,7 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         transcript: transcript.to_string(),
         intent: None,
         would: Would::NotUnderstood,
-        message: "Didn't catch that.".into(),
+        message: "Say again.".into(),
         action: None,
         keys: None,
         live: None,

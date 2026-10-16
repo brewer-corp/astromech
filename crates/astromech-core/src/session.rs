@@ -391,7 +391,7 @@ fn start_voice(
                 let t0 = std::time::Instant::now();
                 match stt.transcribe(&job.samples, job.rate) {
                     Ok(t) if t.is_empty() && !TESTER.armed(std::time::Instant::now()) => {
-                        a.runner.speaker.say("Didn't catch that.")
+                        a.runner.speaker.say("Say again.")
                     }
                     Ok(t) => match tester::on_heard(&TESTER, &a, &t, std::time::Instant::now()) {
                         // The voice tester page is open: it shows what this would do. Nothing pressed.

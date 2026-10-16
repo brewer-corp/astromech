@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Callout copy guide and pass"
-updated_at: "2026-10-15T20:36:13.663651636+00:00"
+updated_at: "2026-10-16T20:15:24.793315570+00:00"
 ---
 
 ## Goal

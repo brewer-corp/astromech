@@ -74,6 +74,16 @@ fn a_motherlode_always_gets_a_line() {
         r.feed(&prospected("20:00:02", &[("Platinum", 50.0)], Some("Musgravite"))),
         ["Motherlode. Musgravite. Platinum 50%."]
     );
+    // After a motherlode: one surface ore at most, and not the motherlode's own ore again.
+    *r.thresholds.write().unwrap() = Thresholds::default();
+    assert_eq!(
+        r.feed(&prospected(
+            "20:00:03",
+            &[("LowTemperatureDiamond", 40.0), ("Painite", 30.0), ("Platinum", 30.0)],
+            Some("LowTemperatureDiamond")
+        )),
+        ["Motherlode. Low Temperature Diamonds. Painite 30%."]
+    );
 }
 
 #[test]
