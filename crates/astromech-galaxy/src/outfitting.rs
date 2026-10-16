@@ -390,7 +390,7 @@ mod tests {
             if NOT_SOLD.contains(&m.name.as_str()) {
                 continue;
             }
-            assert!(spansh.iter().any(|n| *n == m.name), "Spansh has no module called {:?}", m.name);
+            assert!(spansh.contains(&m.name), "Spansh has no module called {:?}", m.name);
         }
         for (name, more) in SPANSH_NAMES {
             assert!(module(name).is_some(), "{name} not in the catalogue");

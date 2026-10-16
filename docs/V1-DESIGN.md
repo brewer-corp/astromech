@@ -196,10 +196,10 @@ setup work at a desk: big readable text, one thing at a time.
 | **Voice tester** (next to Diagnostics) | Try a voice command safely: type a phrase, or use push-to-talk while the page is open, and see the transcript, the matched intent and its confidence, what astromech would say and the keys it would send. Tests are dry runs; **Run live** sends the command through the policy like a spoken one, once Elite is the active window (it waits 5 s for you to switch, with a countdown; needs Elite running; it skips the confirmation a spoken command would ask). While the page is open and visible, push-to-talk only tests; closing, hiding or minimising it hands push-to-talk back within 3 s | Editing the grammar or aliases, the eval harness |
 | **Tray menu** (native, dark) | Is it running, open the window, pause voice, kill switch (while active), quit; one extra line only when something needs attention (crash, Finish setup, Restart to update) | Any status beyond one line; any webview; settings, updates, files (all in the window) |
 
-Navigation is four plain text tabs in the window header, like the game's top-level options,
+Navigation is five plain text tabs in the window header, like the game's top-level options,
 each with its pages as sub-tabs: **Controls** (My controller, All keybinds, Presets,
-Key tester), **Engineering** (Builds, Materials), **Galaxy** (Services, Outfitting, Shipyard) and **Settings**
-(General, Diagnostics, Voice tester). While
+Key tester), **Engineering** (Builds, Materials), **Galaxy** (Services, Outfitting, Shipyard),
+**Logbook** and **Settings** (General, Diagnostics, Voice tester). While
 setup is unfinished (no push-to-talk, no speech models) the header shows **Finish setup**.
 
 **How the three binding views fit together.** They show the same bindings two ways:
