@@ -532,10 +532,11 @@ fn shell_info() -> Value {
     serde_json::json!({ "version": env!("CARGO_PKG_VERSION") })
 }
 
-/// Open the project's GitHub pages in the browser, or a folder under the app folder.
+/// Open the project's GitHub pages or a Coriolis / EDSY / Spansh / Inara link in the browser, or a folder under the app folder.
 #[tauri::command]
 fn open_external(target: String) -> Result<(), String> {
-    let ok_url = target.starts_with("https://github.com/spadaval/astromech");
+    let ok_url = target.starts_with("https://github.com/spadaval/astromech")
+        || astromech_engineering::links::is_openable_url(&target);
     let ok_dir = {
         let p = PathBuf::from(&target);
         p.is_dir() && p.canonicalize().ok().zip(app_dir().canonicalize().ok()).is_some_and(|(p, a)| p.starts_with(a))

@@ -7,6 +7,8 @@
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type Target, type Trip,
   } from "../../lib/engineering";
   import { jumps } from "../../lib/galaxy";
+  import { openUrl } from "../../lib/core";
+  import { inaraSystem, spanshSystem } from "../../lib/links";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
@@ -15,6 +17,7 @@
   let plan = $state<Plan | null>(null);
   let result = $state<PlanResult | null>(null);
   let failed = $state<string | null>(null);
+  let linkErr = $state<string | null>(null);
   let selMat = $state<string | null>(null);
   let seq = 0;
   let tripSeq = 0;
@@ -175,6 +178,15 @@
   function when(ts: string | null): string {
     return ts ? ts.replace("T", " ").replace(/:\d\dZ?$/, "") : "";
   }
+
+  async function open(url: string) {
+    linkErr = null;
+    try {
+      await openUrl(url);
+    } catch (e) {
+      linkErr = `Couldn't open the link: ${String(e)}`;
+    }
+  }
 </script>
 
 <section>
@@ -184,7 +196,24 @@
         {s.name ?? s.type_name}{s.current ? " ●" : ""}
       </button>
     {/each}
+    {#if ship?.links}
+      <span class="open">
+        Open in
+        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
+        <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
+      </span>
+    {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
+      <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
+    {/if}
+    {#if ship?.system}
+      <span class="open">
+        {ship.system}
+        <button onclick={() => ship?.system && open(spanshSystem({ name: ship.system }))}>Spansh</button>
+        <button onclick={() => ship?.system && open(inaraSystem(ship.system))}>Inara</button>
+      </span>
+    {/if}
   </div>
+  {#if linkErr}<p class="lo wide">{linkErr}</p>{/if}
   <p class="sub">
     {#if !fleet}
       Reading the journal…
@@ -382,6 +411,8 @@
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
+  .open { margin-left: 12px; color: var(--text-lo); }
+  .open button { color: var(--accent); margin-left: 6px; }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
   .acts .dim:not(.on) { opacity: 0.6; }
