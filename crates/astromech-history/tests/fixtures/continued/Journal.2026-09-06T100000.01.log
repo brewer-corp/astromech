@@ -1,0 +1,5 @@
+{ "timestamp":"2026-09-06T10:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.1.0.100", "build":"r300000/r0 " }
+{ "timestamp":"2026-09-06T10:00:01Z", "event":"Commander", "FID":"F0000003", "Name":"Third" }
+{ "timestamp":"2026-09-06T10:00:05Z", "event":"LoadGame", "FID":"F0000003", "Commander":"Third", "Ship":"Asp", "ShipID":2, "Credits":1000 }
+{ "timestamp":"2026-09-06T10:10:00Z", "event":"FSDJump", "StarSystem":"Sol", "SystemAddress":10477373803, "JumpDist":7.0 }
+{ "timestamp":"2026-09-06T10:20:00Z", "event":"Continued", "Part":2 }
