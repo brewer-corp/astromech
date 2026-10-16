@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:38:21.483802896+00:00"
+status: "done"
 title: "Merge My controller into Activities"
-updated_at: "2026-10-16T18:31:41.552776245+00:00"
+updated_at: "2026-10-16T18:38:21.483802896+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ My controller and Activities now show nearly the same thing. Keep one page: the 
 ## Context
 
 `app/src/modules/controller`, `app/src/modules/activities`.
+
+## Close Reason
+
+Done-when met: component tests pass (kbcm's failed on the old code); see evidence
