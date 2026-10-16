@@ -1,0 +1,106 @@
+{
+  "banana bread": {
+    "action": null,
+    "intent": {
+      "command": "landing_gear.toggle",
+      "decision": "no_match",
+      "phrase": "landing gear",
+      "score": 0.41428565979003906
+    },
+    "keys": null,
+    "live": null,
+    "message": "Didn't catch that.",
+    "source": "typed",
+    "transcript": "banana bread",
+    "would": "not_understood"
+  },
+  "engage supercruise": {
+    "action": null,
+    "intent": {
+      "command": "supercruise",
+      "decision": "execute",
+      "phrase": "engage supercruise",
+      "score": 1.0
+    },
+    "keys": null,
+    "live": null,
+    "message": "Supercruise isn't available yet. Flight commands come later.",
+    "source": "typed",
+    "transcript": "engage supercruise",
+    "would": "unavailable"
+  },
+  "gear down": {
+    "action": "LandingGearToggle",
+    "intent": {
+      "command": "landing_gear.down",
+      "decision": "execute",
+      "phrase": "gear down",
+      "score": 1.0
+    },
+    "keys": {
+      "key": "Key_L",
+      "modifiers": [],
+      "slot": "Secondary"
+    },
+    "live": "landing_gear.down",
+    "message": "Landing gear deployed.",
+    "source": "typed",
+    "transcript": "gear down",
+    "would": "press"
+  },
+  "how much fuel": {
+    "action": null,
+    "intent": {
+      "command": "status.fuel",
+      "decision": "execute",
+      "phrase": "how much fuel",
+      "score": 1.0
+    },
+    "keys": null,
+    "live": "status.fuel",
+    "message": "Fuel: 24.5 tonnes main. Tank 77 percent.",
+    "source": "typed",
+    "transcript": "how much fuel",
+    "would": "speak"
+  },
+  "lights on": {
+    "action": "ShipSpotLightToggle",
+    "intent": {
+      "command": "lights.on",
+      "decision": "execute",
+      "phrase": "lights on",
+      "score": 1.0
+    },
+    "keys": {
+      "key": "Key_K",
+      "modifiers": [
+        "Key_LeftShift"
+      ],
+      "slot": "Primary"
+    },
+    "live": "lights.on",
+    "message": "Lights on.",
+    "source": "typed",
+    "transcript": "lights on",
+    "would": "press"
+  },
+  "youre down": {
+    "action": "LandingGearToggle",
+    "intent": {
+      "command": "landing_gear.down",
+      "decision": "ask",
+      "phrase": "gear down",
+      "score": 0.6666666269302368
+    },
+    "keys": {
+      "key": "Key_L",
+      "modifiers": [],
+      "slot": "Secondary"
+    },
+    "live": "landing_gear.down",
+    "message": "Did you mean gear down?",
+    "source": "typed",
+    "transcript": "you're down",
+    "would": "did_you_mean"
+  }
+}

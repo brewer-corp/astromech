@@ -90,11 +90,16 @@ export type CoreCmd =
   | "resume_voice"
   | "kill_switch"
   | "download_models"
-  | "open_config";
+  | "open_config"
+  | "voice_test"
+  | "voice_test_poll"
+  | "voice_test_stop"
+  | "voice_test_live";
 
-export async function coreCall(cmd: CoreCmd): Promise<Record<string, unknown>> {
+/** `text` is the voice tester's phrase ("voice_test") or command id ("voice_test_live"). */
+export async function coreCall(cmd: CoreCmd, text?: string): Promise<Record<string, unknown>> {
   if (!inTauri) return { ok: false, error: "not running inside the app" };
-  return await invoke<Record<string, unknown>>("core_call", { cmd });
+  return await invoke<Record<string, unknown>>("core_call", { cmd, text });
 }
 
 export async function shellInfo(): Promise<{ version: string }> {

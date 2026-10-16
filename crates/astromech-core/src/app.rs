@@ -8,6 +8,7 @@ use crate::control::{self, Request};
 use crate::gamewatch::{self, Change, Game};
 use crate::logging::log;
 use crate::session::{self, Session, VOICE_PAUSED};
+use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
 use serde_json::{json, Value};
@@ -446,6 +447,43 @@ impl Core {
             "open_config" => {
                 open_config(&self.config_path);
                 json!({"ok": true})
+            }
+            "voice_test" => {
+                let text = r.text.clone().unwrap_or_default();
+                let res = {
+                    let s = self.session.lock().unwrap();
+                    s.as_ref().map(|s| s.assistant.dry_run(&text, Source::Typed))
+                };
+                let res = res.unwrap_or_else(|| tester::dry_run_idle(&self.cfg, &text));
+                json!({"ok": true, "result": res})
+            }
+            "voice_test_poll" => {
+                if TESTER.arm(Instant::now()) {
+                    log("voice tester open: push-to-talk is tested there, nothing is pressed");
+                }
+                let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
+                json!({"ok": true, "listening": self.active(), "last": last})
+            }
+            "voice_test_stop" => {
+                if TESTER.armed(Instant::now()) {
+                    log("voice tester closed: push-to-talk acts again");
+                }
+                TESTER.disarm();
+                json!({"ok": true})
+            }
+            "voice_test_live" => {
+                let cmd = r.text.clone().unwrap_or_default();
+                let runner = self.session.lock().unwrap().as_ref().map(|s| s.runner.clone());
+                match runner {
+                    None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
+                    Some(runner) => {
+                        log(&format!("voice tester: live run of {cmd}"));
+                        match tester::live(&runner, &cmd, tester::SWITCH_WAIT) {
+                            Ok(m) => json!({"ok": true, "message": m}),
+                            Err(e) => json!({"ok": false, "error": e}),
+                        }
+                    }
+                }
             }
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }

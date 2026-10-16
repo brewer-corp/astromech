@@ -9,6 +9,7 @@
 //! - [`health`]: the binds health check at startup and on every Bindings-folder change;
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
+//! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
 //!   notifications);
@@ -35,6 +36,7 @@ pub mod logging;
 pub mod pipeline;
 pub mod session;
 pub mod speech;
+pub mod tester;
 #[cfg(windows)]
 pub mod tray;
 pub mod update;
