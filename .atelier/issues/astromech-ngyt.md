@@ -36,9 +36,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Event → reaction engine"
-updated_at: "2026-10-15T20:36:13.651930072+00:00"
+updated_at: "2026-10-16T19:32:20.320407225+00:00"
 ---
 
 ## Goal

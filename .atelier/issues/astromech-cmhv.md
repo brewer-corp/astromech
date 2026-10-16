@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.648255681+00:00"
 id: "astromech-cmhv"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-cmhv
 priority: "P0"
 relationships:
   blocks:
@@ -34,7 +37,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-16T18:26:24.161862282+00:00"
+updated_at: "2026-10-16T19:32:20.320405041+00:00"
 ---
 
 ## Goal

@@ -20,9 +20,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Name reading rules before TTS"
-updated_at: "2026-10-15T20:36:13.663793110+00:00"
+updated_at: "2026-10-16T19:32:20.727655281+00:00"
 ---
 
 ## Goal
