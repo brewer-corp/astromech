@@ -33,7 +33,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Powerplay basics"
-updated_at: "2026-10-16T20:41:03.299391322+00:00"
+updated_at: "2026-10-16T20:49:22.825732608+00:00"
 ---
 
 ## Goal
@@ -47,3 +47,7 @@ Journal replay tests for standing and arrival state; recorded-response tests for
 ## Unknowns
 
 Spansh's Powerplay field names for system search.
+
+## Notes
+
+- 2026-10-16 [note] Unknowns resolved: Spansh's Powerplay field names verified live 16 Oct 2026 (see astromech-7ix7). Children ny26, h1dz, 7ix7 done on this branch; astromech-gtza (speak the arrival line; blocked by astromech-cmhv) keeps the parent open.
