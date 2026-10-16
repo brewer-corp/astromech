@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647402360+00:00"
 id: "astromech-tpdb"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-tpdb
 priority: "P0"
 relationships:
   blocks:
@@ -42,7 +45,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal and companion-file coverage"
-updated_at: "2026-10-15T20:36:13.770967873+00:00"
+updated_at: "2026-10-16T18:27:56.810967600+00:00"
 ---
 
 ## Goal

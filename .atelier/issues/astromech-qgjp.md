@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Type the journal events the toolbox work needs"
-updated_at: "2026-10-15T20:36:13.651279078+00:00"
+updated_at: "2026-10-16T18:27:56.810969523+00:00"
 ---
 
 ## Goal
