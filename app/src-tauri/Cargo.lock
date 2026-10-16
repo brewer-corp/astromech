@@ -91,6 +91,7 @@ version = "0.1.5"
 dependencies = [
  "astromech-journal",
  "astromech-materials",
+ "astromech-powerplay",
  "astromech-status",
  "serde",
 ]
