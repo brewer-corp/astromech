@@ -1,45 +1,50 @@
 use super::*;
 use std::io::Write;
 
+/// The commander in the main fixture set.
+const CMDR: &str = "F0000001";
+
 fn fixtures() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")
 }
 
-/// Everything an import produces: the stored events and the four ledgers.
+/// Everything an import produces: the stored events and every commander's ledgers.
 #[derive(Debug, PartialEq)]
 struct Snapshot {
-    events: Vec<(String, i64, String, String, String)>,
-    files: Vec<(String, i64, i64)>,
-    visits: Vec<Visit>,
-    earnings: Vec<Earning>,
-    ships: Vec<Ship>,
-    scans: Vec<Scan>,
+    events: Vec<(String, i64, Option<String>, String, String, String)>,
+    files: Vec<(String, i64, i64, Option<String>, bool)>,
+    commanders: Vec<Commander>,
+    ledgers: Vec<(Vec<Visit>, Vec<Earning>, Vec<Ship>, Vec<Scan>)>,
 }
 
 fn snapshot(h: &History) -> Snapshot {
     let c = h.conn();
     let mut st = c
         .prepare(
-            "SELECT f.name, e.offset, e.ts, e.event, e.json FROM events e JOIN journal_files f ON f.id = e.file_id
-             ORDER BY e.id",
+            "SELECT f.name, e.offset, e.cmdr, e.ts, e.event, e.json FROM events e
+             JOIN journal_files f ON f.id = e.file_id ORDER BY e.id",
         )
         .unwrap();
     let events = st
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?, r.get(5)?)))
+        .unwrap()
+        .collect::<rusqlite::Result<_>>()
+        .unwrap();
+    let mut st = c.prepare("SELECT name, offset, lines, cmdr, legacy FROM journal_files ORDER BY name").unwrap();
+    let files = st
         .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?)))
         .unwrap()
         .collect::<rusqlite::Result<_>>()
         .unwrap();
-    let mut st = c.prepare("SELECT name, offset, lines FROM journal_files ORDER BY name").unwrap();
-    let files =
-        st.query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?))).unwrap().collect::<rusqlite::Result<_>>().unwrap();
-    Snapshot {
-        events,
-        files,
-        visits: h.visits().unwrap(),
-        earnings: h.earnings().unwrap(),
-        ships: h.ships().unwrap(),
-        scans: h.scans().unwrap(),
-    }
+    let commanders = h.commanders().unwrap();
+    let ledgers = commanders
+        .iter()
+        .map(|c| {
+            let k = c.cmdr.as_str();
+            (h.visits(k).unwrap(), h.earnings(k).unwrap(), h.ships(k).unwrap(), h.scans(k).unwrap())
+        })
+        .collect();
+    Snapshot { events, files, commanders, ledgers }
 }
 
 fn clean_import() -> (History, ImportReport) {
@@ -87,7 +92,7 @@ fn visits_ledger() {
     let lincoln = Some(("Abraham Lincoln", 128016640));
     let miller = Some(("Miller Depot", 128000001));
     assert_eq!(
-        h.visits().unwrap(),
+        h.visits(CMDR).unwrap(),
         vec![
             visit("2026-09-01T10:00:07Z", "system", "Sol", sol, None, None),
             visit("2026-09-01T10:00:07Z", "station", "Sol", sol, lincoln, None),
@@ -114,7 +119,7 @@ fn earnings_ledger() {
         detail: detail.map(str::to_string),
     };
     assert_eq!(
-        h.earnings().unwrap(),
+        h.earnings(CMDR).unwrap(),
         vec![
             e("2026-09-01T10:05:00Z", "trade", 500000, Some(450000), Some("gold")),
             e("2026-09-01T10:26:00Z", "bounty", 120000, None, Some("Barnard's Star Group")),
@@ -145,7 +150,7 @@ fn ships_ledger() {
         sold: None,
     };
     assert_eq!(
-        h.ships().unwrap(),
+        h.ships(CMDR).unwrap(),
         vec![
             Ship {
                 last_flown: Some("2026-09-02T10:00:06Z".into()),
@@ -180,7 +185,7 @@ fn scans_ledger() {
         was_mapped: None,
     };
     assert_eq!(
-        h.scans().unwrap(),
+        h.scans(CMDR).unwrap(),
         vec![
             Scan {
                 was_discovered: Some(true),
@@ -237,18 +242,97 @@ fn unfinished_line_waits_for_its_newline() {
     let mut f = std::fs::File::create(&path).unwrap();
     // CRLF line endings, as the game writes them, and a byte-order mark on the first line.
     write!(f, "\u{feff}{{\"timestamp\":\"2026-09-04T10:00:00Z\",\"event\":\"Fileheader\"}}\r\n").unwrap();
+    write!(f, "{{\"timestamp\":\"2026-09-04T10:00:00Z\",\"event\":\"Commander\",\"FID\":\"F1\",\"Name\":\"A\"}}\r\n")
+        .unwrap();
     write!(f, "{{\"timestamp\":\"2026-09-04T10:00:01Z\",\"event\":\"FSDJump\",\"StarSystem\":\"Sol\",").unwrap();
     f.flush().unwrap();
     let mut h = History::in_memory().unwrap();
     let r = h.import(dir.path(), &ImportOptions::default()).unwrap();
-    assert_eq!((r.lines, r.events, r.malformed), (1, 1, 0));
-    assert!(h.visits().unwrap().is_empty());
+    assert_eq!((r.lines, r.events, r.malformed), (2, 2, 0));
+    assert!(h.visits("F1").unwrap().is_empty());
     write!(f, "\"SystemAddress\":10477373803,\"JumpDist\":3.5}}\r\n").unwrap();
     f.flush().unwrap();
     let r = h.import(dir.path(), &ImportOptions::default()).unwrap();
     assert_eq!((r.lines, r.events), (1, 1));
-    let v = h.visits().unwrap();
+    let v = h.visits("F1").unwrap();
     assert_eq!(v.len(), 1);
     assert_eq!(v[0].star_system, "Sol");
     assert_eq!(v[0].jump_dist, Some(3.5));
+}
+
+#[test]
+fn commanders_and_legacy_stay_apart() {
+    let mut h = History::in_memory().unwrap();
+    h.import(&fixtures().join("two-commanders"), &ImportOptions::default()).unwrap();
+    let keys: Vec<(String, String, bool)> =
+        h.commanders().unwrap().into_iter().map(|c| (c.cmdr, c.name, c.legacy)).collect();
+    assert_eq!(
+        keys,
+        vec![
+            ("F0000001".into(), "Fixture".into(), false),
+            ("F0000002".into(), "Second".into(), false),
+            ("F0000001/legacy".into(), "Fixture".into(), true),
+        ]
+    );
+    // Ship 1 is a different ship for each, and selling the live commander's ship 1 touches
+    // neither of the others.
+    let ships = |k: &str| -> Vec<(i64, String, Option<String>)> {
+        h.ships(k).unwrap().into_iter().map(|s| (s.ship_id, s.ship_type, s.sold)).collect()
+    };
+    assert_eq!(ships("F0000002"), vec![(1, "sidewinder".into(), None)]);
+    assert_eq!(ships("F0000001/legacy"), vec![(1, "anaconda".into(), None)]);
+    assert_eq!(ships("F0000001"), vec![(4, "python".into(), None)]);
+    let systems = |k: &str| -> Vec<(String, String)> {
+        h.visits(k).unwrap().into_iter().map(|v| (v.kind, v.star_system)).collect()
+    };
+    assert_eq!(systems("F0000002"), vec![("system".into(), "Sol".into()), ("system".into(), "Alpha Centauri".into())]);
+    // The live commander's Location isn't compared with the other commander's last system.
+    assert_eq!(
+        systems("F0000001"),
+        vec![("system".into(), "Barnard's Star".into()), ("station".into(), "Barnard's Star".into())]
+    );
+    assert_eq!(systems("F0000001/legacy"), vec![("system".into(), "Sol".into())]);
+    // Fileheader comes before any commander is named.
+    let unowned: i64 = h.conn().query_row("SELECT COUNT(*) FROM events WHERE cmdr IS NULL", [], |r| r.get(0)).unwrap();
+    assert_eq!(unowned, 2);
+}
+
+/// A database written by schema v1 (no commanders) gets its commanders and ledgers back on
+/// open, the same as a fresh import, and the next import has nothing to do.
+#[test]
+fn v1_database_is_migrated() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("history.sqlite");
+    {
+        let c = astromech_store::migrate(Connection::open(&db).unwrap(), &MIGRATIONS[..1]).unwrap();
+        for path in astromech_journal::journal_logs(&fixtures()) {
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            let text = std::fs::read_to_string(&path).unwrap();
+            c.execute(
+                "INSERT INTO journal_files(name, offset, lines) VALUES (?1, ?2, ?3)",
+                params![name, text.len() as i64, text.lines().count() as i64],
+            )
+            .unwrap();
+            let file_id = c.last_insert_rowid();
+            let mut offset = 0;
+            for l in text.split_inclusive('\n') {
+                if let Ok(j) = parse_line(l.trim()) {
+                    c.execute(
+                        "INSERT INTO events(file_id, offset, ts, event, json) VALUES (?1, ?2, ?3, ?4, ?5)",
+                        params![file_id, offset, j.timestamp, j.name, j.raw_json],
+                    )
+                    .unwrap();
+                }
+                offset += l.len() as i64;
+            }
+        }
+        // A v1 ledger row, mixed across commanders: it must not survive.
+        c.execute("INSERT INTO ships(ship_id, ship_type, first_seen) VALUES (99, 'x', 't')", []).unwrap();
+    }
+    let mut h = History::open(&db).unwrap();
+    let (clean, _) = clean_import();
+    assert_eq!(snapshot(&h), snapshot(&clean));
+    assert_eq!(h.import(&fixtures(), &ImportOptions::default()).unwrap(), ImportReport::default());
+    let pending: i64 = h.conn().query_row("SELECT COUNT(*) FROM pending", [], |r| r.get(0)).unwrap();
+    assert_eq!(pending, 0);
 }

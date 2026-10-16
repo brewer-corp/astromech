@@ -14,10 +14,15 @@
 //!   that batch of events. A killed import loses at most its open batch and resumes there;
 //!   `(file_id, offset)` is unique, so no line is stored twice.
 //! - A line without its newline yet (the game is still writing it) waits for the next import.
+//! - Every event carries its commander (see `commander`), and every ledger is per commander:
+//!   the same journal folder can hold several commanders, and Legacy-mode play.
 
+mod commander;
 mod ledgers;
 
-pub use ledgers::{Earning, Scan, Ship, Visit};
+pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
+
+use commander::FileCommander;
 
 use astromech_journal::parse_line;
 use astromech_store::rusqlite::{self, params, Connection, OptionalExtension};
@@ -93,7 +98,87 @@ const MIGRATIONS: &[&str] = &[
      );
      CREATE INDEX scans_body ON scans(system_address, body_id);
      CREATE INDEX scans_ts ON scans(ts);",
+    // v2 — commanders (astromech-i4gx). Events get their commander back from the journal lines
+    // and the ledgers are rebuilt per commander: see `PENDING_COMMANDERS`.
+    "ALTER TABLE journal_files ADD COLUMN cmdr TEXT;
+     ALTER TABLE journal_files ADD COLUMN legacy INTEGER NOT NULL DEFAULT 0;
+     ALTER TABLE events ADD COLUMN cmdr TEXT;
+     DROP INDEX events_ts;
+     CREATE INDEX events_cmdr_ts ON events(cmdr, ts);
+     DROP TABLE visits;
+     DROP TABLE earnings;
+     DROP TABLE ships;
+     DROP TABLE scans;
+     CREATE TABLE commanders (
+        cmdr TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        legacy INTEGER NOT NULL,
+        first_seen TEXT NOT NULL,
+        last_seen TEXT NOT NULL
+     );
+     CREATE TABLE visits (
+        id INTEGER PRIMARY KEY,
+        cmdr TEXT NOT NULL,
+        event_id INTEGER NOT NULL,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('system', 'station')),
+        star_system TEXT NOT NULL,
+        system_address INTEGER,
+        station_name TEXT,
+        market_id INTEGER,
+        jump_dist REAL
+     );
+     CREATE INDEX visits_cmdr_ts ON visits(cmdr, ts);
+     CREATE INDEX visits_system ON visits(star_system);
+     CREATE INDEX visits_address ON visits(system_address);
+     CREATE INDEX visits_market ON visits(market_id);
+     CREATE TABLE earnings (
+        event_id INTEGER PRIMARY KEY,
+        cmdr TEXT NOT NULL,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        amount INTEGER NOT NULL,
+        cost INTEGER,
+        detail TEXT
+     );
+     CREATE INDEX earnings_cmdr_ts ON earnings(cmdr, ts);
+     CREATE TABLE ships (
+        cmdr TEXT NOT NULL,
+        ship_id INTEGER NOT NULL,
+        ship_type TEXT NOT NULL,
+        name TEXT,
+        ident TEXT,
+        first_seen TEXT NOT NULL,
+        last_flown TEXT,
+        acquired TEXT,
+        sold TEXT,
+        PRIMARY KEY (cmdr, ship_id)
+     );
+     CREATE TABLE scans (
+        event_id INTEGER PRIMARY KEY,
+        cmdr TEXT NOT NULL,
+        ts TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('body', 'mapped', 'organic')),
+        system_address INTEGER,
+        star_system TEXT,
+        body_name TEXT,
+        body_id INTEGER,
+        class TEXT,
+        landable INTEGER,
+        terraformable INTEGER,
+        was_discovered INTEGER,
+        was_mapped INTEGER
+     );
+     CREATE INDEX scans_body ON scans(system_address, body_id);
+     CREATE INDEX scans_cmdr_ts ON scans(cmdr, ts);
+     CREATE TABLE pending (task TEXT PRIMARY KEY);
+     INSERT INTO pending VALUES ('commanders');",
 ];
+
+/// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done
+/// redoes it on the next open: fill `events.cmdr` and `journal_files.cmdr` from the stored
+/// lines, then rebuild the ledgers.
+const PENDING_COMMANDERS: &str = "commanders";
 
 #[derive(Debug, thiserror::Error)]
 pub enum HistoryError {
@@ -157,7 +242,45 @@ impl History {
         // WAL with NORMAL sync: a power cut can lose the last commits, never corrupt; the
         // journals are still there to re-import from.
         conn.pragma_update(None, "synchronous", "NORMAL")?;
-        Ok(Self { conn })
+        let mut h = Self { conn };
+        let pending: Option<String> = h
+            .conn
+            .query_row("SELECT task FROM pending WHERE task = ?1", [PENDING_COMMANDERS], |r| r.get(0))
+            .optional()?;
+        if pending.is_some() {
+            h.rederive_commanders()?;
+        }
+        Ok(h)
+    }
+
+    /// Recompute each event's commander from the stored lines, then the ledgers (migration v2).
+    fn rederive_commanders(&mut self) -> Result<()> {
+        let tx = self.conn.transaction()?;
+        {
+            let mut files = tx.prepare("SELECT id FROM journal_files")?;
+            let ids: Vec<i64> = files.query_map([], |r| r.get(0))?.collect::<rusqlite::Result<_>>()?;
+            let mut events = tx.prepare("SELECT id, json FROM events WHERE file_id = ?1 ORDER BY offset")?;
+            let mut set = tx.prepare("UPDATE events SET cmdr = ?2 WHERE id = ?1")?;
+            for file_id in ids {
+                let mut state = FileCommander::default();
+                let mut rows = events.query([file_id])?;
+                while let Some(r) = rows.next()? {
+                    let json: String = r.get(1)?;
+                    if let Ok(line) = parse_line(&json) {
+                        state.observe(&line);
+                    }
+                    set.execute(params![r.get::<_, i64>(0)?, state.cmdr])?;
+                }
+                tx.execute(
+                    "UPDATE journal_files SET cmdr = ?2, legacy = ?3 WHERE id = ?1",
+                    params![file_id, state.cmdr, state.legacy],
+                )?;
+            }
+        }
+        rebuild(&tx)?;
+        tx.execute("DELETE FROM pending WHERE task = ?1", [PENDING_COMMANDERS])?;
+        tx.commit()?;
+        Ok(())
     }
 
     /// Read-only access for queries over the history.
@@ -174,7 +297,7 @@ impl History {
             let io = |source| HistoryError::Io { path: path.clone(), source };
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
             let len = std::fs::metadata(&path).map_err(io)?.len();
-            let (file_id, start) = self.file_state(&name)?;
+            let (file_id, start, mut state) = self.file_state(&name)?;
             if len < start {
                 report.shrunk.push(name);
                 continue;
@@ -208,8 +331,11 @@ impl History {
                 if !text.is_empty() {
                     match parse_line(text) {
                         Ok(line) => {
-                            if let Some(id) = insert_event(&tx, file_id, offset, &line)? {
-                                ledgers::derive(&tx, id, &line)?;
+                            state.observe(&line);
+                            if let Some(id) = insert_event(&tx, file_id, offset, state.cmdr.as_deref(), &line)? {
+                                if let Some(cmdr) = &state.cmdr {
+                                    ledgers::derive(&tx, id, cmdr, &line)?;
+                                }
                                 report.events += 1;
                             }
                         }
@@ -218,14 +344,14 @@ impl History {
                 }
                 batch += 1;
                 if batch >= opts.batch_lines.max(1) {
-                    set_progress(&tx, file_id, pos, file_lines)?;
+                    set_progress(&tx, file_id, pos, file_lines, &state)?;
                     tx.commit()?;
                     tx = self.conn.transaction()?;
                     file_lines = 0;
                     batch = 0;
                 }
             }
-            set_progress(&tx, file_id, pos, file_lines)?;
+            set_progress(&tx, file_id, pos, file_lines, &state)?;
             tx.commit()?;
             if pos > start {
                 report.files += 1;
@@ -239,18 +365,7 @@ impl History {
     /// Recompute every ledger from `events`, in import order.
     pub fn rebuild_ledgers(&mut self) -> Result<()> {
         let tx = self.conn.transaction()?;
-        tx.execute_batch("DELETE FROM visits; DELETE FROM earnings; DELETE FROM ships; DELETE FROM scans;")?;
-        {
-            let mut st = tx.prepare("SELECT id, json FROM events ORDER BY id")?;
-            let mut rows = st.query([])?;
-            while let Some(r) = rows.next()? {
-                let id: i64 = r.get(0)?;
-                let json: String = r.get(1)?;
-                if let Ok(line) = parse_line(&json) {
-                    ledgers::derive(&tx, id, &line)?;
-                }
-            }
-        }
+        rebuild(&tx)?;
         tx.commit()?;
         Ok(())
     }
@@ -260,19 +375,23 @@ impl History {
         Ok(self.conn.query_row("SELECT COUNT(*) FROM events", [], |r| r.get::<_, i64>(0))? as u64)
     }
 
-    /// `(file_id, imported byte offset)`, adding the file if it is new.
-    fn file_state(&self, name: &str) -> Result<(i64, u64)> {
+    /// `(file_id, imported byte offset, commander state there)`, adding the file if it is new.
+    fn file_state(&self, name: &str) -> Result<(i64, u64, FileCommander)> {
         let found = self
             .conn
-            .query_row("SELECT id, offset FROM journal_files WHERE name = ?1", [name], |r| {
-                Ok((r.get::<_, i64>(0)?, r.get::<_, i64>(1)? as u64))
+            .query_row("SELECT id, offset, cmdr, legacy FROM journal_files WHERE name = ?1", [name], |r| {
+                Ok((
+                    r.get::<_, i64>(0)?,
+                    r.get::<_, i64>(1)? as u64,
+                    FileCommander { cmdr: r.get(2)?, legacy: r.get(3)? },
+                ))
             })
             .optional()?;
         if let Some(f) = found {
             return Ok(f);
         }
         self.conn.execute("INSERT INTO journal_files(name) VALUES (?1)", [name])?;
-        Ok((self.conn.last_insert_rowid(), 0))
+        Ok((self.conn.last_insert_rowid(), 0, FileCommander::default()))
     }
 }
 
@@ -281,20 +400,35 @@ fn insert_event(
     c: &Connection,
     file_id: i64,
     offset: u64,
+    cmdr: Option<&str>,
     line: &astromech_journal::JournalLine,
 ) -> Result<Option<i64>> {
-    let mut st =
-        c.prepare_cached("INSERT OR IGNORE INTO events(file_id, offset, ts, event, json) VALUES (?1, ?2, ?3, ?4, ?5)")?;
-    let n = st.execute(params![file_id, offset as i64, line.timestamp, line.name, line.raw_json])?;
+    let mut st = c.prepare_cached(
+        "INSERT OR IGNORE INTO events(file_id, offset, cmdr, ts, event, json) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+    )?;
+    let n = st.execute(params![file_id, offset as i64, cmdr, line.timestamp, line.name, line.raw_json])?;
     Ok((n == 1).then(|| c.last_insert_rowid()))
 }
 
-fn set_progress(c: &Connection, file_id: i64, offset: u64, new_lines: u64) -> Result<()> {
-    c.prepare_cached("UPDATE journal_files SET offset = ?2, lines = lines + ?3 WHERE id = ?1")?.execute(params![
-        file_id,
-        offset as i64,
-        new_lines as i64
-    ])?;
+fn set_progress(c: &Connection, file_id: i64, offset: u64, new_lines: u64, state: &FileCommander) -> Result<()> {
+    c.prepare_cached("UPDATE journal_files SET offset = ?2, lines = lines + ?3, cmdr = ?4, legacy = ?5 WHERE id = ?1")?
+        .execute(params![file_id, offset as i64, new_lines as i64, state.cmdr, state.legacy])?;
+    Ok(())
+}
+
+/// Clear the ledgers and derive them again from every stored event, in import order.
+fn rebuild(c: &Connection) -> Result<()> {
+    c.execute_batch(
+        "DELETE FROM commanders; DELETE FROM visits; DELETE FROM earnings; DELETE FROM ships; DELETE FROM scans;",
+    )?;
+    let mut st = c.prepare("SELECT id, cmdr, json FROM events WHERE cmdr IS NOT NULL ORDER BY id")?;
+    let mut rows = st.query([])?;
+    while let Some(r) = rows.next()? {
+        let (id, cmdr, json): (i64, String, String) = (r.get(0)?, r.get(1)?, r.get(2)?);
+        if let Ok(line) = parse_line(&json) {
+            ledgers::derive(c, id, &cmdr, &line)?;
+        }
+    }
     Ok(())
 }
 

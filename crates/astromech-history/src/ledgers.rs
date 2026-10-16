@@ -1,7 +1,9 @@
 //! Ledgers derived from journal events. [`derive`] runs once per new event, in import order,
 //! and reads only what earlier events wrote, so an import resumed after a crash produces the
-//! same rows as one clean run.
+//! same rows as one clean run. Every row belongs to one commander (`cmdr`, see `commander`),
+//! and lookups of earlier rows stay within that commander.
 //!
+//! - `commanders`: every commander key seen, with the latest name and whether it is Legacy.
 //! - `visits`: arrivals in a system (`FSDJump`, `CarrierJump`, and `Location` when it isn't the
 //!   system already recorded last, so logging in again doesn't count) and dockings (`Docked`,
 //!   and `Location` when starting docked somewhere other than the last docking).
@@ -10,13 +12,23 @@
 //!   (other `RedeemVoucher` types), `mission`, `search_and_rescue`, `community_goal`,
 //!   `micro_resources`. Bounties count when redeemed, not when the `Bounty` event happens.
 //! - `ships`: every ship id seen (`Loadout`, `StoredShips`, `ShipyardNew`), with its latest type,
-//!   name and ident, when it was bought (`acquired`), last flown and sold. Assumes one commander.
+//!   name and ident, when it was bought (`acquired`), last flown and sold.
 //! - `scans`: `body` (`Scan`), `mapped` (`SAAScanComplete`) and `organic` (`ScanOrganic` with
 //!   `ScanType: Analyse`, a completed sample), one row per event.
 
 use astromech_journal::{ExtraEvent as X, JournalEvent as J, JournalLine};
 use astromech_store::rusqlite::{params, Connection, OptionalExtension, Result};
 use serde_json::Value;
+
+/// A row of `commanders`. `cmdr` is the key every ledger uses.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Commander {
+    pub cmdr: String,
+    pub name: String,
+    pub legacy: bool,
+    pub first_seen: String,
+    pub last_seen: String,
+}
 
 /// A row of `visits`. `kind` is `system` or `station`.
 #[derive(Debug, Clone, PartialEq)]
@@ -73,31 +85,43 @@ pub struct Scan {
     pub was_mapped: Option<bool>,
 }
 
-/// Write the ledger rows for one newly stored event.
-pub(crate) fn derive(c: &Connection, event_id: i64, line: &JournalLine) -> Result<()> {
-    let ts = line.timestamp.as_str();
+/// The event being derived, and where its rows go.
+struct Ev<'a> {
+    c: &'a Connection,
+    id: i64,
+    cmdr: &'a str,
+    ts: &'a str,
+}
+
+/// Write the ledger rows for one newly stored event of commander `cmdr`.
+pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLine) -> Result<()> {
+    let e = Ev { c, id: event_id, cmdr, ts: line.timestamp.as_str() };
     match &line.event {
+        J::LoadGame { commander, .. } => e.commander(commander)?,
         J::FsdJump { star_system, jump_dist, system_address, .. } => {
-            add_visit(c, event_id, ts, "system", star_system, *system_address, None, None, Some(*jump_dist))?;
+            e.visit("system", star_system, *system_address, None, None, Some(*jump_dist))?;
         }
         J::Location { star_system, system_address, docked, station_name, market_id, .. } => {
             let last = c
                 .prepare_cached(
-                    "SELECT star_system, system_address FROM visits WHERE kind = 'system' ORDER BY id DESC LIMIT 1",
+                    "SELECT star_system, system_address FROM visits WHERE cmdr = ?1 AND kind = 'system'
+                     ORDER BY id DESC LIMIT 1",
                 )?
-                .query_row([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1)?)))
+                .query_row([cmdr], |r| Ok((r.get::<_, String>(0)?, r.get::<_, Option<i64>>(1)?)))
                 .optional()?;
             let same = last.is_some_and(|(name, addr)| match (addr, system_address) {
                 (Some(a), Some(b)) => a == *b,
                 _ => name == *star_system,
             });
             if !same {
-                add_visit(c, event_id, ts, "system", star_system, *system_address, None, None, None)?;
+                e.visit("system", star_system, *system_address, None, None, None)?;
             }
             if let (true, Some(station)) = (*docked, station_name) {
                 let last = c
-                    .prepare_cached("SELECT kind, station_name, market_id FROM visits ORDER BY id DESC LIMIT 1")?
-                    .query_row([], |r| {
+                    .prepare_cached(
+                        "SELECT kind, station_name, market_id FROM visits WHERE cmdr = ?1 ORDER BY id DESC LIMIT 1",
+                    )?
+                    .query_row([cmdr], |r| {
                         Ok((r.get::<_, String>(0)?, r.get::<_, Option<String>>(1)?, r.get::<_, Option<i64>>(2)?))
                     })
                     .optional()?;
@@ -109,235 +133,294 @@ pub(crate) fn derive(c: &Connection, event_id: i64, line: &JournalLine) -> Resul
                         }
                 });
                 if !same {
-                    add_visit(
-                        c,
-                        event_id,
-                        ts,
-                        "station",
-                        star_system,
-                        *system_address,
-                        Some(station),
-                        *market_id,
-                        None,
-                    )?;
+                    e.visit("station", star_system, *system_address, Some(station), *market_id, None)?;
                 }
             }
         }
         J::Docked { station_name, star_system, market_id } => {
-            let addr = system_address_of(c, star_system)?;
-            add_visit(c, event_id, ts, "station", star_system, addr, Some(station_name), *market_id, None)?;
+            let addr = e.system_address_of(star_system)?;
+            e.visit("station", star_system, addr, Some(station_name), *market_id, None)?;
         }
         J::Loadout { ship_id: Some(id), ship: Some(ship), ship_name, ship_ident, .. } => {
             c.prepare_cached(
-                "INSERT INTO ships(ship_id, ship_type, name, ident, first_seen, last_flown)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?5)
-                 ON CONFLICT(ship_id) DO UPDATE SET ship_type = excluded.ship_type,
+                "INSERT INTO ships(cmdr, ship_id, ship_type, name, ident, first_seen, last_flown)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6)
+                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET ship_type = excluded.ship_type,
                     name = coalesce(excluded.name, name), ident = coalesce(excluded.ident, ident),
                     last_flown = excluded.last_flown",
             )?
-            .execute(params![id, ship.to_lowercase(), ship_name, ship_ident, ts])?;
+            .execute(params![cmdr, id, ship.to_lowercase(), ship_name, ship_ident, e.ts])?;
         }
         J::StoredShips { ships } => {
             for s in ships {
-                seen_ship(c, s.ship_id, &s.ship_type, s.name.as_deref(), ts)?;
+                e.seen_ship(s.ship_id, &s.ship_type, s.name.as_deref())?;
             }
         }
         J::ShipSold { ship_id } => {
-            c.prepare_cached("UPDATE ships SET sold = ?2 WHERE ship_id = ?1")?.execute(params![ship_id, ts])?;
+            c.prepare_cached("UPDATE ships SET sold = ?3 WHERE cmdr = ?1 AND ship_id = ?2")?
+                .execute(params![cmdr, ship_id, e.ts])?;
         }
-        J::Extra(x) => extra(c, event_id, ts, x)?,
-        J::Other { event, raw } => other(c, event_id, ts, event, raw)?,
+        J::Extra(x) => e.extra(x)?,
+        J::Other { event, raw } => e.other(event, raw)?,
         _ => {}
     }
     Ok(())
 }
 
-fn extra(c: &Connection, event_id: i64, ts: &str, x: &X) -> Result<()> {
-    match x {
-        X::MarketTrade(t) if t.sell => {
-            let cost = t.avg_price_paid.map(|p| p * t.count);
-            earn(c, event_id, ts, "trade", t.total, cost, Some(&t.commodity))?;
+impl Ev<'_> {
+    fn extra(&self, x: &X) -> Result<()> {
+        let c = self.c;
+        match x {
+            X::MarketTrade(t) if t.sell => {
+                let cost = t.avg_price_paid.map(|p| p * t.count);
+                self.earn("trade", t.total, cost, Some(&t.commodity))?;
+            }
+            X::ExplorationSale { total_earnings, .. } => self.earn("exploration", *total_earnings, None, None)?,
+            X::SellOrganicData { bio_data, .. } => {
+                let total = bio_data.iter().map(|b| b.value + b.bonus).sum();
+                self.earn("organic", total, None, None)?;
+            }
+            X::RedeemVoucher { kind, amount, factions } => {
+                let k = match kind.as_str() {
+                    "bounty" => "bounty",
+                    "CombatBond" => "combat_bond",
+                    _ => "voucher",
+                };
+                let detail = if k == "voucher" { Some(kind.clone()) } else { Some(factions.join(", ")) };
+                self.earn(k, *amount, None, detail.filter(|d| !d.is_empty()).as_deref())?;
+            }
+            X::MissionCompleted { name, reward: Some(r), .. } if *r > 0 => {
+                self.earn("mission", *r, None, Some(name))?;
+            }
+            X::Scan(b) => {
+                let class = b.star_type.clone().or_else(|| b.planet_class.clone());
+                let star_system = match &b.star_system {
+                    Some(s) => Some(s.clone()),
+                    None => self.system_name_of(b.system_address)?,
+                };
+                let is_star = b.star_type.is_some();
+                c.prepare_cached(
+                    "INSERT INTO scans(event_id, cmdr, ts, kind, system_address, star_system, body_name, body_id,
+                        class, landable, terraformable, was_discovered, was_mapped)
+                     VALUES (?1, ?2, ?3, 'body', ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                )?
+                .execute(params![
+                    self.id,
+                    self.cmdr,
+                    self.ts,
+                    b.system_address,
+                    star_system,
+                    b.body_name,
+                    b.body_id,
+                    class,
+                    (!is_star).then_some(b.landable),
+                    (!is_star).then(|| b.terraform_state.as_deref().is_some_and(|t| !t.is_empty())),
+                    b.was_discovered,
+                    b.was_mapped,
+                ])?;
+            }
+            X::SaaScanComplete { body_name, body_id, system_address, .. } => {
+                let star_system = self.system_name_of(*system_address)?;
+                c.prepare_cached(
+                    "INSERT INTO scans(event_id, cmdr, ts, kind, system_address, star_system, body_name, body_id)
+                     VALUES (?1, ?2, ?3, 'mapped', ?4, ?5, ?6, ?7)",
+                )?
+                .execute(params![
+                    self.id,
+                    self.cmdr,
+                    self.ts,
+                    system_address,
+                    star_system,
+                    body_name,
+                    body_id
+                ])?;
+            }
+            X::ScanOrganic { scan_type, species, species_localised, body, system_address, .. }
+                if scan_type == "Analyse" =>
+            {
+                let star_system = self.system_name_of(*system_address)?;
+                let body_name: Option<String> = c
+                    .prepare_cached(
+                        "SELECT body_name FROM scans
+                         WHERE system_address = ?1 AND body_id = ?2 AND body_name IS NOT NULL
+                         ORDER BY event_id DESC LIMIT 1",
+                    )?
+                    .query_row(params![system_address, body], |r| r.get(0))
+                    .optional()?;
+                let class = species_localised.clone().unwrap_or_else(|| species.clone());
+                c.prepare_cached(
+                    "INSERT INTO scans(event_id, cmdr, ts, kind, system_address, star_system, body_name, body_id, class)
+                     VALUES (?1, ?2, ?3, 'organic', ?4, ?5, ?6, ?7, ?8)",
+                )?
+                .execute(params![self.id, self.cmdr, self.ts, system_address, star_system, body_name, body, class])?;
+            }
+            _ => {}
         }
-        X::ExplorationSale { total_earnings, .. } => earn(c, event_id, ts, "exploration", *total_earnings, None, None)?,
-        X::SellOrganicData { bio_data, .. } => {
-            let total = bio_data.iter().map(|b| b.value + b.bonus).sum();
-            earn(c, event_id, ts, "organic", total, None, None)?;
+        Ok(())
+    }
+
+    fn other(&self, event: &str, raw: &Value) -> Result<()> {
+        let int = |k: &str| raw.get(k).and_then(Value::as_i64);
+        let text = |k: &str| raw.get(k).and_then(Value::as_str).filter(|s| !s.is_empty());
+        match event {
+            "Commander" => {
+                if let Some(name) = text("Name") {
+                    self.commander(name)?;
+                }
+            }
+            "SearchAndRescue" => {
+                if let Some(r) = int("Reward") {
+                    self.earn("search_and_rescue", r, None, text("Name_Localised").or(text("Name")))?;
+                }
+            }
+            "CommunityGoalReward" => {
+                if let Some(r) = int("Reward") {
+                    self.earn("community_goal", r, None, text("Name"))?;
+                }
+            }
+            "SellMicroResources" => {
+                if let Some(p) = int("Price") {
+                    self.earn("micro_resources", p, None, None)?;
+                }
+            }
+            "ShipyardNew" => {
+                if let (Some(id), Some(t)) = (int("NewShipID"), text("ShipType")) {
+                    self.seen_ship(id, t, None)?;
+                    self.c
+                        .prepare_cached("UPDATE ships SET acquired = ?3 WHERE cmdr = ?1 AND ship_id = ?2")?
+                        .execute(params![self.cmdr, id, self.ts])?;
+                }
+            }
+            "SetUserShipName" => {
+                if let Some(id) = int("ShipID") {
+                    self.c
+                        .prepare_cached(
+                            "UPDATE ships SET name = coalesce(?3, name), ident = coalesce(?4, ident)
+                             WHERE cmdr = ?1 AND ship_id = ?2",
+                        )?
+                        .execute(params![self.cmdr, id, text("UserShipName"), text("UserShipId")])?;
+                }
+            }
+            _ => {}
         }
-        X::RedeemVoucher { kind, amount, factions } => {
-            let k = match kind.as_str() {
-                "bounty" => "bounty",
-                "CombatBond" => "combat_bond",
-                _ => "voucher",
-            };
-            let detail = if k == "voucher" { Some(kind.clone()) } else { Some(factions.join(", ")) };
-            earn(c, event_id, ts, k, *amount, None, detail.filter(|d| !d.is_empty()).as_deref())?;
+        Ok(())
+    }
+
+    fn commander(&self, name: &str) -> Result<()> {
+        if name.is_empty() {
+            return Ok(());
         }
-        X::MissionCompleted { name, reward: Some(r), .. } if *r > 0 => {
-            earn(c, event_id, ts, "mission", *r, None, Some(name))?;
-        }
-        X::Scan(b) => {
-            let class = b.star_type.clone().or_else(|| b.planet_class.clone());
-            let star_system = match &b.star_system {
-                Some(s) => Some(s.clone()),
-                None => system_name_of(c, b.system_address)?,
-            };
-            let is_star = b.star_type.is_some();
-            c.prepare_cached(
-                "INSERT INTO scans(event_id, ts, kind, system_address, star_system, body_name, body_id, class,
-                    landable, terraformable, was_discovered, was_mapped)
-                 VALUES (?1, ?2, 'body', ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
+        let legacy = self.cmdr.ends_with(crate::commander::LEGACY_SUFFIX);
+        self.c
+            .prepare_cached(
+                "INSERT INTO commanders(cmdr, name, legacy, first_seen, last_seen) VALUES (?1, ?2, ?3, ?4, ?4)
+                 ON CONFLICT(cmdr) DO UPDATE SET name = excluded.name, last_seen = excluded.last_seen",
+            )?
+            .execute(params![self.cmdr, name, legacy, self.ts])?;
+        Ok(())
+    }
+
+    fn visit(
+        &self,
+        kind: &str,
+        star_system: &str,
+        system_address: Option<i64>,
+        station_name: Option<&String>,
+        market_id: Option<i64>,
+        jump_dist: Option<f64>,
+    ) -> Result<()> {
+        self.c
+            .prepare_cached(
+                "INSERT INTO visits(cmdr, event_id, ts, kind, star_system, system_address, station_name, market_id,
+                    jump_dist)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
             )?
             .execute(params![
-                event_id,
-                ts,
-                b.system_address,
+                self.cmdr,
+                self.id,
+                self.ts,
+                kind,
                 star_system,
-                b.body_name,
-                b.body_id,
-                class,
-                (!is_star).then_some(b.landable),
-                (!is_star).then(|| b.terraform_state.as_deref().is_some_and(|t| !t.is_empty())),
-                b.was_discovered,
-                b.was_mapped,
+                system_address,
+                station_name,
+                market_id,
+                jump_dist
             ])?;
-        }
-        X::SaaScanComplete { body_name, body_id, system_address, .. } => {
-            let star_system = system_name_of(c, *system_address)?;
-            c.prepare_cached(
-                "INSERT INTO scans(event_id, ts, kind, system_address, star_system, body_name, body_id)
-                 VALUES (?1, ?2, 'mapped', ?3, ?4, ?5, ?6)",
-            )?
-            .execute(params![event_id, ts, system_address, star_system, body_name, body_id])?;
-        }
-        X::ScanOrganic { scan_type, species, species_localised, body, system_address, .. }
-            if scan_type == "Analyse" =>
-        {
-            let star_system = system_name_of(c, *system_address)?;
-            let body_name: Option<String> = c
-                .prepare_cached(
-                    "SELECT body_name FROM scans WHERE system_address = ?1 AND body_id = ?2 AND body_name IS NOT NULL
-                     ORDER BY event_id DESC LIMIT 1",
-                )?
-                .query_row(params![system_address, body], |r| r.get(0))
-                .optional()?;
-            let class = species_localised.clone().unwrap_or_else(|| species.clone());
-            c.prepare_cached(
-                "INSERT INTO scans(event_id, ts, kind, system_address, star_system, body_name, body_id, class)
-                 VALUES (?1, ?2, 'organic', ?3, ?4, ?5, ?6, ?7)",
-            )?
-            .execute(params![event_id, ts, system_address, star_system, body_name, body, class])?;
-        }
-        _ => {}
+        Ok(())
     }
-    Ok(())
-}
 
-fn other(c: &Connection, event_id: i64, ts: &str, event: &str, raw: &Value) -> Result<()> {
-    let int = |k: &str| raw.get(k).and_then(Value::as_i64);
-    let text = |k: &str| raw.get(k).and_then(Value::as_str).filter(|s| !s.is_empty());
-    match event {
-        "SearchAndRescue" => {
-            if let Some(r) = int("Reward") {
-                earn(c, event_id, ts, "search_and_rescue", r, None, text("Name_Localised").or(text("Name")))?;
-            }
-        }
-        "CommunityGoalReward" => {
-            if let Some(r) = int("Reward") {
-                earn(c, event_id, ts, "community_goal", r, None, text("Name"))?;
-            }
-        }
-        "SellMicroResources" => {
-            if let Some(p) = int("Price") {
-                earn(c, event_id, ts, "micro_resources", p, None, None)?;
-            }
-        }
-        "ShipyardNew" => {
-            if let (Some(id), Some(t)) = (int("NewShipID"), text("ShipType")) {
-                seen_ship(c, id, t, None, ts)?;
-                c.prepare_cached("UPDATE ships SET acquired = ?2 WHERE ship_id = ?1")?.execute(params![id, ts])?;
-            }
-        }
-        "SetUserShipName" => {
-            if let Some(id) = int("ShipID") {
-                c.prepare_cached(
-                    "UPDATE ships SET name = coalesce(?2, name), ident = coalesce(?3, ident) WHERE ship_id = ?1",
-                )?
-                .execute(params![id, text("UserShipName"), text("UserShipId")])?;
-            }
-        }
-        _ => {}
+    fn earn(&self, kind: &str, amount: i64, cost: Option<i64>, detail: Option<&str>) -> Result<()> {
+        self.c
+            .prepare_cached(
+                "INSERT INTO earnings(event_id, cmdr, ts, kind, amount, cost, detail)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+            )?
+            .execute(params![self.id, self.cmdr, self.ts, kind, amount, cost, detail])?;
+        Ok(())
     }
-    Ok(())
+
+    fn seen_ship(&self, ship_id: i64, ship_type: &str, name: Option<&str>) -> Result<()> {
+        self.c
+            .prepare_cached(
+                "INSERT INTO ships(cmdr, ship_id, ship_type, name, first_seen) VALUES (?1, ?2, ?3, ?4, ?5)
+                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET ship_type = excluded.ship_type,
+                    name = coalesce(excluded.name, name)",
+            )?
+            .execute(params![self.cmdr, ship_id, ship_type.to_lowercase(), name, self.ts])?;
+        Ok(())
+    }
+
+    /// Address of this commander's last arrival in the system called `name` (`Docked` carries
+    /// only the name).
+    fn system_address_of(&self, name: &str) -> Result<Option<i64>> {
+        Ok(self
+            .c
+            .prepare_cached(
+                "SELECT system_address FROM visits WHERE cmdr = ?1 AND kind = 'system' AND star_system = ?2
+                 ORDER BY id DESC LIMIT 1",
+            )?
+            .query_row(params![self.cmdr, name], |r| r.get(0))
+            .optional()?
+            .flatten())
+    }
+
+    /// Name of the system with this address, from the arrivals recorded so far (any
+    /// commander: names don't depend on who flew there).
+    fn system_name_of(&self, address: Option<i64>) -> Result<Option<String>> {
+        let Some(a) = address else { return Ok(None) };
+        self.c
+            .prepare_cached(
+                "SELECT star_system FROM visits WHERE kind = 'system' AND system_address = ?1 ORDER BY id DESC LIMIT 1",
+            )?
+            .query_row([a], |r| r.get(0))
+            .optional()
+    }
 }
 
-fn add_visit(
-    c: &Connection,
-    event_id: i64,
-    ts: &str,
-    kind: &str,
-    star_system: &str,
-    system_address: Option<i64>,
-    station_name: Option<&String>,
-    market_id: Option<i64>,
-    jump_dist: Option<f64>,
-) -> Result<()> {
-    c.prepare_cached(
-        "INSERT INTO visits(event_id, ts, kind, star_system, system_address, station_name, market_id, jump_dist)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-    )?
-    .execute(params![event_id, ts, kind, star_system, system_address, station_name, market_id, jump_dist])?;
-    Ok(())
-}
-
-fn earn(
-    c: &Connection,
-    event_id: i64,
-    ts: &str,
-    kind: &str,
-    amount: i64,
-    cost: Option<i64>,
-    detail: Option<&str>,
-) -> Result<()> {
-    c.prepare_cached("INSERT INTO earnings(event_id, ts, kind, amount, cost, detail) VALUES (?1, ?2, ?3, ?4, ?5, ?6)")?
-        .execute(params![event_id, ts, kind, amount, cost, detail])?;
-    Ok(())
-}
-
-fn seen_ship(c: &Connection, ship_id: i64, ship_type: &str, name: Option<&str>, ts: &str) -> Result<()> {
-    c.prepare_cached(
-        "INSERT INTO ships(ship_id, ship_type, name, first_seen) VALUES (?1, ?2, ?3, ?4)
-         ON CONFLICT(ship_id) DO UPDATE SET ship_type = excluded.ship_type, name = coalesce(excluded.name, name)",
-    )?
-    .execute(params![ship_id, ship_type.to_lowercase(), name, ts])?;
-    Ok(())
-}
-
-/// Address of the last arrival in the system called `name` (`Docked` carries only the name).
-fn system_address_of(c: &Connection, name: &str) -> Result<Option<i64>> {
-    Ok(c.prepare_cached(
-        "SELECT system_address FROM visits WHERE kind = 'system' AND star_system = ?1 ORDER BY id DESC LIMIT 1",
-    )?
-    .query_row([name], |r| r.get(0))
-    .optional()?
-    .flatten())
-}
-
-/// Name of the system with this address, from the arrivals recorded so far.
-fn system_name_of(c: &Connection, address: Option<i64>) -> Result<Option<String>> {
-    let Some(a) = address else { return Ok(None) };
-    c.prepare_cached(
-        "SELECT star_system FROM visits WHERE kind = 'system' AND system_address = ?1 ORDER BY id DESC LIMIT 1",
-    )?
-    .query_row([a], |r| r.get(0))
-    .optional()
-}
-
+/// Reads of one commander's ledgers, oldest first.
 impl crate::History {
-    pub fn visits(&self) -> crate::Result<Vec<Visit>> {
-        let mut st = self.conn.prepare(
-            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist FROM visits ORDER BY id",
-        )?;
+    pub fn commanders(&self) -> crate::Result<Vec<Commander>> {
+        let mut st = self
+            .conn
+            .prepare("SELECT cmdr, name, legacy, first_seen, last_seen FROM commanders ORDER BY last_seen DESC")?;
         let rows = st.query_map([], |r| {
+            Ok(Commander {
+                cmdr: r.get(0)?,
+                name: r.get(1)?,
+                legacy: r.get(2)?,
+                first_seen: r.get(3)?,
+                last_seen: r.get(4)?,
+            })
+        })?;
+        Ok(rows.collect::<Result<_>>()?)
+    }
+
+    pub fn visits(&self, cmdr: &str) -> crate::Result<Vec<Visit>> {
+        let mut st = self.conn.prepare(
+            "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist FROM visits
+             WHERE cmdr = ?1 ORDER BY id",
+        )?;
+        let rows = st.query_map([cmdr], |r| {
             Ok(Visit {
                 ts: r.get(0)?,
                 kind: r.get(1)?,
@@ -351,19 +434,22 @@ impl crate::History {
         Ok(rows.collect::<Result<_>>()?)
     }
 
-    pub fn earnings(&self) -> crate::Result<Vec<Earning>> {
-        let mut st = self.conn.prepare("SELECT ts, kind, amount, cost, detail FROM earnings ORDER BY event_id")?;
-        let rows = st.query_map([], |r| {
+    pub fn earnings(&self, cmdr: &str) -> crate::Result<Vec<Earning>> {
+        let mut st = self
+            .conn
+            .prepare("SELECT ts, kind, amount, cost, detail FROM earnings WHERE cmdr = ?1 ORDER BY event_id")?;
+        let rows = st.query_map([cmdr], |r| {
             Ok(Earning { ts: r.get(0)?, kind: r.get(1)?, amount: r.get(2)?, cost: r.get(3)?, detail: r.get(4)? })
         })?;
         Ok(rows.collect::<Result<_>>()?)
     }
 
-    pub fn ships(&self) -> crate::Result<Vec<Ship>> {
+    pub fn ships(&self, cmdr: &str) -> crate::Result<Vec<Ship>> {
         let mut st = self.conn.prepare(
-            "SELECT ship_id, ship_type, name, ident, first_seen, last_flown, acquired, sold FROM ships ORDER BY ship_id",
+            "SELECT ship_id, ship_type, name, ident, first_seen, last_flown, acquired, sold FROM ships
+             WHERE cmdr = ?1 ORDER BY ship_id",
         )?;
-        let rows = st.query_map([], |r| {
+        let rows = st.query_map([cmdr], |r| {
             Ok(Ship {
                 ship_id: r.get(0)?,
                 ship_type: r.get(1)?,
@@ -378,12 +464,12 @@ impl crate::History {
         Ok(rows.collect::<Result<_>>()?)
     }
 
-    pub fn scans(&self) -> crate::Result<Vec<Scan>> {
+    pub fn scans(&self, cmdr: &str) -> crate::Result<Vec<Scan>> {
         let mut st = self.conn.prepare(
             "SELECT ts, kind, system_address, star_system, body_name, body_id, class, landable, terraformable,
-                    was_discovered, was_mapped FROM scans ORDER BY event_id",
+                    was_discovered, was_mapped FROM scans WHERE cmdr = ?1 ORDER BY event_id",
         )?;
-        let rows = st.query_map([], |r| {
+        let rows = st.query_map([cmdr], |r| {
             Ok(Scan {
                 ts: r.get(0)?,
                 kind: r.get(1)?,

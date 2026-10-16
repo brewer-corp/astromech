@@ -17,9 +17,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "History: commander id on events and ledgers"
-updated_at: "2026-10-16T19:51:00.767285663+00:00"
+updated_at: "2026-10-16T19:52:13.479863951+00:00"
 ---
 
 ## Goal
