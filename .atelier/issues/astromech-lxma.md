@@ -25,6 +25,9 @@ relationships:
   - kind: "issue"
     id: "astromech-610m"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-c9em"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
