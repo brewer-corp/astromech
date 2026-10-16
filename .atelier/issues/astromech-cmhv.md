@@ -14,6 +14,8 @@ relationships:
     id: "astromech-e8ux"
   - kind: "issue"
     id: "astromech-huab"
+  - kind: "issue"
+    id: "astromech-oo8y"
   children:
   - kind: "issue"
     id: "astromech-0zcu"

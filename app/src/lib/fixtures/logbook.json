@@ -1,0 +1,200 @@
+{
+  "commander": {
+    "cmdr": "F0000001",
+    "name": "Fixture",
+    "legacy": false,
+    "first_seen": "2026-09-01T10:00:05Z",
+    "last_seen": "2026-09-03T10:00:05Z"
+  },
+  "commanders": [
+    {
+      "cmdr": "F0000001",
+      "name": "Fixture",
+      "legacy": false,
+      "first_seen": "2026-09-01T10:00:05Z",
+      "last_seen": "2026-09-03T10:00:05Z"
+    }
+  ],
+  "totals": {
+    "systems": 4,
+    "stations": 3,
+    "system_visits": 6,
+    "station_visits": 4
+  },
+  "query": "",
+  "places": [
+    {
+      "kind": "station",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": "Hutton Orbital",
+      "market_id": 128000002,
+      "visits": 2,
+      "first": "2026-09-03T10:10:00Z",
+      "last": "2026-09-03T10:25:00Z"
+    },
+    {
+      "kind": "system",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": null,
+      "market_id": null,
+      "visits": 2,
+      "first": "2026-09-01T10:10:00Z",
+      "last": "2026-09-02T10:20:00Z"
+    },
+    {
+      "kind": "system",
+      "star_system": "Wolf 359",
+      "system_address": 4,
+      "station_name": null,
+      "market_id": null,
+      "visits": 1,
+      "first": "2026-09-02T10:15:00Z",
+      "last": "2026-09-02T10:15:00Z"
+    },
+    {
+      "kind": "system",
+      "star_system": "Sol",
+      "system_address": 10477373803,
+      "station_name": null,
+      "market_id": null,
+      "visits": 2,
+      "first": "2026-09-01T10:00:07Z",
+      "last": "2026-09-02T10:10:00Z"
+    },
+    {
+      "kind": "station",
+      "star_system": "Barnard's Star",
+      "system_address": 2,
+      "station_name": "Miller Depot",
+      "market_id": 128000001,
+      "visits": 1,
+      "first": "2026-09-01T10:25:00Z",
+      "last": "2026-09-01T10:25:00Z"
+    },
+    {
+      "kind": "system",
+      "star_system": "Barnard's Star",
+      "system_address": 2,
+      "station_name": null,
+      "market_id": null,
+      "visits": 1,
+      "first": "2026-09-01T10:20:00Z",
+      "last": "2026-09-01T10:20:00Z"
+    },
+    {
+      "kind": "station",
+      "star_system": "Sol",
+      "system_address": 10477373803,
+      "station_name": "Abraham Lincoln",
+      "market_id": 128016640,
+      "visits": 1,
+      "first": "2026-09-01T10:00:07Z",
+      "last": "2026-09-01T10:00:07Z"
+    }
+  ],
+  "matches": 7,
+  "timeline": [
+    {
+      "ts": "2026-09-03T10:25:00Z",
+      "kind": "station",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": "Hutton Orbital",
+      "market_id": 128000002,
+      "jump_dist": null,
+      "via": "Docked"
+    },
+    {
+      "ts": "2026-09-03T10:10:00Z",
+      "kind": "station",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": "Hutton Orbital",
+      "market_id": 128000002,
+      "jump_dist": null,
+      "via": "Docked"
+    },
+    {
+      "ts": "2026-09-02T10:20:00Z",
+      "kind": "system",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": 4.38,
+      "via": "FSDJump"
+    },
+    {
+      "ts": "2026-09-02T10:15:00Z",
+      "kind": "system",
+      "star_system": "Wolf 359",
+      "system_address": 4,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": null,
+      "via": "CarrierJump"
+    },
+    {
+      "ts": "2026-09-02T10:10:00Z",
+      "kind": "system",
+      "star_system": "Sol",
+      "system_address": 10477373803,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": 5.95,
+      "via": "FSDJump"
+    },
+    {
+      "ts": "2026-09-01T10:25:00Z",
+      "kind": "station",
+      "star_system": "Barnard's Star",
+      "system_address": 2,
+      "station_name": "Miller Depot",
+      "market_id": 128000001,
+      "jump_dist": null,
+      "via": "Docked"
+    },
+    {
+      "ts": "2026-09-01T10:20:00Z",
+      "kind": "system",
+      "star_system": "Barnard's Star",
+      "system_address": 2,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": 6.5,
+      "via": "FSDJump"
+    },
+    {
+      "ts": "2026-09-01T10:10:00Z",
+      "kind": "system",
+      "star_system": "Alpha Centauri",
+      "system_address": 1,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": 4.38,
+      "via": "FSDJump"
+    },
+    {
+      "ts": "2026-09-01T10:00:07Z",
+      "kind": "station",
+      "star_system": "Sol",
+      "system_address": 10477373803,
+      "station_name": "Abraham Lincoln",
+      "market_id": 128016640,
+      "jump_dist": null,
+      "via": "Location"
+    },
+    {
+      "ts": "2026-09-01T10:00:07Z",
+      "kind": "system",
+      "star_system": "Sol",
+      "system_address": 10477373803,
+      "station_name": null,
+      "market_id": null,
+      "jump_dist": null,
+      "via": "Location"
+    }
+  ]
+}

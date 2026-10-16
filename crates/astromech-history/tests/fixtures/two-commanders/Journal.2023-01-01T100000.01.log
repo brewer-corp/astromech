@@ -1,0 +1,5 @@
+{ "timestamp":"2023-01-01T10:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":false, "gameversion":"3.8.0.407", "build":"r289925/r0 " }
+{ "timestamp":"2023-01-01T10:00:01Z", "event":"Commander", "FID":"F0000001", "Name":"Fixture" }
+{ "timestamp":"2023-01-01T10:00:05Z", "event":"LoadGame", "FID":"F0000001", "Commander":"Fixture", "Ship":"Anaconda", "ShipID":1, "Credits":5000000 }
+{ "timestamp":"2023-01-01T10:00:06Z", "event":"Loadout", "Ship":"anaconda", "ShipID":1, "ShipName":"Legacy Snake", "ShipIdent":"LG-01", "Modules":[] }
+{ "timestamp":"2023-01-01T10:10:00Z", "event":"FSDJump", "StarSystem":"Sol", "SystemAddress":10477373803, "JumpDist":20.0 }

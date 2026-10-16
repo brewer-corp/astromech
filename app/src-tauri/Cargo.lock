@@ -85,6 +85,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-history"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "astromech-input"
 version = "0.1.5"
 dependencies = [
@@ -146,6 +157,7 @@ dependencies = [
  "anyhow",
  "astromech-engineering",
  "astromech-galaxy",
+ "astromech-history",
  "astromech-input",
  "astromech-keybinds",
  "astromech-market",
