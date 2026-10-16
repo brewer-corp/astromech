@@ -32,9 +32,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T18:56:24.987431487+00:00"
+status: "done"
 title: "Build the astromech-data crate for Spansh, Ardent and EDSM"
-updated_at: "2026-10-16T18:42:30.008075481+00:00"
+updated_at: "2026-10-16T18:56:24.987431487+00:00"
 ---
 
 ## Goal
@@ -57,3 +58,7 @@ Tests on recorded responses show: a cached answer is served without a request un
   per-system markets. Filters: `maxDistance` ≤ 500 ly, `maxDaysAgo`, `minLandingPadSize`,
   `fleetCarriers`, `minVolume`.
 - **EDSM**: star positions (already used for map fill), bodies, traffic, flight log.
+
+## Close Reason
+
+astromech-data crate built: Spansh search + neutron route jobs, Ardent nearby/nearest/markets, EDSM system/bodies/traffic/sphere behind one client with User-Agent, SQLite TTL cache, typed schema checks, per-service rate limit and plain-words errors. Tests on recorded responses cover the three Done-when clauses (cargo test -p astromech-data, evidence recorded). Galaxy's Spansh/EDSM calls go through it. Remaining endpoints in astromech-jsb9. Independent review outstanding.
