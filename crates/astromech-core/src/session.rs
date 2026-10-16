@@ -11,12 +11,12 @@ use crate::health::{self, BindsState};
 use crate::hub::StateHub;
 use crate::logging::log;
 use crate::speech::{self, ConsoleSpeaker, Speaker, Stt};
+#[cfg(windows)]
+use crate::tester::{self, TESTER};
 use anyhow::{Context, Result};
 use astromech_input::exec::keys::ScanKey;
 use astromech_input::exec::platform::{IntegrityReport, Platform};
 use astromech_policy::Policy;
-#[cfg(windows)]
-use astromech_proto::Origin;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, RwLock};
@@ -351,25 +351,39 @@ fn start_voice(
             while let Ok(job) = jrx.recv() {
                 let t0 = std::time::Instant::now();
                 match stt.transcribe(&job.samples, job.rate) {
-                    Ok(t) if t.is_empty() => a.runner.speaker.say("Didn't catch that."),
-                    Ok(t) => {
-                        let h = a.handle(&t, Origin::Voice);
-                        if matches!(h, crate::assistant::Handled::Ignored) {
-                            log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
-                        } else {
-                            log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
-                            log(&format!("  -> {}", short(&h)));
-                        }
-                        if let Some(p) = job.sidecar {
-                            let cmd = match &h {
-                                crate::assistant::Handled::Ran { command, .. }
-                                | crate::assistant::Handled::Asked { command, .. }
-                                | crate::assistant::Handled::NotAvailable(command) => Some(*command),
-                                _ => None,
-                            };
-                            write_sidecar(&p, &job.meta, &t, cmd);
-                        }
+                    Ok(t) if t.is_empty() && !TESTER.armed(std::time::Instant::now()) => {
+                        a.runner.speaker.say("Didn't catch that.")
                     }
+                    Ok(t) => match tester::on_heard(&TESTER, &a, &t, std::time::Instant::now()) {
+                        // The voice tester page is open: it shows what this would do. Nothing pressed.
+                        tester::Heard::Tested(r) => {
+                            log(&format!(
+                                "voice tester heard {t:?} ({} ms): would {:?}, nothing pressed",
+                                t0.elapsed().as_millis(),
+                                r.would
+                            ));
+                            if let Some(p) = job.sidecar {
+                                write_sidecar(&p, &job.meta, &t, r.intent.as_ref().map(|i| i.command.as_str()));
+                            }
+                        }
+                        tester::Heard::Handled(h) => {
+                            if matches!(h, crate::assistant::Handled::Ignored) {
+                                log(&format!("heard {t:?} ({} ms): noise only, ignored", t0.elapsed().as_millis()));
+                            } else {
+                                log(&format!("heard {t:?} ({} ms)", t0.elapsed().as_millis()));
+                                log(&format!("  -> {}", short(&h)));
+                            }
+                            if let Some(p) = job.sidecar {
+                                let cmd = match &h {
+                                    crate::assistant::Handled::Ran { command, .. }
+                                    | crate::assistant::Handled::Asked { command, .. }
+                                    | crate::assistant::Handled::NotAvailable(command) => Some(*command),
+                                    _ => None,
+                                };
+                                write_sidecar(&p, &job.meta, &t, cmd);
+                            }
+                        }
+                    },
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
                 }
             }

@@ -42,12 +42,17 @@ fn endpoint_file() -> PathBuf {
 }
 
 fn call(cmd: &str) -> Result<Value, String> {
+    call_with(cmd, None)
+}
+
+/// One request to the core; `text` is the voice tester's phrase or command id.
+fn call_with(cmd: &str, text: Option<&str>) -> Result<Value, String> {
     let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core isn't running".to_string())?;
     let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
     s.set_read_timeout(Some(Duration::from_secs(15))).map_err(|e| e.to_string())?;
-    let req = serde_json::json!({ "token": ep.token, "cmd": cmd });
+    let req = serde_json::json!({ "token": ep.token, "cmd": cmd, "text": text });
     writeln!(s, "{req}").map_err(|e| e.to_string())?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line).map_err(|e| e.to_string())?;
@@ -445,7 +450,7 @@ fn core_status() -> Option<Value> {
 }
 
 #[tauri::command]
-fn core_call(cmd: String) -> Value {
+fn core_call(cmd: String, text: Option<String>) -> Value {
     // The window may only ask for these ("quit" and "open_window" stay with the tray).
     const ALLOWED: &[&str] = &[
         "status",
@@ -460,11 +465,15 @@ fn core_call(cmd: String) -> Value {
         "kill_switch",
         "download_models",
         "open_config",
+        "voice_test",
+        "voice_test_poll",
+        "voice_test_stop",
+        "voice_test_live",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });
     }
-    call(&cmd).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
+    call_with(&cmd, text.as_deref()).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
 }
 
 #[tauri::command]
