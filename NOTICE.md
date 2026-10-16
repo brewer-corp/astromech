@@ -51,10 +51,11 @@ community data from EDDN. At run time the app asks Spansh (faction states near y
 data, © Frontier Developments plc.
 
 ## EDDN schemas
-`crates/astromech-eddn/tests/fixtures/schemas/` holds EDDN schema files copied unchanged from
-EDCD/EDDN (github.com/EDCD/EDDN, `live` branch), BSD-3-Clause, Copyright (c) 2018, EDDN; the
-licence text is beside them. Tests check the sender's messages against them. The sender itself is
-written from EDDN's documentation, not from EDMC's code.
+`crates/astromech-eddn/tests/fixtures/schemas/` holds the 16 EDDN schema files the sender uses,
+copied unchanged from EDCD/EDDN (github.com/EDCD/EDDN, `schemas/` on the `live` branch, commit
+4ad669bb), BSD-3-Clause, Copyright (c) 2018, EDDN; the licence text is beside them in `LICENSE`.
+Tests check the sender's messages against them; they are not built into astromech. The sender
+itself is written from EDDN's documentation, not from EDMC's code.
 
 ## Engineering data
 `data/catalog/engineering.json` (blueprint and experimental recipes, which modules take them,
@@ -63,8 +64,3 @@ EDCD/coriolis-data (github.com/EDCD/coriolis-data) and EDCD/FDevIDs (github.com/
 The facts are Elite Dangerous game data, © Frontier Developments plc, as shown to every player
 in game; coriolis-data's notice says the same.
 
-## EDDN schemas (tests)
-`crates/astromech-eddn/tests/schemas/*.json` are EDDN's message schemas, copied unchanged from
-EDCD/EDDN (github.com/EDCD/EDDN, `schemas/` on the `live` branch, commit 4ad669bb) to validate
-the sender's messages in tests. BSD-3-Clause, Copyright (c) 2018, EDDN; the licence text is
-alongside them in `LICENSE-EDDN`. They are test fixtures only and are not built into astromech.
