@@ -42,6 +42,9 @@ relationships:
   - kind: "issue"
     id: "astromech-u3f4"
     type: "related"
+  - kind: "issue"
+    id: "astromech-yrfv"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T20:17:54.295453257+00:00"
