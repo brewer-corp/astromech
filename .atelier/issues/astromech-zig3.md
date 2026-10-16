@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T22:10:11.227353221+00:00"
+status: "done"
 title: "Docked-here facts and an outfitting history"
-updated_at: "2026-10-16T21:15:44.439180329+00:00"
+updated_at: "2026-10-16T22:10:11.227353221+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Replaying a docking fixture shows the facts; a later offline query for a module 
 ## Context
 
 Journal and companion files only.
+
+## Close Reason
+
+Done-when met: replay of a docking fixture shows the facts and a later offline query finds the station (crates/astromech-station/tests/dock.rs); Station tab in the app. Independent review outstanding; voice query not done.
