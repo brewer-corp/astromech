@@ -29,12 +29,15 @@ relationships:
   - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-xvov"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T20:56:12.326308464+00:00"
 status: "done"
 title: "Powerplay basics"
-updated_at: "2026-10-16T20:56:12.326308464+00:00"
+updated_at: "2026-10-16T21:01:45.985621615+00:00"
 ---
 
 ## Goal
@@ -52,6 +55,7 @@ Spansh's Powerplay field names for system search.
 ## Notes
 
 - 2026-10-16 [note] Unknowns resolved: Spansh's Powerplay field names verified live 16 Oct 2026 (see astromech-7ix7). Children ny26, h1dz, 7ix7 done on this branch; astromech-gtza (speak the arrival line; blocked by astromech-cmhv) keeps the parent open.
+- 2026-10-16 [note] Correction: hearing the system's Powerplay state on arrival moved to astromech-gtza (standalone, blocked by this parent and astromech-cmhv); this parent delivered the state, summary, spoken-line formatter, app panel and voice query. The earlier note that gtza keeps this parent open is superseded: gtza was moved out so the branch could merge.
 
 ## Close Reason
 
