@@ -8,7 +8,10 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-sltm"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-16T18:58:52.372259664+00:00"

@@ -452,12 +452,13 @@ fn start_input(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn core_status() -> Option<Value> {
-    call("status").ok()
+async fn core_status() -> Option<Value> {
+    blocking(|| Ok(call("status").ok())).await.ok().flatten()
 }
 
+/// Blocking: a voice tester live run waits for Elite to come to the front.
 #[tauri::command]
-fn core_call(cmd: String, text: Option<String>) -> Value {
+async fn core_call(cmd: String, text: Option<String>) -> Value {
     // The window may only ask for these ("quit" and "open_window" stay with the tray).
     const ALLOWED: &[&str] = &[
         "status",
@@ -480,7 +481,9 @@ fn core_call(cmd: String, text: Option<String>) -> Value {
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });
     }
-    call_with(&cmd, text.as_deref()).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
+    blocking(move || Ok(call_with(&cmd, text.as_deref()).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))))
+        .await
+        .unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
 }
 
 #[tauri::command]

@@ -149,6 +149,24 @@ fn live_run_waits_for_elite_in_front_and_never_presses_into_another_window() {
 }
 
 #[test]
+fn kill_switch_during_the_live_run_wait_presses_nothing() {
+    let r = rig();
+    *r.exec.front.lock().unwrap() = Some("astromech".into());
+    // Kill switch on and off again while waiting, then the user switches to Elite.
+    let (exec, policy) = (r.exec.clone(), r.runner.policy.clone());
+    let h = std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(80));
+        policy.kill();
+        policy.rearm();
+        *exec.front.lock().unwrap() = None;
+    });
+    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_secs(3)).unwrap();
+    h.join().unwrap();
+    assert_eq!(m, "The kill switch was used, so nothing was sent to the game.");
+    assert!(r.exec.sent.lock().unwrap().is_empty());
+}
+
+#[test]
 fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     let r = rig();
     let t = Tester::new();

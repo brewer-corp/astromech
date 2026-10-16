@@ -14,6 +14,7 @@ use crate::health::BindsState;
 use astromech_gamestate::GameState;
 use astromech_intent::{Decision, Grammar};
 use astromech_keybinds::active::KeyCombo;
+use astromech_policy::Wait;
 use astromech_proto::Origin;
 use astromech_tools::{elite_action, from_command, Plan};
 use serde::Serialize;
@@ -175,8 +176,10 @@ pub const SWITCH_WAIT: Duration = Duration::from_secs(5);
 /// a spoken confirmation (silent running) or "Did you mean …?" counts as answered.
 pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, String> {
     let call = from_command(command).ok_or_else(|| format!("{command} can't be run"))?;
-    if !runner.policy.wait_foreground(wait) {
-        return Ok("Elite didn't come to the front in time, so nothing was pressed.".into());
+    match runner.policy.wait_foreground(wait) {
+        Wait::Front => {}
+        Wait::TimedOut => return Ok("Elite didn't come to the front in time, so nothing was pressed.".into()),
+        Wait::Killed => return Ok("The kill switch was used, so nothing was sent to the game.".into()),
     }
     Ok(match runner.run_confirmed(call, Origin::AppWindow) {
         Outcome::Sent(h) => match h.join() {

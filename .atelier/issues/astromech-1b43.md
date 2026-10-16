@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice tester with real push-to-talk on Windows"
-updated_at: "2026-10-16T18:55:05.673876676+00:00"
+updated_at: "2026-10-16T19:21:14.721204780+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ With Elite running and the page open: holding push-to-talk and saying "gear down
 ## Context
 
 astromech-fa3g built the page. Its dry run, the test-mode routing and a recorded clip through the voice worker and Parakeet were checked on Linux; the Windows microphone capture, the PTT thread change in session.rs and the shell's core_call change were not compiled or run there (Windows CI builds them).
+
+## Notes
+
+- 2026-10-16 [note] Also check (re-review N5): Elite may drop input just after alt-tab, so note whether the first press after the Run live countdown registers and whether a short settle delay is needed. And check whether WebView2 reports visibilityState = "hidden" when Elite covers the astromech window without minimising it; V1-DESIGN's claim that hiding the page hands push-to-talk back depends on it.

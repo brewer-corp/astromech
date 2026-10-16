@@ -57,8 +57,9 @@
     const p = binds.last;
     if (binds.presses === seen || !p || binds.capturing) return;
     seen = binds.presses;
-    // The window's own clicks reach Raw Input as Mouse_1 (INPUTSINK); a click isn't a game control.
-    if (p.device === "Mouse") return;
+    // The window's own clicks reach Raw Input as Mouse_1-3 (INPUTSINK); a click isn't a game
+    // control. Side buttons (Mouse_4, Mouse_5) don't click, so they still find their bindings.
+    if (p.device === "Mouse" && /^Mouse_[123]$/.test(p.key)) return;
     if (document.activeElement === search && p.device === "Keyboard") return;
     const rows = binds.rowsFor(p.device, p.key);
     const ctl = binds.state ? controlFor(p.device, p.key, binds.state.overrides) : undefined;

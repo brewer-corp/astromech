@@ -58,4 +58,19 @@ describe("All keybinds group panels", () => {
     const names = [...container.querySelectorAll(".grp .gname")].map((e) => e.textContent!);
     expect(names.filter(isOpen)).toEqual(["Flight"]);
   });
+
+  it("still finds a side mouse button (Mouse_4) bound in the game", async () => {
+    render(KeybindsView);
+    await screen.findByText("Flight", { selector: ".gname" });
+    const slot = binds.rows.find((r) => r.id === "HumanoidPrimaryFireButton")!.slots.find((s) => s.slot === "Secondary")!;
+    Object.assign(slot, { device: "Mouse", key: "Mouse_4" });
+    try {
+      binds.press({ device: "Mouse", key: "Mouse_4", kind: "button", down: true } as never);
+      await new Promise((r) => setTimeout(r, 10));
+      expect(isOpen("On foot combat")).toBe(true);
+      expect(screen.getByText(/Mouse 4.*: Fire/)).toBeTruthy();
+    } finally {
+      Object.assign(slot, { device: "", key: "" });
+    }
+  });
 });

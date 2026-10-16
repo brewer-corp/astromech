@@ -44,6 +44,17 @@ impl Denial {
     }
 }
 
+/// How [`Policy::wait_foreground`] ended.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Wait {
+    /// The game window is in front.
+    Front,
+    /// It didn't come to the front in time.
+    TimedOut,
+    /// The kill switch was pressed (it may be re-armed by now).
+    Killed,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PressError {
     Cancelled,
@@ -197,21 +208,24 @@ impl Policy {
         Ok(Ticket { inner: i.clone(), name: name.to_string(), generation: i.generation.load(Ordering::SeqCst) })
     }
 
-    /// Wait up to `timeout` for the game window to come to the front (true at once when window
+    /// Wait up to `timeout` for the game window to come to the front (at once when window
     /// checks are off). For a live run started from the app window: the user clicked in
-    /// astromech and needs a moment to switch to Elite. Presses still check the window.
-    pub fn wait_foreground(&self, timeout: Duration) -> bool {
+    /// astromech and needs a moment to switch to Elite. Presses still check the window. A kill
+    /// switch press during the wait ends it, even if it was re-armed before the next look.
+    pub fn wait_foreground(&self, timeout: Duration) -> Wait {
         let i = &self.inner;
-        if i.cfg.skip_window_checks {
-            return true;
-        }
+        let generation = i.generation.load(Ordering::SeqCst);
+        let killed = || self.is_killed() || i.generation.load(Ordering::SeqCst) != generation;
         let end = Instant::now() + timeout;
         loop {
-            if i.platform.foreground_title().as_deref() == Some(TARGET_WINDOW) {
-                return true;
+            if killed() {
+                return Wait::Killed;
             }
-            if Instant::now() >= end || self.is_killed() {
-                return false;
+            if i.cfg.skip_window_checks || i.platform.foreground_title().as_deref() == Some(TARGET_WINDOW) {
+                return Wait::Front;
+            }
+            if Instant::now() >= end {
+                return Wait::TimedOut;
             }
             std::thread::sleep(Duration::from_millis(50));
         }
@@ -388,16 +402,37 @@ mod tests {
         let (r, p) = setup();
         *r.title.lock().unwrap() = "astromech".into();
         let start = Instant::now();
-        assert!(!p.wait_foreground(Duration::from_millis(120)));
+        assert_eq!(p.wait_foreground(Duration::from_millis(120)), Wait::TimedOut);
         assert!(start.elapsed() >= Duration::from_millis(120));
         let r2 = r.clone();
         let h = std::thread::spawn(move || {
             std::thread::sleep(Duration::from_millis(100));
             *r2.title.lock().unwrap() = TARGET_WINDOW.into();
         });
-        assert!(p.wait_foreground(Duration::from_secs(2)));
+        assert_eq!(p.wait_foreground(Duration::from_secs(2)), Wait::Front);
         h.join().unwrap();
         assert!(r.log.lock().unwrap().is_empty(), "waiting presses nothing");
+    }
+
+    #[test]
+    fn kill_switch_ends_the_wait_even_if_re_armed() {
+        let (r, p) = setup();
+        *r.title.lock().unwrap() = "astromech".into();
+        // Killed and re-armed between two looks, then Elite comes to the front.
+        let (r2, p2) = (r.clone(), p.clone());
+        let h = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(80));
+            p2.kill();
+            p2.rearm();
+            *r2.title.lock().unwrap() = TARGET_WINDOW.into();
+        });
+        assert_eq!(p.wait_foreground(Duration::from_secs(2)), Wait::Killed);
+        h.join().unwrap();
+        // Already killed when the wait starts.
+        p.kill();
+        assert_eq!(p.wait_foreground(Duration::from_secs(2)), Wait::Killed);
+        p.rearm();
+        assert_eq!(p.wait_foreground(Duration::ZERO), Wait::Front);
     }
 
     #[test]
