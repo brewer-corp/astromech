@@ -386,6 +386,19 @@ async fn engineering_trip(
     .await
 }
 
+/// Where a search measures from: `origin` (a typed system name) or, without one, the
+/// commander's system from the journal.
+fn search_origin(
+    g: &astromech_galaxy::Galaxy,
+    st: &Result<std::sync::Arc<JournalState>, String>,
+    origin: Option<&str>,
+) -> Result<astromech_galaxy::Here, String> {
+    match origin.map(str::trim).filter(|o| !o.is_empty()) {
+        Some(name) => g.locate(name).map_err(|e| e.to_string()),
+        None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or_else(|| "no position in the journal yet".into()),
+    }
+}
+
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
 /// or, without one, near the commander, with jumps at the current ship's range.
 #[tauri::command]
@@ -398,13 +411,32 @@ async fn galaxy_nearby(
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>());
         let g = galaxy(&app)?;
-        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
-            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
-            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
-        };
+        let here = search_origin(&g, &st, origin.as_deref())?;
         let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
         let n =
             g.nearby(&query, &here, range_of(current), 8, &filters.unwrap_or_default()).map_err(|e| e.to_string())?;
+        serde_json::to_value(n).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The nearest stations offering `want` (a service) near `origin` or the commander. The pad
+/// follows the current ship at search time unless the commander set one.
+#[tauri::command]
+async fn stations_nearby(
+    app: tauri::AppHandle,
+    want: astromech_galaxy::stations::Want,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>());
+        let g = galaxy(&app)?;
+        let here = search_origin(&g, &st, origin.as_deref())?;
+        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
+        let filters = filters.unwrap_or_default().for_ship(pad);
+        let n = g.stations(&want, &here, range_of(current), 10, &filters).map_err(|e| e.to_string())?;
         serde_json::to_value(n).map_err(|e| e.to_string())
     })
     .await
@@ -593,6 +625,7 @@ fn main() {
             engineering_engineers,
             engineering_trip,
             galaxy_nearby,
+            stations_nearby,
             galaxy_systems,
             search_filters,
             set_search_filters

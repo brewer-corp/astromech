@@ -9,6 +9,7 @@ import type { Component } from "svelte";
 export const groups = [
   { id: "controls", title: "Controls" },
   { id: "engineering", title: "Engineering" },
+  { id: "galaxy", title: "Galaxy" },
   { id: "settings", title: "Settings" },
 ] as const;
 

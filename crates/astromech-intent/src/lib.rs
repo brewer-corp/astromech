@@ -10,8 +10,14 @@
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Didn't catch that".
 //!
-//! Phrases may contain one `{system}` slot, resolved against a caller-supplied list of known
-//! names (in the full app: Spansh autocomplete).
+//! Phrases may contain one slot, `{name}`, filled by one or more words of the transcript and
+//! resolved against values the caller supplies for that slot (`{system}`: known system names;
+//! the lookups add `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
+//! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
+//! "gimballed").
+
+use std::cell::RefCell;
+use std::collections::HashMap;
 
 /// Score at or above which a match executes without asking.
 pub const EXECUTE: f32 = 0.85;
@@ -31,9 +37,12 @@ pub enum Decision {
 pub struct Match {
     /// Command id, e.g. "landing_gear.down".
     pub command: &'static str,
-    /// The grammar phrase that matched (slot filled in).
+    /// The grammar phrase that matched, its slot filled with the phrasing it matched.
     pub phrase: String,
+    /// The slot's value (as the caller supplied it), when the phrase has a slot.
     pub slot: Option<String>,
+    /// The transcript words the slot took, normalised and joined with spaces.
+    pub slot_text: Option<String>,
     pub score: f32,
     pub decision: Decision,
 }
@@ -44,9 +53,34 @@ pub struct Phrase {
     pub text: String,
 }
 
+/// Words a slot accepts without matching them against its values.
+pub type FreeWord = fn(&str) -> bool;
+
+struct Slot {
+    name: String,
+    /// (normalised words, as written, value)
+    values: Vec<(Vec<String>, String, String)>,
+    free: Option<FreeWord>,
+}
+
 pub struct Grammar {
     phrases: Vec<(Phrase, Vec<String>)>,
-    systems: Vec<String>,
+    slots: Vec<Slot>,
+}
+
+/// Most transcript words one slot can take.
+const MAX_SLOT_WORDS: usize = 8;
+
+/// How well some transcript words fill a slot.
+#[derive(Debug, Clone, Default)]
+struct Fill {
+    sim: f32,
+    value: String,
+    /// The phrasing it matched, as the caller wrote it (for "Did you mean …?").
+    said: String,
+    text: String,
+    /// The words (free words aside) are exactly one of the slot's phrasings.
+    exact: bool,
 }
 
 /// (command id, phrases). The first phrase is the canonical one used in "Did you mean …?".
@@ -116,6 +150,17 @@ pub const MVP: &[(&str, &[&str])] = &[
         &["hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system"],
     ),
     ("plot_route", &["plot route to {system}", "set course for {system}"]),
+    // Station lookups (the slots' values come from astromech-galaxy).
+    (
+        "find.service",
+        &[
+            "nearest {service}",
+            "where's the nearest {service}",
+            "where is the nearest {service}",
+            "find the nearest {service}",
+            "find {service}",
+        ],
+    ),
     ("confirm", &["yes", "confirm", "do it", "affirmative"]),
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
@@ -174,6 +219,13 @@ pub fn normalise(s: &str) -> Vec<String> {
             i += 2;
             continue;
         }
+        // A module's class and rating said apart ("5 A", "five a") becomes one word, "5a", so
+        // the rating isn't dropped as the filler "a".
+        if let (Some(d), Some(r)) = (class_digit(&w), next.filter(|n| is_rating(n))) {
+            out.push(format!("{d}{r}"));
+            i += 2;
+            continue;
+        }
         let w = match w.as_str() {
             "hardpoint" => "hardpoints".to_string(),
             "light" => "lights".to_string(),
@@ -190,6 +242,18 @@ pub fn normalise(s: &str) -> Vec<String> {
         i += 1;
     }
     out
+}
+
+fn class_digit(w: &str) -> Option<char> {
+    const WORDS: [&str; 8] = ["one", "two", "three", "four", "five", "six", "seven", "eight"];
+    match w.as_bytes() {
+        [d @ b'1'..=b'8'] => Some(*d as char),
+        _ => WORDS.iter().position(|n| *n == w).map(|i| (b'1' + i as u8) as char),
+    }
+}
+
+fn is_rating(w: &str) -> bool {
+    matches!(w.as_bytes(), [b'a'..=b'i'])
 }
 
 fn lev(a: &str, b: &str) -> usize {
@@ -257,40 +321,85 @@ pub fn word_sim(a: &str, b: &str) -> f32 {
     }
 }
 
-/// Alignment score of two token sequences in 0..=1 (substitution cost 1 − similarity,
-/// insertion/deletion cost 1). `slot` is called for a `{system}` token to score a word.
-fn seq_score(u: &[String], p: &[String], slot: &dyn Fn(&str) -> (f32, String), filled: &mut Option<String>) -> f32 {
+/// Alignment score of two word sequences in 0..=1 (substitution cost 1 − similarity,
+/// insertion and deletion cost 1).
+fn align(u: &[String], p: &[String]) -> f32 {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
         return 0.0;
     }
-    // dp over (i, j): min cost; keep the slot value chosen on the best path.
-    let mut dp = vec![vec![(f32::MAX, None::<String>); m + 1]; n + 1];
+    let mut dp = vec![vec![f32::MAX; m + 1]; n + 1];
+    dp[0][0] = 0.0;
+    for i in 0..=n {
+        for j in 0..=m {
+            let c = dp[i][j];
+            if c == f32::MAX {
+                continue;
+            }
+            if i < n {
+                dp[i + 1][j] = dp[i + 1][j].min(c + 1.0);
+            }
+            if j < m {
+                dp[i][j + 1] = dp[i][j + 1].min(c + 1.0);
+            }
+            if i < n && j < m {
+                dp[i + 1][j + 1] = dp[i + 1][j + 1].min(c + 1.0 - word_sim(&u[i], &p[j]));
+            }
+        }
+    }
+    (1.0 - dp[n][m] / n.max(m) as f32).max(0.0)
+}
+
+fn slot_name(w: &str) -> Option<&str> {
+    w.strip_prefix('{')?.strip_suffix('}')
+}
+
+/// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
+/// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
+/// scores the words `u[i..i + k]` for a slot. Returns the score and the slot's fill.
+fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>) {
+    let (n, m) = (u.len(), p.len());
+    if n == 0 || m == 0 {
+        return (0.0, None);
+    }
+    let mut dp = vec![vec![(f32::MAX, None::<Fill>); m + 1]; n + 1];
     dp[0][0] = (0.0, None);
     for i in 0..=n {
         for j in 0..=m {
-            let (c, s) = dp[i][j].clone();
+            let (c, f) = dp[i][j].clone();
             if c == f32::MAX {
                 continue;
             }
             if i < n && dp[i + 1][j].0 > c + 1.0 {
-                dp[i + 1][j] = (c + 1.0, s.clone());
+                dp[i + 1][j] = (c + 1.0, f.clone());
             }
             if j < m && dp[i][j + 1].0 > c + 1.0 {
-                dp[i][j + 1] = (c + 1.0, s.clone());
+                dp[i][j + 1] = (c + 1.0, f.clone());
             }
-            if i < n && j < m {
-                let (sim, val) = if p[j] == "{system}" { slot(&u[i]) } else { (word_sim(&u[i], &p[j]), String::new()) };
-                let nc = c + (1.0 - sim);
-                if dp[i + 1][j + 1].0 > nc {
-                    dp[i + 1][j + 1] = (nc, if p[j] == "{system}" { Some(val) } else { s.clone() });
+            if i == n || j == m {
+                continue;
+            }
+            match slot_name(&p[j]) {
+                Some(name) => {
+                    for k in 1..=MAX_SLOT_WORDS.min(n - i) {
+                        let got = fill(name, i, k);
+                        let nc = c + k as f32 * (1.0 - got.sim);
+                        if dp[i + k][j + 1].0 > nc {
+                            dp[i + k][j + 1] = (nc, Some(got));
+                        }
+                    }
+                }
+                None => {
+                    let nc = c + (1.0 - word_sim(&u[i], &p[j]));
+                    if dp[i + 1][j + 1].0 > nc {
+                        dp[i + 1][j + 1] = (nc, f.clone());
+                    }
                 }
             }
         }
     }
-    let (cost, s) = dp[n][m].clone();
-    *filled = s;
-    (1.0 - cost / n.max(m) as f32).max(0.0)
+    let (cost, f) = dp[n][m].clone();
+    ((1.0 - cost / n.max(m) as f32).max(0.0), f)
 }
 
 impl Grammar {
@@ -301,7 +410,26 @@ impl Grammar {
                 phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
-        Self { phrases, systems: systems.iter().map(|s| s.to_string()).collect() }
+        Self { phrases, slots: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
+    }
+
+    /// Values for the `{name}` slot: (a way to say it, the value it stands for). Words `free`
+    /// accepts may appear in the slot without counting against the match.
+    pub fn with_slot<'a>(
+        mut self,
+        name: &str,
+        values: impl IntoIterator<Item = (&'a str, &'a str)>,
+        free: Option<FreeWord>,
+    ) -> Self {
+        let values = values.into_iter().map(|(said, value)| (normalise(said), said.to_string(), value.to_string()));
+        match self.slots.iter_mut().find(|s| s.name == name) {
+            Some(s) => {
+                s.values.extend(values);
+                s.free = free.or(s.free);
+            }
+            None => self.slots.push(Slot { name: name.to_string(), values: values.collect(), free }),
+        }
+        self
     }
 
     pub fn mvp(systems: &[&str]) -> Self {
@@ -327,55 +455,107 @@ impl Grammar {
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
     }
 
-    fn slot_best(&self, w: &str) -> (f32, String) {
-        self.systems
-            .iter()
-            .map(|s| (word_sim(w, &s.to_lowercase()), s.clone()))
-            .max_by(|a, b| a.0.total_cmp(&b.0))
-            .unwrap_or((0.0, w.to_string()))
+    /// How well the words `words` fill the slot `name`.
+    fn fill(&self, name: &str, words: &[String]) -> Fill {
+        let text = words.join(" ");
+        let Some(slot) = self.slots.iter().find(|s| s.name == name) else {
+            return Fill { text, ..Fill::default() };
+        };
+        let said: Vec<String> = words.iter().filter(|w| !slot.free.is_some_and(|f| f(w))).cloned().collect();
+        if said.is_empty() {
+            return Fill { text, ..Fill::default() };
+        }
+        let mut best = Fill { text, ..Fill::default() };
+        for (toks, written, value) in &slot.values {
+            let sim = align(&said, toks);
+            if sim > best.sim {
+                best.sim = sim;
+                best.value = value.clone();
+                best.said = written.clone();
+                best.exact = said == *toks;
+                if best.exact {
+                    break;
+                }
+            }
+        }
+        best
     }
 
     /// All phrases scored, best first.
     pub fn rank(&self, transcript: &str) -> Vec<Match> {
+        self.ranked(transcript).into_iter().map(|(m, _)| m).collect()
+    }
+
+    /// [`Grammar::rank`], each with whether its slot (if any) was one of its exact phrasings.
+    fn ranked(&self, transcript: &str) -> Vec<(Match, bool)> {
         let u = normalise(transcript);
         let misheard: Option<Vec<String>> = u.iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w)).then(|| {
             u.iter()
                 .map(|w| MISHEARD.iter().find(|(h, _)| h == w).map(|(_, r)| r.to_string()).unwrap_or_else(|| w.clone()))
                 .collect()
         });
-        let slot = |w: &str| self.slot_best(w);
-        let mut v: Vec<Match> = self
+        // Each (slot, start, length) is scored once per transcript.
+        let memo = RefCell::new(HashMap::<(String, bool, usize, usize), Fill>::new());
+        let alt_words = misheard.clone().unwrap_or_default();
+        let fill = |alt: bool, name: &str, i: usize, k: usize| {
+            let words = if alt { &alt_words } else { &u };
+            memo.borrow_mut()
+                .entry((name.to_string(), alt, i, k))
+                .or_insert_with(|| self.fill(name, &words[i..i + k]))
+                .clone()
+        };
+        let fill_u = |name: &str, i: usize, k: usize| fill(false, name, i, k);
+        let fill_alt = |name: &str, i: usize, k: usize| fill(true, name, i, k);
+        let mut v: Vec<(Match, bool)> = self
             .phrases
             .iter()
             .map(|(p, toks)| {
-                let mut filled = None;
-                let mut score = seq_score(&u, toks, &slot, &mut filled);
+                let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
                 if let Some(alt) = &misheard {
-                    let mut f2 = None;
-                    let s2 = seq_score(alt, toks, &slot, &mut f2).min(MISHEARD_CAP);
+                    let (s2, f2) = phrase_score(alt, toks, &fill_alt);
+                    let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
                         score = s2;
                         filled = f2;
                     }
                 }
                 let phrase = match &filled {
-                    Some(s) => p.text.replace("{system}", s),
-                    None => p.text.to_string(),
+                    Some(f) => match toks.iter().find_map(|t| slot_name(t)) {
+                        Some(name) => p.text.replace(&format!("{{{name}}}"), &f.said),
+                        None => p.text.clone(),
+                    },
+                    None => p.text.clone(),
                 };
-                Match { command: p.command, phrase, slot: filled, score, decision: Decision::NoMatch }
+                let exact = filled.as_ref().is_none_or(|f| f.exact);
+                let m = Match {
+                    command: p.command,
+                    phrase,
+                    slot: filled.as_ref().map(|f| f.value.clone()),
+                    slot_text: filled.map(|f| f.text),
+                    score,
+                    decision: Decision::NoMatch,
+                };
+                (m, exact)
             })
             .collect();
-        v.sort_by(|a, b| b.score.total_cmp(&a.score));
+        v.sort_by(|a, b| b.0.score.total_cmp(&a.0.score));
         v
     }
 
     /// Best match with its decision.
     pub fn best(&self, transcript: &str) -> Match {
-        let ranked = self.rank(transcript);
-        let Some(mut best) = ranked.first().cloned() else {
-            return Match { command: "", phrase: String::new(), slot: None, score: 0.0, decision: Decision::NoMatch };
+        let ranked = self.ranked(transcript);
+        let Some((mut best, exact)) = ranked.first().cloned() else {
+            return Match {
+                command: "",
+                phrase: String::new(),
+                slot: None,
+                slot_text: None,
+                score: 0.0,
+                decision: Decision::NoMatch,
+            };
         };
-        let runner = ranked.iter().find(|m| m.command != best.command).map(|m| m.score).unwrap_or(0.0);
+        let runner = ranked.iter().find(|(m, _)| m.command != best.command).map(|(m, _)| m.score).unwrap_or(0.0);
         let clear = best.score - runner >= MARGIN;
         best.decision = if best.score >= EXECUTE && clear {
             Decision::Execute
@@ -384,13 +564,9 @@ impl Grammar {
         } else {
             Decision::NoMatch
         };
-        // A filled slot that wasn't an exact name always asks.
-        if best.decision == Decision::Execute {
-            if let Some(s) = &best.slot {
-                if !normalise(transcript).contains(&s.to_lowercase()) {
-                    best.decision = Decision::Ask;
-                }
-            }
+        // A slot filled by anything but one of its exact phrasings always asks.
+        if best.decision == Decision::Execute && !exact {
+            best.decision = Decision::Ask;
         }
         best
     }
@@ -603,6 +779,70 @@ mod tests {
         for t in ["Yes.", "Gear down.", "", "Okay, gear down."] {
             assert!(!is_noise_only(t), "{t}");
         }
+    }
+
+    #[test]
+    fn multi_word_slots_resolve_to_their_value() {
+        let g = Grammar::mvp(&["Sol", "Shinrarta Dezhra"]).with_slot(
+            "service",
+            [
+                ("interstellar factors", "interstellar_factors"),
+                ("factors", "interstellar_factors"),
+                ("bartender", "bartender"),
+            ],
+            None,
+        );
+        let m = g.best("Where's the nearest Interstellar Factors?");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("find.service", Some("interstellar_factors"), Decision::Execute)
+        );
+        assert_eq!(m.slot_text.as_deref(), Some("interstellar factors"));
+        assert_eq!(m.phrase, "where's the nearest interstellar factors");
+        let m = g.best("nearest factors");
+        assert_eq!((m.slot.as_deref(), m.decision), (Some("interstellar_factors"), Decision::Execute));
+        // close but not one of its phrasings: ask
+        let m = g.best("nearest interstellar factor");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("find.service", Some("interstellar_factors"), Decision::Ask)
+        );
+        // a multi-word system
+        let m = g.best("plot route to Shinrarta Dezhra");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.decision),
+            ("plot_route", Some("Shinrarta Dezhra"), Decision::Execute)
+        );
+        // a slot with no values never matches well
+        assert_eq!(Grammar::mvp(&["Sol"]).best("nearest bartender").decision, Decision::NoMatch);
+    }
+
+    #[test]
+    fn free_words_ride_along_in_the_slot_text() {
+        fn class_rating(w: &str) -> bool {
+            w.len() == 2 && w.as_bytes()[0].is_ascii_digit()
+        }
+        let table: &[(&str, &[&str])] = &[("find.thing", &["nearest {thing}"])];
+        let g = Grammar::new(table, &[]).with_slot(
+            "thing",
+            [("frame shift drive", "Frame Shift Drive")],
+            Some(class_rating),
+        );
+        let m = g.best("nearest 6A frame shift drive");
+        assert_eq!(
+            (m.slot.as_deref(), m.slot_text.as_deref()),
+            (Some("Frame Shift Drive"), Some("6a frameshift drive"))
+        );
+        assert_eq!(m.decision, Decision::Execute);
+        // only free words: nothing to match
+        assert_eq!(g.best("nearest 6a").decision, Decision::NoMatch);
+    }
+
+    #[test]
+    fn class_and_rating_said_apart_stay_together() {
+        assert_eq!(normalise("nearest 5 A FSD"), ["nearest", "5a", "fsd"]);
+        assert_eq!(normalise("five a frame shift drive"), ["5a", "frameshift", "drive"]);
+        assert_eq!(normalise("buy a krait"), ["buy", "krait"], "\"a\" is still filler elsewhere");
     }
 
     #[test]

@@ -8,6 +8,7 @@
 pub mod filters;
 pub mod map;
 pub mod remote;
+pub mod stations;
 pub mod store;
 
 pub use filters::{Facts, Filters, Pad};
@@ -57,6 +58,32 @@ pub struct Nearby {
     pub warning: Option<String>,
 }
 
+/// A station from a station lookup, with jumps at the search's range.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct StationNearby {
+    #[serde(flatten)]
+    pub station: stations::StationHit,
+    pub jumps: u32,
+    /// false: `jumps` is a straight-line estimate.
+    pub exact: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct StationsNearby {
+    /// What was looked for ("Interstellar Factors").
+    pub want: String,
+    pub here: Here,
+    pub range: f64,
+    /// The filters applied (the pad resolved for the current ship).
+    pub filters: Filters,
+    /// When Spansh answered (may be a cached answer).
+    pub fetched: String,
+    /// Nearest first.
+    pub hits: Vec<StationNearby>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub warning: Option<String>,
+}
+
 pub struct Galaxy {
     store: Mutex<Store>,
     remote: astromech_data::Client,
@@ -72,7 +99,7 @@ fn now_s() -> i64 {
     chrono::Utc::now().timestamp()
 }
 
-fn iso(t: i64) -> String {
+pub(crate) fn iso(t: i64) -> String {
     chrono::DateTime::from_timestamp(t, 0).map(|d| d.format("%Y-%m-%dT%H:%M:%SZ").to_string()).unwrap_or_default()
 }
 
@@ -212,6 +239,46 @@ impl Galaxy {
         Ok(self.rank(q, here, range, limit, hits, iso(fetched)))
     }
 
+    /// The nearest stations to `here` offering `want` and passing `filters`, nearest first,
+    /// with jumps at `range`.
+    pub fn stations(
+        &self,
+        want: &stations::Want,
+        here: &Here,
+        range: f64,
+        limit: usize,
+        filters: &Filters,
+    ) -> Result<StationsNearby> {
+        let _ = self.ensure_covered(here.pos);
+        let reference = astromech_data::spansh::Reference::Coords(here.pos);
+        let found = stations::find(&self.remote, want, reference, filters, limit, now_s())?;
+        {
+            let mut s = self.store();
+            let _ = s.insert_systems(found.hits.iter().map(|h| (h.system_id64, h.system.as_str(), h.pos)));
+        }
+        let map = self.map().ok();
+        let hits = found
+            .hits
+            .into_iter()
+            .map(|h| {
+                let hop = match &map {
+                    Some(m) => m.hop(here.pos, h.pos, range),
+                    None => Hop { ly: h.ly, jumps: estimate(h.ly, range), exact: false },
+                };
+                StationNearby { station: h, jumps: hop.jumps, exact: hop.exact }
+            })
+            .collect();
+        Ok(StationsNearby {
+            want: want.label(),
+            here: here.clone(),
+            range,
+            filters: filters.clone(),
+            fetched: iso(found.fetched_at),
+            hits,
+            warning: found.warning,
+        })
+    }
+
     fn rank(&self, q: &Query, here: &Here, range: f64, limit: usize, hits: Vec<Hit>, fetched: String) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
@@ -290,6 +357,10 @@ mod tests {
                 self.sphere.clone()
             } else if url.ends_with("/api/systems/search") {
                 include_str!("../tests/fixtures/spansh-famine.json").to_string()
+            } else if url.ends_with("/api/stations/search") {
+                let all: serde_json::Value =
+                    serde_json::from_str(include_str!("../tests/fixtures/spansh-services.json")).unwrap();
+                all["refuel"].to_string()
             } else if url.ends_with("/api/systems/field_values/system_names") {
                 SHIN.to_string()
             } else {
@@ -332,6 +403,29 @@ mod tests {
         assert_eq!(rec.log.lock().unwrap().len(), 2, "covered and cached: no requests");
         assert_eq!(again.hits, n.hits);
         assert_eq!(again.fetched, n.fetched);
+    }
+
+    #[test]
+    fn stations_lists_the_nearest_with_jumps_from_the_typed_origin() {
+        let rec = Arc::new(Recorded { sphere: "[]".into(), log: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let s = Store::in_memory().unwrap();
+        s.add_coverage(Sphere { center: [0.0; 3], radius: 500.0 }, "test", "t").unwrap();
+        let g = Galaxy::with_remote(s, client);
+        let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
+        let want = stations::Want::Service { service: stations::Service::Refuel };
+        let f = Filters { exclude_odyssey: true, ..Filters::default() };
+        let n = g.stations(&want, &here, 20.0, 8, &f).unwrap();
+        assert_eq!(n.want, "refuel");
+        assert_eq!(n.filters, f);
+        let names: Vec<&str> = n.hits.iter().map(|h| h.station.name.as_str()).collect();
+        assert_eq!(names, ["Ehrlich City", "Furukawa Enterprise"], "settlements filtered out");
+        assert_eq!((n.hits[0].jumps, n.hits[0].station.pad), (0, Some(Pad::L)), "Ehrlich City is in Sol");
+        let log = rec.log.lock().unwrap();
+        assert_eq!(*log, ["https://spansh.co.uk/api/stations/search"], "covered: no EDSM fill-in");
+        let json = serde_json::to_value(&n).unwrap();
+        assert_eq!(json["hits"][0]["system"], "Sol");
+        assert_eq!(json["hits"][0]["exact"], true);
     }
 
     /// Spansh's autocomplete for "Shin" (recorded 16 Oct 2026, trimmed).

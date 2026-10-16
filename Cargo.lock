@@ -147,6 +147,8 @@ name = "astromech-core"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-input",
  "astromech-intent",
@@ -317,10 +319,14 @@ dependencies = [
 name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
+ "astromech-data",
+ "astromech-galaxy",
  "astromech-gamestate",
  "astromech-policy",
  "astromech-proto",
  "astromech-status",
+ "chrono",
+ "serde_json",
 ]
 
 [[package]]

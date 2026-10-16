@@ -1,9 +1,11 @@
 //! Transcript → command. Applies the §5.12 thresholds and handles "Did you mean …?".
 
 use crate::actions::{Outcome, Runner};
+use astromech_galaxy::stations::Want;
 use astromech_intent::{Decision, Grammar};
 use astromech_proto::Origin;
 use astromech_store::Store;
+use astromech_tools::lookup;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
@@ -23,12 +25,17 @@ pub enum Handled {
     NotUnderstood,
     Cancelled,
     NotAvailable(&'static str),
+    /// A station lookup: the answer is spoken when Spansh replies.
+    Lookup {
+        command: &'static str,
+        want: Want,
+    },
     /// A noise-only transcript ("Mm-hmm.", "Yeah."): nothing said, nothing done.
     Ignored,
 }
 
 enum Pending {
-    Mean { command: &'static str, heard: String, at: Instant },
+    Mean { command: &'static str, slot: Option<String>, heard: String, at: Instant },
     Act { command: &'static str, at: Instant },
 }
 
@@ -59,11 +66,20 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
+    /// Spansh, for the station lookups.
+    remote: Arc<astromech_data::Client>,
 }
 
 impl Assistant {
     pub fn new(runner: Arc<Runner>) -> Self {
-        Self { grammar: Mutex::new(Grammar::mvp(&["Sol"])), runner, pending: Mutex::new(None), store: None }
+        let cache = astromech_data::Cache::in_memory().expect("in-memory SQLite");
+        Self {
+            grammar: Mutex::new(crate::lookups::grammar(&["Sol"])),
+            runner,
+            pending: Mutex::new(None),
+            store: None,
+            remote: Arc::new(astromech_data::Client::new(cache)),
+        }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
@@ -84,7 +100,8 @@ impl Assistant {
     }
 
     fn learn(&self, heard: &str, command: &'static str) {
-        if heard.trim().is_empty() || command == "confirm" || command == "cancel" {
+        // A lookup's alias would lose what it looks for (the slot).
+        if heard.trim().is_empty() || command == "confirm" || command == "cancel" || lookup::is_lookup(command) {
             return;
         }
         self.grammar.lock().unwrap().add_alias(heard, command);
@@ -93,7 +110,32 @@ impl Assistant {
         }
     }
 
-    fn dispatch(&self, command: &'static str, origin: Origin, confirmed: bool) -> Handled {
+    /// Look `want` up near the commander and say the answer when it arrives (off this thread:
+    /// Spansh can take seconds).
+    fn look_up(&self, command: &'static str, want: Want) -> Handled {
+        let game = self.runner.hub.snapshot();
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap());
+            crate::lookups::filters_for(st.as_deref(), &want, &game)
+        };
+        let (remote, speaker, w) = (self.remote.clone(), self.runner.speaker.clone(), want.clone());
+        std::thread::spawn(move || {
+            let now = chrono::Utc::now().timestamp();
+            speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now));
+        });
+        Handled::Lookup { command, want }
+    }
+
+    fn dispatch(&self, command: &'static str, slot: Option<&str>, origin: Origin, confirmed: bool) -> Handled {
+        if lookup::is_lookup(command) {
+            return match lookup::want(command, slot) {
+                Some(want) => self.look_up(command, want),
+                None => {
+                    self.say("Didn't catch what to look for.");
+                    Handled::NotUnderstood
+                }
+            };
+        }
         match astromech_tools::from_command(command) {
             Some(call) => {
                 let outcome =
@@ -148,10 +190,14 @@ impl Assistant {
                 self.say("Didn't catch that.");
                 Handled::NotUnderstood
             }
-            Decision::Execute => self.dispatch(m.command, origin, false),
+            Decision::Execute => self.dispatch(m.command, m.slot.as_deref(), origin, false),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
-                *self.pending.lock().unwrap() =
-                    Some(Pending::Mean { command: m.command, heard: transcript.to_string(), at: Instant::now() });
+                *self.pending.lock().unwrap() = Some(Pending::Mean {
+                    command: m.command,
+                    slot: m.slot.clone(),
+                    heard: transcript.to_string(),
+                    at: Instant::now(),
+                });
                 self.say(&format!("Did you mean {}?", m.phrase));
                 Handled::Asked { command: m.command, phrase: m.phrase }
             }
@@ -164,11 +210,11 @@ impl Assistant {
 
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
-            Pending::Mean { command, heard, .. } => {
+            Pending::Mean { command, slot, heard, .. } => {
                 self.learn(&heard, command);
-                self.dispatch(command, origin, false)
+                self.dispatch(command, slot.as_deref(), origin, false)
             }
-            Pending::Act { command, .. } => self.dispatch(command, origin, true),
+            Pending::Act { command, .. } => self.dispatch(command, None, origin, true),
         }
     }
 }

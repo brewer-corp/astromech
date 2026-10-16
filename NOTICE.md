@@ -46,9 +46,10 @@ The PNGs are recoloured by `scripts/recolour-sheets.py` to match the app; the PD
 ## Star map and live lookups
 The star map preload (`starmap.db`, built by `scripts/gen-starmap.py`, not in the repository) and
 `data/catalog/engineers.json` use Spansh's systems dump (downloads.spansh.co.uk), which is
-community data from EDDN. At run time the app asks Spansh (faction states near you) and EDSM
-(systems near you, edsm.net) directly. Star positions and faction states are Elite Dangerous game
-data, © Frontier Developments plc.
+community data from EDDN. At run time the app asks Spansh (faction states and stations near you) and EDSM
+(systems near you, edsm.net) directly. Test fixtures under `crates/*/tests/fixtures` are small,
+trimmed Spansh, Ardent Insight and EDSM answers. Star positions, stations and faction states are
+Elite Dangerous game data, © Frontier Developments plc.
 
 ## Engineering data
 `data/catalog/engineering.json` (blueprint and experimental recipes, which modules take them,
