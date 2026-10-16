@@ -175,28 +175,36 @@ impl Session {
             log(&format!("voice off: {} not found", worker.display()));
         }
         let speaker: Arc<dyn Speaker> = if voice_ok && cfg.voice.tts {
-            match speech::TtsSpeaker::start(
-                &worker,
-                &models,
-                cfg.voice.threads,
-                &data,
-                &cfg.voice.speaker,
-                cfg.voice.speed,
-                cfg.voice.colour,
-                speech::fixed_phrases(),
-            ) {
-                Ok(s) => {
-                    log(&format!(
-                        "Kokoro text-to-speech loaded ({}, {})",
-                        cfg.voice.speaker,
-                        cfg.voice.colour.as_str()
-                    ));
-                    Arc::new(s)
+            let (exe, dir, data, v) = (worker.clone(), models.clone(), data.clone(), cfg.voice.clone());
+            let start = move || -> Result<Arc<dyn Speaker>> {
+                let r = speech::TtsSpeaker::start(
+                    &exe,
+                    &dir,
+                    v.threads,
+                    &data,
+                    &v.speaker,
+                    v.speed,
+                    v.colour,
+                    speech::fixed_phrases(),
+                );
+                match r {
+                    Ok(s) => {
+                        log(&format!("Kokoro text-to-speech loaded ({}, {})", v.speaker, v.colour.as_str()));
+                        Ok(Arc::new(s))
+                    }
+                    Err(e) => {
+                        log(&format!("speech output off ({e:#}); replies are printed"));
+                        Err(e)
+                    }
                 }
-                Err(e) => {
-                    log(&format!("speech output off ({e:#}); replies are printed"));
-                    Arc::new(ConsoleSpeaker)
-                }
+            };
+            if astromech_voice::models::find_tts(&models).is_ok() {
+                start().unwrap_or_else(|_| Arc::new(ConsoleSpeaker))
+            } else {
+                // Still downloading: speak from the first line said once the download completes.
+                log("text-to-speech model not downloaded yet; replies are printed until it is");
+                let m = models.clone();
+                Arc::new(speech::LazySpeaker::new(move || astromech_voice::models::find_tts(&m).is_ok(), start))
             }
         } else {
             Arc::new(ConsoleSpeaker)

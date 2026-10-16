@@ -438,6 +438,99 @@ impl Speaker for TtsSpeaker {
     }
 }
 
+/// Starts a speaker on the first line said once `ready` holds, for a session that began before
+/// the text-to-speech model finished downloading (astromech-mcdt). Until then lines are printed.
+/// The start runs in the background; lines said meanwhile are queued and passed on in order, and
+/// a voice chosen meanwhile is applied first. If the start fails, lines are printed from then on.
+pub struct LazySpeaker {
+    ready: Box<dyn Fn() -> bool + Send + Sync>,
+    start: Arc<dyn Fn() -> Result<Arc<dyn Speaker>> + Send + Sync>,
+    state: Arc<Mutex<Lazy>>,
+}
+
+enum Lazy {
+    Waiting { voice: Option<VoiceParams> },
+    Starting { lines: Vec<String>, voice: Option<VoiceParams> },
+    Running(Arc<dyn Speaker>),
+    Failed,
+}
+
+impl LazySpeaker {
+    pub fn new(
+        ready: impl Fn() -> bool + Send + Sync + 'static,
+        start: impl Fn() -> Result<Arc<dyn Speaker>> + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            ready: Box::new(ready),
+            start: Arc::new(start),
+            state: Arc::new(Mutex::new(Lazy::Waiting { voice: None })),
+        }
+    }
+}
+
+impl Speaker for LazySpeaker {
+    fn say(&self, text: &str) {
+        let mut g = self.state.lock().unwrap();
+        match &mut *g {
+            Lazy::Running(s) => s.say(text),
+            Lazy::Starting { lines, .. } => lines.push(text.to_string()),
+            Lazy::Failed => ConsoleSpeaker.say(text),
+            Lazy::Waiting { .. } if !(self.ready)() => ConsoleSpeaker.say(text),
+            Lazy::Waiting { voice } => {
+                *g = Lazy::Starting { lines: vec![text.to_string()], voice: voice.take() };
+                let (state, start) = (self.state.clone(), self.start.clone());
+                let r = std::thread::Builder::new().name("tts-start".into()).spawn(move || {
+                    let r = start();
+                    let mut g = state.lock().unwrap();
+                    let Lazy::Starting { lines, voice } = std::mem::replace(&mut *g, Lazy::Failed) else {
+                        return;
+                    };
+                    let s: Arc<dyn Speaker> = match r {
+                        Ok(s) => {
+                            if let Some(v) = &voice {
+                                s.set_voice(v);
+                            }
+                            *g = Lazy::Running(s.clone());
+                            s
+                        }
+                        Err(_) => Arc::new(ConsoleSpeaker),
+                    };
+                    for l in lines {
+                        s.say(&l);
+                    }
+                });
+                if let Err(e) = r {
+                    eprintln!("text-to-speech start: {e}");
+                    *g = Lazy::Failed;
+                    ConsoleSpeaker.say(text);
+                }
+            }
+        }
+    }
+    fn interrupt(&self) {
+        match &mut *self.state.lock().unwrap() {
+            Lazy::Running(s) => s.interrupt(),
+            Lazy::Starting { lines, .. } => lines.clear(),
+            _ => {}
+        }
+    }
+    fn set_voice(&self, v: &VoiceParams) {
+        match &mut *self.state.lock().unwrap() {
+            Lazy::Running(s) => s.set_voice(v),
+            Lazy::Starting { voice, .. } | Lazy::Waiting { voice } => *voice = Some(v.clone()),
+            Lazy::Failed => {}
+        }
+    }
+    fn speaks_aloud(&self) -> bool {
+        match &*self.state.lock().unwrap() {
+            Lazy::Running(s) => s.speaks_aloud(),
+            Lazy::Starting { .. } => true,
+            Lazy::Waiting { .. } => (self.ready)(),
+            Lazy::Failed => false,
+        }
+    }
+}
+
 /// Every fixed phrase the slice can say (pre-rendered at startup so confirmations are instant).
 pub fn fixed_phrases() -> Vec<String> {
     let mut v = vec![];
@@ -578,6 +671,47 @@ mod tests {
         let by = |n: &str| got.iter().filter(|(_, v)| v == n).count();
         assert!(by("bf_lily") + by("bm_daniel") + by("bf_emma") <= 1, "{got:?}");
         assert_eq!(got.iter().filter(|(t, v)| v == "bm_george" && t != PREVIEW_LINE).count(), 12, "{got:?}");
+    }
+
+    /// astromech-mcdt: a session that started before the model was downloaded prints lines, then
+    /// starts Kokoro on the first line said after the download and speaks it and the lines that
+    /// follow, in order and in the voice chosen meanwhile, without being restarted.
+    #[test]
+    fn lazy_speaker_starts_once_the_model_is_ready() {
+        use astromech_voice::colour::Colour;
+        use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+        let d = tempfile::tempdir().unwrap();
+        let dir = d.path().to_path_buf();
+        let log = Arc::new(Mutex::new(vec![]));
+        let ready = Arc::new(AtomicBool::new(false));
+        let starts = Arc::new(AtomicUsize::new(0));
+        let (r, n, l) = (ready.clone(), starts.clone(), log.clone());
+        let s = LazySpeaker::new(
+            move || r.load(Ordering::SeqCst),
+            move || {
+                n.fetch_add(1, Ordering::SeqCst);
+                std::thread::sleep(Duration::from_millis(50)); // loading the model
+                let v = VoiceParams::new("bf_emma", 1.0, Colour::Cockpit)?;
+                let mixer = astromech_voice::mixer::Mixer::silent(24000);
+                Ok(Arc::new(TtsSpeaker::with_synth(FakeSynth(l.clone()), "kokoro-test", &dir, v, mixer, vec![])?)
+                    as Arc<dyn Speaker>)
+            },
+        );
+        s.say("Before the download.");
+        s.set_voice(&VoiceParams::new("bm_george", 1.0, Colour::Cockpit).unwrap());
+        assert!(!s.speaks_aloud());
+        std::thread::sleep(Duration::from_millis(20));
+        assert_eq!(starts.load(Ordering::SeqCst), 0);
+        assert!(log.lock().unwrap().is_empty());
+        // The download finishes.
+        ready.store(true, Ordering::SeqCst);
+        assert!(s.speaks_aloud());
+        s.say("First.");
+        s.say("Second."); // said while Kokoro loads
+        assert_eq!(wait_for(&log, 2), [("First.".into(), "bm_george".into()), ("Second.".into(), "bm_george".into())]);
+        s.say("Third.");
+        assert_eq!(wait_for(&log, 3)[2], ("Third.".into(), "bm_george".into()));
+        assert_eq!(starts.load(Ordering::SeqCst), 1);
     }
 
     struct Loud(RecordingSpeaker);
