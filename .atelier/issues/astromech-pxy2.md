@@ -26,9 +26,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-16T19:13:19.087431117+00:00"
+status: "done"
 title: "Generalise the \"search near me\" UI kit"
-updated_at: "2026-10-16T19:08:04.951628421+00:00"
+updated_at: "2026-10-16T19:13:19.087431117+00:00"
 ---
 
 ## Goal
@@ -42,3 +43,7 @@ The faction-state lookup runs on the kit with a typed origin and with the curren
 ## Context
 
 `app/src/lib/ui/Nearby.svelte` already does this for faction lookups. Jumps come from `astromech-galaxy` (A* at ship range).
+
+## Close Reason
+
+The faction-state lookup runs on the new SearchKit with the current system and with a typed origin (Spansh autocomplete); UI-checked in the browser fallback, Rust paths tested on recorded answers. Shell commands are not compiled on Linux. Review outstanding.
