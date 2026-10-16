@@ -916,8 +916,9 @@ pub fn run(opts: Opts) -> i32 {
         }
     }
 
-    match core.cfg.journal_dir() {
-        Some(dir) => crate::history::start(dir, core.cfg.data_dir(), Arc::new(|m: &str| log(m))),
+    let cfg = core.cfg();
+    match cfg.journal_dir() {
+        Some(dir) => crate::history::start(dir, cfg.data_dir(), Arc::new(|m: &str| log(m))),
         None => log("history: no journal folder; set game.journal_dir"),
     }
 
