@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.648626142+00:00"
 id: "astromech-zf3s"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-zf3s
 priority: "P0"
 relationships:
   blocks:
@@ -26,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Trade near me"
-updated_at: "2026-10-16T18:26:23.860318528+00:00"
+updated_at: "2026-10-16T20:16:03.804840811+00:00"
 ---
 
 ## Goal

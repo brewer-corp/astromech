@@ -24,9 +24,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Where to sell or buy a commodity near me"
-updated_at: "2026-10-15T20:36:13.661401872+00:00"
+updated_at: "2026-10-16T20:16:03.804843967+00:00"
 ---
 
 ## Goal
