@@ -270,6 +270,64 @@ fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     Ok(v)
 }
 
+#[allow(clippy::type_complexity)]
+struct PowerplayCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, std::sync::Arc<astromech_powerplay::Journal>)>>);
+
+fn powerplay_journal(cache: &PowerplayCache) -> Result<std::sync::Arc<astromech_powerplay::Journal>, String> {
+    let dir = journal_dir();
+    if !dir.is_dir() {
+        return Err(format!("journal folder not found: {}", dir.display()));
+    }
+    let version = astromech_materials::journal_version(&dir);
+    if let Some((s, v)) = &*cache.0.lock().map_err(|_| "busy".to_string())? {
+        if *s == version {
+            return Ok(v.clone());
+        }
+    }
+    let v = std::sync::Arc::new(astromech_powerplay::from_journal_dir(&dir));
+    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
+    Ok(v)
+}
+
+/// Powerplay standing from the journals.
+#[tauri::command]
+async fn powerplay_overview(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let j = powerplay_journal(&app.state::<PowerplayCache>())?;
+        serde_json::to_value(j.overview()).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The pledged power's nearest acquisition, reinforcement or undermining systems within
+/// `within_ly` of `origin` (a typed system name) or, without one, of the commander.
+#[tauri::command]
+async fn powerplay_targets(
+    app: tauri::AppHandle,
+    target: astromech_galaxy::Target,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+    within_ly: f64,
+) -> Result<Value, String> {
+    blocking(move || {
+        let j = powerplay_journal(&app.state::<PowerplayCache>())?;
+        let power = j.standing.power.clone().ok_or("Not pledged to a power: pledge to one to see its targets.")?;
+        let st = engineering_state(&app.state::<EngineeringCache>());
+        let g = galaxy(&app)?;
+        let here = match origin.as_deref().map(str::trim).filter(|o| !o.is_empty()) {
+            Some(name) => g.locate(name).map_err(|e| e.to_string())?,
+            None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
+        };
+        let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
+        let within = within_ly.clamp(5.0, 200.0);
+        let t = g
+            .powerplay_targets(target, &power, &here, range_of(current), within, 10, &filters.unwrap_or_default())
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(t).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Everything the Engineering screen reads from the journals, re-read when the folder changes.
 struct JournalState {
     fleet: astromech_engineering::Fleet,
@@ -651,6 +709,7 @@ fn main() {
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
+        .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
@@ -676,6 +735,8 @@ fn main() {
             galaxy_systems,
             search_filters,
             set_search_filters,
+            powerplay_overview,
+            powerplay_targets,
             logbook,
             session_summary
         ])
