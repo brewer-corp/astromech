@@ -40,7 +40,8 @@ pub enum Ui {
 pub struct Core {
     pub app_dir: PathBuf,
     pub config_path: PathBuf,
-    pub cfg: Config,
+    /// The config; the window's setup edits (push-to-talk, mic, folders) replace it.
+    pub cfg: std::sync::RwLock<Config>,
     pub config_note: Option<String>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
@@ -52,9 +53,17 @@ pub struct Core {
     pub update: Mutex<update::Handle>,
     pub ui: Mutex<Sender<Ui>>,
     pub opts: Opts,
+    /// A mic calibration in progress from the window.
+    pub calibration: Mutex<Option<crate::calibration::Run>>,
+    /// Onboarding finished or skipped on this PC.
+    pub onboarded: AtomicBool,
 }
 
 impl Core {
+    pub fn cfg(&self) -> Config {
+        self.cfg.read().unwrap().clone()
+    }
+
     pub fn notify(&self) {
         let _ = self.ui.lock().unwrap().send(Ui::Refresh);
     }
@@ -90,10 +99,11 @@ impl Core {
             v.push("config file has an error (see logs)");
             return v;
         }
-        if self.cfg.controls.ptt.is_none() {
+        let cfg = self.cfg();
+        if cfg.controls.ptt.is_none() {
             v.push("push-to-talk not set");
         }
-        if models_missing(&self.cfg) {
+        if models_missing(&cfg) {
             v.push("speech models not downloaded");
         }
         v
@@ -101,6 +111,8 @@ impl Core {
 
     pub fn status_json(&self) -> Value {
         let killed = self.session.lock().unwrap().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+        let cfg = self.cfg();
+        let button = |b: &Option<crate::config::Button>| b.as_ref().map(|b| format!("{} {}", b.device, b.key));
         json!({
             "ok": true,
             "version": env!("CARGO_PKG_VERSION"),
@@ -119,17 +131,20 @@ impl Core {
             "config": self.config_path.display().to_string(),
             "config_note": self.config_note,
             "setup_needed": self.setup_needed(),
-            "ptt": self.cfg.controls.ptt.as_ref().map(|b| format!("{} {}", b.device, b.key)),
-            "models_missing": models_missing(&self.cfg),
+            "ptt": button(&cfg.controls.ptt),
+            "kill_switch": button(&cfg.controls.kill_switch),
+            "mic": cfg.voice.mic,
+            "onboarded": self.onboarded.load(Ordering::SeqCst),
+            "models_missing": models_missing(&cfg),
             "models_progress": *self.models.lock().unwrap(),
-            "models_dir": self.cfg.models_dir().display().to_string(),
+            "models_dir": cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
         })
     }
 
     pub fn save_diagnostics(&self) -> Result<PathBuf> {
         let log_dir = crate::logging::dir().unwrap_or_else(|| self.app_dir.join("logs"));
-        let data = self.cfg.data_dir();
+        let data = self.cfg().data_dir();
         let p = crate::diagnostics::save(&crate::diagnostics::Inputs {
             app_dir: &self.app_dir,
             data_dir: &data,
@@ -166,8 +181,9 @@ impl Core {
         log(&format!("{why}: going active (loading the binds check, game state and voice)"));
         self.notify();
         let t0 = Instant::now();
-        let r = Session::start(&self.cfg, &self.opts.session).and_then(|mut s| {
-            s.start_buttons(&self.cfg, &self.opts.session)?;
+        let cfg = self.cfg();
+        let r = Session::start(&cfg, &self.opts.session).and_then(|mut s| {
+            s.start_buttons(&cfg, &self.opts.session)?;
             Ok(s)
         });
         match r {
@@ -230,7 +246,7 @@ impl Core {
             }
         };
         log(if manual { "update: checking (requested)" } else { "update: checking" });
-        let settings = self.cfg.update.clone();
+        let settings = self.cfg().update;
         match update::fetch_and_verify(&settings, &pk) {
             Ok((m, _)) => {
                 let installed = update::installed_version();
@@ -292,7 +308,7 @@ impl Core {
 
     /// Quit, overlay the staged payload, relaunch. Elite may still be running.
     pub fn install_update(self: &Arc<Self>) -> Value {
-        if self.cfg.update.apply == ApplyWhen::Never {
+        if self.cfg().update.apply == ApplyWhen::Never {
             return json!({"ok": false, "error": "updates are set to never apply ([update] apply = \"never\")"});
         }
         // Claim the install under the lock, so a second click can't start another helper.
@@ -338,7 +354,7 @@ impl Core {
     }
 
     fn apply_on_quit(&self) {
-        if self.cfg.update.apply != ApplyWhen::OnQuit {
+        if self.cfg().update.apply != ApplyWhen::OnQuit {
             return;
         }
         let h = self.update.lock().unwrap();
@@ -379,6 +395,23 @@ impl Core {
                 log(&m);
                 Err(m)
             }
+        }
+    }
+
+    /// Setup edits from the window: write `astromech.toml`, then use it. Voice picks the new
+    /// buttons and mic up the next time it starts (when Elite next starts).
+    fn edit_config(&self, r: &Request) -> Value {
+        let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref())
+            .and_then(|edits| crate::setup::write(&self.config_path, &edits));
+        match res {
+            Ok(mut c) => {
+                c.actions.dry_run |= self.opts.session.dry_run;
+                *self.cfg.write().unwrap() = c;
+                log(&format!("config: {} saved from the window", r.cmd.trim_start_matches("set_")));
+                self.notify();
+                json!({"ok": true, "applies_next_session": self.active()})
+            }
+            Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         }
     }
 
@@ -443,6 +476,40 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
+            "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
+            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" => self.edit_config(r),
+            "mic_list" => {
+                let cfg = self.cfg();
+                let mut v = crate::calibration::mic_list(&cfg.voice.mic);
+                let device = crate::calibration::configured_device(&cfg.voice.mic);
+                let gate = crate::calibration::open_store(&cfg.data_dir())
+                    .ok()
+                    .and_then(|s| crate::calibration::stored_gate(&s, &device));
+                v["calibration"] = json!({"device": device, "min_level_dbfs": gate});
+                v
+            }
+            "calibrate_start" | "calibrate_record" | "calibrate_finish" | "calibrate_cancel" | "mic_check" => {
+                let cfg = self.cfg();
+                let record = |ms| crate::calibration::record_mic(&cfg.voice.mic, ms);
+                let store = || crate::calibration::open_store(&cfg.data_dir());
+                let v = crate::calibration::handle(&r.cmd, &self.calibration, &record, &store);
+                if r.cmd == "calibrate_finish" && v["ok"] == true {
+                    log(&format!("microphone: calibrated {} (min_level_dbfs {})", v["device"], v["min_level_dbfs"]));
+                }
+                v
+            }
+            "onboarding_done" => {
+                let res = crate::calibration::open_store(&self.cfg().data_dir())
+                    .and_then(|s| crate::setup::mark_onboarded(&s));
+                match res {
+                    Ok(()) => {
+                        self.onboarded.store(true, Ordering::SeqCst);
+                        self.notify();
+                        json!({"ok": true})
+                    }
+                    Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
+                }
+            }
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
     }
@@ -497,7 +564,7 @@ pub fn download_models(core: &Arc<Core>) {
     let c = core.clone();
     let _ = std::thread::Builder::new().name("models".into()).spawn(move || {
         use astromech_voice::{download, models};
-        let base = c.cfg.models_dir();
+        let base = c.cfg().models_dir();
         let root = base.parent().map(Path::to_path_buf).unwrap_or_else(|| ".".into());
         let mut err = None;
         for a in [models::STT, models::TTS] {
@@ -535,7 +602,7 @@ pub fn models_missing(cfg: &Config) -> bool {
 
 fn watch_game(core: Arc<Core>) {
     let mut w = gamewatch::Watcher::default();
-    let jdir = core.cfg.journal_dir();
+    let jdir = core.cfg().journal_dir();
     let mut journal_seen = jdir.as_deref().and_then(gamewatch::newest_journal).map(|(_, t)| t);
     loop {
         let names = gamewatch::process_names();
@@ -653,7 +720,10 @@ pub fn run(opts: Opts) -> i32 {
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
         config_path,
-        cfg,
+        onboarded: AtomicBool::new(
+            crate::calibration::open_store(&cfg.data_dir()).map(|s| crate::setup::onboarded(&s)).unwrap_or(false),
+        ),
+        cfg: std::sync::RwLock::new(cfg),
         config_note,
         game: Mutex::new(Game::NotRunning),
         session: Mutex::new(None),
@@ -664,6 +734,7 @@ pub fn run(opts: Opts) -> i32 {
         update: Mutex::new(update_handle),
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
+        calibration: Mutex::new(None),
     });
 
     let c = core.clone();
@@ -681,7 +752,7 @@ pub fn run(opts: Opts) -> i32 {
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
 
-    if core.cfg.update.check {
+    if core.cfg().update.check {
         let c = core.clone();
         std::thread::Builder::new()
             .name("update".into())

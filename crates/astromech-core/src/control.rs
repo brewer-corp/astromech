@@ -30,6 +30,9 @@ pub struct Request {
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
+    /// Arguments for commands that take them (e.g. `set_ptt` with `{device, key}`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub args: Option<Value>,
 }
 
 pub type Handler = Arc<dyn Fn(&Request) -> Value + Send + Sync>;
@@ -109,7 +112,7 @@ pub fn call(app_dir: &Path, cmd: &str, route: Option<&str>) -> Result<Value> {
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).context("connecting to the core")?;
     s.set_read_timeout(Some(Duration::from_secs(10)))?;
-    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from) };
+    let req = Request { token: ep.token, cmd: cmd.into(), route: route.map(String::from), args: None };
     writeln!(s, "{}", serde_json::to_string(&req)?)?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line)?;
