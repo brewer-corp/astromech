@@ -309,6 +309,7 @@ fn run_console(args: Args) -> Result<()> {
         return Ok(());
     }
     let opts = args.session_opts();
+    astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
     let mut s = Session::start(&cfg, &opts)?;
     log(&s.voice);
 
