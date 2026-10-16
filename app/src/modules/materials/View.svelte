@@ -2,6 +2,7 @@
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
+  import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let inv = $state<Inventory | null>(null);
   let kindId = $state("raw");
@@ -52,7 +53,9 @@
     {/if}
   </p>
   {#if kindId === "manufactured" && inv?.here}
-    <p class="sub here">{inv.here.line}</p>
+    <p class="sub here">
+      <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`}
+    </p>
   {/if}
 
   {#if kindId === "other" && inv}
@@ -121,8 +124,7 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; display: grid; grid-template-columns: 1fr 16rem; grid-template-rows: auto auto 1fr; gap: 0 40px; min-height: 0; }
-  .acts, .sub { grid-column: 1 / -1; }
+  section { padding: 8px 0 28px; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
@@ -146,7 +148,7 @@
   .n { font-size: var(--fs-s); line-height: 1.2; }
   .q { font-family: var(--mono); font-size: var(--fs-s); }
   .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--gap); align-content: start; }
-  .about { border-left: 2px solid var(--accent); padding-left: 24px; }
+  .about { margin-top: 24px; border-top: 2px solid var(--accent); padding-top: 16px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 8px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }
