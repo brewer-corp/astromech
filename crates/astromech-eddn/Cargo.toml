@@ -1,0 +1,23 @@
+[package]
+name = "astromech-eddn"
+description = "EDDN sender: message builder, elision rules, persistent outbox with retry, send log"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde.workspace = true
+serde_json.workspace = true
+ureq.workspace = true
+flate2 = "1"
+
+[dev-dependencies]
+jsonschema = { version = "0.58", default-features = false }
+tempfile.workspace = true

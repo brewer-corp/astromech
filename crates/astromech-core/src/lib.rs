@@ -5,7 +5,7 @@
 //!   detection with idle/active sessions, the app window, crash marker and diagnostics;
 //! - [`session`]: one active session, everything that runs while Elite does;
 //! - [`pipeline`]: journal tail (with file rollover) + Status.json watching, feeding
-//!   [`hub::StateHub`]; read positions persist in `astromech-store`;
+//!   [`hub::StateHub`] and, when switched on, the EDDN feed; read positions persist in `astromech-store`;
 //! - [`history`]: keeps the journal history database current (backfill, then new lines);
 //! - [`health`]: the binds health check at startup and on every Bindings-folder change;
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
@@ -16,6 +16,7 @@
 //! - [`calibration`]: the per-device mic gate, shared by `--calibrate-files` and the window;
 //! - [`setup`]: onboarding's checks and the config edits the window makes;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
+//! - [`app::eddn_log`]: the EDDN send log for the Diagnostics page (`astromech-eddn`);
 //! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
 

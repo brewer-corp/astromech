@@ -29,6 +29,7 @@ astromech-tools.workspace = true
 astromech-store.workspace = true
 astromech-galaxy.workspace = true
 astromech-data.workspace = true
+astromech-eddn.workspace = true
 astromech-history.workspace = true
 anyhow.workspace = true
 serde.workspace = true
