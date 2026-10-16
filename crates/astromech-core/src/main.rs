@@ -211,6 +211,9 @@ fn download_models(cfg: &Config) -> Result<()> {
         })?;
         println!();
     }
+    for d in models::remove_retired(&base) {
+        println!("Removed the replaced model {}", d.display());
+    }
     println!("Done.");
     Ok(())
 }

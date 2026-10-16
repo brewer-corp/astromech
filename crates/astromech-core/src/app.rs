@@ -519,12 +519,22 @@ pub fn download_models(core: &Arc<Core>) {
             }
         }
         match err {
-            None => log(&format!("speech models ready in {}", base.display())),
+            None => {
+                log(&format!("speech models ready in {}", base.display()));
+                remove_retired_models(&base);
+            }
             Some(e) => log(&format!("speech model download failed: {e}")),
         }
         *c.models.lock().unwrap() = None;
         c.notify();
     });
+}
+
+/// Delete models an update replaced (Kokoro v0.19), once their replacement is installed.
+fn remove_retired_models(models_dir: &Path) {
+    for d in astromech_voice::models::remove_retired(models_dir) {
+        log(&format!("removed the replaced speech model {}", d.display()));
+    }
 }
 
 pub fn models_missing(cfg: &Config) -> bool {
@@ -677,6 +687,18 @@ pub fn run(opts: Opts) -> i32 {
             None
         }
     };
+
+    // An update from Kokoro v0.19: fetch v1.0 (the old model can't serve v1.0 voices), and
+    // remove v0.19 once v1.0 is there.
+    let models_dir = core.cfg.models_dir();
+    if astromech_voice::models::has_retired(&models_dir) {
+        if astromech_voice::models::find_tts(&models_dir).is_ok() {
+            remove_retired_models(&models_dir);
+        } else {
+            log("text-to-speech: Kokoro v0.19 was replaced by v1.0; downloading it");
+            download_models(&core);
+        }
+    }
 
     let c = core.clone();
     std::thread::Builder::new().name("gamewatch".into()).spawn(move || watch_game(c)).expect("spawn game watcher");
