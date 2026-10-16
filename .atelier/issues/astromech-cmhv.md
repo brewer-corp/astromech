@@ -54,9 +54,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:21:14.778717019+00:00"
+status: "done"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-16T19:59:10.873708699+00:00"
+updated_at: "2026-10-16T20:21:14.778717019+00:00"
 ---
 
 ## Goal
@@ -78,3 +79,7 @@ EDDI and EDCoPilot are the models ([REPORT §8.3](docs/REPORT.md)). Copy registe
 ## Notes
 
 - 2026-10-16 [note] Product questions for Sumeet (from the reaction-engine review): (1) The tray's Pause voice ignores push-to-talk, but callouts still speak while paused. Is that intended, or should pause silence callouts too? (2) When a callout's speech is dropped during quiet (docking, combat) but its toast still fires, the rule's cooldown starts anyway, so the line won't be spoken right after quiet ends. Is that intended, or should only a spoken callout start the cooldown?
+
+## Close Reason
+
+Per-rule journal replay tests (spoken text, cooldown, quiet while replaying) and the word-budget test over all callout copy pass; all six children done. Independent review of the work after round 3 (0bkq, omi1, 0zcu, wq3f) is outstanding; the game check astromech-6920 runs after the merge.
