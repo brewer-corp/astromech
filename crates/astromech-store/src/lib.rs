@@ -4,6 +4,7 @@
 //! (`PRAGMA user_version`). Secrets go to the OS keyring later, never into SQLite.
 
 pub use rusqlite;
+pub use rusqlite::Error as StoreError;
 use rusqlite::{Connection, Result};
 
 pub const MAX_ALIASES: usize = 200;
@@ -17,6 +18,13 @@ const MIGRATIONS: &[&str] = &[
         transcript TEXT PRIMARY KEY,
         command TEXT NOT NULL,
         count INTEGER NOT NULL DEFAULT 1
+     );",
+    // v3 — domain records kept as one JSON body per (kind, key), e.g. colonisation projects
+    "CREATE TABLE records (
+        kind TEXT NOT NULL,
+        key TEXT NOT NULL,
+        body TEXT NOT NULL,
+        PRIMARY KEY (kind, key)
      );",
 ];
 
@@ -93,6 +101,23 @@ impl Store {
         })
     }
 
+    /// Insert or replace the JSON `body` stored under (`kind`, `key`).
+    pub fn put_record(&self, kind: &str, key: &str, body: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO records(kind, key, body) VALUES (?1, ?2, ?3)
+             ON CONFLICT(kind, key) DO UPDATE SET body = ?3",
+            (kind, key, body),
+        )?;
+        Ok(())
+    }
+
+    /// Every (key, body) stored under `kind`, ordered by key.
+    pub fn records(&self, kind: &str) -> Result<Vec<(String, String)>> {
+        let mut st = self.conn.prepare("SELECT key, body FROM records WHERE kind = ?1 ORDER BY key")?;
+        let rows = st.query_map([kind], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        rows.collect()
+    }
+
     pub fn aliases(&self) -> Result<Vec<(String, String)>> {
         let mut st = self.conn.prepare("SELECT transcript, command FROM aliases ORDER BY count DESC")?;
         let rows = st.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
@@ -162,6 +187,17 @@ mod tests {
         let c = migrate(Connection::open(&db).unwrap(), &[v1, fixed]).unwrap();
         assert_eq!(c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
         c.prepare("SELECT y FROM a").unwrap();
+    }
+
+    #[test]
+    fn records_upsert_and_list_by_kind() {
+        let s = Store::in_memory().unwrap();
+        s.put_record("a", "2", "{\"n\":1}").unwrap();
+        s.put_record("a", "1", "x").unwrap();
+        s.put_record("a", "2", "y").unwrap();
+        s.put_record("b", "1", "z").unwrap();
+        assert_eq!(s.records("a").unwrap(), vec![("1".into(), "x".into()), ("2".into(), "y".into())]);
+        assert_eq!(s.records("none").unwrap(), vec![]);
     }
 
     #[test]

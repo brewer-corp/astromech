@@ -620,6 +620,445 @@
       "symbol": "gold"
     }
   ],
+  "list": {
+    "fetched_at": 1792184400,
+    "stations": [
+      {
+        "arrival_ls": 4412.399395,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 4267,
+            "stock": 25553
+          },
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 5801,
+            "stock": 10061
+          },
+          {
+            "commodity": "ceramiccomposites",
+            "name": "Ceramic Composites",
+            "needed": 512,
+            "price": 859,
+            "stock": 2120
+          }
+        ],
+        "ly": 8.588748544607649,
+        "market_id": 3530994688,
+        "missing": [
+          "Insulating Membrane"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Efremov Plant",
+        "stocked": 3,
+        "system": "Sirius",
+        "updated_at": "2026-10-12T20:16:46.000Z"
+      },
+      {
+        "arrival_ls": 1226.638124,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 3726,
+            "stock": 1181674
+          },
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 5245,
+            "stock": 953124
+          },
+          {
+            "commodity": "ceramiccomposites",
+            "name": "Ceramic Composites",
+            "needed": 512,
+            "price": 139,
+            "stock": 1619029
+          }
+        ],
+        "ly": 10.368879972060627,
+        "market_id": 4271468291,
+        "missing": [
+          "Insulating Membrane"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Hair Obligation",
+        "stocked": 3,
+        "system": "Ross 248",
+        "updated_at": "2026-10-15T04:14:27.000Z"
+      },
+      {
+        "arrival_ls": 438.650963,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 3549,
+            "stock": 15443
+          },
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 5030,
+            "stock": 16020
+          },
+          {
+            "commodity": "ceramiccomposites",
+            "name": "Ceramic Composites",
+            "needed": 512,
+            "price": 106,
+            "stock": 72114
+          }
+        ],
+        "ly": 11.098326520809342,
+        "market_id": 3534877696,
+        "missing": [
+          "Insulating Membrane"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Sanger Settlement",
+        "stocked": 3,
+        "system": "EZ Aquarii",
+        "updated_at": "2026-10-03T11:30:40.000Z"
+      },
+      {
+        "arrival_ls": 963.421827,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 5335,
+            "stock": 167
+          },
+          {
+            "commodity": "ceramiccomposites",
+            "name": "Ceramic Composites",
+            "needed": 512,
+            "price": 695,
+            "stock": 1534
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 9315,
+            "stock": 140
+          }
+        ],
+        "ly": 13.393751458236038,
+        "market_id": 4227375619,
+        "missing": [
+          "Steel"
+        ],
+        "odyssey": true,
+        "pad": "L",
+        "station": "Hah Industrial Moulding",
+        "stocked": 3,
+        "system": "UGPS 0722-05",
+        "updated_at": "2026-10-06T13:17:26.000Z"
+      },
+      {
+        "arrival_ls": 3090.598556,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 3776,
+            "stock": 35567
+          },
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 5291,
+            "stock": 27935
+          },
+          {
+            "commodity": "ceramiccomposites",
+            "name": "Ceramic Composites",
+            "needed": 512,
+            "price": 168,
+            "stock": 175941
+          }
+        ],
+        "ly": 14.009134854622536,
+        "market_id": 3534971648,
+        "missing": [
+          "Insulating Membrane"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Webb Holdings",
+        "stocked": 3,
+        "system": "Wolf 424",
+        "updated_at": "2026-10-12T14:39:17.000Z"
+      },
+      {
+        "arrival_ls": 37.332957,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 4597,
+            "stock": 245
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 10580,
+            "stock": 3
+          }
+        ],
+        "ly": 5.954662695107087,
+        "market_id": 128147960,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Miller Depot",
+        "stocked": 2,
+        "system": "Barnard's Star",
+        "updated_at": "2026-10-16T22:42:46.000Z"
+      },
+      {
+        "arrival_ls": 61.866701,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 4596,
+            "stock": 4603
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 10579,
+            "stock": 9
+          }
+        ],
+        "ly": 5.954662695107087,
+        "market_id": 128148216,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Boston Base",
+        "stocked": 2,
+        "system": "Barnard's Star",
+        "updated_at": "2026-10-16T22:28:53.000Z"
+      },
+      {
+        "arrival_ls": 6.519859,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 4598,
+            "stock": 25130
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 10582,
+            "stock": 117
+          }
+        ],
+        "ly": 5.954662695107087,
+        "market_id": 3228867840,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "M",
+        "station": "Levi-Strauss Installation",
+        "stocked": 2,
+        "system": "Barnard's Star",
+        "updated_at": "2026-10-16T18:13:59.000Z"
+      },
+      {
+        "arrival_ls": 13.875402,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 3556,
+            "stock": 4478
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 9769,
+            "stock": 72
+          }
+        ],
+        "ly": 6.569193015508069,
+        "market_id": 3228883712,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "M",
+        "station": "Heisenberg Colony",
+        "stocked": 2,
+        "system": "Luhman 16",
+        "updated_at": "2026-10-16T08:49:46.000Z"
+      },
+      {
+        "arrival_ls": 13.865395,
+        "exact": false,
+        "fleet_carrier": true,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "cmmcomposite",
+            "name": "CMM Composite",
+            "needed": 3820,
+            "price": 11990,
+            "stock": 30
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 18107,
+            "stock": 38
+          }
+        ],
+        "ly": 6.569193015508069,
+        "market_id": 3700080802,
+        "missing": [
+          "Steel",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "FCX-802",
+        "stocked": 2,
+        "system": "Luhman 16",
+        "updated_at": "2026-09-29T19:33:33.000Z"
+      },
+      {
+        "arrival_ls": 232.746457,
+        "exact": false,
+        "fleet_carrier": false,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 3677,
+            "stock": 1885852
+          },
+          {
+            "commodity": "insulatingmembrane",
+            "name": "Insulating Membrane",
+            "needed": 310,
+            "price": 9897,
+            "stock": 11522
+          }
+        ],
+        "ly": 9.88310585038934,
+        "market_id": 3228792064,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "Polyakov Station",
+        "stocked": 2,
+        "system": "Duamta",
+        "updated_at": "2026-10-16T22:05:35.000Z"
+      },
+      {
+        "arrival_ls": 61.876633,
+        "exact": false,
+        "fleet_carrier": true,
+        "jumps": 1,
+        "lines": [
+          {
+            "commodity": "steel",
+            "name": "Steel",
+            "needed": 4912,
+            "price": 4391,
+            "stock": 1172
+          }
+        ],
+        "ly": 5.954662695107087,
+        "market_id": 3700080801,
+        "missing": [
+          "CMM Composite",
+          "Ceramic Composites",
+          "Insulating Membrane"
+        ],
+        "odyssey": false,
+        "pad": "L",
+        "station": "FCX-801",
+        "stocked": 1,
+        "system": "Barnard's Star",
+        "updated_at": "2026-09-27T11:37:36.000Z"
+      }
+    ],
+    "truncated": [],
+    "unavailable": []
+  },
   "sell": {
     "here": {
       "id64": 10477373803,
