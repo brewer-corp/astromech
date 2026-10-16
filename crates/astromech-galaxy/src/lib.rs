@@ -5,10 +5,12 @@
 //! commander travels; live faction states from Spansh's system search; jump counts by A* over
 //! the known stars at the ship's range.
 
+pub mod filters;
 pub mod map;
 pub mod remote;
 pub mod store;
 
+pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
 pub use store::{dist, Sphere, Star, Store};
@@ -57,6 +59,7 @@ pub struct Nearby {
 
 pub struct Galaxy {
     store: Mutex<Store>,
+    remote: astromech_data::Client,
     map: RwLock<Option<Arc<StarMap>>>,
     /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
     fill_failed: Mutex<Option<i64>>,
@@ -84,7 +87,12 @@ impl Galaxy {
     }
 
     pub fn with_store(s: Store) -> Self {
-        Galaxy { store: Mutex::new(s), map: RwLock::new(None), fill_failed: Mutex::new(None) }
+        Self::with_remote(s, astromech_data::Client::new(astromech_data::Cache::in_memory().expect("in-memory SQLite")))
+    }
+
+    /// `remote` answers the Spansh and EDSM requests (tests pass a recorded transport).
+    pub fn with_remote(s: Store, remote: astromech_data::Client) -> Self {
+        Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
     fn store(&self) -> std::sync::MutexGuard<'_, Store> {
@@ -114,7 +122,28 @@ impl Galaxy {
     }
 
     pub fn position(&self, system: &str) -> Result<Option<[f64; 3]>> {
-        Ok(self.store().system(system)?.map(|x| x.1))
+        Ok(self.store().system(system)?.map(|x| x.2))
+    }
+
+    /// Up to a handful of system names resembling `prefix` (Spansh's fuzzy autocomplete), for
+    /// typing a search origin.
+    pub fn system_names(&self, prefix: &str) -> Result<Vec<String>> {
+        Ok(self.remote.spansh_system_names(prefix)?.value.into_iter().map(|s| s.name).collect())
+    }
+
+    /// Where a typed system is: the local map first, else Spansh (exact name, any case).
+    pub fn locate(&self, name: &str) -> Result<Here> {
+        let name = name.trim();
+        if let Some((id64, system, pos)) = self.store().system(name)? {
+            return Ok(Here { system, id64: Some(id64), pos });
+        }
+        self.remote
+            .spansh_system_names(name)?
+            .value
+            .into_iter()
+            .find(|s| s.name.eq_ignore_ascii_case(name))
+            .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
+            .ok_or_else(|| anyhow::anyhow!("Spansh doesn't know a system called {name}."))
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -127,7 +156,7 @@ impl Galaxy {
         if self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()).is_some_and(|t| now - t < FILL_RETRY_S) {
             return Ok(false);
         }
-        let rows = match remote::edsm_sphere(p, FILL_RADIUS).and_then(|b| remote::parse_sphere(&b)) {
+        let rows = match remote::edsm_sphere(&self.remote, p, FILL_RADIUS) {
             Ok(r) => r,
             Err(e) => {
                 *self.fill_failed.lock().unwrap_or_else(|e| e.into_inner()) = Some(now);
@@ -152,8 +181,9 @@ impl Galaxy {
         Ok(self.map()?.hop(a, b, range))
     }
 
-    /// Systems near `here` matching `query_id`, nearest first, with jump counts at `range`.
-    pub fn nearby(&self, query_id: &str, here: &Here, range: f64, limit: usize) -> Result<Nearby> {
+    /// Systems near `here` matching `query_id` and `filters`, nearest first, with jump counts
+    /// at `range`.
+    pub fn nearby(&self, query_id: &str, here: &Here, range: f64, limit: usize, filters: &Filters) -> Result<Nearby> {
         let q = query(query_id).ok_or_else(|| anyhow::anyhow!("unknown lookup {query_id}"))?;
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
@@ -169,13 +199,16 @@ impl Galaxy {
         let (fetched, body) = match cached {
             Some(c) => c,
             None => {
-                let b = remote::spansh_search(q, here.pos, 50)?;
+                let b = remote::spansh_search(&self.remote, q, here.pos, 50)?;
                 remote::parse_search(&b)?;
                 self.store().cache_put(&key, now, &b)?;
                 (now, b)
             }
         };
-        let hits = remote::parse_search(&body)?;
+        let hits = remote::parse_search(&body)?
+            .into_iter()
+            .filter(|h| filters.keeps(&Facts { updated_at: h.updated_at.as_deref(), ..Facts::default() }, now))
+            .collect();
         Ok(self.rank(q, here, range, limit, hits, iso(fetched)))
     }
 
@@ -207,7 +240,7 @@ impl Galaxy {
                     hop,
                     population: h.population,
                     updated_at: h.updated_at.clone(),
-                    factions: h.factions.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
+                    factions: h.minor_faction_presences.iter().filter(|f| q.faction_matches(f)).cloned().collect(),
                 }
             })
             .collect();
@@ -242,6 +275,92 @@ pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
+
+    /// Answers EDSM sphere and Spansh systems search with recorded bodies; logs request URLs.
+    struct Recorded {
+        sphere: String,
+        log: Mutex<Vec<String>>,
+    }
+
+    impl Transport for Recorded {
+        fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
+            self.log.lock().unwrap().push(url.to_string());
+            let body = if url.ends_with("/api-v1/sphere-systems") {
+                self.sphere.clone()
+            } else if url.ends_with("/api/systems/search") {
+                include_str!("../tests/fixtures/spansh-famine.json").to_string()
+            } else if url.ends_with("/api/systems/field_values/system_names") {
+                SHIN.to_string()
+            } else {
+                panic!("unexpected request {url}")
+            };
+            Ok(Response { status: 200, body })
+        }
+    }
+
+    #[test]
+    fn nearby_fetches_through_the_data_client_then_reuses_the_cache() {
+        // EDSM knows a dense line of stars from Sol towards the fixture systems.
+        let sphere: Vec<serde_json::Value> = (0..40)
+            .map(|i| {
+                serde_json::json!({
+                    "name": format!("S{i}"), "id64": 1000 + i,
+                    "coords": { "x": i as f64 * 0.5, "y": -(i as f64) * 0.1, "z": i as f64 * 0.3 },
+                })
+            })
+            .collect();
+        let rec = Arc::new(Recorded { sphere: serde_json::Value::from(sphere).to_string(), log: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let g = Galaxy::with_remote(Store::in_memory().unwrap(), client);
+        let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
+
+        let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
+        {
+            let log = rec.log.lock().unwrap();
+            assert_eq!(log.len(), 2, "one EDSM fill-in and one Spansh search: {log:?}");
+            assert!(log[0].starts_with("https://www.edsm.net/api-v1/sphere-systems"));
+            assert_eq!(log[1], "https://spansh.co.uk/api/systems/search");
+        }
+        assert_eq!(n.hits.len(), 2);
+        assert_eq!(n.hits[0].name, "WISE 0855-0714");
+        assert!(n.hits[0].hop.exact, "jump counts use the filled-in map");
+        assert!(n.hits[0].hop.jumps >= 2);
+        assert!(g.position("S10").unwrap().is_some(), "EDSM systems are stored");
+
+        let again = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
+        assert_eq!(rec.log.lock().unwrap().len(), 2, "covered and cached: no requests");
+        assert_eq!(again.hits, n.hits);
+        assert_eq!(again.fetched, n.fetched);
+    }
+
+    /// Spansh's autocomplete for "Shin" (recorded 16 Oct 2026, trimmed).
+    const SHIN: &str = r#"{"min_max":[{"id64":1733321298650,"name":"Shingon","x":121.6875,"y":-3.09375,"z":47.1875},
+        {"id64":3932277478106,"name":"Shinrarta Dezhra","x":55.71875,"y":17.59375,"z":27.15625}],
+        "values":["Shingon","Shinrarta Dezhra"]}"#;
+
+    #[test]
+    fn typed_origin_is_found_in_the_map_then_on_spansh() {
+        let rec = Arc::new(Recorded { sphere: "[]".into(), log: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let mut s = Store::in_memory().unwrap();
+        s.insert_systems([(10477373803, "Sol", [0.0, 0.0, 0.0])]).unwrap();
+        let g = Galaxy::with_remote(s, client);
+
+        let sol = g.locate(" sol ").unwrap();
+        assert_eq!((sol.system.as_str(), sol.id64, sol.pos), ("Sol", Some(10477373803), [0.0; 3]));
+        assert!(rec.log.lock().unwrap().is_empty(), "a known system needs no request");
+
+        let names = g.system_names("Shin").unwrap();
+        assert_eq!(names, ["Shingon", "Shinrarta Dezhra"]);
+        let sd = g.locate("shinrarta dezhra").unwrap();
+        assert_eq!(sd.system, "Shinrarta Dezhra", "Spansh's spelling");
+        assert_eq!(sd.id64, Some(3932277478106));
+        assert_eq!(sd.pos, [55.71875, 17.59375, 27.15625]);
+
+        let err = g.locate("Shin").unwrap_err().to_string();
+        assert_eq!(err, "Spansh doesn't know a system called Shin.", "a prefix is not a system");
+    }
 
     #[test]
     fn nearby_ranks_cached_hits_by_jumps() {
@@ -257,7 +376,7 @@ mod tests {
         s.cache_put(key, now_s(), body).unwrap();
         let g = Galaxy::with_store(s);
         // covered → no EDSM call; cached → no Spansh call
-        let n = g.nearby("famine", &here, 5.0, 2).unwrap();
+        let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
         assert_eq!(n.hits.len(), 2);
         assert_eq!(n.hits[0].name, "WISE 0855-0714");
         assert!(n.hits[0].hop.jumps >= 2);
@@ -268,6 +387,10 @@ mod tests {
         assert!(n.warning.is_none());
         // Spansh hits are added to the map
         assert!(g.position("Tau Ceti").unwrap().is_some());
+        // the lookup's filters apply to the cached answer: every fixture hit is older than a day
+        let fresh = Filters { max_age_days: Some(1), ..Filters::default() };
+        let none = g.nearby("famine", &here, 5.0, 2, &fresh).unwrap();
+        assert!(none.hits.is_empty() && none.warning.is_none(), "{none:?}");
     }
 
     #[test]

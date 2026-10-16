@@ -14,6 +14,7 @@ FORBIDDEN = {
     "astromech-tools": {"astromech-input"},
     "astromech-overlay": {"astromech-input"},
     "astromech-intent": {"astromech-input", "astromech-policy"},
+    "astromech-data": {"astromech-input", "astromech-policy"},
 }
 # crates that must not depend on any workspace crate
 LEAVES = {"astromech-proto", "astromech-intent"}
