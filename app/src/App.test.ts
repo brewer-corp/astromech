@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import App from "./App.svelte";
 
 vi.mock("./lib/core", async (orig) => ({
@@ -41,5 +41,45 @@ describe("command palette in the window", () => {
 
     expect(await screen.findByRole("heading", { name: "Datamined Wake Exceptions" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Encoded/i }).className).toContain("on");
+  });
+
+  it("opens a ship's page for a fitted module", async () => {
+    location.hash = "#/powerplay";
+    render(App);
+    await screen.findByText("My standing");
+
+    await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const input = await screen.findByRole("combobox", { name: "Go to" });
+    await fireEvent.input(input, { target: { value: "6a frame shift" } });
+    await screen.findByText("Module · Frame shift drive on Heavy Lifter");
+    await fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(location.hash).toBe("#/engineering/3");
+    expect(await screen.findByRole("button", { name: "← Ships" })).toBeTruthy(); // the ship detail, not the fleet
+    expect(screen.getByText(/Heavy Lifter/, { selector: "*:not(button):not(span.l)" })).toBeTruthy();
+  });
+
+  it("keeps the selected material through back and reload", async () => {
+    location.hash = "#/materials/protoheatradiators";
+    render(App);
+    await screen.findByRole("heading", { name: "Proto Heat Radiators" });
+
+    await fireEvent.click(screen.getByRole("button", { name: /Proto Light Alloys/ }));
+    expect(await screen.findByRole("heading", { name: "Proto Light Alloys" })).toBeTruthy();
+    expect(location.hash).toBe("#/materials/protolightalloys");
+
+    history.back();
+    await waitFor(() => expect(location.hash).toBe("#/materials/protoheatradiators"));
+    expect(await screen.findByRole("heading", { name: "Proto Heat Radiators" })).toBeTruthy();
+
+    cleanup(); // reload
+    render(App);
+    expect(await screen.findByRole("heading", { name: "Proto Heat Radiators" })).toBeTruthy();
+  });
+
+  it("opens the page with nothing selected on a mangled material link", async () => {
+    location.hash = "#/materials/%E0%A4%A";
+    render(App);
+    expect(await screen.findByRole("heading", { name: "Raw" })).toBeTruthy();
   });
 });

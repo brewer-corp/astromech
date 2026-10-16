@@ -63,6 +63,14 @@ describe("command palette", () => {
     expect(onpick).toHaveBeenCalledExactlyOnceWith("materials/protolightalloys");
   });
 
+  it("doesn't pick on the Enter that ends an IME composition", async () => {
+    const { onpick } = setup();
+    const input = await open();
+    await fireEvent.keyDown(input, { key: "Enter", isComposing: true });
+    expect(onpick).not.toHaveBeenCalled();
+    expect(box()).not.toBeNull();
+  });
+
   it("opens a match on click", async () => {
     const { onpick } = setup();
     await open();

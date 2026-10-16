@@ -33,6 +33,8 @@ describe("palette matching", () => {
     expect(labels("  PROTO   heat ")).toEqual(["Proto Heat Radiators"]);
     expect(rank(items, "", 2).map((i) => i.label)).toEqual(["Materials", "Proto Heat Radiators"]);
     expect(labels("zzz")).toEqual([]);
+    expect(labels("+")).toEqual([]);
+    expect(labels("? -")).toEqual([]);
   });
 
   it("collects every page and what the modules offer, skipping a module whose entries fail", async () => {

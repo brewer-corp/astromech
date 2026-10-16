@@ -10,7 +10,12 @@
   // A material opens at #/materials/<id> (the command palette links there), so back and reload keep it.
   const readSel = () => {
     const m = /^#\/materials\/(.+)$/.exec(location.hash);
-    return m?.[1] ? decodeURIComponent(m[1]) : null;
+    if (!m?.[1]) return null;
+    try {
+      return decodeURIComponent(m[1]);
+    } catch {
+      return null; // a mangled link opens the page with nothing selected
+    }
   };
   let selId = $state<string | null>(readSel());
 

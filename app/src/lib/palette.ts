@@ -1,7 +1,8 @@
 /**
  * The Ctrl+K command palette's model (docs/ARCHITECTURE.md §18.2): every page, plus the entries
  * each module's manifest offers from data the window already has (materials, the fleet's
- * ships, modules and blueprints). Picking one opens its route with the item selected.
+ * ships, modules and blueprints). Picking one opens its route: a material opens selected, with
+ * its nearby search; a ship, module, blueprint or experimental opens the ship's page.
  */
 import type { ModuleManifest } from "./modules";
 
@@ -40,6 +41,7 @@ export function rank(items: PaletteItem[], query: string, limit = 12): PaletteIt
   const q = query.trim().toLowerCase().replace(/\s+/g, " ");
   if (!q) return items.slice(0, limit);
   const qw = words(q);
+  if (!qw.length) return [];
   return items
     .map((item, i) => ({ item, i, s: score(item, q, qw) }))
     .filter((x): x is { item: PaletteItem; i: number; s: number } => x.s !== null)
