@@ -471,10 +471,10 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - **Mic level / AGC (note):** S9 peaks were only 0.03–0.10 full scale on the BlackShark V3 (RMS ≈ 0.003–0.009). Accuracy was still fine, but quiet input is a risk for the misses. Show a level meter in setup and warn if peaks are below ~0.1. Apply a fixed software gain or simple peak normalisation per utterance before STT (cheap, since push-to-talk gives whole clips). Advise raising the Windows mic level. Full AGC isn't needed.
   - **Packaging:** the STT/TTS engine runs in a **separate worker process** with sherpa-onnx linked **statically** (no runtime DLLs, so no DLL-search problems). One crash-isolated helper keeps the main exe free of native ML code.
 - **TTS worker:**
-  - **Kokoro-82M** through sherpa-onnx `OfflineTts`.
+  - **Kokoro-82M v1.0** (`kokoro-multi-lang-v1_0`, 54 voices) through sherpa-onnx `OfflineTts`. Voices are configured by name (`astromech_voice::catalog::KOKORO_VOICES`, index = `sid`); each request also names the espeak-ng voice to phonemise with (`en` for British voices, `en-us` otherwise). The package's Chinese lexicon and jieba dictionary are not used: with a language set, sherpa-onnx 1.13.8 phonemises English with espeak-ng. An update from v0.19 downloads v1.0 (int8 if only the int8 v0.19 was installed) and, once the download is complete (its marker written), deletes the v0.19 folders from astromech's own models folder; a folder `models_dir` points at is left alone.
   - **Pre-render** fixed confirmations ("Landing gear deployed.", "Lights on.", "Didn't catch that.", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries). Cache after colouring.
   - **Voice colour (v0.14).** Kokoro talks like a person; Elite's COVAS (Verity / Victor) is a treated ship computer. Default colour **Cockpit** so astromech sits in the same register, not as a crewmate and not as a protocol droid. Product write-up: V1-DESIGN.md §6.4.
-    - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus existing `speaker_id` and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
+    - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus `speaker` (a Kokoro voice name, default `bf_emma`) and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
     - Cockpit chain on the PCM, in order: high-pass ~250 Hz, low-pass ~4 kHz; presence bump ~1.5–2 kHz; compressor; soft saturation (optional 16 kHz downsample/upsample); 1–2 ms comb; then a short two-tone pip (own earcon). Harsh is the same with a ~3.5 kHz cap and more grit. Natural is unprocessed.
     - Pure Rust, deterministic, unit-tested on a fixture WAV. Cheap compared with Kokoro; keep first-audio inside the existing S9 budget.
     - Recreate the register. Do not clone Frontier samples or the actors. No vocoder / ring-mod / R2 chirps as default (Star Wars trap, and the product name already leans that way). eSpeak-ng stays G2P only; a "Classic computer" eSpeak preset may come later.
@@ -1134,7 +1134,7 @@ The WebSocket plugin API with scoped tokens, the EDMesg bridge (COVAS:NEXT and E
 Resolved on 8 Oct and removed from this list: voice provider and budget (local only for the MVP), HOTAS device (controller-agnostic), echo (push-to-talk makes it moot), licence (MIT, §16.1), Oculus-native support (dropped), elevation (assume not elevated; warn on mismatch), key → Status latency (S5), journal models (S6), the binary licence and espeak-ng question (S8).
 
 **For Sumeet:**
-1. **Project name.** Ship-AI *timbre* is decided (v0.14: Cockpit PA on Kokoro). Product name is still open. Which Kokoro `speaker_id` is the flattest announcer is measured in M3.
+1. **Project name.** Ship-AI *timbre* is decided (v0.14: Cockpit PA on Kokoro). Product name is still open. Which Kokoro voice is the flattest announcer is measured in M3.
 2. **Push-to-talk style:** hold (default) or toggle. Should there be a second binding for "repeat last" or a dedicated confirm button?
 3. **Automation appetite vs EULA:** which opt-in rules he actually wants (auto-next-hop, honk-on-arrival). Each one is a grey-zone call.
 4. **cAPI and Inara:** worth registering with Frontier's Developer Zone, or applying for Inara whitelisting? Neither is needed for the MVP.

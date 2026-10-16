@@ -7,6 +7,7 @@
   import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterKey, type Filters, type Origin, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
+  import SystemChip from "./SystemChip.svelte";
 
   let {
     lookup,
@@ -79,7 +80,7 @@
 </script>
 
 <div class="kit">
-  <h4>{title}{res ? ` to ${res.origin}` : ""}</h4>
+  <h4>{title}{#if res}&nbsp;to&nbsp;<SystemChip name={res.origin} />{/if}</h4>
   <OriginInput {origin} onchange={(o) => (origin = o)} />
   {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} onchange={(f) => void change(f)} />{/if}
   {#if filterErr}<p class="lo">{filterErr}</p>{/if}
@@ -92,7 +93,7 @@
     <ul class:stale={busy}>
       {#each res.rows as r (r.key)}
         <li>
-          <span class="sys">{r.station ? `${r.station} · ` : ""}{r.system}</span>
+          <span class="sys">{r.station ? `${r.station} · ` : ""}<SystemChip name={r.system} /></span>
           <span class="q">{jumps(r.jumps, r.exact)} · {r.ly.toFixed(1)} ly</span>
           <span class="lo">{facts(r)}</span>
         </li>

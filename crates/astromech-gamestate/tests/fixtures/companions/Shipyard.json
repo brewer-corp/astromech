@@ -1,0 +1,1 @@
+{ "timestamp":"2026-10-10T20:00:07Z", "event":"Shipyard", "MarketID":128000001, "StationName":"Test Orbital", "StarSystem":"Test System", "Horizons":true, "AllowCobraMkIV":false, "PriceList":[ { "id":128049267, "ShipType":"sidewinder", "ShipType_Localised":"Sidewinder", "ShipPrice":32000 } ] }
