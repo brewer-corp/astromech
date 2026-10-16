@@ -1,0 +1,22 @@
+[package]
+name = "astromech-station"
+description = "Docked-here facts and the outfitting history: every Outfitting.json seen, searchable offline"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-journal.workspace = true
+astromech-gamestate.workspace = true
+astromech-engineering.workspace = true
+astromech-store.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

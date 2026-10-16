@@ -6,7 +6,7 @@
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap};
+use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
@@ -63,6 +63,9 @@ pub struct GameState {
     pub station: Option<String>,
     /// `MarketID` of the station docked at; ties `Market.json` and friends to this dock.
     pub station_market_id: Option<i64>,
+    /// Services, economies, faction and pads of the station docked at, from `Docked` (or the
+    /// `Location` of a login while docked). Cleared with `station_market_id`.
+    pub station_info: Option<StationInfo>,
     pub docked: bool,
     pub gear_down: bool,
     pub supercruise: bool,
@@ -152,7 +155,9 @@ impl GameState {
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
             }
-            JournalEvent::Location { star_system, body, docked, station_name, market_id, star_pos, .. } => {
+            JournalEvent::Location {
+                star_system, body, docked, station_name, market_id, star_pos, station, ..
+            } => {
                 if self.system.as_ref() != Some(star_system) || star_pos.is_some() {
                     self.star_pos = *star_pos;
                 }
@@ -165,9 +170,11 @@ impl GameState {
                         self.station = station_name.clone();
                     }
                     self.station_market_id = *market_id;
+                    self.station_info = station.clone();
                 } else {
                     self.station = None;
                     self.station_market_id = None;
+                    self.station_info = None;
                 }
             }
             JournalEvent::ApproachBody { star_system, body } => {
@@ -181,18 +188,21 @@ impl GameState {
                 if !from_carrier {
                     self.station = None;
                     self.station_market_id = None;
+                    self.station_info = None;
                     self.body = None;
                 }
             }
-            JournalEvent::Docked { station_name, star_system, market_id, .. } => {
+            JournalEvent::Docked { station_name, star_system, market_id, station, .. } => {
                 self.station = Some(station_name.clone());
                 self.station_market_id = *market_id;
+                self.station_info = Some(station.clone());
                 self.system = Some(star_system.clone());
                 self.docked = true;
             }
             JournalEvent::Undocked { .. } => {
                 self.docked = false;
                 self.station_market_id = None;
+                self.station_info = None;
             }
             _ => {}
         }

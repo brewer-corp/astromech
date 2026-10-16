@@ -176,6 +176,7 @@ dependencies = [
  "astromech-market",
  "astromech-policy",
  "astromech-proto",
+ "astromech-station",
  "astromech-status",
  "astromech-store",
  "astromech-tools",
@@ -381,6 +382,18 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "astromech-station"
+version = "0.1.5"
+dependencies = [
+ "astromech-engineering",
+ "astromech-gamestate",
+ "astromech-journal",
+ "astromech-store",
+ "serde",
+ "tempfile",
 ]
 
 [[package]]
