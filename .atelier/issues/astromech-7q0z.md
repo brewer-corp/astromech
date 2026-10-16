@@ -85,6 +85,8 @@ relationships:
     type: "advances"
   - kind: "issue"
     id: "astromech-gtza"
+    type: "advances"
+  - kind: "issue"
     id: "astromech-i4gx"
     type: "advances"
   - kind: "issue"
