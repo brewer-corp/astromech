@@ -119,6 +119,16 @@ describe("ship detail stats", () => {
   });
 });
 
+describe("ship detail subtitle", () => {
+  it("shows where a stored ship is as a system chip", async () => {
+    const stored = structuredClone(fleet);
+    Object.assign(stored.ships[0]!, { current: false, system: "Shinrarta Dezhra" });
+    render(Build, { fleet: stored, shipId: krait, onback: () => {} });
+    const copy = await screen.findByRole("button", { name: "Copy Shinrarta Dezhra" });
+    expect(copy.closest(".sub")!.textContent).toMatch(/stored at\s+Shinrarta Dezhra/);
+  });
+});
+
 describe("ship detail with an unknown hull", () => {
   it("shows the ship as incomplete instead of an error", async () => {
     override = { unknown_hull: "mediumtransport01" };

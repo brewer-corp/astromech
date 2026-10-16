@@ -5,6 +5,7 @@
   // keep it.
   import { loadFleet, loadHeadlines, type Fleet, type Headline, type Ship } from "../../lib/engineering";
   import Build from "./Build.svelte";
+  import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let fleet = $state<Fleet | null>(null);
   let headlines = $state<Record<string, Headline>>({});
@@ -40,12 +41,6 @@
     return String(n);
   }
 
-  function where(s: Ship): string {
-    if (s.current) return "Flying now";
-    if (s.in_transit) return s.system ? `In transit to ${s.system}` : "In transit";
-    return s.system ? s.system : "Stored";
-  }
-
   /** Engineered modules out of those that can be engineered. */
   function progress(s: Ship): { done: number; total: number } {
     const mods = s.modules.filter((m) => m.group);
@@ -71,11 +66,14 @@
         {@const p = progress(s)}
         {@const h = headlines[s.id]}
         {@const jump = h?.jump ?? s.max_jump_range}
-        <button class="card" class:now={s.current} onclick={() => (location.hash = `#/engineering/${s.id}`)}>
-          <span class="name">{s.name ?? "Unnamed"}</span>
+        <!-- The name link covers the card; the system chip sits above it (a button can't hold one). -->
+        <div class="card" class:now={s.current}>
+          <a class="name" href="#/engineering/{s.id}">{s.name ?? "Unnamed"}</a>
           <span class="id lo">{s.ident ?? `#${s.id}`}</span>
           <span class="type lo">{s.type_name}</span>
-          <span class="where" class:accent={s.current}>{where(s)}</span>
+          <span class="where" class:accent={s.current}>
+            {#if s.current}Flying now{:else if s.system}{s.in_transit ? "In transit to " : ""}<SystemChip name={s.system} />{:else}{s.in_transit ? "In transit" : "Stored"}{/if}
+          </span>
           <span class="k">Value</span><span class="q">{cr(s.value)}</span>
           <span class="k">Rebuy</span><span class="q">{cr(s.rebuy)}</span>
           <span class="k">Jump</span><span class="q">{jump ? `${jump.toFixed(1)} ly` : "–"}</span>
@@ -92,7 +90,7 @@
           {:else}
             <span class="q lo">modules unknown</span>
           {/if}
-        </button>
+        </div>
       {:else}
         {#if fleet}<p class="lo">No ships in the journal yet.</p>{/if}
       {/each}
@@ -105,7 +103,7 @@
         {#each fleet.stored_modules as m, i (i)}
           <div>{m.name}</div>
           <div class:lo={!m.blueprint_name}>{m.blueprint_name ? `G${m.grade ?? "?"} ${m.blueprint_name}` : "–"}</div>
-          <div class:lo={!m.system}>{m.system ?? "In transit"}</div>
+          <div class:lo={!m.system}>{#if m.system}<SystemChip name={m.system} />{:else}In transit{/if}</div>
           <div class="r q">{cr(m.value)}</div>
         {/each}
       </div>
@@ -115,18 +113,20 @@
 
 <style>
   section { padding: 8px 0 28px; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0; }
   .lo { color: var(--text-lo); }
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 10px; }
-  .card { display: grid; grid-template-columns: auto 1fr auto; column-gap: 10px; row-gap: 2px; align-content: start; padding: 10px 12px; background: var(--cell-empty); border-left: 2px solid var(--accent-dim); }
+  .card { position: relative; display: grid; grid-template-columns: auto 1fr auto; column-gap: 10px; row-gap: 2px; align-content: start; padding: 10px 12px; background: var(--cell-empty); border-left: 2px solid var(--accent-dim); }
   .card:hover { background: var(--row-hover); border-left-color: var(--accent); }
-  .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card:has(.name:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .name::after { content: ""; position: absolute; inset: 0; }
+  .name:focus-visible { outline: none; }
+  .where :global(.chip) { position: relative; z-index: 1; }
   .card.now { border-left-color: var(--accent); }
-  .name { grid-column: 1 / 3; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .name { grid-column: 1 / 3; color: var(--text-hi); text-decoration: none; font-size: var(--fs-l); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .id { font-family: var(--mono); font-size: var(--fs-s); text-align: right; align-self: center; }
-  .type { grid-column: 1 / 3; font-size: var(--fs-s); }
-  .where { grid-column: 3; font-size: var(--fs-s); text-align: right; color: var(--text); white-space: nowrap; }
+  .type { grid-column: 1; font-size: var(--fs-s); white-space: nowrap; }
+  .where { grid-column: 2 / 4; justify-self: end; font-size: var(--fs-s); text-align: right; color: var(--text); white-space: nowrap; }
   .accent { color: var(--accent); }
   .inc b { color: var(--accent); }
   .k { grid-column: 1 / 3; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
