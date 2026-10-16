@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-10-16T19:42:46.733288565+00:00"
 status: "done"
 title: "Colonisation shopping list"
-updated_at: "2026-10-16T19:42:46.733288565+00:00"
+updated_at: "2026-10-16T19:45:21.216184210+00:00"
 ---
 
 ## Goal
@@ -31,6 +31,10 @@ Remaining commodities minus cargo (and carrier cargo if known), in loads at the 
 ## Done when
 
 For a fixture project, cargo and ship, the remaining list and load count are right.
+
+## Notes
+
+- 2026-10-16 [note] Review fixes: Hold now folds MarketBuy/MarketSell, CollectCargo/EjectCargo (raw JSON; mission cargo skipped) and ColonisationContribution so delivered cargo is not subtracted twice; a Cargo event with a count but no Inventory keeps the previous hold (Count 0 clears it); Cargo items with MissionID are skipped, stolen goods are counted (depot acceptance unverified); table test of commodity_id on real names.
 
 ## Close Reason
 
