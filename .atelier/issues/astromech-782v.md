@@ -4,6 +4,9 @@ id: "astromech-782v"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-782v
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "A journal started in the repeated hour after a DST fall-back is never live"
-updated_at: "2026-10-17T21:31:54.140957030+00:00"
+updated_at: "2026-10-17T22:28:22.495366754+00:00"
 ---
 
 ## Goal

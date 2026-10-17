@@ -200,6 +200,9 @@ struct Tailer {
     noted: std::collections::HashSet<PathBuf>,
     /// Whether a journal's Fileheader time agrees with its name's local time, once it could be read.
     header_agrees: std::collections::HashMap<PathBuf, bool>,
+    /// Whether a Fileheader time (UTC seconds) is a journal name's local time: `(name, header)`.
+    /// The machine's own timezone; tests set another.
+    header_check: Box<dyn Fn(i64, i64) -> bool + Send>,
 }
 
 impl Tailer {
@@ -423,7 +426,7 @@ impl Tailer {
             return *known;
         }
         let Some(header) = first_line_time(path) else { return false };
-        let agrees = header_agrees_with_name(&chrono::Local, stamp, header);
+        let agrees = (self.header_check)(stamp, header);
         self.header_agrees.insert(path.to_path_buf(), agrees);
         agrees
     }
@@ -811,6 +814,7 @@ pub fn start_with_eddn(
         game_sessions: Default::default(),
         noted: Default::default(),
         header_agrees: Default::default(),
+        header_check: Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header)),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
@@ -847,6 +851,7 @@ mod tests {
             game_sessions: Default::default(),
             noted: Default::default(),
             header_agrees: Default::default(),
+            header_check: Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header)),
         };
         (t, hub, logs)
     }
@@ -1842,5 +1847,43 @@ mod tests {
         append(&own, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1, "but what it writes next is live");
+    }
+
+    /// astromech-782v: the game starts twice in the repeated hour after the clocks go back (US,
+    /// 1 Nov 2026). The second journal's name (01:10) sorts before the first's (01:30), but it was
+    /// written later and its header (06:10Z) is its name read as EST: its new lines are live. A
+    /// touched older journal from before the switch (00:30 EDT) stays a replay.
+    #[test]
+    fn a_journal_started_in_the_repeated_hour_after_the_clocks_go_back_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        let older = d.path().join("Journal.2026-11-01T003000.01.log");
+        // Header (UTC) of each: 01:30 EDT, 01:10 EST (the second 01:00-02:00), 00:30 EDT.
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        touch(&first, 5);
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, first);
+
+        // The game restarts after the clocks went back.
+        std::fs::write(&second, "").unwrap();
+        touch(&second, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        append(&second, &format!("{}{}", session("2026-11-01T06:10:00Z", "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "the new session's fresh line is live though its name sorts first");
+
+        // A tool touches the older journal and writes old lines into it: a replay.
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        touch(&older, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, older);
+        append(&older, &docked("2026-11-01T04:40:00Z"));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "nothing live from the older journal");
     }
 }
