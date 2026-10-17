@@ -3,6 +3,9 @@ created_at: "2026-10-16T19:27:17.482285552+00:00"
 id: "astromech-n1ij"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-n1ij
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Search kit follow-ups: shared settings path, safe migrations, origin Enter, live pad, age filter"
-updated_at: "2026-10-16T21:53:36.382767525+00:00"
+updated_at: "2026-10-17T04:50:58.805900418+00:00"
 ---
 
 ## Goal
