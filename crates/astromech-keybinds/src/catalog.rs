@@ -49,6 +49,7 @@ pub struct Catalog {
 }
 
 /// Actions the voice copilot presses (they need a keyboard key: the health rule "No keyboard key").
+/// `astromech-tools` has a test that every action it can press is listed here.
 pub const VOICE_ACTIONS: &[&str] = &[
     "LandingGearToggle",
     "ShipSpotLightToggle",
@@ -61,6 +62,13 @@ pub const VOICE_ACTIONS: &[&str] = &[
     "FocusLeftPanel",
     "FocusRightPanel",
     "SetSpeedZero",
+    "GalaxyMapOpen",
+    "SystemMapOpen",
+    "UI_Back",
+    "FocusCommsPanel",
+    "FocusRadarPanel",
+    "AutoBreakBuggyButton",
+    "ToggleDriveAssist",
 ];
 
 impl Catalog {

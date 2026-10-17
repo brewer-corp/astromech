@@ -228,9 +228,7 @@ fn state_rules_press_nothing() {
 fn no_keyboard_binding_refuses_clearly() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
     let lights = ToolCall::Toggle { toggle: Toggle::Lights, target: Target::On };
-    assert!(
-        matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("I can't switch lights"))
-    );
+    assert!(matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("Cannot switch lights")));
     assert!(r
         .runner
         .binds
@@ -311,7 +309,7 @@ fn night_vision_without_keyboard_key_is_refused_clearly() {
     assert!(matches!(h, Handled::Ran { outcome: Outcome::NoBinding(_), .. }), "{h:?}");
     let said = r.speaker.take();
     assert_eq!(said.len(), 1);
-    assert!(said[0].starts_with("I can't switch night vision:"), "{said:?}");
+    assert!(said[0].starts_with("Cannot switch night vision:"), "{said:?}");
     assert!(said[0].contains("give Night Vision a keyboard key") && !said[0].contains("NightVisionToggle"), "{said:?}");
     assert_eq!(r.game.presses.load(Ordering::SeqCst), 0);
 }
