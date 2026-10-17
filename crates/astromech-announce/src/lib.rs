@@ -14,16 +14,17 @@
 //!   priority than the one that started the cooldown gets through.
 //! - **Quiet during docking and combat** (see [`Quiet`]): speech is dropped unless the callout
 //!   is [`Priority::Urgent`]; toasts and notifications still go.
-//! - **Status.json is deduplicated**: a rewrite with the same contents is not an event.
+//! - **Status.json and NavRoute.json are deduplicated**: a rewrite with the same contents is not
+//!   an event, nor is a cleared route.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`] and [`fuel`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`] and [`route`].
 
 use astromech_gamestate::GameState;
-use astromech_journal::JournalLine;
+use astromech_journal::{JournalLine, NavRouteSnap};
 use astromech_status::{StatusSnap, FLAG_BEING_INTERDICTED, FLAG_IN_DANGER};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -97,6 +98,9 @@ pub enum Input<'a> {
         now: &'a StatusSnap,
         before: Option<&'a StatusSnap>,
     },
+    /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
+    /// empty (a cleared route isn't an event).
+    Route(&'a NavRouteSnap),
 }
 
 /// A reaction rule. Stateless: decide from the event and the state after it.
@@ -106,12 +110,18 @@ pub trait Rule: Send {
     /// Cooldown unless the settings give one.
     fn cooldown(&self) -> Duration;
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
+    /// Several lines for one event (each its own sentence within the word budget). They share
+    /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
+    fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
+        self.react(input, state).into_iter().collect()
+    }
 }
 
 pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod prospector;
+pub mod route;
 pub mod scan;
 
 /// What the core keeps for the rules and may change while they run.
@@ -132,6 +142,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
+        Box::new(route::Route),
     ]
 }
 
@@ -195,6 +206,7 @@ pub struct Engine {
     danger_flags: bool,
     attacked_until: Option<Instant>,
     last_status: Option<StatusSnap>,
+    last_route: Option<NavRouteSnap>,
 }
 
 impl Engine {
@@ -231,6 +243,7 @@ impl Engine {
             danger_flags: false,
             attacked_until: None,
             last_status: None,
+            last_route: None,
         }
     }
 
@@ -283,27 +296,44 @@ impl Engine {
         self.fire(&Input::Status { now: snap, before: before.as_ref() }, state, now, quiet)
     }
 
+    /// `NavRoute.json` was read, already applied to `state`. The same route again, or an empty
+    /// one (cleared), is not an event.
+    pub fn route(&mut self, route: &NavRouteSnap, state: &GameState, now: Instant) -> Vec<Reaction> {
+        if self.last_route.as_ref() == Some(route) {
+            return vec![];
+        }
+        self.last_route = Some(route.clone());
+        if route.hops.is_empty() {
+            return vec![];
+        }
+        let quiet = self.quiet(now);
+        self.fire(&Input::Route(route), state, now, quiet)
+    }
+
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
         if !self.live {
             return vec![];
         }
         let mut out = vec![];
         for s in self.slots.iter_mut().filter(|s| s.enabled) {
-            let Some(c) = s.rule.react(input, state) else { continue };
+            let cs = s.rule.react_all(input, state);
+            let Some(top) = cs.iter().map(|c| c.priority).max() else { continue };
             // A higher priority isn't held back by a cooldown a lower one started (a shown-only
             // crime scan must not swallow the urgent stolen-goods line seconds later).
-            if s.fired.is_some_and(|(t, p)| c.priority <= p && now.saturating_duration_since(t) < s.cooldown) {
+            if s.fired.is_some_and(|(t, p)| top <= p && now.saturating_duration_since(t) < s.cooldown) {
                 continue;
             }
-            let mut channels = c.channels;
-            if quiet.is_some() && c.priority < Priority::Urgent {
-                channels.speech = false;
+            for c in cs {
+                let mut channels = c.channels;
+                if quiet.is_some() && c.priority < Priority::Urgent {
+                    channels.speech = false;
+                }
+                if channels.is_empty() {
+                    continue;
+                }
+                s.fired = Some((now, top));
+                out.push(Reaction { rule: s.rule.id(), text: c.text, priority: c.priority, channels, at: now });
             }
-            if channels.is_empty() {
-                continue;
-            }
-            s.fired = Some((now, c.priority));
-            out.push(Reaction { rule: s.rule.id(), text: c.text, priority: c.priority, channels, at: now });
         }
         out
     }

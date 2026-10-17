@@ -18,8 +18,8 @@
 //!   game appends and a journal it starts later. Status.json reads are live once the startup
 //!   catch-up (the replay, then the first Status.json read) is done.
 //! - Callouts: every journal line and Status.json read also goes to the reaction engine
-//!   ([`crate::callouts`]) after the game state has it; only live ones may fire, and reactions
-//!   are delivered with no lock held.
+//!   ([`crate::callouts`]) after the game state has it, and so does every `NavRoute.json` read
+//!   (a plotted route); only live ones may fire, and reactions are delivered with no lock held.
 //! - EDDN (when switched on): every journal line goes to the [`astromech_eddn::Feed`] in order,
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
@@ -339,6 +339,14 @@ impl Tailer {
         if let Ok(b) = std::fs::read(self.dir.join("NavRoute.json")) {
             if let Some(r) = astromech_journal::parse_nav_route(&b) {
                 self.hub.update(|g| g.apply_route(&r));
+                // A new route is an event for the callouts (the engine ignores the same one again).
+                if let Some(c) = &mut self.callouts {
+                    c.engine.set_live(self.caught_up);
+                    let fired = self.hub.read(|g| c.engine.route(&r, g, Instant::now()));
+                    if !fired.is_empty() {
+                        (c.deliver)(fired);
+                    }
+                }
             }
         }
     }
@@ -622,6 +630,40 @@ mod tests {
         assert_eq!(got.len(), 3, "{got:?}");
         let u = unlocked.lock().unwrap();
         assert!(!u.is_empty() && u.iter().all(|ok| *ok), "{u:?}");
+    }
+
+    #[test]
+    fn a_plotted_route_reaches_the_callouts_once_and_not_from_the_startup_read() {
+        let d = tempfile::tempdir().unwrap();
+        let route = |hops: &[&str]| {
+            let h: Vec<String> = hops
+                .iter()
+                .enumerate()
+                .map(|(i, c)| format!(r#"{{"StarSystem":"S{i}","StarPos":[{}.0,0,0],"StarClass":"{c}"}}"#, i * 10))
+                .collect();
+            format!(r#"{{"timestamp":"t","event":"NavRoute","Route":[{}]}}"#, h.join(","))
+        };
+        std::fs::write(d.path().join("NavRoute.json"), route(&["K", "M"])).unwrap();
+        std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(
+                vec![Box::new(astromech_announce::route::Route)],
+                &Default::default(),
+            ),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert_eq!(hub.snapshot().route_hops.len(), 2);
+        // Every Status.json read reads NavRoute.json again: the startup route is not news.
+        t.on_status();
+        assert!(fired.lock().unwrap().is_empty(), "{:?}", fired.lock().unwrap());
+        std::fs::write(d.path().join("NavRoute.json"), route(&["K", "DA", "M"])).unwrap();
+        t.on_status();
+        t.on_status();
+        assert_eq!(*fired.lock().unwrap(), ["Route: 2 jumps, 20 ly.", "White dwarf at jump 1."]);
     }
 
     const MARKET_EVENT: &str =

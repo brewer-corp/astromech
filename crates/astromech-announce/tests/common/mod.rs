@@ -40,6 +40,15 @@ impl Run {
         self.state.apply_route(&parse_nav_route(json.as_bytes()).unwrap());
     }
 
+    /// The game wrote a new `NavRoute.json`: into the state, then to the engine. Spoken lines.
+    pub fn plot(&mut self, json: &str) -> Vec<String> {
+        let snap = parse_nav_route(json.as_bytes()).unwrap();
+        self.state.apply_route(&snap);
+        self.n += 1;
+        let out = self.engine.route(&snap, &self.state, self.t0 + Duration::from_secs(self.n));
+        out.into_iter().filter(|r| r.channels.speech).map(|r| r.text).collect()
+    }
+
     /// Spoken lines for one or more journal lines (one per text line).
     pub fn spoken(&mut self, lines: &str) -> Vec<String> {
         let mut out = vec![];

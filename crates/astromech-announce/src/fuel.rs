@@ -16,7 +16,7 @@
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
-use astromech_journal::JournalEvent;
+use astromech_journal::{JournalEvent, RouteHop};
 use std::time::Duration;
 
 /// Whether a `StarClass` (as `NavRoute.json` writes it) can be fuel-scooped.
@@ -37,8 +37,16 @@ fn power(size: Option<u8>) -> f64 {
     }
 }
 
-fn dist(a: [f64; 3], b: [f64; 3]) -> f64 {
-    ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt()
+/// Light years between two route hops (None without both positions).
+pub fn hop_ly(a: &RouteHop, b: &RouteHop) -> Option<f64> {
+    let (a, b) = (a.star_pos?, b.star_pos?);
+    Some(((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2) + (a[2] - b[2]).powi(2)).sqrt())
+}
+
+/// Estimated tonnes for the jump from `a` to `b`, from the last jump (None before any jump).
+pub fn hop_fuel(state: &GameState, a: &RouteHop, b: &RouteHop) -> Option<f64> {
+    let (d0, f0) = state.last_jump?;
+    Some(f0 * (hop_ly(a, b)? / d0).powf(power(state.fsd_size)))
 }
 
 /// What lies ahead on the route from the current system.
@@ -62,10 +70,7 @@ pub fn ahead(state: &GameState) -> Option<Ahead> {
     }
     let jumps = hops[i + 1..].iter().position(|h| h.star_class.as_deref().is_some_and(scoopable)).map(|k| k + 1);
     let end = jumps.map_or(hops.len() - 1, |k| i + k);
-    let fuel_needed = state.last_jump.and_then(|(d0, f0)| {
-        let p = power(state.fsd_size);
-        hops[i..=end].windows(2).map(|w| Some(f0 * (dist(w[0].star_pos?, w[1].star_pos?) / d0).powf(p))).sum()
-    });
+    let fuel_needed = hops[i..=end].windows(2).map(|w| hop_fuel(state, &w[0], &w[1])).sum();
     Some(Ahead { here_scoopable: hops[i].star_class.as_deref().map(scoopable), jumps, fuel_needed })
 }
 

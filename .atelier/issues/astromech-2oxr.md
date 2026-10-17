@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Route hazards from NavRoute"
-updated_at: "2026-10-15T20:36:13.654316291+00:00"
+updated_at: "2026-10-17T01:54:04.582790780+00:00"
 ---
 
 ## Goal

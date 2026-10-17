@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, prospector, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, prospector, route, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "prospector", "scan", "scoopable"],
+        ["arrival", "docking", "fuel_range", "prospector", "route", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -56,6 +56,23 @@ fn callout_lines() -> Vec<String> {
             let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0) };
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
         }
+    }
+    for first in [false, true] {
+        for to_end in [false, true] {
+            v.push(route::gap_line(250, first, to_end));
+        }
+    }
+    let hop = |c: &str, x: f64| astromech_journal::RouteHop {
+        system: "Synuefe BY-F d12-39".into(),
+        star_class: Some(c.into()),
+        star_pos: Some([x, 0.0, 0.0]),
+    };
+    let long: Vec<_> = (0..300).map(|i| hop(if i % 2 == 0 { "N" } else { "DA" }, i as f64 * 61.7)).collect();
+    v.push(route::summary_line(&long));
+    v.push(route::summary_line(&[hop("K", 0.0), astromech_journal::RouteHop { star_pos: None, ..hop("K", 1.0) }]));
+    for hops in [&long[..], &long[..3]] {
+        v.extend(route::stars_line(hops, route::white_dwarf, "White dwarf", "white dwarfs"));
+        v.extend(route::stars_line(hops, route::neutron, "Neutron star", "neutron stars"));
     }
     for reason in [
         "NoSpace",
@@ -226,6 +243,8 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Pad at eleven, middle."));
     assert!(callouts.iter().any(|l| l == "Scoop here. Next scoopable star out of reach."));
     assert!(callouts.iter().any(|l| l == "Next scoopable star in 99 jumps."));
+    assert!(callouts.iter().any(|l| l == "150 white dwarfs, first at jump 1."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Fuel gap: 250 jumps between scoopable stars."));
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
