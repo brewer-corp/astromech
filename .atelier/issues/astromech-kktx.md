@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:02:43.435902660+00:00"
 id: "astromech-kktx"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-kktx
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Remote cache: replacing the v0.1.5 table can race between core and app window"
-updated_at: "2026-10-17T06:02:43.435902660+00:00"
+updated_at: "2026-10-17T06:13:23.178305804+00:00"
 ---
 
 ## Goal
