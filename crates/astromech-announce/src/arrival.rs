@@ -10,7 +10,8 @@
 //!   list it gives. In a system of over a billion people, a Federation or Empire faction's High
 //!   Grade Emissions pool counts too: "Good for Imperial Shielding."
 //! - **What the system means for the pledged power**: "Undermining target." or "Acquisition
-//!   target." Reinforcing a system of one's own power is the normal case and stays quiet.
+//!   target." Reinforcing a system of one's own power is the normal case and stays quiet. Left out when the
+//!   `powerplay_arrival` callout is on, which says it with the rest of the system's state.
 //! - **Undiscovered**: the arrival star's automatic scan (`Scan`, `AutoScan`, 0 ls) with
 //!   `WasDiscovered` false gives "Undiscovered system." as its own line just after the jump.
 //!
@@ -27,6 +28,7 @@ use astromech_journal::{ExtraEvent, FactionSnap, JournalEvent};
 use astromech_materials::hge;
 use astromech_powerplay::{SystemPower, Work};
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
@@ -101,6 +103,8 @@ impl std::fmt::Debug for SharedVisits {
 pub struct Arrival {
     pub shopping: SharedShoppingList,
     pub visits: SharedVisits,
+    /// `powerplay_arrival` is on and says the Powerplay line itself.
+    pub powerplay_spoken: crate::powerplay_arrival::SharedFlag,
 }
 
 /// "Visited 2 times. Last here 3 days ago." for an arrival at `now` after `past`. The gap is
@@ -218,8 +222,8 @@ impl Rule for Arrival {
         let text = match &l.event {
             JournalEvent::FsdJump { factions, population, system_address, from_carrier, .. } => {
                 let wanted = self.shopping.read().unwrap().needed(state);
-                let briefing =
-                    line(factions, *population, &wanted, state.system_power.as_ref(), state.powerplay.power.as_deref());
+                let system = state.system_power.as_ref().filter(|_| !self.powerplay_spoken.load(Ordering::Relaxed));
+                let briefing = line(factions, *population, &wanted, system, state.powerplay.power.as_deref());
                 let been = (|| {
                     // Home again by carrier is not news.
                     if *from_carrier {
