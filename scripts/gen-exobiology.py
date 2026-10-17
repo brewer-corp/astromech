@@ -34,8 +34,11 @@ Sources (see NOTICE.md):
   system with a sighting (cached in the cache directory) and reads the nearest star from the
   body's name, as the game names bodies: the longest star name the body's name starts with
   ("Sys A 4 a": star A; "Sys 4 d": the brown dwarf "Sys 4" it orbits); "Sys 4 a" in a system
-  with one star (or a star named as the system) is that star's; "Sys AB 1" orbits a pair of stars
-  and, like the journal's `Parents` with no star before the barycentre, has none.
+  with one star (or a star named as the system) is that star's, and "Sys A 4" with no star
+  "Sys A" orbits the star named as the system (the primary, where the other stars have catalogue
+  names: "Eme" and "Gliese 425 B"); "Sys AB 1" orbits a pair of stars and, like the journal's
+  `Parents` with no star before the barycentre, has none. A body the name gives no star keeps its
+  immediate parent's, if a star ("LFT 1504 B 3" in a system of "LFT 1504" and "Gl 773 B").
 """
 import hashlib, json, os, re, sys, time, urllib.parse, urllib.request
 
@@ -268,10 +271,14 @@ def system_stars(cache, systems):
 
 def star_by_name(o, systems):
     """The class of the body's nearest star, from its name and its system's stars (see the module
-    doc). A body not named after its system keeps its immediate parent's class, if a star."""
+    doc). When the name gives none, the body's immediate parent's class, if a star."""
+    return star_from_name(o, systems) or o["star"]
+
+
+def star_from_name(o, systems):
     name, stars = systems.get(o["id64"] & SYSTEM_MASK, (None, {}))
     if not name or not o["name"].startswith(name + " "):
-        return o["star"]
+        return None
     rest = o["name"][len(name) + 1:].split()
     # The longest star name it starts with: "Sys 4 d" is a moon of the brown dwarf "Sys 4".
     for k in range(len(rest) - 1, 0, -1):
@@ -280,9 +287,11 @@ def star_by_name(o, systems):
     first = rest[0]
     if first.isdigit():
         return stars.get(name) or (next(iter(stars.values())) if len(stars) == 1 else None)
-    if first.isalpha() and first.isupper():
-        return stars.get(f"{name} {first}") if len(first) == 1 else None
-    return o["star"]
+    if first.isalpha() and first.isupper() and len(first) == 1:
+        # The primary, A, may carry the system's own name where the others have catalogue
+        # names ("Eme A 1 a" in a system of the stars "Eme" and "Gliese 425 B").
+        return stars.get(f"{name} {first}") or (stars.get(name) if first == "A" else None)
+    return None
 
 
 def nearest_star(b):
