@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Exobiology sampling helper"
-updated_at: "2026-10-15T20:36:13.665067115+00:00"
+updated_at: "2026-10-17T04:39:43.383299231+00:00"
 ---
 
 ## Goal

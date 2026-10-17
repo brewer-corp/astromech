@@ -5,6 +5,7 @@
 
 use astromech_announce::*;
 use astromech_gamestate::GameState;
+use astromech_journal::companion::{parse_fresh, CompanionKind};
 use astromech_journal::{parse_line, parse_nav_route};
 use std::time::{Duration, Instant};
 
@@ -46,6 +47,18 @@ impl Run {
         self.state.apply_route(&snap);
         self.n += 1;
         let out = self.engine.route(&snap, &self.state, self.t0 + Duration::from_secs(self.n));
+        out.into_iter().filter(|r| r.channels.speech).map(|r| r.text).collect()
+    }
+
+    /// The game wrote `Market.json` after a `Market` event stamped `event_ts`: read the way the
+    /// pipeline does (a file older than its event is not used), into the state, then to the
+    /// engine. Spoken lines.
+    pub fn market(&mut self, json: &str, event_ts: &str) -> Vec<String> {
+        let Ok(file) = parse_fresh(CompanionKind::Market, Some(json.as_bytes()), event_ts) else { return vec![] };
+        self.state.apply_companion(file);
+        self.n += 1;
+        let m = self.state.companions.market.clone().unwrap();
+        let out = self.engine.market(&m, &self.state, self.t0 + Duration::from_secs(self.n));
         out.into_iter().filter(|r| r.channels.speech).map(|r| r.text).collect()
     }
 

@@ -67,7 +67,7 @@ fn a_motherlode_always_gets_a_line() {
     let mut r = Run::new();
     assert_eq!(r.feed(&prospected("20:00:00", &[("Bauxite", 12.0)], Some("Opal"))), ["Motherlode. Void Opals."]);
     // Even with every surface ore turned off, and with a surface ore that is above threshold.
-    for o in astromech_announce::prospector::ORES {
+    for o in astromech_announce::prospector::ORES.iter() {
         r.thresholds.write().unwrap().set(o.symbol, None).unwrap();
     }
     assert_eq!(

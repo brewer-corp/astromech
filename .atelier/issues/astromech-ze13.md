@@ -4,6 +4,9 @@ id: "astromech-ze13"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ze13
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T02:53:22.509487586+00:00"
+status: "done"
 title: "Material cap alerts and trade-down suggestions"
-updated_at: "2026-10-15T20:36:13.650802920+00:00"
+updated_at: "2026-10-17T02:53:22.509487586+00:00"
 ---
 
 ## Goal
@@ -31,3 +35,7 @@ Replaying a fixture that fills a material raises one alert; docking at a trader 
 ## Context
 
 A reaction rule over the materials ledger.
+
+## Close Reason
+
+Rule materials_cap: cap alert once per fill, trader suggestion on Docked; replay tests pass and fail under mutation

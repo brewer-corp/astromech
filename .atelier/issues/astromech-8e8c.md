@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Bio signals and species prediction"
-updated_at: "2026-10-15T20:36:13.664928437+00:00"
+updated_at: "2026-10-17T04:39:43.301167293+00:00"
 ---
 
 ## Goal

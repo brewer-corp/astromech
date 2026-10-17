@@ -1,0 +1,200 @@
+{
+ "count": 10000,
+ "from": 0,
+ "results": [
+  {
+   "id64": 468392624387073449,
+   "name": "Barnard's Star 5",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "Barnard's Star",
+   "system_id64": 18263140541865,
+   "system_x": -3.03125,
+   "system_y": 1.375,
+   "system_z": 4.9375,
+   "distance": 5.95466269510709,
+   "distance_to_arrival": 3272.39552,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Barnard's Star 5 A Ring",
+     "signals": [
+      {
+       "count": 2,
+       "name": "Painite"
+      },
+      {
+       "count": 1,
+       "name": "Platinum"
+      }
+     ],
+     "signals_updated_at": "2026-10-07T21:22:54Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "Barnard's Star 5 B Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Bromellite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 1,
+       "name": "Tritium"
+      }
+     ],
+     "signals_updated_at": "2026-10-11T15:00:22Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T16:36:08Z"
+  },
+  {
+   "id64": 936766985633605033,
+   "name": "Barnard's Star 6",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "Barnard's Star",
+   "system_id64": 18263140541865,
+   "system_x": -3.03125,
+   "system_y": 1.375,
+   "system_z": 4.9375,
+   "distance": 5.95466269510709,
+   "distance_to_arrival": 4912.895363,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Barnard's Star 6 A Ring",
+     "type": "Rocky"
+    },
+    {
+     "name": "Barnard's Star 6 B Ring",
+     "signals": [
+      {
+       "count": 3,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 2,
+       "name": "Void Opal"
+      },
+      {
+       "count": 3,
+       "name": "Tritium"
+      }
+     ],
+     "signals_updated_at": "2026-08-22T21:48:45Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T20:34:30Z"
+  },
+  {
+   "id64": 1152979649337510736,
+   "name": "WISE 0855-0714 7",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "WISE 0855-0714",
+   "system_id64": 58144730663760,
+   "system_x": 6.53125,
+   "system_y": -2.15625,
+   "system_z": 2.03125,
+   "distance": 7.17165372752338,
+   "distance_to_arrival": 1231.82213,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "WISE 0855-0714 7 A Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      }
+     ],
+     "signals_updated_at": "2026-10-06T05:09:01Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-15T22:02:36Z"
+  },
+  {
+   "id64": 396374911939267408,
+   "name": "WISE 0855-0714 5",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "WISE 0855-0714",
+   "system_id64": 58144730663760,
+   "system_x": 6.53125,
+   "system_y": -2.15625,
+   "system_z": 2.03125,
+   "distance": 7.17165372752338,
+   "distance_to_arrival": 536.523533,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "WISE 0855-0714 5 A Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Monazite"
+      },
+      {
+       "count": 1,
+       "name": "Painite"
+      },
+      {
+       "count": 3,
+       "name": "Rhodplumsite"
+      }
+     ],
+     "signals_updated_at": "2026-09-13T13:22:10Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "WISE 0855-0714 5 B Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 2,
+       "name": "Bromellite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 1,
+       "name": "Void Opal"
+      }
+     ],
+     "signals_updated_at": "2026-10-06T04:45:25Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-15T22:03:31Z"
+  }
+ ]
+}
