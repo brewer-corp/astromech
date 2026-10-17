@@ -4,6 +4,9 @@ id: "astromech-w62j"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-w62j
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "What earns merits here"
-updated_at: "2026-10-15T20:36:13.656019516+00:00"
+updated_at: "2026-10-17T00:43:18.120667778+00:00"
 ---
 
 ## Goal
