@@ -3,6 +3,9 @@ created_at: "2026-10-16T21:04:20.112097882+00:00"
 id: "astromech-proz"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-proz
 priority: "P2"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Trade lookups: share the market cache between voice and app; partial buyer fallback per commodity"
-updated_at: "2026-10-16T21:08:27.696089910+00:00"
+updated_at: "2026-10-17T05:00:29.255653733+00:00"
 ---
 
 ## Goal
