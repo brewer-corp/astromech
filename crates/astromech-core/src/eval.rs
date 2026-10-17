@@ -108,8 +108,8 @@ pub fn load_dir(dir: &Path) -> Result<Vec<Clip>> {
             .or_else(|| field("command"))
             .unwrap_or_else(|| "nomatch".into());
         let condition = field("condition");
-        // A Debug clip with no transcript caught nothing (the gate never opened); a synthetic
-        // clip (it has a condition) with none is a recognition failure and must count.
+        // A Debug clip with no transcript is a voice-tester capture that heard nothing; a
+        // synthetic clip (it has a condition) with none is a recognition failure and must count.
         if transcript.is_empty() && condition.is_none() {
             continue;
         }
