@@ -264,7 +264,8 @@ astromech/
                          docked market against nearby prices (`here`: each carried commodity's price here
                          and at the best station nearby with demand for all of it, and what the goods for
                          sale here sell for nearby; at most 12 lookups per dock, the hold first, then the
-                         goods furthest below their average price; shown on the Station page), and
+                         goods furthest below their average price; shown on the Station page with the age of
+                         `Market.json`), and
                          trade routes (single hop from Spansh's trade router; a loop adds the best cargo
                          back from Ardent markets; profit per hour is an estimate, Spansh gives none)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron and trade route jobs),

@@ -4,8 +4,9 @@
 //!
 //! Both questions are the sell lookup ([`crate::prices`]): one Ardent request per commodity,
 //! cached 15 minutes. A market lists dozens of goods, so only [`MAX_LOOKUPS`] are asked about per
-//! dock: everything carried first, then the goods for sale here priced furthest below their
-//! galactic average (the market's own `MeanPrice`), the usual first guess at a good buy. Ardent
+//! dock: what is carried first (the most tonnes first; past the cap a line says it wasn't looked
+//! up), then the goods for sale here priced furthest below their galactic average (the market's
+//! own `MeanPrice`), the usual first guess at a good buy. Ardent
 //! leaves the searched system's own markets out of a nearby answer (observed 16 Oct 2026), so
 //! "nearby" means other systems.
 
@@ -37,16 +38,41 @@ fn for_sale(i: &MarketItem) -> bool {
     i.buy_price > 0 && i.stock > 0 && traded(&symbol(&i.name))
 }
 
-/// What to look up for this market: the load (everything carried that can be sold, most tonnes
-/// first), the goods for sale here worth checking (furthest below their average price first,
-/// filling what the load leaves of `max`), and the goods for sale left unchecked.
-pub fn plan(market: &MarketSnap, load: &[Load], max: usize) -> (Vec<String>, Vec<String>) {
+/// The commodities looked up for one market, at most `max` in all.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Lookups {
+    /// Carried commodities looked up: the first `max` of the load (most tonnes first).
+    pub carried: Vec<String>,
+    /// Goods for sale here looked up, furthest below their average price first, filling what
+    /// the load leaves of `max`.
+    pub for_sale: Vec<String>,
+    /// Goods for sale here not looked up.
+    pub unchecked: Vec<String>,
+}
+
+impl Lookups {
+    /// Every symbol to ask about, carried first, each once.
+    pub fn symbols(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = self.carried.iter().map(String::as_str).collect();
+        for s in &self.for_sale {
+            if !out.contains(&s.as_str()) {
+                out.push(s);
+            }
+        }
+        out
+    }
+}
+
+/// What to look up for this market and the `load` (everything carried that can be sold, most
+/// tonnes first): the load first, then the goods for sale here, never more than `max`.
+pub fn plan(market: &MarketSnap, load: &[Load], max: usize) -> Lookups {
+    let carried: Vec<String> = load.iter().take(max).map(|l| l.symbol.clone()).collect();
     let mut goods: Vec<&MarketItem> = market.items.iter().filter(|i| for_sale(i)).collect();
     goods.sort_by_key(|i| (i.buy_price - i.mean_price, symbol(&i.name)));
-    let room = max.saturating_sub(load.len());
-    let symbols: Vec<String> = goods.iter().map(|i| symbol(&i.name)).collect();
-    let (checked, unchecked) = symbols.split_at(room.min(symbols.len()));
-    (checked.to_vec(), unchecked.to_vec())
+    let room = max - carried.len();
+    let mut symbols: Vec<String> = goods.iter().map(|i| symbol(&i.name)).collect();
+    let unchecked = symbols.split_off(room.min(symbols.len()));
+    Lookups { carried, for_sale: symbols, unchecked }
 }
 
 /// One commodity here against the best nearby price.
@@ -56,6 +82,8 @@ pub struct Line {
     pub name: String,
     /// Tonnes carried that can be sold (0 for a line of goods for sale here).
     pub carried: i64,
+    /// Whether nearby prices were asked for: carried commodities past [`MAX_LOOKUPS`] aren't.
+    pub checked: bool,
     /// What this station pays per tonne; `None`: it doesn't buy it.
     pub sell_here: Option<i64>,
     /// What this station asks per tonne; `None`: not for sale here.
@@ -104,7 +132,7 @@ pub fn compare(
     now_s: i64,
 ) -> Comparison {
     let (load, kept) = sellable(inventory);
-    let (checked, unchecked) = plan(market, &load, max);
+    let lookups = plan(market, &load, max);
     let item = |s: &str| market.items.iter().find(|i| symbol(&i.name) == s);
     let offers = |s: &str| nearby.iter().find(|p| p.commodity == s).map(|p| p.offers.clone()).unwrap_or_default();
 
@@ -113,6 +141,7 @@ pub fn compare(
         .map(|l| {
             let here = item(&l.symbol);
             let sell_here = here.filter(|i| i.sell_price > 0).map(|i| i.sell_price);
+            let checked = lookups.carried.contains(&l.symbol);
             let best = rank_offers(Side::Sell, offers(&l.symbol), &single_filters(filters, l.tonnes), now_s)
                 .into_iter()
                 .next();
@@ -120,6 +149,7 @@ pub fn compare(
                 commodity: l.symbol.clone(),
                 name: l.name.clone(),
                 carried: l.tonnes,
+                checked,
                 sell_here,
                 buy_here: here.filter(|i| for_sale(i)).map(|i| i.buy_price),
                 stock: here.map_or(0, |i| i.stock),
@@ -129,7 +159,8 @@ pub fn compare(
         })
         .collect();
 
-    let mut for_sale: Vec<Line> = checked
+    let mut for_sale: Vec<Line> = lookups
+        .for_sale
         .iter()
         .filter_map(|s| {
             let here = item(s)?;
@@ -138,6 +169,7 @@ pub fn compare(
                 commodity: s.clone(),
                 name: name_of(Some(here), s),
                 carried: 0,
+                checked: true,
                 sell_here: (here.sell_price > 0).then_some(here.sell_price),
                 buy_here: Some(here.buy_price),
                 stock: here.stock,
@@ -155,7 +187,7 @@ pub fn compare(
         seen: market.timestamp.clone(),
         carried,
         for_sale,
-        unchecked: unchecked.iter().map(|s| name_of(item(s), s)).collect(),
+        unchecked: lookups.unchecked.iter().map(|s| name_of(item(s), s)).collect(),
         kept,
         fetched_at: nearby.iter().map(|p| p.fetched_at).min().unwrap_or(0),
     }
@@ -173,13 +205,8 @@ pub fn compare_here(
     now_s: i64,
 ) -> Result<Comparison, Error> {
     let (load, _) = sellable(inventory);
-    let (checked, _) = plan(market, &load, MAX_LOOKUPS);
-    let mut symbols: Vec<&str> = load.iter().map(|l| l.symbol.as_str()).collect();
-    for s in &checked {
-        if !symbols.contains(&s.as_str()) {
-            symbols.push(s);
-        }
-    }
+    let lookups = plan(market, &load, MAX_LOOKUPS);
+    let symbols = lookups.symbols();
     // The carried need demand for all of it, checked in `compare`; ask without that limit so one
     // answer serves both lists.
     let ask = Filters { min_volume: None, ..filters.clone() };

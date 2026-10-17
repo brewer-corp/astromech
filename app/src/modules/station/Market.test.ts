@@ -26,6 +26,22 @@ describe("Market against nearby prices", () => {
     expect(sale[1]).toContain("46,100 | 49,421 | +3,321/t | Arc City");
   });
 
+  it("says how old the market's prices are", async () => {
+    render(Market, { marketId: 128000001 });
+    const seen = await screen.findByText(/^Market as of /);
+    expect(seen.textContent).toMatch(/^Market as of 2026-10-16 20:30 UTC \((\d+ (min|h|d) ago|just now)\)/);
+  });
+
+  it("says which carried goods weren't looked up", async () => {
+    const r = await trade.compareMarket();
+    const extra = { ...r!.carried[1]!, commodity: "gold2", name: "Extra", checked: false, best: null, gain: null };
+    const spy = vi.spyOn(trade, "compareMarket").mockResolvedValue({ ...r!, carried: [...r!.carried, extra] });
+    render(Market, { marketId: 1 });
+    await screen.findByRole("table", { name: "Your cargo" });
+    expect(rows("Your cargo")[2]).toMatch(/^10 t Extra .*Not looked up/);
+    spy.mockRestore();
+  });
+
   it("asks again on a new dock or when told to, not on every refresh of the same one", async () => {
     const spy = vi.spyOn(trade, "compareMarket");
     const { rerender } = render(Market, { marketId: 1 });

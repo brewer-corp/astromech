@@ -250,6 +250,8 @@ export interface MarketLine {
   name: string;
   /** Tonnes carried that can be sold (0 for goods for sale here). */
   carried: number;
+  /** Whether nearby prices were asked for (carried goods past the dozen per dock aren't). */
+  checked: boolean;
   /** What this station pays; null: it doesn't buy it. */
   sell_here: number | null;
   /** What this station asks; null: not for sale here. */

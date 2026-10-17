@@ -5,7 +5,7 @@
 
 use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::Filters;
-use astromech_market::here::{compare_here, parse_market, plan, symbol, Comparison, Line};
+use astromech_market::here::{compare_here, parse_market, plan, symbol, Comparison, Line, MAX_LOOKUPS};
 use astromech_market::Origin;
 use std::sync::{Arc, Mutex};
 
@@ -102,6 +102,7 @@ fn the_hold_and_the_goods_for_sale_against_the_best_nearby_prices() {
     assert_eq!(gold.best.as_ref().unwrap().system, "Crucis Sector AL-X b1-5");
     assert!((gold.best.as_ref().unwrap().hop.ly - 15.41).abs() < 0.01, "measured from the docked system");
     assert_eq!(r.carried[1].sell_here, None);
+    assert!(r.carried.iter().chain(&r.for_sale).all(|l| l.checked));
 
     // For sale here, the biggest gain first: tritium bought at 50,500 sells to a carrier 14 ly
     // away for 103,006; silver at 46,100 sells at Arc City for 49,421; hydrogen fuel at 107 to
@@ -156,15 +157,55 @@ fn lookups_are_capped_carried_first_then_the_goods_furthest_below_average() {
     let m = market();
     let (load, _) = astromech_market::cargo::sellable(&hold());
     // Silver is 1,900 below its average, tritium 500, hydrogen fuel 3.
-    let (checked, unchecked) = plan(&m, &load, 3);
-    assert_eq!(checked, vec!["silver"]);
-    assert_eq!(unchecked, vec!["tritium", "hydrogenfuel"]);
-    let (checked, unchecked) = plan(&m, &load, 2);
-    assert!(checked.is_empty() && unchecked.len() == 3, "the hold always comes first");
+    let l = plan(&m, &load, 3);
+    assert_eq!((l.carried, l.for_sale), (vec!["gold".to_string(), "palladium".into()], vec!["silver".to_string()]));
+    assert_eq!(l.unchecked, vec!["tritium", "hydrogenfuel"]);
+    let l = plan(&m, &load, 2);
+    assert!(l.for_sale.is_empty() && l.unchecked.len() == 3, "the hold always comes first");
+    let l = plan(&m, &load, 1);
+    assert_eq!(l.carried, vec!["gold"], "the most tonnes first, and never more than the cap");
 
     let r = astromech_market::here::compare(&m, &hold(), &[], &Filters::default(), 3, now());
     assert_eq!(r.unchecked, vec!["Tritium", "Hydrogen Fuel"]);
     assert_eq!(r.for_sale.len(), 1);
+}
+
+/// Answers every nearby search with no markets; counts requests.
+#[derive(Default)]
+struct Empty {
+    asked: Mutex<Vec<String>>,
+}
+
+impl Transport for Empty {
+    fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
+        self.asked.lock().unwrap().push(url.to_string());
+        Ok(Response { status: 200, body: "[]".into() })
+    }
+}
+
+#[test]
+fn a_hold_of_more_kinds_than_the_cap_asks_no_more_than_the_cap() {
+    let rec = Arc::new(Empty::default());
+    let c = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+    let hold: Vec<astromech_journal::CargoItem> = (0..14)
+        .map(|i| astromech_journal::CargoItem {
+            symbol: format!("good{i:02}"),
+            name: format!("Good {i:02}"),
+            count: 200 - i,
+            stolen: 0,
+            mission: false,
+        })
+        .collect();
+    let r = compare_here(&c, &lhs2435(), &market(), &hold, &Filters::default(), 20.0, now()).unwrap();
+    let asked = rec.asked.lock().unwrap().clone();
+    assert_eq!(asked.len(), MAX_LOOKUPS, "{asked:?}");
+    // The 12 biggest loads were looked up; the other two say so, and no goods for sale were.
+    assert_eq!(r.carried.len(), 14);
+    let unlooked: Vec<&str> = r.carried.iter().filter(|l| !l.checked).map(|l| l.commodity.as_str()).collect();
+    assert_eq!(unlooked, vec!["good12", "good13"]);
+    assert!(asked.iter().all(|u| !u.contains("good12") && !u.contains("good13")));
+    assert!(r.for_sale.is_empty());
+    assert_eq!(r.unchecked, vec!["Silver", "Tritium", "Hydrogen Fuel"]);
 }
 
 #[test]

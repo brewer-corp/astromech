@@ -3,6 +3,7 @@
   // at the best station nearby, and what the goods for sale here sell for nearby. Asked once per
   // dock (Ardent Insight, a request per commodity, at most a dozen); "Check again" asks anew.
   import { ago, jumps } from "../../lib/galaxy";
+  import { when } from "../../lib/logbook";
   import { compareMarket, credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, gainText, type MarketCompare, type MarketLine } from "../../lib/trade";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { untrack } from "svelte";
@@ -55,6 +56,9 @@
 {:else if busy && !res}
   <p class="lo">Asking Ardent Insight…</p>
 {:else if res}
+  <p class="lo seen">
+    Market as of {when(res.seen)} UTC ({ago(res.seen)}), the last time its commodity market was opened. Open it again to refresh.
+  </p>
   {#if res.carried.length}
     <table aria-label="Your cargo">
       <thead><tr><th>Your cargo</th><th class="num">Here</th><th class="num">Best nearby</th><th class="num">Difference</th><th>Where</th></tr></thead>
@@ -66,7 +70,7 @@
             <td class="num">{l.best ? credits(l.best.price) : "–"}</td>
             <td class="num" class:up={(l.gain ?? 0) > 0}>{l.gain === null ? "" : `${gainText(l.gain)}/t`}</td>
             <td>
-              {#if l.best}<span>{l.best.station} <SystemChip name={l.best.system} /></span> <span class="lo">{where(l)}</span>{:else}<span class="lo">No station nearby takes all of it.</span>{/if}
+              {#if l.best}<span>{l.best.station} <SystemChip name={l.best.system} /></span> <span class="lo">{where(l)}</span>{:else if !l.checked}<span class="lo">Not looked up (a dozen per dock, the biggest loads first).</span>{:else}<span class="lo">No station nearby takes all of it.</span>{/if}
             </td>
           </tr>
         {/each}
@@ -111,6 +115,7 @@
   .head { display: flex; align-items: baseline; gap: 18px; max-width: 60rem; }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 8px 0; flex: 1; }
   .err { color: var(--accent); }
+  .seen { font-size: var(--fs-s); margin: 0 0 4px; }
   .lo { color: var(--text-lo); }
   .name { color: var(--text-hi); white-space: nowrap; }
   .up { color: var(--accent); }
