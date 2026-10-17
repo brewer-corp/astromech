@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Click Coriolis and EDSY links in the Windows app"
-updated_at: "2026-10-17T04:56:08.359110790+00:00"
+updated_at: "2026-10-16T19:13:12.726110806+00:00"
 ---
 
 ## Goal
@@ -28,7 +28,3 @@ Confirm the Coriolis and EDSY links built from the current loadout survive the W
 ## Done when
 
 In the Windows app, one Coriolis and one EDSY link from the Builds page open the right build in the default browser; the long URL, including the EDSY # fragment, arrives intact (evidence).
-
-## Notes
-
-- 2026-10-17 [note] Use a large engineered ship (~6k-character Coriolis/EDSY URLs) to check long links open through explorer.exe (review finding astromech-f2dv); then tighten the URL-length assertion in the qiey test to the limit that held.
