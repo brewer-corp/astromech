@@ -4,6 +4,9 @@ id: "astromech-sltm"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-sltm
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "A click in the bind dialog captures Mouse 1 as the new binding"
-updated_at: "2026-10-16T19:21:14.595412647+00:00"
+updated_at: "2026-10-17T00:15:31.525486589+00:00"
 ---
 
 ## Goal
