@@ -241,6 +241,7 @@ dependencies = [
 name = "astromech-eddn"
 version = "0.1.5"
 dependencies = [
+ "astromech-store",
  "flate2",
  "jsonschema",
  "rusqlite",
