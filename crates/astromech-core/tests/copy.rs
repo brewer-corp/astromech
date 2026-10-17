@@ -469,9 +469,9 @@ fn the_cargo_answer_limits_its_partial_buyer_sentences() {
             carried: 100,
             best: None,
             partial: Some(if i % 2 == 0 {
-                offer(1, "Good Landing", 1000 * (i as i64 + 1), 70)
+                offer(1, "Good Landing Orbital Starport", 1000 * (i as i64 + 1), 70)
             } else {
-                offer(2 + i as i64, "Other Port", 1000 * (i as i64 + 1), 60)
+                offer(2 + i as i64, "Carvalho Engineering Foundry", 1000 * (i as i64 + 1), 60)
             }),
         })
         .collect();
@@ -488,7 +488,7 @@ fn the_cargo_answer_limits_its_partial_buyer_sentences() {
         .collect();
     let best = StationSale {
         market_id: 1,
-        station: "Good Landing".into(),
+        station: "Good Landing Orbital Starport".into(),
         system: "Sol".into(),
         system_pos: [0.0; 3],
         hop,
@@ -506,12 +506,12 @@ fn the_cargo_answer_limits_its_partial_buyer_sentences() {
     let said = astromech_tools::trade::cargo_answer(&plan, 40, now);
 
     let sentences: Vec<String> = said.split_inclusive(". ").map(|s| s.trim().to_string()).collect();
-    let partial: Vec<&String> = sentences.iter().filter(|s| s.contains("partly")).collect();
+    let partial: Vec<&String> = sentences.iter().filter(|s| s.contains(": only ")).collect();
     assert_eq!(partial.len(), 2, "{said}");
     let bad = check("partial buyer", &partial.iter().map(|s| s.to_string()).collect::<Vec<_>>(), ANSWER_WORDS);
     assert!(bad.is_empty(), "{}\n{said}", bad.join("\n"));
     // The two worth the most are said (Silver and Gold); Silver's buyer is the answer's station.
     assert!(partial.iter().any(|s| s.starts_with("Silver") && s.contains("the same station")), "{said}");
-    assert!(partial.iter().any(|s| s.starts_with("Gold") && s.contains("Other Port in Sol")), "{said}");
-    assert_eq!(said.matches("Good Landing").count(), 1, "the station is not repeated: {said}");
+    assert!(partial.iter().any(|s| s.starts_with("Gold") && s.contains("Carvalho Engineering Foundry")), "{said}");
+    assert_eq!(said.matches("Good Landing Orbital Starport").count(), 1, "the station is not repeated: {said}");
 }

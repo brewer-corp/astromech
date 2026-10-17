@@ -166,18 +166,8 @@ fn partial_buyers(p: &CargoPlan) -> String {
     let named = p.stations.first().map(|s| s.market_id);
     let mut out = String::new();
     for (c, o, takes) in partial.into_iter().take(PARTIAL_BUYERS_SPOKEN) {
-        let at = if Some(o.market_id) == named {
-            "the same station".to_string()
-        } else {
-            format!("{} in {}", o.station, o.system)
-        };
-        out += &format!(
-            " {} partly sells at {at}: {} of {} tonnes, {} credits each.",
-            c.name,
-            thousands(takes),
-            thousands(c.carried),
-            thousands(o.price)
-        );
+        let at = if Some(o.market_id) == named { "the same station" } else { o.station.as_str() };
+        out += &format!(" {}: only {} tonnes at {at}, {} credits each.", c.name, thousands(takes), thousands(o.price));
     }
     out
 }
