@@ -5,14 +5,16 @@ import type { Side } from "../../lib/trade";
 import View from "./View.svelte";
 
 const near = vi.fn<(side: Side, symbols: string[], origin: Origin, filters: Filters | null) => void>();
+let cut = false;
 const anywhere = vi.fn<(side: Side, symbol: string, origin: Origin, filters: Filters | null) => void>();
 vi.mock("../../lib/trade", async (orig) => {
   const real = await orig<typeof import("../../lib/trade")>();
   return {
     ...real,
-    tradeSearch: (side: Side, symbols: string[], origin: Origin = null, filters: Filters | null = null) => {
+    tradeSearch: async (side: Side, symbols: string[], origin: Origin = null, filters: Filters | null = null) => {
       near(side, symbols, origin, filters);
-      return real.tradeSearch(side, symbols, origin, filters);
+      const r = await real.tradeSearch(side, symbols, origin, filters);
+      return cut ? { ...r, results: r.results.map((p) => ({ ...p, truncated: true })) } : r;
     },
     tradeAnywhere: (side: Side, symbol: string, origin: Origin = null, filters: Filters | null = null) => {
       anywhere(side, symbol, origin, filters);
@@ -24,6 +26,7 @@ vi.mock("../../lib/trade", async (orig) => {
 beforeEach(() => {
   near.mockReset();
   anywhere.mockReset();
+  cut = false;
   localStorage.clear();
 });
 
@@ -52,5 +55,17 @@ describe("Trade", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Near" }));
     expect(await screen.findByText(/^Cheapest/)).toBeTruthy();
     expect(near).toHaveBeenLastCalledWith("buy", ["painite"], null, expect.anything());
+  });
+
+  it("says when Ardent cut the nearby answer at 1000 markets, and only then", async () => {
+    render(View);
+    expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
+    expect(screen.queryByText(/narrow the radius/)).toBeNull();
+
+    cut = true;
+    await fireEvent.click(screen.getByRole("button", { name: "Buy" }));
+    expect(await screen.findByText(/Too many markets for Painite: narrow the radius to see them all/)).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Sell" }));
+    expect(await screen.findByText(/narrow the radius to see them all/)).toBeTruthy();
   });
 });
