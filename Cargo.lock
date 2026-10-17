@@ -200,6 +200,7 @@ dependencies = [
  "astromech-intent",
  "astromech-journal",
  "astromech-keybinds",
+ "astromech-log",
  "astromech-market",
  "astromech-materials",
  "astromech-policy",
@@ -360,6 +361,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-log"
+version = "0.1.5"
+dependencies = [
+ "chrono",
+ "tempfile",
+]
+
+[[package]]
 name = "astromech-market"
 version = "0.1.5"
 dependencies = [
@@ -386,6 +395,7 @@ name = "astromech-odyssey"
 version = "0.1.5"
 dependencies = [
  "astromech-journal",
+ "astromech-log",
  "serde",
  "serde_json",
  "tempfile",

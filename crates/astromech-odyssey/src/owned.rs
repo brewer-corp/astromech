@@ -73,7 +73,7 @@ fn grade_of(g: Option<i64>) -> Option<u8> {
 fn report_unknown_mod(name: &str) {
     static SEEN: Mutex<BTreeSet<String>> = Mutex::new(BTreeSet::new());
     if SEEN.lock().is_ok_and(|mut s| s.insert(name.to_string())) {
-        eprintln!("odyssey: unknown {name} in the journal (not in data/catalog/odyssey.json)");
+        astromech_log::log(&format!("odyssey: unknown {name} in the journal (not in data/catalog/odyssey.json)"));
     }
 }
 

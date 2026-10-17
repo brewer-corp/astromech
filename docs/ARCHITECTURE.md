@@ -324,6 +324,8 @@ astromech/
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
                          backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
     astromech-station/   docked-here facts (services, economies, faction, pads, upgrades on sale) and the outfitting book (`outfitting.sqlite`: every Outfitting.json seen, searched offline)
+    astromech-log/       rolling log files, one per process in the log folder (astromech-core.log,
+                         astromech-shell.log): 10 MB roll-over, 7 days kept, redaction given by the caller
     astromech-core/      composition root (v0.11: console app): journal/Status pipeline (feeds EDDN), binds health
                          check, PTT -> STT -> intent -> tools -> policy -> executor, verification
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
@@ -337,6 +339,7 @@ astromech/
 - `astromech-proto` depends on nothing internal.
 - `astromech-voice` and `astromech-tools` never depend on `astromech-input` directly. Every action passes through `astromech-policy`.
 - `astromech-intent` depends on nothing internal (it only maps text to command ids).
+- `astromech-log` depends on nothing internal (the core, the app window and library crates such as `astromech-odyssey` log through it).
 - `astromech-core`, as composition root, does depend on `astromech-input`: it constructs the platform (`WinPlatform`) that it hands to the policy, and runs `input::listen` for the PTT/kill buttons. It never calls `send_key` itself; presses happen only through `astromech_policy::Ticket::press`.
 - Only `astromech-input` (and later `astromech-vision`) may use `windows` crate features that touch input or capture.
 - `astromech-realtime` (later) doesn't depend on `astromech-input`. It's behind the `cloud-voice` cargo feature, which is off by default and absent from MVP builds.
@@ -786,7 +789,7 @@ flowchart TB
 - **Cloud voice (later):** the realtime WebSocket task exists only in `cloud-voice` builds and is shown dashed in the diagram.
 - **Cancellation:** a root `CancellationToken` (tokio-util) with children per subsystem. The kill switch cancels the "actions" subtree.
 - **Back-pressure:** bounded channels everywhere. Input plans have a queue depth of 4 (more is refused with "busy"). Speech jobs have priority queues; low-priority chatter is dropped first.
-- **Observability:** `tracing` spans per voice turn and per plan, with latency histograms for each stage (§11). They're visible in the UI's debug panel and logged to a rolling file.
+- **Observability:** `tracing` spans per voice turn and per plan, with latency histograms for each stage (§11). They're visible in the UI's debug panel and logged to a rolling file (`astromech-log`: `astromech-core.log`; the app window writes `astromech-shell.log` next to it, since its release build has no console).
 
 ---
 

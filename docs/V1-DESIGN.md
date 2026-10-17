@@ -792,8 +792,9 @@ lines go in that test.
   next start the tray offers "astromech crashed last time · Save diagnostics". The voice worker is
   already a supervised child (restarted by the core).
 - **Logs:** rolling files in `%LOCALAPPDATA%\astromech\data\logs` (7 days, 10 MB each), the same lines
-  as the preview console; usernames redacted. **Diagnostics bundle** (§1.5 #2) from the tray or
-  settings.
+  as the preview console; usernames redacted. The core writes `astromech-core.log`, the app window
+  `astromech-shell.log` (its release build has no console). **Diagnostics bundle** (§1.5 #2), with
+  both logs, from the tray or settings.
 
 ### 7.8 Release CI
 On a `v*` tag:

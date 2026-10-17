@@ -40,6 +40,7 @@ astromech-station = { path = "../../crates/astromech-station" }
 astromech-store = { path = "../../crates/astromech-store" }
 astromech-powerplay = { path = "../../crates/astromech-powerplay" }
 astromech-exploration = { path = "../../crates/astromech-exploration" }
+astromech-log = { path = "../../crates/astromech-log" }
 
 [profile.release]
 opt-level = "s"

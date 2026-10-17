@@ -37,6 +37,11 @@ fn app_dir() -> PathBuf {
         .join("data")
 }
 
+/// The core's log folder in the installed layout (`logs` in the app dir); the window logs there too.
+fn log_dir() -> PathBuf {
+    app_dir().join("logs")
+}
+
 fn endpoint_file() -> PathBuf {
     app_dir().join("core.json")
 }
@@ -416,7 +421,7 @@ struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Gala
 
 /// The app window's one remote-data client, made at startup; every lookup goes through it (via
 /// the star map). Its cache is the core's file, so an answer the core fetched for a voice
-/// question is served here too. The shell has no log file: its problems go to stderr.
+/// question is served here too. Its problems go to the window's log.
 struct Remote(std::sync::Arc<astromech_data::Client>);
 
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
@@ -1135,6 +1140,15 @@ fn route_arg(args: &[String]) -> Option<String> {
 }
 
 fn main() {
+    // Release builds have no console, so the window's problems go to its own log next to the
+    // core's (`astromech-shell.log`).
+    let red = astromech_keybinds::report::Redactor::from_env();
+    astromech_log::init(
+        &log_dir(),
+        astromech_log::SHELL,
+        cfg!(debug_assertions),
+        Box::new(move |l: &str| red.apply(l)),
+    );
     let args: Vec<String> = std::env::args().collect();
     let route = route_arg(&args);
     tauri::Builder::default()
@@ -1153,7 +1167,7 @@ fn main() {
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
-        .manage(Remote(astromech_data::Client::shared(&app_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
+        .manage(Remote(astromech_data::Client::shared(&app_dir(), std::sync::Arc::new(astromech_log::log))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
@@ -1213,7 +1227,7 @@ fn main() {
                 .build()?;
             if !core_alive() {
                 if let Err(e) = start_core() {
-                    eprintln!("couldn't start the core: {e}");
+                    astromech_log::log(&format!("couldn't start the core: {e}"));
                 }
             }
             let h = app.handle().clone();
