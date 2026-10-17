@@ -1053,11 +1053,17 @@ impl<T> JournalCache<T> {
 
     /// The cached value, or `build()`'s if the journals changed since it was built.
     pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        self.get_fresh(dir, |_| true, build)
+    }
+
+    /// Like [`JournalCache::get`], and also rebuilds when `fresh` says the cached value has gone
+    /// stale without any journal change (it was settled against a clock that has moved on).
+    pub fn get_fresh(&self, dir: &Path, fresh: impl Fn(&T) -> bool, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
         // A build that panicked left no value behind; the next call builds again.
         let mut g = self.0.lock().unwrap_or_else(|e| e.into_inner());
         let generation = g.0.poll(dir);
         if let Some((built_at, v)) = &g.1 {
-            if *built_at == generation {
+            if *built_at == generation && fresh(v) {
                 return v.clone();
             }
         }

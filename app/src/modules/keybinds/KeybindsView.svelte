@@ -110,7 +110,6 @@
       {/each}
     </div>
     {#if pressed}<div class="pressed">Pressed {pressed}</div>{/if}
-    {#if binds.error}<p class="err">{binds.error}</p>{/if}
     <div class="head"><span>Action</span><span>Primary</span><span>Secondary</span><span></span></div>
     <div class="scroll">
       {#each groups as g (g.name)}
@@ -214,7 +213,7 @@
   :global(aside .act) { all: unset; cursor: pointer; display: block; margin: 8px 0; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
   :global(aside .act:hover) { color: var(--text-hi); }
   .lo { color: var(--text-lo); }
-  .warn, .err { color: var(--accent); }
+  .warn { color: var(--accent); }
   .pad { padding-left: 34px; }
   .id { margin-top: 24px; font-size: var(--fs-s); }
   @media (max-width: 1200px) {
