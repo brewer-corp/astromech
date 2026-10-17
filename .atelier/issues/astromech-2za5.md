@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-17T19:25:45.828685992+00:00"
+status: "done"
 title: "Binds health check: warn when Key_V or Key_Enter is bound in the galaxy map"
-updated_at: "2026-10-17T18:45:06.320368012+00:00"
+updated_at: "2026-10-17T19:25:45.828685992+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ The health check reports a galaxy-map action bound to `Key_V` or `Key_Enter` (wi
 ## Context
 
 Review finding R5 on PR #112 (astromech-1135, route follower). Deferred from the alpha landing of the route follower.
+
+## Close Reason
+
+Done-when met: The health check warns on V or Enter on a galaxy map action; test on a synthetic .binds file; PR 116; see evidence
