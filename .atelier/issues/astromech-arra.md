@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T07:42:43.638334492+00:00"
+status: "done"
 title: "astromech-odyssey: take an injected log callback instead of the global sink"
-updated_at: "2026-10-17T07:33:10.920777452+00:00"
+updated_at: "2026-10-17T07:42:43.638334492+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ astromech-odyssey, a pure library crate, logs through the process-global astrome
 ## Done when
 
 astromech-odyssey has no dependency on the global log sink; a test captures an unknown-mod message through the injected callback.
+
+## Close Reason
+
+journal_state/Owned::apply take a log callback; astromech-log dependency removed
