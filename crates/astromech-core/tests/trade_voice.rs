@@ -173,11 +173,11 @@ fn no_location_or_no_network_are_said_plainly() {
     let s = spoken(r.assistant.handle("Where can I sell painite?", Origin::Voice));
     assert_eq!(
         s,
-        "Can't reach Ardent Insight. Check your internet connection; if it's working, Ardent Insight may be down."
+        "Cannot reach Ardent Insight. Check your internet connection. If it is working, Ardent Insight may be down."
     );
     r.hub.update(|g| g.system = None);
     let s = spoken(r.assistant.handle("Where can I sell painite?", Origin::Voice));
-    assert_eq!(s, "I don't know where you are yet.");
+    assert_eq!(s, astromech_tools::lookup::NO_POSITION);
 }
 
 #[test]

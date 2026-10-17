@@ -240,7 +240,7 @@ impl Want {
 
     /// Why a page of stations has none offering this: the mount (which Spansh can't filter)
     /// when they sell the module in other mounts, else Spansh ignored a filter.
-    fn none_offered(&self, results: &[Station]) -> String {
+    pub fn none_offered(&self, results: &[Station]) -> String {
         if let Want::Module(m @ ModuleWant { mount: Some(mount), .. }) = self {
             let any = Want::Module(ModuleWant { mount: None, ..m.clone() });
             if results.iter().any(|s| any.offer(s).is_some()) {

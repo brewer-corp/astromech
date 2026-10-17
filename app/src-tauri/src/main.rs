@@ -360,16 +360,10 @@ struct JournalState {
 struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
 
 impl Default for EngineeringCache {
-    /// Watches exactly the lines the replays in `build_journal_state` read.
+    /// Watches exactly the lines the replays in `build_journal_state` read. A reader added to
+    /// `build_journal_state` must add its pattern to `engineering_journal_events` (astromech-ldiz).
     fn default() -> Self {
-        let events: Vec<&str> = [
-            astromech_engineering::FLEET_EVENTS,
-            astromech_engineering::engineers::EVENTS,
-            astromech_materials::LEDGER_EVENTS,
-            astromech_galaxy::POSITION_EVENTS,
-        ]
-        .concat();
-        Self(astromech_journal::JournalCache::new(&events))
+        Self(astromech_journal::JournalCache::new(&astromech_galaxy::engineering_journal_events()))
     }
 }
 
@@ -891,13 +885,22 @@ async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
 /// A trade route search is running (one Spansh job at a time, even if the page is left and
 /// opened again while the first still polls).
 static ROUTE_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+/// A route is being plotted for the follower (one at a time, the same way).
+static PLOT_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
-/// Clears [`ROUTE_BUSY`] when the search ends, however it ends.
-struct RouteSearching;
+/// Holds one of the flags above while its job runs and clears it when the job ends, however it
+/// ends. `None` when it is already held.
+struct Busy(&'static std::sync::atomic::AtomicBool);
 
-impl Drop for RouteSearching {
+impl Busy {
+    fn take(flag: &'static std::sync::atomic::AtomicBool) -> Option<Busy> {
+        (!flag.swap(true, std::sync::atomic::Ordering::SeqCst)).then_some(Busy(flag))
+    }
+}
+
+impl Drop for Busy {
     fn drop(&mut self) {
-        ROUTE_BUSY.store(false, std::sync::atomic::Ordering::SeqCst);
+        self.0.store(false, std::sync::atomic::Ordering::SeqCst);
     }
 }
 
@@ -912,10 +915,9 @@ async fn trade_route(
     filters: Option<astromech_galaxy::Filters>,
 ) -> Result<Value, String> {
     blocking(move || {
-        if ROUTE_BUSY.swap(true, std::sync::atomic::Ordering::SeqCst) {
+        let Some(_searching) = Busy::take(&ROUTE_BUSY) else {
             return Err("A route search is already running. Wait for it to finish.".into());
-        }
-        let _searching = RouteSearching;
+        };
         let g = galaxy(&app)?;
         let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
@@ -923,6 +925,61 @@ async fn trade_route(
         let r = astromech_market::route::plan(g.remote(), &here.system, range, &ask, &filters, polling, now)
             .map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "here": here, "route": r }))
+    })
+    .await
+}
+
+/// The current ship as the route plotters see it (its range with a full tank and the cargo
+/// aboard now, from the latest `Loadout`), or why there is none, and the system the commander
+/// is in.
+#[tauri::command]
+async fn route_plot_ship(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = plot_ship(&st);
+        Ok(serde_json::json!({
+            "here": st.here.as_ref().map(|h| h.system.clone()),
+            "ship": ship.as_ref().ok(),
+            "ship_error": ship.err(),
+        }))
+    })
+    .await
+}
+
+fn plot_ship(st: &JournalState) -> Result<astromech_galaxy::plot::Ship, String> {
+    let cargo = astromech_station::state_from_journal_dir(&journal_dir()).cargo_tonnes.unwrap_or(0.0);
+    astromech_galaxy::plot::Ship::current(&st.fleet, cargo)
+}
+
+/// Plot `ask` with Spansh's neutron or exact plotter for the current ship (from the
+/// commander's system when `from` is blank), polled off the UI thread until done, and hand the
+/// route to the core's follower. The route is set even if the page is left meanwhile. A second
+/// plot while one runs is turned down.
+#[tauri::command]
+async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> Result<Value, String> {
+    blocking(move || {
+        let Some(_plotting) = Busy::take(&PLOT_BUSY) else {
+            return Err("A route is already being plotted. Wait for it to finish.".into());
+        };
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = plot_ship(&st)?;
+        let mut ask = ask;
+        if ask.from.trim().is_empty() {
+            ask.from = st.here.as_ref().map(|h| h.system.clone()).ok_or("Enter where the route starts.")?;
+        }
+        let remote = app.state::<Remote>().0.clone();
+        let polling = astromech_data::spansh::Polling::default();
+        let plotted = astromech_galaxy::plot::plot(&remote, &ask, &ship, polling)?;
+        let args = serde_json::to_value(&plotted).map_err(|e| e.to_string())?;
+        let r = call_with("route_set", None, Some(args))
+            .map_err(|e| format!("Plotted, but the route could not be followed: {e}."))?;
+        if r["ok"] != true {
+            return Err(format!(
+                "Plotted, but the route could not be followed: {}.",
+                r["error"].as_str().unwrap_or("no answer")
+            ));
+        }
+        Ok(serde_json::json!({ "plotted": plotted, "view": r["view"] }))
     })
     .await
 }
@@ -1199,6 +1256,8 @@ fn main() {
             market_compare,
             trade_route_defaults,
             trade_route,
+            route_plot_ship,
+            route_plot,
             colonisation_projects,
             colonisation_buy,
             search_filters,

@@ -1,6 +1,6 @@
 [package]
 name = "astromech-galaxy"
-description = "Star map (preload + fill-in), jump counts, and live faction-state and Powerplay lookups (Spansh, EDSM via astromech-data)"
+description = "Star map (preload + fill-in), jump counts, route plotting, and live faction-state and Powerplay lookups (Spansh, EDSM via astromech-data)"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -14,6 +14,7 @@ workspace = true
 [dependencies]
 astromech-journal.workspace = true
 astromech-engineering.workspace = true
+astromech-ship.workspace = true
 astromech-powerplay.workspace = true
 rusqlite = { version = "0.40", features = ["bundled"] }
 serde.workspace = true

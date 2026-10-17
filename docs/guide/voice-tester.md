@@ -10,8 +10,14 @@ command it matched, how sure it is and what it would do. Find it under **Setting
 - Or **use push-to-talk** with the page open and visible. The result appears as you speak.
 
 While the page is open and visible, push-to-talk is in **test mode**: whatever you say is
-tested, and astromech does not act on it or answer out loud. Minimise the window or leave the
-page and push-to-talk goes back to normal within a few seconds.
+tested, and astromech does not act on it. The game cannot show this, so astromech says so: the
+tray status reads "Voice tester open · push-to-talk testing only" while test mode is on, and
+each phrase you speak is followed by "Test only. Nothing pressed." Minimise the window or leave
+the page and push-to-talk goes back to normal within a few seconds.
+
+A phrase is tested or run according to the mode when you let go of push-to-talk. If you leave
+the page while astromech is still working out what you said, that phrase is still only tested;
+if you open the page then, a phrase you said before it opened still runs for real.
 
 ## What it shows
 

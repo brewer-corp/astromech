@@ -176,7 +176,7 @@ fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     let now = Instant::now();
     t.arm(now);
     let heard = stt.transcribe(&[0.0; 160], 16000).unwrap();
-    match tester::on_heard(&t, &r.assistant, &heard, now) {
+    match tester::on_heard(&t, &r.assistant, &heard, t.armed(now)) {
         Heard::Tested(d) => {
             assert_eq!(d.source, Source::Voice);
             assert_eq!(d.transcript, "Landing gear dawn.");
@@ -192,7 +192,7 @@ fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     // The page stopped polling: after the lease, push-to-talk acts again.
     let later = now + tester::LEASE + Duration::from_millis(1);
     let heard = stt.transcribe(&[0.0; 160], 16000).unwrap();
-    match tester::on_heard(&t, &r.assistant, &heard, later) {
+    match tester::on_heard(&t, &r.assistant, &heard, t.armed(later)) {
         Heard::Handled(Handled::Ran { command: "landing_gear.down", .. }) => {}
         h => panic!("{h:?}"),
     }
@@ -221,6 +221,34 @@ fn a_learned_phrase_can_be_forgotten() {
         "forgotten: asks again"
     );
     assert!(!a.forget("You're down."), "nothing left to forget");
+}
+
+/// A phrase is tested or run according to the mode when push-to-talk was released: leaving the
+/// page while the clip is transcribed neither runs a tested phrase for real nor tests a live one.
+#[test]
+fn a_phrase_follows_the_mode_at_release_not_when_transcription_ends() {
+    let r = rig();
+    let t = Tester::new();
+    let now = Instant::now();
+
+    // Released in test mode; the page is closed before the transcript arrives.
+    t.arm(now);
+    let testing = t.armed(now);
+    t.disarm();
+    match tester::on_heard(&t, &r.assistant, "Gear down.", testing) {
+        Heard::Tested(d) => assert_eq!(d.intent.unwrap().command, "landing_gear.down"),
+        h => panic!("a tested phrase must stay a test: {h:?}"),
+    }
+    r.nothing_happened();
+
+    // Released live; the page is opened before the transcript arrives.
+    let testing = t.armed(now);
+    t.arm(now);
+    match tester::on_heard(&t, &r.assistant, "Gear down.", testing) {
+        Heard::Handled(Handled::Ran { command: "landing_gear.down", .. }) => {}
+        h => panic!("a live phrase must stay live: {h:?}"),
+    }
+    assert_eq!(r.exec.sent.lock().unwrap().len(), 2, "one press, down and up");
 }
 
 #[test]
@@ -288,7 +316,7 @@ fn recorded_clip_shows_transcript_and_intent() {
     let t = Tester::new();
     let now = Instant::now();
     t.arm(now);
-    let Heard::Tested(d) = tester::on_heard(&t, &r.assistant, &heard, now) else { panic!("not tested") };
+    let Heard::Tested(d) = tester::on_heard(&t, &r.assistant, &heard, t.armed(now)) else { panic!("not tested") };
     println!("clip {clip}: heard {heard:?} -> {:?} would {:?}, keys {:?}", d.intent, d.would, d.keys);
     assert!(!d.transcript.is_empty());
     assert_eq!(d.intent.as_ref().map(|i| i.command.as_str()), Some(expect.as_str()));

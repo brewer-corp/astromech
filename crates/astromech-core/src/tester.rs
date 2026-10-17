@@ -128,7 +128,7 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
     if astromech_tools::lookup::is_lookup(m.command) {
         (r.would, r.message) =
             match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref())) {
-                (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
+                (_, None) => (Would::NotUnderstood, astromech_tools::lookup::NOT_CAUGHT.into()),
                 (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
                 (_, Some(w)) => {
                     (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label()))
@@ -318,6 +318,10 @@ impl Tester {
 /// The process's tester (the control API arms it, the push-to-talk thread reads it).
 pub static TESTER: Tester = Tester::new();
 
+/// Said after a push-to-talk phrase that was only tested: the game HUD cannot show test mode, and
+/// without this a phrase that does nothing looks like a failure.
+pub const TEST_ONLY: &str = "Test only. Nothing pressed.";
+
 /// What a push-to-talk transcript did.
 #[derive(Debug)]
 pub enum Heard {
@@ -327,9 +331,12 @@ pub enum Heard {
     Handled(Handled),
 }
 
-/// Route a push-to-talk transcript: to the tester while its page is open, else to the assistant.
-pub fn on_heard(tester: &Tester, assistant: &Assistant, transcript: &str, now: Instant) -> Heard {
-    if tester.armed(now) {
+/// Route a push-to-talk transcript: to the tester if test mode was on when push-to-talk was
+/// released (`testing`, read then, not when transcription ends: the page may have been left
+/// meanwhile, and a phrase is tested or run according to the mode it was said in), else to the
+/// assistant.
+pub fn on_heard(tester: &Tester, assistant: &Assistant, transcript: &str, testing: bool) -> Heard {
+    if testing {
         let r = assistant.dry_run(transcript, Source::Voice);
         tester.record(r.clone());
         Heard::Tested(r)
@@ -398,7 +405,7 @@ mod tests {
         // No binds read: a press plan becomes "no binding", with the reason it would say.
         let r = dry_run(&g, "gear down", &flying(FLAG_IN_MAIN_SHIP), &b, Source::Typed);
         assert_eq!(r.would, Would::NoBinding);
-        assert!(r.message.contains("couldn't read your Elite keybindings"), "{}", r.message);
+        assert!(r.message.contains("could not be read"), "{}", r.message);
     }
 
     #[test]

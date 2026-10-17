@@ -250,7 +250,7 @@ impl Assistant {
             return match lookup::want(command, slot, slot_text) {
                 Some(want) => self.look_up(command, want),
                 None => {
-                    self.say("Didn't catch what to look for.");
+                    self.say(lookup::NOT_CAUGHT);
                     Handled::NotUnderstood
                 }
             };

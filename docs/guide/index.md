@@ -42,7 +42,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 | Page | What is in it |
 |---|---|
 | [Galaxy](galaxy.md) | Services, Outfitting, Shipyard, and how every "nearest" search works |
-| [Routes](routes.md) | The route follower and plotters (not written yet) |
+| [Routes](routes.md) | Plot neutron and exact routes with Spansh (the route follower is not written up yet) |
 | [Trade](trade.md) | Where to sell and buy, your cargo, trade routes |
 | [Mining](mining.md) | The current mining run |
 | [Colonisation](colonisation.md) | Construction projects and colonisation candidates |

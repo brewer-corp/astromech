@@ -1,0 +1,77 @@
+{
+ "ship": {
+  "here": "Sol",
+  "ship": {
+   "name": "Asp Explorer",
+   "range": 39.87,
+   "cargo": 0,
+   "unresolved": []
+  },
+  "ship_error": null
+ },
+ "neutron": {
+  "name": "Sol to Colonia",
+  "source": "neutron plotter",
+  "waypoints": [
+   {
+    "system": "Sol"
+   },
+   {
+    "system": "PSR J1752-2806",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Colonia"
+   }
+  ],
+  "jumps": 128,
+  "ly": 22000.4740453411,
+  "neutrons": 1,
+  "refuels": 0,
+  "range": 39.87
+ },
+ "exact": {
+  "name": "Sol to Maia",
+  "source": "exact plotter",
+  "waypoints": [
+   {
+    "system": "Sol"
+   },
+   {
+    "system": "Tascheter Sector MN-T b3-6",
+    "label": "fuel"
+   },
+   {
+    "system": "Tascheter Sector LS-T a3-0"
+   },
+   {
+    "system": "Arietis Sector LD-H a11-1"
+   },
+   {
+    "system": "Arietis Sector UE-O a7-1"
+   },
+   {
+    "system": "Arietis Sector EG-V a3-1"
+   },
+   {
+    "system": "Hyades Sector DB-W b2-6",
+    "label": "fuel"
+   },
+   {
+    "system": "Hyades Sector XJ-Z b3"
+   },
+   {
+    "system": "98 k Tauri",
+    "label": "neutron boost and fuel"
+   },
+   {
+    "system": "Maia"
+   }
+  ],
+  "jumps": 9,
+  "ly": 451.551193237305,
+  "neutrons": 1,
+  "refuels": 3,
+  "range": 39.87
+ }
+}
