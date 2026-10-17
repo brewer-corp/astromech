@@ -4,6 +4,9 @@ id: "astromech-32i6"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-32i6
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Engineering and Materials show the sample fleet and inventory when the journal cannot be read"
-updated_at: "2026-10-17T23:04:44.345141590+00:00"
+updated_at: "2026-10-17T23:18:27.394011727+00:00"
 ---
 
 ## Goal
@@ -28,3 +31,7 @@ loadFleet and loadMaterials (app/src/lib/engineering.ts, materials.ts) no longer
 ## Context
 
 Found walking astromech-x81p. In Tauri, a rejected call returns the fixture with source 'Sample journal (no live journal folder)', so a commander without a journal folder sees the fixture ships and materials as their own. The label is small. Decision needed: keep as a deliberate demo mode, or show the error.
+
+## Notes
+
+- 2026-10-17 [note] Cause: lib/engineering.ts loadFleet and lib/materials.ts loadMaterials caught every rejected call in the app and returned the fixture labelled 'Sample journal (no live journal folder)'. The shell already rejects with 'journal folder not found: <path>'. Fix: let the rejection through so the pages show their error state. Audit of other pages: no other in-app fallback to sample data (all sample/fixture paths are gated on !inTauri).

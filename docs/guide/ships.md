@@ -12,6 +12,9 @@ The nearby searches inside the planner use Spansh and EDSM (see
 module data from EDCD's coriolis-data and FDevIDs (credited in NOTICE.md); Spansh and EDSM for the
 nearby searches.
 
+If the journal folder cannot be read (it is not where astromech looks, or it cannot be opened),
+the page says "Could not read the fleet" and gives the reason. It never shows made-up ships.
+
 ## The fleet
 
 Opens on a card for each ship:
