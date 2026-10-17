@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan, signals};
+use astromech_announce::{arrival, builtin, docking, fuel, hge, powerplay_arrival, prospector, route, scan, signals};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,18 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable", "signals"],
+        [
+            "arrival",
+            "docking",
+            "fuel_range",
+            "hge",
+            "powerplay_arrival",
+            "prospector",
+            "route",
+            "scan",
+            "scoopable",
+            "signals"
+        ],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -166,6 +177,39 @@ fn arrival_lines() -> Vec<String> {
             }
         }
     }
+    v.extend(powerplay_arrival_lines());
+    v
+}
+
+/// The Powerplay arrival callout: `arrival_line` a sentence at a time, for every kind of system
+/// (controlled with the most powers contesting, unoccupied with every power acquiring) and
+/// every standing of the commander.
+fn powerplay_arrival_lines() -> Vec<String> {
+    use astromech_powerplay::{PowerShare, SystemPower};
+    const POWERS: [&str; 3] = ["Zachary Hudson", "Aisling Duval", "Archon Delaine"];
+    let controlled = SystemPower {
+        system: "S".into(),
+        controlling_power: Some("Felicia Winters".into()),
+        state: Some("Fortified".into()),
+        control_progress: Some(0.5),
+        reinforcement: Some(1234),
+        undermining: Some(5678),
+        contesting: POWERS.iter().map(|p| p.to_string()).collect(),
+        acquisition: vec![],
+    };
+    let unoccupied = SystemPower {
+        controlling_power: None,
+        state: None,
+        contesting: vec![],
+        acquisition: POWERS.iter().map(|p| PowerShare { power: p.to_string(), progress: 0.3 }).collect(),
+        ..controlled.clone()
+    };
+    let mut v = vec![];
+    for system in [&controlled, &unoccupied] {
+        for pledged in [None, Some("Felicia Winters"), Some("Aisling Duval"), Some("Pranav Antal")] {
+            v.extend(powerplay_arrival::sentences(&system.spoken(pledged)));
+        }
+    }
     v
 }
 
@@ -276,6 +320,8 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "High Grade Emissions. Federation composites."));
     assert!(callouts.iter().any(|l| l == "Good for Core Dynamics Composites. Undermining target."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
+    assert!(callouts.iter().any(|l| l == "Reinforcement 1234, undermining 5678."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Undermining target."));
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));
