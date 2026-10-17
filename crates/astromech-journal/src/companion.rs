@@ -53,7 +53,8 @@ impl CompanionKind {
     }
 
     /// The kind a journal event of this name announces, if any. Note the journal's event is
-    /// `ModuleInfo` but the file is `ModulesInfo.json`.
+    /// `ModuleInfo` but the file is `ModulesInfo.json`, and that `Backpack.json` is also
+    /// rewritten with each `BackpackChange`, which has no `Backpack` event of its own.
     pub fn for_event(name: &str) -> Option<Self> {
         Some(match name {
             "Market" => Self::Market,
@@ -61,7 +62,7 @@ impl CompanionKind {
             "Shipyard" => Self::Shipyard,
             "ModuleInfo" => Self::ModulesInfo,
             "ShipLocker" => Self::ShipLocker,
-            "Backpack" => Self::Backpack,
+            "Backpack" | "BackpackChange" => Self::Backpack,
             "FCMaterials" => Self::FcMaterials,
             _ => return None,
         })

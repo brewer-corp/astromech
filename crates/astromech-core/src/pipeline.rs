@@ -206,7 +206,7 @@ impl Tailer {
         let found = triggers(&parsed);
         if !found.is_empty() {
             self.pending.retain(|p| !found.iter().any(|t| t.kind == p.kind));
-            self.load_companions(found);
+            self.load_companions(found, true);
         }
         self.eddn_nav_route();
     }
@@ -232,12 +232,16 @@ impl Tailer {
         }
     }
 
-    fn load_companions(&mut self, found: Vec<Trigger>) {
+    /// `report`: log and count the files that couldn't be used. A retry that fails again stays
+    /// quiet (it would repeat on every Status.json write); the event stays pending.
+    fn load_companions(&mut self, found: Vec<Trigger>, report: bool) {
         let (files, reports) = load(&self.dir, &found);
         {
             let mut st = self.stats.lock().unwrap();
             st.companions_read += files.len() as u64;
-            st.companions_unused += reports.len() as u64;
+            if report {
+                st.companions_unused += reports.len() as u64;
+            }
         }
         for f in files {
             // The game overwrites this file at every visit and the journal doesn't hold its
@@ -267,7 +271,9 @@ impl Tailer {
             }
         }
         for r in reports {
-            (self.log)(&format!("companion file {r}"));
+            if report {
+                (self.log)(&format!("companion file {r}"));
+            }
             self.pending.push(Trigger { kind: r.kind, event_ts: r.event_ts });
         }
     }
@@ -279,7 +285,17 @@ impl Tailer {
             return;
         }
         self.pending.retain(|p| !kinds.contains(&p.kind));
-        self.load_companions(waiting);
+        self.load_companions(waiting, true);
+    }
+
+    /// Try every waiting event again, whether or not the watcher reported its file: Windows can
+    /// drop the notification for a file the game rewrites (astromech-ogq4).
+    fn retry_pending(&mut self) {
+        if self.pending.is_empty() {
+            return;
+        }
+        let waiting = std::mem::take(&mut self.pending);
+        self.load_companions(waiting, false);
     }
 
     fn save(&self) {
@@ -350,6 +366,7 @@ impl Tailer {
             }
         }
         self.on_companions();
+        self.retry_pending();
     }
 
     /// Startup: replay the current journal to rebuild state, read Status.json, then go live.
@@ -771,6 +788,57 @@ mod tests {
         assert!(hub.snapshot().companions.market.is_some());
         assert!(t.pending.is_empty());
         assert_eq!(t.stats.lock().unwrap().companions_unused, 2);
+    }
+
+    /// astromech-ogq4: the game rewrites Backpack.json with each BackpackChange and writes no
+    /// Backpack event, so the snapshot has to follow the change event.
+    #[test]
+    fn backpack_json_is_read_again_after_a_backpack_change() {
+        let d = tempfile::tempdir().unwrap();
+        let file = |ts: &str, name: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Backpack","Items":[{{"Name":"{name}","Count":1}}],"Components":[],"Consumables":[],"Data":[]}}"#
+            )
+        };
+        let event = |ts: &str, name: &str| match name {
+            "Backpack" => format!(r#"{{"timestamp":"{ts}","event":"Backpack"}}"#),
+            _ => format!(
+                r#"{{"timestamp":"{ts}","event":"BackpackChange","Added":[{{"Name":"x","Type":"Item","Count":1}}]}}"#
+            ),
+        };
+        let items = |hub: &StateHub| {
+            hub.snapshot().companions.backpack.map(|b| b.items.iter().map(|i| i.name.clone()).collect::<Vec<_>>())
+        };
+        let (mut t, hub, _) = tailer(d.path());
+        std::fs::write(d.path().join("Backpack.json"), file("2026-10-10T20:00:00Z", "energycell")).unwrap();
+        t.apply_lines(vec![event("2026-10-10T20:00:00Z", "Backpack")]);
+        assert_eq!(items(&hub), Some(vec!["energycell".to_string()]));
+
+        std::fs::write(d.path().join("Backpack.json"), file("2026-10-10T20:05:00Z", "bypass")).unwrap();
+        t.apply_lines(vec![event("2026-10-10T20:05:00Z", "BackpackChange")]);
+        assert_eq!(items(&hub), Some(vec!["bypass".to_string()]));
+    }
+
+    /// astromech-ogq4: a pending companion event must not depend on the watcher reporting its
+    /// file; the next Status.json read tries it again, quietly.
+    #[test]
+    fn a_pending_companion_event_is_loaded_on_the_next_status_read() {
+        let d = tempfile::tempdir().unwrap();
+        std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
+        let (mut t, hub, logs) = tailer(d.path());
+        t.apply_lines(vec![MARKET_EVENT.into()]);
+        t.on_status();
+        t.on_status();
+        assert!(hub.snapshot().companions.market.is_none());
+        assert_eq!(t.pending.len(), 1);
+        assert_eq!(logs.lock().unwrap().len(), 1, "retries from the status read don't repeat the report");
+        assert_eq!(t.stats.lock().unwrap().companions_unused, 1);
+
+        // The game finishes the write; no notification for Market.json reaches us.
+        std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
+        t.on_status();
+        assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
+        assert!(t.pending.is_empty());
     }
 
     #[test]

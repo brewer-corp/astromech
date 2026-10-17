@@ -191,6 +191,7 @@ fn station_market_id_follows_docking_login_and_undocking() {
 fn events_map_to_files() {
     assert_eq!(CompanionKind::for_event("ModuleInfo"), Some(CompanionKind::ModulesInfo));
     assert_eq!(CompanionKind::for_event("FCMaterials"), Some(CompanionKind::FcMaterials));
+    assert_eq!(CompanionKind::for_event("BackpackChange"), Some(CompanionKind::Backpack));
     assert_eq!(CompanionKind::for_event("Docked"), None);
     for k in CompanionKind::ALL {
         assert_eq!(CompanionKind::from_file_name(k.file_name()), Some(k));
