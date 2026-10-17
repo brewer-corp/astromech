@@ -4,6 +4,9 @@ id: "astromech-pd3h"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-pd3h
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Presets and controller preset picker hide failed reloads"
-updated_at: "2026-10-17T21:32:03.895164138+00:00"
+updated_at: "2026-10-17T22:17:44.533692818+00:00"
 ---
 
 ## Goal
