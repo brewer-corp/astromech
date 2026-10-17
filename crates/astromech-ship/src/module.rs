@@ -415,11 +415,15 @@ impl Module {
     /// Departs from Coriolis for charged weapons (decision astromech-bnnh): the cycle also counts
     /// the last burst's charge, which Coriolis leaves out, so sustained never exceeds burst (a
     /// one-round rail gun cycles in charge plus reload, not reload alone). Weapons without charge
-    /// give Coriolis's numbers, except that a weapon with a clip and no reload (the seismic charge
-    /// launchers) has nothing to wait for and gets 1, where Coriolis divides by zero.
+    /// give Coriolis's numbers, except that a cycle of no time at all (a one-round clip with no
+    /// reload: the seismic charge launchers) gets 1, where Coriolis divides by zero.
+    ///
+    /// Like Coriolis, the cycle leaves out the last shot's own fire interval, so the factor is at
+    /// most 1 only while the reload takes at least that long (true of every stock weapon in the
+    /// catalogue, checked by a test; a build that engineers the reload below the interval can
+    /// still come out above 1).
     pub fn sustained_factor(&self) -> f64 {
         let Some(mut clip) = self.clip() else { return 1.0 };
-        let Some(reload) = truthy(self.get("reload")) else { return 1.0 };
         // An auto-loader gives one reload for every two shots fired.
         if self.is_special("special_auto_loader") {
             clip += clip - 1.0;
@@ -428,8 +432,11 @@ impl Module {
         let rof = self.rof();
         let overhead = (burst - 1.0) / or(self.get("burstrof"), 1.0);
         let charge = or(self.get("charge"), 0.0);
-        let srof = clip / ((clip - burst) / rof + overhead + charge + reload);
-        srof / rof
+        let cycle = (clip - burst) / rof + overhead + charge + self.get("reload").unwrap_or(0.0);
+        if cycle <= 0.0 {
+            return 1.0;
+        }
+        (clip / cycle) / rof
     }
 
     pub fn sustained_dps(&self) -> f64 {
