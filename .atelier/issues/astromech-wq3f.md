@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:20:04.261165293+00:00"
+status: "done"
 title: "Callout copy guide and pass"
-updated_at: "2026-10-15T20:36:13.663651636+00:00"
+updated_at: "2026-10-16T20:20:04.261165293+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,11 @@ The word-budget test covers every reaction's lines and passes.
 ## Context
 
 Done for the gear and status lines only (partly built).
+
+## Notes
+
+- 2026-10-16 [note] Guide in V1-DESIGN §6.5; test crates/astromech-core/tests/copy.rs. Help lines (setup problems, e.g. the 'I can't switch X' binding guidance and 'isn't available yet') are outside the budget by the guide and were not rewritten; they still contain contractions and 'I'.
+
+## Close Reason
+
+The word-budget test covers every reaction's lines (callout rules, fixed phrases, replies, status answers) and passes.

@@ -6,6 +6,7 @@
 
 use crate::actions::Runner;
 use crate::assistant::Assistant;
+use crate::callouts::{self, Callouts, SpeechOut, Toasts};
 use crate::config::Config;
 use crate::health::{self, BindsState};
 use crate::hub::StateHub;
@@ -41,8 +42,13 @@ pub struct Session {
     pub voice: String,
     /// Speech-to-text, until [`Session::start_buttons`] hands it to the PTT thread.
     pub stt: Option<Box<dyn Stt>>,
+    /// Callout toasts for the app window.
+    pub toasts: Arc<Toasts>,
+    /// Prospector thresholds the running rule reads; Settings changes go here too.
+    pub prospector: astromech_announce::prospector::SharedThresholds,
     stop: Arc<AtomicBool>,
     _pipe: crate::pipeline::Pipeline,
+    _callouts: SpeechOut,
     _hw: Option<health::HealthWatch>,
 }
 
@@ -139,13 +145,34 @@ impl Session {
         .map_err(|e| log(&format!("not watching the Bindings folder: {e:#}")))
         .ok();
 
-        // 2. Game state pipeline.
+        // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
+        let prospector: astromech_announce::prospector::SharedThresholds = Arc::new(RwLock::new(
+            astromech_store::Store::open(&data.join("astromech.sqlite"))
+                .map(|st| callouts::load_thresholds(&st))
+                .unwrap_or_default(),
+        ));
+        let engine = astromech_announce::Engine::new(astromech_announce::builtin(prospector.clone()), &cfg.callouts);
+        for p in engine.setting_problems() {
+            log(&format!("config: {p}"));
+        }
+        let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
+        let deliver = Box::new(callouts::router(
+            pending.clone(),
+            toasts.clone(),
+            callouts::default_notifier().context("starting the notification thread")?,
+        ));
         let eddn = crate::pipeline::eddn_feed(cfg, &data);
-        let pipe =
-            crate::pipeline::start_with_eddn(&jdir, hub.clone(), Some(&data.join("astromech.sqlite")), log, eddn)
-                .with_context(|| format!("journal folder {}", jdir.display()))?;
+        let pipe = crate::pipeline::start_with_eddn(
+            &jdir,
+            hub.clone(),
+            Some(&data.join("astromech.sqlite")),
+            log,
+            eddn,
+            Some(Callouts { engine, deliver }),
+        )
+        .with_context(|| format!("journal folder {}", jdir.display()))?;
         let g = hub.snapshot();
         log(&format!(
             "game state: {} | system {} | status flags {}",
@@ -219,6 +246,9 @@ impl Session {
             None
         };
 
+        let speech_out = SpeechOut::start(pending, speaker.clone(), &callouts::VOICE_TURN)
+            .context("starting the callout speaker")?;
+
         // 4. Policy + executor.
         let platform: Arc<dyn Platform> =
             if cfg.actions.dry_run { Arc::new(DryRun(real_platform())) } else { real_platform() };
@@ -275,8 +305,11 @@ impl Session {
             speaker,
             voice,
             stt,
+            toasts,
+            prospector,
             stop: Arc::new(AtomicBool::new(false)),
             _pipe: pipe,
+            _callouts: speech_out,
             _hw: hw,
         })
     }
@@ -302,6 +335,8 @@ struct ClipJob {
     rate: u32,
     sidecar: Option<std::path::PathBuf>,
     meta: serde_json::Value,
+    /// Holds callouts until this clip is handled (dropped).
+    _turn: callouts::TurnJob<'static>,
 }
 
 #[cfg(windows)]
@@ -368,7 +403,7 @@ fn start_voice(
                 let t0 = std::time::Instant::now();
                 match stt.transcribe(&job.samples, job.rate) {
                     Ok(t) if t.is_empty() && !TESTER.armed(std::time::Instant::now()) => {
-                        a.runner.speaker.say("Didn't catch that.")
+                        a.runner.speaker.say("Say again.")
                     }
                     Ok(t) => match tester::on_heard(&TESTER, &a, &t, std::time::Instant::now()) {
                         // The voice tester page is open: it shows what this would do. Nothing pressed.
@@ -403,6 +438,8 @@ fn start_voice(
                     },
                     Err(e) => log(&format!("speech-to-text failed: {e:#}")),
                 }
+                // `job` (and its voice turn) ends here, after the reply or the voice tester's
+                // result; a panic above ends it too.
             }
         })?;
     }
@@ -468,8 +505,9 @@ fn start_voice(
                 Control::PttDown if VOICE_PAUSED.load(Ordering::SeqCst) => {
                     log("PTT down — voice is paused (tray menu), ignored");
                 }
-                Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => {}
+                Control::PttUp if from.is_none() && VOICE_PAUSED.load(Ordering::SeqCst) => callouts::VOICE_TURN.ptt_up(),
                 Control::PttDown => {
+                    callouts::VOICE_TURN.ptt_down(std::time::Instant::now());
                     runner.speaker.interrupt();
                     report_mic(&mut mic);
                     down_at = std::time::Instant::now();
@@ -526,7 +564,13 @@ fn start_voice(
                                         });
                                     }
                                 }
-                                let _ = jtx.send(ClipJob { samples: n.samples, rate: m.sample_rate(), sidecar, meta });
+                                let _ = jtx.send(ClipJob {
+                                    samples: n.samples,
+                                    rate: m.sample_rate(),
+                                    sidecar,
+                                    meta,
+                                    _turn: callouts::VOICE_TURN.job_queued(std::time::Instant::now()),
+                                });
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),
                             Gate::TooQuiet => log(&format!("{head}; quieter than {min_level:.0} dBFS, ignored")),
@@ -536,6 +580,8 @@ fn start_voice(
                     } else {
                         log("PTT up without a PTT down (ignored)");
                     }
+                    // After any clip was queued as a job, so the hold doesn't lapse in between.
+                    callouts::VOICE_TURN.ptt_up();
                 }
                 Control::KillDown => {
                     if !runner.policy.is_killed() {

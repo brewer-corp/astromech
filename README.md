@@ -127,12 +127,12 @@ an unexpected gear change can't hurt.
    - "gear up": the gear retracts.
    - Press the kill switch, then say "gear down": it's refused. Hold the kill switch for 1 s
      to re-arm.
-   - In supercruise, "gear down" says "Landing gear not available: you're in supercruise."
+   - In supercruise, "gear down" says "Landing gear not available: supercruise."
    - Mumbled or near-miss phrases get "Did you mean …?" (answer "yes" or "no" on the next PTT).
-     Anything else gets "Didn't catch that.".
+     Anything else gets "Say again."
 7. You can also **type** a command into the console and press Enter: `gear down`, `!kill`,
    `!rearm`, `!state`, `!health`, `quit`. While you type, the console has focus, so anything
-   that would press a key is refused ("Elite isn't the active window…"). Typed commands are
+   that would press a key is refused ("Elite is not the active window. Nothing pressed."). Typed commands are
    useful for checking state answers and refusals, not for pressing keys.
 
 **Each push is logged:** `PTT down (t=…)` and `PTT up (t=…) — held N ms; clip N ms, RMS … dBFS,

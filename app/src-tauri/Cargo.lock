@@ -104,6 +104,7 @@ dependencies = [
  "astromech-materials",
  "astromech-powerplay",
  "astromech-status",
+ "chrono",
  "serde",
 ]
 

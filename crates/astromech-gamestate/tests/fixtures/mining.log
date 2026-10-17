@@ -1,0 +1,15 @@
+{"timestamp":"2026-10-16T19:40:00Z","event":"Docked","StationName":"Synthetic Port","StarSystem":"Synthetic","MarketID":1}
+{"timestamp":"2026-10-16T19:45:00Z","event":"Undocked","StationName":"Synthetic Port"}
+{"timestamp":"2026-10-16T20:00:00Z","event":"LaunchDrone","Type":"Prospector"}
+{"timestamp":"2026-10-16T20:00:08Z","event":"ProspectedAsteroid","Materials":[{"Name":"Platinum","Proportion":31.0}],"Content":"$AsteroidMaterialContent_High;","Remaining":100.0}
+{"timestamp":"2026-10-16T20:03:00Z","event":"LaunchDrone","Type":"Collection"}
+{"timestamp":"2026-10-16T20:04:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:05:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:06:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:08:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:10:00Z","event":"MiningRefined","Type":"$painite_name;","Type_Localised":"Painite"}
+{"timestamp":"2026-10-16T20:12:00Z","event":"ProspectedAsteroid","Materials":[{"Name":"Bauxite","Proportion":20.0}],"Content":"$AsteroidMaterialContent_Low;","Remaining":100.0}
+{"timestamp":"2026-10-16T20:15:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:20:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
+{"timestamp":"2026-10-16T20:25:00Z","event":"MiningRefined","Type":"$painite_name;","Type_Localised":"Painite"}
+{"timestamp":"2026-10-16T20:30:00Z","event":"MiningRefined","Type":"$platinum_name;","Type_Localised":"Platinum"}
