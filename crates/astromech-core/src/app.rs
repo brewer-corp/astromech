@@ -962,7 +962,11 @@ pub fn run(opts: Opts) -> i32 {
         }
     }
 
-    core.follow_history(&core.cfg());
+    // Under the config lock: a `set_folders` the control API serves meanwhile isn't undone.
+    {
+        let _g = core.config_lock.lock().unwrap_or_else(|e| e.into_inner());
+        core.follow_history(&core.cfg());
+    }
     if core.history.status().is_none() {
         log("history: no journal folder; set game.journal_dir");
     }
@@ -1071,10 +1075,17 @@ mod tests {
         use crate::history::tests::{journal_dir, wait_for};
         let d = tempfile::tempdir().unwrap();
         let data = d.path().join("data");
-        let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
+        // The configured folder doesn't exist: the first-run case, and never the real default
+        // under %USERPROFILE% (a PC with journals there would import them).
+        let missing = d.path().join("no journals here");
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", data.display(), missing.display()),
+        );
         core.follow_history(&core.cfg());
-        // No folder off Windows; on Windows the default under %USERPROFILE%, which set_folders replaces.
-        assert_eq!(core.history.status().is_some(), core.cfg().journal_dir().is_some());
+        assert_eq!(core.cfg().journal_dir(), Some(missing));
+        wait_for("the empty first import", || core.history.status().is_some_and(|p| p.ready));
+        assert_eq!(core.history.status().unwrap().events, 0);
 
         let j = journal_dir();
         let r = core.handle(&Request {
