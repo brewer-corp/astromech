@@ -1912,4 +1912,64 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
     }
+
+    /// "Market." on every fresh `Market.json` (the engine decides once per dock).
+    struct MarketRule;
+    impl astromech_announce::Rule for MarketRule {
+        fn id(&self) -> &'static str {
+            "market"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::ZERO
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
+            _: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            use astromech_announce::*;
+            matches!(input, Input::Market(_)).then(|| Callout {
+                text: "Market.".into(),
+                priority: Priority::Normal,
+                channels: Channels::SPEECH,
+            })
+        }
+    }
+
+    /// astromech-bh0c: a reopened journal is split into a replayed half and a live half. A Docked
+    /// at the same market in each: the replayed one reads Market.json with live=false and must not
+    /// use up the dock's one callout, so the live one reaches the callouts.
+    #[test]
+    fn a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, format!("{}{}\n{}\n", session(&ts(10), "r2 "), docked(&ts(5)), market_event(&ts(5), 7)))
+            .unwrap();
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(5), 7)).unwrap();
+        touch(&j2, 5);
+        let (mut t, _, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert!(fired.lock().unwrap().is_empty(), "the startup replay is silent");
+
+        // A touched older journal is followed (a replay); meanwhile the game docks again at the
+        // same market and writes a new Market.json.
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 7)).unwrap();
+        append(&j2, &docked(&ts(0)));
+        append(&j2, &market_event(&ts(0), 7));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
+    }
 }

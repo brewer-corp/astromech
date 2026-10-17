@@ -37,6 +37,28 @@ fn filling_a_material_says_so_once() {
 }
 
 #[test]
+fn a_material_full_since_the_catch_up_says_nothing_on_a_live_collect() {
+    let mut r = Run::new();
+    r.engine.set_live(false);
+    assert!(r.spoken(&materials(249)).is_empty());
+    assert!(r.spoken(&collected("arsenic")).is_empty()); // 250, in the catch-up
+    r.engine.set_live(true);
+    assert!(r.spoken(&collected("arsenic")).is_empty(), "already full before this collect");
+}
+
+#[test]
+fn trading_below_the_cap_and_collecting_back_to_it_says_so_again() {
+    let mut r = Run::new();
+    r.engine.set_live(false);
+    assert!(r.spoken(&materials(250)).is_empty());
+    r.engine.set_live(true);
+    let trade = r#"{"timestamp":"2026-10-16T20:01:30Z","event":"MaterialTrade","MarketID":2,"TraderType":"raw","Paid":{"Material":"arsenic","Category":"Raw","Quantity":6},"Received":{"Material":"iron","Category":"Raw","Quantity":1}}"#;
+    assert!(r.spoken(trade).is_empty()); // 244
+    let spoken: Vec<String> = (0..6).flat_map(|_| r.spoken(&collected("arsenic"))).collect();
+    assert_eq!(spoken, ["Arsenic at 250/250."]);
+}
+
+#[test]
 fn catch_up_is_silent_even_when_full() {
     let mut r = Run::new();
     r.engine.set_live(false);

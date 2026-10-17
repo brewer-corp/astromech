@@ -209,7 +209,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(route::Route),
         Box::new(route_follow::RouteFollow { follower: shared.follower.clone() }),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
-        Box::new(materials_cap::MaterialsCap),
+        Box::new(materials_cap::MaterialsCap::default()),
         Box::new(missions::Missions::default()),
         Box::new(project_market::ProjectMarket),
         Box::new(signals::Signals::default()),
