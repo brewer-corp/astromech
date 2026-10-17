@@ -1,14 +1,24 @@
 //! The suits and weapons the commander owns, with their grade and fitted modifications, from the
 //! journal: `BuySuit`, `BuyWeapon`, `UpgradeSuit`, `UpgradeWeapon`, `SellSuit`, `SellWeapon` and
-//! `SuitLoadout` (event shapes from Frontier's Journal manual and the EDCD journal docs). Only
-//! the suits and weapons in the catalogue are kept (not the Flight Suit). Only `SuitLoadout` lists fitted modifications, so a weapon the commander owns but has
-//! in no loadout shows no mods.
+//! the loadout events `SuitLoadout`, `SwitchSuitLoadout` and `CreateSuitLoadout` (one shape).
+//!
+//! Field names and symbol formats are from real Odyssey journals as collected in the community
+//! schemas jixxed/ed-journal-schemas (`schemas/BuySuit`, `BuyWeapon`, `UpgradeSuit`,
+//! `UpgradeWeapon`, `SellSuit`, `SellWeapon`, `SuitLoadout`, `SwitchSuitLoadout`,
+//! `CreateSuitLoadout`), with the symbol and mod-name tables from EDCD/EDDI's data definitions
+//! (see `scripts/gen-odyssey.py`). A suit's `Name` ends `_class<grade>`; a weapon's `Class` is its
+//! grade; `SuitMods` and `WeaponMods` list the mods fitted, on purchase and sale as well as in a
+//! loadout (Pioneer Supplies sells upgraded and modified gear). `Name_Localised` is not used:
+//! it is optional, language-dependent, and for suits a `$UtilitySuit_Class1_Name;` token. Only
+//! the suits and weapons in the catalogue are kept (not the Flight Suit). A weapon the commander
+//! has never been logged with (no purchase, no loadout) is unknown.
 
 use crate::catalog::catalog;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::btree_map::Entry;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Mutex;
 
 /// One owned suit or weapon.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -32,24 +42,19 @@ pub struct Owned {
     weapons: BTreeMap<i64, OwnedGear>,
 }
 
-/// Suits are named `<type>_class<grade>`, e.g. `utilitysuit_class3`.
-fn suit_gear(name: &str, localised: Option<&str>) -> Option<&'static str> {
-    let by_name = match name.to_ascii_lowercase().split("_class").next().unwrap_or("") {
-        "utilitysuit" => Some("maverick"),
-        "tacticalsuit" => Some("dominator"),
-        "explorationsuit" => Some("artemis"),
-        _ => None,
+/// `utilitysuit_class3` → (`maverick`, 3).
+fn suit_of(name: &str) -> Option<(&'static str, Option<u8>)> {
+    let name = name.to_ascii_lowercase();
+    let (symbol, grade) = match name.split_once("_class") {
+        Some((s, g)) => (s, g.parse::<u8>().ok()),
+        None => (name.as_str(), None),
     };
-    let c = catalog();
-    by_name
-        .and_then(|id| c.suits.iter().find(|g| g.id == id))
-        .or_else(|| localised.and_then(|l| c.suits.iter().find(|g| g.name.eq_ignore_ascii_case(l))))
-        .map(|g| g.id.as_str())
+    catalog().suits.iter().find(|g| g.journal == symbol).map(|g| (g.id.as_str(), grade))
 }
 
-/// Weapons are matched by their localised name (the journal gives it for every one).
-fn weapon_gear(localised: Option<&str>) -> Option<&'static str> {
-    localised.and_then(|l| catalog().weapons.iter().find(|g| g.name.eq_ignore_ascii_case(l))).map(|g| g.id.as_str())
+fn weapon_of(symbol: &str) -> Option<&'static str> {
+    let symbol = symbol.to_ascii_lowercase();
+    catalog().weapons.iter().find(|g| g.journal == symbol).map(|g| g.id.as_str())
 }
 
 fn str_of<'a>(v: &'a Value, key: &str) -> Option<&'a str> {
@@ -60,22 +65,32 @@ fn int_of(v: &Value, key: &str) -> Option<i64> {
     v.get(key).and_then(Value::as_i64)
 }
 
-fn grade_of(v: Option<i64>) -> Option<u8> {
-    v.and_then(|g| u8::try_from(g).ok()).filter(|g| (1..=5).contains(g))
+fn grade_of(g: Option<i64>) -> Option<u8> {
+    g.and_then(|g| u8::try_from(g).ok()).filter(|g| (1..=5).contains(g))
 }
 
-/// `suit_nightvision` or `weapon_stability` → the catalogue modification of that kind.
+/// A journal mod name the catalogue does not have; each is reported once.
+fn report_unknown_mod(name: &str) {
+    static SEEN: Mutex<BTreeSet<String>> = Mutex::new(BTreeSet::new());
+    if SEEN.lock().is_ok_and(|mut s| s.insert(name.to_string())) {
+        eprintln!("odyssey: unknown {name} in the journal (not in data/catalog/odyssey.json)");
+    }
+}
+
+/// `SuitMods` / `WeaponMods` → the catalogue modification ids of `kind`.
 fn mod_ids(v: Option<&Value>, kind: &str) -> Vec<String> {
-    let prefix = format!("{kind}_");
     let mut out: Vec<String> = v
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
         .filter_map(Value::as_str)
         .filter_map(|m| {
-            let m = m.to_ascii_lowercase();
-            let id = m.strip_prefix(&prefix).unwrap_or(&m);
-            catalog().modification(id).filter(|md| md.kind == kind).map(|md| md.id.clone())
+            let lower = m.to_ascii_lowercase();
+            let found = catalog().mods.iter().find(|md| md.kind == kind && md.journal == lower);
+            if found.is_none() {
+                report_unknown_mod(m);
+            }
+            found.map(|md| md.id.clone())
         })
         .collect();
     out.sort();
@@ -84,7 +99,7 @@ fn mod_ids(v: Option<&Value>, kind: &str) -> Vec<String> {
 }
 
 impl Owned {
-    fn new_gear(gear: &str, grade: u8) -> Option<OwnedGear> {
+    fn new_gear(gear: &str, grade: u8, mods: Vec<String>) -> Option<OwnedGear> {
         let g = catalog().gear(gear)?;
         Some(OwnedGear {
             gear: g.id.clone(),
@@ -92,14 +107,26 @@ impl Owned {
             kind: if catalog().is_suit(gear) { "suit" } else { "weapon" },
             maker: g.maker.clone(),
             grade,
-            mods: vec![],
+            mods,
         })
     }
 
-    fn slot<'a>(map: &'a mut BTreeMap<i64, OwnedGear>, id: i64, gear: &str, grade: u8) -> Option<&'a mut OwnedGear> {
+    /// Record `gear` under `id`, replacing what was there.
+    fn set(map: &mut BTreeMap<i64, OwnedGear>, id: i64, gear: &str, grade: u8, mods: Vec<String>) {
+        if let Some(g) = Self::new_gear(gear, grade, mods) {
+            map.insert(id, g);
+        }
+    }
+
+    /// Set the grade of what is under `id`, adding it (no mods known) if it was not seen.
+    fn regrade(map: &mut BTreeMap<i64, OwnedGear>, id: i64, gear: &str, grade: u8) {
         match map.entry(id) {
-            Entry::Occupied(o) => Some(o.into_mut()),
-            Entry::Vacant(v) => Some(v.insert(Self::new_gear(gear, grade)?)),
+            Entry::Occupied(mut o) => o.get_mut().grade = grade,
+            Entry::Vacant(v) => {
+                if let Some(g) = Self::new_gear(gear, grade, vec![]) {
+                    v.insert(g);
+                }
+            }
         }
     }
 
@@ -107,21 +134,19 @@ impl Owned {
     pub fn apply(&mut self, ev: &Value) {
         let Some(event) = str_of(ev, "event") else { return };
         match event {
-            "BuySuit" => {
-                let name = str_of(ev, "Name").unwrap_or("");
-                if let (Some(id), Some(gear)) = (int_of(ev, "SuitID"), suit_gear(name, str_of(ev, "Name_Localised"))) {
-                    self.suits.remove(&id);
-                    Self::slot(&mut self.suits, id, gear, 1);
-                }
-            }
-            "UpgradeSuit" => {
-                let name = str_of(ev, "Name").unwrap_or("");
-                if let (Some(id), Some(gear), Some(grade)) =
-                    (int_of(ev, "SuitID"), suit_gear(name, str_of(ev, "Name_Localised")), grade_of(int_of(ev, "Class")))
-                {
-                    if let Some(s) = Self::slot(&mut self.suits, id, gear, grade) {
-                        s.grade = grade;
-                    }
+            "BuySuit" | "UpgradeSuit" => {
+                let Some((gear, from_name)) = suit_of(str_of(ev, "Name").unwrap_or("")) else { return };
+                let Some(id) = int_of(ev, "SuitID") else { return };
+                let grade = if event == "UpgradeSuit" {
+                    grade_of(int_of(ev, "Class")).or_else(|| grade_of(from_name.map(i64::from)))
+                } else {
+                    grade_of(from_name.map(i64::from))
+                };
+                let Some(grade) = grade else { return };
+                if event == "BuySuit" {
+                    Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit"));
+                } else {
+                    Self::regrade(&mut self.suits, id, gear, grade);
                 }
             }
             "SellSuit" => {
@@ -129,22 +154,18 @@ impl Owned {
                     self.suits.remove(&id);
                 }
             }
-            "BuyWeapon" => {
-                if let (Some(id), Some(gear)) = (int_of(ev, "SuitModuleID"), weapon_gear(str_of(ev, "Name_Localised")))
-                {
-                    self.weapons.remove(&id);
-                    Self::slot(&mut self.weapons, id, gear, 1);
-                }
-            }
-            "UpgradeWeapon" => {
-                if let (Some(id), Some(gear), Some(grade)) = (
+            "BuyWeapon" | "UpgradeWeapon" => {
+                let (Some(id), Some(gear), Some(grade)) = (
                     int_of(ev, "SuitModuleID"),
-                    weapon_gear(str_of(ev, "Name_Localised")),
+                    weapon_of(str_of(ev, "Name").unwrap_or("")),
                     grade_of(int_of(ev, "Class")),
-                ) {
-                    if let Some(w) = Self::slot(&mut self.weapons, id, gear, grade) {
-                        w.grade = grade;
-                    }
+                ) else {
+                    return;
+                };
+                if event == "BuyWeapon" {
+                    Self::set(&mut self.weapons, id, gear, grade, mod_ids(ev.get("WeaponMods"), "weapon"));
+                } else {
+                    Self::regrade(&mut self.weapons, id, gear, grade);
                 }
             }
             "SellWeapon" => {
@@ -152,35 +173,29 @@ impl Owned {
                     self.weapons.remove(&id);
                 }
             }
-            "SuitLoadout" => self.loadout(ev),
+            "SuitLoadout" | "SwitchSuitLoadout" | "CreateSuitLoadout" => self.loadout(ev),
             _ => {}
         }
     }
 
-    /// A `SuitLoadout` states the suit's grade and mods, and each weapon's.
+    /// A loadout event states the suit's grade and mods, and each weapon's.
     fn loadout(&mut self, ev: &Value) {
-        let name = str_of(ev, "SuitName").unwrap_or("");
-        if let (Some(id), Some(gear)) = (int_of(ev, "SuitID"), suit_gear(name, str_of(ev, "SuitName_Localised"))) {
-            let grade = name.rsplit_once("_class").and_then(|(_, n)| n.parse::<i64>().ok());
-            if let Some(grade) = grade_of(grade) {
-                if let Some(s) = Self::slot(&mut self.suits, id, gear, grade) {
-                    s.grade = grade;
-                    s.mods = mod_ids(ev.get("SuitMods"), "suit");
-                }
+        if let (Some(id), Some((gear, Some(grade)))) =
+            (int_of(ev, "SuitID"), suit_of(str_of(ev, "SuitName").unwrap_or("")))
+        {
+            if let Some(grade) = grade_of(Some(i64::from(grade))) {
+                Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit"));
             }
         }
         for m in ev.get("Modules").and_then(Value::as_array).into_iter().flatten() {
             let (Some(id), Some(gear), Some(grade)) = (
                 int_of(m, "SuitModuleID"),
-                weapon_gear(str_of(m, "ModuleName_Localised")),
+                weapon_of(str_of(m, "ModuleName").unwrap_or("")),
                 grade_of(int_of(m, "Class")),
             ) else {
                 continue;
             };
-            if let Some(w) = Self::slot(&mut self.weapons, id, gear, grade) {
-                w.grade = grade;
-                w.mods = mod_ids(m.get("WeaponMods"), "weapon");
-            }
+            Self::set(&mut self.weapons, id, gear, grade, mod_ids(m.get("WeaponMods"), "weapon"));
         }
     }
 
@@ -191,9 +206,5 @@ impl Owned {
         let mut v: Vec<OwnedGear> = self.suits.values().chain(self.weapons.values()).cloned().collect();
         v.sort_by(|a, b| pos(a).cmp(&pos(b)).then(a.grade.cmp(&b.grade)));
         v
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.suits.is_empty() && self.weapons.is_empty()
     }
 }

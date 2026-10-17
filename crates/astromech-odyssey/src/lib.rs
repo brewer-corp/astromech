@@ -74,7 +74,7 @@ pub struct JournalState {
 /// Read every journal once for `EngineerProgress` and the suit and weapon events (only those
 /// lines are parsed).
 pub fn journal_state(dir: &Path) -> JournalState {
-    const EVENTS: [&str; 8] = [
+    const EVENTS: [&str; 10] = [
         "\"EngineerProgress\"",
         "\"BuySuit\"",
         "\"SellSuit\"",
@@ -83,6 +83,8 @@ pub fn journal_state(dir: &Path) -> JournalState {
         "\"SellWeapon\"",
         "\"UpgradeWeapon\"",
         "\"SuitLoadout\"",
+        "\"SwitchSuitLoadout\"",
+        "\"CreateSuitLoadout\"",
     ];
     let mut st = JournalState::default();
     for path in astromech_journal::journal_logs(dir) {
@@ -271,30 +273,31 @@ mod tests {
     fn journal_gives_the_owned_suits_and_weapons_with_grades_and_mods() {
         let (h, p) = sample();
         let v = view(&h, &p, "Sample");
-        // (gear, grade, mods): the Artemis was sold, the Oppressor was sold, the Flight Suit isn't
-        // in the catalogue; the second Maverick was bought and upgraded to grade 3 and has no
-        // loadout, so no mods are known for it.
+        // (gear, grade, mods). The Artemis and the Oppressor were sold and the Flight Suit isn't
+        // in the catalogue. The second Maverick was bought at grade 3 with two mods (its loadout
+        // switch added Night Vision), the Aphelion at grade 3 with two mods (its loadout added a
+        // third), the Dominator was upgraded to grade 2.
         let owned: Vec<(&str, u8, Vec<&str>)> =
             v.owned.iter().map(|g| (g.gear.as_str(), g.grade, g.mods.iter().map(String::as_str).collect())).collect();
         assert_eq!(
             owned,
             [
                 ("maverick", 1, vec!["increasedairreserves", "nightvision"]),
-                ("maverick", 3, vec![]),
+                ("maverick", 3, vec!["extrabackpackcapacity", "increasedairreserves", "nightvision"]),
                 ("dominator", 2, vec![]),
-                ("karmaar50", 2, vec!["stability"]),
-                ("tkaphelion", 1, vec!["headshotdamage", "stability"]),
+                ("karmaar50", 2, vec!["magazinesize", "stability"]),
+                ("tkaphelion", 3, vec!["greaterrange", "improvedhipfireaccuracy", "stability"]),
             ]
         );
         assert_eq!((v.owned[3].kind, v.owned[3].maker.as_deref()), ("weapon", Some("kinematic")));
         let m = |id: &str| v.mods.iter().find(|m| m.id == id).unwrap();
-        // Not every owned suit has Night Vision, so it is still offered.
+        // The Dominator has no Night Vision, so it is still offered.
         assert!(!m("nightvision").fitted);
         // Both owned weapons have Stability: nothing left to pick.
         assert!(m("stability").fitted);
-        // Only the Aphelion has Headshot Damage: Takada's is left out, Kinematic's is still offered.
-        assert!(!m("headshotdamage").fitted);
-        assert_eq!(m("headshotdamage").fitted_makers, ["takada"]);
+        // Only the Aphelion has Hip Fire Accuracy: Takada's is left out, Kinematic's is offered.
+        assert!(!m("improvedhipfireaccuracy").fitted);
+        assert_eq!(m("improvedhipfireaccuracy").fitted_makers, ["takada"]);
         // Nothing owned means nothing hidden.
         let none = view(&h, &JournalState::default(), "Empty");
         assert!(none.owned.is_empty() && none.mods.iter().all(|m| !m.fitted && m.fitted_makers.is_empty()));
@@ -305,14 +308,34 @@ mod tests {
         let mut o = Owned::default();
         let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
         o.apply(&line(r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class3","SuitMods":["suit_nightvision","suit_notamod"],"Modules":[]}"#));
-        o.apply(&line(r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class4","SuitMods":["suit_damageresistance"],"Modules":[]}"#));
-        o.apply(&line(r#"{"event":"BuyWeapon","Name":"x","Name_Localised":"Plasma Pistol","SuitModuleID":9}"#));
-        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"UtilitySuit_Class1","SuitID":2,"Class":9}"#));
+        o.apply(&line(r#"{"event":"SwitchSuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class4","SuitMods":["suit_improvedarmourrating"],"Modules":[]}"#));
+        o.apply(&line(
+            r#"{"event":"BuyWeapon","Name":"Wpn_X_Plasma_Pistol","Class":1,"SuitModuleID":9,"WeaponMods":[]}"#,
+        ));
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"UtilitySuit_Class9","SuitID":2,"Class":9,"Cost":0}"#));
         let g = o.gear();
         assert_eq!(g.len(), 1);
         assert_eq!(
             (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
             ("dominator", 4, ["damageresistance".to_string()].as_slice())
+        );
+    }
+
+    #[test]
+    fn upgrading_keeps_the_mods_and_the_name_not_the_localised_text_identifies_gear() {
+        let mut o = Owned::default();
+        let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
+        o.apply(&line(r#"{"event":"BuySuit","Name":"UtilitySuit_Class2","Name_Localised":"$UtilitySuit_Class1_Name;","Price":1,"SuitID":7,"SuitMods":["suit_nightvision"]}"#));
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"utilitysuit_class3","SuitID":7,"Class":3,"Cost":1}"#));
+        o.apply(&line(r#"{"event":"BuyWeapon","Name":"Wpn_S_Pistol_Laser_SAuto","Name_Localised":"Zenith en francais","Class":2,"Price":1,"SuitModuleID":8,"WeaponMods":["weapon_suppression_unpressurised"]}"#));
+        let g = o.gear();
+        assert_eq!(
+            (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
+            ("maverick", 3, ["nightvision".to_string()].as_slice())
+        );
+        assert_eq!(
+            (g[1].gear.as_str(), g[1].grade, g[1].mods.as_slice()),
+            ("tkzenith", 2, ["audiomasking".to_string()].as_slice())
         );
     }
 

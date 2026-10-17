@@ -151,12 +151,12 @@ it("starts an owned suit's upgrade at a grade it has and leaves out mods already
   // A suit the commander doesn't own is still a free choice.
   await fireEvent.change(gear, { target: { value: "artemis" } });
   expect(opts("From grade")).toEqual(["G1", "G2", "G3", "G4"]);
-  // Stability is on every owned weapon; Takada's Headshot Damage is on the Aphelion.
+  // Stability is on every owned weapon; Takada's Improved Hip Fire Accuracy is on the Aphelion.
   await fireEvent.change(screen.getByLabelText("Blueprint type"), { target: { value: "mod" } });
   const mods = [...(screen.getByLabelText("Modification") as HTMLSelectElement).options].map((o) => o.textContent);
   expect(mods).not.toContain("Stability");
   expect(mods).toContain("Night Vision");
-  await fireEvent.change(screen.getByLabelText("Modification"), { target: { value: "headshotdamage" } });
+  await fireEvent.change(screen.getByLabelText("Modification"), { target: { value: "improvedhipfireaccuracy" } });
   const makers = [...(screen.getByLabelText("Weapon maker") as HTMLSelectElement).options].map((o) => o.textContent);
   expect(makers).not.toContain("Takada");
   expect(makers).toContain("Kinematic Armaments");

@@ -3217,7 +3217,9 @@
       },
       {
         "fitted": false,
-        "fitted_makers": [],
+        "fitted_makers": [
+          "takada"
+        ],
         "id": "greaterrange",
         "kind": "weapon",
         "makers": [
@@ -3229,9 +3231,7 @@
       },
       {
         "fitted": false,
-        "fitted_makers": [
-          "takada"
-        ],
+        "fitted_makers": [],
         "id": "headshotdamage",
         "kind": "weapon",
         "makers": [
@@ -3243,7 +3243,9 @@
       },
       {
         "fitted": false,
-        "fitted_makers": [],
+        "fitted_makers": [
+          "takada"
+        ],
         "id": "improvedhipfireaccuracy",
         "kind": "weapon",
         "makers": [
@@ -3319,7 +3321,11 @@
         "grade": 3,
         "kind": "suit",
         "maker": null,
-        "mods": [],
+        "mods": [
+          "extrabackpackcapacity",
+          "increasedairreserves",
+          "nightvision"
+        ],
         "name": "Maverick Suit"
       },
       {
@@ -3336,17 +3342,19 @@
         "kind": "weapon",
         "maker": "kinematic",
         "mods": [
+          "magazinesize",
           "stability"
         ],
         "name": "Karma AR-50"
       },
       {
         "gear": "tkaphelion",
-        "grade": 1,
+        "grade": 3,
         "kind": "weapon",
         "maker": "takada",
         "mods": [
-          "headshotdamage",
+          "greaterrange",
+          "improvedhipfireaccuracy",
           "stability"
         ],
         "name": "TK Aphelion"
