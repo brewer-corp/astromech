@@ -139,6 +139,8 @@ pub struct FleetBuilder {
     current: Option<i64>,
     /// System of the last dock, for a ship left behind by a swap.
     here: Option<String>,
+    /// Market id of the last dock, for the same.
+    here_market: Option<i64>,
 }
 
 impl FleetBuilder {
@@ -167,7 +169,7 @@ impl FleetBuilder {
                             system: self.here.clone(),
                             in_transit: false,
                             value: old.value,
-                            market_id: None,
+                            market_id: self.here_market,
                         });
                     }
                 }
@@ -194,9 +196,13 @@ impl FleetBuilder {
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
-            JournalEvent::Docked { star_system, .. } => self.here = Some(star_system.clone()),
-            JournalEvent::Location { star_system, docked, .. } => {
+            JournalEvent::Docked { star_system, market_id, .. } => {
+                self.here = Some(star_system.clone());
+                self.here_market = *market_id;
+            }
+            JournalEvent::Location { star_system, docked, market_id, .. } => {
                 self.here = docked.then(|| star_system.clone());
+                self.here_market = market_id.filter(|_| *docked);
             }
             JournalEvent::ShipTransfer { ship_id, ship_type } => {
                 // It arrives where we are; until the next StoredShips it counts as in transit.
