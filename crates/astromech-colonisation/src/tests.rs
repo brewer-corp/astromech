@@ -86,7 +86,7 @@ fn survives_restart() {
     };
     // New process: reopen the file, restore, then the same journal is read again.
     let store = Store::open(&db).unwrap();
-    let mut t = Tracker::load(&store).unwrap();
+    let mut t = Tracker::load(&store).unwrap().tracker;
     assert_eq!(t.projects().cloned().collect::<Vec<_>>(), expected);
     assert_eq!(t.project(MARKET_A).unwrap().progress, 0.5);
     assert_eq!(t.project(MARKET_B).unwrap().progress, 1.0);
@@ -103,7 +103,7 @@ fn survives_restart() {
         ],
     );
     t.save(&store).unwrap();
-    let t2 = Tracker::load(&store).unwrap();
+    let t2 = Tracker::load(&store).unwrap().tracker;
     assert_eq!(t2.project(MARKET_A).unwrap().contributed("$steel_name;"), 400);
 }
 
@@ -112,16 +112,107 @@ fn save_writes_only_changes() {
     let store = Store::in_memory().unwrap();
     let mut t = replayed();
     t.save(&store).unwrap();
-    store.put_record(PROJECT, &MARKET_B.to_string(), "sentinel").unwrap();
+    store.put_record(PROJECT, &record_key("", &MARKET_B.to_string()), "sentinel").unwrap();
     t.save(&store).unwrap();
     assert!(store.records(PROJECT).unwrap().iter().any(|(_, b)| b == "sentinel"));
 }
 
+/// Two commanders in one journal folder: A gets a project, a claim and a beacon, B logs in and
+/// gets others, and the same depot (market 3900000001) is also contributed to by both.
+fn two_commanders() -> Vec<&'static str> {
+    vec![
+        r#"{"timestamp":"2026-10-01T09:00:00Z","event":"Fileheader","gameversion":"4.1.0.0","build":"x"}"#,
+        r#"{"timestamp":"2026-10-01T09:00:01Z","event":"Commander","FID":"F100","Name":"Alpha"}"#,
+        r#"{"timestamp":"2026-10-01T09:01:00Z","event":"Location","StarSystem":"Alpha Sys","SystemAddress":11,"Docked":false}"#,
+        r#"{"timestamp":"2026-10-01T09:02:00Z","event":"ColonisationSystemClaim","StarSystem":"Alpha Sys","SystemAddress":11}"#,
+        r#"{"timestamp":"2026-10-01T09:03:00Z","event":"ColonisationBeaconDeployed"}"#,
+        r#"{"timestamp":"2026-10-01T09:04:00Z","event":"ColonisationConstructionDepot","MarketID":3900000001,"ConstructionProgress":0.25,"ConstructionComplete":false,"ConstructionFailed":false,"ResourcesRequired":[]}"#,
+        r#"{"timestamp":"2026-10-01T09:05:00Z","event":"ColonisationContribution","MarketID":3900000001,"Contributions":[{"Name":"$steel_name;","Amount":100}]}"#,
+        r#"{"timestamp":"2026-10-02T09:00:00Z","event":"Fileheader","gameversion":"4.1.0.0","build":"x"}"#,
+        r#"{"timestamp":"2026-10-02T09:00:01Z","event":"Commander","FID":"F200","Name":"Beta"}"#,
+        r#"{"timestamp":"2026-10-02T09:02:00Z","event":"ColonisationSystemClaim","StarSystem":"Beta Sys","SystemAddress":22}"#,
+        r#"{"timestamp":"2026-10-02T09:03:00Z","event":"ColonisationContribution","MarketID":3900000001,"Contributions":[{"Name":"$steel_name;","Amount":7}]}"#,
+        r#"{"timestamp":"2026-10-02T09:04:00Z","event":"ColonisationContribution","MarketID":3900000002,"Contributions":[{"Name":"$steel_name;","Amount":9}]}"#,
+    ]
+}
+
 #[test]
-fn corrupt_record_is_an_error_not_silent_loss() {
+fn state_is_kept_per_commander() {
+    let mut t = Tracker::new();
+    replay_lines(&mut t, two_commanders());
+    // The newest line is Beta's: only Beta's state shows.
+    let ids: Vec<_> = t.projects().map(|p| p.market_id).collect();
+    assert_eq!(ids, [MARKET_A, MARKET_B]);
+    assert_eq!(t.project(MARKET_A).unwrap().contributed_total(), 7, "not Alpha's 100 as well");
+    assert_eq!(t.project(MARKET_A).unwrap().progress, 0.0, "Alpha's depot report is not Beta's");
+    assert_eq!(t.claims().map(|c| c.system_address).collect::<Vec<_>>(), [Some(22)]);
+    assert_eq!(t.beacons().count(), 0);
+
+    // Alpha logs in again: their own state is back, and Beta's is kept for later.
+    replay_lines(
+        &mut t,
+        [
+            r#"{"timestamp":"2026-10-03T09:00:00Z","event":"Fileheader","gameversion":"4.1.0.0","build":"x"}"#,
+            r#"{"timestamp":"2026-10-03T09:00:01Z","event":"LoadGame","FID":"F100","Commander":"Alpha"}"#,
+        ],
+    );
+    assert_eq!(t.projects().map(|p| p.market_id).collect::<Vec<_>>(), [MARKET_A]);
+    assert_eq!(t.project(MARKET_A).unwrap().contributed_total(), 100);
+    assert_eq!(t.project(MARKET_A).unwrap().progress, 0.25);
+    assert_eq!(t.claims().map(|c| c.system_address).collect::<Vec<_>>(), [Some(11)]);
+    assert_eq!(t.beacons().count(), 1);
+}
+
+#[test]
+fn commanders_persist_under_their_own_keys() {
     let store = Store::in_memory().unwrap();
-    store.put_record(PROJECT, "1", "not json").unwrap();
-    assert!(matches!(Tracker::load(&store), Err(Error::Corrupt { .. })));
+    let mut t = Tracker::new();
+    replay_lines(&mut t, two_commanders());
+    t.save(&store).unwrap();
+    let keys: Vec<_> = store.records(PROJECT).unwrap().into_iter().map(|(k, _)| k).collect();
+    assert_eq!(keys, ["F100|3900000001", "F200|3900000001", "F200|3900000002"]);
+    // After a restart the journal's newest commander picks their records back up.
+    let mut t = Tracker::load(&store).unwrap().tracker;
+    replay_lines(&mut t, two_commanders().into_iter().take(2));
+    assert_eq!(t.project(MARKET_A).unwrap().contributed_total(), 100);
+    assert_eq!(t.projects().count(), 1);
+}
+
+#[test]
+fn unreadable_record_is_skipped_and_kept_and_the_rest_loads() {
+    let store = Store::in_memory().unwrap();
+    let mut t = Tracker::new();
+    replay_lines(&mut t, two_commanders());
+    t.save(&store).unwrap();
+    store.put_record(PROJECT, "F200|1", "not json").unwrap();
+    store.put_record(CLAIM, "F200|2", "{").unwrap();
+    store.put_record(BEACON, "F200|3", "[]").unwrap();
+
+    let Loaded { mut tracker, skipped } = Tracker::load(&store).unwrap();
+    let kinds: Vec<_> = skipped
+        .iter()
+        .map(|e| match e {
+            Error::Corrupt { kind, key, .. } => (*kind, key.as_str()),
+            Error::Store(_) => unreachable!(),
+        })
+        .collect();
+    assert_eq!(kinds, [(PROJECT, "F200|1"), (CLAIM, "F200|2"), (BEACON, "F200|3")]);
+    assert!(skipped[0].to_string().contains("F200|1"), "{}", skipped[0]);
+
+    // The good records are all there, and the app keeps working: new events apply and save.
+    replay_lines(&mut tracker, two_commanders().into_iter().skip(7));
+    assert_eq!(tracker.projects().count(), 2);
+    replay_lines(
+        &mut tracker,
+        [
+            r#"{"timestamp":"2026-10-04T09:00:00Z","event":"ColonisationContribution","MarketID":3900000002,"Contributions":[{"Name":"$steel_name;","Amount":1}]}"#,
+        ],
+    );
+    tracker.save(&store).unwrap();
+    // Nothing was lost: the unreadable rows are still in the store for someone to look at.
+    assert!(store.records(PROJECT).unwrap().iter().any(|(k, b)| k == "F200|1" && b == "not json"));
+    assert!(store.records(CLAIM).unwrap().iter().any(|(k, _)| k == "F200|2"));
+    assert!(store.records(BEACON).unwrap().iter().any(|(k, _)| k == "F200|3"));
 }
 
 #[test]
