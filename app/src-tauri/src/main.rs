@@ -479,6 +479,21 @@ async fn exploration_system() -> Result<Value, String> {
     .await
 }
 
+/// The latest commander's unsold cartographic and organic data, from the history the core keeps
+/// (`history.sqlite`, read only); `null` before the first commander.
+#[tauri::command]
+async fn exploration_unsold() -> Result<Value, String> {
+    blocking(move || {
+        let db = app_dir().join("history.sqlite");
+        if !db.is_file() {
+            return Err("no journal history yet: the core builds it from the journals once it runs".into());
+        }
+        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
+        serde_json::to_value(h.unsold(None).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// The station docked at: services, economies, faction and its state, pads, and which modules its
 /// outfitting sells that the ship flown would be better for. `docked: false` when not docked.
 #[tauri::command]
@@ -1156,7 +1171,8 @@ fn main() {
             docked_here,
             outfitting_search,
             session_summary,
-            exploration_system
+            exploration_system,
+            exploration_unsold
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

@@ -139,5 +139,23 @@
     ],
     "value": 4800561,
     "value_if_mapped": 6915662
+  },
+  "unsold": {
+    "commander": {
+      "cmdr": "F0000001",
+      "name": "Fixture",
+      "legacy": false,
+      "first_seen": "2026-09-01T10:00:05Z",
+      "last_seen": "2026-10-17T10:06:00Z"
+    },
+    "cartographic": 38412907,
+    "systems": 46,
+    "bodies": 412,
+    "organic": 41023400,
+    "samples": 7,
+    "unknown_samples": 0,
+    "total": 79436307,
+    "since": "2026-10-03T18:22:10Z",
+    "risky": true
   }
 }

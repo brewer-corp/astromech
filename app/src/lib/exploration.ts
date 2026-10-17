@@ -66,3 +66,27 @@ export function credits(n: number): string {
   if (n >= 10_000) return `${Math.round(n / 1000).toLocaleString()} k cr`;
   return `${n.toLocaleString()} cr`;
 }
+
+/** The commander's unsold data (astromech_exploration::unsold, through the history). */
+export interface Unsold {
+  commander: { cmdr: string; name: string };
+  cartographic: number;
+  systems: number;
+  bodies: number;
+  organic: number;
+  samples: number;
+  /** Samples of a species with no known value (counted as 0). */
+  unknown_samples: number;
+  total: number;
+  /** The oldest unsold scan or sample. */
+  since: string | null;
+  /** Worth a reminder to sell. */
+  risky: boolean;
+  source?: string;
+}
+
+/** `null`: no commander in the history yet. */
+export async function loadUnsold(): Promise<Unsold | null> {
+  if (!inTauri) return { ...(sample.unsold as Unsold), source: "Sample history" };
+  return await invoke<Unsold | null>("exploration_unsold");
+}

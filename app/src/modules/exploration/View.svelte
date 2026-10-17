@@ -2,7 +2,11 @@
   // The live system view (OD Explorer's system page): the bodies of the system you are in as you
   // scan them, with what each is worth now and mapped, which are worth mapping, and the facts
   // that decide where to fly (terraformable, landable, rings, gravity, signals).
-  import { credits, loadSystem, type Body, type SystemView } from "../../lib/exploration";
+  import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
+  import { when } from "../../lib/logbook";
+  import type { Filters, Origin } from "../../lib/search";
+  import { stations, toResults } from "../../lib/stations";
+  import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let view = $state<SystemView | null>(null);
@@ -20,6 +24,31 @@
     void tick();
     const t = setInterval(() => void tick(), 3000);
     return () => clearInterval(t);
+  });
+
+  // The data aboard, from the history (it changes on a scan or a sale, not every second).
+  let unsold = $state<Unsold | null>(null);
+  let unsoldLoaded = $state(false);
+  let unsoldFailed = $state<string | null>(null);
+  $effect(() => {
+    const tick = () =>
+      loadUnsold()
+        .then((u) => {
+          unsold = u;
+          unsoldLoaded = true;
+          unsoldFailed = null;
+        })
+        .catch((e: unknown) => (unsoldFailed = String(e)));
+    void tick();
+    const t = setInterval(() => void tick(), 15000);
+    return () => clearInterval(t);
+  });
+
+  // Where to sell it: the nearest Universal Cartographics or Vista Genomics, on the search kit.
+  let sellAt = $state<"universal_cartographics" | "vista_genomics">("universal_cartographics");
+  const run = $derived.by(() => {
+    const service = sellAt;
+    return async (origin: Origin, filters: Filters) => toResults(await stations({ kind: "service", service }, origin, filters));
   });
 
   /** Short facts for the body's row. */
@@ -91,6 +120,45 @@
       walked there first.
     </p>
   {/if}
+
+  <h3>Unsold data</h3>
+  {#if unsoldFailed}
+    <p class="err">{unsoldFailed}</p>
+  {:else if unsold}
+    <div class="tiles">
+      <div>
+        <span class="k">Cartographic</span><span class="v">{credits(unsold.cartographic)}</span>
+        <span class="lo small">{unsold.bodies.toLocaleString()} bodies in {unsold.systems.toLocaleString()} systems</span>
+      </div>
+      <div>
+        <span class="k">Organic</span><span class="v">{credits(unsold.organic)}</span>
+        <span class="lo small">{unsold.samples} samples{unsold.unknown_samples ? `, ${unsold.unknown_samples} of unknown value` : ""}</span>
+      </div>
+      <div><span class="k">Total</span><span class="v">{credits(unsold.total)}</span></div>
+    </div>
+    <p class="sub">
+      CMDR {unsold.commander.name}{unsold.since ? ` · unsold since ${when(unsold.since)} UTC` : ""}{unsold.source ? ` · ${unsold.source}` : ""}
+    </p>
+    {#if unsold.risky}
+      <p class="risk" role="alert">{credits(unsold.total)} aboard. Dying loses all of it: sell it at the nearest station below.</p>
+    {/if}
+  {:else if unsoldLoaded}
+    <p class="lo">No commander in the journal history yet.</p>
+  {:else}
+    <p class="lo">Reading the journal history…</p>
+  {/if}
+
+  <h3>Where to sell</h3>
+  <div class="sell">
+    <label class="pick">
+      <span>Sell</span>
+      <select bind:value={sellAt}>
+        <option value="universal_cartographics">Cartographic data: Universal Cartographics</option>
+        <option value="vista_genomics">Organic data: Vista Genomics</option>
+      </select>
+    </label>
+    <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" busyText="Asking Spansh…" />
+  </div>
 </section>
 
 <style>
@@ -114,4 +182,11 @@
   .tag { padding: 0 6px; background: var(--accent); color: var(--on-accent); }
   tr.worth .name { color: var(--accent); }
   p.note { margin-top: 18px; font-size: var(--fs-s); max-width: 52rem; }
+  h3 { margin: 28px 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .small { font-size: var(--fs-s); }
+  .risk { padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--cell); color: var(--text-hi); max-width: 52rem; }
+  .sell { max-width: 46rem; }
+  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); margin-bottom: 4px; }
+  .pick > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
+  select { all: unset; flex: 1; height: 30px; padding: 0 8px; background: var(--cell); color: var(--accent); cursor: pointer; }
 </style>

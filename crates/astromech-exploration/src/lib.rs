@@ -5,12 +5,15 @@
 //! - [`value`]: what a star or planet is worth to Universal Cartographics, scanned, mapped and
 //!   first discovered (the community's formulae, with their sources).
 //! - [`system`]: the live system view, the current system's bodies as they are scanned.
+//! - [`unsold`]: the cartographic and organic data aboard and what it would fetch.
 //! - [`exobiology`]: what Vista Genomics pays for a species (`data/catalog/exobiology.json`).
 //!
 //! Pure folds over [`astromech_journal::JournalLine`]s, so they are replay-tested.
 
 pub mod exobiology;
 pub mod system;
+pub mod unsold;
 pub mod value;
 
 pub use system::{BodyView, SystemFold, SystemView};
+pub use unsold::{Unsold, UnsoldFold};

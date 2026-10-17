@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Unsold data value"
-updated_at: "2026-10-17T04:39:43.055372851+00:00"
+updated_at: "2026-10-17T05:00:10.735282742+00:00"
 ---
 
 ## Goal
