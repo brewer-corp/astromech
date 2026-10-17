@@ -567,6 +567,7 @@ fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
     for i in 1..=20u64 {
         gave_up += r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap().gave_up;
     }
+    // Without the outage guard every one of the 21 goes; with it only the few that fail alone first.
     assert!((2..=4).contains(&gave_up), "gave up {gave_up} of {queued}");
     assert_eq!(r.courier.outbox().pending().unwrap(), queued - gave_up);
 }
