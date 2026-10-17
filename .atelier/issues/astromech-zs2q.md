@@ -4,6 +4,9 @@ id: "astromech-zs2q"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-zs2q
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Share one persistent data client across core and shell"
-updated_at: "2026-10-16T19:03:05.144182187+00:00"
+updated_at: "2026-10-17T05:46:38.267746140+00:00"
 ---
 
 ## Goal
