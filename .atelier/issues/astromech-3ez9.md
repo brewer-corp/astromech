@@ -4,6 +4,9 @@ id: "astromech-3ez9"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-3ez9
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice queries for colonisation progress, what is left and where to buy"
-updated_at: "2026-10-17T07:38:18.826673693+00:00"
+updated_at: "2026-10-17T07:39:53.547560207+00:00"
 ---
 
 ## Goal
