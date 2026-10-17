@@ -8,10 +8,7 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates:
-  - kind: "issue"
-    id: "astromech-7q0z"
-    type: "advances"
+  relates: []
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
