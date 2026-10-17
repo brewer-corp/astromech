@@ -16,6 +16,9 @@ Sources (see NOTICE.md):
   Apache-2.0), facts only (symbol, name, credits). Its credits are compared with the wiki's; a
   disagreement is listed under `uncertain`. A species EDR knows and the wiki's page doesn't
   (Radicoida Unicus) is kept with EDR's value and colony range, marked uncertain.
+- Horizons-era species symbols (`$codex_ent_sphereabcd_01_name;`), which EDR doesn't list:
+  Canonn's codex reference (its public API, `query/codex/ref`; the answer is kept in the cache
+  directory and reused), facts only (symbol and English name).
 - Genus symbols: the journal's `Genus` values, as listed by Elite Observatory
   (Xjph/ObservatoryCore, MIT).
 - Conditions: measured here from Spansh's bodies search (spansh.co.uk, EDDN data: bodies other
@@ -32,6 +35,7 @@ import hashlib, json, os, re, sys, time, urllib.parse, urllib.request
 WIKI_PAGE = "Exobiology Sample Values and Details"
 WIKI_API = "https://elite-dangerous.fandom.com/api.php"
 SPANSH = "https://spansh.co.uk/api/bodies/search"
+CANONN_CODEX = "https://us-central1-canonn-api-236217.cloudfunctions.net/query/codex/ref"
 AGENT = "astromech gen-exobiology.py (+https://github.com/spadaval/astromech)"
 # Where the species are looked for: Sol, Colonia, the galactic centre, the far side of the core.
 REFS = [(0.0, 0.0, 0.0), (-9530.5, -910.28, 19808.13), (25.2, -20.9, 25899.97), (1500.0, 0.0, 40000.0)]
@@ -66,7 +70,8 @@ CODEX = {
     "Amphora Plant": ["Vents"],
     "Anemone": ["Sphere"],
     "Bark Mound": ["Cone"],
-    "Brain Tree": ["Brancae"],
+    # Elite Observatory has seen brain trees under `Seed` (the Roseum Brain Tree's species symbol) too.
+    "Brain Tree": ["Brancae", "Seed"],
     "Crystalline Shard": ["Ground_Struct_Ice"],
     "Sinuous Tuber": ["Tube"],
 }
@@ -74,6 +79,9 @@ HORIZONS = {"Amphora Plant", "Anemone", "Bark Mound", "Brain Tree", "Crystalline
 
 # Horizons-era genera whose species the game names "<epithet> <genus>" ("Roseum Brain Tree").
 EPITHET_FIRST = {"Anemone", "Brain Tree", "Sinuous Tuber"}
+
+# Canonn's codex names for Horizons-era species, where they differ from the wiki's beyond the plural.
+CODEX_NAME_FIXES = {"Roseum Sinuous Tubers": "Roseus Sinuous Tuber"}
 
 # The one value per Horizons-era genus in ED Assistant's seed data (what astromech used before this
 # catalogue), for the `uncertain` comparison.
@@ -144,6 +152,29 @@ def wiki_tables(text):
                 name = f"{genus} {epithet}"
             species[name] = int(value)
         out[genus] = (int(m.group(1)), species)
+    return out
+
+
+def horizons_symbols(cache, wiki):
+    """{wiki species name: journal symbol, lower case} for the Horizons-era species, from Canonn's
+    codex reference (cached). The codex names a species in the plural ("Roseum Sinuous Tubers")."""
+    path = os.path.join(cache, "canonn-codex-ref.json")
+    if not os.path.exists(path):
+        ref = get_json(CANONN_CODEX)
+        with open(path, "w") as f:
+            json.dump(ref, f)
+    ref = json.load(open(path))
+    names = {n.lower(): n for g, (_, sp) in wiki.items() if g in HORIZONS for n in sp}
+    out = {}
+    for e in ref.values():
+        if e.get("hud_category") != "Biology" or not e.get("name", "").startswith("$Codex_Ent_"):
+            continue
+        name = CODEX_NAME_FIXES.get(e["english_name"], e["english_name"]).removesuffix("s")
+        if name.lower() in names:
+            out[names[name.lower()]] = e["name"].lower()
+    missing = sorted(set(names.values()) - set(out))
+    if missing:
+        sys.exit(f"no codex symbol for {missing}")
     return out
 
 
@@ -305,6 +336,7 @@ def main():
         sys.exit(f"wiki genera differ: {sorted(set(wiki) ^ set(CODEX))}")
     edr = json.load(open(edr_path))
     edr_species = {v["name"].strip(): (k.strip(), v["credits"]) for k, v in edr["species"].items()}
+    codex_symbols = horizons_symbols(cache, wiki)
 
     # Sightings of every Odyssey species.
     odyssey = sorted(n for g, (_, sp) in wiki.items() if g not in HORIZONS for n in sp)
@@ -322,6 +354,8 @@ def main():
                 by_species.setdefault(s, []).append(o)
 
     genera, uncertain = [], []
+    for codex, wiki_name in CODEX_NAME_FIXES.items():
+        uncertain.append(f"{wiki_name}: the wiki's name; the codex says {codex}")
     for genus in sorted(wiki):
         colony, values = wiki[genus]
         species = []
@@ -336,6 +370,8 @@ def main():
                 s["symbol"] = symbol
                 if credits != value:
                     uncertain.append(f"{name}: {value:,} used (wiki), EDR {credits:,}")
+            elif name in codex_symbols:
+                s["symbol"] = codex_symbols[name]
             if genus not in HORIZONS:
                 s["rules"] = derive(name, by_species.get(name, []))
                 if not s["rules"]:
@@ -362,7 +398,8 @@ def main():
     rules = {s["name"]: s.get("rules", []) for g in genera for s in g["species"]}
     out = {
         "source": f"values and colony ranges: Elite Dangerous wiki, \"{WIKI_PAGE}\" (fixes under uncertain); "
-        f"species symbols: lekeno/edr (Apache-2.0, facts only) at {edr_commit}, edr/data/biology.json; "
+        f"species symbols: lekeno/edr (Apache-2.0, facts only) at {edr_commit}, edr/data/biology.json, "
+        "and for the Horizons-era species Canonn's codex reference; "
         f"conditions: measured from Spansh's bodies search (EDDN data) on {time.strftime('%Y-%m-%d')}, "
         f"{len(train)} bodies with {sum(len(v) for v in by_species.values())} sightings "
         f"({len(held)} more held out for the recall test)",

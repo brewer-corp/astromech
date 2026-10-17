@@ -129,6 +129,8 @@ fn the_catalogue_knows_names_from_the_journal_and_spansh() {
         ("$Codex_Ent_Clepeus_Genus_Name;", "Clypeus"),
         ("$Codex_Ent_Shrubs_Genus_Name;", "Frutexa"),
         ("$Codex_Ent_Brancae_Name;", "Brain Tree"),
+        // Elite Observatory has seen brain trees under this genus symbol too.
+        ("$Codex_Ent_Seed_Name;", "Brain Tree"),
         ("Bacterial", "Bacterium"),
         ("Fonticulus", "Fonticulua"),
         ("Brain Trees", "Brain Tree"),
@@ -141,6 +143,17 @@ fn the_catalogue_knows_names_from_the_journal_and_spansh() {
     assert_eq!((g.name.as_str(), s.value, g.colony_range_m), ("Stratum", 19_010_800, 500));
     assert_eq!(catalog::species("Fonticulua Fluctus").unwrap().1.value, 20_000_000);
     assert_eq!(catalog::species("Roseum Brain Tree").unwrap().0.name, "Brain Tree");
+    // Every species, Horizons-era ones included, has its journal symbol.
+    for g in catalog::genera() {
+        for s in &g.species {
+            assert!(s.symbol.is_some(), "{} has no symbol", s.name);
+        }
+    }
+    let by_symbol = |s: &str| catalog::species_by_symbol(s).map(|(_, s)| s.name.as_str());
+    assert_eq!(by_symbol("$Codex_Ent_SphereABCD_01_Name;"), Some("Croceum Anemone"));
+    assert_eq!(by_symbol("$Codex_Ent_Seed_Name;"), Some("Roseum Brain Tree"));
+    assert_eq!(by_symbol("$Codex_Ent_TubeABCD_02_Name;"), Some("Albidum Sinuous Tuber"));
+    assert_eq!(by_symbol("$Codex_Ent_Vents_Name;"), Some("Amphora Plant"));
     assert_eq!(catalog::genus("Stratum").unwrap().value_range(), (1_362_000, 19_010_800));
     for (t, class) in [
         ("DAB", "D"),
