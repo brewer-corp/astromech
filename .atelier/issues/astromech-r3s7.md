@@ -4,6 +4,9 @@ id: "astromech-r3s7"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-r3s7
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "A journal once judged the game's stays live after a newer session starts"
-updated_at: "2026-10-17T22:51:24.585382919+00:00"
+updated_at: "2026-10-17T23:10:22.876964937+00:00"
 ---
 
 ## Goal
