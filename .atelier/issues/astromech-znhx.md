@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647047088+00:00"
 id: "astromech-znhx"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-znhx
 priority: "P1"
 relationships:
   blocks:
@@ -24,9 +27,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exobiology"
-updated_at: "2026-10-17T04:39:39.333291619+00:00"
+updated_at: "2026-10-17T04:40:06.755849249+00:00"
 ---
 
 ## Goal
