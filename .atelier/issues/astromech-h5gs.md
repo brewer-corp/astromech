@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:33:31.541953355+00:00"
 id: "astromech-h5gs"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-h5gs
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exobiology follow-ups: failed lookups, carrier arrivals, re-logged samples, localised names, Horizons symbols"
-updated_at: "2026-10-17T06:33:31.541953355+00:00"
+updated_at: "2026-10-17T07:33:07.726059349+00:00"
 ---
 
 ## Goal
