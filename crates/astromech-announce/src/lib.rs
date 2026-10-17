@@ -226,6 +226,7 @@ const TITLES: &[(&str, &str)] = &[
     ("arrival", "Arrival briefing"),
     ("powerplay_arrival", "Powerplay arrival"),
     ("biology", "Known biology"),
+    ("known_bodies", "Bodies known to EDSM"),
     ("docking", "Docking"),
     ("scoopable", "Next scoopable star"),
     ("fuel_range", "Fuel range"),
