@@ -199,6 +199,7 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-colonisation",
+ "astromech-data",
  "astromech-engineering",
  "astromech-galaxy",
  "astromech-history",

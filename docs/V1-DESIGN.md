@@ -114,7 +114,7 @@ those problems; see §3 for why this beats a pictorial main view.
 | "What's my ship?" | Loadout `Ship`, `ShipName`, `ShipIdent` |
 | "Legal state?" | Status.json `LegalState` |
 | "Where can I sell painite?" / "Where can I buy tritium?" (best station, system, distance, price, demand or stock; age if over a day) | Ardent Insight, from the current system, with the Trade page's filters |
-| "Where should I sell my cargo?" (best station for the whole load, total credits, how much of the load it takes) | `Cargo.json` and Ardent Insight, with the Trade page's My cargo filters |
+| "Where should I sell my cargo?" (best station for the whole load, total credits, how much of the load it takes; a commodity no market takes whole gets the best partial buyer) | `Cargo.json` and Ardent Insight, with the Trade page's My cargo filters |
 
 **Shell.**
 - A native tray menu (status, open, pause voice, kill switch, check for updates, quit), one

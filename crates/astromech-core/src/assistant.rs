@@ -98,6 +98,11 @@ impl Assistant {
         Self { remote: Arc::new(remote), clock, ..self }
     }
 
+    /// Answer lookups through the process's one `remote` client (shared with the star map).
+    pub fn with_shared_remote(self, remote: Arc<astromech_data::Client>) -> Self {
+        Self { remote, ..self }
+    }
+
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
         add_aliases(&mut self.grammar.lock().unwrap(), &store.lock().unwrap());
         Self { store: Some(store), ..self }

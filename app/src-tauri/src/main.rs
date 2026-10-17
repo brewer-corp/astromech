@@ -421,7 +421,9 @@ fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Gal
         return Ok(x.clone());
     }
     let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
-    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref())
+    // The core's cache file: an answer it fetched for a voice question is served here too.
+    let (remote, _) = astromech_data::Client::shared(&app_dir());
+    let opened = astromech_galaxy::Galaxy::open_shared(&app_dir().join("galaxy.db"), preload.as_deref(), std::sync::Arc::new(remote))
         .map(std::sync::Arc::new)
         .map_err(|e| e.to_string())?;
     *g = Some(opened.clone());
