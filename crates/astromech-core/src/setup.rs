@@ -61,7 +61,14 @@ pub enum Edit {
     /// `[edsm] enabled` and `[edsm] commander` (Settings → Data sharing).
     Edsm(bool),
     EdsmCommander(String),
+    /// `[callouts.<id>] enabled` (Settings → Callouts).
+    CalloutEnabled(String, bool),
+    /// `[callouts.<id>] cooldown_s`; None goes back to the callout's own cooldown.
+    CalloutCooldown(String, Option<f64>),
 }
+
+/// The longest cooldown Settings accepts (a day).
+pub const MAX_COOLDOWN_S: f64 = 86_400.0;
 
 /// Kokoro speeds Settings may set (1.0 is the colour's own pace).
 pub const SPEEDS: std::ops::RangeInclusive<f32> = 0.7..=1.3;
@@ -71,7 +78,8 @@ impl Edit {
     /// to clear), `set_mic` with `{mic}`, `set_folders` with `{bindings_dir}` or `{journal_dir}`,
     /// `set_voice` with any of `{speaker, speed, colour}`, `set_eddn` with `{enabled}`, `set_edsm`
     /// with `{enabled}` and/or `{commander}` (its `api_key` goes to the keyring, not here; with
-    /// only a key there is nothing to edit).
+    /// only a key there is nothing to edit), `set_callout` with `{id}` and `enabled` and/or
+    /// `cooldown_s` (null: the callout's own).
     pub fn from_request(cmd: &str, args: Option<&Value>) -> Result<Vec<Edit>> {
         let null = Value::Null;
         let a = args.unwrap_or(&null);
@@ -144,6 +152,31 @@ impl Edit {
                 }
                 v
             }
+            "set_callout" => {
+                let id = text("id").context("expected {id}")?;
+                if !astromech_announce::catalog().iter().any(|i| i.id == id) {
+                    bail!("unknown callout {id:?}");
+                }
+                let mut v = vec![];
+                if let Some(on) = a.get("enabled").filter(|x| !x.is_null()) {
+                    v.push(Edit::CalloutEnabled(id.clone(), on.as_bool().context("enabled must be true or false")?));
+                }
+                match a.get("cooldown_s") {
+                    None => {}
+                    Some(Value::Null) => v.push(Edit::CalloutCooldown(id.clone(), None)),
+                    Some(x) => {
+                        let secs = x.as_f64().context("cooldown_s must be a number of seconds")?;
+                        if !(0.0..=MAX_COOLDOWN_S).contains(&secs) {
+                            bail!("cooldown_s must be between 0 and {MAX_COOLDOWN_S} seconds");
+                        }
+                        v.push(Edit::CalloutCooldown(id.clone(), Some(secs)));
+                    }
+                }
+                if v.is_empty() {
+                    bail!("expected {{enabled}} or {{cooldown_s}}");
+                }
+                v
+            }
             c => bail!("unknown command {c:?}"),
         })
     }
@@ -156,10 +189,48 @@ fn button_value(b: &Button) -> toml_edit::Item {
     toml_edit::value(t)
 }
 
+/// Set (or, with None, remove) `key` in `[callouts.<id>]`, creating the tables; an emptied
+/// `[callouts.<id>]` goes too.
+fn set_callout_key(doc: &mut toml_edit::DocumentMut, id: &str, key: &str, item: Option<toml_edit::Item>) -> Result<()> {
+    if !doc.contains_key("callouts") {
+        let mut t = toml_edit::Table::new();
+        t.set_implicit(true);
+        doc["callouts"] = toml_edit::Item::Table(t);
+    }
+    let callouts = doc["callouts"].as_table_like_mut().context("[callouts] isn't a table")?;
+    match item {
+        Some(v) => {
+            if !callouts.contains_key(id) {
+                callouts.insert(id, toml_edit::table());
+            }
+            let t = callouts.get_mut(id).and_then(|i| i.as_table_like_mut());
+            t.with_context(|| format!("[callouts.{id}] isn't a table"))?.insert(key, v);
+        }
+        None => {
+            if let Some(t) = callouts.get_mut(id).and_then(|i| i.as_table_like_mut()) {
+                t.remove(key);
+                if t.is_empty() {
+                    callouts.remove(id);
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Apply edits to the config text, keeping everything else.
 pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
     let mut doc: toml_edit::DocumentMut = text.parse().context("the config file has a syntax error")?;
     for e in edits {
+        if let Edit::CalloutEnabled(id, _) | Edit::CalloutCooldown(id, _) = e {
+            let (key, item) = match e {
+                Edit::CalloutEnabled(_, on) => ("enabled", Some(toml_edit::value(*on))),
+                Edit::CalloutCooldown(_, c) => ("cooldown_s", c.map(toml_edit::value)),
+                _ => unreachable!(),
+            };
+            set_callout_key(&mut doc, id, key, item)?;
+            continue;
+        }
         let (table, key, item) = match e {
             Edit::Ptt(b) => ("controls", "ptt", b.as_ref().map(button_value)),
             Edit::KillSwitch(b) => ("controls", "kill_switch", b.as_ref().map(button_value)),
@@ -173,6 +244,7 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             Edit::Eddn(on) => ("eddn", "enabled", Some(toml_edit::value(*on))),
             Edit::Edsm(on) => ("edsm", "enabled", Some(toml_edit::value(*on))),
             Edit::EdsmCommander(c) => ("edsm", "commander", Some(toml_edit::value(c.as_str()))),
+            Edit::CalloutEnabled(..) | Edit::CalloutCooldown(..) => unreachable!("handled above"),
         };
         if !doc.contains_key(table) {
             doc[table] = toml_edit::table();
@@ -298,11 +370,29 @@ mod tests {
         assert_eq!(c.voice.mic, "Example USB");
         // Untouched lines are byte-for-byte the same, comments included.
         assert!(out.contains("# Kill switch: press to cancel everything"));
-        assert!(out.contains("kill_switch = { device = \"Keyboard\", key = \"Key_ScrollLock\" }"));
+        assert!(out.contains("# kill_switch = { device = \"Keyboard\", key = \"Key_ScrollLock\" }"));
         assert!(out.contains("# empty: Windows default recording device"), "{out}");
         // Push-to-talk is commented out in the sample, so it's added as one new line.
         assert_eq!(out.lines().count(), crate::config::SAMPLE.lines().count() + 1);
         assert!(out.contains("# ptt = { device = \"231D3201\""));
+    }
+
+    #[test]
+    fn callout_edits_write_the_table_and_remove_it_when_empty() {
+        let on = |id: &str| Edit::CalloutEnabled(id.into(), false);
+        let out =
+            apply("# top\n[eddn]\nenabled = false\n", &[on("scan"), Edit::CalloutCooldown("scan".into(), Some(45.0))])
+                .unwrap();
+        assert!(out.contains("# top") && out.contains("[eddn]"), "{out}");
+        let c = Config::parse(&out).unwrap();
+        assert_eq!(c.callouts.0["scan"].enabled, Some(false));
+        assert_eq!(c.callouts.0["scan"].cooldown_s, Some(45.0));
+        // Changing a value again replaces it; clearing both leaves no empty table behind.
+        let out = apply(&out, &[Edit::CalloutCooldown("scan".into(), Some(10.0))]).unwrap();
+        assert_eq!(Config::parse(&out).unwrap().callouts.0["scan"].cooldown_s, Some(10.0));
+        let out = apply(&out, &[Edit::CalloutCooldown("scan".into(), None), Edit::CalloutEnabled("scan".into(), true)])
+            .unwrap();
+        assert_eq!(Config::parse(&out).unwrap().callouts.0["scan"].cooldown_s, None);
     }
 
     #[test]

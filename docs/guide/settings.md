@@ -44,6 +44,16 @@ The next reply uses the change. Preview needs the speech models.
   and your voice on this mic, so quiet speech is not dropped and background noise is not heard
   as words.
 
+### Callouts
+
+One row for each [callout](callouts.md): a switch (**On** or **Off**) and its cooldown in seconds,
+how long it stays quiet after it speaks. Click the switch to turn a callout off, or the
+Powerplay arrival one on. Type a new number of seconds (0 to 86400) in the box and press Enter or
+click away; **Reset** returns to the callout's own cooldown. The change is saved to
+`[callouts.<id>]` in `astromech.toml` and applies from the next time Elite starts, not to a
+session already running. If you also edit `astromech.toml` by hand, a hand-written value shows
+here too.
+
 ### Prospector callouts
 
 One box per ore, in percent. When a prospector limpet reports a rock with at least this much of
@@ -61,8 +71,8 @@ without a default are only called out as a motherlode. See [Callouts](callouts.m
 
 ### Files
 
-- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one, which sets the kill
-  switch to Scroll Lock (known bug: astromech-k20i); change it in setup if that is wrong. Keep the name exactly
+- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one. It changes no
+  setting: the button examples in it, including a Scroll Lock kill switch, are comments. Keep the name exactly
   `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech reports the file it
   found instead.
 - **Logs.** The log folder, with **Open folder**.
@@ -74,7 +84,6 @@ restart afterwards.
 
 | Setting | What it does | Default |
 |---|---|---|
-| `[callouts.<id>]` `enabled`, `cooldown_s` | Turn one [callout](callouts.md) off, turn the Powerplay arrival one on, or change how long a callout stays quiet after it speaks | On (Powerplay arrival: off) |
 | `[controls]` `rearm_hold_ms` | How long to hold the kill switch to re-arm | 1000 |
 | `[voice]` `min_hold_ms` | Push-to-talk holds shorter than this are dropped | 300 |
 | `[voice]` `min_level_dbfs` | Clips quieter than this are dropped (calibration sets it) | -45 |
@@ -85,13 +94,18 @@ restart afterwards.
 | `[game]` `journal_dir`, `bindings_dir`, `game_dir` | Where the game's files are, if not the usual places | empty |
 | `data_dir` | Where history, caches and models are kept | `%LOCALAPPDATA%\astromech\data` |
 
-A callout with an unknown id or a `cooldown_s` that is not a number of seconds is reported in the log
-and ignored on its own. Any other error in the file (a typo, a bad value) is different: the **whole file
-is discarded** and astromech runs with every default, including no push-to-talk and no kill switch,
-until you fix it. Setup says "config file has an error (see logs)"; Settings (under Files) and
-Diagnostics say "config error (see logs)". Once you save a fixed file, astromech reads it
-the next time its window or tray checks and the message goes away; you do not need to restart. Its
-settings then apply as after a change made in Settings (buttons and microphone from the next session). (Known bug: astromech-thym.)
+A value that does not fit its setting (a word where a number goes, say) is ignored on its own: that
+setting uses its default and the rest of the file applies. The log lists each one with its line, and
+Settings (under Files) and Diagnostics say "These config values were ignored", with the keys and lines.
+A `[callouts.<id>]` section whose id is not a callout is skipped the same way. A key astromech does not
+know is skipped without a message, so check the spelling if a setting seems to do nothing. If the file is
+not valid TOML at all (a missing bracket, an unclosed quote), astromech cannot read any of it and runs
+with every default, including no push-to-talk and no kill switch, until you fix it. Setup then says
+"config file has an error (see logs)".
+
+Fix the file and save it: you do not need to restart. The next time the window or tray checks, astromech
+reads it again, uses what is in it and updates or clears the message. Its settings then apply as after a
+change made in Settings (buttons and microphone from the next session).
 
 ## Diagnostics
 

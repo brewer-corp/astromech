@@ -170,14 +170,7 @@ impl Session {
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-        let shared = match astromech_store::Store::open(&data.join("astromech.sqlite")) {
-            Ok(st) => astromech_announce::Shared {
-                prospector: Arc::new(RwLock::new(callouts::load_thresholds(&st))),
-                shopping: Arc::new(RwLock::new(callouts::load_shopping(&st))),
-                ..Default::default()
-            },
-            Err(_) => astromech_announce::Shared::default(),
-        };
+        let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
         shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
@@ -376,6 +369,9 @@ struct ClipJob {
     meta: serde_json::Value,
     /// Holds callouts until this clip is handled (dropped).
     _turn: callouts::TurnJob<'static>,
+    /// Whether the voice tester's test mode was on when push-to-talk was released: the phrase is
+    /// tested or run by this, whatever the page does while the clip is transcribed.
+    testing: bool,
 }
 
 #[cfg(windows)]
@@ -444,10 +440,8 @@ fn start_voice(
             while let Ok(job) = jrx.recv() {
                 let t0 = std::time::Instant::now();
                 match stt.transcribe(&job.samples, job.rate) {
-                    Ok(t) if t.is_empty() && !TESTER.armed(std::time::Instant::now()) => {
-                        a.runner.speaker.say("Say again.")
-                    }
-                    Ok(t) => match tester::on_heard(&TESTER, &a, &t, std::time::Instant::now()) {
+                    Ok(t) if t.is_empty() && !job.testing => a.runner.speaker.say("Say again."),
+                    Ok(t) => match tester::on_heard(&TESTER, &a, &t, job.testing) {
                         // The voice tester page is open: it shows what this would do. Nothing pressed.
                         tester::Heard::Tested(r) => {
                             log(&format!(
@@ -455,6 +449,7 @@ fn start_voice(
                                 t0.elapsed().as_millis(),
                                 r.would
                             ));
+                            a.runner.speaker.say(tester::TEST_ONLY);
                             if let Some(p) = job.sidecar {
                                 write_sidecar(&p, &job.meta, &t, r.intent.as_ref().map(|i| i.command.as_str()));
                             }
@@ -561,7 +556,7 @@ fn start_voice(
                         runner.speaker.say(if have_stt {
                             "No microphone found. Check the Windows sound input settings."
                         } else {
-                            "Voice isn't loaded. Type commands in the console."
+                            "Voice is not loaded. Type commands in the console."
                         });
                     }
                 }
@@ -571,6 +566,8 @@ fn start_voice(
                         // real release and keep the post-roll measured from there too.
                         let up_at = std::time::Instant::now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
                         let held = up_at.duration_since(down_at).as_millis() as u64;
+                        // Test mode as it is at release; the clip may take seconds to transcribe.
+                        let testing = TESTER.armed(std::time::Instant::now());
                         std::thread::sleep(post.saturating_sub(debounce));
                         m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
                         let samples = m.take(f, m.position());
@@ -612,6 +609,7 @@ fn start_voice(
                                     sidecar,
                                     meta,
                                     _turn: callouts::VOICE_TURN.job_queued(std::time::Instant::now()),
+                                    testing,
                                 });
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),

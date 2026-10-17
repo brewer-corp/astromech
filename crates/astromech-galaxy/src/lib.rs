@@ -6,12 +6,13 @@
 //! jump counts by A* over the known stars at the ship's range; raw-material sites (crystalline
 //! shards, brain trees, crashed ships, geological sites, the known farms) from Spansh's bodies
 //! search; colonisation candidates (unclaimed systems in claim range of a populated one) from
-//! both.
+//! both; neutron and exact routes for the route follower from Spansh's plotters ([`plot`]).
 
 pub mod colonies;
 pub mod filters;
 pub mod map;
 pub mod outfitting;
+pub mod plot;
 pub mod powerplay;
 pub mod remote;
 pub mod sites;
@@ -24,6 +25,10 @@ pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use powerplay::{Logistics, LogisticsPoint, Target, TargetHit, Targets};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
+/// The lookup warning when Spansh returns systems without the requested state.
+pub const NEARBY_MISMATCH_WARNING: &str =
+    "Spansh returned systems without the requested state; its search filter may have changed.";
+
 pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
 pub use visits::{visits_from_journal_dir, visits_from_lines, Visit};
@@ -209,7 +214,7 @@ impl Galaxy {
             .into_iter()
             .find(|s| s.name.eq_ignore_ascii_case(name))
             .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
-            .ok_or_else(|| anyhow::anyhow!("Spansh doesn't know a system called {name}."))
+            .ok_or_else(|| anyhow::anyhow!("Spansh does not know a system called {name}."))
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -350,9 +355,8 @@ impl Galaxy {
             Some(search) => {
                 let page = self.remote.spansh_bodies(&search)?;
                 let found = sites::from_bodies(kind, &page.value.results);
-                let warning = (!page.value.results.is_empty() && found.is_empty()).then(|| {
-                    format!("Spansh returned bodies without {}; its search filter may have changed.", kind.noun)
-                });
+                let warning =
+                    (!page.value.results.is_empty() && found.is_empty()).then(|| sites::mismatch_warning(kind));
                 ("Spansh", page.fetched_at, found, warning)
             }
             None => ("astromech", now, sites::from_farms(here.pos), None),
@@ -441,9 +445,8 @@ impl Galaxy {
     ) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
-        let warning = (n > 0 && matched.is_empty() && q.min_population == 0).then(|| {
-            "Spansh returned systems without the requested state; its search filter may have changed.".to_string()
-        });
+        let warning =
+            (n > 0 && matched.is_empty() && q.min_population == 0).then(|| NEARBY_MISMATCH_WARNING.to_string());
         {
             let mut s = self.store();
             let _ = s.insert_systems(matched.iter().map(|h| (h.id64, h.name.as_str(), h.pos())));
@@ -655,7 +658,7 @@ mod tests {
         assert_eq!(sd.pos, [55.71875, 17.59375, 27.15625]);
 
         let err = g.locate("Shin").unwrap_err().to_string();
-        assert_eq!(err, "Spansh doesn't know a system called Shin.", "a prefix is not a system");
+        assert_eq!(err, "Spansh does not know a system called Shin.", "a prefix is not a system");
     }
 
     #[test]

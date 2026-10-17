@@ -61,6 +61,7 @@ tempfile.workspace = true
 astromech-data.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
+astromech-ship.workspace = true
 rusqlite = { version = "0.40", features = ["bundled"] }
 
 [target.'cfg(windows)'.dev-dependencies]

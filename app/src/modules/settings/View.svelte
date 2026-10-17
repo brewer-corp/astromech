@@ -6,6 +6,7 @@
   import { control } from "../../lib/format";
   import Calibration from "../../lib/ui/Calibration.svelte";
   import ProspectorThresholds from "./ProspectorThresholds.svelte";
+  import Callouts from "./Callouts.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -192,6 +193,10 @@
       </dd>
     </dl>
     <p class="hint">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
+    <h3>Callouts</h3>
+    <Callouts />
+    <p class="hint">Spoken lines astromech says on its own as you play. Off means never; the cooldown is how long one stays silent after it speaks. Changes apply from the next session.</p>
+
     <h3>Prospector callouts</h3>
     <ProspectorThresholds />
     <p class="hint">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
