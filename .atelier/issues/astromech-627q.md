@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:19:07.451460138+00:00"
 id: "astromech-627q"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-627q
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Session summary when astromech starts mid-session"
-updated_at: "2026-10-17T05:19:07.451460138+00:00"
+updated_at: "2026-10-17T05:20:59.045971885+00:00"
 ---
 
 ## Goal
