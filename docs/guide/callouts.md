@@ -93,7 +93,8 @@ already scanned, so you know whether it is worth scanning yourself.
 - A system EDSM knows every body of says nothing. That is most of populated space.
 
 It needs internet (EDSM). If the answer arrives late it is said within the first minute after
-the jump; if EDSM is offline or slow, nothing is said and the reason goes to the log. EDSM's
+the jump; later than that, nothing is said. If EDSM cannot be reached, nothing is said and the
+reason goes to the log. EDSM's
 answer is reused for a week. Turn it off with `[callouts.known_bodies] enabled = false`.
 
 ## Powerplay arrival

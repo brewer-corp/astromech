@@ -103,7 +103,7 @@ fn a_live_jump_gets_the_bodies_known_line() {
     let (now, _) = r.jump(0, "Alpha Centauri");
     // The first ask starts the lookup; the answer comes on a tick.
     assert!(now.is_empty(), "the pipeline thread does not wait for EDSM");
-    assert_eq!(r.ticks(1, 20), ["2 of 9 bodies known."]);
+    assert_eq!(r.ticks(1, 59), ["2 of 9 bodies known."], "said within the minute");
     assert_eq!(r.edsm.1.load(Ordering::SeqCst), 1);
     // Back again later: answered at once from what was found, said once per arrival.
     r.jump(100, "Sol");
