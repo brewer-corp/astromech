@@ -3,6 +3,9 @@ created_at: "2026-10-17T08:01:20.702968957+00:00"
 id: "astromech-w064"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-w064
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exploration values: apply the 500 cr planet minimum after the mapping multiplier"
-updated_at: "2026-10-17T08:01:20.702968957+00:00"
+updated_at: "2026-10-17T08:26:22.615461582+00:00"
 ---
 
 ## Goal
