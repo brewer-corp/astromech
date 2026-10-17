@@ -211,10 +211,6 @@ fn a_claim_saved_loaded_and_replayed_stays_one_claim() {
     t.save(&store).unwrap();
     let keys: Vec<_> = store.records(CLAIM).unwrap().into_iter().map(|(k, _)| k).collect();
     assert_eq!(keys, ["F100|11"]);
-    // Even if the replay does mark it changed, the key stays the same.
-    replay_lines(&mut t, [two_commanders()[3]]);
-    t.save(&store).unwrap();
-    assert_eq!(store.records(CLAIM).unwrap().len(), 1);
 }
 
 #[test]

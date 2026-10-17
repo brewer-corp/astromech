@@ -9,7 +9,7 @@
 //! `/legacy` for Legacy mode), so two commanders sharing a journal folder never see each other's
 //! projects, claims or beacons. The accessors show the commander the newest line belonged to.
 //! A stored record's key is `<commander>|<id>`; events before a file names its commander (none
-//! of the colonisation ones) go under the empty commander. There is no migration from keys
+//! of the colonisation ones) go to the previous file's commander, or the empty one if none was named. There is no migration from keys
 //! without a commander: no release has ever persisted tracker records.
 //!
 //! Field names for the depot and contribution events are the typed ones in `astromech-journal`
