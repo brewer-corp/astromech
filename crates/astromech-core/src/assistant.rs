@@ -1,6 +1,7 @@
 //! Transcript → command. Applies the §5.12 thresholds and handles "Did you mean …?".
 
 use crate::actions::{Outcome, Runner};
+use crate::route::{self, Desk};
 use astromech_intent::{Decision, Grammar};
 use astromech_proto::Origin;
 use astromech_store::Store;
@@ -38,7 +39,9 @@ pub fn unavailable_reason(command: &str) -> &'static str {
         "supercruise" => "Supercruise isn't available yet. Flight commands come later.",
         "hyperspace_jump" => "Hyperspace jumps aren't available yet. Flight commands come later.",
         "request_docking" => "Docking requests aren't available yet.",
-        "plot_route" => "Route plotting isn't available yet.",
+        "plot_route" => {
+            "I can't plot courses yet. Pick a route in the app, then say \"paste\" in the galaxy map's search box."
+        }
         _ => "That isn't available yet.",
     }
 }
@@ -48,11 +51,18 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
+    route: Option<Arc<Desk>>,
 }
 
 impl Assistant {
     pub fn new(runner: Arc<Runner>) -> Self {
-        Self { grammar: Mutex::new(Grammar::mvp(&["Sol"])), runner, pending: Mutex::new(None), store: None }
+        Self {
+            grammar: Mutex::new(Grammar::mvp(&["Sol"])),
+            runner,
+            pending: Mutex::new(None),
+            store: None,
+            route: None,
+        }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
@@ -65,6 +75,10 @@ impl Assistant {
             }
         }
         Self { store: Some(store), ..self }
+    }
+
+    pub fn with_route(self, desk: Arc<Desk>) -> Self {
+        Self { route: Some(desk), ..self }
     }
 
     fn say(&self, s: &str) {
@@ -81,7 +95,46 @@ impl Assistant {
         }
     }
 
+    /// Route following and paste (docs/PLOTTING.md). None: not one of these.
+    fn route_command(&self, command: &'static str, origin: Origin) -> Option<Handled> {
+        if command == "galaxy_map.paste" {
+            return Some(Handled::Ran { command, outcome: self.runner.paste(origin) });
+        }
+        if !command.starts_with("route.") {
+            return None;
+        }
+        let m = match &self.route {
+            None => "Routes aren't available here.".to_string(),
+            Some(d) => {
+                let v = match command {
+                    "route.skip" => d.view().route.is_some().then(|| d.step(true)),
+                    "route.back" => d.view().route.is_some().then(|| d.step(false)),
+                    "route.clear" => {
+                        let had = d.view().route.is_some();
+                        d.clear();
+                        let m = if had { "Route cleared." } else { "There's no route to clear." };
+                        self.say(m);
+                        return Some(Handled::Ran { command, outcome: Outcome::Spoken(m.into()) });
+                    }
+                    _ => d.view().route.is_some().then(|| d.copy_next()),
+                };
+                match v {
+                    None => "No route set. Pick one on the app's Route page.".to_string(),
+                    Some(v) => match &v.next {
+                        Some(n) => route::next_line(n, v.remaining, v.clipboard_error.is_none()),
+                        None => "That was the last waypoint. The route is finished.".to_string(),
+                    },
+                }
+            }
+        };
+        self.say(&m);
+        Some(Handled::Ran { command, outcome: Outcome::Spoken(m) })
+    }
+
     fn dispatch(&self, command: &'static str, origin: Origin, confirmed: bool) -> Handled {
+        if let Some(h) = self.route_command(command, origin) {
+            return h;
+        }
         match astromech_tools::from_command(command) {
             Some(call) => {
                 let outcome =

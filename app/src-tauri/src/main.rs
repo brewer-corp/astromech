@@ -42,12 +42,19 @@ fn endpoint_file() -> PathBuf {
 }
 
 fn call(cmd: &str) -> Result<Value, String> {
+    call_with(cmd, None)
+}
+
+fn call_with(cmd: &str, args: Option<Value>) -> Result<Value, String> {
     let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core isn't running".to_string())?;
     let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;
     s.set_read_timeout(Some(Duration::from_secs(15))).map_err(|e| e.to_string())?;
-    let req = serde_json::json!({ "token": ep.token, "cmd": cmd });
+    let mut req = serde_json::json!({ "token": ep.token, "cmd": cmd });
+    if let Some(a) = args {
+        req["args"] = a;
+    }
     writeln!(s, "{req}").map_err(|e| e.to_string())?;
     let mut line = String::new();
     BufReader::new(s).read_line(&mut line).map_err(|e| e.to_string())?;
@@ -467,6 +474,17 @@ fn core_call(cmd: String) -> Value {
     call(&cmd).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
 }
 
+/// The route the core is following (docs/PLOTTING.md): read it, or set, skip, go back, clear
+/// or copy the next waypoint again. The core owns it, so it is followed with the window shut.
+#[tauri::command]
+fn route_call(cmd: String, args: Option<Value>) -> Value {
+    const ALLOWED: &[&str] = &["route", "route_set", "route_skip", "route_back", "route_clear", "route_copy"];
+    if !ALLOWED.contains(&cmd.as_str()) {
+        return serde_json::json!({ "ok": false, "error": "not allowed" });
+    }
+    call_with(&cmd, args).unwrap_or_else(|e| serde_json::json!({ "ok": false, "error": e }))
+}
+
 #[tauri::command]
 fn shell_info() -> Value {
     serde_json::json!({ "version": env!("CARGO_PKG_VERSION") })
@@ -516,6 +534,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             core_status,
             core_call,
+            route_call,
             shell_info,
             open_external,
             binds_state,

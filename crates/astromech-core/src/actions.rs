@@ -37,7 +37,14 @@ pub enum Outcome {
     Spoken(String),
     /// Silent running on: spoken warning, nothing pressed yet.
     NeedsConfirm(String),
+    /// Pressed, with nothing in Status.json to verify it by (paste).
+    Pressed(String),
 }
+
+/// Between Ctrl+V and Enter, for the search box to take the text. Pasting into the box works
+/// (players do it by hand); this delay and the Enter after it are ⚠ unverified. d47 waits 1.5 s
+/// before its Return, but it then steps into the results itself.
+pub const PASTE_SETTLE: Duration = Duration::from_millis(500);
 
 pub struct Runner {
     pub policy: Policy,
@@ -57,6 +64,37 @@ impl Runner {
     /// After the user confirmed a spoken warning.
     pub fn run_confirmed(&self, call: ToolCall, origin: Origin) -> Outcome {
         self.execute(call, origin, true)
+    }
+
+    /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.
+    /// The player has selected the box already (in VR, with their UI keys). Only while the
+    /// galaxy map is showing: anywhere else V or Enter may be a ship binding.
+    pub fn paste(&self, origin: Origin) -> Outcome {
+        let say = |s: &str| self.speaker.say(s);
+        let g = self.hub.snapshot();
+        if !g.status_seen || g.gui_focus != Some(astromech_status::GUI_GALAXY) {
+            let m = "Open the galaxy map and select its search box first.".to_string();
+            say(&m);
+            return Outcome::Refused(m);
+        }
+        let ticket = match self.policy.authorize("paste_search", Tier::T1, origin, Instant::now()) {
+            Ok(t) => t,
+            Err(d) => {
+                say(&d.spoken());
+                return Outcome::Denied(d);
+            }
+        };
+        let r = ticket.press("Key_V", &["Key_LeftControl".to_string()]).and_then(|()| {
+            std::thread::sleep(PASTE_SETTLE);
+            ticket.press("Key_Enter", &[])
+        });
+        if let Err(e) = r {
+            say(&e.spoken());
+            return Outcome::PressFailed(e);
+        }
+        (self.log)("paste_search: Ctrl+V, Enter sent to the galaxy map");
+        say("Pasted.");
+        Outcome::Pressed("Pasted.".into())
     }
 
     fn execute(&self, call: ToolCall, origin: Origin, confirmed: bool) -> Outcome {

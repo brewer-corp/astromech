@@ -52,6 +52,9 @@ pub struct Game {
 pub struct Controls {
     pub ptt: Option<Button>,
     pub kill_switch: Option<Button>,
+    /// Pastes the clipboard (the next waypoint) into the galaxy map's search box. Pick a
+    /// button Elite doesn't use: its own binding would fire too.
+    pub paste: Option<Button>,
     /// Hold the kill-switch button this long to re-arm after a kill.
     pub rearm_hold_ms: u64,
     /// A PTT release followed by a press within this window is bounce: one push, one clip.
@@ -111,7 +114,7 @@ pub struct Config {
 
 impl Default for Controls {
     fn default() -> Self {
-        Self { ptt: None, kill_switch: None, rearm_hold_ms: 1000, debounce_ms: 150 }
+        Self { ptt: None, kill_switch: None, paste: None, rearm_hold_ms: 1000, debounce_ms: 150 }
     }
 }
 impl Default for Voice {

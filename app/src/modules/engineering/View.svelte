@@ -8,6 +8,7 @@
   } from "../../lib/engineering";
   import { jumps } from "../../lib/galaxy";
   import Nearby from "../../lib/ui/Nearby.svelte";
+  import { followRoute } from "../../lib/route";
 
   let fleet = $state<Fleet | null>(null);
   let shipId = $state<number | null>(null);
@@ -22,6 +23,18 @@
   let engineers = $state<Engineers | null>(null);
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
+  let followNote = $state<string | null>(null);
+
+  // Hand the trip to the core's route follower: the first engineer's system goes on the clipboard.
+  async function followTrip() {
+    if (!trip) return;
+    try {
+      const v = await followRoute("Engineer trip", "engineer trip", trip.stops.map((s) => ({ system: s.system, label: s.engineer })));
+      followNote = v.next ? `Following. ${v.next.system} is on your clipboard (Navigation → Route).` : "Following.";
+    } catch (e) {
+      followNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
+    }
+  }
 
   const ship = $derived(fleet?.ships.find((s) => s.id === shipId) ?? fleet?.ships[0]);
   const mods = $derived(ship?.modules.filter((m) => m.group && fleet?.groups[m.group]) ?? []);
@@ -285,7 +298,11 @@
       {#if tripErr}
         <p class="lo">{tripErr}</p>
       {:else if trip}
-        <h4>Engineer trip</h4>
+        <div class="triphead">
+          <h4>Engineer trip</h4>
+          {#if trip.stops.length}<button class="follow" onclick={followTrip}>Follow</button>{/if}
+        </div>
+        {#if followNote}<p class="lo small">{followNote}</p>{/if}
         <p class="lo small">
           {trip.start ? `From ${trip.start}` : "Start unknown"} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
           {#if !trip.exact}· ~ = straight-line estimate{/if}
@@ -396,6 +413,9 @@
   select.idle { background: var(--cell-empty); color: var(--text); }
   select:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
   option { background: var(--bg); color: var(--text); }
+  .triphead { display: flex; align-items: baseline; gap: 20px; }
+  .follow { color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  .follow:hover { color: var(--text-hi); }
   h4 { margin: 26px 0 8px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
   .mats { display: grid; grid-template-columns: minmax(14rem, 22rem) 4rem 4rem 4rem 4rem; gap: var(--gap) 10px; }
   .mrow { display: contents; }

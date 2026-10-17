@@ -52,6 +52,8 @@ pub struct Core {
     pub update: Mutex<update::Handle>,
     pub ui: Mutex<Sender<Ui>>,
     pub opts: Opts,
+    /// The route being followed; kept while Elite isn't running so the window can set one.
+    pub route: Arc<crate::route::Desk>,
 }
 
 impl Core {
@@ -166,7 +168,7 @@ impl Core {
         log(&format!("{why}: going active (loading the binds check, game state and voice)"));
         self.notify();
         let t0 = Instant::now();
-        let r = Session::start(&self.cfg, &self.opts.session).and_then(|mut s| {
+        let r = Session::start(&self.cfg, &self.opts.session, self.route.clone()).and_then(|mut s| {
             s.start_buttons(&self.cfg, &self.opts.session)?;
             Ok(s)
         });
@@ -382,6 +384,34 @@ impl Core {
         }
     }
 
+    /// The route page's commands. `route_set` takes `{name, source, waypoints}` or, for an
+    /// import, `{name, source, text}` (a Spansh CSV or one system per line).
+    fn route_cmd(&self, r: &Request) -> Value {
+        use crate::route::{parse_list, Route, Waypoint};
+        let d = &self.route;
+        let v = match r.cmd.as_str() {
+            "route_set" => {
+                let a = r.args.clone().unwrap_or_default();
+                let s = |k: &str| a.get(k).and_then(|x| x.as_str()).unwrap_or_default().to_string();
+                let waypoints: Vec<Waypoint> = match a.get("text").and_then(|t| t.as_str()) {
+                    Some(t) => parse_list(t),
+                    None => serde_json::from_value(a.get("waypoints").cloned().unwrap_or_default()).unwrap_or_default(),
+                };
+                let name = if s("name").is_empty() { "Route".to_string() } else { s("name") };
+                match d.set(Route::new(&name, &s("source"), waypoints)) {
+                    Ok(v) => v,
+                    Err(e) => return json!({"ok": false, "error": e}),
+                }
+            }
+            "route_skip" => d.step(true),
+            "route_back" => d.step(false),
+            "route_clear" => d.clear(),
+            "route_copy" => d.copy_next(),
+            _ => d.view(),
+        };
+        json!({"ok": true, "view": v})
+    }
+
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
         match r.cmd.as_str() {
             "status" => self.status_json(),
@@ -443,6 +473,7 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
+            "route" | "route_set" | "route_skip" | "route_back" | "route_clear" | "route_copy" => self.route_cmd(r),
             c => json!({"ok": false, "error": format!("unknown command {c:?}")}),
         }
     }
@@ -649,6 +680,7 @@ pub fn run(opts: Opts) -> i32 {
         update_handle.snap.apply_error = Some(e.trim().to_string());
     }
 
+    let route = Arc::new(crate::route::Desk::in_dir(&cfg.data_dir()));
     let (ui_tx, ui_rx) = channel();
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
@@ -664,6 +696,7 @@ pub fn run(opts: Opts) -> i32 {
         update: Mutex::new(update_handle),
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
+        route,
     });
 
     let c = core.clone();

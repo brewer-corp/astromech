@@ -308,7 +308,8 @@ fn run_console(args: Args) -> Result<()> {
         return Ok(());
     }
     let opts = args.session_opts();
-    let mut s = Session::start(&cfg, &opts)?;
+    let route = std::sync::Arc::new(astromech_core::route::Desk::in_dir(&cfg.data_dir()));
+    let mut s = Session::start(&cfg, &opts, route)?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {

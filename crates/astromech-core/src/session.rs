@@ -112,9 +112,38 @@ pub fn short(h: &crate::assistant::Handled) -> String {
     }
 }
 
+/// Move the route on as the journal changes system, copying and announcing the next waypoint.
+/// The first snapshot (the journal replayed at start) only catches up, silently.
+pub fn follow_route(hub: &StateHub, desk: Arc<crate::route::Desk>, speaker: Arc<dyn Speaker>, stop: Arc<AtomicBool>) {
+    let rx = hub.subscribe();
+    let r = std::thread::Builder::new().name("route".into()).spawn(move || {
+        let mut last: Option<String> = None;
+        let mut first = true;
+        while !stop.load(Ordering::SeqCst) {
+            let g = match rx.recv_timeout(Duration::from_secs(1)) {
+                Ok(g) => g,
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
+                Err(_) => break,
+            };
+            if g.system != last {
+                last = g.system.clone();
+                if let Some(m) = last.as_deref().and_then(|s| desk.on_system(s)) {
+                    if !first {
+                        speaker.say(&m.spoken());
+                    }
+                }
+            }
+            first = false;
+        }
+    });
+    if let Err(e) = r {
+        log(&format!("route follower didn't start: {e}"));
+    }
+}
+
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
-    pub fn start(cfg: &Config, opts: &Opts) -> Result<Session> {
+    pub fn start(cfg: &Config, opts: &Opts, route: Arc<crate::route::Desk>) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir();
         std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
@@ -238,10 +267,15 @@ impl Session {
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
-        let assistant = Arc::new(match alias_store {
-            Some(st) => Assistant::new(runner.clone()).with_store(st),
-            None => Assistant::new(runner.clone()),
-        });
+        let assistant = Arc::new(
+            match alias_store {
+                Some(st) => Assistant::new(runner.clone()).with_store(st),
+                None => Assistant::new(runner.clone()),
+            }
+            .with_route(route.clone()),
+        );
+        let stop = Arc::new(AtomicBool::new(false));
+        follow_route(&hub, route, speaker.clone(), stop.clone());
 
         let voice = if args.no_voice {
             "voice off (--no-voice)".to_string()
@@ -252,17 +286,7 @@ impl Session {
         } else {
             "voice ready".to_string()
         };
-        Ok(Session {
-            hub,
-            runner,
-            assistant,
-            speaker,
-            voice,
-            stt,
-            stop: Arc::new(AtomicBool::new(false)),
-            _pipe: pipe,
-            _hw: hw,
-        })
+        Ok(Session { hub, runner, assistant, speaker, voice, stt, stop, _pipe: pipe, _hw: hw })
     }
 
     /// Start push-to-talk, the kill switch and the microphone (Windows only).
@@ -322,6 +346,9 @@ fn start_voice(
     match &cfg.controls.kill_switch {
         Some(b) => log(&controls::describe_button("kill switch", b, &devices)),
         None => log("kill switch: NOT SET (use !kill in the console)"),
+    }
+    if let Some(b) = &cfg.controls.paste {
+        log(&controls::describe_button("paste button", b, &devices));
     }
     let have_stt = stt.is_some();
     let want_mic = cfg.voice.mic.trim();
@@ -509,6 +536,12 @@ fn start_voice(
                         log("PTT up without a PTT down (ignored)");
                     }
                 }
+                Control::PasteDown => {
+                    log("paste button pressed");
+                    let r = runner.clone();
+                    // A local button, like push-to-talk: the voice origin's limits apply.
+                    std::thread::spawn(move || r.paste(Origin::Voice));
+                }
                 Control::KillDown => {
                     if !runner.policy.is_killed() {
                         runner.speaker.interrupt();
@@ -556,6 +589,7 @@ mod bus {
             let (status, devices) = crate::controls::start(
                 cfg.controls.ptt.clone(),
                 cfg.controls.kill_switch.clone(),
+                cfg.controls.paste.clone(),
                 debug,
                 cfg.controls.debounce_ms,
                 tx,

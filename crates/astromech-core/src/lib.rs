@@ -10,6 +10,7 @@
 //! - [`assistant`]: transcript → fuzzy grammar → tools → policy → executor;
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
+//! - [`route`]: following a multi-stop route; the next waypoint goes on the [`clipboard`];
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
 //! - [`logging`], [`crash`], [`diagnostics`], [`control`], [`instance`], [`autostart`],
 //!   [`gamewatch`], [`update`]: the M0 infrastructure pieces.
@@ -18,6 +19,7 @@ pub mod actions;
 pub mod app;
 pub mod assistant;
 pub mod autostart;
+pub mod clipboard;
 pub mod config;
 pub mod control;
 pub mod controls;
@@ -30,6 +32,7 @@ pub mod hub;
 pub mod instance;
 pub mod logging;
 pub mod pipeline;
+pub mod route;
 pub mod session;
 pub mod speech;
 #[cfg(windows)]

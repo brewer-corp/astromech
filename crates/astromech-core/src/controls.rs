@@ -17,6 +17,8 @@ pub enum Control {
     KillDown,
     /// Kill-switch released after being held this long.
     KillUp(Duration),
+    /// Paste button pressed (paste into the galaxy map's search box).
+    PasteDown,
 }
 
 /// How many unmatched presses on the PTT device are reported (without --debug-input).
@@ -30,6 +32,8 @@ pub struct Mapper {
     ptt: Option<Button>,
     kill: Option<Button>,
     kill_at: Option<Instant>,
+    /// Optional paste button (`controls.paste`).
+    pub paste: Option<Button>,
     /// Log every button event (`--debug-input`).
     pub debug: bool,
     unmatched: u32,
@@ -62,6 +66,7 @@ impl Mapper {
             ptt,
             kill,
             kill_at: None,
+            paste: None,
             debug,
             unmatched: 0,
             log: Box::new(log),
@@ -129,6 +134,7 @@ impl Mapper {
             let Some(down) = e.down else { continue };
             let is_ptt = self.ptt.as_ref().map(|b| b.matches(&e)).unwrap_or(false);
             let is_kill = self.kill.as_ref().map(|b| b.matches(&e)).unwrap_or(false);
+            let is_paste = !is_ptt && !is_kill && self.paste.as_ref().map(|b| b.matches(&e)).unwrap_or(false);
             let name = e.elite_name.clone().unwrap_or_else(|| e.control.clone());
             if self.debug {
                 (self.log)(&format!(
@@ -141,6 +147,8 @@ impl Mapper {
                         " -> PTT"
                     } else if is_kill {
                         " -> kill switch"
+                    } else if is_paste {
+                        " -> paste"
                     } else {
                         ""
                     }
@@ -148,6 +156,10 @@ impl Mapper {
             }
             if is_ptt {
                 self.ptt_edge(down, e.t_ms, &mut out);
+            } else if is_paste {
+                if down {
+                    out.push(Control::PasteDown);
+                }
             } else if down && !is_kill {
                 if let Some(p) = &self.ptt {
                     let same_device = device_of(&e).eq_ignore_ascii_case(&p.device);
@@ -203,6 +215,7 @@ pub fn describe_button(what: &str, b: &Button, devices: &[DeviceMeta]) -> String
 pub fn start(
     ptt: Option<Button>,
     kill: Option<Button>,
+    paste: Option<Button>,
     debug: bool,
     debounce_ms: u64,
     tx: std::sync::mpsc::Sender<Control>,
@@ -212,6 +225,7 @@ pub fn start(
     // Enumerate first, then register (same order as s7-input-listener and --listen).
     let devices = win::rawinput::list_devices();
     let mut m = Mapper::new(ptt, kill, debug, log.clone());
+    m.paste = paste;
     m.debounce_ms = debounce_ms as f64;
     for d in &devices {
         m.add_device(d.clone());
@@ -337,6 +351,17 @@ mod tests {
             m.sample(&hid(3105.0 + i as f64 * 10.0, &[14], 0.71));
         }
         assert_eq!(logs.lock().unwrap().len() as u32, UNMATCHED_REPORTS);
+    }
+
+    #[test]
+    fn paste_button_fires_once_per_press() {
+        let (mut m, logs) = mapper(false);
+        m.paste = Some(Button { device: "231D3201".into(), key: "Joy_12".into() });
+        m.sample(&hid(0.0, &[], 0.5));
+        assert_eq!(m.sample(&hid(100.0, &[12], 0.5)), vec![Control::PasteDown]);
+        assert!(m.sample(&hid(200.0, &[12], 0.5)).is_empty(), "held: no repeat");
+        assert!(m.sample(&hid(300.0, &[], 0.5)).is_empty());
+        assert!(logs.lock().unwrap().is_empty(), "not reported as an unmatched press");
     }
 
     /// One push with contact bounce (down, up 8 ms later, down again) must give exactly one
