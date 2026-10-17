@@ -18,8 +18,9 @@
 //!   in case the notification never comes, until the event is older than five minutes.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
 //!   when the game wrote it while we run: not the startup replay of the current journal, not an
-//!   older or already-read journal that becomes newest (re-read as a replay), but every line the
-//!   game appends and a journal it starts later. Status.json reads are live once the startup
+//!   older or already-read journal that becomes newest (re-read as a replay, but only up to where
+//!   we had read it: what the game wrote since is live), but every line the game appends and a
+//!   journal it starts later. Status.json reads are live once the startup
 //!   catch-up (the replay, then the first Status.json read) is done.
 //! - Callouts: every journal line and Status.json read also goes to the reaction engine
 //!   ([`crate::callouts`]) after the game state has it, and so does every `NavRoute.json` read
@@ -28,7 +29,7 @@
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
 //!   journal the game starts while we run (later by name, not opened before) is live from its
-//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
+//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay (up to where it had been read, if it had). Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
 //! - EDSM (when switched on): every journal line also goes to the [`astromech_eddn::edsm::Uploader`],
 //!   with the same notion of live; it sends to the commander's EDSM account from its own thread.
@@ -123,8 +124,9 @@ struct Tailer {
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
     caught_up: bool,
-    /// Journals opened this run: opening one again is a replay, never live.
-    opened: std::collections::HashSet<PathBuf>,
+    /// Journals opened this run, with how far we had read when we left each (0 while followed).
+    /// Opening one again replays up to that point; what the game wrote since is live.
+    opened: std::collections::HashMap<PathBuf, u64>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
 }
@@ -283,12 +285,17 @@ impl Tailer {
         // Every journal is read from its first line (the Fileheader). At startup that's a replay
         // of what happened before we started; a file the game starts later is live throughout.
         let mut t = JournalTail::new(path.clone(), 0);
-        let lines = t.read_new();
-        let n = lines.len();
-        self.opened.insert(path.clone());
+        // A journal we followed before is a replay only up to where we had read it.
+        let (replayed, live) = match self.opened.get(&path).copied().filter(|read| replay && *read > 0) {
+            Some(read) => (t.read_to(read), t.read_new()),
+            None => (t.read_new(), vec![]),
+        };
+        let n = replayed.len() + live.len();
+        self.opened.insert(path.clone(), 0);
         self.live = !replay;
-        self.apply_lines(lines);
+        self.apply_lines(replayed);
         self.live = true;
+        self.apply_lines(live);
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         self.hub.update(|g| g.journal_file = Some(name.clone()));
         match (replay, saved) {
@@ -342,10 +349,13 @@ impl Tailer {
                     self.stats.lock().unwrap().rollovers += 1;
                 }
                 self.flush_eddn();
+                if let Some(t) = &self.tail {
+                    self.opened.insert(t.path.clone(), t.committed());
+                }
                 // Newest by mtime isn't always the game's new journal: a backup or sync tool can
                 // touch an old one, or another client can write the same folder. Only a journal
                 // not opened yet this run and later by name than the current one is live.
-                let live = !self.opened.contains(&n) && self.tail.as_ref().is_none_or(|t| later(&n, &t.path));
+                let live = !self.opened.contains_key(&n) && self.tail.as_ref().is_none_or(|t| later(&n, &t.path));
                 self.open(n, !live);
             }
         }
@@ -1122,5 +1132,33 @@ mod tests {
         append(&j2, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-7uj3: what the game wrote to the current journal while a touched older one was
+    /// followed is live when we come back to it; only what we had read before is the replay.
+    #[test]
+    fn a_reopened_journal_replays_only_what_was_read_before() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, format!("{}{}\n", session(&ts(30), "r1 "), docked(&ts(20)))).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        // A backup tool touches the older journal; we follow it (a replay).
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]));
+
+        // The game writes to its journal meanwhile (nothing reaches us), then the next event
+        // makes it newest again.
+        append(&j2, &docked(&ts(0)));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(eddn_state(&db).0, 1, "the line written while another journal was followed is live");
     }
 }

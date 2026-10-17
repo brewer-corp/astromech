@@ -4,6 +4,9 @@ id: "astromech-7uj3"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-7uj3
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Pipeline: a journal reopened this run replays only up to its previous read point"
-updated_at: "2026-10-17T17:40:28.295541245+00:00"
+updated_at: "2026-10-17T18:43:25.796054411+00:00"
 ---
 
 ## Goal
