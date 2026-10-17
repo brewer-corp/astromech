@@ -1,4 +1,5 @@
-//! Journal + Status.json pipeline. File notifications only (as in S5): no polling loop.
+//! Journal + Status.json pipeline. Driven by file notifications, plus a read of the journal
+//! whenever none arrive for a while (`Tailer::on_idle`), because on Windows they can be late or lost.
 //!
 //! - Status.json: every change notification re-reads the file (with retries for half-written
 //!   files) and applies the flags.
@@ -425,6 +426,73 @@ impl Tailer {
     }
 }
 
+/// The pipeline thread: react to file notifications, and read the journal when none arrive.
+fn spawn_loop(
+    mut t: Tailer,
+    rx: std::sync::mpsc::Receiver<notify::Result<notify::Event>>,
+    stop2: Arc<AtomicBool>,
+) -> Result<std::thread::JoinHandle<()>> {
+    std::thread::Builder::new()
+        .name("pipeline".into())
+        .spawn(move || {
+            let mut last_tick = Instant::now();
+            while !stop2.load(Ordering::SeqCst) {
+                if last_tick.elapsed() >= Duration::from_secs(1) {
+                    last_tick = Instant::now();
+                    t.on_tick();
+                }
+                // The timeout lets us notice `stop`, tick, and read the journal without a notification.
+                let ev = match rx.recv_timeout(IDLE) {
+                    Ok(Ok(e)) => e,
+                    Ok(Err(_)) => continue,
+                    Err(RecvTimeoutError::Timeout) => {
+                        t.on_idle();
+                        continue;
+                    }
+                    Err(RecvTimeoutError::Disconnected) => break,
+                };
+                let mut status = false;
+                let mut journal = false;
+                let mut companions: Vec<CompanionKind> = vec![];
+                let mut nav_route = false;
+                let mut classify = |paths: &[PathBuf]| {
+                    for p in paths {
+                        let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
+                            status = true;
+                            nav_route |= name == "NavRoute.json";
+                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
+                            if !companions.contains(&k) {
+                                companions.push(k);
+                            }
+                        } else if is_journal(p) {
+                            journal = true;
+                        }
+                    }
+                };
+                classify(&ev.paths);
+                // Coalesce a burst of notifications.
+                while let Ok(Ok(e)) = rx.try_recv() {
+                    classify(&e.paths);
+                }
+                if status {
+                    t.on_status();
+                }
+                if journal || status {
+                    t.on_journal_activity();
+                }
+                if !companions.is_empty() {
+                    t.on_companion_files(&companions);
+                }
+                if nav_route {
+                    t.eddn_nav_route();
+                }
+            }
+            t.flush_eddn();
+        })
+        .context("starting pipeline thread")
+}
+
 /// Start watching `dir`. `db` is the store file for read positions (None: don't persist).
 /// `callouts`: the reaction engine and where its reactions go (None: no callouts).
 pub fn start(
@@ -546,66 +614,7 @@ pub fn start_with_eddn(
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
-    let stop2 = stop.clone();
-    let thread = std::thread::Builder::new()
-        .name("pipeline".into())
-        .spawn(move || {
-            let mut last_tick = Instant::now();
-            while !stop2.load(Ordering::SeqCst) {
-                if last_tick.elapsed() >= Duration::from_secs(1) {
-                    last_tick = Instant::now();
-                    t.on_tick();
-                }
-                // The timeout lets us notice `stop`, tick, and read the journal without a notification.
-                let ev = match rx.recv_timeout(IDLE) {
-                    Ok(Ok(e)) => e,
-                    Ok(Err(_)) => continue,
-                    Err(RecvTimeoutError::Timeout) => {
-                        t.on_idle();
-                        continue;
-                    }
-                    Err(RecvTimeoutError::Disconnected) => break,
-                };
-                let mut status = false;
-                let mut journal = false;
-                let mut companions: Vec<CompanionKind> = vec![];
-                let mut nav_route = false;
-                let mut classify = |paths: &[PathBuf]| {
-                    for p in paths {
-                        let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
-                            status = true;
-                            nav_route |= name == "NavRoute.json";
-                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
-                            if !companions.contains(&k) {
-                                companions.push(k);
-                            }
-                        } else if is_journal(p) {
-                            journal = true;
-                        }
-                    }
-                };
-                classify(&ev.paths);
-                // Coalesce a burst of notifications.
-                while let Ok(Ok(e)) = rx.try_recv() {
-                    classify(&e.paths);
-                }
-                if status {
-                    t.on_status();
-                }
-                if journal || status {
-                    t.on_journal_activity();
-                }
-                if !companions.is_empty() {
-                    t.on_companion_files(&companions);
-                }
-                if nav_route {
-                    t.eddn_nav_route();
-                }
-            }
-            t.flush_eddn();
-        })
-        .context("starting pipeline thread")?;
+    let thread = spawn_loop(t, rx, stop.clone())?;
     Ok(Pipeline { _watcher: watcher, stop, thread: Some(thread), stats })
 }
 
@@ -810,6 +819,31 @@ mod tests {
         assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"));
     }
 
+    /// astromech-mh3m: through the real loop, with a watcher that never reports anything, a line
+    /// appended to the open journal still reaches the state (well within the generous deadline).
+    #[test]
+    fn the_pipeline_loop_reads_the_journal_without_any_notification() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.catch_up();
+        let (_silent_watcher, rx) = std::sync::mpsc::channel();
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        append(
+            &j,
+            r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while hub.snapshot().system.as_deref() != Some("Sol") && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        stop.store(true, Ordering::SeqCst);
+        thread.join().unwrap();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the loop never read the appended line");
+    }
+
     #[test]
     fn an_idle_pipeline_follows_a_new_journal_within_a_second() {
         let d = tempfile::tempdir().unwrap();
@@ -818,6 +852,7 @@ mod tests {
         std::fs::write(&j1, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
         let (mut t, _, _) = tailer(d.path());
         t.open(j1, true);
+        t.last_scan = Instant::now();
         std::fs::write(&j2, format!("{}\n", session(&ts(1), "r2 "))).unwrap();
         touch(&j2, 5);
         t.on_idle();
