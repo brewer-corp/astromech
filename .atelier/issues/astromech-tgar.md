@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-tgar
 priority: "P2"
 relationships:
   blocks: []
@@ -16,9 +19,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:06:59.352372923+00:00"
+status: "done"
 title: "Ship stats: count charge time in sustained DPS"
-updated_at: "2026-10-17T17:01:41.186636222+00:00"
+updated_at: "2026-10-17T17:06:59.352372923+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Sustained DPS and the sustained factor count charge time, so sustained never exc
 ## Context
 
 `Module::sustained_factor` in `crates/astromech-ship/src/module.rs` ports Coriolis's `getSustainedFactor`: `clip / ((clip - burst) / rof + overhead + reload)`. The last burst's charge time is not in that cycle, so charged weapons with small clips run faster sustained than burst (the Fer-de-Lance fixture: DPS 124.5, sustained 136.2 with rail guns). `rof()` already counts charge per shot. Time to drain is unaffected. The doc comment and the ship detail (astromech-3njr) should say the figure departs from Coriolis for charged weapons.
+
+## Close Reason
+
+Sustained cycle counts the last burst's charge; sustained <= burst over the catalogue; PR open, review outstanding

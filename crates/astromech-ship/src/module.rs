@@ -411,8 +411,15 @@ impl Module {
     }
 
     /// `getSustainedFactor`: sustained over burst rate of fire, counting reloads.
+    ///
+    /// Departs from Coriolis for charged weapons (decision astromech-bnnh): the cycle also counts
+    /// the last burst's charge, which Coriolis leaves out, so sustained never exceeds burst (a
+    /// one-round rail gun cycles in charge plus reload, not reload alone). Weapons without charge
+    /// give Coriolis's numbers, except that a weapon with a clip and no reload (the seismic charge
+    /// launchers) has nothing to wait for and gets 1, where Coriolis divides by zero.
     pub fn sustained_factor(&self) -> f64 {
         let Some(mut clip) = self.clip() else { return 1.0 };
+        let Some(reload) = truthy(self.get("reload")) else { return 1.0 };
         // An auto-loader gives one reload for every two shots fired.
         if self.is_special("special_auto_loader") {
             clip += clip - 1.0;
@@ -420,7 +427,8 @@ impl Module {
         let burst = or(self.get("burst"), 1.0);
         let rof = self.rof();
         let overhead = (burst - 1.0) / or(self.get("burstrof"), 1.0);
-        let srof = clip / ((clip - burst) / rof + overhead + self.get("reload").unwrap_or(0.0));
+        let charge = or(self.get("charge"), 0.0);
+        let srof = clip / ((clip - burst) / rof + overhead + charge + reload);
         srof / rof
     }
 
@@ -465,6 +473,34 @@ mod tests {
         };
         let missing = m.engineer(item, &e);
         (m, missing)
+    }
+
+    #[test]
+    fn sustained_never_exceeds_burst_for_any_catalogue_module() {
+        let mut checked = 0;
+        for (item, def) in &crate::data::catalog().modules {
+            let m = Module::new(def);
+            let dps = m.dps();
+            if m.clip().is_none() || dps == 0.0 || dps.is_nan() {
+                continue;
+            }
+            let f = m.sustained_factor();
+            assert!(f.is_finite() && f <= 1.0 + 1e-9, "{item}: sustained factor {f}");
+            checked += 1;
+        }
+        assert!(checked > 50, "only {checked} weapons with a clip");
+    }
+
+    #[test]
+    fn rail_gun_sustained_counts_its_charge() {
+        // Medium fixed rail gun: 41.5 damage, 0.83 s interval + 1.2 s charge = 2.03 s a shot,
+        // clip 1, reload 1 s. Burst 41.5 / 2.03 = 20.44 DPS. Sustained cycles in the 1.2 s
+        // charge plus the 1 s reload (Coriolis: the 1 s reload alone, 41.5 DPS), 41.5 / 2.2 = 18.86.
+        let m = Module::new(crate::data::module("hpt_railgun_fixed_medium").unwrap());
+        assert_eq!(m.clip(), Some(1.0));
+        assert!((m.dps() - 41.5 / 2.03).abs() < 1e-9);
+        assert!((m.sustained_dps() - 41.5 / 2.2).abs() < 1e-9);
+        assert!((m.sustained_factor() - 2.03 / 2.2).abs() < 1e-9);
     }
 
     #[test]
