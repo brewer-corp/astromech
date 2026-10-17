@@ -213,6 +213,28 @@ mod shopping_tests {
     }
 
     #[test]
+    fn carrier_transfers_move_cargo_on_and_off_the_ship() {
+        let h = hold(&[
+            CARGO,
+            r#"{"timestamp":"t","event":"CargoTransfer","Transfers":[{"Type":"steel","Count":200,"Direction":"toship"}]}"#,
+        ]);
+        assert_eq!(h.cargo.get("steel"), Some(&320));
+        let h = hold(&[
+            CARGO,
+            r#"{"timestamp":"t","event":"CargoTransfer","Transfers":[{"Type":"steel","Count":50,"Direction":"tocarrier"},{"Type":"gold","Count":4,"Direction":"toship"}]}"#,
+            r#"{"timestamp":"t","event":"CargoTransfer","Transfers":[{"Type":"steel","Count":20,"Direction":"tosrv"}]}"#,
+        ]);
+        assert_eq!(h.cargo.get("steel"), Some(&50));
+        assert_eq!(h.cargo.get("gold"), Some(&14));
+    }
+
+    #[test]
+    fn dying_clears_the_hold() {
+        let h = hold(&[CARGO, r#"{"timestamp":"t","event":"Died","KillerName":"x"}"#]);
+        assert!(h.cargo.values().all(|n| *n == 0));
+    }
+
+    #[test]
     fn cargo_without_inventory_keeps_the_hold() {
         let count_only = r#"{"timestamp":"t","event":"Cargo","Vessel":"Ship","Count":130}"#;
         assert_eq!(hold(&[CARGO, count_only]).cargo.get("steel"), Some(&120));

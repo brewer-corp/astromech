@@ -20,9 +20,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T00:44:48.195200086+00:00"
+status: "done"
 title: "Shopping list: follow carrier transfers and deaths"
-updated_at: "2026-10-17T00:43:17.284853664+00:00"
+updated_at: "2026-10-17T00:44:48.195200086+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ Tests: a carrier-to-ship transfer adds to the hold and ship-to-carrier subtracts
 ## Context
 
 `crates/astromech-colonisation/src/shopping.rs`. Found in review of astromech-i9w7 (round 2, R1, R2).
+
+## Close Reason
+
+Hold folds CargoTransfer and Died; tests added
