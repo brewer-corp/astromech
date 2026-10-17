@@ -1,5 +1,6 @@
 //! The tray icon and its native menu (docs/V1-DESIGN.md §7.1, §2.2): a remote for the core
-//! while you play. Status line, Open astromech, Pause voice, Kill switch (while active), Quit,
+//! while you play. Status line, Open astromech, Pause voice, Kill switch (while active),
+//! Check for updates, Quit,
 //! plus one line each when something needs attention (a crash, unfinished setup, an update
 //! ready to install). Everything else lives in the window. Left-click opens the window. Runs a
 //! Win32 message loop on the calling (main) thread.
@@ -92,6 +93,8 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
     let pause = CheckMenuItem::new("Pause voice", true, VOICE_PAUSED.load(Ordering::SeqCst), None);
     let kill = MenuItem::new("Kill switch (stop all actions)", true, None);
     let install = MenuItem::new(update_text(&core), true, None);
+    let (check_text, check_on) = core.update.lock().unwrap().snap.status.tray_check_item();
+    let check = MenuItem::new(check_text, check_on, None);
     let quit = MenuItem::new("Quit astromech", true, None);
     let sep = PredefinedMenuItem::separator;
 
@@ -112,6 +115,7 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
         if s.update {
             m.append(&install)?;
         }
+        m.append(&check)?;
         m.append(&quit)?;
         Ok(m)
     };
@@ -134,6 +138,9 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
         pause.set_checked(VOICE_PAUSED.load(Ordering::SeqCst));
         setup.set_text(setup_text(&core));
         install.set_text(update_text(&core));
+        let (check_text, check_on) = core.update.lock().unwrap().snap.status.tray_check_item();
+        check.set_text(check_text);
+        check.set_enabled(check_on);
         let now = shape(&core);
         if now != *current {
             tray.set_menu(Some(Box::new(build(&now)?)));
@@ -163,6 +170,8 @@ pub fn run(core: Arc<Core>, rx: &Receiver<Ui>) -> Result<()> {
                 log(if on { "voice paused (tray)" } else { "voice resumed (tray)" });
             } else if id == kill.id() {
                 core.kill_switch();
+            } else if id == check.id() {
+                core.check_update_in_background();
             } else if id == install.id() {
                 let _ = core.install_update();
             } else if id == crash.id() {
