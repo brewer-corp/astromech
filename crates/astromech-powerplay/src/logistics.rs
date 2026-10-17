@@ -40,8 +40,6 @@ pub struct DataDelivery {
 
 #[derive(Deserialize)]
 struct LogisticsFile {
-    version: u32,
-    fetched: String,
     pickups: Vec<Pickup>,
     data_delivery: Vec<DataDelivery>,
     controlled_states: Vec<String>,
@@ -76,11 +74,6 @@ pub fn warnings() -> &'static [String] {
     &file().warnings
 }
 
-/// The table's version and fetch date.
-pub fn version() -> (u32, &'static str) {
-    (file().version, &file().fetched)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -91,6 +84,6 @@ mod tests {
         assert_eq!(p, [("Fortified", Some(20.0)), ("Stronghold", Some(30.0))]);
         assert!(pickups(Work::Reinforce).all(|p| p.states == ["Stronghold"]));
         assert_eq!(data_delivery(Work::Reinforce).unwrap().at, HandIn::Target);
-        assert!(version().0 >= 1 && !warnings().is_empty());
+        assert!(!warnings().is_empty());
     }
 }

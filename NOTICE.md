@@ -167,12 +167,14 @@ plc.
 
 ## Powerplay logistics
 `data/catalog/powerplay-logistics.json` (where power commodities are collected and delivered, the
-20 ly and 30 ly supporting-system limits, where power data is handed in) is adapted from the same
-Elite Dangerous wiki Powerplay page (https://elite-dangerous.fandom.com/wiki/Powerplay), under the
+20 ly and 30 ly supporting-system limits, where power data is handed in) rests on two sources.
+Ian Doncaster's Powerplay Tools reference card (https://heatmap.sotl.org.uk/powers/refcard, no
+licence stated) is where the pickup and hand-in places came from; only facts were taken, no text.
+The 20 ly and 30 ly limits agree with the rules already in `data/catalog/powerplay-activities.json`,
+which are adapted from the Elite Dangerous wiki's Powerplay page
+(https://elite-dangerous.fandom.com/wiki/Powerplay, see "Powerplay activities" above), under the
 Creative Commons Attribution-ShareAlike 3.0 licence
 (https://creativecommons.org/licenses/by-sa/3.0/); credit: the Elite Dangerous wiki contributors.
-The file stays under CC BY-SA 3.0, not the MIT licence. The wiki page could not be fetched on the
-day the file was made, so the facts were taken from Ian Doncaster's Powerplay Tools reference card
-(https://heatmap.sotl.org.uk/powers/refcard, no licence stated; facts only, no text) and the
-rules already adapted into the activities file. Rules the sources don't state are marked
-`uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.
+The wiki page itself could not be fetched when this file was made, so it is credited only through
+that adaptation. The file stays under CC BY-SA 3.0, not the MIT licence. Rules the sources don't
+state are marked `uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.

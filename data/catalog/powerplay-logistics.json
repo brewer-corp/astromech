@@ -1,7 +1,7 @@
 {
   "version": 1,
   "fetched": "2026-10-16",
-  "licence": "CC BY-SA 3.0 (adapted from the Elite Dangerous wiki; see NOTICE.md). The wording is our own.",
+  "licence": "The facts rest on Ian Doncaster's refcard (no licence stated; facts only, no text) and on the rules already adapted from the Elite Dangerous wiki into powerplay-activities.json (CC BY-SA 3.0, see NOTICE.md). This file is kept under CC BY-SA 3.0 because of that adaptation. The wording is our own.",
   "sources": [
     {
       "title": "Ian Doncaster's Powerplay Tools reference card, 'Transport Power Commodity' and 'Transfer Power Data'",
@@ -11,18 +11,11 @@
       "used_for": "pickup and delivery places for commodities and data, the 20 ly and 30 ly supporting-system limits, the allocation and cargo-expiry notes"
     },
     {
-      "title": "Elite Dangerous wiki, Powerplay page (commodity and activity sections)",
+      "title": "Elite Dangerous wiki, Powerplay page, only through the rules already adapted into powerplay-activities.json",
       "url": "https://elite-dangerous.fandom.com/wiki/Powerplay",
       "licence": "CC BY-SA 3.0",
       "fetched": "2026-10-16",
-      "used_for": "the same rules as already adapted into powerplay-activities.json (Fortified supplies acquisition within 20 ly, Stronghold within 30 ly). The page itself answered HTTP 402 when fetched for this file, so it was not re-read."
-    },
-    {
-      "title": "Elite Dangerous forums, 'Powerplay 2.0 Activities'",
-      "url": "https://forums.frontier.co.uk/threads/powerplay-2-0-activities.629227/",
-      "licence": "forum post; facts only",
-      "fetched": "2026-10-16",
-      "used_for": "found in a search, not opened: it lists transport from a stronghold Power Contact to the reinforced system, which agrees with the table"
+      "used_for": "the same rules as already adapted into powerplay-activities.json (Fortified supplies acquisition within 20 ly, Stronghold within 30 ly). The page itself answered HTTP 402 when fetched for this file, so it was not read for it."
     }
   ],
   "notes": "Frontier has changed Powerplay several times in 2024-25 and some merit sources were switched off and on again (for example on 11 Nov 2025), so nothing here is checked in game. 'pickups' say where a commodity of that kind can be collected for a target system of that kind: 'states' are the journal/Spansh PowerplayState values of the pledged power's own systems, 'max_ly' the distance from the target (null: no limit is documented, the caller's search radius applies). 'data_delivery' says where data of that kind is handed in: 'target' (the target system), 'supporting' (the pickup systems for acquisition) or 'controlled' (any system the pledged power controls). 'uncertain' marks rules the sources don't state clearly. Power data is picked up at Odyssey settlement data ports, not at a fixed place, so only where to hand it in is looked up.",

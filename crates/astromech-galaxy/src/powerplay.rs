@@ -282,6 +282,10 @@ impl Galaxy {
                 HandIn::Controlled => {
                     let mut v: Vec<LogisticsPoint> = mine
                         .iter()
+                        .filter(|(s, ly)| {
+                            *ly <= radius
+                                && s.power_state.as_ref().is_some_and(|x| logistics::controlled_states().contains(x))
+                        })
                         .map(|(s, ly)| LogisticsPoint { uncertain: d.uncertain.clone(), ..point(s, *ly, None, None) })
                         .collect();
                     v.sort_by(|a, b| a.ly.total_cmp(&b.ly));

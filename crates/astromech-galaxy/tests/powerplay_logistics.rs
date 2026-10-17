@@ -13,12 +13,25 @@ const LEMBAVA: [f64; 3] = [-43.25, -64.34375, -77.6875];
 #[derive(Default)]
 struct Recorded(Mutex<Vec<Value>>);
 
+/// Li Yong-Rui's systems that Spansh should not have returned: one far beyond the search radius
+/// and one that isn't in a controlled state.
+fn strays() -> [Value; 2] {
+    let stray = |name: &str, id: i64, state: &str, x: f64| {
+        serde_json::json!({ "name": name, "id64": id, "x": x, "y": -64.3, "z": -77.7, "controlling_power": LYR,
+            "power": [LYR], "power_state": state })
+    };
+    [stray("Too Far", 90, "Stronghold", 400.0), stray("Not Controlled", 91, "Unoccupied", -40.0)]
+}
+
 impl Transport for Recorded {
     fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
         assert_eq!(url, "https://spansh.co.uk/api/systems/search", "only Spansh is asked");
         let Body::Json(b) = &req.body else { panic!("{req:?}") };
         self.0.lock().unwrap().push(b.clone());
-        Ok(Response { status: 200, body: include_str!("fixtures/spansh-powerplay-reinforcement.json").into() })
+        let mut body: Value =
+            serde_json::from_str(include_str!("fixtures/spansh-powerplay-reinforcement.json")).unwrap();
+        body["results"].as_array_mut().unwrap().extend(strays());
+        Ok(Response { status: 200, body: body.to_string() })
     }
 }
 
@@ -103,4 +116,7 @@ fn undermining_data_goes_to_any_controlled_system() {
     assert!(l.collect.iter().all(|c| c.state.as_deref() == Some("Stronghold")));
     assert!(names(&l.deliver_data).contains(&"NLTT 7805"), "Exploited systems take data: {:?}", l.deliver_data);
     assert!(l.deliver_data.iter().all(|d| d.uncertain.is_some()));
+    // Spansh also returned a system 360 ly away and one that isn't controlled: neither is offered.
+    assert!(!names(&l.deliver_data).contains(&"Too Far") && !names(&l.deliver_data).contains(&"Not Controlled"));
+    assert!(!names(&l.collect).contains(&"Too Far"));
 }
