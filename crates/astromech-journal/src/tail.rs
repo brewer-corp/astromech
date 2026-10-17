@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 /// Tail one journal file from a byte offset. The file is opened on every read, so the length is
 /// the current one even where a directory listing lags (Windows, astromech-txzq).
+#[derive(Debug)]
 pub struct JournalTail {
     pub path: PathBuf,
     pub offset: u64,
@@ -22,7 +23,7 @@ impl JournalTail {
     /// Complete new lines since the last call.
     pub fn read_new(&mut self) -> Vec<String> {
         let Ok(mut f) = File::open(&self.path) else { return vec![] };
-        let len = f.metadata().map(|m| m.len()).unwrap_or(0);
+        let Ok(len) = f.metadata().map(|m| m.len()) else { return vec![] };
         if len < self.offset {
             // Truncated or replaced: start over.
             self.offset = 0;

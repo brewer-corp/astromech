@@ -960,6 +960,7 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
 /// the journals and reads whatever was appended to the newest one through an open handle, which
 /// is current on Windows when a directory entry is not (astromech-txzq). A new, removed or
 /// shrunken journal always counts as a change. The first call only records where the journal ends.
+#[derive(Debug)]
 pub struct JournalWatch {
     events: Vec<String>,
     files: usize,
