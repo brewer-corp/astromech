@@ -369,10 +369,6 @@ impl Tailer {
         self.save();
     }
 
-    /// Nothing was reported for a while. File notifications are not a clock: on Windows the ones
-    /// for an open, growing journal can arrive late or never (astromech-mh3m), so read the tail
-    /// anyway (an open and a read at the offset, nothing when nothing was appended) and look for
-    /// a new journal once a second.
     /// The loop woke for some reason (a notification, or the timeout): read the journal if that
     /// hasn't happened for [`IDLE`], so notifications that name no journal can't starve it.
     fn on_wake(&mut self) {
@@ -381,6 +377,10 @@ impl Tailer {
         }
     }
 
+    /// Nothing was reported for a while. File notifications are not a clock: on Windows the ones
+    /// for an open, growing journal can arrive late or never (astromech-mh3m), so read the tail
+    /// anyway (an open and a read at the offset, nothing when nothing was appended) and look for
+    /// a new journal once a second.
     fn on_idle(&mut self) {
         if self.read_tail() {
             self.save();
@@ -510,9 +510,12 @@ fn spawn_loop(
                     }
                 };
                 classify(&ev.paths);
-                // Coalesce a burst of notifications.
+                // Coalesce a burst of notifications, but not so long that the journal waits for it.
                 while let Ok(Ok(e)) = rx.try_recv() {
                     classify(&e.paths);
+                    if t.last_read.elapsed() >= IDLE {
+                        break;
+                    }
                 }
                 if status {
                     t.on_status();
