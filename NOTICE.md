@@ -164,3 +164,15 @@ Inara's Powerplay 2.0 guide (inara.cz/elite/logbook/84502) could not be reached 
 made and was not used. Rules the sources disagree on, or that nobody has checked in game, are
 marked `uncertain` in the file. The facts are Elite Dangerous game data, © Frontier Developments
 plc.
+
+## Powerplay logistics
+`data/catalog/powerplay-logistics.json` (where power commodities are collected and delivered, the
+20 ly and 30 ly supporting-system limits, where power data is handed in) is adapted from the same
+Elite Dangerous wiki Powerplay page (https://elite-dangerous.fandom.com/wiki/Powerplay), under the
+Creative Commons Attribution-ShareAlike 3.0 licence
+(https://creativecommons.org/licenses/by-sa/3.0/); credit: the Elite Dangerous wiki contributors.
+The file stays under CC BY-SA 3.0, not the MIT licence. The wiki page could not be fetched on the
+day the file was made, so the facts were taken from Ian Doncaster's Powerplay Tools reference card
+(https://heatmap.sotl.org.uk/powers/refcard, no licence stated; facts only, no text) and the
+rules already adapted into the activities file. Rules the sources don't state are marked
+`uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.

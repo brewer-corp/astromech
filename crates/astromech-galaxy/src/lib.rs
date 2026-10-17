@@ -19,7 +19,7 @@ pub mod visits;
 
 pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
-pub use powerplay::{Target, TargetHit, Targets};
+pub use powerplay::{Logistics, LogisticsPoint, Target, TargetHit, Targets};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
 pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
