@@ -4,6 +4,9 @@ id: "astromech-xtq1"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-xtq1
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:07:47.853686152+00:00"
+status: "done"
 title: "Count Parakeet as installed only when its download finished"
-updated_at: "2026-10-17T17:01:40.862760732+00:00"
+updated_at: "2026-10-17T17:07:47.853686152+00:00"
 ---
 
 ## Goal
@@ -31,3 +35,7 @@ A test with a Parakeet folder that has its files but no marker shows it as missi
 ## Context
 
 `crates/astromech-voice/src/models.rs` (`missing`, around line 83). Copied S9 folders carry markers; only a manual install without one would re-download about 480 MB. Found in review of astromech-a50f (round 2, N1).
+
+## Close Reason
+
+Fixed with tests; PR open, independent review outstanding

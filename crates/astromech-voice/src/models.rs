@@ -64,6 +64,15 @@ pub fn tts_paths(root: &Path) -> Result<TtsPaths> {
     })
 }
 
+/// Find the speech-to-text model. Like [`find_tts`], only a completed download counts: an
+/// interrupted extraction can leave all four files with a truncated encoder.
+pub fn find_stt(models_dir: &Path) -> Result<SttPaths> {
+    if !download::is_installed_in(models_dir, &STT) {
+        return Err(anyhow!("no completely downloaded Parakeet model in {}", models_dir.display()));
+    }
+    stt_paths(&model_root(models_dir, &STT))
+}
+
 /// Find the TTS model: fp32 Kokoro first, then the int8 one. Only a completed download
 /// counts (marker present): extraction writes straight into the model folder, so an
 /// interrupted one leaves a folder with a truncated model in it.
@@ -75,12 +84,12 @@ pub fn find_tts(models_dir: &Path) -> Result<TtsPaths> {
         .ok_or_else(|| anyhow!("no completely downloaded Kokoro v1.0 model in {}", models_dir.display()))
 }
 
-/// The speech models still to download into `models_dir`: Parakeet unless its files are
-/// there, Kokoro v1.0 unless a completed download is. Someone who had only the small v0.19
+/// The speech models still to download into `models_dir`: Parakeet unless a completed
+/// download is there, Kokoro v1.0 unless a completed download is. Someone who had only the small v0.19
 /// model gets the small v1.0 one.
 pub fn missing(models_dir: &Path) -> Vec<Asset> {
     let mut v = vec![];
-    if stt_paths(&model_root(models_dir, &STT)).is_err() {
+    if find_stt(models_dir).is_err() {
         v.push(STT);
     }
     if find_tts(models_dir).is_err() {
@@ -198,6 +207,24 @@ mod tests {
         fake_tts(m, &TTS, true);
         assert!(find_tts(m).is_ok());
         assert_eq!(missing(m).iter().map(|a| a.id).collect::<Vec<_>>(), [STT.id]);
+    }
+
+    #[test]
+    fn parakeet_files_without_the_marker_are_missing() {
+        let d = tempfile::tempdir().unwrap();
+        let m = d.path();
+        let root = model_root(m, &STT);
+        std::fs::create_dir_all(&root).unwrap();
+        // Interrupted first extraction: all four files, the encoder possibly truncated, no marker.
+        for f in ["encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", "tokens.txt"] {
+            std::fs::write(root.join(f), "x").unwrap();
+        }
+        assert!(find_stt(m).is_err());
+        assert!(missing(m).iter().any(|a| a.id == STT.id), "the download list offers it again");
+        // The download finishes.
+        std::fs::write(download::marker_in(m, &STT), STT.sha256).unwrap();
+        assert!(find_stt(m).is_ok());
+        assert!(!missing(m).iter().any(|a| a.id == STT.id));
     }
 
     #[test]
