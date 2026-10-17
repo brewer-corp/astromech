@@ -5,13 +5,25 @@ class, rating and mount it comes in, and the journal symbols of each) and every 
 Usage: scripts/gen-outfitting.py <FDevIDs checkout>
 
 Source (player-visible game data, see NOTICE.md): EDCD/FDevIDs outfitting.csv and shipyard.csv.
-Left out: ship-specific armour, pre-engineered Powerplay modules ("mercgear") and modules
-FDevIDs marks removed.
+Kept: only modules Spansh lists as sold at stations (its `field_values/modules`, recorded in
+crates/astromech-galaxy/tests/fixtures/spansh-module-names.json), so the pickers offer nothing
+that is never sold. Ship-specific armour is one module per grade, with every ship's symbol.
+Pre-engineered modules (FDevIDs' "mercgear") go in their base module's category without
+symbols: they share their base module's symbol, so they are told apart by name.
 """
 import collections, csv, json, os, subprocess, sys
 
 CATEGORIES = {"standard": 0, "internal": 1, "hardpoint": 2, "utility": 3}
 MOUNTS = {"Fixed": 0, "Gimballed": 1, "Turreted": 2, "": 3}
+SYMBOL_MOUNTS = {"Fixed": "fixed", "Gimballed": "gimbal", "Turreted": "turret"}
+ROOT = os.path.join(os.path.dirname(__file__), "..")
+SPANSH_NAMES = os.path.join(ROOT, "crates", "astromech-galaxy", "tests", "fixtures", "spansh-module-names.json")
+# Catalogue names Spansh lists under another name (astromech-galaxy's outfitting::SPANSH_NAMES).
+SPANSH_RENAMES = {
+    "Vessel Hangar": "Fighter Hangar",
+    "MkII Business Class Passenger Cabin": "Mk II Business Class Passenger Cabin",
+    "MkII Economy Class Passenger Cabin": "Mk II Economy Class Passenger Cabin",
+}
 
 
 def head(path):
@@ -23,21 +35,33 @@ def head(path):
 
 def main(fdev):
     rows = lambda p: list(csv.DictReader(open(os.path.join(fdev, p), encoding="utf-8")))
+    sold = set(json.load(open(SPANSH_NAMES, encoding="utf-8"))["values"]["name"])
+    all_rows = rows("outfitting.csv")
+    base = {r["symbol"].lower(): r["category"] for r in all_rows if r["category"] in CATEGORIES}
     by_name = collections.defaultdict(list)
     category = {}
-    for r in rows("outfitting.csv"):
-        if r["ship"] or r["category"] not in CATEGORIES or r["entitlement"] in ("removed", "?"):
-            continue
+    for r in all_rows:
         name = r["name"].strip()
-        category.setdefault(name, r["category"])
+        if r["entitlement"] == "removed" or SPANSH_RENAMES.get(name, name) not in sold:
+            continue
+        pre_engineered = r["category"] == "mercgear"
+        cat = base.get(r["symbol"].lower()) if pre_engineered else r["category"]
+        if cat not in CATEGORIES:
+            continue
+        category.setdefault(name, cat)
         size = {"class": int(r["class"]), "rating": r["rating"]}
-        if r["mount"] in MOUNTS and r["mount"]:  # one row has "mount" there
-            size["mount"] = r["mount"]
+        mount = r["mount"] if r["mount"] in MOUNTS else ""  # one row has "mount" there
+        if not mount and cat == "hardpoint":  # pre-engineered rows leave it out; the symbol has it
+            parts = r["symbol"].lower().split("_")
+            mount = next((m for m, p in SYMBOL_MOUNTS.items() if p in parts), "")
+        if mount:
+            size["mount"] = mount
         same = next((x for x in by_name[name] if {k: v for k, v in x.items() if k != "symbols"} == size), None)
         if same is None:
             same = dict(size, symbols=[])
             by_name[name].append(same)
-        same["symbols"].append(r["symbol"].lower())
+        if not pre_engineered:
+            same["symbols"].append(r["symbol"].lower())
     modules = [
         {
             "name": n,
@@ -54,7 +78,7 @@ def main(fdev):
         "modules": modules,
         "ships": ships,
     }
-    dst = os.path.join(os.path.dirname(__file__), "..", "data", "catalog", "outfitting.json")
+    dst = os.path.join(ROOT, "data", "catalog", "outfitting.json")
     with open(dst, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1, ensure_ascii=False)
         f.write("\n")

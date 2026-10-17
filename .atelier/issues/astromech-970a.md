@@ -3,6 +3,9 @@ created_at: "2026-10-16T21:54:25.413632136+00:00"
 id: "astromech-970a"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-970a
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T00:28:56.220934366+00:00"
+status: "done"
 title: "Outfitting lookup follow-ups: mount warning, A-rated, armour and unsold modules, unknown voice system"
-updated_at: "2026-10-16T21:59:20.912850340+00:00"
+updated_at: "2026-10-17T00:28:56.220934366+00:00"
 ---
 
 ## Goal
@@ -42,3 +46,7 @@ Found in the independent review of feature/astromech-m30a at 02376ce.
 ## Notes
 
 - 2026-10-16 [note] Also (review of m30a round 2, N1): when Spansh gives a symbol FDevIDs lacks, fall back to the name so a real seller isn't dropped.
+
+## Close Reason
+
+R4-R7 and N1 fixed on task/astromech-970a (467ae48), each with a test that failed before the fix; gates pass. Independent review outstanding before atelier merge.

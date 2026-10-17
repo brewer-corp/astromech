@@ -312,6 +312,18 @@ pub fn normalise(s: &str) -> Vec<String> {
             i += 2;
             continue;
         }
+        // A rating said alone ("A-rated", "A grade", "grade A") becomes one word, "arated", for
+        // the same reason.
+        let rating = match (w.as_str(), next) {
+            (r, Some("rated" | "grade")) if is_rating(r) => Some(r.to_string()),
+            ("grade", Some(r)) if is_rating(r) => Some(r.to_string()),
+            _ => None,
+        };
+        if let Some(r) = rating {
+            out.push(format!("{r}rated"));
+            i += 2;
+            continue;
+        }
         let w = match w.as_str() {
             "hardpoint" => "hardpoints".to_string(),
             "light" => "lights".to_string(),
@@ -1005,6 +1017,12 @@ mod tests {
         assert_eq!(normalise("nearest 5 A FSD"), ["nearest", "5a", "fsd"]);
         assert_eq!(normalise("five a frame shift drive"), ["5a", "frameshift", "drive"]);
         assert_eq!(normalise("buy a krait"), ["buy", "krait"], "\"a\" is still filler elsewhere");
+        // A rating said with "rated" or "grade" keeps its letter, as one word.
+        assert_eq!(normalise("nearest A-rated FSD"), ["nearest", "arated", "fsd"]);
+        assert_eq!(normalise("nearest a rated fsd"), ["nearest", "arated", "fsd"]);
+        assert_eq!(normalise("an A grade FSD"), ["arated", "fsd"]);
+        assert_eq!(normalise("a grade A FSD"), ["arated", "fsd"]);
+        assert_eq!(normalise("class five A FSD"), ["class", "5a", "fsd"]);
         assert_eq!(normalise("Python Mk II"), normalise("python mark two"));
         assert_eq!(normalise("Kestrel Mk II"), ["kestrel", "mkii"]);
         assert_eq!(normalise("Cobra MkIII"), normalise("cobra mark 3"));
