@@ -84,8 +84,9 @@ def markdown(rep: dict) -> str:
               f"the window's own count from process start to page load (ms): {r['cold_start']['in_process_ms']}.",
               f"- Idle on `{LIST_PAGE}` for {r['idle']['seconds']} s: {r['idle']['processes']} processes "
               f"({', '.join(r['idle']['names'])}).",
-              "- Cold start ends at the window's first page load (navigation finished; the app has mounted by "
-              "then). With the core not running, it includes the window starting the core.",
+              "- Cold start ends at the window's first page load (navigation finished). The app mounts in its "
+              "module script, which runs before that; data it fetches afterwards isn't counted. With the core "
+              "not running, it includes the window starting the core.",
               f"- Starting the window after a core crash (core gone, its core.json left behind): "
               f"{r['cold_start'].get('after_core_crash_s')} s.",
               f"- In use: {r['in_use']['switches']} page changes over {r['in_use']['seconds']} s "
