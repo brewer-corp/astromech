@@ -1,7 +1,9 @@
 //! # astromech-store
 //!
 //! Local persistence (ARCHITECTURE.md §5.19): one SQLite file with versioned migrations
-//! (`PRAGMA user_version`). Secrets go to the OS keyring later, never into SQLite.
+//! (`PRAGMA user_version`). Secrets go to the OS keyring ([`secrets`]), never into SQLite.
+
+pub mod secrets;
 
 pub use rusqlite;
 pub use rusqlite::Error as StoreError;

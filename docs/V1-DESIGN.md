@@ -236,6 +236,10 @@ flow, not a tab.
     Cockpit, §6.4), speaker, speed, volume, game event callouts.
   - **Debug**: save push-to-talk clips (off), log every input event (off), bounce and
     minimum-clip thresholds (tuning knobs most people never touch).
+- **Data sharing** → Settings → Data sharing: EDDN (one switch; queue, last send, last error)
+  and EDSM (switch, commander name, API key saved to Windows Credential Manager and never shown
+  again, the same queue status, and the last week of the EDSM flight log on request). Both send
+  live play only and are off until switched on.
 - **Last commands / transcripts** → Diagnostics (log view), not the tray.
 - **Check for updates** → Settings → Updates (and a daily check); downloads a signed zip.
   **Install and restart** (Settings, or the tray's "Restart to update" line) quits, overlays

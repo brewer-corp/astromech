@@ -82,6 +82,29 @@ impl Courier {
     }
 }
 
+/// What a [`Worker`] runs: one delivery pass at a time (EDDN's [`Courier`], EDSM's
+/// [`crate::edsm::Courier`]).
+pub trait Pass: Send + 'static {
+    /// Deliver what's due: `wall` is Unix seconds, `mono` the monotonic time of the same moment.
+    fn pass(&mut self, wall: i64, mono: Instant) -> rusqlite::Result<Delivery>;
+    /// How long to sleep after a pass before the next one is worth making.
+    fn wait(&self, wall: i64, mono: Instant) -> Duration;
+    /// Set to end the pass in progress before its next post.
+    fn stop_flag(&self) -> Arc<AtomicBool>;
+}
+
+impl Pass for Courier {
+    fn pass(&mut self, wall: i64, mono: Instant) -> rusqlite::Result<Delivery> {
+        Courier::pass(self, wall, mono)
+    }
+    fn wait(&self, wall: i64, mono: Instant) -> Duration {
+        Courier::wait(self, wall, mono)
+    }
+    fn stop_flag(&self) -> Arc<AtomicBool> {
+        self.stop.clone()
+    }
+}
+
 enum Signal {
     Wake,
     Stop,
@@ -94,24 +117,29 @@ pub struct Worker {
 }
 
 impl Worker {
-    /// Start delivering. `log` gets each pass that did something, and database errors.
-    pub fn spawn(mut courier: Courier, log: impl Fn(&str) + Send + 'static) -> std::io::Result<Self> {
+    /// Start delivering to `service` ("EDDN", "EDSM": the thread name and log prefix). `log`
+    /// gets each pass that did something, and database errors.
+    pub fn spawn(
+        mut courier: impl Pass,
+        service: &'static str,
+        log: impl Fn(&str) + Send + 'static,
+    ) -> std::io::Result<Self> {
         let (tx, rx) = channel();
-        let stop = courier.stop.clone();
-        std::thread::Builder::new().name("eddn".into()).spawn(move || loop {
+        let stop = courier.stop_flag();
+        std::thread::Builder::new().name(service.to_ascii_lowercase()).spawn(move || loop {
             match courier.pass(wall_now(), Instant::now()) {
                 Ok(d) if d != Delivery::default() => log(&format!(
-                    "EDDN: {} sent, {} rejected, {} to retry, {} given up{}",
+                    "{service}: {} sent, {} rejected, {} to retry, {} given up{}",
                     d.sent,
                     d.rejected,
                     d.retrying,
                     d.gave_up,
-                    if d.stopped { "; gateway unreachable, waiting" } else { "" }
+                    if d.stopped { "; service unreachable, waiting" } else { "" }
                 )),
                 Ok(_) => {}
-                Err(e) => log(&format!("EDDN outbox: {e}")),
+                Err(e) => log(&format!("{service} outbox: {e}")),
             }
-            if courier.stop.load(Ordering::SeqCst) {
+            if stop_seen(&courier) {
                 return;
             }
             let wait = courier.wait(wall_now(), Instant::now());
@@ -134,6 +162,10 @@ impl Worker {
     pub fn wake(&self) {
         let _ = self.tx.send(Signal::Wake);
     }
+}
+
+fn stop_seen(p: &impl Pass) -> bool {
+    p.stop_flag().load(Ordering::SeqCst)
 }
 
 impl Drop for Worker {

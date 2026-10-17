@@ -58,6 +58,9 @@ pub enum Edit {
     Colour(astromech_voice::colour::Colour),
     /// `[eddn] enabled` (Settings → Data sharing).
     Eddn(bool),
+    /// `[edsm] enabled` and `[edsm] commander` (Settings → Data sharing).
+    Edsm(bool),
+    EdsmCommander(String),
 }
 
 /// Kokoro speeds Settings may set (1.0 is the colour's own pace).
@@ -66,7 +69,9 @@ pub const SPEEDS: std::ops::RangeInclusive<f32> = 0.7..=1.3;
 impl Edit {
     /// From a control-API request: `set_ptt` / `set_kill_switch` with `{device, key}` (or null
     /// to clear), `set_mic` with `{mic}`, `set_folders` with `{bindings_dir}` or `{journal_dir}`,
-    /// `set_voice` with any of `{speaker, speed, colour}`, `set_eddn` with `{enabled}`.
+    /// `set_voice` with any of `{speaker, speed, colour}`, `set_eddn` with `{enabled}`, `set_edsm`
+    /// with `{enabled}` and/or `{commander}` (its `api_key` goes to the keyring, not here; with
+    /// only a key there is nothing to edit).
     pub fn from_request(cmd: &str, args: Option<&Value>) -> Result<Vec<Edit>> {
         let null = Value::Null;
         let a = args.unwrap_or(&null);
@@ -126,6 +131,19 @@ impl Edit {
             "set_eddn" => {
                 vec![Edit::Eddn(a.get("enabled").and_then(Value::as_bool).context("expected {enabled: true|false}")?)]
             }
+            "set_edsm" => {
+                let mut v = vec![];
+                if let Some(on) = a.get("enabled").filter(|x| !x.is_null()) {
+                    v.push(Edit::Edsm(on.as_bool().context("enabled must be true or false")?));
+                }
+                if let Some(c) = a.get("commander").filter(|x| !x.is_null()) {
+                    v.push(Edit::EdsmCommander(c.as_str().context("commander must be text")?.trim().to_string()));
+                }
+                if v.is_empty() && a.get("api_key").is_none() {
+                    bail!("expected {{enabled}}, {{commander}} or {{api_key}}");
+                }
+                v
+            }
             c => bail!("unknown command {c:?}"),
         })
     }
@@ -153,6 +171,8 @@ pub fn apply(text: &str, edits: &[Edit]) -> Result<String> {
             Edit::Speed(x) => ("voice", "speed", Some(toml_edit::value((f64::from(*x) * 100.0).round() / 100.0))),
             Edit::Colour(c) => ("voice", "colour", Some(toml_edit::value(c.as_str()))),
             Edit::Eddn(on) => ("eddn", "enabled", Some(toml_edit::value(*on))),
+            Edit::Edsm(on) => ("edsm", "enabled", Some(toml_edit::value(*on))),
+            Edit::EdsmCommander(c) => ("edsm", "commander", Some(toml_edit::value(c.as_str()))),
         };
         if !doc.contains_key(table) {
             doc[table] = toml_edit::table();
@@ -329,6 +349,25 @@ mod tests {
             let j: Value = serde_json::from_str(bad).unwrap();
             assert!(Edit::from_request("set_voice", Some(&j)).is_err(), "{bad}");
         }
+    }
+
+    #[test]
+    fn the_edsm_settings_are_saved_without_the_key() {
+        let j = |s: &str| serde_json::from_str::<Value>(s).unwrap();
+        let e = Edit::from_request("set_edsm", Some(&j(r#"{"enabled":true,"commander":" Jameson ","api_key":"k"}"#)))
+            .unwrap();
+        assert_eq!(e, [Edit::Edsm(true), Edit::EdsmCommander("Jameson".into())]);
+        assert_eq!(Edit::from_request("set_edsm", Some(&j(r#"{"api_key":"k"}"#))).unwrap(), []);
+        assert!(Edit::from_request("set_edsm", Some(&j(r#"{"enabled":1}"#))).is_err());
+        assert!(Edit::from_request("set_edsm", None).is_err());
+        let out = apply(crate::config::SAMPLE, &e).unwrap();
+        let c = Config::parse(&out).unwrap();
+        assert!(c.edsm.enabled && c.edsm.commander == "Jameson");
+        assert!(!out.contains("api_key") && !out.contains("= \"k\""), "{out}");
+        assert!(
+            out.lines().any(|l| l.starts_with("commander = \"Jameson\"") && l.contains("# your commander name")),
+            "{out}"
+        );
     }
 
     #[test]

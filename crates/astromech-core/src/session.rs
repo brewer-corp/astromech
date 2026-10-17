@@ -175,6 +175,7 @@ impl Session {
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
+            crate::pipeline::edsm_uploader(&data),
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
