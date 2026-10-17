@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T22:31:43.511851894+00:00"
+status: "done"
 title: "Powerplay week and session merits count awards the game wrote twice"
-updated_at: "2026-10-17T21:37:20.352270972+00:00"
+updated_at: "2026-10-17T22:31:43.511851894+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ A standing test from an anonymised excerpt: two identical `PowerplayMerits` line
 ## Context
 
 Found replaying real journals (astromech-yin0). The game wrote a `PowerplayMerits` line twice, on two days in two weeks (same timestamp and gain, `TotalMerits` counting both); the next `PowerplayMerits` (its `TotalMerits - MeritsGained`) and the next login's `Powerplay` `Merits` show only one was counted. `Standing` (`crates/astromech-powerplay/src/standing.rs`) adds every `MeritsGained` to the week and session, so the page said 113 this week where the game's totals give 72. Lifetime merits were right after the next login.
+
+## Close Reason
+
+Duplicate Powerplay awards are counted once, as the game does; week and session merits corrected at the next award or login. Found by the real-journal replay (113 vs the journal's 72). Reviewed.
