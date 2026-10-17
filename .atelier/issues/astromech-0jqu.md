@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T04:48:21.150467206+00:00"
+status: "done"
 title: "Surface guidance"
-updated_at: "2026-10-17T04:46:45.142718928+00:00"
+updated_at: "2026-10-17T04:48:21.150467206+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Table tests against known bearings and distances on bodies of different radii.
 ## Context
 
 Pure maths. The exobiology sampling helper uses it.
+
+## Close Reason
+
+Bearing and distance maths in astromech_exobiology::surface with table tests on bodies of several radii; Status.json position and PlanetRadius parsed.
