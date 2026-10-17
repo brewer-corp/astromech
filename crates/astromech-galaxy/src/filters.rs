@@ -144,6 +144,32 @@ impl Filters {
     }
 }
 
+/// The ship being flown, from the fleet the journal gives.
+pub fn current_ship(fleet: Option<&astromech_engineering::Fleet>) -> Option<&astromech_engineering::Ship> {
+    fleet?.ships.iter().find(|s| s.current)
+}
+
+/// The pad the ship being flown needs; `None` with no known ship.
+pub fn current_pad(fleet: Option<&astromech_engineering::Fleet>) -> Option<Pad> {
+    current_ship(fleet).and_then(|s| Pad::for_ship(&s.ship_type))
+}
+
+/// The filters a search runs with: `saved` (the page's, or the defaults) with the pad taken
+/// from the ship being flown now unless the commander set one, whatever pad the page sent. Every
+/// search in the shell goes through this, so a ship change applies at once.
+pub fn resolve(saved: Option<Filters>, fleet: Option<&astromech_engineering::Fleet>) -> Filters {
+    saved.unwrap_or_default().for_ship(current_pad(fleet))
+}
+
+/// `lookup`'s remembered filters, resolved for the ship being flown now.
+pub fn load_for_fleet(
+    store: &astromech_store::Store,
+    lookup: &str,
+    fleet: Option<&astromech_engineering::Fleet>,
+) -> anyhow::Result<Filters> {
+    load(store, lookup, current_pad(fleet))
+}
+
 pub(crate) fn parse_time(s: &str) -> Option<i64> {
     chrono::DateTime::parse_from_rfc3339(s).ok().map(|t| t.timestamp())
 }
@@ -184,6 +210,44 @@ mod tests {
         assert_eq!(famine.max_age_days, Some(7));
         assert!(famine.exclude_carriers);
         assert_eq!(load(&st, "faction.proto", None).unwrap(), Filters::default(), "other lookups are untouched");
+    }
+
+    fn fleet_in(ship_type: Option<&str>) -> astromech_engineering::Fleet {
+        let mut fleet = astromech_engineering::sample_fleet();
+        for s in &mut fleet.ships {
+            s.current = false;
+        }
+        if let Some(t) = ship_type {
+            fleet.ships[0].ship_type = t.into();
+            fleet.ships[0].current = true;
+        }
+        fleet
+    }
+
+    /// What the shell does for every search: the page sends the filters it loaded (with the pad
+    /// of the ship it knew), and a ship change since must still change the pad searched with.
+    #[test]
+    fn a_search_resolves_the_pad_from_the_current_ship_not_the_filters_sent() {
+        let sent = Filters { pad: Some(Pad::M), pad_set: false, ..Filters::default() }; // loaded in a Krait
+        let pad = |ship: Option<&str>| resolve(Some(sent.clone()), Some(&fleet_in(ship))).pad;
+        assert_eq!(pad(Some("krait_mkii")), Some(Pad::M));
+        assert_eq!(pad(Some("anaconda")), Some(Pad::L), "now in an Anaconda");
+        assert_eq!(pad(Some("sidewinder")), Some(Pad::S));
+        assert_eq!(pad(None), None, "no ship flown: any pad");
+        assert_eq!(resolve(Some(sent.clone()), None).pad, None, "no journal: any pad");
+        let chosen = Filters { pad: Some(Pad::S), pad_set: true, ..Filters::default() };
+        assert_eq!(resolve(Some(chosen), Some(&fleet_in(Some("anaconda")))).pad, Some(Pad::S), "the pick stays");
+        assert_eq!(resolve(None, Some(&fleet_in(Some("anaconda")))).pad, Some(Pad::L), "defaults follow the ship");
+    }
+
+    /// The page's own load of a lookup's filters follows the ship the same way.
+    #[test]
+    fn the_remembered_filters_follow_the_ship_flown() {
+        let st = astromech_store::Store::in_memory().unwrap();
+        save(&st, "trade.sell", &Filters { max_age_days: Some(7), ..Filters::default() }).unwrap();
+        let in_ship = |t| load_for_fleet(&st, "trade.sell", Some(&fleet_in(Some(t)))).unwrap();
+        assert_eq!((in_ship("krait_mkii").pad, in_ship("anaconda").pad), (Some(Pad::M), Some(Pad::L)));
+        assert_eq!(in_ship("anaconda").max_age_days, Some(7));
     }
 
     #[test]

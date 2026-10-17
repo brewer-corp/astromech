@@ -666,8 +666,8 @@ fn search_origin(
         None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
     };
     let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-    let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
-    Ok((here, range_of(current), filters.unwrap_or_default().for_ship(pad)))
+    let fleet = st.as_ref().ok().map(|s| &s.fleet);
+    Ok((here, range_of(current), astromech_galaxy::filters::resolve(filters, fleet)))
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
@@ -981,9 +981,8 @@ fn settings() -> Result<astromech_store::Store, String> {
 async fn search_filters(app: tauri::AppHandle, lookup: String) -> Result<astromech_galaxy::Filters, String> {
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>()).ok();
-        let ship = st.as_ref().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-        let pad = ship.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
-        astromech_galaxy::filters::load(&settings()?, &lookup, pad).map_err(|e| e.to_string())
+        astromech_galaxy::filters::load_for_fleet(&settings()?, &lookup, st.as_ref().map(|s| &s.fleet))
+            .map_err(|e| e.to_string())
     })
     .await
 }
