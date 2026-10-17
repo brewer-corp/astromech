@@ -124,9 +124,9 @@ struct Tailer {
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
     caught_up: bool,
-    /// Journals opened this run, with how far we had read when we left each (0 while followed).
-    /// Opening one again replays up to that point; what the game wrote since is live.
-    opened: std::collections::HashMap<PathBuf, u64>,
+    /// Journals opened this run, with how far we had read when we left each (`None` while
+    /// followed). Opening one again replays up to that point; what the game wrote since is live.
+    opened: std::collections::HashMap<PathBuf, Option<u64>>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
 }
@@ -286,12 +286,12 @@ impl Tailer {
         // of what happened before we started; a file the game starts later is live throughout.
         let mut t = JournalTail::new(path.clone(), 0);
         // A journal we followed before is a replay only up to where we had read it.
-        let (replayed, live) = match self.opened.get(&path).copied().filter(|read| replay && *read > 0) {
+        let (replayed, live) = match self.opened.get(&path).copied().flatten().filter(|_| replay) {
             Some(read) => (t.read_to(read), t.read_new()),
             None => (t.read_new(), vec![]),
         };
         let n = replayed.len() + live.len();
-        self.opened.insert(path.clone(), 0);
+        self.opened.insert(path.clone(), None);
         self.live = !replay;
         self.apply_lines(replayed);
         self.live = true;
@@ -350,7 +350,7 @@ impl Tailer {
                 }
                 self.flush_eddn();
                 if let Some(t) = &self.tail {
-                    self.opened.insert(t.path.clone(), t.committed());
+                    self.opened.insert(t.path.clone(), Some(t.committed()));
                 }
                 // Newest by mtime isn't always the game's new journal: a backup or sync tool can
                 // touch an old one, or another client can write the same folder. Only a journal
@@ -1160,5 +1160,39 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
         assert_eq!(eddn_state(&db).0, 1, "the line written while another journal was followed is live");
+    }
+
+    /// Leaving and coming back to the same journal more than once keeps the split exact: every
+    /// line is queued once, in the batch it belongs to.
+    #[test]
+    fn a_journal_left_twice_is_split_at_the_latest_read_point() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+        let mut clock = 10;
+        let mut go = |t: &mut Tailer, to: &PathBuf| {
+            clock += 10;
+            touch(to, clock);
+            t.on_journal_activity();
+            assert_eq!(&t.tail.as_ref().unwrap().path, to);
+        };
+        let dock = |id: i64| docked(&ts(0)).replace("\"MarketID\":7", &format!("\"MarketID\":{id}"));
+
+        go(&mut t, &j1);
+        append(&j2, &dock(8));
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 1);
+        go(&mut t, &j1);
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 1, "nothing new: nothing sent again");
+        go(&mut t, &j1);
+        append(&j2, &dock(9));
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 2, "only the new line is live");
     }
 }
