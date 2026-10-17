@@ -10,7 +10,7 @@
   import Stats from "./Stats.svelte";
   import { jumps } from "../../lib/galaxy";
   import { openUrl } from "../../lib/core";
-  import { inaraSystem, spanshSystem } from "../../lib/links";
+  import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
@@ -237,8 +237,8 @@
     {:else}
       {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
       · {#if ship.current}flying now{:else if ship.system}{ship.in_transit ? "in transit to" : "stored at"} <SystemChip name={ship.system} />
-        <button class="ext" title="Open {ship.system} on Spansh" onclick={() => ship?.system && open(spanshSystem({ name: ship.system }))}>Spansh</button>
-        <button class="ext" title="Open {ship.system} on Inara" onclick={() => ship?.system && open(inaraSystem(ship.system))}>Inara</button>{:else}stored{/if}
+        <ExtLinks system={ship.system} />
+        {#if ship.market_id != null && !ship.in_transit}<span class="lo">station</span> <ExtLinks system={ship.system} marketId={ship.market_id} />{/if}{:else}stored{/if}
       · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
       · {fleet.source}
     {/if}
@@ -438,8 +438,6 @@
   .open { color: var(--text-lo); }
   .open button { color: var(--accent); margin-left: 6px; }
   .open button:hover { color: var(--text-hi); }
-  .ext { color: var(--accent); margin-left: 6px; text-transform: uppercase; letter-spacing: var(--caps); }
-  .ext:hover { color: var(--text-hi); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
   .main { min-width: 0; }
   .mods { display: grid; grid-template-columns: 8.5rem minmax(9rem, 1fr) 10.5rem 4rem 9.5rem; gap: var(--gap) 10px; align-items: center; }

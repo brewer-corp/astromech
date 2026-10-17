@@ -6,6 +6,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { fakeCall, fakeScenario, fakeStatus } from "./fakecore";
+import type { MiningRun } from "./mining";
 
 export interface UpdateStatus {
   status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
@@ -55,6 +56,8 @@ export interface CoreStatus {
   toasts?: Toast[];
   /** The journal history the core keeps (backfill, then new lines). */
   history?: HistoryProgress | null;
+  /** The current mining run; null while no session is running. */
+  mining?: MiningRun | null;
 }
 
 export interface HistoryProgress {

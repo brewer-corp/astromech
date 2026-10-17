@@ -1,13 +1,14 @@
 <script lang="ts">
   // Where a search starts: empty means the current system; typing suggests system names
   // (Spansh autocomplete). Enter or a click picks; × goes back to the current system.
-  import { systemNames, type Origin } from "../search";
+  import { enterChoice, systemNames, type Origin } from "../search";
 
   let { origin, onchange }: { origin: Origin; onchange: (o: Origin) => void } = $props();
 
   let text = $derived(origin ?? "");
   let hits = $state<string[]>([]);
   let sel = $state(0);
+  let moved = false; // the commander arrowed to a suggestion
   let open = $state(false);
   let asked = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -15,6 +16,7 @@
   function typed(v: string) {
     text = v;
     sel = 0;
+    moved = false;
     clearTimeout(timer);
     const q = v.trim();
     if (q.length < 2) {
@@ -50,13 +52,15 @@
     if (e.key === "ArrowDown" && hits.length) {
       e.preventDefault();
       open = true;
+      moved = true;
       sel = (sel + 1) % hits.length;
     } else if (e.key === "ArrowUp" && hits.length) {
       e.preventDefault();
+      moved = true;
       sel = (sel - 1 + hits.length) % hits.length;
     } else if (e.key === "Enter") {
       e.preventDefault();
-      pick((open && hits[sel]) || text);
+      pick(open ? enterChoice(text, hits, sel, moved) : text);
     } else if (e.key === "Escape") {
       open = false;
     }

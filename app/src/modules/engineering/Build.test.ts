@@ -150,6 +150,19 @@ describe("ship detail link-outs", () => {
     opened.mockRestore();
   });
 
+  it("links a stored ship's station on Spansh by its market id", async () => {
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    const stored = structuredClone(fleet);
+    Object.assign(stored.ships[0]!, { current: false, system: "Sol", market_id: 128016640 });
+    render(Build, { fleet: stored, shipId: krait, onback: () => {} });
+    await fireEvent.click(await screen.findByTitle("Open the station in Sol on Spansh"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual(["https://spansh.co.uk/station/128016640"]);
+    // Its name is unknown, so there is no Inara station search; the system links stay.
+    expect(screen.queryByTitle("Open the station in Sol on Inara")).toBeNull();
+    expect(screen.getByTitle("Open Sol on Inara")).toBeTruthy();
+    opened.mockRestore();
+  });
+
   it("says to refresh the loadout when the saved one is stale", async () => {
     const stale = structuredClone(fleet);
     delete stale.ships[0]!.links;

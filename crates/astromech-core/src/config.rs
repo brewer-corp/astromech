@@ -278,13 +278,7 @@ impl Config {
     }
 
     pub fn data_dir(&self) -> PathBuf {
-        opt(&self.data_dir).unwrap_or_else(|| {
-            if Self::portable() {
-                Self::exe_dir().join("astromech-data")
-            } else {
-                Self::app_dir()
-            }
-        })
+        astromech_store::data_dir(&self.data_dir, Self::portable(), &Self::exe_dir(), &Self::app_dir())
     }
 }
 

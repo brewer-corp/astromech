@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/svelte";
 import View from "./View.svelte";
 
@@ -22,6 +22,23 @@ describe("Station", () => {
     // The market against nearby prices sits between the facts and the outfitting.
     expect(screen.getByText("Market")).toBeTruthy();
     expect(await screen.findByRole("table", { name: "For sale here" })).toBeTruthy();
+  });
+
+  it("links the system and the station to Spansh and Inara", async () => {
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(View);
+    await screen.findByText("Test Orbital");
+    await fireEvent.click(screen.getByTitle("Open Test System on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Test System on Inara"));
+    await fireEvent.click(screen.getByTitle("Open Test Orbital on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Test Orbital on Inara"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      "https://spansh.co.uk/search/Test%20System",
+      "https://inara.cz/elite/starsystem/?search=Test%20System",
+      "https://spansh.co.uk/station/128000001",
+      "https://inara.cz/elite/stations/?search=Test%20Orbital",
+    ]);
+    opened.mockRestore();
   });
 
   it("finds the stations that sold a module", async () => {
