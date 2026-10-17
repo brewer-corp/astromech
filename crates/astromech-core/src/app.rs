@@ -935,8 +935,9 @@ pub fn reveal(p: &Path) {
     open_path(&p.parent().unwrap_or(p).display().to_string());
 }
 
-/// Create the config from the sample if it doesn't exist, then open it in the editor.
-pub fn open_config(path: &Path) {
+/// Write the sample config if there is no config yet. The sample changes no setting: its
+/// examples are comments, so a fresh install gets the same defaults as with no file.
+fn write_sample_config(path: &Path) {
     if !path.exists() {
         if let Some(d) = path.parent() {
             let _ = std::fs::create_dir_all(d);
@@ -944,6 +945,11 @@ pub fn open_config(path: &Path) {
         let _ = std::fs::write(path, crate::config::SAMPLE);
         log(&format!("wrote a sample config to {}; edit [controls], then quit and restart astromech", path.display()));
     }
+}
+
+/// Create the config from the sample if it doesn't exist, then open it in the editor.
+pub fn open_config(path: &Path) {
+    write_sample_config(path);
     #[cfg(windows)]
     let r = std::process::Command::new("notepad.exe").arg(path).spawn();
     #[cfg(not(windows))]
@@ -1304,6 +1310,25 @@ mod tests {
 
     /// The Route page's commands, through the control API: set from waypoints or pasted text,
     /// skip, go back, clear; a route with no systems is an error.
+    #[test]
+    fn the_sample_config_written_by_open_config_changes_no_setting() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("data").join("astromech.toml");
+        write_sample_config(&p);
+        let written = std::fs::read_to_string(&p).unwrap();
+        assert_eq!(written, crate::config::SAMPLE);
+        let loaded = Config::load(&p).unwrap();
+        assert_eq!(toml::to_string(&loaded).unwrap(), toml::to_string(&Config::default()).unwrap());
+        assert!(loaded.controls.kill_switch.is_none() && loaded.controls.ptt.is_none());
+        // The kill switch example is there, as a comment only.
+        assert!(written.lines().any(|l| l.starts_with("# kill_switch = ") && l.contains("Key_ScrollLock")));
+        assert!(!written.lines().any(|l| l.trim_start().starts_with("kill_switch")));
+        // An existing config is left alone.
+        std::fs::write(&p, "data_dir = \"x\"").unwrap();
+        write_sample_config(&p);
+        assert_eq!(std::fs::read_to_string(&p).unwrap(), "data_dir = \"x\"");
+    }
+
     #[test]
     fn route_commands_over_the_control_api() {
         let d = tempfile::tempdir().unwrap();

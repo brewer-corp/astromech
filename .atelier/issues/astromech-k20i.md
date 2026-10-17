@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-k20i
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Opening the config writes a sample that silently sets Scroll Lock as the kill switch"
-updated_at: "2026-10-17T17:38:28.965938356+00:00"
+updated_at: "2026-10-17T19:15:28.480793541+00:00"
 ---
 
 ## Goal

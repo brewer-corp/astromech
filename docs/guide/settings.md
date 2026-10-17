@@ -61,8 +61,8 @@ without a default are only called out as a motherlode. See [Callouts](callouts.m
 
 ### Files
 
-- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one, which sets the kill
-  switch to Scroll Lock (known bug: astromech-k20i); change it in setup if that is wrong. Keep the name exactly
+- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one. It changes no
+  setting: the button examples in it, including a Scroll Lock kill switch, are comments. Keep the name exactly
   `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech reports the file it
   found instead.
 - **Logs.** The log folder, with **Open folder**.
