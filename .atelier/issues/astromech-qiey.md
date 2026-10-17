@@ -21,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T04:46:04.869351050+00:00"
+status: "done"
 title: "Spansh and Inara links on current location and stored stations"
-updated_at: "2026-10-17T03:23:12.244154511+00:00"
+updated_at: "2026-10-17T04:46:04.869351050+00:00"
 ---
 
 ## Goal
@@ -33,3 +34,7 @@ Offer Spansh and Inara links on the current system and station display and on st
 ## Done when
 
 Links show on the current system/station and stored ships' stations; a large real-shaped loadout has a URL-length test.
+
+## Close Reason
+
+Spansh and Inara links on the docked station and system and on stored ships' stations; large-loadout URL length tested
