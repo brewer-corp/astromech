@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:06:22.606591403+00:00"
+status: "done"
 title: "Undocked leaves the station set"
-updated_at: "2026-10-17T17:03:51.886935288+00:00"
+updated_at: "2026-10-17T17:06:22.606591403+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A game-state test shows `Undocked` clears the station, and the Location query no
 ## Context
 
 Found in review of astromech-tpdb (round 2, finding N1); predates that branch.
+
+## Close Reason
+
+Undocked now clears station; tests added; PR open, independent review outstanding
