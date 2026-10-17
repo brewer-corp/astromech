@@ -85,7 +85,7 @@ fn body_bio(r: &BodyRecord, stars: &BTreeMap<i64, String>) -> Option<BodyBio> {
             let star = s.parents.iter().find(|(kind, _)| kind == "Star").and_then(|(_, id)| stars.get(id).cloned());
             predict::Body::from_scan(s, star)
         })
-        .map(|c| predict::predict(&c, true))
+        .map(|c| predict::predict(&c))
         .unwrap_or_default();
     let genus_bio = |genus: &str, known: bool| -> GenusBio {
         let cat = catalog::genus(genus);

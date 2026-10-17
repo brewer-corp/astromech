@@ -14,6 +14,8 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 const LUHMAN: i64 = 22960358574928;
+/// Another system the recorded provider knows biology for.
+const KNOWN_TOO: i64 = 4242;
 
 /// The recorded Spansh answer for Luhman 16 (astromech-data's fixture), as the known bodies.
 fn recorded() -> Vec<KnownBody> {
@@ -46,7 +48,7 @@ impl KnownBiology for Recorded {
         if !self.ready.load(Ordering::SeqCst) {
             return None;
         }
-        Some(if system_address == LUHMAN { recorded() } else { vec![] })
+        Some(if system_address == LUHMAN || system_address == KNOWN_TOO { recorded() } else { vec![] })
     }
 }
 
@@ -196,4 +198,40 @@ fn can_be_turned_off() {
     let off: astromech_announce::Settings = toml::from_str("[biology]\nenabled = false\n").unwrap();
     let mut r = Run::with(shared, &off);
     assert!(r.spoken(&jump("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN)).is_empty());
+}
+
+#[test]
+fn each_system_starts_afresh() {
+    let (mut r, _) = run(true);
+    r.spoken(SYSTEM);
+    r.spoken(SCANS);
+    gui(&mut r, 9);
+    r.spoken(FSS_A2);
+    let first = gui(&mut r, 0);
+    let dss = r.spoken(DSS_A2);
+    assert_eq!((first.len(), dss.len()), (2, 1));
+    // The next system has a body of the same short name with the same biology: its lines are
+    // news there, and said again.
+    let next = |l: &str| {
+        l.replace("Synthetic Sector AB-C d1", "Synthetic Sector AB-C d2")
+            .replace("\"SystemAddress\":99", "\"SystemAddress\":100")
+    };
+    r.spoken(&next(SYSTEM));
+    r.spoken(&next(SCANS));
+    gui(&mut r, 9);
+    r.spoken(&next(FSS_A2));
+    assert_eq!(gui(&mut r, 0), first);
+    assert_eq!(r.spoken(&next(DSS_A2)), dss);
+}
+
+#[test]
+fn a_late_answer_awaited_in_one_system_is_not_said_in_the_next() {
+    let (mut r, recorded) = run(false);
+    r.spoken(&jump("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN));
+    // A login elsewhere (no jump to announce) before Luhman 16's answer came.
+    r.spoken(&format!(
+        r#"{{"timestamp":"2026-10-17T10:00:05Z","event":"Location","StarSystem":"Known Too","SystemAddress":{KNOWN_TOO},"StarPos":[0,0,0],"Docked":false}}"#
+    ));
+    recorded.ready.store(true, Ordering::SeqCst);
+    assert!(tick(&mut r, "2026-10-17T10:00:10Z").is_empty());
 }

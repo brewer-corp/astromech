@@ -75,8 +75,7 @@ fn dying_loses_everything_and_a_big_haul_is_risky() {
         })
         .collect();
     let u = from_json_lines(&lines);
-    // The wiki's value for Fonticulua Fluctus (data/catalog/exobiology.json lists the 20 M others give).
-    assert_eq!(u.organic, 12 * 16_777_215);
+    assert_eq!(u.organic, 12 * 20_000_000);
     assert!(u.risky && u.total >= RISKY);
     // Logged samples that are not complete (Log, Sample) are not data yet.
     lines.push(r#"{"timestamp":"2026-10-17T10:30:00Z","event":"ScanOrganic","ScanType":"Log","Genus":"g","Species":"$Codex_Ent_Fonticulus_05_Name;","SystemAddress":1,"Body":2}"#.into());

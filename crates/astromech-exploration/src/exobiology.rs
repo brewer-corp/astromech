@@ -16,8 +16,8 @@ mod tests {
     #[test]
     fn species_and_horizons_genera() {
         assert_eq!(species_value("$Codex_Ent_Stratum_07_Name;", "$Codex_Ent_Stratum_Genus_Name;"), Some(19_010_800));
-        // The wiki's value; EDR and ExplorerLite say 20,000,000 (listed as uncertain).
-        assert_eq!(species_value("$Codex_Ent_Fonticulus_05_Name;", ""), Some(16_777_215));
+        // The wiki says 16,777,215 (2^24-1); the catalogue fixes it (listed as uncertain).
+        assert_eq!(species_value("$Codex_Ent_Fonticulus_05_Name;", ""), Some(20_000_000));
         assert_eq!(species_value("$Codex_Ent_Bacterial_01_Name;", ""), Some(1_000_000));
         assert_eq!(species_value("$Codex_Ent_Bacterial_07_Name;", ""), Some(1_949_000));
         assert_eq!(species_value("$Codex_Ent_SphereABCD_01_Name;", "$Codex_Ent_Sphere_Name;"), Some(1_499_900));

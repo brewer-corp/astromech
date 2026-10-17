@@ -1,161 +1,125 @@
-//! Species prediction against bodies whose species are known.
+//! Species prediction against bodies whose species are known, and each condition's gate.
 //!
-//! `fixtures/spansh-bio-bodies.json` is a trimmed Spansh bodies search (17 Oct 2026): 48 bodies
-//! with biological signals whose every species has been sampled and reported (the landmarks),
-//! picked so that together they cover every species seen in a thousand bodies around Sol, Colonia
-//! and three other regions. Each body's conditions go through the prediction; the species found
-//! there must be among the candidates, at the value Spansh reports, inside its genus's range.
+//! `fixtures/spansh-held-out.json` is written by `scripts/gen-exobiology.py`: bodies from
+//! Spansh's bodies search with the species players sampled there, from the quarter of the
+//! sample (by a hash of the id64) held out of the conditions in `data/catalog/exobiology.json`. So the
+//! recall measured here is on bodies the conditions never saw.
 
-use astromech_exobiology::catalog;
+use astromech_exobiology::catalog::{self, Conditions};
 use astromech_exobiology::predict::{self, Body};
 use serde_json::Value;
 
-const BODIES: &str = include_str!("fixtures/spansh-bio-bodies.json");
+const HELD_OUT: &str = include_str!("fixtures/spansh-held-out.json");
 
-/// Species whose value in Spansh's codex data differs from the wiki's table (the catalogue's
-/// source): (species, Spansh, catalogue). The wiki marks Bacterium Nebulus's value as changed;
-/// Spansh has the old one.
-const SPANSH_DIFFERS: &[(&str, i64, i64)] =
-    &[("Bacterium Nebulus", 5_289_900, 9_116_600), ("Tussock Ventusa", 3_227_700, 3_277_700)];
-
-/// Spansh's "Thin Carbon dioxide-rich" as the journal's `AtmosphereType` `CarbonDioxideRich`.
-fn atmosphere_type(spansh: &str) -> String {
-    let a = spansh.trim_start_matches("Thin ").trim_start_matches("Thick ");
-    if a == "No atmosphere" {
-        return "None".into();
-    }
-    let (a, rich) = match a.strip_suffix("-rich") {
-        Some(a) => (a, "Rich"),
-        None => (a, ""),
-    };
-    let words: String = a
-        .split([' ', '-'])
-        .map(|w| {
-            let mut c = w.chars();
-            c.next().map(|f| f.to_uppercase().chain(c).collect::<String>()).unwrap_or_default()
-        })
-        .collect();
-    words + rich
-}
-
-/// Spansh's body subtype as the journal's `PlanetClass`.
-fn planet_class(spansh: &str) -> String {
-    match spansh {
-        "High metal content world" => "High metal content body",
-        "Rocky Ice world" => "Rocky ice body",
-        other => other,
-    }
-    .into()
-}
-
-/// Spansh's star subtype ("K (Yellow-Orange) Star", "T Tauri Star") as a journal `StarType`.
-fn star_type(spansh: &str) -> String {
-    if spansh.starts_with("T Tauri") {
-        "TTS".into()
-    } else if spansh.contains("White Dwarf") {
-        "DA".into()
-    } else if spansh.starts_with("Neutron") {
-        "N".into()
-    } else if spansh.starts_with("Black Hole") {
-        "H".into()
-    } else if spansh.starts_with("Herbig") {
-        "AeBe".into()
-    } else {
-        spansh[..1].into()
-    }
-}
-
+/// A held-out body in the journal's terms (the fixture is already converted).
 fn body(b: &Value) -> Body {
-    let star = b["parents"]
-        .as_array()
-        .unwrap()
-        .iter()
-        .find(|p| p["type"] == "Star")
-        .map(|p| catalog::star_class(&star_type(p["subtype"].as_str().unwrap())));
-    let volcanism = match b["volcanism_type"].as_str() {
-        None | Some("No volcanism") => String::new(),
-        Some(v) => format!("{} volcanism", v.to_lowercase()),
-    };
     Body {
-        planet_class: planet_class(b["subtype"].as_str().unwrap()),
-        atmosphere_type: atmosphere_type(b["atmosphere"].as_str().unwrap_or("No atmosphere")),
-        volcanism,
-        temperature_k: b["surface_temperature"].as_f64(),
-        gravity_g: b["gravity"].as_f64(),
-        pressure_atm: b["surface_pressure"].as_f64(),
-        star_class: star,
+        planet_class: b["planet_class"].as_str().unwrap_or_default().into(),
+        atmosphere_type: b["atmosphere_type"].as_str().unwrap_or("None").into(),
+        // The kind ("water", "none") reads back as itself; unknown is no volcanism text.
+        volcanism: b["volcanism"].as_str().unwrap_or_default().into(),
+        temperature_k: b["temperature_k"].as_f64(),
+        gravity_g: b["gravity_g"].as_f64(),
+        pressure_atm: b["pressure_atm"].as_f64(),
+        star_class: b["star"].as_str().map(str::to_string),
     }
 }
 
 #[test]
-fn the_prediction_includes_every_species_found_there_and_its_value() {
-    let all: Value = serde_json::from_str(BODIES).unwrap();
-    let bodies = all["results"].as_array().unwrap();
-    assert_eq!(bodies.len(), 48);
-    let mut species_checked = std::collections::BTreeSet::new();
+fn recall_on_held_out_bodies() {
+    let all: Value = serde_json::from_str(HELD_OUT).unwrap();
+    let bodies = all["bodies"].as_array().unwrap();
+    assert!(bodies.len() >= 300, "{}", bodies.len());
+    let (mut hits, mut total, mut candidates) = (0, 0, 0);
+    let mut missed = std::collections::BTreeMap::<&str, u32>::new();
     for b in bodies {
-        let name = b["name"].as_str().unwrap();
-        let candidates = predict::predict(&body(b), true);
-        for l in b["landmarks"].as_array().unwrap() {
-            let (genus, species, value) =
-                (l["type"].as_str().unwrap(), l["subtype"].as_str().unwrap(), l["value"].as_i64().unwrap());
-            let c = candidates
-                .iter()
-                .find(|c| c.species == species)
-                .unwrap_or_else(|| panic!("{name}: {species} not predicted; got {candidates:?}"));
-            assert_eq!(c.genus, genus, "{name}: {species}");
-            match SPANSH_DIFFERS.iter().find(|d| d.0 == species) {
-                Some(&(_, spansh, ours)) => assert_eq!((value, c.value), (spansh, ours), "{name}: {species}"),
-                None => assert_eq!(c.value, value, "{name}: {species} value differs from Spansh's"),
+        let c = predict::predict(&body(b));
+        candidates += c.len();
+        for s in b["species"].as_array().unwrap().iter().filter_map(Value::as_str) {
+            let Some((g, sp)) = catalog::species(s) else { continue };
+            if sp.rules.is_empty() {
+                continue; // Horizons-era: never predicted
             }
-            let value = c.value;
-            let of_genus: Vec<_> = candidates.iter().filter(|c| c.genus == genus).cloned().collect();
-            let (lo, hi) = predict::value_range(&of_genus);
-            assert!(lo <= value && value <= hi, "{name}: {species} {value} outside {lo}..{hi}");
-            species_checked.insert(species.to_string());
+            total += 1;
+            match c.iter().find(|c| c.species == sp.name) {
+                Some(found) => {
+                    hits += 1;
+                    assert_eq!((found.genus, found.value), (g.name.as_str(), sp.value));
+                }
+                None => *missed.entry(&sp.name).or_default() += 1,
+            }
         }
     }
-    assert_eq!(species_checked.len(), 70);
+    let recall = hits as f64 / total as f64;
+    let per_body = candidates as f64 / bodies.len() as f64;
+    eprintln!("recall {hits}/{total} = {recall:.3}; {per_body:.1} candidates per body; missed {missed:?}");
+    assert!(total >= 600, "{total} sightings");
+    assert!(recall >= RECALL, "recall {recall:.3} below {RECALL}");
+    assert!(per_body <= CANDIDATES, "{per_body:.1} candidates per body, more than {CANDIDATES}");
 }
 
-#[test]
-fn the_prediction_rules_out_species_that_cannot_grow_there() {
-    let all: Value = serde_json::from_str(BODIES).unwrap();
-    // A high metal content world with a thin carbon dioxide atmosphere (36 Ophiuchi A 3, Stratum
-    // Tectonicas): no ammonia-only or icy-body species.
-    let b = all["results"].as_array().unwrap().iter().find(|b| b["name"] == "36 Ophiuchi A 3").unwrap();
-    let c = predict::predict(&body(b), true);
-    for none in ["Bacterium Alcyoneum", "Fonticulua Campestris", "Electricae Pluma", "Aleoida Laminiae"] {
-        assert!(!c.iter().any(|c| c.species == none), "{none} predicted on {}", b["name"]);
-    }
-    // Nothing grows without an atmosphere.
-    let airless = Body { atmosphere_type: "None".into(), ..body(b) };
-    assert!(predict::predict(&airless, true).is_empty());
-}
+/// What the held-out bodies must reach (measured by the script and this test, then rounded down).
+const RECALL: f64 = 0.98;
+const CANDIDATES: f64 = 12.5;
 
-#[test]
-fn soft_ranges_taper_and_hard_gates_do_not() {
-    // Stratum Tectonicas: high metal content body, thin CO2, from 165 K.
-    let tectonicas = |t: f64| Body {
-        planet_class: "High metal content body".into(),
-        atmosphere_type: "CarbonDioxide".into(),
-        volcanism: String::new(),
-        temperature_k: Some(t),
-        gravity_g: Some(0.3),
-        pressure_atm: Some(0.05),
-        star_class: Some("K".into()),
+/// A condition measured from enough bodies to gate on star and volcanism, and a body in the
+/// middle of it.
+fn gated() -> (&'static Conditions, Body) {
+    let c = catalog::genera()
+        .iter()
+        .flat_map(|g| &g.species)
+        .flat_map(|s| &s.rules)
+        .find(|c| {
+            c.star_types.as_ref().is_some_and(|s| s.len() < 8)
+                && c.volcanism.as_ref().is_some_and(|v| v.len() < 6)
+                && c.min_pressure_atm.zip(c.max_pressure_atm).is_some_and(|(lo, hi)| hi > lo && lo > 0.0)
+        })
+        .expect("a condition with star, volcanism and pressure");
+    let mid = |lo: Option<f64>, hi: Option<f64>| lo.zip(hi).map(|(l, h)| (l + h) / 2.0);
+    let body = Body {
+        planet_class: c.body_types.as_ref().unwrap()[0].clone(),
+        atmosphere_type: c.atmosphere.as_ref().unwrap()[0].clone(),
+        volcanism: c.volcanism.as_ref().unwrap()[0].clone(),
+        temperature_k: mid(c.min_temp_k, c.max_temp_k),
+        gravity_g: mid(c.min_gravity_g, c.max_gravity_g),
+        pressure_atm: mid(c.min_pressure_atm, c.max_pressure_atm),
+        star_class: Some(c.star_types.as_ref().unwrap()[0].clone()),
     };
-    let fit =
-        |t| predict::predict(&tectonicas(t), true).iter().find(|c| c.species == "Stratum Tectonicas").map(|c| c.fit);
-    assert_eq!(fit(200.0), Some(1.0));
-    assert!(fit(1000.0).is_none(), "far too hot");
-    let star_y = Body { star_class: Some("Y".into()), ..tectonicas(200.0) };
-    let unknown_star = Body { star_class: None, ..tectonicas(200.0) };
-    assert_eq!(
-        predict::predict(&star_y, true).iter().any(|c| c.species == "Stratum Tectonicas"),
-        predict::predict(&unknown_star, true).iter().any(|c| c.species == "Stratum Tectonicas"),
-        "Stratum Tectonicas has no star condition"
-    );
+    (c, body)
+}
+
+#[test]
+fn each_condition_gates() {
+    let (c, b) = gated();
+    assert_eq!(predict::fit(c, &b), 1.0, "{c:?} {b:?}");
+    let not = |what: &str, b: Body| assert_eq!(predict::fit(c, &b), 0.0, "{what}: {c:?} {b:?}");
+    not("atmosphere", Body { atmosphere_type: "Helium".into(), ..b.clone() });
+    not("no atmosphere", Body { atmosphere_type: "None".into(), ..b.clone() });
+    let other_class = ["Rocky body", "Icy body", "High metal content body", "Rocky ice body"]
+        .into_iter()
+        .find(|k| !c.body_types.as_ref().unwrap().iter().any(|t| t == k))
+        .unwrap();
+    not("body class", Body { planet_class: other_class.into(), ..b.clone() });
+    let other_star = ["O", "B", "A", "F", "G", "K", "M", "L", "T", "Y", "D", "N", "H", "TTS", "AeBe", "W"]
+        .into_iter()
+        .find(|k| !c.star_types.as_ref().unwrap().iter().any(|t| t == k))
+        .unwrap();
+    not("star", Body { star_class: Some(other_star.into()), ..b.clone() });
+    let other_volcanism =
+        ["none", "water", "carbon dioxide", "silicate", "metallic", "rocky", "ammonia", "methane", "nitrogen"]
+            .into_iter()
+            .find(|k| !c.volcanism.as_ref().unwrap().iter().any(|v| v == k))
+            .unwrap();
+    not("volcanism", Body { volcanism: format!("minor {other_volcanism} geysers volcanism"), ..b.clone() });
+    let (lo, hi) = (c.min_pressure_atm.unwrap(), c.max_pressure_atm.unwrap());
+    not("pressure", Body { pressure_atm: Some(hi + (hi - lo)), ..b.clone() });
+    not("pressure", Body { pressure_atm: Some(lo - (hi - lo)), ..b.clone() });
+    let (lo, hi) = (c.min_temp_k.unwrap(), c.max_temp_k.unwrap());
+    not("temperature", Body { temperature_k: Some(hi + (hi - lo) + 1.0), ..b.clone() });
+    let (lo, hi) = (c.min_gravity_g.unwrap(), c.max_gravity_g.unwrap());
+    not("gravity", Body { gravity_g: Some(hi + (hi - lo) + 0.01), ..b.clone() });
+    // An unknown star doesn't rule it out.
+    assert_eq!(predict::fit(c, &Body { star_class: None, ..b.clone() }), 1.0);
 }
 
 #[test]
@@ -175,9 +139,20 @@ fn the_catalogue_knows_names_from_the_journal_and_spansh() {
     assert_eq!(catalog::genus("Thargoid Barnacle").map(|g| &g.name), None);
     let (g, s) = catalog::species("Stratum Tectonicas").unwrap();
     assert_eq!((g.name.as_str(), s.value, g.colony_range_m), ("Stratum", 19_010_800, 500));
+    assert_eq!(catalog::species("Fonticulua Fluctus").unwrap().1.value, 20_000_000);
     assert_eq!(catalog::species("Roseum Brain Tree").unwrap().0.name, "Brain Tree");
     assert_eq!(catalog::genus("Stratum").unwrap().value_range(), (1_362_000, 19_010_800));
-    for (t, class) in [("DAB", "D"), ("K", "K"), ("A_BlueWhiteSuperGiant", "A"), ("TTS", "TTS"), ("N", "N")] {
-        assert_eq!(catalog::star_class(t), class);
+    for (t, class) in [
+        ("DAB", "D"),
+        ("K", "K"),
+        ("A_BlueWhiteSuperGiant", "A"),
+        ("TTS", "TTS"),
+        ("N", "N"),
+        ("WNC", "W"),
+        ("CN", "C"),
+        ("MS", "S"),
+        ("SupermassiveBlackHole", "H"),
+    ] {
+        assert_eq!(catalog::star_class(t), class, "{t}");
     }
 }

@@ -1,0 +1,6831 @@
+{
+"source": "Spansh bodies search, held out of data/catalog/exobiology.json's conditions",
+"bodies": [
+{
+"id64": 36028889864647210,
+"name": "Hypumaea TK-U c4-0 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "Oxygen",
+"volcanism": null,
+"temperature_k": 200.024231,
+"gravity_g": 0.429658815132048,
+"pressure_atm": 0.0388092394867999,
+"star": "M",
+"signals": 2,
+"species": [
+"Bacterium Volu",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 36031683102600081,
+"name": "Pyuefua LM-B b47-1 1",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 85.48632,
+"gravity_g": 0.263730600591414,
+"pressure_atm": 0.0159293162003454,
+"star": "M",
+"signals": 4,
+"species": [
+"Bacterium Vesicula",
+"Fungoida Bullarum",
+"Osseus Pumice",
+"Tussock Capillum"
+]
+},
+{
+"id64": 36036065043359177,
+"name": "Alrai Sector MX-T b3-3 1",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 102.353874,
+"gravity_g": 0.267282961150199,
+"pressure_atm": 0.0173146133530718,
+"star": "M",
+"signals": 5,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Fungoida Bullarum",
+"Osseus Pumice",
+"Tussock Capillum"
+]
+},
+{
+"id64": 36086939601750872,
+"name": "Core Sys Sector YU-P a5-3 1",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 20.024979,
+"gravity_g": 0.455263791169573,
+"pressure_atm": 0.00213335625956082,
+"star": "Y",
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 37475838240761618,
+"name": "Stuemeae KM-W c1-5264 1",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 123.188171,
+"gravity_g": 0.279718262465586,
+"pressure_atm": 0.0163279876634592,
+"star": "K",
+"signals": 1,
+"species": [
+"Bacterium Vesicula"
+]
+},
+{
+"id64": 72058219087029953,
+"name": "Prae Pruae CN-N b22-0 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 74.889244,
+"gravity_g": 0.26212511471398,
+"pressure_atm": 0.0198459631088083,
+"star": "M",
+"signals": 4,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Fungoida Bullarum",
+"Osseus Pumice"
+]
+},
+{
+"id64": 72060334627111993,
+"name": "Eol Prou NG-S b6-1 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 83.994118,
+"gravity_g": 0.250761598857959,
+"pressure_atm": 0.0119255171675302,
+"star": "M",
+"signals": 5,
+"species": [
+"Fungoida Bullarum",
+"Osseus Pumice"
+]
+},
+{
+"id64": 72063811539881536,
+"name": "Cyoagoa MD-B a68-0 2",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "nitrogen",
+"temperature_k": 20.019152,
+"gravity_g": 0.399314469256653,
+"pressure_atm": 0.00181005350111029,
+"star": "T",
+"signals": 1,
+"species": [
+"Bacterium Omentum",
+"Nitrogen Ice Fumarole",
+"Nitrogen Ice Geyser"
+]
+},
+{
+"id64": 72078055931798673,
+"name": "Flyooe Pri QF-C b17-9 1 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 56.711258,
+"gravity_g": 0.108835423676965,
+"pressure_atm": 0.00601138913397483,
+"star": null,
+"signals": 2,
+"species": [
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 72161491038848161,
+"name": "Eol Prou YT-U b18-47 2",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 39.832043,
+"gravity_g": 0.410494850616906,
+"pressure_atm": 0.00195793417221811,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 73915027907749658,
+"name": "Stuemeae JC-V c2-6757 1 a",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 118.984138,
+"gravity_g": 0.272076068114612,
+"pressure_atm": 0.0110537719022946,
+"star": null,
+"signals": 5,
+"species": [
+"Tussock Capillum"
+]
+},
+{
+"id64": 108086758376945130,
+"name": "Gru Ploe VA-F c27-1 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 166.0,
+"gravity_g": 0.0616698888559291,
+"pressure_atm": 0.00662891010115963,
+"star": null,
+"signals": 0,
+"species": [
+"Bacterium Aurasus",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 108089081627429227,
+"name": "Ginnari 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 188.749329,
+"gravity_g": 0.227808504129703,
+"pressure_atm": 0.0916526820429312,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Concha Renibus",
+"Fungoida Stabitis",
+"Osseus Fractus",
+"Stratum Excutitus",
+"Tussock Caputus"
+]
+},
+{
+"id64": 108090737015425312,
+"name": "Eol Prou NF-W a33-0 2",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 20.015232,
+"gravity_g": 0.403521974100133,
+"pressure_atm": 0.00114411793733037,
+"star": "Y",
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 108095857567671697,
+"name": "Yin Sector AG-X b1-4 3",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "methane",
+"temperature_k": 39.420185,
+"gravity_g": 0.49689670643418,
+"pressure_atm": 0.00287444503330866,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Scopulum"
+]
+},
+{
+"id64": 108104725869982529,
+"name": "Preae Chroa IL-I b37-8 2 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 66.215431,
+"gravity_g": 0.269905577648618,
+"pressure_atm": 0.00389038597582038,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 108152904931034217,
+"name": "Eol Prou TM-H b12-30 A 1",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 68.232155,
+"gravity_g": 0.252372591006424,
+"pressure_atm": 0.0166263813570195,
+"star": "M",
+"signals": 3,
+"species": [
+"Fungoida Bullarum",
+"Osseus Pumice"
+]
+},
+{
+"id64": 108492327500125067,
+"name": "Stuemeae FG-Y d11814 A 1",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 45.213974,
+"gravity_g": 0.562685530743347,
+"pressure_atm": 0.00367842246237355,
+"star": "L",
+"signals": 1,
+"species": [
+"Bacterium Verrata",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 144115199560226883,
+"name": "Plio Scrae GB-N d7-0 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 258.137939,
+"gravity_g": 0.404705312531865,
+"pressure_atm": 0.00285990140636566,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 144115302689348211,
+"name": "Blaa Ploe VP-D d13-3 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.045578,
+"gravity_g": 0.258036810441521,
+"pressure_atm": 0.0912150914483099,
+"star": "G",
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Clypeus Margaritus",
+"Frutexa Metallicum",
+"Osseus Pellebantus",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 144115906007688849,
+"name": "Preae Auscs IT-X b16-0 3",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 98.720581,
+"gravity_g": 0.268552564494749,
+"pressure_atm": 0.015818309015544,
+"star": "M",
+"signals": 4,
+"species": [
+"Tussock Capillum"
+]
+},
+{
+"id64": 144117480883696666,
+"name": "Roedaae ZK-A c3-8 4",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 156.916214,
+"gravity_g": 0.261131232792903,
+"pressure_atm": 0.00419996237848507,
+"star": "K",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Recepta Umbrux"
+]
+},
+{
+"id64": 144119527594559720,
+"name": "Eol Prou RI-M a27-0 3",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": null,
+"temperature_k": 20.117214,
+"gravity_g": 0.495809115937596,
+"pressure_atm": 0.0687921177202073,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 144120769419416274,
+"name": "Korwei 4",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 124.536957,
+"gravity_g": 0.272151626389314,
+"pressure_atm": 0.00496684915864791,
+"star": "K",
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Settlement"
+]
+},
+{
+"id64": 144131256487781809,
+"name": "Synuefe LE-U b50-7 2 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": "none",
+"temperature_k": 62.89888,
+"gravity_g": 0.264061384725196,
+"pressure_atm": 0.00226660069084629,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 144165534680569371,
+"name": "Iwaitt NR-V d2-1465 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 218.328003,
+"gravity_g": 0.382943305801978,
+"pressure_atm": 0.00256625438934123,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Frigus"
+]
+},
+{
+"id64": 144274135386366538,
+"name": "Eol Prou LI-O c8-578 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 191.212372,
+"gravity_g": 0.26762016926685,
+"pressure_atm": 0.0984285270959783,
+"star": "K",
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Clypeus Margaritus",
+"Osseus Pellebantus",
+"Stratum Tectonicas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 145524021268653834,
+"name": "Stuemeae CQ-Y c5125 A 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 217.274612,
+"gravity_g": 0.338349648210462,
+"pressure_atm": 0.000997173343202566,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 180144086932862058,
+"name": "Eactaild TZ-E c12-0 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 165.145721,
+"gravity_g": 0.138294585500153,
+"pressure_atm": 0.0337175804391809,
+"star": null,
+"signals": 3,
+"species": [
+"Stratum Limaxus"
+]
+},
+{
+"id64": 180144648407222651,
+"name": "HIP 86086 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 194.857956,
+"gravity_g": 0.226518201284797,
+"pressure_atm": 0.088985068926721,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Cactoida Cortexum",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Frutexa Acus",
+"Fungoida Stabitis",
+"Osseus Pellebantus"
+]
+},
+{
+"id64": 180146809173598241,
+"name": "Ploi Aoscs KF-D b4-1 A 2 a",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 84.211235,
+"gravity_g": 0.268718058529622,
+"pressure_atm": 0.0305166191561806,
+"star": null,
+"signals": 2,
+"species": [
+"Electricae Radialem",
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 180149116637105233,
+"name": "Byoomu EQ-I b9-2 5",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": "methane",
+"temperature_k": 24.053421,
+"gravity_g": 0.502215356378097,
+"pressure_atm": 0.0184250911719714,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Scopulum"
+]
+},
+{
+"id64": 180157050276073763,
+"name": "Eol Prou TN-T d3-380 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 194.722092,
+"gravity_g": 0.345282349342307,
+"pressure_atm": 0.00207329272144091,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 180179712374686937,
+"name": "Eol Prou EB-I b25-16 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 111.00531,
+"gravity_g": 0.411002243295605,
+"pressure_atm": 0.00157581193190229,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Informem"
+]
+},
+{
+"id64": 180219295598920889,
+"name": "Eol Prou HB-Q b21-34 4",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "ammonia",
+"temperature_k": 45.713371,
+"gravity_g": 0.535626899153666,
+"pressure_atm": 0.00333593285961017,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Omentum"
+]
+},
+{
+"id64": 180449458369210122,
+"name": "Stuemeae YZ-Y c1111 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 87.424644,
+"gravity_g": 0.246319057815846,
+"pressure_atm": 0.0555965584900074,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 182062441927026490,
+"name": "Stuemeae ER-N c6-6979 A 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 79.840698,
+"gravity_g": 0.157116447435505,
+"pressure_atm": 0.00143375180853689,
+"star": null,
+"signals": 3,
+"species": [
+"Fungoida Setisis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 216172861814070019,
+"name": "Blau Auscs AJ-B d2 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 110.778648,
+"gravity_g": 0.243290608748853,
+"pressure_atm": 0.00172713529731063,
+"star": "A",
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Electricae Pluma",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 216173423104340458,
+"name": "Pro Aod NF-C c27-2 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 194.363724,
+"gravity_g": 0.231896196594269,
+"pressure_atm": 0.0731861574339995,
+"star": "K",
+"signals": 6,
+"species": [
+"Aleoida Gravis",
+"Bacterium Aurasus",
+"Clypeus Margaritus",
+"Osseus Pellebantus",
+"Stratum Tectonicas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 216175473405334803,
+"name": "Eord Graei FA-Y d1-78 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 132.436523,
+"gravity_g": 0.0604219435097379,
+"pressure_atm": 0.00100630520602023,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Collum",
+"Recepta Deltahedronix"
+]
+},
+{
+"id64": 216176989336343250,
+"name": "Col 285 Sector CB-M c8-15 A 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 164.664597,
+"gravity_g": 0.267290812684817,
+"pressure_atm": 0.00414643215396003,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Concha Aureolas",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 216178918716093010,
+"name": "Ploea Auscs GK-I c9-22 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.362976,
+"gravity_g": 0.192990109105741,
+"pressure_atm": 0.0506985180754996,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Osseus Fractus",
+"Stratum Tectonicas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 216185297539191083,
+"name": "Eol Prou BK-R d4-364 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 429.174347,
+"gravity_g": 0.0501514224533497,
+"pressure_atm": 0.0864661786035036,
+"star": null,
+"signals": 6,
+"species": [
+"Osseus Discus"
+]
+},
+{
+"id64": 216199885638951369,
+"name": "Flyeia Flyao QC-P b53-12 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": null,
+"temperature_k": 27.85507,
+"gravity_g": 0.439444682369736,
+"pressure_atm": 0.00223501450777202,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 216229905704585544,
+"name": "Eol Prou CZ-N a38-3 4",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 20.016916,
+"gravity_g": 0.420887427347813,
+"pressure_atm": 0.00141158850234394,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 216327102192948099,
+"name": "Stuemeae BA-A d4491 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 294.756531,
+"gravity_g": 0.445431936371979,
+"pressure_atm": 0.00344649067850975,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 217151706125838090,
+"name": "Stuemeae EG-Y c3561 A 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 183.518768,
+"gravity_g": 0.150621902722545,
+"pressure_atm": 0.0396341324154947,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus"
+]
+},
+{
+"id64": 252201658128173267,
+"name": "Oochost YG-K d9-2 A 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 279.490631,
+"gravity_g": 0.402854695625574,
+"pressure_atm": 0.00278502921292869,
+"star": null,
+"signals": 1,
+"species": [
+"Stratum Frigus"
+]
+},
+{
+"id64": 252202036907547699,
+"name": "Wruethai VE-Q d5-13 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 165.762878,
+"gravity_g": 0.189932293259916,
+"pressure_atm": 0.00209806353811991,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Frutexa Flammasis",
+"Osseus Spiralis",
+"Stratum Paleas"
+]
+},
+{
+"id64": 252202827382823291,
+"name": "Plio Auwsy FY-Z d13-36 A 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 432.031219,
+"gravity_g": 0.50473488324666,
+"pressure_atm": 0.00309870413027387,
+"star": "F",
+"signals": 2,
+"species": [
+"Bacterium Tela",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 252204449915872681,
+"name": "LHS 2233 A 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 169.912704,
+"gravity_g": 0.155254410115224,
+"pressure_atm": 0.00109576417468542,
+"star": "M",
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Fungoida Setisis",
+"Stratum Tectonicas",
+"Surface Station",
+"Tussock Cultro"
+]
+},
+{
+"id64": 252206647059817793,
+"name": "Hyades Sector TO-Z b2 2",
+"planet_class": "Icy body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 163.766922,
+"gravity_g": 0.240756398490874,
+"pressure_atm": 0.00218220998766346,
+"star": "TTS",
+"signals": 1,
+"species": [
+"Recepta Conditivus"
+]
+},
+{
+"id64": 252211045911766465,
+"name": "Alrai Sector NC-V b2-4 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "nitrogen",
+"temperature_k": 48.397617,
+"gravity_g": 0.447263791169573,
+"pressure_atm": 0.00228367532198372,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Omentum",
+"Nitrogen Ice Fumarole",
+"Nitrogen Ice Geyser"
+]
+},
+{
+"id64": 252237307486487849,
+"name": "Eol Prou SU-Q b34-16 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 162.383499,
+"gravity_g": 0.2547914754767,
+"pressure_atm": 0.0108491335011103,
+"star": "M",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Recepta Umbrux"
+]
+},
+{
+"id64": 252294916824951104,
+"name": "Auphairsts BJ-F a38-5 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": null,
+"temperature_k": 20.120905,
+"gravity_g": 0.497444478433772,
+"pressure_atm": 0.0732345928151986,
+"star": "Y",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 252376961731531659,
+"name": "Stuemeae FG-Y d5104 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 331.021912,
+"gravity_g": 0.419549301519323,
+"pressure_atm": 0.0421594391907229,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 252937786288482042,
+"name": "Hypio Pri PF-D c29-2678 5 a",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 97.880608,
+"gravity_g": 0.249686958295095,
+"pressure_atm": 0.0702085019985196,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 288230456137014051,
+"name": "Fachuae JB-V d3-2 A 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 153.888718,
+"gravity_g": 0.0656282247374324,
+"pressure_atm": 0.00794580150012337,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Tussock Propagito"
+]
+},
+{
+"id64": 288230734815703698,
+"name": "Hypumau GB-Y c16-1 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 171.527542,
+"gravity_g": 0.131609054756806,
+"pressure_atm": 0.00100254920305946,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Spica",
+"Stratum Paleas"
+]
+},
+{
+"id64": 288231047106340225,
+"name": "GCRV 5084 A 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 65.139191,
+"gravity_g": 0.239287753645355,
+"pressure_atm": 0.00281479684184555,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 288231796854758171,
+"name": "Hatchooe US-U d2-41 A 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 176.190155,
+"gravity_g": 0.104817681248088,
+"pressure_atm": 0.019182407806563,
+"star": null,
+"signals": 4,
+"species": [
+"Stratum Limaxus",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 288233067527543267,
+"name": "Pro Auwsy YV-E d11-78 1 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 185.321609,
+"gravity_g": 0.167710716834914,
+"pressure_atm": 0.0524007390377498,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Fera",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 288233758337700546,
+"name": "Arietis Sector LX-U c2-12 A 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 177.589401,
+"gravity_g": 0.169261853777914,
+"pressure_atm": 0.0391185348828029,
+"star": "K",
+"signals": 4,
+"species": [
+"Aleoida Arcus",
+"Crater Outpost",
+"Stratum Tectonicas",
+"Tussock Albata"
+]
+},
+{
+"id64": 288236232373179098,
+"name": "Lalande 39866 A 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 184.77562,
+"gravity_g": 0.359822371775263,
+"pressure_atm": 0.00168872094744634,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 288242041417115073,
+"name": "Alrai Sector LC-V b2-5 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 48.977936,
+"gravity_g": 0.542636280208015,
+"pressure_atm": 0.00341689653096472,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Verrata"
+]
+},
+{
+"id64": 288249454320783675,
+"name": "Eol Prou BV-O d6-555 6 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 209.86058,
+"gravity_g": 0.394204241868053,
+"pressure_atm": 0.00271342246237355,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 288264264911721995,
+"name": "Hypuae Chraei HQ-Y d986 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 247.361954,
+"gravity_g": 0.418576628938513,
+"pressure_atm": 0.00304579705896867,
+"star": null,
+"signals": 1,
+"species": [
+"Stratum Frigus"
+]
+},
+{
+"id64": 288289382014898619,
+"name": "Screakao NN-Q d6-1717 A 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 154.03508,
+"gravity_g": 0.272966350565922,
+"pressure_atm": 0.0166222635479891,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Umbrux",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 288417097464157067,
+"name": "Stuemeae FG-Y d5434 A 3",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 61.574234,
+"gravity_g": 0.247734883246661,
+"pressure_atm": 0.00121572664199359,
+"star": "L",
+"signals": 2,
+"species": [
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 289254105396815634,
+"name": "Stuemeae KM-W c1-3724 5 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 80.589928,
+"gravity_g": 0.226195574589579,
+"pressure_atm": 0.0265910475302245,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 290541083757127442,
+"name": "Stuemeae KM-W c1-8406 2 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 172.77948,
+"gravity_g": 0.0899306617722035,
+"pressure_atm": 0.014901483562793,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Tubus Cavas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 324259540423946994,
+"name": "Hypumaea QC-Z c27-1 B 1",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 87.876297,
+"gravity_g": 0.264209952075048,
+"pressure_atm": 0.0967593352874414,
+"star": "M",
+"signals": 1,
+"species": [
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 324259842782930337,
+"name": "NLTT 52560 A 3 c",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 98.146149,
+"gravity_g": 0.0356371979198532,
+"pressure_atm": 0.0356719366790032,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Bullaris",
+"Fungoida Setisis",
+"Osseus Pumice",
+"Tussock Capillum"
+]
+},
+{
+"id64": 324261107793398115,
+"name": "K Camelopardalis 5 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 163.038834,
+"gravity_g": 0.0700709697155093,
+"pressure_atm": 0.00913973048112509,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Frutexa Acus",
+"Tubus Compagibus",
+"Tussock Ignis"
+]
+},
+{
+"id64": 324262242134530403,
+"name": "Plio Auscs IW-E d11-89 A 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 311.24826,
+"gravity_g": 0.472423574997451,
+"pressure_atm": 0.0201647470318283,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Tela"
+]
+},
+{
+"id64": 324265563309548130,
+"name": "Eol Prou WT-G c11-23 1 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "water",
+"temperature_k": 73.777321,
+"gravity_g": 0.18960079535026,
+"pressure_atm": 0.0410283663360474,
+"star": null,
+"signals": 3,
+"species": [
+"Fonticulua Campestris",
+"Fumerola Aquatis"
+]
+},
+{
+"id64": 324270839509689681,
+"name": "Hyades Sector GB-W b2-5 AB 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "Water",
+"volcanism": "none",
+"temperature_k": 411.426788,
+"gravity_g": 0.0578962985622515,
+"pressure_atm": 0.084535721993585,
+"star": null,
+"signals": 8,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Margaritus",
+"Concha Renibus",
+"Fungoida Stabitis",
+"Osseus Discus",
+"Stratum Tectonicas",
+"Tussock Virgam"
+]
+},
+{
+"id64": 324279636139582929,
+"name": "Tai Shere A 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 43.242535,
+"gravity_g": 0.525720301825227,
+"pressure_atm": 0.0031947520552677,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Verrata",
+"Crater Outpost"
+]
+},
+{
+"id64": 324292544907006251,
+"name": "Eol Prou QD-S d4-971 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 134.114944,
+"gravity_g": 0.234381768124809,
+"pressure_atm": 0.00100688769800148,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Recepta Umbrux",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 324333400565486451,
+"name": "Myriesly NI-B d13-2160 AB 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 415.581573,
+"gravity_g": 0.049098908942592,
+"pressure_atm": 0.0825707519861831,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Fungoida Gelata",
+"Osseus Discus"
+]
+},
+{
+"id64": 324466509627611841,
+"name": "Phroi Blou WF-P b22-94 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "ammonia",
+"temperature_k": 44.675446,
+"gravity_g": 0.542907107168349,
+"pressure_atm": 0.00342354188008882,
+"star": null,
+"signals": 1,
+"species": [
+"Ammonia Ice Fumarole",
+"Ammonia Ice Geyser",
+"Bacterium Omentum"
+]
+},
+{
+"id64": 325332932342326962,
+"name": "Hypiae Auscs MF-N c20-3906 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 174.183151,
+"gravity_g": 0.174404099112879,
+"pressure_atm": 0.00853311963483839,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flabellum"
+]
+},
+{
+"id64": 360288015160903859,
+"name": "Oochorrs IS-R d5-1 7 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 173.037384,
+"gravity_g": 0.263158254308147,
+"pressure_atm": 0.00402582529484333,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Osseus Spiralis"
+]
+},
+{
+"id64": 360288338986415138,
+"name": "Eactainds NZ-S c3-1 A 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 83.578613,
+"gravity_g": 0.2612204547772,
+"pressure_atm": 0.027822007806563,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 360288860306884756,
+"name": "Eol Prou IW-W e1-207 A 6 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 368.049683,
+"gravity_g": 0.454044356072193,
+"pressure_atm": 0.00324015630890698,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Tela"
+]
+},
+{
+"id64": 360290712389174417,
+"name": "Eol Prou TC-Y b16-1 7",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 20.018267,
+"gravity_g": 0.405598246150709,
+"pressure_atm": 0.00164631002220577,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 360292311858448760,
+"name": "Eol Prou ZJ-K a44-0 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": null,
+"temperature_k": 20.124825,
+"gravity_g": 0.500014989293362,
+"pressure_atm": 0.0781029436170738,
+"star": "T",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 360295113386640465,
+"name": "Spoihaae EB-T b9-3 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 44.332527,
+"gravity_g": 0.548244315285001,
+"pressure_atm": 0.00347882951887491,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Verrata"
+]
+},
+{
+"id64": 360304574574956915,
+"name": "Eoch Pruae YB-C d13-483 A 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 168.0,
+"gravity_g": 0.300335349123186,
+"pressure_atm": 0.00599655396002961,
+"star": null,
+"signals": 0,
+"species": [
+"Stratum Laminamus"
+]
+},
+{
+"id64": 360328535618767600,
+"name": "Hyades Sector FB-B a15-2 8",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": "water",
+"temperature_k": 20.119967,
+"gravity_g": 0.495671357193841,
+"pressure_atm": 0.0720893425808043,
+"star": "T",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 360376015375936370,
+"name": "Dryau Briae JL-G c13-320 CD 2",
+"planet_class": "Icy body",
+"atmosphere_type": "Oxygen",
+"volcanism": null,
+"temperature_k": 154.858154,
+"gravity_g": 0.272873661670236,
+"pressure_atm": 0.0251618038490007,
+"star": null,
+"signals": 3,
+"species": [
+"Fonticulua Fluctus",
+"Recepta Umbrux"
+]
+},
+{
+"id64": 360571178286360330,
+"name": "Stuemeae DL-Y c1030 A 7 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 73.351662,
+"gravity_g": 0.253151524421332,
+"pressure_atm": 0.00916807681223785,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 396316767672171895,
+"name": "Hyuqoae AA-A h55 A 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 44.648327,
+"gravity_g": 0.173750076475987,
+"pressure_atm": 0.0018568335652603,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Informem",
+"Concha Biconcavis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 396317121316918155,
+"name": "Stuemeae GG-Y d10 7 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 132.436035,
+"gravity_g": 0.244650555725502,
+"pressure_atm": 0.00104366405132001,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Collum",
+"Recepta Deltahedronix",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 396317784211436877,
+"name": "Rothea ZU-Y f1894 1 h",
+"planet_class": "Rocky body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 49.283653,
+"gravity_g": 0.208624859794025,
+"pressure_atm": 0.00267638602516654,
+"star": "T",
+"signals": 3,
+"species": [
+"Bacterium Informem",
+"Concha Biconcavis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 396319632087737617,
+"name": "Ploi Aub CB-X b31-1 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": null,
+"temperature_k": 43.192226,
+"gravity_g": 0.39928051391863,
+"pressure_atm": 0.00103144053293856,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 396320763415611763,
+"name": "Kuruacani A 7",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 182.7939,
+"gravity_g": 0.182911593759559,
+"pressure_atm": 0.0455832340587219,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Frutexa Metallicum",
+"Osseus Fractus",
+"Stratum Tectonicas",
+"Tussock Caputus"
+]
+},
+{
+"id64": 396326105940575321,
+"name": "Eol Prou DD-J b10-4 A 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 178.170471,
+"gravity_g": 0.143947078617314,
+"pressure_atm": 0.0365727692079941,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Arcus",
+"Bacterium Aurasus",
+"Stratum Limaxus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 396334449018874826,
+"name": "Dryi Broae ZV-J c23-64 AB 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 173.475006,
+"gravity_g": 0.170913735087183,
+"pressure_atm": 0.0543532472045399,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tussock Serrati"
+]
+},
+{
+"id64": 396358797649367331,
+"name": "Eol Prou LH-U d3-1223 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 221.128967,
+"gravity_g": 0.415545222800041,
+"pressure_atm": 0.00300652342462374,
+"star": null,
+"signals": 1,
+"species": [
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 396388037920903507,
+"name": "Eoch Pruae FI-J d9-2074 2 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 165.52121,
+"gravity_g": 0.161799123075354,
+"pressure_atm": 0.00160280322723908,
+"star": null,
+"signals": 0,
+"species": [
+"Bacterium Alcyoneum",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 396465933326996371,
+"name": "Juenae FI-Z d1-4341 9",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 47.504093,
+"gravity_g": 0.528865810135617,
+"pressure_atm": 0.00320012459906242,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Verrata"
+]
+},
+{
+"id64": 397205531334289170,
+"name": "Stuemeae JM-W c1-3233 A 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 185.085342,
+"gravity_g": 0.197386866523911,
+"pressure_atm": 0.0725914976165803,
+"star": null,
+"signals": 5,
+"species": [
+"Fungoida Gelata"
+]
+},
+{
+"id64": 398638744741095178,
+"name": "Stuemeae FG-Y c8447 A 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 247.508774,
+"gravity_g": 0.399520036708474,
+"pressure_atm": 0.00199391976313842,
+"star": "K",
+"signals": 1,
+"species": [
+"Bacterium Cerbrus"
+]
+},
+{
+"id64": 432346209143625961,
+"name": "Slyaiks AR-M b27-0 C 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 182.080826,
+"gravity_g": 0.251205261547874,
+"pressure_atm": 0.087233540360227,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 432347307816432802,
+"name": "Roedaae ZG-W c18-6 A 2 a",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 172.136581,
+"gravity_g": 0.239788110533293,
+"pressure_atm": 0.0153731912065137,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Recepta Conditivus"
+]
+},
+{
+"id64": 432349771852880314,
+"name": "Prieluia MP-M c21-15 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.31517,
+"gravity_g": 0.179001835423677,
+"pressure_atm": 0.00196821677769553,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Catena"
+]
+},
+{
+"id64": 432352503920861794,
+"name": "Eol Prou XJ-G c11-25 A 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 153.470398,
+"gravity_g": 0.130777301927195,
+"pressure_atm": 0.00104952307920059,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Laminiae",
+"Fungoida Setisis",
+"Tussock Catena"
+]
+},
+{
+"id64": 432357187994474715,
+"name": "Prooe Flyuae GC-J d10-338 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 171.732147,
+"gravity_g": 0.105834098093199,
+"pressure_atm": 0.0208798242585739,
+"star": null,
+"signals": 5,
+"species": [
+"Concha Labiata",
+"Frutexa Acus",
+"Tussock Serrati"
+]
+},
+{
+"id64": 432368537470520056,
+"name": "Hyades Sector LC-Z a15-1 A 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": "none",
+"temperature_k": 20.12109,
+"gravity_g": 0.496758131946569,
+"pressure_atm": 0.0734601009326425,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 432403097563279354,
+"name": "Pheia Briae JY-A c29-209 B 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 157.76059,
+"gravity_g": 0.188929947996329,
+"pressure_atm": 0.0016133629311621,
+"star": "M",
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Fungoida Setisis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 432473633064113555,
+"name": "Lyaisaa ZE-Y d1-3727 A 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 284.110046,
+"gravity_g": 0.456310288569389,
+"pressure_atm": 0.00640584460893166,
+"star": null,
+"signals": 1,
+"species": [
+"Stratum Frigus"
+]
+},
+{
+"id64": 432617875832853171,
+"name": "Zuni IQ-P d5-7925 7 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 182.579819,
+"gravity_g": 0.134273987967778,
+"pressure_atm": 0.0314630583271651,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Frutexa Fera",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 433072425333171994,
+"name": "Stuemeae OS-U c2-2644 A 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 169.531418,
+"gravity_g": 0.0753027429387172,
+"pressure_atm": 0.0104725883049593,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 434605965484729994,
+"name": "Byoomi HK-A c16-8223 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 164.854385,
+"gravity_g": 0.0543077393698379,
+"pressure_atm": 0.00544382994325191,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Fera",
+"Tubus Conifer",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 468374543522548075,
+"name": "HIP 772 2 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 434.631317,
+"gravity_g": 0.047089425920261,
+"pressure_atm": 0.0761390771477918,
+"star": null,
+"signals": 8,
+"species": [
+"Bacterium Tela",
+"Cactoida Vermis",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Frutexa Sponsae",
+"Fungoida Stabitis",
+"Osseus Discus",
+"Tussock Virgam"
+]
+},
+{
+"id64": 468375083470843777,
+"name": "Greae Prau CS-B b45-0 B 2",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.633194,
+"gravity_g": 0.262998266544305,
+"pressure_atm": 0.00306018467308167,
+"star": "L",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Tussock Catena"
+]
+},
+{
+"id64": 468376640095858674,
+"name": "Vegniae RM-Z c27-8 B 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 176.62468,
+"gravity_g": 0.138660038747833,
+"pressure_atm": 0.0338932797631384,
+"star": null,
+"signals": 4,
+"species": [
+"Stratum Excutitus"
+]
+},
+{
+"id64": 468379060999776412,
+"name": "Eol Prou KH-V e2-1094 A 7 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 351.936218,
+"gravity_g": 0.439472927500765,
+"pressure_atm": 0.0030565412385887,
+"star": "TTS",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 468384129520703267,
+"name": "Splojoea CG-V d3-284 1 b",
+"planet_class": "Icy body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 178.688583,
+"gravity_g": 0.209910981951667,
+"pressure_atm": 0.0674993301653097,
+"star": "Y",
+"signals": 1,
+"species": [
+"Recepta Umbrux"
+]
+},
+{
+"id64": 468394220402811474,
+"name": "Eol Prou QC-K c9-72 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 161.876953,
+"gravity_g": 0.140902416641175,
+"pressure_atm": 0.00121572679003208,
+"star": null,
+"signals": 5,
+"species": [
+"Osseus Spiralis",
+"Tubus Rosarium"
+]
+},
+{
+"id64": 468425438472325353,
+"name": "Hypua Flyoae TB-I b27-23 A 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 160.68837,
+"gravity_g": 0.153621188946671,
+"pressure_atm": 0.00137124717493215,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Flabellum",
+"Fungoida Setisis"
+]
+},
+{
+"id64": 468486488053454155,
+"name": "Eoch Byio AL-M d8-3263 2 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 172.727478,
+"gravity_g": 0.162589272968288,
+"pressure_atm": 0.0492316359042684,
+"star": null,
+"signals": 3,
+"species": [
+"Tussock Serrati"
+]
+},
+{
+"id64": 468654747473990563,
+"name": "Phrio Prao LN-T d3-8160 B 3",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 74.946922,
+"gravity_g": 0.219815437952483,
+"pressure_atm": 0.0179754339008142,
+"star": "L",
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Electricae Pluma"
+]
+},
+{
+"id64": 470036356991559434,
+"name": "Stuemeae GG-Y c6046 B 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 173.527069,
+"gravity_g": 0.20172591006424,
+"pressure_atm": 0.00184967982235381,
+"star": "M",
+"signals": 6,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 504403242118484410,
+"name": "Outotz NC-O c21-0 A 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 167.410553,
+"gravity_g": 0.161891200163149,
+"pressure_atm": 0.00117753991611152,
+"star": null,
+"signals": 5,
+"species": [
+"Osseus Spiralis",
+"Stratum Tectonicas",
+"Tussock Divisa"
+]
+},
+{
+"id64": 504403747880458905,
+"name": "Phleedgaa YK-U b17-0 ABCD 1 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "methane",
+"temperature_k": 77.724808,
+"gravity_g": 0.19274579382074,
+"pressure_atm": 0.00699960086849247,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Scopulum",
+"Fumerola Carbosis",
+"Methane Ice Fumarole",
+"Methane Ice Geyser"
+]
+},
+{
+"id64": 504405694140949570,
+"name": "Agnairs PQ-N c7-9 3 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 172.105667,
+"gravity_g": 0.148868155399205,
+"pressure_atm": 0.0413168920009869,
+"star": null,
+"signals": 3,
+"species": [
+"Tussock Serrati"
+]
+},
+{
+"id64": 504407081751295130,
+"name": "Blua Flyi KH-W c17-14 ABCD 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "metallic",
+"temperature_k": 99.012917,
+"gravity_g": 0.105682369735903,
+"pressure_atm": 0.0687023597532692,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Bullaris",
+"Fumerola Extremus",
+"Fungoida Setisis",
+"Iron Magma Lava Spout",
+"Sulphur Dioxide Fumarole",
+"Sulphur Dioxide Gas Vent"
+]
+},
+{
+"id64": 504410006549010547,
+"name": "Greeroe FM-C d13-199 3 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 185.936356,
+"gravity_g": 0.337317630264097,
+"pressure_atm": 0.0168340749666913,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Vesicula"
+]
+},
+{
+"id64": 504416053762152483,
+"name": "Bleethuae XK-V d3-375 1 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.21138,
+"gravity_g": 0.233745895788722,
+"pressure_atm": 0.00335478885763632,
+"star": null,
+"signals": 4,
+"species": [
+"Osseus Spiralis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 504435191616738115,
+"name": "Croomoi CB-N d7-932 A 8 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 160.440033,
+"gravity_g": 0.0453681044152136,
+"pressure_atm": 0.00379545726128793,
+"star": null,
+"signals": 5,
+"species": [
+"Frutexa Fera",
+"Tubus Conifer"
+]
+},
+{
+"id64": 504475908544092011,
+"name": "Hypuae Briae OO-F d12-2117 1 i",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 56.516422,
+"gravity_g": 0.0756344447843377,
+"pressure_atm": 0.00273226760424377,
+"star": null,
+"signals": 3,
+"species": [
+"Electricae Pluma",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 504570971093360905,
+"name": "Bleethuae TQ-F b31-76 B 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.337006,
+"gravity_g": 0.238207402875497,
+"pressure_atm": 0.00257246121885023,
+"star": "L",
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Stratum Tectonicas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 505127547013440962,
+"name": "Zuni RS-J c22-2635 B 7",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 186.470001,
+"gravity_g": 0.249726827776078,
+"pressure_atm": 0.0862650255218357,
+"star": "L",
+"signals": 6,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Osseus Fractus",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 506691600357861082,
+"name": "Myriesly CV-E c25-8325 B 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 437.158691,
+"gravity_g": 0.0571269501376568,
+"pressure_atm": 0.0827951324648409,
+"star": "M",
+"signals": 7,
+"species": [
+"Bacterium Tela",
+"Cactoida Vermis",
+"Clypeus Margaritus",
+"Concha Renibus",
+"Fungoida Gelata",
+"Stratum Tectonicas",
+"Tussock Virgam"
+]
+},
+{
+"id64": 540432313947886306,
+"name": "BD+19 2929 2 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 181.139404,
+"gravity_g": 0.136307433465892,
+"pressure_atm": 0.0342738500074019,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Osseus Fractus",
+"Stratum Paleas"
+]
+},
+{
+"id64": 540433099532519947,
+"name": "Bleia Eohn KC-B d1-33 10",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 87.279091,
+"gravity_g": 0.240598246150709,
+"pressure_atm": 0.0183060098198865,
+"star": "A",
+"signals": 3,
+"species": [
+"Electricae Pluma",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 540435337806156498,
+"name": "Hrungubuju ABC 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 177.552094,
+"gravity_g": 0.161001835423677,
+"pressure_atm": 0.0484138678114977,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Arcus",
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tussock Albata"
+]
+},
+{
+"id64": 540437536560911058,
+"name": "Aiabiko 9 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 194.232147,
+"gravity_g": 0.233239624757826,
+"pressure_atm": 0.0955601464199358,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Bacterium Aurasus",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Crater Outpost",
+"Fungoida Stabitis",
+"Osseus Pellebantus",
+"Settlement",
+"Stratum Cucumisis",
+"Tussock Triticum"
+]
+},
+{
+"id64": 540441423136957881,
+"name": "Segoveduwa B 4",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "water",
+"temperature_k": 49.484837,
+"gravity_g": 0.497820842255532,
+"pressure_atm": 0.00288569670861091,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Verrata",
+"Settlement",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 540451619548959627,
+"name": "Stuemeae FG-Y d572 1 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 168.782837,
+"gravity_g": 0.138138574487611,
+"pressure_atm": 0.00117335426597582,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Laminiae",
+"Cactoida Lapis",
+"Fungoida Setisis"
+]
+},
+{
+"id64": 540469878096741545,
+"name": "Eol Prou DF-P b19-17 B 2",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "carbon dioxide",
+"temperature_k": 138.527878,
+"gravity_g": 0.257359437136739,
+"pressure_atm": 0.0206768568467802,
+"star": null,
+"signals": 2,
+"species": [
+"Fumerola Carbosis"
+]
+},
+{
+"id64": 540532674423510747,
+"name": "Aishaink IO-H d10-2931 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.393112,
+"gravity_g": 0.116245844804731,
+"pressure_atm": 0.0950771612040464,
+"star": null,
+"signals": 10,
+"species": [
+"Aleoida Gravis",
+"Tubus Conifer",
+"Tussock Triticum"
+]
+},
+{
+"id64": 540747937647383907,
+"name": "Eorld Byoe WH-H d11-9196 B 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 199.814911,
+"gravity_g": 0.331672988681554,
+"pressure_atm": 0.00154407907229213,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Frigus"
+]
+},
+{
+"id64": 542395766971311890,
+"name": "Stuemeae KM-W c1-7144 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 171.836411,
+"gravity_g": 0.231638727439584,
+"pressure_atm": 0.00241740150012337,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Osseus Spiralis"
+]
+},
+{
+"id64": 576460844007405090,
+"name": "Blaa Prau SI-X c3-0 1 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 170.776733,
+"gravity_g": 0.109656265932497,
+"pressure_atm": 0.0223952912015791,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Limaxus",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 576461385911833314,
+"name": "LTT 14436 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 166.462143,
+"gravity_g": 0.139541959824615,
+"pressure_atm": 0.0011951447125586,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Stratum Laminamus",
+"Tussock Cultro"
+]
+},
+{
+"id64": 576463719630903427,
+"name": "Jooreia CA-A d86 C 7",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.374374,
+"gravity_g": 0.241430304884266,
+"pressure_atm": 0.0804400530866025,
+"star": "K",
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Clypeus Margaritus",
+"Osseus Pellebantus"
+]
+},
+{
+"id64": 576467433292829386,
+"name": "Wong Sher 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 150.53244,
+"gravity_g": 0.0507633323136535,
+"pressure_atm": 0.00475852064150012,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Settlement",
+"Tussock Pennata"
+]
+},
+{
+"id64": 576478629509403947,
+"name": "Eos Bre IM-T d4-520 AB 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 172.480469,
+"gravity_g": 0.0948628530641379,
+"pressure_atm": 0.0165428723710831,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Stratum Paleas",
+"Tubus Conifer",
+"Tussock Serrati"
+]
+},
+{
+"id64": 576496828786352730,
+"name": "Eol Prou TT-H c10-131 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.90889,
+"gravity_g": 0.218869073111043,
+"pressure_atm": 0.0891836004934616,
+"star": null,
+"signals": 6,
+"species": [
+"Clypeus Lacrimam",
+"Fungoida Gelata",
+"Osseus Pellebantus",
+"Stratum Paleas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 576524867943604938,
+"name": "Eoch Pruae HV-J c23-233 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 174.292053,
+"gravity_g": 0.160589986744162,
+"pressure_atm": 0.00158367451270664,
+"star": null,
+"signals": 5,
+"species": [
+"Aleoida Spica",
+"Stratum Laminamus",
+"Tussock Cultro"
+]
+},
+{
+"id64": 576623008509057035,
+"name": "Flyeia Flyi HC-B d1-4722 B 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.677734,
+"gravity_g": 0.197506780870807,
+"pressure_atm": 0.00226286342955835,
+"star": null,
+"signals": 5,
+"species": [
+"Fungoida Setisis",
+"Stratum Laminamus"
+]
+},
+{
+"id64": 577000146676459282,
+"name": "Juenae AJ-C c2-1962 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 166.15477,
+"gravity_g": 0.0589359641072703,
+"pressure_atm": 0.0064085100912904,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Acus",
+"Tubus Cavas"
+]
+},
+{
+"id64": 578130169684829962,
+"name": "Stuemeae FG-Y c6073 C 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 191.499771,
+"gravity_g": 0.239125522585908,
+"pressure_atm": 0.0807421826794967,
+"star": null,
+"signals": 6,
+"species": [
+"Cactoida Cortexum",
+"Clypeus Margaritus",
+"Frutexa Metallicum",
+"Stratum Tectonicas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 612489637602274186,
+"name": "Chraisuae DO-X c15-0 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 159.283615,
+"gravity_g": 0.0820531253186499,
+"pressure_atm": 0.0125286836614853,
+"star": null,
+"signals": 2,
+"species": [
+"Tussock Ventusa"
+]
+},
+{
+"id64": 612490159106466530,
+"name": "Leamua MD-F c26-2 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 152.806168,
+"gravity_g": 0.0533233404710921,
+"pressure_atm": 0.00524484780656304,
+"star": null,
+"signals": 3,
+"species": [
+"Tussock Pennata"
+]
+},
+{
+"id64": 612490624985205107,
+"name": "Gliese 9423 4 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 243.453918,
+"gravity_g": 0.342633119200571,
+"pressure_atm": 0.00971463737478411,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 612493879712606356,
+"name": "Spoihaae ZU-X e1-1008 1 f a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "silicate",
+"temperature_k": 82.043831,
+"gravity_g": 0.0566967472213725,
+"pressure_atm": 0.0210192488625709,
+"star": null,
+"signals": 4,
+"species": [
+"Fumerola Extremus",
+"Fungoida Gelata",
+"Osseus Pumice",
+"Silicate Magma Lava Spout",
+"Silicate Vapour Gas Vent"
+]
+},
+{
+"id64": 612499808153809218,
+"name": "Joorio IC-M c7-37 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 184.473785,
+"gravity_g": 0.175457530335475,
+"pressure_atm": 0.0573434608635579,
+"star": null,
+"signals": 6,
+"species": [
+"Cactoida Cortexum",
+"Concha Renibus"
+]
+},
+{
+"id64": 612510043160142089,
+"name": "Flyua Flyao ZA-C b31-9 BC 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 173.305466,
+"gravity_g": 0.182859794024676,
+"pressure_atm": 0.00151600440167777,
+"star": null,
+"signals": 6,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Stratum Tectonicas",
+"Tussock Divisa"
+]
+},
+{
+"id64": 612535247203213914,
+"name": "Eol Prou ZD-I c10-166 2 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 161.029633,
+"gravity_g": 0.0853093708575507,
+"pressure_atm": 0.00112526276831976,
+"star": null,
+"signals": 6,
+"species": [
+"Tubus Rosarium"
+]
+},
+{
+"id64": 612600093215641939,
+"name": "Eoch Pruae FI-J d9-3217 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 166.983368,
+"gravity_g": 0.104531253186499,
+"pressure_atm": 0.0203375778731804,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Stratum Excutitus",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 612733891848967507,
+"name": "Eorm Briae BK-I d9-7111 2 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 164.917313,
+"gravity_g": 0.0659602324869991,
+"pressure_atm": 0.00153440801381693,
+"star": null,
+"signals": 7,
+"species": [
+"Concha Aureolas",
+"Frutexa Flabellum",
+"Tubus Rosarium",
+"Tussock Divisa"
+]
+},
+{
+"id64": 614236207462754066,
+"name": "Stuemeae KM-W c1-6354 A 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 344.549347,
+"gravity_g": 0.533841031915978,
+"pressure_atm": 0.00385655958549223,
+"star": "K",
+"signals": 1,
+"species": [
+"Bacterium Tela"
+]
+},
+{
+"id64": 648518666887799458,
+"name": "Ogairbs EG-W c18-1 B 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 222.365952,
+"gravity_g": 0.347847353930866,
+"pressure_atm": 0.00164326202812731,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Frigus"
+]
+},
+{
+"id64": 648519015681254617,
+"name": "Dryiqau FG-F b25-0 8 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 72.407333,
+"gravity_g": 0.191640460895279,
+"pressure_atm": 0.00982779381199112,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 648520090467186290,
+"name": "Hatchooe JI-B c13-6 AB 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 167.409958,
+"gravity_g": 0.103691852758234,
+"pressure_atm": 0.0200414274068591,
+"star": null,
+"signals": 4,
+"species": [
+"Concha Labiata",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 648523087145640522,
+"name": "Eol Prou LW-L c8-17 ABC 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 174.619461,
+"gravity_g": 0.0639783827878046,
+"pressure_atm": 0.0105306326868986,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Laminiae",
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tubus Rosarium",
+"Tussock Catena"
+]
+},
+{
+"id64": 648527760405635682,
+"name": "Eol Prou AU-G c11-34 B 7 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 61.09428,
+"gravity_g": 0.265005404303049,
+"pressure_atm": 0.0016880093955095,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 648534411532182929,
+"name": "Trianguli Sector QI-T b3-7 B 1",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": "none",
+"temperature_k": 20.134724,
+"gravity_g": 0.501164474355053,
+"pressure_atm": 0.0911164087540094,
+"star": "L",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 648570171320963971,
+"name": "Stuemeae BA-A d1508 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.264709,
+"gravity_g": 0.187766595289079,
+"pressure_atm": 0.0655932623242043,
+"star": "Y",
+"signals": 7,
+"species": [
+"Cactoida Pullulanta",
+"Frutexa Fera",
+"Fungoida Stabitis",
+"Tussock Propagito"
+]
+},
+{
+"id64": 648620043782407313,
+"name": "Eol Prou GB-Z b16-46 C 1",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 73.152977,
+"gravity_g": 0.244169776690119,
+"pressure_atm": 0.0593446839180854,
+"star": "Y",
+"signals": 2,
+"species": [
+"Electricae Radialem",
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 648800828227834763,
+"name": "Juenae AC-B d1-8221 AB 1 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.310699,
+"gravity_g": 0.138281737534414,
+"pressure_atm": 0.00117612004934616,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis"
+]
+},
+{
+"id64": 649337841301595922,
+"name": "Stuemeae KM-W c1-2981 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 165.483231,
+"gravity_g": 0.138020291628429,
+"pressure_atm": 0.0354526956328645,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tubus Conifer",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 650214426946840338,
+"name": "Stuemeae KM-W c1-6170 ABC 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 184.140305,
+"gravity_g": 0.157344447843377,
+"pressure_atm": 0.0461824622551197,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Fungoida Stabitis"
+]
+},
+{
+"id64": 684547257873455179,
+"name": "Greeroi PZ-M d8-3 B 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 161.001556,
+"gravity_g": 0.136440603650454,
+"pressure_atm": 0.00108157248457932,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flabellum",
+"Tussock Divisa"
+]
+},
+{
+"id64": 684547784552231666,
+"name": "Plio Auwsy SQ-A c28-2 B 8",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 178.870834,
+"gravity_g": 0.246092586927705,
+"pressure_atm": 0.00146219317049099,
+"star": null,
+"signals": 2,
+"species": [
+"Recepta Conditivus"
+]
+},
+{
+"id64": 684548322102331755,
+"name": "CD-59 1724 2 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 176.209671,
+"gravity_g": 0.118222800040787,
+"pressure_atm": 0.0260083290895633,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Tussock Albata"
+]
+},
+{
+"id64": 684550012532630969,
+"name": "LP 576-34 C 6",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.360214,
+"gravity_g": 0.239455287039869,
+"pressure_atm": 0.0025978607549963,
+"star": "L",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Lapis",
+"Frutexa Metallicum",
+"Stratum Tectonicas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 684553199171768611,
+"name": "Eol Prou OC-U d3-176 6 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 162.682724,
+"gravity_g": 0.167067196900173,
+"pressure_atm": 0.00171653584011843,
+"star": "Y",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Tussock Catena"
+]
+},
+{
+"id64": 684558831170768385,
+"name": "Phrio Prao AY-B b5 B 7",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": "ammonia",
+"temperature_k": 20.133358,
+"gravity_g": 0.504371469358621,
+"pressure_atm": 0.0892601545127066,
+"star": "L",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 684567556673330121,
+"name": "Phua Phylio XL-E b53-9 2 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "nitrogen",
+"temperature_k": 87.687347,
+"gravity_g": 0.0328026919547262,
+"pressure_atm": 0.0513994745423143,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Omentum",
+"Fonticulua Digitos",
+"Fumerola Nitris"
+]
+},
+{
+"id64": 684586520257208834,
+"name": "Eoch Pruae VI-B c143 B 7",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.628677,
+"gravity_g": 0.240927602732742,
+"pressure_atm": 0.00257893247471009,
+"star": "M",
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Stratum Tectonicas",
+"Tussock Catena"
+]
+},
+{
+"id64": 684637073490892411,
+"name": "Hypio Bluae PD-A d14-2617 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 193.095444,
+"gravity_g": 0.189914040991129,
+"pressure_atm": 0.0666383504465828,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Gravis",
+"Clypeus Lacrimam",
+"Tussock Triticum"
+]
+},
+{
+"id64": 684692086192187034,
+"name": "Myriesly AC-T c17-527 C 1",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 86.125038,
+"gravity_g": 0.259417151014581,
+"pressure_atm": 0.0187492084875401,
+"star": "L",
+"signals": 4,
+"species": [
+"Fungoida Bullarum"
+]
+},
+{
+"id64": 684815194173477779,
+"name": "Stuemeae JM-W d1-7801 9 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 134.187531,
+"gravity_g": 0.0485371673294585,
+"pressure_atm": 0.0011922765260301,
+"star": null,
+"signals": 2,
+"species": [
+"Recepta Umbrux"
+]
+},
+{
+"id64": 685358391916209938,
+"name": "Juenae ZI-C c2-2951 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.798264,
+"gravity_g": 0.173334556949118,
+"pressure_atm": 0.00184964804342462,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 686447183372756754,
+"name": "Stuemeae KM-W c1-6912 B 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 76.603897,
+"gravity_g": 0.263702457428367,
+"pressure_atm": 0.00896451425610659,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 720576306693746810,
+"name": "Greeroi IT-D c14-1 D 8",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 162.26889,
+"gravity_g": 0.242519322932599,
+"pressure_atm": 0.00266187674315322,
+"star": "M",
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Fungoida Setisis",
+"Tussock Divisa"
+]
+},
+{
+"id64": 720577531421397899,
+"name": "Stuemeae FG-Y d46 2 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.085739,
+"gravity_g": 0.144817069440196,
+"pressure_atm": 0.00129008622748581,
+"star": "Y",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Tubus Rosarium",
+"Tussock Cultro"
+]
+},
+{
+"id64": 720579047955927762,
+"name": "LHS 2370 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 163.145493,
+"gravity_g": 0.0977521158356276,
+"pressure_atm": 0.0177949348828029,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Tubus Compagibus",
+"Tussock Ignis"
+]
+},
+{
+"id64": 720581583303480099,
+"name": "Byooma IM-U d3-164 ABC 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 172.23967,
+"gravity_g": 0.12361965942694,
+"pressure_atm": 0.0284967876831976,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Acus",
+"Stratum Excutitus",
+"Tussock Serrati"
+]
+},
+{
+"id64": 720589805205005761,
+"name": "Mabe B 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 175.739761,
+"gravity_g": 0.221835831548894,
+"pressure_atm": 0.0660914513594868,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Metallicum",
+"Stratum Tectonicas",
+"Tussock Albata"
+]
+},
+{
+"id64": 720612033640244818,
+"name": "Hypio Pri LG-O c9-131 C 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "Water",
+"volcanism": "none",
+"temperature_k": 423.154999,
+"gravity_g": 0.0572533904354033,
+"pressure_atm": 0.0827104247619048,
+"star": "L",
+"signals": 6,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Tussock Virgam"
+]
+},
+{
+"id64": 720643328508236067,
+"name": "Eoch Pruae NS-T d3-1961 ABC 1 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 183.14563,
+"gravity_g": 0.140672580809626,
+"pressure_atm": 0.0365434795558845,
+"star": null,
+"signals": 4,
+"species": [
+"Cactoida Cortexum",
+"Fungoida Stabitis"
+]
+},
+{
+"id64": 720755243218184754,
+"name": "Eorm Briae QI-R c5-652 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 160.937134,
+"gravity_g": 0.0635610278372591,
+"pressure_atm": 0.00745348316802369,
+"star": null,
+"signals": 3,
+"species": [
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 720893710119834507,
+"name": "Phoi Auscs AK-Z d9248 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.85347,
+"gravity_g": 0.125590802488019,
+"pressure_atm": 0.00378968655317049,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flabellum",
+"Stratum Paleas"
+]
+},
+{
+"id64": 722164815916639682,
+"name": "Phraa Flyuae KK-P c22-5780 AB 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 165.12355,
+"gravity_g": 0.132026919547262,
+"pressure_atm": 0.00107068614853195,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flabellum",
+"Fungoida Setisis",
+"Osseus Spiralis"
+]
+},
+{
+"id64": 756604850971593059,
+"name": "Lausang 9 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 159.198334,
+"gravity_g": 0.0679760375242174,
+"pressure_atm": 0.0086182761016531,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 756605655481299986,
+"name": "Eactainds KV-X c1-3 ABC 3 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.723816,
+"gravity_g": 0.10642602222902,
+"pressure_atm": 0.00300515634838391,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Concha Aureolas",
+"Osseus Spiralis",
+"Tubus Rosarium"
+]
+},
+{
+"id64": 756607607107560865,
+"name": "LHS 215 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "water",
+"temperature_k": 77.72036,
+"gravity_g": 0.19030335474661,
+"pressure_atm": 0.0179379327411794,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Tela",
+"Fumerola Aquatis",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 756610324244738490,
+"name": "Joorio GM-L c21-20 B 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 165.722046,
+"gravity_g": 0.149037422249414,
+"pressure_atm": 0.00100514391315075,
+"star": "M",
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Fungoida Setisis",
+"Stratum Tectonicas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 756617469325193434,
+"name": "Flyua Flyao IU-I c25-46 4 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 174.21405,
+"gravity_g": 0.142851636586112,
+"pressure_atm": 0.00124459425610659,
+"star": null,
+"signals": 5,
+"species": [
+"Stratum Paleas",
+"Tussock Divisa"
+]
+},
+{
+"id64": 756642066202683748,
+"name": "Zunou CH-U e3-8691 1 k",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": null,
+"temperature_k": 20.133072,
+"gravity_g": 0.418269297440604,
+"pressure_atm": 0.0888744641302739,
+"star": "Y",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 756670132595200307,
+"name": "Eoch Pruae ZK-P d5-1903 ABC 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 181.714844,
+"gravity_g": 0.161050372183134,
+"pressure_atm": 0.0484025673525783,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Frutexa Acus",
+"Fungoida Stabitis",
+"Tussock Propagito"
+]
+},
+{
+"id64": 756814961358935387,
+"name": "Eembaisk WP-G d10-6118 A 9 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 173.645935,
+"gravity_g": 0.12128153359845,
+"pressure_atm": 0.0274360668443129,
+"star": null,
+"signals": 2,
+"species": [
+"Tussock Serrati"
+]
+},
+{
+"id64": 758218079753742098,
+"name": "Stuemeae KM-W c1-5869 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 162.895294,
+"gravity_g": 0.149624961762007,
+"pressure_atm": 0.00137886640019738,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 792633785261674475,
+"name": "Boepp LE-F d12-7 B 6 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Oxygen",
+"volcanism": null,
+"temperature_k": 148.609695,
+"gravity_g": 0.267765473641277,
+"pressure_atm": 0.013847436989884,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Volu",
+"Fonticulua Fluctus"
+]
+},
+{
+"id64": 792634245101478601,
+"name": "Joorio DY-L b23-0 B 1",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 301.91272,
+"gravity_g": 0.504129193433262,
+"pressure_atm": 0.0202662789341229,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Tela"
+]
+},
+{
+"id64": 792635640855729747,
+"name": "Hypuae Phyloea HD-J d9-61 A 4 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 171.789261,
+"gravity_g": 0.0985068828387886,
+"pressure_atm": 0.018109107061436,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Tubus Conifer",
+"Tussock Serrati"
+]
+},
+{
+"id64": 792637175777043042,
+"name": "Eol Prou UY-G c11-13 BCD 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 158.652695,
+"gravity_g": 0.131345467523198,
+"pressure_atm": 0.00100151071305206,
+"star": null,
+"signals": 5,
+"species": [
+"Aleoida Laminiae",
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Tussock Catena"
+]
+},
+{
+"id64": 792641040040268514,
+"name": "Turir 4 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 173.169525,
+"gravity_g": 0.106659834811869,
+"pressure_atm": 0.0211580734961757,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Settlement",
+"Tubus Compagibus",
+"Tussock Serrati"
+]
+},
+{
+"id64": 792647906442761771,
+"name": "Foijaea RX-S d4-418 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 152.96463,
+"gravity_g": 0.0608090139696135,
+"pressure_atm": 0.00680467509499136,
+"star": null,
+"signals": 2,
+"species": [
+"Tussock Pennata"
+]
+},
+{
+"id64": 792656142822416770,
+"name": "Dryooe Flyou PC-A c15-82 9 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 60.950741,
+"gravity_g": 0.264691954726216,
+"pressure_atm": 0.00164398215642734,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 792669382101571579,
+"name": "Phraa Byoe SB-B d14-1043 A 6",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 156.164337,
+"gravity_g": 0.159016926685021,
+"pressure_atm": 0.00114255026893659,
+"star": "L",
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Metallicum",
+"Fungoida Setisis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 792757351479266721,
+"name": "Myrielk GI-M b48-56 C 4",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 171.560745,
+"gravity_g": 0.12933414907719,
+"pressure_atm": 0.0230019430051813,
+"star": "T",
+"signals": 4,
+"species": [
+"Tubus Sororibus"
+]
+},
+{
+"id64": 792962372380731122,
+"name": "Myrielk PM-Z c27-1196 2 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 134.330353,
+"gravity_g": 0.258275619455491,
+"pressure_atm": 0.00122614990377498,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Umbrux",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 793970899689908050,
+"name": "Stuemeae HS-J c9-4865 4 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 173.361633,
+"gravity_g": 0.114009483022331,
+"pressure_atm": 0.0590896403947693,
+"star": null,
+"signals": 5,
+"species": [
+"Recepta Deltahedronix",
+"Tubus Compagibus"
+]
+},
+{
+"id64": 794976952359364418,
+"name": "Stuemeae EC-M c7-8525 3 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 190.162216,
+"gravity_g": 0.191493627001122,
+"pressure_atm": 0.0673627511670368,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Bacterium Aurasus",
+"Clypeus Lacrimam",
+"Stratum Paleas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 828662690233619178,
+"name": "HIP 105439 AB 4 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 404.628693,
+"gravity_g": 0.0467860711736515,
+"pressure_atm": 0.075213181208981,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Frutexa Sponsae",
+"Fungoida Stabitis",
+"Tussock Virgam"
+]
+},
+{
+"id64": 828663197920432547,
+"name": "Dryeia Prou AJ-T d3-25 AB 1 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 177.935165,
+"gravity_g": 0.129986336290405,
+"pressure_atm": 0.0314404887244017,
+"star": null,
+"signals": 4,
+"species": [
+"Stratum Paleas",
+"Tussock Albata"
+]
+},
+{
+"id64": 828664816452229403,
+"name": "Dryiqu OO-X d2-72 4 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 189.69046,
+"gravity_g": 0.186207300907515,
+"pressure_atm": 0.0641782659067358,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Coronamus",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 828667427171650763,
+"name": "Prieluia FS-K d8-148 2 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 173.967285,
+"gravity_g": 0.128366167023555,
+"pressure_atm": 0.00101364154946953,
+"star": null,
+"signals": 5,
+"species": [
+"Cactoida Peperatis"
+]
+},
+{
+"id64": 828675861153194914,
+"name": "Kyloagh WN-U c18-49 A 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 162.94838,
+"gravity_g": 0.0761078821250127,
+"pressure_atm": 0.0107402225709351,
+"star": null,
+"signals": 3,
+"species": [
+"Tussock Ignis"
+]
+},
+{
+"id64": 828697661761474923,
+"name": "Eol Prou BB-E d12-1028 3 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 184.970978,
+"gravity_g": 0.220290200876925,
+"pressure_atm": 0.0904140644263509,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Concha Renibus",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Limaxus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 828721198316474659,
+"name": "Eoch Pruae JX-T d3-1713 2 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 176.190536,
+"gravity_g": 0.109646375038238,
+"pressure_atm": 0.0222224519220331,
+"star": null,
+"signals": 6,
+"species": [
+"Aleoida Arcus",
+"Bacterium Aurasus",
+"Stratum Excutitus",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 828775007512433547,
+"name": "Stuemeae FG-Y d3279 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 166.060532,
+"gravity_g": 0.141922504333639,
+"pressure_atm": 0.00123745104367135,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Tubus Rosarium",
+"Tussock Cultro"
+]
+},
+{
+"id64": 828876162615727515,
+"name": "Braisoe LO-X d2-6223 AB 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 178.619934,
+"gravity_g": 0.142199551340879,
+"pressure_atm": 0.0418042431877622,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Arcus",
+"Recepta Conditivus",
+"Stratum Paleas",
+"Tubus Conifer",
+"Tussock Albata"
+]
+},
+{
+"id64": 829513162477807378,
+"name": "Stuemeae KM-W c1-3095 B 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.4767,
+"gravity_g": 0.245400122361578,
+"pressure_atm": 0.00272601500123365,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Frutexa Metallicum",
+"Fungoida Setisis",
+"Stratum Tectonicas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 864691277596203899,
+"name": "Blo Auwsy RO-Z d13-4 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 169.373047,
+"gravity_g": 0.12721199143469,
+"pressure_atm": 0.000993626666666667,
+"star": "Y",
+"signals": 7,
+"species": [
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Catena"
+]
+},
+{
+"id64": 864692037946027714,
+"name": "Struqea CH-K c22-3 2 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "water",
+"temperature_k": 97.534683,
+"gravity_g": 0.208456102783726,
+"pressure_atm": 0.00517602159388108,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Fumerola Aquatis",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 864694574923109251,
+"name": "Juenae XV-C d100 D 1",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 73.687325,
+"gravity_g": 0.272395329866422,
+"pressure_atm": 0.00794723394029114,
+"star": "T",
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 864699316147279779,
+"name": "Phraa Grie YK-V d3-238 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 434.05777,
+"gravity_g": 0.051387886203732,
+"pressure_atm": 0.0906025821959043,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Cerbrus",
+"Clypeus Speculumi",
+"Concha Renibus",
+"Frutexa Sponsae",
+"Fungoida Stabitis",
+"Osseus Discus"
+]
+},
+{
+"id64": 864711558506950202,
+"name": "Hyuqu ZV-R c6-74 ABC 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 190.836121,
+"gravity_g": 0.179264301009483,
+"pressure_atm": 0.0592779123908216,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Gravis",
+"Clypeus Lacrimam",
+"Osseus Cornibus",
+"Stratum Paleas"
+]
+},
+{
+"id64": 864725845715397970,
+"name": "Phroi Bluae BB-L c9-126 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 134.0,
+"gravity_g": 0.26118755813703,
+"pressure_atm": 0.00125627021959043,
+"star": null,
+"signals": 3,
+"species": [
+"Recepta Umbrux",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 864781607788107387,
+"name": "Hypuae Chraei ST-Z d13-2633 ABC 3 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 157.254059,
+"gravity_g": 0.0792218823289487,
+"pressure_atm": 0.0116965153121145,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Aurasus",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 865028688599389019,
+"name": "Byoomi SJ-H d10-9824 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 185.687973,
+"gravity_g": 0.152587029672683,
+"pressure_atm": 0.042757559022946,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Concha Renibus",
+"Frutexa Fera",
+"Fungoida Gelata",
+"Osseus Cornibus",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 865969670862088066,
+"name": "Juenae AN-D c15-4651 B 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 81.303871,
+"gravity_g": 0.273818598959927,
+"pressure_atm": 0.0182682351936837,
+"star": "L",
+"signals": 5,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Fungoida Bullarum",
+"Osseus Pumice",
+"Tussock Capillum"
+]
+},
+{
+"id64": 900720019244970726,
+"name": "Hypio Gree BA-A g1397 4 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "silicate",
+"temperature_k": 96.242775,
+"gravity_g": 0.109958193127358,
+"pressure_atm": 0.0749441241450777,
+"star": null,
+"signals": 5,
+"species": [
+"Fumerola Extremus",
+"Fungoida Stabitis",
+"Osseus Discus",
+"Silicate Magma Lava Spout",
+"Silicate Vapour Fumarole",
+"Silicate Vapour Gas Vent"
+]
+},
+{
+"id64": 900720558948291282,
+"name": "LP 100-56 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "nitrogen",
+"temperature_k": 89.145065,
+"gravity_g": 0.0350069338227796,
+"pressure_atm": 0.0586068479348631,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fumerola Nitris",
+"Nitrogen Ice Fumarole",
+"Nitrogen Ice Geyser",
+"Settlement"
+]
+},
+{
+"id64": 900721658392842962,
+"name": "HIP 76466 AB 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 190.753677,
+"gravity_g": 0.181284694605894,
+"pressure_atm": 0.0605586766345917,
+"star": null,
+"signals": 4,
+"species": [
+"Clypeus Lacrimam",
+"Fungoida Stabitis"
+]
+},
+{
+"id64": 900723506428235515,
+"name": "Stuelue FK-C d14-104 1 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 153.60553,
+"gravity_g": 0.0631860915672479,
+"pressure_atm": 0.00736634429805083,
+"star": null,
+"signals": 4,
+"species": [
+"Concha Labiata",
+"Frutexa Acus",
+"Tussock Pennata"
+]
+},
+{
+"id64": 900725235765031882,
+"name": "Scoagiae RI-I c23-19 A 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.298477,
+"gravity_g": 0.184737432446212,
+"pressure_atm": 0.0637919153219837,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 900731613823525673,
+"name": "Goorai IT-U b34-5 B 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 185.092957,
+"gravity_g": 0.398732537983073,
+"pressure_atm": 0.0236606636861584,
+"star": "L",
+"signals": 2,
+"species": [
+"Bacterium Aurasus",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 900755839965286739,
+"name": "Eol Prou SI-J d9-1045 4 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 179.051804,
+"gravity_g": 0.19605312531865,
+"pressure_atm": 0.071695098534419,
+"star": "Y",
+"signals": 5,
+"species": [
+"Aleoida Arcus",
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Stratum Excutitus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 900813085218968459,
+"name": "Stuemeae FG-Y d2711 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 168.784409,
+"gravity_g": 0.0872881615172836,
+"pressure_atm": 0.0141631873772514,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Frutexa Fera",
+"Tubus Cavas"
+]
+},
+{
+"id64": 900965814256014219,
+"name": "Stuemeae FG-Y d7156 3 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 165.989899,
+"gravity_g": 0.208712144386663,
+"pressure_atm": 0.00268072430298544,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Osseus Spiralis",
+"Stratum Laminamus",
+"Tussock Cultro"
+]
+},
+{
+"id64": 902025954396743394,
+"name": "Myrielk LQ-C c26-4751 6 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 163.415482,
+"gravity_g": 0.0769756296522892,
+"pressure_atm": 0.0121848893264249,
+"star": null,
+"signals": 4,
+"species": [
+"Recepta Umbrux",
+"Tubus Conifer",
+"Tussock Propagito"
+]
+},
+{
+"id64": 936749076718782859,
+"name": "Swoilz LX-A d1-10 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 133.862518,
+"gravity_g": 0.264225145304374,
+"pressure_atm": 0.00128864400690846,
+"star": "Y",
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Deltahedronix",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 936749901201525083,
+"name": "HIP 19870 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": "none",
+"temperature_k": 410.784302,
+"gravity_g": 0.0495794840420108,
+"pressure_atm": 0.0845754109647175,
+"star": null,
+"signals": 8,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Coral Root",
+"Coral Tree",
+"Frutexa Sponsae",
+"Fungoida Stabitis",
+"Major Thargoid Spire",
+"Minor Thargoid Spire",
+"Osseus Discus",
+"Primary Thargoid Spire",
+"Thargoid Banshees",
+"Thargoid Barnacle Barbs",
+"Thargoid Barnacle Matrix",
+"Toughened Spear Roots",
+"Tussock Virgam"
+]
+},
+{
+"id64": 936752104813400794,
+"name": "BD+29 3029 B 6",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": "none",
+"temperature_k": 79.517708,
+"gravity_g": 0.289632303456715,
+"pressure_atm": 0.0161545604737232,
+"star": "M",
+"signals": 1,
+"species": [
+"Bacterium Informem"
+]
+},
+{
+"id64": 936757312460431994,
+"name": "Eoch Pruae SB-B c14-31 B 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 168.709396,
+"gravity_g": 0.251345467523198,
+"pressure_atm": 0.00367716802368616,
+"star": null,
+"signals": 5,
+"species": [
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 936777217193546627,
+"name": "Stuemeae AA-A d829 A 2 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 183.482468,
+"gravity_g": 0.190898847761803,
+"pressure_atm": 0.0679290706735751,
+"star": null,
+"signals": 7,
+"species": [
+"Cactoida Pullulanta",
+"Frutexa Acus",
+"Fungoida Stabitis"
+]
+},
+{
+"id64": 936841568009077905,
+"name": "Ogairr OH-U b16-42 A 1 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 158.893204,
+"gravity_g": 0.135577750586316,
+"pressure_atm": 0.00112995041697508,
+"star": null,
+"signals": 5,
+"species": [
+"Aleoida Laminiae",
+"Bacterium Alcyoneum",
+"Frutexa Flabellum",
+"Fungoida Setisis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 936987773502362547,
+"name": "Phroi Pri OY-Q d5-6957 BCD 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 202.969727,
+"gravity_g": 0.349561129805241,
+"pressure_atm": 0.00213207848013817,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 938452774557853458,
+"name": "Stuemeae KM-W c1-6199 2 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 154.914703,
+"gravity_g": 0.0598472519628837,
+"pressure_atm": 0.00660343104860597,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Frutexa Fera",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 972777736131086547,
+"name": "Outopps ZT-I d9-6 2 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 171.982208,
+"gravity_g": 0.235643417966758,
+"pressure_atm": 0.00341882110041944,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Spica"
+]
+},
+{
+"id64": 972779254175766946,
+"name": "Prieluia KH-S c18-6 A 2 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 162.770828,
+"gravity_g": 0.118969001733456,
+"pressure_atm": 0.0263842128892179,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 972781891679490339,
+"name": "Eol Prou RS-T d3-127 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 169.58313,
+"gravity_g": 0.0879252574691547,
+"pressure_atm": 0.0143874546064643,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 972787526676599075,
+"name": "Eol Prou PX-T d3-291 ABC 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 170.095734,
+"gravity_g": 0.139875904965841,
+"pressure_atm": 0.0012025283395016,
+"star": "Y",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Lapis",
+"Frutexa Flammasis",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Catena"
+]
+},
+{
+"id64": 972808486133780795,
+"name": "Eol Prou CQ-O d6-901 AB 1 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 176.385254,
+"gravity_g": 0.306809625777506,
+"pressure_atm": 0.00132236995805576,
+"star": "Y",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 972834909795897331,
+"name": "Sphoeff HE-E d13-1670 7 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 162.717377,
+"gravity_g": 0.1192284082798,
+"pressure_atm": 0.0264955814951888,
+"star": null,
+"signals": 3,
+"species": [
+"Frutexa Fera"
+]
+},
+{
+"id64": 972915588122596899,
+"name": "Schee Bli UN-T d3-4018 ABCD 4 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "water",
+"temperature_k": 82.33596,
+"gravity_g": 0.194832466605486,
+"pressure_atm": 0.0039523960720454,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Verrata",
+"Fonticulua Campestris",
+"Fumerola Aquatis",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 973902128948979474,
+"name": "Stuemeae KM-W c1-4091 10 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 97.324173,
+"gravity_g": 0.0290901396961354,
+"pressure_atm": 0.0404272539254873,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos"
+]
+},
+{
+"id64": 1008806361502190795,
+"name": "Prooe Hypue CR-L d8-1 4 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 162.914536,
+"gravity_g": 0.152879983685123,
+"pressure_atm": 0.00143657059955588,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Concha Aureolas",
+"Frutexa Flammasis",
+"Fungoida Setisis",
+"Osseus Spiralis",
+"Tussock Catena"
+]
+},
+{
+"id64": 1008807048562870643,
+"name": "Lalande 31662 1 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 190.809525,
+"gravity_g": 0.184935556235342,
+"pressure_atm": 0.0630313964964224,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Clypeus Lacrimam",
+"Frutexa Acus",
+"Fungoida Stabitis",
+"Stratum Paleas"
+]
+},
+{
+"id64": 1008808599608038130,
+"name": "Col 285 Sector CB-E c12-8 ABC 5 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "methane",
+"temperature_k": 98.472748,
+"gravity_g": 0.0449839910268176,
+"pressure_atm": 0.0964536685812978,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Scopulum",
+"Fumerola Carbosis",
+"Methane Ice Fumarole",
+"Methane Ice Geyser"
+]
+},
+{
+"id64": 1008810688698454307,
+"name": "Eol Prou RS-T d3-127 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 160.718521,
+"gravity_g": 0.0654839400428266,
+"pressure_atm": 0.00790142730816679,
+"star": null,
+"signals": 3,
+"species": [
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1008815784115578249,
+"name": "Tosakanth BC 2",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": "water",
+"temperature_k": 31.840355,
+"gravity_g": 0.546758845722443,
+"pressure_atm": 0.0343777178978534,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Verrata",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 1008831122482963050,
+"name": "Eol Prou NU-E c12-90 9 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "nitrogen",
+"temperature_k": 96.182968,
+"gravity_g": 0.0379645151422453,
+"pressure_atm": 0.0689605645102393,
+"star": null,
+"signals": 2,
+"species": [
+"Fumerola Nitris"
+]
+},
+{
+"id64": 1008879823109412531,
+"name": "Phroea Bli HN-R d5-2139 4 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.362503,
+"gravity_g": 0.203482308555114,
+"pressure_atm": 0.0764239066765359,
+"star": "Y",
+"signals": 7,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Pullulanta",
+"Clypeus Lacrimam",
+"Stratum Frigus",
+"Tussock Triticum"
+]
+},
+{
+"id64": 1009040763251528491,
+"name": "Byoomao XL-T d4-6823 CD 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.258301,
+"gravity_g": 0.234112878556133,
+"pressure_atm": 0.0742432447767086,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Pullulanta",
+"Clypeus Margaritus",
+"Frutexa Metallicum",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1010010914163304330,
+"name": "Phroi Pri XG-Z c15-4382 C 3",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 90.635674,
+"gravity_g": 0.263216681961864,
+"pressure_atm": 0.0169029861139896,
+"star": "L",
+"signals": 4,
+"species": [
+"Tussock Capillum"
+]
+},
+{
+"id64": 1044835193954540043,
+"name": "Roedaae IQ-Y d2 A 3 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 55.389023,
+"gravity_g": 0.0776634036912409,
+"pressure_atm": 0.00287370502837404,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Electricae Pluma",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1044836297115374250,
+"name": "Hyades Sector IB-X c1-4 B 3",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 193.642776,
+"gravity_g": 0.257088202304476,
+"pressure_atm": 0.0911243022156427,
+"star": "M",
+"signals": 5,
+"species": [
+"Aleoida Gravis",
+"Clypeus Margaritus",
+"Frutexa Metallicum",
+"Stratum Tectonicas",
+"Tussock Triticum"
+]
+},
+{
+"id64": 1044838694487314179,
+"name": "Floarph WV-C d104 ABC 6 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 153.591492,
+"gravity_g": 0.0658564290812685,
+"pressure_atm": 0.00800191107821367,
+"star": null,
+"signals": 3,
+"species": [
+"Frutexa Acus",
+"Tussock Pennata"
+]
+},
+{
+"id64": 1044848978643854769,
+"name": "LHS 3804 6 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "carbon dioxide",
+"temperature_k": 75.584679,
+"gravity_g": 0.186822575711227,
+"pressure_atm": 0.00935575186775228,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Tela",
+"Carbon Dioxide Ice Fumarole",
+"Carbon Dioxide Ice Geyser",
+"Fonticulua Campestris",
+"Fumerola Carbosis",
+"Settlement"
+]
+},
+{
+"id64": 1044872299200516435,
+"name": "Eol Prou DX-J d9-1082 8 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 133.311646,
+"gravity_g": 0.247410319159784,
+"pressure_atm": 0.00112172474710091,
+"star": "Y",
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Recepta Deltahedronix",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 1044907759935725458,
+"name": "Byua Aim VZ-V c16-264 AB 1 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Oxygen",
+"volcanism": null,
+"temperature_k": 149.604218,
+"gravity_g": 0.245256653410829,
+"pressure_atm": 0.0487064992351345,
+"star": null,
+"signals": 2,
+"species": [
+"Fonticulua Fluctus"
+]
+},
+{
+"id64": 1045110663217107697,
+"name": "Dryau Chrea IL-A b28-125 C 5",
+"planet_class": "Icy body",
+"atmosphere_type": "Helium",
+"volcanism": null,
+"temperature_k": 20.117525,
+"gravity_g": 0.496716325073927,
+"pressure_atm": 0.069161587485813,
+"star": "T",
+"signals": 1,
+"species": [
+"Bacterium Nebulus"
+]
+},
+{
+"id64": 1080863916166227124,
+"name": "HIP 76305 6 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "none",
+"temperature_k": 173.43541,
+"gravity_g": 0.298134699704293,
+"pressure_atm": 0.0117432339402911,
+"star": "Y",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 1080864589310945017,
+"name": "Styeks OX-F b29-0 2 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 89.192139,
+"gravity_g": 0.0336255735698991,
+"pressure_atm": 0.0540048073920553,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Bullaris"
+]
+},
+{
+"id64": 1080868112934373731,
+"name": "Labe 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 165.88063,
+"gravity_g": 0.0956936881819109,
+"pressure_atm": 0.0170573157660992,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Frutexa Acus",
+"Stratum Excutitus",
+"Tubus Compagibus",
+"Tussock Ignis"
+]
+},
+{
+"id64": 1080876897509089890,
+"name": "Eol Prou UO-G c11-47 A 3 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 96.582008,
+"gravity_g": 0.0315946772713368,
+"pressure_atm": 0.0477909351492721,
+"star": null,
+"signals": 2,
+"species": [
+"Fonticulua Digitos"
+]
+},
+{
+"id64": 1080893676403667178,
+"name": "Ploi Aoscs FM-B c27-108 10 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 150.169464,
+"gravity_g": 0.0529159783827878,
+"pressure_atm": 0.00515896368122378,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Acus",
+"Tussock Pennata"
+]
+},
+{
+"id64": 1080956808158397569,
+"name": "Eol Prou YF-B b15-42 C 4",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 84.599091,
+"gravity_g": 0.231807178545937,
+"pressure_atm": 0.00187425863311128,
+"star": null,
+"signals": 4,
+"species": [
+"Tussock Capillum"
+]
+},
+{
+"id64": 1081702919645242938,
+"name": "Byoomao JO-P c6-3052 E 1 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 166.124451,
+"gravity_g": 0.0635007647598654,
+"pressure_atm": 0.00744354285714286,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Fera",
+"Stratum Excutitus",
+"Tubus Conifer",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1116892791574663882,
+"name": "Andel 2 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 78.390388,
+"gravity_g": 0.253770877944325,
+"pressure_atm": 0.0146705493017518,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 1116893899609355034,
+"name": "Preae Auwsy YF-W c2-4 C 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 169.941895,
+"gravity_g": 0.251593453655552,
+"pressure_atm": 0.0158973448013817,
+"star": "M",
+"signals": 2,
+"species": [
+"Recepta Umbrux"
+]
+},
+{
+"id64": 1116894997107488546,
+"name": "Oupailf SD-T c3-8 9 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 183.734711,
+"gravity_g": 0.163040481288875,
+"pressure_atm": 0.049469639575623,
+"star": null,
+"signals": 5,
+"species": [
+"Fungoida Gelata",
+"Stratum Limaxus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1116898903858436003,
+"name": "Vegnao UX-T d3-180 6 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 173.398712,
+"gravity_g": 0.0968089120016315,
+"pressure_atm": 0.0221008598963731,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Recepta Umbrux",
+"Tubus Conifer"
+]
+},
+{
+"id64": 1116906358126401043,
+"name": "Iwhaind HI-Z d1-397 A 5 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 192.95192,
+"gravity_g": 0.209141939431019,
+"pressure_atm": 0.081506320552677,
+"star": "Y",
+"signals": 7,
+"species": [
+"Bacterium Aurasus",
+"Stratum Frigus"
+]
+},
+{
+"id64": 1116951746115866931,
+"name": "Eol Prou AF-Q d5-1718 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 407.539825,
+"gravity_g": 0.0478820230447639,
+"pressure_atm": 0.0786995454724895,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Lacrimam"
+]
+},
+{
+"id64": 1117062116298172186,
+"name": "Juenae EP-A c3-616 C 5",
+"planet_class": "High metal content body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 171.766571,
+"gravity_g": 0.160406750280412,
+"pressure_atm": 0.00116888137182334,
+"star": "L",
+"signals": 6,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Lapis",
+"Frutexa Metallicum",
+"Stratum Tectonicas"
+]
+},
+{
+"id64": 1118629745001506578,
+"name": "Stuemeae KM-W c1-6319 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 178.20874,
+"gravity_g": 0.123119608442949,
+"pressure_atm": 0.0282280823982235,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tubus Conifer",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1152922577283109371,
+"name": "Kyloagh CD-A d14-31 7 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 183.571106,
+"gravity_g": 0.230510757622107,
+"pressure_atm": 0.0984405937725142,
+"star": "Y",
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Frutexa Acus",
+"Fungoida Stabitis",
+"Osseus Fractus",
+"Tussock Caputus"
+]
+},
+{
+"id64": 1152924711210965283,
+"name": "Dryiqu UU-V d3-93 6 i",
+"planet_class": "Icy body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 172.305405,
+"gravity_g": 0.210898032017946,
+"pressure_atm": 0.00605525372810264,
+"star": null,
+"signals": 1,
+"species": [
+"Recepta Conditivus"
+]
+},
+{
+"id64": 1152938620084825434,
+"name": "Phleedgaa WD-L c10-62 E 1 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 60.95607,
+"gravity_g": 0.263131742632813,
+"pressure_atm": 0.00138340405625463,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 1152960896067184410,
+"name": "Stuemeae OS-U c2-143 A 4 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 173.24147,
+"gravity_g": 0.079863057000102,
+"pressure_atm": 0.00556068192450037,
+"star": null,
+"signals": 8,
+"species": [
+"Tubus Rosarium"
+]
+},
+{
+"id64": 1153198626206356899,
+"name": "Brairee UP-V d3-8065 2 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 156.857635,
+"gravity_g": 0.0607291730396655,
+"pressure_atm": 0.00681248723414754,
+"star": null,
+"signals": 3,
+"species": [
+"Concha Labiata",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 1188950385411265234,
+"name": "Wunjo 5 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "none",
+"temperature_k": 82.356491,
+"gravity_g": 0.225138574487611,
+"pressure_atm": 0.0031112478855169,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Bullaris",
+"Fungoida Setisis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 1188952315126755770,
+"name": "Joorio ZF-M c21-7 A 5 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 90.116806,
+"gravity_g": 0.0388824309166922,
+"pressure_atm": 0.072230253826795,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Bullaris"
+]
+},
+{
+"id64": 1188958906626585082,
+"name": "Joothee GR-Y c28-31 B 3 a",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 67.216736,
+"gravity_g": 0.272175180993168,
+"pressure_atm": 0.00453710564026647,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 1188997006517917659,
+"name": "Vegniae QE-H d10-1359 3 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 173.962631,
+"gravity_g": 0.118226470888141,
+"pressure_atm": 0.0260438400197385,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Stratum Excutitus",
+"Tussock Serrati"
+]
+},
+{
+"id64": 1189342361507866402,
+"name": "Stuemeae TY-S c3-1426 1 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 191.438644,
+"gravity_g": 0.189154277556847,
+"pressure_atm": 0.0661283067752282,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Clypeus Lacrimam",
+"Frutexa Fera",
+"Fungoida Stabitis",
+"Osseus Cornibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1224979212972906723,
+"name": "Preia Flyao EL-F d11-3 2 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 54.635166,
+"gravity_g": 0.052553278270623,
+"pressure_atm": 0.00131794961756723,
+"star": null,
+"signals": 3,
+"species": [
+"Electricae Pluma",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1224980346173459659,
+"name": "Prieluia IX-K d8-36 B 2 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 162.211761,
+"gravity_g": 0.0863147751605996,
+"pressure_atm": 0.0138851875252899,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1224983472825701259,
+"name": "Stuemeae FG-Y d127 4 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.642944,
+"gravity_g": 0.159927908636688,
+"pressure_atm": 0.00157298771280533,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 1224991581707178891,
+"name": "Stuemeae EG-Y d363 B 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.070618,
+"gravity_g": 0.18463556643214,
+"pressure_atm": 0.0599542921490254,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Cactoida Pullulanta",
+"Concha Renibus",
+"Frutexa Fera",
+"Fungoida Stabitis",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 1225034632580190523,
+"name": "Eoch Pruae KJ-P d6-1616 A 6 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 171.911743,
+"gravity_g": 0.256662078107474,
+"pressure_atm": 0.00404950778188996,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Frutexa Flammasis",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tussock Cultro"
+]
+},
+{
+"id64": 1225154721761727371,
+"name": "Stuemeae FG-Y d5111 B 2",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": "ammonia",
+"temperature_k": 20.308201,
+"gravity_g": 0.486781890486387,
+"pressure_atm": 0.0276051714187022,
+"star": null,
+"signals": 1,
+"species": [
+"Ammonia Ice Fumarole",
+"Ammonia Ice Geyser",
+"Bacterium Omentum"
+]
+},
+{
+"id64": 1261007905997964365,
+"name": "Eol Prou HG-Y f19 A 3 g",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": "none",
+"temperature_k": 102.51297,
+"gravity_g": 0.261033139594167,
+"pressure_atm": 0.0719600402072539,
+"star": null,
+"signals": 2,
+"species": [
+"Electricae Pluma",
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 1261008387194194115,
+"name": "Oochorrs FO-O d7-14 2 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 189.187531,
+"gravity_g": 0.173002855103497,
+"pressure_atm": 0.0552785166839378,
+"star": null,
+"signals": 6,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Cactoida Pullulanta"
+]
+},
+{
+"id64": 1261010861095389547,
+"name": "LHS 2661 2 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 76.350021,
+"gravity_g": 0.211910778015703,
+"pressure_atm": 0.00276149942264989,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Bullaris",
+"Fungoida Setisis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 1261019562539558305,
+"name": "Futes C 6",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 186.717758,
+"gravity_g": 0.198196798205364,
+"pressure_atm": 0.0536265285763632,
+"star": "T",
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Fungoida Stabitis",
+"Osseus Fractus",
+"Stratum Tectonicas",
+"Surface Station",
+"Tussock Caputus"
+]
+},
+{
+"id64": 1261044188061716843,
+"name": "Eol Prou BB-E d12-1056 4 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 171.179169,
+"gravity_g": 0.132601203222188,
+"pressure_atm": 0.0327785889661979,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Stratum Limaxus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1261165759501903602,
+"name": "Hypio Pri KU-E c28-574 3 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "nitrogen",
+"temperature_k": 101.970566,
+"gravity_g": 0.0381367390639339,
+"pressure_atm": 0.0695041674414014,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos",
+"Fumerola Nitris",
+"Nitrogen Ice Geyser"
+]
+},
+{
+"id64": 1297036692836709150,
+"name": "Prooe Flyuae FG-Y g2 3 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 74.838394,
+"gravity_g": 0.299738044254104,
+"pressure_atm": 0.00641142074512707,
+"star": "T",
+"signals": 1,
+"species": [
+"Bacterium Bullaris"
+]
+},
+{
+"id64": 1297038044347505155,
+"name": "Eactainds FA-A d39 4 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 182.188599,
+"gravity_g": 0.155412562455389,
+"pressure_atm": 0.0449905114631137,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Concha Renibus",
+"Frutexa Fera",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 1297048175410235609,
+"name": "Agnairs GL-L b25-5 B 9",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.349533,
+"gravity_g": 0.265625777505863,
+"pressure_atm": 0.0974135478312361,
+"star": "L",
+"signals": 5,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Tussock Caputus"
+]
+},
+{
+"id64": 1297076491686713355,
+"name": "Flyae Flyi TN-A d1-1158 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 184.171768,
+"gravity_g": 0.187490465993678,
+"pressure_atm": 0.0654375713200099,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Frutexa Acus",
+"Fungoida Stabitis",
+"Osseus Cornibus",
+"Tussock Caputus"
+]
+},
+{
+"id64": 1297302269863138139,
+"name": "Hypiae Auscs TP-G d10-7729 5 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 154.688736,
+"gravity_g": 0.143530539410625,
+"pressure_atm": 0.00126796177646188,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Alcyoneum",
+"Frutexa Flabellum",
+"Fungoida Setisis"
+]
+},
+{
+"id64": 1333065809433446763,
+"name": "LTT 1044 B 1 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 156.728271,
+"gravity_g": 0.0894065463444478,
+"pressure_atm": 0.0149212123957562,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Aurasus",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 1333068456374819707,
+"name": "Fachao PK-C d14-86 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.436249,
+"gravity_g": 0.141658713164066,
+"pressure_atm": 0.00123058289661979,
+"star": null,
+"signals": 9,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Cactoida Peperatis",
+"Stratum Paleas"
+]
+},
+{
+"id64": 1333073471068264435,
+"name": "Yeqeau IH-C d13-232 AB 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 426.877533,
+"gravity_g": 0.0420338533700418,
+"pressure_atm": 0.0607590875993092,
+"star": null,
+"signals": 9,
+"species": [
+"Bacterium Tela",
+"Cactoida Vermis",
+"Clypeus Speculumi",
+"Concha Renibus",
+"Frutexa Sponsae",
+"Fungoida Stabitis",
+"Osseus Discus",
+"Stratum Paleas",
+"Tussock Virgam"
+]
+},
+{
+"id64": 1333092127080255827,
+"name": "Eol Prou VD-J d9-775 8 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 174.06662,
+"gravity_g": 0.141731722239217,
+"pressure_atm": 0.0374590822008389,
+"star": null,
+"signals": 3,
+"species": [
+"Frutexa Acus"
+]
+},
+{
+"id64": 1333224585482507555,
+"name": "Eos Bre BJ-T d3-4630 AB 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 179.819427,
+"gravity_g": 0.133705822371775,
+"pressure_atm": 0.0333361066469282,
+"star": null,
+"signals": 5,
+"species": [
+"Tussock Albata"
+]
+},
+{
+"id64": 1369094297197988187,
+"name": "Gliese 113.1 9 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "nitrogen",
+"temperature_k": 96.495827,
+"gravity_g": 0.0316074232690935,
+"pressure_atm": 0.047834700952381,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Tela",
+"Fumerola Nitris",
+"Nitrogen Ice Fumarole",
+"Nitrogen Ice Geyser"
+]
+},
+{
+"id64": 1369096839818627427,
+"name": "Lalande 4268 B 3 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 168.563721,
+"gravity_g": 0.0816258794738452,
+"pressure_atm": 0.012397683819393,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Excutitus",
+"Tubus Compagibus",
+"Tussock Ignis"
+]
+},
+{
+"id64": 1369105824744752281,
+"name": "Eol Prou WI-W b17-5 5 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 53.741486,
+"gravity_g": 0.0551771183848272,
+"pressure_atm": 0.00145527389094498,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Electricae Radialem",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1369137244974960971,
+"name": "Eol Prou PC-L d8-1250 8 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.649857,
+"gravity_g": 0.177364841439788,
+"pressure_atm": 0.00193528761904762,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Lapis",
+"Fungoida Setisis",
+"Stratum Laminamus",
+"Tussock Cultro"
+]
+},
+{
+"id64": 1370095200898098946,
+"name": "Phroi Pri VX-F c3641 D 2",
+"planet_class": "High metal content body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 167.027496,
+"gravity_g": 0.118133374120526,
+"pressure_atm": 0.0191757648655317,
+"star": null,
+"signals": 5,
+"species": [
+"Tubus Sororibus"
+]
+},
+{
+"id64": 1405124159972611843,
+"name": "Hyuqu AK-A d31 5 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 159.298187,
+"gravity_g": 0.0652592026103803,
+"pressure_atm": 0.00784381421169504,
+"star": null,
+"signals": 3,
+"species": [
+"Concha Labiata",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 1405127565772853962,
+"name": "Ho Parerme A 5 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 99.20192,
+"gravity_g": 0.0390080554705822,
+"pressure_atm": 0.072709538070565,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos",
+"Surface Station"
+]
+},
+{
+"id64": 1405164933061288522,
+"name": "Eol Prou NR-L c8-152 C 9",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "none",
+"temperature_k": 25.469206,
+"gravity_g": 0.370522076068115,
+"pressure_atm": 0.00153517543547989,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Acies"
+]
+},
+{
+"id64": 1405375878812144515,
+"name": "Stuemeae AA-A d7357 8 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "silicate",
+"temperature_k": 237.249054,
+"gravity_g": 0.324736310798409,
+"pressure_atm": 0.00370184321736985,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Tela",
+"Stratum Cucumisis"
+]
+},
+{
+"id64": 1441152552249992617,
+"name": "LHS 277 4 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 76.268463,
+"gravity_g": 0.260560416029367,
+"pressure_atm": 0.0123898915568715,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Crater Outpost",
+"Fonticulua Lapida",
+"Settlement"
+]
+},
+{
+"id64": 1441159928612786547,
+"name": "Leameia XV-C d13-234 7 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 176.778107,
+"gravity_g": 0.131387988171714,
+"pressure_atm": 0.0322163198026153,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Frutexa Acus",
+"Stratum Paleas",
+"Tussock Albata"
+]
+},
+{
+"id64": 1441178930386915707,
+"name": "Eol Prou JN-A d14-787 5 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 182.39534,
+"gravity_g": 0.145575609258693,
+"pressure_atm": 0.0395005941771527,
+"star": null,
+"signals": 9,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Concha Renibus",
+"Frutexa Acus",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Paleas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1441236757893681491,
+"name": "Eol Prou VD-J d9-2470 ABC 3 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 175.980667,
+"gravity_g": 0.199857448761089,
+"pressure_atm": 0.0742482613175426,
+"star": null,
+"signals": 3,
+"species": [
+"Frutexa Acus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1442793260660565770,
+"name": "Stuemeae GG-Y c5971 8 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 184.621033,
+"gravity_g": 0.186787294789436,
+"pressure_atm": 0.0646974415198618,
+"star": null,
+"signals": 7,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Concha Renibus",
+"Fungoida Gelata",
+"Osseus Cornibus",
+"Stratum Excutitus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1477181341123496299,
+"name": "HIP 53424 6 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 157.713043,
+"gravity_g": 0.128207810747425,
+"pressure_atm": 0.00101037045151739,
+"star": null,
+"signals": 5,
+"species": [
+"Bacterium Alcyoneum",
+"Concha Aureolas",
+"Frutexa Flabellum",
+"Fungoida Setisis",
+"Tussock Cultro"
+]
+},
+{
+"id64": 1477183548023645609,
+"name": "L 26-27 A 6 f",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 51.624294,
+"gravity_g": 0.0618533700418069,
+"pressure_atm": 0.00183051827288428,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1477195634422535451,
+"name": "Eos Bre ZE-X d2-435 A 11 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 170.497818,
+"gravity_g": 0.150645151422453,
+"pressure_atm": 0.00139265330372564,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Concha Aureolas",
+"Frutexa Flabellum",
+"Osseus Spiralis",
+"Stratum Paleas",
+"Tubus Rosarium",
+"Tussock Divisa"
+]
+},
+{
+"id64": 1477260750362488634,
+"name": "Phroi Byoe EB-S c6-291 5 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 159.683044,
+"gravity_g": 0.0998201284796574,
+"pressure_atm": 0.0185791413175426,
+"star": null,
+"signals": 3,
+"species": [
+"Concha Labiata",
+"Tussock Ventusa"
+]
+},
+{
+"id64": 1479029316091258698,
+"name": "Stuemeae LX-K c8-6725 12 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 133.546524,
+"gravity_g": 0.234616090547568,
+"pressure_atm": 0.00101571053540587,
+"star": "Y",
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Conditivus",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 1513212582306026194,
+"name": "G 181-6 A 6 f",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 93.003227,
+"gravity_g": 0.0304719078209442,
+"pressure_atm": 0.0442788617221811,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos",
+"Surface Station"
+]
+},
+{
+"id64": 1513227109822976291,
+"name": "Eol Prou PX-T d3-513 10 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 191.003052,
+"gravity_g": 0.228574589578872,
+"pressure_atm": 0.0973022009178386,
+"star": "Y",
+"signals": 6,
+"species": [
+"Clypeus Lacrimam",
+"Fungoida Gelata",
+"Osseus Pellebantus",
+"Stratum Paleas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1513422481325560707,
+"name": "Stuemeae CA-A d6199 5 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.216782,
+"gravity_g": 0.140091057407974,
+"pressure_atm": 0.00120739601283,
+"star": null,
+"signals": 7,
+"species": [
+"Concha Aureolas"
+]
+},
+{
+"id64": 1549238930799382675,
+"name": "Whanu QB-X d1-19 B 2 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 160.932098,
+"gravity_g": 0.189987763842154,
+"pressure_atm": 0.0021022548334567,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Alcyoneum",
+"Tussock Divisa"
+]
+},
+{
+"id64": 1549249809839572121,
+"name": "Eol Prou WI-W b17-5 5 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 53.684841,
+"gravity_g": 0.0552647088814112,
+"pressure_atm": 0.00145989361954108,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Electricae Radialem",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1549288273832923451,
+"name": "Eoch Pruae SP-O d6-1455 9 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 173.777496,
+"gravity_g": 0.318113082492097,
+"pressure_atm": 0.00184078296570442,
+"star": "T",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Excutitus"
+]
+},
+{
+"id64": 1549753202054768402,
+"name": "Juenae AJ-C c2-1873 5 g",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "none",
+"temperature_k": 89.32177,
+"gravity_g": 0.0281513204853676,
+"pressure_atm": 0.0378995593584999,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos"
+]
+},
+{
+"id64": 1585269656057207267,
+"name": "Cyoagaea CY-G d11-75 A 7 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 190.089478,
+"gravity_g": 0.19667380442541,
+"pressure_atm": 0.0720733243523316,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Clypeus Speculumi"
+]
+},
+{
+"id64": 1585280642187258772,
+"name": "Hypio Gree XU-X e1-3160 4 j",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 134.323669,
+"gravity_g": 0.269451412256551,
+"pressure_atm": 0.00133881977794226,
+"star": "Y",
+"signals": 4,
+"species": [
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 1585371013621047265,
+"name": "Vegnue OF-C b56-47 7 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "nitrogen",
+"temperature_k": 29.65654,
+"gravity_g": 0.433624247986132,
+"pressure_atm": 0.00270404506291636,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Omentum"
+]
+},
+{
+"id64": 1621297603737825930,
+"name": "Dryiqu CP-A c16-6 11 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 101.01506,
+"gravity_g": 0.0405502192311614,
+"pressure_atm": 0.0786809250135702,
+"star": null,
+"signals": 2,
+"species": [
+"Fonticulua Digitos"
+]
+},
+{
+"id64": 1621307570920623156,
+"name": "Ploi Aowsy ZK-P e5-2725 4 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 188.308075,
+"gravity_g": 0.188575609258693,
+"pressure_atm": 0.0663510247026894,
+"star": "T",
+"signals": 8,
+"species": [
+"Aleoida Coronamus",
+"Cactoida Cortexum",
+"Stratum Paleas"
+]
+},
+{
+"id64": 1621329409455509787,
+"name": "Eol Prou MR-V d2-976 6 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 184.685272,
+"gravity_g": 0.169011012542062,
+"pressure_atm": 0.0530596645250432,
+"star": null,
+"signals": 5,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Concha Renibus",
+"Fungoida Gelata"
+]
+},
+{
+"id64": 1621548729242718979,
+"name": "Byoomi GR-C d7359 AB 5 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 155.917526,
+"gravity_g": 0.136099724686448,
+"pressure_atm": 0.00114071039723661,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Flabellum"
+]
+},
+{
+"id64": 1657325296547730146,
+"name": "LTT 8584 3 a",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": "water",
+"temperature_k": 68.884865,
+"gravity_g": 0.225122259610482,
+"pressure_atm": 0.0487887781791266,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Verrata",
+"Crater Outpost",
+"Fonticulua Lapida",
+"Fumerola Aquatis",
+"Water Ice Fumarole",
+"Water Ice Geyser"
+]
+},
+{
+"id64": 1657327405070566625,
+"name": "Eol Prou VR-C b26-1 5 h",
+"planet_class": "Icy body",
+"atmosphere_type": "NeonRich",
+"volcanism": null,
+"temperature_k": 62.665314,
+"gravity_g": 0.268207708779443,
+"pressure_atm": 0.00223476918825561,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Segmentatus"
+]
+},
+{
+"id64": 1657337282767637484,
+"name": "Vegnoae RO-R e4-2938 8 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": "metallic",
+"temperature_k": 183.365677,
+"gravity_g": 0.301562863260936,
+"pressure_atm": 0.00831530319269677,
+"star": "Y",
+"signals": 2,
+"species": [
+"Bacterium Cerbrus",
+"Stratum Araneamus"
+]
+},
+{
+"id64": 1657532027786190681,
+"name": "Vegnoae QN-D b40-94 6 e",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 55.158195,
+"gravity_g": 0.0810086672784746,
+"pressure_atm": 0.00313047403898347,
+"star": null,
+"signals": 3,
+"species": [
+"Electricae Radialem"
+]
+},
+{
+"id64": 1693356494428231739,
+"name": "Flyua Flyao OT-P d6-88 AB 7 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": null,
+"temperature_k": 73.058914,
+"gravity_g": 0.263090241664117,
+"pressure_atm": 0.00765891127559832,
+"star": "Y",
+"signals": 2,
+"species": [
+"Bacterium Informem"
+]
+},
+{
+"id64": 1693380062725624107,
+"name": "Eol Prou OD-S d4-774 8 h",
+"planet_class": "Icy body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 198.327148,
+"gravity_g": 0.221670643417967,
+"pressure_atm": 0.0232229791167037,
+"star": null,
+"signals": 1,
+"species": [
+"Recepta Conditivus"
+]
+},
+{
+"id64": 1695033047755204386,
+"name": "Juenae JQ-Y c3-6110 5 f",
+"planet_class": "Icy body",
+"atmosphere_type": "ArgonRich",
+"volcanism": null,
+"temperature_k": 88.098488,
+"gravity_g": 0.245920159070052,
+"pressure_atm": 0.0756251252899087,
+"star": null,
+"signals": 1,
+"species": [
+"Fonticulua Upupam"
+]
+},
+{
+"id64": 1729385138704245249,
+"name": "Praea Scrua TS-C b1 AB 4 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 55.671108,
+"gravity_g": 0.0522084225553176,
+"pressure_atm": 0.00130086112015791,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris"
+]
+},
+{
+"id64": 1729424701698266107,
+"name": "Stuemeae OQ-B d14-1235 3 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 133.921448,
+"gravity_g": 0.266085755072907,
+"pressure_atm": 0.00130439929928448,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Umbrux",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 1765411137848873690,
+"name": "Lugh 13 f",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "methane",
+"temperature_k": 95.402298,
+"gravity_g": 0.0437104109309677,
+"pressure_atm": 0.0912426462669627,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Tela",
+"Fumerola Carbosis",
+"Methane Ice Fumarole",
+"Methane Ice Geyser"
+]
+},
+{
+"id64": 1765419109241066202,
+"name": "Narenses 5 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 56.906719,
+"gravity_g": 0.0591490771897624,
+"pressure_atm": 0.00167217669874167,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Vesicula",
+"Fonticulua Campestris",
+"Settlement"
+]
+},
+{
+"id64": 1765469121047470666,
+"name": "Centralis A 7 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 164.241272,
+"gravity_g": 0.131542979504436,
+"pressure_atm": 0.0322749400542808,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Aurasus",
+"Settlement",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1801439964840450675,
+"name": "Eactaimly UQ-C d13-3 3 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 190.642166,
+"gravity_g": 0.199040175384929,
+"pressure_atm": 0.0735104590772268,
+"star": null,
+"signals": 8,
+"species": [
+"Aleoida Gravis",
+"Bacterium Aurasus",
+"Stratum Paleas",
+"Tussock Pennatis"
+]
+},
+{
+"id64": 1801445666325336419,
+"name": "Eol Prou DQ-F d11-169 ABC 5 i",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 180.3909,
+"gravity_g": 0.128710410930968,
+"pressure_atm": 0.030591387742413,
+"star": null,
+"signals": 8,
+"species": [
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Frutexa Acus",
+"Fungoida Gelata",
+"Osseus Fractus",
+"Stratum Paleas",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1801509463073104602,
+"name": "Eol Prou LF-I c25-253 6 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 180.54483,
+"gravity_g": 0.120551442846946,
+"pressure_atm": 0.0267436158401184,
+"star": null,
+"signals": 6,
+"species": [
+"Bacterium Aurasus",
+"Osseus Fractus",
+"Stratum Limaxus"
+]
+},
+{
+"id64": 1837470381154308810,
+"name": "Brodal C 7",
+"planet_class": "Icy body",
+"atmosphere_type": "Nitrogen",
+"volcanism": "none",
+"temperature_k": 79.794083,
+"gravity_g": 0.274508718262466,
+"pressure_atm": 0.0155976608240809,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Informem",
+"Fonticulua Lapida"
+]
+},
+{
+"id64": 1837479720317063499,
+"name": "Spoihaae TU-M d8-322 C 1",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 104.150734,
+"gravity_g": 0.269868665239115,
+"pressure_atm": 0.00692497684678016,
+"star": "L",
+"signals": 5,
+"species": [
+"Fungoida Bullarum",
+"Osseus Pumice"
+]
+},
+{
+"id64": 1839451150210901682,
+"name": "Myriesly XP-N c20-7212 B 9",
+"planet_class": "Icy body",
+"atmosphere_type": "Neon",
+"volcanism": "carbon dioxide",
+"temperature_k": 44.997932,
+"gravity_g": 0.559024676251657,
+"pressure_atm": 0.00362600301011596,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Scopulum",
+"Carbon Dioxide Ice Geyser"
+]
+},
+{
+"id64": 1873504980346850507,
+"name": "Prooe Hypue MZ-M d8-219 11 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 162.970444,
+"gravity_g": 0.0509593147751606,
+"pressure_atm": 0.00479284339501604,
+"star": null,
+"signals": 4,
+"species": [
+"Concha Labiata",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1909529379470347491,
+"name": "Prieluia HG-F d11-91 4 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 172.990967,
+"gravity_g": 0.0955043336392373,
+"pressure_atm": 0.0167923307179867,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Stratum Limaxus",
+"Tubus Cavas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 1909569784257597723,
+"name": "Eol Prou CL-W d2-1267 AB 7 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Water",
+"volcanism": null,
+"temperature_k": 426.869202,
+"gravity_g": 0.0528363413888039,
+"pressure_atm": 0.0959228118036023,
+"star": "T",
+"signals": 8,
+"species": [
+"Bacterium Cerbrus",
+"Cactoida Vermis",
+"Clypeus Lacrimam",
+"Concha Renibus",
+"Frutexa Sponsae",
+"Fungoida Gelata",
+"Stratum Paleas",
+"Tussock Virgam"
+]
+},
+{
+"id64": 1945556386528055555,
+"name": "Leamua NM-C d39 5 a",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 153.535049,
+"gravity_g": 0.0561320485367595,
+"pressure_atm": 0.00581719944732297,
+"star": null,
+"signals": 4,
+"species": [
+"Frutexa Acus",
+"Tussock Pennata"
+]
+},
+{
+"id64": 1945566660995617091,
+"name": "Eol Prou FH-M d7-338 7 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "SulphurDioxide",
+"volcanism": null,
+"temperature_k": 133.400925,
+"gravity_g": 0.237209952075048,
+"pressure_atm": 0.00103589724154947,
+"star": "Y",
+"signals": 4,
+"species": [
+"Bacterium Cerbrus",
+"Frutexa Collum",
+"Recepta Deltahedronix",
+"Tussock Stigmasis"
+]
+},
+{
+"id64": 1946061447578592994,
+"name": "Myriesly FB-D c26-1842 D 2",
+"planet_class": "Rocky ice body",
+"atmosphere_type": "Argon",
+"volcanism": null,
+"temperature_k": 89.173775,
+"gravity_g": 0.274738961965943,
+"pressure_atm": 0.0181907812287195,
+"star": "T",
+"signals": 3,
+"species": [
+"Bacterium Vesicula",
+"Fungoida Bullarum",
+"Tussock Capillum"
+]
+},
+{
+"id64": 1981600579729757059,
+"name": "Stuemeae BA-A d487 6 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 90.341263,
+"gravity_g": 0.0368132966248598,
+"pressure_atm": 0.0647814697458673,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris"
+]
+},
+{
+"id64": 1981932494802391947,
+"name": "Stuemeae FG-Y d10147 8 g",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 71.382973,
+"gravity_g": 0.189683593351688,
+"pressure_atm": 0.00221868394769307,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Bullaris",
+"Fungoida Setisis",
+"Osseus Pumice"
+]
+},
+{
+"id64": 2017633635342815523,
+"name": "Eol Prou RS-T d3-611 6 e",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": "none",
+"temperature_k": 173.974197,
+"gravity_g": 0.091796573875803,
+"pressure_atm": 0.0155426825067851,
+"star": null,
+"signals": 4,
+"species": [
+"Bacterium Aurasus",
+"Concha Labiata",
+"Tubus Compagibus",
+"Tussock Propagito"
+]
+},
+{
+"id64": 2053647286302446282,
+"name": "Dalevard ABCD 6 f",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "none",
+"temperature_k": 72.978645,
+"gravity_g": 0.165183338431732,
+"pressure_atm": 0.00167528612879349,
+"star": "Y",
+"signals": 3,
+"species": [
+"Bacterium Bullaris",
+"Fungoida Setisis",
+"Osseus Pumice",
+"Surface Station"
+]
+},
+{
+"id64": 2089670228260035334,
+"name": "Cheethe ZE-A g17 3 h a",
+"planet_class": "Rocky body",
+"atmosphere_type": "Methane",
+"volcanism": "silicate",
+"temperature_k": 89.353226,
+"gravity_g": 0.0572417660854492,
+"pressure_atm": 0.0214095003898347,
+"star": null,
+"signals": 6,
+"species": [
+"Osseus Discus",
+"Tussock Capillum"
+]
+},
+{
+"id64": 2089690689263773097,
+"name": "FN Virginis B 5 b",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 91.170082,
+"gravity_g": 0.0374971958804935,
+"pressure_atm": 0.0670909858475204,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Bullaris"
+]
+},
+{
+"id64": 2125717783763558986,
+"name": "Eol Prou KB-M c8-68 10 e",
+"planet_class": "Icy body",
+"atmosphere_type": "Argon",
+"volcanism": "none",
+"temperature_k": 99.190483,
+"gravity_g": 0.235197817885184,
+"pressure_atm": 0.0261529220231927,
+"star": null,
+"signals": 3,
+"species": [
+"Electricae Radialem"
+]
+},
+{
+"id64": 2161730653836579530,
+"name": "Lalande 15394 5 d",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": "methane",
+"temperature_k": 105.192612,
+"gravity_g": 0.0400711736514734,
+"pressure_atm": 0.0766225490747594,
+"star": null,
+"signals": 3,
+"species": [
+"Bacterium Scopulum",
+"Fonticulua Digitos",
+"Fumerola Carbosis",
+"Methane Ice Fumarole",
+"Methane Ice Geyser",
+"Settlement"
+]
+},
+{
+"id64": 2197757109670529371,
+"name": "HIP 38422 5 b",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": "none",
+"temperature_k": 166.836334,
+"gravity_g": 0.128052921382686,
+"pressure_atm": 0.00100918928201332,
+"star": null,
+"signals": 7,
+"species": [
+"Bacterium Alcyoneum",
+"Cactoida Lapis",
+"Frutexa Flabellum",
+"Osseus Spiralis",
+"Stratum Laminamus",
+"Tussock Cultro"
+]
+},
+{
+"id64": 2197814685275038282,
+"name": "Centralis A 9 f",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 100.655388,
+"gravity_g": 0.0354028754970939,
+"pressure_atm": 0.0599365872884283,
+"star": null,
+"signals": 2,
+"species": [
+"Bacterium Bullaris",
+"Fonticulua Digitos",
+"Settlement",
+"Surface Station"
+]
+},
+{
+"id64": 2233794153026525075,
+"name": "Phraa Byoe WP-X d1-254 C 9 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 172.607864,
+"gravity_g": 0.0623188538798817,
+"pressure_atm": 0.00156247816432272,
+"star": null,
+"signals": 6,
+"species": [
+"Tubus Rosarium"
+]
+},
+{
+"id64": 2269815091891149762,
+"name": "Zejooe IA-P c22-3 4 c",
+"planet_class": "Rocky body",
+"atmosphere_type": "Ammonia",
+"volcanism": null,
+"temperature_k": 171.253799,
+"gravity_g": 0.164238299174059,
+"pressure_atm": 0.00165927754256107,
+"star": null,
+"signals": 4,
+"species": [
+"Aleoida Spica",
+"Bacterium Alcyoneum",
+"Stratum Paleas",
+"Tussock Divisa"
+]
+},
+{
+"id64": 2270159536163606859,
+"name": "Eoch Pruae KP-M d8-10050 11 d",
+"planet_class": "Rocky body",
+"atmosphere_type": "CarbonDioxide",
+"volcanism": null,
+"temperature_k": 186.725937,
+"gravity_g": 0.181609156724788,
+"pressure_atm": 0.0614155602368616,
+"star": null,
+"signals": 9,
+"species": [
+"Aleoida Coronamus",
+"Bacterium Aurasus",
+"Cactoida Cortexum",
+"Concha Renibus",
+"Fungoida Stabitis",
+"Stratum Paleas",
+"Tussock Propagito"
+]
+},
+{
+"id64": 2305849690203099866,
+"name": "Mombaluma ABC 6 c",
+"planet_class": "Icy body",
+"atmosphere_type": "Methane",
+"volcanism": null,
+"temperature_k": 84.112946,
+"gravity_g": 0.027847965738758,
+"pressure_atm": 0.0370173352479645,
+"star": null,
+"signals": 1,
+"species": [
+"Bacterium Bullaris"
+]
+}
+]
+}

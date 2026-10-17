@@ -247,8 +247,9 @@ astromech/
     astromech-exobiology/ exobiology: surface guidance (great-circle bearing and distance between two
                          latitude/longitude points on a body of Status.json's PlanetRadius); the
                          genus and species catalogue (value, colony range, growing conditions;
-                         species symbols; data/catalog/exobiology.json from the wiki, EDMC-ExplorerLite
-                         and EDR) and the species prediction from a detailed scan; the
+                         species symbols; data/catalog/exobiology.json from the wiki, EDR, and
+                         conditions measured from Spansh's bodies by scripts/gen-exobiology.py) and
+                         the species prediction from a detailed scan; the
                          sampling tracker (samples 1-3 of the species in progress, where each was
                          taken from Status.json's position, clearance against the colony range);
                          known biology from Spansh (`known`, looked up by astromech-core)

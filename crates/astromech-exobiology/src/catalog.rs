@@ -37,14 +37,16 @@ pub struct Species {
     pub rules: Vec<Conditions>,
 }
 
-/// Where a species grows. Every field present must match; a missing field doesn't constrain.
+/// Where a species was seen growing: one atmosphere type and body class, the observed ranges,
+/// and from enough sightings the parent star classes and volcanism seen. A missing field doesn't
+/// constrain.
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 pub struct Conditions {
     /// Journal `AtmosphereType`s: `CarbonDioxide`, `SulphurDioxide`, ...
     pub atmosphere: Option<Vec<String>>,
     /// Journal `PlanetClass`es: "Rocky body", "High metal content body", ...
     pub body_types: Option<Vec<String>>,
-    /// Star classes of the nearest parent star, normalised by [`star_class`].
+    /// Classes of the nearest parent star, as [`star_class`] gives them.
     pub star_types: Option<Vec<String>>,
     pub min_gravity_g: Option<f64>,
     pub max_gravity_g: Option<f64>,
@@ -52,18 +54,11 @@ pub struct Conditions {
     pub max_temp_k: Option<f64>,
     pub min_pressure_atm: Option<f64>,
     pub max_pressure_atm: Option<f64>,
-    pub volcanism: Option<Volcanism>,
-    /// Set when the rule leaves out something that matters (region, nebula, ...); such a rule
-    /// is only used for a body known to have biology.
-    pub unmodeled: Option<String>,
-}
-
-/// `"none"`, `"any"`, or keywords one of which the journal's `Volcanism` text must contain.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-#[serde(untagged)]
-pub enum Volcanism {
-    Word(String),
-    Keywords(Vec<String>),
+    /// Volcanism kinds, as [`crate::predict::volcanism_kind`] gives them ("none", "water", ...).
+    pub volcanism: Option<Vec<String>>,
+    /// How many bodies it was measured from.
+    #[serde(default)]
+    pub seen: u32,
 }
 
 fn file() -> &'static File {
@@ -134,13 +129,18 @@ impl Genus {
 }
 
 /// A journal `StarType` as the conditions name it: every white dwarf (`DA`, `DAB`, ...) is `D`,
-/// a giant's suffix is dropped (`A_BlueWhiteSuperGiant` is `A`); `N`, `H`, `AeBe`, `TTS`, `K`,
-/// ... stay as they are.
+/// every Wolf-Rayet (`WN`, `WC`, ...) `W`, every carbon star (`CN`, `CJ`, ...) `C`, `MS` is `S`,
+/// the supermassive black hole `H`, and a giant's suffix is dropped (`A_BlueWhiteSuperGiant` is
+/// `A`); `N`, `H`, `AeBe`, `TTS`, `K`, ... stay as they are.
 pub fn star_class(star_type: &str) -> String {
     let t = star_type.split('_').next().unwrap_or(star_type);
-    if t.starts_with('D') {
-        "D".into()
-    } else {
-        t.to_string()
+    match t {
+        "TTS" | "AeBe" | "N" | "H" | "X" => t.into(),
+        "SupermassiveBlackHole" => "H".into(),
+        "MS" | "S" => "S".into(),
+        _ if t.starts_with('D') => "D".into(),
+        _ if t.starts_with('W') => "W".into(),
+        _ if t.starts_with('C') => "C".into(),
+        _ => t.into(),
     }
 }
