@@ -5,8 +5,10 @@
 //! commander travels; live faction states and Powerplay targets from Spansh's system search;
 //! jump counts by A* over the known stars at the ship's range; raw-material sites (crystalline
 //! shards, brain trees, crashed ships, geological sites, the known farms) from Spansh's bodies
-//! search.
+//! search; colonisation candidates (unclaimed systems in claim range of a populated one) from
+//! both.
 
+pub mod colonies;
 pub mod filters;
 pub mod map;
 pub mod outfitting;
@@ -17,6 +19,7 @@ pub mod stations;
 pub mod store;
 pub mod visits;
 
+pub use colonies::{CandidateHit, Candidates, Interest};
 pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use powerplay::{Target, TargetHit, Targets};
