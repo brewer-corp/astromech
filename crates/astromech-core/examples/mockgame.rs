@@ -1,5 +1,5 @@
 //! Windows-only mock of the game's input + Status.json surface, for smoke-testing the real exe
-//! (e.g. under Wine) and for the MVP criteria harness (`scripts/mvp-criteria.py`). It opens a
+//! (e.g. under Wine) and for the MVP criteria harness (`scripts/mvp_criteria.py`). It opens a
 //! window titled "Elite - Dangerous (CLIENT)", and when it receives WM_KEYDOWN for a mapped
 //! scancode it changes Status.json after a delay: toggles a Flags bit, or sets GuiFocus.
 //! Every key event it receives is appended to keys.log next to Status.json, with the wall-clock

@@ -35,8 +35,9 @@ on:
 permissions:
   contents: read
 
+# A newer push replaces a PR's run; manual runs (a 4 h soak) are never cancelled by another.
 concurrency:
-  group: criteria-${{ github.ref }}
+  group: criteria-${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -63,15 +64,20 @@ jobs:
           python-version: "3.12"
       - name: measure
         shell: bash
+        env:
+          SOAK_MINUTES: ${{ inputs.soak_minutes || '5' }}
+          TRIALS_PER_TOOL: ${{ inputs.trials_per_tool || '15' }}
+          KILL_TRIALS: ${{ inputs.kill_trials || '20' }}
+          DROP_EVERY: ${{ inputs.drop_every || '0' }}
         run: |
           python scripts/mvp_criteria.py \
             --core target/release/astromech-core.exe \
             --mock target/release/examples/mockgame.exe \
             --out criteria-report \
-            --soak-minutes "${{ inputs.soak_minutes || '5' }}" \
-            --trials-per-tool "${{ inputs.trials_per_tool || '15' }}" \
-            --kill-trials "${{ inputs.kill_trials || '20' }}" \
-            --drop-every "${{ inputs.drop_every || '0' }}"
+            --soak-minutes "$SOAK_MINUTES" \
+            --trials-per-tool "$TRIALS_PER_TOOL" \
+            --kill-trials "$KILL_TRIALS" \
+            --drop-every "$DROP_EVERY"
       - name: report
         if: always()
         shell: bash

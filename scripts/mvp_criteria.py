@@ -241,12 +241,24 @@ def assign_core_results(trials: list[Trial], typed_lines: list[str], core_lines:
     return problems
 
 
-def match_keys(trials: list[Trial], events: list[KeyEvent], window_ms: float = PRESS_WINDOW_MS):
-    """Match key-downs to the trials that pressed them. Returns (unintended, lost): key-downs no
-    pressed trial accounts for (the harness's own keys excluded), and pressed trials whose keys
-    never arrived. Sets each matched trial's `keydown_ms` (action start)."""
-    downs = [e for e in events if e.down and not e.repeat and e.scan not in HARNESS_SCANS]
-    used = [False] * len(downs)
+# A harness key (PTT, kill switch, vehicle switch) must reach the mock this soon after it was sent.
+TAP_WINDOW_MS = 500.0
+
+
+def match_keys(trials: list[Trial], events: list[KeyEvent], window_ms: float = PRESS_WINDOW_MS,
+               taps: list[tuple[int, float]] = ()):
+    """Match key-downs to the trials that pressed them, and the harness's own keys to the taps
+    it sent (`taps`: scan code and when). Returns (unintended, lost): key-downs nothing accounts
+    for, and pressed trials whose keys never arrived. An auto-repeat key-down is always
+    unintended: SendInput doesn't repeat, so it means a key was left down. Sets each matched
+    trial's `keydown_ms` (action start)."""
+    downs = [e for e in events if e.down]
+    used = [e.repeat for e in downs]  # repeats are never matched
+    for scan, t in taps:
+        j = next((j for j, e in enumerate(downs)
+                  if not used[j] and e.scan == scan and t - 5 <= e.t <= t + TAP_WINDOW_MS), None)
+        if j is not None:
+            used[j] = True
     lost = []
     for t in sorted(trials, key=lambda t: t.t_issue):
         if not t.pressed:
@@ -268,8 +280,16 @@ def match_keys(trials: list[Trial], events: list[KeyEvent], window_ms: float = P
             t.keydown_ms = first - t.t_issue
         if missing:
             lost.append(t)
-    unintended = [e for j, e in enumerate(downs) if not used[j]]
+    unintended = [e for j, e in enumerate(downs) if not used[j] or e.repeat]
     return unintended, lost
+
+
+def held_at_end(events: list[KeyEvent]) -> list[int]:
+    """Scan codes whose last event at the mock was a key-down: keys left held."""
+    last: dict[int, bool] = {}
+    for e in events:
+        last[e.scan] = e.down
+    return sorted(s for s, down in last.items() if down)
 
 
 def percentile(values: list[float], p: float) -> float | None:
@@ -380,9 +400,10 @@ def judge(summary: dict, a: argparse.Namespace | None = None) -> list[dict]:
     out.append({
         "id": "unintended_keys",
         "criterion": f"zero unintended keypresses in a {need_soak / 3600:g} h soak replay",
-        "value": f"{soak['unintended']} unintended in {soak['seconds'] / 60:.1f} min "
-                 f"({soak['key_downs']} key-downs, {soak['journal_lines']} journal lines replayed)",
-        "pass": soak["unintended"] == 0,
+        "value": f"{soak['unintended']} unintended and {len(soak.get('held_at_end', []))} left held in "
+                 f"{soak['seconds'] / 60:.1f} min ({soak['key_downs']} key-downs, {soak['journal_lines']} journal "
+                 "lines replayed)",
+        "pass": soak["unintended"] == 0 and not soak.get("held_at_end"),
         "full_size": soak["seconds"] >= need_soak,
     })
 
@@ -409,14 +430,25 @@ def judge(summary: dict, a: argparse.Namespace | None = None) -> list[dict]:
     out.append({
         "id": "action_start",
         "criterion": f"action start <= {ACTION_START_P95_MS:g} ms p95 after push-to-talk release",
-        "value": f"estimate {fmt_ms(est)} p95 (PTT release handled {fmt_ms(lat['ptt_p95_ms'])} + clip tail "
+        "value": f"estimate {fmt_ms(est)} p95, margin {fmt_margin(est)} (PTT release handled {fmt_ms(lat['ptt_p95_ms'])} + clip tail "
                  f"{lat['clip_tail_ms']:g} + mic {lat['mic_ms']:g} + STT {lat['stt_p95_ms']:g} (S9) + command to "
                  f"key-down {fmt_ms(lat['command_p95_ms'])})",
         "pass": est is not None and est <= ACTION_START_P95_MS,
         "full_size": True,
+        # Mostly constants from elsewhere (S9, the config): reported, but it doesn't set the
+        # harness's exit status; a few ms of runner jitter would flip it.
         "estimate": True,
     })
     return out
+
+
+def fmt_margin(est) -> str:
+    return "n/a" if est is None else f"{ACTION_START_P95_MS - est:+.1f} ms"
+
+
+def exit_status(criteria: list[dict]) -> int:
+    """1 when a measured criterion fails; an estimate is reported, not gated on."""
+    return 0 if all(c["pass"] for c in criteria if not c.get("estimate")) else 1
 
 
 def fmt_ms(v) -> str:
@@ -430,9 +462,11 @@ def fmt_rate(v) -> str:
 def summarise(trials, soak_events, kills, kill_events, core_lines, soak_info, a) -> dict:
     """Everything the report needs, from the raw records of both phases."""
     soak_trials = [t for t in trials if t.phase == "soak"]
-    unintended, lost = match_keys(soak_trials, soak_events)
+    unintended, lost = match_keys(soak_trials, soak_events, taps=soak_info.get("taps", []))
+    stuck = held_at_end(soak_events)
     kill_trials = [k.trial for k in kills]
-    k_unintended, _ = match_keys(kill_trials, kill_events, window_ms=5000)
+    kill_taps = [(SCAN[KILL_KEY], k.t_inject) for k in kills if k.t_inject is not None]
+    k_unintended, _ = match_keys(kill_trials, kill_events, window_ms=5000, taps=kill_taps)
     kill_latencies(kills, kill_events)
     lat_kill = [k.t_released - k.t_inject for k in kills if k.t_released is not None and k.t_inject is not None]
     ptt = ptt_stage(soak_info.get("ptt_releases", []), core_lines)
@@ -447,6 +481,7 @@ def summarise(trials, soak_events, kills, kill_events, core_lines, soak_info, a)
             "key_downs": sum(1 for e in soak_events if e.down),
             "unintended": len(unintended),
             "unintended_events": [asdict(e) for e in unintended[:50]],
+            "held_at_end": stuck,
             "lost_presses": len(lost),
             "journal_lines": soak_info["journal_lines"],
             "memory": soak_info.get("memory", {}),
@@ -495,7 +530,7 @@ def markdown(report: dict) -> str:
         if not c["full_size"]:
             v += " (shorter than the criterion)"
         if c.get("estimate"):
-            v += " (estimate)"
+            v += " (estimate; not gated on)"
         lines.append(f"| {c['criterion']} | {c['value']} | {v} |")
     lines += ["", "## Trials per tool", "", "| Tool | Trials | Verified | Rate | Verify p50 / p95 | Failures |",
               "|---|---|---|---|---|---|"]
@@ -511,7 +546,9 @@ def markdown(report: dict) -> str:
         "## Soak",
         "",
         f"- {s['seconds'] / 60:.1f} min, {s['key_downs']} key-downs at the mock, {s['journal_lines']} journal lines "
-        f"replayed; unintended key-downs: {s['unintended']}; presses that never arrived: {s['lost_presses']}.",
+        f"replayed; unintended key-downs: {s['unintended']}; keys left held at the end: "
+        f"{', '.join(f'{x:02X}' for x in s.get('held_at_end', [])) or 'none'}; presses that never arrived: "
+        f"{s['lost_presses']}.",
         f"- Core memory: {json.dumps(s['memory'])}",
     ]
     for p in s["problems"]:
@@ -534,9 +571,15 @@ def markdown(report: dict) -> str:
         f"- Measured, command to the first key-down at the mock: p50 {fmt_ms(lat['command_p50_ms'])}, p95 "
         f"{fmt_ms(lat['command_p95_ms'])}, max {fmt_ms(lat['command_max_ms'])} ({lat['command_samples']} presses).",
         f"- Not measured here: the clip's tail wait after the release is handled ({lat['clip_tail_ms']:g} ms, "
-        f"post-roll minus debounce), the mic buffer ({lat['mic_ms']:g} ms) and speech-to-text "
-        f"({lat['stt_p95_ms']:g} ms p95, S9 on Sumeet's PC).",
+        f"post-roll minus debounce), the mic buffer ({lat['mic_ms']:g} ms: one capture period; the core waits "
+        f"up to 100 ms for it) and speech-to-text ({lat['stt_p95_ms']:g} ms p95, S9 on Sumeet's PC). These are "
+        "the harness's defaults (--post-roll-ms, --debounce-ms, --mic-ms, --stt-p95-ms), copied from the config "
+        "defaults and S9, not read from them.",
         f"- Estimate (sum of the p95s): {fmt_ms(lat['estimate_p95_ms'])}.",
+        "",
+        f"Tools covered: {', '.join(TOOL_IDS)}. `open_screen` cycles through "
+        f"{', '.join(s.phrase for s in SCREENS)}, each followed by close panel. Pips presets (listed in §14) "
+        "aren't a tool yet, so they aren't covered.",
         "",
         "Device classes other than the keyboard (mouse 4/5, HOTAS, gamepad), real speech and the real game "
         "are not covered here.",
@@ -817,11 +860,14 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
     soak_s = a.soak_minutes * 60
     work.mkdir(parents=True, exist_ok=True)
     cfg = setup(work, hold_ms=50)
-    mock = Mock(a.mock, work, int(soak_s + 600), (0, 1000), a.drop_every)
+    # Long enough for the trials too, when they outlast the soak at the fastest pace.
+    trials_s = a.trials_per_tool * (len(TOOL_IDS) + 2) * a.pace_min * 1.5
+    mock = Mock(a.mock, work, int(max(soak_s, trials_s) + 600), (0, 1000), a.drop_every)
     core = Core(a.core, cfg, work / "core.out")
     problems = []
     memory = {}
     ptt_releases: list[float] = []
+    taps: list[tuple[int, float]] = []
     try:
         if not core.wait_for("game state:", 60):
             raise RuntimeError("the core didn't start; see core.out")
@@ -842,7 +888,7 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
                     want_srv = tool in [t.id for t in TOGGLES if t.mode == "srv"]
                     flags, gui = mock.status()
                     if bool(flags & IN_SRV) != want_srv:
-                        tap(VEHICLE_KEY, 0.05)
+                        taps.append((SCAN[VEHICLE_KEY], tap(VEHICLE_KEY, 0.05)[0]))
                         for _ in range(100):
                             if bool(mock.status()[0] & IN_SRV) == want_srv:
                                 break
@@ -862,7 +908,9 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
                     # Push-to-talk press and release in the slot's spare time.
                     if a.ptt_every and len(trials) % a.ptt_every == 0:
                         time.sleep(0.3)
-                        ptt_releases.append(tap(PTT_KEY, 0.4)[1])
+                        t_down, t_up = tap(PTT_KEY, 0.4)
+                        taps.append((SCAN[PTT_KEY], t_down))
+                        ptt_releases.append(t_up)
                     time.sleep(max(0.0, pace - (time.time() - slot)))
                 rounds += 1
             else:
@@ -889,7 +937,7 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
     problems += assign_core_results([t for t in trials if t.phase == "soak"], core.typed, core.lines)
     events = parse_keys_log(mock.keys_text())
     info = {"seconds": seconds, "journal_lines": replay.lines, "memory": memory, "problems": problems,
-            "ptt_releases": ptt_releases}
+            "ptt_releases": ptt_releases, "taps": taps}
     return events, core.lines, info
 
 
@@ -1001,7 +1049,7 @@ def main(argv=None) -> int:
     md = markdown(report)
     (a.out / "report.md").write_text(md, encoding="utf-8")
     print(md)
-    return 0 if all(c["pass"] for c in report["criteria"]) else 1
+    return exit_status(report["criteria"])
 
 
 if __name__ == "__main__":

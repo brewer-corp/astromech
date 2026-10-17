@@ -72,10 +72,10 @@ class Keys(unittest.TestCase):
         gear.pressed = True
         events = [
             ev(1040, True, 0x2A), ev(1056, True, 0x24), ev(1106, False, 0x24), ev(1121, False, 0x2A),
-            ev(2000, True, m.SCAN[m.PTT_KEY]),  # the harness's own key
-            ev(5030, True, 0x26), ev(5030.5, True, 0x26, repeat=True),
+            ev(2001, True, m.SCAN[m.PTT_KEY]),  # the harness's own key, sent at 2000
+            ev(5030, True, 0x26),
         ]
-        unintended, lost = m.match_keys([lights, gear], events)
+        unintended, lost = m.match_keys([lights, gear], events, taps=[(m.SCAN[m.PTT_KEY], 2000.0)])
         self.assertEqual((unintended, lost), ([], []))
         self.assertAlmostEqual(lights.keydown_ms, 40)
         self.assertAlmostEqual(gear.keydown_ms, 30)
@@ -97,6 +97,20 @@ class Keys(unittest.TestCase):
         self.assertEqual([e.t for e in unintended], [1040, 9020, 15000, 23000])
         self.assertEqual(lost, [hp])
         self.assertIsNone(hp.keydown_ms)
+
+    def test_repeats_and_untapped_harness_keys_are_unintended(self):
+        gear = trial("landing_gear", "gear down", "set_landing_gear", [0x26], 1000)
+        gear.pressed = True
+        kill = m.SCAN[m.KILL_KEY]
+        events = [ev(1030, True, 0x26), ev(1300, True, 0x26, repeat=True),  # a key left down repeats
+                  ev(3001, True, kill),  # the harness's kill key, sent at 3000
+                  ev(8000, True, kill)]  # a kill-key press the harness didn't send
+        unintended, _ = m.match_keys([gear], events, taps=[(kill, 3000.0)])
+        self.assertEqual([e.t for e in unintended], [1300, 8000])
+
+    def test_keys_left_held(self):
+        events = [ev(1, True, 0x26), ev(2, False, 0x26), ev(3, True, 0x2A), ev(4, True, 0x24), ev(5, False, 0x24)]
+        self.assertEqual(m.held_at_end(events), [0x2A])
 
 
 class Ptt(unittest.TestCase):
@@ -170,6 +184,15 @@ class Judge(unittest.TestCase):
         # PTT release handled + clip tail 50 + mic 10 + STT 104 + command to key-down
         self.assertEqual(verdicts(summary(ptt=(176.0,), cmd=(60.0,)))["action_start"], (True, True))  # 400
         self.assertEqual(verdicts(summary(ptt=(176.0,), cmd=(61.0,)))["action_start"], (False, True))  # 401
+
+    def test_a_held_key_fails_the_soak(self):
+        s = summary()
+        s["soak"]["held_at_end"] = [0x2A]
+        self.assertEqual(verdicts(s)["unintended_keys"], (False, True))
+
+    def test_the_estimate_does_not_set_the_exit_status(self):
+        self.assertEqual(m.exit_status(m.judge(summary(ptt=(250.0,)), ARGS)), 0)
+        self.assertEqual(m.exit_status(m.judge(summary(ptt=(250.0,), unintended=1), ARGS)), 1)
 
     def test_short_runs_are_marked(self):
         v = verdicts(summary(n=15, soak_s=300))
