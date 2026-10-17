@@ -24,6 +24,10 @@ pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use powerplay::{Logistics, LogisticsPoint, Target, TargetHit, Targets};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
+/// The lookup warning when Spansh returns systems without the requested state.
+pub const NEARBY_MISMATCH_WARNING: &str =
+    "Spansh returned systems without the requested state; its search filter may have changed.";
+
 pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
 pub use visits::{visits_from_journal_dir, visits_from_lines, Visit};
@@ -350,9 +354,8 @@ impl Galaxy {
             Some(search) => {
                 let page = self.remote.spansh_bodies(&search)?;
                 let found = sites::from_bodies(kind, &page.value.results);
-                let warning = (!page.value.results.is_empty() && found.is_empty()).then(|| {
-                    format!("Spansh returned bodies without {}; its search filter may have changed.", kind.noun)
-                });
+                let warning =
+                    (!page.value.results.is_empty() && found.is_empty()).then(|| sites::mismatch_warning(kind));
                 ("Spansh", page.fetched_at, found, warning)
             }
             None => ("astromech", now, sites::from_farms(here.pos), None),
@@ -441,9 +444,8 @@ impl Galaxy {
     ) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
-        let warning = (n > 0 && matched.is_empty() && q.min_population == 0).then(|| {
-            "Spansh returned systems without the requested state; its search filter may have changed.".to_string()
-        });
+        let warning =
+            (n > 0 && matched.is_empty() && q.min_population == 0).then(|| NEARBY_MISMATCH_WARNING.to_string());
         {
             let mut s = self.store();
             let _ = s.insert_systems(matched.iter().map(|h| (h.id64, h.name.as_str(), h.pos())));

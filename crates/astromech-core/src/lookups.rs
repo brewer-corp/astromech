@@ -51,7 +51,7 @@ pub fn targets_answer(
     let here = astromech_galaxy::Here { system, id64: None, pos };
     match galaxy.powerplay_targets(target, power, &here, range, targets::WITHIN_LY, 1, filters) {
         Ok(t) => targets::spoken(&t),
-        Err(e) => format!("Could not look that up. {e}"),
+        Err(e) => astromech_tools::lookup::failed(&e.to_string()),
     }
 }
 
@@ -99,7 +99,7 @@ pub fn faction_answer(
     let here = astromech_galaxy::Here { system, id64: None, pos };
     match galaxy.nearby(q.id, &here, range, 1, filters) {
         Ok(n) => astromech_tools::faction::spoken(&n, now_s),
-        Err(e) => format!("Could not look that up. {e}"),
+        Err(e) => astromech_tools::lookup::failed(&e.to_string()),
     }
 }
 

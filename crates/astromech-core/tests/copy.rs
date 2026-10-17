@@ -796,6 +796,26 @@ fn the_lookup_policy_and_service_lines_keep_to_the_copy_guide() {
             help.push(lookup::failed(&e.to_string()));
         }
     }
+    // The warnings a lookup says when Spansh's answer does not fit the search (help lines).
+    {
+        use astromech_galaxy::stations::Want;
+        help.push(astromech_galaxy::powerplay::MISMATCH_WARNING.to_string());
+        help.push(astromech_galaxy::NEARBY_MISMATCH_WARNING.to_string());
+        help.extend(astromech_galaxy::SITE_KINDS.iter().map(astromech_galaxy::sites::mismatch_warning));
+        for service in astromech_galaxy::stations::Service::ALL {
+            help.push(Want::Service { service }.none_offered(&[]));
+        }
+        for (said, name) in astromech_galaxy::outfitting::spoken_modules() {
+            let _ = said;
+            help.push(
+                Want::Module(astromech_galaxy::outfitting::ModuleWant::from_words(name, "5a gimballed"))
+                    .none_offered(&[]),
+            );
+        }
+        for (_, ship) in astromech_galaxy::outfitting::spoken_ships() {
+            help.push(Want::Ship { ship: ship.to_string() }.none_offered(&[]));
+        }
+    }
     let sentences = |v: &[String]| -> Vec<String> {
         v.iter().flat_map(|l| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect()
     };
@@ -875,8 +895,10 @@ fn say_literals(code: &str) -> Vec<String> {
     let mut from = 0;
     while let Some(i) = code[from..].find("say(").map(|i| i + from) {
         from = i + 4;
-        // Only calls (`.say(`, `fn say(` is a definition with no literal inside).
-        if !code[..i].ends_with('.') {
+        // Calls, method or closure (`let say = |s| ..; say("..")`), not the definition `fn say(`
+        // or an identifier that only ends in "say(".
+        let before = &code[..i];
+        if before.ends_with("fn ") || before.ends_with(|c: char| c.is_alphanumeric() || c == '_') {
             continue;
         }
         let (mut depth, mut j) = (1, i + 4);
