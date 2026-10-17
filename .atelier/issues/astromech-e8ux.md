@@ -13,8 +13,17 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-3ez9"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-6sf7"
+    type: "related"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-8joi"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
