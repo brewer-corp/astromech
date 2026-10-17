@@ -18,10 +18,11 @@
 //!   an event, nor is a cleared route.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
-//! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
-//! and the game state after it, never the replayed history.
+//! dropped, low priority dropped first when it is full. Rules mostly decide from the event and the
+//! game state after it, never the replayed history; the few that remember something between
+//! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`], [`hge`] and [`missions`] and [`missions`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`], [`hge`] and [`missions`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -107,7 +108,8 @@ pub enum Input<'a> {
     },
 }
 
-/// A reaction rule. Stateless: decide from the event and the state after it.
+/// A reaction rule. Decides from the event and the state after it; a rule that must remember
+/// what it already said (once-only warnings) keeps that itself, behind `&self`.
 pub trait Rule: Send {
     /// Stable id, used in `[callouts.<id>]`.
     fn id(&self) -> &'static str;

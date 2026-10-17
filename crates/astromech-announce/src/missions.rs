@@ -8,6 +8,11 @@
 //!   destination is the system, or "Mission target faction here." when a mission without a
 //!   destination names a target faction that is in the system's faction list.
 //!
+//! **Limit:** a destination or target faction is only known for missions accepted in the journal
+//! being followed (the catch-up replays that one file, and the login `Missions` event carries
+//! neither), so target-here misses missions accepted in an earlier session. Expiry warnings
+//! are unaffected.
+//!
 //! Going live after the catch-up (which is silent and keeps no history) a mission already past
 //! a threshold gets one line on the first live tick, only for the tightest threshold it has
 //! passed (inside 10 minutes: the 10 minute line, not also the hour one); hence "within". Expired

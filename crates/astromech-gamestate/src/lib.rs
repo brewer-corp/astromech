@@ -323,7 +323,9 @@ impl GameState {
                 mission_id: Some(id), new_destination_system, ..
             }) => {
                 if let Some(m) = self.missions.iter_mut().find(|m| m.id == *id) {
-                    m.destination_system = new_destination_system.clone();
+                    if new_destination_system.is_some() {
+                        m.destination_system = new_destination_system.clone();
+                    }
                 }
             }
             _ => {}
