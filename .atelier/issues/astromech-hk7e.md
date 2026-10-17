@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:47:48.456521773+00:00"
 id: "astromech-hk7e"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-hk7e
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T06:20:36.732977236+00:00"
+status: "done"
 title: "Session summary: a replay during the wait drops a pending summary"
-updated_at: "2026-10-17T05:47:48.456521773+00:00"
+updated_at: "2026-10-17T06:20:36.732977236+00:00"
 ---
 
 ## Goal
@@ -26,3 +30,7 @@ updated_at: "2026-10-17T05:47:48.456521773+00:00"
 ## Done when
 
 A replay test with a pending summary and a replayed line before the history catches up still speaks the summary once.
+
+## Close Reason
+
+Replays keep a pending summary; replay test passes

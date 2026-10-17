@@ -31,15 +31,24 @@
   }
 
   const num = (v: string): number | null => (v ? Number(v) : null);
+
+  /**
+   * The choices after the default: the usual ones without the default (it is the first option),
+   * plus a saved value that isn't among them, so a select never shows blank.
+   */
+  const choices = (usual: number[], dflt: number | undefined, saved: number | null): number[] =>
+    [...new Set([...usual, ...(saved == null ? [] : [saved])])].filter((v) => v !== dflt).sort((a, b) => a - b);
+  /** A saved value equal to the default is the default's option. */
+  const selected = (saved: number | null, dflt: number | undefined) => (saved == null || saved === dflt ? "" : saved);
 </script>
 
 <div class="filters">
   {#if offers.includes("distance")}
     <label>
       <span>Within</span>
-      <select value={filters.max_distance_ly ?? ""} onchange={(e) => onchange({ ...filters, max_distance_ly: num(e.currentTarget.value) })}>
+      <select value={selected(filters.max_distance_ly, hints.distance)} onchange={(e) => onchange({ ...filters, max_distance_ly: num(e.currentTarget.value) })}>
         <option value="">{hints.distance ? `${hints.distance} ly` : "Default"}</option>
-        {#each DISTANCES.filter((d) => d !== hints.distance) as d (d)}<option value={d}>{d} ly</option>{/each}
+        {#each choices(DISTANCES, hints.distance, filters.max_distance_ly) as d (d)}<option value={d}>{d} ly</option>{/each}
       </select>
     </label>
   {/if}
@@ -55,9 +64,9 @@
   {#if offers.includes("age")}
     <label>
       <span>Data age</span>
-      <select value={filters.max_age_days ?? ""} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
+      <select value={selected(filters.max_age_days, hints.age)} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
         <option value="">{hints.age ? `Up to ${hints.age} days` : "Any"}</option>
-        {#each AGES.filter((d) => d !== hints.age) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
+        {#each choices(AGES, hints.age, filters.max_age_days) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
       </select>
     </label>
   {/if}

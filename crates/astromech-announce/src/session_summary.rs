@@ -18,7 +18,8 @@
 //! `Shutdown` after a return to the menu says nothing new, and the next `LoadGame` starts over.
 //! It arms on a `LoadGame` seen live, or when the startup catch-up ends inside a logged-in
 //! session, so starting astromech mid-session still summarises that session at its logout; a
-//! fresh launch's menu, before any login, says nothing.
+//! fresh launch's menu, before any login, says nothing. A replayed line starts the state over
+//! but keeps a summary that is waiting for the history.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -162,7 +163,11 @@ impl Rule for SessionSummary {
     }
     fn replayed(&self, input: &Input, state: &GameState) {
         if matches!(input, Input::Journal(_)) {
-            *self.ended.lock().unwrap() = Ended { armed: state.logged_in, ..Ended::default() };
+            // A summary already waiting for the history survives a replayed line: that session
+            // really ended live, and the replay says nothing about it.
+            let mut ended = self.ended.lock().unwrap();
+            let pending = ended.pending.take();
+            *ended = Ended { pending, armed: state.logged_in, ..Ended::default() };
         }
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {

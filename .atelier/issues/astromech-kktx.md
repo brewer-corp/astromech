@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:02:43.435902660+00:00"
 id: "astromech-kktx"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-kktx
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T06:17:09.062161200+00:00"
+status: "done"
 title: "Remote cache: replacing the v0.1.5 table can race between core and app window"
-updated_at: "2026-10-17T06:02:43.435902660+00:00"
+updated_at: "2026-10-17T06:17:09.062161200+00:00"
 ---
 
 ## Goal
@@ -26,3 +30,7 @@ The drop of the old v0.1.5 remote_cache table in crates/astromech-data/src/cache
 ## Done when
 
 A test with two connections opening an old-layout cache at once leaves both on the file-backed cache.
+
+## Close Reason
+
+Replacement runs in BEGIN IMMEDIATE with a layout re-check; two-opener test passes
