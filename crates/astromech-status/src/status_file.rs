@@ -12,6 +12,9 @@ pub const FLAG_LIGHTS: u64 = 1 << 8;
 pub const FLAG_SILENT_RUNNING: u64 = 1 << 10;
 pub const FLAG_SRV_HANDBRAKE: u64 = 1 << 12;
 pub const FLAG_SRV_DRIVE_ASSIST: u64 = 1 << 15;
+/// Hostile ships nearby or under attack (manual §14 bit 22, "IsInDanger").
+pub const FLAG_IN_DANGER: u64 = 1 << 22;
+pub const FLAG_BEING_INTERDICTED: u64 = 1 << 23;
 pub const FLAG_IN_MAIN_SHIP: u64 = 1 << 24;
 pub const FLAG_IN_SRV: u64 = 1 << 26;
 pub const FLAG_HUD_ANALYSIS: u64 = 1 << 27;

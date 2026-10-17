@@ -40,7 +40,7 @@ export interface Poll {
 const samples = sample as unknown as Record<string, DryRun>;
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z ]/g, "").trim();
 
-/** Browser preview: the sample phrases match, anything else is "didn't catch that". */
+/** Browser preview: the sample phrases match, anything else is "Say again". */
 function sampleRun(text: string): DryRun {
   const hit = samples[norm(text)];
   if (hit) return { ...hit, transcript: text };

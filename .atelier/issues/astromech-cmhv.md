@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.648255681+00:00"
 id: "astromech-cmhv"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-cmhv
 priority: "P0"
 relationships:
   blocks:
@@ -10,6 +13,8 @@ relationships:
     id: "astromech-6920"
   - kind: "issue"
     id: "astromech-77a1"
+  - kind: "issue"
+    id: "astromech-ddew"
   - kind: "issue"
     id: "astromech-e8ux"
   - kind: "issue"
@@ -19,6 +24,8 @@ relationships:
   - kind: "issue"
     id: "astromech-oo8y"
   children:
+  - kind: "issue"
+    id: "astromech-0bkq"
   - kind: "issue"
     id: "astromech-0zcu"
   - kind: "issue"
@@ -32,13 +39,32 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-0bkq"
+    type: "related"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
+  - kind: "issue"
+    id: "astromech-g80r"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-p8ud"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-p9r4"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-sdg7"
+    type: "related"
+  - kind: "issue"
+    id: "astromech-u8ir"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T20:21:14.778717019+00:00"
+status: "done"
 title: "Reaction engine with prospector and scan callouts"
-updated_at: "2026-10-16T18:26:24.161862282+00:00"
+updated_at: "2026-10-16T20:30:56.255927229+00:00"
 ---
 
 ## Goal
@@ -56,3 +82,12 @@ Only what the HUD doesn't show, or shows somewhere easy to miss mid-action (stra
 ## Design
 
 EDDI and EDCoPilot are the models ([REPORT §8.3](docs/REPORT.md)). Copy register: [V1-DESIGN §6.4](docs/V1-DESIGN.md).
+
+## Notes
+
+- 2026-10-16 [note] Product questions for Sumeet (from the reaction-engine review): (1) The tray's Pause voice ignores push-to-talk, but callouts still speak while paused. Is that intended, or should pause silence callouts too? (2) When a callout's speech is dropped during quiet (docking, combat) but its toast still fires, the rule's cooldown starts anyway, so the line won't be spoken right after quiet ends. Is that intended, or should only a spoken callout start the cooldown?
+- 2026-10-16 [note] Product question for Sumeet (review of the callout slices): (3) The notification rate limit keeps the first notification in each 15 s window, whatever its priority; a more important one right after it is logged and dropped. Is that intended, or should a higher priority get through (as the speech cooldown now allows)?
+
+## Close Reason
+
+Per-rule journal replay tests (spoken text, cooldown, quiet while replaying) and the word-budget test over all callout copy pass; all six children done. Independent review of the work after round 3 (0bkq, omi1, 0zcu, wq3f) is outstanding; the game check astromech-6920 runs after the merge.

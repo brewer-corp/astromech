@@ -662,7 +662,7 @@ same voice by name, or to the default.
 
 **Copy.** Official, short, no contractions, no jokes, little "I" in callouts. Prefer
 "Landing gear deployed." / "already deployed." Refusals stay one clause:
-"Landing gear not available: supercruise." The gear-down slice's strings get a pass in M3.
+"Landing gear not available: supercruise." The full guide is §6.5.
 
 **Rejected for v1 default**
 
@@ -672,6 +672,36 @@ same voice by name, or to the default.
 | Piper, SAM, DECtalk, SAPI | Extra models or novelty synths. SAM is the droid trap. |
 | A second neural TTS | Timbre is a treatment problem. |
 | Voice-clone of Verity / Victor | Frontier and actor IP. |
+
+### 6.5 Callout copy guide
+
+Everything astromech says sits beside COVAS, so it uses COVAS's register: a ship system
+reporting, not a crewmate chatting.
+
+- **Official.** Report the fact: "Cargo scan. Stolen goods aboard." Not "Heads up, someone's
+  scanning you!"
+- **Short.** Say the thing, then stop. Word budgets, counted as spoken (after the reading rules,
+  so "34%" is two words):
+  - unprompted callouts (the reaction engine): **8 words**;
+  - replies to a command (confirmations, failures, "already", refusals, the confirm prompt):
+    **10 words**;
+  - answers to a status question: **16 words**.
+- **Present tense, full sentences.** Each line ends with a full stop or a question mark.
+- **No contractions.** "did not respond", "is not". Radio words are fine: "Say again."
+- **No jokes, little "I".** The ship reports; it doesn't have opinions. "Nothing pressed.", not
+  "I didn't press anything."
+- **Only what the HUD doesn't show prominently** (AGENTS.md). Names the game prints large stay
+  unspoken.
+- **Names are written as the game writes them;** the reading rules (`astromech_voice::speakable`)
+  fix how they sound. Skip what repeats: a body in the current system is "Body A 1", not the full
+  system name again; after "Motherlode. Void Opals." the same ore isn't read again.
+- **Help lines** (setup problems: a missing binding, Windows blocking key presses) may run longer
+  and say what to do; they are rare and the commander needs the instruction.
+
+`crates/astromech-core/tests/copy.rs` checks the budgets, contractions, "I" and the full stop
+over every callout rule's lines (including the longest combinations), every fixed phrase, and
+every reply and status answer the commands produce across a set of game states. A new rule's
+lines go in that test.
 
 **Where it ships.** DSP, mixer barge-in and the copy pass are in the first M3 increment
 (`astromech_voice::colour` / `mixer`; `[voice] colour`). The Settings row is **M4**.
@@ -876,6 +906,15 @@ Total about **11 weeks**.
   background, but replies always render first and warm-ups for voices no longer chosen are skipped.
 - **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
   (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
+### 7.15 As built: reaction engine (16 Oct 2026)
+- `astromech-announce`: rules see each journal line and each changed Status.json and may return a callout (text, priority, speech / app toast / Windows notification). Rules that ship:
+  - **Prospector** (`prospector`): on `ProspectedAsteroid`, a rock with a high-value ore at or above its threshold gets "Platinum 34%." (at most two ores, most valuable first; one after a motherlode, and not the motherlode's own ore); a motherlode always gets "Motherlode. Void Opals."; a depleted rock (`Remaining` 0) gets only its motherlode line; anything else is silent. Default thresholds: platinum 20%, painite, Low Temperature Diamonds and osmium 25%, palladium, bromellite and tritium 30%. Thresholds are edited per ore in Settings → Prospector callouts and stored in the database (`callouts.prospector.thresholds`), since the window can't write the config file yet. No cooldown by default (each limpet reports a different rock). The refined count and tons per hour of the current mining run are computed (`astromech_gamestate::mining`) but not shown yet.
+  - **Being scanned** (`scan`): on `Scanned`, "Cargo scan.", "Crime scan.", "Cabin scan.", "Data scan." (other types: "Scan."). A cargo scan with stolen goods aboard (`Stolen` in `Cargo.json`) adds "Stolen goods aboard." and is urgent, so it speaks during docking and combat; other scans are shown, not spoken, then. 30 s cooldown, which a higher-priority line still gets through (a shown-only crime scan on approach doesn't swallow the stolen-goods line). The scanning ship isn't named, and goods prohibited in the system aren't checked (no local data source).
+- **Silent replay:** the startup catch-up (the current journal from the top, then the first Status.json read) fires nothing and starts no cooldowns. Every line read after it is live, including a journal file the game starts later.
+- **Toggle and cooldown** per rule in `astromech.toml`: `[callouts.<id>] enabled = false`, `cooldown_s = 30`. Unknown ids and unusable cooldowns (negative, too large) are logged and the default kept. No Settings page for them yet.
+- **Quiet:** during docking (after `DockingGranted` until docked, cancelled, denied, timed out or gone) and combat (Status.json in danger or being interdicted, or `UnderAttack` in the last 30 s) only `Urgent` callouts speak; toasts and notifications still go.
+- **Speech queue:** one callout at a time, after the current line finishes; highest priority first; lines older than 10 s are dropped. "Finishes" also covers the no-output-device fallback (PlaySoundW, timed from the line's length); if the text-to-speech thread dies, that is logged once and lines are printed. Callouts also wait while push-to-talk is held and until the reply (or the voice tester's result) is out, up to 60 s. A voice reply still cuts in.
+- Toasts reach the window through the core's `status` reply (`toasts`) and show for 8 s. Windows notifications go through PowerShell's WinRT toast on their own thread, at most one per 15 s (the rest are logged); a PowerShell failure is logged with its first error line (⚠ not yet run on Windows). The VR overlay has no toasts yet.
 
 ## 9. Decided (11 Oct 2026)
 Settled with Sumeet before implementation started:

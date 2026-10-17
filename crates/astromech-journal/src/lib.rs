@@ -974,10 +974,10 @@ mod tests {
     #[test]
     fn cargo_and_route_files() {
         let c = parse_cargo(
-            br#"{ "event":"Cargo", "Count":5, "Inventory":[{"Name":"gold","Name_Localised":"Gold","Count":3},{"Name":"painite","Count":2}] }"#,
+            br#"{ "event":"Cargo", "Count":5, "Inventory":[{"Name":"gold","Name_Localised":"Gold","Count":3,"Stolen":1},{"Name":"painite","Count":2,"Stolen":0}] }"#,
         )
         .unwrap();
-        assert_eq!(c.count, 5);
+        assert_eq!((c.count, c.inventory[0].stolen), (5, 1));
         assert_eq!(c.items[0], ("Gold".into(), 3));
         assert_eq!(
             c.inventory[1],

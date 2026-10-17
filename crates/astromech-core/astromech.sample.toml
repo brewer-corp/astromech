@@ -40,6 +40,12 @@ hold_ms = 50                  # S5: 50 ms holds were reliable
 verify_timeout_ms = 2000      # wait this long for Status.json to confirm
 dry_run = false               # true: log key presses, don't send them
 
+# Callouts (spoken lines, app toasts, notifications). Each one is on by default; turn one off or
+# change how long it stays silent after it speaks:
+# [callouts.<id>]
+# enabled = false
+# cooldown_s = 30
+
 [update]
 check = true                  # poll GitHub for a signed payload (including mid-session)
 apply = "ask"                 # ask | on_quit | never. on_quit = when astromech quits
