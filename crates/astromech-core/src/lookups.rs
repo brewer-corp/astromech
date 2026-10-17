@@ -52,6 +52,32 @@ pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState,
     lookup::spoken(want, system, &found, now_s)
 }
 
+/// Said when the journal has not given the commander's position yet.
+pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
+/// Said when the galaxy store could not be opened.
+pub const NO_STAR_MAP: &str = "Faction lookups are not available: the star map could not be opened.";
+
+/// The spoken answer to a faction-state lookup (`q`, from `astromech_galaxy::QUERIES`) near
+/// the commander: the app's Nearby search (`Galaxy::nearby`) from the journal's position, with
+/// jumps at the ship's range (20 ly when unknown).
+pub fn faction_answer(
+    galaxy: &astromech_galaxy::Galaxy,
+    filters: &Filters,
+    q: &astromech_galaxy::Query,
+    game: &GameState,
+    now_s: i64,
+) -> String {
+    let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
+        return NO_POSITION.into();
+    };
+    let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
+    let here = astromech_galaxy::Here { system, id64: None, pos };
+    match galaxy.nearby(q.id, &here, range, 1, filters) {
+        Ok(n) => astromech_tools::faction::spoken(&n, now_s),
+        Err(e) => format!("Could not look that up. {e}"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -216,6 +242,51 @@ mod tests {
                 (command, Some(slot), Decision::Execute),
                 "{phrase:?}"
             );
+        }
+    }
+
+    #[test]
+    fn faction_state_phrases_resolve_to_the_galaxy_lookups() {
+        let g = grammar(&["Sol"]);
+        for (phrase, id) in [
+            ("Nearest famine system.", "famine"),
+            ("nearest famine", "famine"),
+            ("Where is there a famine near me?", "famine"),
+            ("find a famine system", "famine"),
+            ("nearest boom system", "proto"),
+            ("Where is there a boom near me?", "proto"),
+            ("nearest boom", "proto"),
+            ("nearest war system", "military"),
+            ("where is there a war near me", "military"),
+            ("nearest civil war", "military"),
+            ("nearest civil unrest system", "improvised"),
+            ("where is there civil unrest near me", "improvised"),
+            ("nearest outbreak system", "pharma"),
+            ("where is there an outbreak near me", "pharma"),
+            ("nearest federation system", "fed_composites"),
+            ("nearest federal system", "fed_composites"),
+            ("nearest empire system", "empire_shielding"),
+            ("nearest imperial system", "empire_shielding"),
+        ] {
+            let m = g.best(phrase);
+            let q = astromech_tools::faction::from_command(m.command).map(|q| q.id);
+            assert_eq!((q, m.decision), (Some(id), Decision::Execute), "{phrase:?} -> {m:?}");
+        }
+        // every lookup the app offers has phrases, under the key its filters are remembered by
+        for q in astromech_galaxy::QUERIES {
+            let command = Grammar::intern(&format!("faction.{}", q.id)).expect("no phrases");
+            assert_eq!(astromech_tools::faction::from_command(command), Some(q));
+            assert_eq!(astromech_tools::faction::lookup(q), command);
+        }
+        // the neighbours keep theirs
+        for (t, c) in [
+            ("nearest raw farm", "sites.raw_farms"),
+            ("nearest refuel", "find.service"),
+            ("nearest crashed ship", "sites.crashed_ships"),
+            ("nearest Anaconda", "find.ship"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
     }
 

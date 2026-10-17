@@ -141,6 +141,31 @@ impl Assistant {
         Handled::Lookup { command, want }
     }
 
+    /// Look up the faction-state systems for `q` near the commander, with the app's remembered
+    /// filters for that lookup, and say the answer when it arrives (off this thread).
+    fn faction_lookup(&self, command: &'static str, q: &'static astromech_galaxy::Query) -> Outcome {
+        let game = self.runner.hub.snapshot();
+        let Some(galaxy) = self.runner.galaxy.clone() else {
+            self.say(crate::lookups::NO_STAR_MAP);
+            return Outcome::Spoken(crate::lookups::NO_STAR_MAP.into());
+        };
+        if game.system.is_none() || game.star_pos.is_none() {
+            self.say(crate::lookups::NO_POSITION);
+            return Outcome::Spoken(crate::lookups::NO_POSITION.into());
+        }
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), command, &game)
+        };
+        self.say("Looking that up.");
+        let (speaker, now) = (self.runner.speaker.clone(), self.clock.now_s());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::lookups::faction_answer(&galaxy, &filters, q, &game, now);
+            speaker.say(&m);
+            m
+        }))
+    }
+
     fn dispatch(
         &self,
         command: &'static str,
@@ -156,6 +181,9 @@ impl Assistant {
                     Handled::NotUnderstood
                 }
             };
+        }
+        if let Some(q) = astromech_tools::faction::from_command(command) {
+            return Handled::Ran { command, outcome: self.faction_lookup(command, q) };
         }
         if astromech_tools::session::is_summary(command) {
             let game = self.runner.hub.snapshot();

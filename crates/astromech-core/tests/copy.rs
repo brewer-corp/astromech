@@ -537,3 +537,50 @@ fn the_cargo_answer_limits_its_partial_buyer_sentences() {
     assert!(partial.iter().any(|s| s.starts_with("Gold") && s.contains("Carvalho Engineering Foundry")), "{said}");
     assert_eq!(said.matches("Good Landing Orbital Starport").count(), 1, "the station is not repeated: {said}");
 }
+
+/// The faction-state lookups by voice ("nearest famine system"): every lookup's answer, on a
+/// long procedural name far away, with each kind of data age, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_faction_lookup_answers_keep_to_the_copy_guide() {
+    use astromech_galaxy::{Here, Hop, Nearby, NearbyHit};
+    let now = 1_792_152_000; // 2026-10-16T12:00:00Z
+    let here = Here { system: "Synuefe BY-F d12-39".into(), id64: None, pos: [0.0; 3] };
+    let mut lines =
+        vec![astromech_core::lookups::NO_POSITION.to_string(), astromech_core::lookups::NO_STAR_MAP.to_string()];
+    for q in astromech_galaxy::QUERIES {
+        let nearby = |hits| Nearby {
+            query: q.clone(),
+            here: here.clone(),
+            range: 20.0,
+            fetched: String::new(),
+            hits,
+            warning: None,
+        };
+        lines.push(astromech_tools::faction::spoken(&nearby(vec![]), now));
+        for (ly, exact) in [(0.0, true), (4.0, true), (1999.6, false)] {
+            for population in [0, 9_000_000_000] {
+                for (updated_at, seen_on_visit) in
+                    [("2026-10-16T11:00:00Z", false), ("2026-10-15T11:00:00Z", true), ("2024-01-01T00:00:00Z", false)]
+                {
+                    let hit = NearbyHit {
+                        name: "Synuefe BY-F d12-39".into(),
+                        id64: 1,
+                        hop: Hop { ly, jumps: 99, exact },
+                        population,
+                        updated_at: Some(updated_at.into()),
+                        factions: vec![],
+                        seen_on_visit,
+                        score: None,
+                    };
+                    let said = astromech_tools::faction::spoken(&nearby(vec![hit]), now);
+                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                }
+            }
+        }
+    }
+    assert!(lines.iter().any(|l| l == "Seen on your visit yesterday."), "{lines:?}");
+    assert!(lines.iter().any(|l| l == "Over a billion people."), "{lines:?}");
+    let bad = check("faction answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}

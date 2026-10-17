@@ -11,6 +11,7 @@ use astromech_gamestate::GameState;
 use astromech_proto::Tier;
 use astromech_status as st;
 
+pub mod faction;
 pub mod session;
 pub mod trade;
 
