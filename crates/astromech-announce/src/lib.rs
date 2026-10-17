@@ -21,7 +21,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`] and [`hge`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -109,6 +109,14 @@ pub trait Rule: Send {
     fn id(&self) -> &'static str;
     /// Cooldown unless the settings give one.
     fn cooldown(&self) -> Duration;
+    /// Whether the rule runs unless the settings say otherwise. Most do; a rule that is off
+    /// until the commander asks for it returns false.
+    fn default_enabled(&self) -> bool {
+        true
+    }
+    /// Told once by the engine whether the rule is enabled (settings applied), for rules that
+    /// others adjust to.
+    fn configured(&self, _enabled: bool) {}
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
@@ -126,6 +134,7 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod powerplay_arrival;
 pub mod prospector;
 pub mod route;
 pub mod scan;
@@ -137,6 +146,9 @@ pub struct Shared {
     pub prospector: prospector::SharedThresholds,
     /// What the Engineering plans still have to collect (the app sends it).
     pub shopping: arrival::SharedShoppingList,
+    /// Whether the `powerplay_arrival` rule is on (the engine sets it), so `arrival` leaves out
+    /// the Powerplay line it would repeat.
+    pub powerplay_spoken: powerplay_arrival::SharedFlag,
 }
 
 /// The rules that ship.
@@ -144,7 +156,11 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
         Box::new(prospector::Prospector { thresholds: shared.prospector }),
         Box::new(scan::Scan),
-        Box::new(arrival::Arrival { shopping: shared.shopping.clone() }),
+        Box::new(arrival::Arrival {
+            shopping: shared.shopping.clone(),
+            powerplay_spoken: shared.powerplay_spoken.clone(),
+        }),
+        Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
@@ -239,7 +255,9 @@ impl Engine {
                         d
                     }
                 };
-                Slot { enabled: s.enabled.unwrap_or(true), cooldown, fired: None, said: vec![], rule }
+                let enabled = s.enabled.unwrap_or_else(|| rule.default_enabled());
+                rule.configured(enabled);
+                Slot { enabled, cooldown, fired: None, said: vec![], rule }
             })
             .collect();
         for id in settings.0.keys().filter(|id| !slots.iter().any(|s| s.rule.id() == id.as_str())) {

@@ -153,6 +153,7 @@ impl Session {
             Ok(st) => astromech_announce::Shared {
                 prospector: Arc::new(RwLock::new(callouts::load_thresholds(&st))),
                 shopping: Arc::new(RwLock::new(callouts::load_shopping(&st))),
+                ..Default::default()
             },
             Err(_) => astromech_announce::Shared::default(),
         };
