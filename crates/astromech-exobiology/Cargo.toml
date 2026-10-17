@@ -13,5 +13,6 @@ workspace = true
 
 [dependencies]
 astromech-journal.workspace = true
+astromech-status.workspace = true
 serde.workspace = true
 serde_json.workspace = true

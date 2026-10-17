@@ -382,6 +382,7 @@ impl GameState {
         if s.balance.is_some() {
             self.credits = s.balance;
         }
+        self.exobiology.apply_status(s);
     }
 
     pub fn apply_cargo(&mut self, c: &CargoSnap) {

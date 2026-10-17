@@ -248,7 +248,9 @@ astromech/
                          genus and species catalogue (value, colony range, growing conditions;
                          data/catalog/exobiology.json from the wiki and EDMC-ExplorerLite) and the
                          species prediction from a detailed scan; the current system's biology
-                         (FSS counts, DSS genus lists, samples), folded into GameState
+                         (FSS counts, DSS genus lists, samples), folded into GameState; the
+                         sampling tracker (samples 1-3 of the species in progress, where each was
+                         taken from Status.json's position, clearance against the colony range)
     astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
                          cycle, next rank and reward), the system's state on arrival and its spoken
                          line, what earns merits there (per acquire / conflict / reinforce / undermine

@@ -9,9 +9,12 @@
 //! - [`predict`]: which species could grow on a body, from its detailed scan.
 //! - [`system`]: the current system's biology from the journal (FSS counts, DSS genus lists,
 //!   scans, samples), each body's genera with their likely species and value.
+//! - [`sampling`]: the species being sampled, where its samples were taken, and whether the
+//!   commander is now far enough from them for the next one.
 
 pub mod catalog;
 pub mod predict;
+pub mod sampling;
 pub mod surface;
 pub mod system;
 
@@ -23,10 +26,17 @@ use serde::Serialize;
 pub struct Exobiology {
     /// The current system's biology.
     pub system: system::SystemBio,
+    /// The species being sampled and where.
+    pub sampling: sampling::Sampling,
 }
 
 impl Exobiology {
     pub fn apply(&mut self, ev: &JournalEvent) {
         self.system.apply(ev);
+        self.sampling.apply(ev);
+    }
+
+    pub fn apply_status(&mut self, s: &astromech_status::StatusSnap) {
+        self.sampling.apply_status(s);
     }
 }

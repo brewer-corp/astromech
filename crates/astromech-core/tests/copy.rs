@@ -3,7 +3,8 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, scan, signals,
+    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, sampling,
+    scan, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -38,6 +39,7 @@ fn callout_lines() -> Vec<String> {
             "project_market",
             "prospector",
             "route",
+            "sampling",
             "scan",
             "scoopable",
             "signals"
@@ -90,6 +92,9 @@ fn callout_lines() -> Vec<String> {
     }
     for n in [1, 2, 99] {
         v.push(project_market::line(n));
+    }
+    for next in [2, 3] {
+        v.push(sampling::line(next));
     }
     v.push(hge::line(None, &[]));
     for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {
