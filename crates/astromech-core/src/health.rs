@@ -228,7 +228,7 @@ pub fn elite_ui_name(action: &str) -> &str {
         "FocusCommsPanel" => "Comms Panel",
         "FocusRadarPanel" => "Role Panel",
         "SetSpeedZero" => "Throttle to Zero",
-        "Handbrake" => "Handbrake",
+        "AutoBreakBuggyButton" => "Handbrake",
         "ToggleDriveAssist" => "Drive Assist",
         a => a,
     }

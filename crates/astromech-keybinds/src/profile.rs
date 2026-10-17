@@ -529,6 +529,32 @@ pub(crate) mod tests {
     }
 
     #[test]
+    fn no_keyboard_rule_covers_every_voice_action() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Keys.4.2.binds");
+        std::fs::write(
+            &p,
+            r#"<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
+	<GalaxyMapOpen>
+		<Primary Device="231D3201" Key="Joy_5" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen>
+	<AutoBreakBuggyButton>
+		<Primary Device="231D3201" Key="Joy_6" />
+		<Secondary Device="Keyboard" Key="Key_B" />
+	</AutoBreakBuggyButton>
+</Root>"#,
+        )
+        .unwrap();
+        let v = view(&p, true, None).unwrap();
+        let flagged = |id: &str| row(&v, id).issues.iter().any(|i| i.code == "no_keyboard");
+        for id in catalog::VOICE_ACTIONS {
+            assert_eq!(flagged(id), *id != "AutoBreakBuggyButton", "{id}");
+        }
+    }
+
+    #[test]
     fn device_and_pid_warnings() {
         let d = tempfile::tempdir().unwrap();
         std::fs::write(d.path().join("DualVKB.4.2.binds"), X).unwrap();

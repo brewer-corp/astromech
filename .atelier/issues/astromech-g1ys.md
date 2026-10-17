@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-g1ys
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Health check misses seven actions that voice presses"
-updated_at: "2026-10-17T17:41:20.312230602+00:00"
+updated_at: "2026-10-17T18:34:31.590385612+00:00"
 ---
 
 ## Goal

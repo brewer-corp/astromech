@@ -57,9 +57,9 @@ A marker appears on the row, with the reason in the about panel:
 
 - **No keyboard key** (an error). astromech presses keys only, so each action it uses by voice
   needs a keyboard key: landing gear, lights, hardpoints, cargo scoop, night vision, flight
-  assist, silent running, HUD mode, left and right panels, throttle to zero. Put a key in the empty slot. The
-  health check does not yet look at the galaxy map, system map, back, comms and role panel,
-  handbrake and drive assist, which voice also uses; the voice reply tells you when one is missing.
+  assist, silent running, HUD mode, the galaxy map, system map, back, the left, right, comms and
+  role panels, throttle to zero, and in the SRV the handbrake and drive assist. Put a key in the
+  empty slot.
 - **Joy number above 32** (an error). Elite reads only buttons 1 to 32 on each device. Anything
   higher is ignored.
 - **Device not connected** (a warning).
