@@ -90,10 +90,16 @@ impl Paths {
     /// it) to `data_dir`, once: copies `name` only if the app dir has it and `data_dir` doesn't.
     /// Never overwrites or deletes either file. Returns whether it copied.
     pub fn carry_over(&self, name: &str, data_dir: &Path) -> std::io::Result<bool> {
-        self.carry_over_with(name, data_dir, |src, dst| std::io::copy(src, dst).map(|_| ()))
+        self.carry_over_with(
+            name,
+            data_dir,
+            |src, dst| std::io::copy(src, dst).map(|_| ()),
+            |a, b| std::fs::hard_link(a, b),
+        )
     }
 
-    /// `carry_over` with the copy step injectable, so a test can fail it partway. The copy goes to
+    /// `carry_over` with the copy and link steps injectable, so a test can fail the copy partway
+    /// or the link as a filesystem without hard links (FAT32, exFAT) does. The copy goes to
     /// a temp file in `data_dir`, which is hard-linked to the final name (that fails if the name
     /// exists, on every platform, so a file that appears meanwhile is never overwritten) and then
     /// removed; a failed copy leaves nothing at the final name and the next call retries.
@@ -102,6 +108,7 @@ impl Paths {
         name: &str,
         data_dir: &Path,
         copy: impl FnOnce(&mut std::fs::File, &mut std::fs::File) -> std::io::Result<()>,
+        link: impl FnOnce(&Path, &Path) -> std::io::Result<()>,
     ) -> std::io::Result<bool> {
         let (from, to) = (self.app_dir.join(name), data_dir.join(name));
         if from == to || !from.is_file() || to.exists() {
@@ -116,13 +123,32 @@ impl Paths {
             copy(&mut src, &mut dst)?;
             dst.sync_all()
         })();
-        let linked = staged.and_then(|()| match std::fs::hard_link(&tmp, &to) {
+        let linked = staged.and_then(|()| match link(&tmp, &to) {
             Ok(()) => Ok(true),
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
-            Err(e) => Err(e),
+            // No hard links here: copy the staged bytes to a target that must not exist yet.
+            Err(_) => Self::copy_new(&tmp, &to),
         });
         let _ = std::fs::remove_file(&tmp);
         linked
+    }
+
+    /// Copies `from` to `to` only if `to` does not exist (`Ok(false)` if it does). A copy that
+    /// fails partway removes the `to` it made, so no truncated file is left.
+    fn copy_new(from: &Path, to: &Path) -> std::io::Result<bool> {
+        let mut dst = match std::fs::OpenOptions::new().write(true).create_new(true).open(to) {
+            Ok(f) => f,
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => return Ok(false),
+            Err(e) => return Err(e),
+        };
+        let done = std::fs::File::open(from)
+            .and_then(|mut src| std::io::copy(&mut src, &mut dst))
+            .and_then(|_| dst.sync_all());
+        if let Err(e) = done {
+            let _ = std::fs::remove_file(to);
+            return Err(e);
+        }
+        Ok(true)
     }
 
     /// The game's journal folder: the config's `game.journal_dir` if set, else
@@ -266,10 +292,15 @@ mod tests {
         let dir = data.path().to_path_buf();
         let new = dir.join("device-overrides.json");
 
-        let failed = p.carry_over_with("device-overrides.json", &dir, |_, dst| {
-            dst.write_all(b"mi")?;
-            Err(std::io::Error::other("disk full"))
-        });
+        let failed = p.carry_over_with(
+            "device-overrides.json",
+            &dir,
+            |_, dst| {
+                dst.write_all(b"mi")?;
+                Err(std::io::Error::other("disk full"))
+            },
+            |a, b| std::fs::hard_link(a, b),
+        );
         assert!(failed.is_err());
         assert!(!new.exists(), "no truncated file at the target");
         assert_eq!(std::fs::read_to_string(p.app_dir().join("device-overrides.json")).unwrap(), "mine");
@@ -278,5 +309,35 @@ mod tests {
         assert_eq!(std::fs::read_to_string(&new).unwrap(), "mine");
         let left: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name()).collect();
         assert_eq!(left.len(), 1, "no temp file left behind: {left:?}");
+    }
+
+    /// Where hard links aren't supported (FAT32, exFAT) the overrides still arrive, and a file
+    /// that appears meanwhile is still never overwritten.
+    #[test]
+    fn a_carry_over_without_hard_links_still_arrives_and_never_overwrites() {
+        let (app, exe, data) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let home = app.path().to_str().unwrap().to_string();
+        let p = Paths::new(exe.path().into(), env(&[("LOCALAPPDATA", &home)]));
+        std::fs::create_dir_all(p.app_dir()).unwrap();
+        std::fs::write(p.app_dir().join("device-overrides.json"), "mine").unwrap();
+        let dir = data.path().to_path_buf();
+        let new = dir.join("device-overrides.json");
+        let copy = |src: &mut std::fs::File, dst: &mut std::fs::File| std::io::copy(src, dst).map(|_| ());
+        let no_links = |_: &Path, _: &Path| Err(std::io::Error::from(std::io::ErrorKind::Unsupported));
+
+        assert!(p.carry_over_with("device-overrides.json", &dir, copy, no_links).unwrap());
+        assert_eq!(std::fs::read_to_string(&new).unwrap(), "mine");
+        let left: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name()).collect();
+        assert_eq!(left.len(), 1, "no temp file left behind: {left:?}");
+
+        // The user's file appears while the link step fails: it stays as it is.
+        std::fs::remove_file(&new).unwrap();
+        let racing = |_: &Path, to: &Path| {
+            std::fs::write(to, "theirs").unwrap();
+            Err(std::io::Error::from(std::io::ErrorKind::Unsupported))
+        };
+        assert!(!p.carry_over_with("device-overrides.json", &dir, copy, racing).unwrap());
+        assert_eq!(std::fs::read_to_string(&new).unwrap(), "theirs");
     }
 }
