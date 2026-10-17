@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Health check misses seven actions that voice presses"
-updated_at: "2026-10-17T18:34:31.590385612+00:00"
+updated_at: "2026-10-17T18:43:20.988086287+00:00"
 ---
 
 ## Goal
