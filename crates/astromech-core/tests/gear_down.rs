@@ -551,6 +551,13 @@ fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
     desk.set(Route::new("t", "import", ["Deciat", "Kuk", "Colonia"].map(Waypoint::new).to_vec())).unwrap();
     assert_eq!(*copied.lock().unwrap(), ["Deciat"]);
 
+    // One that appears with its lines already in it (written elsewhere, then moved in).
+    let tmp = r.dir.path().join("restore.tmp");
+    std::fs::write(&tmp, jump_line("Kuk")).unwrap();
+    std::fs::rename(&tmp, r.dir.path().join("Journal.2026-10-13T080000.01.log")).unwrap();
+    mock::write_status(&r.dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
+    wait(|| r.hub.snapshot().system.as_deref() == Some("Kuk"));
+    // One we follow while it is still empty.
     append(&r, OLDER, &[]);
     wait(|| r.hub.snapshot().journal_file.as_deref() == Some(OLDER));
     append(&r, OLDER, &["Kuk", "Wolf 359"]);

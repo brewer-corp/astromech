@@ -297,11 +297,9 @@ impl Tailer {
         let n = replayed.len() + live.len();
         self.opened.insert(path.clone(), None);
         // The game writes only its latest journal by name. Any other one (a backup or sync tool
-        // restored or touched it) is never live, including what lands in it after we open it: a
-        // tool may create the file and then write it, and we can follow it in between.
-        let latest =
-            astromech_journal::journal_logs(&self.dir).last().and_then(|l| l.file_name().map(|n| n.to_owned()));
-        let games = latest.as_deref() == path.file_name();
+        // restored, touched or copied it) is never live, including what lands in it after we
+        // open it: a tool may create the file and then write it, and we can follow it in between.
+        let games = astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
         self.live = !replay && games;
         self.apply_lines(replayed);
         self.live = games;
@@ -1230,6 +1228,32 @@ mod tests {
         touch(&j2, 40);
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// A sync tool's conflict copy (a name that isn't a journal stamp) is never the game's
+    /// journal, so it is never live, and it doesn't stop the game's own journal being live.
+    #[test]
+    fn a_conflict_copy_is_never_live_and_does_not_silence_the_game() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T120000.01.log");
+        let copy = d.path().join("Journal.2026-10-16T120000.01-DESKTOP-ABC.log");
+        std::fs::write(&j, session(&ts(10), "r2 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j.clone(), true);
+
+        std::fs::write(&copy, "").unwrap();
+        touch(&copy, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, copy);
+        append(&copy, &format!("{}{}", session(&ts(5), "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "the copy is not the game's");
+
+        append(&j, &docked(&ts(0)));
+        touch(&j, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j);
+        assert_eq!(eddn_state(&db).0, 1, "the game's journal is live with the copy in the folder");
     }
 
     /// astromech-7uj3: what the game wrote to the current journal while a touched older one was
