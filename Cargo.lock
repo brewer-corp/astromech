@@ -505,6 +505,7 @@ dependencies = [
  "astromech-galaxy",
  "astromech-gamestate",
  "astromech-journal",
+ "astromech-keybinds",
  "astromech-market",
  "astromech-policy",
  "astromech-proto",
