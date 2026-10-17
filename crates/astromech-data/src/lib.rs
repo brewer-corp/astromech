@@ -246,27 +246,27 @@ impl Client {
     /// One rate-limited request, without the cache. 2xx bodies are returned as-is; anything
     /// else becomes an [`Error`].
     pub fn send(&self, service: Service, req: &Request) -> Result<String> {
+        let resp = self.exchange(service, req)?;
+        status_result(service, resp)
+    }
+
+    /// One rate-limited request: any HTTP answer, or the connection failure as an [`Error`].
+    pub(crate) fn exchange(&self, service: Service, req: &Request) -> Result<Response> {
         let wait = self.limiter.lock().unwrap_or_else(|e| e.into_inner()).reserve(service, Instant::now());
         if !wait.is_zero() {
             std::thread::sleep(wait);
         }
         let url = format!("{}{}", self.base(service), req.path);
-        let resp = self.transport.send(&url, req).map_err(|e| match e {
+        self.transport.send(&url, req).map_err(|e| match e {
             TransportError::Offline(detail) => Error::Offline { service, detail },
             TransportError::Timeout => Error::Timeout { service },
-        })?;
-        match resp.status {
-            200..=299 => Ok(resp.body),
-            429 => Err(Error::RateLimited { service }),
-            404 => Err(Error::NotFound {
-                service,
-                message: error_message(&resp.body).unwrap_or_else(|| "no such page".into()),
-            }),
-            400..=499 => Err(Error::Rejected {
-                service,
-                message: error_message(&resp.body).unwrap_or_else(|| format!("HTTP {}", resp.status)),
-            }),
-            status => Err(Error::Unavailable { service, status }),
+        })
+    }
+
+    /// Log a failed schema check of `service`'s answer to `req`.
+    pub(crate) fn log_schema(&self, service: Service, req: &Request, e: &Error) {
+        if let Error::Schema { detail, .. } = e {
+            (self.log)(&format!("{service} answer to {} failed the schema check: {detail}", req.path));
         }
     }
 
@@ -296,11 +296,7 @@ impl Client {
             }
         }
         let body = self.send(service, req)?;
-        let value = parse(&body).inspect_err(|e| {
-            if let Error::Schema { detail, .. } = e {
-                (self.log)(&format!("{service} answer to {} failed the schema check: {detail}", req.path));
-            }
-        })?;
+        let value = parse(&body).inspect_err(|e| self.log_schema(service, req, e))?;
         if let Some(ttl) = ttl {
             if let Err(e) = self.cache().put(&key, now, ttl, &body) {
                 (self.log)(&format!("{service} answer not saved to the remote data cache: {e}"));
@@ -312,6 +308,23 @@ impl Client {
     /// [`Client::fetch_with`] using [`parse_json`].
     pub fn fetch<T: DeserializeOwned>(&self, service: Service, req: &Request, ttl: Option<i64>) -> Result<Fetched<T>> {
         self.fetch_with(service, req, ttl, |b| parse_json(service, b))
+    }
+}
+
+/// A 2xx body as-is; any other status as an [`Error`].
+pub(crate) fn status_result(service: Service, resp: Response) -> Result<String> {
+    match resp.status {
+        200..=299 => Ok(resp.body),
+        429 => Err(Error::RateLimited { service }),
+        404 => Err(Error::NotFound {
+            service,
+            message: error_message(&resp.body).unwrap_or_else(|| "no such page".into()),
+        }),
+        400..=499 => Err(Error::Rejected {
+            service,
+            message: error_message(&resp.body).unwrap_or_else(|| format!("HTTP {}", resp.status)),
+        }),
+        status => Err(Error::Unavailable { service, status }),
     }
 }
 
@@ -332,6 +345,6 @@ fn error_object(v: &serde_json::Value) -> Option<String> {
     Some(o.get("message").and_then(|m| m.as_str()).unwrap_or(e).to_string())
 }
 
-fn error_message(body: &str) -> Option<String> {
+pub(crate) fn error_message(body: &str) -> Option<String> {
     error_object(&serde_json::from_str(body).ok()?)
 }

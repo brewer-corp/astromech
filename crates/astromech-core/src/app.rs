@@ -1328,6 +1328,111 @@ mod tests {
         assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
     }
 
+    /// Spansh's answers, recorded (astromech-data's fixtures): the submit, then the polls in turn.
+    struct RecordedJob(Mutex<Vec<(u16, &'static str)>>);
+
+    impl astromech_data::Transport for RecordedJob {
+        fn send(
+            &self,
+            _url: &str,
+            _req: &astromech_data::Request,
+        ) -> Result<astromech_data::Response, astromech_data::TransportError> {
+            let (status, body) = self.0.lock().unwrap().remove(0);
+            Ok(astromech_data::Response { status, body: body.into() })
+        }
+    }
+
+    /// A neutron and an exact route plotted from recorded Spansh jobs go to the follower as the
+    /// app window sends them (`route_set` with the plotted route): the commander, in Sol, gets
+    /// the first stop after it on the clipboard, jumping into it moves the route on, and "next
+    /// waypoint" says what to do there.
+    #[test]
+    fn plotted_routes_load_into_the_follower() {
+        use astromech_galaxy::plot::{plot, Ask, Plotter, Ship};
+        macro_rules! fixture {
+            ($name:literal) => {
+                include_str!(concat!("../../astromech-data/tests/fixtures/", $name))
+            };
+        }
+        let fsd = astromech_ship::Fsd {
+            optimal_mass: 1470.0,
+            max_fuel_per_jump: 5.0,
+            fuel_multiplier: 0.012,
+            fuel_power: 2.45,
+            base_mass: 400.63,
+            tank_size: 32.0,
+            reserve_size: 0.63,
+            range_boost: 0.0,
+        };
+        let ship = Ship { name: "Asp".into(), range: fsd.range(0.0), fsd, cargo: 0.0, unresolved: vec![] };
+        let no_wait = astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
+        let plotted = |plotter: Plotter, to: &str, answers: Vec<(u16, &'static str)>| {
+            let client = astromech_data::Client::with_transport(
+                astromech_data::Cache::in_memory().unwrap(),
+                Arc::new(RecordedJob(Mutex::new(answers))),
+            )
+            .limiter(astromech_data::Limiter::none());
+            let ask = Ask { plotter, from: "Sol".into(), to: to.into(), efficiency: 60, refuel_every_scoopable: true };
+            serde_json::to_value(plot(&client, &ask, &ship, no_wait).unwrap()).unwrap()
+        };
+
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        let set = |args: Value| {
+            core.handle(&Request {
+                token: String::new(),
+                cmd: "route_set".into(),
+                route: None,
+                text: None,
+                args: Some(args),
+            })
+        };
+        core.route.set_here("Sol");
+
+        let neutron = plotted(
+            Plotter::Neutron,
+            "Colonia",
+            vec![
+                (202, fixture!("spansh-route-queued.json")),
+                (202, fixture!("spansh-route-pending.json")),
+                (200, fixture!("spansh-route-result.json")),
+            ],
+        );
+        let v = set(neutron);
+        assert_eq!(v["view"]["route"]["name"], "Sol to Colonia", "{v}");
+        assert_eq!(v["view"]["route"]["source"], "neutron plotter");
+        assert_eq!(v["view"]["next"], json!({"system": "PSR J1752-2806", "label": "neutron boost"}));
+        assert_eq!(v["view"]["remaining"], 2);
+
+        let exact = plotted(
+            Plotter::Exact,
+            "Maia",
+            vec![
+                (202, fixture!("spansh-exact-submit.json")),
+                (202, fixture!("spansh-exact-pending.json")),
+                (200, fixture!("spansh-exact-result.json")),
+            ],
+        );
+        let v = set(exact);
+        assert_eq!(v["view"]["route"]["source"], "exact plotter", "{v}");
+        assert_eq!(v["view"]["next"], json!({"system": "Tascheter Sector MN-T b3-6", "label": "fuel"}));
+        assert_eq!(v["view"]["remaining"], 9);
+        let moved = core.route.on_system("Tascheter Sector MN-T b3-6").unwrap();
+        assert_eq!(moved.spoken(), "Next waypoint. Tascheter Sector LS-T a3-0.");
+        for s in [
+            "Tascheter Sector LS-T a3-0",
+            "Arietis Sector LD-H a11-1",
+            "Arietis Sector UE-O a7-1",
+            "Arietis Sector EG-V a3-1",
+        ] {
+            core.route.on_system(s);
+        }
+        assert_eq!(
+            crate::route::command_reply(&core.route, crate::route::Command::Next),
+            "Next waypoint. Hyades Sector DB-W b2-6, for fuel. 4 waypoints left."
+        );
+    }
+
     /// First run with no journal folder found: onboarding sets one (`set_folders`) and the
     /// history imports it without a restart (astromech-5t34).
     #[test]

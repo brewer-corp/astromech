@@ -4,6 +4,9 @@ id: "astromech-94j4"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-94j4
 priority: "P1"
 relationships:
   blocks:
@@ -24,9 +27,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-17T17:01:43.865123081+00:00"
+updated_at: "2026-10-17T18:34:44.670942378+00:00"
 ---
 
 ## Goal

@@ -269,8 +269,9 @@ astromech/
                          base stats from data/catalog/ships.json
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
-                         (acquire / reinforce / undermine for the pledged power), position from the journal;
-                         its network calls go through astromech-data
+                         (acquire / reinforce / undermine for the pledged power), position from the journal,
+                         neutron and exact routes for the route follower (Spansh's plotters, the drive
+                         from astromech-ship); its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
                          jumps from astromech-galaxy) or anywhere (Ardent's best 100), the commodity catalogue (data/catalog/commodities.json),
@@ -286,7 +287,7 @@ astromech/
                          with the prospector callouts), and
                          trade routes (single hop from Spansh's trade router; a loop adds the best cargo
                          back from Ardent markets; profit per hour is an estimate, Spansh gives none)
-    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron and trade route jobs),
+    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron, exact and trade route jobs),
                          Ardent Insight (nearby and galaxy-wide commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)

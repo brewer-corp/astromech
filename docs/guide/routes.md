@@ -1,8 +1,43 @@
 # Routes
 
-The **route follower** and the **Spansh route plotters** are being added to astromech and are not
-in this version of the guide yet. This page will cover them when they land: what they do, how to
-use them, what they need and their limits.
+The **route follower** is not in this version of the guide yet. In short: **Galaxy → Route**
+shows the route astromech follows, and its next waypoint is on your clipboard, ready to paste
+into the galaxy map's search box.
+
+## Plot a route with Spansh
+
+On **Galaxy → Route**, **Plot with Spansh** plots a route for the ship you are flying, and
+astromech follows it straight away. If you are in the start system, the first jump is next and
+on your clipboard.
+
+- **Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
+  destination: plot each leg in the galaxy map. **Efficiency** (1 to 100, 60 by default) is how
+  far Spansh may stray from the straight line to use neutron stars.
+- **Exact** has every jump as a waypoint, worked out for your frame shift drive, fuel tank and
+  mass. Waypoints marked **fuel** are where to scoop. **Refuel at every scoopable star** (on by
+  default) tops up whenever it can; turn it off to stop only where the tank needs it.
+
+**From** blank means your current system. **To** is a system name as Spansh knows it. Above the
+button is the jump range used: your ship's range with a full tank and the cargo aboard now,
+worked out from its last loadout in the journal, engineering and a Guardian FSD booster
+included. If some modules are not known, it says the range may be off.
+
+When it is done, the page says how many jumps, how far, and how many neutron boosts and refuel
+stops. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
+b2-6, for fuel."*
+
+It needs:
+
+- internet: Spansh plots the route. It can take a minute. You can leave the page; the route is
+  still followed when it is done. One route is plotted at a time.
+- a ship flown since the journal began, so its loadout is there.
+
+Limits:
+
+- No FSD injections, via systems or fuel reserve. Exact routes always use neutron boosts.
+- Neutron routes do not plan fuel: carry a fuel scoop.
+- A misspelled system gives "Spansh turned the request down" with Spansh's reason, such as
+  "Unable to find route" or "Could not find finishing system".
 
 What exists today:
 

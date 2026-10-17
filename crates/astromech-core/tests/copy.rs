@@ -716,7 +716,7 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
 }
 
 /// The route follower (docs/PLOTTING.md): the arrival callout, the replies to the route
-/// commands and the answer to "next waypoint", on a procedural system name and an engineer, a
+/// commands and the answer to "next waypoint", on a procedural system name, an engineer and a plotter's labels, a
 /// sentence at a time (the name is a sentence of its own).
 #[test]
 fn the_route_lines_keep_to_the_copy_guide() {
@@ -724,7 +724,16 @@ fn the_route_lines_keep_to_the_copy_guide() {
     let w = |system: &str, label: Option<&str>| Waypoint { system: system.into(), label: label.map(Into::into) };
     let mut callouts = vec![];
     let (mut replies, mut answers) = (vec![], vec![]);
-    for next in [w("Deciat", None), w("Synuefe BY-F d12-39", Some("Felicity Farseer")), w("Kuk", Some("Ram Tah"))] {
+    // Plotted routes label their stops (astromech_galaxy::plot): the longest label on a long name.
+    use astromech_galaxy::plot::{FUEL, NEUTRON};
+    let both = format!("{NEUTRON} and {FUEL}");
+    for next in [
+        w("Deciat", None),
+        w("Synuefe BY-F d12-39", Some("Felicity Farseer")),
+        w("Kuk", Some("Ram Tah")),
+        w("Synuefe BY-F d12-39", Some(&both)),
+        w("PSR J1752-2806", Some(NEUTRON)),
+    ] {
         for copied in [true, false] {
             let m = Moved::Arrived { at: w("Sol", None), next: next.clone(), left: 99, copied };
             callouts.push(m.spoken());
@@ -738,6 +747,7 @@ fn the_route_lines_keep_to_the_copy_guide() {
     replies.extend(FIXED_LINES.iter().map(|s| s.to_string()));
     replies.push(unavailable_reason("plot_route").to_string());
     assert!(answers.iter().any(|l| l == "Next waypoint. Kuk, for Ram Tah. 99 waypoints left."), "{answers:?}");
+    assert!(answers.iter().any(|l| l == "Next waypoint. PSR J1752-2806, for neutron boost. 99 waypoints left."));
     let sentences = |v: &[String]| -> Vec<String> {
         v.iter().flat_map(|l| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect()
     };
