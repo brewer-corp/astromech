@@ -3,6 +3,9 @@ created_at: "2026-10-17T07:47:00.196093328+00:00"
 id: "astromech-pb3o"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-pb3o
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "device-overrides carry-over can leave a truncated file"
-updated_at: "2026-10-17T07:47:00.196093328+00:00"
+updated_at: "2026-10-17T08:26:25.341847292+00:00"
 ---
 
 ## Goal
