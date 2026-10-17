@@ -701,13 +701,16 @@ reporting, not a crewmate chatting.
 - **Names are written as the game writes them;** the reading rules (`astromech_voice::speakable`)
   fix how they sound. Skip what repeats: a body in the current system is "Body A 1", not the full
   system name again; after "Motherlode. Void Opals." the same ore isn't read again.
-- **Help lines** (setup problems: a missing binding, Windows blocking key presses) may run longer
-  and say what to do; they are rare and the commander needs the instruction.
+- **Help lines** (setup problems: a missing binding, Windows blocking key presses, a service that
+  cannot be reached) may run longer and say what to do; they are rare and the commander needs the
+  instruction. They keep every other rule: no contractions, no "I", a full stop.
 
 `crates/astromech-core/tests/copy.rs` checks the budgets, contractions, "I" and the full stop
 over every callout rule's lines (including the longest combinations), every fixed phrase, and
-every reply and status answer the commands produce across a set of game states. A new rule's
-lines go in that test.
+every reply and status answer the commands produce across a set of game states, the lookup,
+policy and service failure lines, and the missing-key help lines. A backstop test also reads the
+core's sources and checks every string literal passed to `say(...)`, so a new fixed line cannot
+skip the guide. A new rule's lines go in that test.
 
 **Where it ships.** DSP, mixer barge-in and the copy pass are in the first M3 increment
 (`astromech_voice::colour` / `mixer`; `[voice] colour`). The Settings row is **M4**.

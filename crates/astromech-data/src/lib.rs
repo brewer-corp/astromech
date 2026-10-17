@@ -100,7 +100,7 @@ impl fmt::Display for Service {
 /// Why a lookup failed. `Display` is a sentence for the commander.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("Can't reach {service}. Check your internet connection; if it's working, {service} may be down.")]
+    #[error("Cannot reach {service}. Check your internet connection. If it is working, {service} may be down.")]
     Offline { service: Service, detail: String },
     #[error("{service} took too long to answer. Try again in a minute.")]
     Timeout { service: Service },
@@ -113,7 +113,7 @@ pub enum Error {
     #[error("{service} is having trouble (HTTP {status}). Try again later.")]
     Unavailable { service: Service, status: u16 },
     /// `detail` (what serde said) goes to the log, not into the sentence.
-    #[error("{service} sent an answer astromech doesn't understand. Its format may have changed.")]
+    #[error("{service} sent an answer astromech does not understand. Its format may have changed.")]
     Schema { service: Service, detail: String },
 }
 

@@ -119,14 +119,14 @@ buy. See [Colonisation](colonisation.md). With no project: "No construction proj
 
 ## When a lookup fails
 
-- "Didn't catch what to look for." It heard "nearest" but not the thing.
-- "Which commodity? Say, for example, where can I sell gold."
+- "Did not catch what to look for." It heard "nearest" but not the thing.
+- "Which commodity? Say, for example, where to sell gold."
 - "No market within N light years buys <thing> with your filters." (or "sells", for buying).
 - "Your hold is empty." for the cargo question.
 - "Which commodity? Name one the project needs." for a colonisation purchase.
 - "No <thing> found near <system> with your search filters." Loosen the filters on the page.
-- "Couldn't look that up." followed by the reason, such as no network.
-- "Spansh doesn't know <system> yet, so I can't search from it." for a system too new for Spansh.
+- "Could not look that up." followed by the reason, such as no network.
+- "Spansh does not know this system yet." for a system too new for Spansh.
 
 ## Limits
 

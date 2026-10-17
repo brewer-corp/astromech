@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-yerd
 priority: "P3"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spoken lines that break the copy guide are not covered by copy.rs"
-updated_at: "2026-10-17T17:41:21.191948879+00:00"
+updated_at: "2026-10-17T18:43:28.258030298+00:00"
 ---
 
 ## Goal

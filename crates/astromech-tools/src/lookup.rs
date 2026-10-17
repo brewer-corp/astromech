@@ -10,6 +10,14 @@ use astromech_galaxy::stations::{Found, Service, Want};
 /// position-based voice lookup (stations, sites, factions, Powerplay targets, colonisation) uses.
 pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
 
+/// Said when a lookup has a command but not what to look for ("nearest" without a service).
+pub const NOT_CAUGHT: &str = "Did not catch what to look for.";
+
+/// Said when a lookup fails: the reason (already a sentence) follows.
+pub fn failed(why: &str) -> String {
+    format!("Could not look that up. {why}")
+}
+
 /// Said when the galaxy store could not be opened: the one line every star-map voice lookup uses.
 pub const NO_STAR_MAP: &str = "Lookups are not available: the star map could not be opened.";
 
@@ -232,6 +240,6 @@ mod tests {
         let r = find("black_market", &want, &strict);
         assert_eq!(spoken(&want, "Sol", &r, NOW), "No black market found near Sol with your search filters.");
         // errors are already plain sentences
-        assert_eq!(spoken(&want, "Sol", &Err("Can't reach Spansh.".into()), NOW), "Can't reach Spansh.");
+        assert_eq!(spoken(&want, "Sol", &Err("Cannot reach Spansh.".into()), NOW), "Cannot reach Spansh.");
     }
 }
