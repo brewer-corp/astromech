@@ -12,6 +12,8 @@ control** to find what it does. astromech only listens; nothing is sent to the g
 
 ## My controller
 
+![My controller: the left VKB stick with every binding in the sheet's own boxes](img/my-controller.png)
+
 Opens first. It shows one device as its maker drew it, with every binding in the sheet's own
 boxes.
 
@@ -67,6 +69,8 @@ A marker appears on the row, with the reason in the about panel:
 
 ### The bind dialog
 
+![The bind dialog waiting for a press](img/bind-dialog.png)
+
 **Bind this**, **Set primary**, **Set secondary** and **Bind an axis** all open the same dialog.
 
 1. Press a button, hat direction or key (or move an axis). It shows the control, and warns "Also
@@ -102,6 +106,8 @@ Elite can see, with their buttons, axes and hats.
 
 Use it to find what a button is called, to check that a stick reaches astromech (for
 push-to-talk), or to see whether a button is bound.
+
+The screenshots show astromech's built-in example preset, not a real one.
 
 ## Limits
 

@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "logbook",
   title: "Session",
   summary: "This session: credits by activity and per hour, jumps, distance, bounties, data sold",
+  help: "logbook.md#session",
   order: 10,
   api: ["history"],
   load: () => import("./View.svelte"),

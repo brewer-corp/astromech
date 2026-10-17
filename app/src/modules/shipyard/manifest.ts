@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "galaxy",
   title: "Shipyard",
   summary: "The nearest shipyards selling a ship, where it can land",
+  help: "galaxy.md#shipyard",
   order: 20,
   api: ["stations"],
   load: () => import("./View.svelte"),

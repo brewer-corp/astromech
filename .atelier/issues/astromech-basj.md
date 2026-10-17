@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Link each app page to its guide page"
-updated_at: "2026-10-17T16:54:24.108790358+00:00"
+updated_at: "2026-10-17T17:24:30.816749751+00:00"
 ---
 
 ## Goal

@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "controls",
   title: "All keybinds",
   summary: "Every binding: search, press a control to find it, inline health",
+  help: "controls.md#all-keybinds",
   order: 10,
   api: ["binds"],
   load: () => import("./KeybindsView.svelte"),

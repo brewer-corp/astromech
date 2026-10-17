@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "trade",
   title: "Commodities",
   summary: "Where to sell or buy a commodity near you or anywhere, best price first (Ardent Insight), and trade routes (Spansh)",
+  help: "trade.md",
   order: 10,
   api: ["trade"],
   load: () => import("./View.svelte"),

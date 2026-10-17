@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "settings",
   title: "General",
   summary: "Start with Windows, push-to-talk, speech models, updates",
+  help: "settings.md#general",
   order: 0,
   api: [],
   load: () => import("./View.svelte"),

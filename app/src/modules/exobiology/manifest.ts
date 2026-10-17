@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "exploration",
   title: "Biology",
   summary: "The system's biology ranked by value: genera, likely species and their worth, what others reported, and how far you are from your last sample",
+  help: "exploration.md#biology",
   order: 10,
   api: ["exobiology"],
   load: () => import("./View.svelte"),

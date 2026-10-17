@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "engineering",
   title: "Materials",
   summary: "Engineering materials as the traders show them, plus where High Grade Emissions drop and the nearest raw-material sites",
+  help: "materials.md",
   order: 10,
   api: ["materials"],
   load: () => import("./View.svelte"),

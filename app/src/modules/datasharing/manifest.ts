@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "settings",
   title: "Data sharing",
   summary: "Share what you see in game with EDDN, and your journal with EDSM",
+  help: "data-sharing.md",
   order: 5,
   api: ["core"],
   load: () => import("./View.svelte"),

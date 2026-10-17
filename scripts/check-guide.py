@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the user guide: every relative link in README.md, CONTRIBUTING.md and docs/guide/*.md
+"""Check the user guide: every relative link or image in README.md, CONTRIBUTING.md and docs/guide/*.md
 points at a file that exists (and, with #anchor, at a heading that exists), and every guide page
 is linked from docs/guide/index.md. Prints each problem; exits 1 if there are any."""
 import re
@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GUIDE = ROOT / "docs" / "guide"
-LINK = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)\s]+)\)")
+LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")  # links and images
 
 
 def slug(heading: str) -> str:

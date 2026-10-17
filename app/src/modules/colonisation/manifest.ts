@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "trade",
   title: "Colonisation",
   summary: "Construction projects, what is left to buy and where to buy it near the site (Ardent Insight), and unclaimed systems open to colonise near you (Spansh)",
+  help: "colonisation.md",
   order: 20,
   api: ["colonisation", "trade"],
   load: () => import("./View.svelte"),

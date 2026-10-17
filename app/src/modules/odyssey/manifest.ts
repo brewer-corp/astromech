@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "engineering",
   title: "On foot",
   summary: "Odyssey micro-resources: ShipLocker inventory, suit and weapon blueprints with what's missing, on-foot engineers and bartender values",
+  help: "engineering.md#on-foot",
   order: 20,
   api: ["odyssey"],
   load: () => import("./View.svelte"),
