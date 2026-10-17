@@ -4,6 +4,7 @@ import catalog from "../../../../data/catalog/activities.json";
 import fixture from "../../lib/fixtures/sample.json";
 import { maps } from "../../lib/devices";
 import type { Row } from "../../lib/binds";
+import { binds } from "../../lib/store.svelte";
 import View from "./View.svelte";
 
 const rows = (fixture.view.groups as unknown as { rows: Row[] }[]).flatMap((g) => g.rows);
@@ -97,6 +98,18 @@ describe("My controller", () => {
     const detail = screen.getByText("Action").parentElement!;
     expect(within(detail).getByRole("heading", { name: far.name })).toBeTruthy();
     expect(within(detail).getByRole("button", { name: "Bind another control" })).toBeTruthy();
+  });
+
+  it("shows the control just pressed, not an action opened before", async () => {
+    const gear = onDevice[0]!;
+    const press = onDevice.find((r) => r.id !== gear.id)!.slots.find((s) => s.device === device && s.key)!;
+    render(View);
+    await fireEvent.click(await screen.findByText(gear.name, { selector: ".n" }));
+    expect(screen.getByText("Action")).toBeTruthy();
+
+    binds.press({ device, key: press.key, kind: "button", down: true, device_name: "VKB", t_ms: 1 });
+    expect(await screen.findByText("You pressed")).toBeTruthy();
+    expect(screen.queryByText("Action")).toBeNull();
   });
 
   it("opens the bind dialog from Bind another control", async () => {

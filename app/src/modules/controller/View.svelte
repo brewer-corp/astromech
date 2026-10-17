@@ -104,6 +104,8 @@
     if (!mm) return;
     dev = mm.device_id;
     const c = controlFor(p.device, p.key, ov);
+    // What was just pressed replaces any action detail that was open.
+    selId = null;
     if (c) {
       picked = c;
       unknown = null;
@@ -118,6 +120,7 @@
       await api.setOverride(m.device_id, c.sheet_field, asking.key);
       asking = null;
       unknown = null;
+      selId = null;
       await binds.load();
       picked = controlsWithOverrides(m, binds.state?.overrides ?? {}).find((x) => x.sheet_field === c.sheet_field) ?? c;
       return;
@@ -142,7 +145,7 @@
   <section>
     <div class="devices">
       {#each maps as x (x.device_id)}
-        <button class:on={x.device_id === m.device_id} onclick={() => { dev = x.device_id; picked = null; }}>{x.title} · {x.device_id}</button>
+        <button class:on={x.device_id === m.device_id} onclick={() => { dev = x.device_id; picked = null; selId = null; }}>{x.title} · {x.device_id}</button>
       {/each}
     </div>
     <PresetPicker />
