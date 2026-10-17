@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:16:16.798744343+00:00"
 id: "astromech-oo8y"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-oo8y
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Session summary by voice and at logout"
-updated_at: "2026-10-16T20:17:54.137049158+00:00"
+updated_at: "2026-10-17T05:01:04.027175363+00:00"
 ---
 
 ## Goal
