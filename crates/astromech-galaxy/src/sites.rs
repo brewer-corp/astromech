@@ -87,6 +87,11 @@ pub const SITE_KINDS: &[SiteKind] = &[
     },
 ];
 
+/// The lookup warning when Spansh returns bodies without the kind's feature.
+pub fn mismatch_warning(kind: &SiteKind) -> String {
+    format!("Spansh returned bodies without {}; its search filter may have changed.", kind.noun)
+}
+
 pub fn site_kind(id: &str) -> Option<&'static SiteKind> {
     SITE_KINDS.iter().find(|k| k.id == id)
 }
