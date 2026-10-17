@@ -1,0 +1,18 @@
+[package]
+name = "astromech-exobiology"
+description = "Exobiology: surface guidance maths, species prediction from body conditions, the system's biology and the sampling helper"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-journal.workspace = true
+astromech-status.workspace = true
+serde.workspace = true
+serde_json.workspace = true

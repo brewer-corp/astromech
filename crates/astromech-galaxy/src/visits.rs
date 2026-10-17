@@ -76,6 +76,9 @@ pub fn visits_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -
     out
 }
 
+/// How many of the newest journals the lookups read visits from.
+pub const RECENT_JOURNALS: usize = 20;
+
 /// Visits in the newest `max_files` journals in `dir`.
 pub fn visits_from_journal_dir(dir: &Path, max_files: usize) -> Vec<Visit> {
     let logs = astromech_journal::journal_logs(dir);

@@ -2,8 +2,16 @@
 //! values for its grammar slot, and the short spoken answer. The search itself is
 //! `astromech_galaxy::stations::find`.
 
+use astromech_announce::session_summary::credits;
 use astromech_galaxy::outfitting::{self, ModuleWant};
 use astromech_galaxy::stations::{Found, Service, Want};
+
+/// Said when the journal has not given the commander's position yet: the one line every
+/// position-based voice lookup (stations, sites, factions, Powerplay targets, colonisation) uses.
+pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
+
+/// Said when the galaxy store could not be opened: the one line every star-map voice lookup uses.
+pub const NO_STAR_MAP: &str = "Lookups are not available: the star map could not be opened.";
 
 /// Commands that look something up instead of pressing keys.
 pub fn is_lookup(command: &str) -> bool {
@@ -58,17 +66,6 @@ fn arrival(ls: f64) -> String {
         format!("{ls:.0} light seconds from the star")
     } else {
         format!("{:.0} thousand light seconds from the star", ls / 1000.0)
-    }
-}
-
-/// "5.1 million credits", "578 thousand credits", "900 credits".
-fn credits(c: i64) -> String {
-    if c >= 1_000_000 {
-        format!("{:.1} million credits", c as f64 / 1e6)
-    } else if c >= 10_000 {
-        format!("{:.0} thousand credits", c as f64 / 1e3)
-    } else {
-        format!("{c} credits")
     }
 }
 

@@ -3,6 +3,7 @@ created_at: "2026-10-16T18:38:18.704215608+00:00"
 id: "astromech-ztrb"
 issue_type: "bug"
 labels:
+- "alpha"
 - "size-m"
 priority: "P1"
 relationships:
@@ -20,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Builds page still lags journal changes on Windows"
-updated_at: "2026-10-16T18:38:18.704215608+00:00"
+updated_at: "2026-10-17T17:01:40.033205506+00:00"
 ---
 
 ## Goal

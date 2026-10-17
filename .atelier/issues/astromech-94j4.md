@@ -2,7 +2,8 @@
 created_at: "2026-10-15T20:36:13.648020132+00:00"
 id: "astromech-94j4"
 issue_type: "feature"
-labels: []
+labels:
+- "alpha"
 priority: "P1"
 relationships:
   blocks:
@@ -16,13 +17,16 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-5sbu"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-16T18:26:24.582340876+00:00"
+updated_at: "2026-10-17T17:01:43.865123081+00:00"
 ---
 
 ## Goal

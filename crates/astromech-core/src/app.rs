@@ -11,6 +11,7 @@ use crate::session::{self, Session, VOICE_PAUSED};
 use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
+use astromech_store::Paths;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -65,6 +66,8 @@ pub struct Core {
     pub onboarded: AtomicBool,
     /// The journal history follower, on the configured journal folder.
     pub history: crate::history::Following,
+    /// API keys (EDSM's): the OS keyring.
+    pub secrets: Arc<dyn astromech_store::secrets::Secrets>,
 }
 
 impl Core {
@@ -124,9 +127,9 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
-        let (killed, toasts) = match self.session.lock().unwrap().as_ref() {
-            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent()),
-            None => (false, vec![]),
+        let (killed, toasts, mining) = match self.session.lock().unwrap().as_ref() {
+            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
+            None => (false, vec![], None),
         };
         let cfg = self.cfg();
         let button = |b: &Option<crate::config::Button>| b.as_ref().map(|b| format!("{} {}", b.device, b.key));
@@ -144,7 +147,7 @@ impl Core {
             "crash_pending": self.crash.lock().unwrap().is_some(),
             "status_line": self.status_line(),
             "app_dir": self.app_dir.display().to_string(),
-            "log_dir": self.app_dir.join("logs").display().to_string(),
+            "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
             "config": self.config_path.display().to_string(),
             "config_note": self.config_note,
             "setup_needed": self.setup_needed(),
@@ -158,11 +161,12 @@ impl Core {
             "update": &self.update.lock().unwrap().snap,
             "toasts": toasts,
             "history": self.history.status(),
+            "mining": mining,
         })
     }
 
     pub fn save_diagnostics(&self) -> Result<PathBuf> {
-        let log_dir = crate::logging::dir().unwrap_or_else(|| self.app_dir.join("logs"));
+        let log_dir = crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir());
         let data = self.cfg().data_dir();
         let p = crate::diagnostics::save(&crate::diagnostics::Inputs {
             app_dir: &self.app_dir,
@@ -357,7 +361,7 @@ impl Core {
             h.snap.status = UpStatus::Applying;
             (p, before)
         };
-        let install_dir = Config::exe_dir();
+        let install_dir = Paths::current().exe_dir().to_path_buf();
         // Bring the window back afterwards if it is open now (the helper closes it to replace it).
         let window_open = gamewatch::process_names().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
         let after = if window_open { update::After::RelaunchWithWindow } else { update::After::Relaunch };
@@ -396,7 +400,7 @@ impl Core {
         }
         let Some(payload) = h.payload.clone() else { return };
         drop(h);
-        match update::spawn_apply(&payload, &Config::exe_dir(), update::After::Exit) {
+        match update::spawn_apply(&payload, Paths::current().exe_dir(), update::After::Exit) {
             Ok(()) => log("update: applying on quit"),
             Err(e) => log(&format!("update: apply on quit failed: {e:#}")),
         }
@@ -404,8 +408,9 @@ impl Core {
 
     /// Launch (or focus) the app window at `route`.
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
-        let exe =
-            std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| Config::exe_dir().join(SHELL_EXE));
+        let exe = std::env::var_os("ASTROMECH_SHELL")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| Paths::current().exe_dir().join(SHELL_EXE));
         if !exe.is_file() {
             let m = format!("the app window ({}) isn't installed next to the core", exe.display());
             log(&m);
@@ -435,6 +440,7 @@ impl Core {
             crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
                 c.actions.dry_run |= self.opts.session.dry_run;
                 apply_eddn_switch(&c);
+                apply_edsm_switch(&c, self.secrets.as_ref());
                 // Under the config lock, so concurrent edits re-point in the order they saved.
                 self.follow_history(&c);
                 *self.cfg.write().unwrap() = c;
@@ -447,11 +453,35 @@ impl Core {
                     self.apply_voice();
                 }
                 self.notify();
-                let now = r.cmd == "set_voice" || r.cmd == "set_eddn";
+                let now = matches!(r.cmd.as_str(), "set_voice" | "set_eddn" | "set_edsm");
                 json!({"ok": true, "applies_next_session": !now && self.active()})
             }
             Err(e) => json!({"ok": false, "error": format!("{e:#}")}),
         }
+    }
+
+    /// Settings → Data sharing, EDSM: the API key (to the OS keyring; empty forgets it), then
+    /// the switch and commander name (to the config), then the uploader's credentials.
+    fn set_edsm(&self, r: &Request) -> Value {
+        let edits = match crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()) {
+            Ok(e) => e,
+            Err(e) => return json!({"ok": false, "error": format!("{e:#}")}),
+        };
+        if let Some(k) = r.args.as_ref().and_then(|a| a.get("api_key")).filter(|k| !k.is_null()) {
+            let Some(k) = k.as_str().map(str::trim) else {
+                return json!({"ok": false, "error": "api_key must be text"});
+            };
+            if let Err(e) = self.secrets.set(astromech_eddn::edsm::KEY_SECRET, Some(k).filter(|k| !k.is_empty())) {
+                return json!({"ok": false, "error": format!("couldn't save the API key: {e}")});
+            }
+            log(if k.is_empty() { "EDSM: API key removed" } else { "EDSM: API key saved in the OS keyring" });
+        }
+        if edits.is_empty() {
+            apply_edsm_switch(&self.cfg(), self.secrets.as_ref());
+            self.notify();
+            return json!({"ok": true, "applies_next_session": false});
+        }
+        self.edit_config(r)
     }
 
     /// Speak the next line in the configured voice: the running session's and the preview's.
@@ -623,12 +653,41 @@ impl Core {
                     Err(e) => json!({"ok": false, "error": e}),
                 }
             }
+            "exobiology" => match self.session.lock().unwrap().as_ref() {
+                Some(s) => {
+                    let known = s.shared.known_bio.get();
+                    crate::biology::view(&s.hub.snapshot(), known.as_deref())
+                }
+                None => json!({"ok": false, "error": "Elite isn't running."}),
+            },
             "eddn_log" => {
                 let cfg = self.cfg();
                 eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
             }
             "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
             "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" => self.edit_config(r),
+            "edsm_status" => {
+                let cfg = self.cfg();
+                edsm_status(&cfg, self.secrets.as_ref())
+            }
+            "set_edsm" => self.set_edsm(r),
+            "edsm_flight_log" => {
+                let creds = edsm_credentials(&self.cfg().edsm, self.secrets.as_ref());
+                match creds {
+                    Ok(Some(c)) => {
+                        let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
+                            &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
+                            astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
+                        );
+                        match astromech_eddn::edsm::api::flight_log(&api, &c) {
+                            Ok(visits) => json!({"ok": true, "visits": visits}),
+                            Err(e) => json!({"ok": false, "error": e}),
+                        }
+                    }
+                    Ok(None) => json!({"ok": false, "error": "set your EDSM commander name and API key first"}),
+                    Err(e) => json!({"ok": false, "error": e}),
+                }
+            }
             "voice_settings" => {
                 let v = self.cfg().voice;
                 json!({
@@ -729,24 +788,90 @@ fn apply_eddn_switch(c: &Config) {
     }
 }
 
+/// The EDSM credentials from Settings: the commander name from the config and the API key
+/// from the keyring. `None` if either is missing.
+pub fn edsm_credentials(
+    c: &crate::config::Edsm,
+    secrets: &dyn astromech_store::secrets::Secrets,
+) -> Result<Option<astromech_eddn::edsm::Credentials>, String> {
+    let commander = c.commander.trim();
+    if commander.is_empty() {
+        return Ok(None);
+    }
+    let key = secrets.get(astromech_eddn::edsm::KEY_SECRET)?;
+    Ok(key
+        .filter(|k| !k.is_empty())
+        .map(|api_key| astromech_eddn::edsm::Credentials { commander: commander.to_owned(), api_key }))
+}
+
+/// The EDSM switch at start and after an edit: the credentials while uploading is on (switched
+/// on, with a commander name and an API key), and when it goes off, the queue is emptied now
+/// (as for EDDN).
+pub fn apply_edsm_switch(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) {
+    let creds = if c.edsm.enabled {
+        edsm_credentials(&c.edsm, secrets).unwrap_or_else(|e| {
+            log(&format!("EDSM: {e}"));
+            None
+        })
+    } else {
+        None
+    };
+    let on = creds.is_some();
+    let was = crate::pipeline::EDSM.set(creds);
+    let p = c.data_dir().join(astromech_eddn::edsm::DB_FILE);
+    if was && !on && p.is_file() {
+        let now = astromech_eddn::worker::wall_now();
+        if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.with_label("edsm").discard_all(now)) {
+            log(&format!("EDSM outbox: {e}"));
+        }
+    }
+}
+
+/// EDSM status for Settings → Data sharing: the switch, the commander name, whether an API key
+/// is saved (never the key), whether uploading is on, and the queue and send log as for EDDN.
+pub fn edsm_status(c: &Config, secrets: &dyn astromech_store::secrets::Secrets) -> Value {
+    let (has_key, key_error) = match secrets.get(astromech_eddn::edsm::KEY_SECRET) {
+        Ok(k) => (k.is_some_and(|k| !k.is_empty()), None),
+        Err(e) => (false, Some(e)),
+    };
+    let base = json!({"ok": true, "enabled": c.edsm.enabled, "commander": c.edsm.commander, "has_key": has_key,
+        "key_error": key_error, "uploading": crate::pipeline::EDSM.get().is_some()});
+    outbox_status(&c.data_dir().join(astromech_eddn::edsm::DB_FILE), base)
+}
+
 /// EDDN status for Settings → Data sharing and the send log for Diagnostics: the switch, queue
 /// depth, last send and last error (a failed send, not a message discarded here), the gateway's answers and (apart, so they can't push those
 /// off screen) the messages never queued. Reads `eddn.sqlite` only if it exists, so asking never
 /// creates it.
 pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Value {
+    let base = json!({"ok": true, "enabled": enabled, "test": test});
+    outbox_status(&data_dir.join(astromech_eddn::DB_FILE), base)
+}
+
+/// `base` with an outbox's queue depth, last send, last error, send log and skips. Reads the
+/// file only if it exists, so asking never creates it.
+fn outbox_status(p: &Path, mut base: Value) -> Value {
     use astromech_eddn::Outcome::{Discarded, Dropped, GaveUp, Rejected, Retry, Sent};
-    let p = data_dir.join(astromech_eddn::DB_FILE);
-    let base = json!({"ok": true, "enabled": enabled, "test": test, "pending": 0,
-        "last_sent": null, "last_error": null, "log": [], "skipped": []});
+    for (k, v) in [
+        ("pending", json!(0)),
+        ("last_sent", Value::Null),
+        ("last_error", Value::Null),
+        ("log", json!([])),
+        ("skipped", json!([])),
+    ] {
+        base[k] = v;
+    }
     if !p.is_file() {
         return base;
     }
     let read = || -> Result<Value> {
-        let o = astromech_eddn::Outbox::open(&p)?;
+        let o = astromech_eddn::Outbox::open(p)?;
         let mut v = base.clone();
         v["pending"] = json!(o.pending()?);
         v["last_sent"] = json!(o.recent_of(&[Sent], 1)?.pop());
-        v["last_error"] = json!(o.recent_of(&[Rejected, Retry, GaveUp], 1)?.pop());
+        // EDSM: errors logged before the commander name or key last changed are out of date.
+        let cleared = o.meta(astromech_eddn::edsm::ERRORS_CLEARED)?.and_then(|t| t.parse::<i64>().ok());
+        v["last_error"] = json!(o.recent_of_after(&[Rejected, Retry, GaveUp], cleared.unwrap_or(0), 1)?.pop());
         v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp, Discarded], 50)?);
         v["skipped"] = json!(o.recent_of(&[Dropped], 50)?);
         Ok(v)
@@ -909,11 +1034,10 @@ fn watch_game(core: Arc<Core>) {
 
 /// Run the core until "Quit". Returns the exit code.
 pub fn run(opts: Opts) -> i32 {
-    let app_dir = Config::app_dir();
+    let paths = Paths::current();
+    let app_dir = paths.app_dir().to_path_buf();
     let _ = std::fs::create_dir_all(&app_dir);
-    let log_dir =
-        if Config::portable() { Config::exe_dir().join("astromech-data").join("logs") } else { app_dir.join("logs") };
-    crate::logging::init(&log_dir, false);
+    crate::logging::init(&paths.log_dir(), false);
     crate::crash::install(&app_dir);
 
     // Single instance: a second start opens the window of the first, then exits.
@@ -933,7 +1057,7 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    let config_path = opts.config.clone().unwrap_or_else(Config::default_path);
+    let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
     let (mut cfg, config_note) = if config_exists {
         match Config::load(&config_path) {
@@ -954,7 +1078,7 @@ pub fn run(opts: Opts) -> i32 {
         cfg.actions.dry_run = true;
     }
 
-    if !Config::portable() {
+    if !paths.portable() {
         if let Ok(exe) = std::env::current_exe() {
             if let Some(m) = crate::autostart::apply_default(&app_dir, &exe) {
                 log(&m);
@@ -976,6 +1100,8 @@ pub fn run(opts: Opts) -> i32 {
     }
 
     crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
+    let secrets: Arc<dyn astromech_store::secrets::Secrets> = Arc::new(astromech_store::secrets::OsKeyring::new());
+    apply_edsm_switch(&cfg, secrets.as_ref());
     let (ui_tx, ui_rx) = channel();
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
@@ -1000,6 +1126,7 @@ pub fn run(opts: Opts) -> i32 {
         opts: opts.clone(),
         calibration: Mutex::new(None),
         history: Default::default(),
+        secrets,
     });
 
     let c = core.clone();
@@ -1064,7 +1191,7 @@ pub fn run(opts: Opts) -> i32 {
             .expect("spawn update checker");
     }
 
-    if !opts.background && !Config::portable() {
+    if !opts.background && !paths.portable() {
         let _ = core.open_window(opts.route.as_deref());
     }
 
@@ -1133,6 +1260,7 @@ mod tests {
             calibration: Mutex::new(None),
             onboarded: AtomicBool::new(false),
             history: Default::default(),
+            secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
         })
     }
 
@@ -1223,6 +1351,84 @@ mod tests {
         assert_eq!(v["last_error"]["at"], 12, "{}", v["last_error"]);
         let details: Vec<&Value> = v["log"].as_array().unwrap().iter().take(2).map(|e| &e["detail"]).collect();
         assert_eq!(details, [&json!("outbox full: 1 oldest dropped"), &json!("switched off: 1 queued discarded")]);
+
+        // EDSM: changing the commander name or key makes the errors before it out of date.
+        o.set_meta(astromech_eddn::edsm::ERRORS_CLEARED, &o.last_log_id().unwrap().to_string()).unwrap();
+        assert!(eddn_log(d.path(), true, false)["last_error"].is_null());
+        // An error from the same second, logged after the change (a key that is still wrong), shows.
+        let at = v["log"][0]["at"].as_i64().unwrap();
+        o.log(at, r, astromech_eddn::Outcome::Retry, "still wrong").unwrap();
+        assert_eq!(eddn_log(d.path(), true, false)["last_error"]["detail"], "still wrong");
+    }
+
+    fn set_edsm(core: &Arc<Core>, args: Value) -> Value {
+        core.handle(&Request {
+            token: String::new(),
+            cmd: "set_edsm".into(),
+            route: None,
+            text: None,
+            args: Some(args),
+        })
+    }
+
+    #[test]
+    fn edsm_settings_keep_the_key_in_the_keyring_and_upload_only_with_both() {
+        use crate::pipeline::EDSM;
+        use astromech_eddn::edsm::{DB_FILE, KEY_SECRET};
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let missing = d.path().join("no journals here");
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), missing.display()),
+        );
+        let status = |core: &Arc<Core>| {
+            core.handle(&Request {
+                token: String::new(),
+                cmd: "edsm_status".into(),
+                route: None,
+                text: None,
+                args: None,
+            })
+        };
+        let v = status(&core);
+        assert_eq!(
+            (&v["enabled"], &v["has_key"], &v["uploading"], &v["pending"]),
+            (&json!(false), &json!(false), &json!(false), &json!(0))
+        );
+        assert!(!d.path().join(DB_FILE).exists(), "asking doesn't create the queue");
+
+        // Switched on with a name but no key: not uploading.
+        assert_eq!(set_edsm(&core, json!({"enabled": true, "commander": "Jameson"}))["ok"], true);
+        assert!(core.cfg().edsm.enabled && EDSM.get().is_none());
+        assert_eq!(status(&core)["uploading"], false);
+
+        // The key goes to the keyring only, and uploading starts at once.
+        assert_eq!(set_edsm(&core, json!({"api_key": " s3cret-key "}))["ok"], true);
+        assert_eq!(core.secrets.get(KEY_SECRET).unwrap().as_deref(), Some("s3cret-key"));
+        let file = std::fs::read_to_string(&core.config_path).unwrap();
+        assert!(!file.contains("s3cret"), "{file}");
+        assert_eq!(EDSM.get().map(|c| (c.commander, c.api_key)), Some(("Jameson".into(), "s3cret-key".into())));
+        let v = status(&core);
+        assert_eq!((&v["has_key"], &v["uploading"], &v["commander"]), (&json!(true), &json!(true), &json!("Jameson")));
+        assert!(!v.to_string().contains("s3cret"), "the status never shows the key");
+
+        // Switched off: the queue goes at once.
+        let o = astromech_eddn::Outbox::open(&d.path().join(DB_FILE)).unwrap();
+        o.enqueue("FSDJump", b"{}", 10).unwrap();
+        assert_eq!(set_edsm(&core, json!({"enabled": false}))["ok"], true);
+        assert!(EDSM.get().is_none());
+        assert_eq!(o.pending().unwrap(), 0);
+        assert_eq!(o.recent(1).unwrap()[0].detail, "switched off: 1 queued discarded");
+
+        // An empty key forgets it.
+        set_edsm(&core, json!({"enabled": true}));
+        assert!(EDSM.get().is_some());
+        set_edsm(&core, json!({"api_key": ""}));
+        assert_eq!(core.secrets.get(KEY_SECRET).unwrap(), None);
+        assert!(EDSM.get().is_none());
+        assert_eq!(set_edsm(&core, json!({}))["ok"], false);
+        EDSM.set(None);
     }
 
     fn set_eddn(core: &Arc<Core>, enabled: bool) -> Value {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { DEFAULT_FILTERS, type Filters, type Origin, type Results } from "../search";
 import SearchKit from "./SearchKit.svelte";
 
@@ -10,6 +10,7 @@ vi.mock("../search", async (orig) => ({
   ...(await orig<typeof import("../search")>()),
   loadFilters: (l: string) => loadFilters(l),
   saveFilters: (l: string, f: Filters) => saveFilters(l, f),
+  systemNames: async () => [],
 }));
 
 const results: Results = {
@@ -30,5 +31,49 @@ describe("SearchKit", () => {
     expect(await screen.findByText("Ross 154")).toBeTruthy();
     expect(run).toHaveBeenCalledExactlyOnceWith(null, DEFAULT_FILTERS);
     expect(screen.getByRole("combobox")).toBeTruthy(); // the data-age filter still shows
+  });
+
+  it("keeps the later filter change when an earlier save fails after it", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const saves: Array<{ f: Filters; fail: (e: Error) => void; ok: () => void }> = [];
+    let stored = DEFAULT_FILTERS;
+    loadFilters.mockImplementation(async () => stored);
+    saveFilters.mockImplementation(
+      (_, f) =>
+        new Promise<void>((ok, fail) => {
+          saves.push({ f, ok: () => ((stored = f), ok()), fail });
+        }),
+    );
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
+    render(SearchKit, { lookup: "faction.famine", offers: ["age"], run });
+    const select = (await screen.findByRole("combobox")) as HTMLSelectElement;
+
+    await fireEvent.change(select, { target: { value: "7" } });
+    await fireEvent.change(select, { target: { value: "30" } });
+    expect(saves.map((s) => s.f.max_age_days)).toEqual([7, 30]);
+    // the second save lands, then the first fails
+    saves[1]!.ok();
+    await waitFor(() => expect(select.value).toBe("30"));
+    saves[0]!.fail(new Error("database is locked"));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(select.value).toBe("30");
+    expect(screen.queryByText(/Couldn't save/)).toBeNull();
+  });
+
+  it("labels the ship's pad with the current ship's, not the one the filters loaded with", async () => {
+    // Filters as the shell resolves them: not chosen, so the pad is the current ship's.
+    let pad: Filters["pad"] = "M";
+    loadFilters.mockImplementation(async () => ({ ...DEFAULT_FILTERS, pad }));
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
+    render(SearchKit, { lookup: "stations.service", offers: ["pad"], run });
+    expect(await screen.findByText("Ship's (M)")).toBeTruthy();
+
+    pad = "L"; // the commander swaps to an Anaconda, then searches from another system
+    const box = screen.getByLabelText("Search from system");
+    await fireEvent.input(box, { target: { value: "Deciat" } });
+    await fireEvent.keyDown(box, { key: "Enter" });
+    await waitFor(() => expect(run).toHaveBeenLastCalledWith("Deciat", expect.anything()));
+    expect(await screen.findByText("Ship's (L)")).toBeTruthy();
+    expect(screen.queryByText("Ship's (M)")).toBeNull();
   });
 });

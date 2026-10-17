@@ -3,6 +3,7 @@ created_at: "2026-10-16T19:47:26.525520987+00:00"
 id: "astromech-s0gz"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Callout toggles and cooldowns in Settings"
-updated_at: "2026-10-16T19:47:26.525520987+00:00"
+updated_at: "2026-10-17T17:01:41.508366203+00:00"
 ---
 
 ## Goal

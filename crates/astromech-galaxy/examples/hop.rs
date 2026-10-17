@@ -4,7 +4,10 @@ fn main() -> anyhow::Result<()> {
     let [db, range, from, to @ ..] = a.as_slice() else {
         anyhow::bail!("usage: hop <galaxy.db> <range> <from> <to>...");
     };
-    let g = astromech_galaxy::Galaxy::with_store(astromech_galaxy::Store::open(std::path::Path::new(db))?);
+    let g = astromech_galaxy::Galaxy::with_remote(
+        astromech_galaxy::Store::open(std::path::Path::new(db))?,
+        astromech_data::Client::new(astromech_data::Cache::in_memory()?),
+    );
     let t = std::time::Instant::now();
     let m = g.map()?;
     println!("{} stars loaded in {:?}", m.len(), t.elapsed());

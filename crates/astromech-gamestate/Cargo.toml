@@ -16,6 +16,8 @@ astromech-journal.workspace = true
 astromech-status.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
+astromech-exobiology.workspace = true
+astromech-exploration.workspace = true
 serde.workspace = true
 chrono.workspace = true
 

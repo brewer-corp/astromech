@@ -12,6 +12,7 @@
 
 pub mod companion;
 mod detail;
+pub mod ore;
 
 use detail::system_powerplay;
 pub use detail::*;
@@ -32,6 +33,9 @@ pub enum JournalEvent {
         game_version: String,
         build: String,
         odyssey: bool,
+        /// Which file of one game run this is (`part`): 1, or absent, for the first; 2 and up
+        /// when the game rolled over to a new file mid-session.
+        part: Option<i64>,
     },
     LoadGame {
         commander: String,
@@ -241,6 +245,9 @@ pub struct StoredShip {
     /// On its way to `system` (or to wherever it was last written, if `system` is `None`).
     pub in_transit: bool,
     pub value: Option<i64>,
+    /// Market id of the station it is at (`ShipMarketID`, or the shipyard's `MarketID` for ships
+    /// here); `None` in transit or when the journal did not say.
+    pub market_id: Option<i64>,
 }
 
 /// One entry of `StoredModules`.
@@ -360,6 +367,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             game_version: s(&raw, "gameversion"),
             build: s(&raw, "build"),
             odyssey: raw.get("Odyssey").and_then(|x| x.as_bool()).unwrap_or(false),
+            part: opt_i(&raw, "part"),
         },
         "LoadGame" => JournalEvent::LoadGame {
             commander: s(&raw, "Commander"),
@@ -557,6 +565,7 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
                 system: if in_transit { None } else { opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")) },
                 in_transit,
                 value: opt_i(x, "Value"),
+                market_id: if in_transit { None } else { opt_i(x, "ShipMarketID").or_else(|| opt_i(v, "MarketID")) },
             })
         })
         .collect()
@@ -779,6 +788,25 @@ pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
         .collect();
     v.sort();
     v.into_iter().map(|x| x.3).collect()
+}
+
+/// Changes whenever something read from the journals could give a different answer: a journal file
+/// is added or removed, or the newest one grows. The length is read through an open handle
+/// because on Windows a directory listing reports the size NTFS last stored in the directory
+/// entry, which can lag appends to a file the game still holds open (astromech-txzq).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct JournalVersion {
+    files: usize,
+    newest: Option<PathBuf>,
+    len: u64,
+}
+
+pub fn journal_version(dir: &Path) -> JournalVersion {
+    let logs = journal_logs(dir);
+    let newest = logs.last().cloned();
+    let len =
+        newest.as_deref().and_then(|p| std::fs::File::open(p).and_then(|f| f.metadata()).ok()).map_or(0, |m| m.len());
+    JournalVersion { files: logs.len(), newest, len }
 }
 
 /// The journal file the game is writing: most recently modified `Journal.*.log`.

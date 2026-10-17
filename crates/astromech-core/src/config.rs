@@ -2,6 +2,7 @@
 
 use anyhow::{Context, Result};
 use astromech_input::listen::model::Event;
+use astromech_store::Paths;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -114,6 +115,17 @@ pub struct Eddn {
     pub test: bool,
 }
 
+/// Uploading the journal to EDSM (`astromech_eddn::edsm`), for the commander's EDSM flight log
+/// and map. Off unless switched on in Settings → Data sharing (`set_edsm`). The API key is in
+/// the OS keyring, never here.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Edsm {
+    pub enabled: bool,
+    /// The commander name as registered on EDSM.
+    pub commander: String,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -125,6 +137,7 @@ pub struct Config {
     /// Per-callout toggle and cooldown: `[callouts.<id>]` with `enabled` and `cooldown_s`.
     pub callouts: astromech_announce::Settings,
     pub eddn: Eddn,
+    pub edsm: Edsm,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
 }
@@ -215,15 +228,8 @@ impl Config {
         Ok(c)
     }
 
-    pub fn exe_dir() -> PathBuf {
-        std::env::current_exe().ok().and_then(|p| p.parent().map(Path::to_path_buf)).unwrap_or_else(|| ".".into())
-    }
-
     pub fn journal_dir(&self) -> Option<PathBuf> {
-        opt(&self.game.journal_dir).or_else(|| {
-            std::env::var_os("USERPROFILE")
-                .map(|h| PathBuf::from(h).join("Saved Games").join("Frontier Developments").join("Elite Dangerous"))
-        })
+        Paths::current().journal_dir(&self.game.journal_dir)
     }
 
     pub fn bindings_dir(&self) -> Option<PathBuf> {
@@ -234,57 +240,25 @@ impl Config {
         opt(&self.game.game_dir)
     }
 
-    /// Per-user data folder: `%LOCALAPPDATA%\astromech\data`. The installer puts the program
-    /// in `%LOCALAPPDATA%\astromech` (Tauri's per-user default); config, logs, models and data
-    /// live in its `data` subfolder, which upgrades and uninstalls leave alone unless "Delete the
-    /// application data" is ticked.
-    pub fn app_dir() -> PathBuf {
-        let base = std::env::var_os("LOCALAPPDATA").map(PathBuf::from).or_else(|| {
-            std::env::var_os("XDG_DATA_HOME")
-                .map(PathBuf::from)
-                .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local").join("share")))
-        });
-        base.map(|b| b.join("astromech").join("data")).unwrap_or_else(|| Self::exe_dir().join("astromech-data"))
-    }
-
-    /// Portable layout (the gear-down preview zip): an `astromech.toml` next to the exe. Then
-    /// data and models stay next to the exe as before.
-    pub fn portable() -> bool {
-        Self::exe_dir().join("astromech.toml").is_file()
-    }
-
-    /// Where the config file is when `--config` isn't given.
-    pub fn default_path() -> PathBuf {
-        if Self::portable() {
-            Self::exe_dir().join("astromech.toml")
-        } else {
-            Self::app_dir().join("astromech.toml")
-        }
-    }
-
     pub fn models_dir(&self) -> PathBuf {
         opt(&self.voice.models_dir).unwrap_or_else(|| {
-            let local = Self::exe_dir().join("models");
-            if Self::portable() || local.is_dir() {
+            let paths = Paths::current();
+            let local = paths.exe_dir().join("models");
+            if paths.portable() || local.is_dir() {
                 local
             } else {
-                Self::app_dir().join("models")
+                paths.app_dir().join("models")
             }
         })
     }
 
     pub fn worker_exe(&self) -> PathBuf {
-        opt(&self.voice.worker).unwrap_or_else(|| Self::exe_dir().join(astromech_voice::client::WORKER_EXE))
+        opt(&self.voice.worker).unwrap_or_else(|| Paths::current().exe_dir().join(astromech_voice::client::WORKER_EXE))
     }
 
+    /// The data folder for this config (`astromech_store::Paths::data_dir`).
     pub fn data_dir(&self) -> PathBuf {
-        opt(&self.data_dir).unwrap_or_else(|| {
-            if Self::portable() {
-                Self::exe_dir().join("astromech-data")
-            } else {
-                Self::app_dir()
-            }
-        })
+        Paths::current().data_dir(&self.data_dir)
     }
 }
 

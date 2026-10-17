@@ -1,0 +1,159 @@
+{
+  "market_id": 128000001,
+  "station": "Test Orbital",
+  "system": "Test System",
+  "seen": "2026-10-16T20:30:00Z",
+  "carried": [
+    {
+      "commodity": "gold",
+      "name": "Gold",
+      "carried": 20,
+      "checked": true,
+      "sell_here": 52600,
+      "buy_here": null,
+      "stock": 0,
+      "best": {
+        "commodity": "gold",
+        "market_id": 4207059971,
+        "station": "Arc City",
+        "station_type": "Coriolis",
+        "system": "Crucis Sector AL-X b1-5",
+        "ly": 15.405140680143106,
+        "jumps": 1,
+        "exact": false,
+        "price": 56521,
+        "volume": 10210,
+        "pad": "L",
+        "arrival_ls": 107335.999864,
+        "fleet_carrier": false,
+        "odyssey": false,
+        "updated_at": "2026-10-15T09:49:17.000Z"
+      },
+      "gain": 3921
+    },
+    {
+      "commodity": "palladium",
+      "name": "Palladium",
+      "carried": 10,
+      "checked": true,
+      "sell_here": null,
+      "buy_here": null,
+      "stock": 0,
+      "best": {
+        "commodity": "palladium",
+        "market_id": 4207059971,
+        "station": "Arc City",
+        "station_type": "Coriolis",
+        "system": "Crucis Sector AL-X b1-5",
+        "ly": 15.405140680143106,
+        "jumps": 1,
+        "exact": false,
+        "price": 59563,
+        "volume": 18377,
+        "pad": "L",
+        "arrival_ls": 107335.999864,
+        "fleet_carrier": false,
+        "odyssey": false,
+        "updated_at": "2026-10-15T09:49:17.000Z"
+      },
+      "gain": null
+    }
+  ],
+  "for_sale": [
+    {
+      "commodity": "tritium",
+      "name": "Tritium",
+      "carried": 0,
+      "checked": true,
+      "sell_here": 49900,
+      "buy_here": 50500,
+      "stock": 3000,
+      "best": {
+        "commodity": "tritium",
+        "market_id": 3700000001,
+        "station": "FCX-701",
+        "station_type": "FleetCarrier",
+        "system": "Nuenets",
+        "ly": 14.140789018385785,
+        "jumps": 1,
+        "exact": false,
+        "price": 103006,
+        "volume": 62,
+        "pad": "L",
+        "arrival_ls": 9824.683493,
+        "fleet_carrier": true,
+        "odyssey": false,
+        "updated_at": "2026-09-18T23:01:15.000Z"
+      },
+      "gain": 52506
+    },
+    {
+      "commodity": "silver",
+      "name": "Silver",
+      "carried": 0,
+      "checked": true,
+      "sell_here": 45500,
+      "buy_here": 46100,
+      "stock": 800,
+      "best": {
+        "commodity": "silver",
+        "market_id": 4207059971,
+        "station": "Arc City",
+        "station_type": "Coriolis",
+        "system": "Crucis Sector AL-X b1-5",
+        "ly": 15.405140680143106,
+        "jumps": 1,
+        "exact": false,
+        "price": 49421,
+        "volume": 39741,
+        "pad": "L",
+        "arrival_ls": 107335.999864,
+        "fleet_carrier": false,
+        "odyssey": false,
+        "updated_at": "2026-10-15T09:49:17.000Z"
+      },
+      "gain": 3321
+    },
+    {
+      "commodity": "hydrogenfuel",
+      "name": "Hydrogen Fuel",
+      "carried": 0,
+      "checked": true,
+      "sell_here": 103,
+      "buy_here": 107,
+      "stock": 5000,
+      "best": {
+        "commodity": "hydrogenfuel",
+        "market_id": 3866947328,
+        "station": "Dovbush Industrial Silo",
+        "station_type": "OnFootSettlement",
+        "system": "Shinrarta Dezhra",
+        "ly": 9.048966187498989,
+        "jumps": 1,
+        "exact": false,
+        "price": 187,
+        "volume": 5057,
+        "pad": "L",
+        "arrival_ls": 3271.536181,
+        "fleet_carrier": false,
+        "odyssey": true,
+        "updated_at": "2026-10-08T15:30:38.000Z"
+      },
+      "gain": 80
+    }
+  ],
+  "unchecked": [],
+  "kept": [
+    {
+      "name": "Gold",
+      "tonnes": 4,
+      "reason": "stolen"
+    },
+    {
+      "name": "Limpet",
+      "tonnes": 8,
+      "reason": "limpets"
+    }
+  ],
+  "fetched_at": 1792184400
+}

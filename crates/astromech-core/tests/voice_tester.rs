@@ -84,6 +84,7 @@ fn rig() -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     let assistant = Assistant::new(runner.clone());

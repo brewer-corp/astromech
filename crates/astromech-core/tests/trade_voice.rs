@@ -15,7 +15,7 @@ use astromech_input::exec::platform::{GameIntegrity, IntegrityReport, Platform, 
 use astromech_policy::{Config as PolicyConfig, Policy};
 use astromech_proto::Origin;
 use std::sync::{Arc, Mutex, RwLock};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 macro_rules! fixture {
     ($name:literal) => {
@@ -23,16 +23,19 @@ macro_rules! fixture {
     };
 }
 
-/// Ardent's nearby answers from the recordings, or no network at all; logs request URLs.
+/// Ardent's nearby answers from the recordings, or no network at all; logs request URLs and
+/// when they were sent.
 #[derive(Default)]
 struct Recorded {
     offline: bool,
     log: Mutex<Vec<String>>,
+    sent: Mutex<Vec<Instant>>,
 }
 
 impl Transport for Recorded {
     fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
         self.log.lock().unwrap().push(url.to_string());
+        self.sent.lock().unwrap().push(Instant::now());
         if self.offline {
             return Err(TransportError::Offline("dns error".into()));
         }
@@ -82,8 +85,15 @@ struct Rig {
     hub: Arc<StateHub>,
 }
 
-/// In Sol in a Krait Mk II (medium pad).
+/// In Sol in a Krait Mk II (medium pad), on recorded answers with no rate limit.
 fn rig(offline: bool) -> Rig {
+    let rec = Arc::new(Recorded { offline, ..Recorded::default() });
+    let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+    rig_with(rec, Arc::new(client), None)
+}
+
+/// [`rig`] with the lookups going through `remote`, and `galaxy` as the star map.
+fn rig_with(rec: Arc<Recorded>, remote: Arc<Client>, galaxy: Option<Arc<astromech_galaxy::Galaxy>>) -> Rig {
     let hub = Arc::new(StateHub::new());
     hub.update(|g| {
         g.system = Some("Sol".into());
@@ -98,12 +108,11 @@ fn rig(offline: bool) -> Rig {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: None,
+        remote,
+        galaxy,
     });
-    let rec = Arc::new(Recorded { offline, ..Recorded::default() });
-    let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));
-    let assistant = Assistant::new(runner).with_store(store.clone()).with_remote(client, Arc::new(Evening));
+    let assistant = Assistant::new(runner).with_store(store.clone()).with_clock(Arc::new(Evening));
     Rig { assistant, speaker, rec, store, hub }
 }
 
@@ -208,10 +217,65 @@ fn where_should_i_sell_my_cargo_names_the_best_station_for_the_whole_load() {
     let s = spoken(r.assistant.handle("sell my cargo", Origin::Voice));
     assert_eq!(
         s,
-        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago."
+        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago. Platinum: only 73 tonnes at the same station, 259,950 credits each."
     );
 
     r.hub.update(|g| g.cargo_inventory.retain(|i| i.mission || i.symbol == "drones"));
     let s = spoken(r.assistant.handle("Where to sell my cargo", Origin::Voice));
     assert_eq!(s, "Nothing in your hold to sell: mission cargo, stolen goods and limpets are left out.");
+}
+
+/// What a Trade page search for `commodity` near Sol asks for, through `remote` (the star-map
+/// fill-in after it is another service).
+fn page_search(remote: &Client, r: &Rig, commodity: &str) -> Vec<astromech_market::Prices> {
+    let here = astromech_galaxy::Here { system: "Sol".into(), id64: None, pos: [0.0; 3] };
+    // The page's filters: the saved ones, the pad following the current ship, like the voice's.
+    let pad = astromech_galaxy::Pad::for_ship("krait_mkii");
+    let filters = astromech_galaxy::filters::load(&r.store.lock().unwrap(), "trade.sell", pad).unwrap();
+    let origin = astromech_market::Origin::from(&here);
+    astromech_market::prices(
+        remote,
+        &origin,
+        astromech_market::Side::Sell,
+        &[commodity],
+        &filters,
+        20.0,
+        Evening.now_s(),
+    )
+    .unwrap()
+}
+
+/// Done when: the core's one client, made the way the session makes it, serves the voice
+/// lookups and the star map: one 1 request/s limit and one cache, in the file the app window
+/// opens too, so a voice lookup then the Trade page make one Ardent request.
+#[test]
+fn the_sessions_voice_lookups_and_star_map_share_one_client() {
+    let dir = tempfile::tempdir().unwrap();
+    let rec = Arc::new(Recorded::default());
+    let (remote, galaxy) = astromech_core::session::remote_data(dir.path(), rec.clone());
+    let galaxy = galaxy.expect("the star map opens");
+    assert!(std::ptr::eq(galaxy.remote(), &*remote), "the star map uses the process's client");
+    let r = rig_with(rec.clone(), remote, Some(galaxy.clone()));
+
+    let voice = spoken(r.assistant.handle("Where can I sell painite?", Origin::Voice));
+    assert_eq!(rec.log.lock().unwrap().len(), 1, "the voice lookup asked Ardent once");
+
+    // The same search through the star map's client is served from the voice lookup's answer.
+    let page = page_search(galaxy.remote(), &r, "painite");
+    assert_eq!(rec.log.lock().unwrap().len(), 1, "served from the shared cache");
+    assert_eq!(page[0].offers[0].station, "Good Landing");
+    assert!(voice.contains("Good Landing"), "voice and the page name the same best market: {voice}");
+
+    // Another search through the star map waits for the voice lookup's slot: one limit.
+    page_search(galaxy.remote(), &r, "platinum");
+    let sent = rec.sent.lock().unwrap().clone();
+    assert_eq!(sent.len(), 2);
+    let gap = sent[1] - sent[0];
+    assert!(gap >= Duration::from_millis(950), "Ardent asked twice within {gap:?}");
+
+    // The app window's client on the same data dir is served from the file.
+    let window = Client::shared_with_transport(dir.path(), rec.clone(), Arc::new(|_: &str| {}));
+    assert_eq!(page_search(&window, &r, "painite")[0].offers[0].station, "Good Landing");
+    assert_eq!(rec.log.lock().unwrap().len(), 2, "the app window asked nothing");
+    assert_eq!(Cache::open(&dir.path().join(astromech_data::CACHE_FILE)).unwrap().len().unwrap(), 2);
 }

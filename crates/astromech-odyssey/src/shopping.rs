@@ -2,6 +2,7 @@
 //! modification) and what they cost against the inventory: per pick what is missing, and one
 //! shopping list for them all.
 
+use crate::barter::{self, BarterPlan};
 use crate::catalog::{catalog, Materials};
 use crate::engineers::{unlocked, Progress};
 use crate::inventory::{category_title, Holdings};
@@ -69,6 +70,8 @@ pub struct Shopping {
     pub credits_partial: bool,
     /// Barter value of the short assets: what a bartender would want for them.
     pub barter_short: i64,
+    /// What to trade at a bartender from surplus assets for the short assets.
+    pub trade: BarterPlan,
 }
 
 fn needs(m: &Materials, h: &Holdings) -> Vec<Need> {
@@ -209,5 +212,6 @@ pub fn shopping(picks: &[Pick], h: &Holdings, progress: &Progress) -> Shopping {
     }
     let total = needs(&all, h);
     let barter_short = total.iter().filter_map(|l| l.barter.map(|b| b * l.short)).sum();
-    Shopping { picks: results, total, credits, credits_partial, barter_short }
+    let trade = barter::plan(&total, h);
+    Shopping { picks: results, total, credits, credits_partial, barter_short, trade }
 }

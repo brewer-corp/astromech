@@ -2,7 +2,8 @@
 created_at: "2026-10-16T18:58:34.478833170+00:00"
 id: "astromech-hnar"
 issue_type: "task"
-labels: []
+labels:
+- "alpha"
 priority: "P2"
 relationships:
   blocks: []
@@ -19,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Keep stored modules and ship locations current between visits"
-updated_at: "2026-10-16T19:02:52.923262726+00:00"
+updated_at: "2026-10-17T17:01:40.533748517+00:00"
 ---
 
 ## Goal

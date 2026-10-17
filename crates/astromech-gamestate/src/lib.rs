@@ -8,10 +8,11 @@ pub mod mining;
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
+use astromech_journal::{CargoSnap, ExtraEvent, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 /// A snapshot shared by every copy of the state. The hub clones and compares the whole state on
@@ -50,6 +51,23 @@ pub struct Companions {
     pub ship_locker: Option<Shared<InventorySnap>>,
     pub backpack: Option<Shared<InventorySnap>>,
     pub fc_materials: Option<Shared<FcMaterialsSnap>>,
+}
+
+/// An active mission, as far as the journal says.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Mission {
+    pub id: i64,
+    pub name: String,
+    /// When it expires, in seconds since the Unix epoch (`None`: no expiry, or the event had
+    /// no timestamp to date it by).
+    pub expires: Option<i64>,
+    pub destination_system: Option<String>,
+    pub target_faction: Option<String>,
+    pub kill_count: Option<i64>,
+}
+
+fn epoch(ts: &str) -> Option<i64> {
+    chrono::DateTime::parse_from_rfc3339(ts).ok().map(|t| t.timestamp())
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
@@ -114,8 +132,26 @@ pub struct GameState {
     pub powerplay: astromech_powerplay::Standing,
     /// The current system's Powerplay state (`None`: no Powerplay activity, or not known yet).
     pub system_power: Option<astromech_powerplay::SystemPower>,
+    /// Colonisation projects still being built, by the `MarketID` of the construction site: the
+    /// commodities (lower-case journal symbols, `$steel_name;`) each still needs delivered, from
+    /// the last `ColonisationConstructionDepot` seen (this journal; older ones are not read).
+    /// A project that is complete or failed is dropped.
+    #[serde(skip)]
+    pub project_needs: BTreeMap<i64, Vec<String>>,
+    /// Active missions (`Missions` at login, then `MissionAccepted` and the ends).
+    pub missions: Vec<Mission>,
+    /// The sampling in progress.
+    pub exobiology: astromech_exobiology::Exobiology,
+    /// The current system's bodies (scans, signals, genus lists, samples), for the biology
+    /// view (`astromech_exploration::biology`).
+    #[serde(skip)]
+    pub system_bodies: astromech_exploration::SystemFold,
     #[serde(skip)]
     pub companions: Companions,
+    /// In a logged-in session: set by `LoadGame`, cleared by `Shutdown` and the `Music`
+    /// `MainMenu` that follows a logout. False at a fresh launch until the login.
+    #[serde(skip)]
+    pub logged_in: bool,
 }
 
 impl GameState {
@@ -136,11 +172,26 @@ impl GameState {
 
     fn apply_at(&mut self, ts: &str, ev: &JournalEvent) {
         self.powerplay.apply(ts, ev);
+        self.exobiology.apply(ev);
+        self.system_bodies.apply_event(ev);
         if let Some(s) = astromech_powerplay::SystemPower::from_event(ev) {
             self.system_power = s;
         }
+        // A new journal file that is not the continuation of one (part 2 and up) is a new run of
+        // the game: a crash leaves no logout behind.
+        if matches!(ev, JournalEvent::FileHeader { part, .. } if part.unwrap_or(1) <= 1) {
+            self.logged_in = false;
+        }
+        if let JournalEvent::Other { event, raw } = ev {
+            if event == "Shutdown"
+                || (event == "Music" && raw.get("MusicTrack").and_then(|t| t.as_str()) == Some("MainMenu"))
+            {
+                self.logged_in = false;
+            }
+        }
         match ev {
             JournalEvent::LoadGame { commander, ship, ship_name, ship_ident, credits } => {
+                self.logged_in = true;
                 self.commander = Some(commander.clone());
                 self.ship = ship.clone();
                 if ship_name.is_some() {
@@ -260,10 +311,69 @@ impl GameState {
                 self.system = Some(star_system.clone());
                 self.docked = true;
             }
+            JournalEvent::Extra(ExtraEvent::ColonisationConstructionDepot(d)) => {
+                if let Some(id) = d.market_id {
+                    let needs: Vec<String> = d
+                        .resources
+                        .iter()
+                        .filter(|r| r.required > r.provided)
+                        .map(|r| r.name.to_ascii_lowercase())
+                        .collect();
+                    if d.complete || d.failed || needs.is_empty() {
+                        self.project_needs.remove(&id);
+                    } else {
+                        self.project_needs.insert(id, needs);
+                    }
+                }
+            }
             JournalEvent::Undocked { .. } => {
                 self.docked = false;
                 self.station_market_id = None;
                 self.station_info = None;
+            }
+            JournalEvent::Extra(ExtraEvent::Missions { active, .. }) => {
+                // The login list only dates expiry by seconds from its own timestamp; what an
+                // acceptance told us (destination, target) is kept for the ids still active.
+                let at = epoch(ts);
+                let old = std::mem::take(&mut self.missions);
+                self.missions = active
+                    .iter()
+                    .map(|m| {
+                        let known = old.iter().find(|o| o.id == m.mission_id);
+                        Mission {
+                            id: m.mission_id,
+                            name: m.name.clone(),
+                            expires: at.zip(m.expires_secs).map(|(a, s)| a + s).or(known.and_then(|k| k.expires)),
+                            destination_system: known.and_then(|k| k.destination_system.clone()),
+                            target_faction: known.and_then(|k| k.target_faction.clone()),
+                            kill_count: known.and_then(|k| k.kill_count),
+                        }
+                    })
+                    .collect();
+            }
+            JournalEvent::Extra(ExtraEvent::MissionAccepted(m)) => {
+                self.missions.retain(|o| o.id != m.mission_id);
+                self.missions.push(Mission {
+                    id: m.mission_id,
+                    name: m.name.clone(),
+                    expires: m.expiry.as_deref().and_then(epoch),
+                    destination_system: m.destination_system.clone(),
+                    target_faction: m.target_faction.clone(),
+                    kill_count: m.kill_count,
+                });
+            }
+            JournalEvent::Extra(ExtraEvent::MissionCompleted { mission_id: Some(id), .. })
+            | JournalEvent::Extra(ExtraEvent::MissionEnded { mission_id: Some(id), .. }) => {
+                self.missions.retain(|m| m.id != *id);
+            }
+            JournalEvent::Extra(ExtraEvent::MissionRedirected {
+                mission_id: Some(id), new_destination_system, ..
+            }) => {
+                if let Some(m) = self.missions.iter_mut().find(|m| m.id == *id) {
+                    if new_destination_system.is_some() {
+                        m.destination_system = new_destination_system.clone();
+                    }
+                }
             }
             _ => {}
         }
@@ -294,6 +404,7 @@ impl GameState {
         if s.balance.is_some() {
             self.credits = s.balance;
         }
+        self.exobiology.apply_status(s);
     }
 
     pub fn apply_cargo(&mut self, c: &CargoSnap) {
@@ -326,6 +437,44 @@ impl GameState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn line(l: &str) -> astromech_journal::JournalLine {
+        astromech_journal::parse_line(l).unwrap()
+    }
+    const FILEHEADER: &str = r#"{"timestamp":"t","event":"Fileheader","part":1,"gameversion":"4.0","build":"b"}"#;
+    const ROLLOVER: &str = r#"{"timestamp":"t","event":"Fileheader","part":2,"gameversion":"4.0","build":"b"}"#;
+    const LOAD: &str = r#"{"timestamp":"t","event":"LoadGame","Commander":"Test","Ship":"krait_mkii","Credits":50}"#;
+    const SHUTDOWN: &str = r#"{"timestamp":"t","event":"Shutdown"}"#;
+    const MENU: &str = r#"{"timestamp":"t","event":"Music","MusicTrack":"MainMenu"}"#;
+
+    fn logged_in_after(lines: &[&str]) -> bool {
+        let mut g = GameState::default();
+        for l in lines {
+            g.apply_line(&line(l));
+        }
+        g.logged_in
+    }
+
+    #[test]
+    fn logged_in_follows_the_login_and_the_logout() {
+        assert!(!logged_in_after(&[FILEHEADER]));
+        assert!(logged_in_after(&[FILEHEADER, LOAD]));
+        assert!(!logged_in_after(&[FILEHEADER, LOAD, SHUTDOWN]));
+        assert!(!logged_in_after(&[FILEHEADER, LOAD, MENU]));
+        assert!(logged_in_after(&[LOAD, SHUTDOWN, LOAD]), "a login after a logout");
+        let other_track = r#"{"timestamp":"t","event":"Music","MusicTrack":"Exploration"}"#;
+        assert!(logged_in_after(&[LOAD, other_track]));
+    }
+
+    #[test]
+    fn a_new_journal_file_clears_a_crashed_session_but_a_rollover_keeps_it() {
+        // No Shutdown or MainMenu: the game crashed, and the next run opens a new file.
+        assert!(!logged_in_after(&[LOAD, FILEHEADER]));
+        let headerless = r#"{"timestamp":"t","event":"Fileheader","gameversion":"4.0","build":"b"}"#;
+        assert!(!logged_in_after(&[LOAD, headerless]));
+        // Part 2 is the same run continued in a new file.
+        assert!(logged_in_after(&[LOAD, ROLLOVER]));
+    }
+
     #[test]
     fn folds_events() {
         let mut g = GameState::default();
@@ -360,6 +509,46 @@ mod tests {
         );
         assert_eq!(g.system.as_deref(), Some("Alioth"));
         assert_eq!(g.station.as_deref(), Some("Jameson Memorial"));
+    }
+
+    #[test]
+    fn missions_follow_the_journal() {
+        let mut g = GameState::default();
+        let apply = |g: &mut GameState, l: &str| g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T20:00:00Z","event":"MissionAccepted","MissionID":1,"Name":"Mission_Massacre","Faction":"A","DestinationSystem":"Sys","TargetFaction":"Bad","KillCount":10,"Expiry":"2026-10-16T22:00:00Z"}"#,
+        );
+        assert_eq!(g.missions[0].expires, Some(1_792_188_000));
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Sys"));
+        // The login list re-dates by seconds left, keeping what the acceptance said.
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:00:00Z","event":"Missions","Active":[{"MissionID":1,"Name":"Mission_Massacre","PassengerMission":false,"Expires":1800},{"MissionID":2,"Name":"Mission_Delivery","PassengerMission":false,"Expires":60}],"Failed":[],"Complete":[]}"#,
+        );
+        assert_eq!(g.missions.len(), 2);
+        assert_eq!(g.missions[0].expires, Some(1_792_188_000 - 1800));
+        assert_eq!(g.missions[0].target_faction.as_deref(), Some("Bad"));
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:01:00Z","event":"MissionRedirected","MissionID":1,"NewDestinationSystem":"Elsewhere"}"#,
+        );
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Elsewhere"));
+        // A redirect to a station only (no new system) keeps the system.
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:01:30Z","event":"MissionRedirected","MissionID":1,"NewDestinationStation":"Only A Station"}"#,
+        );
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Elsewhere"));
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:02:00Z","event":"MissionCompleted","MissionID":1,"Name":"Mission_Massacre"}"#,
+        );
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:02:00Z","event":"MissionAbandoned","MissionID":2,"Name":"Mission_Delivery"}"#,
+        );
+        assert!(g.missions.is_empty());
     }
 
     #[test]

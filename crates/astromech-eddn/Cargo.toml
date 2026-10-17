@@ -1,6 +1,6 @@
 [package]
 name = "astromech-eddn"
-description = "EDDN sender: message builder, elision rules, persistent outbox with retry, send log"
+description = "EDDN sender (message builder, elision rules, persistent outbox with retry, send log) and EDSM journal upload"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,6 +13,7 @@ workspace = true
 
 [dependencies]
 rusqlite = { version = "0.40", features = ["bundled"] }
+astromech-store.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 ureq.workspace = true

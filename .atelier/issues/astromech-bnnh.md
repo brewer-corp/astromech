@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T16:28:50.417993889+00:00"
+status: "done"
 title: "Should sustained DPS ever exceed burst DPS?"
-updated_at: "2026-10-16T19:06:19.464885070+00:00"
+updated_at: "2026-10-17T16:28:50.417993889+00:00"
 ---
 
 ## Context
@@ -32,3 +33,11 @@ astromech-ship copies Coriolis, whose sustained-DPS factor leaves out charge tim
 - Match Coriolis exactly (numbers users can cross-check, but some are impossible).
 - Clamp the sustained factor at 1.
 - Count charge time in the sustained rate (closer to the game, differs from Coriolis).
+
+## Decision
+
+Count charge time in the sustained rate, departing from Coriolis (Sumeet, 17 Oct 2026). Sustained DPS never exceeds burst DPS. The cause is in `sustained_factor` (`crates/astromech-ship/src/module.rs`, Coriolis's `getSustainedFactor`): the reload cycle counts `(clip - burst) / rof` plus the burst overhead and the reload, but not the last burst's charge, so a one-round clip such as a rail gun cycles in just the reload time. Users cross-checking against Coriolis will see different sustained numbers for charged weapons; the fix is also offered upstream.
+
+## Close Reason
+
+Count charge time; sustained never exceeds burst (Sumeet, 17 Oct)

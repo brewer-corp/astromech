@@ -20,6 +20,7 @@
 //! window (onboarding's `set_folders`) stops the follower and starts one on the new folder.
 
 use astromech_history::{History, ImportOptions};
+use astromech_journal::journal_version;
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -49,23 +50,6 @@ impl Default for Timing {
     fn default() -> Self {
         Self { settle: SETTLE, recheck: RECHECK, notify: true }
     }
-}
-
-/// How many journals there are and how long the newest is, read through an open handle: on
-/// Windows the folder listing can lag appends to the file the game holds open.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct JournalVersion {
-    files: usize,
-    newest: Option<PathBuf>,
-    len: u64,
-}
-
-pub fn journal_version(dir: &std::path::Path) -> JournalVersion {
-    let logs = astromech_journal::journal_logs(dir);
-    let newest = logs.last().cloned();
-    let len =
-        newest.as_deref().and_then(|p| std::fs::File::open(p).and_then(|f| f.metadata()).ok()).map_or(0, |m| m.len());
-    JournalVersion { files: logs.len(), newest, len }
 }
 
 /// What the history thread is doing, for the app.

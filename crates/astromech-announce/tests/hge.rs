@@ -70,10 +70,9 @@ fn other_signals_stay_quiet() {
     let mut r = Run::new();
     r.spoken(&jump(80_000_000, FAMINE_SYSTEM));
     for sig in [
-        r#"{"timestamp":"2026-10-16T20:01:00Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"$USS_NonHumanSignal;","USSType":"$USS_Type_NonHuman;","USSType_Localised":"Non-Human signal source","SpawningFaction":"Hungry Feds"}"#,
+        r#"{"timestamp":"2026-10-16T20:01:00Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"$USS_Salvage;","USSType":"$USS_Type_Salvage;","USSType_Localised":"Degraded emissions","SpawningFaction":"Hungry Feds"}"#,
         r#"{"timestamp":"2026-10-16T20:01:00Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"$USS_EncodedEmission;","USSType":"$USS_Type_ValuableSalvage;","USSType_Localised":"Encoded emissions"}"#,
         r#"{"timestamp":"2026-10-16T20:01:00Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"Jameson Memorial","IsStation":true}"#,
-        r#"{"timestamp":"2026-10-16T20:01:00Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"$Warzone_PointRace_Med;","SignalName_Localised":"Conflict Zone"}"#,
     ] {
         assert!(r.spoken(sig).is_empty(), "{sig}");
     }

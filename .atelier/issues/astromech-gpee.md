@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-17T05:00:10.350579971+00:00"
+status: "done"
 title: "High-value discovery alert"
-updated_at: "2026-10-15T20:36:13.664784849+00:00"
+updated_at: "2026-10-17T05:00:10.350579971+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ Replay: an ELW scan gets one line; FSSAllBodiesFound gets none.
 ## Context
 
 A reaction rule.
+
+## Close Reason
+
+discovery callout rule built and replay-tested: ELW scan gets one line, FSSAllBodiesFound none.

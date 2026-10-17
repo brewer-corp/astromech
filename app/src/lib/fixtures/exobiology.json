@@ -1,0 +1,166 @@
+{
+  "bodies": [
+    {
+      "body_id": 5,
+      "genera": [
+        {
+          "colony_range_m": 500,
+          "genus": "Stratum",
+          "known": true,
+          "species": [
+            {
+              "fit": 1.0,
+              "genus": "Stratum",
+              "species": "Stratum Tectonicas",
+              "value": 19010800
+            }
+          ],
+          "value": [
+            19010800,
+            19010800
+          ]
+        },
+        {
+          "colony_range_m": 500,
+          "genus": "Bacterium",
+          "known": true,
+          "species": [
+            {
+              "fit": 1.0,
+              "genus": "Bacterium",
+              "species": "Bacterium Aurasus",
+              "value": 1000000
+            }
+          ],
+          "value": [
+            1000000,
+            1000000
+          ]
+        }
+      ],
+      "mapped": true,
+      "name": "Synthetic Sector AB-C d1 A 2",
+      "signals": 2,
+      "value": [
+        20010800,
+        20010800
+      ]
+    },
+    {
+      "body_id": 7,
+      "genera": [
+        {
+          "colony_range_m": 1000,
+          "genus": "Electricae",
+          "known": false,
+          "species": [
+            {
+              "fit": 1.0,
+              "genus": "Electricae",
+              "species": "Electricae Radialem",
+              "value": 6284600
+            }
+          ],
+          "value": [
+            6284600,
+            6284600
+          ]
+        },
+        {
+          "colony_range_m": 500,
+          "genus": "Bacterium",
+          "known": false,
+          "species": [
+            {
+              "fit": 1.0,
+              "genus": "Bacterium",
+              "species": "Bacterium Vesicula",
+              "value": 1000000
+            }
+          ],
+          "value": [
+            1000000,
+            1000000
+          ]
+        },
+        {
+          "colony_range_m": 500,
+          "genus": "Fonticulua",
+          "known": false,
+          "species": [
+            {
+              "fit": 1.0,
+              "genus": "Fonticulua",
+              "species": "Fonticulua Campestris",
+              "value": 1000000
+            }
+          ],
+          "value": [
+            1000000,
+            1000000
+          ]
+        }
+      ],
+      "mapped": false,
+      "name": "Synthetic Sector AB-C d1 B 3",
+      "signals": 3,
+      "value": [
+        8284600,
+        8284600
+      ]
+    }
+  ],
+  "known": [
+    {
+      "body_id": 5,
+      "genera": [
+        "Stratum",
+        "Bacterium"
+      ],
+      "name": "Synthetic Sector AB-C d1 A 2",
+      "signals": 2,
+      "species": [
+        {
+          "name": "Stratum Tectonicas",
+          "value": 19010800
+        }
+      ],
+      "value": [
+        20010800,
+        28127400
+      ]
+    },
+    {
+      "body_id": 7,
+      "genera": [
+        "Bacterium",
+        "Fonticulua",
+        "Electricae"
+      ],
+      "name": "Synthetic Sector AB-C d1 B 3",
+      "signals": 3,
+      "species": [],
+      "value": [
+        8284600,
+        34412000
+      ]
+    }
+  ],
+  "ok": true,
+  "sampling": {
+    "body_id": 5,
+    "clearance": {
+      "bearing_deg": 206.21584760924785,
+      "colony_range_m": 500,
+      "far_enough": false,
+      "nearest_m": 230.66738387841158,
+      "next": 2
+    },
+    "colony_range_m": 500,
+    "complete": false,
+    "count": 1,
+    "genus": "Stratum",
+    "species": "Stratum Tectonicas"
+  },
+  "system": "Synthetic Sector AB-C d1"
+}

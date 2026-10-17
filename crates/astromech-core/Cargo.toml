@@ -16,6 +16,7 @@ name = "astromech-core"
 path = "src/main.rs"
 
 [dependencies]
+astromech-log.workspace = true
 astromech-proto.workspace = true
 astromech-journal.workspace = true
 astromech-status.workspace = true
@@ -31,9 +32,12 @@ astromech-announce.workspace = true
 astromech-data.workspace = true
 astromech-galaxy.workspace = true
 astromech-market.workspace = true
+astromech-colonisation.workspace = true
 astromech-eddn.workspace = true
 astromech-history.workspace = true
 astromech-station.workspace = true
+astromech-exobiology.workspace = true
+astromech-exploration.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -57,6 +61,7 @@ tempfile.workspace = true
 astromech-data.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
+rusqlite = { version = "0.40", features = ["bundled"] }
 
 [target.'cfg(windows)'.dev-dependencies]
 windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_LibraryLoader", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi"] }

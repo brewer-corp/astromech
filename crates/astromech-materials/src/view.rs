@@ -5,8 +5,7 @@ use crate::hge::{self, Here, SourceNote};
 use crate::ledger::Ledger;
 use astromech_journal::{JournalEvent, JournalLine};
 use serde::Serialize;
-use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Inventory {
@@ -191,20 +190,4 @@ fn here_from_journal_dir(dir: &Path) -> Option<hge::Here> {
     hge::here_from_lines(&after)
 }
 
-/// Changes whenever [`from_journal_dir`] could give a different answer: a journal file is added or
-/// removed, or the newest one grows. The length is read through an open handle because on Windows
-/// a directory listing reports the size NTFS last stored in the directory entry, which can lag
-/// appends to a file the game still holds open (astromech-txzq).
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct JournalVersion {
-    files: usize,
-    newest: Option<PathBuf>,
-    len: u64,
-}
-
-pub fn journal_version(dir: &Path) -> JournalVersion {
-    let logs = astromech_journal::journal_logs(dir);
-    let newest = logs.last().cloned();
-    let len = newest.as_deref().and_then(|p| File::open(p).and_then(|f| f.metadata()).ok()).map_or(0, |m| m.len());
-    JournalVersion { files: logs.len(), newest, len }
-}
+pub use astromech_journal::{journal_version, JournalVersion};

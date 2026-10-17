@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647047088+00:00"
 id: "astromech-znhx"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-znhx
 priority: "P1"
 relationships:
   blocks:
@@ -24,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-17T05:15:02.545192518+00:00"
+status: "done"
 title: "Exobiology"
-updated_at: "2026-10-15T20:36:13.716404361+00:00"
+updated_at: "2026-10-17T05:15:02.545192518+00:00"
 ---
 
 ## Goal
@@ -40,3 +44,7 @@ Every child issue is done. Delivers S8.
 ## Unknowns
 
 Licences of the species prediction tables; how complete Spansh's body signal and genus data are.
+
+## Close Reason
+
+Exobiology delivered: surface guidance, species prediction with values, the sampling helper and the system biology summary (voice and Galaxy > Biology page). Review outstanding; overlap with astromech-p4ls to reconcile at merge.

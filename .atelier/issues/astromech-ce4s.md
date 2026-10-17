@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-17T05:10:05.140031752+00:00"
+status: "done"
 title: "Landings per body and first-footfall hint"
-updated_at: "2026-10-15T20:36:13.665831070+00:00"
+updated_at: "2026-10-17T05:10:05.140031752+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ History fixtures: a body landed on twice shows 2; an undiscovered landable body 
 ## Context
 
 Covers EDCoPilot's "number of landings on landable bodies" (inferred to come from its own journal history). True first footfall isn't in the journal.
+
+## Close Reason
+
+Landings per body from Touchdown/Disembark in the history, in the system view and the arrival briefing; first-footfall-likely hint.

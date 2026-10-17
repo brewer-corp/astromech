@@ -109,6 +109,10 @@ fn secs(ts: &str) -> u64 {
     p[0] * 3600 + p[1] * 60 + p[2]
 }
 
+fn epoch(ts: &str) -> i64 {
+    chrono::DateTime::parse_from_rfc3339(ts).unwrap().timestamp()
+}
+
 impl Replay {
     fn new(rules: Vec<Box<dyn Rule>>, settings: &Settings) -> Self {
         Self { engine: Engine::new(rules, settings), state: GameState::default(), t0: Instant::now(), out: vec![] }
@@ -134,6 +138,31 @@ impl Replay {
 
     fn status(&mut self, ts: &str, flags: u64) {
         let s = parse_status(format!(r#"{{"timestamp":"{ts}","event":"Status","Flags":{flags}}}"#).as_bytes()).unwrap();
+        self.state.apply_status(&s);
+        let now = self.at(ts);
+        let rs = self.engine.status(&s, &self.state, now);
+        self.record(rs);
+    }
+
+    /// Status.json on foot at `lat` degrees north on a 1000 km body.
+    fn on_foot(&mut self, ts: &str, lat: f64) {
+        let s = parse_status(
+            format!(r#"{{"timestamp":"{ts}","event":"Status","Flags":2097152,"Latitude":{lat},"Longitude":0.0,"PlanetRadius":1000000.0}}"#)
+                .as_bytes(),
+        )
+        .unwrap();
+        self.state.apply_status(&s);
+        let now = self.at(ts);
+        let rs = self.engine.status(&s, &self.state, now);
+        self.record(rs);
+    }
+
+    /// Status.json with the GUI focus `gui` (9: the FSS scanner).
+    fn focus(&mut self, ts: &str, gui: u64) {
+        let s = parse_status(
+            format!(r#"{{"timestamp":"{ts}","event":"Status","Flags":16777216,"GuiFocus":{gui}}}"#).as_bytes(),
+        )
+        .unwrap();
         self.state.apply_status(&s);
         let now = self.at(ts);
         let rs = self.engine.status(&s, &self.state, now);
@@ -294,6 +323,8 @@ fn catch_up_leaves_docking_quiet_in_place() {
 /// One line per built-in rule that makes it speak, at minute `hm` ("19:59").
 fn one_line_per_rule(hm: &str) -> Vec<String> {
     vec![
+        // The login that arms the session summary (the live pass sees it; the catch-up does not act on it).
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"LoadGame","Commander":"Test","Ship":"krait_mkii"}}"#),
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"ProspectedAsteroid","Materials":[{{"Name":"Platinum","Proportion":40.0}}],"MotherlodeMaterial":"Opal","Remaining":100.0}}"#
         ),
@@ -304,6 +335,10 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:30Z","event":"DockingDenied","Reason":"NoSpace","StationType":"Coriolis"}}"#
         ),
+        // Bound for system A, with 30 minutes left at the time of the tick below.
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:35Z","event":"MissionAccepted","MissionID":7,"Name":"Mission_Massacre","Faction":"F","DestinationSystem":"A","Expiry":"2026-10-16T20:30:00Z"}}"#
+        ),
         // On the route below, at a neutron star with 1 t left: scoopable and fuel_range.
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0,"ControllingPower":"Zachary Hudson","Powers":["Zachary Hudson"],"PowerplayState":"Fortified","PowerplayStateControlProgress":0.4}}"#
@@ -311,30 +346,87 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
         ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:46Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"Ship","SignalType":"Megaship"}}"#
+        ),
+        // From an empty hold to a full one: arsenic's cap is 250.
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:47Z","event":"Materials","Raw":[],"Manufactured":[],"Encoded":[]}}"#),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"MaterialCollected","Category":"Raw","Name":"arsenic","Count":250}}"#
+        ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"Scan","ScanType":"Detailed","BodyName":"A 2","BodyID":2,"PlanetClass":"Earthlike body","MassEM":1.0,"WasDiscovered":true,"WasMapped":true}}"#
+        ),
+        // A body with biology in the FSS; leaving the FSS (`focus`) gives the summary.
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"FSSBodySignals","BodyName":"A A 2","BodyID":5,"Signals":[{{"Type":"$SAA_SignalType_Biological;","Count":2}}]}}"#
+        ),
+        // The first sample of a Stratum (500 m); the walk away is in Status.json (`on_foot`).
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:49Z","event":"ScanOrganic","ScanType":"Log","Genus":"$Codex_Ent_Stratum_Genus_Name;","Species":"$Codex_Ent_Stratum_07_Name;","Species_Localised":"Stratum Tectonicas","SystemAddress":1,"Body":5}}"#
+        ),
+        // The session ends; the summary waits for a tick.
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:49Z","event":"Shutdown"}}"#),
     ]
+}
+
+/// A history with one session that earned 4.2 million and covered nothing else.
+struct Session;
+
+impl astromech_announce::session_summary::SessionHistory for Session {
+    fn session(
+        &self,
+        _: Option<&str>,
+        _: Option<&str>,
+    ) -> Result<Option<astromech_announce::session_summary::Totals>, astromech_announce::session_summary::Unreadable>
+    {
+        Ok(Some(astromech_announce::session_summary::Totals {
+            end: "2026-10-17T00:00:00Z".into(),
+            total: 4_200_000,
+            per_hour: Some(1_900_000),
+            jumps: 0,
+            distance_ly: 0.0,
+            bounties: 0,
+        }))
+    }
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
-    let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 9, "a callout rule was added or removed: give it a line in this catch-up test");
+    // The history holds a session up to the end of the journal.
+    let shared = Shared::default();
+    shared.sessions.set(std::sync::Arc::new(Session));
+    let rules = builtin(shared);
+    assert_eq!(rules.len(), 17, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
     let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"B","StarPos":[40,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[60,0,0],"StarClass":"G"}]}"#;
     r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
+    r.on_foot("2026-10-16T19:59:00Z", 0.0);
     r.journal(&one_line_per_rule("19:59").join("\n"));
+    r.on_foot("2026-10-16T19:59:50Z", 1.0);
+    r.focus("2026-10-16T19:59:51Z", 9);
+    r.focus("2026-10-16T19:59:52Z", 0);
     // The route file read at startup.
     let rs =
         r.engine.route(&astromech_journal::parse_nav_route(route).unwrap(), &r.state, r.at("2026-10-16T19:59:50Z"));
     r.record(rs);
+    let rs = r.engine.tick(epoch("2026-10-16T19:59:55Z"), &r.state, r.at("2026-10-16T19:59:55Z"));
+    r.record(rs);
     assert!(r.out.is_empty(), "{:?}", r.out);
     r.engine.set_live(true);
+    r.on_foot("2026-10-16T20:00:00Z", 0.0);
     r.journal(&one_line_per_rule("20:00").join("\n"));
+    r.on_foot("2026-10-16T20:00:49Z", 0.6);
+    r.focus("2026-10-16T20:00:50Z", 9);
+    r.focus("2026-10-16T20:00:51Z", 0);
     // A new route once live.
     let replot = br#"{"Route":[{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"},{"StarSystem":"B","StarPos":[60,0,0],"StarClass":"M"},{"StarSystem":"C","StarPos":[80,0,0],"StarClass":"K"}]}"#;
     let replot = astromech_journal::parse_nav_route(replot).unwrap();
     let rs = r.engine.route(&replot, &r.state, r.at("2026-10-16T20:00:50Z"));
+    r.record(rs);
+    let rs = r.engine.tick(epoch("2026-10-16T20:01:00Z"), &r.state, r.at("2026-10-16T20:01:00Z"));
     r.record(rs);
     assert_eq!(
         r.spoken(),
@@ -346,8 +438,17 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Zachary Hudson fortified, 40 percent.",
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
+            "Mission target in this system.",
             "High Grade Emissions.",
+            "Megaship in system.",
+            "Arsenic at 250/250.",
+            "Earth-like world. 1.5 million mapped.",
+            "Far enough for sample 2.",
+            "Biology on 1 body.",
+            "A 2: Stratum Tectonicas, 19 M.",
             "Route: 3 jumps, 60 ly.",
+            "Mission expires within an hour.",
+            "Earned 4.2 million credits, 1.9 million an hour.",
         ]
     );
 }

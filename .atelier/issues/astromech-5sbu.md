@@ -2,8 +2,7 @@
 created_at: "2026-10-16T19:05:38.928892788+00:00"
 id: "astromech-5sbu"
 issue_type: "task"
-labels:
-- "needs-human"
+labels: []
 priority: "P1"
 relationships:
   blocks:
@@ -19,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Land the route follower from the route-clipboard branch"
-updated_at: "2026-10-16T19:05:38.928892788+00:00"
+updated_at: "2026-10-17T17:01:57.360204682+00:00"
 ---
 
 ## Goal
@@ -33,3 +32,7 @@ The route follower is merged to main through review.
 ## Context
 
 Sumeet's work in progress; agents must not touch that checkout. Since this was filed, main gained the shared `SystemChip` in `Nearby.svelte` (astromech-vmot) and other `Nearby.svelte`/engineering changes, so expect a merge.
+
+## Notes
+
+- 2026-10-17 [note] 17 Oct: Sumeet's uncommitted work is now commit 400aace on branch route-clipboard (pushed to origin). Based on v0.1.5 (b662341), so it has to be re-applied on top of main.

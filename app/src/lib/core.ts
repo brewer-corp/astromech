@@ -6,6 +6,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { fakeCall, fakeScenario, fakeStatus } from "./fakecore";
+import type { MiningRun } from "./mining";
 
 export interface UpdateStatus {
   status: "idle" | "checking" | "available" | "downloading" | "ready" | "applying" | "error";
@@ -55,6 +56,8 @@ export interface CoreStatus {
   toasts?: Toast[];
   /** The journal history the core keeps (backfill, then new lines). */
   history?: HistoryProgress | null;
+  /** The current mining run; null while no session is running. */
+  mining?: MiningRun | null;
 }
 
 export interface HistoryProgress {
@@ -115,6 +118,9 @@ export type CoreCmd =
   | "open_config"
   | "eddn_log"
   | "set_eddn"
+  | "edsm_status"
+  | "set_edsm"
+  | "edsm_flight_log"
   | "voice_test"
   | "voice_test_poll"
   | "voice_test_stop"
@@ -140,7 +146,9 @@ export type CoreCmd =
   | "prospector_thresholds"
   | "prospector_set"
   // Engineering → the arrival briefing's shopping list (core: callouts.rs).
-  | "shopping_set";
+  | "shopping_set"
+  // Exploration → Biology: the system's biology and the sampling in progress (core: biology.rs).
+  | "exobiology";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };

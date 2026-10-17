@@ -14,7 +14,10 @@ pub enum Pad {
 
 impl Pad {
     /// The pad a ship needs, by its journal symbol (`Loadout.Ship`); `None` if unknown.
-    /// Player-visible game data (Elite Dangerous wiki, ship pages).
+    /// Player-visible game data (Elite Dangerous wiki, ship pages). The 2024-26 hulls
+    /// (`explorer_nx`, `smallcombat01_nx`, `lakonminer`, `mediumtransport01`) were checked on
+    /// 17 Oct 2026 against Coriolis' ship data (EDCD/coriolis-data, hull `class` 1/2/3 is the
+    /// pad size) by symbol id from FDevIDs; the wiki itself was behind a bot wall.
     pub fn for_ship(symbol: &str) -> Option<Pad> {
         let s = symbol.to_ascii_lowercase();
         let pad = match s.as_str() {
@@ -104,6 +107,13 @@ impl Filters {
         self
     }
 
+    /// The oldest `updated_at` the data-age filter allows (RFC 3339, to the hour), to send to
+    /// Spansh so its nearest matches are already fresh. `None` without an age filter.
+    pub fn updated_since(&self, now_s: i64) -> Option<String> {
+        let days = self.max_age_days?;
+        Some(crate::iso((now_s - days as i64 * 86_400).div_euclid(3600) * 3600))
+    }
+
     pub fn keeps(&self, f: &Facts, now_s: i64) -> bool {
         let pad = match (self.pad, f.pad) {
             (Some(need), Some(has)) => has >= need,
@@ -132,6 +142,32 @@ impl Filters {
             && !(self.exclude_carriers && f.fleet_carrier)
             && !(self.exclude_odyssey && f.odyssey)
     }
+}
+
+/// The ship being flown, from the fleet the journal gives.
+pub fn current_ship(fleet: Option<&astromech_engineering::Fleet>) -> Option<&astromech_engineering::Ship> {
+    fleet?.ships.iter().find(|s| s.current)
+}
+
+/// The pad the ship being flown needs; `None` with no known ship.
+pub fn current_pad(fleet: Option<&astromech_engineering::Fleet>) -> Option<Pad> {
+    current_ship(fleet).and_then(|s| Pad::for_ship(&s.ship_type))
+}
+
+/// The filters a search runs with: `saved` (the page's, or the defaults) with the pad taken
+/// from the ship being flown now unless the commander set one, whatever pad the page sent. Every
+/// search in the shell goes through this, so a ship change applies at once.
+pub fn resolve(saved: Option<Filters>, fleet: Option<&astromech_engineering::Fleet>) -> Filters {
+    saved.unwrap_or_default().for_ship(current_pad(fleet))
+}
+
+/// `lookup`'s remembered filters, resolved for the ship being flown now.
+pub fn load_for_fleet(
+    store: &astromech_store::Store,
+    lookup: &str,
+    fleet: Option<&astromech_engineering::Fleet>,
+) -> anyhow::Result<Filters> {
+    load(store, lookup, current_pad(fleet))
 }
 
 pub(crate) fn parse_time(s: &str) -> Option<i64> {
@@ -176,6 +212,44 @@ mod tests {
         assert_eq!(load(&st, "faction.proto", None).unwrap(), Filters::default(), "other lookups are untouched");
     }
 
+    fn fleet_in(ship_type: Option<&str>) -> astromech_engineering::Fleet {
+        let mut fleet = astromech_engineering::sample_fleet();
+        for s in &mut fleet.ships {
+            s.current = false;
+        }
+        if let Some(t) = ship_type {
+            fleet.ships[0].ship_type = t.into();
+            fleet.ships[0].current = true;
+        }
+        fleet
+    }
+
+    /// What the shell does for every search: the page sends the filters it loaded (with the pad
+    /// of the ship it knew), and a ship change since must still change the pad searched with.
+    #[test]
+    fn a_search_resolves_the_pad_from_the_current_ship_not_the_filters_sent() {
+        let sent = Filters { pad: Some(Pad::M), pad_set: false, ..Filters::default() }; // loaded in a Krait
+        let pad = |ship: Option<&str>| resolve(Some(sent.clone()), Some(&fleet_in(ship))).pad;
+        assert_eq!(pad(Some("krait_mkii")), Some(Pad::M));
+        assert_eq!(pad(Some("anaconda")), Some(Pad::L), "now in an Anaconda");
+        assert_eq!(pad(Some("sidewinder")), Some(Pad::S));
+        assert_eq!(pad(None), None, "no ship flown: any pad");
+        assert_eq!(resolve(Some(sent.clone()), None).pad, None, "no journal: any pad");
+        let chosen = Filters { pad: Some(Pad::S), pad_set: true, ..Filters::default() };
+        assert_eq!(resolve(Some(chosen), Some(&fleet_in(Some("anaconda")))).pad, Some(Pad::S), "the pick stays");
+        assert_eq!(resolve(None, Some(&fleet_in(Some("anaconda")))).pad, Some(Pad::L), "defaults follow the ship");
+    }
+
+    /// The page's own load of a lookup's filters follows the ship the same way.
+    #[test]
+    fn the_remembered_filters_follow_the_ship_flown() {
+        let st = astromech_store::Store::in_memory().unwrap();
+        save(&st, "trade.sell", &Filters { max_age_days: Some(7), ..Filters::default() }).unwrap();
+        let in_ship = |t| load_for_fleet(&st, "trade.sell", Some(&fleet_in(Some(t)))).unwrap();
+        assert_eq!((in_ship("krait_mkii").pad, in_ship("anaconda").pad), (Some(Pad::M), Some(Pad::L)));
+        assert_eq!(in_ship("anaconda").max_age_days, Some(7));
+    }
+
     #[test]
     fn pad_follows_the_ship_unless_the_commander_set_it() {
         let st = astromech_store::Store::in_memory().unwrap();
@@ -196,6 +270,28 @@ mod tests {
         save(&st, "outfitting", &Filters { pad: None, pad_set: true, ..Filters::default() }).unwrap();
         assert_eq!(load(&st, "outfitting", anaconda).unwrap().pad, None);
         assert_eq!(load(&st, "trade", anaconda).unwrap().pad, Some(Pad::L), "another lookup still follows the ship");
+    }
+
+    /// Pads of the hulls added from memory, checked against Coriolis' data (see `for_ship`).
+    #[test]
+    fn newer_hulls_have_their_checked_pads() {
+        for (symbol, pad) in [
+            ("MediumTransport01", Pad::M), // Lynx Highliner
+            ("Explorer_NX", Pad::L),       // Caspian Explorer
+            ("LakonMiner", Pad::M),        // Type-11 Prospector
+            ("SmallCombat01_NX", Pad::S),  // Kestrel Mk II
+            ("PantherMkII", Pad::L),
+        ] {
+            assert_eq!(Pad::for_ship(symbol), Some(pad), "{symbol}");
+        }
+    }
+
+    #[test]
+    fn updated_since_rounds_down_to_the_hour() {
+        let now = parse_time("2026-10-17T12:34:56Z").unwrap();
+        assert_eq!(Filters::default().updated_since(now), None);
+        let f = Filters { max_age_days: Some(2), ..Filters::default() };
+        assert_eq!(f.updated_since(now).as_deref(), Some("2026-10-15T12:00:00Z"));
     }
 
     #[test]

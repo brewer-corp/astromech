@@ -3,12 +3,15 @@
   // blueprint picker (suit/weapon grade upgrades and modifications) with what each is missing and
   // one shopping list for them all, and the on-foot engineers' unlocks and referral chain.
   import {
+    fromGrades,
     hasPick,
     loadOdyssey,
     pickKey,
     samePicks,
     loadShopping,
     MAKERS,
+    offered,
+    ownedGrades,
     savedPicks,
     savePicks,
     type Category,
@@ -96,7 +99,25 @@
       .reduce((n, i) => n + (i.value ?? 0) * (i.locker + i.backpack), 0),
   );
   const mod = $derived(view?.mods.find((m) => m.id === modId));
-  const makers = $derived(mod?.makers ?? []);
+  const makers = $derived((mod?.makers ?? []).filter((mk) => !mod?.fitted_makers?.includes(mk)));
+  const owned = $derived(view?.owned ?? []);
+  const fromOptions = $derived(fromGrades(owned, gearId));
+  const toOptions = $derived([2, 3, 4, 5].filter((g) => g > from));
+
+  // An owned suit or weapon is upgraded from a grade it has; a mod already fitted everywhere is
+  // no longer offered.
+  $effect(() => {
+    if (!fromOptions.includes(from)) from = fromOptions[0] ?? 1;
+  });
+  $effect(() => {
+    if (to <= from) to = 5;
+  });
+  $effect(() => {
+    if (modId && view && !view.mods.some((m) => m.id === modId && offered(m))) modId = "";
+  });
+
+  const ownedNote = (id: string) => (ownedGrades(owned, id).length ? ` · owned G${ownedGrades(owned, id).join(", G")}` : "");
+  const modName = (id: string) => view?.mods.find((m) => m.id === id)?.name ?? id;
 
   function newPick(): Pick | null {
     if (what === "upgrade") return from < to ? { kind: "upgrade", gear: gearId, from, to } : null;
@@ -182,6 +203,12 @@
   {/if}
 
   {#if view && tab === "blueprints"}
+    {#if owned.length}
+      <p class="sub owned">
+        Owned (from the journal):
+        {#each owned as g, i (i)}{i ? " · " : " "}{g.name} G{g.grade}{g.mods.length ? ` (${g.mods.map(modName).join(", ")})` : ""}{/each}
+      </p>
+    {/if}
     <div class="picker">
       <select bind:value={what} aria-label="Blueprint type">
         <option value="upgrade">Grade upgrade</option>
@@ -190,22 +217,22 @@
       {#if what === "upgrade"}
         <select bind:value={gearId} aria-label="Suit or weapon">
           <optgroup label="Suits">
-            {#each view.gear.filter((g) => g.kind === "suit") as g (g.id)}<option value={g.id}>{g.name}</option>{/each}
+            {#each view.gear.filter((g) => g.kind === "suit") as g (g.id)}<option value={g.id}>{g.name}{ownedNote(g.id)}</option>{/each}
           </optgroup>
           <optgroup label="Weapons">
-            {#each view.gear.filter((g) => g.kind === "weapon") as g (g.id)}<option value={g.id}>{g.name}</option>{/each}
+            {#each view.gear.filter((g) => g.kind === "weapon") as g (g.id)}<option value={g.id}>{g.name}{ownedNote(g.id)}</option>{/each}
           </optgroup>
         </select>
-        <label>from <select bind:value={from} aria-label="From grade">{#each [1, 2, 3, 4] as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
-        <label>to <select bind:value={to} aria-label="To grade">{#each [2, 3, 4, 5] as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
+        <label>from <select bind:value={from} aria-label="From grade">{#each fromOptions as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
+        <label>to <select bind:value={to} aria-label="To grade">{#each toOptions as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
       {:else}
         <select bind:value={modId} aria-label="Modification">
           <option value="" disabled>Choose…</option>
           <optgroup label="Suit">
-            {#each view.mods.filter((m) => m.kind === "suit") as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
+            {#each view.mods.filter((m) => m.kind === "suit" && offered(m)) as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
           </optgroup>
           <optgroup label="Weapon">
-            {#each view.mods.filter((m) => m.kind === "weapon") as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
+            {#each view.mods.filter((m) => m.kind === "weapon" && offered(m)) as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
           </optgroup>
         </select>
         {#if makers.length}
@@ -272,6 +299,27 @@
           {/each}
         </tbody>
       </table>
+      <h3 class="list">Bartender trade</h3>
+      {#if list.trade.swaps.length}
+        <ul class="swaps">
+          {#each list.trade.swaps as w (w.get_id)}
+            <li>
+              Trade {w.gives.map((g) => `${g.count} ${g.name}`).join(", ")} for {w.get} {w.get_name}
+              <span class="lo">({w.barter_given} barter given for {w.barter_wanted}{w.barter_given > w.barter_wanted ? `, ${w.barter_given - w.barter_wanted} over` : ""})</span>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="lo">{list.barter_short ? "No surplus assets to trade for the short ones." : "No short assets to trade for."}</p>
+      {/if}
+      {#if list.trade.left.length}
+        <p class="sub">
+          Still short after the trade: {list.trade.left.map((l) => `${l.short} ${l.name}`).join(", ")}
+        </p>
+      {:else if list.trade.swaps.length}
+        <p class="ok">Nothing is short after the trade.</p>
+      {/if}
+      <p class="lo note">Assumes a bartender swaps equal barter value and that only assets are traded (the wiki gives barter values for assets only).</p>
       {:else if !shopError}
         <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
       {/if}
@@ -340,6 +388,7 @@
   .pick.bad h3 { color: var(--text-lo); }
   .pick p, .eng p { margin: 6px 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
+  .swaps { margin: 4px 0 8px; padding-left: 1.2rem; font-size: var(--fs-s); }
   h3.list { margin: 22px 0 4px; }
   .engs { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: var(--gap); }
   .eng .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }

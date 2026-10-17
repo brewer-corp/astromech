@@ -2,7 +2,8 @@
 created_at: "2026-10-16T18:56:53.832131635+00:00"
 id: "astromech-54hd"
 issue_type: "task"
-labels: []
+labels:
+- "alpha"
 priority: "P2"
 relationships:
   blocks: []
@@ -19,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Merged controller page: the other stick and per-action detail"
-updated_at: "2026-10-16T18:56:53.832131635+00:00"
+updated_at: "2026-10-17T17:01:42.304580751+00:00"
 ---
 
 ## Goal

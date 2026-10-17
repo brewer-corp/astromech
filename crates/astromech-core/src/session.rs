@@ -120,6 +120,25 @@ pub fn short(h: &crate::assistant::Handled) -> String {
     }
 }
 
+/// The process's one remote-data client, over `transport` (real HTTP outside tests), with its
+/// cache in `data` (the file the app window uses too), and the star map using that client: the
+/// app window's star map when the core uses the default data dir, else its own. Both go to the
+/// [`Runner`], so every lookup shares the client's rate limit and cache.
+pub fn remote_data(
+    data: &Path,
+    transport: Arc<dyn astromech_data::Transport>,
+) -> (Arc<astromech_data::Client>, Option<Arc<astromech_galaxy::Galaxy>>) {
+    let remote = astromech_data::Client::shared_with_transport(data, transport, Arc::new(|s: &str| log(s)));
+    let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None, remote.clone()) {
+        Ok(g) => Some(Arc::new(g)),
+        Err(e) => {
+            log(&format!("star map not opened, site lookups are off: {e:#}"));
+            None
+        }
+    };
+    (remote, galaxy)
+}
+
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
     pub fn start(cfg: &Config, opts: &Opts) -> Result<Session> {
@@ -158,6 +177,10 @@ impl Session {
             Err(_) => astromech_announce::Shared::default(),
         };
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
+        shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
+            astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
+        ))));
+        shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
@@ -175,6 +198,7 @@ impl Session {
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
+            crate::pipeline::edsm_uploader(&data),
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
@@ -277,14 +301,7 @@ impl Session {
             skip_window_checks: cfg.actions.dry_run && !cfg!(windows),
             ..Default::default()
         };
-        // The app window's star map when the core uses the default data dir; else its own.
-        let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None) {
-            Ok(g) => Some(Arc::new(g)),
-            Err(e) => {
-                log(&format!("star map not opened, site lookups are off: {e:#}"));
-                None
-            }
-        };
+        let (remote, galaxy) = remote_data(&data, Arc::new(astromech_data::HttpTransport::new()));
         let runner = Arc::new(Runner {
             policy: Policy::new(platform, pcfg),
             hub: hub.clone(),
@@ -292,14 +309,17 @@ impl Session {
             speaker: speaker.clone(),
             verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
             log: Arc::new(|s: &str| log(s)),
+            remote,
             galaxy,
         });
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
+        let assistant =
+            Assistant::new(runner.clone()).with_sessions(shared.sessions.clone()).with_journals(jdir.clone());
         let assistant = Arc::new(match alias_store {
-            Some(st) => Assistant::new(runner.clone()).with_store(st),
-            None => Assistant::new(runner.clone()),
+            Some(st) => assistant.with_store(st),
+            None => assistant,
         });
 
         let voice = if args.no_voice {

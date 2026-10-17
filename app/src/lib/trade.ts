@@ -7,6 +7,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import catalog from "../../../data/catalog/commodities.json";
 import { inTauri } from "./core";
+import compareSample from "./fixtures/market-compare.json";
 import sample from "./fixtures/trade.json";
 import type { Filters, Origin, Pad, Results } from "./search";
 
@@ -132,8 +133,12 @@ export async function tradeAnywhere(side: Side, symbol: string, origin: Origin =
   };
 }
 
-/** The first commodity's markets as the search kit's rows. */
-export function toResults(s: TradeSearch): Results {
+/**
+ * The first commodity's markets as the search kit's rows. Ardent cuts a nearby search at 1000
+ * markets: say so, so a cut answer doesn't look complete. The anywhere lookup has no radius to
+ * narrow, and its list is always cut to the best 100 (the sub-heading says so).
+ */
+export function toResults(s: TradeSearch, anywhere = false): Results {
   const volume = s.side === "sell" ? "demand" : "stock";
   const p = s.results[0];
   return {
@@ -141,6 +146,7 @@ export function toResults(s: TradeSearch): Results {
     range: s.range,
     source: "Ardent Insight",
     fetched: new Date((p?.fetched_at ?? 0) * 1000).toISOString(),
+    warning: p?.truncated && !anywhere ? `Too many markets for ${findCommodity(p.commodity)?.name ?? p.commodity}: narrow the radius to see them all.` : undefined,
     rows: (p?.offers ?? []).map((o) => ({
       key: o.market_id,
       system: o.system,
@@ -190,7 +196,7 @@ export interface CargoPlan {
   load: { symbol: string; name: string; tonnes: number }[];
   kept: { name: string; tonnes: number; reason: string }[];
   stations: StationSale[];
-  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null }[];
+  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null; partial?: Offer | null }[];
   fetched_at: number;
 }
 
@@ -212,7 +218,11 @@ export async function tradeCargo(origin: Origin = null, filters: Filters | null 
     plan: {
       ...s.cargo,
       stations: s.cargo.stations.filter(keep),
-      per_commodity: s.cargo.per_commodity.map((c) => ({ ...c, best: c.best && keep(c.best) ? c.best : null })),
+      per_commodity: s.cargo.per_commodity.map((c) => ({
+        ...c,
+        best: c.best && keep(c.best) ? c.best : null,
+        partial: c.partial && keep(c.partial) ? c.partial : null,
+      })),
     },
   };
 }
@@ -241,6 +251,53 @@ export function cargoResults(s: CargoSearch): Results {
         .join(" · "),
     })),
   };
+}
+
+/** One commodity at the docked market against the best nearby price (astromech_market::here::Line). */
+export interface MarketLine {
+  commodity: string;
+  name: string;
+  /** Tonnes carried that can be sold (0 for goods for sale here). */
+  carried: number;
+  /** Whether nearby prices were asked for (carried goods past the dozen per dock aren't). */
+  checked: boolean;
+  /** What this station pays; null: it doesn't buy it. */
+  sell_here: number | null;
+  /** What this station asks; null: not for sale here. */
+  buy_here: number | null;
+  stock: number;
+  /** The best price a nearby station pays (for the carried, one with demand for all of it). */
+  best: Offer | null;
+  /** Credits per tonne more than here (paid here for the carried, asked here for the goods for sale). */
+  gain: number | null;
+}
+
+/** The docked market and the hold against nearby prices (astromech_market::here::Comparison). */
+export interface MarketCompare {
+  market_id: number | null;
+  station: string;
+  system: string;
+  /** When the game wrote Market.json. */
+  seen: string;
+  carried: MarketLine[];
+  /** The biggest gain first. */
+  for_sale: MarketLine[];
+  /** Goods for sale here that weren't looked up. */
+  unchecked: string[];
+  kept: { name: string; tonnes: number; reason: string }[];
+  fetched_at: number;
+}
+
+/** The docked market (Market.json) and the hold against the best nearby prices, with the sell
+ *  lookup's filters; null when not docked. The preview answers from a recorded comparison. */
+export async function compareMarket(): Promise<MarketCompare | null> {
+  if (inTauri) return await invoke<MarketCompare | null>("market_compare");
+  return compareSample as unknown as MarketCompare;
+}
+
+/** "+3,921" or "−120": credits per tonne against here. */
+export function gainText(n: number): string {
+  return `${n < 0 ? "−" : "+"}${credits(Math.abs(n))}`;
 }
 
 export type RouteKind = "single" | "loop";

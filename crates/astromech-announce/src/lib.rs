@@ -6,8 +6,9 @@
 //!
 //! - **Replay is silent.** While not live ([`Engine::set_live`]; the pipeline says which events
 //!   are: not the startup catch-up of the journal and Status.json, not a journal re-read as a
-//!   replay) no rule runs. The engine still tracks docking and combat from those events so quiet
-//!   is right at once.
+//!   replay) no rule reacts. The engine still tracks docking and combat from those events so
+//!   quiet is right at once, and a rule may be told of them through [`Rule::replayed`] (it must
+//!   not speak) to learn where the catch-up left the game.
 //! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
 //!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
 //!   cooldown, so a burst of the same event gives one callout; only a callout of higher
@@ -18,12 +19,14 @@
 //!   an event, nor is a cleared route.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
-//! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
-//! and the game state after it, never the replayed history.
+//! dropped, low priority dropped first when it is full. Rules mostly decide from the event and the
+//! game state after it, never the replayed history; the few that remember something between
+//! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`biology`], [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`], [`sampling`], [`discovery`] and [`session_summary`].
 
 use astromech_gamestate::GameState;
+use astromech_journal::companion::MarketSnap;
 use astromech_journal::{JournalLine, NavRouteSnap};
 use astromech_status::{StatusSnap, FLAG_BEING_INTERDICTED, FLAG_IN_DANGER};
 use serde::{Deserialize, Serialize};
@@ -101,9 +104,16 @@ pub enum Input<'a> {
     /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
     /// empty (a cleared route isn't an event).
     Route(&'a NavRouteSnap),
+    /// A fresh `Market.json` for the market docked at, once per dock (see [`Engine::market`]).
+    Market(&'a MarketSnap),
+    /// The clock moved on: `wall_secs` is the time now in seconds since the Unix epoch.
+    Tick {
+        wall_secs: i64,
+    },
 }
 
-/// A reaction rule. Stateless: decide from the event and the state after it.
+/// A reaction rule. Decides from the event and the state after it; a rule that must remember
+/// what it already said (once-only warnings) keeps that itself, behind `&self`.
 pub trait Rule: Send {
     /// Stable id, used in `[callouts.<id>]`.
     fn id(&self) -> &'static str;
@@ -118,6 +128,10 @@ pub trait Rule: Send {
     /// others adjust to.
     fn configured(&self, _enabled: bool) {}
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
+    /// Told of each input the engine is not live for (the startup catch-up, replayed lines),
+    /// with the state after it, for rules that must know where the catch-up left things. It
+    /// must not speak.
+    fn replayed(&self, _input: &Input, _state: &GameState) {}
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
@@ -131,13 +145,21 @@ pub trait Rule: Send {
 }
 
 pub mod arrival;
+pub mod biology;
+pub mod discovery;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod materials_cap;
+pub mod missions;
 pub mod powerplay_arrival;
+pub mod project_market;
 pub mod prospector;
 pub mod route;
+pub mod sampling;
 pub mod scan;
+pub mod session_summary;
+pub mod signals;
 
 /// What the core keeps for the rules and may change while they run.
 #[derive(Debug, Clone, Default)]
@@ -151,6 +173,11 @@ pub struct Shared {
     pub powerplay_spoken: powerplay_arrival::SharedFlag,
     /// The commander's visit history, for the arrival briefing (the core plugs it in).
     pub visits: arrival::SharedVisits,
+    /// Biology other players reported (Spansh), for the arrival's biology line (the core
+    /// plugs it in).
+    pub known_bio: biology::SharedKnownBio,
+    /// The commander's session history, for the session summary (the core plugs it in).
+    pub sessions: session_summary::SharedSessions,
 }
 
 /// The rules that ship.
@@ -164,11 +191,19 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
             powerplay_spoken: shared.powerplay_spoken.clone(),
         }),
         Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
+        Box::new(biology::Biology::new(shared.known_bio.clone())),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(materials_cap::MaterialsCap),
+        Box::new(missions::Missions::default()),
+        Box::new(project_market::ProjectMarket),
+        Box::new(signals::Signals::default()),
+        Box::new(sampling::Sampling::default()),
+        Box::new(discovery::Discovery::default()),
+        Box::new(session_summary::SessionSummary::new(shared.sessions.clone())),
     ]
 }
 
@@ -236,6 +271,8 @@ pub struct Engine {
     attacked_until: Option<Instant>,
     last_status: Option<StatusSnap>,
     last_route: Option<NavRouteSnap>,
+    /// The market a live `Market.json` was already handled for since the last dock event.
+    market_done: Option<i64>,
 }
 
 impl Engine {
@@ -275,6 +312,7 @@ impl Engine {
             attacked_until: None,
             last_status: None,
             last_route: None,
+            market_done: None,
         }
     }
 
@@ -303,12 +341,18 @@ impl Engine {
     pub fn journal(&mut self, line: &JournalLine, state: &GameState, now: Instant) -> Vec<Reaction> {
         // The event is judged against the mode before it: `DockingGranted` (the pad) is not
         // "during docking"; what follows it is.
-        let quiet = self.quiet(now);
+        let mut quiet = self.quiet(now);
         let name = line.name.as_str();
         if DOCKING_STARTS.contains(&name) {
             self.docking = true;
         } else if DOCKING_ENDS.contains(&name) {
             self.docking = false;
+            self.market_done = None;
+            // Arriving ends the approach: what `Docked` says (trader suggestions) is not "during
+            // docking". Combat still holds it back.
+            if name == "Docked" {
+                quiet = self.quiet(now);
+            }
         }
         if name == "UnderAttack" && self.live {
             self.attacked_until = Some(now + ATTACK_QUIET);
@@ -341,8 +385,32 @@ impl Engine {
         self.fire(&Input::Route(route), state, now, quiet)
     }
 
+    /// A fresh `Market.json`, already applied to `state` (the pipeline only offers a file newer
+    /// than the `Market` event that announced it). Handled once per dock: a rewrite while still
+    /// docked there (opening the market again) is not an event. Only a live file counts, so the
+    /// catch-up replay of the same dock doesn't use up the dock's one chance.
+    pub fn market(&mut self, market: &MarketSnap, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let Some(id) = market.market_id else { return vec![] };
+        if !self.live || self.market_done == Some(id) {
+            return vec![];
+        }
+        self.market_done = Some(id);
+        let quiet = self.quiet(now);
+        self.fire(&Input::Market(market), state, now, quiet)
+    }
+
+    /// The clock moved on (`wall_secs`: seconds since the Unix epoch), for rules that remind by
+    /// time. The pipeline calls it about once a second; replay tests inject their own time.
+    pub fn tick(&mut self, wall_secs: i64, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let quiet = self.quiet(now);
+        self.fire(&Input::Tick { wall_secs }, state, now, quiet)
+    }
+
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
         if !self.live {
+            for s in self.slots.iter().filter(|s| s.enabled) {
+                s.rule.replayed(input, state);
+            }
             return vec![];
         }
         let mut out = vec![];

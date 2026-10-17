@@ -44,7 +44,7 @@
     }
     // The route mode has its own search (Route.svelte); only the market lookups get here.
     const side: Side = m === "buy" ? "buy" : "sell";
-    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(side, c, origin, filters));
+    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(side, c, origin, filters), true);
     return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeSearch(side, [c], origin, filters));
   });
 
@@ -91,8 +91,12 @@
                 <span class="sys">{c.best.station} · <SystemChip name={c.best.system} /></span>
                 <span class="q">{credits(c.best.price)} cr · {credits(c.best.price * c.carried)} cr in all · {jumps(c.best.jumps, c.best.exact)} · {c.best.ly.toFixed(1)} ly</span>
                 <span class="lo">demand {credits(c.best.volume)} · reported {ago(c.best.updated_at)}</span>
+              {:else if c.partial}
+                <span class="sys">{c.partial.station} · <SystemChip name={c.partial.system} /></span>
+                <span class="q">No market takes all of it: this one takes {credits(Math.min(c.partial.volume, c.carried))} of {credits(c.carried)} t · {credits(c.partial.price)} cr · {credits(c.partial.price * Math.min(c.partial.volume, c.carried))} cr for that · {jumps(c.partial.jumps, c.partial.exact)} · {c.partial.ly.toFixed(1)} ly</span>
+                <span class="lo">demand {credits(c.partial.volume)} · reported {ago(c.partial.updated_at)}</span>
               {:else}
-                <span class="lo">No market with demand for all of it.</span>
+                <span class="lo">No market with demand for any of it.</span>
               {/if}
             </li>
           {/each}

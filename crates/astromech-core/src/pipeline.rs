@@ -26,6 +26,8 @@
 //!   journal the game starts while we run (later by name, not opened before) is live from its
 //!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
+//! - EDSM (when switched on): every journal line also goes to the [`astromech_eddn::edsm::Uploader`],
+//!   with the same notion of live; it sends to the commander's EDSM account from its own thread.
 
 use crate::callouts::Callouts;
 use crate::hub::StateHub;
@@ -155,6 +157,7 @@ struct Tailer {
     pending: Vec<Trigger>,
     callouts: Option<Callouts>,
     eddn: Option<astromech_eddn::Feed>,
+    edsm: Option<astromech_eddn::edsm::Uploader>,
     /// False while replaying a journal written before we started.
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
@@ -179,8 +182,15 @@ impl Tailer {
                             c.engine.set_live(self.caught_up && self.live);
                             fired.extend(self.hub.read(|g| c.engine.journal(&j, g, Instant::now())));
                         }
-                        if let (Some(f), Ok(raw)) = (&mut self.eddn, serde_json::from_str(&j.raw_json)) {
-                            f.journal(&raw, self.live, wall_now());
+                        if self.eddn.is_some() || self.edsm.is_some() {
+                            if let Ok(raw) = serde_json::from_str(&j.raw_json) {
+                                if let Some(f) = &mut self.eddn {
+                                    f.journal(&raw, self.live, wall_now());
+                                }
+                                if let Some(u) = &mut self.edsm {
+                                    u.journal(&raw, self.live, wall_now());
+                                }
+                            }
                         }
                         parsed.push(j);
                     }
@@ -199,6 +209,17 @@ impl Tailer {
             self.load_companions(found);
         }
         self.eddn_nav_route();
+    }
+
+    /// The clock, for the rules that remind by time (mission expiry).
+    fn on_tick(&mut self) {
+        if let Some(c) = &mut self.callouts {
+            c.engine.set_live(self.caught_up);
+            let fired = self.hub.read(|g| c.engine.tick(chrono::Utc::now().timestamp(), g, Instant::now()));
+            if !fired.is_empty() {
+                (c.deliver)(fired);
+            }
+        }
     }
 
     /// `NavRoute.json` for a live `NavRoute` event: read after the event and whenever the game
@@ -231,7 +252,19 @@ impl Tailer {
                     feed.companion_file(event, &file, wall_now());
                 }
             }
+            let is_market = matches!(f, CompanionFile::Market(_));
             self.hub.update(|g| g.apply_companion(f));
+            // A fresh Market.json is an event for the callouts (once per dock; the engine decides).
+            if let (true, Some(c)) = (is_market, &mut self.callouts) {
+                c.engine.set_live(self.caught_up && self.live);
+                let fired = self.hub.read(|g| {
+                    let m = g.companions.market.clone()?;
+                    Some(c.engine.market(&m, g, Instant::now()))
+                });
+                if let Some(fired) = fired.filter(|f| !f.is_empty()) {
+                    (c.deliver)(fired);
+                }
+            }
         }
         for r in reports {
             (self.log)(&format!("companion file {r}"));
@@ -368,7 +401,7 @@ pub fn start(
     log: impl Fn(&str) + Send + 'static,
     callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
-    start_with_eddn(dir, hub, db, log, None, callouts)
+    start_with_eddn(dir, hub, db, log, None, None, callouts)
 }
 
 /// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
@@ -406,13 +439,44 @@ pub fn eddn_feed(cfg: &crate::config::Config, data_dir: &Path) -> Option<astrome
     }
 }
 
-/// [`start`], also feeding EDDN.
+/// The user's EDSM switch (`[edsm]` in the config, the API key from the OS keyring): the
+/// credentials while uploading is on. Read by the uploader on every event and by its worker
+/// before every request. The core sets it at start and on every edit.
+pub static EDSM: std::sync::LazyLock<Arc<astromech_eddn::edsm::Switch>> = std::sync::LazyLock::new(Arc::default);
+
+/// The EDSM uploader. Like EDDN's feed it runs while sharing is off, so the commander, system
+/// and ship are right the moment it's switched on. One that can't start is logged and left out.
+pub fn edsm_uploader(data_dir: &Path) -> Option<astromech_eddn::edsm::Uploader> {
+    use astromech_eddn::edsm;
+    let version = env!("CARGO_PKG_VERSION");
+    let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
+    let api = edsm::api::HttpApi::new(&format!("astromech/{version}"));
+    let db = data_dir.join(edsm::DB_FILE);
+    let on = EDSM.get().is_some();
+    match edsm::Uploader::start(&db, software, Box::new(api), EDSM.clone(), crate::logging::log) {
+        Ok(u) => {
+            crate::logging::log(if on {
+                "EDSM: uploading live journal"
+            } else {
+                "EDSM: off (Settings → Data sharing)"
+            });
+            Some(u)
+        }
+        Err(e) => {
+            crate::logging::log(&format!("EDSM off: {} {e}", db.display()));
+            None
+        }
+    }
+}
+
+/// [`start`], also feeding EDDN and EDSM.
 pub fn start_with_eddn(
     dir: &Path,
     hub: Arc<StateHub>,
     db: Option<&Path>,
     log: impl Fn(&str) + Send + 'static,
     eddn: Option<astromech_eddn::Feed>,
+    edsm: Option<astromech_eddn::edsm::Uploader>,
     callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
     let (tx, rx) = channel::<notify::Result<notify::Event>>();
@@ -441,6 +505,7 @@ pub fn start_with_eddn(
         pending: vec![],
         callouts,
         eddn,
+        edsm,
         live: true,
         caught_up: false,
         opened: Default::default(),
@@ -451,8 +516,13 @@ pub fn start_with_eddn(
     let thread = std::thread::Builder::new()
         .name("pipeline".into())
         .spawn(move || {
+            let mut last_tick = Instant::now();
             while !stop2.load(Ordering::SeqCst) {
-                // The timeout only lets us notice `stop`; no file is read on timeout.
+                if last_tick.elapsed() >= Duration::from_secs(1) {
+                    last_tick = Instant::now();
+                    t.on_tick();
+                }
+                // The timeout lets us notice `stop` and tick; no file is read on timeout.
                 let ev = match rx.recv_timeout(Duration::from_millis(250)) {
                     Ok(Ok(e)) => e,
                     Ok(Err(_)) => continue,
@@ -539,6 +609,7 @@ mod tests {
             pending: vec![],
             callouts: None,
             eddn: None,
+            edsm: None,
             live: true,
             caught_up: false,
             opened: Default::default(),
@@ -805,6 +876,29 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 3);
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
+    }
+
+    #[test]
+    fn edsm_gets_live_lines_with_their_state_and_nothing_from_the_replay() {
+        use astromech_eddn::edsm::{Credentials, Discards, Switch, Uploader};
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}{}\n", session(&ts(120), "r1 "), docked(&ts(90)))).unwrap();
+        let db = d.path().join(astromech_eddn::edsm::DB_FILE);
+        let switch = Arc::new(Switch::default());
+        switch.set(Some(Credentials { commander: "Jameson".into(), api_key: "k".into() }));
+        let (mut t, _, _) = tailer(d.path());
+        t.edsm = Some(Uploader::new(astromech_eddn::Outbox::open(&db).unwrap(), switch, Arc::new(Discards::default())));
+        t.open(j.clone(), true);
+        let queue = astromech_eddn::Outbox::open(&db).unwrap();
+        assert_eq!(queue.pending().unwrap(), 0, "nothing from the catch-up");
+
+        append(&j, r#"{"timestamp":"2026-10-16T11:30:00Z","event":"MarketBuy","Type":"gold","Count":1}"#);
+        t.on_journal_activity();
+        let q = queue.due(i64::MAX, true, 10).unwrap();
+        assert_eq!(q.len(), 1, "the live line, however old its timestamp (EDSM keeps history)");
+        let body: serde_json::Value = serde_json::from_slice(&q[0].body).unwrap();
+        assert_eq!((&body["message"]["_systemName"], &body["message"]["_stationName"]), (&"Sys".into(), &"S".into()));
     }
 
     #[test]

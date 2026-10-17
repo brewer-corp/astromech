@@ -4,11 +4,15 @@
 //!
 //! - every request carries the shared [`USER_AGENT`];
 //! - answers are cached in SQLite ([`Cache`]) and served without a request until their TTL ends
-//!   (see [`ttl`]);
+//!   (see [`ttl`]); a cache that can't be read or written is a miss, logged, never a failed
+//!   lookup;
 //! - every answer is checked against a typed schema before it is used or cached, and a mismatch
 //!   is an [`Error::Schema`] naming the service;
 //! - requests to each service are spaced out ([`Limiter`]);
 //! - failures are [`Error`]s whose `Display` is a plain-words sentence fit to show or speak.
+//!
+//! A process makes one [`Client`] ([`Client::shared`]) and hands the `Arc` to everything that
+//! looks something up, so the rate limit and the cache hold for the whole process.
 //!
 //! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Tests swap the [`Transport`] for
 //! recorded bodies.
@@ -108,15 +112,14 @@ pub enum Error {
     Rejected { service: Service, message: String },
     #[error("{service} is having trouble (HTTP {status}). Try again later.")]
     Unavailable { service: Service, status: u16 },
-    #[error("{service} sent an answer astromech doesn't understand; its format may have changed ({detail}).")]
+    /// `detail` (what serde said) goes to the log, not into the sentence.
+    #[error("{service} sent an answer astromech doesn't understand. Its format may have changed.")]
     Schema { service: Service, detail: String },
-    #[error("astromech's local cache of online data failed ({0}).")]
-    Cache(String),
 }
 
 impl Error {
-    /// The service the error came from, if any.
-    pub fn service(&self) -> Option<Service> {
+    /// The service the error came from.
+    pub fn service(&self) -> Service {
         match self {
             Error::Offline { service, .. }
             | Error::Timeout { service }
@@ -124,15 +127,8 @@ impl Error {
             | Error::NotFound { service, .. }
             | Error::Rejected { service, .. }
             | Error::Unavailable { service, .. }
-            | Error::Schema { service, .. } => Some(*service),
-            Error::Cache(_) => None,
+            | Error::Schema { service, .. } => *service,
         }
-    }
-}
-
-impl From<rusqlite::Error> for Error {
-    fn from(e: rusqlite::Error) -> Self {
-        Error::Cache(e.to_string())
     }
 }
 
@@ -161,6 +157,13 @@ impl Clock for SystemClock {
     }
 }
 
+/// The file in the data folder (`astromech_store::Paths::data_dir`) holding the remote-data cache
+/// both processes share.
+pub const CACHE_FILE: &str = "remote_cache.sqlite";
+
+/// Where the client's log lines go (the core's log file; stderr by default).
+pub type Log = Arc<dyn Fn(&str) + Send + Sync>;
+
 /// The one way to the remote services.
 pub struct Client {
     transport: Arc<dyn Transport>,
@@ -168,12 +171,31 @@ pub struct Client {
     clock: Arc<dyn Clock>,
     limiter: Mutex<Limiter>,
     bases: Vec<(Service, String)>,
+    log: Log,
 }
 
 impl Client {
     /// Real HTTP, the system clock and the default rate limits.
     pub fn new(cache: Cache) -> Self {
         Self::with_transport(cache, Arc::new(HttpTransport::new()))
+    }
+
+    /// The process's one client, made by its composition root (the core's session, the app
+    /// window's setup) and shared by every lookup: real HTTP, the default rate limits, and its
+    /// cache in [`CACHE_FILE`] under `dir`, the file the core and the app window both use, so
+    /// an answer fetched by one is served to the other. If the file can't be opened the cache
+    /// lives in memory for this run, and `log` says why.
+    pub fn shared(dir: &std::path::Path, log: Log) -> Arc<Self> {
+        Self::shared_with_transport(dir, Arc::new(HttpTransport::new()), log)
+    }
+
+    /// [`Client::shared`] over `transport` (tests pass recorded answers).
+    pub fn shared_with_transport(dir: &std::path::Path, transport: Arc<dyn Transport>, log: Log) -> Arc<Self> {
+        let cache = Cache::open(&dir.join(CACHE_FILE)).unwrap_or_else(|e| {
+            log(&format!("remote data cache not opened, answers won't be shared: {e}"));
+            Cache::in_memory().expect("an in-memory SQLite cache always opens")
+        });
+        Arc::new(Self::with_transport(cache, transport).log(log))
     }
 
     pub fn with_transport(cache: Cache, transport: Arc<dyn Transport>) -> Self {
@@ -183,7 +205,13 @@ impl Client {
             clock: Arc::new(SystemClock),
             limiter: Mutex::new(Limiter::default()),
             bases: Service::ALL.iter().map(|s| (*s, s.base_url().to_string())).collect(),
+            log: Arc::new(|s: &str| eprintln!("{s}")),
         }
+    }
+
+    pub fn log(mut self, log: Log) -> Self {
+        self.log = log;
+        self
     }
 
     pub fn clock(mut self, clock: Arc<dyn Clock>) -> Self {
@@ -243,7 +271,8 @@ impl Client {
     }
 
     /// Cached when `ttl` is set: a stored answer younger than `ttl` seconds is served without a
-    /// request. A fresh answer is parsed (the schema check) before it is cached.
+    /// request. A fresh answer is parsed (the schema check) before it is cached. A cache that
+    /// can't be read or written is logged and treated as a miss.
     pub fn fetch_with<T>(
         &self,
         service: Service,
@@ -253,8 +282,13 @@ impl Client {
     ) -> Result<Fetched<T>> {
         let key = req.cache_key(service.key());
         let now = self.clock.now_s();
-        if let Some(ttl) = ttl {
-            if let Some((at, body)) = self.cache().get(&key, now, ttl)? {
+        if ttl.is_some() {
+            // A cache that can't be read is a miss: the network may still answer.
+            let stored = self.cache().get(&key, now).unwrap_or_else(|e| {
+                (self.log)(&format!("{service} answer not read from the remote data cache: {e}"));
+                None
+            });
+            if let Some((at, body)) = stored {
                 // A stored body that no longer parses (the types changed) is refetched.
                 if let Ok(value) = parse(&body) {
                     return Ok(Fetched { value, fetched_at: at, cached: true });
@@ -262,9 +296,15 @@ impl Client {
             }
         }
         let body = self.send(service, req)?;
-        let value = parse(&body)?;
-        if ttl.is_some() {
-            self.cache().put(&key, now, &body)?;
+        let value = parse(&body).inspect_err(|e| {
+            if let Error::Schema { detail, .. } = e {
+                (self.log)(&format!("{service} answer to {} failed the schema check: {detail}", req.path));
+            }
+        })?;
+        if let Some(ttl) = ttl {
+            if let Err(e) = self.cache().put(&key, now, ttl, &body) {
+                (self.log)(&format!("{service} answer not saved to the remote data cache: {e}"));
+            }
         }
         Ok(Fetched { value, fetched_at: now, cached: false })
     }

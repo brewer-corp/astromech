@@ -145,8 +145,10 @@ fn scan_body_and_barycentre() {
     assert_eq!(b.distance_from_arrival_ls, Some(123.4));
     assert_eq!(b.surface_gravity, Some(9.8));
     assert_eq!(b.materials, vec![("iron".to_string(), 18.5), ("nickel".to_string(), 14.0)]);
-    assert_eq!(b.ring_count, 1);
+    assert_eq!((b.ring_count, b.belt_count), (1, 0));
     assert_eq!(b.terraform_state, None, "empty string is no value");
+    assert_eq!(b.atmosphere_type.as_deref(), Some("CarbonDioxide"));
+    assert_eq!(b.parents, vec![("Null".to_string(), 3), ("Star".to_string(), 1), ("Null".to_string(), 0)]);
     let E::ScanBaryCentre { body_id, system_address, .. } = ex("ScanBaryCentre") else { panic!() };
     assert_eq!((body_id, system_address), (Some(3), Some(2)));
 }
@@ -367,6 +369,7 @@ fn fuel_chat_and_surface_events() {
     let E::Touchdown(t) = ex("Touchdown") else { panic!() };
     assert!(t.player_controlled && t.on_planet == Some(true));
     assert_eq!((t.latitude, t.longitude), (Some(10.5), Some(-20.25)));
+    assert_eq!((t.system_address, t.body.as_deref(), t.body_id), (Some(2), Some("Test Two A 1"), Some(5)));
     let E::Disembark(d) = ex("Disembark") else { panic!() };
     assert!(!d.srv && d.on_planet && !d.on_station);
     assert_eq!((d.body.as_deref(), d.body_id), (Some("Test Two A 1"), Some(5)));
@@ -415,4 +418,14 @@ fn raw_json_is_kept_when_reading_a_journal_file() {
     std::fs::write(&p, format!("{first}\r\n{second}\r\n")).unwrap();
     let lines = astromech_journal::parse_file(&p);
     assert_eq!(lines.iter().map(|l| l.raw_json.as_str()).collect::<Vec<_>>(), vec![first, second]);
+}
+
+#[test]
+fn a_scans_asteroid_belts_are_not_rings() {
+    let l = parse_line(
+        r#"{"timestamp":"t","event":"Scan","ScanType":"AutoScan","BodyName":"Sys A","StarType":"K","Rings":[{"Name":"Sys A A Belt","RingClass":"eRingClass_Rocky"},{"Name":"Sys A B Belt","RingClass":"eRingClass_MetalRich"}]}"#,
+    )
+    .unwrap();
+    let JournalEvent::Extra(E::Scan(b)) = l.event else { panic!() };
+    assert_eq!((b.ring_count, b.belt_count), (0, 2));
 }

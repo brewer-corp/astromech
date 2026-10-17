@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Exact (galaxy) plotter with refuel stops"
-updated_at: "2026-10-15T20:36:13.653923138+00:00"
+updated_at: "2026-10-17T16:54:23.048436980+00:00"
 ---
 
 ## Goal

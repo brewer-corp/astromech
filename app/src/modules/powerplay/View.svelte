@@ -2,6 +2,7 @@
   // Powerplay for daily use: my standing and the current system's state from the journal, and
   // where my power wants work nearby (Spansh).
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
+  import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import Suggestions from "./Suggestions.svelte";
   import Targets from "./Targets.svelte";
@@ -69,10 +70,10 @@
     {:else if !ov.here}
       <p class="lo">No jump or location in the journal yet.</p>
     {:else if !sys}
-      <p><SystemChip name={ov.here} /></p>
+      <p class="sys"><SystemChip name={ov.here} /><ExtLinks system={ov.here} /></p>
       <p class="lo">No Powerplay activity here.</p>
     {:else}
-      <p><SystemChip name={sys.system} /></p>
+      <p class="sys"><SystemChip name={sys.system} /><ExtLinks system={sys.system} /></p>
       {#if sys.work}<p class="work">{WORK_LABEL[sys.work]}</p>{/if}
       <dl>
         {#if sys.controlling_power}
@@ -128,6 +129,7 @@
   section { padding: 22px 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 40px; align-items: start; }
   .panel { min-width: 0; }
   h3 { margin: 0 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); }
+  .sys { display: flex; align-items: baseline; gap: 10px; }
   .power { margin: 0 0 10px; color: var(--accent); font-size: var(--fs-l); }
   dl { display: grid; grid-template-columns: 8rem 1fr; gap: 6px 14px; margin: 0; }
   dt { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }

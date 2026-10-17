@@ -2,7 +2,8 @@
 created_at: "2026-10-17T01:45:29.110027209+00:00"
 id: "astromech-8sx3"
 issue_type: "task"
-labels: []
+labels:
+- "alpha"
 priority: "P1"
 relationships:
   blocks: []
@@ -13,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Bodies known to EDSM in the arrival briefing"
-updated_at: "2026-10-17T01:45:29.110027209+00:00"
+updated_at: "2026-10-17T17:01:41.827505765+00:00"
 ---
 
 ## Goal

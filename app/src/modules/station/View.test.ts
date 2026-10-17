@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/svelte";
+import * as station from "../../lib/station";
 import View from "./View.svelte";
 
 // Outside the app the view shows the sample docking and searches the sample outfitting history
@@ -18,6 +19,27 @@ describe("Station", () => {
     const upgrades = within(screen.getByRole("table", { name: "Upgrades on sale" }));
     const cells = upgrades.getAllByRole("row")[1]!.textContent?.replace(/\s+/g, " ").trim();
     expect(cells).toBe("Frame shift drive5C Frame Shift Drive5A Frame Shift Drive9,000,000 cr");
+
+    // The market against nearby prices sits between the facts and the outfitting.
+    expect(screen.getByText("Market")).toBeTruthy();
+    expect(await screen.findByRole("table", { name: "For sale here" })).toBeTruthy();
+  });
+
+  it("links the system and the station to Spansh and Inara", async () => {
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(View);
+    await screen.findByText("Test Orbital");
+    await fireEvent.click(screen.getByTitle("Open Test System on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Test System on Inara"));
+    await fireEvent.click(screen.getByTitle("Open Test Orbital on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Test Orbital on Inara"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      "https://spansh.co.uk/search/Test%20System",
+      "https://inara.cz/elite/starsystem/?search=Test%20System",
+      "https://spansh.co.uk/station/128000001",
+      "https://inara.cz/elite/stations/?search=Test%20Orbital",
+    ]);
+    opened.mockRestore();
   });
 
   it("finds the stations that sold a module", async () => {
@@ -36,5 +58,21 @@ describe("Station", () => {
     render(View);
     await fireEvent.input(screen.getByPlaceholderText(/5a frame shift/), { target: { value: "railgun" } });
     expect(await screen.findByText("No remembered station sold “railgun”.")).toBeTruthy();
+  });
+
+  it("links the current system when no station is docked", async () => {
+    const sample = await station.loadHere();
+    vi.spyOn(station, "loadHere").mockResolvedValue({ ...sample, docked: false, station: null, market_id: null, system: "Deciat", services: [] });
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(View);
+    expect(await screen.findByText(/Not docked/)).toBeTruthy();
+    expect(screen.getByText("Deciat")).toBeTruthy();
+    await fireEvent.click(screen.getByTitle("Open Deciat on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      "https://spansh.co.uk/search/Deciat",
+      "https://inara.cz/elite/starsystem/?search=Deciat",
+    ]);
+    opened.mockRestore();
   });
 });

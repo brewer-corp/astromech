@@ -3,6 +3,7 @@ created_at: "2026-10-15T20:36:13.656811183+00:00"
 id: "astromech-05k2"
 issue_type: "validation"
 labels:
+- "alpha"
 - "size-m"
 priority: "P1"
 relationships:
@@ -11,12 +12,15 @@ relationships:
     id: "astromech-rh44"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-08w8"
+    type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Measure the MVP criteria as a set"
-updated_at: "2026-10-15T20:36:13.656811183+00:00"
+updated_at: "2026-10-17T17:01:44.006018563+00:00"
 ---
 
 ## Goal

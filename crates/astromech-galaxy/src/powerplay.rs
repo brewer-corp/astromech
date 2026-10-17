@@ -21,8 +21,19 @@ const CONTROLLED: &[&str] = &["Exploited", "Fortified", "Stronghold"];
 
 impl Target {
     /// The Spansh search for `power`'s targets of this kind within `within_ly` of `origin`.
-    pub fn search(self, power: &str, origin: [f64; 3], within_ly: f64, size: usize) -> Search {
-        let q = Search::near(Reference::Coords(origin)).within(within_ly).size(size);
+    pub fn search(
+        self,
+        power: &str,
+        origin: [f64; 3],
+        within_ly: f64,
+        size: usize,
+        filters: &Filters,
+        now_s: i64,
+    ) -> Search {
+        let mut q = Search::near(Reference::Coords(origin)).within(within_ly).size(size);
+        if let Some(since) = filters.updated_since(now_s) {
+            q = q.updated_since("updated_at", &since);
+        }
         match self {
             Target::Acquire => q.power_state(&["Unoccupied"]).power(&[power]),
             Target::Reinforce => q.controlling_power(&[power]),
@@ -98,8 +109,8 @@ impl Galaxy {
     ) -> Result<Targets> {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE))?;
         let now = crate::now_s();
+        let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE, filters, now))?;
         let n = page.value.results.len();
         let mut matched: Vec<System> = page.value.results.into_iter().filter(|s| target.matches(power, s)).collect();
         let warning = (n > 0 && matched.is_empty())
@@ -151,6 +162,159 @@ impl Galaxy {
             fetched: crate::iso(page.fetched_at),
             hits,
             warning,
+        })
+    }
+}
+
+/// A system to collect from or deliver to.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LogisticsPoint {
+    pub name: String,
+    pub id64: i64,
+    /// Distance from the target system.
+    pub ly: f64,
+    pub state: Option<String>,
+    /// The commodity to collect here; `None` for delivery points.
+    pub commodity: Option<String>,
+    /// The farthest from the target this system may be, if the rules say.
+    pub limit_ly: Option<f64>,
+    pub uncertain: Option<String>,
+}
+
+/// Where to collect power commodities for a target system, and where to deliver them and the
+/// matching power data.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Logistics {
+    pub work: Target,
+    pub power: String,
+    pub target: Here,
+    pub fetched: String,
+    /// Supplying systems of the pledged power, nearest the target first.
+    pub collect: Vec<LogisticsPoint>,
+    /// Commodities go to the Power Contact in the target system.
+    pub deliver: Vec<LogisticsPoint>,
+    /// Where data is handed in (target, supporting or controlled systems).
+    pub deliver_data: Vec<LogisticsPoint>,
+    pub warnings: Vec<String>,
+}
+
+impl Target {
+    fn work(self) -> astromech_powerplay::Work {
+        use astromech_powerplay::Work;
+        match self {
+            Target::Acquire => Work::Acquire,
+            Target::Reinforce => Work::Reinforce,
+            Target::Undermine => Work::Undermine,
+        }
+    }
+}
+
+impl Galaxy {
+    /// Where `power` collects commodities for `work` at `target` (a system the power can do that
+    /// work in; pick one from [`Galaxy::powerplay_targets`]) and where it delivers them and the
+    /// data. Rules without a documented distance limit search within `within_ly`.
+    pub fn powerplay_logistics(
+        &self,
+        work: Target,
+        power: &str,
+        target: &Here,
+        within_ly: f64,
+        limit: usize,
+    ) -> Result<Logistics> {
+        use astromech_powerplay::logistics::{self, HandIn};
+        let w = work.work();
+        let pickups: Vec<_> = logistics::pickups(w).collect();
+        let radius = pickups.iter().map(|p| p.max_ly.unwrap_or(within_ly)).fold(0.0, f64::max);
+        let delivers_data = logistics::data_delivery(w);
+        let anywhere = matches!(delivers_data.map(|d| d.at), Some(HandIn::Controlled));
+        let (states, radius): (Vec<&str>, f64) = if anywhere {
+            (logistics::controlled_states().iter().map(String::as_str).collect(), within_ly.max(radius))
+        } else {
+            let mut s: Vec<&str> = pickups.iter().flat_map(|p| p.states.iter().map(String::as_str)).collect();
+            s.dedup();
+            (s, radius)
+        };
+        let _ = self.ensure_covered(target.pos);
+        let q = Search::near(Reference::Coords(target.pos))
+            .within(radius)
+            .size(SEARCH_SIZE)
+            .power_state(&states)
+            .controlling_power(&[power]);
+        let page = self.remote.spansh_systems(&q)?;
+        // Spansh ignores filters it doesn't know: re-check, and keep the target out of its own supply.
+        let mine: Vec<(System, f64)> = page
+            .value
+            .results
+            .into_iter()
+            .filter(|s| s.controlling_power.as_deref() == Some(power) && s.id64 != target.id64.unwrap_or(-1))
+            .filter(|s| s.name != target.system)
+            .map(|s| {
+                let ly = dist(target.pos, s.pos());
+                (s, ly)
+            })
+            .collect();
+        let point =
+            |s: &System, ly: f64, commodity: Option<String>, p: Option<&astromech_powerplay::logistics::Pickup>| {
+                LogisticsPoint {
+                    name: s.name.clone(),
+                    id64: s.id64,
+                    ly,
+                    state: s.power_state.clone(),
+                    commodity,
+                    limit_ly: p.and_then(|p| p.max_ly),
+                    uncertain: p.and_then(|p| p.uncertain.clone()),
+                }
+            };
+        let mut collect: Vec<LogisticsPoint> = vec![];
+        for (s, ly) in &mine {
+            let state = s.power_state.as_deref().unwrap_or("");
+            let rule =
+                pickups.iter().find(|p| p.states.iter().any(|x| x == state) && ly <= &p.max_ly.unwrap_or(within_ly));
+            if let Some(p) = rule {
+                collect.push(point(s, *ly, astromech_powerplay::commodity(power, w).map(String::from), Some(p)));
+            }
+        }
+        collect.sort_by(|a, b| a.ly.total_cmp(&b.ly));
+        collect.truncate(limit.max(1));
+
+        let me = LogisticsPoint {
+            name: target.system.clone(),
+            id64: target.id64.unwrap_or_default(),
+            ly: 0.0,
+            state: None,
+            commodity: None,
+            limit_ly: None,
+            uncertain: None,
+        };
+        let deliver_data = match delivers_data {
+            Some(d) => match d.at {
+                HandIn::Target => vec![LogisticsPoint { uncertain: d.uncertain.clone(), ..me.clone() }],
+                HandIn::Supporting => collect.iter().map(|c| LogisticsPoint { commodity: None, ..c.clone() }).collect(),
+                HandIn::Controlled => {
+                    let mut v: Vec<LogisticsPoint> = mine
+                        .iter()
+                        .filter(|(s, ly)| {
+                            *ly <= radius
+                                && s.power_state.as_ref().is_some_and(|x| logistics::controlled_states().contains(x))
+                        })
+                        .map(|(s, ly)| LogisticsPoint { uncertain: d.uncertain.clone(), ..point(s, *ly, None, None) })
+                        .collect();
+                    v.sort_by(|a, b| a.ly.total_cmp(&b.ly));
+                    v.truncate(limit.max(1));
+                    v
+                }
+            },
+            None => vec![],
+        };
+        Ok(Logistics {
+            work,
+            power: power.to_string(),
+            target: target.clone(),
+            fetched: crate::iso(page.fetched_at),
+            collect,
+            deliver: vec![me],
+            deliver_data,
+            warnings: logistics::warnings().to_vec(),
         })
     }
 }

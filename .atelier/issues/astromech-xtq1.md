@@ -2,7 +2,8 @@
 created_at: "2026-10-16T18:58:51.991298875+00:00"
 id: "astromech-xtq1"
 issue_type: "bug"
-labels: []
+labels:
+- "alpha"
 priority: "P2"
 relationships:
   blocks: []
@@ -16,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Count Parakeet as installed only when its download finished"
-updated_at: "2026-10-16T18:58:51.991298875+00:00"
+updated_at: "2026-10-17T17:01:40.862760732+00:00"
 ---
 
 ## Goal

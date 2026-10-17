@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.647165729+00:00"
 id: "astromech-p4ls"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-p4ls
 priority: "P1"
 relationships:
   blocks:
@@ -24,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-17T05:10:18.600762712+00:00"
+status: "done"
 title: "Exploration system view"
-updated_at: "2026-10-15T20:36:13.723223916+00:00"
+updated_at: "2026-10-17T05:10:18.600762712+00:00"
 ---
 
 ## Goal
@@ -40,3 +44,7 @@ Every child issue is done. Delivers S8.
 ## Unknowns
 
 Which community value formulas to use, and their licences.
+
+## Close Reason
+
+Exploration system view delivered: body values, discovery callout, unsold data, landings and first-footfall hint (part of S8).

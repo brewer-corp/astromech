@@ -17,7 +17,7 @@ FORBIDDEN = {
     "astromech-data": {"astromech-input", "astromech-policy"},
 }
 # crates that must not depend on any workspace crate
-LEAVES = {"astromech-proto", "astromech-intent"}
+LEAVES = {"astromech-proto", "astromech-intent", "astromech-log"}
 
 
 def main() -> int:

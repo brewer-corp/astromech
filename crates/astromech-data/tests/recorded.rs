@@ -101,6 +101,13 @@ fn temp_dir(name: &str) -> std::path::PathBuf {
     d
 }
 
+/// `c` with its log lines kept in the returned list.
+fn logged(c: Client) -> (Client, Arc<Mutex<Vec<String>>>) {
+    let lines = Arc::new(Mutex::new(Vec::new()));
+    let l = lines.clone();
+    (c.log(Arc::new(move |s: &str| l.lock().unwrap().push(s.to_string()))), lines)
+}
+
 fn near_sol() -> Search {
     Search::near(Reference::System("Sol".into())).supply("Gold", 1000).within(40.0)
 }
@@ -172,7 +179,7 @@ fn uncached_calls_always_ask() {
 fn assert_schema_error(r: Result<impl std::fmt::Debug, Error>, service: Service) {
     match r {
         Err(e @ Error::Schema { .. }) => {
-            assert_eq!(e.service(), Some(service));
+            assert_eq!(e.service(), service);
             let msg = e.to_string();
             assert!(msg.starts_with(service.name()), "names the service: {msg}");
             assert!(msg.contains("doesn't understand"), "plain words: {msg}");
@@ -220,6 +227,92 @@ fn schema_mismatch_is_an_error_naming_the_service() {
     assert!(!good.cached);
     assert_eq!(rec.requests(), before + 1);
     assert_eq!(Cache::open(&path).unwrap().len().unwrap(), 1);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn a_schema_error_is_one_spoken_sentence_without_the_serde_detail() {
+    let (c, rec, _) = client();
+    let (c, log) = logged(c);
+    rec.on("/api-v1/system", 200, r#"{"name": "Sol", "id64": 10477373803}"#);
+    let e = c.edsm_system("Sol").unwrap_err();
+    let log = log.lock().unwrap();
+    assert_eq!(log.len(), 1);
+    assert!(log[0].starts_with("EDSM answer to /api-v1/system failed the schema check: "), "{log:?}");
+    assert!(log[0].contains("missing field `coords`"), "the detail is logged: {log:?}");
+    assert_eq!(e.to_string(), "EDSM sent an answer astromech doesn't understand. Its format may have changed.");
+    match e {
+        Error::Schema { detail, .. } => assert!(detail.contains("coords"), "the detail stays in the field: {detail}"),
+        e => panic!("{e:?}"),
+    }
+}
+
+// --- Done when: a cache that can't be used is a miss; expired rows are pruned ---
+
+#[test]
+fn a_broken_cache_still_returns_the_network_answer() {
+    let dir = temp_dir("broken");
+    let path = dir.join("remote.db");
+    let (c, rec, _) = client_with(Cache::open(&path).unwrap());
+    let (c, log) = logged(c);
+    rec.on("/api-v1/system", 200, fixture!("edsm-system.json"));
+    // Something else wrecked the file's table: every read and write fails.
+    rusqlite::Connection::open(&path).unwrap().execute_batch("DROP TABLE remote_cache").unwrap();
+    for _ in 0..2 {
+        let sol = c.edsm_system("Sol").unwrap();
+        assert!(!sol.cached);
+        assert_eq!(sol.value.coords.pos(), [0.0, 0.0, 0.0]);
+    }
+    assert_eq!(rec.requests(), 2, "nothing could be cached, so each lookup asked");
+    let log = log.lock().unwrap();
+    assert_eq!(log.len(), 4, "each failed read and write is logged: {log:?}");
+    assert!(log[0].starts_with("EDSM answer not read from the remote data cache: no such table"), "{log:?}");
+    assert!(log[1].starts_with("EDSM answer not saved to the remote data cache: no such table"), "{log:?}");
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn a_cache_locked_by_the_other_process_waits_for_it_then_caches() {
+    let dir = temp_dir("locked");
+    let path = dir.join("remote.db");
+    let (c, rec, _) = client_with(Cache::open(&path).unwrap());
+    let (c, log) = logged(c);
+    rec.on("/api-v1/system", 200, fixture!("edsm-system.json"));
+    // The app window is writing: it holds the write lock for a moment.
+    let other = rusqlite::Connection::open(&path).unwrap();
+    other.execute_batch("BEGIN IMMEDIATE; DELETE FROM remote_cache;").unwrap();
+    let (locked_tx, locked_rx) = std::sync::mpsc::channel();
+    let writer = std::thread::spawn(move || {
+        locked_tx.send(()).unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        other.execute_batch("COMMIT").unwrap();
+    });
+    locked_rx.recv().unwrap();
+    let sol = c.edsm_system("Sol").unwrap();
+    assert_eq!(sol.value.coords.pos(), [0.0, 0.0, 0.0], "the network answer, lock or not");
+    writer.join().unwrap();
+    assert!(log.lock().unwrap().is_empty(), "the write waited for the lock: {:?}", log.lock().unwrap());
+    assert!(c.edsm_system("Sol").unwrap().cached, "and was saved");
+    assert_eq!(rec.requests(), 1);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn expired_rows_are_pruned_so_the_cache_holds_only_live_answers() {
+    let dir = temp_dir("prune");
+    let path = dir.join("remote.db");
+    let (c, rec, clock) = client_with(Cache::open(&path).unwrap());
+    rec.on("/api-v1/system", 200, fixture!("edsm-system.json"));
+    rec.on("/commodities", 200, fixture!("ardent-commodities.json"));
+    c.edsm_system("Sol").unwrap();
+    for system in ["Sol", "Achenar", "Lave"] {
+        c.ardent_markets(system).unwrap();
+    }
+    assert_eq!(Cache::open(&path).unwrap().len().unwrap(), 4);
+    // The markets have expired (15 min); the system data lasts a week.
+    clock.set(T0 + ttl::MARKET);
+    c.ardent_markets("Diso").unwrap();
+    assert_eq!(Cache::open(&path).unwrap().len().unwrap(), 2, "the system and the new market are left");
     let _ = std::fs::remove_dir_all(dir);
 }
 
@@ -344,6 +437,28 @@ fn spansh_searches_parse_recorded_answers() {
     assert_eq!(bodies[0].name, "Earth");
     assert_eq!(bodies[0].subtype.as_deref(), Some("Earth-like world"));
     assert_eq!(bodies[0].signals[0].name, "Human");
+
+    // A system's bodies with biology (recorded 17 Oct 2026: Luhman 16, trimmed).
+    rec.on("/api/bodies/search", 200, fixture!("spansh-bodies-biology.json"));
+    let q =
+        Search::near(Reference::Coords([6.3125, 0.59375, 1.71875])).in_systems(&[22960358574928]).signal("Biological");
+    let bodies = c.spansh_bodies(&q).unwrap().value.results;
+    let (_, req) = rec.last();
+    let sent: serde_json::Value = match &req.body {
+        astromech_data::Body::Json(v) => v.clone(),
+        other => panic!("{other:?}"),
+    };
+    assert_eq!(sent["filters"]["signals"], serde_json::json!([{ "name": ["Biological"] }]));
+    assert_eq!(sent["filters"]["system_id64"], serde_json::json!({ "value": [22960358574928i64] }));
+    let b3 = &bodies[0];
+    assert_eq!((b3.name.as_str(), b3.body_id), ("Luhman 16 B 3", Some(17)));
+    assert_eq!(b3.signals.iter().find(|s| s.name == "Biological").map(|s| s.count), Some(4));
+    assert_eq!(
+        b3.genuses.iter().map(|g| g.name.as_str()).collect::<Vec<_>>(),
+        ["Fungoids", "Osseus", "Bacterial", "Fonticulus"]
+    );
+    let osseus = b3.landmarks.iter().find(|l| l.landmark_type == "Osseus").unwrap();
+    assert_eq!((osseus.subtype.as_str(), osseus.value), ("Osseus Pumice", Some(3_156_300)));
 }
 
 #[test]

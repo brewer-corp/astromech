@@ -15,9 +15,11 @@ workspace = true
 astromech-proto.workspace = true
 astromech-policy.workspace = true
 astromech-status.workspace = true
+astromech-announce.workspace = true
 astromech-gamestate.workspace = true
 astromech-galaxy.workspace = true
 astromech-market.workspace = true
+astromech-colonisation.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]

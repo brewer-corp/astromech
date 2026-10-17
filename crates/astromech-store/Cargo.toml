@@ -1,6 +1,6 @@
 [package]
 name = "astromech-store"
-description = "Local persistence: SQLite config, history and migrations"
+description = "Local persistence: SQLite config, history and migrations; secrets in the OS keyring"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -13,6 +13,11 @@ workspace = true
 
 [dependencies]
 rusqlite = { version = "0.40", features = ["bundled"] }
+keyring-core = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows-native-keyring-store = { version = "1.1", default-features = false }
 
 [dev-dependencies]
+astromech-log.workspace = true
 tempfile.workspace = true

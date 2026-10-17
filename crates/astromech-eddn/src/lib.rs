@@ -1,5 +1,7 @@
 //! # astromech-eddn
 //!
+//! Also the EDSM journal upload ([`edsm`]), which shares the outbox, worker and game context.
+//!
 //! Sends game data to EDDN (the Elite Dangerous Data Network) the way EDCD's
 //! `docs/Developers.md` (live branch) asks. Written from that spec, not from EDMC.
 //!
@@ -18,12 +20,15 @@
 //! - [`feed`]: what the core drives: every journal event and companion file in, the right
 //!   messages queued, nothing from a replay;
 //! - [`worker`]: delivery on its own thread and database connection.
+//! - [`edsm`]: the EDSM journal upload (Journal API v1) and flight log, on the same outbox and
+//!   worker.
 //!
 //! Each schema slice (commodity/3, journal/1, …) defines its [`SchemaSpec`] and maps its journal
 //! event to the schema's shape before calling [`Sender::submit`].
 
 pub mod companion;
 pub mod context;
+pub mod edsm;
 pub mod events;
 pub mod feed;
 pub mod journal;

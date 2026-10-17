@@ -2,7 +2,8 @@
 created_at: "2026-10-16T18:46:17.956260345+00:00"
 id: "astromech-ogq4"
 issue_type: "task"
-labels: []
+labels:
+- "alpha"
 priority: "P2"
 relationships:
   blocks: []
@@ -16,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Companion files: stale Backpack snapshot and lost watcher notifications"
-updated_at: "2026-10-16T18:46:17.956260345+00:00"
+updated_at: "2026-10-17T17:01:40.698901406+00:00"
 ---
 
 ## Goal
