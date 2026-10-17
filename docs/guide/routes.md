@@ -20,11 +20,12 @@ The page also has [Plot with Spansh](#plot-a-route-with-spansh) and [Import](#im
 
 A route comes from:
 
-- **Plot with Spansh** on this page;
+- **Plot and follow** under Plot with Spansh on this page;
 - **Follow** on the engineer trip ([Engineering](engineering.md));
 - **Go** on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
   Powerplay targets and the material sites). That is a route with one stop: the result's
-  system;
+  system. If you are already in that system, the route is finished straight away and nothing is
+  copied;
 - **Import** on this page.
 
 There is one route at a time: a new one replaces the old. astromech keeps it while Elite or the
@@ -66,7 +67,8 @@ usual.
 - It checks again before Enter. If the map closed after Ctrl+V, Enter is not sent: *"Galaxy map
   closed. Search not sent."*
 - It goes through the same safety checks as other key presses (the kill switch, Elite being the
-  active window). See [Voice](voice.md#what-it-checks-before-it-acts).
+  active window, and a repeat within 3 seconds being refused). See
+  [Voice](voice.md#what-it-checks-before-it-acts).
 - When it worked: *"Pasted."*
 
 The paste button is any button on any device, set in `astromech.toml`:
@@ -76,8 +78,9 @@ The paste button is any button on any device, set in `astromech.toml`:
 paste = { device = "231D3201", key = "Joy_12" }
 ```
 
+Pick a button Elite does not use: Elite still sees the press, so its own binding would fire too.
 The [Key tester](controls.md#key-tester) shows a button's device and key names. There is no
-row for it in Settings yet.
+row for it in Settings yet; restart astromech after editing the file.
 
 ## Voice commands
 
@@ -156,5 +159,9 @@ give it a name if you like, and press **Follow this route**.
 - You still select the search box and plot each leg in the galaxy map. astromech does not drive
   the galaxy map for you.
 - Paste is refused on foot: the game does not report the galaxy map there.
+- If the search box is not selected, V and Enter go to the galaxy map itself and may do what
+  they are bound to there.
+- The check before Enter sees the map close only once the game reports it, which can take about
+  a second, longer than the half-second wait. A map closed in that moment can still get Enter.
 - A synthetic Ctrl+V, and Enter leaving the search box, are not yet confirmed in the real game
   (flat screen or VR).
