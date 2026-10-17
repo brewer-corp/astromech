@@ -20,9 +20,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T07:50:36.824691215+00:00"
+status: "done"
 title: "System view: bodies scanned on an earlier visit"
-updated_at: "2026-10-17T07:33:05.085894729+00:00"
+updated_at: "2026-10-17T07:50:36.824691215+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ History fixture: a system scanned on one visit and entered again later shows the
 ## Context
 
 The Exploration → System view (astromech-wu30) folds the newest journals from the arrival on. The game doesn't write `Scan` again for bodies already scanned, so a return visit shows only the arrival star's automatic scan until bodies are rescanned. The history keeps every `Scan` line, so the view can seed itself from the stored lines for the system's address (as `History::add_landings` does for landings).
+
+## Close Reason
+
+History::system_view absorbs earlier visits' scans, mapping, signals and samples into the live fold
