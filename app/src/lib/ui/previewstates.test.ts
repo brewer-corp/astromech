@@ -72,8 +72,9 @@ describe.each(PAGES)("$name", (p) => {
     at("?slow=never");
     render(p.view);
     expect((await screen.findAllByText(p.loading)).length).toBeGreaterThan(0);
-    // Still waiting once the first poll has had time to answer: the call really is pending.
-    await new Promise((r) => setTimeout(r, 120));
+    // Still waiting once the first read has had time to answer (Logbook debounces 200 ms): the call
+    // really is pending. Diagnostics shows its dash by default, so this cannot fail for it.
+    await new Promise((r) => setTimeout(r, 300));
     expect(screen.queryAllByText(p.loading).length).toBeGreaterThan(0);
     expect(screen.queryByText(p.empty)).toBeNull();
     expect(screen.queryByText(/Could not|failed on purpose/)).toBeNull();
