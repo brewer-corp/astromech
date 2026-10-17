@@ -27,7 +27,7 @@ The Powerplay page's merits this week and this session match the game's totals w
 
 ## Done when
 
-A standing test from an anonymised excerpt: two identical `PowerplayMerits` lines (same second, `MeritsGained: 41`, `TotalMerits` 4023 then 4064) followed by a login `Powerplay` with `Merits: 4023` gives 41 merits this week, not 82, and lifetime 4023; a following `PowerplayMerits` whose `TotalMerits - MeritsGained` is below the running total also takes the excess back. Replaying the real journals (astromech-yin0 harness) shows the week total the journal's totals give.
+A standing test from an anonymised excerpt: two identical `PowerplayMerits` lines (same second, `MeritsGained: 41`, `TotalMerits` 1272 then 1313) followed by a login `Powerplay` with `Merits: 1272` counts the 41 once this week and gives lifetime 1272; a following `PowerplayMerits` whose `TotalMerits - MeritsGained` is below the running total also takes the excess back. Replaying the real journals (astromech-yin0 harness) shows the week total the journal's totals give.
 
 ## Context
 
