@@ -1,0 +1,15 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-ktny
+title: 'Outfitting dropdowns lose partial picks: moduleRoute (app/src/lib/outfitting.ts ~L80) writes a size only when class AND rating are set, and parseModuleRoute only reads mount after a size. Failure: on #/outfitting/Frame%20Shift%20Drive/5A choose Rating=Any (want 5/null); pick() writes #/outfitting/Frame%20Shift%20Drive, the hashchange handler (outfitting/View.svelte onHash) re-parses it and resets Class to Any. Likewise a weapon''s Mount=Any-size pick (Pulse Laser, Fixed, no class) or class 2 + Fixed with rating Any reverts to plain ''Pulse Laser''. Verified with a throwaway vitest round trip settle->moduleRoute->parseModuleRoute. Fix: encode class, rating and mount independently (e.g. segments like 5/-/Fixed, or query-style) so every settled want round-trips; add a round-trip test over partial wants. Also minor: a valid module with a bad size (e.g. /9Z) falls back to the default FSD 5A rather than the module at any size. Checked OK: remerge-diff of 13a2dbc empty; slash/space names encode as %2F/%20 and parse; unknown module and malformed % return null (default); no write loop (hashchange only reads); symbol matching case-insensitive, 965 unique symbols, armour null; lint, svelte-check, build, 118 tests pass. Note: evidence astromech-runo records only gates, not a real scripts/ui run; App.test (jsdom, stubbed stations) does cover Ctrl+K -> ''frame shift'' -> #/outfitting/Frame%20Shift%20Drive.'
+target: astromech-2u1x
+identity: review-agent (2u1x module review, sonnet)
+commit: a988f2bd6720394e49f367c8ccba521b088ddd11
+created_at: 2026-10-16T23:33:00.742049464Z
+event:
+  event: finding
+  recommendation: fix_now
+---
+
+Outfitting dropdowns lose partial picks: moduleRoute (app/src/lib/outfitting.ts ~L80) writes a size only when class AND rating are set, and parseModuleRoute only reads mount after a size. Failure: on #/outfitting/Frame%20Shift%20Drive/5A choose Rating=Any (want 5/null); pick() writes #/outfitting/Frame%20Shift%20Drive, the hashchange handler (outfitting/View.svelte onHash) re-parses it and resets Class to Any. Likewise a weapon's Mount=Any-size pick (Pulse Laser, Fixed, no class) or class 2 + Fixed with rating Any reverts to plain 'Pulse Laser'. Verified with a throwaway vitest round trip settle->moduleRoute->parseModuleRoute. Fix: encode class, rating and mount independently (e.g. segments like 5/-/Fixed, or query-style) so every settled want round-trips; add a round-trip test over partial wants. Also minor: a valid module with a bad size (e.g. /9Z) falls back to the default FSD 5A rather than the module at any size. Checked OK: remerge-diff of 13a2dbc empty; slash/space names encode as %2F/%20 and parse; unknown module and malformed % return null (default); no write loop (hashchange only reads); symbol matching case-insensitive, 965 unique symbols, armour null; lint, svelte-check, build, 118 tests pass. Note: evidence astromech-runo records only gates, not a real scripts/ui run; App.test (jsdom, stubbed stations) does cover Ctrl+K -> 'frame shift' -> #/outfitting/Frame%20Shift%20Drive.

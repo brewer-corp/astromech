@@ -6,6 +6,7 @@
  *
  * Flags before the first action: --url --viewport WxH --timeout MS --headed
  * Actions, in order: --wait TEXT --wait-sel CSS --click CSS --click-text TEXT
+ * --press KEYS (a key or chord: Enter, Control+K) --type TEXT (into the focused element)
  * --screenshot PATH --eval JS --text --html PATH
  *
  * Uses CHROME / PUPPETEER_EXECUTABLE_PATH, else a typical Google Chrome path.
@@ -80,6 +81,12 @@ function parseArgs(argv) {
       case "--click-text":
         opts.actions.push({ kind: "click-text", text: next() });
         break;
+      case "--press":
+        opts.actions.push({ kind: "press", keys: next().split("+") });
+        break;
+      case "--type":
+        opts.actions.push({ kind: "type", text: next() });
+        break;
       case "--screenshot":
         opts.actions.push({ kind: "screenshot", path: resolve(next()) });
         break;
@@ -136,6 +143,7 @@ async function main() {
     console.error(
       "usage: scripts/ui --url URL [--viewport 1280x800] [--timeout 20000] [--headed]\n" +
         "       [--wait TEXT] [--wait-sel CSS] [--click CSS] [--click-text TEXT]\n" +
+        "       [--press KEYS] [--type TEXT]\n" +
         "       [--screenshot PATH] [--eval JS] [--text] [--html PATH]",
     );
     process.exit(opts.help ? 0 : 2);
@@ -197,6 +205,18 @@ async function main() {
           console.error(`click-text ${JSON.stringify(act.text)}`);
           await waitText(page, act.text, opts.timeout);
           await clickText(page, act.text);
+          break;
+        case "press": {
+          console.error(`press ${act.keys.join("+")}`);
+          const mods = act.keys.slice(0, -1);
+          for (const k of mods) await page.keyboard.down(k);
+          await page.keyboard.press(act.keys.at(-1));
+          for (const k of mods.reverse()) await page.keyboard.up(k);
+          break;
+        }
+        case "type":
+          console.error(`type ${JSON.stringify(act.text)}`);
+          await page.keyboard.type(act.text);
           break;
         case "screenshot":
           console.error(`screenshot ${act.path}`);
