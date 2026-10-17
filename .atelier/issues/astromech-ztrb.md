@@ -22,9 +22,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:12:29.973198388+00:00"
+status: "done"
 title: "Builds page still lags journal changes on Windows"
-updated_at: "2026-10-17T17:12:23.444963066+00:00"
+updated_at: "2026-10-17T17:12:29.973198388+00:00"
 ---
 
 ## Goal
@@ -42,3 +43,7 @@ Appending engineering-relevant events (Loadout, EngineerCraft, EngineerProgress)
 ## Notes
 
 - 2026-10-17 [note] Root cause: engineering_state cached on journal_folder_sig (DirEntry metadata: lags appends to the open journal on Windows, astromech-txzq). Switching to journal_version alone would re-read every journal on each append (all five replays rescan all history). Fix: astromech_journal::JournalWatch reads bytes appended to the newest journal through an open handle and bumps a generation only when a complete new line parses to a modelled (non-Other) event; JournalCache rebuilds only on a new generation. All replays use parse_line and none read Other, so unmodelled events (Music, ReceiveText) cannot change the page. Pages poll every 1 s. Unverified: real Windows timing (astromech-rggm covers Materials; Builds needs the same check); app/src-tauri cannot be built here (no webkit), so main.rs changes are checked by inspection and Windows CI build/clippy.
+
+## Close Reason
+
+Engineering state now rebuilds from JournalWatch/JournalCache (appended bytes read through an open handle, rebuild only on modelled events) instead of directory metadata; pages poll every 1 s. Tests: crates/astromech-journal/tests/live_watch.rs (mutation-checked). Not verified on real Windows; review outstanding.
