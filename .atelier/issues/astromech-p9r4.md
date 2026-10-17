@@ -18,9 +18,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T04:50:41.013069200+00:00"
+status: "done"
 title: "Show the mining run: tons refined and tons per hour"
-updated_at: "2026-10-17T03:23:09.058665176+00:00"
+updated_at: "2026-10-17T04:50:41.013069200+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ The core keeps a `MiningRun` (`astromech_gamestate::mining`) fed from the journa
 ## Context
 
 astromech-omi1 built the computation (`MiningRun`: a run starts at the first prospector launch, prospect or refine after docking or loading; one ton per `MiningRefined`), tested against a mining fixture, but nothing shows it yet. There is no session view in the window today.
+
+## Close Reason
+
+Core status reply carries the mining run; Logbook Mining page shows tons by ore and tons per hour
