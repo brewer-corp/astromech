@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T18:48:01.367493678+00:00"
+status: "done"
 title: "Pipeline: a journal reopened this run replays only up to its previous read point"
-updated_at: "2026-10-17T18:43:25.796054411+00:00"
+updated_at: "2026-10-17T18:48:01.367493678+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ After an older journal is touched and the game then writes the current journal a
 ## Context
 
 Review finding astromech-76q0 on PR #112 (astromech-1135). Today the whole reopened journal is a replay, so the next real jump after such a touch is silent: it affects EDDN and every callout, not only the route follower.
+
+## Close Reason
+
+A reopened journal replays up to its last committed read point and later lines are live. Test a_reopened_journal_replays_only_what_was_read_before failed before; left-twice test added. Stacked on astromech-p4um (JournalTail::read_to). Deferred: astromech-bh0c (companion triggers in the replay half). Windows unverified.
