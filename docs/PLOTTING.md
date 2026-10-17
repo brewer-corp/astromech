@@ -75,7 +75,7 @@ jump. The recorded job (`crates/astromech-data/tests/fixtures/spansh-exact-*.jso
 the fuel maths: 38.29 ly from Sol used 4.52 t, as the formula gives for that mass. astromech
 leaves FSD injections, already-supercharged drives, skipping secondary stars and a fuel reserve
 at the site's defaults (off), and uses Spansh's default supercharge multiplier (4), so a drive
-with a different multiplier (SCO Mk II) is plotted as an ordinary one.
+with a different multiplier (Spansh's site sets 6 for the size 8 overcharge Mk II drive) is plotted as an ordinary one.
 
 Ctrl+V in the search box works: it's how players enter long procedural names on a flat screen
 (confirmed by the maintainer, 15 Oct 2026). VR uses the same search box, so we assume it works

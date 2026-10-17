@@ -22,7 +22,7 @@ The arrival callout "Next waypoint. <system>." stays within the copy guide for a
 
 ## Done when
 
-`crates/astromech-core/tests/copy.rs` checks the route callout on a long sector name (e.g. "Hyades Sector DB-W b2-6", which reads as 9 words, or "Col 285 Sector AB-C d14-123") and passes, with the rule written down in docs/V1-DESIGN.md §6.5.
+`crates/astromech-core/tests/copy.rs` checks the route callout and the "next waypoint" answer (16-word budget, with the longest plotter label "neutron boost and fuel") on a long sector name (e.g. "Hyades Sector DB-W b2-6", which reads as 9 words, or "Col 285 Sector AB-C d14-123") and passes, with the rule written down in docs/V1-DESIGN.md §6.5.
 
 ## Context
 

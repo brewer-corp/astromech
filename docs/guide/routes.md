@@ -31,11 +31,15 @@ It needs:
 - internet: Spansh plots the route. It can take a minute. You can leave the page; the route is
   still followed when it is done. One route is plotted at a time.
 - a ship flown since the journal began, so its loadout is there.
+- a fuel scoop. Exact routes plan their refuel stops by scooping, and astromech does not check
+  that the ship has one.
 
 Limits:
 
 - No FSD injections, via systems or fuel reserve. Exact routes always use neutron boosts.
-- Neutron routes do not plan fuel: carry a fuel scoop.
+- Exact routes assume the usual neutron boost, four times the range. A drive with a stronger
+  boost is planned as an ordinary one, so the route may have more jumps than it needs.
+- Neutron routes do not plan fuel.
 - A misspelled system gives "Spansh turned the request down" with Spansh's reason, such as
   "Unable to find route" or "Could not find finishing system".
 
