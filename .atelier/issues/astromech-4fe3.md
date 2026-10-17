@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:11:50.059599705+00:00"
+status: "done"
 title: "Exact (galaxy) plotter with refuel stops"
-updated_at: "2026-10-17T18:40:01.061399085+00:00"
+updated_at: "2026-10-17T19:11:50.059599705+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A recorded exchange loads a route with refuel stops into the follower.
 ## Context
 
 Spansh generic route. Unverified: the loadout input format.
+
+## Close Reason
+
+Exact routes plot with refuel stops from the loadout's FSD, tank and mass (input format found and documented in PLOTTING.md); a recorded /api/generic/route exchange loads a route with refuel stops into the follower. Reviewed in PR #122.

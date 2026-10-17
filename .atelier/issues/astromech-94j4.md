@@ -27,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:11:50.497552054+00:00"
+status: "done"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-17T18:34:44.670942378+00:00"
+updated_at: "2026-10-17T19:11:50.497552054+00:00"
 ---
 
 ## Goal
@@ -47,3 +48,7 @@ Already built: the route follower, clipboard and galaxy-map paste ([PLOTTING.md]
 ## Unknowns
 
 Spansh's loadout input format for the exact plotter.
+
+## Close Reason
+
+Both plotters built and loading into the follower from recorded Spansh responses; independent review rounds 1-2 recorded, no open FIX NOW. Final approval and the game check (astromech-rk4s) are Sumeet's.
