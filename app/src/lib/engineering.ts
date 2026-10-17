@@ -273,11 +273,7 @@ function sampleFleet(): Fleet {
 
 export async function loadFleet(): Promise<Fleet> {
   if (!inTauri) return previewData("engineering_fleet", sampleFleet, () => ({ source: "No journal yet", ships: [], stored_modules: [], groups: {} }));
-  try {
-    return await invoke<Fleet>("engineering_fleet");
-  } catch {
-    return { ...sampleFleet(), source: "Sample journal (no live journal folder)" };
-  }
+  return await invoke<Fleet>("engineering_fleet");
 }
 
 /** Outside the app there is no planner: only the sample ship's sample plan has a result. */

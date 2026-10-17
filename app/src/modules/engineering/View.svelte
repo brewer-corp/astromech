@@ -89,7 +89,7 @@
         {fleet.stored_modules.length === 1 ? "module" : "modules"} · {fleet.source}
       {/if}
     </p>
-    {#if headlinesErr}
+    {#if headlinesErr && fleet}
       <p class="sub"><b class="mark">!</b> {headlinesErr}</p>
     {/if}
 
