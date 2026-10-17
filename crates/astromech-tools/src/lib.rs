@@ -813,6 +813,15 @@ mod tests {
         assert_eq!(answer(Query::Location, &there), "System Synuefe BY-F d12-39. Body A 1.");
         there.body = Some("Hutton Orbital".into());
         assert_eq!(answer(Query::Location, &there), "System Synuefe BY-F d12-39. Body Hutton Orbital.");
+        // Docked, then undocked through the journal: the answer stops saying docked.
+        let mut s = there.clone();
+        let ev = |l: &str| astromech_journal::parse_line(l).unwrap().event;
+        s.apply_journal(&ev(r#"{"timestamp":"2026-10-10T20:00:00Z","event":"Docked","StationName":"Hutton Orbital","StarSystem":"Synuefe BY-F d12-39","MarketID":7}"#));
+        assert!(answer(Query::Location, &s).contains("Docked at Hutton Orbital"));
+        s.apply_journal(&ev(
+            r#"{"timestamp":"2026-10-10T20:05:00Z","event":"Undocked","StationName":"Hutton Orbital"}"#,
+        ));
+        assert!(!answer(Query::Location, &s).contains("Docked"), "{}", answer(Query::Location, &s));
         assert!(answer(Query::Jumps, &g).contains("Barnard's Star"));
         assert_eq!(answer(Query::Hull, &g), "Hull: 80 percent.");
         assert_eq!(answer(Query::Shields, &g), "Shields are up.");
