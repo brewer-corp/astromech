@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dpoc
 priority: "P1"
 relationships:
   blocks: []
@@ -16,9 +19,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Guide: the route follower, paste and plotters"
-updated_at: "2026-10-17T18:19:56.459972261+00:00"
+updated_at: "2026-10-17T19:21:39.820701491+00:00"
 ---
 
 ## Goal

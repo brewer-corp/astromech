@@ -125,6 +125,17 @@ distance of each hop by the size of your frame shift drive. Mass changes along t
 so it is an estimate. Scoopable stars are classes O, B, A, F, G, K and M, giants included. It needs
 a jump to go by, so there is no fuel line before your first jump.
 
+## Route follower
+
+Id: `route_follow`. When you jump into the next waypoint of the route astromech follows (or a
+later one), the route moves on, the next waypoint goes on your clipboard and astromech says
+**"Next waypoint. Deciat."** ("Not copied." after it if the clipboard could not be written). At
+the last stop: **"Final waypoint reached. Route complete."** A jump during the startup catch-up
+is silent and does not move the route.
+
+Turning it off (`enabled = false`) turns following off: jumps no longer move the route or write
+the clipboard. See [Routes](routes.md#following-a-route).
+
 ## Prospector
 
 Id: `prospector`. When a prospector limpet reports a rock worth mining: **"Platinum 34%."** At most
