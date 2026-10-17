@@ -215,32 +215,6 @@ fn journal_dir() -> PathBuf {
 
 struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
 
-/// Directory-listing metadata only. On Windows it can lag appends to the journal the game holds
-/// open, which delays the Engineering page (astromech-ztrb).
-fn journal_folder_sig(dir: &std::path::Path) -> (u64, u64, u64) {
-    let mut n = 0u64;
-    let mut newest = 0u64;
-    let mut size = 0u64;
-    if let Ok(rd) = std::fs::read_dir(dir) {
-        for e in rd.flatten() {
-            let name = e.file_name();
-            let name = name.to_string_lossy();
-            if !(name.starts_with("Journal.") && name.ends_with(".log")) {
-                continue;
-            }
-            n += 1;
-            if let Ok(m) = e.metadata() {
-                let t = m.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map(|d| d.as_secs()).unwrap_or(0);
-                if t >= newest {
-                    newest = t;
-                    size = m.len();
-                }
-            }
-        }
-    }
-    (n, newest, size)
-}
-
 /// Engineering materials from the journal, laid out like the in-game traders.
 /// Off the main thread: the page polls every second and a recompute re-reads the session journal.
 #[tauri::command]
@@ -253,7 +227,7 @@ fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    // Not journal_folder_sig: on Windows that misses appends to the open journal (astromech-txzq).
+    // Not directory metadata: on Windows that misses appends to the open journal (astromech-txzq).
     let version = astromech_materials::journal_version(&dir);
     {
         let g = cache.0.lock().map_err(|_| "busy".to_string())?;
@@ -369,7 +343,7 @@ async fn powerplay_targets(
     .await
 }
 
-/// Everything the Engineering screen reads from the journals, re-read when the folder changes.
+/// Everything the Engineering screen reads from the journals, re-read when the journals change.
 struct JournalState {
     fleet: astromech_engineering::Fleet,
     ledger: astromech_materials::Ledger,
@@ -381,31 +355,42 @@ struct JournalState {
     visits: Vec<astromech_galaxy::Visit>,
 }
 
-#[allow(clippy::type_complexity)]
-struct EngineeringCache(std::sync::Mutex<Option<((u64, u64, u64), std::sync::Arc<JournalState>)>>);
+/// Rebuilt when a journal event any page reads is appended, not on every append and not on file
+/// notifications or directory metadata (astromech-ztrb).
+struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
+
+impl Default for EngineeringCache {
+    /// Watches exactly the lines the replays in `build_journal_state` read.
+    fn default() -> Self {
+        let events: Vec<&str> = [
+            astromech_engineering::FLEET_EVENTS,
+            astromech_engineering::engineers::EVENTS,
+            astromech_materials::LEDGER_EVENTS,
+            astromech_galaxy::POSITION_EVENTS,
+        ]
+        .concat();
+        Self(astromech_journal::JournalCache::new(&events))
+    }
+}
 
 fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalState>, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    let sig = journal_folder_sig(&dir);
-    if let Some((s, v)) = &*cache.0.lock().map_err(|_| "busy".to_string())? {
-        if *s == sig {
-            return Ok(v.clone());
-        }
-    }
-    let progress = astromech_engineering::engineers::builder_from_journal_dir(&dir);
-    let v = std::sync::Arc::new(JournalState {
-        fleet: astromech_engineering::from_journal_dir(&dir),
-        ledger: astromech_materials::replay_journal_dir(&dir),
+    Ok(cache.0.get(&dir, || build_journal_state(&dir)))
+}
+
+fn build_journal_state(dir: &std::path::Path) -> JournalState {
+    let progress = astromech_engineering::engineers::builder_from_journal_dir(dir);
+    JournalState {
+        fleet: astromech_engineering::from_journal_dir(dir),
+        ledger: astromech_materials::replay_journal_dir(dir),
         engineers: progress.build(),
         unlocks: astromech_engineering::unlocks::tree(&progress),
-        here: astromech_galaxy::here_from_journal_dir(&dir),
-        visits: astromech_galaxy::visits_from_journal_dir(&dir, astromech_galaxy::visits::RECENT_JOURNALS),
-    });
-    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
-    Ok(v)
+        here: astromech_galaxy::here_from_journal_dir(dir),
+        visits: astromech_galaxy::visits_from_journal_dir(dir, astromech_galaxy::visits::RECENT_JOURNALS),
+    }
 }
 
 /// The local star map (`galaxy.db` in the core's data folder), seeded from the bundled preload.
@@ -1170,7 +1155,7 @@ fn main() {
         }))
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
-        .manage(EngineeringCache(std::sync::Mutex::new(None)))
+        .manage(EngineeringCache::default())
         .manage(ExplorationCache::default())
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))

@@ -77,7 +77,8 @@ impl EngineerView {
     }
 }
 
-const EVENTS: &[&str] = &["\"EngineerProgress\""];
+/// Journal lines `builder_from_journal_dir` reads (quoted event names).
+pub const EVENTS: &[&str] = &["\"EngineerProgress\""];
 
 #[derive(Debug, Default)]
 pub struct EngineerBuilder {
