@@ -217,7 +217,7 @@ fn where_should_i_sell_my_cargo_names_the_best_station_for_the_whole_load() {
     let s = spoken(r.assistant.handle("sell my cargo", Origin::Voice));
     assert_eq!(
         s,
-        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago. No market takes all your Platinum: Carvalho Engineering Foundry in Luyten's Star takes 73 of 100 tonnes at 259,950 credits each."
+        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago. Platinum: only 73 tonnes at the same station, 259,950 credits each."
     );
 
     r.hub.update(|g| g.cargo_inventory.retain(|i| i.mission || i.symbol == "drones"));
