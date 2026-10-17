@@ -4,6 +4,9 @@ id: "astromech-gtza"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-gtza
 priority: "P0"
 relationships:
   blocks:
@@ -17,9 +20,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T02:42:03.989787375+00:00"
+status: "done"
 title: "Speak the system's Powerplay state on arrival"
-updated_at: "2026-10-16T20:56:12.188595776+00:00"
+updated_at: "2026-10-17T02:42:03.989787375+00:00"
 ---
 
 ## Goal
@@ -33,3 +37,7 @@ A callout rule (`powerplay_arrival`, off by default unless Sumeet decides otherw
 ## Context
 
 `astromech_powerplay::arrival_line(&event, pledged)` returns the line or `None` (no Powerplay activity; `Location` is not an arrival). The pledged power is `GameState.powerplay.power`. The game shows this state only in the system and galaxy maps, not on the HUD.
+
+## Close Reason
+
+powerplay_arrival rule shipped, off by default; replay tests cover on, off and catch-up

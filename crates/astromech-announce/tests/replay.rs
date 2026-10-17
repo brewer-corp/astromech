@@ -306,7 +306,7 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         ),
         // On the route below, at a neutron star with 1 t left: scoopable and fuel_range.
         format!(
-            r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0}}"#
+            r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0,"ControllingPower":"Zachary Hudson","Powers":["Zachary Hudson"],"PowerplayState":"Fortified","PowerplayStateControlProgress":0.4}}"#
         ),
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
@@ -322,8 +322,10 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 9, "a callout rule was added or removed: give it a line in this catch-up test");
-    let mut r = Replay::new(rules, &Settings::default());
+    assert_eq!(rules.len(), 10, "a callout rule was added or removed: give it a line in this catch-up test");
+    // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
+    let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
+    let mut r = Replay::new(rules, &on);
     let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"B","StarPos":[40,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[60,0,0],"StarClass":"G"}]}"#;
     r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
     r.journal(&one_line_per_rule("19:59").join("\n"));
@@ -346,6 +348,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Cargo scan.",
             "Undiscovered system.",
             "Docking denied. No free pad.",
+            "Zachary Hudson fortified, 40 percent.",
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
             "High Grade Emissions.",
