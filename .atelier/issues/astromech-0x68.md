@@ -19,9 +19,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:15:11.940752096+00:00"
+status: "done"
 title: "Colonisation tracker: wire into the live journal (per-commander keys, load fallback, records table)"
-updated_at: "2026-10-17T17:13:45.073520717+00:00"
+updated_at: "2026-10-17T17:15:11.940752096+00:00"
 ---
 
 ## Goal
@@ -35,3 +36,7 @@ The tracker's state is keyed per commander when fed from the live journal, the l
 ## Notes
 
 - 2026-10-17 [note] Decision (R7): Tracker::load skips and reports an unreadable record (returned in Loaded::skipped for the caller to log) instead of failing the load. The record stays in the store untouched, the rest loads, and a journal replay refills what is missing, so no data is lost and the app keeps working. R6: the generic records table is kept in astromech.sqlite, not folded into the history events table; noted in ARCHITECTURE 18.5. R5: state keyed <commander>|<id> using the history's commander key (moved to astromech-journal::commander). Persistence is not yet driven by a live consumer: the app and voice read through colonisation::from_journal_dir, which now shows only the newest line's commander.
+
+## Close Reason
+
+Fixed with tests; PR open, independent review outstanding
