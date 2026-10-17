@@ -545,6 +545,15 @@ mod tests {
     }
 
     #[test]
+    fn a_weapon_without_charge_with_a_tiny_reload_keeps_sustained_draw_and_damage_within_burst() {
+        let (m, missing) = journal("hpt_multicannon_fixed_medium", "Weapon_Rapid", None, &[("ReloadTime", 0.01, 5.0)]);
+        assert!(missing.is_empty(), "{missing:?}");
+        assert!(m.get("reload").unwrap() < 0.02);
+        assert!(m.sustained_dps() <= m.dps() + 1e-9);
+        assert!(m.sustained_eps() <= m.eps() + 1e-9);
+    }
+
+    #[test]
     fn grade_5_at_roll_0_is_the_grade_4_maximum() {
         // Each grade's range starts where the one below ends, for every ranged stat.
         let fsd = "int_hyperdrive_size5_class5";
