@@ -24,9 +24,10 @@ app](using-the-app.md#what-needs-the-network).
 - **You can turn them off at any time** with the same button (**Turn off**). Off, nothing new is queued
   and nothing is sent, and anything still waiting in the queue is discarded at once.
 - **A queue with retries.** Messages go to a queue on your PC and are sent in the background; a failed
-  one is retried, backing off from a minute up to an hour. A message is dropped after 8 tries or after
-  30 minutes in the queue (at most 2,000 wait at once). The 30 minutes is for
-  both services and is separate from the 5-minute check above, which happens before a message is queued. The page shows how many are **waiting**, the
+  one is retried, backing off from a minute up to an hour. EDDN drops a message after 8 tries or after
+  30 minutes in the queue; that is separate from the 5-minute check above, which happens before a
+  message is queued. EDSM keeps an event until it is sent or EDSM refuses it (8 refusals, or 8 tries
+  after a server error); it has no age limit. At most 2,000 wait at once. The page shows how many are **waiting**, the
   **last sent** and the **last error**. For EDDN, **Diagnostics** also shows a log of what the gateway
   answered and of what was **not sent**, each with the reason (for example "beta game version", "commander not known yet"). EDSM has no such log; its own
   page shows Waiting, Last sent and Last error.
