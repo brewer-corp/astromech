@@ -58,8 +58,9 @@ there too.
 - Whether Enter after the paste runs the search and leaves the box. `PASTE_SETTLE` is 500 ms.
   d47 waits 1.5 s and then steps into the results.
 - What V or Enter do if the search box is *not* selected while the galaxy map is open (any
-  galaxy-map binding on those keys fires). The health check could warn about galaxy-map binds
-  on `Key_V` or `Key_Enter`.
+  galaxy-map binding on those keys fires). The health check warns about galaxy-map binds on
+  `Key_V` or `Key_Enter` ("Clashes with route paste"); it does not look at the Interface (`UI_*`)
+  actions, and whether the map reacts to those with the box unfocused is not known.
 - The second `GuiFocus` check before Enter sees the map close only once Status.json says so;
   the game writes it up to about a second after a change (S5), longer than `PASTE_SETTLE`.
 - On foot, Status.json has no `GuiFocus` (EliteIntel), so paste is refused on foot. The journal's

@@ -378,7 +378,7 @@ pub fn view(path: &Path, editable: bool, inv: Option<&Inventory>) -> Result<View
                 text: "No keyboard key: voice commands can't press this. Put a key in the empty slot.".into(),
             });
         }
-        if r.group == "Galaxy map" || r.id == "GalaxyMapOpen" {
+        if r.group == "Galaxy map" || r.id.starts_with("GalaxyMapOpen") {
             if let Some(s) = bound.iter().find(|s| s.device == "Keyboard" && PASTE_KEYS.contains(&s.key.as_str())) {
                 r.issues.push(Issue {
                     code: "paste_key".into(),
@@ -560,6 +560,14 @@ pub(crate) mod tests {
 		<Primary Device="231D3201" Key="Joy_3" />
 		<Secondary Device="Keyboard" Key="Key_Enter" />
 	</GalaxyMapHome>
+	<GalaxyMapOpen>
+		<Primary Device="Keyboard" Key="Key_Enter" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen>
+	<GalaxyMapOpen_Buggy>
+		<Primary Device="Keyboard" Key="Key_V" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen_Buggy>
 	<CamZoomOut>
 		<Primary Device="Keyboard" Key="Key_B" />
 		<Secondary Device="{NoDevice}" Key="" />
@@ -579,6 +587,8 @@ pub(crate) mod tests {
         let flagged = |id: &str| row(&v, id).issues.iter().any(|i| i.code == "paste_key");
         assert!(flagged("CamZoomIn"), "Ctrl+V on a galaxy map action");
         assert!(flagged("GalaxyMapHome"), "Enter in the secondary slot");
+        assert!(flagged("GalaxyMapOpen"), "the open key closes the map too");
+        assert!(flagged("GalaxyMapOpen_Buggy"), "the SRV open key");
         assert!(!flagged("CamZoomOut"), "another key");
         assert!(!flagged("UI_Select"), "Enter on an action outside the galaxy map");
         assert!(!flagged("CamYawLeft"), "a joystick button");
