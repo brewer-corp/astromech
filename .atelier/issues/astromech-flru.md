@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-flru
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Onboarding smoke test to a mock gear-down on Windows CI"
-updated_at: "2026-10-17T17:01:42.783455392+00:00"
+updated_at: "2026-10-17T19:05:03.187563716+00:00"
 ---
 
 ## Goal
