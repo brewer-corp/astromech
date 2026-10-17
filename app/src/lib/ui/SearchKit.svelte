@@ -44,6 +44,7 @@
   const store: FilterStore = { load: loadFilters, save: saveFilters };
   let busy = $state(false);
   let asked = 0;
+  let changed = 0; // filter changes made, so a slow earlier one can't overwrite a later one
 
   $effect(() => {
     const l = lookup;
@@ -57,8 +58,9 @@
     const l = lookup;
     const prev = saved?.filters ?? DEFAULT_FILTERS;
     saved = { lookup: l, filters: next };
+    const n = ++changed;
     const st = await changeFilters(store, l, prev, next);
-    if (l !== lookup) return;
+    if (l !== lookup || n !== changed) return;
     filterErr = st.error;
     if (JSON.stringify(st.filters) !== JSON.stringify(next)) saved = { lookup: l, filters: st.filters };
   }

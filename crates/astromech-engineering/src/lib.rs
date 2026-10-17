@@ -381,6 +381,8 @@ mod tests {
                 (12, Some("Sol"), Some(6_000_000), None, None),
             ]
         );
+        let markets: Vec<_> = f.ships.iter().map(|s| (s.id, s.market_id)).collect();
+        assert_eq!(markets, vec![(3, None), (7, Some(128_666_762)), (12, Some(128_016_640))]);
         let stored: Vec<_> = f
             .stored_modules
             .iter()
@@ -412,6 +414,7 @@ mod tests {
         let asp = b.build("test").ships.into_iter().find(|s| s.id == 12).unwrap();
         assert!(asp.in_transit);
         assert_eq!(asp.system.as_deref(), Some("Shinrarta Dezhra"));
+        assert_eq!(asp.market_id, None, "in transit, so at no station");
     }
 
     #[test]

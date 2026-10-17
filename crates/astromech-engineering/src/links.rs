@@ -143,6 +143,42 @@ mod tests {
         assert!(!coriolis_url(&f)["https://coriolis.io/import?data=".len()..].contains(['+', '/', '=']));
     }
 
+    /// A fully engineered 40-module loadout (a Corvette-sized ship with every slot rolled, long
+    /// Localised strings, eight modifiers each) still makes URLs a browser and `ShellExecute`
+    /// (about 2k on Windows for some handlers, 32k hard cap) will take. Mock modifiers are
+    /// varied so deflate cannot collapse them the way it would identical copies.
+    #[test]
+    fn large_loadout_urls_stay_openable_and_short() {
+        let mut f = fixture();
+        let template =
+            f["Modules"].as_array().unwrap().iter().find(|m| m.get("Engineering").is_some()).unwrap().clone();
+        let modules: Vec<Value> = (0..40u32)
+            .map(|i| {
+                let mut m = template.clone();
+                m["Slot"] = format!("Slot{i:02}_Size{}", i % 8).into();
+                m["Item"] = format!("Hpt_MultiCannon_Gimbal_Huge_{i}").into();
+                m["Value"] = (1_000_000 + 37_911 * i64::from(i)).into();
+                m["Engineering"]["BlueprintID"] = (128_673_000 + i64::from(i) * 17).into();
+                m["Engineering"]["Quality"] = (0.3 + f64::from(i % 7) * 0.1).into();
+                m["Engineering"]["Modifiers"] = (0..8u32)
+                    .map(|k| {
+                        let v = f64::from(i * 31 + k * 7 + 3) / 7.0;
+                        serde_json::json!({"Label": format!("Modifier{k}Label"), "Value": v, "OriginalValue": v * 0.83 + f64::from(k), "LessIsGood": k % 2})
+                    })
+                    .collect();
+                m
+            })
+            .collect();
+        f["Modules"] = Value::Array(modules);
+        let (c, e) = (coriolis_url(&f), edsy_url(&f));
+        println!("40 engineered modules: coriolis {} chars, edsy {} chars", c.len(), e.len());
+        assert!(is_openable_url(&c) && is_openable_url(&e));
+        // Edge limit is ~2 MB; Windows `ShellExecute` takes 2048 chars from a few handlers and 32k
+        // otherwise. Stay under the lower bound's order of magnitude: a loadout this big must not
+        // exceed the 32k command-line cap.
+        assert!(c.len() < 32_000 && e.len() < 32_000, "coriolis {} edsy {}", c.len(), e.len());
+    }
+
     const SNAPSHOT_CORIOLIS: &str =
         "https://coriolis.io/import?data=eJy9lllPIzkQgP8K8nOD3FeuN4YAYZUsTJpdrXY0iky6klg4dssHQwbx36fsJqSzmyHJPMxTt%2B2q%2BmzX4XohF0zP1QWr2JTbFenFrYhcORCbmRcyYlySXpqc0YiMwYB%2BAtKjZ630NSIDJ8QAmLAL1PUCfuJvJhyKtOIsb3fTCA08%2F%2BGW1ZjJOU5n1MuNVOkEGNL78kK2DNxYWJIeOTfV5FwvldOTa81KSElEbnEbVjuIyJ3mStcbjkghlPUaQRrF3vB5t5vTtPMa7QbcSDu5U99AV4Lhb8G%2FQz65EMyYfC8q6N15vQ0u7nQ7nSz9CHcp51zCcSh%2F%2BbWe2cmq10BzOfe%2B%2BoTrFQ7sTR%2FFkk6rnba6WbSZ%2F5Mt0QC5KvqToZLz2ifRuxm%2FBIJ7159cMW381GbVG00pjSme6%2FK5QuoSpGXicjaDqd%2BtqWDKmZjMTDlZAHtakV2CSJ4ywQ2U4YDGnIyYZPOAGsITCHReiBA%2B46DrGBmyBz8fxIOYMTfmWqkyXNat5rhDto68JITYepCfUX9TawvoCZiHa942Q%2F9nJt6y0%2B5s2wlB0Nfs297t0LM8ezeDiZM3zaAnbivLl0zsONqOPdG8uak4a%2BPw9WtEPju80hA7fps%2FjcHBCr1Rav50UBzS9zi80hg4xYLPbN8rN9MsadM8%2BSjuh3wGhasqpes8y2poshfaUGwEP2236d6s7nNjNX9wVukm88DcbmhvwGmaJq3sI3IB0ihtmje7%2F5BjVrIGJUnyzofH8%2BX5nsnHJmV%2FdVxrbUDdFqU%2FBQ0qvEcnDAwZFvzJNV8%2BYFqPoORuub9mBbEB02WlsOTETd%2FR3wRNjoGOnLD8gkmp5JpaYEKKvdAg9WsHxVwCUX5SylioQ5QeGqL3XK5%2BDYrztuDyccicnC6Qe%2B%2B0BjvxFo%2FDHny%2FIS%2FCWa9BgmbrhGwdelr%2FoXGtcwzUR3wxVao67sENuKTWOQY3hopx%2FebK9ChaWuscQwtt25hNH5u4%2BDBcdjzO9zpgz6tKKzZdFI5b2F9Igw7Tq%2F%2BqbVO%2FvveC67oU5kOv%2BeDQYjuvhxhEFZplpiL1wHcjWfL2X2J%2F4cvcP6dZ8ra%2BbnX4s3UaTs6D4l9SYDcpw1uLrWh4S7HlCMpDxUrl%2FFOD7zEYy5YemNCkdRrTU5re026P0h7N%2FyWvPwDl7ZHb";
     const SNAPSHOT_EDSY: &str =

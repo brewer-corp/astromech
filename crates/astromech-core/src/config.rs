@@ -114,6 +114,17 @@ pub struct Eddn {
     pub test: bool,
 }
 
+/// Uploading the journal to EDSM (`astromech_eddn::edsm`), for the commander's EDSM flight log
+/// and map. Off unless switched on in Settings → Data sharing (`set_edsm`). The API key is in
+/// the OS keyring, never here.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Edsm {
+    pub enabled: bool,
+    /// The commander name as registered on EDSM.
+    pub commander: String,
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -125,6 +136,7 @@ pub struct Config {
     /// Per-callout toggle and cooldown: `[callouts.<id>]` with `enabled` and `cooldown_s`.
     pub callouts: astromech_announce::Settings,
     pub eddn: Eddn,
+    pub edsm: Edsm,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
 }
@@ -278,13 +290,7 @@ impl Config {
     }
 
     pub fn data_dir(&self) -> PathBuf {
-        opt(&self.data_dir).unwrap_or_else(|| {
-            if Self::portable() {
-                Self::exe_dir().join("astromech-data")
-            } else {
-                Self::app_dir()
-            }
-        })
+        astromech_store::data_dir(&self.data_dir, Self::portable(), &Self::exe_dir(), &Self::app_dir())
     }
 }
 

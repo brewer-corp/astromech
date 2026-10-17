@@ -1,5 +1,6 @@
 //! System biology summary (`biology`): what the system's biology is worth, ranked by value, from
-//! `astromech_exobiology` (the game state's FSS counts, DSS genus lists and species predictions),
+//! `astromech_exploration::biology` over the game state's system bodies (FSS counts, DSS genus
+//! lists, species predictions),
 //! and on arrival from what other players reported (Spansh).
 //!
 //! - **On arrival** (`FSDJump`), before any scan: "Known biology on 3 bodies." and the most
@@ -20,6 +21,7 @@
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_exobiology::known::{self, KnownBody};
+use astromech_exploration::biology;
 use astromech_gamestate::GameState;
 use astromech_journal::{ExtraEvent, JournalEvent};
 use astromech_status::GUI_FSS;
@@ -111,12 +113,12 @@ pub fn known_lines(bodies: Vec<KnownBody>, system: Option<&str>) -> Vec<String> 
 
 /// The lines for the journal's view of the system: the count and the best body.
 pub fn summary_lines(state: &GameState) -> Vec<String> {
-    let sys = &state.exobiology.system;
-    let ranked = sys.ranked();
+    let sys = &state.system_bodies;
+    let ranked = biology::ranked(sys);
     let Some(top) = ranked.first() else { return vec![] };
     let mut v = vec![count_line(ranked.len(), false)];
     if let Some((label, value, exact)) = top.best() {
-        v.push(body_line(short_name(&top.name, sys.system.as_deref()), &label, value, exact));
+        v.push(body_line(short_name(&top.name, sys.system()), &label, value, exact));
     }
     v
 }
@@ -144,7 +146,7 @@ impl Biology {
     }
 
     fn ask(&self, state: &GameState) -> Option<Vec<KnownBody>> {
-        let addr = state.exobiology.system.system_address?;
+        let addr = state.system_bodies.system_address()?;
         self.known.get()?.known(addr, state.star_pos)
     }
 }
@@ -167,19 +169,19 @@ impl Rule for Biology {
                 .map(|text| Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
                 .collect()
         };
-        let sys = &state.exobiology.system;
+        let sys = &state.system_bodies;
         let mut said = self.said.lock().unwrap();
-        if said.system != sys.system_address {
-            *said = Said { system: sys.system_address, ..Default::default() };
+        if said.system != sys.system_address() {
+            *said = Said { system: sys.system_address(), ..Default::default() };
         }
         // Journal results in the system replace the remote ones.
-        if !sys.ranked().is_empty() {
+        if !biology::ranked(sys).is_empty() {
             said.waiting_until = None;
         }
         match input {
             Input::Journal(l) => match &l.event {
                 JournalEvent::FsdJump { .. } => match self.ask(state) {
-                    Some(bodies) => say(known_lines(bodies, sys.system.as_deref())),
+                    Some(bodies) => say(known_lines(bodies, sys.system())),
                     None => {
                         let ts = chrono::DateTime::parse_from_rfc3339(&l.timestamp).ok().map(|t| t.timestamp());
                         said.waiting_until = ts.map(|t| t + LATE_KNOWN_S);
@@ -187,11 +189,11 @@ impl Rule for Biology {
                     }
                 },
                 JournalEvent::Extra(ExtraEvent::SaaSignalsFound(s)) if !s.genuses.is_empty() => {
-                    let Some(b) = s.body_id.and_then(|id| sys.bodies.get(&id)).and_then(|b| sys.body_bio(b)) else {
+                    let Some(b) = s.body_id.and_then(|id| biology::body(sys, id)) else {
                         return vec![];
                     };
                     let Some((label, value, exact)) = b.best() else { return vec![] };
-                    let line = body_line(short_name(&b.name, sys.system.as_deref()), &label, value, exact);
+                    let line = body_line(short_name(&b.name, sys.system()), &label, value, exact);
                     if said.mapped.contains(&line) {
                         return vec![];
                     }
@@ -221,7 +223,7 @@ impl Rule for Biology {
                 match self.ask(state) {
                     Some(bodies) => {
                         said.waiting_until = None;
-                        say(known_lines(bodies, sys.system.as_deref()))
+                        say(known_lines(bodies, sys.system()))
                     }
                     None => vec![],
                 }

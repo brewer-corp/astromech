@@ -1,9 +1,20 @@
 {
- "source": "values and colony ranges: Elite Dangerous wiki, \"Exobiology Sample Values and Details\"; conditions: dwomble/EDMC-ExplorerLite (MIT) at 6a5d65a0e6a43d7aec574afe0f595afd84eaa40f, data/species_rulesets.json",
+ "source": "values and colony ranges: Elite Dangerous wiki, \"Exobiology Sample Values and Details\"; conditions: dwomble/EDMC-ExplorerLite (MIT) at 6a5d65a0e6a43d7aec574afe0f595afd84eaa40f, data/species_rulesets.json; species symbols: lekeno/edr (Apache-2.0, facts only) at 198ebf5ef34e0b63a275ef4b8f2c6a1f5693008b, edr/data/biology.json",
  "units": "gravity in g, temperature in K, pressure in atmospheres; value in credits before the first-logged bonus",
  "uncertain": [
+  "Amphora Plant: ED Assistant 1,628,800 for every species; wiki per species",
+  "Anemone: ED Assistant 1,499,900 for every species; wiki per species",
+  "Bacterium Nebulus: wiki 9,116,600, EDR 5,289,900",
+  "Bacterium Scopulum: wiki 8,633,800, EDR 4,934,500",
   "Puniceum Brain Tree: wiki 3,565,100, ExplorerLite 1,593,700",
-  "Fonticulua Fluctus: wiki 16,777,215, ExplorerLite 20,000,000"
+  "Brain Tree: ED Assistant 1,593,700 for every species; wiki per species",
+  "Concha Biconcavis: wiki 16,777,215, EDR 19,010,800",
+  "Crystalline Shard: ED Assistant 1,628,800 for every species; wiki per species",
+  "Fonticulua Fluctus: wiki 16,777,215, ExplorerLite 20,000,000",
+  "Fonticulua Fluctus: wiki 16,777,215, EDR 20,000,000",
+  "Sinuous Tuber: ED Assistant 1,514,500 for every species; wiki per species",
+  "Tussock Ventusa: wiki 3,277,700, EDR 3,227,700",
+  "Radicoida: only EDR lists it (Radicoida Unicus; colony range 15 m)"
  ],
  "genera": [
   {
@@ -16,6 +27,7 @@
     {
      "name": "Aleoida Arcus",
      "value": 7252500,
+     "symbol": "$codex_ent_aleoids_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -37,6 +49,7 @@
     {
      "name": "Aleoida Coronamus",
      "value": 6284600,
+     "symbol": "$codex_ent_aleoids_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -58,6 +71,7 @@
     {
      "name": "Aleoida Gravis",
      "value": 12934900,
+     "symbol": "$codex_ent_aleoids_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -79,6 +93,7 @@
     {
      "name": "Aleoida Laminiae",
      "value": 3385200,
+     "symbol": "$codex_ent_aleoids_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -100,6 +115,7 @@
     {
      "name": "Aleoida Spica",
      "value": 3385200,
+     "symbol": "$codex_ent_aleoids_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -184,6 +200,7 @@
     {
      "name": "Bacterium Acies",
      "value": 1000000,
+     "symbol": "$codex_ent_bacterial_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -204,6 +221,7 @@
     {
      "name": "Bacterium Alcyoneum",
      "value": 1658500,
+     "symbol": "$codex_ent_bacterial_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -225,6 +243,7 @@
     {
      "name": "Bacterium Aurasus",
      "value": 1000000,
+     "symbol": "$codex_ent_bacterial_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -245,6 +264,7 @@
     {
      "name": "Bacterium Bullaris",
      "value": 1152500,
+     "symbol": "$codex_ent_bacterial_10_name;",
      "rules": [
       {
        "atmosphere": [
@@ -276,6 +296,7 @@
     {
      "name": "Bacterium Cerbrus",
      "value": 1689800,
+     "symbol": "$codex_ent_bacterial_12_name;",
      "rules": [
       {
        "atmosphere": [
@@ -335,6 +356,7 @@
     {
      "name": "Bacterium Informem",
      "value": 8418000,
+     "symbol": "$codex_ent_bacterial_08_name;",
      "rules": [
       {
        "atmosphere": [
@@ -368,6 +390,7 @@
     {
      "name": "Bacterium Nebulus",
      "value": 9116600,
+     "symbol": "$codex_ent_bacterial_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -400,6 +423,7 @@
     {
      "name": "Bacterium Omentum",
      "value": 4638900,
+     "symbol": "$codex_ent_bacterial_11_name;",
      "rules": [
       {
        "atmosphere": [
@@ -539,6 +563,7 @@
     {
      "name": "Bacterium Scopulum",
      "value": 8633800,
+     "symbol": "$codex_ent_bacterial_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -665,6 +690,7 @@
     {
      "name": "Bacterium Tela",
      "value": 1949000,
+     "symbol": "$codex_ent_bacterial_07_name;",
      "rules": [
       {
        "atmosphere": [
@@ -871,6 +897,7 @@
     {
      "name": "Bacterium Verrata",
      "value": 3897000,
+     "symbol": "$codex_ent_bacterial_13_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1039,6 +1066,7 @@
     {
      "name": "Bacterium Vesicula",
      "value": 1000000,
+     "symbol": "$codex_ent_bacterial_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1054,6 +1082,7 @@
     {
      "name": "Bacterium Volu",
      "value": 7774700,
+     "symbol": "$codex_ent_bacterial_09_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1133,6 +1162,7 @@
     {
      "name": "Cactoida Cortexum",
      "value": 3667600,
+     "symbol": "$codex_ent_cactoid_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1155,6 +1185,7 @@
     {
      "name": "Cactoida Lapis",
      "value": 2483600,
+     "symbol": "$codex_ent_cactoid_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1176,6 +1207,7 @@
     {
      "name": "Cactoida Peperatis",
      "value": 2483600,
+     "symbol": "$codex_ent_cactoid_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1197,6 +1229,7 @@
     {
      "name": "Cactoida Pullulanta",
      "value": 3667600,
+     "symbol": "$codex_ent_cactoid_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1219,6 +1252,7 @@
     {
      "name": "Cactoida Vermis",
      "value": 16202800,
+     "symbol": "$codex_ent_cactoid_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1275,6 +1309,7 @@
     {
      "name": "Clypeus Lacrimam",
      "value": 8418000,
+     "symbol": "$codex_ent_clypeus_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1318,6 +1353,7 @@
     {
      "name": "Clypeus Margaritus",
      "value": 11873200,
+     "symbol": "$codex_ent_clypeus_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1349,6 +1385,7 @@
     {
      "name": "Clypeus Speculumi",
      "value": 16202800,
+     "symbol": "$codex_ent_clypeus_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1405,6 +1442,7 @@
     {
      "name": "Concha Aureolas",
      "value": 7774700,
+     "symbol": "$codex_ent_conchas_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1425,6 +1463,7 @@
     {
      "name": "Concha Biconcavis",
      "value": 16777215,
+     "symbol": "$codex_ent_conchas_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1446,6 +1485,7 @@
     {
      "name": "Concha Labiata",
      "value": 2352400,
+     "symbol": "$codex_ent_conchas_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1467,6 +1507,7 @@
     {
      "name": "Concha Renibus",
      "value": 4572400,
+     "symbol": "$codex_ent_conchas_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1570,6 +1611,7 @@
     {
      "name": "Electricae Pluma",
      "value": 6284600,
+     "symbol": "$codex_ent_electricae_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1617,6 +1659,7 @@
     {
      "name": "Electricae Radialem",
      "value": 6284600,
+     "symbol": "$codex_ent_electricae_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1661,6 +1704,7 @@
     {
      "name": "Fonticulua Campestris",
      "value": 1000000,
+     "symbol": "$codex_ent_fonticulus_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1680,6 +1724,7 @@
     {
      "name": "Fonticulua Digitos",
      "value": 1804100,
+     "symbol": "$codex_ent_fonticulus_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1700,6 +1745,7 @@
     {
      "name": "Fonticulua Fluctus",
      "value": 16777215,
+     "symbol": "$codex_ent_fonticulus_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1719,6 +1765,7 @@
     {
      "name": "Fonticulua Lapida",
      "value": 3111000,
+     "symbol": "$codex_ent_fonticulus_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1738,6 +1785,7 @@
     {
      "name": "Fonticulua Segmentatus",
      "value": 19010800,
+     "symbol": "$codex_ent_fonticulus_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1759,6 +1807,7 @@
     {
      "name": "Fonticulua Upupam",
      "value": 5727600,
+     "symbol": "$codex_ent_fonticulus_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1788,6 +1837,7 @@
     {
      "name": "Frutexa Acus",
      "value": 7774700,
+     "symbol": "$codex_ent_shrubs_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1809,6 +1859,7 @@
     {
      "name": "Frutexa Collum",
      "value": 1639800,
+     "symbol": "$codex_ent_shrubs_07_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1842,6 +1893,7 @@
     {
      "name": "Frutexa Fera",
      "value": 1632500,
+     "symbol": "$codex_ent_shrubs_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1863,6 +1915,7 @@
     {
      "name": "Frutexa Flabellum",
      "value": 1808900,
+     "symbol": "$codex_ent_shrubs_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1883,6 +1936,7 @@
     {
      "name": "Frutexa Flammasis",
      "value": 10326000,
+     "symbol": "$codex_ent_shrubs_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1903,6 +1957,7 @@
     {
      "name": "Frutexa Metallicum",
      "value": 1632500,
+     "symbol": "$codex_ent_shrubs_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -1962,6 +2017,7 @@
     {
      "name": "Frutexa Sponsae",
      "value": 5988000,
+     "symbol": "$codex_ent_shrubs_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2001,6 +2057,7 @@
     {
      "name": "Fumerola Aquatis",
      "value": 6284600,
+     "symbol": "$codex_ent_fumerolas_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2152,6 +2209,7 @@
     {
      "name": "Fumerola Carbosis",
      "value": 6284600,
+     "symbol": "$codex_ent_fumerolas_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2269,6 +2327,7 @@
     {
      "name": "Fumerola Extremus",
      "value": 16202800,
+     "symbol": "$codex_ent_fumerolas_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2368,6 +2427,7 @@
     {
      "name": "Fumerola Nitris",
      "value": 7500900,
+     "symbol": "$codex_ent_fumerolas_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2478,6 +2538,7 @@
     {
      "name": "Fungoida Bullarum",
      "value": 3703200,
+     "symbol": "$codex_ent_fungoids_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2514,6 +2575,7 @@
     {
      "name": "Fungoida Gelata",
      "value": 3330300,
+     "symbol": "$codex_ent_fungoids_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2620,6 +2682,7 @@
     {
      "name": "Fungoida Setisis",
      "value": 1670100,
+     "symbol": "$codex_ent_fungoids_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2667,6 +2730,7 @@
     {
      "name": "Fungoida Stabitis",
      "value": 2680300,
+     "symbol": "$codex_ent_fungoids_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2774,6 +2838,7 @@
     {
      "name": "Osseus Cornibus",
      "value": 1483000,
+     "symbol": "$codex_ent_osseus_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2795,6 +2860,7 @@
     {
      "name": "Osseus Discus",
      "value": 12934900,
+     "symbol": "$codex_ent_osseus_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2867,6 +2933,7 @@
     {
      "name": "Osseus Fractus",
      "value": 4027800,
+     "symbol": "$codex_ent_osseus_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2888,6 +2955,7 @@
     {
      "name": "Osseus Pellebantus",
      "value": 9739000,
+     "symbol": "$codex_ent_osseus_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2909,6 +2977,7 @@
     {
      "name": "Osseus Pumice",
      "value": 3156300,
+     "symbol": "$codex_ent_osseus_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -2989,6 +3058,7 @@
     {
      "name": "Osseus Spiralis",
      "value": 2404700,
+     "symbol": "$codex_ent_osseus_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3010,6 +3080,20 @@
    ]
   },
   {
+   "name": "Radicoida",
+   "codex": [
+    "Ingensradices"
+   ],
+   "colony_range_m": 15,
+   "species": [
+    {
+     "name": "Radicoida Unicus",
+     "value": 119037,
+     "symbol": "$codex_ent_ingensradices_unicus_name;"
+    }
+   ]
+  },
+  {
    "name": "Recepta",
    "codex": [
     "Recepta"
@@ -3019,6 +3103,7 @@
     {
      "name": "Recepta Conditivus",
      "value": 14313700,
+     "symbol": "$codex_ent_recepta_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3084,6 +3169,7 @@
     {
      "name": "Recepta Deltahedronix",
      "value": 16202800,
+     "symbol": "$codex_ent_recepta_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3128,6 +3214,7 @@
     {
      "name": "Recepta Umbrux",
      "value": 12934900,
+     "symbol": "$codex_ent_recepta_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3236,6 +3323,7 @@
     {
      "name": "Stratum Araneamus",
      "value": 2448900,
+     "symbol": "$codex_ent_stratum_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3254,6 +3342,7 @@
     {
      "name": "Stratum Cucumisis",
      "value": 16202800,
+     "symbol": "$codex_ent_stratum_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3316,6 +3405,7 @@
     {
      "name": "Stratum Excutitus",
      "value": 2448900,
+     "symbol": "$codex_ent_stratum_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3350,6 +3440,7 @@
     {
      "name": "Stratum Frigus",
      "value": 2637500,
+     "symbol": "$codex_ent_stratum_08_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3399,6 +3490,7 @@
     {
      "name": "Stratum Laminamus",
      "value": 2788300,
+     "symbol": "$codex_ent_stratum_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3419,6 +3511,7 @@
     {
      "name": "Stratum Limaxus",
      "value": 1362000,
+     "symbol": "$codex_ent_stratum_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3453,6 +3546,7 @@
     {
      "name": "Stratum Paleas",
      "value": 1362000,
+     "symbol": "$codex_ent_stratum_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3537,6 +3631,7 @@
     {
      "name": "Stratum Tectonicas",
      "value": 19010800,
+     "symbol": "$codex_ent_stratum_07_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3637,6 +3732,7 @@
     {
      "name": "Tubus Cavas",
      "value": 11873200,
+     "symbol": "$codex_ent_tubus_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3658,6 +3754,7 @@
     {
      "name": "Tubus Compagibus",
      "value": 7774700,
+     "symbol": "$codex_ent_tubus_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3679,6 +3776,7 @@
     {
      "name": "Tubus Conifer",
      "value": 2415500,
+     "symbol": "$codex_ent_tubus_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3700,6 +3798,7 @@
     {
      "name": "Tubus Rosarium",
      "value": 2637500,
+     "symbol": "$codex_ent_tubus_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3719,6 +3818,7 @@
     {
      "name": "Tubus Sororibus",
      "value": 5727600,
+     "symbol": "$codex_ent_tubus_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3760,6 +3860,7 @@
     {
      "name": "Tussock Albata",
      "value": 3252500,
+     "symbol": "$codex_ent_tussocks_08_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3782,6 +3883,7 @@
     {
      "name": "Tussock Capillum",
      "value": 7025800,
+     "symbol": "$codex_ent_tussocks_15_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3813,6 +3915,7 @@
     {
      "name": "Tussock Caputus",
      "value": 3472400,
+     "symbol": "$codex_ent_tussocks_11_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3835,6 +3938,7 @@
     {
      "name": "Tussock Catena",
      "value": 1766600,
+     "symbol": "$codex_ent_tussocks_05_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3856,6 +3960,7 @@
     {
      "name": "Tussock Cultro",
      "value": 1766600,
+     "symbol": "$codex_ent_tussocks_04_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3877,6 +3982,7 @@
     {
      "name": "Tussock Divisa",
      "value": 1766600,
+     "symbol": "$codex_ent_tussocks_10_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3898,6 +4004,7 @@
     {
      "name": "Tussock Ignis",
      "value": 1849000,
+     "symbol": "$codex_ent_tussocks_03_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3920,6 +4027,7 @@
     {
      "name": "Tussock Pennata",
      "value": 5853800,
+     "symbol": "$codex_ent_tussocks_01_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3942,6 +4050,7 @@
     {
      "name": "Tussock Pennatis",
      "value": 1000000,
+     "symbol": "$codex_ent_tussocks_06_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3964,6 +4073,7 @@
     {
      "name": "Tussock Propagito",
      "value": 1000000,
+     "symbol": "$codex_ent_tussocks_09_name;",
      "rules": [
       {
        "atmosphere": [
@@ -3986,6 +4096,7 @@
     {
      "name": "Tussock Serrati",
      "value": 4447100,
+     "symbol": "$codex_ent_tussocks_07_name;",
      "rules": [
       {
        "atmosphere": [
@@ -4009,6 +4120,7 @@
     {
      "name": "Tussock Stigmasis",
      "value": 19010800,
+     "symbol": "$codex_ent_tussocks_13_name;",
      "rules": [
       {
        "atmosphere": [
@@ -4029,6 +4141,7 @@
     {
      "name": "Tussock Triticum",
      "value": 7774700,
+     "symbol": "$codex_ent_tussocks_12_name;",
      "rules": [
       {
        "atmosphere": [
@@ -4051,6 +4164,7 @@
     {
      "name": "Tussock Ventusa",
      "value": 3277700,
+     "symbol": "$codex_ent_tussocks_02_name;",
      "rules": [
       {
        "atmosphere": [
@@ -4073,6 +4187,7 @@
     {
      "name": "Tussock Virgam",
      "value": 14313700,
+     "symbol": "$codex_ent_tussocks_14_name;",
      "rules": [
       {
        "atmosphere": [

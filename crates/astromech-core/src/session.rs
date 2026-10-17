@@ -161,6 +161,7 @@ impl Session {
         shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
         ))));
+        shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
@@ -178,6 +179,7 @@ impl Session {
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
+            crate::pipeline::edsm_uploader(&data),
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
@@ -281,7 +283,13 @@ impl Session {
             ..Default::default()
         };
         // The app window's star map when the core uses the default data dir; else its own.
-        let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None) {
+        // One remote-data client for the process, its cache shared with the app window's.
+        let (remote, cache_problem) = astromech_data::Client::shared(&data);
+        if let Some(p) = cache_problem {
+            log(&p);
+        }
+        let remote = Arc::new(remote);
+        let galaxy = match astromech_galaxy::Galaxy::open_shared(&data.join("galaxy.db"), None, remote.clone()) {
             Ok(g) => Some(Arc::new(g)),
             Err(e) => {
                 log(&format!("star map not opened, site lookups are off: {e:#}"));
@@ -300,9 +308,11 @@ impl Session {
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
+        let assistant =
+            Assistant::new(runner.clone()).with_sessions(shared.sessions.clone()).with_shared_remote(remote);
         let assistant = Arc::new(match alias_store {
-            Some(st) => Assistant::new(runner.clone()).with_store(st),
-            None => Assistant::new(runner.clone()),
+            Some(st) => assistant.with_store(st),
+            None => assistant,
         });
 
         let voice = if args.no_voice {

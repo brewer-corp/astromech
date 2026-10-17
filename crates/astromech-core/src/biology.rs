@@ -102,8 +102,8 @@ impl KnownBiology for SpanshBiology {
 /// what others reported (Spansh) when asked, and the sampling in progress.
 pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Value {
     let ex = &game.exobiology;
-    let sys = &ex.system;
-    let reported = sys.system_address.and_then(|a| known?.known(a, game.star_pos)).map(known::ranked);
+    let sys = &game.system_bodies;
+    let reported = sys.system_address().and_then(|a| known?.known(a, game.star_pos)).map(known::ranked);
     let sampling = ex.sampling.current.as_ref().map(|p| {
         json!({
             "genus": p.genus,
@@ -117,8 +117,8 @@ pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Value {
     });
     json!({
         "ok": true,
-        "system": sys.system,
-        "bodies": sys.ranked(),
+        "system": sys.system(),
+        "bodies": astromech_exploration::biology::ranked(sys),
         "known": reported.map(|k| k.iter().map(|b| json!({
             "name": b.name,
             "body_id": b.body_id,

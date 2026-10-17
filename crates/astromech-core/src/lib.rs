@@ -49,6 +49,7 @@ pub mod pipeline;
 pub mod session;
 pub mod setup;
 pub mod speech;
+pub mod summary;
 pub mod tester;
 pub mod trade;
 #[cfg(windows)]

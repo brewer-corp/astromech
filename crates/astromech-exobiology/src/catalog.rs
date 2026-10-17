@@ -27,6 +27,9 @@ pub struct Genus {
 pub struct Species {
     /// As the game writes it (`Species_Localised`): "Stratum Tectonicas".
     pub name: String,
+    /// The journal's `Species` symbol, lower case (`$codex_ent_stratum_07_name;`), where known.
+    #[serde(default)]
+    pub symbol: Option<String>,
     /// Vista Genomics base value in credits, before the first-logged bonus.
     pub value: i64,
     /// Any one of these is enough (none: no prediction, the Horizons-era genera).
@@ -101,6 +104,25 @@ fn codex_key(name: &str) -> &str {
 pub fn species(name: &str) -> Option<(&'static Genus, &'static Species)> {
     let name = name.trim();
     genera().iter().find_map(|g| g.species.iter().find(|s| s.name.eq_ignore_ascii_case(name)).map(|s| (g, s)))
+}
+
+/// A species by its journal symbol (`$Codex_Ent_Stratum_07_Name;`, any case), with its genus.
+pub fn species_by_symbol(symbol: &str) -> Option<(&'static Genus, &'static Species)> {
+    let symbol = symbol.trim();
+    genera().iter().find_map(|g| {
+        g.species.iter().find(|s| s.symbol.as_deref().is_some_and(|x| x.eq_ignore_ascii_case(symbol))).map(|s| (g, s))
+    })
+}
+
+/// What Vista Genomics pays for a sample, from the journal's `Species` and `Genus` symbols: the
+/// species' base value, else for a genus whose species have no symbol here (the Horizons-era
+/// anemones, brain trees, ...) the lowest value of its species. None if neither is known.
+pub fn sample_value(species: &str, genus: &str) -> Option<i64> {
+    if let Some((_, s)) = species_by_symbol(species) {
+        return Some(s.value);
+    }
+    let g = self::genus(genus)?;
+    g.species.iter().all(|s| s.symbol.is_none()).then(|| g.value_range().0)
 }
 
 impl Genus {

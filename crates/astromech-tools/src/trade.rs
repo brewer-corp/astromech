@@ -146,7 +146,30 @@ pub fn cargo_answer(p: &CargoPlan, max_ly: u32, now_s: i64) -> String {
         light_years(best.hop.ly),
         thousands(best.total)
     );
-    s + &age(&best.updated_at, now_s)
+    s + &age(&best.updated_at, now_s) + &partial_buyers(p)
+}
+
+/// For each commodity no market takes whole (when the hold has more than one): the market that
+/// pays the most for what it does take, as the Trade page's "My cargo" shows it.
+fn partial_buyers(p: &CargoPlan) -> String {
+    if p.load.len() < 2 {
+        return String::new();
+    }
+    let mut out = String::new();
+    for c in &p.per_commodity {
+        let Some(o) = &c.partial else { continue };
+        let takes = o.volume.min(c.carried);
+        out += &format!(
+            " No market takes all your {}: {} in {} takes {} of {} tonnes at {} credits each.",
+            c.name,
+            o.station,
+            o.system,
+            thousands(takes),
+            thousands(c.carried),
+            thousands(o.price)
+        );
+    }
+    out
 }
 
 #[cfg(test)]

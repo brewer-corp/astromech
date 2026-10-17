@@ -304,9 +304,8 @@ impl Want {
         if let Some(ly) = filters.max_distance_ly {
             q = q.within(ly as f64);
         }
-        if let Some(days) = filters.max_age_days {
-            let since = (now_s - days as i64 * 86_400).div_euclid(3600) * 3600;
-            q = q.updated_since(self.age_field(), &crate::iso(since));
+        if let Some(since) = filters.updated_since(now_s) {
+            q = q.updated_since(self.age_field(), &since);
         }
         q
     }

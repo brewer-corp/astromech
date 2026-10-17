@@ -35,6 +35,7 @@ astromech-eddn.workspace = true
 astromech-history.workspace = true
 astromech-station.workspace = true
 astromech-exobiology.workspace = true
+astromech-exploration.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true

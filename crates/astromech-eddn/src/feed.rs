@@ -111,7 +111,7 @@ impl Feed {
         let sender = Sender::new(Outbox::open(db)?, software, test);
         let courier = Courier::new(Outbox::open(db)?, transport, Instant::now(), sharing.clone());
         let worker_log = log.clone();
-        let worker = Worker::spawn(courier, move |m| worker_log(m))?;
+        let worker = Worker::spawn(courier, "EDDN", move |m| worker_log(m))?;
         Ok(Self { worker: Some(worker), log, sharing, ..Self::new(sender) })
     }
 

@@ -104,7 +104,7 @@ pub struct StationsNearby {
 
 pub struct Galaxy {
     store: Mutex<Store>,
-    remote: astromech_data::Client,
+    remote: Arc<astromech_data::Client>,
     map: RwLock<Option<Arc<StarMap>>>,
     /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
     fill_failed: Mutex<Option<i64>>,
@@ -154,6 +154,20 @@ impl Galaxy {
 
     /// `remote` answers the Spansh and EDSM requests (tests pass a recorded transport).
     pub fn with_remote(s: Store, remote: astromech_data::Client) -> Self {
+        Self::with_shared_remote(s, Arc::new(remote))
+    }
+
+    /// Like [`Galaxy::open`], answering remote requests through the process's shared `remote`.
+    pub fn open_shared(path: &Path, preload: Option<&Path>, remote: Arc<astromech_data::Client>) -> Result<Self> {
+        let mut s = Store::open(path)?;
+        if let Some(p) = preload {
+            s.seed_from(p)?;
+        }
+        Ok(Self::with_shared_remote(s, remote))
+    }
+
+    /// `remote` is shared with other lookups in the process (one limiter, one cache).
+    pub fn with_shared_remote(s: Store, remote: Arc<astromech_data::Client>) -> Self {
         Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
@@ -284,12 +298,12 @@ impl Galaxy {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
         let now = now_s();
-        let (fetched, body) = self.search_page(q, here, None, now)?;
+        let (fetched, body) = self.search_page(q, here, None, filters, now)?;
         let mut hits = remote::parse_search(&body)?;
         if q.by_population {
             // Spansh's nearest matches can all be small (in the bubble the nearest 50 lie within
             // 20 ly): add the nearest systems over a billion people, then rank both together.
-            let (_, big) = self.search_page(q, here, Some(HGE_POPULATION), now)?;
+            let (_, big) = self.search_page(q, here, Some(HGE_POPULATION), filters, now)?;
             for h in remote::parse_search(&big)? {
                 if !hits.iter().any(|x| x.id64 == h.id64) {
                     hits.push(h);
@@ -306,11 +320,22 @@ impl Galaxy {
 
     /// One Spansh systems search for `q` near `here` (cached for [`STATE_TTL_S`] per 10 ly cell):
     /// `(fetched, body)`.
-    fn search_page(&self, q: &Query, here: &Here, min_population: Option<i64>, now: i64) -> Result<(i64, String)> {
+    fn search_page(
+        &self,
+        q: &Query,
+        here: &Here,
+        min_population: Option<i64>,
+        filters: &Filters,
+        now: i64,
+    ) -> Result<(i64, String)> {
+        // The data-age filter goes to Spansh, so a strict age finds the fresh systems farther
+        // out instead of filtering the 50 nearest down to nothing.
+        let since = filters.updated_since(now);
         let key = format!(
-            "spansh:{}{}:{:.0}:{:.0}:{:.0}",
+            "spansh:{}{}{}:{:.0}:{:.0}:{:.0}",
             q.id,
             if min_population.is_some() { ":pop" } else { "" },
+            filters.max_age_days.map_or(String::new(), |d| format!(":age{d}")),
             (here.pos[0] / 10.0).round() + 0.0,
             (here.pos[1] / 10.0).round() + 0.0,
             (here.pos[2] / 10.0).round() + 0.0
@@ -318,7 +343,7 @@ impl Galaxy {
         if let Some(c) = self.store().cache_get(&key, now, STATE_TTL_S)? {
             return Ok(c);
         }
-        let b = remote::spansh_search(&self.remote, q, here.pos, 50, min_population)?;
+        let b = remote::spansh_search(&self.remote, q, here.pos, 50, min_population, since.as_deref())?;
         remote::parse_search(&b)?;
         self.store().cache_put(&key, now, &b)?;
         Ok((now, b))
@@ -331,7 +356,7 @@ impl Galaxy {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
         let now = now_s();
-        let (source, fetched, found, warning) = match kind.search(here.pos, 30) {
+        let (source, fetched, found, warning) = match kind.search(here.pos, 30, filters, now) {
             Some(search) => {
                 let page = self.remote.spansh_bodies(&search)?;
                 let found = sites::from_bodies(kind, &page.value.results);
@@ -627,6 +652,7 @@ mod tests {
         let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
         let key = "spansh:famine:0:0:0";
         s.cache_put(key, now_s(), body).unwrap();
+        s.cache_put("spansh:famine:age1:0:0:0", now_s(), body).unwrap(); // the same page, asked for with an age
         let g = Galaxy::with_store(s);
         // covered → no EDSM call; cached → no Spansh call
         let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
@@ -700,6 +726,52 @@ mod tests {
             let body = if b["filters"].get("population").is_some() { &self.big } else { &self.nearest };
             Ok(Response { status: 200, body: body.clone() })
         }
+    }
+
+    /// A strict data age is sent to Spansh, so fresh systems beyond the 50 nearest stale ones
+    /// still turn up (filtering the nearest 50 afterwards would leave nothing).
+    #[test]
+    fn a_strict_age_still_finds_fresh_systems_farther_out() {
+        struct FakeSpansh(Mutex<Vec<serde_json::Value>>);
+        impl Transport for FakeSpansh {
+            fn send(&self, _url: &str, req: &Request) -> Result<Response, TransportError> {
+                let astromech_data::Body::Json(b) = &req.body else {
+                    return Ok(Response { status: 200, body: "[]".into() });
+                };
+                self.0.lock().unwrap().push(b.clone());
+                let sys = |id: i64, x: f64, at: &str| {
+                    serde_json::json!({ "id64": id, "name": format!("S{id}"), "x": x, "y": 0.0, "z": 0.0,
+                        "population": 1000, "updated_at": at,
+                        "minor_faction_presences": [{ "name": "P", "allegiance": "Federation",
+                            "state": "Famine", "active_states": [], "influence": 0.5 }] })
+                };
+                let since = b["filters"]["updated_at"]["value"][0].as_str();
+                let mut all: Vec<_> = (0..50).map(|i| sys(i, 1.0 + i as f64, "2020-01-01T00:00:00Z")).collect();
+                all.push(sys(99, 400.0, "2999-01-01T00:00:00Z"));
+                let r: Vec<_> = all
+                    .into_iter()
+                    .filter(|s| since.is_none_or(|t| s["updated_at"].as_str().unwrap() >= t))
+                    .take(50)
+                    .collect();
+                let body = serde_json::json!({ "count": r.len(), "from": 0, "results": r }).to_string();
+                Ok(Response { status: 200, body })
+            }
+        }
+        let rec = Arc::new(FakeSpansh(Mutex::new(vec![])));
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let s = Store::in_memory().unwrap();
+        s.add_coverage(Sphere { center: [0.0; 3], radius: 1000.0 }, "test", "t").unwrap();
+        let g = Galaxy::with_remote(s, client);
+        let here = Here { system: "Origin".into(), id64: None, pos: [0.0; 3] };
+
+        let strict = Filters { max_age_days: Some(1), ..Filters::default() };
+        let n = g.nearby("famine", &here, 20.0, 3, &strict).unwrap();
+        let names: Vec<&str> = n.hits.iter().map(|h| h.name.as_str()).collect();
+        assert_eq!(names, ["S99"]);
+        assert!(rec.0.lock().unwrap()[0]["filters"]["updated_at"]["value"][0].is_string());
+        // without an age filter the same cache cell isn't reused for the filtered answer
+        let any = g.nearby("famine", &here, 20.0, 3, &Filters::default()).unwrap();
+        assert!(any.hits.iter().any(|h| h.name == "S0"));
     }
 
     #[test]

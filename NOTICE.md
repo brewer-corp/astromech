@@ -123,7 +123,8 @@ every species with its Vista Genomics base value and the conditions it grows in)
   `data/species_rulesets.json` at commit 6a5d65a), whose author transcribed them from public
   sources; MIT licence, Copyright (c) 2026 dwomble;
 - the journal genus symbols (`$Codex_Ent_Stratum_Genus_Name;`) are as Elite Observatory lists
-  them (github.com/Xjph/ObservatoryCore, MIT).
+  them (github.com/Xjph/ObservatoryCore, MIT);
+- the journal species symbols are from EDR, facts only (see "Exobiology values" below).
 EDMC-BioScan (GPL-2.0) and SrvSurvey (GPL-3.0) do the same job; none of their code or data is
 used. `crates/astromech-exobiology/tests/fixtures/spansh-bio-bodies.json` is a trimmed Spansh
 bodies search: real bodies with the species players reported on them, used to check the
@@ -222,3 +223,56 @@ Creative Commons Attribution-ShareAlike 3.0 licence
 The wiki page itself could not be fetched when this file was made, so it is credited only through
 that adaptation. The file stays under CC BY-SA 3.0, not the MIT licence. Rules the sources don't
 state are marked `uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.
+
+## Exploration values
+The body value formulae in `crates/astromech-exploration/src/value.rs` are written from the
+community's derivation in MattG's "Exploration value formulae" thread on the Frontier forums
+(https://forums.frontier.co.uk/threads/exploration-value-formulae.232000/), cross-checked against
+EDDiscovery's `EstimatedValues.cs` (https://github.com/EDDiscovery/EliteDangerousCore,
+Apache-2.0) and EDDI's `Body.cs` (https://github.com/EDCD/EDDI, Apache-2.0); no code was copied.
+The test fixture `crates/astromech-exploration/tests/fixtures/edsm-values.json` holds public body
+data (class, mass, terraform state) of fifteen real systems from Spansh's system dumps
+(https://spansh.co.uk) and EDSM's published value estimates for them
+(https://www.edsm.net/api-system-v1/estimated-value), fetched 17 Oct 2026. Credit: Spansh, EDSM
+and the EDDN contributors whose scans they hold. The worked example in `tests/values.rs` is from
+ED Scout's tests (https://github.com/joncage/ed-scout, MIT).
+
+## Exobiology values (EDR, ED Assistant)
+`data/catalog/exobiology.json` is one file for every exobiology use (the species values in the
+unsold organic total, the prediction, the colony ranges); its main sources are under
+"Exobiology data" below. Two more sources went into it:
+
+- Each species' journal symbol (`$codex_ent_stratum_07_name;`) was read from EDR's
+  `edr/data/biology.json` (https://github.com/lekeno/edr, Apache-2.0, at commit 198ebf5). Only
+  facts were taken: symbol, name and credit value, written by `scripts/gen-exobiology.py` into
+  astromech's own file layout. No EDR code or file is copied, so the file is not a copy of EDR's
+  and stays under astromech's MIT licence. Where EDR's values differ from the wiki's, the file
+  keeps the wiki's and lists EDR's under `uncertain`; the one species EDR has and the wiki's page
+  doesn't (Radicoida Unicus) has EDR's value and colony range, marked uncertain.
+- The single value per Horizons-era genus (anemones, brain trees, sinuous tubers, bark mounds,
+  amphora plants, crystalline shards) that ED Assistant's seed data gives
+  (https://github.com/IgorBabayan/ed-assistant) was used before this file had per-species values;
+  it is now only compared with the wiki's (the differences are under `uncertain`). ED Assistant
+  is under the MIT licence:
+
+```
+Copyright (c) 2026 Igor Babayan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

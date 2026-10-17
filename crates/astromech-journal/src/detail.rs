@@ -113,7 +113,10 @@ pub struct ScanBody {
     pub reserve_level: Option<String>,
     /// Surface materials: (name, percent).
     pub materials: Vec<(String, f64)>,
+    /// Rings, and asteroid belts (the journal lists both in `Rings`; a belt's name ends in
+    /// "Belt", a ring's in "Ring").
     pub ring_count: usize,
+    pub belt_count: usize,
     /// `Parents`, nearest first: (`Star`, `Planet`, `Ring` or `Null` for a barycentre, its BodyID).
     pub parents: Vec<(String, i64)>,
 }
@@ -356,6 +359,11 @@ pub struct Touchdown {
     pub longitude: Option<f64>,
     pub on_station: Option<bool>,
     pub on_planet: Option<bool>,
+    /// Where (missing on journals before 3.3).
+    pub star_system: Option<String>,
+    pub system_address: Option<i64>,
+    pub body: Option<String>,
+    pub body_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -600,6 +608,11 @@ fn body_signals(v: &Value) -> BodySignals {
     }
 }
 
+/// An entry of a scan's `Rings` that is an asteroid belt ("Sol A Belt"), not a ring.
+fn is_belt(r: &Value) -> bool {
+    s(r, "Name").trim_end().ends_with("Belt")
+}
+
 fn scan_body(v: &Value) -> ScanBody {
     ScanBody {
         scan_type: s(v, "ScanType"),
@@ -628,10 +641,11 @@ fn scan_body(v: &Value) -> ScanBody {
         tidal_lock: opt_b(v, "TidalLock"),
         reserve_level: opt_s(v, "ReserveLevel"),
         materials: arr(v, "Materials").map(|m| (s(m, "Name"), opt_f(m, "Percent").unwrap_or(0.0))).collect(),
-        ring_count: arr(v, "Rings").count(),
         parents: arr(v, "Parents")
             .filter_map(|p| p.as_object()?.iter().next().and_then(|(k, id)| Some((k.clone(), id.as_i64()?))))
             .collect(),
+        ring_count: arr(v, "Rings").filter(|r| !is_belt(r)).count(),
+        belt_count: arr(v, "Rings").filter(|r| is_belt(r)).count(),
     }
 }
 
@@ -1030,6 +1044,10 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             longitude: opt_f(v, "Longitude"),
             on_station: opt_b(v, "OnStation"),
             on_planet: opt_b(v, "OnPlanet"),
+            star_system: opt_s(v, "StarSystem"),
+            system_address: opt_i(v, "SystemAddress"),
+            body: opt_s(v, "Body"),
+            body_id: opt_i(v, "BodyID"),
         }),
         "Disembark" => E::Disembark(Box::new(Disembark {
             srv: flag(v, "SRV"),

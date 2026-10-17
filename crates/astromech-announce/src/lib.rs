@@ -22,7 +22,7 @@
 //! game state after it, never the replayed history; the few that remember something between
 //! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`biology`], [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`] and [`sampling`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`biology`], [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`], [`sampling`], [`discovery`] and [`session_summary`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::MarketSnap;
@@ -141,6 +141,7 @@ pub trait Rule: Send {
 
 pub mod arrival;
 pub mod biology;
+pub mod discovery;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
@@ -152,6 +153,7 @@ pub mod prospector;
 pub mod route;
 pub mod sampling;
 pub mod scan;
+pub mod session_summary;
 pub mod signals;
 
 /// What the core keeps for the rules and may change while they run.
@@ -169,6 +171,8 @@ pub struct Shared {
     /// Biology other players reported (Spansh), for the arrival's biology line (the core
     /// plugs it in).
     pub known_bio: biology::SharedKnownBio,
+    /// The commander's session history, for the session summary (the core plugs it in).
+    pub sessions: session_summary::SharedSessions,
 }
 
 /// The rules that ship.
@@ -193,6 +197,8 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(project_market::ProjectMarket),
         Box::new(signals::Signals::default()),
         Box::new(sampling::Sampling::default()),
+        Box::new(discovery::Discovery::default()),
+        Box::new(session_summary::SessionSummary::new(shared.sessions.clone())),
     ]
 }
 

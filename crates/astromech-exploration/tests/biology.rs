@@ -1,12 +1,13 @@
-//! The system's biology from synthetic journal lines: FSS counts, the prediction from the
+//! The system's biology (the biology view over the system fold) from synthetic journal lines: FSS counts, the prediction from the
 //! detailed scan, the DSS genus list, a sample pinning the species, and a jump starting again.
 
-use astromech_exobiology::system::SystemBio;
+use astromech_exploration::biology::ranked;
+use astromech_exploration::SystemFold;
 use astromech_journal::parse_line;
 
-fn feed(s: &mut SystemBio, lines: &str) {
+fn feed(s: &mut SystemFold, lines: &str) {
     for l in lines.lines().map(str::trim).filter(|l| !l.is_empty()) {
-        s.apply(&parse_line(l).unwrap().event);
+        s.apply(&parse_line(l).unwrap());
     }
 }
 
@@ -35,20 +36,20 @@ const SAMPLE_A2: &str = r#"
 
 #[test]
 fn genus_list_and_prediction_follow_fss_dss_and_samples() {
-    let mut s = SystemBio::default();
+    let mut s = SystemFold::default();
     feed(&mut s, ARRIVE);
-    assert_eq!(s.system.as_deref(), Some("Synthetic Sector AB-C d1"));
-    assert!(s.ranked().is_empty(), "no biology known yet");
+    assert_eq!(s.system(), Some("Synthetic Sector AB-C d1"));
+    assert!(ranked(&s).is_empty(), "no biology known yet");
 
     // FSS first: the count, nothing to predict from yet.
     feed(&mut s, FSS_A2);
-    let r = s.ranked();
+    let r = ranked(&s);
     assert_eq!(r.len(), 1);
     assert_eq!((r[0].signals, r[0].mapped, r[0].genera.len()), (Some(2), false, 0));
 
     // The detailed scan: a prediction, Stratum Tectonicas among it.
     feed(&mut s, SCAN_A2);
-    let b = &s.ranked()[0];
+    let b = &ranked(&s)[0];
     assert_eq!(b.name, "Synthetic Sector AB-C d1 A 2");
     assert!(b.genera.iter().all(|g| !g.known));
     let stratum = b.genera.iter().find(|g| g.genus == "Stratum").expect("Stratum predicted");
@@ -65,7 +66,7 @@ fn genus_list_and_prediction_follow_fss_dss_and_samples() {
 
     // The DSS names the two genera: only those, both known, Tectonicas still a candidate.
     feed(&mut s, DSS_A2);
-    let b = &s.ranked()[0];
+    let b = &ranked(&s)[0];
     assert!(b.mapped);
     let names: Vec<&str> = b.genera.iter().map(|g| g.genus.as_str()).collect();
     assert_eq!(names, ["Stratum", "Bacterium"], "most valuable first");
@@ -75,7 +76,7 @@ fn genus_list_and_prediction_follow_fss_dss_and_samples() {
 
     // Sampling pins the species.
     feed(&mut s, SAMPLE_A2);
-    let b = &s.ranked()[0];
+    let b = &ranked(&s)[0];
     assert_eq!(b.genera[0].species.len(), 1);
     assert_eq!(b.genera[0].value, (19_010_800, 19_010_800));
 
@@ -84,35 +85,37 @@ fn genus_list_and_prediction_follow_fss_dss_and_samples() {
         &mut s,
         r#"{"timestamp":"2026-10-17T11:00:00Z","event":"FSDJump","StarSystem":"Elsewhere","SystemAddress":100,"StarPos":[0,0,0],"JumpDist":9.0}"#,
     );
-    assert_eq!(s.system.as_deref(), Some("Elsewhere"));
-    assert!(s.ranked().is_empty() && s.stars.is_empty());
+    assert_eq!(s.system(), Some("Elsewhere"));
+    assert!(ranked(&s).is_empty());
 }
 
 #[test]
-fn events_for_another_system_are_ignored_and_a_login_here_keeps_what_is_known() {
-    let mut s = SystemBio::default();
+fn a_login_here_keeps_what_is_known_and_another_system_starts_afresh() {
+    let mut s = SystemFold::default();
     feed(&mut s, ARRIVE);
     feed(&mut s, FSS_A2);
     feed(
         &mut s,
-        &FSS_A2.replace("\"SystemAddress\":99", "\"SystemAddress\":7").replace("\"BodyID\":5", "\"BodyID\":6"),
-    );
-    assert_eq!(s.ranked().len(), 1);
-    feed(
-        &mut s,
         r#"{"timestamp":"2026-10-17T12:00:00Z","event":"Location","StarSystem":"Synthetic Sector AB-C d1","SystemAddress":99,"StarPos":[1,2,3],"Docked":false}"#,
     );
-    assert_eq!(s.ranked().len(), 1);
+    assert_eq!(ranked(&s).len(), 1);
+    // A line from another system means a jump the journal missed: that system, afresh.
+    feed(
+        &mut s,
+        &FSS_A2.replace("\"SystemAddress\":99", "\"SystemAddress\":7").replace("\"BodyID\":5", "\"BodyID\":6"),
+    );
+    let r = ranked(&s);
+    assert_eq!((r.len(), r[0].body_id), (1, Some(6)));
 }
 
 #[test]
 fn a_dss_genus_the_conditions_do_not_explain_keeps_its_whole_range() {
-    let mut s = SystemBio::default();
+    let mut s = SystemFold::default();
     feed(&mut s, ARRIVE);
     feed(&mut s, SCAN_A2);
     // Fonticulua grows on icy bodies, not this one; the DSS says it's there anyway.
     feed(&mut s, &DSS_A2.replace("$Codex_Ent_Bacterial_Genus_Name;", "$Codex_Ent_Fonticulus_Genus_Name;"));
-    let b = &s.ranked()[0];
+    let b = &ranked(&s)[0];
     let f = b.genera.iter().find(|g| g.genus == "Fonticulua").unwrap();
     assert!(f.species.is_empty());
     assert_eq!(f.value, astromech_exobiology::catalog::genus("Fonticulua").unwrap().value_range());

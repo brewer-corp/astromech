@@ -35,6 +35,8 @@ pub struct Ship {
     pub current: bool,
     /// Being moved to a shipyard; `system` is where it is going, if known.
     pub in_transit: bool,
+    /// Market id of the station a stored ship is at, for the Spansh station link.
+    pub market_id: Option<i64>,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
     /// Unladen maximum from the last `Loadout`.
@@ -137,6 +139,8 @@ pub struct FleetBuilder {
     current: Option<i64>,
     /// System of the last dock, for a ship left behind by a swap.
     here: Option<String>,
+    /// Market id of the last dock, for the same.
+    here_market: Option<i64>,
 }
 
 impl FleetBuilder {
@@ -165,6 +169,7 @@ impl FleetBuilder {
                             system: self.here.clone(),
                             in_transit: false,
                             value: old.value,
+                            market_id: self.here_market,
                         });
                     }
                 }
@@ -191,9 +196,13 @@ impl FleetBuilder {
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
-            JournalEvent::Docked { star_system, .. } => self.here = Some(star_system.clone()),
-            JournalEvent::Location { star_system, docked, .. } => {
+            JournalEvent::Docked { star_system, market_id, .. } => {
+                self.here = Some(star_system.clone());
+                self.here_market = *market_id;
+            }
+            JournalEvent::Location { star_system, docked, market_id, .. } => {
                 self.here = docked.then(|| star_system.clone());
+                self.here_market = market_id.filter(|_| *docked);
             }
             JournalEvent::ShipTransfer { ship_id, ship_type } => {
                 // It arrives where we are; until the next StoredShips it counts as in transit.
@@ -205,8 +214,10 @@ impl FleetBuilder {
                     system: None,
                     in_transit: false,
                     value: None,
+                    market_id: None,
                 });
                 s.system = here;
+                s.market_id = None;
                 s.in_transit = true;
             }
             JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
@@ -304,6 +315,7 @@ impl FleetBuilder {
             system: stored.and_then(|s| s.system.clone()),
             current: self.current == Some(id),
             in_transit: stored.is_some_and(|s| s.in_transit),
+            market_id: stored.and_then(|s| s.market_id),
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
             value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),

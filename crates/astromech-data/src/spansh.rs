@@ -14,6 +14,8 @@
 //! - `has_large_pad` (stations): `{"value": true}`;
 //! - `distance_to_arrival`, `updated_at`, `outfitting_updated_at`, `shipyard_updated_at`
 //!   (stations): `{"value": [min, max], "comparison": "<=>"}` (`{"min", "max"}` is ignored);
+//!   `updated_at` takes the same shape on systems and bodies too (checked 17 Oct 2026: from Sol,
+//!   10000 systems became 562 for the last 40 minutes, 10000 Earth-like worlds became 133);
 //! - `minor_faction_presences` (systems): `[{"allegiance": {"value": [..]}, "state": {"value": [..]}}]`;
 //! - `subtype` (bodies): `{"value": [..]}`;
 //! - `landmark_subtype` (bodies, codex points of interest such as "Crystalline Shards" or

@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:16:16.798744343+00:00"
 id: "astromech-oo8y"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-oo8y
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T05:07:55.598938284+00:00"
+status: "done"
 title: "Session summary by voice and at logout"
-updated_at: "2026-10-16T20:17:54.137049158+00:00"
+updated_at: "2026-10-17T05:07:55.598938284+00:00"
 ---
 
 ## Goal
@@ -30,3 +34,7 @@ A replay with the fixture history: the voice query answers with the session's to
 ## Context
 
 Split out of astromech-bg0x, which built `History::session` (the totals, tested on the fixture sessions) and the app's Session tab. Speaking needs a read connection to the history in the core's session and a tool in astromech-tools. Only say what the game doesn't already show (AGENTS.md).
+
+## Close Reason
+
+Voice query and logout/main-menu summary built and tested on the fixture history; gates pass

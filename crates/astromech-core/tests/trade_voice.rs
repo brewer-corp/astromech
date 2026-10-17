@@ -208,10 +208,49 @@ fn where_should_i_sell_my_cargo_names_the_best_station_for_the_whole_load() {
     let s = spoken(r.assistant.handle("sell my cargo", Origin::Voice));
     assert_eq!(
         s,
-        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago."
+        "Best for your cargo: Carvalho Engineering Foundry in Luyten's Star, 12 light years. 18,976,350 credits for 73 of 600 tonnes. Reported 40 days ago. No market takes all your Platinum: Carvalho Engineering Foundry in Luyten's Star takes 73 of 100 tonnes at 259,950 credits each."
     );
 
     r.hub.update(|g| g.cargo_inventory.retain(|i| i.mission || i.symbol == "drones"));
     let s = spoken(r.assistant.handle("Where to sell my cargo", Origin::Voice));
     assert_eq!(s, "Nothing in your hold to sell: mission cargo, stolen goods and limpets are left out.");
+}
+
+/// Done when: a voice lookup then the Trade page's on the same recorded answers make one
+/// request, because the core and the app window share one cache file.
+#[test]
+fn a_voice_lookup_then_the_trade_page_make_one_ardent_request() {
+    let dir = tempfile::tempdir().unwrap();
+    let rec = Arc::new(Recorded::default());
+    // Two processes, each with its own client on the shared data dir.
+    let process = || {
+        let cache = Cache::open(&dir.path().join(astromech_data::CACHE_FILE)).unwrap();
+        Arc::new(Client::with_transport(cache, rec.clone()).limiter(Limiter::none()).clock(Arc::new(Evening)))
+    };
+    let (core, window) = (process(), process());
+
+    let r = rig(false);
+    let assistant = r.assistant.with_shared_remote(core);
+    let voice = spoken(assistant.handle("Where can I sell painite?", Origin::Voice));
+    assert_eq!(rec.log.lock().unwrap().len(), 1, "the voice lookup asked Ardent once");
+
+    let here = astromech_galaxy::Here { system: "Sol".into(), id64: None, pos: [0.0; 3] };
+    let galaxy = astromech_galaxy::Galaxy::with_shared_remote(astromech_galaxy::Store::in_memory().unwrap(), window);
+    // The page's filters: the saved ones, the pad following the current ship, like the voice's.
+    let pad = astromech_galaxy::Pad::for_ship("krait_mkii");
+    let page_filters = astromech_galaxy::filters::load(&r.store.lock().unwrap(), "trade.sell", pad).unwrap();
+    // What the Trade page's search asks for (the star-map fill-in after it is another service).
+    let page = astromech_market::prices(
+        galaxy.remote(),
+        &astromech_market::Origin::from(&here),
+        astromech_market::Side::Sell,
+        &["painite"],
+        &page_filters,
+        20.0,
+        Evening.now_s(),
+    )
+    .unwrap();
+    assert_eq!(rec.log.lock().unwrap().len(), 1, "the page was served from the voice lookup's answer");
+    assert_eq!(page[0].offers[0].station, "Good Landing");
+    assert!(voice.contains("Good Landing"), "voice and the page name the same best market: {voice}");
 }

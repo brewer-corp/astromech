@@ -146,7 +146,7 @@ fn the_summary_follows_the_fss_and_the_dss() {
     let first = gui(&mut r, 0);
     assert_eq!(first.len(), 2, "{first:?}");
     assert_eq!(first[0], "Biology on 1 body.");
-    let top = r.state.exobiology.system.ranked()[0].best().unwrap();
+    let top = astromech_exploration::biology::ranked(&r.state.system_bodies)[0].best().unwrap();
     assert_eq!(first[1], biology::body_line("A 2", &top.0, top.1, top.2));
     assert!(first[1].starts_with("A 2: ") && first[1].contains("up to"), "{first:?}");
     // Back in and out with nothing new: silent.
@@ -161,7 +161,10 @@ fn the_summary_follows_the_fss_and_the_dss() {
 
     // The DSS on A 2: one genus, Bacterium; its line, from the real genus list.
     let dss = r.spoken(DSS_A2);
-    let a2 = r.state.exobiology.system.ranked().into_iter().find(|b| b.body_id == 5).unwrap();
+    let a2 = astromech_exploration::biology::ranked(&r.state.system_bodies)
+        .into_iter()
+        .find(|b| b.body_id == Some(5))
+        .unwrap();
     assert!(a2.mapped && a2.genera.len() == 1 && a2.genera[0].genus == "Bacterium");
     let best = a2.best().unwrap();
     assert_eq!(dss, [biology::body_line("A 2", &best.0, best.1, best.2)]);
