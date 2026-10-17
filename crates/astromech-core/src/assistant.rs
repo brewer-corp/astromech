@@ -42,11 +42,11 @@ enum Pending {
 /// The spoken answer for a command the grammar knows but the app can't run yet.
 pub fn unavailable_reason(command: &str) -> &'static str {
     match command {
-        "supercruise" => "Supercruise isn't available yet. Flight commands come later.",
-        "hyperspace_jump" => "Hyperspace jumps aren't available yet. Flight commands come later.",
-        "request_docking" => "Docking requests aren't available yet.",
-        "plot_route" => "Route plotting isn't available yet.",
-        _ => "That isn't available yet.",
+        "supercruise" => "Supercruise is not available yet. Flight commands come later.",
+        "hyperspace_jump" => "Hyperspace jumps are not available yet. Flight commands come later.",
+        "request_docking" => "Docking requests are not available yet.",
+        "plot_route" => "Route plotting is not available yet.",
+        _ => "That command is not available yet.",
     }
 }
 
@@ -216,7 +216,7 @@ impl Assistant {
         }
         match m.decision {
             Decision::Execute if m.command == "confirm" || m.command == "cancel" => {
-                self.say("Didn't catch that.");
+                self.say("Say again.");
                 Handled::NotUnderstood
             }
             Decision::Execute => self.dispatch(m.command, (m.slot.as_deref(), m.slot_text.as_deref()), origin, false),
@@ -232,7 +232,7 @@ impl Assistant {
                 Handled::Asked { command: m.command, phrase: m.phrase }
             }
             _ => {
-                self.say("Didn't catch that.");
+                self.say("Say again.");
                 Handled::NotUnderstood
             }
         }

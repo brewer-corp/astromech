@@ -209,7 +209,7 @@ flowchart TB
 
 ## 4. Cargo workspace layout
 
-v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, announce, api, web, gamedata, history, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
+v0.10: this is the scaffold that is actually in the repo (v0.11: plus `astromech-intent`). Crates not listed (nav, vision, capi, api, web, gamedata, history, market, replay, realtime) are still planned under the same `astromech-*` names and get added when their phase starts.
 
 ```
 astromech/
@@ -264,6 +264,8 @@ astromech/
                          Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)
+    astromech-announce/  event -> reaction engine: rules over journal + Status.json, per-rule toggle and
+                         cooldown, quiet in docking and combat, silent journal catch-up, speech queue
     astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
                          with the global rules (live-only, *_Localised and commander data stripped,
                          header from Fileheader/LoadGame, flags never null, augmentation cross-check),
@@ -515,7 +517,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - **Packaging:** the STT/TTS engine runs in a **separate worker process** with sherpa-onnx linked **statically** (no runtime DLLs, so no DLL-search problems). One crash-isolated helper keeps the main exe free of native ML code.
 - **TTS worker:**
   - **Kokoro-82M v1.0** (`kokoro-multi-lang-v1_0`, 54 voices) through sherpa-onnx `OfflineTts`. Voices are configured by name (`astromech_voice::catalog::KOKORO_VOICES`, index = `sid`); each request also names the espeak-ng voice to phonemise with (`en` for British voices, `en-us` otherwise). The package's Chinese lexicon and jieba dictionary are not used: with a language set, sherpa-onnx 1.13.8 phonemises English with espeak-ng. An update from v0.19 downloads v1.0 (int8 if only the int8 v0.19 was installed) and, once the download is complete (its marker written), deletes the v0.19 folders from astromech's own models folder; a folder `models_dir` points at is left alone.
-  - **Pre-render** fixed confirmations ("Landing gear deployed.", "Lights on.", "Didn't catch that.", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries). Cache after colouring.
+  - **Pre-render** fixed confirmations ("Landing gear deployed.", "Lights on.", "Say again.", …) at first run, so confirmations play in under 50 ms. Kokoro is used live only for dynamic sentences (announcements, route summaries). Cache after colouring.
   - **Voice colour (v0.14).** Kokoro talks like a person; Elite's COVAS (Verity / Victor) is a treated ship computer. Default colour **Cockpit** so astromech sits in the same register, not as a crewmate and not as a protocol droid. Product write-up: V1-DESIGN.md §6.4.
     - Config: `[voice] colour = "natural" | "cockpit" | "harsh"` (default `cockpit`), plus `speaker` (a Kokoro voice name, default `bf_emma`) and `speed`. Cockpit uses `speed ≈ 0.92–0.95`.
     - Cockpit chain on the PCM, in order: high-pass ~250 Hz, low-pass ~4 kHz; presence bump ~1.5–2 kHz; compressor; soft saturation (optional 16 kHz downsample/upsample); 1–2 ms comb; then a short two-tone pip (own earcon). Harsh is the same with a ~3.5 kHz cap and more grit. Natural is unprocessed.
@@ -589,7 +591,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
      - **Two thresholds:**
        - Score ≥ **0.85** with a clear margin over the runner-up: execute.
        - **0.60–0.85**, or two close candidates: ask **"Did you mean *X*?"**. Confirm by PTT "yes" or the confirm button; cancel or a 5 s timeout drops it.
-       - Below 0.60: "Didn't catch that".
+       - Below 0.60: "Say again".
        - T2 actions always confirm anyway.
        - Starting values; tune on S9's recorded WAVs plus new ones.
      - **v0.11, implemented** in `astromech-intent` (unit test `s9_mic_misses`). Measured scores: "What route to Seoul?" → plot route to Sol **0.775, ask**; "Definitely hard points." → deploy hardpoints **0.650, ask** (runner-up retract 0.600); "Request stocking." → request docking **0.875, execute**; "Retrapped hard point." → retract hardpoints **0.778, ask** (so the last row resolves to "ask"). Margin needed to execute: **0.08** over the best *different* command. The phonetic key is a crude consonant-class key, not Double Metaphone. Run `cargo run -p astromech-intent --example rank -- "<transcript>"` to see a score.
@@ -601,13 +603,13 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
        | "Definitely hard points." | **deploy hardpoints** (ask) | "hard points" → hardpoints matches exactly. "definitely" vs "deploy": shared prefix and phonetic start. The only hardpoints phrases are deploy/retract, and "definitely" is much closer to deploy. Mid score, so ask. |
        | "Request stocking." | **request docking** (execute) | One-phoneme difference in a two-word phrase. "Request …" has few siblings, so the margin is large. |
        | "Retrapped hard point." | **retract hardpoints** (execute or ask) | "hard point" → hardpoints (singular normalised). "retrapped" vs "retract" is a close edit. High score unless an ambiguous context lowers the margin. |
-  4. Below the threshold, play "Didn't catch that" (pre-rendered). **There's no LLM fallback in the MVP.**
+  4. Below the threshold, play "Say again" (pre-rendered). **There's no LLM fallback in the MVP.**
 - **Hotword / contextual biasing: checked (v0.13), not enabled.** sherpa-onnx supports hotwords for NeMo transducers, Parakeet TDT included (k2-fsa/sherpa-onnx PR #3077). Our pinned crate 1.13.8 exposes `hotwords_file`, `hotwords_score`, `modeling_unit` and `bpe_vocab`. But it needs `decoding_method = modified_beam_search` (greedy can't bias), plus a `bpe.vocab` that the published Parakeet bundles don't ship (it's generated by `scripts/nemo/generate_bpe_vocab.py` from the NeMo tokenizer). And the NeMo-TDT beam-search decoder has an open bug: it hallucinates "Yeah." or returns empty text on about 20% of requests (issue #3267; fix PR #3657 not merged). That is exactly the failure we are trying to remove. So we stay on greedy decoding, with the fuzzy matcher plus vocabulary normalisation. Re-test when #3657 lands, using S9's WAVs and Sumeet's real-game transcripts, and measure latency.
 - **Game vocabulary and mishearings (v0.13).**
   - Normalisation joins game words: "super cruise / crews / cruz" and "superus" → `supercruise`, "frame shift" → `frameshift`, "hyper space" → `hyperspace`.
   - Mishearings too ambiguous to press on ("you're/your" for "gear") are scored with the replacement but capped at **0.80**, so they always get "Did you mean …?".
   - Real-game cases, all unit-tested: "Bunding gear down." 0.905 → execute; "Year down." 0.875 → execute; "You're down." → ask; "Gear down." → execute; "Super Cruise", "Supercruise.", "Engage Super Crews", "Engage Superus." → `supercruise`.
-- **Known but unavailable (v0.13).** `supercruise`, `hyperspace_jump`, `request_docking` and `plot_route` are in the grammar so they don't fall through to "didn't catch that". They answer "I can't do that yet. Supercruise isn't in this preview; …".
+- **Known but unavailable (v0.13).** `supercruise`, `hyperspace_jump`, `request_docking` and `plot_route` are in the grammar so they don't fall through to "Say again". They answer "Supercruise is not available yet. Flight commands come later." (and the like).
 - **Noise-only transcripts (v0.13).** A transcript made only of noise words (mm, mm-hmm, hmm, uh, um, ah, oh, yeah, okay) is ignored silently. The exception is "yeah"/"okay" while a "Did you mean …?" is open, which counts as yes.
 - **Optional later: second-pass reprocessing** (Sumeet's suggestion). When the score is in the "ask" band, re-decode the same clip with a larger or second model (e.g. Parakeet v3, or a Whisper-class model), or run a small local LLM correction constrained to the grammar's phrases. Latency only matters in that band. Not in the MVP.
 - **Context gating:** in an SRV, "lights" maps to the SRV lights action, and so on.
@@ -628,6 +630,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 ### 5.15 `astromech-announce`
 - **Deterministic rules:** event → condition → phrase template (`minijinja`), with variants, cooldowns and priority.
   - Examples: fuel scoop reminder, "route has N jumps, next star is non-scoopable", docking pad number (`DockingGranted.LandingPad`), arrival summaries, mission expiry.
+- **As built (16 Oct 2026):** the engine and speech queue are in `astromech-announce`; core's `callouts` delivers speech, app toasts and Windows notifications. Rules are Rust (`Rule` trait), not templates yet. Behaviour: V1-DESIGN.md §7.15.
 - **Delivery:** spoken by local Kokoro TTS. In the later cloud phase, rules marked "conversational" may instead be handed to a live session as commentary. **The LLM never decides *whether* to alert on safety-relevant events.**
 
 ### 5.16 `astromech-ui` (shared renderer)
@@ -823,7 +826,7 @@ sequenceDiagram
   V->>I: Transcript("gear down")
   I->>I: normalise + grammar / fuzzy match, context gate
   alt no confident match
-    I-->>V: say "Didn't catch that" (pre-rendered clip)
+    I-->>V: say "Say again" (pre-rendered clip)
   else matched
     I->>T: ToolCall(set_landing_gear, {state: down}, origin=voice_local)
     T->>T: deserialize + schema-validate args

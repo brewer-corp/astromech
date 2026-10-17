@@ -122,6 +122,8 @@ pub struct Config {
     pub voice: Voice,
     pub actions: Actions,
     pub update: crate::update::Settings,
+    /// Per-callout toggle and cooldown: `[callouts.<id>]` with `enabled` and `cooldown_s`.
+    pub callouts: astromech_announce::Settings,
     pub eddn: Eddn,
     /// Where astromech keeps its database, logs and TTS cache. Empty: `astromech-data` next to the exe.
     pub data_dir: String,
