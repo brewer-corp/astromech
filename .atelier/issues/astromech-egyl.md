@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:16:20.758928051+00:00"
 id: "astromech-egyl"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-egyl
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Trade sell and buy lookups: say when the answer was cut at 1000 markets"
-updated_at: "2026-10-17T06:16:20.758928051+00:00"
+updated_at: "2026-10-17T06:31:02.999251072+00:00"
 ---
 
 ## Goal
