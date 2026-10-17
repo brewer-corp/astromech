@@ -126,15 +126,25 @@ impl crate::History {
 
     /// The stored lines of the most recently played commander's earlier visits to the system
     /// `address` that make up its view, in game-time order: scans, mappings, completed samples
-    /// (through the `scans` ledger's index) and body signals.
+    /// (through the `scans` ledger's index; the newest scan and the newest mapping of each body,
+    /// not one per arrival), body signals and the honk and all-bodies-found lines.
     fn system_lines(&self, name: &str, address: i64) -> crate::Result<Vec<String>> {
         let mut st = self.conn.prepare_cached(
             "SELECT ts, id, json FROM events WHERE id IN (
-                 SELECT event_id FROM scans WHERE system_address = ?1
-                   AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0))
+                 SELECT event_id FROM (
+                     SELECT event_id, kind, row_number() OVER (
+                         PARTITION BY cmdr, kind, coalesce(body_name, ''), coalesce(body_id, -1)
+                         ORDER BY ts DESC, event_id DESC) AS newest
+                     FROM scans WHERE system_address = ?1
+                       AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0))
+                 WHERE newest = 1 OR kind = 'organic')
              UNION ALL
              SELECT ts, id, json FROM events
              WHERE event IN ('FSSBodySignals', 'SAASignalsFound') AND json_extract(json, '$.SystemAddress') = ?1
+               AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0)
+             UNION ALL
+             SELECT ts, id, json FROM events
+             WHERE event IN ('FSSDiscoveryScan', 'FSSAllBodiesFound') AND json_extract(json, '$.SystemAddress') = ?1
                AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0)
              ORDER BY ts, id",
         )?;
@@ -462,6 +472,8 @@ mod tests {
             body("2026-10-01T09:12:00Z", 42, "Explo", "A 2", 2, "Icy body"),
             r#"{"timestamp":"2026-10-01T09:13:00Z","event":"SAAScanComplete","BodyName":"Explo A 1","BodyID":1,"SystemAddress":42,"ProbesUsed":5,"EfficiencyTarget":6}"#.to_string(),
             r#"{"timestamp":"2026-10-01T09:14:00Z","event":"FSSBodySignals","BodyName":"Explo A 2","BodyID":2,"SystemAddress":42,"Signals":[{"Type":"$SAA_SignalType_Biological;","Type_Localised":"Biological","Count":2}]}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:15:00Z","event":"FSSDiscoveryScan","Progress":0.5,"BodyCount":3,"NonBodyCount":0,"SystemName":"Explo","SystemAddress":42}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:16:00Z","event":"FSSAllBodiesFound","SystemName":"Explo","SystemAddress":42,"Count":3}"#.to_string(),
             jump("2026-10-02T09:00:00Z", "Elsewhere", 43, 0),
             body("2026-10-02T09:01:00Z", 43, "Elsewhere", "B 1", 1, "Icy body"),
             // Back in Explo: only the arrival star is scanned again.
@@ -473,11 +485,12 @@ mod tests {
         h.import(d.path(), &ImportOptions::default()).unwrap();
 
         let mut live = SystemFold::default();
-        for l in &lines[9..] {
+        for l in &lines[11..] {
             live.apply(&astromech_journal::parse_line(l).unwrap());
         }
         // Without the history only the star is there.
         assert_eq!(live.view().bodies.len(), 1);
+        assert_eq!((live.view().body_count, live.view().all_found), (None, false));
         // What the first visit showed, as it ended.
         let mut first = SystemFold::default();
         for l in &lines[1..7] {
@@ -490,9 +503,33 @@ mod tests {
             v.bodies.iter().map(|b| (b.short_name.as_str(), b.mapped, b.bio_signals)).collect();
         assert_eq!(by, [("Explo", false, 0), ("A 1", true, 0), ("A 2", false, 2)]);
         assert!(v.bodies[1].mapped_efficiently);
+        // The earlier honk and all-found flag come with it.
+        assert_eq!((v.body_count, v.all_found), (Some(3), true));
         assert_eq!((v.value, v.value_if_mapped), (was.value, was.value_if_mapped));
         // Another system's scans stay out.
         assert!(v.bodies.iter().all(|b| b.name.starts_with("Explo")));
+    }
+
+    /// A star scanned on each of 50 arrivals is read once, and the system lookup stays on its
+    /// indexes (astromech-lelp).
+    #[test]
+    fn a_system_visited_often_reads_one_scan_per_body() {
+        let d = tempfile::tempdir().unwrap();
+        let mut lines = vec![load("2026-10-01T09:00:00Z", "F1", "Test")];
+        for day in 1..=50 {
+            lines.push(format!(
+                r#"{{"timestamp":"2026-10-{:02}T09:00:01Z","event":"Scan","ScanType":"AutoScan","BodyName":"Explo","BodyID":0,"StarSystem":"Explo","SystemAddress":42,"StarType":"G","StellarMass":{day}.0,"WasDiscovered":false}}"#,
+                day % 28 + 1
+            ));
+        }
+        lines.push(r#"{"timestamp":"2026-10-30T09:01:00Z","event":"Scan","ScanType":"Detailed","BodyName":"Explo A 1","BodyID":1,"StarSystem":"Explo","SystemAddress":42,"PlanetClass":"Icy body","MassEM":1.0,"WasDiscovered":false,"WasMapped":false}"#.to_string());
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines.join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+        let got = h.system_lines("Test", 42).unwrap();
+        assert_eq!(got.len(), 2, "{got:?}");
+        // The newest star scan (latest timestamp) is the one kept.
+        assert!(got.iter().any(|l| l.contains("\"BodyID\":0") && l.contains("2026-10-28T09:00:01Z")), "{got:?}");
     }
 
     /// 100k body-signal rows over 2000 systems: the signal half of a system's earlier visits
@@ -512,7 +549,12 @@ mod tests {
                 .prepare("INSERT INTO events (file_id, offset, ts, event, json, cmdr) VALUES (1, ?1, ?2, ?3, ?4, 'F1')")
                 .unwrap();
             for i in 0..100_000i64 {
-                let event = if i % 2 == 0 { "FSSBodySignals" } else { "SAASignalsFound" };
+                let event = match i / 2000 % 4 {
+                    0 => "FSSBodySignals",
+                    1 => "SAASignalsFound",
+                    2 => "FSSDiscoveryScan",
+                    _ => "FSSAllBodiesFound",
+                };
                 let line = format!(
                     r#"{{"timestamp":"2026-10-01T09:00:00Z","event":"{event}","BodyName":"S B{}","BodyID":{},"SystemAddress":{},"Signals":[]}}"#,
                     i % 7,
