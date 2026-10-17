@@ -4,6 +4,9 @@ id: "astromech-2za5"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-2za5
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Binds health check: warn when Key_V or Key_Enter is bound in the galaxy map"
-updated_at: "2026-10-17T17:33:44.425564290+00:00"
+updated_at: "2026-10-17T18:39:47.974257111+00:00"
 ---
 
 ## Goal
