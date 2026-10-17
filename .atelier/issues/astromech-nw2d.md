@@ -4,6 +4,9 @@ id: "astromech-nw2d"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: wt-base-nw2d
+  work_branch: bug/astromech-nw2d
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Undocked leaves the station set"
-updated_at: "2026-10-17T17:01:40.366139601+00:00"
+updated_at: "2026-10-17T17:03:51.886935288+00:00"
 ---
 
 ## Goal
