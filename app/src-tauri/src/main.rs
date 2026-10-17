@@ -29,20 +29,6 @@ struct Endpoint {
     token: String,
 }
 
-fn app_dir() -> PathBuf {
-    std::env::var_os("LOCALAPPDATA")
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local").join("share")))
-        .unwrap_or_else(|| ".".into())
-        .join("astromech")
-        .join("data")
-}
-
-/// The core's log folder in the installed layout (`logs` in the app dir); the window logs there too.
-fn log_dir() -> PathBuf {
-    app_dir().join("logs")
-}
-
 /// The core's endpoint file, in its app dir (`astromech_store::Paths`, the core's own rule).
 fn endpoint_file() -> PathBuf {
     Paths::current().app_dir().join("core.json")
@@ -219,19 +205,10 @@ fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, j
     with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
 }
 
+/// The game's journal folder, by the core's rule (`Paths::journal_dir`); empty if there is none,
+/// which callers report as a folder not found.
 fn journal_dir() -> PathBuf {
-    let cfg = config();
-    let j = cfg.game.journal_dir.trim();
-    if !j.is_empty() {
-        return PathBuf::from(j);
-    }
-    std::env::var_os("USERPROFILE")
-        .or_else(|| std::env::var_os("HOME"))
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("Saved Games")
-        .join("Frontier Developments")
-        .join("Elite Dangerous")
+    Paths::current().journal_dir(&config().game.journal_dir).unwrap_or_default()
 }
 
 struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
@@ -1142,11 +1119,11 @@ fn route_arg(args: &[String]) -> Option<String> {
 }
 
 fn main() {
-    // Release builds have no console, so the window's problems go to its own log next to the
-    // core's (`astromech-shell.log`).
+    // Release builds have no console, so the window's problems go to its own log in the core's
+    // log folder (`astromech-shell.log`).
     let red = astromech_keybinds::report::Redactor::from_env();
     astromech_log::init(
-        &log_dir(),
+        &Paths::current().log_dir(),
         astromech_log::SHELL,
         cfg!(debug_assertions),
         Box::new(move |l: &str| red.apply(l)),

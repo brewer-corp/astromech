@@ -13,6 +13,8 @@ pub struct Paths {
     exe_dir: PathBuf,
     app_dir: PathBuf,
     portable: bool,
+    /// `%USERPROFILE%`, under which the game keeps its journals.
+    user_profile: Option<PathBuf>,
 }
 
 impl Paths {
@@ -31,7 +33,7 @@ impl Paths {
             .or_else(|| env("HOME").map(|h| PathBuf::from(h).join(".local").join("share")));
         let app_dir = base.map(|b| b.join("astromech").join("data")).unwrap_or_else(|| exe_dir.join("astromech-data"));
         let portable = exe_dir.join(CONFIG_FILE).is_file();
-        Self { exe_dir, app_dir, portable }
+        Self { exe_dir, app_dir, portable, user_profile: env("USERPROFILE").map(PathBuf::from) }
     }
 
     /// The folder holding the running exe.
@@ -77,10 +79,21 @@ impl Paths {
         }
     }
 
-    /// The log folder: `logs` under `exe_dir/astromech-data` in portable mode, else under the app
-    /// dir. A `data_dir` override doesn't move it.
+    /// The log folder, where the core writes `astromech-core.log` and the app window
+    /// `astromech-shell.log`: `logs` under `exe_dir/astromech-data` in portable mode, else under
+    /// the app dir. A `data_dir` override doesn't move it.
     pub fn log_dir(&self) -> PathBuf {
         if self.portable { self.exe_dir.join("astromech-data") } else { self.app_dir.clone() }.join("logs")
+    }
+
+    /// The game's journal folder: the config's `game.journal_dir` if set, else
+    /// `%USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous`; `None` without either.
+    pub fn journal_dir(&self, configured: &str) -> Option<PathBuf> {
+        let c = configured.trim();
+        if !c.is_empty() {
+            return Some(c.into());
+        }
+        self.user_profile.as_ref().map(|h| h.join("Saved Games").join("Frontier Developments").join("Elite Dangerous"))
     }
 }
 
@@ -90,6 +103,44 @@ mod tests {
 
     fn env<'a>(vars: &'a [(&'a str, &'a str)]) -> impl Fn(&str) -> Option<OsString> + 'a {
         move |k| vars.iter().find(|(n, _)| *n == k).map(|(_, v)| OsString::from(v))
+    }
+
+    /// The core logs into `Paths::log_dir` (`astromech-core`'s `app::run`) and so does the app
+    /// window (`astromech-shell`'s `main`), so both files sit in one folder, which the
+    /// diagnostics bundle zips, in every layout.
+    #[test]
+    fn the_core_and_the_shell_log_into_one_folder_in_every_layout() {
+        use astromech_log::{file, CORE, SHELL};
+        let exe = tempfile::tempdir().unwrap();
+        let vars = [("LOCALAPPDATA", "/l")];
+        let installed = Paths::new(exe.path().into(), env(&vars));
+        std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
+        let portable = Paths::new(exe.path().into(), env(&vars));
+        let portable_logs = exe.path().join("astromech-data").join("logs");
+        // (layout, data_dir override, expected log folder)
+        for (p, data_dir, want) in [
+            (&installed, "", Path::new("/l/astromech/data/logs")),
+            (&installed, "/d", Path::new("/l/astromech/data/logs")),
+            (&portable, "", portable_logs.as_path()),
+            (&portable, "/d", portable_logs.as_path()),
+        ] {
+            let logs = p.log_dir();
+            assert_eq!(logs, want, "data_dir {data_dir:?}");
+            assert_ne!(logs.parent(), Some(Path::new(data_dir)), "the override doesn't move the logs");
+            assert_eq!(file(&logs, CORE).parent(), file(&logs, SHELL).parent());
+            assert_eq!(file(&logs, SHELL), want.join("astromech-shell.log"));
+        }
+        // Without LOCALAPPDATA, XDG_DATA_HOME or HOME, both fall back next to the exe.
+        assert_eq!(Paths::new(exe.path().into(), env(&[])).log_dir(), portable_logs);
+    }
+
+    #[test]
+    fn journal_dir_is_the_configured_one_else_under_the_user_profile() {
+        let exe = tempfile::tempdir().unwrap();
+        let p = Paths::new(exe.path().into(), env(&[("USERPROFILE", "/u")]));
+        assert_eq!(p.journal_dir(" /j "), Some(PathBuf::from("/j")));
+        assert_eq!(p.journal_dir(""), Some(PathBuf::from("/u/Saved Games/Frontier Developments/Elite Dangerous")));
+        assert_eq!(Paths::new(exe.path().into(), env(&[])).journal_dir(""), None);
     }
 
     #[test]
