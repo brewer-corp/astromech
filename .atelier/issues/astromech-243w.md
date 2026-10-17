@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Trade lookups: blank age and distance selects, placeholder rows, shorter partial-buyer voice"
-updated_at: "2026-10-17T05:46:43.437766035+00:00"
+updated_at: "2026-10-17T06:02:51.694369824+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ Left over from the Trade near me review (astromech-zf3s, R6 and R7, carried in a
 ## Done when
 
 Component test: the selects show their saved values; recorded-response test: placeholders don't count toward truncation; copy test: a hold of five such commodities stays within the copy guide's budget.
+
+## Notes
+
+- 2026-10-17 [note] R7 not changed, needs a decision. truncated = (rows >= 1000) is the right test: Ardent cuts at 1000 rows and placeholders (high price, so first) use up slots, so a full answer has lost real markets whatever its placeholders. Not counting placeholders would clear the flag exactly when real markets were cut. Pinned by placeholders_use_up_ardents_rows_so_a_full_answer_is_truncated. Done-when wording ('placeholders don't count toward truncation') needs rewording or a different fix (Ardent has no maxVolume; checked 17 Oct 2026).
