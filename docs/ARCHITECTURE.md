@@ -308,8 +308,13 @@ astromech/
                          nothing is sent without it. Only for the commander set in Settings → Data
                          sharing ([edsm] enabled, commander; the API key in the OS keyring), never
                          beta, never in another commander's crew. A wrong key (201-203) or an
-                         outage keeps the events, backing off to an hour. The flight log (get-logs,
-                         last week) is read on demand from the same page
+                         outage keeps the events, backing off to an hour; saving a changed name or
+                         key makes them due at once, wakes the uploader and hides the errors from
+                         before it. A request EDSM refuses (an HTTP status such as 413 other than
+                         408, 429 and 5xx, an unreadable answer, or an answer that doesn't cover
+                         every event) is retried with backoff and given up after 8 tries, so it
+                         can't block later events. The flight log (get-logs,
+                         last week) is read on demand from the same page (it gives up after 10 s, before the app window's 15 s wait on the core, so the page shows EDSM's message or "EDSM didn't answer within 10 s")
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
                          backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
     astromech-station/   docked-here facts (services, economies, faction, pads, upgrades on sale) and the outfitting book (`outfitting.sqlite`: every Outfitting.json seen, searched offline)

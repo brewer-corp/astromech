@@ -378,6 +378,14 @@ impl Outbox {
         Ok(())
     }
 
+    /// Every queued message is due at `now` with its tries forgotten: whatever held them back
+    /// (a wrong key, an outage) is over.
+    pub fn make_due(&self, now: i64) -> Result<()> {
+        self.conn
+            .execute("UPDATE outbox SET next_try = ?1, attempts = 0 WHERE next_try > ?1 OR attempts > 0", [now])?;
+        Ok(())
+    }
+
     /// A value the sender kept from an earlier run.
     pub fn meta(&self, key: &str) -> Result<Option<String>> {
         self.conn.query_row("SELECT value FROM meta WHERE key = ?1", [key], |r| r.get(0)).optional()
