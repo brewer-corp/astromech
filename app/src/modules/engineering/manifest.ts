@@ -6,6 +6,7 @@ const manifest: ModuleManifest = {
   group: "engineering",
   title: "Ships",
   summary: "Your fleet at a glance, the modules in storage, and a build plan for any ship: materials, trades, farming and engineer trips",
+  help: "ships.md",
   order: 0,
   api: ["engineering"],
   load: () => import("./View.svelte"),

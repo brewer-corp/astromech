@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "controls",
   title: "Key tester",
   summary: "Press anything: the name Elite uses and what it's bound to",
+  help: "controls.md#key-tester",
   order: 40,
   api: ["binds"],
   load: () => import("./View.svelte"),

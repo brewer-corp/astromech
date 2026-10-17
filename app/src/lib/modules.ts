@@ -28,6 +28,8 @@ export interface ModuleManifest {
   title: string;
   /** Short line for the nav tooltip. */
   summary: string;
+  /** The page's guide page in docs/guide/, with an optional #heading: "controls.md#my-controller". */
+  help: string;
   /** Lower sorts first within its group; the first one is where the group opens. */
   order: number;
   /** API namespaces the module uses (for the core's capability check), e.g. "binds". */

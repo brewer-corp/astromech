@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Walk every screen for v1.0"
-updated_at: "2026-10-16T18:26:24.706019830+00:00"
+updated_at: "2026-10-17T17:41:24.831155178+00:00"
 ---
 
 ## Goal
@@ -28,3 +28,7 @@ Sumeet walks every screen of the built app and either signs it off or files what
 ## Done when
 
 Every page is listed in a note with "ok" or the IDs of the issues filed for it.
+
+## Notes
+
+- 2026-10-17 [note] Windows: the Help link opens an https URL with a #fragment through open_external, which runs explorer.exe <url>. Check on Windows that the browser opens the page at the right heading (PR #113 review R8).

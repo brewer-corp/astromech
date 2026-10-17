@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:24:21.382638645+00:00"
+status: "done"
 title: "Guide: galaxy, Powerplay, colonisation, exploration, logbook and data sharing"
-updated_at: "2026-10-17T16:54:24.039482327+00:00"
+updated_at: "2026-10-17T17:24:21.382638645+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ Guide pages for the star map and nearby lookups, routes and plotters, Powerplay,
 ## Done when
 
 Each page matches the app on main; the data-sharing page lists exactly what is sent where.
+
+## Close Reason
+
+Powerplay, colonisation, exploration, logbook and data sharing pages written; star map and nearby searches are in galaxy.md; routes is a placeholder.

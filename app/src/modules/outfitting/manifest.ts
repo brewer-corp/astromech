@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "galaxy",
   title: "Outfitting",
   summary: "The nearest stations selling a module, by class, rating and mount",
+  help: "galaxy.md#outfitting",
   order: 10,
   api: ["stations"],
   load: () => import("./View.svelte"),

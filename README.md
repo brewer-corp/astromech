@@ -1,165 +1,75 @@
 # astromech
 
-A voice-first copilot for **Elite Dangerous** on Windows. It runs fully local: push-to-talk
-speech recognition, spoken confirmations, game-state awareness from the journal and
-`Status.json`, verified in-game actions, a keybinds manager with a built-in health check, and a
-SteamVR overlay. Everything lives in one app.
+A voice-first copilot for **Elite Dangerous** on Windows. Hold a button, say "gear down", and the
+landing gear goes down. Ask where to sell your cargo and it answers out loud. While you play it
+speaks up about what the HUD does not show, and a window next to the game holds your keybinds,
+ships, materials, trade and logbook.
 
-> **Status: pre-alpha.** The first vertical slice (push-to-talk "gear down", verified against
-> Status.json; see [Try the gear-down slice](#try-the-gear-down-slice)) works end to end in
-> tests. Most other crates are still stubs seeded from the spikes, and nothing is usable as a
-> product yet. astromech is an unofficial fan project
-> and is not affiliated with Frontier Developments.
+> **Alpha.** astromech works day to day but is still changing, and it is not signed. It is an
+> unofficial fan project and is not affiliated with Frontier Developments.
 
-## Vision
+## What it does
 
-- **One app, two processes:** a lightweight Rust **core** (tray, voice, overlay, game state,
-  local API) that keeps running while you play, and an on-demand **app window** (Tauri v2 +
-  Svelte 5) that hosts modules: keybinds first, then ship, engineering and route.
-- **Local and safe:** no cloud account needed. Every action goes through one policy layer
-  (tiers, confirmation, rate limits, kill switch) and is verified against `Status.json`.
-- **Works with any controller:** push-to-talk and confirm/cancel on any HOTAS, pad, keyboard or
-  mouse button, through background Raw Input. The S7 spike showed this works while Elite has
-  focus.
+- **Voice commands.** Push-to-talk ship controls (gear, lights, hardpoints, cargo scoop, flight
+  assist, panels and more), checked against what the game reports, and spoken answers about fuel,
+  cargo, location and the like. Speech recognition and the voice both run on your PC.
+- **Lookups by voice and on screen.** The nearest Interstellar Factors, a module, a ship, the
+  best place to sell your cargo, a raw material site, a Powerplay target, what your colonisation
+  build still needs.
+- **Callouts.** Short spoken lines for what the HUD leaves out: an arrival briefing, docking
+  pad position, fuel along your route, prospector finds, scans, High Grade Emissions, a full
+  material, mission reminders and a session summary.
+- **Keybinds.** Your controller as its maker drew it, every Elite binding searchable, health checks
+  and press-to-bind, presets with backups.
+- **Ships and engineering.** Your fleet with its stats, a build planner with the materials,
+  trades and engineer trips it needs, the engineer unlock tree, Odyssey blueprints.
+- **Galaxy, trade, exploration.** Where things are and how many jumps away, commodity prices,
+  trade routes, the bodies and biology of the system you are in, Powerplay and colonisation.
+- **Local first.** Voice and your history stay on your PC. The network is used for lookups,
+  updates, the first speech model download and, only if you turn it on, sharing data with EDDN
+  and EDSM. See [Data sharing](docs/guide/data-sharing.md).
 
-## Design docs
+## Install
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, crates, roadmap and spike results (§17)
-- [docs/KEYBINDS.md](docs/KEYBINDS.md): the keybinds module and the health check
-- [docs/REPORT.md](docs/REPORT.md): the initial research report (data sources, voice, EDCoPilot/COVAS as of 8 Oct)
-- [docs/COMPETITORS.md](docs/COMPETITORS.md): copilots and companions as of 11 Oct, and what to steal
-- [docs/PLOTTING.md](docs/PLOTTING.md): routes: the next waypoint on the clipboard, "paste" in the galaxy map, and the plotting macro to come
-- [docs/diagrams/](docs/diagrams/): Mermaid sources and rendered PNGs
-- [spikes/](spikes/): source of the feasibility spikes
+You need Windows and Elite Dangerous on the same PC.
 
-## Layout
+1. Download `astromech_<version>_x64-setup.exe` from the
+   [latest release](https://github.com/spadaval/astromech/releases/latest).
+2. Run it. It installs for your account, with no administrator prompt. The build is unsigned, so
+   Windows SmartScreen says "Windows protected your PC": choose **More info**, then **Run
+   anyway**.
+3. astromech starts in the tray, with a window for setup. The first run walks you through
+   finding Elite, picking push-to-talk and a microphone, and downloading the speech models
+   (about 800 MB).
+4. Start Elite, hold push-to-talk and say "gear down".
 
-```
-crates/     astromech-{proto,journal,status,gamestate,keybinds,input,voice,policy,tools,overlay,store,materials,engineering,core}
-app/        Svelte 5 + TypeScript + Vite app shell (module manifests in src/modules/*)
-app/src-tauri/  astromech-shell, the Tauri v2 window (its own cargo workspace)
-docs/       design documents
-spikes/     spike tools (own code only)
-scripts/    CI helpers (dependency-rule check); `scripts/ui` drives the Vite shell in headless Chrome
-```
+astromech then runs in the tray, starts with Windows (you can turn that off in Settings) and
+waits until Elite starts. Later versions arrive as updates from inside the app.
 
-## Building
+## Read the guide
 
-Requirements: Rust (pinned in `rust-toolchain.toml`), Node 22+ and pnpm 10 for the app.
+The [guide](docs/guide/index.md) covers every page and feature:
 
-```sh
-cargo build --workspace          # all crates; Windows-only code compiles to stubs elsewhere
-cargo test --workspace
-python3 scripts/check-deps.py    # dependency rules
-cargo deny check                 # licences, advisories, sources
+- Set up: [Getting started](docs/guide/getting-started.md), [Using the app](docs/guide/using-the-app.md), [Settings](docs/guide/settings.md)
+- Voice: [Voice](docs/guide/voice.md), [Voice commands](docs/guide/voice-commands.md), [Voice lookups](docs/guide/lookups.md), [Callouts](docs/guide/callouts.md), [Voice tester](docs/guide/voice-tester.md)
+- Controls: [Controls](docs/guide/controls.md)
+- Ships and engineering: [Ships](docs/guide/ships.md), [Materials](docs/guide/materials.md), [Engineers and on foot](docs/guide/engineering.md)
+- Galaxy and trade: [Galaxy](docs/guide/galaxy.md), [Routes](docs/guide/routes.md), [Trade](docs/guide/trade.md), [Mining](docs/guide/mining.md), [Colonisation](docs/guide/colonisation.md), [Powerplay](docs/guide/powerplay.md)
+- Exploring and history: [Exploration](docs/guide/exploration.md), [Logbook](docs/guide/logbook.md), [Data sharing](docs/guide/data-sharing.md) (exactly what is sent where)
 
-cd app && pnpm install && pnpm build    # frontend
-pnpm tauri build                        # app window (Windows; Linux needs webkit2gtk-4.1)
-```
+## Help and feedback
 
-The local voice worker is behind a feature, because it downloads prebuilt sherpa-onnx
-libraries and makes the binary GPL-3.0 (see NOTICE.md):
-`cargo build -p astromech-voice --features sherpa --release`.
+Something wrong? Open Settings, then Diagnostics, and **Save diagnostics**, then
+[open an issue](https://github.com/spadaval/astromech/issues) and attach the zip. Do not post
+journals or logs you would not want public.
 
-Windows binaries can be cross-built from Linux with `cargo xwin build --target x86_64-pc-windows-msvc`.
-They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
+## Contributing
 
-## Install (M0 preview)
-Download `astromech_<version>_x64-setup.exe` from the latest
-[Release build](https://github.com/spadaval/astromech/actions/workflows/release.yml) run (or a
-GitHub Release once tagged). It installs per-user to `%LOCALAPPDATA%\astromech`, no admin. The
-build is **unsigned**: SmartScreen says "Windows protected your PC" → More info → Run anyway.
-
-astromech then runs in the tray and starts with Windows (turn that off in Settings). It stays
-idle until Elite (or its launcher) starts, then loads voice. Settings has push-to-talk, the speech
-model download (about 800 MB), your config file (`%LOCALAPPDATA%\astromech\data\astromech.toml`)
-and updates: astromech checks daily and downloads a signed zip; **Install and restart** applies
-it (Elite can keep running). Logs: `data\logs`, or Settings → Diagnostics → Save diagnostics.
-First install is still the NSIS setup.exe.
-
-## Try the gear-down slice
-
-A Windows console preview of the first vertical slice: hold push-to-talk, say **"gear down"**,
-and astromech presses your landing-gear key, says "Landing gear deployed.", and checks Status.json
-to confirm it worked. It also understands lights, hardpoints, cargo scoop, night vision, flight assist,
-silent running (asks before turning on), HUD mode, maps and panels, throttle to zero,
-and read-only status questions (fuel, cargo, location, …). It only presses keys that
-have a **keyboard** binding in your active ship preset.
-
-**Safe conditions for the gear test: in normal space only.** Not docked, not landed, not in
-supercruise, not in a fight, ideally hovering or drifting well clear of a station or planet
-surface. astromech refuses the gear when docked, landed or in supercruise anyway, but test where
-an unexpected gear change can't hurt.
-
-1. **Unzip** `astromech-gear-down-preview.zip` to a folder of its own outside the game's
-   folders, e.g. `Desktop\astromech-preview`. It holds `astromech-core.exe`,
-   `astromech-voice-worker.exe`, `astromech.sample.toml` and the licence files.
-2. **Speech models** (same files as the S9 test):
-   - if you still have the S9 folder, copy its `models` folder next to `astromech-core.exe`
-     to reuse its speech-to-text model (`sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8`). Copy
-     it rather than pointing `models_dir` at it: the voice model is now
-     `kokoro-multi-lang-v1_0`, which is still downloaded, and astromech then deletes the old
-     `kokoro-en-v0_19` from its own copy only;
-   - otherwise run `astromech-core.exe --download-models` (about 800 MB, SHA-256-checked).
-3. **Config:** run `astromech-core.exe --write-config`, then open `astromech.toml`. Keep the
-   name exactly `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech
-   refuses to start and names the file it found. The console's first lines show the config
-   path it used. It also refuses to start without a `ptt` button (except `--listen`,
-   `--health`, `--transcribe`, `--download-models`, `--list-mics`, `--eval` and
-   `--calibrate-files`).
-   - `ptt` is commented out: uncomment it and put in your own button (the example is the Omni
-     Throttle left-stick button 4 that worked as PTT in S9), or set it in the app's setup.
-   - Set `kill_switch` to a spare button. To see a button's name, run
-     `astromech-core.exe --listen 20` and press it; it prints the line to paste.
-4. **Keyboard bind:** in Elite, give **Landing Gear** a keyboard key (e.g. as its secondary
-   binding), since astromech presses keys, not joystick buttons. Check with
-   `astromech-core.exe --health`, which should show `LandingGearToggle  Key_…`. (Lights,
-   hardpoints, cargo scoop and night vision need keyboard binds too, otherwise they're refused
-   with a hint.) The full report goes to `astromech-data\health.html`.
-5. **Dry run first:** start Elite, get into your ship in normal space, then run
-   `astromech-core.exe --dry-run` and switch back to the game. Hold PTT, say "gear down",
-   release. You should hear "Landing gear deployed." and the console shows the key it *would* have
-   sent. Nothing is pressed, so 2 s later the console logs "set_landing_gear: not confirmed
-   within 2.0 s (no retry)". That's expected in a dry run. Nothing is spoken for it.
-6. **Live:** run `astromech-core.exe` (not as administrator, and the game not as
-   administrator either), then switch to Elite in normal space.
-   - "gear down": the gear deploys, and you hear "Landing gear deployed.".
-   - "gear down" again: "Landing gear is already deployed.", and nothing is pressed.
-   - "gear up": the gear retracts.
-   - Press the kill switch, then say "gear down": it's refused. Hold the kill switch for 1 s
-     to re-arm.
-   - In supercruise, "gear down" says "Landing gear not available: supercruise."
-   - Mumbled or near-miss phrases get "Did you mean …?" (answer "yes" or "no" on the next PTT).
-     Anything else gets "Say again."
-7. You can also **type** a command into the console and press Enter: `gear down`, `!kill`,
-   `!rearm`, `!state`, `!health`, `quit`. While you type, the console has focus, so anything
-   that would press a key is refused ("Elite is not the active window. Nothing pressed."). Typed commands are
-   useful for checking state answers and refusals, not for pressing keys.
-
-**Each push is logged:** `PTT down (t=…)` and `PTT up (t=…) — held N ms; clip N ms, RMS … dBFS,
-loudest frame … dBFS; transcribing`. Taps under 300 ms, near-silent clips (loudest frame below
-−45 dBFS) and noise-only transcripts ("Mm-hmm.", "Yeah.") are ignored without a reply. A switch
-bounce shows as `PTT bounce ignored`. If real speech gets ignored as too quiet, lower
-`min_level_dbfs` in `[voice]` (e.g. to −55). Set `mic` to a device-name substring
-if SteamVR stole the Windows default; `--list-mics` lists them. After the gate,
-clips are gain-normalised toward −6 dBFS. `save_clips = true` keeps WAVs under
-`data/clips` for `astromech-core --eval DIR`. `--calibrate-files silent.wav
-gear.wav …` stores a per-device gate. A confirmed "Did you mean …?" is remembered
-as a personal alias.
-
-**If PTT does nothing:** start with `astromech-core.exe --debug-input`. Every button press is
-logged with its device ID and Elite name (e.g. `input: button Joy_15 on 231D3201 (...) down ->
-PTT`), and the startup lines show whether the PTT device is connected. Without the flag, the
-first few presses of *other* buttons on the PTT device are still logged (`Joy_14 on 231D3201
-pressed; PTT is Joy_15`). A working press logs `PTT down — listening` and `PTT up —
-transcribing (N ms audio)`. Note that `--debug-input` also logs keyboard keys.
-
-Without the models (or with `--no-voice`), replies are printed instead of spoken, and only
-typed commands work. Everything astromech writes goes to `astromech-data` next to the exe. It
-never writes to the game's folders.
+Building from source, the crates, the checks to run and the design documents are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 
-MIT, Copyright (c) 2026 Sumeet Padavala. See [LICENSE](LICENSE). Binaries built with the
-optional `sherpa` voice feature are GPL-3.0 as a whole; see [NOTICE.md](NOTICE.md) and
-[THIRD_PARTY.md](THIRD_PARTY.md).
+MIT, Copyright (c) 2026 Sumeet Padavala. See [LICENSE](LICENSE). The installer's voice worker
+links GPL-3.0 libraries, so the installed binaries are GPL-3.0 as a whole; see
+[NOTICE.md](NOTICE.md) and [THIRD_PARTY.md](THIRD_PARTY.md).

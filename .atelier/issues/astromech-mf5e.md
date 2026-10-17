@@ -4,6 +4,9 @@ id: "astromech-mf5e"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-mf5e
 priority: "P1"
 relationships:
   blocks: []
@@ -27,9 +30,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:44:09.182026297+00:00"
+status: "done"
 title: "Alpha: a user guide for every feature, and a current README"
-updated_at: "2026-10-17T17:01:43.796194086+00:00"
+updated_at: "2026-10-17T17:44:09.182026297+00:00"
 ---
 
 ## Goal
@@ -43,3 +47,7 @@ Every child issue is done, and an independent docs check (someone who did not wr
 ## Design
 
 The guide is Markdown in the repo under `docs/guide/`, one page per area, rendered by GitHub and linked from the README and from each app page. Not the GitHub wiki: it is a separate repository outside review, and would drift from the code, which in-repo pages avoid because a feature PR updates its page in the same diff. Write for players, in the voice of the app's own copy (V1-DESIGN §6.5 copy rules): what it does, how to use it, what it needs (network, game data, settings), and its limits. Screenshots from `scripts/app-shots.sh` where they help.
+
+## Close Reason
+
+Guide, README, help links and docs rule done; reviews dispositioned.

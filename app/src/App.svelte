@@ -9,6 +9,7 @@
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
+  import { openHelp } from "./lib/help";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links.
@@ -70,7 +71,12 @@
     {#if setup.length && current?.id !== "settings"}
       <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
     {/if}
-    <span class="state">{headerState(status)}</span>
+    <span class="right">
+      <span class="state">{headerState(status)}</span>
+      {#if current}
+        <button class="help" title="Open this page's guide in your browser" onclick={() => void openHelp(current.help)}>Help</button>
+      {/if}
+    </span>
   </header>
   {#if pages.length > 1}
     <nav class="sub">
@@ -104,6 +110,8 @@
   nav.sub button.on { color: var(--text-hi); border-bottom-color: var(--accent); }
   .setup { color: var(--accent); font-size: var(--fs-s); font-weight: 600; }
   .setup:hover { color: var(--text-hi); }
+  .help { font-size: var(--fs-s); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  .right { display: flex; align-items: baseline; gap: 16px; }
   .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
   main { min-height: 0; overflow: auto; padding: 0 40px; scrollbar-gutter: stable; }
 </style>

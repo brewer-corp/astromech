@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:28:49.160067401+00:00"
+status: "done"
 title: "Link each app page to its guide page"
-updated_at: "2026-10-17T16:54:24.108790358+00:00"
+updated_at: "2026-10-17T17:28:49.160067401+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ Each app page has a small help link that opens its guide page on GitHub (through
 ## Done when
 
 Every page with a guide page links to it, and a test checks every link target exists in `docs/guide/`.
+
+## Close Reason
+
+Help link on every page and the setup flow; test checks every target file and heading in docs/guide; lint, check, build and 203 tests pass.

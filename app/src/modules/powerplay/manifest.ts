@@ -5,6 +5,7 @@ const manifest: ModuleManifest = {
   group: "powerplay",
   title: "Powerplay",
   summary: "Your Powerplay standing and merits from the journal",
+  help: "powerplay.md",
   order: 0,
   api: ["powerplay"],
   load: () => import("./View.svelte"),

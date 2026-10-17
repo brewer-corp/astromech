@@ -7,6 +7,7 @@ const manifest: ModuleManifest = {
   summary: "The route you're following: its next waypoint is on the clipboard for the galaxy map",
   order: 30,
   api: ["route"],
+  help: "routes.md",
   load: () => import("./View.svelte"),
 };
 

@@ -10,6 +10,7 @@
   import StepMic from "./StepMic.svelte";
   import StepCalibrate from "./StepCalibrate.svelte";
   import StepHealth from "./StepHealth.svelte";
+  import { openHelp, SETUP_HELP } from "../help";
   import "./onboarding.css";
 
   let { start = "elite", onfinish }: { start?: string; onfinish: () => void } = $props();
@@ -41,6 +42,7 @@
   <header>
     <span class="app">ASTROMECH</span>
     <span class="title">Setup</span>
+    <button class="skip" title="Open the setup guide in your browser" onclick={() => void openHelp(SETUP_HELP)}>Help</button>
     {#if i < STEPS.length - 1}<button class="skip" onclick={finish}>Skip setup</button>{/if}
   </header>
   <div class="body">

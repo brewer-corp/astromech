@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:18:19.634406568+00:00"
+status: "done"
 title: "Guide: callouts and voice lookups"
-updated_at: "2026-10-17T16:54:23.898160490+00:00"
+updated_at: "2026-10-17T17:18:19.634406568+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ Guide pages for every callout (arrival briefing, docking, route and fuel, prospe
 ## Done when
 
 Each callout and lookup is described with an example line and its setting, and matches the app on main.
+
+## Close Reason
+
+Callouts page written from the rules; lookups page written in the previous commit set.
