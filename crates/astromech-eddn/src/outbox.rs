@@ -261,8 +261,13 @@ impl Outbox {
             let wait = backoff(attempts);
             // Count the attempt and schedule the retry before posting, so a failure anywhere
             // after this point (a panic, a database error) can't leave the message due again.
-            self.conn
+            // No row: it was discarded during this pass (sharing switched off, then back on).
+            let claimed = self
+                .conn
                 .execute("UPDATE outbox SET attempts = ?2, next_try = ?3 WHERE id = ?1", (id, attempts, now + wait))?;
+            if claimed == 0 {
+                continue;
+            }
             let (failure, outage) = match transport.post(&body) {
                 Ok(r) if r.status == 200 => {
                     self.remove(id)?;
@@ -569,6 +574,33 @@ pub(crate) mod tests {
         assert_eq!(rows.len(), 2);
         assert_eq!((rows[0].at, rows[0].detail.as_str()), (2001, "outbox full: 1 oldest dropped"));
         assert_eq!(rows[1].detail, "outbox full: 3 oldest dropped");
+    }
+
+    /// Discards the queue (through its own connection) during its first post, as the core does
+    /// when sharing is switched off and on again while a pass is posting.
+    struct DiscardDuringPost(std::path::PathBuf, RefCell<usize>);
+    impl Transport for DiscardDuringPost {
+        fn post(&self, _: &[u8]) -> std::result::Result<Response, String> {
+            *self.1.borrow_mut() += 1;
+            Outbox::open(&self.0).unwrap().discard_all(1000).unwrap();
+            Ok(Response { status: 200, body: "OK".into() })
+        }
+    }
+
+    #[test]
+    fn messages_discarded_during_a_pass_are_not_posted() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("eddn.sqlite");
+        let o = Outbox::open(&p).unwrap();
+        for b in [b"a", b"b", b"c"] {
+            o.enqueue(REF, b, 1000).unwrap();
+        }
+        let t = DiscardDuringPost(p, RefCell::new(0));
+        let d = o.deliver_due(&t, 1000, true, &no_stop).unwrap();
+        assert_eq!(*t.1.borrow(), 1, "the discarded messages read before the post are not sent");
+        assert_eq!(d, Delivery { sent: 1, ..Default::default() });
+        let outcomes: Vec<String> = o.recent(10).unwrap().into_iter().map(|e| e.outcome).collect();
+        assert_eq!(outcomes, ["sent", "discarded"]);
     }
 
     #[test]
