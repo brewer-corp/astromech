@@ -443,7 +443,8 @@ mod tests {
         // A bad value inside an inline table drops that table, not the file.
         let (c, p) =
             Config::parse_report("[controls]\nptt = { device = 5, key = \"Joy_4\" }\nrearm_hold_ms = 7").unwrap();
-        assert!(c.controls.ptt.is_none() && c.controls.rearm_hold_ms == 7 && !p.is_empty(), "{p:?}");
+        assert!(c.controls.ptt.is_none() && c.controls.rearm_hold_ms == 7 && p.len() == 2, "{p:?}");
+        assert_eq!((p[0].key.as_str(), p[1].key.as_str()), ("controls.ptt.device", "controls.ptt"));
         assert!(Config::parse_report("[controls]\nptt = 1").unwrap().1[0].key.starts_with("controls.ptt"));
         // A whole section of the wrong type.
         let (c, p) = Config::parse_report("eddn = 3\n[edsm]\nenabled = true").unwrap();
