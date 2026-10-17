@@ -125,4 +125,16 @@ mod tests {
         assert_eq!(v[0].factions[0].active_states, ["Civil War"]);
         assert_eq!(v[0].factions[0].state.as_deref(), Some("Civil War"));
     }
+
+    /// The reader filters with `POSITION_EVENTS`, the same list a page watches: a carrier jump,
+    /// which carries the system's factions like any arrival, is a visit.
+    #[test]
+    fn a_carrier_jump_is_a_visit() {
+        let d = tempfile::tempdir().unwrap();
+        let line = r#"{"timestamp":"2026-10-16T12:00:00Z","event":"CarrierJump","StarSystem":"Tau Ceti","SystemAddress":7,"StarPos":[1,2,3],"Factions":[{"Name":"Tau Ceti Gang","Allegiance":"Independent","FactionState":"Boom","Influence":0.4,"ActiveStates":[{"State":"Boom"}]}]}"#;
+        std::fs::write(d.path().join("Journal.2026-10-16T110000.01.log"), format!("{line}\n")).unwrap();
+        let v = visits_from_journal_dir(d.path(), 5);
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].factions[0].state.as_deref(), Some("Boom"));
+    }
 }

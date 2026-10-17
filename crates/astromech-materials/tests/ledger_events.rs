@@ -27,7 +27,7 @@ fn every_event_the_ledger_reacts_to_is_in_the_watch_list() {
         assert!(LEDGER_EVENTS.iter().any(|e| line.contains(e)), "not in LEDGER_EVENTS: {line}");
         // On top of a snapshot, the line must move the ledger (the snapshot samples replace it).
         let l = replay_lines([SAMPLES[0], line]);
-        if !line.contains("\"Materials\"") {
+        if !line.contains("\"event\":\"Materials\"") && !line.contains("\"event\": \"Materials\"") {
             assert_ne!(l, start, "the ledger ignores {line}");
         }
     }
@@ -44,9 +44,18 @@ fn the_replay_reads_only_the_lines_the_watch_list_names() {
         text.push_str(s);
         text.push('\n');
     }
+    // After the snapshot, where the replay would keep it: lines the list doesn't name.
+    for junk in [
+        r#"{ "timestamp":"2026-10-16T12:10:00Z", "event":"Music", "MusicTrack":"NoTrack" }"#,
+        r#"{ "timestamp":"2026-10-16T12:10:01Z", "event":"Scan", "BodyName":"Sol 1", "Landable":true, "Materials":[{"Name":"iron","Percent":20.0}] }"#,
+    ] {
+        text.push_str(junk);
+        text.push('\n');
+    }
     std::fs::write(d.path().join("Journal.2026-10-16T120000.01.log"), text).unwrap();
     let lines = events_from_last_snapshot(d.path());
-    assert!(!lines.is_empty());
+    assert!(lines.len() > SAMPLES.len() / 2);
+    assert!(lines.iter().all(|l| l.name != "Music" && l.name != "Scan"), "read a line outside the list");
     for l in &lines {
         assert!(LEDGER_EVENTS.iter().any(|e| l.raw_json.contains(e)), "read a line outside the list: {}", l.raw_json);
     }
