@@ -13,12 +13,34 @@ use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
 use astromech_journal::JournalEvent;
 use astromech_materials::catalog;
+use std::collections::BTreeSet;
+use std::sync::Mutex;
 use std::time::Duration;
 
 /// The most trade suggestions for one docking.
 const MAX_SUGGESTIONS: usize = 2;
 
-pub struct MaterialsCap;
+/// The materials ledger stops at the cap (the game logs the whole pickup but keeps no more), so
+/// the count after an event can't say whether it was full before. The rule keeps which trader
+/// materials were full after the last journal line, live or replayed.
+#[derive(Default)]
+pub struct MaterialsCap {
+    full: Mutex<BTreeSet<&'static str>>,
+}
+
+impl MaterialsCap {
+    /// Note where materials stand after each journal line (any line: the ledger alone knows
+    /// which events change them).
+    fn remember(&self, input: &Input, state: &GameState) {
+        if let Input::Journal(_) = input {
+            *self.full.lock().unwrap() = catalog::catalog()
+                .iter()
+                .filter(|s| s.on_trader && state.materials.count(s.id) >= catalog::capacity(s.grade))
+                .map(|s| s.id)
+                .collect();
+        }
+    }
+}
 
 impl Rule for MaterialsCap {
     fn id(&self) -> &'static str {
@@ -31,7 +53,21 @@ impl Rule for MaterialsCap {
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
         self.react_all(input, state).into_iter().next()
     }
+    fn replayed(&self, input: &Input, state: &GameState) {
+        self.remember(input, state);
+    }
+    fn while_off(&self, input: &Input, state: &GameState) {
+        self.remember(input, state);
+    }
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
+        let out = self.callouts(input, state);
+        self.remember(input, state);
+        out
+    }
+}
+
+impl MaterialsCap {
+    fn callouts(&self, input: &Input, state: &GameState) -> Vec<Callout> {
         let Input::Journal(l) = input else { return vec![] };
         let line =
             |text: String| Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST };
@@ -43,7 +79,8 @@ impl Rule for MaterialsCap {
                     let spec = catalog::lookup(&it.name).filter(|s| s.on_trader)?;
                     let (now, cap) = (state.materials.count(spec.id), catalog::capacity(spec.grade));
                     // It reached the cap with this event, not before.
-                    (now >= cap && now - it.count < cap)
+                    let was_full = self.full.lock().unwrap().contains(spec.id);
+                    (now >= cap && !was_full)
                         .then(|| line(format!("{} at {cap}/{cap}.", state.materials.display_name(spec))))
                 })
                 .collect(),

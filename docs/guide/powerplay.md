@@ -12,7 +12,8 @@ to a power, the page says so and only shows the system.
 Your power, **rank**, **merits** (lifetime), merits **this week** and when the cycle ends, merits
 **this session**, how long you have been **pledged**, and the **next rank** with its reward and
 the merits to go. Week merits count what the journal logs since Thursday 07:00 UTC. Weekly
-assignment rewards are not logged, so they are not in the count.
+assignment rewards are not logged, so they are not in the count. The game sometimes logs one
+award twice but counts it once; the count drops back by that award at your next award or login.
 
 ## This system
 
