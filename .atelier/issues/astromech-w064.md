@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T08:31:43.799455233+00:00"
+status: "done"
 title: "Exploration values: apply the 500 cr planet minimum after the mapping multiplier"
-updated_at: "2026-10-17T08:26:22.615461582+00:00"
+updated_at: "2026-10-17T08:31:43.799455233+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ updated_at: "2026-10-17T08:26:22.615461582+00:00"
 ## Done when
 
 A value test for a mapped 1 EM icy body matches the chosen reference, with the source cited.
+
+## Close Reason
+
+Floor moved after the mapping multiplier, decided by EDSM's published mapped system totals (14 systems, exact match only this way); 1 EM icy mapped body tested at 1566 (EDSM terms) and 2121 (Odyssey, EDDI).
