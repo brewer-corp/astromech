@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Spoken lines that break the copy guide are not covered by copy.rs"
-updated_at: "2026-10-17T18:43:28.258030298+00:00"
+updated_at: "2026-10-17T19:08:38.196880886+00:00"
 ---
 
 ## Goal
