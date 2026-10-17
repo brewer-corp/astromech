@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Arrival briefing"
-updated_at: "2026-10-15T20:36:13.658000951+00:00"
+updated_at: "2026-10-17T01:34:41.777236385+00:00"
 ---
 
 ## Goal

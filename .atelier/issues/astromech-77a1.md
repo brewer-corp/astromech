@@ -3,6 +3,9 @@ created_at: "2026-10-15T20:36:13.646466235+00:00"
 id: "astromech-77a1"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-77a1
 priority: "P0"
 relationships:
   blocks:
@@ -30,7 +33,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Arrival, docking and route callouts"
-updated_at: "2026-10-16T18:26:23.959303705+00:00"
+updated_at: "2026-10-17T01:34:41.777234041+00:00"
 ---
 
 ## Goal
