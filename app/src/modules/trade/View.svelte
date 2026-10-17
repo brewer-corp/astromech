@@ -1,8 +1,8 @@
 <script lang="ts">
   // Where to sell or buy one commodity near you (or a typed system) or anywhere in the galaxy,
-  // best price first, with demand or stock, pad, arrival distance and data age; and where to sell the cargo in the
-  // hold, as a whole load and per commodity. Each mode remembers its own filters, which voice
-  // questions use too.
+  // best price first, with demand or stock, pad, arrival distance and data age; where to sell
+  // the cargo in the hold, as a whole load and per commodity; and a single-hop or loop trade
+  // route from here. Each mode remembers its own filters, which voice questions use too.
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { ago, jumps } from "../../lib/galaxy";
@@ -22,8 +22,9 @@
     type Side,
   } from "../../lib/trade";
   import CommodityInput from "./CommodityInput.svelte";
+  import Route from "./Route.svelte";
 
-  type Mode = Side | "cargo";
+  type Mode = Side | "cargo" | "route";
   let mode = $state<Mode>("sell");
   /** Sell and Buy: near the origin, or anywhere in the galaxy. */
   let anywhere = $state(false);
@@ -41,8 +42,10 @@
         return cargoResults(r);
       };
     }
-    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(m, c, origin, filters));
-    return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeSearch(m, [c], origin, filters));
+    // The route mode has its own search (Route.svelte); only the market lookups get here.
+    const side: Side = m === "buy" ? "buy" : "sell";
+    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(side, c, origin, filters));
+    return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeSearch(side, [c], origin, filters));
   });
 
   const hold = $derived(plan ? plan.load.map((l) => `${credits(l.tonnes)} t ${l.name}`).join(", ") : "");
@@ -54,9 +57,15 @@
     <button class:on={mode === "sell"} onclick={() => (mode = "sell")}>Sell</button>
     <button class:on={mode === "buy"} onclick={() => (mode = "buy")}>Buy</button>
     <button class:on={mode === "cargo"} onclick={() => (mode = "cargo")}>My cargo</button>
+    <button class:on={mode === "route"} onclick={() => (mode = "route")}>Route</button>
   </div>
   <div class="main">
-    {#if mode === "cargo"}
+    {#if mode === "route"}
+      <p class="sub">
+        The most profitable trade from a station within one hop, or a loop that brings the best cargo back. Cargo, credits and hop distance start from your ship and the journal.
+      </p>
+      <Route />
+    {:else if mode === "cargo"}
       <p class="sub">
         Stations that pay the most for everything in your hold, each commodity capped by the station's demand. Ask by voice too: "where should I sell my cargo".
       </p>

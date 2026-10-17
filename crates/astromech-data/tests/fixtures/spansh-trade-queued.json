@@ -1,0 +1,19 @@
+{
+ "created_at": "2026-10-16T23:22:46",
+ "job": "00000000-0000-0000-0000-000000000002",
+ "parameters": {
+  "allow_planetary": 1,
+  "allow_player_owned": 1,
+  "max_cargo": "200",
+  "max_hop_distance": "30",
+  "max_hops": "1",
+  "max_price_age": "2592000",
+  "max_system_distance": "10000000",
+  "requires_large_pad": 1,
+  "starting_capital": "10000000",
+  "starting_station_id": 45534
+ },
+ "state": "started",
+ "status": "queued",
+ "updated_at": "2026-10-16T23:22:46"
+}

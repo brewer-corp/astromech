@@ -754,6 +754,29 @@ async fn trade_cargo(
     .await
 }
 
+/// The current ship's and commander's numbers for a trade route: cargo capacity and jump range
+/// from the latest `Loadout`, credits from `Status.json` (else the latest `LoadGame`), and the
+/// station docked at.
+#[tauri::command]
+async fn trade_route_defaults() -> Result<astromech_market::route::Defaults, String> {
+    blocking(move || {
+        let dir = journal_dir();
+        let gs = astromech_station::state_from_journal_dir(&dir);
+        let balance = std::fs::read(dir.join("Status.json"))
+            .ok()
+            .and_then(|b| serde_json::from_slice::<Value>(&b).ok())
+            .and_then(|v| v["Balance"].as_i64());
+        Ok(astromech_market::route::Defaults {
+            capacity: gs.cargo_capacity,
+            credits: balance.or(gs.credits),
+            range: gs.max_jump_range.filter(|r| *r > 1.0),
+            station: if gs.docked { gs.station.clone() } else { None },
+            system: gs.system.clone(),
+        })
+    })
+    .await
+}
+
 /// What the colonisation view was built from: the journals and `Cargo.json`'s bytes (a small
 /// file, compared whole so a change shows even where its mtime can't be read).
 type ColonisationKey = (astromech_materials::JournalVersion, Option<Vec<u8>>);
@@ -783,6 +806,45 @@ async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
             }
         };
         serde_json::to_value(&*v).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// A trade route search is running (one Spansh job at a time, even if the page is left and
+/// opened again while the first still polls).
+static ROUTE_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Clears [`ROUTE_BUSY`] when the search ends, however it ends.
+struct RouteSearching;
+
+impl Drop for RouteSearching {
+    fn drop(&mut self) {
+        ROUTE_BUSY.store(false, std::sync::atomic::Ordering::SeqCst);
+    }
+}
+
+/// A single-hop or loop trade route from `origin` (a typed system name) or the commander's
+/// system (Spansh's trade router, polled off the UI thread until done or its timeout). A second
+/// search while one runs is turned down.
+#[tauri::command]
+async fn trade_route(
+    app: tauri::AppHandle,
+    ask: astromech_market::route::Ask,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        if ROUTE_BUSY.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            return Err("A route search is already running. Wait for it to finish.".into());
+        }
+        let _searching = RouteSearching;
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let polling = astromech_market::route::Polling::default();
+        let r = astromech_market::route::plan(g.remote(), &here.system, range, &ask, &filters, polling, now)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "here": here, "route": r }))
     })
     .await
 }
@@ -1025,6 +1087,8 @@ fn main() {
             trade_search,
             trade_anywhere,
             trade_cargo,
+            trade_route_defaults,
+            trade_route,
             colonisation_projects,
             colonisation_buy,
             search_filters,
