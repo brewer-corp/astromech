@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, hge, missions, prospector, route, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable"],
+        ["arrival", "docking", "fuel_range", "hge", "missions", "prospector", "route", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -64,6 +64,12 @@ fn callout_lines() -> Vec<String> {
             v.push(hge::line(Some(pool), &[spec.id.to_string()]));
         }
     }
+    for n in [1, 2, 99] {
+        for level in [1, 2] {
+            v.push(missions::expiry_line(n, level));
+        }
+    }
+    v.extend([missions::target_line(false).to_string(), missions::target_line(true).to_string()]);
     for first in [false, true] {
         for to_end in [false, true] {
             v.push(route::gap_line(250, first, to_end));

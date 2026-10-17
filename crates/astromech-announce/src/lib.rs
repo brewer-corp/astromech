@@ -21,7 +21,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`], [`hge`] and [`missions`] and [`missions`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -101,6 +101,10 @@ pub enum Input<'a> {
     /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
     /// empty (a cleared route isn't an event).
     Route(&'a NavRouteSnap),
+    /// The clock moved on: `wall_secs` is the time now in seconds since the Unix epoch.
+    Tick {
+        wall_secs: i64,
+    },
 }
 
 /// A reaction rule. Stateless: decide from the event and the state after it.
@@ -126,6 +130,7 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod missions;
 pub mod prospector;
 pub mod route;
 pub mod scan;
@@ -152,6 +157,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(missions::Missions::default()),
     ]
 }
 
@@ -320,6 +326,13 @@ impl Engine {
         }
         let quiet = self.quiet(now);
         self.fire(&Input::Route(route), state, now, quiet)
+    }
+
+    /// The clock moved on (`wall_secs`: seconds since the Unix epoch), for rules that remind by
+    /// time. The pipeline calls it about once a second; replay tests inject their own time.
+    pub fn tick(&mut self, wall_secs: i64, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let quiet = self.quiet(now);
+        self.fire(&Input::Tick { wall_secs }, state, now, quiet)
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {

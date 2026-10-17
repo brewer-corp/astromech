@@ -8,7 +8,7 @@ pub mod mining;
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
+use astromech_journal::{CargoSnap, ExtraEvent, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
@@ -50,6 +50,23 @@ pub struct Companions {
     pub ship_locker: Option<Shared<InventorySnap>>,
     pub backpack: Option<Shared<InventorySnap>>,
     pub fc_materials: Option<Shared<FcMaterialsSnap>>,
+}
+
+/// An active mission, as far as the journal says.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Mission {
+    pub id: i64,
+    pub name: String,
+    /// When it expires, in seconds since the Unix epoch (`None`: no expiry, or the event had
+    /// no timestamp to date it by).
+    pub expires: Option<i64>,
+    pub destination_system: Option<String>,
+    pub target_faction: Option<String>,
+    pub kill_count: Option<i64>,
+}
+
+fn epoch(ts: &str) -> Option<i64> {
+    chrono::DateTime::parse_from_rfc3339(ts).ok().map(|t| t.timestamp())
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
@@ -114,6 +131,8 @@ pub struct GameState {
     pub powerplay: astromech_powerplay::Standing,
     /// The current system's Powerplay state (`None`: no Powerplay activity, or not known yet).
     pub system_power: Option<astromech_powerplay::SystemPower>,
+    /// Active missions (`Missions` at login, then `MissionAccepted` and the ends).
+    pub missions: Vec<Mission>,
     #[serde(skip)]
     pub companions: Companions,
 }
@@ -265,6 +284,48 @@ impl GameState {
                 self.station_market_id = None;
                 self.station_info = None;
             }
+            JournalEvent::Extra(ExtraEvent::Missions { active, .. }) => {
+                // The login list only dates expiry by seconds from its own timestamp; what an
+                // acceptance told us (destination, target) is kept for the ids still active.
+                let at = epoch(ts);
+                let old = std::mem::take(&mut self.missions);
+                self.missions = active
+                    .iter()
+                    .map(|m| {
+                        let known = old.iter().find(|o| o.id == m.mission_id);
+                        Mission {
+                            id: m.mission_id,
+                            name: m.name.clone(),
+                            expires: at.zip(m.expires_secs).map(|(a, s)| a + s).or(known.and_then(|k| k.expires)),
+                            destination_system: known.and_then(|k| k.destination_system.clone()),
+                            target_faction: known.and_then(|k| k.target_faction.clone()),
+                            kill_count: known.and_then(|k| k.kill_count),
+                        }
+                    })
+                    .collect();
+            }
+            JournalEvent::Extra(ExtraEvent::MissionAccepted(m)) => {
+                self.missions.retain(|o| o.id != m.mission_id);
+                self.missions.push(Mission {
+                    id: m.mission_id,
+                    name: m.name.clone(),
+                    expires: m.expiry.as_deref().and_then(epoch),
+                    destination_system: m.destination_system.clone(),
+                    target_faction: m.target_faction.clone(),
+                    kill_count: m.kill_count,
+                });
+            }
+            JournalEvent::Extra(ExtraEvent::MissionCompleted { mission_id: Some(id), .. })
+            | JournalEvent::Extra(ExtraEvent::MissionEnded { mission_id: Some(id), .. }) => {
+                self.missions.retain(|m| m.id != *id);
+            }
+            JournalEvent::Extra(ExtraEvent::MissionRedirected {
+                mission_id: Some(id), new_destination_system, ..
+            }) => {
+                if let Some(m) = self.missions.iter_mut().find(|m| m.id == *id) {
+                    m.destination_system = new_destination_system.clone();
+                }
+            }
             _ => {}
         }
         self.materials.apply("", ev);
@@ -360,6 +421,40 @@ mod tests {
         );
         assert_eq!(g.system.as_deref(), Some("Alioth"));
         assert_eq!(g.station.as_deref(), Some("Jameson Memorial"));
+    }
+
+    #[test]
+    fn missions_follow_the_journal() {
+        let mut g = GameState::default();
+        let apply = |g: &mut GameState, l: &str| g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T20:00:00Z","event":"MissionAccepted","MissionID":1,"Name":"Mission_Massacre","Faction":"A","DestinationSystem":"Sys","TargetFaction":"Bad","KillCount":10,"Expiry":"2026-10-16T22:00:00Z"}"#,
+        );
+        assert_eq!(g.missions[0].expires, Some(1_792_188_000));
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Sys"));
+        // The login list re-dates by seconds left, keeping what the acceptance said.
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:00:00Z","event":"Missions","Active":[{"MissionID":1,"Name":"Mission_Massacre","PassengerMission":false,"Expires":1800},{"MissionID":2,"Name":"Mission_Delivery","PassengerMission":false,"Expires":60}],"Failed":[],"Complete":[]}"#,
+        );
+        assert_eq!(g.missions.len(), 2);
+        assert_eq!(g.missions[0].expires, Some(1_792_188_000 - 1800));
+        assert_eq!(g.missions[0].target_faction.as_deref(), Some("Bad"));
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:01:00Z","event":"MissionRedirected","MissionID":1,"NewDestinationSystem":"Elsewhere"}"#,
+        );
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Elsewhere"));
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:02:00Z","event":"MissionCompleted","MissionID":1,"Name":"Mission_Massacre"}"#,
+        );
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:02:00Z","event":"MissionAbandoned","MissionID":2,"Name":"Mission_Delivery"}"#,
+        );
+        assert!(g.missions.is_empty());
     }
 
     #[test]
