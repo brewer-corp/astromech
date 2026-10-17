@@ -1212,11 +1212,20 @@ fn main() {
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());
-            WebviewWindowBuilder::new(app, "main", WebviewUrl::App(hash.into()))
+            let mut window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(hash.into()))
                 .title("astromech")
                 .inner_size(1200.0, 800.0)
-                .min_inner_size(800.0, 500.0)
-                .build()?;
+                .min_inner_size(800.0, 500.0);
+            // CI's onboarding smoke test (scripts/onboarding_smoke.py) drives the page over the
+            // DevTools protocol. WebView2 ignores WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS when the
+            // app passes its own arguments, so the port is asked for here; wry's defaults are kept.
+            if let Some(port) = std::env::var("ASTROMECH_WEBVIEW_DEBUG_PORT").ok().and_then(|p| p.parse::<u16>().ok()) {
+                window = window.additional_browser_args(&format!(
+                    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection \
+                     --autoplay-policy=no-user-gesture-required --remote-debugging-port={port}"
+                ));
+            }
+            window.build()?;
             if !core_alive() {
                 if let Err(e) = start_core() {
                     astromech_log::log(&format!("couldn't start the core: {e}"));

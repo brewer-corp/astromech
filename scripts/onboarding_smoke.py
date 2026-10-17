@@ -10,7 +10,8 @@ What it does, in the order a new player would:
 1. Elite has run once on this account: its Bindings folder (a custom preset with a keyboard
    key for the landing gear) and journal folder exist in their default places.
 2. Silent install (`setup.exe /S`), then the app window is started from the install folder,
-   with WebView2's remote debugging on so the page can be driven (Chrome DevTools Protocol).
+   with WebView2's remote debugging on (ASTROMECH_WEBVIEW_DEBUG_PORT) so the page can be driven
+   over the Chrome DevTools Protocol.
 3. The wizard: Find Elite must show both folders found; push-to-talk and the kill switch are
    bound by pressing keys (SendInput; the window's own Raw Input listener sees them) and saved;
    the mic and calibration steps are skipped (the runner has no mic); Finish.
@@ -240,7 +241,7 @@ def smoke(a, run: Run, work: Path) -> None:
     inst = install_dir()
     run.step(f"silent install ({inst})")
 
-    env = dict(os.environ, WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=f"--remote-debugging-port={CDP_PORT}")
+    env = dict(os.environ, ASTROMECH_WEBVIEW_DEBUG_PORT=str(CDP_PORT))
     shell = subprocess.Popen([str(inst / "astromech-shell.exe")], env=env)
     page = Page(CDP_PORT, 60)
     page.wait(page.has("Find Elite"), "the onboarding wizard", 60)
