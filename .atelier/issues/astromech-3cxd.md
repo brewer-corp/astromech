@@ -3,6 +3,9 @@ created_at: "2026-10-17T03:29:33.293913416+00:00"
 id: "astromech-3cxd"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-3cxd
 priority: "P1"
 relationships:
   blocks: []
