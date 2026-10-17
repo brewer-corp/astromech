@@ -1,0 +1,68 @@
+{
+ "created_at": "2026-10-16T23:22:46",
+ "job": "00000000-0000-0000-0000-000000000002",
+ "parameters": {
+  "allow_planetary": 1,
+  "allow_player_owned": 1,
+  "max_cargo": "200",
+  "max_hop_distance": "30",
+  "max_hops": "1",
+  "max_price_age": "2592000",
+  "max_system_distance": "10000000",
+  "requires_large_pad": 1,
+  "starting_capital": "10000000",
+  "starting_station_id": 45534
+ },
+ "result": [
+  {
+   "commodities": [
+    {
+     "amount": 200,
+     "destination_commodity": {
+      "buy_price": 0,
+      "demand": 3756,
+      "sell_price": 754,
+      "supply": 0
+     },
+     "name": "Biowaste",
+     "profit": 644,
+     "source_commodity": {
+      "buy_price": 110,
+      "demand": 1,
+      "sell_price": 66,
+      "supply": 77426
+     },
+     "total_profit": 128800
+    }
+   ],
+   "cumulative_profit": 128800,
+   "destination": {
+    "distance_to_arrival": 6,
+    "market_id": 4245314563,
+    "market_updated_at": 1790496241,
+    "station": "Starbase Pratchett",
+    "system": "LP 71-165",
+    "system_id64": 27058965128617,
+    "x": -20.90625,
+    "y": 11.09375,
+    "z": -2.21875
+   },
+   "distance": 23.7711049319862,
+   "source": {
+    "distance_to_arrival": 505,
+    "market_id": 128016896,
+    "market_updated_at": 1792191506,
+    "station": "Abraham Lincoln",
+    "system": "Sol",
+    "system_id64": 10477373803,
+    "x": 0,
+    "y": 0,
+    "z": 0
+   },
+   "total_profit": 128800
+  }
+ ],
+ "state": "completed",
+ "status": "ok",
+ "updated_at": "2026-10-16T23:23:14"
+}
