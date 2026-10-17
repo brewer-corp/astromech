@@ -4,6 +4,9 @@ id: "astromech-2myu"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-2myu
 priority: "P1"
 relationships:
   blocks:
@@ -17,9 +20,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Visit history in the arrival briefing"
-updated_at: "2026-10-16T19:50:46.260119955+00:00"
+updated_at: "2026-10-17T02:38:02.970935950+00:00"
 ---
 
 ## Goal
