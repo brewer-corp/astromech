@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// The real app (Tauri) path: the core's status says whether it runs and whether a session has a run.
+// The real app (Tauri) path: the core's status carries the run; it is null without a session.
 const status = vi.hoisted(() => vi.fn());
 vi.mock("./core", () => ({ inTauri: true, coreStatus: status }));
 
@@ -9,14 +9,11 @@ import { loadMining } from "./mining";
 beforeEach(() => status.mockReset());
 
 describe("loadMining in the app", () => {
-  it("is null only while the core is not running", async () => {
+  it("is null while the core is not running, and while no session has a run", async () => {
     status.mockResolvedValue(null);
     expect(await loadMining()).toBeNull();
-  });
-
-  it("is an empty run while the core runs without a session", async () => {
     status.mockResolvedValue({ mining: null });
-    expect(await loadMining()).toEqual({ started: null, refined: {}, total: 0, per_hour: null });
+    expect(await loadMining()).toBeNull();
   });
 
   it("is the core's run when there is one", async () => {
