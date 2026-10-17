@@ -158,6 +158,7 @@ impl Session {
             Err(_) => astromech_announce::Shared::default(),
         };
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
+        shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
@@ -175,6 +176,7 @@ impl Session {
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
+            crate::pipeline::edsm_uploader(&data),
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
@@ -297,9 +299,10 @@ impl Session {
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
+        let assistant = Assistant::new(runner.clone()).with_sessions(shared.sessions.clone());
         let assistant = Arc::new(match alias_store {
-            Some(st) => Assistant::new(runner.clone()).with_store(st),
-            None => Assistant::new(runner.clone()),
+            Some(st) => assistant.with_store(st),
+            None => assistant,
         });
 
         let voice = if args.no_voice {

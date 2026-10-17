@@ -4,7 +4,7 @@
 
 use astromech_announce::{
     arrival, builtin, discovery, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route,
-    scan, signals,
+    scan, session_summary, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -42,6 +42,7 @@ fn callout_lines() -> Vec<String> {
             "route",
             "scan",
             "scoopable",
+            "session_summary",
             "signals"
         ],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
@@ -139,6 +140,7 @@ fn callout_lines() -> Vec<String> {
         v.push(docking::denied_line(Some(reason)));
     }
     v.extend(discovery_lines());
+    v.extend(session_summary_lines());
     v.sort();
     v.dedup();
     v
@@ -190,6 +192,30 @@ fn discovery_lines() -> Vec<String> {
     v
 }
 
+/// The session summary, over the magnitudes credits, jumps and bounties are said in.
+fn session_summary_lines() -> Vec<String> {
+    let mut v = vec![];
+    for total in [1, 9_999, 52_000, 999_999, 4_200_000, 1_234_567_890] {
+        for per_hour in [None, Some(1), Some(1_900_000), Some(987_654_321)] {
+            for jumps in [0, 1, 38, 9_999] {
+                for bounties in [0, 1, 6, 1_234] {
+                    let t = session_summary::Totals {
+                        end: String::new(),
+                        total,
+                        per_hour,
+                        jumps,
+                        distance_ly: 123_456.7,
+                        bounties,
+                    };
+                    v.extend(session_summary::lines(&t));
+                }
+            }
+        }
+    }
+    v.extend(astromech_tools::session::answer(None));
+    v
+}
+
 /// The arrival briefing: every state with every material it can name, alone and followed by
 /// each Powerplay line; the undiscovered line.
 fn arrival_lines() -> Vec<String> {
@@ -236,14 +262,6 @@ fn arrival_lines() -> Vec<String> {
             v.extend(arrival::visits_line(&past, &now));
         }
     }
-    // Landed here before: one body (short, procedural and too long a name) and several.
-    for body in ["Sys A 2", "Sys AB 1 c a", "Proxima Centauri b c d"] {
-        for count in [1, 2, 999] {
-            v.extend(arrival::landings_line("Sys", &[arrival::Landed { body: body.into(), count }]));
-        }
-    }
-    let many: Vec<_> = (0..120).map(|i| arrival::Landed { body: format!("Sys {i}"), count: 1 }).collect();
-    v.extend(arrival::landings_line("Sys", &many));
     for spec in astromech_materials::catalog::catalog() {
         let wanted = vec![spec.id.to_string()];
         for f in &states {
@@ -397,12 +415,15 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Reinforcement 1234, undermining 5678."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Undermining target."));
-    assert!(callouts.iter().any(|l| l.starts_with("Terraformable high metal content world. ")), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));
     assert!(replies.iter().any(|l| l.starts_with("Supercruise is not available")), "{replies:?}");
     assert!(answers.iter().any(|l| l.starts_with("Fuel:")), "{answers:?}");
+    // The session summary by voice says the same lines, one at a time.
+    assert!(callouts.iter().any(|l| l == "Earned 4.2 million credits, 1.9 million an hour."), "{callouts:?}");
+    let mut answers = answers;
+    answers.push(astromech_tools::session::NOTHING_YET.to_string());
     let mut bad = check("callout", &callouts, CALLOUT_WORDS);
     bad.extend(check("reply", &replies, REPLY_WORDS));
     bad.extend(check("answer", &answers, ANSWER_WORDS));

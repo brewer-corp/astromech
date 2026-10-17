@@ -231,7 +231,8 @@ astromech/
     astromech-policy/    tiers, confirmation, rate limits, kill switch: the ONLY path to the executor
     astromech-tools/     typed tool registry (depends on policy, never on input)
     astromech-overlay/   egui panels for the VR overlay (stub)
-    astromech-store/     SQLite (rusqlite, bundled) config + migrations
+    astromech-store/     SQLite (rusqlite, bundled) config + migrations; secrets (EDSM API key) in the
+                         OS keyring (keyring-core + its Windows Credential Manager store)
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
     astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records),
                          shopping list (remaining minus the hold, in loads); the app's Trade > Colonisation
@@ -296,7 +297,19 @@ astromech/
                          stopping never waits for a post. Off until switched on in Settings → Data
                          sharing ([eddn] enabled), which takes effect at once: off, nothing is queued
                          and the core discards the queue then and there. Discards aren't shown as
-                         the last error there; only rejected, retried and given-up sends are
+                         the last error there; only rejected, retried and given-up sends are.
+                         EDSM (`edsm`, written from EDSM's Journal API v1 and Logs API v1 docs, not
+                         EDMC): live journal events, unmodified plus the documented transient fields
+                         (_systemAddress, _systemName, _systemCoordinates, _marketId, _stationName,
+                         _shipId), to api-journal-v1 in batches of up to 50, one game session each;
+                         the same outbox shape (edsm.sqlite, no API key stored) and worker. EDSM's
+                         discard list (fetched before the first post, kept a day, refetched on a 304)
+                         stops listed events being queued and is applied again to every request;
+                         nothing is sent without it. Only for the commander set in Settings → Data
+                         sharing ([edsm] enabled, commander; the API key in the OS keyring), never
+                         beta, never in another commander's crew. A wrong key (201-203) or an
+                         outage keeps the events, backing off to an hour. The flight log (get-logs,
+                         last week) is read on demand from the same page
     astromech-exploration/ exploration from the journal: body values (the community's formulae, checked
                          against EDSM's published estimates), the live system view (the current system's
                          bodies as scanned: class, value now and mapped, worth mapping), species values
@@ -342,7 +355,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 | `reqwest` | 0.13.5 | 2026-09 | active | data, cAPI |
 | `governor` | 0.10.4 | 2025-12 | active | rate limits (data clients, policy) |
 | `oauth2` | 5.0.0 | 2025-01 | stable, slower cadence | cAPI PKCE |
-| `keyring` | 4.2.0 | 2026-08 | active | secrets (Windows Credential Manager): Frontier tokens, and the user's cloud API key in the later phase |
+| `keyring-core` + `windows-native-keyring-store` | 1.0.1 / 1.1.0 | 2026 | active | secrets (Windows Credential Manager): the EDSM API key; Frontier tokens and the user's cloud API key later. The parts of `keyring` 4.2.0 we need, without its Linux and macOS stores |
 | `rusqlite` (+ `bundled`), `rusqlite_migration` | 0.40.2 / 2.6.0 | 2026 | active | store |
 | `toml`, `directories` | 1.1.7 / 6.0.0 | 2026 / 2025-01 | active / stable | config, paths |
 | `cpal` | 0.18.2 | 2026-08 | active | audio I/O |
@@ -689,7 +702,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 ### 5.19 `astromech-store`
 - **Config:** `%APPDATA%\astromech\config.toml` (`directories::ProjectDirs`), versioned with migrations.
 - **Database:** `%LOCALAPPDATA%\astromech\astromech.db` (`rusqlite` bundled + `rusqlite_migration`). Tables: `audit_actions`, `announcements`, `api_cache`, `bookmarks`, `routes`, `session_stats`.
-- **Secrets:** Inara key, Frontier tokens, and later the user's own cloud-voice API key go in Windows Credential Manager via `keyring`. Never in config or logs.
+- **Secrets:** the EDSM API key (as built, `astromech_store::secrets`: `keyring-core` with its Windows store, the generic credential `edsm-api-key.astromech`), and later the Inara key, Frontier tokens and the user's own cloud-voice API key go in Windows Credential Manager. Never in config or logs. Off Windows there is no keyring and saving a key fails plainly.
 - **Models:** `%LOCALAPPDATA%\astromech\models\` (Parakeet, Kokoro, Silero VAD), with a SHA-256 manifest, resumable download, and each model's licence and attribution shown before download (Parakeet is CC-BY-4.0).
 - **Controls bindings:** stored in `config.toml` as device identity + button (§5.10a).
 
@@ -1733,7 +1746,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   - Work that needs Rust (v2 filling in commanders, v3 and late-file rebuilds) is a row in `pending`, done and deleted in one transaction, on the next open or import if interrupted.
   - **Logbook** (astromech-fxp0, `History::logbook`, the app's Logbook tab): places visited (one per system address, one per station market id) with visit counts and first/last visit, totals, and the timeline of arrivals and dockings. Search is a case-insensitive substring match on system and station names, over places by their latest name. The app window reads `history.sqlite` itself, read only (`History::open_read_only`; WAL lets it read while the core writes), like `galaxy.db`. Measured on the 400 MB synthetic history (74,679 visits, all different places, the worst case): about 0.1–0.25 s per search.
   - **Been here before** (astromech-2myu, `History::visits_before`, `crates/astromech-core/src/visits.rs`): the arrival briefing's "Visited 2 times. Last here 3 days ago." is one indexed read-only query per live FSDJump (`visits_address`, 50 ms busy timeout, a failure means no line), counting the commander's `system` visits strictly before the jump's timestamp so the arrival itself is never counted. A first visit and carrier jumps say nothing. The engine sees it through `astromech_announce::arrival::VisitHistory`, so the announce crate does not depend on history.
-  - **Session summary** (astromech-bg0x, `History::session`, the app's Logbook → Session tab): one session is a commander's events from a `LoadGame` to their next `LoadGame`. It reports credits by activity (the `earnings` ledger: what counts and what doesn't is listed in `crates/astromech-history/src/ledgers.rs`), total and per hour, trade profit, FSD jumps and distance (carrier jumps apart: visits record their event in `via` and carrier jumps have no jump distance), bounties awarded (`Bounty` events, not yet cashed in) and data sold (exploration + organic). Asking for it by voice and a summary at logout are astromech-oo8y.
+  - **Session summary** (astromech-bg0x, `History::session`, the app's Logbook → Session tab): one session is a commander's events from a `LoadGame` to their next `LoadGame`. It reports credits by activity (the `earnings` ledger: what counts and what doesn't is listed in `crates/astromech-history/src/ledgers.rs`), total and per hour, trade profit, FSD jumps and distance (carrier jumps apart: visits record their event in `via` and carrier jumps have no jump distance), bounties awarded (`Bounty` events, not yet cashed in) and data sold (exploration + organic). Asking for it by voice and a summary at logout (astromech-oo8y): `crates/astromech-core/src/summary.rs` keeps a read-only connection like the visit counts (50 ms busy timeout, a failure means no answer) and plugs into the announce crate's `session_summary::SessionHistory`, which the `session_summary` rule (on `Shutdown` or a `Music` `MainMenu`, then the next tick, once the history holds that line) and the `session.summary` voice query (`astromech_tools::session`, a tier-0 answer like the trade lookups; the line wording is shared) both read. Behaviour: V1-DESIGN.md §7.15.
   - **Mining run** (astromech-p9r4): `StateHub` folds every journal line into a `astromech_gamestate::mining::MiningRun` and `Core::status_json` reports it as `mining` (`started`, `refined` by ore, `total`, `per_hour`; `null` while no session runs). The app's Logbook → Mining page polls the status. The rate is measured to the latest journal line, so a replay gives what live did.
   - **Outfitting history** (astromech-zig3, crate `astromech-station`, its own file `outfitting.sqlite` next to `astromech.sqlite`): every fresh `Outfitting.json` (the pipeline's freshness check, `crates/astromech-core/src/pipeline.rs`) is kept as the game wrote it (`snapshots`, one per `MarketID` and file `timestamp`) and the station's latest module list is searchable (`stations`, `station_modules`; `OutfittingBook::find`, the app's Logbook → Station tab). It is **not in `history.sqlite`** because that file is rebuilt from the journals, and no journal line holds the module list (the `Outfitting` event only says the file changed; the game overwrites the file at every visit), so a file not stored at the visit is lost for good. A search matches every word against the module's symbol or its name with size and rating (`5a frame shift`, `hyperdrive_size5`; `fsd` stands for `hyperdrive`); distance from the commander is added by the shell from the local star map, where both systems are known. **What "the current build needs" means** (`astromech_station::upgrades`): for each module fitted on the ship being flown, the module this outfitting sells of the same group, name, size and mount with a better rating (A best, E worst), best rating first and then cheapest. Engineered modules are skipped (light builds run engineered D-rated modules on purpose). Empty slots are not counted (the catalog has no slot sizes per hull), nor are armour and weapons whose ratings don't compare. The docked facts (`DockedHere`) come from the typed `Docked` event (`StationInfo`: services, economies, faction and its state, government, pads, distance from the star), also read from `Location` when logging in docked.
   - **Landings** (astromech-ce4s, `History::landings_before`, `History::add_landings`): a commander's landings per body in a system, from the stored `Touchdown` (flown, not on a station pad) and `Disembark` (taxi or dropship onto the surface) lines, matched on `SystemAddress` with `json_extract`. The arrival briefing asks it through `VisitHistory::landings` ("Landed on A 2 twice before."); the Exploration page shows the count per body.
