@@ -4,6 +4,9 @@ id: "astromech-mcdt"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mcdt
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T00:00:02.777671921+00:00"
+status: "done"
 title: "Start speech output when the voice model finishes downloading"
-updated_at: "2026-10-16T18:54:29.567403634+00:00"
+updated_at: "2026-10-17T00:00:02.777671921+00:00"
 ---
 
 ## Goal
@@ -35,3 +39,7 @@ When the background speech-model download finishes, speech output starts in the 
 ## Context
 
 Found in review of astromech-a50f: `app::download_models` logs "speech models ready" but nothing restarts the session, and `Session` builds its `TtsSpeaker` once at start (falling back to `ConsoleSpeaker` when `models::find_tts` fails). The v0.19 to v1.0 update starts this download automatically on startup.
+
+## Close Reason
+
+Session wraps TTS in LazySpeaker when the Kokoro model is missing at start; the first line said after the download completes starts Kokoro and is spoken, no restart. Proven by speech::tests::lazy_speaker_starts_once_the_model_is_ready (evidence astromech-za1x, astromech-y4d3).
