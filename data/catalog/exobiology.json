@@ -1,7 +1,8 @@
 {
- "source": "values and colony ranges: Elite Dangerous wiki, \"Exobiology Sample Values and Details\" (fixes under uncertain); species symbols: lekeno/edr (Apache-2.0, facts only) at 198ebf5ef34e0b63a275ef4b8f2c6a1f5693008b, edr/data/biology.json; conditions: measured from Spansh's bodies search (EDDN data) on 2026-10-17, 18567 bodies with 54362 sightings (6189 more held out for the recall test)",
+ "source": "values and colony ranges: Elite Dangerous wiki, \"Exobiology Sample Values and Details\" (fixes under uncertain); species symbols: lekeno/edr (Apache-2.0, facts only) at 198ebf5ef34e0b63a275ef4b8f2c6a1f5693008b, edr/data/biology.json, and for the Horizons-era species Canonn's codex reference; conditions: measured from Spansh's bodies search (EDDN data) on 2026-10-17, 18567 bodies with 54362 sightings (6189 more held out for the recall test)",
  "units": "gravity in g, temperature in K, pressure in atmospheres; value in credits before the first-logged bonus; seen: how many bodies the condition comes from",
  "uncertain": [
+  "Roseus Sinuous Tuber: the wiki's name; the codex says Roseum Sinuous Tubers",
   "Amphora Plant: ED Assistant 1,628,800 for every species; wiki per species",
   "Anemone: ED Assistant 1,499,900 for every species; wiki per species",
   "Bacterium Nebulus: 9,116,600 used (wiki), EDR 5,289,900",
@@ -329,7 +330,8 @@
    "species": [
     {
      "name": "Amphora Plant",
-     "value": 3626400
+     "value": 3626400,
+     "symbol": "$codex_ent_vents_name;"
     }
    ]
   },
@@ -342,35 +344,43 @@
    "species": [
     {
      "name": "Blatteum Bioluminescent Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereefgh_name;"
     },
     {
      "name": "Croceum Anemone",
-     "value": 3399800
+     "value": 3399800,
+     "symbol": "$codex_ent_sphereabcd_01_name;"
     },
     {
      "name": "Luteolum Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphere_name;"
     },
     {
      "name": "Prasinum Bioluminescent Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereefgh_02_name;"
     },
     {
      "name": "Puniceum Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereabcd_02_name;"
     },
     {
      "name": "Roseum Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereabcd_03_name;"
     },
     {
      "name": "Roseum Bioluminescent Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereefgh_03_name;"
     },
     {
      "name": "Rubeum Bioluminescent Anemone",
-     "value": 1499900
+     "value": 1499900,
+     "symbol": "$codex_ent_sphereefgh_01_name;"
     }
    ]
   },
@@ -2104,48 +2114,58 @@
    "species": [
     {
      "name": "Bark Mound",
-     "value": 1471900
+     "value": 1471900,
+     "symbol": "$codex_ent_cone_name;"
     }
    ]
   },
   {
    "name": "Brain Tree",
    "codex": [
-    "Brancae"
+    "Brancae",
+    "Seed"
    ],
    "colony_range_m": 100,
    "species": [
     {
      "name": "Aureum Brain Tree",
-     "value": 3565100
+     "value": 3565100,
+     "symbol": "$codex_ent_seedefgh_01_name;"
     },
     {
      "name": "Gypseeum Brain Tree",
-     "value": 3565100
+     "value": 3565100,
+     "symbol": "$codex_ent_seedabcd_01_name;"
     },
     {
      "name": "Lindigoticum Brain Tree",
-     "value": 3565100
+     "value": 3565100,
+     "symbol": "$codex_ent_seedefgh_03_name;"
     },
     {
      "name": "Lividum Brain Tree",
-     "value": 1593700
+     "value": 1593700,
+     "symbol": "$codex_ent_seedefgh_name;"
     },
     {
      "name": "Ostrinum Brain Tree",
-     "value": 3565100
+     "value": 3565100,
+     "symbol": "$codex_ent_seedabcd_02_name;"
     },
     {
      "name": "Puniceum Brain Tree",
-     "value": 3565100
+     "value": 3565100,
+     "symbol": "$codex_ent_seedefgh_02_name;"
     },
     {
      "name": "Roseum Brain Tree",
-     "value": 1593700
+     "value": 1593700,
+     "symbol": "$codex_ent_seed_name;"
     },
     {
      "name": "Viride Brain Tree",
-     "value": 1593700
+     "value": 1593700,
+     "symbol": "$codex_ent_seedabcd_03_name;"
     }
    ]
   },
@@ -3047,7 +3067,8 @@
    "species": [
     {
      "name": "Crystalline Shard",
-     "value": 3626400
+     "value": 3626400,
+     "symbol": "$codex_ent_ground_struct_ice_name;"
     }
    ]
   },
@@ -6053,35 +6074,43 @@
    "species": [
     {
      "name": "Albidum Sinuous Tuber",
-     "value": 3425600
+     "value": 3425600,
+     "symbol": "$codex_ent_tubeabcd_02_name;"
     },
     {
      "name": "Blatteum Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeefgh_name;"
     },
     {
      "name": "Caeruleum Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeabcd_03_name;"
     },
     {
      "name": "Lindigoticum Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeefgh_01_name;"
     },
     {
      "name": "Prasinum Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeabcd_01_name;"
     },
     {
      "name": "Roseus Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tube_name;"
     },
     {
      "name": "Violaceum Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeefgh_02_name;"
     },
     {
      "name": "Viride Sinuous Tuber",
-     "value": 1514500
+     "value": 1514500,
+     "symbol": "$codex_ent_tubeefgh_03_name;"
     }
    ]
   },

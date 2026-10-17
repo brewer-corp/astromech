@@ -95,8 +95,8 @@ impl UnsoldFold {
                     b.mapped = Some(*efficiency_target > 0 && probes_used <= efficiency_target);
                 }
             }
-            X::ScanOrganic { scan_type, species, genus, .. } if scan_type == "Analyse" => {
-                let value = exobiology::species_value(species, genus);
+            X::ScanOrganic { scan_type, species, .. } if scan_type == "Analyse" => {
+                let value = exobiology::species_value(species);
                 self.samples.push(Sample { species: species.to_ascii_lowercase(), value, ts: line.timestamp.clone() });
             }
             X::ExplorationSale { systems, .. } => {

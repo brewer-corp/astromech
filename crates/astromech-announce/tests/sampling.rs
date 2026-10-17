@@ -86,3 +86,31 @@ fn can_be_turned_off() {
     run.spoken(&organic("Log", "Stratum", "Stratum Tectonicas"));
     assert!(at(&mut run, 600.0, 0.0).is_empty());
 }
+
+#[test]
+fn a_species_logged_again_on_the_same_body_is_cued_again() {
+    let mut run = Run::new();
+    at(&mut run, 0.0, 0.0);
+    run.spoken(&organic("Log", "Stratum", "Stratum Tectonicas"));
+    assert_eq!(at(&mut run, 505.0, 0.0), ["Far enough for sample 2."]);
+    // The sample abandoned: the same species logged afresh, here, on the same body.
+    run.spoken(&organic("Log", "Stratum", "Stratum Tectonicas"));
+    assert!(at(&mut run, 700.0, 0.0).is_empty(), "200 m from the new first sample");
+    assert_eq!(at(&mut run, 1010.0, 0.0), ["Far enough for sample 2."]);
+}
+
+#[test]
+fn a_cue_due_before_a_restart_is_not_said_again_after_it() {
+    let mut run = Run::new();
+    // The catch-up after a restart: the log, then Status.json already far enough. Silent.
+    run.engine.set_live(false);
+    at(&mut run, 0.0, 0.0);
+    run.spoken(&organic("Log", "Stratum", "Stratum Tectonicas"));
+    assert!(at(&mut run, 505.0, 0.0).is_empty());
+    // Live again: still the same sample, already past the range, so nothing more.
+    run.engine.set_live(true);
+    assert!(at(&mut run, 520.0, 0.0).is_empty());
+    // The next sample is cued as usual.
+    run.spoken(&organic("Sample", "Stratum", "Stratum Tectonicas"));
+    assert_eq!(at(&mut run, 1030.0, 0.0), ["Far enough for sample 3."]);
+}

@@ -113,8 +113,8 @@ pub struct ScanBody {
     pub reserve_level: Option<String>,
     /// Surface materials: (name, percent).
     pub materials: Vec<(String, f64)>,
-    /// Rings, and asteroid belts (the journal lists both in `Rings`; a belt's name ends in
-    /// "Belt", a ring's in "Ring").
+    /// Rings only: the journal lists both rings and asteroid belts in `Rings` (a belt's name
+    /// ends in "Belt", a ring's in "Ring"), and the belts are not counted here.
     pub ring_count: usize,
     pub belt_count: usize,
     /// `Parents`, nearest first: (`Star`, `Planet`, `Ring` or `Null` for a barycentre, its BodyID).
