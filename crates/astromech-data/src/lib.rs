@@ -157,7 +157,8 @@ impl Clock for SystemClock {
     }
 }
 
-/// The file in the app data dir that holds the remote-data cache both processes share.
+/// The file in the data folder (`astromech_store::Paths::data_dir`) holding the remote-data cache
+/// both processes share.
 pub const CACHE_FILE: &str = "remote_cache.sqlite";
 
 /// Where the client's log lines go (the core's log file; stderr by default).

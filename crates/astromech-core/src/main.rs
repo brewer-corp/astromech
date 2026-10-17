@@ -8,6 +8,7 @@ use astromech_core::config::{Config, SAMPLE};
 use astromech_core::logging::log;
 use astromech_core::session::{self, Session};
 use astromech_proto::Origin;
+use astromech_store::Paths;
 use clap::Parser;
 use std::io::BufRead;
 use std::path::{Path, PathBuf};
@@ -125,7 +126,7 @@ fn attach_console() -> bool {
 
 /// `--quit` (used by the installer): 0 if no core runs any more.
 fn quit_running() -> i32 {
-    let dir = Config::app_dir();
+    let dir = Paths::current().app_dir().to_path_buf();
     let file = dir.join(astromech_core::control::FILE);
     if astromech_core::control::call(&dir, "quit", None).is_err() {
         return 0;
@@ -150,8 +151,9 @@ fn main() {
             (true, false) => After::Relaunch,
             (true, true) => After::RelaunchWithWindow,
         };
-        let app_dir = Config::app_dir();
-        astromech_core::logging::init(&app_dir.join("logs"), false);
+        let paths = Paths::current();
+        let app_dir = paths.app_dir().to_path_buf();
+        astromech_core::logging::init(&paths.log_dir(), false);
         std::process::exit(astromech_core::update::apply_cli(&from, &install, args.wait_pid, after, &app_dir));
     }
     if args.quit {
@@ -217,7 +219,7 @@ fn download_models(cfg: &Config) -> Result<()> {
 }
 
 fn run_console(args: Args) -> Result<()> {
-    let cfg_path = args.config.clone().unwrap_or_else(Config::default_path);
+    let cfg_path = args.config.clone().unwrap_or_else(|| Paths::current().config_file());
     if args.write_config {
         if cfg_path.exists() {
             bail!("{} already exists; not overwriting it", cfg_path.display());
@@ -239,8 +241,9 @@ fn run_console(args: Args) -> Result<()> {
         Config::load(&cfg_path)?
     } else {
         let mut alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
-        if cfg_path.parent() != Some(Config::exe_dir().as_path()) {
-            alike.extend(astromech_core::config::look_alikes(&Config::exe_dir()));
+        let exe_dir = Paths::current().exe_dir().to_path_buf();
+        if cfg_path.parent() != Some(exe_dir.as_path()) {
+            alike.extend(astromech_core::config::look_alikes(&exe_dir));
         }
         let mut msg = format!("config: {} not found.", cfg_path.display());
         if !alike.is_empty() {

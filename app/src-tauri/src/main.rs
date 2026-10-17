@@ -12,6 +12,7 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use astromech_store::Paths;
 use serde::Deserialize;
 use serde_json::Value;
 use std::io::{BufRead, BufReader, Write};
@@ -28,17 +29,9 @@ struct Endpoint {
     token: String,
 }
 
-fn app_dir() -> PathBuf {
-    std::env::var_os("LOCALAPPDATA")
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local").join("share")))
-        .unwrap_or_else(|| ".".into())
-        .join("astromech")
-        .join("data")
-}
-
+/// The core's endpoint file, in its app dir (`astromech_store::Paths`, the core's own rule).
 fn endpoint_file() -> PathBuf {
-    app_dir().join("core.json")
+    Paths::current().app_dir().join("core.json")
 }
 
 fn call(cmd: &str) -> Result<Value, String> {
@@ -119,22 +112,37 @@ struct GameCfg {
     #[serde(default)]
     journal_dir: String,
 }
+/// The parts of the core's `astromech.toml` the window reads.
 #[derive(Deserialize, Default)]
 struct Cfg {
     #[serde(default)]
     game: GameCfg,
+    #[serde(default)]
+    data_dir: String,
+}
+
+/// The core's config, from where the core reads it (`Paths::config_file`); defaults if missing.
+fn config() -> Cfg {
+    std::fs::read_to_string(Paths::current().config_file())
+        .ok()
+        .and_then(|t| toml::from_str(&t).ok())
+        .unwrap_or_default()
+}
+
+/// The core's data folder (`Config::data_dir()` in the core): every file the window shares with
+/// the core (`galaxy.db`, `history.sqlite`, `outfitting.sqlite`, `astromech.sqlite`, the
+/// remote-data cache) is opened here.
+fn data_dir() -> PathBuf {
+    Paths::current().data_dir(&config().data_dir)
 }
 
 fn make_api() -> Result<astromech_keybinds::api::Api, String> {
-    let cfg: Cfg = std::fs::read_to_string(app_dir().join("astromech.toml"))
-        .ok()
-        .and_then(|t| toml::from_str(&t).ok())
-        .unwrap_or_default();
+    let cfg = config();
     let opt = |s: &str| (!s.trim().is_empty()).then(|| PathBuf::from(s.trim()));
     astromech_keybinds::api::Api::discover(
         opt(&cfg.game.bindings_dir),
         opt(&cfg.game.game_dir).as_deref(),
-        app_dir(),
+        data_dir(),
     )
     .map_err(|e| format!("{e:#}"))
 }
@@ -198,10 +206,7 @@ fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, j
 }
 
 fn journal_dir() -> PathBuf {
-    let cfg: Cfg = std::fs::read_to_string(app_dir().join("astromech.toml"))
-        .ok()
-        .and_then(|t| toml::from_str(&t).ok())
-        .unwrap_or_default();
+    let cfg = config();
     let j = cfg.game.journal_dir.trim();
     if !j.is_empty() {
         return PathBuf::from(j);
@@ -410,13 +415,13 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
     Ok(v)
 }
 
-/// The local star map (app dir `galaxy.db`), seeded from the bundled preload. A failed open is
-/// retried on the next call instead of being remembered.
+/// The local star map (`galaxy.db` in the core's data folder), seeded from the bundled preload.
+/// A failed open is retried on the next call instead of being remembered.
 struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Galaxy>>>);
 
 /// The app window's one remote-data client, made at startup; every lookup goes through it (via
-/// the star map). Its cache is the core's file, so an answer the core fetched for a voice
-/// question is served here too. The shell has no log file: its problems go to stderr.
+/// the star map). Its cache is the core's file (in the data folder), so an answer the core fetched
+/// for a voice question is served here too. The shell has no log file: its problems go to stderr.
 struct Remote(std::sync::Arc<astromech_data::Client>);
 
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
@@ -427,7 +432,7 @@ fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Gal
     }
     let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
     let remote = app.state::<Remote>().0.clone();
-    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref(), remote)
+    let opened = astromech_galaxy::Galaxy::open(&data_dir().join("galaxy.db"), preload.as_deref(), remote)
         .map(std::sync::Arc::new)
         .map_err(|e| e.to_string())?;
     *g = Some(opened.clone());
@@ -449,7 +454,7 @@ async fn blocking<T: Send + 'static>(f: impl FnOnce() -> Result<T, String> + Sen
 #[tauri::command]
 async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
     blocking(move || {
-        let db = app_dir().join("history.sqlite");
+        let db = data_dir().join("history.sqlite");
         if !db.is_file() {
             return Err("no journal history yet: the core builds it from the journals once it runs".into());
         }
@@ -465,7 +470,7 @@ async fn logbook(query: String, cmdr: Option<String>) -> Result<Value, String> {
 #[tauri::command]
 async fn session_summary() -> Result<Value, String> {
     blocking(move || {
-        let db = app_dir().join("history.sqlite");
+        let db = data_dir().join("history.sqlite");
         if !db.is_file() {
             return Err("no journal history yet: the core builds it from the journals once it runs".into());
         }
@@ -481,7 +486,7 @@ async fn session_summary() -> Result<Value, String> {
 async fn exploration_system() -> Result<Value, String> {
     blocking(move || {
         let mut view = astromech_exploration::system::from_journal_dir(&journal_dir());
-        if let Ok(h) = astromech_history::History::open_read_only(&app_dir().join("history.sqlite")) {
+        if let Ok(h) = astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
             // Best effort: without it the view has no landings.
             let _ = h.add_landings(&mut view);
         }
@@ -496,7 +501,7 @@ async fn exploration_system() -> Result<Value, String> {
 async fn exploration_unsold() -> Result<Value, String> {
     blocking(move || {
         // No history yet (the core hasn't imported the journals) is `null`, like no commander.
-        let unsold = astromech_history::History::unsold_at(&app_dir().join("history.sqlite"), None)
+        let unsold = astromech_history::History::unsold_at(&data_dir().join("history.sqlite"), None)
             .map_err(|e| e.to_string())?;
         serde_json::to_value(unsold).map_err(|e| e.to_string())
     })
@@ -511,7 +516,7 @@ async fn docked_here(app: tauri::AppHandle) -> Result<Value, String> {
         let st = engineering_state(&app.state::<EngineeringCache>())?;
         let ship = st.fleet.ships.iter().find(|s| s.current);
         let state = astromech_station::state_from_journal_dir(&journal_dir());
-        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+        let book = astromech_station::OutfittingBook::open_read_only(&data_dir().join(astromech_station::DB_FILE))
             .map_err(|e| e.to_string())?;
         serde_json::to_value(astromech_station::DockedHere::new(&state, ship, book.as_ref())).map_err(|e| e.to_string())
     })
@@ -523,7 +528,7 @@ async fn docked_here(app: tauri::AppHandle) -> Result<Value, String> {
 #[tauri::command]
 async fn outfitting_search(app: tauri::AppHandle, query: String) -> Result<Value, String> {
     blocking(move || {
-        let book = astromech_station::OutfittingBook::open_read_only(&app_dir().join(astromech_station::DB_FILE))
+        let book = astromech_station::OutfittingBook::open_read_only(&data_dir().join(astromech_station::DB_FILE))
             .map_err(|e| e.to_string())?;
         let Some(book) = book else {
             return Ok(serde_json::json!({ "stations": 0, "snapshots": 0, "found": [] }));
@@ -947,26 +952,10 @@ async fn colonisation_buy(
     .await
 }
 
-/// The core's data folder (`Config::data_dir()`): the `data_dir` override in `astromech.toml`,
-/// else next to the exe in portable mode, else the app dir; see `astromech_store::data_dir`.
-fn core_data_dir() -> PathBuf {
-    #[derive(Deserialize, Default)]
-    struct DataCfg {
-        #[serde(default)]
-        data_dir: String,
-    }
-    let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(PathBuf::from)).unwrap_or_else(|| ".".into());
-    let portable_cfg = exe_dir.join("astromech.toml");
-    let portable = portable_cfg.is_file();
-    let cfg_path = if portable { portable_cfg } else { app_dir().join("astromech.toml") };
-    let cfg: DataCfg = std::fs::read_to_string(cfg_path).ok().and_then(|t| toml::from_str(&t).ok()).unwrap_or_default();
-    astromech_store::data_dir(&cfg.data_dir, portable, &exe_dir, &app_dir())
-}
-
 /// The settings store, `astromech.sqlite` in the core's data folder, so filters land in the file
 /// the core uses.
 fn settings() -> Result<astromech_store::Store, String> {
-    let dir = core_data_dir();
+    let dir = data_dir();
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     astromech_store::Store::open(&dir.join("astromech.sqlite")).map_err(|e| e.to_string())
 }
@@ -1109,14 +1098,19 @@ fn shell_info() -> Value {
     serde_json::json!({ "version": env!("CARGO_PKG_VERSION") })
 }
 
-/// Open the project's GitHub pages or a Coriolis / EDSY / Spansh / Inara link in the browser, or a folder under the app folder.
+/// Open the project's GitHub pages or a Coriolis / EDSY / Spansh / Inara link in the browser, or a
+/// folder under the core's app, data or log folder.
 #[tauri::command]
 fn open_external(target: String) -> Result<(), String> {
     let ok_url = target.starts_with("https://github.com/spadaval/astromech")
         || astromech_engineering::links::is_openable_url(&target);
     let ok_dir = {
+        let paths = Paths::current();
+        let roots = [paths.app_dir().to_path_buf(), paths.log_dir(), data_dir()];
         let p = PathBuf::from(&target);
-        p.is_dir() && p.canonicalize().ok().zip(app_dir().canonicalize().ok()).is_some_and(|(p, a)| p.starts_with(a))
+        p.is_dir()
+            && p.canonicalize()
+                .is_ok_and(|p| roots.iter().filter_map(|r| r.canonicalize().ok()).any(|r| p.starts_with(r)))
     };
     if !ok_url && !ok_dir {
         return Err("not allowed".into());
@@ -1152,7 +1146,7 @@ fn main() {
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
-        .manage(Remote(astromech_data::Client::shared(&app_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
+        .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
