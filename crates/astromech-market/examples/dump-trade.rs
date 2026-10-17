@@ -1,17 +1,24 @@
-//! Print sample trade searches, a cargo plan and where to buy a colonisation shopping list from
+//! Print sample trade searches (near Sol and anywhere), a cargo plan and where to buy a colonisation shopping list from
 //! the recorded Ardent answers and a fixture hold (no network), for the app's
 //! browser preview (`app/src/lib/fixtures/trade.json`):
 //! `cargo run -q -p astromech-market --example dump-trade > app/src/lib/fixtures/trade.json`
 use astromech_data::{Cache, Client, Clock, Limiter, Request, Response, Transport, TransportError};
 use astromech_galaxy::{Filters, Galaxy, Here, Store};
-use astromech_market::{search, Side};
+use astromech_market::{anywhere, search, Side};
 use std::sync::Arc;
 
 struct Recorded;
 
 impl Transport for Recorded {
-    fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
-        let body = if url.contains("/painite/nearby/imports") {
+    fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
+        let no_carriers = req.query.contains(&("fleetCarriers".into(), "false".into()));
+        let body = if url.ends_with("/v2/commodity/name/painite/imports") {
+            include_str!("../tests/fixtures/ardent-galaxy-sell-painite.json")
+        } else if url.ends_with("/v2/commodity/name/tritium/exports") && no_carriers {
+            include_str!("../tests/fixtures/ardent-galaxy-buy-tritium-nocarriers.json")
+        } else if url.ends_with("/v2/commodity/name/tritium/exports") {
+            include_str!("../tests/fixtures/ardent-galaxy-buy-tritium.json")
+        } else if url.contains("/painite/nearby/imports") {
             include_str!("../tests/fixtures/ardent-sell-painite-sol.json")
         } else if url.contains("/platinum/nearby/imports") {
             include_str!("../tests/fixtures/ardent-sell-platinum-sol.json")
@@ -70,7 +77,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
     let f20 = Filters { max_distance_ly: Some(20), ..Filters::default() };
     let list = astromech_market::list::plan_search(&g, &here, 20.0, &needs, &f20, 12, EVENING)?;
-    let out = serde_json::json!({ "sell": sell, "buy": buy, "cargo": cargo, "hold": hold.inventory, "list": list });
+    // Anywhere: the preview filters one answer itself, so the buy side holds the carriers'
+    // answer and the stations-only one together (Ardent's cheapest 100 tritium are all carriers).
+    let any = Filters::default();
+    let any_sell = anywhere(g.remote(), &here, 20.0, Side::Sell, "painite", &any, EVENING)?;
+    let mut any_buy = anywhere(g.remote(), &here, 20.0, Side::Buy, "tritium", &any, EVENING)?;
+    let stations = Filters { exclude_carriers: true, ..any };
+    let more = anywhere(g.remote(), &here, 20.0, Side::Buy, "tritium", &stations, EVENING)?;
+    any_buy.results[0].offers.extend(more.results.into_iter().flat_map(|p| p.offers));
+    let out = serde_json::json!({
+        "sell": sell, "buy": buy, "cargo": cargo, "hold": hold.inventory, "list": list,
+        "anywhere": { "sell": any_sell, "buy": any_buy },
+    });
     println!("{}", serde_json::to_string_pretty(&out)?);
     Ok(())
 }
