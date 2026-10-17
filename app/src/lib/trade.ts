@@ -7,6 +7,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import catalog from "../../../data/catalog/commodities.json";
 import { inTauri } from "./core";
+import compareSample from "./fixtures/market-compare.json";
 import sample from "./fixtures/trade.json";
 import type { Filters, Origin, Pad, Results } from "./search";
 
@@ -241,6 +242,51 @@ export function cargoResults(s: CargoSearch): Results {
         .join(" · "),
     })),
   };
+}
+
+/** One commodity at the docked market against the best nearby price (astromech_market::here::Line). */
+export interface MarketLine {
+  commodity: string;
+  name: string;
+  /** Tonnes carried that can be sold (0 for goods for sale here). */
+  carried: number;
+  /** What this station pays; null: it doesn't buy it. */
+  sell_here: number | null;
+  /** What this station asks; null: not for sale here. */
+  buy_here: number | null;
+  stock: number;
+  /** The best price a nearby station pays (for the carried, one with demand for all of it). */
+  best: Offer | null;
+  /** Credits per tonne more than here (paid here for the carried, asked here for the goods for sale). */
+  gain: number | null;
+}
+
+/** The docked market and the hold against nearby prices (astromech_market::here::Comparison). */
+export interface MarketCompare {
+  market_id: number | null;
+  station: string;
+  system: string;
+  /** When the game wrote Market.json. */
+  seen: string;
+  carried: MarketLine[];
+  /** The biggest gain first. */
+  for_sale: MarketLine[];
+  /** Goods for sale here that weren't looked up. */
+  unchecked: string[];
+  kept: { name: string; tonnes: number; reason: string }[];
+  fetched_at: number;
+}
+
+/** The docked market (Market.json) and the hold against the best nearby prices, with the sell
+ *  lookup's filters; null when not docked. The preview answers from a recorded comparison. */
+export async function compareMarket(): Promise<MarketCompare | null> {
+  if (inTauri) return await invoke<MarketCompare | null>("market_compare");
+  return compareSample as unknown as MarketCompare;
+}
+
+/** "+3,921" or "−120": credits per tonne against here. */
+export function gainText(n: number): string {
+  return `${n < 0 ? "−" : "+"}${credits(Math.abs(n))}`;
 }
 
 export type RouteKind = "single" | "loop";
