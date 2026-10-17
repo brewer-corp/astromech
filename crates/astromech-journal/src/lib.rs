@@ -68,9 +68,33 @@ pub enum JournalEvent {
         items: Vec<StoredModule>,
     },
     /// A stored ship was ordered to the system the player is in (`ShipyardTransfer`).
+    /// `transfer_time` is in seconds.
     ShipTransfer {
         ship_id: i64,
         ship_type: String,
+        transfer_cost: Option<i64>,
+        transfer_time: Option<i64>,
+    },
+    /// A fitted module was put into storage here (`ModuleStore`).
+    ModuleStore {
+        module: StoredModule,
+    },
+    /// A module came out of storage into a ship slot (`ModuleRetrieve`); `swapped_out` is the
+    /// module that was in the slot, which goes into storage.
+    ModuleRetrieve {
+        module: StoredModule,
+        swapped_out: Option<StoredModule>,
+    },
+    /// A stored module was sold from afar (`ModuleSellRemote`).
+    ModuleSellRemote {
+        item: String,
+    },
+    /// A stored module was ordered to the player's station (`FetchRemoteModule`).
+    /// `transfer_time` is in seconds.
+    ModuleFetch {
+        item: String,
+        transfer_cost: Option<i64>,
+        transfer_time: Option<i64>,
     },
     /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
     ShipSold {
@@ -262,6 +286,8 @@ pub struct StoredModule {
     /// Blueprint symbol and grade, if the stored module is engineered.
     pub blueprint: Option<String>,
     pub level: Option<u8>,
+    /// Bought illegally (`Hot`): stolen or smuggled, so stations that care will not take it.
+    pub hot: bool,
 }
 
 /// One engineer on `EngineerProgress`. `progress` is `Known`, `Invited`, `Acquainted` or
@@ -393,9 +419,37 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
         "StoredModules" => JournalEvent::StoredModules { items: stored_modules(&raw) },
         "ShipyardTransfer" => match opt_i(&raw, "ShipID") {
-            Some(ship_id) => {
-                JournalEvent::ShipTransfer { ship_id, ship_type: s(&raw, "ShipType").to_ascii_lowercase() }
-            }
+            Some(ship_id) => JournalEvent::ShipTransfer {
+                ship_id,
+                ship_type: s(&raw, "ShipType").to_ascii_lowercase(),
+                // The ship event calls the cost `TransferPrice`; the module one `TransferCost`.
+                transfer_cost: opt_i(&raw, "TransferPrice").or_else(|| opt_i(&raw, "TransferCost")),
+                transfer_time: opt_i(&raw, "TransferTime"),
+            },
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleStore" => match item_symbol(&raw, "StoredItem") {
+            Some(item) => JournalEvent::ModuleStore { module: held_module(&raw, item, "StoredItem") },
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleRetrieve" => match item_symbol(&raw, "RetrievedItem") {
+            Some(item) => JournalEvent::ModuleRetrieve {
+                module: held_module(&raw, item, "RetrievedItem"),
+                swapped_out: item_symbol(&raw, "SwapOutItem")
+                    .map(|item| StoredModule { localised: opt_s(&raw, "SwapOutItem_Localised"), ..bare_module(item) }),
+            },
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleSellRemote" => match item_symbol(&raw, "SellItem") {
+            Some(item) => JournalEvent::ModuleSellRemote { item },
+            None => JournalEvent::Other { event, raw },
+        },
+        "FetchRemoteModule" => match item_symbol(&raw, "StoredItem") {
+            Some(item) => JournalEvent::ModuleFetch {
+                item,
+                transfer_cost: opt_i(&raw, "TransferCost"),
+                transfer_time: opt_i(&raw, "TransferTime"),
+            },
             None => JournalEvent::Other { event, raw },
         },
         "ShipyardSell" => match opt_i(&raw, "SellShipID") {
@@ -571,6 +625,28 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
         .collect()
 }
 
+/// An outfitting symbol as the journal writes it ("$int_hyperdrive_size5_class5_name;"), as
+/// the lowercase symbol ("int_hyperdrive_size5_class5").
+fn item_symbol(v: &serde_json::Value, key: &str) -> Option<String> {
+    Some(opt_s(v, key)?.trim_start_matches('$').trim_end_matches(';').trim_end_matches("_name").to_ascii_lowercase())
+}
+
+fn bare_module(item: String) -> StoredModule {
+    StoredModule { item, localised: None, system: None, value: None, blueprint: None, level: None, hot: false }
+}
+
+/// The module a `ModuleStore` / `ModuleRetrieve` moved, under its `<key>` fields. Where it is
+/// stored is for the fold to say: these events do not name a system.
+fn held_module(v: &serde_json::Value, item: String, key: &str) -> StoredModule {
+    StoredModule {
+        localised: opt_s(v, &format!("{key}_Localised")),
+        blueprint: opt_s(v, "EngineerModifications"),
+        level: opt_i(v, "Level").map(|l| l.clamp(0, 5) as u8),
+        hot: v.get("Hot").and_then(|b| b.as_bool()).unwrap_or(false),
+        ..bare_module(item)
+    }
+}
+
 fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
     v.get("Items")
         .and_then(|x| x.as_array())
@@ -578,12 +654,6 @@ fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
         .flatten()
         .filter_map(|x| {
             Some(StoredModule {
-                // "$int_hyperdrive_size5_class5_name;" → "int_hyperdrive_size5_class5"
-                item: opt_s(x, "Name")?
-                    .trim_start_matches('$')
-                    .trim_end_matches(';')
-                    .trim_end_matches("_name")
-                    .to_ascii_lowercase(),
                 localised: opt_s(x, "Name_Localised"),
                 system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
                     None
@@ -593,6 +663,8 @@ fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
                 value: opt_i(x, "BuyPrice"),
                 blueprint: opt_s(x, "EngineerModifications"),
                 level: opt_i(x, "Level").map(|l| l.clamp(0, 5) as u8),
+                hot: x.get("Hot").and_then(|b| b.as_bool()).unwrap_or(false),
+                ..bare_module(item_symbol(x, "Name")?)
             })
         })
         .collect()
@@ -954,7 +1026,25 @@ mod tests {
             matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none() && ships[0].in_transit)
         );
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0}"#).unwrap();
-        assert_eq!(l.event, JournalEvent::ShipTransfer { ship_id: 4, ship_type: "asp".into() });
+        assert_eq!(
+            l.event,
+            JournalEvent::ShipTransfer {
+                ship_id: 4,
+                ship_type: "asp".into(),
+                transfer_cost: None,
+                transfer_time: None
+            }
+        );
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0,"TransferPrice":1200,"TransferTime":600}"#).unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::ShipTransfer {
+                ship_id: 4,
+                ship_type: "asp".into(),
+                transfer_cost: Some(1200),
+                transfer_time: Some(600)
+            }
+        );
         let l = parse_line(
             r#"{"timestamp":"t","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$int_hyperdrive_size5_class5_name;","Name_Localised":"FSD","StarSystem":"Sol","BuyPrice":100,"EngineerModifications":"FSD_LongRange","Level":3,"Quality":0.5},{"Name":"$hpt_x;","InTransit":true}]}"#,
         )
@@ -968,6 +1058,41 @@ mod tests {
             }
             _ => panic!("expected StoredModules"),
         }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredModules","Items":[{"Name":"$hpt_x_name;","StarSystem":"Sol","Hot":true},{"Name":"$hpt_y_name;","StarSystem":"Sol"}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredModules { items } => assert_eq!((items[0].hot, items[1].hot), (true, false)),
+            _ => panic!("expected StoredModules"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleStore","Slot":"Slot03_Size5","Ship":"asp","ShipID":4,"StoredItem":"$int_shieldgenerator_size5_class5_name;","StoredItem_Localised":"Shield","Hot":true,"EngineerModifications":"ShieldGenerator_Reinforced","Level":2,"Quality":0.4}"#).unwrap();
+        match l.event {
+            JournalEvent::ModuleStore { module } => {
+                assert_eq!(module.item, "int_shieldgenerator_size5_class5");
+                assert_eq!(
+                    (module.hot, module.level, module.blueprint.as_deref()),
+                    (true, Some(2), Some("ShieldGenerator_Reinforced"))
+                );
+                assert_eq!(module.system, None, "the event does not name a system");
+            }
+            _ => panic!("expected ModuleStore"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleRetrieve","Slot":"Slot03_Size5","RetrievedItem":"$int_shieldgenerator_size5_class5_name;","Hot":false,"SwapOutItem":"$int_shieldgenerator_size5_class3_name;"}"#).unwrap();
+        match l.event {
+            JournalEvent::ModuleRetrieve { module, swapped_out } => {
+                assert_eq!(module.item, "int_shieldgenerator_size5_class5");
+                assert_eq!(swapped_out.unwrap().item, "int_shieldgenerator_size5_class3");
+            }
+            _ => panic!("expected ModuleRetrieve"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleSellRemote","StorageSlot":3,"SellItem":"$hpt_x_name;","ServerId":1,"SellPrice":5}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ModuleSellRemote { item: "hpt_x".into() });
+        let l = parse_line(r#"{"timestamp":"t","event":"FetchRemoteModule","StorageSlot":3,"StoredItem":"$hpt_x_name;","ServerId":1,"TransferCost":500,"TransferTime":300}"#).unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::ModuleFetch { item: "hpt_x".into(), transfer_cost: Some(500), transfer_time: Some(300) }
+        );
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();

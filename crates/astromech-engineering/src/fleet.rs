@@ -4,6 +4,9 @@
 //! engineered while flown, so the newest `Loadout` per `ShipID` stays true until that ship is
 //! flown again. `StoredShips` (each shipyard visit) lists the rest of the fleet and drops ships
 //! sold while no journal was kept; `ShipyardSell` / `SellShipOnRebuy` drop them as they happen.
+//! `ModuleStore`, `ModuleRetrieve`, `ModuleSellRemote` and `FetchRemoteModule` keep the stored
+//! modules current between outfitting visits, and a `TransferTime` settles ships and modules
+//! ordered to a station.
 //! Each `EngineerCraft` (in person or remote) updates the flown ship's module straight away, so
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
@@ -130,12 +133,27 @@ struct Seen {
     crafted: bool,
 }
 
+/// A transfer in progress: when it lands (epoch seconds), and where.
+#[derive(Debug, Clone)]
+struct Arrival {
+    at: i64,
+    system: Option<String>,
+    market_id: Option<i64>,
+}
+
+fn epoch(ts: &str) -> Option<i64> {
+    chrono::DateTime::parse_from_rfc3339(ts).ok().map(|t| t.timestamp())
+}
+
 /// Folds fleet events in journal order.
 #[derive(Debug, Default)]
 pub struct FleetBuilder {
     loadouts: HashMap<i64, Seen>,
     stored: HashMap<i64, StoredShip>,
-    stored_modules: Vec<StoredModule>,
+    /// With the epoch second a module ordered to us arrives, and the system it arrives in.
+    stored_modules: Vec<(StoredModule, Option<Arrival>)>,
+    /// When ships ordered to us arrive.
+    ship_arrivals: HashMap<i64, Arrival>,
     current: Option<i64>,
     /// System of the last dock, for a ship left behind by a swap.
     here: Option<String>,
@@ -145,6 +163,9 @@ pub struct FleetBuilder {
 
 impl FleetBuilder {
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
+        if let Some(now) = epoch(ts) {
+            self.settle(now);
+        }
         match ev {
             JournalEvent::Loadout {
                 ship_id: Some(id),
@@ -193,6 +214,7 @@ impl FleetBuilder {
             }
             JournalEvent::StoredShips { ships } => {
                 self.stored = ships.iter().map(|s| (s.ship_id, s.clone())).collect();
+                self.ship_arrivals.clear();
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
@@ -204,8 +226,8 @@ impl FleetBuilder {
                 self.here = docked.then(|| star_system.clone());
                 self.here_market = market_id.filter(|_| *docked);
             }
-            JournalEvent::ShipTransfer { ship_id, ship_type } => {
-                // It arrives where we are; until the next StoredShips it counts as in transit.
+            JournalEvent::ShipTransfer { ship_id, ship_type, transfer_time, .. } => {
+                // It arrives where we are: in transit until `TransferTime` has passed.
                 let here = self.here.clone();
                 let s = self.stored.entry(*ship_id).or_insert_with(|| StoredShip {
                     ship_id: *ship_id,
@@ -216,11 +238,43 @@ impl FleetBuilder {
                     value: None,
                     market_id: None,
                 });
-                s.system = here;
+                s.system = here.clone();
                 s.market_id = None;
                 s.in_transit = true;
+                self.ship_arrivals.remove(ship_id);
+                if let Some(at) = epoch(ts).zip(*transfer_time).map(|(t, secs)| t + secs) {
+                    self.ship_arrivals.insert(*ship_id, Arrival { at, system: here, market_id: self.here_market });
+                }
             }
-            JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
+            JournalEvent::StoredModules { items } => {
+                self.stored_modules = items.iter().map(|m| (m.clone(), None)).collect();
+            }
+            JournalEvent::ModuleStore { module } => {
+                self.stored_modules.push((StoredModule { system: self.here.clone(), ..module.clone() }, None));
+            }
+            JournalEvent::ModuleRetrieve { module, swapped_out } => {
+                self.take_module(|m| {
+                    m.item == module.item && m.blueprint == module.blueprint && m.level == module.level
+                });
+                if let Some(old) = swapped_out {
+                    self.stored_modules.push((StoredModule { system: self.here.clone(), ..old.clone() }, None));
+                }
+            }
+            JournalEvent::ModuleSellRemote { item } => self.take_module(|m| m.item == *item),
+            JournalEvent::ModuleFetch { item, transfer_time, .. } => {
+                // The event does not say which one; the nearest to being ready is not known
+                // either, so take the first stored copy that is not already on its way here.
+                let at = epoch(ts).zip(*transfer_time).map(|(t, secs)| t + secs);
+                let here = self.here.clone();
+                if let Some((m, arrival)) = self
+                    .stored_modules
+                    .iter_mut()
+                    .find(|(m, a)| m.item == *item && a.is_none() && m.system.is_some() && m.system != here)
+                {
+                    m.system = None;
+                    *arrival = at.map(|at| Arrival { at, system: here, market_id: None });
+                }
+            }
             JournalEvent::EngineerCraft {
                 engineer,
                 blueprint,
@@ -265,6 +319,38 @@ impl FleetBuilder {
         }
     }
 
+    /// Remove the first stored module `pred` accepts, preferring one stored where we are docked.
+    fn take_module(&mut self, pred: impl Fn(&StoredModule) -> bool) {
+        let at = |(m, _): &&(StoredModule, Option<Arrival>)| pred(m) && m.system.is_some() && m.system == self.here;
+        let i = self
+            .stored_modules
+            .iter()
+            .position(|e| at(&e))
+            .or_else(|| self.stored_modules.iter().position(|(m, _)| pred(m)));
+        if let Some(i) = i {
+            self.stored_modules.remove(i);
+        }
+    }
+
+    /// Land every transfer due by `now` (epoch seconds): ships and modules ordered to a station
+    /// stay in transit for their `TransferTime`, and the journal says nothing when they arrive.
+    pub fn settle(&mut self, now: i64) {
+        let due: Vec<i64> = self.ship_arrivals.iter().filter(|(_, a)| a.at <= now).map(|(id, _)| *id).collect();
+        for id in due {
+            let Some(a) = self.ship_arrivals.remove(&id) else { continue };
+            if let Some(s) = self.stored.get_mut(&id) {
+                s.in_transit = false;
+                s.system = a.system;
+                s.market_id = a.market_id;
+            }
+        }
+        for (m, arrival) in &mut self.stored_modules {
+            if arrival.as_ref().is_some_and(|a| a.at <= now) {
+                m.system = arrival.take().and_then(|a| a.system);
+            }
+        }
+    }
+
     /// Keep the raw `Loadout` line that was just applied (`ts` and `ship_id` must match it).
     pub fn keep_raw(&mut self, ts: &str, raw: Value) {
         let Some(id) = raw.get("ShipID").and_then(Value::as_i64) else { return };
@@ -295,7 +381,7 @@ impl FleetBuilder {
                 }
             }
         }
-        let stored_modules = self.stored_modules.iter().map(stored_module).collect();
+        let stored_modules = self.stored_modules.iter().map(|(m, _)| stored_module(m)).collect();
         Fleet { source: source.into(), ships, stored_modules, groups }
     }
 
@@ -469,6 +555,10 @@ const FLEET_EVENTS: &[&str] = &[
     "\"StoredShips\"",
     "\"StoredModules\"",
     "\"ShipyardTransfer\"",
+    "\"ModuleStore\"",
+    "\"ModuleRetrieve\"",
+    "\"ModuleSellRemote\"",
+    "\"FetchRemoteModule\"",
     "\"Docked\"",
     "\"Location\"",
     "\"ShipyardSell\"",
@@ -500,5 +590,7 @@ pub fn from_journal_dir(dir: &Path) -> Fleet {
     } else {
         format!("{} journal files", logs.len())
     };
+    // Anything ordered to a station while the journals were being kept may have landed since.
+    b.settle(chrono::Utc::now().timestamp());
     b.build(source)
 }

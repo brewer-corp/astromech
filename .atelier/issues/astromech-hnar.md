@@ -4,6 +4,9 @@ id: "astromech-hnar"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: wt-base-hnar
+  work_branch: task/astromech-hnar
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Keep stored modules and ship locations current between visits"
-updated_at: "2026-10-17T17:01:40.533748517+00:00"
+updated_at: "2026-10-17T17:07:52.358935550+00:00"
 ---
 
 ## Goal

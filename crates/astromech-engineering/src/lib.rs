@@ -417,6 +417,91 @@ mod tests {
         assert_eq!(asp.market_id, None, "in transit, so at no station");
     }
 
+    /// A fresh builder fed these journal lines in order.
+    fn fold(lines: &[&str]) -> FleetBuilder {
+        let mut b = FleetBuilder::default();
+        for line in lines {
+            let l = astromech_journal::parse_line(line).unwrap();
+            b.apply(&l.timestamp, &l.event);
+        }
+        b
+    }
+
+    /// (item, system) of the stored modules, in order.
+    fn stored(b: &FleetBuilder) -> Vec<(String, Option<String>)> {
+        b.build("test").stored_modules.into_iter().map(|m| (m.item, m.system)).collect()
+    }
+
+    const DOCK_SOL: &str = r#"{"timestamp":"2026-10-10T10:00:00Z","event":"Docked","StationName":"Abraham Lincoln","StarSystem":"Sol","MarketID":1}"#;
+    const DOCK_LHS: &str = r#"{"timestamp":"2026-10-10T11:00:00Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#;
+    const STORED: &str = r#"{"timestamp":"2026-10-10T10:01:00Z","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$hpt_pulselaser_fixed_small_name;","StarSystem":"Sol","BuyPrice":10,"Hot":true},{"Name":"$int_shieldgenerator_size5_class5_name;","StarSystem":"LHS 3447","BuyPrice":20}]}"#;
+
+    #[test]
+    fn stored_modules_follow_store_retrieve_and_remote_sale() {
+        let b = fold(&[DOCK_SOL, STORED]);
+        assert_eq!(stored(&b).len(), 2);
+        // Storing a fitted module here adds it, in the system we are docked in.
+        let b = fold(&[
+            DOCK_SOL,
+            STORED,
+            r#"{"timestamp":"2026-10-10T10:02:00Z","event":"ModuleStore","Slot":"Slot02_Size4","Ship":"asp","ShipID":4,"StoredItem":"$int_powerplant_size4_class5_name;","Hot":false}"#,
+        ]);
+        assert_eq!(stored(&b).last().unwrap(), &("int_powerplant_size4_class5".to_string(), Some("Sol".to_string())));
+        // Retrieving the laser removes it; the module it replaced goes into storage here.
+        let b = fold(&[
+            DOCK_SOL,
+            STORED,
+            r#"{"timestamp":"2026-10-10T10:03:00Z","event":"ModuleRetrieve","Slot":"SmallHardpoint1","Ship":"asp","ShipID":4,"RetrievedItem":"$hpt_pulselaser_fixed_small_name;","Hot":true,"SwapOutItem":"$hpt_beamlaser_fixed_small_name;"}"#,
+        ]);
+        assert_eq!(
+            stored(&b),
+            [
+                ("int_shieldgenerator_size5_class5".to_string(), Some("LHS 3447".to_string())),
+                ("hpt_beamlaser_fixed_small".to_string(), Some("Sol".to_string())),
+            ]
+        );
+        // Selling the shield generator from afar removes it.
+        let b = fold(&[
+            DOCK_SOL,
+            STORED,
+            r#"{"timestamp":"2026-10-10T10:04:00Z","event":"ModuleSellRemote","StorageSlot":2,"SellItem":"$int_shieldgenerator_size5_class5_name;","ServerId":9,"SellPrice":5}"#,
+        ]);
+        assert_eq!(stored(&b), [("hpt_pulselaser_fixed_small".to_string(), Some("Sol".to_string()))]);
+    }
+
+    #[test]
+    fn fetched_module_is_in_transit_until_its_transfer_time_passes() {
+        let fetch = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"FetchRemoteModule","StorageSlot":2,"StoredItem":"$hpt_pulselaser_fixed_small_name;","ServerId":9,"TransferCost":500,"TransferTime":300,"Ship":"asp","ShipID":4}"#;
+        let mut b = fold(&[DOCK_SOL, STORED, DOCK_LHS, fetch]);
+        let laser =
+            |b: &FleetBuilder| stored(b).into_iter().find(|(i, _)| i == "hpt_pulselaser_fixed_small").unwrap().1;
+        assert_eq!(laser(&b), None, "on its way");
+        // An event before the arrival does not settle it; one after does.
+        let l = astromech_journal::parse_line(r#"{"timestamp":"2026-10-10T11:04:00Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#).unwrap();
+        b.apply(&l.timestamp, &l.event);
+        assert_eq!(laser(&b), None);
+        let l = astromech_journal::parse_line(r#"{"timestamp":"2026-10-10T11:06:00Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#).unwrap();
+        b.apply(&l.timestamp, &l.event);
+        assert_eq!(laser(&b).as_deref(), Some("LHS 3447"));
+    }
+
+    #[test]
+    fn transferred_ship_arrives_after_its_transfer_time() {
+        let loadout = r#"{"timestamp":"2026-10-10T09:00:00Z","event":"Loadout","Ship":"asp","ShipID":4,"ShipName":"A","ShipIdent":"X","Modules":[]}"#;
+        let stored_ships = r#"{"timestamp":"2026-10-10T11:00:30Z","event":"StoredShips","StarSystem":"LHS 3447","MarketID":2,"ShipsHere":[],"ShipsRemote":[{"ShipID":12,"ShipType":"anaconda","StarSystem":"Sol","ShipMarketID":1}]}"#;
+        let transfer = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"ShipyardTransfer","ShipType":"anaconda","ShipID":12,"System":"Sol","Distance":10.0,"TransferPrice":1200,"TransferTime":600}"#;
+        let ship = |b: &FleetBuilder| b.build("test").ships.into_iter().find(|s| s.id == 12).unwrap();
+        let mut b = fold(&[loadout, DOCK_LHS, stored_ships, transfer]);
+        let s = ship(&b);
+        assert_eq!((s.in_transit, s.system.as_deref(), s.market_id), (true, Some("LHS 3447"), None));
+        b.settle(1_791_630_060 + 599);
+        assert!(ship(&b).in_transit, "ten minutes have not passed");
+        let l = astromech_journal::parse_line(r#"{"timestamp":"2026-10-10T11:11:01Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#).unwrap();
+        b.apply(&l.timestamp, &l.event);
+        let s = ship(&b);
+        assert_eq!((s.in_transit, s.system.as_deref(), s.market_id), (false, Some("LHS 3447"), Some(2)));
+    }
+
     #[test]
     fn crafts_update_the_fleet_and_shrink_the_trip() {
         use astromech_journal::JournalEvent;
