@@ -170,14 +170,7 @@ impl Session {
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-        let shared = match astromech_store::Store::open(&data.join("astromech.sqlite")) {
-            Ok(st) => astromech_announce::Shared {
-                prospector: Arc::new(RwLock::new(callouts::load_thresholds(&st))),
-                shopping: Arc::new(RwLock::new(callouts::load_shopping(&st))),
-                ..Default::default()
-            },
-            Err(_) => astromech_announce::Shared::default(),
-        };
+        let shared = callouts::shared_from_store(&data, &|m: &str| log(m));
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
         shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
@@ -563,7 +556,7 @@ fn start_voice(
                         runner.speaker.say(if have_stt {
                             "No microphone found. Check the Windows sound input settings."
                         } else {
-                            "Voice isn't loaded. Type commands in the console."
+                            "Voice is not loaded. Type commands in the console."
                         });
                     }
                 }

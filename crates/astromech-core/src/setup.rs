@@ -298,7 +298,7 @@ mod tests {
         assert_eq!(c.voice.mic, "Example USB");
         // Untouched lines are byte-for-byte the same, comments included.
         assert!(out.contains("# Kill switch: press to cancel everything"));
-        assert!(out.contains("kill_switch = { device = \"Keyboard\", key = \"Key_ScrollLock\" }"));
+        assert!(out.contains("# kill_switch = { device = \"Keyboard\", key = \"Key_ScrollLock\" }"));
         assert!(out.contains("# empty: Windows default recording device"), "{out}");
         // Push-to-talk is commented out in the sample, so it's added as one new line.
         assert_eq!(out.lines().count(), crate::config::SAMPLE.lines().count() + 1);

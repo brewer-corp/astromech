@@ -140,10 +140,13 @@ pub fn replay_path(path: &Path) -> Ledger {
     std::fs::read(path).map(|b| replay_bytes(&b)).unwrap_or_default()
 }
 
-/// Journal lines that change a [`Ledger`], as the game writes them. `"event":"Materials"` and
-/// not just `"Materials"`: the latter is also a key on landable-body `Scan` lines.
+/// The journal lines [`replay_journal_dir`] reads, and so the lines a page built from it must
+/// watch for. `"event":"Materials"` and not just `"Materials"`: the latter is also a key on
+/// landable-body `Scan` lines. Every event the ledger reacts to (see [`Ledger::apply`]) must
+/// match one of these, or the replay never sees it.
 pub const LEDGER_EVENTS: &[&str] = &[
     "\"event\":\"Materials\"",
+    "\"event\": \"Materials\"",
     "\"MaterialCollected\"",
     "\"MaterialDiscarded\"",
     "\"MaterialTrade\"",
@@ -165,7 +168,7 @@ pub fn events_from_last_snapshot(dir: &Path) -> Vec<JournalLine> {
     let files = astromech_journal::journal_logs(dir);
     let mut suffix: Vec<Vec<JournalLine>> = vec![];
     for f in files.iter().rev() {
-        let ev = astromech_journal::parse_file(f);
+        let ev = ledger_lines(f);
         if let Some(i) = ev.iter().rposition(|l| matches!(l.event, JournalEvent::Materials { .. })) {
             suffix.push(ev[i..].to_vec());
             break;
@@ -174,6 +177,15 @@ pub fn events_from_last_snapshot(dir: &Path) -> Vec<JournalLine> {
     }
     suffix.reverse();
     suffix.into_iter().flatten().collect()
+}
+
+/// The lines of one journal that match [`LEDGER_EVENTS`], parsed.
+fn ledger_lines(path: &Path) -> Vec<JournalLine> {
+    let Ok(text) = std::fs::read_to_string(path) else { return vec![] };
+    text.lines()
+        .filter(|l| LEDGER_EVENTS.iter().any(|e| l.contains(e)))
+        .filter_map(|l| astromech_journal::parse_line(l.trim()).ok())
+        .collect()
 }
 
 pub fn replay_events(events: &[JournalLine]) -> Ledger {

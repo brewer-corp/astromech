@@ -4,6 +4,9 @@ id: "astromech-ldiz"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ldiz
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T18:52:36.631200466+00:00"
+status: "done"
 title: "Tie the shell's Engineering watch list to build_journal_state"
-updated_at: "2026-10-17T17:28:29.762459570+00:00"
+updated_at: "2026-10-17T18:52:36.631200466+00:00"
 ---
 
 ## Goal
@@ -28,3 +32,7 @@ Either the watch list and build_journal_state are driven by the same constants, 
 ## Context
 
 Found in review of the astromech-ztrb PR (finding astromech-7xex). A reader added without updating the list would silently stop page updates for that event.
+
+## Close Reason
+
+The ledger and visits readers filter with LEDGER_EVENTS and POSITION_EVENTS, the shell builds its watch list from astromech_galaxy::engineering_journal_events(); tests in astromech-materials/tests/ledger_events.rs (failed before) and astromech-galaxy. Review recorded; fix commit not re-reviewed. The Tauri shell is not compiled here.

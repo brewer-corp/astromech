@@ -15,7 +15,7 @@ use astromech_journal::ore as shared;
 use astromech_journal::{ExtraEvent, JournalEvent};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::sync::{Arc, LazyLock, RwLock};
+use std::sync::{Arc, LazyLock, Mutex, RwLock};
 use std::time::Duration;
 
 /// One ore astromech knows: the journal symbol (lower case), the name to say, and the default
@@ -97,6 +97,38 @@ pub type SharedThresholds = Arc<RwLock<Thresholds>>;
 
 pub struct Prospector {
     pub thresholds: SharedThresholds,
+    /// Rocks already called out, with when (journal time): a second limpet on the same rock
+    /// finds the same ores in the same proportions, and says nothing new.
+    said: Mutex<Vec<(String, i64)>>,
+}
+
+/// How long a called-out rock is remembered. A rock is mined for minutes, and a different rock
+/// does not repeat its proportions, so this only has to outlast the limpets sent at one rock.
+const SAME_ROCK_SECS: i64 = 10 * 60;
+
+impl Prospector {
+    pub fn new(thresholds: SharedThresholds) -> Self {
+        Self { thresholds, said: Mutex::default() }
+    }
+
+    /// True the first time `rock` is called out within [`SAME_ROCK_SECS`] (and remembers it).
+    fn first_time(&self, rock: String, at: i64) -> bool {
+        let mut said = self.said.lock().unwrap();
+        said.retain(|(_, t)| (at - t).abs() < SAME_ROCK_SECS);
+        if said.iter().any(|(r, _)| *r == rock) {
+            return false;
+        }
+        said.push((rock, at));
+        true
+    }
+}
+
+/// What identifies a rock in the journal, which gives it no id: its ores and proportions (to a
+/// tenth of a percent) and its motherlode.
+fn rock_key(materials: &[(&str, f64)], motherlode: Option<&str>) -> String {
+    let mut ores: Vec<String> = materials.iter().map(|(n, p)| format!("{}={:.1}", n.to_lowercase(), p)).collect();
+    ores.sort();
+    format!("{}|{}", ores.join(","), motherlode.unwrap_or_default().to_lowercase())
 }
 
 /// "Platinum 34%." / "Motherlode. Void Opals. Platinum 34%." or None for a rock not worth it.
@@ -152,6 +184,13 @@ impl Rule for Prospector {
             if depleted { vec![] } else { materials.iter().map(|m| (m.name.as_str(), m.proportion)).collect() };
         let t = self.thresholds.read().unwrap();
         let text = line(&m, motherlode_material.as_deref(), &t)?;
+        // The same rock again (another limpet) would repeat the line. A depleted rock keeps its
+        // motherlode line only, so the key is the full rock either way.
+        let all: Vec<(&str, f64)> = materials.iter().map(|m| (m.name.as_str(), m.proportion)).collect();
+        let at = chrono::DateTime::parse_from_rfc3339(&l.timestamp).map(|t| t.timestamp()).unwrap_or(0);
+        if !self.first_time(rock_key(&all, motherlode_material.as_deref()), at) {
+            return None;
+        }
         Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
     }
 }

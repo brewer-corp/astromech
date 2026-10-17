@@ -128,7 +128,7 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
     if astromech_tools::lookup::is_lookup(m.command) {
         (r.would, r.message) =
             match (m.decision, astromech_tools::lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref())) {
-                (_, None) => (Would::NotUnderstood, "Didn't catch what to look for.".into()),
+                (_, None) => (Would::NotUnderstood, astromech_tools::lookup::NOT_CAUGHT.into()),
                 (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
                 (_, Some(w)) => {
                     (Would::Speak, format!("Would look up the nearest {} on Spansh and say it.", w.label()))
@@ -405,7 +405,7 @@ mod tests {
         // No binds read: a press plan becomes "no binding", with the reason it would say.
         let r = dry_run(&g, "gear down", &flying(FLAG_IN_MAIN_SHIP), &b, Source::Typed);
         assert_eq!(r.would, Would::NoBinding);
-        assert!(r.message.contains("couldn't read your Elite keybindings"), "{}", r.message);
+        assert!(r.message.contains("could not be read"), "{}", r.message);
     }
 
     #[test]

@@ -12,6 +12,8 @@ use std::path::{Path, PathBuf};
 pub const CONTEXTS: [&str; 4] = ["General", "Ship", "SRV", "On foot"];
 /// Elite reads only Joy_1..Joy_32 per device (KEYBINDS.md §2.6, rule D-J33).
 pub const MAX_JOY: u32 = 32;
+/// Keys the route paste sends in the galaxy map (`Runner::paste`: Ctrl+V, then Enter).
+const PASTE_KEYS: &[&str] = &["Key_V", "Key_Enter"];
 pub const VKB_VID: &str = "231D";
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
@@ -376,6 +378,18 @@ pub fn view(path: &Path, editable: bool, inv: Option<&Inventory>) -> Result<View
                 text: "No keyboard key: voice commands can't press this. Put a key in the empty slot.".into(),
             });
         }
+        if r.group == "Galaxy map" || r.id.starts_with("GalaxyMapOpen") {
+            if let Some(s) = bound.iter().find(|s| s.device == "Keyboard" && PASTE_KEYS.contains(&s.key.as_str())) {
+                r.issues.push(Issue {
+                    code: "paste_key".into(),
+                    level: "warning".into(),
+                    text: format!(
+                        "{} is also what the route paste presses (Ctrl+V, then Enter) in the galaxy map. If the search box is not focused, this action runs instead.",
+                        s.key.strip_prefix("Key_").unwrap_or(&s.key)
+                    ),
+                });
+            }
+        }
         for s in &bound {
             if let Some(n) = joy_number(&s.key).filter(|n| *n > MAX_JOY) {
                 r.issues.push(Issue {
@@ -526,6 +540,87 @@ pub(crate) mod tests {
         assert_eq!(row(&v, "SomethingNew").group, "Other");
         assert!(v.groups.first().unwrap().context == "Ship" || v.groups.first().unwrap().context == "General");
         assert!(v.issue_count >= 2);
+    }
+
+    #[test]
+    fn no_keyboard_rule_covers_every_voice_action() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Keys.4.2.binds");
+        std::fs::write(
+            &p,
+            r#"<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
+	<GalaxyMapOpen>
+		<Primary Device="231D3201" Key="Joy_5" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen>
+	<AutoBreakBuggyButton>
+		<Primary Device="231D3201" Key="Joy_6" />
+		<Secondary Device="Keyboard" Key="Key_B" />
+	</AutoBreakBuggyButton>
+</Root>"#,
+        )
+        .unwrap();
+        let v = view(&p, true, None).unwrap();
+        let flagged = |id: &str| row(&v, id).issues.iter().any(|i| i.code == "no_keyboard");
+        for id in catalog::VOICE_ACTIONS {
+            assert_eq!(flagged(id), *id != "AutoBreakBuggyButton", "{id}");
+        }
+    }
+
+    #[test]
+    fn paste_keys_in_the_galaxy_map_are_flagged() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Keys.4.2.binds");
+        std::fs::write(
+            &p,
+            r#"<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Keys" MajorVersion="4" MinorVersion="2">
+	<CamZoomIn>
+		<Primary Device="Keyboard" Key="Key_V">
+			<Modifier Device="Keyboard" Key="Key_LeftControl" />
+		</Primary>
+		<Secondary Device="{NoDevice}" Key="" />
+	</CamZoomIn>
+	<GalaxyMapHome>
+		<Primary Device="231D3201" Key="Joy_3" />
+		<Secondary Device="Keyboard" Key="Key_Enter" />
+	</GalaxyMapHome>
+	<GalaxyMapOpen>
+		<Primary Device="Keyboard" Key="Key_Enter" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen>
+	<GalaxyMapOpen_Buggy>
+		<Primary Device="Keyboard" Key="Key_V" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</GalaxyMapOpen_Buggy>
+	<CamZoomOut>
+		<Primary Device="Keyboard" Key="Key_B" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</CamZoomOut>
+	<UI_Select>
+		<Primary Device="Keyboard" Key="Key_Enter" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</UI_Select>
+	<CamYawLeft>
+		<Primary Device="231D3201" Key="Joy_8" />
+		<Secondary Device="{NoDevice}" Key="" />
+	</CamYawLeft>
+</Root>"#,
+        )
+        .unwrap();
+        let v = view(&p, true, None).unwrap();
+        let flagged = |id: &str| row(&v, id).issues.iter().any(|i| i.code == "paste_key");
+        assert!(flagged("CamZoomIn"), "Ctrl+V on a galaxy map action");
+        assert!(flagged("GalaxyMapHome"), "Enter in the secondary slot");
+        assert!(flagged("GalaxyMapOpen"), "the open key closes the map too");
+        assert!(flagged("GalaxyMapOpen_Buggy"), "the SRV open key");
+        assert!(!flagged("CamZoomOut"), "another key");
+        assert!(!flagged("UI_Select"), "Enter on an action outside the galaxy map");
+        assert!(!flagged("CamYawLeft"), "a joystick button");
+        let text = &row(&v, "CamZoomIn").issues.iter().find(|i| i.code == "paste_key").unwrap().text;
+        assert!(text.starts_with("V is also"), "{text}");
+        assert_eq!(row(&v, "GalaxyMapHome").issues.iter().find(|i| i.code == "paste_key").unwrap().level, "warning");
     }
 
     #[test]

@@ -132,6 +132,10 @@ pub trait Rule: Send {
     /// with the state after it, for rules that must know where the catch-up left things. It
     /// must not speak.
     fn replayed(&self, _input: &Input, _state: &GameState) {}
+    /// Told of each input, live or replayed, while the rule is turned off in the settings,
+    /// with the state after it, for rules that keep track of something even then. It must not
+    /// speak.
+    fn while_off(&self, _input: &Input, _state: &GameState) {}
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
@@ -186,7 +190,7 @@ pub struct Shared {
 /// The rules that ship.
 pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
-        Box::new(prospector::Prospector { thresholds: shared.prospector }),
+        Box::new(prospector::Prospector::new(shared.prospector)),
         Box::new(scan::Scan),
         Box::new(arrival::Arrival {
             shopping: shared.shopping.clone(),
@@ -411,6 +415,9 @@ impl Engine {
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
+        for s in self.slots.iter().filter(|s| !s.enabled) {
+            s.rule.while_off(input, state);
+        }
         if !self.live {
             for s in self.slots.iter().filter(|s| s.enabled) {
                 s.rule.replayed(input, state);
