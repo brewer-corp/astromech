@@ -391,24 +391,28 @@ fn a_key_that_is_still_wrong_shows_its_error_from_the_same_pass() {
 fn outages_do_not_use_up_a_messages_refusals() {
     let mut r = rig(true);
     r.discards.set(vec![], NOW);
-    feed(&mut r, &session()[..5], true);
-    let queued = r.courier.outbox().pending().unwrap();
+    // One event, so a refusal lands on it alone.
+    feed(&mut r, &session()[..2], true);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1);
     let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
     for i in 0..MAX_ATTEMPTS - 1 {
         let outage =
             if i % 2 == 0 { Ok(Response { status: 429, body: "slow down".into() }) } else { Err("timed out".into()) };
         r.api.answer(JOURNAL_URL, outage);
         let (wall, mono) = at(i);
-        r.courier.pass(wall, mono).unwrap();
-    }
-    // The first refusal after seven outages gives nothing up, even as the batch is split.
-    for i in MAX_ATTEMPTS..MAX_ATTEMPTS + 2 {
-        r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
-        let (wall, mono) = at(i);
         let d = r.courier.pass(wall, mono).unwrap();
-        assert_eq!(d.gave_up, 0, "{d:?}");
+        assert_eq!((d.gave_up, d.retrying), (0, 1), "outage {i}: {d:?}");
     }
-    assert_eq!(r.courier.outbox().pending().unwrap(), queued);
+    // Seven outages have gone by: the event still has all its refusals, so it takes the full
+    // MAX_ATTEMPTS of them to give it up.
+    for i in 0..MAX_ATTEMPTS {
+        r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+        let (wall, mono) = at(MAX_ATTEMPTS + i);
+        let d = r.courier.pass(wall, mono).unwrap();
+        let last = i == MAX_ATTEMPTS - 1;
+        assert_eq!((d.gave_up, d.retrying), (last as usize, !last as usize), "refusal {i}: {d:?}");
+    }
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
 }
 
 #[test]
@@ -554,13 +558,17 @@ fn a_single_event_that_keeps_failing_is_given_up_and_later_events_go() {
 }
 
 #[test]
-fn an_outage_of_5xx_answers_does_not_give_up_a_whole_queue_in_one_pass() {
+fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
     let api = Choosy::new(503, 0);
-    let mut r = choosy_rig(api.clone(), 20, None);
-    for i in 0..(MAX_ATTEMPTS - 1) as u64 {
-        r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap();
+    let mut r = choosy_rig(api, 20, None);
+    let queued = r.courier.outbox().pending().unwrap();
+    assert_eq!(queued, 21);
+    let mut gave_up = 0;
+    for i in 1..=20u64 {
+        gave_up += r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap().gave_up;
     }
-    assert!(r.courier.outbox().pending().unwrap() >= 18, "an outage burns tries on a couple of events, not all");
+    assert!((2..=4).contains(&gave_up), "gave up {gave_up} of {queued}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), queued - gave_up);
 }
 
 #[test]

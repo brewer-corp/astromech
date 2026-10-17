@@ -119,7 +119,7 @@ pub struct Delivery {
     pub rejected: usize,
     pub retrying: usize,
     pub gave_up: usize,
-    /// The pass stopped early: the gateway looks down, so the rest wait for the next retry time.
+    /// The pass stopped early (the service looks down, or a batch is being split), so the rest wait for the next retry time.
     pub stopped: bool,
 }
 
