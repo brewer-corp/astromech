@@ -206,12 +206,12 @@ impl Search {
         self.push("market", json!({ "name": commodity, side: range }))
     }
 
-    /// Systems controlled by any of `powers`.
     /// Bodies with a ring holding a hotspot of `ore` (the name the rings list, e.g. "Platinum").
     pub fn ring_signal(self, ore: &str) -> Self {
         self.push("ring_signals", json!({ "name": [ore] }))
     }
 
+    /// Systems controlled by any of `powers`.
     pub fn controlling_power(self, powers: &[&str]) -> Self {
         self.filter("controlling_power", json!({ "value": powers }))
     }
