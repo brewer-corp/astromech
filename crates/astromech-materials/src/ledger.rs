@@ -142,6 +142,21 @@ pub fn replay_path(path: &Path) -> Ledger {
 
 /// From the last `Materials` snapshot in the folder, then later deltas. Older files after that
 /// snapshot are ignored.
+/// Journal lines that change a [`Ledger`] (quoted event names). `"Materials"` also matches the
+/// key of the events that list materials, which is harmless: a superset only costs a rebuild.
+pub const LEDGER_EVENTS: &[&str] = &[
+    "\"Materials\"",
+    "\"MaterialCollected\"",
+    "\"MaterialDiscarded\"",
+    "\"MaterialTrade\"",
+    "\"Synthesis\"",
+    "\"ScientificResearch\"",
+    "\"TechnologyBroker\"",
+    "\"EngineerContribution\"",
+    "\"EngineerCraft\"",
+    "\"MissionCompleted\"",
+];
+
 pub fn replay_journal_dir(dir: &Path) -> Ledger {
     replay_events(&events_from_last_snapshot(dir))
 }

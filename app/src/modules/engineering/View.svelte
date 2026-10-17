@@ -23,14 +23,28 @@
   });
 
   $effect(() => {
+    // Replace only on change: the page polls every second and most polls find nothing new.
+    let fleetKey = "";
+    let headlinesKey = "";
     const tick = () => {
-      void loadFleet().then((f) => (fleet = f));
+      void loadFleet().then((f) => {
+        const k = JSON.stringify(f);
+        if (k !== fleetKey) {
+          fleetKey = k;
+          fleet = f;
+        }
+      });
       void loadHeadlines()
         .then((h) => {
-          headlines = h;
+          const k = JSON.stringify(h);
+          if (k !== headlinesKey) {
+            headlinesKey = k;
+            headlines = h;
+          }
           headlinesErr = null;
         })
         .catch((e: unknown) => {
+          headlinesKey = "";
           headlines = {};
           headlinesErr = e instanceof Error ? e.message : String(e);
         });

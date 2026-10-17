@@ -357,15 +357,28 @@ struct JournalState {
 
 /// Rebuilt when a journal event any page reads is appended, not on every append and not on file
 /// notifications or directory metadata (astromech-ztrb).
-#[derive(Default)]
 struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
+
+impl Default for EngineeringCache {
+    /// Watches exactly the lines the replays in `build_journal_state` read.
+    fn default() -> Self {
+        let events: Vec<&str> = [
+            astromech_engineering::FLEET_EVENTS,
+            astromech_engineering::engineers::EVENTS,
+            astromech_materials::LEDGER_EVENTS,
+            astromech_galaxy::POSITION_EVENTS,
+        ]
+        .concat();
+        Self(astromech_journal::JournalCache::new(&events))
+    }
+}
 
 fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalState>, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    cache.0.get(&dir, || build_journal_state(&dir)).ok_or_else(|| "busy".to_string())
+    Ok(cache.0.get(&dir, || build_journal_state(&dir)))
 }
 
 fn build_journal_state(dir: &std::path::Path) -> JournalState {

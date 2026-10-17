@@ -809,15 +809,18 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
     JournalVersion { files: logs.len(), newest, len }
 }
 
-/// Counts the changes in the journals that a reader of [`JournalEvent`] can see, so a cache can
-/// skip a re-read when the game only appended events nothing models (`Music`, `ReceiveText`, ...).
+/// Counts the changes in the journals that a reader of the journals could notice, so a cache can
+/// skip a re-read when the game only appended events it never looks at (`Music`, `ReceiveText`,
+/// `Scan`, ...). `events` are the patterns the readers pre-filter lines with (a quoted event
+/// name such as `"Loadout"`); a complete appended line counts when it contains one.
 ///
 /// [`JournalWatch::poll`] never trusts file notifications or directory metadata. Each call lists
 /// the journals and reads whatever was appended to the newest one through an open handle, which
 /// is current on Windows when a directory entry is not (astromech-txzq). A new, removed or
 /// shrunken journal always counts as a change. The first call only records where the journal ends.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct JournalWatch {
+    events: Vec<String>,
     files: usize,
     newest: Option<PathBuf>,
     /// Bytes of `newest` already seen, always at a line start.
@@ -827,21 +830,35 @@ pub struct JournalWatch {
 }
 
 impl JournalWatch {
-    /// The change count so far: unchanged since the last call means no typed event arrived.
+    pub fn new(events: &[&str]) -> Self {
+        Self {
+            events: events.iter().map(|e| e.to_string()).collect(),
+            files: 0,
+            newest: None,
+            offset: 0,
+            started: false,
+            generation: 0,
+        }
+    }
+
+    /// The change count so far: unchanged since the last call means nothing a reader looks at
+    /// was appended.
     pub fn poll(&mut self, dir: &Path) -> u64 {
         let logs = journal_logs(dir);
         let newest = logs.last().cloned();
         let same_file = self.started && self.files == logs.len() && self.newest == newest;
-        self.files = logs.len();
-        self.newest = newest.clone();
-        let Some(path) = newest else {
-            self.offset = 0;
-            self.generation += u64::from(self.started && !same_file);
-            self.started = true;
-            return self.generation;
+        let opened = newest.as_deref().map(|p| std::fs::File::open(p).and_then(|f| f.metadata().map(|m| (f, m.len()))));
+        let (mut f, len) = match opened {
+            None => {
+                self.generation += u64::from(self.started && !same_file);
+                (self.files, self.newest, self.offset, self.started) = (0, None, 0, true);
+                return self.generation;
+            }
+            // Not recorded: the switch is counted on the first poll that can read the new file.
+            Some(Err(_)) => return self.generation,
+            Some(Ok(x)) => x,
         };
-        let Ok(mut f) = std::fs::File::open(&path) else { return self.generation };
-        let Ok(len) = f.metadata().map(|m| m.len()) else { return self.generation };
+        (self.files, self.newest) = (logs.len(), newest);
         if !self.started {
             self.started = true;
             self.offset = len;
@@ -858,11 +875,10 @@ impl JournalWatch {
                 // A line the game is still writing waits for its newline.
                 let complete = buf.iter().rposition(|b| *b == b'\n').map_or(0, |i| i + 1);
                 self.offset += complete as u64;
-                let typed = String::from_utf8_lossy(&buf[..complete])
+                let watched = String::from_utf8_lossy(&buf[..complete])
                     .lines()
-                    .filter_map(|l| parse_line(l.trim()).ok())
-                    .any(|l| !matches!(l.event, JournalEvent::Other { .. }));
-                if typed {
+                    .any(|l| self.events.iter().any(|e| l.contains(e.as_str())));
+                if watched {
                     self.generation += 1;
                 }
             }
@@ -875,26 +891,25 @@ impl JournalWatch {
 /// is held while building, so concurrent callers share one rebuild.
 pub struct JournalCache<T>(std::sync::Mutex<(JournalWatch, Option<(u64, std::sync::Arc<T>)>)>);
 
-impl<T> Default for JournalCache<T> {
-    fn default() -> Self {
-        Self(std::sync::Mutex::new((JournalWatch::default(), None)))
-    }
-}
-
 impl<T> JournalCache<T> {
-    /// The cached value, or `build()`'s if the journals changed since it was built. `None` only
-    /// if an earlier build panicked.
-    pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> Option<std::sync::Arc<T>> {
-        let mut g = self.0.lock().ok()?;
+    /// `events`: see [`JournalWatch`].
+    pub fn new(events: &[&str]) -> Self {
+        Self(std::sync::Mutex::new((JournalWatch::new(events), None)))
+    }
+
+    /// The cached value, or `build()`'s if the journals changed since it was built.
+    pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        // A build that panicked left no value behind; the next call builds again.
+        let mut g = self.0.lock().unwrap_or_else(|e| e.into_inner());
         let generation = g.0.poll(dir);
         if let Some((built_at, v)) = &g.1 {
             if *built_at == generation {
-                return Some(v.clone());
+                return v.clone();
             }
         }
         let v = std::sync::Arc::new(build());
         g.1 = Some((generation, v.clone()));
-        Some(v)
+        v
     }
 }
 
