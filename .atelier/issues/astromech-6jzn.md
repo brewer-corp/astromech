@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T01:54:04.387335730+00:00"
+status: "done"
 title: "Fuel: next scoopable star on the route"
-updated_at: "2026-10-17T01:49:37.497650164+00:00"
+updated_at: "2026-10-17T01:54:04.387335730+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Route fixtures: one with a reachable scoopable star names it; one without enough
 ## Context
 
 Status plus NavRoute.
+
+## Close Reason
+
+On a route, arrival at a non-scoopable star says the jumps to the next scoopable one, and fuel_range warns once (10 min cooldown) when the main tank won't reach it (evidence in .atelier/evidence for 6jzn). Lines give the jump count, not the system name, to keep within the 8-word copy budget.
