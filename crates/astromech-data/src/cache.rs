@@ -2,7 +2,7 @@
 //! are stored, each with the time it expires; expired rows are deleted on every write, so the
 //! table holds only live answers.
 
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 use std::path::Path;
 
 const SCHEMA: &str = "CREATE TABLE IF NOT EXISTS remote_cache(
@@ -33,16 +33,20 @@ impl Cache {
         Self::init(Connection::open_in_memory()?)
     }
 
-    fn init(db: Connection) -> rusqlite::Result<Self> {
+    fn init(mut db: Connection) -> rusqlite::Result<Self> {
+        // The core and the app window can open an old file at the same moment, so the
+        // replacement runs under the write lock and looks at the layout again once it has it.
+        let tx = db.transaction_with_behavior(TransactionBehavior::Immediate)?;
         // A table from before expiry times were stored (v0.1.5) is only a cache: start afresh.
-        let cols = db
+        let cols = tx
             .prepare("SELECT name FROM pragma_table_info('remote_cache')")?
             .query_map([], |r| r.get::<_, String>(0))?
             .collect::<rusqlite::Result<Vec<_>>>()?;
         if !cols.is_empty() && !cols.iter().any(|c| c == "expires") {
-            db.execute_batch("DROP TABLE remote_cache;")?;
+            tx.execute_batch("DROP TABLE remote_cache;")?;
         }
-        db.execute_batch(SCHEMA)?;
+        tx.execute_batch(SCHEMA)?;
+        tx.commit()?;
         Ok(Cache { db })
     }
 
@@ -101,6 +105,34 @@ mod tests {
         assert_eq!(c.get("k", 15).unwrap(), None, "expired at fetched + ttl");
         // Opening it again keeps what is there.
         assert_eq!(Cache::open(&path).unwrap().len().unwrap(), 1);
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn two_openers_of_a_v015_file_both_get_the_file_backed_cache() {
+        let dir = std::env::temp_dir().join(format!("astromech-data-race-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        for round in 0..50 {
+            let path = dir.join(format!("remote{round}.db"));
+            Connection::open(&path)
+                .unwrap()
+                .execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE remote_cache(key TEXT PRIMARY KEY, fetched INTEGER NOT NULL, body TEXT NOT NULL);")
+                .unwrap();
+            let gate = std::sync::Arc::new(std::sync::Barrier::new(2));
+            let openers: Vec<_> = (0..2)
+                .map(|_| {
+                    let (path, gate) = (path.clone(), gate.clone());
+                    std::thread::spawn(move || {
+                        gate.wait();
+                        Cache::open(&path).map(|_| ())
+                    })
+                })
+                .collect();
+            for o in openers {
+                o.join().unwrap().expect("both openers keep the file-backed cache");
+            }
+        }
         let _ = std::fs::remove_dir_all(dir);
     }
 
