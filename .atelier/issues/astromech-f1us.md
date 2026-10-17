@@ -3,6 +3,9 @@ created_at: "2026-10-16T22:14:30.718314856+00:00"
 id: "astromech-f1us"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-f1us
 priority: "P2"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "On foot: owned suits and weapons with their grades and mods"
-updated_at: "2026-10-16T22:14:30.718314856+00:00"
+updated_at: "2026-10-17T05:09:50.402071312+00:00"
 ---
 
 ## Goal
