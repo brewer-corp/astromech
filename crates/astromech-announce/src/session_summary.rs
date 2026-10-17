@@ -16,6 +16,9 @@
 //! clock tick asks the history, and asks again until it holds the line that ended the session
 //! (its `end` is not before it), giving up after [`WAIT_SECS`]. It speaks once per session: a
 //! `Shutdown` after a return to the menu says nothing new, and the next `LoadGame` starts over.
+//! It arms on a `LoadGame` seen live, or when the startup catch-up ends inside a logged-in
+//! session, so starting astromech mid-session still summarises that session at its logout; a
+//! fresh launch's menu, before any login, says nothing.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -112,9 +115,11 @@ struct Ended {
     pending: Option<(Option<String>, String, Option<i64>)>,
     /// The session already said its summary.
     spoken: bool,
-    /// A `LoadGame` was seen live in this run. The game writes `Music` `MainMenu` at launch, and
-    /// possibly after `Commander` and before `LoadGame`, when the state still holds the
-    /// previous session: nothing ends a session that this run has not seen begin.
+    /// A session is going on that this run has seen begin: a `LoadGame` seen live, or one in
+    /// the startup catch-up with no logout after it (astromech started mid-session). The game
+    /// writes `Music` `MainMenu` at launch, and possibly after `Commander` and before
+    /// `LoadGame`, when the state still holds the previous session: nothing ends a session
+    /// that this run has not seen begin.
     armed: bool,
 }
 
@@ -149,6 +154,11 @@ impl Rule for SessionSummary {
     }
     fn cooldown(&self) -> Duration {
         Duration::ZERO
+    }
+    fn replayed(&self, input: &Input, state: &GameState) {
+        if matches!(input, Input::Journal(_)) {
+            *self.ended.lock().unwrap() = Ended { armed: state.logged_in, ..Ended::default() };
+        }
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
         self.react_all(input, state).into_iter().next()

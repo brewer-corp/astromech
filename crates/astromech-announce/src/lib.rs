@@ -127,6 +127,10 @@ pub trait Rule: Send {
     /// others adjust to.
     fn configured(&self, _enabled: bool) {}
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
+    /// Told of each input the engine is not live for (the startup catch-up, replayed lines),
+    /// with the state after it, for rules that must know where the catch-up left things. It
+    /// must not speak.
+    fn replayed(&self, _input: &Input, _state: &GameState) {}
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
@@ -394,6 +398,9 @@ impl Engine {
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
         if !self.live {
+            for s in self.slots.iter().filter(|s| s.enabled) {
+                s.rule.replayed(input, state);
+            }
             return vec![];
         }
         let mut out = vec![];

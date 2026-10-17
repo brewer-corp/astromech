@@ -142,6 +142,10 @@ pub struct GameState {
     pub missions: Vec<Mission>,
     #[serde(skip)]
     pub companions: Companions,
+    /// In a logged-in session: set by `LoadGame`, cleared by `Shutdown` and the `Music`
+    /// `MainMenu` that follows a logout. False at a fresh launch until the login.
+    #[serde(skip)]
+    pub logged_in: bool,
 }
 
 impl GameState {
@@ -165,8 +169,16 @@ impl GameState {
         if let Some(s) = astromech_powerplay::SystemPower::from_event(ev) {
             self.system_power = s;
         }
+        if let JournalEvent::Other { event, raw } = ev {
+            if event == "Shutdown"
+                || (event == "Music" && raw.get("MusicTrack").and_then(|t| t.as_str()) == Some("MainMenu"))
+            {
+                self.logged_in = false;
+            }
+        }
         match ev {
             JournalEvent::LoadGame { commander, ship, ship_name, ship_ident, credits } => {
+                self.logged_in = true;
                 self.commander = Some(commander.clone());
                 self.ship = ship.clone();
                 if ship_name.is_some() {

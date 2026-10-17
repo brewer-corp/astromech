@@ -133,3 +133,35 @@ fn a_menu_before_the_login_of_a_fresh_launch_says_nothing() {
     r.spoken(MENU);
     assert_eq!(r.tick(NOW), SAID);
 }
+
+#[test]
+fn a_start_in_the_middle_of_a_session_summarises_it_at_the_live_shutdown() {
+    // astromech starts after the login: the catch-up holds the `LoadGame`, only the end is live.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(true);
+    assert!(r.tick(NOW - 5).is_empty());
+    r.spoken(SHUTDOWN);
+    assert_eq!(r.tick(NOW), SAID);
+    assert!(r.tick(NOW + 1).is_empty(), "once");
+
+    // Same when the end is the first live thing, with no tick before it.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert_eq!(r.tick(NOW), SAID);
+}
+
+#[test]
+fn a_session_that_ended_before_astromech_started_is_not_summarised_again() {
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(MENU);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert!(r.tick(NOW).is_empty());
+}
