@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_FILTERS } from "./search";
-import { cargoResults, credits, findCommodity, suggestCommodities, toResults, tradeCargo, tradeSearch } from "./trade";
+import { cargoResults, credits, findCommodity, suggestCommodities, toResults, tradeAnywhere, tradeCargo, tradeSearch } from "./trade";
 
 describe("trade lookups", () => {
   it("finds commodities by name, alias or symbol", () => {
@@ -31,5 +31,16 @@ describe("trade lookups", () => {
     expect(r.rows[0]).toMatchObject({ station: "Good Landing", lead: "183,674,700 cr", detail: "takes all 600 t" });
     expect(r.rows.find((x) => x.station === "Tevis Terminal")?.detail).toBe("takes 500 of 600 t");
     expect(c.plan.kept.map((k) => k.reason)).toEqual(["stolen", "limpets", "mission cargo"]);
+  });
+
+  it("lists the best prices anywhere with no search radius, cheapest first when buying", async () => {
+    const sell = toResults(await tradeAnywhere("sell", "painite", null, { ...DEFAULT_FILTERS, max_distance_ly: 10 }));
+    expect(sell.rows[0]).toMatchObject({ station: "FCX-800", system: "Chamaeleon Sector HR-W d1-42", lead: "390,780 cr", detail: "demand 1,632 · fleet carrier", updated_at: "2026-09-18T09:39:20.000Z" });
+    expect(sell.rows[0]?.ly).toBeGreaterThan(500);
+    expect(sell.rows).toHaveLength(12);
+    const buy = toResults(await tradeAnywhere("buy", "tritium", "Colonia", { ...DEFAULT_FILTERS, exclude_carriers: true }));
+    expect(buy.origin).toBe("Colonia");
+    expect(buy.rows[0]).toMatchObject({ station: "Piceous Elicitation Ltd", lead: "40,596 cr" });
+    expect(buy.rows.every((x, i) => i === 0 || Number(x.lead?.replace(/\D/g, "")) >= Number(buy.rows[i - 1]?.lead?.replace(/\D/g, "")))).toBe(true);
   });
 });

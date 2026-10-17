@@ -1,6 +1,6 @@
 /**
- * Trade lookups (astromech-market): where to sell or buy a commodity near a system, best price
- * first, and where to sell the cargo in the hold, from Ardent Insight through the shell. The
+ * Trade lookups (astromech-market): where to sell or buy a commodity near a system or anywhere
+ * in the galaxy, best price first, and where to sell the cargo in the hold, from Ardent Insight through the shell. The
  * browser preview answers from recorded searches and a fixture hold (fixtures/trade.json) with
  * the filters applied roughly.
  */
@@ -115,6 +115,20 @@ export async function tradeSearch(side: Side, symbols: string[], origin: Origin 
     ...s,
     here: origin ? { ...s.here, system: origin } : s.here,
     results: symbols.map((c) => ({ ...p, commodity: c, offers: p.offers.filter(keep).map((o) => ({ ...o, commodity: c })) })),
+  };
+}
+
+/** Where to sell or buy `symbol` anywhere in the galaxy (Ardent's best 100), distances from `origin` or the commander. */
+export async function tradeAnywhere(side: Side, symbol: string, origin: Origin = null, filters: Filters | null = null): Promise<TradeSearch> {
+  if (inTauri) return await invoke<TradeSearch>("trade_anywhere", { side, commodity: symbol, origin, filters });
+  const s = (sample as unknown as { anywhere: Record<Side, TradeSearch> }).anywhere[side];
+  const [p] = s.results;
+  if (!p) return s;
+  const keep = (o: Offer) => !filters || previewKeeps(o, { ...filters, max_distance_ly: Infinity }, p.fetched_at * 1000);
+  return {
+    ...s,
+    here: origin ? { ...s.here, system: origin } : s.here,
+    results: [{ ...p, commodity: symbol, offers: p.offers.filter(keep).map((o) => ({ ...o, commodity: symbol })) }],
   };
 }
 

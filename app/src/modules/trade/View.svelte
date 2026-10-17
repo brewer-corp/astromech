@@ -1,6 +1,6 @@
 <script lang="ts">
-  // Where to sell or buy one commodity near you (or a typed system), best price first, with
-  // demand or stock, pad, arrival distance and data age; and where to sell the cargo in the
+  // Where to sell or buy one commodity near you (or a typed system) or anywhere in the galaxy,
+  // best price first, with demand or stock, pad, arrival distance and data age; and where to sell the cargo in the
   // hold, as a whole load and per commodity. Each mode remembers its own filters, which voice
   // questions use too.
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -14,6 +14,7 @@
     DEFAULT_MAX_AGE_DAYS,
     findCommodity,
     toResults,
+    tradeAnywhere,
     tradeCargo,
     tradeSearch,
     type CargoPlan,
@@ -24,6 +25,8 @@
 
   type Mode = Side | "cargo";
   let mode = $state<Mode>("sell");
+  /** Sell and Buy: near the origin, or anywhere in the galaxy. */
+  let anywhere = $state(false);
   let commodity = $state<Commodity>(findCommodity("painite")!);
   /** The last cargo plan, for the per-commodity list under the whole-load stations. */
   let plan = $state<CargoPlan | null>(null);
@@ -38,6 +41,7 @@
         return cargoResults(r);
       };
     }
+    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(m, c, origin, filters));
     return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeSearch(m, [c], origin, filters));
   });
 
@@ -86,17 +90,27 @@
         </ul>
       {/if}
     {:else}
-      <p class="sub">
-        {mode === "sell" ? "Stations buying" : "Stations selling"} {commodity.name}, {mode === "sell" ? "highest" : "lowest"} price first. Ask by voice too: "where can I {mode} {commodity.name.toLowerCase()}".
-      </p>
+      <div class="scope">
+        <button class:on={!anywhere} onclick={() => (anywhere = false)}>Near</button>
+        <button class:on={anywhere} onclick={() => (anywhere = true)}>Anywhere</button>
+      </div>
+      {#if anywhere}
+        <p class="sub">
+          {mode === "sell" ? "Stations buying" : "Stations selling"} {commodity.name} anywhere in the galaxy, {mode === "sell" ? "highest" : "lowest"} price first: Ardent Insight's best 100 that pass the filters, with distances from you.
+        </p>
+      {:else}
+        <p class="sub">
+          {mode === "sell" ? "Stations buying" : "Stations selling"} {commodity.name}, {mode === "sell" ? "highest" : "lowest"} price first. Ask by voice too: "where can I {mode} {commodity.name.toLowerCase()}".
+        </p>
+      {/if}
       <CommodityInput value={commodity} onchange={(c) => (commodity = c)} />
       <SearchKit
-        lookup={`trade.${mode}`}
-        offers={["distance", "volume", "pad", "age", "arrival", "carriers", "odyssey"]}
+        lookup={anywhere ? `trade.${mode}.anywhere` : `trade.${mode}`}
+        offers={anywhere ? ["volume", "pad", "age", "arrival", "carriers", "odyssey"] : ["distance", "volume", "pad", "age", "arrival", "carriers", "odyssey"]}
         hints={{ volume: mode === "sell" ? "Demand" : "Stock", distance: DEFAULT_DISTANCE_LY, age: DEFAULT_MAX_AGE_DAYS }}
         {run}
-        title={mode === "sell" ? "Best prices" : "Cheapest"}
-        joiner="near"
+        title={`${mode === "sell" ? "Best prices" : "Cheapest"}${anywhere ? " anywhere" : ""}`}
+        joiner={anywhere ? "· distances from" : "near"}
         busyText="Asking Ardent Insight…"
       />
     {/if}
@@ -110,6 +124,10 @@
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
+  .scope { display: flex; gap: 16px; margin: 0 0 8px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .scope button { color: var(--text-lo); }
+  .scope button:hover { color: var(--text); }
+  .scope .on { color: var(--accent); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
   .hold { font-size: var(--fs-s); margin: 0 0 8px; color: var(--text); }
   .main { max-width: 40rem; }

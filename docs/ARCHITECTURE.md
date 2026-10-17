@@ -255,11 +255,11 @@ astromech/
                          its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
-                         jumps from astromech-galaxy), the commodity catalogue (data/catalog/commodities.json),
+                         jumps from astromech-galaxy) or anywhere (Ardent's best 100), the commodity catalogue (data/catalog/commodities.json),
                          the cargo sale plan (whole load within demand caps, best per commodity), and where
                          to buy a shopping list (stations stocking most of it first, then nearest)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron route jobs),
-                         Ardent Insight (nearby commodity, nearest service, markets), EDSM (system,
+                         Ardent Insight (nearby and galaxy-wide commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)
     astromech-eddn/      EDDN sender (written from EDCD docs/Developers.md, not EDMC): message builder
@@ -1732,7 +1732,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M3** | **Engineering & materials** | `astromech-materials`, `astromech-engineering`, `astromech-odyssey` | "How many raw mats do I have?", "what do I need for G5 FSD increased range?", "what can I trade arsenic for?", engineer unlock status |
 | **M4** | **Logbook & history** | `astromech-history` (FTS) | "How much did I earn today?", "have I been to this system?", "when did I last dock at Jameson Memorial?" |
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
-| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters; "where should I sell my cargo" (astromech-sd56) plans the hold from `Cargo.json`: whole-load proceeds within demand caps, plus the single-commodity lookup per commodity |
+| **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters; "where should I sell my cargo" (astromech-sd56) plans the hold from `Cargo.json`: whole-load proceeds within demand caps, plus the single-commodity lookup per commodity. **Anywhere** (astromech-d1lo, app only): Sell and Buy can switch to the galaxy-wide best price (`astromech_market::anywhere`, Ardent's `/v2/commodity/name/{c}/imports` or `/exports`: the best 100, observed 17 Oct 2026; it applies data age, fleet carriers and minimum volume, and ignores distance and pad, so the pad and Odyssey filters are applied locally and can shorten the list). No search radius; distances are from the origin, jumps are straight-line estimates. Remembered as `trade.sell.anywhere` and `trade.buy.anywhere` |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
 | Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?" |
 | M8+ | Missions/CGs, Fleet carrier, Galaxy map, 3D ship | — | Deferred |
