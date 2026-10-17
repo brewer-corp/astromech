@@ -3,7 +3,8 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, scan, signals,
+    arrival, builtin, discovery, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route,
+    scan, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -29,6 +30,7 @@ fn callout_lines() -> Vec<String> {
         ids,
         [
             "arrival",
+            "discovery",
             "docking",
             "fuel_range",
             "hge",
@@ -136,8 +138,55 @@ fn callout_lines() -> Vec<String> {
     ] {
         v.push(docking::denied_line(Some(reason)));
     }
+    v.extend(discovery_lines());
     v.sort();
     v.dedup();
+    v
+}
+
+/// The discovery callout for every planet class, terraformable or not, from the smallest value
+/// it can have to the largest (a heavy first-discovered body).
+fn discovery_lines() -> Vec<String> {
+    let classes = [
+        "Metal rich body",
+        "High metal content body",
+        "Rocky body",
+        "Icy body",
+        "Rocky ice body",
+        "Earthlike body",
+        "Water world",
+        "Ammonia world",
+        "Water giant",
+        "Water giant with life",
+        "Gas giant with water based life",
+        "Gas giant with ammonia based life",
+        "Sudarsky class I gas giant",
+        "Sudarsky class II gas giant",
+        "Sudarsky class III gas giant",
+        "Sudarsky class IV gas giant",
+        "Sudarsky class V gas giant",
+        "Helium rich gas giant",
+        "Helium gas giant",
+    ];
+    let mut v = vec![];
+    for class in classes {
+        for tf in ["", "Terraformable"] {
+            for mass in [0.001, 1.0, 5000.0] {
+                for new in [false, true] {
+                    let b = astromech_journal::ScanBody {
+                        scan_type: "Detailed".into(),
+                        planet_class: Some(class.into()),
+                        terraform_state: Some(tf.into()),
+                        mass_em: Some(mass),
+                        was_discovered: Some(!new),
+                        was_mapped: Some(!new),
+                        ..Default::default()
+                    };
+                    v.extend(discovery::line(&b));
+                }
+            }
+        }
+    }
     v
 }
 
@@ -340,6 +389,7 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Reinforcement 1234, undermining 5678."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Undermining target."));
+    assert!(callouts.iter().any(|l| l.starts_with("Terraformable high metal content world. ")), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));

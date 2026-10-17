@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "High-value discovery alert"
-updated_at: "2026-10-17T04:39:42.972549795+00:00"
+updated_at: "2026-10-17T04:57:52.090523623+00:00"
 ---
 
 ## Goal

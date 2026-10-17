@@ -268,9 +268,10 @@ pub fn class_name(class: &str, subclass: Option<i64>) -> String {
             return format!("{class}{} star", subclass.map(|s| s.to_string()).unwrap_or_default())
         }
         c if value::is_white_dwarf(c) => return format!("White dwarf ({c})"),
-        c if c.starts_with('W') => "Wolf-Rayet star",
+        // Star types are short codes; planet classes are words ("Water world").
+        c if c.starts_with('W') && c.len() <= 3 => "Wolf-Rayet star",
         "MS" | "S" => "S-type star",
-        c if c.starts_with('C') => "Carbon star",
+        c if c.starts_with('C') && c.len() <= 3 => "Carbon star",
         c => c,
     };
     fixed.to_string()
@@ -300,6 +301,9 @@ mod tests {
         assert_eq!(class_name("G", Some(2)), "G2 star");
         assert_eq!(class_name("DAB", Some(5)), "White dwarf (DAB)");
         assert_eq!(class_name("WNC", None), "Wolf-Rayet star");
+        assert_eq!(class_name("CHd", None), "Carbon star");
+        assert_eq!(class_name("Water world", None), "Water world");
+        assert_eq!(class_name("Water giant", None), "Water giant");
         assert_eq!(class_name("Y", None), "Brown dwarf (Y)");
         assert_eq!(class_name("Something new", None), "Something new");
     }

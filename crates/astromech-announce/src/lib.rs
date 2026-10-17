@@ -22,7 +22,7 @@
 //! game state after it, never the replayed history; the few that remember something between
 //! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`] and [`signals`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`] and [`discovery`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::MarketSnap;
@@ -140,6 +140,7 @@ pub trait Rule: Send {
 }
 
 pub mod arrival;
+pub mod discovery;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
@@ -186,6 +187,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(missions::Missions::default()),
         Box::new(project_market::ProjectMarket),
         Box::new(signals::Signals::default()),
+        Box::new(discovery::Discovery::default()),
     ]
 }
 
