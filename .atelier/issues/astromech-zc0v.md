@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:24:35.428483387+00:00"
+status: "done"
 title: "EDDN outbox migrations can run twice when two connections open an old file together"
-updated_at: "2026-10-17T05:20:55.023212333+00:00"
+updated_at: "2026-10-17T05:24:35.428483387+00:00"
 ---
 
 ## Goal
@@ -33,3 +34,7 @@ A test with two connections migrating the same old file at once runs each migrat
 ## Context
 
 From review finding astromech-1ca1 on astromech-8ozh (found by reading, not reproduced).
+
+## Close Reason
+
+Outbox migrations now run through astromech_store::migrate (BEGIN IMMEDIATE); two-connection test passes
