@@ -9,9 +9,9 @@ import { loadMining } from "./mining";
 beforeEach(() => status.mockReset());
 
 describe("loadMining in the app", () => {
-  it("is null while the core is not running, and while no session has a run", async () => {
+  it("rejects while the core does not answer, and is null while no session has a run", async () => {
     status.mockResolvedValue(null);
-    expect(await loadMining()).toBeNull();
+    await expect(loadMining()).rejects.toThrow("the core did not answer");
     status.mockResolvedValue({ mining: null });
     expect(await loadMining()).toBeNull();
   });

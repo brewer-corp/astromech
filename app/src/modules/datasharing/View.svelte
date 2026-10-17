@@ -42,10 +42,8 @@
   <Stale error={eddn ? failed : null} />
   {#if !loaded}
     <p class="lo">Reading the sharing log…</p>
-  {:else if failed && !eddn}
-    <p class="lo">{failed}</p>
   {:else if !eddn}
-    <p class="lo">astromech's background process isn't running, so sharing can't be shown. It starts with this window; if this stays, see Diagnostics.</p>
+    <p class="lo">{failed}</p>
   {:else}
     <h3>EDDN</h3>
     <dl>

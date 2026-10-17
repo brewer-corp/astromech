@@ -122,6 +122,8 @@
       Manager, not in astromech's settings file.
     </p>
   </div>
+{:else if readErr}
+  <p class="lo">{readErr}</p>
 {/if}
 
 <style>

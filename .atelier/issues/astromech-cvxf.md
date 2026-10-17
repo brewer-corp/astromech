@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Two polls still fail silently: the trip planner's engineer list and the header status"
-updated_at: "2026-10-17T23:26:17.106327862+00:00"
+updated_at: "2026-10-17T23:30:24.661394485+00:00"
 ---
 
 ## Goal
@@ -29,3 +29,7 @@ The two remaining polls that swallow a failure show it, or are recorded as fine 
 ## Context
 
 Found while doing astromech-spxx, which covers every page whose data comes from a poll.
+
+## Notes
+
+- 2026-10-17 [note] Also check trade/Route.svelte:43: the loadDefaults catch falls back to FALLBACK_HOP_LY with no sign that the ship's range was not read. Not a poll; decide whether it needs a line.

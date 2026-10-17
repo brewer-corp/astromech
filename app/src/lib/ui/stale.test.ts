@@ -56,6 +56,7 @@ const PAGES: Page[] = [
   { name: "Station", view: Station as unknown as Component, data: /Test Orbital/, call: "docked_here", every: 5000 },
   { name: "Colonisation", view: Colonisation as unknown as Component, data: /Test Hub/, call: "colonisation_projects", every: 2000 },
   { name: "Exploration", view: Exploration as unknown as Component, data: /bodies scanned/, call: "exploration_system", every: 15000 },
+  { name: "Exploration (unsold)", view: Exploration as unknown as Component, data: /unsold since|Cartographic/, call: "exploration_unsold", every: 15000 },
   { name: "Exobiology", view: Exobiology as unknown as Component, data: /Stratum Tectonicas/, call: "exobiology", every: 2000 },
   { name: "Powerplay", view: Powerplay as unknown as Component, data: /Li Yong-Rui/, call: "powerplay_overview", every: 2000 },
   { name: "Data sharing", view: DataSharing as unknown as Component, data: /Waiting to send/, call: "eddn_log", every: 2000 },
@@ -80,5 +81,16 @@ describe.each(PAGES)("$name", (p) => {
     await vi.advanceTimersByTimeAsync(p.every);
     await waitFor(() => expect(screen.queryByText(/Could not/)).toBeNull());
     expect(document.body.textContent).toMatch(p.data);
+  });
+});
+
+// A first read that fails is the full error, not the stale line (the page has nothing to keep).
+describe.each(PAGES.filter((p) => p.name !== "Exploration (unsold)" && p.name !== "Diagnostics"))("$name, first read failing", (p) => {
+  it("says it could not read, and never says it could not refresh", async () => {
+    at(`?fail=${p.call}`);
+    render(p.view);
+    expect((await screen.findAllByText(/Could not read|failed on purpose/)).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Could not refresh/)).toBeNull();
+    expect(document.body.textContent).not.toMatch(p.data);
   });
 });

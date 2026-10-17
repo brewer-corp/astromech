@@ -21,6 +21,15 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+describe("EDSM, first read failing", () => {
+  it("says it could not read the status", async () => {
+    edsm.status.mockReset();
+    edsm.status.mockRejectedValue("the core is not running");
+    render(Edsm as unknown as Component);
+    expect(await screen.findByText("Could not read the EDSM status: the core is not running.")).toBeTruthy();
+  });
+});
+
 describe("pollFailure", () => {
   it("is the full error with nothing shown and 'Could not refresh' once there is data", () => {
     expect(pollFailure("read the fleet", "journal folder not found: C:\\x", false)).toBe("Could not read the fleet: journal folder not found: C:\\x.");
