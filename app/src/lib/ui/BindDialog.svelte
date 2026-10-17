@@ -2,7 +2,7 @@
   // Press-to-bind (docs/V1-DESIGN.md §3.3 "Bind this"): wait for one press, show what else uses
   // that control, then write it into the slot. Built-in presets are never edited: the first edit
   // makes a named copy in your Bindings folder. Every write makes a backup first.
-  import { api, type Press, type Row, type Slot } from "../binds";
+  import { api, isWindowClick, type Press, type Row, type Slot } from "../binds";
   import { binds } from "../store.svelte";
   import { control, slotText } from "../format";
   import { controlFor } from "../devices";
@@ -26,6 +26,8 @@
   $effect(() => {
     const p = binds.last;
     if (binds.presses === seen || !p || got) return;
+    // A click in this dialog arrives as Mouse_1; it is not the binding.
+    if (isWindowClick(p)) return;
     // Axes only for axis rows; buttons and keys for everything else.
     if ((p.kind === "axis") !== row.analogue) return;
     got = p;

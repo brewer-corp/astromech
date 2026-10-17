@@ -5,7 +5,7 @@
   import { binds } from "../../lib/store.svelte";
   import { slotText, bound, control } from "../../lib/format";
   import { controlFor } from "../../lib/devices";
-  import type { Issue, Row } from "../../lib/binds";
+  import { isWindowClick, type Issue, type Row } from "../../lib/binds";
   import About from "../../lib/ui/About.svelte";
   import BindDialog from "../../lib/ui/BindDialog.svelte";
   import PresetPicker from "../../lib/ui/PresetPicker.svelte";
@@ -57,9 +57,7 @@
     const p = binds.last;
     if (binds.presses === seen || !p || binds.capturing) return;
     seen = binds.presses;
-    // The window's own clicks reach Raw Input as Mouse_1-3 (INPUTSINK); a click isn't a game
-    // control. Side buttons (Mouse_4, Mouse_5) don't click, so they still find their bindings.
-    if (p.device === "Mouse" && /^Mouse_[123]$/.test(p.key)) return;
+    if (isWindowClick(p)) return;
     if (document.activeElement === search && p.device === "Keyboard") return;
     const rows = binds.rowsFor(p.device, p.key);
     const ctl = binds.state ? controlFor(p.device, p.key, binds.state.overrides) : undefined;
