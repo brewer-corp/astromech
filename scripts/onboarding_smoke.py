@@ -284,7 +284,8 @@ def smoke(a, run: Run, work: Path) -> None:
     # The game starts.
     game = work / "EliteDangerous64.exe"
     shutil.copy(a.mock, game)
-    mock = subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600"])
+    mock = subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
+                             str(a.mock_drop)])
     try:
         wait_core(lambda s: s.get("active") is True, "the core's session (game detected)", 30)
         run.step("game detected, session running")
@@ -334,6 +335,8 @@ def main(argv=None) -> int:
     p.add_argument("--setup", type=Path, required=True, help="the NSIS installer")
     p.add_argument("--mock", type=Path, required=True, help="mockgame.exe")
     p.add_argument("--out", type=Path, required=True)
+    p.add_argument("--mock-drop", type=int, default=0,
+                   help="fault injection: the mock drops its first N gear presses (the run must then fail)")
     a = p.parse_args(argv)
     if os.name != "nt":
         print("needs Windows")
