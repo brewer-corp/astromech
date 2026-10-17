@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T06:39:08.256858120+00:00"
+status: "done"
 title: "Session summary: a replay after the summary was said can let it be said again"
-updated_at: "2026-10-17T06:31:01.981831079+00:00"
+updated_at: "2026-10-17T06:39:08.256858120+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ A replay resets the session summary's "already spoken" flag: said at the menu, t
 ## Done when
 
 A replay test of that sequence speaks the summary once.
+
+## Close Reason
+
+Replay keeps the spoken flag; replay test added
