@@ -22,7 +22,7 @@
 //! game state after it, never the replayed history; the few that remember something between
 //! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`] and [`sampling`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`biology`], [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`], [`signals`] and [`sampling`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::MarketSnap;
@@ -140,6 +140,7 @@ pub trait Rule: Send {
 }
 
 pub mod arrival;
+pub mod biology;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
@@ -165,6 +166,9 @@ pub struct Shared {
     pub powerplay_spoken: powerplay_arrival::SharedFlag,
     /// The commander's visit history, for the arrival briefing (the core plugs it in).
     pub visits: arrival::SharedVisits,
+    /// Biology other players reported (Spansh), for the arrival's biology line (the core
+    /// plugs it in).
+    pub known_bio: biology::SharedKnownBio,
 }
 
 /// The rules that ship.
@@ -178,6 +182,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
             powerplay_spoken: shared.powerplay_spoken.clone(),
         }),
         Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
+        Box::new(biology::Biology::new(shared.known_bio.clone())),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),

@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "System biology summary"
-updated_at: "2026-10-17T04:39:43.464929514+00:00"
+updated_at: "2026-10-17T05:01:17.631365852+00:00"
 ---
 
 ## Goal

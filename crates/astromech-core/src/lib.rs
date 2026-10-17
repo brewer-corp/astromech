@@ -13,6 +13,8 @@
 //! - [`actions`]: optimistic confirmation and background verification against Status.json;
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
 //! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
+//! - [`biology`]: biology other players reported (Spansh) for the arrival briefing, and the
+//!   Biology page's view of the system (`exobiology`);
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
 //!   notifications);
@@ -27,6 +29,7 @@ pub mod actions;
 pub mod app;
 pub mod assistant;
 pub mod autostart;
+pub mod biology;
 pub mod calibration;
 pub mod callouts;
 pub mod config;

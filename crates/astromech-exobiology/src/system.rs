@@ -62,6 +62,19 @@ pub struct BodyBio {
     pub value: (i64, i64),
 }
 
+impl BodyBio {
+    /// The most valuable genus: (what to call it, the top of its value, exact). Exact when the
+    /// DSS or a sample says the genus is there and only one species fits; it is then named by
+    /// its species, otherwise by the genus.
+    pub fn best(&self) -> Option<(String, i64, bool)> {
+        let g = self.genera.iter().filter(|g| g.known || !self.mapped).max_by_key(|g| g.value.1)?;
+        Some(match g.species.as_slice() {
+            [one] if g.known => (one.species.to_string(), g.value.1, true),
+            _ => (g.genus.clone(), g.value.1, false),
+        })
+    }
+}
+
 /// The current system's biology.
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct SystemBio {
@@ -223,10 +236,11 @@ impl SystemBio {
         })
     }
 
-    /// Every body with biology, most valuable first (by the top of its value range).
+    /// Every body with biology, most valuable first: by the middle of its value range, so a
+    /// body with a sure 19 M ranks above one that might reach 25 M or be worth 5 M.
     pub fn ranked(&self) -> Vec<BodyBio> {
         let mut v: Vec<BodyBio> = self.bodies.values().filter_map(|b| self.body_bio(b)).collect();
-        v.sort_by(|a, b| b.value.1.cmp(&a.value.1).then(a.name.cmp(&b.name)));
+        v.sort_by(|a, b| crate::middle(b.value).cmp(&crate::middle(a.value)).then(a.name.cmp(&b.name)));
         v
     }
 }

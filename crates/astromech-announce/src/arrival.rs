@@ -19,8 +19,8 @@
 //!   as its own line after the others. The arrival being announced is not counted, and a
 //!   system the commander has never been to says nothing.
 //!
-//! A system with none of these gets nothing. Bodies known to EDSM and known biology are not
-//! part of the briefing yet.
+//! A system with none of these gets nothing. Known biology (Spansh) follows these lines from its
+//! own callout, [`crate::biology`]; bodies known to EDSM are not part of the briefing yet.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;

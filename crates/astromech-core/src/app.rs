@@ -623,6 +623,13 @@ impl Core {
                     Err(e) => json!({"ok": false, "error": e}),
                 }
             }
+            "exobiology" => match self.session.lock().unwrap().as_ref() {
+                Some(s) => {
+                    let known = s.shared.known_bio.get();
+                    crate::biology::view(&s.hub.snapshot(), known.as_deref())
+                }
+                None => json!({"ok": false, "error": "Elite isn't running."}),
+            },
             "eddn_log" => {
                 let cfg = self.cfg();
                 eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))

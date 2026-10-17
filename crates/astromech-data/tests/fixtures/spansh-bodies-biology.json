@@ -1,0 +1,143 @@
+{
+ "count": 2,
+ "from": 0,
+ "size": 50,
+ "results": [
+  {
+   "id64": 612512509680962384,
+   "body_id": 17,
+   "name": "Luhman 16 B 3",
+   "type": "Planet",
+   "subtype": "Rocky Ice world",
+   "system_name": "Luhman 16",
+   "system_id64": 22960358574928,
+   "system_x": 6.3125,
+   "system_y": 0.59375,
+   "system_z": 1.71875,
+   "distance": 0.0,
+   "distance_to_arrival": 1621.280996,
+   "is_landable": true,
+   "gravity": 0.258368614255124,
+   "atmosphere": "Thin Argon",
+   "surface_temperature": 78.917686,
+   "surface_pressure": 0.0190469215001234,
+   "signals": [
+    {
+     "count": 5,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 4,
+     "name": "Biological"
+    }
+   ],
+   "signals_updated_at": "2026-10-16T08:27:51Z",
+   "genuses": [
+    {
+     "name": "Fungoids"
+    },
+    {
+     "name": "Osseus"
+    },
+    {
+     "name": "Bacterial"
+    },
+    {
+     "name": "Fonticulus"
+    }
+   ],
+   "updated_at": "2026-10-17T04:03:10Z",
+   "landmarks": [
+    {
+     "type": "Bacterium",
+     "subtype": "Bacterium Vesicula",
+     "variant": "Lime",
+     "value": 1000000,
+     "latitude": -29.20983,
+     "longitude": -86.08608
+    },
+    {
+     "type": "Fonticulua",
+     "subtype": "Fonticulua Campestris",
+     "variant": "Mauve",
+     "value": 1000000,
+     "latitude": -29.20898,
+     "longitude": -86.08668
+    },
+    {
+     "type": "Fungoida",
+     "subtype": "Fungoida Bullarum",
+     "variant": "Orange",
+     "value": 3703200,
+     "latitude": -30.79722,
+     "longitude": -86.03614
+    },
+    {
+     "type": "Osseus",
+     "subtype": "Osseus Pumice",
+     "variant": "Yellow",
+     "value": 3156300,
+     "latitude": 36.6694,
+     "longitude": -95.18539
+    }
+   ]
+  },
+  {
+   "id64": 684570103718890320,
+   "body_id": 19,
+   "name": "Luhman 16 B 4",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Luhman 16",
+   "system_id64": 22960358574928,
+   "system_x": 6.3125,
+   "system_y": 0.59375,
+   "system_z": 1.71875,
+   "distance": 0.0,
+   "distance_to_arrival": 1834.012348,
+   "is_landable": true,
+   "gravity": 0.219789945956969,
+   "atmosphere": "Thin Argon",
+   "surface_temperature": 72.537575,
+   "surface_pressure": 0.0192238026844313,
+   "signals": [
+    {
+     "count": 18,
+     "name": "Planetary Mining Location"
+    },
+    {
+     "count": 2,
+     "name": "Biological"
+    }
+   ],
+   "signals_updated_at": "2026-10-17T04:17:32Z",
+   "genuses": [
+    {
+     "name": "Bacterial"
+    },
+    {
+     "name": "Fonticulus"
+    }
+   ],
+   "updated_at": "2026-10-17T04:17:33Z",
+   "landmarks": [
+    {
+     "type": "Bacterium",
+     "subtype": "Bacterium Vesicula",
+     "variant": "Gold",
+     "value": 1000000,
+     "latitude": -6.58992,
+     "longitude": 93.39907
+    },
+    {
+     "type": "Fonticulua",
+     "subtype": "Fonticulua Campestris",
+     "variant": "Mauve",
+     "value": 1000000,
+     "latitude": -13.64062,
+     "longitude": 156.36015
+    }
+   ]
+  }
+ ]
+}

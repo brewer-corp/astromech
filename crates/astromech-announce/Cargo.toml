@@ -17,8 +17,10 @@ astromech-status.workspace = true
 astromech-gamestate.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
+astromech-exobiology.workspace = true
 serde.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]
 toml = "0.9"
+serde_json.workspace = true

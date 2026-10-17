@@ -3,8 +3,8 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, sampling,
-    scan, signals,
+    arrival, biology, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route,
+    sampling, scan, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -30,6 +30,7 @@ fn callout_lines() -> Vec<String> {
         ids,
         [
             "arrival",
+            "biology",
             "docking",
             "fuel_range",
             "hge",
@@ -95,6 +96,22 @@ fn callout_lines() -> Vec<String> {
     }
     for next in [2, 3] {
         v.push(sampling::line(next));
+    }
+    for n in [1, 2, 99] {
+        v.push(biology::count_line(n, false));
+        v.push(biology::count_line(n, true));
+    }
+    // Every genus and species, on short and long body names, exact and not.
+    let labels = astromech_exobiology::catalog::genera()
+        .iter()
+        .flat_map(|g| std::iter::once(g.name.clone()).chain(g.species.iter().map(|s| s.name.clone())));
+    for label in labels {
+        for body in ["A 2", "12 d", "AB 1 c", "AB 1 c a"] {
+            for exact in [false, true] {
+                v.push(biology::body_line(body, &label, 16_777_215, exact));
+                v.push(biology::body_line(body, &label, 1_000_000, exact));
+            }
+        }
     }
     v.push(hge::line(None, &[]));
     for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {

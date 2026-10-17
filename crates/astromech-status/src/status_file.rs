@@ -27,6 +27,10 @@ pub const GUI_COMMS: u64 = 3;
 pub const GUI_ROLE: u64 = 4;
 pub const GUI_GALAXY: u64 = 6;
 pub const GUI_SYSTEM: u64 = 7;
+/// The Full Spectrum System scanner.
+pub const GUI_FSS: u64 = 9;
+/// The Detailed Surface Scanner (probes).
+pub const GUI_SAA: u64 = 10;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct StatusSnap {

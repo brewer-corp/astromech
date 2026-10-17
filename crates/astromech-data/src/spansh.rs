@@ -39,6 +39,11 @@
 //! - `nearest_populated_distance` (systems): `{"value": [min, max], "comparison": "<=>"}`;
 //! - `system_id64` (bodies): `{"value": [..]}`, every body of the listed systems (checked
 //!   17 Oct 2026: 40 systems, 257 bodies, all in them; `system_ids` and `system_id` are ignored).
+//!   With `signals: [{"name": ["Biological"]}]` it gives a system's bodies with biology (Luhman
+//!   16: its 2 of 26 bodies, 17 Oct 2026). Such a body carries `genuses: [{"name": "Bacterial"}]`
+//!   (the journal genus symbol's middle part) and its sampled species as `landmarks` with `type`
+//!   the genus, `subtype` the species and `value` its base value (several landmarks per
+//!   species, one per reported site).
 //!
 //! Systems answer colonisation as `is_colonised` (claimed by an architect, under construction
 //! included) and `is_being_colonised` (a construction site is active), each left out rather
@@ -241,6 +246,11 @@ impl Search {
     /// Systems with `min` to `max` people (`0, 0`: unpopulated).
     pub fn population(self, min: i64, max: i64) -> Self {
         self.filter("population", json!({ "value": [min.to_string(), max.to_string()], "comparison": "<=>" }))
+    }
+
+    /// Bodies with signals of this kind (`Biological`, `Geological`, ...).
+    pub fn signal(self, kind: &str) -> Self {
+        self.push("signals", json!({ "name": [kind] }))
     }
 
     /// Bodies in any of these systems.
@@ -504,6 +514,9 @@ pub struct Landmark {
     pub latitude: Option<f64>,
     #[serde(default)]
     pub longitude: Option<f64>,
+    /// Exobiology species (`type` the genus, `subtype` the species): their base value in credits.
+    #[serde(default)]
+    pub value: Option<i64>,
 }
 
 /// One element's share of a landable body's surface, in percent.
@@ -537,6 +550,9 @@ impl Ring {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Body {
     pub id64: i64,
+    /// The body's `BodyID` within its system (the journal's).
+    #[serde(default)]
+    pub body_id: Option<i64>,
     pub name: String,
     #[serde(rename = "type")]
     pub body_type: String,
@@ -558,6 +574,10 @@ pub struct Body {
     pub terraforming_state: Option<String>,
     #[serde(default)]
     pub signals: Vec<Signal>,
+    /// Exobiology genera reported from the DSS, by the journal symbol's middle part
+    /// (`Bacterial`, `Fonticulus`, `Shrubs`, ...).
+    #[serde(default)]
+    pub genuses: Vec<Named>,
     #[serde(default)]
     pub rings: Vec<Ring>,
     #[serde(default)]

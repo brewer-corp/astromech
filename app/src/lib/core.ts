@@ -140,7 +140,9 @@ export type CoreCmd =
   | "prospector_thresholds"
   | "prospector_set"
   // Engineering → the arrival briefing's shopping list (core: callouts.rs).
-  | "shopping_set";
+  | "shopping_set"
+  // Galaxy → Biology: the system's biology and the sampling in progress (core: biology.rs).
+  | "exobiology";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };

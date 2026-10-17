@@ -1027,6 +1027,7 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "prospector_thresholds",
         "prospector_set",
         "shopping_set",
+        "exobiology",
         "find_elite",
         "set_ptt",
         "set_kill_switch",

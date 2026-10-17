@@ -8,6 +8,7 @@
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
 import eddnSample from "./fixtures/eddn-log.json";
+import biologySample from "./fixtures/exobiology.json";
 
 export type Scenario = "empty" | "new" | "ready";
 
@@ -272,6 +273,9 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
     case "onboarding_done":
       st.onboarded = true;
       return { ok: true };
+    case "exobiology":
+      // Only a session (Elite running) has a system; `ready` is in one.
+      return st.scenario === "ready" ? { ...biologySample } : { ok: false, error: "Elite isn't running." };
     default:
       return { ok: true };
   }

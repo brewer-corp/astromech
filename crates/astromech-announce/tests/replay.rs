@@ -157,6 +157,18 @@ impl Replay {
         self.record(rs);
     }
 
+    /// Status.json with the GUI focus `gui` (9: the FSS scanner).
+    fn focus(&mut self, ts: &str, gui: u64) {
+        let s = parse_status(
+            format!(r#"{{"timestamp":"{ts}","event":"Status","Flags":16777216,"GuiFocus":{gui}}}"#).as_bytes(),
+        )
+        .unwrap();
+        self.state.apply_status(&s);
+        let now = self.at(ts);
+        let rs = self.engine.status(&s, &self.state, now);
+        self.record(rs);
+    }
+
     fn spoken(&self) -> Vec<String> {
         self.out.iter().filter(|o| o.2).map(|o| o.1.clone()).collect()
     }
@@ -340,6 +352,10 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"MaterialCollected","Category":"Raw","Name":"arsenic","Count":250}}"#
         ),
+        // A body with biology in the FSS; leaving the FSS (`focus`) gives the summary.
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"FSSBodySignals","BodyName":"A A 2","BodyID":5,"Signals":[{{"Type":"$SAA_SignalType_Biological;","Count":2}}]}}"#
+        ),
         // The first sample of a Stratum (500 m); the walk away is in Status.json (`on_foot`).
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:49Z","event":"ScanOrganic","ScanType":"Log","Genus":"$Codex_Ent_Stratum_Genus_Name;","Species":"$Codex_Ent_Stratum_07_Name;","Species_Localised":"Stratum Tectonicas","SystemAddress":1,"Body":5}}"#
@@ -350,7 +366,7 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 14, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 15, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -359,6 +375,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     r.on_foot("2026-10-16T19:59:00Z", 0.0);
     r.journal(&one_line_per_rule("19:59").join("\n"));
     r.on_foot("2026-10-16T19:59:50Z", 1.0);
+    r.focus("2026-10-16T19:59:51Z", 9);
+    r.focus("2026-10-16T19:59:52Z", 0);
     // The route file read at startup.
     let rs =
         r.engine.route(&astromech_journal::parse_nav_route(route).unwrap(), &r.state, r.at("2026-10-16T19:59:50Z"));
@@ -370,6 +388,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     r.on_foot("2026-10-16T20:00:00Z", 0.0);
     r.journal(&one_line_per_rule("20:00").join("\n"));
     r.on_foot("2026-10-16T20:00:49Z", 0.6);
+    r.focus("2026-10-16T20:00:50Z", 9);
+    r.focus("2026-10-16T20:00:51Z", 0);
     // A new route once live.
     let replot = br#"{"Route":[{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"},{"StarSystem":"B","StarPos":[60,0,0],"StarClass":"M"},{"StarSystem":"C","StarPos":[80,0,0],"StarClass":"K"}]}"#;
     let replot = astromech_journal::parse_nav_route(replot).unwrap();
@@ -392,6 +412,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Megaship in system.",
             "Arsenic at 250/250.",
             "Far enough for sample 2.",
+            "Biology on 1 body.",
+            "A 2: Stratum Tectonicas, 19 M.",
             "Route: 3 jumps, 60 ly.",
             "Mission expires within an hour.",
         ]

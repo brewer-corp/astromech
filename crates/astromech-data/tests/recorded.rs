@@ -344,6 +344,28 @@ fn spansh_searches_parse_recorded_answers() {
     assert_eq!(bodies[0].name, "Earth");
     assert_eq!(bodies[0].subtype.as_deref(), Some("Earth-like world"));
     assert_eq!(bodies[0].signals[0].name, "Human");
+
+    // A system's bodies with biology (recorded 17 Oct 2026: Luhman 16, trimmed).
+    rec.on("/api/bodies/search", 200, fixture!("spansh-bodies-biology.json"));
+    let q =
+        Search::near(Reference::Coords([6.3125, 0.59375, 1.71875])).in_systems(&[22960358574928]).signal("Biological");
+    let bodies = c.spansh_bodies(&q).unwrap().value.results;
+    let (_, req) = rec.last();
+    let sent: serde_json::Value = match &req.body {
+        astromech_data::Body::Json(v) => v.clone(),
+        other => panic!("{other:?}"),
+    };
+    assert_eq!(sent["filters"]["signals"], serde_json::json!([{ "name": ["Biological"] }]));
+    assert_eq!(sent["filters"]["system_id64"], serde_json::json!({ "value": [22960358574928i64] }));
+    let b3 = &bodies[0];
+    assert_eq!((b3.name.as_str(), b3.body_id), ("Luhman 16 B 3", Some(17)));
+    assert_eq!(b3.signals.iter().find(|s| s.name == "Biological").map(|s| s.count), Some(4));
+    assert_eq!(
+        b3.genuses.iter().map(|g| g.name.as_str()).collect::<Vec<_>>(),
+        ["Fungoids", "Osseus", "Bacterial", "Fonticulus"]
+    );
+    let osseus = b3.landmarks.iter().find(|l| l.landmark_type == "Osseus").unwrap();
+    assert_eq!((osseus.subtype.as_str(), osseus.value), ("Osseus Pumice", Some(3_156_300)));
 }
 
 #[test]

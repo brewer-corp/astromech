@@ -158,6 +158,9 @@ impl Session {
             Err(_) => astromech_announce::Shared::default(),
         };
         shared.visits.set(Arc::new(crate::visits::HistoryVisits::new(data.join(crate::history::DB_FILE))));
+        shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
+            astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
+        ))));
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
