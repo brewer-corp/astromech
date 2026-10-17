@@ -22,9 +22,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:14:42.725712735+00:00"
+status: "done"
 title: "Core reads the journal only on file notifications"
-updated_at: "2026-10-17T17:14:36.247525388+00:00"
+updated_at: "2026-10-17T17:14:42.725712735+00:00"
 ---
 
 ## Goal
@@ -42,3 +43,7 @@ The core applies a line appended to the open journal within 1 s without any Stat
 ## Notes
 
 - 2026-10-17 [note] Root cause: the pipeline loop only read files in response to notify events; the 250 ms recv_timeout arm did nothing, so any lost or late Windows notification (for the open journal) left the journal unread while docked and idle. Fix: Tailer::on_idle on timeout reads the tail (open + read at offset; a no-op when nothing was appended) and looks for a new journal once a second. Same class as astromech-ogq4 (work done only when told). Unverified on real Windows.
+
+## Close Reason
+
+Tailer::on_idle reads the journal tail on every 250 ms timeout and scans for a new journal each second; tests a_line_appended_to_the_open_journal_is_applied_when_idle and an_idle_pipeline_follows_a_new_journal_within_a_second (mutation-checked). Not verified on real Windows; review outstanding.
