@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-17T19:25:50.972755257+00:00"
+status: "done"
 title: "Spoken lines that break the copy guide are not covered by copy.rs"
-updated_at: "2026-10-17T19:08:38.196880886+00:00"
+updated_at: "2026-10-17T19:25:50.972755257+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ V1-DESIGN 6.5 says no contractions and little "I", but several spoken lines have
 ## Done when
 
 The lines are reworded to the guide, and copy.rs covers every fixed phrase and the lookup and policy replies so a new one cannot slip in. Found while writing the user guide.
+
+## Close Reason
+
+Done-when met: Lines reworded to the guide and copy.rs covers every fixed phrase, lookup, policy, service and help line plus a source backstop; PR 120; see evidence
