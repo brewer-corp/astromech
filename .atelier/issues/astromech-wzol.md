@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:25:35.069687129+00:00"
+status: "done"
 title: "Session summary voice query: say when the history couldn't be read"
-updated_at: "2026-10-17T05:20:57.834029592+00:00"
+updated_at: "2026-10-17T05:25:35.069687129+00:00"
 ---
 
 ## Goal
@@ -33,3 +34,7 @@ A test with a locked history database gets a can't-read answer (or the retried a
 ## Context
 
 Review finding astromech-no3f on astromech-oo8y.
+
+## Close Reason
+
+Voice query says the history is unreadable on a lost lock, busy database or read error; tests added
