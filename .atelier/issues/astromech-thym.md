@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-thym
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One bad value in astromech.toml resets every setting to default"
-updated_at: "2026-10-17T17:38:28.852514380+00:00"
+updated_at: "2026-10-17T18:34:18.250861244+00:00"
 ---
 
 ## Goal

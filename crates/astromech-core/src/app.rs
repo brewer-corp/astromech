@@ -38,6 +38,15 @@ pub enum Ui {
     Quit,
 }
 
+/// What Settings → Files says about the values `astromech.toml` had wrong.
+fn config_problems_note(problems: &[crate::config::Problem]) -> Option<String> {
+    if problems.is_empty() {
+        return None;
+    }
+    let list: Vec<String> = problems.iter().map(|p| p.to_string()).collect();
+    Some(format!("These config values were ignored and are at their defaults: {}.", list.join("; ")))
+}
+
 /// Shared state; the tray reads it, the watcher and control API write it.
 pub struct Core {
     pub app_dir: PathBuf,
@@ -49,7 +58,11 @@ pub struct Core {
     /// Kokoro for Settings' voice preview while no session runs (released when one starts, or
     /// after a minute unused).
     pub preview: crate::speech::PreviewSlot,
+    /// Shown in Settings → Files: values of the config file that were ignored, or why it
+    /// wasn't read at all.
     pub config_note: Option<String>,
+    /// The whole file was unreadable, so every setting is a default.
+    pub config_failed: bool,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
     /// While a session loads (models take a few seconds).
@@ -115,7 +128,7 @@ impl Core {
     pub fn setup_needed(&self) -> Vec<&'static str> {
         let mut v = vec![];
         // A broken config falls back to defaults, which would otherwise read as "not set".
-        if self.config_note.is_some() {
+        if self.config_failed {
             v.push("config file has an error (see logs)");
             return v;
         }
@@ -1094,15 +1107,23 @@ pub fn run(opts: Opts) -> i32 {
 
     let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
+    let mut config_failed = false;
     let (mut cfg, config_note) = if config_exists {
-        match Config::load(&config_path) {
-            Ok(c) => {
+        match Config::load_report(&config_path) {
+            Ok((c, problems)) => {
                 log(&format!("config: {}", config_path.display()));
-                (c, None)
+                for p in &problems {
+                    log(&format!("config: ignoring {p}; using the default for it"));
+                }
+                (c, config_problems_note(&problems))
             }
             Err(e) => {
                 log(&format!("config error, using defaults: {e:#}"));
-                (Config::default(), Some("config error (see logs)".to_string()))
+                config_failed = true;
+                (
+                    Config::default(),
+                    Some(format!("The config file can't be read, so every setting is at its default: {e:#}")),
+                )
             }
         }
     } else {
@@ -1151,6 +1172,7 @@ pub fn run(opts: Opts) -> i32 {
         preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
         config_note,
+        config_failed,
         game: Mutex::new(Game::NotRunning),
         session: Mutex::new(None),
         starting: AtomicBool::new(false),
@@ -1285,6 +1307,7 @@ mod tests {
             config_lock: Mutex::new(()),
             preview: Default::default(),
             config_note: None,
+            config_failed: false,
             game: Mutex::new(Game::NotRunning),
             session: Mutex::new(None),
             starting: AtomicBool::new(false),
