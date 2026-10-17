@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T06:30:54.241663753+00:00"
+status: "done"
 title: "Shell: write its log lines to a file"
-updated_at: "2026-10-17T06:13:21.831375778+00:00"
+updated_at: "2026-10-17T06:30:54.241663753+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ The Tauri shell logs with eprintln!, but release builds use windows_subsystem = 
 ## Done when
 
 A shell test shows a logged line lands in the shell log file; the cache-open and unknown-mod messages use it.
+
+## Close Reason
+
+The shell logs to astromech-shell.log next to astromech-core.log through the shared astromech-log crate; the cache-open and unknown-mod messages use it.
