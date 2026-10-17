@@ -4,6 +4,9 @@ id: "astromech-mcxc"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mcxc
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Mining sale advisor and hotspot finder"
-updated_at: "2026-10-15T20:36:13.662084535+00:00"
+updated_at: "2026-10-17T02:48:17.484474952+00:00"
 ---
 
 ## Goal
