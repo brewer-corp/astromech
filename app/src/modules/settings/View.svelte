@@ -5,6 +5,7 @@
   import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
   import { control } from "../../lib/format";
   import Calibration from "../../lib/ui/Calibration.svelte";
+  import ProspectorThresholds from "./ProspectorThresholds.svelte";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -191,6 +192,9 @@
       </dd>
     </dl>
     <p class="hint">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
+    <h3>Prospector callouts</h3>
+    <ProspectorThresholds />
+    <p class="hint">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
 
     <h3>Updates</h3>
     <dl>

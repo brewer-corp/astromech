@@ -51,6 +51,8 @@ export interface CoreStatus {
   models_progress?: string | null;
   models_dir?: string;
   update?: UpdateStatus;
+  /** The last few callout toasts, oldest first. */
+  toasts?: Toast[];
   /** The journal history the core keeps (backfill, then new lines). */
   history?: HistoryProgress | null;
 }
@@ -65,6 +67,26 @@ export interface HistoryProgress {
   bytes_total: number;
   events: number;
   error: string | null;
+}
+
+/** One callout shown as a toast. `id` increases by one per toast within a core session. */
+export interface Toast {
+  id: number;
+  rule: string;
+  text: string;
+  time: string;
+}
+
+/**
+ * Toasts newer than `lastSeen`, and the new `lastSeen`. The first poll (`lastSeen` null) shows
+ * nothing, so opening the window doesn't replay old callouts. Ids restart with a new core
+ * session; a newest id below `lastSeen` means that happened, and everything listed is new.
+ */
+export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toast[]; last: number } {
+  const newest = list.at(-1)?.id ?? 0;
+  if (lastSeen === null) return { show: [], last: newest };
+  const from = newest < lastSeen ? 0 : lastSeen;
+  return { show: list.filter((t) => t.id > from), last: newest };
 }
 
 export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
@@ -113,19 +135,23 @@ export type CoreCmd =
   // Settings → Voice responses.
   | "set_voice"
   | "voice_settings"
-  | "voice_preview";
+  | "voice_preview"
+  // Settings → Prospector callouts (core: callouts.rs).
+  | "prospector_thresholds"
+  | "prospector_set";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };
 
 /**
- * A string is the voice tester's phrase ("voice_test") or command id ("voice_test_live"); an
- * object is a setup command's arguments (e.g. `set_ptt` with `{device, key}`).
+ * A string is the voice tester's phrase ("voice_test"), command id ("voice_test_live") or a
+ * prospector threshold change as JSON ("prospector_set"); an object is a setup command's
+ * arguments (e.g. `set_ptt` with `{device, key}`).
  */
 export async function coreCall(cmd: CoreCmd, arg?: string | Record<string, unknown> | null): Promise<Reply> {
   const text = typeof arg === "string" ? arg : undefined;
   const args = typeof arg === "string" ? null : (arg ?? null);
-  if (!inTauri) return fakeScenario() ? fakeCall(cmd, args) : { ok: false, error: "not running inside the app" };
+  if (!inTauri) return fakeScenario() ? fakeCall(cmd, text ?? args) : { ok: false, error: "not running inside the app" };
   return await invoke<Reply>("core_call", { cmd, text, args });
 }
 

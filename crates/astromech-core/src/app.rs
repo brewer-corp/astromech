@@ -116,7 +116,10 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
-        let killed = self.session.lock().unwrap().as_ref().map(|s| s.runner.policy.is_killed()).unwrap_or(false);
+        let (killed, toasts) = match self.session.lock().unwrap().as_ref() {
+            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent()),
+            None => (false, vec![]),
+        };
         let cfg = self.cfg();
         let button = |b: &Option<crate::config::Button>| b.as_ref().map(|b| format!("{} {}", b.device, b.key));
         json!({
@@ -145,6 +148,7 @@ impl Core {
             "models_progress": *self.models.lock().unwrap(),
             "models_dir": cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
+            "toasts": toasts,
             "history": crate::history::status(),
         })
     }
@@ -562,6 +566,32 @@ impl Core {
             "open_config" => {
                 open_config(&self.config_path);
                 json!({"ok": true})
+            }
+            "prospector_thresholds" => {
+                match astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite")) {
+                    Ok(st) => crate::callouts::thresholds_json(&crate::callouts::load_thresholds(&st)),
+                    Err(e) => json!({"ok": false, "error": format!("opening the database: {e}")}),
+                }
+            }
+            "prospector_set" => {
+                let text = r.text.clone().unwrap_or_default();
+                let res = std::fs::create_dir_all(self.cfg().data_dir())
+                    .map_err(|e| e.to_string())
+                    .and_then(|_| {
+                        astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite"))
+                            .map_err(|e| format!("opening the database: {e}"))
+                    })
+                    .and_then(|st| crate::callouts::change_thresholds(&st, &text));
+                match res {
+                    Ok(t) => {
+                        if let Some(s) = self.session.lock().unwrap().as_ref() {
+                            *s.prospector.write().unwrap() = t.clone();
+                        }
+                        log(&format!("prospector thresholds changed: {text}"));
+                        crate::callouts::thresholds_json(&t)
+                    }
+                    Err(e) => json!({"ok": false, "error": e}),
+                }
             }
             "eddn_log" => {
                 let cfg = self.cfg();

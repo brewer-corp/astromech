@@ -9,7 +9,7 @@
     },
     "keys": null,
     "live": null,
-    "message": "Didn't catch that.",
+    "message": "Say again.",
     "source": "typed",
     "transcript": "banana bread",
     "would": "not_understood"
@@ -24,7 +24,7 @@
     },
     "keys": null,
     "live": null,
-    "message": "Supercruise isn't available yet. Flight commands come later.",
+    "message": "Supercruise is not available yet. Flight commands come later.",
     "source": "typed",
     "transcript": "engage supercruise",
     "would": "unavailable"

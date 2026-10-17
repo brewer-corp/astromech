@@ -1,0 +1,21 @@
+[package]
+name = "astromech-announce"
+description = "Event to reaction engine: rules over journal and Status.json events produce callouts"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+astromech-journal.workspace = true
+astromech-status.workspace = true
+astromech-gamestate.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+toml = "0.9"

@@ -7,6 +7,7 @@
   import { collect } from "./lib/palette";
   import Palette from "./lib/ui/Palette.svelte";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
+  import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
 
   const DEFAULT = "controller";
@@ -85,6 +86,7 @@
       {/await}
     {/if}
   </main>
+  <Toasts {status} />
 </div>
 <Palette load={paletteItems} onpick={go} />
 {/if}
