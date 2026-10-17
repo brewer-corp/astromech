@@ -109,6 +109,16 @@ def bring_to_front(title: str, timeout: float = 4.0) -> bool:
     return False
 
 
+def webview_diagnostics() -> str:
+    """The WebView2 processes' command lines and the listening ports, for a failed connect."""
+    ps = ("Get-CimInstance Win32_Process -Filter \"name='msedgewebview2.exe'\" | "
+          "ForEach-Object { $_.CommandLine.Substring(0, [Math]::Min(400, $_.CommandLine.Length)) }")
+    procs = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout
+    ports = subprocess.run(["netstat", "-ano", "-p", "TCP"], capture_output=True, text=True).stdout
+    listening = [l.split()[1] for l in ports.splitlines() if "LISTENING" in l]
+    return f"webview2 processes: {procs.strip()[:2000]!r}; listening: {listening}"
+
+
 class Page:
     """The app window's page over the Chrome DevTools Protocol (WebView2 remote debugging)."""
 
@@ -126,7 +136,7 @@ class Page:
             if target is None:
                 time.sleep(0.2)
         if target is None:
-            raise RuntimeError(f"no WebView2 page on the debugging port {port}")
+            raise RuntimeError(f"no WebView2 page on the debugging port {port}; {webview_diagnostics()}")
         self.ws = websocket.create_connection(target["webSocketDebuggerUrl"], timeout=30, suppress_origin=True)
         self.n = 0
 
