@@ -4,6 +4,9 @@ id: "astromech-4irh"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-4irh
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Settle fleet transfers against the Clock, not once per journal write"
-updated_at: "2026-10-17T17:29:34.219383374+00:00"
+updated_at: "2026-10-17T22:21:43.243194758+00:00"
 ---
 
 ## Goal
