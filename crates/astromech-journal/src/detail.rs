@@ -96,6 +96,8 @@ pub struct ScanBody {
     pub planet_class: Option<String>,
     pub terraform_state: Option<String>,
     pub atmosphere: Option<String>,
+    /// `AtmosphereType`, e.g. `CarbonDioxide`, `CarbonDioxideRich`, `None`.
+    pub atmosphere_type: Option<String>,
     pub volcanism: Option<String>,
     pub landable: bool,
     pub was_discovered: Option<bool>,
@@ -112,6 +114,8 @@ pub struct ScanBody {
     /// Surface materials: (name, percent).
     pub materials: Vec<(String, f64)>,
     pub ring_count: usize,
+    /// `Parents`, nearest first: (`Star`, `Planet`, `Ring` or `Null` for a barycentre, its BodyID).
+    pub parents: Vec<(String, i64)>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -609,6 +613,7 @@ fn scan_body(v: &Value) -> ScanBody {
         planet_class: opt_s(v, "PlanetClass"),
         terraform_state: opt_s(v, "TerraformState"),
         atmosphere: opt_s(v, "Atmosphere"),
+        atmosphere_type: opt_s(v, "AtmosphereType"),
         volcanism: opt_s(v, "Volcanism"),
         landable: flag(v, "Landable"),
         was_discovered: opt_b(v, "WasDiscovered"),
@@ -624,6 +629,9 @@ fn scan_body(v: &Value) -> ScanBody {
         reserve_level: opt_s(v, "ReserveLevel"),
         materials: arr(v, "Materials").map(|m| (s(m, "Name"), opt_f(m, "Percent").unwrap_or(0.0))).collect(),
         ring_count: arr(v, "Rings").count(),
+        parents: arr(v, "Parents")
+            .filter_map(|p| p.as_object()?.iter().next().and_then(|(k, id)| Some((k.clone(), id.as_i64()?))))
+            .collect(),
     }
 }
 

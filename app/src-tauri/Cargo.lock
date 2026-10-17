@@ -81,6 +81,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-exobiology"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-galaxy"
 version = "0.1.5"
 dependencies = [
@@ -100,6 +109,7 @@ dependencies = [
 name = "astromech-gamestate"
 version = "0.1.5"
 dependencies = [
+ "astromech-exobiology",
  "astromech-journal",
  "astromech-materials",
  "astromech-powerplay",

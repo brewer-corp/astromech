@@ -147,6 +147,8 @@ fn scan_body_and_barycentre() {
     assert_eq!(b.materials, vec![("iron".to_string(), 18.5), ("nickel".to_string(), 14.0)]);
     assert_eq!(b.ring_count, 1);
     assert_eq!(b.terraform_state, None, "empty string is no value");
+    assert_eq!(b.atmosphere_type.as_deref(), Some("CarbonDioxide"));
+    assert_eq!(b.parents, vec![("Null".to_string(), 3), ("Star".to_string(), 1), ("Null".to_string(), 0)]);
     let E::ScanBaryCentre { body_id, system_address, .. } = ex("ScanBaryCentre") else { panic!() };
     assert_eq!((body_id, system_address), (Some(3), Some(2)));
 }

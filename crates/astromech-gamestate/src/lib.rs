@@ -140,6 +140,8 @@ pub struct GameState {
     pub project_needs: BTreeMap<i64, Vec<String>>,
     /// Active missions (`Missions` at login, then `MissionAccepted` and the ends).
     pub missions: Vec<Mission>,
+    /// The current system's biology and the sampling in progress.
+    pub exobiology: astromech_exobiology::Exobiology,
     #[serde(skip)]
     pub companions: Companions,
 }
@@ -162,6 +164,7 @@ impl GameState {
 
     fn apply_at(&mut self, ts: &str, ev: &JournalEvent) {
         self.powerplay.apply(ts, ev);
+        self.exobiology.apply(ev);
         if let Some(s) = astromech_powerplay::SystemPower::from_event(ev) {
             self.system_power = s;
         }

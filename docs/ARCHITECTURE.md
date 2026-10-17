@@ -244,7 +244,11 @@ astromech/
                          list, on-foot engineers (EngineerProgress 4000xx, referral chain), bartender
                          values; game data from data/catalog/odyssey.json
     astromech-exobiology/ exobiology: surface guidance (great-circle bearing and distance between two
-                         latitude/longitude points on a body of Status.json's PlanetRadius)
+                         latitude/longitude points on a body of Status.json's PlanetRadius); the
+                         genus and species catalogue (value, colony range, growing conditions;
+                         data/catalog/exobiology.json from the wiki and EDMC-ExplorerLite) and the
+                         species prediction from a detailed scan; the current system's biology
+                         (FSS counts, DSS genus lists, samples), folded into GameState
     astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
                          cycle, next rank and reward), the system's state on arrival and its spoken
                          line, what earns merits there (per acquire / conflict / reinforce / undermine
