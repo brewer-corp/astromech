@@ -21,7 +21,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`], [`hge`] and [`materials_cap`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -126,6 +126,7 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod materials_cap;
 pub mod prospector;
 pub mod route;
 pub mod scan;
@@ -150,6 +151,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(materials_cap::MaterialsCap),
     ]
 }
 
@@ -282,12 +284,17 @@ impl Engine {
     pub fn journal(&mut self, line: &JournalLine, state: &GameState, now: Instant) -> Vec<Reaction> {
         // The event is judged against the mode before it: `DockingGranted` (the pad) is not
         // "during docking"; what follows it is.
-        let quiet = self.quiet(now);
+        let mut quiet = self.quiet(now);
         let name = line.name.as_str();
         if DOCKING_STARTS.contains(&name) {
             self.docking = true;
         } else if DOCKING_ENDS.contains(&name) {
             self.docking = false;
+            // Arriving ends the approach: what `Docked` says (trader suggestions) is not "during
+            // docking". Combat still holds it back.
+            if name == "Docked" {
+                quiet = self.quiet(now);
+            }
         }
         if name == "UnderAttack" && self.live {
             self.attacked_until = Some(now + ATTACK_QUIET);

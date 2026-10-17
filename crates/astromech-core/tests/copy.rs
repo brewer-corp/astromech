@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable"],
+        ["arrival", "docking", "fuel_range", "hge", "materials_cap", "prospector", "route", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -56,6 +56,10 @@ fn callout_lines() -> Vec<String> {
             let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0), new_stretch: true };
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
         }
+    }
+    for spec in astromech_materials::catalog::catalog() {
+        v.push(format!("{} at 300/300.", spec.name));
+        v.push(format!("Trader here. Trade down {}.", spec.name));
     }
     v.push(hge::line(None, &[]));
     for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {

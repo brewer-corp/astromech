@@ -311,13 +311,18 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
         ),
+        // From an empty hold to a full one: arsenic's cap is 250.
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:46Z","event":"Materials","Raw":[],"Manufactured":[],"Encoded":[]}}"#),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:47Z","event":"MaterialCollected","Category":"Raw","Name":"arsenic","Count":250}}"#
+        ),
     ]
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 8, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 9, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
     let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"B","StarPos":[40,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[60,0,0],"StarClass":"G"}]}"#;
     r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
@@ -344,6 +349,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
             "High Grade Emissions.",
+            "Arsenic at 250/250.",
             "Route: 3 jumps, 60 ly.",
         ]
     );
