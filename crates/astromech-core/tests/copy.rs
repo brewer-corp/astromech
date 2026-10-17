@@ -212,7 +212,8 @@ fn session_summary_lines() -> Vec<String> {
             }
         }
     }
-    v.extend(astromech_tools::session::answer(None));
+    v.extend(astromech_tools::session::answer(Ok(None)));
+    v.extend(astromech_tools::session::answer(Err(session_summary::Unreadable)));
     v
 }
 

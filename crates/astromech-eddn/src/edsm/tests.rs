@@ -340,3 +340,125 @@ fn events_queued_for_another_commander_are_not_sent_with_this_key() {
     assert!(r.api.posts().is_empty());
     assert_eq!(r.courier.outbox().pending().unwrap(), 0);
 }
+
+#[test]
+fn a_corrected_key_sends_what_a_wrong_one_held_back_at_once() {
+    let mut r = rig(true);
+    r.discards.set(serde_json::from_value(discard_list()).unwrap(), NOW);
+    feed(&mut r, &session(), true);
+    r.api.ok(JOURNAL_URL, json!({"msgnum":203,"msg":"Commander name/API Key not found","events":[]}));
+    assert!(r.courier.pass(NOW, r.t0).unwrap().stopped);
+    // Without a change, the held events wait out their backoff (and the minute on the clock).
+    assert_eq!(r.courier.pass(NOW + 5, r.t0 + Duration::from_secs(5)).unwrap(), Delivery::default());
+
+    let woken = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let w = woken.clone();
+    r.switch.set_waker(move || {
+        w.fetch_add(1, Ordering::SeqCst);
+    });
+    r.switch.set(Some(creds())); // saved again, nothing changed
+    assert_eq!(woken.load(Ordering::SeqCst), 0);
+    r.switch.set(Some(Credentials { commander: "Jameson".into(), api_key: "fixed-key".into() }));
+    assert_eq!(woken.load(Ordering::SeqCst), 1, "the uploader is woken");
+
+    r.api.ok(JOURNAL_URL, all_ok(10));
+    let d = r.courier.pass(NOW + 6, r.t0 + Duration::from_secs(6)).unwrap();
+    assert_eq!(d.sent, 10, "{d:?}");
+    assert_eq!(r.api.posts().last().unwrap()["apiKey"], "fixed-key");
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
+    let mark: i64 = r.courier.outbox().meta(ERRORS_CLEARED).unwrap().unwrap().parse().unwrap();
+    assert!(
+        r.courier.outbox().recent_of_after(&[Outcome::Retry], mark, 1).unwrap().is_empty(),
+        "the old 203 is hidden"
+    );
+}
+
+#[test]
+fn a_key_that_is_still_wrong_shows_its_error_from_the_same_pass() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    feed(&mut r, &session()[..5], true);
+    r.switch.set(Some(Credentials { commander: "Jameson".into(), api_key: "typo".into() }));
+    r.api.ok(JOURNAL_URL, json!({"msgnum":203,"msg":"Commander name/API Key not found","events":[]}));
+    assert!(r.courier.pass(NOW, r.t0).unwrap().stopped);
+    let mark: i64 = r.courier.outbox().meta(ERRORS_CLEARED).unwrap().unwrap().parse().unwrap();
+    let shown = r.courier.outbox().recent_of_after(&[Outcome::Retry], mark, 1).unwrap();
+    assert_eq!(shown.len(), 1, "the 203 is logged in the same second as the change but after it");
+    assert!(shown[0].detail.starts_with("203"), "{}", shown[0].detail);
+}
+
+#[test]
+fn outages_do_not_use_up_a_messages_refusals() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    feed(&mut r, &session()[..5], true);
+    let queued = r.courier.outbox().pending().unwrap();
+    let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
+    for i in 0..MAX_ATTEMPTS - 1 {
+        r.api.answer(JOURNAL_URL, Ok(Response { status: 503, body: "busy".into() }));
+        let (wall, mono) = at(i);
+        r.courier.pass(wall, mono).unwrap();
+    }
+    // The first refusal after seven outages gives nothing up.
+    r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+    let (wall, mono) = at(MAX_ATTEMPTS);
+    let d = r.courier.pass(wall, mono).unwrap();
+    assert_eq!((d.gave_up, d.retrying), (0, queued), "{d:?}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), queued);
+}
+
+#[test]
+fn turning_sharing_off_does_not_wake_or_release_anything() {
+    let r = rig(true);
+    let woken = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let w = woken.clone();
+    r.switch.set_waker(move || {
+        w.fetch_add(1, Ordering::SeqCst);
+    });
+    r.switch.set(None);
+    assert_eq!(woken.load(Ordering::SeqCst), 0);
+}
+
+#[test]
+fn a_refused_batch_is_given_up_after_the_attempt_limit_and_later_events_go() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    feed(&mut r, &session()[..5], true);
+    let queued = r.courier.outbox().pending().unwrap();
+    assert_eq!(queued, 4);
+    let hour = |i: i64| Duration::from_secs(4000 * i as u64);
+    for i in 0..MAX_ATTEMPTS - 1 {
+        r.api.answer(JOURNAL_URL, Ok(Response { status: 413, body: "too large".into() }));
+        let d = r.courier.pass(NOW + 4000 * i, r.t0 + hour(i)).unwrap();
+        assert!(d.stopped && d.retrying == queued, "try {i}: {d:?}");
+        assert_eq!(r.courier.outbox().pending().unwrap(), queued);
+    }
+    // A later event joins the queue; the old batch is refused one last time.
+    let last = MAX_ATTEMPTS - 1;
+    r.api.answer(JOURNAL_URL, Ok(Response { status: 413, body: "too large".into() }));
+    let d = r.courier.pass(NOW + 4000 * last, r.t0 + hour(last)).unwrap();
+    assert_eq!((d.gave_up, d.retrying), (queued, 0));
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
+    let row = &r.courier.outbox().recent(1).unwrap()[0];
+    assert_eq!(row.outcome, "gave_up");
+    assert!(row.detail.contains("refused 8 times") && row.detail.contains("HTTP 413: too large"), "{}", row.detail);
+
+    let later = NOW + 4000 * last + 1;
+    r.up.journal(&json!({"event":"Scan"}), true, later);
+    r.api.ok(JOURNAL_URL, all_ok(1));
+    let d = r.courier.pass(later, r.t0 + hour(last) + Duration::from_secs(1)).unwrap();
+    assert_eq!(d.sent, 1, "the queue is not blocked: {d:?}");
+}
+
+#[test]
+fn what_counts_as_refused_and_what_is_only_held() {
+    let ok = |status: u16, body: &str| Ok(Response { status, body: body.into() });
+    assert!(matches!(answer(ok(413, "big"), 2), Answer::Refused(_)));
+    assert!(matches!(answer(ok(400, ""), 2), Answer::Refused(_)));
+    assert!(matches!(answer(ok(200, "<html>"), 2), Answer::Refused(_)));
+    assert!(matches!(answer(ok(200, &all_ok(1).to_string()), 2), Answer::Refused(_)), "wrong length");
+    for held in [ok(503, "x"), ok(429, "x"), ok(408, "x"), Err("timed out".into())] {
+        assert!(matches!(answer(held, 2), Answer::Hold(_)));
+    }
+    assert!(matches!(answer(ok(200, r#"{"msgnum":203,"msg":"x"}"#), 2), Answer::Hold(_)));
+}

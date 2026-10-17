@@ -2,7 +2,7 @@
 //! session?" The core reads the session from the history and these turn it into the spoken
 //! lines, the same ones the logout summary says (`astromech_announce::session_summary`).
 
-use astromech_announce::session_summary::{lines, Totals};
+use astromech_announce::session_summary::{lines, Totals, Unreadable};
 
 /// The `astromech-intent` command id.
 pub const COMMAND: &str = "session.summary";
@@ -21,12 +21,17 @@ pub fn describe() -> String {
     "Reads the session summary from your journal history and says it.".into()
 }
 
-/// The lines to speak for `session` (`None`: the history holds none), one sentence each.
-pub fn answer(session: Option<&Totals>) -> Vec<String> {
-    match session.map(lines) {
-        None => vec![NO_HISTORY.into()],
-        Some(v) if v.is_empty() => vec![NOTHING_YET.into()],
-        Some(v) => v,
+/// Said when the history exists but could not be read (busy, locked, a read error).
+pub const CANT_READ: &str = "Session history is unreadable right now.";
+
+/// The lines to speak for `session` (`Ok(None)`: the history holds none; `Err`: it could not
+/// be read), one sentence each.
+pub fn answer(session: Result<Option<&Totals>, Unreadable>) -> Vec<String> {
+    match session.map(|s| s.map(lines)) {
+        Err(Unreadable) => vec![CANT_READ.into()],
+        Ok(None) => vec![NO_HISTORY.into()],
+        Ok(Some(v)) if v.is_empty() => vec![NOTHING_YET.into()],
+        Ok(Some(v)) => v,
     }
 }
 
@@ -48,7 +53,7 @@ mod tests {
     #[test]
     fn the_answer_is_one_sentence_per_fact() {
         assert_eq!(
-            answer(Some(&totals())),
+            answer(Ok(Some(&totals()))),
             ["Earned 4.2 million credits, 1.9 million an hour.", "38 jumps, 1204 light years.", "6 bounties awarded."]
         );
     }
@@ -57,11 +62,12 @@ mod tests {
     fn what_is_zero_is_left_out() {
         let t = Totals { total: 52_000, per_hour: None, jumps: 1, bounties: 1, ..totals() };
         assert_eq!(
-            answer(Some(&t)),
+            answer(Ok(Some(&t))),
             ["Earned 52 thousand credits.", "1 jump, 1204 light years.", "One bounty awarded."]
         );
         let t = Totals { total: 0, per_hour: None, jumps: 0, bounties: 0, ..totals() };
-        assert_eq!(answer(Some(&t)), [NOTHING_YET]);
-        assert_eq!(answer(None), [NO_HISTORY]);
+        assert_eq!(answer(Ok(Some(&t))), [NOTHING_YET]);
+        assert_eq!(answer(Ok(None)), [NO_HISTORY]);
+        assert_eq!(answer(Err(Unreadable)), [CANT_READ]);
     }
 }

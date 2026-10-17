@@ -6,8 +6,9 @@
 //!
 //! - **Replay is silent.** While not live ([`Engine::set_live`]; the pipeline says which events
 //!   are: not the startup catch-up of the journal and Status.json, not a journal re-read as a
-//!   replay) no rule runs. The engine still tracks docking and combat from those events so quiet
-//!   is right at once.
+//!   replay) no rule reacts. The engine still tracks docking and combat from those events so
+//!   quiet is right at once, and a rule may be told of them through [`Rule::replayed`] (it must
+//!   not speak) to learn where the catch-up left the game.
 //! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
 //!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
 //!   cooldown, so a burst of the same event gives one callout; only a callout of higher
@@ -127,6 +128,10 @@ pub trait Rule: Send {
     /// others adjust to.
     fn configured(&self, _enabled: bool) {}
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
+    /// Told of each input the engine is not live for (the startup catch-up, replayed lines),
+    /// with the state after it, for rules that must know where the catch-up left things. It
+    /// must not speak.
+    fn replayed(&self, _input: &Input, _state: &GameState) {}
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
@@ -396,6 +401,9 @@ impl Engine {
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
         if !self.live {
+            for s in self.slots.iter().filter(|s| s.enabled) {
+                s.rule.replayed(input, state);
+            }
             return vec![];
         }
         let mut out = vec![];

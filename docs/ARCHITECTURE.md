@@ -309,8 +309,13 @@ astromech/
                          nothing is sent without it. Only for the commander set in Settings → Data
                          sharing ([edsm] enabled, commander; the API key in the OS keyring), never
                          beta, never in another commander's crew. A wrong key (201-203) or an
-                         outage keeps the events, backing off to an hour. The flight log (get-logs,
-                         last week) is read on demand from the same page
+                         outage keeps the events, backing off to an hour; saving a changed name or
+                         key makes them due at once, wakes the uploader and hides the errors from
+                         before it. A request EDSM refuses (an HTTP status such as 413 other than
+                         408, 429 and 5xx, an unreadable answer, or an answer that doesn't cover
+                         every event) is retried with backoff and given up after 8 refusals (outages and wrong keys don't count), so it
+                         can't block later events. The flight log (get-logs,
+                         last week) is read on demand from the same page (it gives up after 10 s, before the app window's 15 s wait on the core, so the page shows EDSM's message or "EDSM didn't answer within 10 s")
     astromech-exploration/ exploration from the journal: body values (the community's formulae, checked
                          against EDSM's published estimates), the live system view (the current system's
                          bodies as scanned: class, value now and mapped, worth mapping), species values
