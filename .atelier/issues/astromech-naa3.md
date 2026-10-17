@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-naa3
 priority: "P3"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "The tray menu has no Check for updates, though the release notes and design say it does"
-updated_at: "2026-10-17T17:41:21.880357401+00:00"
+updated_at: "2026-10-17T19:42:19.373155798+00:00"
 ---
 
 ## Goal

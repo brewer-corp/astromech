@@ -261,10 +261,17 @@ impl Core {
     }
 
     /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
+    /// A requested check (Settings → Check now, the tray's Check for updates), off the caller's
+    /// thread: it goes to the network.
+    pub fn check_update_in_background(self: &Arc<Self>) {
+        let c = self.clone();
+        std::thread::spawn(move || c.check_update(true));
+    }
+
     pub fn check_update(self: &Arc<Self>, manual: bool) {
         {
             let mut h = self.update.lock().unwrap();
-            if matches!(h.snap.status, UpStatus::Checking | UpStatus::Downloading | UpStatus::Applying) {
+            if h.snap.status.busy() {
                 return;
             }
             h.snap.status = UpStatus::Checking;
@@ -606,8 +613,7 @@ impl Core {
                 json!({"ok": true})
             }
             "check_update" => {
-                let c = self.clone();
-                std::thread::spawn(move || c.check_update(true));
+                self.check_update_in_background();
                 json!({"ok": true})
             }
             "install_update" => self.install_update(),
