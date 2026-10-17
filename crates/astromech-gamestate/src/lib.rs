@@ -142,6 +142,10 @@ pub struct GameState {
     pub missions: Vec<Mission>,
     #[serde(skip)]
     pub companions: Companions,
+    /// In a logged-in session: set by `LoadGame`, cleared by `Shutdown` and the `Music`
+    /// `MainMenu` that follows a logout. False at a fresh launch until the login.
+    #[serde(skip)]
+    pub logged_in: bool,
 }
 
 impl GameState {
@@ -165,8 +169,21 @@ impl GameState {
         if let Some(s) = astromech_powerplay::SystemPower::from_event(ev) {
             self.system_power = s;
         }
+        // A new journal file that is not the continuation of one (part 2 and up) is a new run of
+        // the game: a crash leaves no logout behind.
+        if matches!(ev, JournalEvent::FileHeader { part, .. } if part.unwrap_or(1) <= 1) {
+            self.logged_in = false;
+        }
+        if let JournalEvent::Other { event, raw } = ev {
+            if event == "Shutdown"
+                || (event == "Music" && raw.get("MusicTrack").and_then(|t| t.as_str()) == Some("MainMenu"))
+            {
+                self.logged_in = false;
+            }
+        }
         match ev {
             JournalEvent::LoadGame { commander, ship, ship_name, ship_ident, credits } => {
+                self.logged_in = true;
                 self.commander = Some(commander.clone());
                 self.ship = ship.clone();
                 if ship_name.is_some() {
@@ -411,6 +428,44 @@ impl GameState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn line(l: &str) -> astromech_journal::JournalLine {
+        astromech_journal::parse_line(l).unwrap()
+    }
+    const FILEHEADER: &str = r#"{"timestamp":"t","event":"Fileheader","part":1,"gameversion":"4.0","build":"b"}"#;
+    const ROLLOVER: &str = r#"{"timestamp":"t","event":"Fileheader","part":2,"gameversion":"4.0","build":"b"}"#;
+    const LOAD: &str = r#"{"timestamp":"t","event":"LoadGame","Commander":"Test","Ship":"krait_mkii","Credits":50}"#;
+    const SHUTDOWN: &str = r#"{"timestamp":"t","event":"Shutdown"}"#;
+    const MENU: &str = r#"{"timestamp":"t","event":"Music","MusicTrack":"MainMenu"}"#;
+
+    fn logged_in_after(lines: &[&str]) -> bool {
+        let mut g = GameState::default();
+        for l in lines {
+            g.apply_line(&line(l));
+        }
+        g.logged_in
+    }
+
+    #[test]
+    fn logged_in_follows_the_login_and_the_logout() {
+        assert!(!logged_in_after(&[FILEHEADER]));
+        assert!(logged_in_after(&[FILEHEADER, LOAD]));
+        assert!(!logged_in_after(&[FILEHEADER, LOAD, SHUTDOWN]));
+        assert!(!logged_in_after(&[FILEHEADER, LOAD, MENU]));
+        assert!(logged_in_after(&[LOAD, SHUTDOWN, LOAD]), "a login after a logout");
+        let other_track = r#"{"timestamp":"t","event":"Music","MusicTrack":"Exploration"}"#;
+        assert!(logged_in_after(&[LOAD, other_track]));
+    }
+
+    #[test]
+    fn a_new_journal_file_clears_a_crashed_session_but_a_rollover_keeps_it() {
+        // No Shutdown or MainMenu: the game crashed, and the next run opens a new file.
+        assert!(!logged_in_after(&[LOAD, FILEHEADER]));
+        let headerless = r#"{"timestamp":"t","event":"Fileheader","gameversion":"4.0","build":"b"}"#;
+        assert!(!logged_in_after(&[LOAD, headerless]));
+        // Part 2 is the same run continued in a new file.
+        assert!(logged_in_after(&[LOAD, ROLLOVER]));
+    }
+
     #[test]
     fn folds_events() {
         let mut g = GameState::default();

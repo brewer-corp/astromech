@@ -159,8 +159,11 @@ impl Assistant {
         }
         if astromech_tools::session::is_summary(command) {
             let game = self.runner.hub.snapshot();
-            let totals = self.sessions.get().and_then(|h| h.session(game.commander.as_deref(), None));
-            let lines = astromech_tools::session::answer(totals.as_ref());
+            let totals = match self.sessions.get() {
+                Some(h) => h.session(game.commander.as_deref(), None),
+                None => Ok(None),
+            };
+            let lines = astromech_tools::session::answer(totals.as_ref().map(Option::as_ref).map_err(|e| *e));
             for l in &lines {
                 self.say(l);
             }
