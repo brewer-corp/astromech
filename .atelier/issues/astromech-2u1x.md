@@ -4,6 +4,9 @@ id: "astromech-2u1x"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-2u1x
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-16T22:29:24.654652876+00:00"
+status: "done"
 title: "Command palette (Ctrl+K)"
-updated_at: "2026-10-15T20:36:13.652051298+00:00"
+updated_at: "2026-10-16T23:31:24.983410271+00:00"
 ---
 
 ## Goal
@@ -31,3 +35,11 @@ From any page, Ctrl+K then a module name opens its nearby search (UI check).
 ## Context
 
 [ARCHITECTURE §18.2](docs/ARCHITECTURE.md).
+
+## Notes
+
+- 2026-10-16 [note] Since closing: ship modules now reach their nearby search too (i64s, 438e48d). Ctrl+K then a module name opens #/outfitting/<module>, a fitted module at its exact size, and a ship name opens #/shipyard/<ship>. Systems, stations and commodities are still not in the palette.
+
+## Close Reason
+
+Ctrl+K from any page opens a palette of every page plus materials and the fleet's ships, fitted modules, blueprints and experimentals; Enter opens the route with the item selected, a material landing on its nearby search (UI-checked in the browser preview: Powerplay -> 'proto heat' -> #/materials/protoheatradiators with Nearest shown). Systems, stations and commodities have no landing page yet (astromech-4c6q, xqdl, tw2y). Review outstanding.
