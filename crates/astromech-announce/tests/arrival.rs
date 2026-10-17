@@ -34,7 +34,7 @@ const START_JUMP: &str = r#"{"timestamp":"2026-10-16T19:59:50Z","event":"StartJu
 
 fn shopping(ids: &[&str]) -> Run {
     let r = Run::new();
-    *r.shared.shopping.write().unwrap() = ShoppingList(ids.iter().map(|s| s.to_string()).collect());
+    *r.shared.shopping.write().unwrap() = ShoppingList::wanting(ids);
     r
 }
 
@@ -120,7 +120,7 @@ fn the_pledged_power_hears_undermining_and_acquisition_targets() {
     );
     assert!(r.spoken(&own).is_empty());
     // With a state line, the Powerplay line follows it.
-    *r.shared.shopping.write().unwrap() = ShoppingList(vec!["protoheatradiators".into()]);
+    *r.shared.shopping.write().unwrap() = ShoppingList::wanting(&["protoheatradiators"]);
     let both = jump(
         "Sys",
         3_000_000,
@@ -161,11 +161,29 @@ fn star_class_security_and_allegiance_are_never_spoken() {
 #[test]
 fn the_briefing_is_silent_during_the_catch_up() {
     let shared = Shared::default();
-    *shared.shopping.write().unwrap() = ShoppingList(vec!["protoheatradiators".into()]);
+    *shared.shopping.write().unwrap() = ShoppingList::wanting(&["protoheatradiators"]);
     let mut r = Run::with(shared, &Settings::default());
     r.engine.set_live(false);
     let lines = [jump("Sys", 3_000_000, &[("Independent", "Boom", 0.5)], ""), autoscan(false)];
     assert!(r.spoken(&lines.join("\n")).is_empty());
     r.engine.set_live(true);
     assert_eq!(r.spoken(&lines.join("\n")), ["Boom here. Proto Heat Radiators.", "Undiscovered system."]);
+}
+
+#[test]
+fn a_material_collected_up_to_its_count_drops_off_the_list() {
+    use astromech_announce::arrival::Want;
+    let mut r = Run::new();
+    *r.shared.shopping.write().unwrap() = ShoppingList(vec![Want { id: "protoheatradiators".into(), until: 5 }]);
+    let held = |n: i64| {
+        format!(
+            r#"{{"timestamp":"2026-10-16T19:00:00Z","event":"Materials","Raw":[],"Manufactured":[{{"Name":"protoheatradiators","Count":{n}}}],"Encoded":[]}}"#
+        )
+    };
+    let boom = jump("Sys", 3_000_000, &[("Independent", "Boom", 0.5)], "");
+    r.spoken(&held(4));
+    assert_eq!(r.spoken(&boom), ["Boom here. Proto Heat Radiators."]);
+    // Collected in game, with the app closed: the list needs no update.
+    r.spoken(&held(5));
+    assert!(r.spoken(&boom).is_empty());
 }

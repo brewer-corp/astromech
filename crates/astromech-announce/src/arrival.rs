@@ -26,11 +26,32 @@ use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-/// Material ids (`astromech_materials` catalogue, lower case) still to collect, most wanted
-/// first. The core keeps it from the app's Engineering plans.
+/// One material to collect: its id (`astromech_materials` catalogue, lower case) and the count
+/// to hold when it is done (what the plan had plus what it still had to collect).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Want {
+    pub id: String,
+    pub until: i64,
+}
+
+/// What the Engineering plans still have to collect, most wanted first. The core keeps it from
+/// the app; the rules read it against the materials held now ([`ShoppingList::needed`]), so a
+/// material drops out once collected, whether or not the app is open.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(transparent)]
-pub struct ShoppingList(pub Vec<String>);
+pub struct ShoppingList(pub Vec<Want>);
+
+impl ShoppingList {
+    /// A list that wants each material until a count it never reaches (tests, previews).
+    pub fn wanting<S: AsRef<str>>(ids: &[S]) -> Self {
+        Self(ids.iter().map(|id| Want { id: id.as_ref().to_string(), until: i64::MAX }).collect())
+    }
+
+    /// The ids still short of their count in `state`'s materials, in list order.
+    pub fn needed(&self, state: &GameState) -> Vec<String> {
+        self.0.iter().filter(|w| state.materials.count(&w.id) < w.until).map(|w| w.id.clone()).collect()
+    }
+}
 
 /// Shared with the core, which replaces it when a plan changes.
 pub type SharedShoppingList = Arc<RwLock<ShoppingList>>;
@@ -124,8 +145,8 @@ impl Rule for Arrival {
         let Input::Journal(l) = input else { return None };
         let text = match &l.event {
             JournalEvent::FsdJump { factions, population, .. } => {
-                let wanted = self.shopping.read().unwrap();
-                line(factions, *population, &wanted.0, state.system_power.as_ref(), state.powerplay.power.as_deref())?
+                let wanted = self.shopping.read().unwrap().needed(state);
+                line(factions, *population, &wanted, state.system_power.as_ref(), state.powerplay.power.as_deref())?
             }
             JournalEvent::Extra(ExtraEvent::Scan(b))
                 if b.scan_type.eq_ignore_ascii_case("AutoScan")

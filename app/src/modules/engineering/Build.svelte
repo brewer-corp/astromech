@@ -4,7 +4,7 @@
   // inventory, trades, what to farm and the engineer trip.
   import { untrack } from "svelte";
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
+    DEFAULT_ROLLS, dropShoppingList, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
   import Stats from "./Stats.svelte";
@@ -88,6 +88,8 @@
         if (mine !== seq) return;
         result = null;
         failed = String(e);
+        // A ship that left the fleet keeps no list in the core.
+        if (failed.includes("not in the fleet")) dropShoppingList(snapshot.ship_id);
       });
   });
 

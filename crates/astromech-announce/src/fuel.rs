@@ -1,15 +1,19 @@
 //! Fuel along the route (`NavRoute.json` and each `FSDJump`). The HUD's low-fuel warning and
 //! scoop progress aren't repeated; what it doesn't show is how far the next fuel star is.
 //!
-//! - [`Scoopable`] (`scoopable`): arriving at a star that can't be scooped while following a
-//!   route, "Next scoopable star in 3 jumps.", "Next star is scoopable." or "No scoopable stars
-//!   left on the route." Nothing at a scoopable star or off the route.
+//! - [`Scoopable`] (`scoopable`): following a route, the first arrival at a star that can't be
+//!   scooped after one that can (or on the route's first jump): "Next scoopable star in 3
+//!   jumps." or "No scoopable stars left on the route." Once per stretch, and not for a
+//!   one-jump stretch, so a neutron route doesn't hear it every other jump. Nothing at a
+//!   scoopable star or off the route.
 //! - [`FuelRange`] (`fuel_range`): on arrival, when the main tank won't reach the next
 //!   scoopable star (or the end of the route if there is none), "Fuel too low to reach a
 //!   scoopable star."; at a scoopable star, "Scoop here. Next scoopable star out of reach."
-//!   High priority, at most once per 10 minutes.
+//!   It also gives the route briefing's fuel line when a route is plotted
+//!   ([`crate::route::fuel_line`]), so the two share one cooldown and the same warning isn't
+//!   said twice in a row. High priority, at most once per 10 minutes.
 //!
-//! Fuel per jump is estimated from the last jump: the FSD's fuel use grows with distance to its
+//! Fuel per jump is estimated from the last ordinary jump (boosted jumps are skipped): the FSD's fuel use grows with distance to its
 //! power (2.0 for a size 2 drive up to 2.9 for size 8; 2.45 when the drive isn't known), so a hop
 //! of `d` ly costs `used × (d / last distance)^power`. Mass changes along the way are ignored.
 //! Scoopable stars are the KGBFOAM classes, giants included ("K_OrangeGiant").
@@ -58,6 +62,9 @@ pub struct Ahead {
     pub jumps: Option<usize>,
     /// Estimated tonnes to reach it (or the end of the route); None without a jump to go by.
     pub fuel_needed: Option<f64>,
+    /// This arrival starts a stretch without scooping: the star before it on the route could
+    /// be scooped (or is unknown), or this is the route's first jump.
+    pub new_stretch: bool,
 }
 
 /// None when there is no route, the current system isn't on it, or it is the destination.
@@ -71,7 +78,8 @@ pub fn ahead(state: &GameState) -> Option<Ahead> {
     let jumps = hops[i + 1..].iter().position(|h| h.star_class.as_deref().is_some_and(scoopable)).map(|k| k + 1);
     let end = jumps.map_or(hops.len() - 1, |k| i + k);
     let fuel_needed = hops[i..=end].windows(2).map(|w| hop_fuel(state, &w[0], &w[1])).sum();
-    Some(Ahead { here_scoopable: hops[i].star_class.as_deref().map(scoopable), jumps, fuel_needed })
+    let new_stretch = i <= 1 || hops[i - 1].star_class.as_deref().is_none_or(scoopable);
+    Some(Ahead { here_scoopable: hops[i].star_class.as_deref().map(scoopable), jumps, fuel_needed, new_stretch })
 }
 
 /// The line for arriving at a star that can't be scooped.
@@ -105,7 +113,7 @@ impl Rule for Scoopable {
     fn id(&self) -> &'static str {
         "scoopable"
     }
-    /// One line per arrival.
+    /// Said once per stretch (see [`Scoopable`]), so no cooldown is needed.
     fn cooldown(&self) -> Duration {
         Duration::ZERO
     }
@@ -114,7 +122,7 @@ impl Rule for Scoopable {
             return None;
         }
         let a = ahead(state)?;
-        (a.here_scoopable == Some(false)).then(|| Callout {
+        (a.here_scoopable == Some(false) && a.new_stretch && a.jumps != Some(1)).then(|| Callout {
             text: next_line(a.jumps),
             priority: Priority::Normal,
             channels: Channels::SPEECH | Channels::TOAST,
@@ -134,10 +142,11 @@ impl Rule for FuelRange {
         Duration::from_secs(600)
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
-        if !arrival(input) {
-            return None;
-        }
-        let text = range_line(&ahead(state)?, state.fuel_main?)?;
-        Some(Callout { text: text.into(), priority: Priority::High, channels: Channels::SPEECH | Channels::TOAST })
+        let text = match input {
+            Input::Route(r) => crate::route::fuel_line(&r.hops, state)?,
+            _ if arrival(input) => range_line(&ahead(state)?, state.fuel_main?)?.to_string(),
+            _ => return None,
+        };
+        Some(Callout { text, priority: Priority::High, channels: Channels::SPEECH | Channels::TOAST })
     }
 }

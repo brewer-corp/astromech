@@ -1,7 +1,8 @@
 //! Route briefing (`route`): when a route is plotted (a new `NavRoute.json`), what the route
 //! panel shows only in the galaxy map. One line each, most important first:
 //!
-//! - **Fuel risk** (high priority): "Fuel too low to reach a scoopable star." when the fuel in
+//! - **Fuel risk** (high priority, said by the `fuel_range` rule so it shares that rule's
+//!   cooldown): "Fuel too low to reach a scoopable star." when the fuel in
 //!   the tank won't reach the first scoopable star (the start can't be scooped), or "Fuel gap:
 //!   18 jumps between scoopable stars." for the first stretch a full tank won't cross (ending at
 //!   the destination: "Fuel gap: 6 jumps to the destination."). Fuel per hop as in [`fuel`]
@@ -101,15 +102,15 @@ impl Rule for Route {
     fn react(&self, _: &Input, _: &GameState) -> Option<Callout> {
         None
     }
-    fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
+    fn react_all(&self, input: &Input, _: &GameState) -> Vec<Callout> {
         let Input::Route(r) = input else { return vec![] };
         let hops = &r.hops;
         if hops.len() < 2 {
             return vec![];
         }
         let line = |text: String, priority| Callout { text, priority, channels: Channels::SPEECH | Channels::TOAST };
-        let mut out: Vec<Callout> = fuel_line(hops, state).map(|t| line(t, Priority::High)).into_iter().collect();
-        out.push(line(summary_line(hops), Priority::Normal));
+        // The fuel line is said by `fuel_range` (one cooldown with its arrival warning).
+        let mut out = vec![line(summary_line(hops), Priority::Normal)];
         out.extend(
             [
                 stars_line(hops, white_dwarf, "White dwarf", "white dwarfs"),

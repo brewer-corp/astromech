@@ -53,7 +53,7 @@ fn callout_lines() -> Vec<String> {
     for jumps in [None, Some(1), Some(2), Some(99)] {
         v.push(fuel::next_line(jumps));
         for here_scoopable in [None, Some(false), Some(true)] {
-            let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0) };
+            let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0), new_stretch: true };
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
         }
     }

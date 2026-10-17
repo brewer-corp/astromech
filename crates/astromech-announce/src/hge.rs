@@ -67,7 +67,7 @@ impl Rule for Hge {
         let Input::Journal(l) = input else { return None };
         let JournalEvent::FssSignal { high_grade: true, spawning_faction, .. } = &l.event else { return None };
         let p = pool(&state.system_factions, state.system_population, spawning_faction.as_deref());
-        let text = line(p, &self.shopping.read().unwrap().0);
+        let text = line(p, &self.shopping.read().unwrap().needed(state));
         Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
     }
 }

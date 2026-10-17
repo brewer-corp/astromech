@@ -283,9 +283,24 @@ export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
   return await invoke<PlanResult>("engineering_plan", { plan });
 }
 
-/** What the core's arrival briefing listens for: the materials this plan still has to collect. */
-export function shoppingChange(r: PlanResult): { ship_id: number; materials: string[] } {
-  return { ship_id: r.ship_id, materials: r.farm.map((f) => f.id) };
+/** One material for the core's shopping list: collect it until holding `until`. */
+export interface Want {
+  id: string;
+  until: number;
+}
+
+/**
+ * What the core's arrival briefing listens for: the materials this plan still has to collect, each
+ * with the count to hold when done. The core compares that with the materials held, so collecting
+ * in game needs no new list. An empty plan sends an empty list, which drops the ship.
+ */
+export function shoppingChange(r: PlanResult): { ship_id: number; materials: Want[] } {
+  return { ship_id: r.ship_id, materials: r.farm.map((f) => ({ id: f.id, until: f.have + f.collect })) };
+}
+
+function sendShopping(change: { ship_id: number; materials: Want[] }): void {
+  if (!inTauri) return;
+  coreCall("shopping_set", JSON.stringify(change)).catch(() => {});
 }
 
 /**
@@ -293,8 +308,12 @@ export function shoppingChange(r: PlanResult): { ship_id: number; materials: str
  * is spoken (core callouts.rs `shopping_set`). Best effort: an older or stopped core is ignored.
  */
 export function shareShoppingList(r: PlanResult): void {
-  if (!inTauri) return;
-  coreCall("shopping_set", JSON.stringify(shoppingChange(r))).catch(() => {});
+  sendShopping(shoppingChange(r));
+}
+
+/** The ship has no plan the core should listen for (it left the fleet). */
+export function dropShoppingList(shipId: number): void {
+  sendShopping({ ship_id: shipId, materials: [] });
 }
 
 const targetKey = (t: Target) => [t.slot, t.blueprint, t.grade, t.experimental ?? ""].join("|");

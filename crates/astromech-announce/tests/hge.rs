@@ -57,7 +57,7 @@ fn each_spawning_faction_gives_its_own_pool() {
     // Who spawned it unknown: the most influential faction's pool.
     assert_eq!(r.spoken(&hge(None)), ["High Grade Emissions. Federation composites."]);
     // A material on the shopping list is named instead of the pool.
-    *r.shared.shopping.write().unwrap() = ShoppingList(vec!["protolightalloys".into()]);
+    *r.shared.shopping.write().unwrap() = ShoppingList::wanting(&["protolightalloys"]);
     assert_eq!(r.spoken(&hge(Some(("Booming Locals", "Boom")))), ["High Grade Emissions. Proto Light Alloys."]);
     // A faction with no pool (Independent, no state that gives one).
     let mut r = Run::with(Default::default(), &settings);
@@ -90,13 +90,13 @@ fn a_burst_of_hges_from_one_honk_is_said_once() {
 #[test]
 fn a_billion_people_system_for_a_wanted_pool_material_is_a_good_hge_system_on_arrival() {
     let mut r = Run::new();
-    *r.shared.shopping.write().unwrap() = ShoppingList(vec!["imperialshielding".into()]);
+    *r.shared.shopping.write().unwrap() = ShoppingList::wanting(&["imperialshielding"]);
     let empire = [("Imperial Traders", "Empire", "None", 0.6), ("Locals", "Independent", "None", 0.4)];
     assert_eq!(r.spoken(&jump(2_500_000_000, &empire)), ["Good for Imperial Shielding."]);
     // Under a billion people the allegiance pools rarely spawn: nothing.
     assert!(r.spoken(&jump(800_000_000, &empire)).is_empty());
     // Not on the list: nothing.
-    *r.shared.shopping.write().unwrap() = ShoppingList(vec!["fedcorecomposites".into()]);
+    *r.shared.shopping.write().unwrap() = ShoppingList::wanting(&["fedcorecomposites"]);
     assert!(r.spoken(&jump(2_500_000_000, &empire)).is_empty());
 }
 

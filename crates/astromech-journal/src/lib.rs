@@ -113,6 +113,9 @@ pub enum JournalEvent {
         /// `FSDJump` only).
         fuel_used: Option<f64>,
         fuel_level: Option<f64>,
+        /// A supercharged or injected jump (`BoostUsed`: neutron, white dwarf, FSD injection):
+        /// the distance is boosted but the fuel is an ordinary jump's.
+        boost_used: bool,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -428,6 +431,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             powerplay: system_powerplay(&raw),
             fuel_used: opt_f(&raw, "FuelUsed"),
             fuel_level: opt_f(&raw, "FuelLevel"),
+            boost_used: opt_f(&raw, "BoostUsed").is_some_and(|b| b > 0.0),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -819,6 +823,7 @@ mod tests {
                 powerplay: None,
                 fuel_used: None,
                 fuel_level: None,
+                boost_used: false,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
@@ -1040,7 +1045,15 @@ mod tests {
             r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Sol","JumpDist":8.5,"FuelUsed":1.25,"FuelLevel":30.5}"#,
         )
         .unwrap();
-        assert!(matches!(j.event, JournalEvent::FsdJump { fuel_used: Some(1.25), fuel_level: Some(30.5), .. }));
+        assert!(matches!(
+            j.event,
+            JournalEvent::FsdJump { fuel_used: Some(1.25), fuel_level: Some(30.5), boost_used: false, .. }
+        ));
+        let j = parse_line(
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Sol","JumpDist":80.0,"FuelUsed":1.25,"BoostUsed":4}"#,
+        )
+        .unwrap();
+        assert!(matches!(j.event, JournalEvent::FsdJump { boost_used: true, .. }));
     }
 
     #[test]

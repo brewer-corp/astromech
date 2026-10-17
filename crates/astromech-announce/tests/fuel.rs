@@ -37,7 +37,7 @@ fn run(hops: &[(&str, &str)]) -> Run {
 }
 
 #[test]
-fn the_next_scoopable_star_is_said_on_arrival_at_one_that_is_not() {
+fn the_next_scoopable_star_is_said_once_per_stretch_without_one() {
     let mut r = run(&[
         ("Start", "K"),
         ("Neut", "N"),
@@ -47,12 +47,48 @@ fn the_next_scoopable_star_is_said_on_arrival_at_one_that_is_not() {
         ("End", "M"),
     ]);
     assert_eq!(r.spoken(&jump("Neut", 2.0, 20.0)), ["Next scoopable star in 3 jumps."]);
-    assert_eq!(r.spoken(&jump("Dwarf", 2.0, 18.0)), ["Next scoopable star in 2 jumps."]);
-    assert_eq!(r.spoken(&jump("Brown", 2.0, 16.0)), ["Next star is scoopable."]);
+    // The same stretch: already said.
+    assert!(r.spoken(&jump("Dwarf", 2.0, 18.0)).is_empty());
+    assert!(r.spoken(&jump("Brown", 2.0, 16.0)).is_empty());
     // At a scoopable star: the HUD's scoop prompt says it; nothing.
     assert!(r.spoken(&jump("Giant", 2.0, 14.0)).is_empty());
     // Arrived: the route is done.
     assert!(r.spoken(&jump("End", 2.0, 12.0)).is_empty());
+}
+
+#[test]
+fn a_neutron_route_does_not_hear_it_every_other_jump() {
+    // Neutron, scoopable, neutron, ...: every stretch is one jump; nothing to say.
+    let mut r = run(&[("Start", "K"), ("N1", "N"), ("K1", "K"), ("N2", "N"), ("K2", "G"), ("N3", "N"), ("End", "M")]);
+    for (sys, level) in [("N1", 30.0), ("K1", 28.0), ("N2", 26.0), ("K2", 24.0), ("N3", 22.0)] {
+        assert!(r.spoken(&jump(sys, 2.0, level)).is_empty(), "{sys}");
+    }
+}
+
+#[test]
+fn a_boosted_jump_does_not_cheapen_the_fuel_estimate() {
+    // A 20 ly jump for 2 t, then a neutron-boosted 80 ly jump that also used 2 t. Four 20 ly
+    // jumps (8 t) to the G star with 5 t left must still warn; from the boosted jump they
+    // would look like 0.07 t each.
+    let mut r = run(&[("Start", "K"), ("Prev", "N"), ("A", "N"), ("B", "N"), ("C", "DA"), ("D", "Y"), ("Fuel", "G")]);
+    r.spoken(&jump("Prev", 2.0, 25.0));
+    let boosted = jump("A", 2.0, 5.0).replace("\"JumpDist\":20.0", "\"JumpDist\":80.0,\"BoostUsed\":4");
+    assert_eq!(r.spoken(&boosted), ["Fuel too low to reach a scoopable star."]);
+    assert_eq!(r.state.last_jump, Some((20.0, 2.0)));
+}
+
+#[test]
+fn another_ship_starts_without_a_fuel_estimate() {
+    let mut r = run(&[("Start", "K"), ("A", "N"), ("Fuel", "G")]);
+    r.spoken(&jump("A", 2.0, 25.0));
+    assert!(r.state.last_jump.is_some());
+    // The same ship's loadout again (outfitting) keeps it; a swap to another ship drops it.
+    let ship = |id: &str| LOADOUT.replace("\"Ship\":\"asp\"", &format!("\"Ship\":\"asp\",\"ShipID\":{id}"));
+    r.spoken(&ship("1"));
+    r.spoken(&ship("1"));
+    assert!(r.state.last_jump.is_some());
+    r.spoken(&ship("2"));
+    assert_eq!(r.state.last_jump, None);
 }
 
 #[test]
@@ -68,8 +104,8 @@ fn not_enough_fuel_to_reach_a_scoopable_star_warns_once() {
     let said = r.spoken(&jump("A", 2.0, 5.0));
     assert_eq!(said, ["Next scoopable star in 4 jumps.", "Fuel too low to reach a scoopable star."]);
     // The next jumps are still short: the warning isn't repeated within its cooldown.
-    assert_eq!(r.spoken(&jump("B", 2.0, 3.0)), ["Next scoopable star in 3 jumps."]);
-    assert_eq!(r.spoken(&jump("C", 2.0, 1.0)), ["Next scoopable star in 2 jumps."]);
+    assert!(r.spoken(&jump("B", 2.0, 3.0)).is_empty());
+    assert!(r.spoken(&jump("C", 2.0, 1.0)).is_empty());
 }
 
 #[test]

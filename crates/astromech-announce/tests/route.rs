@@ -50,6 +50,16 @@ fn a_white_dwarf_and_a_fuel_gap_give_one_hazard_line_each() {
 }
 
 #[test]
+fn the_fuel_warning_is_not_said_again_on_the_next_arrival() {
+    // Plotted with too little fuel, then the first jump of the route seconds later.
+    let mut r = at_start(3.0);
+    let said = r.plot(&route(20.0, &["N", "N", "L", "Y", "G"]));
+    assert_eq!(said[0], "Fuel too low to reach a scoopable star.");
+    let arrive = r#"{"timestamp":"2026-10-16T20:00:10Z","event":"FSDJump","StarSystem":"Sys 1","StarPos":[20,0,0],"JumpDist":20.0,"FuelUsed":2.0,"FuelLevel":1.0,"Population":0,"Factions":[]}"#;
+    assert!(!r.spoken(arrive).iter().any(|l| l.starts_with("Fuel too low")));
+}
+
+#[test]
 fn a_plain_route_gets_only_its_summary() {
     let mut r = at_start(30.0);
     assert_eq!(r.plot(&route(12.5, &["K", "G", "M", "F", "K"])), ["Route: 4 jumps, 50 ly."]);

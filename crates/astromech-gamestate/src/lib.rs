@@ -97,8 +97,12 @@ pub struct GameState {
     /// `NavRoute.json`'s systems with star class and position (the route as plotted: the first
     /// is where it was plotted from).
     pub route_hops: Vec<RouteHop>,
-    /// The last hyperspace jump: (distance in ly, tonnes of fuel it used).
+    /// The last ordinary hyperspace jump of this ship: (distance in ly, tonnes of fuel it used).
+    /// Boosted jumps (neutron, white dwarf, FSD injection) don't count: their distance is
+    /// boosted, their fuel isn't. Cleared when the loadout is for another ship.
     pub last_jump: Option<(f64, f64)>,
+    /// `ShipID` of the last loadout.
+    pub ship_id: Option<i64>,
     /// Frame Shift Drive size from the loadout (2 to 8), for fuel per jump.
     pub fsd_size: Option<u8>,
     /// Journal file currently followed.
@@ -157,8 +161,15 @@ impl GameState {
                 fuel_capacity_main,
                 rebuy,
                 modules,
+                ship_id,
                 ..
             } => {
+                if ship_id.is_some() && *ship_id != self.ship_id {
+                    if self.ship_id.is_some() {
+                        self.last_jump = None;
+                    }
+                    self.ship_id = *ship_id;
+                }
                 if ship.is_some() {
                     self.ship = ship.clone();
                 }
@@ -222,13 +233,14 @@ impl GameState {
                 fuel_level,
                 factions,
                 population,
+                boost_used,
                 ..
             } => {
                 self.system_factions = factions.clone();
                 self.system_population = *population;
                 self.system = Some(star_system.clone());
                 self.star_pos = *star_pos;
-                if let Some(f) = fuel_used.filter(|_| !from_carrier && *jump_dist > 0.0) {
+                if let Some(f) = fuel_used.filter(|_| !from_carrier && !boost_used && *jump_dist > 0.0) {
                     self.last_jump = Some((*jump_dist, f));
                 }
                 if fuel_level.is_some() {

@@ -319,7 +319,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
     assert_eq!(rules.len(), 8, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
-    let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"}]}"#;
+    let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"B","StarPos":[40,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[60,0,0],"StarClass":"G"}]}"#;
     r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
     r.journal(&one_line_per_rule("19:59").join("\n"));
     // The route file read at startup.
@@ -341,7 +341,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Cargo scan.",
             "Undiscovered system.",
             "Docking denied. No free pad.",
-            "Next star is scoopable.",
+            "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
             "High Grade Emissions.",
             "Route: 3 jumps, 60 ly.",
