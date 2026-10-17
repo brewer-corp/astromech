@@ -83,6 +83,21 @@ fn it_waits_for_the_history_to_hold_the_last_line_and_gives_up_after_a_while() {
 }
 
 #[test]
+fn a_replayed_line_during_the_wait_keeps_the_pending_summary() {
+    let (mut r, h) = run(Some(totals("2026-10-16T20:59:00Z")));
+    r.spoken(LOAD_GAME);
+    r.spoken(SHUTDOWN);
+    assert!(r.tick(NOW).is_empty(), "the history has not caught up yet");
+    // A line replayed while it waits (for instance a journal re-read) must not drop the summary.
+    r.engine.set_live(false);
+    r.spoken(MENU);
+    r.engine.set_live(true);
+    *h.0.lock().unwrap() = Some(totals("2026-10-16T21:00:05Z"));
+    assert_eq!(r.tick(NOW + 2), SAID);
+    assert!(r.tick(NOW + 3).is_empty(), "and it speaks once");
+}
+
+#[test]
 fn a_session_with_nothing_to_report_says_nothing() {
     let quiet =
         Totals { total: 0, per_hour: None, jumps: 0, distance_ly: 0.0, bounties: 0, ..totals("2026-10-16T21:00:05Z") };
