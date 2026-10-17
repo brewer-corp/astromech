@@ -86,4 +86,23 @@ mod tests {
         std::fs::write(&db, b"not a database, not even close to one").unwrap();
         assert_eq!(s.session(None, None), Err(Unreadable));
     }
+
+    #[test]
+    fn a_read_that_fails_on_an_open_connection_is_unreadable_and_recovers() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("history.sqlite");
+        // A rollback-journal file: there a writer's exclusive lock shuts readers out. (In WAL
+        // mode a writer can't even take the lock while a reader connection is open.)
+        History::open(&db).unwrap().conn().pragma_update(None, "journal_mode", "DELETE").unwrap();
+        let s = HistorySessions::new(db.clone());
+        assert_eq!(s.session(None, None), Ok(None), "a first read works and keeps its connection");
+        assert!(s.conn.lock().unwrap().is_some());
+        {
+            // A writer holding the database exclusively (an import mid-commit).
+            let w = rusqlite::Connection::open(&db).unwrap();
+            w.execute_batch("BEGIN EXCLUSIVE; CREATE TABLE held(x); INSERT INTO held VALUES (1);").unwrap();
+            assert_eq!(s.session(None, None), Err(Unreadable));
+        }
+        assert_eq!(s.session(None, None), Ok(None), "the next ask reads again");
+    }
 }
