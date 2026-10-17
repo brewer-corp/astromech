@@ -2,7 +2,8 @@
 //!
 //! `fixtures/edsm-values.json` (source in the file): fifteen systems' bodies with their class,
 //! mass and terraform state, and EDSM's published estimates: each system's bodies at their scan
-//! value (`estimatedValue`), and each valuable body's mapped value (`valueMax`). EDSM's figures
+//! value (`estimatedValue`) and with every planet mapped (`estimatedValueMapped`), and each
+//! valuable body's mapped value (`valueMax`). EDSM's figures
 //! are for a body already discovered and mapped by someone else, without the efficiency or
 //! Odyssey bonus, so they are compared on those terms. Between them the systems hold every star
 //! value class (main sequence, brown dwarfs, Wolf-Rayet, white dwarfs, a neutron star, a black
@@ -23,6 +24,7 @@ struct Fixture {
 struct System {
     system: String,
     edsm_total: Option<i64>,
+    edsm_total_mapped: Option<i64>,
     edsm_mapped: Vec<(String, i64)>,
     bodies: Vec<Body>,
 }
@@ -92,6 +94,43 @@ fn every_system_total_matches_edsm_scan_value() {
         checked += 1;
     }
     assert_eq!(checked, 14);
+}
+
+/// Small planets once mapped: the 500 cr minimum applies after the mapping multiplier, not
+/// before (EDDI's `Body.cs` `estimateBodyValue` does this; EDDiscovery floors first). EDSM's
+/// `estimatedValueMapped` decides it: these systems hold over a hundred rocky, icy and rocky ice
+/// bodies under the floor, and flooring after mapping matches every total exactly, while
+/// flooring first comes out high in each (Togher by 13,859, HIP 34707 by 5,051).
+#[test]
+fn every_system_mapped_total_matches_edsm() {
+    let mut checked = 0;
+    for s in fixture().systems {
+        // Sol's EDSM body list differs from Spansh's (no scan total either).
+        let Some(published) = s.edsm_total_mapped else { continue };
+        let ours: i64 = s
+            .bodies
+            .iter()
+            .map(|b| {
+                let terms = if b.planet_class.is_some() { EDSM.mapped(false) } else { EDSM };
+                body_value(&b.scan(), terms).unwrap()
+            })
+            .sum();
+        assert!((ours - published).abs() <= 2, "{}: ours {ours}, EDSM {published}", s.system);
+        checked += 1;
+    }
+    assert_eq!(checked, 14);
+}
+
+/// A mapped 1 Earth-mass icy body: `300 + 300·q` is 470, under the floor, but mapped it is
+/// 470 × 10/3 = 1566 on EDSM's terms (the rule `every_system_mapped_total_matches_edsm` checks),
+/// and 1566 + 555 = 2121 with the Odyssey bonus, as EDDI gives. Flooring first gave 1667 and 2222.
+#[test]
+fn a_mapped_small_icy_body_is_floored_after_mapping() {
+    use astromech_exploration::value::planet_value;
+    assert_eq!(planet_value("Icy body", false, Some(1.0), EDSM), 500);
+    assert_eq!(planet_value("Icy body", false, Some(1.0), EDSM.mapped(false)), 1566);
+    let live = Terms { odyssey: true, ..EDSM };
+    assert_eq!(planet_value("Icy body", false, Some(1.0), live.mapped(false)), 2121);
 }
 
 /// The fixture covers every value class (the test is only as good as its examples).
