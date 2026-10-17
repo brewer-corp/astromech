@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:25:51.321902969+00:00"
 id: "astromech-qtiw"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-qtiw
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Remote cache: two processes opening a new cache file at once leave one in memory"
-updated_at: "2026-10-17T06:25:51.321902969+00:00"
+updated_at: "2026-10-17T06:31:00.581514751+00:00"
 ---
 
 ## Goal
