@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T00:48:57.128601767+00:00"
+status: "done"
 title: "Flaky Windows test: notifications_run_in_the_background_at_most_one_per_gap"
-updated_at: "2026-10-17T00:46:32.182592324+00:00"
+updated_at: "2026-10-17T00:48:57.128601767+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ The test waits on conditions with a generous deadline instead of fixed sleeps, s
 ## Context
 
 Windows CI log from PR #42. Same family as astromech-2hml (gear_down latency floor).
+
+## Close Reason
+
+Test was racing fixed sleeps; Background gap logic verified correct. Test now polls with a 10 s deadline.
