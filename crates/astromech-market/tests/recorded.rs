@@ -30,6 +30,17 @@ impl Transport for Recorded {
             fixture!("ardent-sell-lowtemperaturediamond-sol.json")
         } else if url.contains("/commodity/name/tritium/nearby/exports") {
             fixture!("ardent-buy-tritium-sol.json")
+        } else if url.contains("/api/bodies/search") {
+            let asked = format!("{:?}", req.body);
+            if asked.contains("\"Platinum\"") {
+                fixture!("spansh-rings-platinum-sol.json")
+            } else if asked.contains("\"Low Temperature Diamonds\"") {
+                fixture!("spansh-rings-lowtemperaturediamond-sol.json")
+            } else if asked.contains("\"Void Opal\"") {
+                fixture!("spansh-rings-opal-sol.json")
+            } else {
+                panic!("no recorded ring search for {asked}")
+            }
         } else if url.contains("/api-v1/sphere-systems") {
             "[]"
         } else {
@@ -42,6 +53,10 @@ impl Transport for Recorded {
 impl Recorded {
     fn requests(&self) -> usize {
         self.log.lock().unwrap().len()
+    }
+
+    fn last_body(&self) -> String {
+        self.log.lock().unwrap().last().map(|(_, r)| format!("{:?}", r.body)).unwrap_or_default()
     }
 
     fn last_query(&self) -> Vec<(String, String)> {
@@ -377,4 +392,77 @@ fn a_full_answer_is_asked_again_with_the_demand_needed() {
     // The re-asked market counts for the whole load too: 500 t × 40,000 beats 10 t × 50,000.
     assert_eq!((p.stations[0].market_id, p.stations[0].sold, p.stations[0].total), (5000, 500, 20_000_000));
     assert_eq!(p.stations.len(), 1001, "every listed market, plus the re-asked one once");
+}
+
+// --- astromech-mcxc: mining sale advisor and hotspot finder ---
+
+use astromech_market::mining;
+
+#[test]
+fn ore_sale_is_the_best_proceeds_within_demand_not_the_best_price() {
+    let (c, _) = client();
+    // 600 t of LTDs: Sabine Point pays the most (384,562) but wants only 483 t.
+    let s = mining::sale(&c, &sol(), "lowtemperaturediamond", 600, &week(), 20.0, now()).unwrap();
+    assert_eq!((s.name.as_str(), s.tonnes), ("Low Temperature Diamonds", 600));
+    let best = &s.stations[0];
+    assert_eq!((best.station.as_str(), best.sold, best.total), ("Good Landing", 600, 600 * 375_061));
+    let sabine = s.stations.iter().find(|x| x.station == "Sabine Point").unwrap();
+    assert_eq!((sabine.sold, sabine.total), (483, 483 * 384_562));
+    assert!(sabine.total < best.total);
+    // The only market with demand for all of it is the one that wins on proceeds as well.
+    assert_eq!(s.whole.as_ref().map(|o| o.station.as_str()), Some("Good Landing"));
+    assert!(s.stations.windows(2).all(|w| w[0].total >= w[1].total));
+
+    // A small load goes to the best price.
+    let s = mining::sale(&c, &sol(), "lowtemperaturediamond", 100, &week(), 20.0, now()).unwrap();
+    assert_eq!((s.stations[0].station.as_str(), s.stations[0].total), ("Sabine Point", 100 * 384_562));
+    assert_eq!(s.whole.as_ref().map(|o| o.station.as_str()), Some("Sabine Point"));
+}
+
+#[test]
+fn ore_sale_with_demand_for_none_of_it_is_still_a_partial_sale() {
+    let (c, _) = client();
+    // More than any market wants: nothing takes all of it, the best partial sale leads.
+    let s = mining::sale(&c, &sol(), "platinum", 100_000, &week(), 20.0, now()).unwrap();
+    assert!(s.whole.is_none());
+    assert_eq!(s.stations[0].station, "Radium Station");
+    assert_eq!((s.stations[0].sold, s.stations[0].total), (58_584, 58_584 * 294_712));
+}
+
+fn hotspot_names(h: &[mining::Hotspot]) -> Vec<(&str, u32)> {
+    h.iter().map(|x| (x.ring.as_str(), x.count)).collect()
+}
+
+#[test]
+fn hotspots_are_the_nearest_rings_holding_the_chosen_ore() {
+    let (c, rec) = client();
+    let h = mining::hotspots(&c, &sol(), "platinum", 20.0, 3).unwrap();
+    // Asked the way Spansh understands it: the ore's name in the ring signals filter.
+    assert!(rec.last_body().contains("ring_signals"), "{}", rec.last_body());
+    assert_eq!(
+        hotspot_names(&h),
+        [("Barnard's Star 5 A Ring", 1), ("WISE 0855-0714 6 A Ring", 1), ("Luyten's Star 1 A Ring", 1)],
+        "the A ring: Barnard's Star 5's B ring has no platinum"
+    );
+    assert_eq!((h[0].system.as_str(), h[0].ring_type.as_str()), ("Barnard's Star", "Metal Rich"));
+    assert!((h[0].hop.ly - 5.95).abs() < 0.01, "{}", h[0].hop.ly);
+    assert_eq!(h[0].hop.jumps, 1);
+    assert!(h[0].arrival_ls.is_some() && h[0].updated_at.is_some());
+    assert!(h.windows(2).all(|w| w[0].hop.ly <= w[1].hop.ly));
+}
+
+#[test]
+fn hotspots_pick_the_ring_not_the_body() {
+    let (c, rec) = client();
+    // LTDs: Barnard's Star 5 holds them in its B ring; 6's A ring is empty and its B ring has them.
+    let h = mining::hotspots(&c, &sol(), "lowtemperaturediamond", 20.0, 2).unwrap();
+    assert_eq!(hotspot_names(&h), [("Barnard's Star 5 B Ring", 1), ("Barnard's Star 6 B Ring", 1)]);
+    assert!(rec.last_body().contains("Low Temperature Diamonds"));
+    // Void Opal: the catalogue's name, which is how the rings list it.
+    let h = mining::hotspots(&c, &sol(), "opal", 20.0, 1).unwrap();
+    assert_eq!(hotspot_names(&h), [("Barnard's Star 6 B Ring", 2)]);
+    // Counts one ring's hotspots, not the body's.
+    let h = mining::hotspots(&c, &sol(), "platinum", 20.0, 4).unwrap();
+    assert_eq!(h[3].ring, "TZ Arietis 3 A Ring");
+    assert_eq!(h[3].count, 2);
 }

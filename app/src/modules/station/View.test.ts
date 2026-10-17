@@ -18,6 +18,10 @@ describe("Station", () => {
     const upgrades = within(screen.getByRole("table", { name: "Upgrades on sale" }));
     const cells = upgrades.getAllByRole("row")[1]!.textContent?.replace(/\s+/g, " ").trim();
     expect(cells).toBe("Frame shift drive5C Frame Shift Drive5A Frame Shift Drive9,000,000 cr");
+
+    // The market against nearby prices sits between the facts and the outfitting.
+    expect(screen.getByText("Market")).toBeTruthy();
+    expect(await screen.findByRole("table", { name: "For sale here" })).toBeTruthy();
   });
 
   it("finds the stations that sold a module", async () => {

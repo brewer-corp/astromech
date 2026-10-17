@@ -4,6 +4,9 @@ id: "astromech-ew3x"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ew3x
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T03:11:51.665621317+00:00"
+status: "done"
 title: "Signal callouts"
-updated_at: "2026-10-15T20:36:13.659207200+00:00"
+updated_at: "2026-10-17T03:11:51.665621317+00:00"
 ---
 
 ## Goal
@@ -27,3 +31,7 @@ From `FSSSignalDiscovered`: Thargoid, combat and conflict zones, Powerplay signa
 ## Done when
 
 Each signal type in a fixture gets its line, once per system.
+
+## Close Reason
+
+signals rule added; each signal type announced once per system; tests pass

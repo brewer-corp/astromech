@@ -1,0 +1,193 @@
+{
+ "count": 10000,
+ "from": 0,
+ "results": [
+  {
+   "id64": 936766985633605033,
+   "name": "Barnard's Star 6",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "Barnard's Star",
+   "system_id64": 18263140541865,
+   "system_x": -3.03125,
+   "system_y": 1.375,
+   "system_z": 4.9375,
+   "distance": 5.95466269510709,
+   "distance_to_arrival": 4912.895363,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Barnard's Star 6 A Ring",
+     "type": "Rocky"
+    },
+    {
+     "name": "Barnard's Star 6 B Ring",
+     "signals": [
+      {
+       "count": 3,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 2,
+       "name": "Void Opal"
+      },
+      {
+       "count": 3,
+       "name": "Tritium"
+      }
+     ],
+     "signals_updated_at": "2026-08-22T21:48:45Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T20:34:30Z"
+  },
+  {
+   "id64": 396374911939267408,
+   "name": "WISE 0855-0714 5",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "WISE 0855-0714",
+   "system_id64": 58144730663760,
+   "system_x": 6.53125,
+   "system_y": -2.15625,
+   "system_z": 2.03125,
+   "distance": 7.17165372752338,
+   "distance_to_arrival": 536.523533,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "WISE 0855-0714 5 A Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Monazite"
+      },
+      {
+       "count": 1,
+       "name": "Painite"
+      },
+      {
+       "count": 3,
+       "name": "Rhodplumsite"
+      }
+     ],
+     "signals_updated_at": "2026-09-13T13:22:10Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "WISE 0855-0714 5 B Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 2,
+       "name": "Bromellite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 1,
+       "name": "Void Opal"
+      }
+     ],
+     "signals_updated_at": "2026-10-06T04:45:25Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-15T22:03:31Z"
+  },
+  {
+   "id64": 576465092107831659,
+   "name": "Duamta 7",
+   "type": "Planet",
+   "subtype": "Icy body",
+   "system_name": "Duamta",
+   "system_id64": 4339804408171,
+   "system_x": 2.1875,
+   "system_y": 6.625,
+   "system_z": -7.0,
+   "distance": 9.88310585038934,
+   "distance_to_arrival": 3256.192215,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Duamta 7 A Ring",
+     "signals": [
+      {
+       "count": 2,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 2,
+       "name": "Void Opal"
+      }
+     ],
+     "signals_updated_at": "2026-10-15T16:27:41Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-17T02:07:56Z"
+  },
+  {
+   "id64": 900725291499277136,
+   "name": "WISE 1506+7027 2",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "WISE 1506+7027",
+   "system_id64": 5366025177936,
+   "system_x": -7.375,
+   "system_y": 7.09375,
+   "system_z": -2.4375,
+   "distance": 10.5191881964579,
+   "distance_to_arrival": 680.157301,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "WISE 1506+7027 2 A Ring",
+     "signals": [
+      {
+       "count": 2,
+       "name": "Alexandrite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 2,
+       "name": "Void Opal"
+      },
+      {
+       "count": 1,
+       "name": "Tritium"
+      }
+     ],
+     "signals_updated_at": "2026-09-28T16:01:56Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T15:17:47Z"
+  }
+ ]
+}

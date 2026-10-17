@@ -1,0 +1,207 @@
+{
+ "count": 10000,
+ "from": 0,
+ "results": [
+  {
+   "id64": 468392624387073449,
+   "name": "Barnard's Star 5",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "Barnard's Star",
+   "system_id64": 18263140541865,
+   "system_x": -3.03125,
+   "system_y": 1.375,
+   "system_z": 4.9375,
+   "distance": 5.95466269510709,
+   "distance_to_arrival": 3272.39552,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Barnard's Star 5 A Ring",
+     "signals": [
+      {
+       "count": 2,
+       "name": "Painite"
+      },
+      {
+       "count": 1,
+       "name": "Platinum"
+      }
+     ],
+     "signals_updated_at": "2026-10-07T21:22:54Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "Barnard's Star 5 B Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Bromellite"
+      },
+      {
+       "count": 1,
+       "name": "Grandidierite"
+      },
+      {
+       "count": 1,
+       "name": "Low Temperature Diamonds"
+      },
+      {
+       "count": 1,
+       "name": "Tritium"
+      }
+     ],
+     "signals_updated_at": "2026-10-11T15:00:22Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T16:36:08Z"
+  },
+  {
+   "id64": 756662882128907088,
+   "name": "WISE 0855-0714 6",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "WISE 0855-0714",
+   "system_id64": 58144730663760,
+   "system_x": 6.53125,
+   "system_y": -2.15625,
+   "system_z": 2.03125,
+   "distance": 7.17165372752338,
+   "distance_to_arrival": 917.068668,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "WISE 0855-0714 6 A Ring",
+     "signals": [
+      {
+       "count": 5,
+       "name": "Monazite"
+      },
+      {
+       "count": 2,
+       "name": "Painite"
+      },
+      {
+       "count": 1,
+       "name": "Platinum"
+      },
+      {
+       "count": 1,
+       "name": "Rhodplumsite"
+      },
+      {
+       "count": 1,
+       "name": "Serendibite"
+      }
+     ],
+     "signals_updated_at": "2026-09-26T11:43:58Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "WISE 0855-0714 6 B Ring",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-15T22:03:44Z"
+  },
+  {
+   "id64": 180151253119083937,
+   "name": "Luyten's Star 1",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "Luyten's Star",
+   "system_id64": 7268024264097,
+   "system_x": 6.5625,
+   "system_y": 2.34375,
+   "system_z": -10.25,
+   "distance": 12.3944370712227,
+   "distance_to_arrival": 297.692113,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "Luyten's Star 1 A Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Platinum"
+      },
+      {
+       "count": 1,
+       "name": "Rhodplumsite"
+      },
+      {
+       "count": 1,
+       "name": "Serendibite"
+      }
+     ],
+     "signals_updated_at": "2026-10-17T01:30:09Z",
+     "type": "Metal Rich"
+    },
+    {
+     "name": "Luyten's Star 1 B Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Alexandrite"
+      }
+     ],
+     "signals_updated_at": "2026-10-17T01:30:05Z",
+     "type": "Icy"
+    }
+   ],
+   "updated_at": "2026-10-16T23:36:44Z"
+  },
+  {
+   "id64": 864704993280664993,
+   "name": "TZ Arietis 3",
+   "type": "Planet",
+   "subtype": "Class I gas giant",
+   "system_name": "TZ Arietis",
+   "system_id64": 13864825529761,
+   "system_x": -5.375,
+   "system_y": -10.59375,
+   "system_z": -8.5,
+   "distance": 14.6071271666437,
+   "distance_to_arrival": 822.890288,
+   "is_landable": false,
+   "rings": [
+    {
+     "name": "TZ Arietis 3 A Ring",
+     "signals": [
+      {
+       "count": 1,
+       "name": "Monazite"
+      },
+      {
+       "count": 1,
+       "name": "Painite"
+      },
+      {
+       "count": 2,
+       "name": "Platinum"
+      }
+     ],
+     "signals_updated_at": "2026-10-16T20:54:12Z",
+     "type": "Metallic"
+    },
+    {
+     "name": "TZ Arietis 3 B Ring",
+     "signals": [
+      {
+       "count": 3,
+       "name": "Benitoite"
+      },
+      {
+       "count": 1,
+       "name": "Musgravite"
+      }
+     ],
+     "signals_updated_at": "2026-10-16T20:54:12Z",
+     "type": "Rocky"
+    }
+   ],
+   "updated_at": "2026-10-16T20:58:47Z"
+  }
+ ]
+}

@@ -4,6 +4,9 @@ id: "astromech-mcxc"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mcxc
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T02:54:02.253762882+00:00"
+status: "done"
 title: "Mining sale advisor and hotspot finder"
-updated_at: "2026-10-15T20:36:13.662084535+00:00"
+updated_at: "2026-10-17T02:54:02.253762882+00:00"
 ---
 
 ## Goal
@@ -27,3 +31,7 @@ Best nearby sale for LTDs, platinum, painite and the rest, with demand (caps mat
 ## Done when
 
 Recorded-response tests return the best sale respecting demand, and the nearest ring with a hotspot for a chosen ore.
+
+## Close Reason
+
+Mining sale and ring hotspot lookups in astromech-market::mining with recorded-response tests; ore order shared with prospector callouts; app UI split to astromech-wvet.
