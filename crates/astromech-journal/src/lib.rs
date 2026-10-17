@@ -855,7 +855,15 @@ impl JournalWatch {
                 return self.generation;
             }
             // Not recorded: the switch is counted on the first poll that can read the new file.
-            Some(Err(_)) => return self.generation,
+            // If even the first poll fails, that counts as a change too, so a build made
+            // before the file could be read isn't kept.
+            Some(Err(_)) => {
+                if !self.started {
+                    self.started = true;
+                    self.files = usize::MAX;
+                }
+                return self.generation;
+            }
             Some(Ok(x)) => x,
         };
         (self.files, self.newest) = (logs.len(), newest);

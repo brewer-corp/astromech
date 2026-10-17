@@ -140,3 +140,21 @@ fn a_panicking_build_does_not_wedge_the_cache() {
     assert!(died.is_err());
     assert_eq!(*cache.get(d.path(), || 7), 7);
 }
+
+#[cfg(unix)]
+#[test]
+fn a_first_poll_that_cannot_open_the_journal_does_not_pin_the_build() {
+    use astromech_journal::JournalCache;
+    use std::os::unix::fs::PermissionsExt;
+    let d = tempfile::tempdir().unwrap();
+    let j = d.path().join("Journal.2026-10-16T120000.01.log");
+    std::fs::write(&j, format!("{HEADER}\n")).unwrap();
+    std::fs::set_permissions(&j, std::fs::Permissions::from_mode(0o000)).unwrap();
+    if std::fs::File::open(&j).is_ok() {
+        return; // running as root: nothing can be locked
+    }
+    let cache = JournalCache::<u8>::new(WATCHED);
+    assert_eq!(*cache.get(d.path(), || 1), 1);
+    std::fs::set_permissions(&j, std::fs::Permissions::from_mode(0o644)).unwrap();
+    assert_eq!(*cache.get(d.path(), || 2), 2, "the build made while the journal was unreadable was kept");
+}

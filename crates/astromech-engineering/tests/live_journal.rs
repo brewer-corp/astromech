@@ -53,6 +53,8 @@ fn appends_to_an_open_journal_reach_the_pages_on_the_next_call() {
         r#"{ "timestamp":"2026-10-16T12:00:30Z", "event":"Music", "MusicTrack":"NoTrack" }"#,
         r#"{ "timestamp":"2026-10-16T12:00:31Z", "event":"ReceiveText", "From":"Cmdr X", "Message":"o7", "Channel":"local" }"#,
         r#"{ "timestamp":"2026-10-16T12:00:32Z", "event":"FuelScoop", "Scooped":1.5, "Total":16.0 }"#,
+        // A landable body lists its materials under the same key as the `Materials` event.
+        r#"{ "timestamp":"2026-10-16T12:00:33Z", "event":"Scan", "BodyName":"Sol 1 a", "Landable":true, "Materials":[{"Name":"iron","Percent":20.0}] }"#,
     ] {
         put(noise);
     }

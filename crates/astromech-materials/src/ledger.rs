@@ -140,12 +140,10 @@ pub fn replay_path(path: &Path) -> Ledger {
     std::fs::read(path).map(|b| replay_bytes(&b)).unwrap_or_default()
 }
 
-/// From the last `Materials` snapshot in the folder, then later deltas. Older files after that
-/// snapshot are ignored.
-/// Journal lines that change a [`Ledger`] (quoted event names). `"Materials"` also matches the
-/// key of the events that list materials, which is harmless: a superset only costs a rebuild.
+/// Journal lines that change a [`Ledger`], as the game writes them. `"event":"Materials"` and
+/// not just `"Materials"`: the latter is also a key on landable-body `Scan` lines.
 pub const LEDGER_EVENTS: &[&str] = &[
-    "\"Materials\"",
+    "\"event\":\"Materials\"",
     "\"MaterialCollected\"",
     "\"MaterialDiscarded\"",
     "\"MaterialTrade\"",
@@ -157,6 +155,8 @@ pub const LEDGER_EVENTS: &[&str] = &[
     "\"MissionCompleted\"",
 ];
 
+/// From the last `Materials` snapshot in the folder, then later deltas. Older files after that
+/// snapshot are ignored.
 pub fn replay_journal_dir(dir: &Path) -> Ledger {
     replay_events(&events_from_last_snapshot(dir))
 }
