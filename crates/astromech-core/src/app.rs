@@ -63,6 +63,8 @@ pub struct Core {
     pub calibration: Mutex<Option<crate::calibration::Run>>,
     /// Onboarding finished or skipped on this PC.
     pub onboarded: AtomicBool,
+    /// The journal history follower, on the configured journal folder.
+    pub history: crate::history::Following,
 }
 
 impl Core {
@@ -76,6 +78,12 @@ impl Core {
 
     pub fn active(&self) -> bool {
         self.session.lock().unwrap().is_some()
+    }
+
+    /// Keep the journal history on `cfg`'s journal folder: at startup, and after every config
+    /// edit (re-points the follower when the folder changed; otherwise nothing changes).
+    fn follow_history(&self, cfg: &Config) {
+        self.history.follow(cfg.journal_dir(), &cfg.data_dir(), Arc::new(|m: &str| log(m)));
     }
 
     /// The tray's one status line (also its tooltip, under "astromech").
@@ -145,7 +153,7 @@ impl Core {
             "models_progress": *self.models.lock().unwrap(),
             "models_dir": cfg.models_dir().display().to_string(),
             "update": &self.update.lock().unwrap().snap,
-            "history": crate::history::status(),
+            "history": self.history.status(),
         })
     }
 
@@ -423,6 +431,8 @@ impl Core {
             crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
                 c.actions.dry_run |= self.opts.session.dry_run;
                 crate::pipeline::EDDN_SHARING.store(c.eddn.enabled, Ordering::SeqCst);
+                // Under the config lock, so concurrent edits re-point in the order they saved.
+                self.follow_history(&c);
                 *self.cfg.write().unwrap() = c;
             })
         });
@@ -925,6 +935,7 @@ pub fn run(opts: Opts) -> i32 {
         ui: Mutex::new(ui_tx),
         opts: opts.clone(),
         calibration: Mutex::new(None),
+        history: Default::default(),
     });
 
     let c = core.clone();
@@ -951,10 +962,9 @@ pub fn run(opts: Opts) -> i32 {
         }
     }
 
-    let cfg = core.cfg();
-    match cfg.journal_dir() {
-        Some(dir) => crate::history::start(dir, cfg.data_dir(), Arc::new(|m: &str| log(m))),
-        None => log("history: no journal folder; set game.journal_dir"),
+    core.follow_history(&core.cfg());
+    if core.history.status().is_none() {
+        log("history: no journal folder; set game.journal_dir");
     }
 
     let c = core.clone();
@@ -1027,6 +1037,59 @@ fn headless(rx: &Receiver<Ui>) -> i32 {
 mod tests {
     use super::*;
     use astromech_voice::{catalog, download, models};
+
+    /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
+    fn core(dir: &Path, text: &str) -> Arc<Core> {
+        let config_path = dir.join("astromech.toml");
+        std::fs::write(&config_path, text).unwrap();
+        Arc::new(Core {
+            app_dir: dir.to_path_buf(),
+            cfg: std::sync::RwLock::new(Config::load(&config_path).unwrap()),
+            config_path,
+            config_lock: Mutex::new(()),
+            preview: Default::default(),
+            config_note: None,
+            game: Mutex::new(Game::NotRunning),
+            session: Mutex::new(None),
+            starting: AtomicBool::new(false),
+            voice: Mutex::new(String::new()),
+            crash: Mutex::new(None),
+            models: Mutex::new(None),
+            update: Mutex::new(update::Handle::new()),
+            ui: Mutex::new(channel().0),
+            opts: Opts::default(),
+            calibration: Mutex::new(None),
+            onboarded: AtomicBool::new(false),
+            history: Default::default(),
+        })
+    }
+
+    /// First run with no journal folder found: onboarding sets one (`set_folders`) and the
+    /// history imports it without a restart (astromech-5t34).
+    #[test]
+    fn a_journal_folder_set_after_startup_is_imported() {
+        use crate::history::tests::{journal_dir, wait_for};
+        let d = tempfile::tempdir().unwrap();
+        let data = d.path().join("data");
+        let core = core(d.path(), &format!("data_dir = '{}'\n", data.display()));
+        core.follow_history(&core.cfg());
+        // No folder off Windows; on Windows the default under %USERPROFILE%, which set_folders replaces.
+        assert_eq!(core.history.status().is_some(), core.cfg().journal_dir().is_some());
+
+        let j = journal_dir();
+        let r = core.handle(&Request {
+            token: String::new(),
+            cmd: "set_folders".into(),
+            route: None,
+            text: None,
+            args: Some(json!({"journal_dir": j.path().display().to_string()})),
+        });
+        assert_eq!(r["ok"], json!(true), "{r}");
+        wait_for("the journals set in onboarding", || core.history.status().is_some_and(|p| p.ready && p.events == 52));
+        let h = astromech_history::History::open_read_only(&data.join(crate::history::DB_FILE)).unwrap();
+        assert_eq!(h.event_count().unwrap(), 52);
+        assert_eq!(core.status_json()["history"]["events"], json!(52), "the app sees it in the status reply");
+    }
 
     #[test]
     fn retired_models_stay_in_a_folder_models_dir_points_at() {
