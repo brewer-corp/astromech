@@ -149,21 +149,31 @@ pub fn cargo_answer(p: &CargoPlan, max_ly: u32, now_s: i64) -> String {
     s + &age(&best.updated_at, now_s) + &partial_buyers(p)
 }
 
-/// For each commodity no market takes whole (when the hold has more than one): the market that
-/// pays the most for what it does take, as the Trade page's "My cargo" shows it.
+/// Partial-buyer sentences a cargo answer adds at most: the hold's most valuable ones.
+const PARTIAL_BUYERS_SPOKEN: usize = 2;
+
+/// For the commodities no market takes whole (when the hold has more than one): the market that
+/// pays the most for what it does take, as the Trade page's "My cargo" shows it. Only the
+/// [`PARTIAL_BUYERS_SPOKEN`] worth the most are said, and a station the answer already named is
+/// not named again.
 fn partial_buyers(p: &CargoPlan) -> String {
     if p.load.len() < 2 {
         return String::new();
     }
+    let mut partial: Vec<_> =
+        p.per_commodity.iter().filter_map(|c| c.partial.as_ref().map(|o| (c, o, o.volume.min(c.carried)))).collect();
+    partial.sort_by_key(|(_, o, takes)| std::cmp::Reverse(takes * o.price));
+    let named = p.stations.first().map(|s| s.market_id);
     let mut out = String::new();
-    for c in &p.per_commodity {
-        let Some(o) = &c.partial else { continue };
-        let takes = o.volume.min(c.carried);
+    for (c, o, takes) in partial.into_iter().take(PARTIAL_BUYERS_SPOKEN) {
+        let at = if Some(o.market_id) == named {
+            "the same station".to_string()
+        } else {
+            format!("{} in {}", o.station, o.system)
+        };
         out += &format!(
-            " No market takes all your {}: {} in {} takes {} of {} tonnes at {} credits each.",
+            " {} partly sells at {at}: {} of {} tonnes, {} credits each.",
             c.name,
-            o.station,
-            o.system,
             thousands(takes),
             thousands(c.carried),
             thousands(o.price)
