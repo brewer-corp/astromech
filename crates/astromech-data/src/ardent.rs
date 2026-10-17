@@ -1,6 +1,6 @@
 //! Ardent Insight (documented REST API, fed by EDDN): where to buy or sell a commodity near a
-//! system, the nearest station with a service, and a system's markets. Shapes checked against
-//! api.ardent-insight.com on 16 Oct 2026. An unknown system or service is HTTP 404
+//! system or anywhere, the nearest station with a service, and a system's markets. Shapes
+//! checked against api.ardent-insight.com on 16 Oct 2026 (galaxy-wide on 17 Oct). An unknown system or service is HTTP 404
 //! `{"error": "Not Found", "message": "System not found"}`.
 
 use crate::{encode_segment, ttl, Client, Fetched, Request, Result, Service};
@@ -13,6 +13,10 @@ pub const MAX_DISTANCE_LY: f64 = 500.0;
 /// price first and exports cheapest first, so a full answer has dropped only worse prices.
 pub const NEARBY_LIMIT: usize = 1000;
 
+/// The most listings a galaxy-wide search returns (observed 17 Oct 2026; `limit` is ignored),
+/// best price first like the nearby searches.
+pub const GALAXY_LIMIT: usize = 100;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Trade {
     /// Stations selling the commodity (where to buy).
@@ -21,7 +25,16 @@ pub enum Trade {
     Imports,
 }
 
-/// Filters shared by the nearby-commodity searches. `None` leaves Ardent's default.
+impl Trade {
+    fn slug(self) -> &'static str {
+        match self {
+            Trade::Exports => "exports",
+            Trade::Imports => "imports",
+        }
+    }
+}
+
+/// Filters shared by the commodity searches. `None` leaves Ardent's default.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct MarketFilter {
     /// Clamped to [`MAX_DISTANCE_LY`].
@@ -152,11 +165,18 @@ impl Client {
         trade: Trade,
         filter: &MarketFilter,
     ) -> Result<Fetched<Vec<Listing>>> {
-        let side = match trade {
-            Trade::Exports => "exports",
-            Trade::Imports => "imports",
-        };
-        let path = format!("{}/commodity/name/{}/nearby/{side}", system_path(system), encode_segment(commodity));
+        let path =
+            format!("{}/commodity/name/{}/nearby/{}", system_path(system), encode_segment(commodity), trade.slug());
+        self.fetch(Service::Ardent, &filter.apply(Request::get(path)), Some(ttl::MARKET))
+    }
+
+    /// The best [`GALAXY_LIMIT`] markets anywhere that import (buy) or export (sell)
+    /// `commodity`, ordered like [`Client::ardent_nearby`]. Of `filter`, Ardent applies
+    /// `max_days_ago`, `fleet_carriers` and `min_volume` (a few rows with no demand or stock
+    /// still slip through with an age limit) and ignores `max_distance` and
+    /// `min_landing_pad` (checked 17 Oct 2026), so callers re-check what they need.
+    pub fn ardent_galaxy(&self, commodity: &str, trade: Trade, filter: &MarketFilter) -> Result<Fetched<Vec<Listing>>> {
+        let path = format!("/v2/commodity/name/{}/{}", encode_segment(commodity), trade.slug());
         self.fetch(Service::Ardent, &filter.apply(Request::get(path)), Some(ttl::MARKET))
     }
 
