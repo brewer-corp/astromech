@@ -107,8 +107,15 @@ impl Core {
 
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
+        self.status_line_for(TESTER.armed(Instant::now()))
+    }
+
+    /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
+    /// game and the HUD cannot say so, so the line does.
+    fn status_line_for(&self, testing: bool) -> String {
         let game = *self.game.lock().unwrap();
         let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
+            _ if testing => "Voice tester open · push-to-talk testing only".to_string(),
             (_, _, true) => "Starting voice…".to_string(),
             (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().unwrap()),
             (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().unwrap()),
@@ -273,11 +280,18 @@ impl Core {
         self.notify();
     }
 
+    /// A requested check (Settings → Check now, the tray's Check for updates), off the caller's
+    /// thread: it goes to the network.
+    pub fn check_update_in_background(self: &Arc<Self>) {
+        let c = self.clone();
+        std::thread::spawn(move || c.check_update(true));
+    }
+
     /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
     pub fn check_update(self: &Arc<Self>, manual: bool) {
         {
             let mut h = self.update.lock().unwrap();
-            if matches!(h.snap.status, UpStatus::Checking | UpStatus::Downloading | UpStatus::Applying) {
+            if h.snap.status.busy() {
                 return;
             }
             h.snap.status = UpStatus::Checking;
@@ -619,8 +633,7 @@ impl Core {
                 json!({"ok": true})
             }
             "check_update" => {
-                let c = self.clone();
-                std::thread::spawn(move || c.check_update(true));
+                self.check_update_in_background();
                 json!({"ok": true})
             }
             "install_update" => self.install_update(),
@@ -655,12 +668,7 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
-            "prospector_thresholds" => {
-                match astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite")) {
-                    Ok(st) => crate::callouts::thresholds_json(&crate::callouts::load_thresholds(&st)),
-                    Err(e) => json!({"ok": false, "error": format!("opening the database: {e}")}),
-                }
-            }
+            "prospector_thresholds" => crate::callouts::thresholds_view(&self.cfg().data_dir()),
             "prospector_set" => {
                 let text = r.text.clone().unwrap_or_default();
                 let res = std::fs::create_dir_all(self.cfg().data_dir())
@@ -713,7 +721,10 @@ impl Core {
                 eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
             }
             "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
-            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" => self.edit_config(r),
+            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" | "set_callout" => {
+                self.edit_config(r)
+            }
+            "callouts" => crate::callouts::callouts_json(&self.cfg().callouts),
             "edsm_status" => {
                 let cfg = self.cfg();
                 edsm_status(&cfg, self.secrets.as_ref())
@@ -795,6 +806,13 @@ impl Core {
                 }
                 let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
                 json!({"ok": true, "listening": self.active(), "last": last})
+            }
+            "learned_phrases" => crate::learned::list(&self.cfg().data_dir()),
+            "learned_forget" => {
+                let assistant = self.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
+                let heard = r.text.clone().unwrap_or_default();
+                log(&format!("learned phrase forgotten: {heard:?}"));
+                crate::learned::forget(&self.cfg().data_dir(), assistant.as_deref(), &heard)
             }
             "voice_test_stop" => {
                 if TESTER.armed(Instant::now()) {
@@ -1376,6 +1394,18 @@ mod tests {
         assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
     }
 
+    /// Test mode is on the tray status line, over whatever the game is doing.
+    #[test]
+    fn the_status_line_says_when_push_to_talk_is_only_testing() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        assert_eq!(core.status_line_for(false), "Waiting for Elite");
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
+        *core.game.lock().unwrap() = Game::Running;
+        assert!(core.status_line_for(false).starts_with("Elite running"));
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
+    }
+
     /// Spansh's answers, recorded (astromech-data's fixtures): the submit, then the polls in turn.
     struct RecordedJob(Mutex<Vec<(u16, &'static str)>>);
 
@@ -1689,5 +1719,62 @@ mod tests {
         assert_eq!(o.pending().unwrap(), 0);
         set_eddn(&core, false);
         assert_eq!(o.recent(10).unwrap().len(), 1, "an empty queue writes no row");
+    }
+
+    fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {
+        core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args })
+    }
+
+    fn callout(v: &Value, id: &str) -> Value {
+        v["callouts"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone()
+    }
+
+    #[test]
+    fn callout_settings_round_trip_through_the_config_file() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "# my notes\n[callouts.hge]\ncooldown_s = 12 # long honks\n");
+        let list = call(&core, "callouts", None);
+        assert_eq!(list["ok"], true);
+        assert_eq!(callout(&list, "scan")["enabled"], true);
+        assert_eq!(callout(&list, "scan")["cooldown_s"], 30.0);
+        assert_eq!(callout(&list, "hge")["cooldown_s"], 12.0, "a hand-written cooldown shows");
+        assert_eq!(callout(&list, "powerplay_arrival")["enabled"], false, "off until switched on");
+
+        // Off, a cooldown, and the default-off one on: written to [callouts.<id>], and the
+        // engine a session builds from the config honours them.
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "scan", "enabled": false})))["ok"], true);
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "scan", "cooldown_s": 90})))["ok"], true);
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "powerplay_arrival", "enabled": true})))["ok"], true);
+        let text = std::fs::read_to_string(&core.config_path).unwrap();
+        assert!(text.contains("# my notes") && text.contains("# long honks"), "{text}");
+        let on_disk = Config::load(&core.config_path).unwrap();
+        let s = &on_disk.callouts.0;
+        assert_eq!((s["scan"].enabled, s["scan"].cooldown_s), (Some(false), Some(90.0)));
+        assert_eq!(s["powerplay_arrival"].enabled, Some(true));
+        assert_eq!(s["hge"].cooldown_s, Some(12.0));
+        let list = call(&core, "callouts", None);
+        assert_eq!(
+            (callout(&list, "scan")["enabled"].clone(), callout(&list, "scan")["cooldown_s"].clone()),
+            (json!(false), json!(90.0))
+        );
+        assert_eq!(callout(&list, "powerplay_arrival")["enabled"], true);
+        let engine =
+            astromech_announce::Engine::new(astromech_announce::builtin(Default::default()), &on_disk.callouts);
+        assert!(engine.setting_problems().is_empty(), "{:?}", engine.setting_problems());
+
+        // Back to the callout's own cooldown removes the key; a bad id or value changes nothing.
+        call(&core, "set_callout", Some(json!({"id": "scan", "cooldown_s": null})));
+        assert_eq!(Config::load(&core.config_path).unwrap().callouts.0["scan"].cooldown_s, None);
+        let before = std::fs::read_to_string(&core.config_path).unwrap();
+        for bad in [
+            json!({"id": "nope", "enabled": false}),
+            json!({"id": "scan", "cooldown_s": -1}),
+            json!({"id": "scan", "cooldown_s": "soon"}),
+            json!({"id": "scan"}),
+        ] {
+            assert_eq!(call(&core, "set_callout", Some(bad.clone()))["ok"], false, "{bad}");
+        }
+        assert_eq!(std::fs::read_to_string(&core.config_path).unwrap(), before);
     }
 }

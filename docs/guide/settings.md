@@ -44,6 +44,16 @@ The next reply uses the change. Preview needs the speech models.
   and your voice on this mic, so quiet speech is not dropped and background noise is not heard
   as words.
 
+### Callouts
+
+One row for each [callout](callouts.md): a switch (**On** or **Off**) and its cooldown in seconds,
+how long it stays quiet after it speaks. Click the switch to turn a callout off, or the
+Powerplay arrival one on. Type a new number of seconds (0 to 86400) in the box and press Enter or
+click away; **Reset** returns to the callout's own cooldown. The change is saved to
+`[callouts.<id>]` in `astromech.toml` and applies from the next time Elite starts, not to a
+session already running. If you also edit `astromech.toml` by hand, a hand-written value shows
+here too.
+
 ### Prospector callouts
 
 One box per ore, in percent. When a prospector limpet reports a rock with at least this much of
@@ -74,7 +84,6 @@ restart afterwards.
 
 | Setting | What it does | Default |
 |---|---|---|
-| `[callouts.<id>]` `enabled`, `cooldown_s` | Turn one [callout](callouts.md) off, turn the Powerplay arrival one on, or change how long a callout stays quiet after it speaks | On (Powerplay arrival: off) |
 | `[controls]` `rearm_hold_ms` | How long to hold the kill switch to re-arm | 1000 |
 | `[voice]` `min_hold_ms` | Push-to-talk holds shorter than this are dropped | 300 |
 | `[voice]` `min_level_dbfs` | Clips quieter than this are dropped (calibration sets it) | -45 |
