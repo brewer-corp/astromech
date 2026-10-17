@@ -93,6 +93,7 @@ fn asking_by_voice_answers_the_latest_session() {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     let assistant = Assistant::new(runner).with_sessions(shared.sessions.clone());
@@ -114,6 +115,7 @@ fn without_a_history_it_says_so() {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     Assistant::new(runner).handle("session summary", Origin::Voice);

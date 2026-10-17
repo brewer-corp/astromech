@@ -414,6 +414,11 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
 /// retried on the next call instead of being remembered.
 struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Galaxy>>>);
 
+/// The app window's one remote-data client, made at startup; every lookup goes through it (via
+/// the star map). Its cache is the core's file, so an answer the core fetched for a voice
+/// question is served here too. The shell has no log file: its problems go to stderr.
+struct Remote(std::sync::Arc<astromech_data::Client>);
+
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
     let st = app.state::<GalaxyState>();
     let mut g = st.0.lock().map_err(|_| "busy".to_string())?;
@@ -421,9 +426,8 @@ fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Gal
         return Ok(x.clone());
     }
     let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
-    // The core's cache file: an answer it fetched for a voice question is served here too.
-    let (remote, _) = astromech_data::Client::shared(&app_dir());
-    let opened = astromech_galaxy::Galaxy::open_shared(&app_dir().join("galaxy.db"), preload.as_deref(), std::sync::Arc::new(remote))
+    let remote = app.state::<Remote>().0.clone();
+    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref(), remote)
         .map(std::sync::Arc::new)
         .map_err(|e| e.to_string())?;
     *g = Some(opened.clone());
@@ -1149,6 +1153,7 @@ fn main() {
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
+        .manage(Remote(astromech_data::Client::shared(&app_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![

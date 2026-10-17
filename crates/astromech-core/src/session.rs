@@ -120,6 +120,25 @@ pub fn short(h: &crate::assistant::Handled) -> String {
     }
 }
 
+/// The process's one remote-data client, over `transport` (real HTTP outside tests), with its
+/// cache in `data` (the file the app window uses too), and the star map using that client: the
+/// app window's star map when the core uses the default data dir, else its own. Both go to the
+/// [`Runner`], so every lookup shares the client's rate limit and cache.
+pub fn remote_data(
+    data: &Path,
+    transport: Arc<dyn astromech_data::Transport>,
+) -> (Arc<astromech_data::Client>, Option<Arc<astromech_galaxy::Galaxy>>) {
+    let remote = astromech_data::Client::shared_with_transport(data, transport, Arc::new(|s: &str| log(s)));
+    let galaxy = match astromech_galaxy::Galaxy::open(&data.join("galaxy.db"), None, remote.clone()) {
+        Ok(g) => Some(Arc::new(g)),
+        Err(e) => {
+            log(&format!("star map not opened, site lookups are off: {e:#}"));
+            None
+        }
+    };
+    (remote, galaxy)
+}
+
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
     pub fn start(cfg: &Config, opts: &Opts) -> Result<Session> {
@@ -279,20 +298,7 @@ impl Session {
             skip_window_checks: cfg.actions.dry_run && !cfg!(windows),
             ..Default::default()
         };
-        // The app window's star map when the core uses the default data dir; else its own.
-        // One remote-data client for the process, its cache shared with the app window's.
-        let (remote, cache_problem) = astromech_data::Client::shared(&data);
-        if let Some(p) = cache_problem {
-            log(&p);
-        }
-        let remote = Arc::new(remote);
-        let galaxy = match astromech_galaxy::Galaxy::open_shared(&data.join("galaxy.db"), None, remote.clone()) {
-            Ok(g) => Some(Arc::new(g)),
-            Err(e) => {
-                log(&format!("star map not opened, site lookups are off: {e:#}"));
-                None
-            }
-        };
+        let (remote, galaxy) = remote_data(&data, Arc::new(astromech_data::HttpTransport::new()));
         let runner = Arc::new(Runner {
             policy: Policy::new(platform, pcfg),
             hub: hub.clone(),
@@ -300,13 +306,13 @@ impl Session {
             speaker: speaker.clone(),
             verify_timeout: Duration::from_millis(cfg.actions.verify_timeout_ms),
             log: Arc::new(|s: &str| log(s)),
+            remote,
             galaxy,
         });
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
-        let assistant =
-            Assistant::new(runner.clone()).with_sessions(shared.sessions.clone()).with_shared_remote(remote);
+        let assistant = Assistant::new(runner.clone()).with_sessions(shared.sessions.clone());
         let assistant = Arc::new(match alias_store {
             Some(st) => assistant.with_store(st),
             None => assistant,

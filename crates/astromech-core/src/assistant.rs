@@ -71,9 +71,6 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
-    /// Remote data for the lookups (Spansh stations, Ardent markets); shared with the
-    /// threads that answer station lookups.
-    remote: Arc<astromech_data::Client>,
     /// Judges the age of market and station data.
     clock: Arc<dyn astromech_data::Clock>,
     /// The journal history, for the session summary.
@@ -87,23 +84,15 @@ impl Assistant {
             runner,
             pending: Mutex::new(None),
             store: None,
-            remote: Arc::new(astromech_data::Client::new(
-                astromech_data::Cache::in_memory().expect("an in-memory SQLite cache always opens"),
-            )),
             clock: Arc::new(astromech_data::SystemClock),
             sessions: Default::default(),
         }
     }
 
-    /// Answer lookups through `remote`, judging data age by `clock` (tests pass recorded
-    /// answers and a fixed time).
-    pub fn with_remote(self, remote: astromech_data::Client, clock: Arc<dyn astromech_data::Clock>) -> Self {
-        Self { remote: Arc::new(remote), clock, ..self }
-    }
-
-    /// Answer lookups through the process's one `remote` client (shared with the star map).
-    pub fn with_shared_remote(self, remote: Arc<astromech_data::Client>) -> Self {
-        Self { remote, ..self }
+    /// Judge the age of market and station data by `clock` (tests pass the time their
+    /// recorded answers were made). Lookups go through the runner's `remote` client.
+    pub fn with_clock(self, clock: Arc<dyn astromech_data::Clock>) -> Self {
+        Self { clock, ..self }
     }
 
     /// Answer the session summary from `sessions` (the history the logout summary reads too).
@@ -146,7 +135,7 @@ impl Assistant {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), want.lookup(), &game)
         };
-        let (remote, speaker, w) = (self.remote.clone(), self.runner.speaker.clone(), want.clone());
+        let (remote, speaker, w) = (self.runner.remote.clone(), self.runner.speaker.clone(), want.clone());
         let now = self.clock.now_s();
         std::thread::spawn(move || speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now)));
         Handled::Lookup { command, want }
@@ -183,7 +172,7 @@ impl Assistant {
                 let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
                 crate::lookups::filters_for(st.as_deref(), ask.lookup(), &game)
             };
-            let s = crate::trade::answer(&self.remote, &filters, ask, slot, &game, self.clock.now_s());
+            let s = crate::trade::answer(&self.runner.remote, &filters, ask, slot, &game, self.clock.now_s());
             self.say(&s);
             return Handled::Ran { command, outcome: Outcome::Spoken(s) };
         }
