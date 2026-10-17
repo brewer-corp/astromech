@@ -312,7 +312,7 @@ astromech/
                          key makes them due at once, wakes the uploader and hides the errors from
                          before it. A request EDSM refuses (an HTTP status such as 413 other than
                          408, 429 and 5xx, an unreadable answer, or an answer that doesn't cover
-                         every event) is retried with backoff and given up after 8 tries, so it
+                         every event) is retried with backoff and given up after 8 refusals (outages and wrong keys don't count), so it
                          can't block later events. The flight log (get-logs,
                          last week) is read on demand from the same page (it gives up after 10 s, before the app window's 15 s wait on the core, so the page shows EDSM's message or "EDSM didn't answer within 10 s")
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable

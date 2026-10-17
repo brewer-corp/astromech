@@ -68,6 +68,8 @@ const MIGRATIONS: &[&str] = &[
      COMMIT;",
     // v3: small values a sender keeps between runs (EDSM's discard list).
     "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
+    // v4: refusals counted apart from tries, so outages don't use up a message's refusals.
+    "ALTER TABLE outbox ADD COLUMN refusals INTEGER NOT NULL DEFAULT 0;",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -135,6 +137,8 @@ pub struct Queued {
     pub body: Vec<u8>,
     /// Tries so far.
     pub attempts: i64,
+    /// Tries the service refused outright (a request it won't take), apart from outages.
+    pub refusals: i64,
 }
 
 pub struct Outbox {
@@ -243,7 +247,19 @@ impl Outbox {
         self.query(&format!("outcome IN ({})", list.join(",")), limit)
     }
 
-    /// `filter` is built from [`Outcome`] names only, never from input.
+    /// Like [`Outbox::recent_of`], only rows logged after the row `after` (see [`Outbox::last_log_id`]).
+    pub fn recent_of_after(&self, outcomes: &[Outcome], after: i64, limit: usize) -> Result<Vec<LogEntry>> {
+        let list: Vec<String> = outcomes.iter().map(|o| format!("'{}'", o.as_str())).collect();
+        self.query(&format!("id > {after} AND outcome IN ({})", list.join(",")), limit)
+    }
+
+    /// The id of the newest send-log row (0 if none): a mark that orders strictly against rows
+    /// logged later, which timestamps in whole seconds don't.
+    pub fn last_log_id(&self) -> Result<i64> {
+        self.conn.query_row("SELECT COALESCE(MAX(id), 0) FROM send_log", [], |r| r.get(0))
+    }
+
+    /// `filter` is built from [`Outcome`] names and integers only, never from input.
     fn query(&self, filter: &str, limit: usize) -> Result<Vec<LogEntry>> {
         let mut st = self.conn.prepare(&format!(
             "SELECT at, schema_ref, outcome, detail FROM send_log WHERE {filter} ORDER BY id DESC LIMIT ?1"
@@ -349,11 +365,17 @@ impl Outbox {
     /// tried. For a sender with its own delivery rules (EDSM); [`Outbox::deliver_due`] is EDDN's.
     pub fn due(&self, now: i64, retries: bool, limit: usize) -> Result<Vec<Queued>> {
         let mut st = self.conn.prepare(
-            "SELECT id, schema_ref, body, attempts FROM outbox
+            "SELECT id, schema_ref, body, attempts, refusals FROM outbox
              WHERE next_try <= ?1 AND (?2 OR attempts = 0) ORDER BY id LIMIT ?3",
         )?;
         let rows = st.query_map((now, retries, limit as i64), |r| {
-            Ok(Queued { id: r.get(0)?, schema_ref: r.get(1)?, body: r.get(2)?, attempts: r.get(3)? })
+            Ok(Queued {
+                id: r.get(0)?,
+                schema_ref: r.get(1)?,
+                body: r.get(2)?,
+                attempts: r.get(3)?,
+                refusals: r.get(4)?,
+            })
         })?;
         rows.collect()
     }
@@ -372,6 +394,14 @@ impl Outbox {
             > 0)
     }
 
+    /// Count a refused try (`attempts` as for [`Outbox::retry_at`]) and set when it's due again.
+    pub fn refuse_at(&self, id: i64, attempts: i64, refusals: i64, next_try: i64) -> Result<bool> {
+        Ok(self.conn.execute(
+            "UPDATE outbox SET attempts = ?2, refusals = ?3, next_try = ?4 WHERE id = ?1",
+            (id, attempts, refusals, next_try),
+        )? > 0)
+    }
+
     /// Every message due at `now` waits until `until` (the service looks down).
     pub fn hold_due(&self, now: i64, until: i64) -> Result<()> {
         self.conn.execute("UPDATE outbox SET next_try = ?2 WHERE next_try <= ?1", (now, until))?;
@@ -382,7 +412,7 @@ impl Outbox {
     /// (a wrong key, an outage) is over.
     pub fn make_due(&self, now: i64) -> Result<()> {
         self.conn
-            .execute("UPDATE outbox SET next_try = ?1, attempts = 0 WHERE next_try > ?1 OR attempts > 0", [now])?;
+            .execute("UPDATE outbox SET next_try = ?1, attempts = 0, refusals = 0 WHERE next_try > ?1 OR attempts > 0 OR refusals > 0", [now])?;
         Ok(())
     }
 

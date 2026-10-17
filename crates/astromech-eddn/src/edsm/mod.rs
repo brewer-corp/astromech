@@ -41,8 +41,8 @@ pub const KEY_SECRET: &str = "edsm-api-key";
 pub const BATCH: usize = 50;
 /// The discard list is fetched again after this long (seconds).
 pub const DISCARD_MAX_AGE: i64 = 24 * 3600;
-/// Outbox meta key: when the credentials last changed. The status doesn't show errors from
-/// before it as the last error.
+/// Outbox meta key: the newest send-log row id when the credentials last changed. The status
+/// doesn't show errors logged up to it as the last error.
 pub const ERRORS_CLEARED: &str = "errors_cleared_at";
 /// The send-log label for rows about requests (several events) rather than one event.
 pub const JOURNAL: &str = "journal";
@@ -419,12 +419,13 @@ impl Courier {
                 Answer::Refused(why) => {
                     let (mut given_up, mut waiting, mut wait) = (0, 0, 0);
                     for (q, _) in &rows {
-                        if q.attempts + 1 >= MAX_ATTEMPTS {
+                        // Only refusals count here: tries lost to outages or a wrong key don't.
+                        if q.refusals + 1 >= MAX_ATTEMPTS {
                             self.outbox.take(q.id)?;
                             given_up += 1;
                         } else {
-                            let w = backoff(q.attempts + 1);
-                            self.outbox.retry_at(q.id, q.attempts + 1, wall + w)?;
+                            let w = backoff(q.refusals + 1);
+                            self.outbox.refuse_at(q.id, q.attempts + 1, q.refusals + 1, wall + w)?;
                             wait = wait.max(w);
                             waiting += 1;
                         }
@@ -529,7 +530,7 @@ impl Pass for Courier {
         if generation != self.seen {
             self.seen = generation;
             self.outbox.make_due(wall)?;
-            self.outbox.set_meta(ERRORS_CLEARED, &wall.to_string())?;
+            self.outbox.set_meta(ERRORS_CLEARED, &self.outbox.last_log_id()?.to_string())?;
             self.hold_until = mono;
         }
         if self.outbox.pending()? == 0 {

@@ -366,7 +366,45 @@ fn a_corrected_key_sends_what_a_wrong_one_held_back_at_once() {
     assert_eq!(d.sent, 10, "{d:?}");
     assert_eq!(r.api.posts().last().unwrap()["apiKey"], "fixed-key");
     assert_eq!(r.courier.outbox().pending().unwrap(), 0);
-    assert_eq!(r.courier.outbox().meta(ERRORS_CLEARED).unwrap(), Some((NOW + 6).to_string()));
+    let mark: i64 = r.courier.outbox().meta(ERRORS_CLEARED).unwrap().unwrap().parse().unwrap();
+    assert!(
+        r.courier.outbox().recent_of_after(&[Outcome::Retry], mark, 1).unwrap().is_empty(),
+        "the old 203 is hidden"
+    );
+}
+
+#[test]
+fn a_key_that_is_still_wrong_shows_its_error_from_the_same_pass() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    feed(&mut r, &session()[..5], true);
+    r.switch.set(Some(Credentials { commander: "Jameson".into(), api_key: "typo".into() }));
+    r.api.ok(JOURNAL_URL, json!({"msgnum":203,"msg":"Commander name/API Key not found","events":[]}));
+    assert!(r.courier.pass(NOW, r.t0).unwrap().stopped);
+    let mark: i64 = r.courier.outbox().meta(ERRORS_CLEARED).unwrap().unwrap().parse().unwrap();
+    let shown = r.courier.outbox().recent_of_after(&[Outcome::Retry], mark, 1).unwrap();
+    assert_eq!(shown.len(), 1, "the 203 is logged in the same second as the change but after it");
+    assert!(shown[0].detail.starts_with("203"), "{}", shown[0].detail);
+}
+
+#[test]
+fn outages_do_not_use_up_a_messages_refusals() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    feed(&mut r, &session()[..5], true);
+    let queued = r.courier.outbox().pending().unwrap();
+    let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
+    for i in 0..MAX_ATTEMPTS - 1 {
+        r.api.answer(JOURNAL_URL, Ok(Response { status: 503, body: "busy".into() }));
+        let (wall, mono) = at(i);
+        r.courier.pass(wall, mono).unwrap();
+    }
+    // The first refusal after seven outages gives nothing up.
+    r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+    let (wall, mono) = at(MAX_ATTEMPTS);
+    let d = r.courier.pass(wall, mono).unwrap();
+    assert_eq!((d.gave_up, d.retrying), (0, queued), "{d:?}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), queued);
 }
 
 #[test]
