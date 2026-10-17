@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T08:30:03.147298368+00:00"
+status: "done"
 title: "device-overrides carry-over can leave a truncated file"
-updated_at: "2026-10-17T08:26:25.341847292+00:00"
+updated_at: "2026-10-17T08:30:03.147298368+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ updated_at: "2026-10-17T08:26:25.341847292+00:00"
 ## Done when
 
 A test where the copy fails partway leaves no file at the target, and the next call copies it.
+
+## Close Reason
+
+carry_over now copies to a temp file in the data folder and hard-links it into place (fails if the target exists, so never overwrites), then removes the temp; a failed copy leaves no target and is retried. Test covers it.
