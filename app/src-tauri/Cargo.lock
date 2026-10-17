@@ -121,6 +121,7 @@ dependencies = [
 name = "astromech-history"
 version = "0.1.5"
 dependencies = [
+ "astromech-exploration",
  "astromech-journal",
  "astromech-store",
  "serde",
