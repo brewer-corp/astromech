@@ -133,8 +133,12 @@ export async function tradeAnywhere(side: Side, symbol: string, origin: Origin =
   };
 }
 
-/** The first commodity's markets as the search kit's rows. */
-export function toResults(s: TradeSearch): Results {
+/**
+ * The first commodity's markets as the search kit's rows. Ardent cuts a nearby search at 1000
+ * markets: say so, so a cut answer doesn't look complete. The anywhere lookup has no radius to
+ * narrow, and its list is always cut to the best 100 (the sub-heading says so).
+ */
+export function toResults(s: TradeSearch, anywhere = false): Results {
   const volume = s.side === "sell" ? "demand" : "stock";
   const p = s.results[0];
   return {
@@ -142,6 +146,7 @@ export function toResults(s: TradeSearch): Results {
     range: s.range,
     source: "Ardent Insight",
     fetched: new Date((p?.fetched_at ?? 0) * 1000).toISOString(),
+    warning: p?.truncated && !anywhere ? `Too many markets for ${findCommodity(p.commodity)?.name ?? p.commodity}: narrow the radius to see them all.` : undefined,
     rows: (p?.offers ?? []).map((o) => ({
       key: o.market_id,
       system: o.system,
