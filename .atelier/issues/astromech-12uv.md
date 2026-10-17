@@ -22,9 +22,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Make voice tester test mode visible and fix it at push-to-talk release"
-updated_at: "2026-10-17T19:03:21.752311264+00:00"
+updated_at: "2026-10-17T19:15:20.675487249+00:00"
 ---
 
 ## Goal
