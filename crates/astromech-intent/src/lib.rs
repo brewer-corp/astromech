@@ -161,11 +161,19 @@ pub const MVP: &[(&str, &[&str])] = &[
     ),
     (
         "status.powerplay",
-        &["what's my powerplay rank", "powerplay rank", "powerplay status", "how many merits", "merits"],
+        &[
+            "what's my powerplay rank",
+            "powerplay rank",
+            "powerplay status",
+            "how many merits",
+            "how many merits do i have",
+            "what are my merits",
+            "merits",
+        ],
     ),
     (
         "status.merits_here",
-        &["what earns merits here", "how do i earn merits here", "merits here", "powerplay activities here"],
+        &["what earns merits here", "how do i earn merits here", "merits here", "powerplay activities"],
     ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
@@ -1030,6 +1038,9 @@ mod tests {
             ("What earns merits here?", "status.merits_here"),
             ("how do I earn merits here", "status.merits_here"),
             ("merits here", "status.merits_here"),
+            ("powerplay activities", "status.merits_here"),
+            ("What are my merits?", "status.powerplay"),
+            ("how many merits do I have", "status.powerplay"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

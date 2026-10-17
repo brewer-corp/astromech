@@ -25,7 +25,7 @@
       "used_for": "nothing: the site answered HTTP 503 all session, so it could not be checked"
     }
   ],
-  "notes": "Frontier rebalances Powerplay often: bump version and fetched when this changes. 'work' is what the system is to the pledged power: acquire (unoccupied, my power acquiring), conflict (acquisition where two or more powers including mine are past the conflict threshold; added to acquire), reinforce (my power controls it), undermine (another power controls it). 'states' limits a rule to those journal PowerplayState values; 'controlled_by' to systems those powers control. 'favoured_by' lists the powers whose ethos rewards the activity (about +50%). {acquire}, {reinforce} and {undermine} are the pledged power's power commodities. Rules with 'uncertain' are unverified in game; rules with 'suspended' earn no merits now and are not suggested.",
+  "notes": "Frontier rebalances Powerplay often: bump version and fetched when this changes. 'work' is what the system is to the pledged power: acquire (unoccupied, my power acquiring), conflict (acquisition where two or more powers including mine are past the conflict threshold; added to acquire), reinforce (my power controls it), undermine (another power controls it). 'states' limits a rule to those journal PowerplayState values; 'controlled_by' to systems those powers control. 'favoured_by' lists the powers whose ethos rewards the activity (about +50%). {acquire}, {reinforce} and {undermine} are the pledged power's power commodities. 'first' pins a rule to the top (the stronghold carrier warning, which decides whether the rest count). Rules with 'uncertain' are unverified in game; rules with 'suspended' earn no merits now and are not suggested.",
   "conflict_progress": 0.3,
   "activities": [
     { "id": "bounty-hunting", "name": "Bounty hunting" },
@@ -109,7 +109,7 @@
     { "work": "undermine", "activity": "power-commodities", "how": "Pick up {undermine} from the Power Contact in one of your strongholds and deliver it to the Power Contact here. Other powers' agents may attack you." },
     { "work": "undermine", "activity": "upload-malware", "how": "Get tracker malware from a Power Contact and upload it to settlement data ports here, one per port.", "favoured_by": ["Archon Delaine", "Denton Patreus", "Jerome Archer", "Pranav Antal", "Yuri Grom", "Zemina Torval"] },
     { "work": "undermine", "controlled_by": ["Archon Delaine"], "activity": "bounty-hunting", "how": "Kill wanted ships here; Archon Delaine's systems are weak to it." },
-    { "work": "undermine", "states": ["Stronghold"], "activity": "stronghold-carrier", "how": "If a stronghold carrier is here, attack, hack or loot it and its escort megaships; while it's here most other undermining doesn't count.", "uncertain": "Only some strongholds have a carrier, and the arrival event doesn't say whether this one does." },
+    { "work": "undermine", "states": ["Stronghold"], "activity": "stronghold-carrier", "first": true, "how": "If a stronghold carrier is here, attack, hack or loot it and its escort megaships; while it's here most other undermining doesn't count.", "uncertain": "Only some strongholds have a carrier, and the arrival event doesn't say whether this one does." },
     { "work": "undermine", "activity": "escape-pods", "how": "Collect escape pods here; merits come when you scoop them.", "favoured_by": ["Aisling Duval", "Edmund Mahon", "Felicia Winters", "Nakato Kaine"], "suspended": "Merits suspended since November 2024." }
   ],
   "weak_to": {

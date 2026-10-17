@@ -41,10 +41,12 @@ describe("What earns merits here", () => {
       ],
       rules,
     });
-    expect(screen.getByText("ethos").title).toMatch(/bonus merits/);
-    expect(screen.getByText("weak spot").title).toMatch(/weak to this/);
+    // One tag per row, and one in the key under the list, which says what it means.
+    expect(screen.getAllByText("ethos")).toHaveLength(2);
+    expect(screen.getAllByText("weak spot")).toHaveLength(2);
+    expect(screen.getByText(/your power favours it: bonus merits/)).toBeTruthy();
+    expect(screen.getByText(/the controlling power is weak to it/)).toBeTruthy();
     expect(screen.getByText("on foot")).toBeTruthy();
-    expect(screen.getAllByText("ethos")).toHaveLength(1);
   });
 
   it("marks unverified rules quietly and explains the mark", () => {
@@ -52,15 +54,16 @@ describe("What earns merits here", () => {
       items: [s({ activity: "salvage", name: "Salvage", uncertain: "Hand-in place not documented." }), s({ activity: "cartography", name: "Exploration data" })],
       rules,
     });
-    const marks = [...container.querySelectorAll(".unverified")];
-    expect(marks.map((m) => m.getAttribute("title"))).toEqual(["Not checked in game: Hand-in place not documented."]);
-    // Screen readers get the reason, not a bare "?".
-    expect(screen.getByText("Not checked in game: Hand-in place not documented.").className).toContain("sr-only");
+    expect(container.querySelectorAll(".unverified")).toHaveLength(1);
+    // The reason is plain text under the row: no hover needed, read by screen readers.
+    expect(screen.getByText("Not checked in game: Hand-in place not documented.").tagName).toBe("P");
+    expect(container.querySelector("[title]")).toBeNull();
     expect(screen.getByText(/not yet checked in game/)).toBeTruthy();
   });
 
   it("leaves out the key when every rule is verified", () => {
     render(Suggestions, { items: [s({ name: "Exploration data" })], rules });
     expect(screen.queryByText(/not yet checked in game/)).toBeNull();
+    expect(screen.queryByText(/bonus merits/)).toBeNull();
   });
 });

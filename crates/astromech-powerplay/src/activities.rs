@@ -44,6 +44,9 @@ struct Rule {
     #[serde(default)]
     favoured_by: Vec<String>,
     uncertain: Option<String>,
+    /// Listed before everything else (a warning that decides whether the rest count).
+    #[serde(default)]
+    first: bool,
     /// Earns no merits at the moment; kept so a fix is a one-line data change.
     suspended: Option<String>,
 }
@@ -113,8 +116,8 @@ impl SystemPower {
         past.len() >= 2 && past.contains(&me)
     }
 
-    /// What earns `pledged` merits here, favoured and weak-spot activities first, then in table
-    /// order. Empty when not pledged or the system offers the power nothing.
+    /// What earns `pledged` merits here: pinned rules (the stronghold carrier warning) first,
+    /// then favoured and weak-spot activities, then table order. Empty when not pledged or the system offers the power nothing.
     pub fn suggestions(&self, pledged: Option<&str>) -> Vec<Suggestion> {
         let (Some(me), Some(work)) = (pledged, self.work_for(pledged)) else { return vec![] };
         let f = file();
@@ -137,7 +140,7 @@ impl SystemPower {
                 .replace("{reinforce}", "its reinforcement commodity")
                 .replace("{undermine}", "its undermining commodity"),
         };
-        let mut out: Vec<Suggestion> = f
+        let mut out: Vec<(bool, Suggestion)> = f
             .rules
             .iter()
             .filter(|r| contexts.contains(&r.work) && r.suspended.is_none())
@@ -147,7 +150,7 @@ impl SystemPower {
             })
             .map(|r| {
                 let a = f.activities.iter().find(|a| a.id == r.activity).expect("rule names a listed activity");
-                Suggestion {
+                let s = Suggestion {
                     activity: a.id.clone(),
                     name: a.name.clone(),
                     how: fill(&r.how),
@@ -155,11 +158,12 @@ impl SystemPower {
                     favoured: r.favoured_by.iter().any(|p| p == me),
                     weak_spot: work == Work::Undermine && weak.is_some_and(|w| w.contains(&a.id)),
                     uncertain: r.uncertain.clone(),
-                }
+                };
+                (r.first, s)
             })
             .collect();
-        out.sort_by_key(|s| !(s.favoured || s.weak_spot));
-        out
+        out.sort_by_key(|(first, s)| (!first, !(s.favoured || s.weak_spot)));
+        out.into_iter().map(|(_, s)| s).collect()
     }
 }
 

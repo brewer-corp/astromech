@@ -140,11 +140,12 @@ fn each_state_in_the_rules_table_gets_its_suggestions() {
             "upload-malware",
         ]
     );
-    // Undermine Archon Delaine's stronghold: bounty hunting counts against him, and the
-    // stronghold carrier.
+    // Undermine Archon Delaine's stronghold: the stronghold carrier warning first (while a
+    // carrier is here most undermining earns nothing), and bounty hunting counts against him.
     assert_eq!(
         at(7),
         [
+            "stronghold-carrier",
             "commit-crimes",
             "flood-markets",
             "holoscreen-hacking",
@@ -160,7 +161,6 @@ fn each_state_in_the_rules_table_gets_its_suggestions() {
             "classified-data",
             "power-commodities",
             "upload-malware",
-            "stronghold-carrier",
         ]
     );
 

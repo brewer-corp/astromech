@@ -81,8 +81,8 @@ describe("Powerplay page", () => {
     render(View);
     expect(await screen.findByText("What earns merits here")).toBeTruthy();
     expect(screen.getByText("Crimes")).toBeTruthy();
-    expect(screen.getByText("ethos")).toBeTruthy();
-    expect(screen.getByTitle("Not checked in game: Hand-in place not documented.")).toBeTruthy();
+    expect(screen.getAllByText("ethos")).toHaveLength(2);
+    expect(screen.getByText("Not checked in game: Hand-in place not documented.")).toBeTruthy();
   });
 
   it("says when nothing here earns the power merits", async () => {
