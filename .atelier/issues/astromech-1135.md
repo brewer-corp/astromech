@@ -4,6 +4,9 @@ id: "astromech-1135"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-1135
 priority: "P1"
 relationships:
   blocks: []
@@ -21,7 +24,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Alpha: land the route follower and the Go button"
-updated_at: "2026-10-17T17:01:44.545907856+00:00"
+updated_at: "2026-10-17T17:03:36.317283556+00:00"
 ---
 
 ## Goal

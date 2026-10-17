@@ -280,6 +280,22 @@ pub const MVP: &[(&str, &[&str])] = &[
         &["hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system"],
     ),
     ("plot_route", &["plot route to {system}", "set course for {system}"]),
+    // Route following (docs/PLOTTING.md): the next waypoint is on the clipboard; "paste" puts it
+    // into the galaxy map's search box.
+    (
+        "route.next",
+        &[
+            "next waypoint",
+            "copy next waypoint",
+            "copy waypoint",
+            "what's the next waypoint",
+            "where's the next waypoint",
+        ],
+    ),
+    ("route.skip", &["skip waypoint", "skip this waypoint", "skip to the next waypoint"]),
+    ("route.back", &["previous waypoint", "back one waypoint", "go back a waypoint"]),
+    ("route.clear", &["clear route", "clear the route", "end route", "stop following the route"]),
+    ("galaxy_map.paste", &["paste", "paste it", "paste system", "paste waypoint", "paste system name"]),
     // Trade lookups (Ardent Insight): answered by the core, not pressed.
     (
         "trade.sell",
@@ -1208,6 +1224,26 @@ mod tests {
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
         assert_eq!(g.best("close cargo scoop").command, "cargo_scoop.close");
+    }
+
+    #[test]
+    fn route_phrases_execute_and_stay_apart() {
+        let g = g();
+        for (t, c) in [
+            ("Next waypoint.", "route.next"),
+            ("Copy the next waypoint", "route.next"),
+            ("Skip waypoint", "route.skip"),
+            ("previous waypoint", "route.back"),
+            ("Clear route.", "route.clear"),
+            ("Paste.", "galaxy_map.paste"),
+            ("Paste it", "galaxy_map.paste"),
+            ("next system", "status.jumps"),
+            ("go back", "panel.close"),
+            ("cancel", "cancel"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
     }
 
     #[test]

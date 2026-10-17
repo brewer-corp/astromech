@@ -1095,6 +1095,13 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "set_voice",
         "voice_settings",
         "voice_preview",
+        // The route the core follows (docs/PLOTTING.md).
+        "route",
+        "route_set",
+        "route_skip",
+        "route_back",
+        "route_clear",
+        "route_copy",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });

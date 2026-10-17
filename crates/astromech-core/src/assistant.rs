@@ -1,6 +1,7 @@
 //! Transcript → command. Applies the §5.12 thresholds and handles "Did you mean …?".
 
 use crate::actions::{Outcome, Runner};
+use crate::route::{self, Desk};
 use astromech_galaxy::stations::Want;
 use astromech_intent::{Decision, Grammar};
 use astromech_proto::Origin;
@@ -45,7 +46,7 @@ pub fn unavailable_reason(command: &str) -> &'static str {
         "supercruise" => "Supercruise is not available yet. Flight commands come later.",
         "hyperspace_jump" => "Hyperspace jumps are not available yet. Flight commands come later.",
         "request_docking" => "Docking requests are not available yet.",
-        "plot_route" => "Route plotting is not available yet.",
+        "plot_route" => "Route plotting is not available yet. Use the Route page.",
         _ => "That command is not available yet.",
     }
 }
@@ -77,6 +78,8 @@ pub struct Assistant {
     sessions: astromech_announce::session_summary::SharedSessions,
     /// The colonisation projects, replayed from the journals.
     projects: Arc<crate::colonisation::Projects>,
+    /// The route the core follows (none: the route commands say so).
+    route: Option<Arc<Desk>>,
 }
 
 impl Assistant {
@@ -89,7 +92,13 @@ impl Assistant {
             clock: Arc::new(astromech_data::SystemClock),
             sessions: Default::default(),
             projects: Default::default(),
+            route: None,
         }
+    }
+
+    /// Answer the route commands from `desk`, the route the core follows.
+    pub fn with_route(self, desk: Arc<Desk>) -> Self {
+        Self { route: Some(desk), ..self }
     }
 
     /// Answer the colonisation questions from the journals in `dir`.
@@ -205,6 +214,20 @@ impl Assistant {
         }))
     }
 
+    /// Route following and paste (docs/PLOTTING.md). None: not one of these.
+    fn route_command(&self, command: &'static str, origin: Origin) -> Option<Handled> {
+        let cmd = route::Command::from_id(command)?;
+        if cmd == route::Command::Paste {
+            return Some(Handled::Ran { command, outcome: self.runner.paste(origin) });
+        }
+        let m = match &self.route {
+            None => route::NO_ROUTE.to_string(),
+            Some(d) => route::command_reply(d, cmd),
+        };
+        self.say(&m);
+        Some(Handled::Ran { command, outcome: Outcome::Spoken(m) })
+    }
+
     fn dispatch(
         &self,
         command: &'static str,
@@ -212,6 +235,9 @@ impl Assistant {
         origin: Origin,
         confirmed: bool,
     ) -> Handled {
+        if let Some(h) = self.route_command(command, origin) {
+            return h;
+        }
         if lookup::is_lookup(command) {
             return match lookup::want(command, slot, slot_text) {
                 Some(want) => self.look_up(command, want),

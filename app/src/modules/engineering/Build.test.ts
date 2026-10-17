@@ -201,4 +201,22 @@ describe("ship detail panels", () => {
     await fireEvent.click(screen.getByRole("button", { name: "← Ship stats" }));
     expect(screen.getByRole("heading", { level: 3, name: "Engineering" })).toBeTruthy();
   });
+
+  it("hands the engineer trip to the route follower", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    const { resetFakeCore, fakeCall } = await import("../../lib/fakecore");
+    resetFakeCore();
+    const { loadFleet, planTrip, savedPlan } = await import("../../lib/engineering");
+    const sample = await loadFleet();
+    render(Build, { fleet: sample, shipId: 7, onback: () => {} });
+    await screen.findByRole("heading", { name: "Engineer trip" });
+    await fireEvent.click(screen.getByRole("button", { name: "Follow" }));
+    const trip = (await planTrip(savedPlan(7)))!;
+    const first = trip.stops[0]!;
+    expect(await screen.findByText(`Following. ${first.system} is on your clipboard (Galaxy → Route).`)).toBeTruthy();
+    const { view } = await fakeCall("route");
+    expect(view.route.source).toBe("engineer trip");
+    expect(view.route.waypoints[0]).toEqual({ system: first.system, label: first.engineer });
+    history.replaceState(null, "", "/");
+  });
 });

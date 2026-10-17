@@ -16,9 +16,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Land the route follower from the route-clipboard branch"
-updated_at: "2026-10-17T17:01:57.360204682+00:00"
+updated_at: "2026-10-17T17:03:36.317287182+00:00"
 ---
 
 ## Goal

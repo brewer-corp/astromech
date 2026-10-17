@@ -172,6 +172,13 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         };
         return r;
     }
+    if let Some(cmd) = crate::route::Command::from_id(m.command) {
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, cmd.describe().to_string()),
+        };
+        return r;
+    }
     let Some(call) = from_command(m.command) else {
         r.would = Would::Unavailable;
         r.message = unavailable_reason(m.command).into();
@@ -240,7 +247,11 @@ pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, St
             Ok(Verified::Unverified) => "Pressed (the game gives no signal to check it).".into(),
             Err(_) => "Pressed.".into(),
         },
-        Outcome::Already(s) | Outcome::Refused(s) | Outcome::NoBinding(s) | Outcome::Spoken(s) => s,
+        Outcome::Already(s)
+        | Outcome::Refused(s)
+        | Outcome::NoBinding(s)
+        | Outcome::Spoken(s)
+        | Outcome::Pressed(s) => s,
         Outcome::NeedsConfirm(s) => s,
         Outcome::LookingUp(h) => h.join().unwrap_or_else(|_| "The lookup failed.".into()),
         Outcome::Denied(d) => d.spoken(),

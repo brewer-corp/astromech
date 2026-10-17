@@ -400,3 +400,100 @@ fn wait(f: impl Fn() -> bool) {
     }
     panic!("timed out waiting");
 }
+
+fn write_gui(r: &Rig, gui: u64) {
+    let t = format!(
+        r#"{{ "timestamp":"2026-10-15T12:00:00Z", "event":"Status", "Flags":{FLAG_IN_MAIN_SHIP}, "GuiFocus":{gui} }}"#
+    );
+    std::fs::write(&r.game.status, t).unwrap();
+    assert!(r.hub.wait_gui(gui, Duration::from_secs(2), &|| false), "GuiFocus {gui} read");
+}
+
+/// A route follower whose clipboard is a list (docs/PLOTTING.md).
+fn recording_desk() -> (Arc<astromech_core::route::Desk>, Arc<Mutex<Vec<String>>>) {
+    let copied = Arc::new(Mutex::new(Vec::<String>::new()));
+    let c2 = copied.clone();
+    let desk = astromech_core::route::Desk::open(
+        None,
+        Box::new(move |s| {
+            c2.lock().unwrap().push(s.into());
+            Ok(())
+        }),
+    );
+    (Arc::new(desk), copied)
+}
+
+#[test]
+fn paste_only_in_the_galaxy_map() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let a = Assistant::new(r.runner.clone());
+    match a.handle("paste", Origin::Voice) {
+        Handled::Ran { command: "galaxy_map.paste", outcome: Outcome::Refused(m) } => assert!(m.contains("galaxy map")),
+        h => panic!("{h:?}"),
+    }
+    assert!(r.game.log.lock().unwrap().is_empty(), "nothing pressed outside the map");
+    write_gui(&r, 6);
+    let h = a.handle("paste it", Origin::Voice);
+    assert!(matches!(h, Handled::Ran { command: "galaxy_map.paste", outcome: Outcome::Pressed(_) }), "{h:?}");
+    let downs: Vec<ScanKey> = r.game.log.lock().unwrap().iter().filter(|(_, up)| !up).map(|(k, _)| *k).collect();
+    assert_eq!(downs, vec![key("Key_LeftControl"), key("Key_V"), key("Key_Enter")]);
+    assert!(r.logs.lock().unwrap().iter().any(|l| l.contains("paste_search")));
+}
+
+#[test]
+fn route_commands_copy_and_speak() {
+    use astromech_core::route::{Route, Waypoint, CLEARED, NO_ROUTE};
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let (desk, copied) = recording_desk();
+    let a = Assistant::new(r.runner.clone()).with_route(desk.clone());
+    a.handle("next waypoint", Origin::Voice);
+    assert_eq!(r.speaker.take(), [NO_ROUTE]);
+    desk.set(Route::new("t", "import", vec![Waypoint::new("Deciat"), Waypoint::new("Kuk")])).unwrap();
+    a.handle("next waypoint", Origin::Voice);
+    assert_eq!(r.speaker.take(), ["Next waypoint. Deciat. 2 waypoints left."]);
+    a.handle("skip waypoint", Origin::Voice);
+    assert_eq!(r.speaker.take(), ["Next waypoint. Kuk."]);
+    a.handle("clear route", Origin::Voice);
+    assert_eq!(r.speaker.take(), [CLEARED]);
+    assert!(desk.view().route.is_none());
+    assert_eq!(copied.lock().unwrap().as_slice(), ["Deciat", "Deciat", "Kuk"]);
+    assert!(r.game.log.lock().unwrap().is_empty(), "route commands press nothing");
+}
+
+#[test]
+fn jumping_into_a_waypoint_copies_and_announces_the_next() {
+    use astromech_core::route::{Route, Waypoint};
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    let journal = r.game.status.parent().unwrap().join("Journal.2026-10-15T120000.01.log");
+    let line = |sys: &str| {
+        format!("{{\"timestamp\":\"t\",\"event\":\"FSDJump\",\"StarSystem\":\"{sys}\",\"JumpDist\":9.0}}\r\n")
+    };
+    std::fs::write(&journal, line("Sol")).unwrap();
+    wait(|| r.hub.snapshot().system.as_deref() == Some("Sol"));
+    let (desk, copied) = recording_desk();
+    let said = Arc::new(Mutex::new(Vec::<String>::new()));
+    let s2 = said.clone();
+    let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    astromech_core::session::follow_route(
+        &r.hub,
+        desk.clone(),
+        move |m| s2.lock().unwrap().push(m.spoken()),
+        stop.clone(),
+    );
+    wait(|| desk.view().here.as_deref() == Some("Sol"));
+    // Already in the first stop: the route starts at the second, which is copied at once.
+    desk.set(Route::new("t", "import", ["Sol", "Alpha Centauri", "Barnard's Star"].map(Waypoint::new).to_vec()))
+        .unwrap();
+    assert_eq!(copied.lock().unwrap().as_slice(), ["Alpha Centauri"]);
+    assert!(said.lock().unwrap().is_empty(), "the catch-up at start is silent");
+    let mut f = std::fs::OpenOptions::new().append(true).open(&journal).unwrap();
+    std::io::Write::write_all(&mut f, line("Alpha Centauri").as_bytes()).unwrap();
+    drop(f);
+    // The pipeline also reads the journal on Status.json changes.
+    mock::write_status(&r.game.status, FLAG_IN_MAIN_SHIP, false);
+    wait(|| copied.lock().unwrap().len() == 2);
+    assert_eq!(copied.lock().unwrap().as_slice(), ["Alpha Centauri", "Barnard's Star"]);
+    wait(|| !said.lock().unwrap().is_empty());
+    assert_eq!(said.lock().unwrap().as_slice(), ["Next waypoint. Barnard's Star."]);
+    stop.store(true, Ordering::SeqCst);
+}
