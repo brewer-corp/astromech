@@ -26,7 +26,7 @@
 
   const issues = (r: Row) => r.issues.filter((i) => i.level !== "info");
   const mark = (i: Issue) =>
-    i.code === "no_keyboard" ? "No keyboard key" : i.code === "device_missing" ? "Device not connected" : (i.text.split(".")[0] ?? i.text);
+    i.code === "no_keyboard" ? "No keyboard key" : i.code === "device_missing" ? "Device not connected" : i.code === "paste_key" ? "Clashes with route paste" : (i.text.split(".")[0] ?? i.text);
   const unbound = (r: Row) => !r.slots.some(bound);
   const words = $derived(q.trim().toLowerCase().split(/\s+/).filter(Boolean));
   const groups = $derived(

@@ -62,6 +62,9 @@ A marker appears on the row, with the reason in the about panel:
   empty slot.
 - **Joy number above 32** (an error). Elite reads only buttons 1 to 32 on each device. Anything
   higher is ignored.
+- **Clashes with route paste** (a warning): V or Enter is on a galaxy map action. The route "paste" sends Ctrl+V, then Enter,
+  while the galaxy map is open. If the search box does not have focus, a galaxy map action on one
+  of those keys would run instead. Move that action to another key.
 - **Device not connected** (a warning).
 - **Same control as ...** (a note). Two actions in the same context share a control.
 - A preset-level warning if a device's product ID looks different from what the preset names

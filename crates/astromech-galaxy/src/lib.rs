@@ -494,6 +494,20 @@ fn hop_on(map: Option<&StarMap>, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
 /// Journal lines `here_from_journal_dir` and `visits_from_journal_dir` read (quoted event names).
 pub const POSITION_EVENTS: &[&str] = &["\"Location\"", "\"FSDJump\"", "\"CarrierJump\""];
 
+/// Every journal line the Engineering page's state is built from (`build_journal_state` in the
+/// app window), as the patterns its readers pre-filter with: fleet, engineers, the material
+/// ledger, and here and visits. A cache that watches the journals for changes watches exactly
+/// these (astromech-ldiz).
+pub fn engineering_journal_events() -> Vec<&'static str> {
+    [
+        astromech_engineering::FLEET_EVENTS,
+        astromech_engineering::engineers::EVENTS,
+        astromech_materials::LEDGER_EVENTS,
+        POSITION_EVENTS,
+    ]
+    .concat()
+}
+
 /// Newest `Location` / `FSDJump` / `CarrierJump` with `StarPos`, newest journal first.
 pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
     let mut logs = astromech_journal::journal_logs(dir);
@@ -516,6 +530,19 @@ pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_engineering_watch_list_has_every_reader_s_lines() {
+        let w = super::engineering_journal_events();
+        for list in [
+            astromech_engineering::FLEET_EVENTS,
+            astromech_engineering::engineers::EVENTS,
+            astromech_materials::LEDGER_EVENTS,
+            super::POSITION_EVENTS,
+        ] {
+            assert!(list.iter().all(|e| w.contains(e)), "{list:?} missing from {w:?}");
+        }
+    }
+
     use super::*;
     use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 

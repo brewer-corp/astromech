@@ -14,10 +14,12 @@ pub mod commander;
 pub mod companion;
 mod detail;
 pub mod ore;
+mod tail;
 
 use detail::system_powerplay;
 pub use detail::*;
 use std::path::{Path, PathBuf};
+pub use tail::JournalTail;
 
 #[derive(Debug, thiserror::Error)]
 pub enum JournalError {
@@ -962,9 +964,9 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
 pub struct JournalWatch {
     events: Vec<String>,
     files: usize,
-    newest: Option<PathBuf>,
-    /// Bytes of `newest` already seen, always at a line start.
-    offset: u64,
+    /// Follows the newest journal from where it ended when we switched to it.
+    tail: Option<JournalTail>,
+    restarts: u32,
     started: bool,
     generation: u64,
 }
@@ -974,8 +976,8 @@ impl JournalWatch {
         Self {
             events: events.iter().map(|e| e.to_string()).collect(),
             files: 0,
-            newest: None,
-            offset: 0,
+            tail: None,
+            restarts: 0,
             started: false,
             generation: 0,
         }
@@ -985,51 +987,37 @@ impl JournalWatch {
     /// was appended.
     pub fn poll(&mut self, dir: &Path) -> u64 {
         let logs = journal_logs(dir);
-        let newest = logs.last().cloned();
-        let same_file = self.started && self.files == logs.len() && self.newest == newest;
-        let opened = newest.as_deref().map(|p| std::fs::File::open(p).and_then(|f| f.metadata().map(|m| (f, m.len()))));
-        let (mut f, len) = match opened {
-            None => {
-                self.generation += u64::from(self.started && !same_file);
-                (self.files, self.newest, self.offset, self.started) = (0, None, 0, true);
+        let newest = logs.last();
+        let same_file = self.started && self.files == logs.len() && self.tail.as_ref().map(|t| &t.path) == newest;
+        if !same_file {
+            let switched = u64::from(self.started);
+            let Some(path) = newest else {
+                (self.started, self.files, self.tail, self.restarts) = (true, 0, None, 0);
+                self.generation += switched;
                 return self.generation;
-            }
-            // Not recorded: the switch is counted on the first poll that can read the new file.
-            // If even the first poll fails, that counts as a change too, so a build made
-            // before the file could be read isn't kept.
-            Some(Err(_)) => {
+            };
+            // Where the new journal ends now, read through an open handle. If it can't be opened
+            // yet nothing is recorded, so the switch is counted by the first poll that can. If
+            // even the first poll fails, the next successful one counts as a change too, so a
+            // build made before the file could be read isn't kept.
+            let Ok(len) = std::fs::File::open(path).and_then(|f| f.metadata()).map(|m| m.len()) else {
                 if !self.started {
-                    self.started = true;
-                    self.files = usize::MAX;
+                    (self.started, self.files) = (true, usize::MAX);
                 }
                 return self.generation;
-            }
-            Some(Ok(x)) => x,
-        };
-        (self.files, self.newest) = (logs.len(), newest);
-        if !self.started {
-            self.started = true;
-            self.offset = len;
-        } else if !same_file || len < self.offset {
+            };
+            (self.started, self.files, self.restarts) = (true, logs.len(), 0);
+            self.tail = Some(JournalTail::new(path.clone(), len));
+            self.generation += switched;
+            return self.generation;
+        }
+        let Some(tail) = &mut self.tail else { return self.generation };
+        let lines = tail.read_new();
+        if tail.restarts() != self.restarts {
+            self.restarts = tail.restarts();
             self.generation += 1;
-            self.offset = len;
-        } else if len > self.offset {
-            use std::io::{Read, Seek, SeekFrom};
-            let mut buf = Vec::new();
-            if f.seek(SeekFrom::Start(self.offset))
-                .and_then(|_| f.take(len - self.offset).read_to_end(&mut buf))
-                .is_ok()
-            {
-                // A line the game is still writing waits for its newline.
-                let complete = buf.iter().rposition(|b| *b == b'\n').map_or(0, |i| i + 1);
-                self.offset += complete as u64;
-                let watched = String::from_utf8_lossy(&buf[..complete])
-                    .lines()
-                    .any(|l| self.events.iter().any(|e| l.contains(e.as_str())));
-                if watched {
-                    self.generation += 1;
-                }
-            }
+        } else if lines.iter().any(|l| self.events.iter().any(|e| l.contains(e.as_str()))) {
+            self.generation += 1;
         }
         self.generation
     }
