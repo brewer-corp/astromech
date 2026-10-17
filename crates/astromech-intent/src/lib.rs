@@ -414,7 +414,8 @@ const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your",
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
-const FILLER: &[&str] = &["please", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
+/// Words dropped wherever they appear. "sir" is politeness, like "please" ("Yes, sir.").
+const FILLER: &[&str] = &["please", "sir", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
 
 /// Lowercase, strip punctuation, fold common splits ("hard points" → "hardpoints"),
 /// and drop filler words.
@@ -1243,6 +1244,33 @@ mod tests {
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
         assert_eq!(g.best("close cargo scoop").command, "cargo_scoop.close");
+    }
+
+    /// "sir" is a polite extra word, like "please": "Yes, sir." confirms (voice eval,
+    /// astromech-bztt), and it never makes a command out of anything else.
+    #[test]
+    fn sir_is_filler() {
+        let g = g();
+        for (t, c) in [
+            ("Yes, sir.", "confirm"),
+            ("yes please", "confirm"),
+            ("Affirmative, sir.", "confirm"),
+            ("No, sir.", "cancel"),
+            ("Gear down, sir.", "landing_gear.down"),
+            ("All stop, sir.", "throttle.zero"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        for t in ["Sir.", "Sir, yes sir, what a beautiful nebula", "Yes sir, I think the coffee is cold"] {
+            let m = g.best(t);
+            assert_eq!(m.decision, Decision::NoMatch, "{t:?} -> {m:?}");
+        }
+        // "Thank you" already asks ("you" may be "gear"); "sir" doesn't change that.
+        assert_eq!(g.best("Thank you, sir."), g.best("Thank you."));
+        assert_ne!(g.best("Thank you, sir.").decision, Decision::Execute);
+        // Names that only contain "sir" keep it.
+        assert_eq!(normalise("Sirius"), ["sirius"]);
     }
 
     #[test]

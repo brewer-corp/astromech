@@ -20,8 +20,8 @@ Pressing push-to-talk cuts off whatever astromech is saying, and callouts wait w
 for the reply.
 
 Speech is English only. Say the phrase the way the [command list](voice-commands.md) writes
-it, or close to it: "gear down", "lights on", "deploy hardpoints". Filler words such as "please"
-and "the" are ignored, and "hard points" is heard as "hardpoints".
+it, or close to it: "gear down", "lights on", "deploy hardpoints". Filler words such as "please",
+"sir" and "the" are ignored, and "hard points" is heard as "hardpoints".
 
 ## What it needs
 

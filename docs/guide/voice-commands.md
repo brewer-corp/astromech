@@ -1,8 +1,8 @@
 # Voice commands
 
 Everything astromech understands by voice. Say a phrase the way it is written, or close to it
-(see [Voice](voice.md) for how matching works). Filler words like "please" and "the" are
-ignored. Replies are in quotes.
+(see [Voice](voice.md) for how matching works). Filler words like "please", "sir" and "the"
+are ignored. Replies are in quotes.
 
 Commands that press a key need a **keyboard key** bound in Elite for that action. Each is checked
 against your ship's state first and refused with a short reason when it cannot work, such as
@@ -109,7 +109,7 @@ connection. [Voice lookups](lookups.md) has the details of each.
 
 | You say | Meaning |
 |---|---|
-| "yes", "confirm", "do it", "affirmative" | Yes, to "Did you mean" or a confirmation |
+| "yes", "confirm", "do it", "affirmative" (also with "please" or "sir": "yes, sir") | Yes, to "Did you mean" or a confirmation |
 | "no", "cancel", "never mind", "negative", "abort" | No |
 
 These work only right after a question. On their own, astromech says "Say again."
