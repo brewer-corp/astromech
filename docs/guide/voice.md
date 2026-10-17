@@ -47,8 +47,8 @@ anything outside the list. Each match gets a score:
 - **Close, but not sure:** it asks "Did you mean gear down?" Answer **yes** or **no** with
   your next push-to-talk, within five seconds. "Yes" runs it. "No" cancels ("Cancelled."). You
   can also say "confirm", "do it" or "affirmative" for yes, and "cancel", "never mind",
-  "negative" or "abort" for no.
-- **Not close:** "Say again."
+  "negative" or "abort" for no. After a question from astromech, "yeah", "okay" and "ok" also count as yes.
+- **Not close:** "Say again." An empty transcript from a clip that passed the volume check also gets "Say again."
 
 When you answer **yes** to a "Did you mean", astromech remembers what you said as a personal
 phrase for that command, so next time the same mishearing works at once. It is stored on your PC.
@@ -73,7 +73,7 @@ Every command that presses a key goes through the same checks:
   within five seconds.
 - **The game's answer.** astromech says its confirmation as soon as it has sent the key. It then
   watches the game's own state file for the change and writes the result to the log. If the game
-  did not do it, nothing more is said, so look at the ship if it matters.
+  did not do it, nothing more is said, by design: a miss is only logged. Look at the ship if it matters.
 
 astromech never presses a key you did not ask for by voice, and never fires weapons, jumps
 or docks for you.

@@ -13,7 +13,7 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
   have unlocked and how many you can work on now, and says how the next ones open: a ship
   engineer introduces the next ones once your rank with them passes grade 3; each suit engineer
   refers the next after a task.
-- Columns run from **Common knowledge** (engineers anyone can find), through **Introduced**, to
+- Columns run from **Common knowledge** (engineers anyone can find), through **Introduced** and **Introduced again**, to
   **Further**. An arrow points back to who introduces each engineer.
 - Each engineer shows its status: **Unlocked** (with your rank, for ship engineers), **Invited**
   (the workshop still needs its unlock task), **Known**, **Locked**, or **Barred** (you have been
@@ -36,7 +36,7 @@ Three tabs:
 
 Your ship locker and backpack by the game's own categories: **Goods**, **Assets**, **Data** and
 **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
-what it is worth at the **barter** (assets only) and what a bartender **sells it for**. **Held only**
+what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only**
 hides what you do not have. The line above says how much is held and what a bartender would pay
 for it. Mission items go back when the mission ends and do not count for blueprints.
 

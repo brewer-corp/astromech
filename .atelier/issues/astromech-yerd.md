@@ -3,6 +3,7 @@ created_at: "2026-10-17T17:29:23.169251395+00:00"
 id: "astromech-yerd"
 issue_type: "bug"
 labels:
+- "alpha"
 - "docs-found"
 priority: "P3"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Spoken lines that break the copy guide are not covered by copy.rs"
-updated_at: "2026-10-17T17:29:23.169251395+00:00"
+updated_at: "2026-10-17T17:41:21.191948879+00:00"
 ---
 
 ## Goal

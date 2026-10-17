@@ -25,7 +25,7 @@ Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
 ## High Grade Emissions
 
 On the **Manufactured** tab, a line under the tabs says what the system you are in offers: its
-name, allegiance and population, whether High Grade Emissions can spawn, and which materials
+name, allegiance and population, whether a High Grade Emissions signal is on your scanner now, and which materials
 they could drop. Below the grid, a list of up to eight grade 4 and 5 manufactured materials you are not full on,
 least full first, each with the High Grade Emissions source that drops it.
 
@@ -33,12 +33,12 @@ High Grade Emissions come from a **faction** in the system, by its state and all
 
 | Faction | Drops |
 |---|---|
-| Federation (in a system of over a billion people) | Federation composites: Proprietary Composites, Core Dynamics Composites |
-| Empire (over a billion people) | Imperial Shielding |
+| Federation (most reliably in a system of over a billion people) | Federation composites: Proprietary Composites, Core Dynamics Composites |
+| Empire (most reliably over a billion people) | Imperial Shielding |
 | Independent or Alliance, in Boom | Proto Heat Radiators, Proto Radiolic Alloys, Proto Light Alloys |
 | Any, in War or Civil War | Military Grade Alloys, Military Supercapacitors |
 | Independent or Alliance, in Civil Unrest | Improvised Components |
-| Independent or Alliance, in Outbreak (about a million or more people) | Pharmaceutical Isolators |
+| Independent or Alliance, in Outbreak (1 million or more people) | Pharmaceutical Isolators |
 
 War outranks the Federation and Empire pools. The system view is a likely pool, not a promise:
 the signal is spawned by one faction, and astromech's [High Grade Emissions
@@ -57,7 +57,7 @@ On the **Raw** tab, below the grid, pick a kind of site and the nearest bodies a
 | Site | What it gives |
 |---|---|
 | Crystalline shards | Grade 4 raw (polonium, ruthenium, tellurium, technetium, yttrium, antimony and more). Shoot the shards from the SRV and collect the fragments. |
-| Brain trees | Grade 4 and 5 raw. Shoot them (turrets or flak), then collect with the SRV. |
+| Brain trees | Grade 4 raw. Shoot them (turrets or flak), then collect with the SRV. |
 | Crashed ships | Encoded data points and salvage. Scan the data points from the SRV. |
 | Geological sites | Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents. |
 | Known raw farms | The well-known grade 4 farms: one body for each element. |

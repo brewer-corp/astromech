@@ -4,8 +4,8 @@ Two pages under **Exploration**: **System**, the bodies of the system you are in
 and **Biology**, the system's life ranked by value, with a sampling helper.
 
 **What they need:** Elite running and the journal. The page follows the game and refreshes every
-few seconds. The unsold-data totals and the sell search need the journal history (see
-[Logbook](logbook.md)). Searches use Spansh, and the "other players reported" biology comes from
+few seconds. The unsold-data totals need the journal history (see
+[Logbook](logbook.md)); the sell search needs the network. Searches use Spansh, and the "other players reported" biology comes from
 Spansh too.
 
 ## System
@@ -17,7 +17,7 @@ The system you are in, with:
   worthwhile ones with the Detailed Surface Scanner).
 - A table of bodies: name, class, distance from the star, gravity, facts (terraformable, landable,
   rings, signals), what it is worth now and what it is worth **mapped**. **Worth mapping** marks a
-  planet worth at least 500,000 credits mapped. **Mapped** (and "efficiently") marks ones you did.
+  planet you have not mapped yet that is worth at least 500,000 credits mapped efficiently. **Mapped** (and "efficiently") marks ones you did.
   **First footfall likely** marks a landable body nobody had discovered in an unpopulated system;
   the journal cannot say who walked there first. **Landed** counts your landings.
 

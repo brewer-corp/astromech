@@ -48,13 +48,14 @@ waits until Elite starts. Later versions arrive as updates from inside the app.
 
 ## Read the guide
 
-The [guide](docs/guide/index.md) covers every page and feature. A good order:
+The [guide](docs/guide/index.md) covers every page and feature:
 
-- [Getting started](docs/guide/getting-started.md): install, first run, updates
-- [Voice](docs/guide/voice.md) and [Voice commands](docs/guide/voice-commands.md)
-- [Callouts](docs/guide/callouts.md): what it says on its own, and how to turn each off
-- [Controls](docs/guide/controls.md): keybinds, controllers and presets
-- [Data sharing](docs/guide/data-sharing.md): exactly what is sent where
+- Set up: [Getting started](docs/guide/getting-started.md), [Using the app](docs/guide/using-the-app.md), [Settings](docs/guide/settings.md)
+- Voice: [Voice](docs/guide/voice.md), [Voice commands](docs/guide/voice-commands.md), [Voice lookups](docs/guide/lookups.md), [Callouts](docs/guide/callouts.md), [Voice tester](docs/guide/voice-tester.md)
+- Controls: [Controls](docs/guide/controls.md)
+- Ships and engineering: [Ships](docs/guide/ships.md), [Materials](docs/guide/materials.md), [Engineers and on foot](docs/guide/engineering.md)
+- Galaxy and trade: [Galaxy](docs/guide/galaxy.md), [Routes](docs/guide/routes.md), [Trade](docs/guide/trade.md), [Mining](docs/guide/mining.md), [Colonisation](docs/guide/colonisation.md), [Powerplay](docs/guide/powerplay.md)
+- Exploring and history: [Exploration](docs/guide/exploration.md), [Logbook](docs/guide/logbook.md), [Data sharing](docs/guide/data-sharing.md) (exactly what is sent where)
 
 ## Help and feedback
 

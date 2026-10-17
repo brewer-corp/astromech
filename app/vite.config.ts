@@ -6,8 +6,7 @@ import { svelteTesting } from "@testing-library/svelte/vite";
 export default defineConfig({
   plugins: [svelte(), svelteTesting()],
   clearScreen: false,
-  // fs.allow: the repository root, so the data catalogue and the guide (docs/guide, read by the help-link test) import from outside app/.
-  server: { port: 5173, strictPort: true, fs: { allow: [".."] } },
+  server: { port: 5173, strictPort: true },
   test: { environment: "jsdom", include: ["src/**/*.test.ts"] },
   build: { target: "es2022", outDir: "dist", emptyOutDir: true },
 });

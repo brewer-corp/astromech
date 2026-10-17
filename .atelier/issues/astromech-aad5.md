@@ -9,12 +9,16 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-s0gz"
+    type: "duplicates"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:41:23.143999975+00:00"
+status: "superseded"
 title: "Callouts can only be turned off by editing astromech.toml"
-updated_at: "2026-10-17T17:29:23.315127139+00:00"
+updated_at: "2026-10-17T17:41:23.143999975+00:00"
 ---
 
 ## Goal
@@ -24,3 +28,7 @@ Each callout has [callouts.<id>] enabled and cooldown_s in the config, but Setti
 ## Done when
 
 Settings can turn each callout on or off (and the default-off Powerplay arrival on), and the guide's "More in the config file" table in docs/guide/settings.md shrinks accordingly. Found while writing the user guide.
+
+## Close Reason
+
+Duplicate of astromech-s0gz (callout settings in the app).

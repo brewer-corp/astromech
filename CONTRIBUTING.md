@@ -56,8 +56,8 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   `pnpm lint && pnpm check && pnpm build && pnpm test`.
 - **A change a player can see updates its guide page in the same PR.** That covers a new or
   changed page, setting, voice command, lookup or callout, and anything removed. The page for
-  each app page is in [docs/guide/](docs/guide/index.md); the app's Help links point at them, and a
-  test (`app/src/lib/help.test.ts`) fails if a link target is missing. Say what the feature does,
+  each app page is in [docs/guide/](docs/guide/index.md); the app's Help links point at them, and
+  `scripts/check-guide.py` fails if a link target (or a help link's page or heading) is missing. Say what the feature does,
   how to use it, what it needs (network, settings, game data) and its limits, in plain short
   sentences like the app's own copy (docs/V1-DESIGN.md §6.5). Describe what the code does, not
   what is planned. A page you add goes in [docs/guide/index.md](docs/guide/index.md) too, and every

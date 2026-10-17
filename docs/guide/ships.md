@@ -19,9 +19,9 @@ Opens on a card for each ship:
 - **Name and ID**, the ship type, and where it is: **Flying now**, the system it is stored in
   (with a copy button), "In transit to" a system, or "Stored".
 - **Value** and **Rebuy.**
-- **Jump**, **Shield** (MJ) and **DPS**: worked out from the modules, see
+- **Jump** (the maximum range: one jump's fuel, no cargo), **Shield** (MJ) and **DPS** (burst, while firing): worked out from the modules, see
   [Ship stats](#ship-stats). "Incomplete" with a tooltip lists items that are not in astromech's ship
-  data and were left out.
+  data and were left out. If the stats cannot be worked out, Jump falls back to the journal's own maximum range.
 - **Engineered**: how many of the ship's engineerable modules have an engineering blueprint, as
   a bar.
 
@@ -60,7 +60,7 @@ From the plan it works out:
   3 down a grade, and across categories 6 times worse. Trades only spend what the plan does not need.
 - **Still to collect.** What to farm, with the amount, where from, and what to trade it into.
 - **Engineer trip.** Which engineers to visit and in what order, with the work to do at each.
-  It finds the fewest jumps over every engineer who offers a job, from your current system, at your
+  It finds the fewest jumps (with a small cost for each stop) over every engineer who offers a job, exact for up to 16 candidate sets and a quicker greedy route for larger plans, from your current system, at your
   ship's range. Jobs that need an engineer you have not unlocked are listed apart, with what
   unlocks them (see [Engineers and on foot](engineering.md)). A "~" means the jump count is a
   straight-line estimate. Experimentals are always in person. Grades can also be rolled remotely
@@ -80,11 +80,11 @@ The side panel compares the ship **now** with the ship **when the plan is done**
 | Jump range (ly) | Max (one jump's fuel, no cargo), Full tank, Laden (full tank and cargo), Total (jumping until empty) |
 | Shields | Strength (MJ), explosive, kinetic, thermal |
 | Distributor | WEP capacity and recharge, weapon draw, time to drain, SYS and ENG recharge |
-| Weapons and hull | DPS, armour, explosive, kinetic and thermal resistance |
+| Weapons and hull | DPS (burst, while firing; sustained DPS is not shown), armour, explosive, kinetic and thermal resistance |
 | Ship | Speed, boost, mass, power use with hardpoints deployed, power plant output |
 
 The numbers are a port of **Coriolis**'s calculations with the same base stats. They are
-tested against Coriolis's own code on reference builds, to the last digit Coriolis shows (Coriolis
+tested against Coriolis's own code on reference builds, and the figures shown match to the last digit Coriolis shows (Coriolis
 as of 24 April 2026). Read this when you compare the two:
 
 - **Your fitted modules match.** For a module you have engineered, astromech reads the real values
@@ -96,6 +96,7 @@ as of 24 April 2026). Read this when you compare the two:
 - **Incomplete builds.** A module, blueprint or experimental that is not in astromech's data is left
   out of the numbers and flagged "Incomplete" with the list. A hull it does not know has no stats
   at all. Coriolis may know it; astromech's data is a snapshot.
+- **Sustained DPS.** astromech keeps an internal sustained figure that counts rail-gun charge time, which departs from Coriolis (astromech-bnnh); it is not shown.
 - **Fewer figures.** The page shows the groups above, not all of Coriolis's tables, and none of its
   build costs.
 - **Missing drive.** With no frame shift drive, or one that is unpowered, jump range is blank

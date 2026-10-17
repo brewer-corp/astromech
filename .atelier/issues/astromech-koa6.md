@@ -3,6 +3,7 @@ created_at: "2026-10-17T17:29:23.095776462+00:00"
 id: "astromech-koa6"
 issue_type: "bug"
 labels:
+- "alpha"
 - "docs-found"
 priority: "P3"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Data sharing page says 30 minutes; the sender uses 5"
-updated_at: "2026-10-17T17:29:23.095776462+00:00"
+updated_at: "2026-10-17T17:41:20.458144468+00:00"
 ---
 
 ## Goal

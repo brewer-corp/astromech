@@ -54,7 +54,7 @@ Trade, Colonisation, Powerplay and Exploration.
   - **Data age:** hide reports older than this (up to 1, 3, 7, 30, 90 or 365 days).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
-- **Results.** Up to about ten, nearest first. Each row has the place with a **Copy** button, the jumps and
+- **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. Each row has the place with a **Copy** button, the jumps and
   light years, and facts such as pad, arrival distance and when it was reported. The line under the list says which
   jump range was used, who the source is and how old the answer is.
 - Searches are cached for a while, so asking twice is quick. Change a filter or the "From" to search again.
@@ -62,7 +62,7 @@ Trade, Colonisation, Powerplay and Exploration.
 ### Jumps and distance
 
 "Jumps" uses your **ship's range** from its last loadout (20 light years if it does not know). astromech
-keeps its own **star map**: a bundled copy of the known stars within 500 light years of Sol,
+keeps its own **star map**: a copy of the known stars within 500 light years of Sol (bundled with tagged releases),
 filled in from EDSM as you travel. Inside the covered space a jump count is worked out by walking
 real stars at your range, so it is exact for that range. Outside it, or if the search gives up, it is a
 straight-line estimate, rounded up, shown with a "~" ("~3 jumps").

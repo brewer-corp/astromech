@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Check the user guide: every relative link or image in README.md, CONTRIBUTING.md and docs/guide/*.md
-points at a file that exists (and, with #anchor, at a heading that exists), and every guide page
-is linked from docs/guide/index.md. Prints each problem; exits 1 if there are any."""
+points at a file that exists (and, with #anchor, at a heading that exists), every guide page
+is linked from docs/guide/index.md, and every app help link (the `help:` of each module manifest and
+SETUP_HELP) names a guide page and heading that exist. Prints each problem; exits 1 if there are any."""
 import re
 import sys
 from pathlib import Path
@@ -43,8 +44,43 @@ def links(path: Path):
             yield no, m.group(1)
 
 
+HELP_VALUE = re.compile(r"[a-z0-9-]+\.md(#[a-z0-9-]+)?")
+HELP_FIELD = re.compile(r"^\s*help:\s*\"([^\"]*)\"", re.M)
+SETUP_HELP = re.compile(r"SETUP_HELP\s*=\s*\"([^\"]*)\"")
+
+
+def help_targets():
+    """(where, value) for every `help:` in the module manifests and SETUP_HELP in lib/help.ts."""
+    app = ROOT / "app" / "src"
+    for f in sorted(app.glob("modules/*/manifest.ts")):
+        found = HELP_FIELD.findall(f.read_text(encoding="utf-8"))
+        if not found:
+            yield str(f.relative_to(ROOT)), None
+        for v in found:
+            yield str(f.relative_to(ROOT)), v
+    found = SETUP_HELP.findall((app / "lib" / "help.ts").read_text(encoding="utf-8"))
+    for v in found or [None]:
+        yield "app/src/lib/help.ts", v
+
+
+def check_help(problems):
+    for where, value in help_targets():
+        if value is None:
+            problems.append(f"{where}: no help link")
+        elif not HELP_VALUE.fullmatch(value):
+            problems.append(f"{where}: help {value!r} is not <page>.md or <page>.md#<heading>")
+        else:
+            file, _, frag = value.partition("#")
+            dest = GUIDE / file
+            if not dest.exists():
+                problems.append(f"{where}: help {value}: no docs/guide/{file}")
+            elif frag and frag not in anchors(dest):
+                problems.append(f"{where}: help {value}: no heading #{frag}")
+
+
 def main() -> int:
     problems = []
+    check_help(problems)
     pages = sorted(GUIDE.glob("*.md"))
     for page in [ROOT / "README.md", ROOT / "CONTRIBUTING.md", *pages]:
         for no, target in links(page):

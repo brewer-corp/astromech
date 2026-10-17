@@ -3,6 +3,7 @@ created_at: "2026-10-17T17:29:23.461289517+00:00"
 id: "astromech-znvi"
 issue_type: "task"
 labels:
+- "alpha"
 - "docs-found"
 priority: "P3"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Learned voice phrases cannot be reviewed or removed"
-updated_at: "2026-10-17T17:29:23.461289517+00:00"
+updated_at: "2026-10-17T17:41:22.048084213+00:00"
 ---
 
 ## Goal

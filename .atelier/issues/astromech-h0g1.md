@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:41:24.536202529+00:00"
+status: "superseded"
 title: "Plan::Press failure lines are never spoken"
-updated_at: "2026-10-17T17:29:23.534452429+00:00"
+updated_at: "2026-10-17T17:41:24.536202529+00:00"
 ---
 
 ## Goal
@@ -24,3 +25,7 @@ astromech-tools Plan::Press carries a failure line ("Landing gear did not respon
 ## Done when
 
 The failure lines are spoken, or removed, and docs/guide/voice.md ("The game's answer") says which. Found while writing the user guide.
+
+## Close Reason
+
+By design: ARCHITECTURE section 14 MVP criterion 1 says verification misses are logged only, never spoken. docs/guide/voice.md says the same.

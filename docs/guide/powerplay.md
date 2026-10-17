@@ -32,7 +32,7 @@ spots** tagged too. A small "?" marks a rule not yet checked in game, with the r
 rules come from community guides and are dated at the foot of the list ("as of ... rules v...").
 Frontier rebalances Powerplay often, so check a surprising line in game.
 
-If the power is not acquiring this system, nothing here earns its merits and the page says so.
+It lists reinforcing (when your power controls the system), undermining (another power's system) and acquiring (an unoccupied system your power is acquiring). Only an unoccupied system your power is not acquiring has nothing, and the page says so.
 
 ## Where to work
 

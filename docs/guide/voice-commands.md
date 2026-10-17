@@ -70,7 +70,7 @@ has not said yet, you hear "No fuel data yet." and the like.
 |---|---|
 | "fuel", "how much fuel", "fuel status", "fuel remaining" | "Fuel: 24.5 tonnes main, 0.63 tonnes reservoir. Tank 76 percent." |
 | "cargo", "how much cargo", "cargo status" | "Cargo: 12 of 64 tonnes. 8 Painite, 4 Gold." (the top three) |
-| "jump range", "max jump" | "Jump range: 42.1 light years." This is the game's own figure for your last loadout. |
+| "jump range", "what's my jump range", "max jump" | "Jump range: 42.1 light years." This is the game's own figure for your last loadout. |
 | "where am I", "where are we", "current system", "what system" | "System Sol. Body Earth. Docked at Abraham Lincoln." |
 | "jumps left", "jumps remaining", "next system", "how many jumps" | "Next system Alpha Centauri. 5 jumps remaining." or "No route plotted." |
 | "hull", "hull health", "how much hull" | "Hull: 100 percent." |
@@ -86,7 +86,7 @@ Powerplay questions, from the journal (examples again):
 |---|---|
 | "what's my powerplay rank", "powerplay rank", "powerplay status", "how many merits", "how many merits do I have", "what are my merits", "merits" | "Pledged to Zachary Hudson, rank 3, 5000 merits. 2000 merits to rank 4: reward. 300 merits this session." or "Not pledged to a power." |
 | "who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here" | "Zachary Hudson fortified, 40 percent. Reinforcement 10, undermining 20." |
-| "what earns merits here", "how do I earn merits here", "merits here", "powerplay activities" | "Merits here: trade, bounties, and 2 more on the Powerplay page." |
+| "what earns merits here", "how do I earn merits here", "merits here", "powerplay activities" | "Merits here: trade, bounties, scanning, mining, and 2 more on the Powerplay page." (up to four names, then the rest) |
 
 ## Lookups
 

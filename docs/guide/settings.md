@@ -61,7 +61,8 @@ without a default are only called out as a motherlode. See [Callouts](callouts.m
 
 ### Files
 
-- **Config file.** The path of `astromech.toml`, with **Open**. Keep the name exactly
+- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one, which sets the kill
+  switch to Scroll Lock (known bug: astromech-k20i); change it in setup if that is wrong. Keep the name exactly
   `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech reports the file it
   found instead.
 - **Logs.** The log folder, with **Open folder**.
@@ -84,8 +85,11 @@ restart afterwards.
 | `[game]` `journal_dir`, `bindings_dir`, `game_dir` | Where the game's files are, if not the usual places | empty |
 | `data_dir` | Where history, caches and models are kept | `%LOCALAPPDATA%\astromech\data` |
 
-A bad value is reported in the log and under Files in Settings, and the default is used. If the
-file has an error, setup says "config file has an error (see logs)".
+A callout with an unknown id or a `cooldown_s` that is not a number of seconds is reported in the log
+and ignored on its own. Any other error in the file (a typo, a bad value) is different: the **whole file
+is discarded** and astromech runs with every default, including no push-to-talk and no kill switch,
+until you fix it. Setup says "config file has an error (see logs)"; Settings (under Files) and
+Diagnostics say "config error (see logs)". (Known bug: astromech-thym.)
 
 ## Diagnostics
 
@@ -96,7 +100,7 @@ What astromech sees right now, and a way to collect a bug report.
   is still needed, or Done.
 - **Save diagnostics.** Writes a zip with the logs, the last crash, the keybinds health report,
   your `astromech.toml` and a short system summary. Your Windows user name and profile paths are
-  replaced in the text. It does not include your journals, speech recordings or history. The
+  replaced in the text. It does not include your journals, speech recordings or history, but the logs record what you said, as text. The
   page shows where the zip was saved (a `diagnostics` folder in the data folder); attach it to a
   GitHub issue.
 - **Open log folder.**

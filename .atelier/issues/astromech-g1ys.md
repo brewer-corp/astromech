@@ -3,6 +3,7 @@ created_at: "2026-10-17T17:29:23.022110042+00:00"
 id: "astromech-g1ys"
 issue_type: "bug"
 labels:
+- "alpha"
 - "docs-found"
 priority: "P2"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Health check misses seven actions that voice presses"
-updated_at: "2026-10-17T17:29:23.022110042+00:00"
+updated_at: "2026-10-17T17:41:20.312230602+00:00"
 ---
 
 ## Goal

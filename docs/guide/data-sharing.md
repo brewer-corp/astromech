@@ -21,11 +21,13 @@ app](using-the-app.md#what-needs-the-network).
   file Elite starts while astromech runs is live from its first line.
 - **Elite must be running** and astromech watching its journal.
 - **You can turn them off at any time** with the same button (**Turn off**). Off, nothing new is queued
-  and nothing is sent. Messages already waiting stay in the queue on your PC.
+  and nothing is sent, and anything still waiting in the queue is discarded at once.
 - **A queue with retries.** Messages go to a queue on your PC and are sent in the background; a failed
-  one is retried later. The page shows how many are **waiting**, the **last sent** and the **last error**.
-  **Diagnostics** shows a log of what the gateway answered and of what was **not sent**, each with
-  the reason (for example "beta game version", "commander not known yet").
+  one is retried, backing off from a minute up to an hour. A message is dropped after 8 tries or after
+  30 minutes in the queue (at most 2,000 wait at once). The page shows how many are **waiting**, the
+  **last sent** and the **last error**. For EDDN, **Diagnostics** also shows a log of what the gateway
+  answered and of what was **not sent**, each with the reason (for example "beta game version", "commander not known yet"). EDSM has no such log; its own
+  page shows Waiting, Last sent and Last error.
 
 ## EDDN: exactly what is sent
 
@@ -99,7 +101,7 @@ What is sent:
 - Nothing is sent while you are a **crew member** in another commander's ship (EDSM keeps no log there).
 - Live play only, with the same rules as above.
 
-The page has **Waiting to send**, **Last sent**, **Last error** and a **Flight log** button that shows the last week
+The page has **Waiting to send**, **Last sent**, **Last error** and a **Flight log** row with a **Show** button (disabled until the commander name and API key are saved) that shows the last week
 of systems from EDSM, with "First to report" where it applies.
 
 ## What else uses these services

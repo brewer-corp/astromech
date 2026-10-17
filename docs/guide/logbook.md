@@ -6,7 +6,7 @@ Four pages under **Logbook** use your journal history: **Logbook**, **Session**,
 **The history.** astromech reads every journal file Elite has written into a database on your PC
 (`history.sqlite` in the data folder), the first time it runs, and then keeps it up to date while it runs.
 The first import can take a while on a long history: the Logbook page shows "Importing your journals:
-42%" as it goes, and fills in as it works. It never changes your journals, and nothing leaves your PC.
+42%" as it goes, and fills in as it works. It never changes your journals. The history database stays on your PC; sharing with EDDN or EDSM is separate and off until you turn it on.
 Deleting `history.sqlite` starts over. If you point astromech at a second journal folder, its
 history is added to the first.
 
@@ -83,7 +83,7 @@ opened it: "Open the outfitting screen once and it is kept."
 
 Type a module ("5a frame shift", "fsd", "pulse laser", "hyperdrive_size5") and see which stations
 you have seen selling it, with price, when you saw it and the distance. It works offline: it searches only the outfitting
-screens you have opened.
+screens you opened while astromech was running.
 
 ## Limits
 

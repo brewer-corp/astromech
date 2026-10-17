@@ -71,7 +71,7 @@ A system with none of these gets nothing. Visit and landing lines need the
 Id: `biology`. Part of the arrival briefing and the FSS.
 
 - On arrival, before you scan: **"Known biology on 3 bodies."** and the best find, **"A 2: Stratum
-  Tectonicas, 19 M."** This is from what other players reported (Spansh). If the answer arrives
+  Tectonicas, 19 M."** This is from what other players reported (Spansh). It is also said on login, once per system. If the answer arrives
   late it is said within the first minute.
 - After you leave the FSS: **"Biology on 3 bodies."** and **"A 2: Stratum, up to 19 M."**, the
   most valuable body's best genus. The value is the top of the predicted range, "up to" when it
@@ -108,8 +108,8 @@ When you plot a route (a new route in the game):
 - Id `route`: **"Route: 19 jumps, 380 ly."**, then **"White dwarf at jump 4."** or "3 white dwarfs,
   first at jump 4.", and the same for neutron stars. White dwarfs have an exclusion zone.
 - Id `fuel_range` (High priority): **"Fuel too low to reach a scoopable star."**, "Fuel too low to reach the
-  destination.", or **"Fuel gap: 18 jumps between scoopable stars."** for the first stretch a full
-  tank will not cross.
+  destination.", **"Fuel gap: 18 jumps between scoopable stars."** for the first stretch a full
+  tank will not cross, or **"Fuel gap: 6 jumps to the destination."** when that stretch ends at the destination.
 
 As you jump along it:
 
@@ -153,14 +153,14 @@ carriers stay quiet, and High Grade Emissions have their own callout. Speech onl
 Id: `hge`, 30-second cooldown (one honk finds several). **"High Grade Emissions. Federation
 composites."** names the material pool of the faction that spawned the signal. If a material on your
 shopping list comes from that pool it names the material instead: "High Grade Emissions. Proto Light
-Alloys." Other signals stay quiet. See [Materials](materials.md#high-grade-emissions).
+Alloys." Every High Grade Emissions signal is called out; with no known pool you hear just "High Grade Emissions." See [Materials](materials.md#high-grade-emissions).
 
 ## Discoveries
 
 Id: `discovery`. When a scan shows a planet worth flying to: **"Earth-like world. 4.4 million
 mapped."** Called out are Earth-like, water and ammonia worlds, any terraformable planet
 ("Terraformable high metal content world. 1.2 million mapped.") and any other planet worth at
-least 500,000 credits mapped. The value is the efficient mapping value, including the first
+least about 500,000 credits mapped. The value is the efficient mapping value, including the first
 discovery bonus when nobody had discovered it. Once per body per visit. Stars and nav beacon
 scans stay quiet. See [Exploration](exploration.md).
 
