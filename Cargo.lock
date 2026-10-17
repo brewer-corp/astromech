@@ -160,6 +160,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
+name = "astromech-announce"
+version = "0.1.5"
+dependencies = [
+ "astromech-gamestate",
+ "astromech-journal",
+ "astromech-status",
+ "serde",
+ "toml 0.9.12+spec-1.1.0",
+]
+
+[[package]]
 name = "astromech-colonisation"
 version = "0.1.5"
 dependencies = [
@@ -175,6 +186,7 @@ name = "astromech-core"
 version = "0.1.5"
 dependencies = [
  "anyhow",
+ "astromech-announce",
  "astromech-data",
  "astromech-eddn",
  "astromech-galaxy",
@@ -271,6 +283,7 @@ dependencies = [
  "astromech-materials",
  "astromech-powerplay",
  "astromech-status",
+ "chrono",
  "serde",
  "tempfile",
 ]

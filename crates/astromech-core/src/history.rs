@@ -408,7 +408,7 @@ pub(crate) mod tests {
         wait_for("the import to start (and wait on the lock)", || f.progress().running);
         let t = Instant::now();
         let hub = Arc::new(StateHub::new());
-        let _pipe = crate::pipeline::start(j.path(), hub.clone(), None, |_| {}).unwrap();
+        let _pipe = crate::pipeline::start(j.path(), hub.clone(), None, |_| {}, None).unwrap();
         assert!(t.elapsed() < Duration::from_secs(1), "pipeline::start took {:?}", t.elapsed());
         let g = hub.snapshot();
         assert_eq!(g.commander.as_deref(), Some("Fixture"));

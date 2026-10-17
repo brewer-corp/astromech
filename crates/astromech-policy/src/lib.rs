@@ -68,7 +68,7 @@ impl PressError {
     pub fn spoken(&self) -> String {
         match self {
             PressError::Cancelled => "Cancelled.".into(),
-            PressError::NotForeground(_) => "Elite isn't the active window, so I didn't press anything.".into(),
+            PressError::NotForeground(_) => "Elite is not the active window. Nothing pressed.".into(),
             PressError::Privilege(_) => {
                 "Windows is blocking key presses to the game. Run both normally, not as administrator.".into()
             }
