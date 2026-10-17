@@ -12,17 +12,27 @@ use std::collections::BTreeMap;
 pub struct MiningRun {
     /// When the run started (journal time).
     pub started: Option<DateTime<FixedOffset>>,
+    /// The latest journal time seen since the run started (the rate is measured to here, so a
+    /// replay gives what live did).
+    pub last: Option<DateTime<FixedOffset>>,
     /// Tons refined, by commodity symbol (`platinum`, from `$platinum_name;`).
     pub refined: BTreeMap<String, u32>,
 }
 
 impl MiningRun {
     pub fn apply(&mut self, line: &JournalLine) {
+        if matches!(line.name.as_str(), "Docked" | "LoadGame") {
+            *self = Self::default();
+            return;
+        }
+        if self.started.is_some() {
+            self.last = DateTime::parse_from_rfc3339(&line.timestamp).ok().or(self.last);
+        }
         match line.name.as_str() {
-            "Docked" | "LoadGame" => *self = Self::default(),
             "LaunchDrone" | "ProspectedAsteroid" | "MiningRefined" => {
                 if self.started.is_none() {
                     self.started = DateTime::parse_from_rfc3339(&line.timestamp).ok();
+                    self.last = self.started;
                 }
                 if let JournalEvent::Extra(ExtraEvent::MiningRefined { commodity }) = &line.event {
                     let sym = commodity.trim_start_matches('$').trim_end_matches(';').trim_end_matches("_name");
@@ -36,6 +46,11 @@ impl MiningRun {
     /// Tons refined this run.
     pub fn total(&self) -> u32 {
         self.refined.values().sum()
+    }
+
+    /// Tons per hour from the start of the run to the latest journal line.
+    pub fn per_hour(&self) -> Option<f64> {
+        self.tons_per_hour(self.last?)
     }
 
     /// Tons per hour from the start of the run to `at`, or None before a minute has passed.
