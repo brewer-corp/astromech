@@ -42,7 +42,8 @@ describe("Settings → Data sharing", () => {
     render(View);
     await screen.findByText("Upload to EDSM");
     const toggles = await screen.findAllByRole("button", { name: "Turn on" });
-    await fireEvent.click(toggles[1]);
+    expect(toggles).toHaveLength(2);
+    await fireEvent.click(toggles[1] as HTMLElement);
     expect(await screen.findByText("On, but no commander name")).toBeTruthy();
     await fireEvent.input(screen.getByLabelText("Commander name"), { target: { value: "Jameson" } });
     await fireEvent.click(screen.getByRole("button", { name: "Save commander name" }));
