@@ -9,7 +9,8 @@
 //! `/legacy` for Legacy mode), so two commanders sharing a journal folder never see each other's
 //! projects, claims or beacons. The accessors show the commander the newest line belonged to.
 //! A stored record's key is `<commander>|<id>`; events before a file names its commander (none
-//! of the colonisation ones) go under the empty commander.
+//! of the colonisation ones) go under the empty commander. There is no migration from keys
+//! without a commander: no release has ever persisted tracker records.
 //!
 //! Field names for the depot and contribution events are the typed ones in `astromech-journal`
 //! (post-v35 community docs, flagged uncertain there). Claims and beacons are not typed in the
@@ -21,7 +22,7 @@
 //! Applying is idempotent: a journal line replayed after a restore (older than what the state
 //! already holds, or an identical contribution) changes nothing.
 
-use astromech_journal::commander::{self, FileCommander};
+use astromech_journal::commander::FileCommander;
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
 use astromech_store::{Store, StoreError};
 use serde::{Deserialize, Serialize};
@@ -172,6 +173,7 @@ pub struct Tracker {
 
 /// What [`Tracker::load`] found.
 #[derive(Debug)]
+#[must_use = "skipped records should be logged"]
 pub struct Loaded {
     pub tracker: Tracker,
     /// Records that could not be read and were left out. They stay in the store untouched.
@@ -278,10 +280,8 @@ impl Tracker {
     /// Fold one parsed journal line in. Unrelated events are ignored.
     pub fn apply(&mut self, line: &JournalLine) {
         let ts = line.timestamp.as_str();
-        // A new file names its commander again; a continuation part carries on with the last.
-        if matches!(line.event, JournalEvent::FileHeader { .. }) && !commander::continues(line) {
-            self.cmdr.cmdr = None;
-        }
+        // The commander stays until a line names another: a file that never gets that far (the
+        // game opened and quit at the main menu) must not blank the page.
         let before = self.cmdr.cmdr.clone();
         self.cmdr.observe(line);
         if self.cmdr.cmdr != before {

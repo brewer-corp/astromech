@@ -164,6 +164,60 @@ fn state_is_kept_per_commander() {
 }
 
 #[test]
+fn a_menu_only_file_does_not_blank_the_page() {
+    let mut t = Tracker::new();
+    replay_lines(&mut t, two_commanders());
+    replay_lines(
+        &mut t,
+        [
+            r#"{"timestamp":"2026-10-03T09:00:00Z","event":"Fileheader","gameversion":"4.1.0.0","build":"x"}"#,
+            r#"{"timestamp":"2026-10-03T09:00:05Z","event":"Music","MusicTrack":"MainMenu"}"#,
+            r#"{"timestamp":"2026-10-03T09:00:09Z","event":"Shutdown"}"#,
+        ],
+    );
+    assert_eq!(t.projects().count(), 2);
+    assert_eq!(t.claims().count(), 1);
+}
+
+#[test]
+fn a_new_commander_does_not_inherit_where_the_last_one_was() {
+    let mut t = Tracker::new();
+    replay_lines(
+        &mut t,
+        [
+            r#"{"timestamp":"2026-10-01T09:00:01Z","event":"Commander","FID":"F100","Name":"Alpha"}"#,
+            r#"{"timestamp":"2026-10-01T09:01:00Z","event":"Docked","StationName":"Alpha Hub","StarSystem":"Alpha Sys","SystemAddress":11,"MarketID":3900000001}"#,
+            r#"{"timestamp":"2026-10-02T09:00:01Z","event":"Commander","FID":"F200","Name":"Beta"}"#,
+            r#"{"timestamp":"2026-10-02T09:01:00Z","event":"ColonisationConstructionDepot","MarketID":3900000001,"ConstructionProgress":0.5,"ConstructionComplete":false,"ConstructionFailed":false,"ResourcesRequired":[]}"#,
+            r#"{"timestamp":"2026-10-02T09:02:00Z","event":"ColonisationBeaconDeployed"}"#,
+        ],
+    );
+    let p = t.project(MARKET_A).unwrap();
+    assert_eq!((p.station_name.as_deref(), p.system_name.as_deref()), (None, None), "Alpha's dock");
+    let b: Vec<_> = t.beacons().collect();
+    assert_eq!((b.len(), b[0].system_name.as_deref()), (1, None), "Alpha's system");
+}
+
+#[test]
+fn a_claim_saved_loaded_and_replayed_stays_one_claim() {
+    let store = Store::in_memory().unwrap();
+    let mut t = Tracker::new();
+    replay_lines(&mut t, two_commanders().into_iter().take(4));
+    t.save(&store).unwrap();
+    let mut t = Tracker::load(&store).unwrap().tracker;
+    replay_lines(&mut t, two_commanders().into_iter().take(4));
+    assert_eq!(t.claims().count(), 1);
+    // A replay changes nothing, so a restart-then-save writes the same records.
+    t.save(&store).unwrap();
+    let keys: Vec<_> = store.records(CLAIM).unwrap().into_iter().map(|(k, _)| k).collect();
+    assert_eq!(keys, ["F100|11"]);
+    // Even if the replay does mark it changed, the key stays the same.
+    replay_lines(&mut t, [two_commanders()[3]]);
+    t.save(&store).unwrap();
+    assert_eq!(store.records(CLAIM).unwrap().len(), 1);
+}
+
+#[test]
 fn commanders_persist_under_their_own_keys() {
     let store = Store::in_memory().unwrap();
     let mut t = Tracker::new();
