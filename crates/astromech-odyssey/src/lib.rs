@@ -1,9 +1,10 @@
 //! # astromech-odyssey
 //!
 //! Odyssey on-foot micro-resources (ARCHITECTURE.md §18.7, "Odyssey micro-resources"): the
-//! inventory from `ShipLocker.json` and `Backpack.json`, suit and weapon grade upgrades and
-//! modifications with what each is missing, a shopping list over several picks with a bartender
-//! trade plan from surplus assets, the on-foot
+//! inventory from `ShipLocker.json` and `Backpack.json`, the suits and weapons owned with their
+//! grade and mods (from the journal), suit and weapon grade upgrades and modifications with what
+//! each is missing, a shopping list over several picks with a bartender trade plan from surplus
+//! assets, the on-foot
 //! engineers with their unlock status and referral chain, and bartender values. Game data is
 //! `data/catalog/odyssey.json` (`scripts/gen-odyssey.py`).
 
@@ -11,11 +12,13 @@ pub mod barter;
 pub mod catalog;
 pub mod engineers;
 pub mod inventory;
+pub mod owned;
 pub mod shopping;
 
 pub use catalog::catalog;
-pub use engineers::{progress_from_journal_dir, EngineerLine, Progress};
+pub use engineers::{EngineerLine, Progress};
 pub use inventory::{Holdings, ItemLine};
+pub use owned::{Owned, OwnedGear};
 pub use shopping::{shopping, Pick, Shopping};
 
 use serde::Serialize;
@@ -39,6 +42,10 @@ pub struct ModRef {
     pub kind: String,
     /// Weapon makers with their own cost; empty when one cost fits all.
     pub makers: Vec<String>,
+    /// Every suit (or weapon) the commander owns already has it, so the picker leaves it out.
+    pub fitted: bool,
+    /// Weapon makers whose owned weapons all have it (the picker leaves those makers out).
+    pub fitted_makers: Vec<String>,
 }
 
 /// Everything the Odyssey page shows except a shopping list.
@@ -50,6 +57,8 @@ pub struct OdysseyView {
     pub items: Vec<ItemLine>,
     pub engineers: Vec<EngineerLine>,
     pub gear: Vec<GearRef>,
+    /// The suits and weapons the commander owns, with grade and fitted mods (from the journal).
+    pub owned: Vec<OwnedGear>,
     pub mods: Vec<ModRef>,
     /// Where the game data is from, when it was fetched, and what it is unsure of.
     pub data_source: String,
@@ -57,7 +66,47 @@ pub struct OdysseyView {
     pub data_uncertain: Vec<String>,
 }
 
-pub fn view(h: &Holdings, progress: &Progress, source: &str) -> OdysseyView {
+/// What the journal says: engineer access and the suits and weapons owned.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct JournalState {
+    pub progress: Progress,
+    pub owned: Owned,
+}
+
+/// Read every journal once for `EngineerProgress` and the suit and weapon events (only those
+/// lines are parsed).
+pub fn journal_state(dir: &Path) -> JournalState {
+    const EVENTS: [&str; 10] = [
+        "\"EngineerProgress\"",
+        "\"BuySuit\"",
+        "\"SellSuit\"",
+        "\"UpgradeSuit\"",
+        "\"BuyWeapon\"",
+        "\"SellWeapon\"",
+        "\"UpgradeWeapon\"",
+        "\"SuitLoadout\"",
+        "\"SwitchSuitLoadout\"",
+        "\"CreateSuitLoadout\"",
+    ];
+    let mut st = JournalState::default();
+    for path in astromech_journal::journal_logs(dir) {
+        let Ok(text) = std::fs::read_to_string(&path) else { continue };
+        for line in text.lines().filter(|l| EVENTS.iter().any(|e| l.contains(e))) {
+            if line.contains(EVENTS[0]) {
+                if let Ok(l) = astromech_journal::parse_line(line.trim()) {
+                    engineers::apply(&mut st.progress, &l.event);
+                }
+            } else if let Ok(v) = serde_json::from_str(line.trim()) {
+                st.owned.apply(&v);
+            }
+        }
+    }
+    st
+}
+
+pub fn view(h: &Holdings, state: &JournalState, source: &str) -> OdysseyView {
+    let progress = &state.progress;
+    let owned = state.owned.gear();
     let c = catalog();
     let gear = c
         .suits
@@ -69,11 +118,26 @@ pub fn view(h: &Holdings, progress: &Progress, source: &str) -> OdysseyView {
     let mods = c
         .mods
         .iter()
-        .map(|m| ModRef {
-            id: m.id.clone(),
-            name: m.name.clone(),
-            kind: m.kind.clone(),
-            makers: m.costs.iter().filter_map(|c| c.maker.clone()).collect(),
+        .map(|m| {
+            let makers: Vec<String> = m.costs.iter().filter_map(|c| c.maker.clone()).collect();
+            let of_kind: Vec<&OwnedGear> = owned.iter().filter(|g| g.kind == m.kind).collect();
+            let has = |g: &&OwnedGear| g.mods.contains(&m.id);
+            let fitted_makers = makers
+                .iter()
+                .filter(|mk| {
+                    let theirs: Vec<_> = of_kind.iter().filter(|g| g.maker.as_ref() == Some(*mk)).collect();
+                    !theirs.is_empty() && theirs.iter().all(|g| has(g))
+                })
+                .cloned()
+                .collect();
+            ModRef {
+                id: m.id.clone(),
+                name: m.name.clone(),
+                kind: m.kind.clone(),
+                makers,
+                fitted: !of_kind.is_empty() && of_kind.iter().all(has),
+                fitted_makers,
+            }
         })
         .collect();
     OdysseyView {
@@ -83,6 +147,7 @@ pub fn view(h: &Holdings, progress: &Progress, source: &str) -> OdysseyView {
         items: inventory::item_lines(h),
         engineers: engineers::lines(progress),
         gear,
+        owned,
         mods,
         data_source: c.source.clone(),
         data_date: c.generated.clone(),
@@ -91,9 +156,9 @@ pub fn view(h: &Holdings, progress: &Progress, source: &str) -> OdysseyView {
 }
 
 /// The synthetic fixtures (app window sample): a ShipLocker, a Backpack and a journal.
-pub fn sample() -> (Holdings, Progress) {
+pub fn sample() -> (Holdings, JournalState) {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    (Holdings::from_journal_dir(&dir), progress_from_journal_dir(&dir))
+    (Holdings::from_journal_dir(&dir), journal_state(&dir))
 }
 
 #[cfg(test)]
@@ -134,7 +199,7 @@ mod tests {
         // Maverick grade 1 → 2 needs 1 Suit Schematic, 1 Health Monitor, 1 Manufacturing
         // Instructions, 2 Carbon Fibre Plating, 2 Graphene and 600,000 CR.
         let pick = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
-        let s = shopping(std::slice::from_ref(&pick), &h, &p);
+        let s = shopping(std::slice::from_ref(&pick), &h, &p.progress);
         let r = &s.picks[0];
         assert_eq!(r.title, "Maverick Suit grade 1 → 2");
         assert_eq!(r.credits, 600_000);
@@ -144,7 +209,7 @@ mod tests {
         assert_eq!(short, [("carbonfibreplating", 2)]);
         assert!(!r.ready);
         // Grade 1 → 5 adds up every step.
-        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5 }], &h, &p);
+        let all = shopping(&[Pick::Upgrade { gear: "maverick".into(), from: 1, to: 5 }], &h, &p.progress);
         let graphene = all.picks[0].lines.iter().find(|l| l.id == "graphene").unwrap();
         let steps: i64 = catalog().gear("maverick").unwrap().upgrades.iter().map(|u| u.materials["graphene"]).sum();
         assert_eq!((graphene.need, graphene.have), (steps, 9));
@@ -158,7 +223,7 @@ mod tests {
             Pick::Mod { id: "headshotdamage".into(), maker: Some("takada".into()) },
             Pick::Upgrade { gear: "karmap15".into(), from: 2, to: 3 },
         ];
-        let s = shopping(&picks, &h, &p);
+        let s = shopping(&picks, &h, &p.progress);
         assert_eq!(s.picks[1].title, "Headshot Damage (Takada weapons)");
         // Night Vision: Oden Geiger and Yi Shen fit it; the fixture has Oden unlocked.
         let fit: Vec<(&str, bool)> = s.picks[0].fitted_by.iter().map(|f| (f.name.as_str(), f.unlocked)).collect();
@@ -179,7 +244,7 @@ mod tests {
     fn a_bad_pick_is_reported_on_its_own_and_the_rest_still_count() {
         let (h, p) = sample();
         let good = Pick::Upgrade { gear: "maverick".into(), from: 1, to: 2 };
-        let alone = shopping(std::slice::from_ref(&good), &h, &p);
+        let alone = shopping(std::slice::from_ref(&good), &h, &p.progress);
         let picks = [
             Pick::Mod { id: "headshotdamage".into(), maker: None },
             good,
@@ -187,7 +252,7 @@ mod tests {
             Pick::Upgrade { gear: "nope".into(), from: 1, to: 2 },
             Pick::Mod { id: "renamedmod".into(), maker: Some("takada".into()) },
         ];
-        let s = shopping(&picks, &h, &p);
+        let s = shopping(&picks, &h, &p.progress);
         let errors: Vec<Option<&str>> = s.picks.iter().map(|r| r.error.as_deref()).collect();
         assert_eq!(
             errors,
@@ -204,6 +269,78 @@ mod tests {
         assert!(s.picks.iter().filter(|r| r.error.is_some()).all(|r| r.lines.is_empty() && !r.ready));
         // The good pick's list is as if it were alone.
         assert_eq!((s.total, s.credits), (alone.total, alone.credits));
+    }
+
+    #[test]
+    fn journal_gives_the_owned_suits_and_weapons_with_grades_and_mods() {
+        let (h, p) = sample();
+        let v = view(&h, &p, "Sample");
+        // (gear, grade, mods). The Artemis and the Oppressor were sold and the Flight Suit isn't
+        // in the catalogue. The second Maverick was bought at grade 3 with two mods (its loadout
+        // switch added Night Vision), the Aphelion at grade 3 with two mods (its loadout added a
+        // third), the Dominator was upgraded to grade 2.
+        let owned: Vec<(&str, u8, Vec<&str>)> =
+            v.owned.iter().map(|g| (g.gear.as_str(), g.grade, g.mods.iter().map(String::as_str).collect())).collect();
+        assert_eq!(
+            owned,
+            [
+                ("maverick", 1, vec!["increasedairreserves", "nightvision"]),
+                ("maverick", 3, vec!["extrabackpackcapacity", "increasedairreserves", "nightvision"]),
+                ("dominator", 2, vec![]),
+                ("karmaar50", 2, vec!["magazinesize", "stability"]),
+                ("tkaphelion", 3, vec!["greaterrange", "improvedhipfireaccuracy", "stability"]),
+            ]
+        );
+        assert_eq!((v.owned[3].kind, v.owned[3].maker.as_deref()), ("weapon", Some("kinematic")));
+        let m = |id: &str| v.mods.iter().find(|m| m.id == id).unwrap();
+        // The Dominator has no Night Vision, so it is still offered.
+        assert!(!m("nightvision").fitted);
+        // Both owned weapons have Stability: nothing left to pick.
+        assert!(m("stability").fitted);
+        // Only the Aphelion has Hip Fire Accuracy: Takada's is left out, Kinematic's is offered.
+        assert!(!m("improvedhipfireaccuracy").fitted);
+        assert_eq!(m("improvedhipfireaccuracy").fitted_makers, ["takada"]);
+        // Nothing owned means nothing hidden.
+        let none = view(&h, &JournalState::default(), "Empty");
+        assert!(none.owned.is_empty() && none.mods.iter().all(|m| !m.fitted && m.fitted_makers.is_empty()));
+    }
+
+    #[test]
+    fn a_later_loadout_replaces_the_mods_and_events_for_unknown_gear_are_ignored() {
+        let mut o = Owned::default();
+        let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
+        o.apply(&line(r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class3","SuitMods":["suit_nightvision","suit_notamod"],"Modules":[]}"#));
+        o.apply(&line(r#"{"event":"SwitchSuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class4","SuitMods":["suit_improvedarmourrating"],"Modules":[]}"#));
+        o.apply(&line(
+            r#"{"event":"BuyWeapon","Name":"Wpn_X_Plasma_Pistol","Class":1,"SuitModuleID":9,"WeaponMods":[]}"#,
+        ));
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"UtilitySuit_Class9","SuitID":2,"Class":9,"Cost":0}"#));
+        let g = o.gear();
+        assert_eq!(g.len(), 1);
+        assert_eq!(
+            (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
+            ("dominator", 4, ["damageresistance".to_string()].as_slice())
+        );
+    }
+
+    #[test]
+    fn upgrading_keeps_the_mods_and_the_name_not_the_localised_text_identifies_gear() {
+        let mut o = Owned::default();
+        let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
+        o.apply(&line(r#"{"event":"BuySuit","Name":"UtilitySuit_Class2","Name_Localised":"$UtilitySuit_Class1_Name;","Price":1,"SuitID":7,"SuitMods":["suit_nightvision"]}"#));
+        // The purchase alone sets the grade, from the Name suffix.
+        assert_eq!((o.gear()[0].gear.as_str(), o.gear()[0].grade), ("maverick", 2));
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"utilitysuit_class3","SuitID":7,"Class":3,"Cost":1}"#));
+        o.apply(&line(r#"{"event":"BuyWeapon","Name":"Wpn_S_Pistol_Laser_SAuto","Name_Localised":"Zenith en francais","Class":2,"Price":1,"SuitModuleID":8,"WeaponMods":["weapon_suppression_unpressurised"]}"#));
+        let g = o.gear();
+        assert_eq!(
+            (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
+            ("maverick", 3, ["nightvision".to_string()].as_slice())
+        );
+        assert_eq!(
+            (g[1].gear.as_str(), g[1].grade, g[1].mods.as_slice()),
+            ("tkzenith", 2, ["audiomasking".to_string()].as_slice())
+        );
     }
 
     #[test]
@@ -234,6 +371,6 @@ mod tests {
         std::fs::write(d.path().join("ShipLocker.json"), "{\"timestamp\":").unwrap();
         let h = Holdings::from_journal_dir(d.path());
         assert_eq!(h, Holdings::default());
-        assert!(progress_from_journal_dir(d.path()).is_empty());
+        assert_eq!(journal_state(d.path()), JournalState::default());
     }
 }

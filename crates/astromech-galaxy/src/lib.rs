@@ -139,36 +139,20 @@ pub(crate) fn iso(t: i64) -> String {
 }
 
 impl Galaxy {
-    /// Open (or create) the store at `path`, seeding it from `preload` once.
-    pub fn open(path: &Path, preload: Option<&Path>) -> Result<Self> {
+    /// Open (or create) the store at `path`, seeding it from `preload` once, answering remote
+    /// requests through the process's one `remote` client.
+    pub fn open(path: &Path, preload: Option<&Path>, remote: Arc<astromech_data::Client>) -> Result<Self> {
         let mut s = Store::open(path)?;
         if let Some(p) = preload {
             s.seed_from(p)?;
         }
-        Ok(Self::with_store(s))
+        Ok(Self::with_remote(s, remote))
     }
 
-    pub fn with_store(s: Store) -> Self {
-        Self::with_remote(s, astromech_data::Client::new(astromech_data::Cache::in_memory().expect("in-memory SQLite")))
-    }
-
-    /// `remote` answers the Spansh and EDSM requests (tests pass a recorded transport).
-    pub fn with_remote(s: Store, remote: astromech_data::Client) -> Self {
-        Self::with_shared_remote(s, Arc::new(remote))
-    }
-
-    /// Like [`Galaxy::open`], answering remote requests through the process's shared `remote`.
-    pub fn open_shared(path: &Path, preload: Option<&Path>, remote: Arc<astromech_data::Client>) -> Result<Self> {
-        let mut s = Store::open(path)?;
-        if let Some(p) = preload {
-            s.seed_from(p)?;
-        }
-        Ok(Self::with_shared_remote(s, remote))
-    }
-
-    /// `remote` is shared with other lookups in the process (one limiter, one cache).
-    pub fn with_shared_remote(s: Store, remote: Arc<astromech_data::Client>) -> Self {
-        Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
+    /// `remote` answers the Spansh and EDSM requests; the process shares it with its other
+    /// lookups (one limiter, one cache). Tests pass a client over recorded answers.
+    pub fn with_remote(s: Store, remote: impl Into<Arc<astromech_data::Client>>) -> Self {
+        Galaxy { store: Mutex::new(s), remote: remote.into(), map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
     /// The remote-data client this galaxy's lookups go through (other lookups share it, and
@@ -653,7 +637,7 @@ mod tests {
         let key = "spansh:famine:0:0:0";
         s.cache_put(key, now_s(), body).unwrap();
         s.cache_put("spansh:famine:age1:0:0:0", now_s(), body).unwrap(); // the same page, asked for with an age
-        let g = Galaxy::with_store(s);
+        let g = Galaxy::with_remote(s, Client::new(Cache::in_memory().unwrap()));
         // covered → no EDSM call; cached → no Spansh call
         let n = g.nearby("famine", &here, 5.0, 2, &Filters::default()).unwrap();
         assert_eq!(n.hits.len(), 2);
@@ -694,7 +678,7 @@ mod tests {
         s.cache_put("spansh:fed_composites:0:0:0", now_s(), &body).unwrap();
         s.cache_put("spansh:fed_composites:pop:0:0:0", now_s(), EMPTY_PAGE).unwrap();
         s.cache_put("spansh:famine:0:0:0", now_s(), &body.replace("\"None\"", "\"Famine\"")).unwrap();
-        let g = Galaxy::with_store(s);
+        let g = Galaxy::with_remote(s, Client::new(Cache::in_memory().unwrap()));
         let here = Here { system: "Origin".into(), id64: None, pos: [0.0; 3] };
 
         let n = g.nearby("fed_composites", &here, 20.0, 3, &Filters::default()).unwrap();
@@ -840,7 +824,7 @@ mod tests {
         s.insert_systems([(1, "S", [0.0, 0.0, 0.0])]).unwrap();
         s.add_coverage(Sphere { center: [0.0; 3], radius: 500.0 }, "test", "t").unwrap();
         s.cache_put("spansh:famine:0:0:0", now_s(), include_str!("../tests/fixtures/spansh-famine.json")).unwrap();
-        let g = Galaxy::with_store(s);
+        let g = Galaxy::with_remote(s, Client::new(Cache::in_memory().unwrap()));
         let here = Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] };
         let before = g.nearby("famine", &here, 20.0, 5, &Filters::default()).unwrap();
         let ross = before.hits.iter().find(|h| h.name == "Ross 154").unwrap();

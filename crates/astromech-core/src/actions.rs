@@ -50,6 +50,9 @@ pub struct Runner {
     pub verify_timeout: Duration,
     /// Where verification outcomes go (the console log).
     pub log: Arc<dyn Fn(&str) + Send + Sync>,
+    /// The process's one remote-data client (Spansh, Ardent, EDSM): every lookup goes through
+    /// it, and the star map holds the same one, so they share its rate limit and cache.
+    pub remote: Arc<astromech_data::Client>,
     /// Star map and remote lookups for "nearest crystalline shards" and friends; `None` when
     /// the galaxy store couldn't be opened.
     pub galaxy: Option<Arc<astromech_galaxy::Galaxy>>,

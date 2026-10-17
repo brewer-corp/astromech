@@ -26,6 +26,10 @@ export interface ModRef {
   kind: "suit" | "weapon" | string;
   unconfirmed?: boolean;
   makers?: string[];
+  /** Everything owned of its kind already has it (hidden from the picker). */
+  fitted?: boolean;
+  /** Weapon makers whose owned weapons all have it. */
+  fitted_makers?: string[];
 }
 
 export interface EngineerLine {
@@ -49,6 +53,17 @@ export interface GearRef {
   maker: string | null;
 }
 
+/** A suit or weapon the commander owns, from the journal. */
+export interface OwnedGear {
+  gear: string;
+  name: string;
+  kind: "suit" | "weapon";
+  maker: string | null;
+  grade: number;
+  /** Modification ids fitted. */
+  mods: string[];
+}
+
 export interface OdysseyView {
   source: string;
   locker_ts: string | null;
@@ -56,6 +71,7 @@ export interface OdysseyView {
   items: ItemLine[];
   engineers: EngineerLine[];
   gear: GearRef[];
+  owned: OwnedGear[];
   mods: ModRef[];
   data_source: string;
   data_date: string;
@@ -135,6 +151,23 @@ export interface Shopping {
 }
 
 export const MAKERS: Record<string, string> = { kinematic: "Kinematic Armaments", manticore: "Manticore", takada: "Takada" };
+
+/** Whether the picker still offers `m`: not already on everything owned of its kind. */
+export function offered(m: ModRef): boolean {
+  if (m.fitted) return false;
+  return !(m.makers?.length && m.makers.every((mk) => m.fitted_makers?.includes(mk)));
+}
+
+/** The grades of `gear` the commander owns, lowest first. */
+export function ownedGrades(owned: OwnedGear[], gear: string): number[] {
+  return [...new Set(owned.filter((g) => g.gear === gear).map((g) => g.grade))].sort((a, b) => a - b);
+}
+
+/** The grades a pick can upgrade `gear` from: the owned ones (below 5), else any. */
+export function fromGrades(owned: OwnedGear[], gear: string): number[] {
+  const mine = ownedGrades(owned, gear);
+  return mine.length ? mine.filter((g) => g < 5) : [1, 2, 3, 4];
+}
 
 export async function loadOdyssey(): Promise<OdysseyView> {
   if (!inTauri) return sample.view as unknown as OdysseyView;

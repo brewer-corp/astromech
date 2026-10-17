@@ -7,7 +7,8 @@ use astromech_journal::StationInfo;
 use serde::Serialize;
 use std::path::Path;
 
-/// Everything the docked panel shows. Without a dock (`docked: false`) the rest is empty.
+/// Everything the docked panel shows. Without a dock (`docked: false`) only the system the
+/// commander is in is set, and the rest is empty.
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct DockedHere {
     pub docked: bool,
@@ -53,7 +54,7 @@ impl DockedHere {
     /// and whatever `book` has for this station.
     pub fn new(state: &GameState, ship: Option<&Ship>, book: Option<&OutfittingBook>) -> Self {
         if !state.docked {
-            return Self::default();
+            return Self { system: state.system.clone(), ..Self::default() };
         }
         let info = state.station_info.clone().unwrap_or_default();
         let outfitting = state.station_market_id.zip(book).and_then(|(id, b)| b.station(id).ok().flatten()).map(|o| {
