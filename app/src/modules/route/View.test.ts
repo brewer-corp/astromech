@@ -42,4 +42,21 @@ describe("Galaxy → Route", () => {
     expect(screen.getAllByText("Felicity Farseer, Professor Palin").length).toBeGreaterThan(0);
     expect(screen.getByText("engineer trip · 2 of 2 waypoints left")).toBeTruthy();
   });
+
+  it("plots a route with Spansh and follows it", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    render(View);
+    expect(await screen.findByText(/Asp Explorer: 39\.87 ly a jump with a full tank/)).toBeTruthy();
+    const plot = screen.getByRole("button", { name: "Plot and follow" }) as HTMLButtonElement;
+    expect(plot.disabled, "nothing to plot without a destination").toBe(true);
+    await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
+    await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Maia" } });
+    await fireEvent.click(plot);
+    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops.")).toBeTruthy();
+    // The commander is in Sol, the start: the first jump is next, with what to do there.
+    expect(document.querySelector(".next .sys")?.textContent).toBe("Tascheter Sector MN-T b3-6");
+    expect(document.querySelector(".next .lo")?.textContent).toBe("fuel");
+    expect(screen.getByText("exact plotter · 9 of 10 waypoints left")).toBeTruthy();
+  });
 });

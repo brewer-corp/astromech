@@ -72,7 +72,8 @@ has gone.
 
 - Left-click the icon to open the window.
 - Right-click for the menu. The first line says what astromech is doing: "Waiting for Elite",
-  "Elite running", "Starting voice", and so on.
+  "Elite running", "Starting voice", and so on. While the [Voice tester](voice-tester.md) is
+  open it reads "Voice tester open · push-to-talk testing only".
   - **Open astromech** opens the window.
   - **Pause voice** stops it listening to push-to-talk. Spoken [callouts](callouts.md) carry on.
   - **Kill switch (stop all actions)** appears while Elite is running. When the kill switch is
@@ -100,8 +101,8 @@ downloads it when found. Updates are signed; astromech checks the signature befo
   files only. Your settings, history, logs and speech models are never replaced.
 - In `astromech.toml` the `[update]` table has `check` (true or false), and `apply`: `ask`
   (the default, wait for you), `on_quit` (install when astromech quits) or `never`. Open the
-  file from Settings, Files, **Open**. With no file yet, that writes the sample, which sets the kill
-  switch to Scroll Lock.
+  file from Settings, Files, **Open**. With no file yet, that writes the sample, which
+  changes no setting: its examples (push-to-talk, kill switch, paste) are comments you can uncomment.
 
 If an update does not install, Settings says why. Run the setup.exe from the release page
 instead; it keeps your data.

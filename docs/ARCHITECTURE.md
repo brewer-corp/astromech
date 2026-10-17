@@ -269,8 +269,9 @@ astromech/
                          base stats from data/catalog/ships.json
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
-                         (acquire / reinforce / undermine for the pledged power), position from the journal;
-                         its network calls go through astromech-data
+                         (acquire / reinforce / undermine for the pledged power), position from the journal,
+                         neutron and exact routes for the route follower (Spansh's plotters, the drive
+                         from astromech-ship); its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
                          jumps from astromech-galaxy) or anywhere (Ardent's best 100), the commodity catalogue (data/catalog/commodities.json),
@@ -286,7 +287,7 @@ astromech/
                          with the prospector callouts), and
                          trade routes (single hop from Spansh's trade router; a loop adds the best cargo
                          back from Ardent markets; profit per hour is an estimate, Spansh gives none)
-    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron and trade route jobs),
+    astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron, exact and trade route jobs),
                          Ardent Insight (nearby and galaxy-wide commodity, nearest service, markets), EDSM (system,
                          bodies, traffic, sphere) behind one client: User-Agent, SQLite TTL cache,
                          typed schema checks, per-service rate limit, plain-words errors (§5.8)
@@ -1655,7 +1656,7 @@ Implementation notes and divergences from the design above:
     - Noise-only transcripts are ignored.
     - Every push logs down/up times, the hold, the clip length, RMS and the loudest frame.
   - **Mic stream errors.** The WASAPI "A buffer underrun or overrun occurred." is counted and logged, and capture continues. Ring positions count only delivered samples, so an xrun just shortens a clip. A stalled stream (no callback for 1.5 s) or a lost or changed device is rebuilt on the same ring.
-  - **Missing keyboard key.** The spoken refusal now uses Elite's control name: "I can't switch night vision: it isn't bound to anything in your controls. In Elite, open Options, Controls, and give Night Vision a keyboard key."
+  - **Missing keyboard key.** The spoken refusal now uses Elite's control name: "Cannot switch night vision: it is not bound to anything in your controls. In Elite, open Options, Controls, and give Night Vision a keyboard key."
 - **Not in the slice:** the tray, the app window/API, a confirm button, SRV-specific lights, `request docking`, `plot route`, supercruise and jumps (recognised, answered "I can't do that yet").
 
 ### 17.9 M3 voice v1 (11 Oct 2026)

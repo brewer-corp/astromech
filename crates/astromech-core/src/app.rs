@@ -38,6 +38,15 @@ pub enum Ui {
     Quit,
 }
 
+/// What Settings → Files says about the values `astromech.toml` had wrong.
+fn config_problems_note(problems: &[crate::config::Problem]) -> Option<String> {
+    if problems.is_empty() {
+        return None;
+    }
+    let list: Vec<String> = problems.iter().map(|p| p.to_string()).collect();
+    Some(format!("These config values were ignored and are at their defaults: {}.", list.join("; ")))
+}
+
 /// Shared state; the tray reads it, the watcher and control API write it.
 pub struct Core {
     pub app_dir: PathBuf,
@@ -49,7 +58,11 @@ pub struct Core {
     /// Kokoro for Settings' voice preview while no session runs (released when one starts, or
     /// after a minute unused).
     pub preview: crate::speech::PreviewSlot,
+    /// Shown in Settings → Files: values of the config file that were ignored, or why it
+    /// wasn't read at all.
     pub config_note: Option<String>,
+    /// The whole file was unreadable, so every setting is a default.
+    pub config_failed: bool,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
     /// While a session loads (models take a few seconds).
@@ -94,8 +107,15 @@ impl Core {
 
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
+        self.status_line_for(TESTER.armed(Instant::now()))
+    }
+
+    /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
+    /// game and the HUD cannot say so, so the line does.
+    fn status_line_for(&self, testing: bool) -> String {
         let game = *self.game.lock().unwrap();
         let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
+            _ if testing => "Voice tester open · push-to-talk testing only".to_string(),
             (_, _, true) => "Starting voice…".to_string(),
             (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().unwrap()),
             (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().unwrap()),
@@ -115,7 +135,7 @@ impl Core {
     pub fn setup_needed(&self) -> Vec<&'static str> {
         let mut v = vec![];
         // A broken config falls back to defaults, which would otherwise read as "not set".
-        if self.config_note.is_some() {
+        if self.config_failed {
             v.push("config file has an error (see logs)");
             return v;
         }
@@ -648,12 +668,7 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
-            "prospector_thresholds" => {
-                match astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite")) {
-                    Ok(st) => crate::callouts::thresholds_json(&crate::callouts::load_thresholds(&st)),
-                    Err(e) => json!({"ok": false, "error": format!("opening the database: {e}")}),
-                }
-            }
+            "prospector_thresholds" => crate::callouts::thresholds_view(&self.cfg().data_dir()),
             "prospector_set" => {
                 let text = r.text.clone().unwrap_or_default();
                 let res = std::fs::create_dir_all(self.cfg().data_dir())
@@ -706,7 +721,10 @@ impl Core {
                 eddn_log(&cfg.data_dir(), cfg.eddn.enabled, crate::pipeline::eddn_test(&cfg))
             }
             "find_elite" => json!({"ok": true, "found": crate::setup::find_elite(&self.cfg())}),
-            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" => self.edit_config(r),
+            "set_ptt" | "set_kill_switch" | "set_mic" | "set_folders" | "set_voice" | "set_eddn" | "set_callout" => {
+                self.edit_config(r)
+            }
+            "callouts" => crate::callouts::callouts_json(&self.cfg().callouts),
             "edsm_status" => {
                 let cfg = self.cfg();
                 edsm_status(&cfg, self.secrets.as_ref())
@@ -788,6 +806,13 @@ impl Core {
                 }
                 let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
                 json!({"ok": true, "listening": self.active(), "last": last})
+            }
+            "learned_phrases" => crate::learned::list(&self.cfg().data_dir()),
+            "learned_forget" => {
+                let assistant = self.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
+                let heard = r.text.clone().unwrap_or_default();
+                log(&format!("learned phrase forgotten: {heard:?}"));
+                crate::learned::forget(&self.cfg().data_dir(), assistant.as_deref(), &heard)
             }
             "voice_test_stop" => {
                 if TESTER.armed(Instant::now()) {
@@ -941,8 +966,9 @@ pub fn reveal(p: &Path) {
     open_path(&p.parent().unwrap_or(p).display().to_string());
 }
 
-/// Create the config from the sample if it doesn't exist, then open it in the editor.
-pub fn open_config(path: &Path) {
+/// Write the sample config if there is no config yet. The sample changes no setting: its
+/// examples are comments, so a fresh install gets the same defaults as with no file.
+fn write_sample_config(path: &Path) {
     if !path.exists() {
         if let Some(d) = path.parent() {
             let _ = std::fs::create_dir_all(d);
@@ -950,6 +976,11 @@ pub fn open_config(path: &Path) {
         let _ = std::fs::write(path, crate::config::SAMPLE);
         log(&format!("wrote a sample config to {}; edit [controls], then quit and restart astromech", path.display()));
     }
+}
+
+/// Create the config from the sample if it doesn't exist, then open it in the editor.
+pub fn open_config(path: &Path) {
+    write_sample_config(path);
     #[cfg(windows)]
     let r = std::process::Command::new("notepad.exe").arg(path).spawn();
     #[cfg(not(windows))]
@@ -1100,15 +1131,23 @@ pub fn run(opts: Opts) -> i32 {
 
     let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
+    let mut config_failed = false;
     let (mut cfg, config_note) = if config_exists {
-        match Config::load(&config_path) {
-            Ok(c) => {
+        match Config::load_report(&config_path) {
+            Ok((c, problems)) => {
                 log(&format!("config: {}", config_path.display()));
-                (c, None)
+                for p in &problems {
+                    log(&format!("config: ignoring {p}; using the default for it"));
+                }
+                (c, config_problems_note(&problems))
             }
             Err(e) => {
                 log(&format!("config error, using defaults: {e:#}"));
-                (Config::default(), Some("config error (see logs)".to_string()))
+                config_failed = true;
+                (
+                    Config::default(),
+                    Some(format!("The config file can't be read, so every setting is at its default: {e:#}")),
+                )
             }
         }
     } else {
@@ -1157,6 +1196,7 @@ pub fn run(opts: Opts) -> i32 {
         preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
         config_note,
+        config_failed,
         game: Mutex::new(Game::NotRunning),
         session: Mutex::new(None),
         starting: AtomicBool::new(false),
@@ -1291,6 +1331,7 @@ mod tests {
             config_lock: Mutex::new(()),
             preview: Default::default(),
             config_note: None,
+            config_failed: false,
             game: Mutex::new(Game::NotRunning),
             session: Mutex::new(None),
             starting: AtomicBool::new(false),
@@ -1306,6 +1347,25 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             route: Arc::new(crate::route::Desk::open(None, Box::new(|_| Ok(())))),
         })
+    }
+
+    #[test]
+    fn the_sample_config_written_by_open_config_changes_no_setting() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("data").join("astromech.toml");
+        write_sample_config(&p);
+        let written = std::fs::read_to_string(&p).unwrap();
+        assert_eq!(written, crate::config::SAMPLE);
+        let loaded = Config::load(&p).unwrap();
+        assert_eq!(toml::to_string(&loaded).unwrap(), toml::to_string(&Config::default()).unwrap());
+        assert!(loaded.controls.kill_switch.is_none() && loaded.controls.ptt.is_none());
+        // The kill switch example is there, as a comment only.
+        assert!(written.lines().any(|l| l.starts_with("# kill_switch = ") && l.contains("Key_ScrollLock")));
+        assert!(!written.lines().any(|l| l.trim_start().starts_with("kill_switch")));
+        // An existing config is left alone.
+        std::fs::write(&p, "data_dir = \"x\"").unwrap();
+        write_sample_config(&p);
+        assert_eq!(std::fs::read_to_string(&p).unwrap(), "data_dir = \"x\"");
     }
 
     /// The Route page's commands, through the control API: set from waypoints or pasted text,
@@ -1332,6 +1392,123 @@ mod tests {
         assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
         assert_eq!(call("route_clear", None)["view"]["route"], Value::Null);
         assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
+    }
+
+    /// Test mode is on the tray status line, over whatever the game is doing.
+    #[test]
+    fn the_status_line_says_when_push_to_talk_is_only_testing() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        assert_eq!(core.status_line_for(false), "Waiting for Elite");
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
+        *core.game.lock().unwrap() = Game::Running;
+        assert!(core.status_line_for(false).starts_with("Elite running"));
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
+    }
+
+    /// Spansh's answers, recorded (astromech-data's fixtures): the submit, then the polls in turn.
+    struct RecordedJob(Mutex<Vec<(u16, &'static str)>>);
+
+    impl astromech_data::Transport for RecordedJob {
+        fn send(
+            &self,
+            _url: &str,
+            _req: &astromech_data::Request,
+        ) -> Result<astromech_data::Response, astromech_data::TransportError> {
+            let (status, body) = self.0.lock().unwrap().remove(0);
+            Ok(astromech_data::Response { status, body: body.into() })
+        }
+    }
+
+    /// A neutron and an exact route plotted from recorded Spansh jobs go to the follower as the
+    /// app window sends them (`route_set` with the plotted route): the commander, in Sol, gets
+    /// the first stop after it on the clipboard, jumping into it moves the route on, and "next
+    /// waypoint" says what to do there.
+    #[test]
+    fn plotted_routes_load_into_the_follower() {
+        use astromech_galaxy::plot::{plot, Ask, Plotter, Ship};
+        macro_rules! fixture {
+            ($name:literal) => {
+                include_str!(concat!("../../astromech-data/tests/fixtures/", $name))
+            };
+        }
+        let fsd = astromech_ship::Fsd {
+            optimal_mass: 1470.0,
+            max_fuel_per_jump: 5.0,
+            fuel_multiplier: 0.012,
+            fuel_power: 2.45,
+            base_mass: 400.63,
+            tank_size: 32.0,
+            reserve_size: 0.63,
+            range_boost: 0.0,
+        };
+        let ship = Ship { name: "Asp".into(), range: fsd.range(0.0), fsd, cargo: 0.0, unresolved: vec![] };
+        let no_wait = astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
+        let plotted = |plotter: Plotter, to: &str, answers: Vec<(u16, &'static str)>| {
+            let client = astromech_data::Client::with_transport(
+                astromech_data::Cache::in_memory().unwrap(),
+                Arc::new(RecordedJob(Mutex::new(answers))),
+            )
+            .limiter(astromech_data::Limiter::none());
+            let ask = Ask { plotter, from: "Sol".into(), to: to.into(), efficiency: 60, refuel_every_scoopable: true };
+            serde_json::to_value(plot(&client, &ask, &ship, no_wait).unwrap()).unwrap()
+        };
+
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        let set = |args: Value| {
+            core.handle(&Request {
+                token: String::new(),
+                cmd: "route_set".into(),
+                route: None,
+                text: None,
+                args: Some(args),
+            })
+        };
+        core.route.set_here("Sol");
+
+        let neutron = plotted(
+            Plotter::Neutron,
+            "Colonia",
+            vec![
+                (202, fixture!("spansh-route-queued.json")),
+                (202, fixture!("spansh-route-pending.json")),
+                (200, fixture!("spansh-route-result.json")),
+            ],
+        );
+        let v = set(neutron);
+        assert_eq!(v["view"]["route"]["name"], "Sol to Colonia", "{v}");
+        assert_eq!(v["view"]["route"]["source"], "neutron plotter");
+        assert_eq!(v["view"]["next"], json!({"system": "PSR J1752-2806", "label": "neutron boost"}));
+        assert_eq!(v["view"]["remaining"], 2);
+
+        let exact = plotted(
+            Plotter::Exact,
+            "Maia",
+            vec![
+                (202, fixture!("spansh-exact-submit.json")),
+                (202, fixture!("spansh-exact-pending.json")),
+                (200, fixture!("spansh-exact-result.json")),
+            ],
+        );
+        let v = set(exact);
+        assert_eq!(v["view"]["route"]["source"], "exact plotter", "{v}");
+        assert_eq!(v["view"]["next"], json!({"system": "Tascheter Sector MN-T b3-6", "label": "fuel"}));
+        assert_eq!(v["view"]["remaining"], 9);
+        let moved = core.route.on_system("Tascheter Sector MN-T b3-6").unwrap();
+        assert_eq!(moved.spoken(), "Next waypoint. Tascheter Sector LS-T a3-0.");
+        for s in [
+            "Tascheter Sector LS-T a3-0",
+            "Arietis Sector LD-H a11-1",
+            "Arietis Sector UE-O a7-1",
+            "Arietis Sector EG-V a3-1",
+        ] {
+            core.route.on_system(s);
+        }
+        assert_eq!(
+            crate::route::command_reply(&core.route, crate::route::Command::Next),
+            "Next waypoint. Hyades Sector DB-W b2-6, for fuel. 4 waypoints left."
+        );
     }
 
     /// First run with no journal folder found: onboarding sets one (`set_folders`) and the
@@ -1542,5 +1719,62 @@ mod tests {
         assert_eq!(o.pending().unwrap(), 0);
         set_eddn(&core, false);
         assert_eq!(o.recent(10).unwrap().len(), 1, "an empty queue writes no row");
+    }
+
+    fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {
+        core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args })
+    }
+
+    fn callout(v: &Value, id: &str) -> Value {
+        v["callouts"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone()
+    }
+
+    #[test]
+    fn callout_settings_round_trip_through_the_config_file() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "# my notes\n[callouts.hge]\ncooldown_s = 12 # long honks\n");
+        let list = call(&core, "callouts", None);
+        assert_eq!(list["ok"], true);
+        assert_eq!(callout(&list, "scan")["enabled"], true);
+        assert_eq!(callout(&list, "scan")["cooldown_s"], 30.0);
+        assert_eq!(callout(&list, "hge")["cooldown_s"], 12.0, "a hand-written cooldown shows");
+        assert_eq!(callout(&list, "powerplay_arrival")["enabled"], false, "off until switched on");
+
+        // Off, a cooldown, and the default-off one on: written to [callouts.<id>], and the
+        // engine a session builds from the config honours them.
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "scan", "enabled": false})))["ok"], true);
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "scan", "cooldown_s": 90})))["ok"], true);
+        assert_eq!(call(&core, "set_callout", Some(json!({"id": "powerplay_arrival", "enabled": true})))["ok"], true);
+        let text = std::fs::read_to_string(&core.config_path).unwrap();
+        assert!(text.contains("# my notes") && text.contains("# long honks"), "{text}");
+        let on_disk = Config::load(&core.config_path).unwrap();
+        let s = &on_disk.callouts.0;
+        assert_eq!((s["scan"].enabled, s["scan"].cooldown_s), (Some(false), Some(90.0)));
+        assert_eq!(s["powerplay_arrival"].enabled, Some(true));
+        assert_eq!(s["hge"].cooldown_s, Some(12.0));
+        let list = call(&core, "callouts", None);
+        assert_eq!(
+            (callout(&list, "scan")["enabled"].clone(), callout(&list, "scan")["cooldown_s"].clone()),
+            (json!(false), json!(90.0))
+        );
+        assert_eq!(callout(&list, "powerplay_arrival")["enabled"], true);
+        let engine =
+            astromech_announce::Engine::new(astromech_announce::builtin(Default::default()), &on_disk.callouts);
+        assert!(engine.setting_problems().is_empty(), "{:?}", engine.setting_problems());
+
+        // Back to the callout's own cooldown removes the key; a bad id or value changes nothing.
+        call(&core, "set_callout", Some(json!({"id": "scan", "cooldown_s": null})));
+        assert_eq!(Config::load(&core.config_path).unwrap().callouts.0["scan"].cooldown_s, None);
+        let before = std::fs::read_to_string(&core.config_path).unwrap();
+        for bad in [
+            json!({"id": "nope", "enabled": false}),
+            json!({"id": "scan", "cooldown_s": -1}),
+            json!({"id": "scan", "cooldown_s": "soon"}),
+            json!({"id": "scan"}),
+        ] {
+            assert_eq!(call(&core, "set_callout", Some(bad.clone()))["ok"], false, "{bad}");
+        }
+        assert_eq!(std::fs::read_to_string(&core.config_path).unwrap(), before);
     }
 }

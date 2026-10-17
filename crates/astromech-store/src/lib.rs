@@ -146,6 +146,11 @@ impl Store {
         rows.collect()
     }
 
+    /// Forget a learned phrase. True if there was one.
+    pub fn forget_alias(&self, transcript: &str) -> Result<bool> {
+        Ok(self.conn.execute("DELETE FROM aliases WHERE transcript = ?1", [transcript.trim()])? > 0)
+    }
+
     /// Remember `transcript` → `command`. Capped at [`MAX_ALIASES`]; oldest (lowest count) drop first.
     pub fn learn_alias(&self, transcript: &str, command: &str) -> Result<bool> {
         let t = transcript.trim();
@@ -256,5 +261,8 @@ mod tests {
             s.learn_alias(&format!("t{i}"), "lights.on").unwrap();
         }
         assert_eq!(s.aliases().unwrap().len(), MAX_ALIASES);
+        assert!(s.forget_alias(" t3 ").unwrap(), "trimmed like learn_alias");
+        assert!(!s.forget_alias("t3").unwrap());
+        assert_eq!(s.aliases().unwrap().len(), MAX_ALIASES - 1);
     }
 }
