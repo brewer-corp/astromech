@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T03:11:51.665621317+00:00"
+status: "done"
 title: "Signal callouts"
-updated_at: "2026-10-17T03:07:44.703856036+00:00"
+updated_at: "2026-10-17T03:11:51.665621317+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ From `FSSSignalDiscovered`: Thargoid, combat and conflict zones, Powerplay signa
 ## Done when
 
 Each signal type in a fixture gets its line, once per system.
+
+## Close Reason
+
+signals rule added; each signal type announced once per system; tests pass
