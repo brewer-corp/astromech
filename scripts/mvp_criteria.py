@@ -131,7 +131,7 @@ TOGGLES = [
            "silent running off", confirm_on=True),
     Toggle("hud_mode", "set_hud_mode", "PlayerHUDModeToggle", "Key_M", HUD_ANALYSIS, "analysis mode",
            "combat mode"),
-    Toggle("srv_handbrake", "set_srv_handbrake", "Handbrake", "Key_X", HANDBRAKE, "handbrake on", "handbrake off",
+    Toggle("srv_handbrake", "set_srv_handbrake", "AutoBreakBuggyButton", "Key_X", HANDBRAKE, "handbrake on", "handbrake off",
            mode="srv"),
     Toggle("srv_drive_assist", "set_srv_drive_assist", "ToggleDriveAssist", "Key_I", DRIVE_ASSIST,
            "drive assist on", "drive assist off", mode="srv"),

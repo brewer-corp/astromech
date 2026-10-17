@@ -229,6 +229,20 @@ class Planning(unittest.TestCase):
         self.assertEqual(len(keys), len(set(keys)), "each action has its own key")
         self.assertFalse({m.SCAN[k] for k in keys} & m.HARNESS_SCANS)
 
+    def test_actions_match_the_tools_crate(self):
+        # The harness binds each tool's Elite action; if the tools crate changes one, the
+        # press finds no binding and every trial of that tool fails (astromech-g1ys).
+        import re
+        src = (Path(__file__).resolve().parent.parent / "crates/astromech-tools/src/lib.rs").read_text()
+        toggles = dict(re.findall(r's\(\s*"(set_[a-z_]+)",\s*"([A-Za-z_]+)"', src))
+        self.assertEqual({t.policy: t.action for t in m.TOGGLES}, toggles)
+        actions = {}  # Screen::action() comes first; later arms (noun()) are words, not actions
+        for k, v in re.findall(r'Screen::(\w+) => "([A-Z][A-Za-z_]+)"', src):
+            actions.setdefault(k, v)
+        names = dict(re.findall(r'Screen::(\w+) => "(open_screen\.[a-z]+)"', src))
+        self.assertEqual({s.policy: s.action for s in m.SCREENS + [m.CLOSE]},
+                         {names[k]: actions[k] for k in names})
+
     def test_percentile(self):
         self.assertIsNone(m.percentile([], 95))
         self.assertEqual(m.percentile([5.0], 95), 5.0)
