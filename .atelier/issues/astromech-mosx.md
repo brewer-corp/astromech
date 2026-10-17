@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T18:43:06.962225683+00:00"
+status: "done"
 title: "Pipeline: read the journal on elapsed time, not only after 250 ms of silence"
-updated_at: "2026-10-17T18:40:12.158546668+00:00"
+updated_at: "2026-10-17T18:43:06.962225683+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ A test sends a continuous stream of non-journal notifications and still sees an 
 ## Context
 
 Found in review of the astromech-mh3m PR (finding M4).
+
+## Close Reason
+
+Tailer::on_wake reads the journal when IDLE has passed since the last read, whatever woke the loop; the burst drain yields to it. Test a_stream_of_unrelated_notifications_does_not_starve_the_journal_read failed before. Review recorded; the last two small fixes are not re-reviewed. Windows unverified.
