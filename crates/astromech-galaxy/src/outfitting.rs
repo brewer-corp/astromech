@@ -1,9 +1,12 @@
 //! What stations sell: every module (with the classes, ratings and mounts it comes in) and
 //! every ship, from `data/catalog/outfitting.json` (`scripts/gen-outfitting.py`, from
-//! EDCD/FDevIDs), plus the names commanders say for them ("FSD", "multicannon").
+//! EDCD/FDevIDs, keeping the modules Spansh lists), plus the names commanders say for them
+//! ("FSD", "multicannon"). Armour is one module per grade with every ship's symbol;
+//! pre-engineered modules have no symbols, because they share their base module's.
 
 use astromech_data::spansh;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::sync::OnceLock;
 
 /// A hardpoint's mount.
@@ -55,7 +58,8 @@ pub struct Size {
     pub rating: String,
     #[serde(default)]
     pub mount: Option<Mount>,
-    /// Its journal symbols, lower case (`int_fighterbay_size5_class1`, and a `_free` twin).
+    /// Its journal symbols, lower case (`int_fighterbay_size5_class1`, and a `_free` twin);
+    /// none for a pre-engineered module.
     #[serde(default)]
     pub symbols: Vec<String>,
 }
@@ -95,6 +99,15 @@ pub fn module(name: &str) -> Option<&'static ModuleKind> {
     catalog().modules.iter().find(|m| m.name.eq_ignore_ascii_case(name))
 }
 
+/// Whether `symbol` (any case) is one of the catalogue's journal symbols.
+fn known_symbol(symbol: &str) -> bool {
+    static S: OnceLock<HashSet<&'static str>> = OnceLock::new();
+    S.get_or_init(|| {
+        catalog().modules.iter().flat_map(|m| &m.sizes).flat_map(|s| &s.symbols).map(String::as_str).collect()
+    })
+    .contains(symbol.to_ascii_lowercase().as_str())
+}
+
 /// Modules Spansh lists under other names too (its `field_values/modules`, recorded in
 /// `tests/fixtures/spansh-module-names.json`): (catalogue name, Spansh's other names).
 const SPANSH_NAMES: &[(&str, &[&str])] = &[
@@ -107,6 +120,14 @@ const SPANSH_NAMES: &[(&str, &[&str])] = &[
 pub fn spansh_names(name: &str) -> Vec<&str> {
     let more = SPANSH_NAMES.iter().find(|(n, _)| n.eq_ignore_ascii_case(name)).map(|(_, m)| *m).unwrap_or(&[]);
     std::iter::once(name).chain(more.iter().copied()).collect()
+}
+
+/// The catalogue module Spansh lists as `name`: by its own name or one of Spansh's others.
+pub fn module_sold_as(name: &str) -> Option<&'static ModuleKind> {
+    module(name).or_else(|| {
+        let (n, _) = SPANSH_NAMES.iter().find(|(_, more)| more.iter().any(|m| m.eq_ignore_ascii_case(name)))?;
+        module(n)
+    })
 }
 
 /// The catalogue's ship called `name` (any case).
@@ -246,6 +267,14 @@ fn class_rating(w: &str) -> Option<(u8, char)> {
     }
 }
 
+/// "arated" → 'A': a rating said alone ("A-rated", "A grade"; see `astromech_intent::normalise`).
+fn rating_only(w: &str) -> Option<char> {
+    match w.as_bytes() {
+        [r @ b'a'..=b'i', rest @ ..] if rest == b"rated" => Some((*r as char).to_ascii_uppercase()),
+        _ => None,
+    }
+}
+
 fn class_only(w: &str) -> Option<u8> {
     match w.as_bytes() {
         [c @ b'1'..=b'8'] => Some(c - b'0'),
@@ -254,13 +283,14 @@ fn class_only(w: &str) -> Option<u8> {
 }
 
 /// Words a spoken module query may carry besides the module's name: a class and rating ("5a"),
-/// a class ("class 5"), or a mount. The voice grammar's `{module}` slot doesn't match them
-/// against module names.
+/// a class ("class 5"), a rating ("arated"), or a mount. The voice grammar's `{module}` slot
+/// doesn't match them against module names.
 pub fn is_modifier(w: &str) -> bool {
     class_rating(w).is_some()
         || class_only(w).is_some()
+        || rating_only(w).is_some()
         || Mount::from_word(w).is_some()
-        || matches!(w, "class" | "size" | "rated" | "grade")
+        || matches!(w, "class" | "size" | "rated")
 }
 
 /// A module to buy: its name, and the class, rating and mount when they matter.
@@ -278,7 +308,7 @@ pub struct ModuleWant {
 
 impl ModuleWant {
     /// `name` with the class, rating and mount found in `words` (a spoken query: "5a",
-    /// "class 5", "gimballed").
+    /// "class 5", "arated", "gimballed").
     pub fn from_words(name: &str, words: &str) -> ModuleWant {
         let mut w = ModuleWant { name: name.to_string(), class: None, rating: None, mount: None };
         for t in words.split_whitespace().map(str::to_ascii_lowercase) {
@@ -287,6 +317,8 @@ impl ModuleWant {
                 w.rating = Some(r.to_string());
             } else if let Some(c) = class_only(&t) {
                 w.class = Some(c);
+            } else if let Some(r) = rating_only(&t) {
+                w.rating = Some(r.to_string());
             } else if let Some(m) = Mount::from_word(&t) {
                 w.mount = Some(m);
             }
@@ -321,12 +353,16 @@ impl ModuleWant {
             .collect()
     }
 
-    /// Whether a module a station sells is this one: by its journal symbol when Spansh gives
-    /// one and the module is in the catalogue (Spansh's names vary), else by any of Spansh's
-    /// names for it, class, rating and mount.
+    /// Whether a module a station sells is this one. Not if Spansh names another catalogue
+    /// module (a pre-engineered module has its base module's symbol). Else by its journal
+    /// symbol when the catalogue knows the symbol and has symbols for this module (Spansh's
+    /// names vary), else by any of Spansh's names for it, class, rating and mount.
     pub fn fits(&self, m: &spansh::Module) -> bool {
+        if module_sold_as(&m.name).is_some_and(|k| !k.name.eq_ignore_ascii_case(&self.name)) {
+            return false;
+        }
         let symbols = self.symbols();
-        if let (Some(sym), false) = (m.ed_symbol.as_deref(), symbols.is_empty()) {
+        if let Some(sym) = m.ed_symbol.as_deref().filter(|s| known_symbol(s) && !symbols.is_empty()) {
             return symbols.iter().any(|s| s.eq_ignore_ascii_case(sym));
         }
         spansh_names(&self.name).iter().any(|n| m.name.eq_ignore_ascii_case(n))
@@ -380,18 +416,16 @@ mod tests {
         serde_json::from_value(v["values"]["name"].clone()).unwrap()
     }
 
-    /// In the catalogue (FDevIDs) but not sold at stations, so Spansh never lists it.
-    const NOT_SOLD: &[&str] = &["Basic Discovery Scanner"];
-
     #[test]
-    fn every_catalogue_name_is_one_spansh_uses() {
+    fn the_catalogue_is_every_module_spansh_lists() {
         let spansh = names(SPANSH_MODULES);
         for m in &catalog().modules {
-            if NOT_SOLD.contains(&m.name.as_str()) {
-                continue;
-            }
             assert!(spansh.contains(&m.name), "Spansh has no module called {:?}", m.name);
         }
+        for n in &spansh {
+            assert!(module_sold_as(n).is_some(), "{n:?} (on Spansh) is not in the catalogue");
+        }
+        assert!(module("Basic Discovery Scanner").is_none(), "never sold");
         for (name, more) in SPANSH_NAMES {
             assert!(module(name).is_some(), "{name} not in the catalogue");
             for n in *more {
@@ -424,6 +458,13 @@ mod tests {
         assert!(cabin.fits(&sold("Mk II Economy Class Passenger Cabin", 4, "E", None)));
         assert_eq!(spansh_names("Vessel Hangar"), ["Vessel Hangar", "Fighter Hangar"]);
         assert_eq!(spansh_names("Frame Shift Drive"), ["Frame Shift Drive"]);
+        // A symbol the catalogue doesn't know (a new module, or one FDevIDs lacks): by name.
+        let fsd = ModuleWant::from_words("Frame Shift Drive", "5a");
+        assert!(fsd.fits(&sold("Frame Shift Drive", 5, "A", Some("Int_Hyperdrive_Size5_Class5_Brand_New"))));
+        assert!(
+            !fsd.fits(&sold("Frame Shift Drive", 5, "A", Some("Int_Hyperdrive_Size5_Class3"))),
+            "a known symbol decides"
+        );
         let gimballed = ModuleWant::from_words("Multi-Cannon", "3c gimballed");
         assert!(gimballed.fits(&sold("Multi-Cannon", 3, "C", Some("Hpt_MultiCannon_Gimbal_Large"))));
         assert!(!gimballed.fits(&sold("Multi-Cannon", 3, "C", Some("Hpt_MultiCannon_Fixed_Large"))));
@@ -438,6 +479,10 @@ mod tests {
         assert_eq!(w.label(), "class 5 Fuel Scoop");
         assert_eq!(ModuleWant::from_words("Frame Shift Drive", "fsd").label(), "Frame Shift Drive");
         assert!(is_modifier("6a") && is_modifier("turret") && is_modifier("5") && !is_modifier("fsd"));
+        let w = ModuleWant::from_words("Frame Shift Drive", "arated fsd");
+        assert_eq!((w.class, w.rating.as_deref()), (None, Some("A")));
+        assert_eq!(w.label(), "A-rated Frame Shift Drive");
+        assert!(is_modifier("arated") && !is_modifier("zrated"));
     }
 
     #[test]
