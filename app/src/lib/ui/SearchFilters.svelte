@@ -7,8 +7,16 @@
     filters,
     offers,
     hints = {},
+    shipPad,
     onchange,
-  }: { filters: Filters; offers: FilterKey[]; hints?: FilterHints; onchange: (f: Filters) => void } = $props();
+  }: {
+    filters: Filters;
+    offers: FilterKey[];
+    hints?: FilterHints;
+    /** The current ship's pad as of the latest search; `undefined`: as the filters loaded. */
+    shipPad?: Pad | null;
+    onchange: (f: Filters) => void;
+  } = $props();
 
   const AGES = [1, 3, 7, 30, 90, 365];
   const ARRIVALS = [1000, 5000, 25000];
@@ -23,15 +31,24 @@
   }
 
   const num = (v: string): number | null => (v ? Number(v) : null);
+
+  /**
+   * The choices after the default: the usual ones without the default (it is the first option),
+   * plus a saved value that isn't among them, so a select never shows blank.
+   */
+  const choices = (usual: number[], dflt: number | undefined, saved: number | null): number[] =>
+    [...new Set([...usual, ...(saved == null ? [] : [saved])])].filter((v) => v !== dflt).sort((a, b) => a - b);
+  /** A saved value equal to the default is the default's option. */
+  const selected = (saved: number | null, dflt: number | undefined) => (saved == null || saved === dflt ? "" : saved);
 </script>
 
 <div class="filters">
   {#if offers.includes("distance")}
     <label>
       <span>Within</span>
-      <select value={filters.max_distance_ly ?? ""} onchange={(e) => onchange({ ...filters, max_distance_ly: num(e.currentTarget.value) })}>
+      <select value={selected(filters.max_distance_ly, hints.distance)} onchange={(e) => onchange({ ...filters, max_distance_ly: num(e.currentTarget.value) })}>
         <option value="">{hints.distance ? `${hints.distance} ly` : "Default"}</option>
-        {#each DISTANCES.filter((d) => d !== hints.distance) as d (d)}<option value={d}>{d} ly</option>{/each}
+        {#each choices(DISTANCES, hints.distance, filters.max_distance_ly) as d (d)}<option value={d}>{d} ly</option>{/each}
       </select>
     </label>
   {/if}
@@ -47,9 +64,9 @@
   {#if offers.includes("age")}
     <label>
       <span>Data age</span>
-      <select value={filters.max_age_days ?? ""} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
+      <select value={selected(filters.max_age_days, hints.age)} onchange={(e) => onchange({ ...filters, max_age_days: num(e.currentTarget.value) })}>
         <option value="">{hints.age ? `Up to ${hints.age} days` : "Any"}</option>
-        {#each AGES.filter((d) => d !== hints.age) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
+        {#each choices(AGES, hints.age, filters.max_age_days) as d (d)}<option value={d}>Up to {d} day{d === 1 ? "" : "s"}</option>{/each}
       </select>
     </label>
   {/if}
@@ -57,7 +74,7 @@
     <label>
       <span>Pad</span>
       <select value={padValue} onchange={(e) => setPad(e.currentTarget.value)}>
-        <option value="ship">Ship's{!filters.pad_set ? ` (${filters.pad ?? "any"})` : ""}</option>
+        <option value="ship">Ship's{!filters.pad_set ? ` (${(shipPad === undefined ? filters.pad : shipPad) ?? "any"})` : ""}</option>
         <option value="S">S or larger</option>
         <option value="M">M or larger</option>
         <option value="L">L</option>

@@ -169,3 +169,28 @@ fn bodies_without_the_site_are_dropped_with_a_warning() {
     assert!(s.warning.unwrap().contains("without crystalline shards"));
     assert!(g.sites("nope", &sol(), 30.0, 5, &Filters::default()).is_err());
 }
+
+/// The data age goes to Spansh as an `updated_at` range starting that many days ago, so the
+/// nearest matches are already fresh; without an age filter nothing is sent.
+#[test]
+fn the_data_age_is_sent_with_the_bodies_search() {
+    let (g, rec) = galaxy(Store::in_memory().unwrap());
+    let week = Filters { max_age_days: Some(7), ..Filters::default() };
+    let now = chrono::Utc::now().timestamp();
+    g.sites("geological", &sol(), 30.0, 3, &week).unwrap();
+    g.sites("brain_trees", &sol(), 30.0, 3, &Filters::default()).unwrap();
+    let sent: Vec<serde_json::Value> = rec
+        .log
+        .lock()
+        .unwrap()
+        .iter()
+        .filter_map(|l| l.strip_prefix("https://spansh.co.uk/api/bodies/search "))
+        .map(|b| serde_json::from_str(b).unwrap())
+        .collect();
+    assert_eq!(sent.len(), 2);
+    let age = &sent[0]["filters"]["updated_at"];
+    assert_eq!(age["comparison"], "<=>");
+    let since = chrono::DateTime::parse_from_rfc3339(age["value"][0].as_str().unwrap()).unwrap().timestamp();
+    assert!((now - 7 * 86_400 - since).abs() <= 2 * 3600, "{age}");
+    assert!(sent[1]["filters"].get("updated_at").is_none(), "{}", sent[1]);
+}

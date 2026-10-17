@@ -5,7 +5,7 @@
   // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
   import { changeFilters, openFilters, type FilterStore } from "../../lib/filterstate";
   import { ago, jumps } from "../../lib/galaxy";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type Filters, type Origin } from "../../lib/search";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type Filters, type Origin, type Pad } from "../../lib/search";
   import { credits, DEFAULT_MAX_AGE_DAYS, ROUTE_ESTIMATE, tradeRoute, tradeRouteDefaults, type RouteKind, type RouteSearch } from "../../lib/trade";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
@@ -23,6 +23,8 @@
   let cash = $state<number | null>(null);
   let hop = $state<number | null>(null);
   let filters = $state<Filters | null>(null);
+  /** The current ship's pad as of the last search (the shell resolves it on every search). */
+  let shipPad = $state<Pad | null | undefined>(undefined);
   let filterErr = $state<string | null>(null);
   let res = $state<RouteSearch | null>(null);
   let err = $state<string | null>(null);
@@ -52,6 +54,16 @@
     filters = st.filters;
   }
 
+  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
+  async function followShip() {
+    try {
+      const f = await store.load(LOOKUP);
+      if (!f.pad_set) shipPad = f.pad;
+    } catch {
+      // the label keeps what it shows; the search does not depend on this
+    }
+  }
+
   /** The station to start from: typed, else the docked one when starting from here. */
   const start = $derived(station.trim() || (origin == null ? docked : null));
   const ready = $derived(!!capacity && capacity > 0 && !!cash && cash > 0 && !!hop && hop > 0 && !!filters);
@@ -61,6 +73,7 @@
     const n = ++asked;
     busy = true;
     err = null;
+    void followShip();
     try {
       const ask = { kind, station: start, capacity: Math.floor(capacity), credits: Math.floor(cash), max_hop_ly: hop };
       const r = await tradeRoute(ask, origin, filters);
@@ -91,7 +104,7 @@
     <label><span>Credits</span><input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))} /><em>cr</em></label>
     <label><span>Max hop</span><input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))} /><em>ly</em></label>
   </div>
-  {#if filters}<SearchFilters {filters} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
+  {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
   {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   <button class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</button>
 

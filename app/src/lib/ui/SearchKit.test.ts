@@ -10,6 +10,7 @@ vi.mock("../search", async (orig) => ({
   ...(await orig<typeof import("../search")>()),
   loadFilters: (l: string) => loadFilters(l),
   saveFilters: (l: string, f: Filters) => saveFilters(l, f),
+  systemNames: async () => [],
 }));
 
 const results: Results = {
@@ -57,5 +58,22 @@ describe("SearchKit", () => {
     await new Promise((r) => setTimeout(r, 20));
     expect(select.value).toBe("30");
     expect(screen.queryByText(/Couldn't save/)).toBeNull();
+  });
+
+  it("labels the ship's pad with the current ship's, not the one the filters loaded with", async () => {
+    // Filters as the shell resolves them: not chosen, so the pad is the current ship's.
+    let pad: Filters["pad"] = "M";
+    loadFilters.mockImplementation(async () => ({ ...DEFAULT_FILTERS, pad }));
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
+    render(SearchKit, { lookup: "stations.service", offers: ["pad"], run });
+    expect(await screen.findByText("Ship's (M)")).toBeTruthy();
+
+    pad = "L"; // the commander swaps to an Anaconda, then searches from another system
+    const box = screen.getByLabelText("Search from system");
+    await fireEvent.input(box, { target: { value: "Deciat" } });
+    await fireEvent.keyDown(box, { key: "Enter" });
+    await waitFor(() => expect(run).toHaveBeenLastCalledWith("Deciat", expect.anything()));
+    expect(await screen.findByText("Ship's (L)")).toBeTruthy();
+    expect(screen.queryByText("Ship's (M)")).toBeNull();
   });
 });

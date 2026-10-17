@@ -4,7 +4,7 @@
   // with jumps at the current range, distance, pad size, arrival distance and data age.
   import { ago, jumps } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterHints, type FilterKey, type Filters, type Origin, type Results } from "../search";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
   import SystemChip from "./SystemChip.svelte";
@@ -38,6 +38,8 @@
   let origin = $derived<Origin>(start);
   /** Filters loaded for `lookup` (null until they arrive). */
   let saved = $state<{ lookup: string; filters: Filters } | null>(null);
+  /** The current ship's pad as of the last search (the shell resolves it on every search). */
+  let ship = $state<{ lookup: string; pad: Pad | null } | null>(null);
   let res = $state<Results | null>(null);
   let err = $state<string | null>(null);
   let filterErr = $state<string | null>(null);
@@ -72,6 +74,7 @@
     const n = ++asked;
     busy = true;
     err = null;
+    void followShip(lookup, n);
     run(o, s.filters)
       .then((r) => {
         if (n === asked) res = r;
@@ -86,6 +89,16 @@
       });
   });
 
+  /** The pad label follows the ship the search ran with, not the ship the filters loaded with. */
+  async function followShip(l: string, n: number) {
+    try {
+      const f = await store.load(l);
+      if (n === asked && !f.pad_set) ship = { lookup: l, pad: f.pad };
+    } catch {
+      // the label keeps what it shows; the search itself doesn't depend on this
+    }
+  }
+
   function facts(r: Results["rows"][number]): string {
     return [padLabel(r.pad), arrivalLabel(r.arrival_ls), r.detail ?? "", `reported ${ago(r.updated_at)}`].filter(Boolean).join(" · ");
   }
@@ -94,7 +107,7 @@
 <div class="kit">
   <h4>{title}{#if res}&nbsp;{joiner}&nbsp;<SystemChip name={res.origin} />{/if}</h4>
   <OriginInput {origin} onchange={(o) => (origin = o)} />
-  {#if saved && offers.length}<SearchFilters filters={saved.filters} {offers} {hints} onchange={(f) => void change(f)} />{/if}
+  {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
   {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   {#if busy && !res}
     <p class="lo">{busyText}</p>

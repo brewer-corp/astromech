@@ -496,3 +496,41 @@ fn hotspots_pick_the_ring_not_the_body() {
     assert_eq!(h[3].ring, "TZ Arietis 3 A Ring");
     assert_eq!(h[3].count, 2);
 }
+
+/// Ardent cuts its answer at 1000 rows, placeholders included (they carry a high price, so they
+/// come first and use up the slots). A full answer is therefore truncated however many of its
+/// rows are placeholders: the markets cut are the real ones with the worst prices. An answer
+/// with room left is complete, placeholders or not.
+#[test]
+fn placeholders_use_up_ardents_rows_so_a_full_answer_is_truncated() {
+    struct Rows(usize);
+    impl Transport for Rows {
+        fn send(&self, _url: &str, _req: &Request) -> Result<Response, TransportError> {
+            let rows: Vec<_> = (0..self.0)
+                .map(|i| {
+                    let placeholder = i < 600;
+                    serde_json::json!({
+                        "commodityName": "painite", "marketId": 1000 + i, "stationName": format!("S{i}"),
+                        "stationType": "Outpost", "distanceToArrival": 100.0, "maxLandingPadSize": 2, "systemAddress": 5,
+                        "systemName": "Near", "systemX": 10.0, "systemY": 0.0, "systemZ": 0.0,
+                        "buyPrice": 0, "demand": if placeholder { 999_999 } else { 50 },
+                        "sellPrice": if placeholder { 289_998 } else { 200_000 - i as i64 },
+                        "stock": 0, "updatedAt": "2026-10-16T12:00:00.000Z", "distance": 10
+                    })
+                })
+                .collect();
+            Ok(Response { status: 200, body: serde_json::Value::Array(rows).to_string() })
+        }
+    }
+    let ask = |rows: usize| {
+        let c = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Rows(rows))).limiter(Limiter::none());
+        prices(&c, &sol(), Side::Sell, &["painite"], &Filters::default(), 20.0, now()).unwrap().remove(0)
+    };
+    let full = ask(1000);
+    assert!(full.truncated);
+    assert_eq!(full.offers.len(), 400, "the placeholders are not offered");
+    assert!(full.offers.iter().all(|o| o.volume != 999_999));
+    let room = ask(999);
+    assert!(!room.truncated);
+    assert_eq!(room.offers.len(), 399);
+}
