@@ -3,6 +3,9 @@ created_at: "2026-10-17T04:56:07.943411514+00:00"
 id: "astromech-nkjz"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-nkjz
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spansh and Inara links on the current system when not docked"
-updated_at: "2026-10-17T04:56:07.943411514+00:00"
+updated_at: "2026-10-17T05:46:40.986285521+00:00"
 ---
 
 ## Goal
