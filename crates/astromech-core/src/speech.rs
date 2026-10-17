@@ -209,7 +209,7 @@ pub struct WorkerStt {
 impl WorkerStt {
     pub fn start(exe: &Path, models_dir: &Path, threads: i32, data_dir: &Path) -> Result<Self> {
         use astromech_voice::models;
-        let p = models::stt_paths(&models::model_root(models_dir, &models::STT))?;
+        let p = models::find_stt(models_dir)?;
         std::fs::create_dir_all(data_dir)?;
         let mut worker = Worker::spawn(exe, None, &data_dir.join("worker-stt.log"), "speech-to-text")?;
         worker.call_ok(&models::load_stt_req(&p, threads), CALL)?;

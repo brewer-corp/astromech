@@ -180,7 +180,7 @@ fn station_market_id_follows_docking_login_and_undocking() {
     g.apply_journal(&ev(r#"{"timestamp":"t","event":"Location","StarSystem":"S","Docked":true,"StationName":"Test Orbital","MarketID":42}"#));
     assert_eq!((g.station.as_deref(), g.station_market_id, g.docked), (Some("Test Orbital"), Some(42), true));
     g.apply_journal(&ev(r#"{"timestamp":"t","event":"Undocked","StationName":"Test Orbital"}"#));
-    assert_eq!((g.station_market_id, g.docked), (None, false));
+    assert_eq!((g.station.clone(), g.station_market_id, g.docked), (None, None, false));
     g.apply_journal(&ev(r#"{"timestamp":"t","event":"Docked","StationName":"Other","StarSystem":"S","MarketID":43}"#));
     assert_eq!(g.station_market_id, Some(43));
     g.apply_journal(&ev(r#"{"timestamp":"t","event":"Location","StarSystem":"S","Docked":false}"#));

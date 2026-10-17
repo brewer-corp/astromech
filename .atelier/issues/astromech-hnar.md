@@ -4,6 +4,9 @@ id: "astromech-hnar"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-hnar
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:11:33.201356262+00:00"
+status: "done"
 title: "Keep stored modules and ship locations current between visits"
-updated_at: "2026-10-17T17:01:40.533748517+00:00"
+updated_at: "2026-10-17T17:11:33.201356262+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Journal fixtures with each of those events show the Ships page's stored-module l
 ## Notes
 
 - 2026-10-16 [note] Also: the remembered docked system is never reset at a session boundary, so a Loadout for another ship after a journal gap stores the old ship at a stale system. Consider triggering on ShipyardSwap/ShipyardBuy StoreShipID with the docked system instead (review of mycc round 2, N2).
+
+## Close Reason
+
+Fixed with tests; PR open, independent review outstanding

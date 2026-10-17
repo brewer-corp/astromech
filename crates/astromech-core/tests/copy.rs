@@ -41,6 +41,8 @@ fn callout_lines() -> Vec<String> {
             "project_market",
             "prospector",
             "route",
+            // Its lines come from the core's route follower: `the_route_lines_keep_to_the_copy_guide`.
+            "route_follow",
             "sampling",
             "scan",
             "scoopable",
@@ -710,5 +712,39 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
     assert!(lines.iter().any(|l| l == "Seen on your visit yesterday."), "{lines:?}");
     assert!(lines.iter().any(|l| l == "Over a billion people."), "{lines:?}");
     let bad = check("faction answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The route follower (docs/PLOTTING.md): the arrival callout, the replies to the route
+/// commands and the answer to "next waypoint", on a procedural system name and an engineer, a
+/// sentence at a time (the name is a sentence of its own).
+#[test]
+fn the_route_lines_keep_to_the_copy_guide() {
+    use astromech_core::route::{answer_line, next_line, Moved, Waypoint, FIXED_LINES};
+    let w = |system: &str, label: Option<&str>| Waypoint { system: system.into(), label: label.map(Into::into) };
+    let mut callouts = vec![];
+    let (mut replies, mut answers) = (vec![], vec![]);
+    for next in [w("Deciat", None), w("Synuefe BY-F d12-39", Some("Felicity Farseer")), w("Kuk", Some("Ram Tah"))] {
+        for copied in [true, false] {
+            let m = Moved::Arrived { at: w("Sol", None), next: next.clone(), left: 99, copied };
+            callouts.push(m.spoken());
+            replies.push(next_line(&next, copied));
+            for left in [1, 2, 99] {
+                answers.push(answer_line(&next, left, copied));
+            }
+        }
+    }
+    callouts.push(Moved::Finished { at: w("Sol", None) }.spoken());
+    replies.extend(FIXED_LINES.iter().map(|s| s.to_string()));
+    replies.push(unavailable_reason("plot_route").to_string());
+    assert!(answers.iter().any(|l| l == "Next waypoint. Kuk, for Ram Tah. 99 waypoints left."), "{answers:?}");
+    let sentences = |v: &[String]| -> Vec<String> {
+        v.iter().flat_map(|l| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect()
+    };
+    let (callouts, replies, answers) = (sentences(&callouts), sentences(&replies), sentences(&answers));
+    assert!(callouts.iter().any(|l| l == "Synuefe BY-F d12-39."), "{callouts:?}");
+    let mut bad = check("route callout", &callouts, CALLOUT_WORDS);
+    bad.extend(check("route reply", &replies, REPLY_WORDS));
+    bad.extend(check("route answer", &answers, ANSWER_WORDS));
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }

@@ -10,17 +10,17 @@
 //! journals (game 3.x after Update 14 split the galaxies on 29 Nov 2022) get `/legacy` on
 //! the key: the same commander there has a separate fleet and position.
 
-use astromech_journal::{JournalEvent, JournalLine};
+use crate::{JournalEvent, JournalLine};
 
 /// Live and Legacy split here (Update 14). Earlier 3.x journals are the live galaxy.
 const LEGACY_FROM: &str = "2022-11-29";
 
 /// Suffix on the key of a Legacy-mode commander.
-pub(crate) const LEGACY_SUFFIX: &str = "/legacy";
+pub const LEGACY_SUFFIX: &str = "/legacy";
 
 /// The commander state of one journal file at some line.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub(crate) struct FileCommander {
+pub struct FileCommander {
     pub cmdr: Option<String>,
     pub legacy: bool,
 }
@@ -51,7 +51,7 @@ impl FileCommander {
 
 /// A `Fileheader` with `part` > 1: the game started a new file mid-session (after
 /// `Continued`) and won't name the commander again, so it carries on from the previous part.
-pub(crate) fn continues(line: &JournalLine) -> bool {
+pub fn continues(line: &JournalLine) -> bool {
     matches!(line.event, JournalEvent::FileHeader { .. })
         && serde_json::from_str::<serde_json::Value>(&line.raw_json)
             .ok()
@@ -68,7 +68,7 @@ fn fid(raw_json: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use astromech_journal::parse_line;
+    use crate::parse_line;
 
     fn run(lines: &[&str]) -> FileCommander {
         let mut c = FileCommander::default();

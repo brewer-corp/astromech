@@ -1,4 +1,5 @@
-//! Journal + Status.json pipeline. File notifications only (as in S5): no polling loop.
+//! Journal + Status.json pipeline. Driven by file notifications, plus a read of the journal
+//! whenever none arrive for a while (`Tailer::on_idle`), because on Windows they can be late or lost.
 //!
 //! - Status.json: every change notification re-reads the file (with retries for half-written
 //!   files) and applies the flags.
@@ -7,8 +8,9 @@
 //!   becomes current. On startup the current file is replayed from the start (to rebuild
 //!   state) and the saved position from the store tells us how much of it is new.
 //! - Because Windows may not report appends to a file the game keeps open until it flushes
-//!   metadata, every Status.json notification (several per second in game) also reads the
-//!   journal tail. ⚠ Unverified on the real game how often that is needed.
+//!   metadata, the tail is read on every Status.json notification (several per second in game)
+//!   and also whenever 250 ms pass without any notification (`Tailer::on_idle`), so a journal
+//!   line is applied without any file event. ⚠ Unverified on the real game.
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file.
@@ -90,6 +92,11 @@ impl JournalTail {
     }
 }
 
+/// How long to wait for a file notification before reading the journal anyway.
+const IDLE: Duration = Duration::from_millis(250);
+/// How often an idle pipeline looks for a new journal file.
+const SCAN_EVERY: Duration = Duration::from_secs(1);
+
 fn is_journal(p: &Path) -> bool {
     p.file_name()
         .map(|n| {
@@ -164,6 +171,8 @@ struct Tailer {
     caught_up: bool,
     /// Journals opened this run: opening one again is a replay, never live.
     opened: std::collections::HashSet<PathBuf>,
+    /// When `on_idle` last looked for a new journal.
+    last_scan: Instant,
 }
 
 impl Tailer {
@@ -329,12 +338,38 @@ impl Tailer {
         self.save();
     }
 
+    /// Read what the game appended to the journal we follow, without waiting to be told.
+    fn read_tail(&mut self) -> bool {
+        let Some(t) = &mut self.tail else { return false };
+        let lines = t.read_new();
+        let any = !lines.is_empty();
+        self.apply_lines(lines);
+        any
+    }
+
     fn on_journal_activity(&mut self) {
-        let newest = astromech_journal::newest_journal(&self.dir);
-        if let Some(t) = &mut self.tail {
-            let lines = t.read_new();
-            self.apply_lines(lines);
+        self.read_tail();
+        self.follow_newest();
+        self.save();
+    }
+
+    /// Nothing was reported for a while. File notifications are not a clock: on Windows the ones
+    /// for an open, growing journal can arrive late or never (astromech-mh3m), so read the tail
+    /// anyway (an open and a read at the offset, nothing when nothing was appended) and look for
+    /// a new journal once a second.
+    fn on_idle(&mut self) {
+        if self.read_tail() {
+            self.save();
         }
+        if self.last_scan.elapsed() >= SCAN_EVERY {
+            self.last_scan = Instant::now();
+            self.follow_newest();
+        }
+    }
+
+    /// Switch to the game's newest journal when it isn't the one we follow.
+    fn follow_newest(&mut self) {
+        let newest = astromech_journal::newest_journal(&self.dir);
         if let Some(n) = newest {
             if self.tail.as_ref().map(|t| t.path != n).unwrap_or(true) {
                 if self.tail.is_some() {
@@ -348,7 +383,6 @@ impl Tailer {
                 self.open(n, !live);
             }
         }
-        self.save();
     }
 
     fn on_status(&mut self) {
@@ -407,6 +441,73 @@ impl Tailer {
             f.flush(wall_now());
         }
     }
+}
+
+/// The pipeline thread: react to file notifications, and read the journal when none arrive.
+fn spawn_loop(
+    mut t: Tailer,
+    rx: std::sync::mpsc::Receiver<notify::Result<notify::Event>>,
+    stop2: Arc<AtomicBool>,
+) -> Result<std::thread::JoinHandle<()>> {
+    std::thread::Builder::new()
+        .name("pipeline".into())
+        .spawn(move || {
+            let mut last_tick = Instant::now();
+            while !stop2.load(Ordering::SeqCst) {
+                if last_tick.elapsed() >= Duration::from_secs(1) {
+                    last_tick = Instant::now();
+                    t.on_tick();
+                }
+                // The timeout lets us notice `stop`, tick, and read the journal without a notification.
+                let ev = match rx.recv_timeout(IDLE) {
+                    Ok(Ok(e)) => e,
+                    Ok(Err(_)) => continue,
+                    Err(RecvTimeoutError::Timeout) => {
+                        t.on_idle();
+                        continue;
+                    }
+                    Err(RecvTimeoutError::Disconnected) => break,
+                };
+                let mut status = false;
+                let mut journal = false;
+                let mut companions: Vec<CompanionKind> = vec![];
+                let mut nav_route = false;
+                let mut classify = |paths: &[PathBuf]| {
+                    for p in paths {
+                        let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
+                            status = true;
+                            nav_route |= name == "NavRoute.json";
+                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
+                            if !companions.contains(&k) {
+                                companions.push(k);
+                            }
+                        } else if is_journal(p) {
+                            journal = true;
+                        }
+                    }
+                };
+                classify(&ev.paths);
+                // Coalesce a burst of notifications.
+                while let Ok(Ok(e)) = rx.try_recv() {
+                    classify(&e.paths);
+                }
+                if status {
+                    t.on_status();
+                }
+                if journal || status {
+                    t.on_journal_activity();
+                }
+                if !companions.is_empty() {
+                    t.on_companion_files(&companions);
+                }
+                if nav_route {
+                    t.eddn_nav_route();
+                }
+            }
+            t.flush_eddn();
+        })
+        .context("starting pipeline thread")
 }
 
 /// Start watching `dir`. `db` is the store file for read positions (None: don't persist).
@@ -526,66 +627,11 @@ pub fn start_with_eddn(
         live: true,
         caught_up: false,
         opened: Default::default(),
+        last_scan: Instant::now(),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
-    let stop2 = stop.clone();
-    let thread = std::thread::Builder::new()
-        .name("pipeline".into())
-        .spawn(move || {
-            let mut last_tick = Instant::now();
-            while !stop2.load(Ordering::SeqCst) {
-                if last_tick.elapsed() >= Duration::from_secs(1) {
-                    last_tick = Instant::now();
-                    t.on_tick();
-                }
-                // The timeout lets us notice `stop` and tick; no file is read on timeout.
-                let ev = match rx.recv_timeout(Duration::from_millis(250)) {
-                    Ok(Ok(e)) => e,
-                    Ok(Err(_)) => continue,
-                    Err(RecvTimeoutError::Timeout) => continue,
-                    Err(RecvTimeoutError::Disconnected) => break,
-                };
-                let mut status = false;
-                let mut journal = false;
-                let mut companions: Vec<CompanionKind> = vec![];
-                let mut nav_route = false;
-                let mut classify = |paths: &[PathBuf]| {
-                    for p in paths {
-                        let name = p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-                        if name == "Status.json" || name == "Cargo.json" || name == "NavRoute.json" {
-                            status = true;
-                            nav_route |= name == "NavRoute.json";
-                        } else if let Some(k) = CompanionKind::from_file_name(&name) {
-                            if !companions.contains(&k) {
-                                companions.push(k);
-                            }
-                        } else if is_journal(p) {
-                            journal = true;
-                        }
-                    }
-                };
-                classify(&ev.paths);
-                // Coalesce a burst of notifications.
-                while let Ok(Ok(e)) = rx.try_recv() {
-                    classify(&e.paths);
-                }
-                if status {
-                    t.on_status();
-                }
-                if journal || status {
-                    t.on_journal_activity();
-                }
-                if !companions.is_empty() {
-                    t.on_companion_files(&companions);
-                }
-                if nav_route {
-                    t.eddn_nav_route();
-                }
-            }
-            t.flush_eddn();
-        })
-        .context("starting pipeline thread")?;
+    let thread = spawn_loop(t, rx, stop.clone())?;
     Ok(Pipeline { _watcher: watcher, stop, thread: Some(thread), stats })
 }
 
@@ -630,6 +676,7 @@ mod tests {
             live: true,
             caught_up: false,
             opened: Default::default(),
+            last_scan: Instant::now(),
         };
         (t, hub, logs)
     }
@@ -767,6 +814,69 @@ mod tests {
         assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
         assert!(logs.lock().unwrap().is_empty());
         assert_eq!(t.stats.lock().unwrap().companions_read, 1);
+    }
+
+    /// astromech-mh3m: no notification of any kind (not for the journal, not Status.json,
+    /// Cargo.json or NavRoute.json) must be needed to apply a line appended to the open journal.
+    #[test]
+    fn a_line_appended_to_the_open_journal_is_applied_when_idle() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.open(j.clone(), true);
+        t.caught_up = true;
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sys"));
+        let jump = r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#;
+        append(&j, jump);
+        t.on_idle();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"));
+        // Nothing appended: idle reads change nothing.
+        t.on_idle();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"));
+    }
+
+    /// astromech-mh3m: through the real loop, with a watcher that never reports anything, a line
+    /// appended to the open journal still reaches the state (well within the generous deadline).
+    #[test]
+    fn the_pipeline_loop_reads_the_journal_without_any_notification() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.catch_up();
+        let (_silent_watcher, rx) = std::sync::mpsc::channel();
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        append(
+            &j,
+            r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
+        );
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while hub.snapshot().system.as_deref() != Some("Sol") && Instant::now() < deadline {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        stop.store(true, Ordering::SeqCst);
+        thread.join().unwrap();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the loop never read the appended line");
+    }
+
+    #[test]
+    fn an_idle_pipeline_follows_a_new_journal_within_a_second() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, _, _) = tailer(d.path());
+        t.open(j1, true);
+        t.last_scan = Instant::now();
+        std::fs::write(&j2, format!("{}\n", session(&ts(1), "r2 "))).unwrap();
+        touch(&j2, 5);
+        t.on_idle();
+        assert_ne!(t.tail.as_ref().unwrap().path, j2, "the scan is throttled to once a second");
+        t.last_scan = Instant::now() - SCAN_EVERY;
+        t.on_idle();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
     }
 
     #[test]

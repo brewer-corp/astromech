@@ -19,6 +19,12 @@ under `.atelier/`, committed with the code they describe. There is no separate b
   Integrate with `atelier merge <id>` after independent review, never a plain `git merge`
   into `main`. Open a GitHub PR from the work branch for CI. `atelier merge` fast-forwards
   `main` to the reviewed branch; pushing `main` then marks the PR merged.
+- Every push to a PR reruns CI, so push when the branch is ready for review and again only
+  after it changes; don't push each rebase onto `main`. Run CONTRIBUTING.md's checks locally
+  first: CI is for the Windows-only failures this Linux host can't reproduce. Wait for checks
+  with `watch_pull_request` and end the turn, not a `gh pr checks` polling loop. Docs-only
+  and `.atelier`-only PRs run no checks, and the Release build runs on a PR only when
+  packaging changes (the paths in `.github/workflows/release.yml`).
 - Planning changes (filing, grooming, re-prioritising, recording a decision) are committed
   straight to `main` when they touch only `.atelier/issues`, `.atelier/evidence`,
   `.atelier/reviews` and strategies a mission links. Anything else, including

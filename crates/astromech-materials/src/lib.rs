@@ -12,7 +12,7 @@ pub mod view;
 
 pub use catalog::{capacity, lookup, Kind, Spec};
 pub use hge::{Here, PoolMat, SourceNote};
-pub use ledger::{replay_bytes, replay_journal_dir, replay_lines, replay_path, Ledger};
+pub use ledger::{replay_bytes, replay_journal_dir, replay_lines, replay_path, Ledger, LEDGER_EVENTS};
 pub use view::{
     from_journal_dir, journal_version, trader_view, Cell, FarmLine, GroupView, Inventory, JournalVersion, KindView,
 };

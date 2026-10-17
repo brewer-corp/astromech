@@ -10,6 +10,7 @@
 //! ([`JournalLine::raw_json`]) so the EDDN sender can forward the game's own keys.
 //! Companion files (`Market.json`, `Cargo.json`, ...) are in [`companion`].
 
+pub mod commander;
 pub mod companion;
 mod detail;
 pub mod ore;
@@ -68,9 +69,49 @@ pub enum JournalEvent {
         items: Vec<StoredModule>,
     },
     /// A stored ship was ordered to the system the player is in (`ShipyardTransfer`).
+    /// `transfer_time` is in seconds.
     ShipTransfer {
         ship_id: i64,
         ship_type: String,
+        transfer_cost: Option<i64>,
+        transfer_time: Option<i64>,
+    },
+    /// A fitted module was put into storage here (`ModuleStore`), or one was bought straight
+    /// into storage (`ModuleBuyAndStore`, no slot). `slot` is the ship slot it came out of.
+    ModuleStore {
+        slot: Option<String>,
+        module: StoredModule,
+    },
+    /// Every module of the ship was put into storage here (`MassModuleStore`), with its slot.
+    MassModuleStore {
+        items: Vec<(String, StoredModule)>,
+    },
+    /// A module was bought into `slot` (`ModuleBuy`); `stored` is the module that was there,
+    /// which the game keeps in storage.
+    ModuleBuy {
+        slot: String,
+        stored: Option<StoredModule>,
+    },
+    /// A module came out of storage into ship slot `slot` (`ModuleRetrieve`); `swapped_out` is
+    /// the module that was in it, which goes into storage.
+    ModuleRetrieve {
+        slot: String,
+        module: StoredModule,
+        swapped_out: Option<StoredModule>,
+    },
+    /// A stored module was sold from afar (`ModuleSellRemote`); `storage_slot` is its slot in
+    /// the list `StoredModules` wrote.
+    ModuleSellRemote {
+        item: String,
+        storage_slot: Option<i64>,
+    },
+    /// A stored module was ordered to the player's station (`FetchRemoteModule`).
+    /// `transfer_time` is in seconds.
+    ModuleFetch {
+        item: String,
+        storage_slot: Option<i64>,
+        transfer_cost: Option<i64>,
+        transfer_time: Option<i64>,
     },
     /// A ship left the fleet (`ShipyardSell`, `SellShipOnRebuy`).
     ShipSold {
@@ -248,6 +289,10 @@ pub struct StoredShip {
     /// Market id of the station it is at (`ShipMarketID`, or the shipyard's `MarketID` for ships
     /// here); `None` in transit or when the journal did not say.
     pub market_id: Option<i64>,
+    /// What moving it here costs and how long it takes, in seconds (`TransferPrice`,
+    /// `TransferTime` of a `ShipsRemote` entry).
+    pub transfer_cost: Option<i64>,
+    pub transfer_time: Option<i64>,
 }
 
 /// One entry of `StoredModules`.
@@ -262,6 +307,15 @@ pub struct StoredModule {
     /// Blueprint symbol and grade, if the stored module is engineered.
     pub blueprint: Option<String>,
     pub level: Option<u8>,
+    /// Its place in the list `StoredModules` wrote (`StorageSlot`); `ModuleSellRemote` and
+    /// `FetchRemoteModule` name a module by it. `None` for one stored since.
+    pub storage_slot: Option<i64>,
+    /// What moving it here costs and how long it takes, in seconds (`TransferCost`,
+    /// `TransferTime`).
+    pub transfer_cost: Option<i64>,
+    pub transfer_time: Option<i64>,
+    /// Bought illegally (`Hot`): stolen or smuggled, so stations that care will not take it.
+    pub hot: bool,
 }
 
 /// One engineer on `EngineerProgress`. `progress` is `Known`, `Invited`, `Acquainted` or
@@ -393,9 +447,61 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
         "StoredShips" => JournalEvent::StoredShips { ships: stored_ships(&raw) },
         "StoredModules" => JournalEvent::StoredModules { items: stored_modules(&raw) },
         "ShipyardTransfer" => match opt_i(&raw, "ShipID") {
-            Some(ship_id) => {
-                JournalEvent::ShipTransfer { ship_id, ship_type: s(&raw, "ShipType").to_ascii_lowercase() }
+            Some(ship_id) => JournalEvent::ShipTransfer {
+                ship_id,
+                ship_type: s(&raw, "ShipType").to_ascii_lowercase(),
+                // The ship event calls the cost `TransferPrice`; the module one `TransferCost`.
+                transfer_cost: opt_i(&raw, "TransferPrice").or_else(|| opt_i(&raw, "TransferCost")),
+                transfer_time: opt_i(&raw, "TransferTime"),
+            },
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleStore" => match item_symbol(&raw, "StoredItem") {
+            Some(item) => {
+                JournalEvent::ModuleStore { slot: opt_s(&raw, "Slot"), module: held_module(&raw, item, "StoredItem") }
             }
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleBuyAndStore" => match item_symbol(&raw, "BuyItem") {
+            Some(item) => JournalEvent::ModuleStore { slot: None, module: held_module(&raw, item, "BuyItem") },
+            None => JournalEvent::Other { event, raw },
+        },
+        "MassModuleStore" => JournalEvent::MassModuleStore {
+            items: raw
+                .get("Items")
+                .and_then(|x| x.as_array())
+                .into_iter()
+                .flatten()
+                .filter_map(|x| Some((opt_s(x, "Slot")?, held_module(x, item_symbol(x, "Name")?, "Name"))))
+                .collect(),
+        },
+        "ModuleBuy" => match opt_s(&raw, "Slot") {
+            Some(slot) => JournalEvent::ModuleBuy {
+                slot,
+                stored: item_symbol(&raw, "StoredItem").map(|item| held_module(&raw, item, "StoredItem")),
+            },
+            None => JournalEvent::Other { event, raw },
+        },
+        "ModuleRetrieve" => match (opt_s(&raw, "Slot"), item_symbol(&raw, "RetrievedItem")) {
+            (Some(slot), Some(item)) => JournalEvent::ModuleRetrieve {
+                slot,
+                module: held_module(&raw, item, "RetrievedItem"),
+                swapped_out: item_symbol(&raw, "SwapOutItem")
+                    .map(|item| StoredModule { localised: opt_s(&raw, "SwapOutItem_Localised"), ..bare_module(item) }),
+            },
+            _ => JournalEvent::Other { event, raw },
+        },
+        "ModuleSellRemote" => match item_symbol(&raw, "SellItem") {
+            Some(item) => JournalEvent::ModuleSellRemote { item, storage_slot: opt_i(&raw, "StorageSlot") },
+            None => JournalEvent::Other { event, raw },
+        },
+        "FetchRemoteModule" => match item_symbol(&raw, "StoredItem") {
+            Some(item) => JournalEvent::ModuleFetch {
+                item,
+                storage_slot: opt_i(&raw, "StorageSlot"),
+                transfer_cost: opt_i(&raw, "TransferCost"),
+                transfer_time: opt_i(&raw, "TransferTime"),
+            },
             None => JournalEvent::Other { event, raw },
         },
         "ShipyardSell" => match opt_i(&raw, "SellShipID") {
@@ -566,9 +672,44 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
                 in_transit,
                 value: opt_i(x, "Value"),
                 market_id: if in_transit { None } else { opt_i(x, "ShipMarketID").or_else(|| opt_i(v, "MarketID")) },
+                transfer_cost: opt_i(x, "TransferPrice"),
+                transfer_time: opt_i(x, "TransferTime"),
             })
         })
         .collect()
+}
+
+/// An outfitting symbol as the journal writes it ("$int_hyperdrive_size5_class5_name;"), as
+/// the lowercase symbol ("int_hyperdrive_size5_class5").
+fn item_symbol(v: &serde_json::Value, key: &str) -> Option<String> {
+    Some(opt_s(v, key)?.trim_start_matches('$').trim_end_matches(';').trim_end_matches("_name").to_ascii_lowercase())
+}
+
+fn bare_module(item: String) -> StoredModule {
+    StoredModule {
+        item,
+        localised: None,
+        system: None,
+        value: None,
+        blueprint: None,
+        level: None,
+        storage_slot: None,
+        transfer_cost: None,
+        transfer_time: None,
+        hot: false,
+    }
+}
+
+/// The module a `ModuleStore` / `ModuleRetrieve` moved, under its `<key>` fields. Where it is
+/// stored is for the fold to say: these events do not name a system.
+fn held_module(v: &serde_json::Value, item: String, key: &str) -> StoredModule {
+    StoredModule {
+        localised: opt_s(v, &format!("{key}_Localised")),
+        blueprint: opt_s(v, "EngineerModifications"),
+        level: opt_i(v, "Level").map(|l| l.clamp(0, 5) as u8),
+        hot: v.get("Hot").and_then(|b| b.as_bool()).unwrap_or(false),
+        ..bare_module(item)
+    }
 }
 
 fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
@@ -578,12 +719,6 @@ fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
         .flatten()
         .filter_map(|x| {
             Some(StoredModule {
-                // "$int_hyperdrive_size5_class5_name;" → "int_hyperdrive_size5_class5"
-                item: opt_s(x, "Name")?
-                    .trim_start_matches('$')
-                    .trim_end_matches(';')
-                    .trim_end_matches("_name")
-                    .to_ascii_lowercase(),
                 localised: opt_s(x, "Name_Localised"),
                 system: if x.get("InTransit").and_then(|b| b.as_bool()).unwrap_or(false) {
                     None
@@ -591,8 +726,13 @@ fn stored_modules(v: &serde_json::Value) -> Vec<StoredModule> {
                     opt_s(x, "StarSystem")
                 },
                 value: opt_i(x, "BuyPrice"),
+                storage_slot: opt_i(x, "StorageSlot"),
+                transfer_cost: opt_i(x, "TransferCost"),
+                transfer_time: opt_i(x, "TransferTime"),
                 blueprint: opt_s(x, "EngineerModifications"),
                 level: opt_i(x, "Level").map(|l| l.clamp(0, 5) as u8),
+                hot: x.get("Hot").and_then(|b| b.as_bool()).unwrap_or(false),
+                ..bare_module(item_symbol(x, "Name")?)
             })
         })
         .collect()
@@ -809,6 +949,118 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
     JournalVersion { files: logs.len(), newest, len }
 }
 
+/// Counts the changes in the journals that a reader of the journals could notice, so a cache can
+/// skip a re-read when the game only appended events it never looks at (`Music`, `ReceiveText`,
+/// `Scan`, ...). `events` are the patterns the readers pre-filter lines with (a quoted event
+/// name such as `"Loadout"`); a complete appended line counts when it contains one.
+///
+/// [`JournalWatch::poll`] never trusts file notifications or directory metadata. Each call lists
+/// the journals and reads whatever was appended to the newest one through an open handle, which
+/// is current on Windows when a directory entry is not (astromech-txzq). A new, removed or
+/// shrunken journal always counts as a change. The first call only records where the journal ends.
+#[derive(Debug)]
+pub struct JournalWatch {
+    events: Vec<String>,
+    files: usize,
+    newest: Option<PathBuf>,
+    /// Bytes of `newest` already seen, always at a line start.
+    offset: u64,
+    started: bool,
+    generation: u64,
+}
+
+impl JournalWatch {
+    pub fn new(events: &[&str]) -> Self {
+        Self {
+            events: events.iter().map(|e| e.to_string()).collect(),
+            files: 0,
+            newest: None,
+            offset: 0,
+            started: false,
+            generation: 0,
+        }
+    }
+
+    /// The change count so far: unchanged since the last call means nothing a reader looks at
+    /// was appended.
+    pub fn poll(&mut self, dir: &Path) -> u64 {
+        let logs = journal_logs(dir);
+        let newest = logs.last().cloned();
+        let same_file = self.started && self.files == logs.len() && self.newest == newest;
+        let opened = newest.as_deref().map(|p| std::fs::File::open(p).and_then(|f| f.metadata().map(|m| (f, m.len()))));
+        let (mut f, len) = match opened {
+            None => {
+                self.generation += u64::from(self.started && !same_file);
+                (self.files, self.newest, self.offset, self.started) = (0, None, 0, true);
+                return self.generation;
+            }
+            // Not recorded: the switch is counted on the first poll that can read the new file.
+            // If even the first poll fails, that counts as a change too, so a build made
+            // before the file could be read isn't kept.
+            Some(Err(_)) => {
+                if !self.started {
+                    self.started = true;
+                    self.files = usize::MAX;
+                }
+                return self.generation;
+            }
+            Some(Ok(x)) => x,
+        };
+        (self.files, self.newest) = (logs.len(), newest);
+        if !self.started {
+            self.started = true;
+            self.offset = len;
+        } else if !same_file || len < self.offset {
+            self.generation += 1;
+            self.offset = len;
+        } else if len > self.offset {
+            use std::io::{Read, Seek, SeekFrom};
+            let mut buf = Vec::new();
+            if f.seek(SeekFrom::Start(self.offset))
+                .and_then(|_| f.take(len - self.offset).read_to_end(&mut buf))
+                .is_ok()
+            {
+                // A line the game is still writing waits for its newline.
+                let complete = buf.iter().rposition(|b| *b == b'\n').map_or(0, |i| i + 1);
+                self.offset += complete as u64;
+                let watched = String::from_utf8_lossy(&buf[..complete])
+                    .lines()
+                    .any(|l| self.events.iter().any(|e| l.contains(e.as_str())));
+                if watched {
+                    self.generation += 1;
+                }
+            }
+        }
+        self.generation
+    }
+}
+
+/// One value built from the journals, rebuilt only when [`JournalWatch`] sees a change. The lock
+/// is held while building, so concurrent callers share one rebuild.
+pub struct JournalCache<T>(std::sync::Mutex<(JournalWatch, Option<(u64, std::sync::Arc<T>)>)>);
+
+impl<T> JournalCache<T> {
+    /// `events`: see [`JournalWatch`].
+    pub fn new(events: &[&str]) -> Self {
+        Self(std::sync::Mutex::new((JournalWatch::new(events), None)))
+    }
+
+    /// The cached value, or `build()`'s if the journals changed since it was built.
+    pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        // A build that panicked left no value behind; the next call builds again.
+        let mut g = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        let generation = g.0.poll(dir);
+        if let Some((built_at, v)) = &g.1 {
+            if *built_at == generation {
+                return v.clone();
+            }
+        }
+        let v = std::sync::Arc::new(build());
+        g.1 = Some((generation, v.clone()));
+        v
+    }
+}
+
 /// The journal file the game is writing: most recently modified `Journal.*.log`.
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
     let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
@@ -954,7 +1206,25 @@ mod tests {
             matches!(l.event, JournalEvent::StoredShips { ref ships } if ships[0].system.is_none() && ships[0].in_transit)
         );
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0}"#).unwrap();
-        assert_eq!(l.event, JournalEvent::ShipTransfer { ship_id: 4, ship_type: "asp".into() });
+        assert_eq!(
+            l.event,
+            JournalEvent::ShipTransfer {
+                ship_id: 4,
+                ship_type: "asp".into(),
+                transfer_cost: None,
+                transfer_time: None
+            }
+        );
+        let l = parse_line(r#"{"timestamp":"t","event":"ShipyardTransfer","ShipType":"asp","ShipID":4,"System":"Sol","Distance":10.0,"TransferPrice":1200,"TransferTime":600}"#).unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::ShipTransfer {
+                ship_id: 4,
+                ship_type: "asp".into(),
+                transfer_cost: Some(1200),
+                transfer_time: Some(600)
+            }
+        );
         let l = parse_line(
             r#"{"timestamp":"t","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$int_hyperdrive_size5_class5_name;","Name_Localised":"FSD","StarSystem":"Sol","BuyPrice":100,"EngineerModifications":"FSD_LongRange","Level":3,"Quality":0.5},{"Name":"$hpt_x;","InTransit":true}]}"#,
         )
@@ -968,6 +1238,99 @@ mod tests {
             }
             _ => panic!("expected StoredModules"),
         }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredModules","Items":[{"Name":"$hpt_x_name;","StarSystem":"Sol","Hot":true},{"Name":"$hpt_y_name;","StarSystem":"Sol"}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredModules { items } => assert_eq!((items[0].hot, items[1].hot), (true, false)),
+            _ => panic!("expected StoredModules"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleStore","Slot":"Slot03_Size5","Ship":"asp","ShipID":4,"StoredItem":"$int_shieldgenerator_size5_class5_name;","StoredItem_Localised":"Shield","Hot":true,"EngineerModifications":"ShieldGenerator_Reinforced","Level":2,"Quality":0.4}"#).unwrap();
+        match l.event {
+            JournalEvent::ModuleStore { slot, module } => {
+                assert_eq!(slot.as_deref(), Some("Slot03_Size5"));
+                assert_eq!(module.item, "int_shieldgenerator_size5_class5");
+                assert_eq!(
+                    (module.hot, module.level, module.blueprint.as_deref()),
+                    (true, Some(2), Some("ShieldGenerator_Reinforced"))
+                );
+                assert_eq!(module.system, None, "the event does not name a system");
+            }
+            _ => panic!("expected ModuleStore"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleRetrieve","Slot":"Slot03_Size5","RetrievedItem":"$int_shieldgenerator_size5_class5_name;","Hot":false,"SwapOutItem":"$int_shieldgenerator_size5_class3_name;"}"#).unwrap();
+        match l.event {
+            JournalEvent::ModuleRetrieve { slot, module, swapped_out } => {
+                assert_eq!(slot, "Slot03_Size5");
+                assert_eq!(module.item, "int_shieldgenerator_size5_class5");
+                assert_eq!(swapped_out.unwrap().item, "int_shieldgenerator_size5_class3");
+            }
+            _ => panic!("expected ModuleRetrieve"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredModules","Items":[{"Name":"$hpt_x_name;","StorageSlot":7,"StarSystem":"Sol","TransferCost":40,"TransferTime":90}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredModules { items } => {
+                assert_eq!(
+                    (items[0].storage_slot, items[0].transfer_cost, items[0].transfer_time),
+                    (Some(7), Some(40), Some(90))
+                );
+            }
+            _ => panic!("expected StoredModules"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"StoredShips","StarSystem":"Sol","ShipsRemote":[{"ShipID":5,"ShipType":"asp","InTransit":true,"TransferPrice":900,"TransferTime":120}]}"#,
+        )
+        .unwrap();
+        match l.event {
+            JournalEvent::StoredShips { ships } => {
+                assert_eq!((ships[0].transfer_cost, ships[0].transfer_time), (Some(900), Some(120)))
+            }
+            _ => panic!("expected StoredShips"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"MassModuleStore","MarketID":1,"Ship":"asp","ShipID":4,"Items":[{"Slot":"Slot02_Size4","Name":"$int_powerplant_size4_class5_name;","Hot":true,"EngineerModifications":"PowerPlant_Boosted","Level":1},{"Name":"$no_slot;"}]}"#).unwrap();
+        match l.event {
+            JournalEvent::MassModuleStore { items } => {
+                assert_eq!(items.len(), 1, "an item without a slot is skipped");
+                assert_eq!(items[0].0, "Slot02_Size4");
+                assert_eq!(
+                    (items[0].1.item.as_str(), items[0].1.hot, items[0].1.level),
+                    ("int_powerplant_size4_class5", true, Some(1))
+                );
+            }
+            _ => panic!("expected MassModuleStore"),
+        }
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleBuy","Slot":"Slot02_Size4","BuyItem":"$int_powerplant_size4_class5_name;","StoredItem":"$int_powerplant_size4_class2_name;","MarketID":1,"BuyPrice":9,"Ship":"asp","ShipID":4}"#).unwrap();
+        match l.event {
+            JournalEvent::ModuleBuy { slot, stored } => {
+                assert_eq!(slot, "Slot02_Size4");
+                assert_eq!(stored.unwrap().item, "int_powerplant_size4_class2");
+            }
+            _ => panic!("expected ModuleBuy"),
+        }
+        let l = parse_line(
+            r#"{"timestamp":"t","event":"ModuleBuy","Slot":"Slot02_Size4","BuyItem":"$x_name;","SellItem":"$y_name;"}"#,
+        )
+        .unwrap();
+        assert!(matches!(l.event, JournalEvent::ModuleBuy { stored: None, .. }), "sold, not stored");
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleBuyAndStore","BuyItem":"$hpt_z_name;","MarketID":1}"#)
+            .unwrap();
+        assert!(matches!(l.event, JournalEvent::ModuleStore { slot: None, ref module } if module.item == "hpt_z"));
+        let l = parse_line(r#"{"timestamp":"t","event":"ModuleSellRemote","StorageSlot":3,"SellItem":"$hpt_x_name;","ServerId":1,"SellPrice":5}"#).unwrap();
+        assert_eq!(l.event, JournalEvent::ModuleSellRemote { item: "hpt_x".into(), storage_slot: Some(3) });
+        let l = parse_line(r#"{"timestamp":"t","event":"FetchRemoteModule","StorageSlot":3,"StoredItem":"$hpt_x_name;","ServerId":1,"TransferCost":500,"TransferTime":300}"#).unwrap();
+        assert_eq!(
+            l.event,
+            JournalEvent::ModuleFetch {
+                item: "hpt_x".into(),
+                storage_slot: Some(3),
+                transfer_cost: Some(500),
+                transfer_time: Some(300)
+            }
+        );
         let l = parse_line(r#"{"timestamp":"t","event":"ShipyardBuy","ShipType":"python","SellOldShip":"asp","SellShipID":4,"SellPrice":100}"#).unwrap();
         assert_eq!(l.event, JournalEvent::ShipSold { ship_id: 4 });
         let l = parse_line(r#"{"timestamp":"t","event":"SellShipOnRebuy","ShipType":"asp","SellShipId":4}"#).unwrap();

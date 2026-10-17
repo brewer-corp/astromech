@@ -328,6 +328,7 @@ impl GameState {
             }
             JournalEvent::Undocked { .. } => {
                 self.docked = false;
+                self.station = None;
                 self.station_market_id = None;
                 self.station_info = None;
             }

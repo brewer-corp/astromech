@@ -5,6 +5,13 @@
 //! `ColonisationBeaconDeployed` into per-project state, keyed by the construction depot's
 //! `MarketID`, and persists it in `astromech-store` so it survives a restart.
 //!
+//! State is kept per commander (the key `astromech_journal::commander` gives a line: the `FID`,
+//! `/legacy` for Legacy mode), so two commanders sharing a journal folder never see each other's
+//! projects, claims or beacons. The accessors show the commander the newest line belonged to.
+//! A stored record's key is `<commander>|<id>`; events before a file names its commander (none
+//! of the colonisation ones) go to the previous file's commander, or the empty one if none was named. There is no migration from keys
+//! without a commander: no release has ever persisted tracker records.
+//!
 //! Field names for the depot and contribution events are the typed ones in `astromech-journal`
 //! (post-v35 community docs, flagged uncertain there). Claims and beacons are not typed in the
 //! journal crate yet, so they are read from the raw JSON of `Other`. Claim and release lines are
@@ -15,6 +22,7 @@
 //! Applying is idempotent: a journal line replayed after a restore (older than what the state
 //! already holds, or an identical contribution) changes nothing.
 
+use astromech_journal::commander::FileCommander;
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
 use astromech_store::{Store, StoreError};
 use serde::{Deserialize, Serialize};
@@ -142,16 +150,43 @@ pub struct Beacon {
     pub system_address: Option<i64>,
 }
 
+/// One commander's state.
 #[derive(Debug, Clone, Default)]
-pub struct Tracker {
+struct Books {
     projects: BTreeMap<i64, Project>,
     /// Keyed by system address, or by name when the address is missing.
     claims: BTreeMap<String, Claim>,
     beacons: BTreeMap<String, Beacon>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct Tracker {
+    books: BTreeMap<String, Books>,
+    /// The commander the newest line belonged to.
+    cmdr: FileCommander,
     docked: Option<(i64, String, String)>,
     /// System of the last `Location`, `FSDJump` or `Docked`.
     here: (Option<String>, Option<i64>),
+    /// (kind, `<commander>|<id>` record key) written since the last save.
     dirty: BTreeSet<(&'static str, String)>,
+}
+
+/// What [`Tracker::load`] found.
+#[derive(Debug)]
+#[must_use = "skipped records should be logged"]
+pub struct Loaded {
+    pub tracker: Tracker,
+    /// Records that could not be read and were left out. They stay in the store untouched.
+    pub skipped: Vec<Error>,
+}
+
+fn record_key(cmdr: &str, id: &str) -> String {
+    format!("{cmdr}|{id}")
+}
+
+/// (commander, id) of a record key. A key without a commander belongs to the empty one.
+fn split_key(key: &str) -> (&str, &str) {
+    key.split_once('|').unwrap_or(("", key))
 }
 
 impl Tracker {
@@ -159,40 +194,64 @@ impl Tracker {
         Self::default()
     }
 
-    /// Restore state saved by [`Tracker::save`].
-    pub fn load(store: &Store) -> Result<Self, Error> {
+    fn cmdr_key(&self) -> &str {
+        self.cmdr.cmdr.as_deref().unwrap_or("")
+    }
+
+    fn books(&self) -> Option<&Books> {
+        self.books.get(self.cmdr_key())
+    }
+
+    fn books_mut(&mut self) -> &mut Books {
+        let key = self.cmdr_key().to_string();
+        self.books.entry(key).or_default()
+    }
+
+    /// Restore state saved by [`Tracker::save`]. A record that cannot be read is skipped, not
+    /// fatal: it stays in the store (a later save only touches the records it changes), the rest
+    /// of the state loads, and the journal replays what the tracker then lacks. The caller logs
+    /// `skipped`. Only a store that cannot be read at all is an error.
+    pub fn load(store: &Store) -> Result<Loaded, Error> {
         let mut t = Tracker::new();
+        let mut skipped = vec![];
         for (key, body) in store.records(PROJECT)? {
-            let p: Project =
-                serde_json::from_str(&body).map_err(|source| Error::Corrupt { kind: PROJECT, key, source })?;
-            t.projects.insert(p.market_id, p);
+            match serde_json::from_str::<Project>(&body) {
+                Ok(p) => {
+                    t.books.entry(split_key(&key).0.to_string()).or_default().projects.insert(p.market_id, p);
+                }
+                Err(source) => skipped.push(Error::Corrupt { kind: PROJECT, key, source }),
+            }
         }
         for (key, body) in store.records(CLAIM)? {
-            let c = serde_json::from_str(&body).map_err(|source| Error::Corrupt {
-                kind: CLAIM,
-                key: key.clone(),
-                source,
-            })?;
-            t.claims.insert(key, c);
+            match serde_json::from_str(&body) {
+                Ok(c) => {
+                    let (cmdr, id) = split_key(&key);
+                    t.books.entry(cmdr.to_string()).or_default().claims.insert(id.to_string(), c);
+                }
+                Err(source) => skipped.push(Error::Corrupt { kind: CLAIM, key, source }),
+            }
         }
         for (key, body) in store.records(BEACON)? {
-            let b = serde_json::from_str(&body).map_err(|source| Error::Corrupt {
-                kind: BEACON,
-                key: key.clone(),
-                source,
-            })?;
-            t.beacons.insert(key, b);
+            match serde_json::from_str(&body) {
+                Ok(b) => {
+                    let (cmdr, id) = split_key(&key);
+                    t.books.entry(cmdr.to_string()).or_default().beacons.insert(id.to_string(), b);
+                }
+                Err(source) => skipped.push(Error::Corrupt { kind: BEACON, key, source }),
+            }
         }
-        Ok(t)
+        Ok(Loaded { tracker: t, skipped })
     }
 
     /// Write everything changed since the last save.
     pub fn save(&mut self, store: &Store) -> Result<(), Error> {
         for (kind, key) in std::mem::take(&mut self.dirty) {
+            let (cmdr, id) = split_key(&key);
+            let Some(b) = self.books.get(cmdr) else { continue };
             let body = match kind {
-                PROJECT => key.parse().ok().and_then(|id: i64| self.projects.get(&id)).map(serde_json::to_string),
-                CLAIM => self.claims.get(&key).map(serde_json::to_string),
-                _ => self.beacons.get(&key).map(serde_json::to_string),
+                PROJECT => id.parse().ok().and_then(|id: i64| b.projects.get(&id)).map(serde_json::to_string),
+                CLAIM => b.claims.get(id).map(serde_json::to_string),
+                _ => b.beacons.get(id).map(serde_json::to_string),
             };
             if let Some(body) = body {
                 store.put_record(kind, &key, &body.expect("plain structs always serialise"))?;
@@ -201,25 +260,35 @@ impl Tracker {
         Ok(())
     }
 
+    /// The current commander's projects.
     pub fn projects(&self) -> impl Iterator<Item = &Project> {
-        self.projects.values()
+        self.books().into_iter().flat_map(|b| b.projects.values())
     }
 
     pub fn project(&self, market_id: i64) -> Option<&Project> {
-        self.projects.get(&market_id)
+        self.books()?.projects.get(&market_id)
     }
 
     pub fn claims(&self) -> impl Iterator<Item = &Claim> {
-        self.claims.values()
+        self.books().into_iter().flat_map(|b| b.claims.values())
     }
 
     pub fn beacons(&self) -> impl Iterator<Item = &Beacon> {
-        self.beacons.values()
+        self.books().into_iter().flat_map(|b| b.beacons.values())
     }
 
     /// Fold one parsed journal line in. Unrelated events are ignored.
     pub fn apply(&mut self, line: &JournalLine) {
         let ts = line.timestamp.as_str();
+        // The commander stays until a line names another: a file that never gets that far (the
+        // game opened and quit at the main menu) must not blank the page.
+        let before = self.cmdr.cmdr.clone();
+        self.cmdr.observe(line);
+        if self.cmdr.cmdr != before {
+            // Where the last commander was docked or flying is not where this one is.
+            self.docked = None;
+            self.here = (None, None);
+        }
         match &line.event {
             JournalEvent::Docked { station_name, star_system, market_id, .. } => {
                 if self.here.0.as_deref() != Some(star_system.as_str()) {
@@ -235,7 +304,9 @@ impl Tracker {
             }
             JournalEvent::Extra(ExtraEvent::ColonisationConstructionDepot(d)) => {
                 let Some(id) = d.market_id else { return };
-                let p = self.projects.entry(id).or_insert_with(|| Project::new(id, ts));
+                let key = record_key(self.cmdr_key(), &id.to_string());
+                let docked = self.docked.clone();
+                let p = self.books_mut().projects.entry(id).or_insert_with(|| Project::new(id, ts));
                 if ts < p.depot_updated.as_str() {
                     return;
                 }
@@ -254,21 +325,22 @@ impl Tracker {
                         payment: r.payment,
                     })
                     .collect();
-                if let Some((m, station, system)) = &self.docked {
+                if let Some((m, station, system)) = &docked {
                     if *m == id {
                         p.station_name.get_or_insert_with(|| station.clone());
                         p.system_name.get_or_insert_with(|| system.clone());
                     }
                 }
-                self.dirty.insert((PROJECT, id.to_string()));
+                self.dirty.insert((PROJECT, key));
             }
             JournalEvent::Extra(ExtraEvent::ColonisationContribution { market_id: Some(id), contributions }) => {
-                let p = self.projects.entry(*id).or_insert_with(|| Project::new(*id, ts));
+                let key = record_key(self.cmdr_key(), &id.to_string());
+                let p = self.books_mut().projects.entry(*id).or_insert_with(|| Project::new(*id, ts));
                 let c = Contribution { timestamp: ts.to_string(), items: contributions.clone() };
                 if !p.contributions.contains(&c) {
                     p.contributions.push(c);
                 }
-                self.dirty.insert((PROJECT, id.to_string()));
+                self.dirty.insert((PROJECT, key));
             }
             JournalEvent::Other { event, raw } => match event.as_str() {
                 "ColonisationSystemClaim" => self.claim(ts, raw),
@@ -283,26 +355,27 @@ impl Tracker {
     fn claim(&mut self, ts: &str, raw: &Value) {
         let (name, addr) = system_of(raw);
         let Some(key) = system_key(&name, addr) else { return };
-        if self.claims.get(&key).is_some_and(|c| ts <= c.newest()) {
+        if self.books().and_then(|b| b.claims.get(&key)).is_some_and(|c| ts <= c.newest()) {
             return;
         }
-        self.claims.insert(
+        self.books_mut().claims.insert(
             key.clone(),
             Claim { system_name: name, system_address: addr, claimed_at: ts.to_string(), released_at: None },
         );
-        self.dirty.insert((CLAIM, key));
+        self.dirty.insert((CLAIM, record_key(self.cmdr_key(), &key)));
     }
 
     fn release(&mut self, ts: &str, raw: &Value) {
         let (name, addr) = system_of(raw);
         let Some(key) = system_key(&name, addr) else { return };
-        match self.claims.get_mut(&key) {
+        let record = record_key(self.cmdr_key(), &key);
+        match self.books_mut().claims.get_mut(&key) {
             Some(c) if ts > c.newest() => c.released_at = Some(ts.to_string()),
             Some(_) => return,
             None => {
                 // Released a claim made before the journal we have: keep the fact.
-                self.claims.insert(
-                    key.clone(),
+                self.books_mut().claims.insert(
+                    key,
                     Claim {
                         system_name: name,
                         system_address: addr,
@@ -312,17 +385,19 @@ impl Tracker {
                 );
             }
         }
-        self.dirty.insert((CLAIM, key));
+        self.dirty.insert((CLAIM, record));
     }
 
     fn beacon(&mut self, ts: &str) {
         let (name, addr) = self.here.clone();
         let key = format!("{ts}|{}", system_key(&name, addr).unwrap_or_default());
-        if self.beacons.contains_key(&key) {
+        if self.books().is_some_and(|b| b.beacons.contains_key(&key)) {
             return;
         }
-        self.beacons.insert(key.clone(), Beacon { timestamp: ts.to_string(), system_name: name, system_address: addr });
-        self.dirty.insert((BEACON, key));
+        self.books_mut()
+            .beacons
+            .insert(key.clone(), Beacon { timestamp: ts.to_string(), system_name: name, system_address: addr });
+        self.dirty.insert((BEACON, record_key(self.cmdr_key(), &key)));
     }
 }
 

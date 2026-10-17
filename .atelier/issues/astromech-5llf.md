@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-5llf
 priority: "P3"
 relationships:
   blocks: []
@@ -16,9 +19,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:11:27.625554522+00:00"
+status: "done"
 title: "EDSM: split a failing batch to isolate the bad event"
-updated_at: "2026-10-17T17:01:41.347815333+00:00"
+updated_at: "2026-10-17T17:11:27.625554522+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Lose only the event EDSM can't take when a whole upload request fails, as decide
 ## Context
 
 EDSM answers per event when a request goes through, and `edsm/mod.rs` already settles each event by its own code (a per-event 5xx is retried up to MAX_ATTEMPTS, then given up). The gaps are request-level failures, which carry no per-event answer: HTTP 5xx and request-level 5xx codes are held forever (`Answer::Hold`), so one event that makes EDSM fail every time blocks the queue; and `Answer::Refused` (413, unreadable, wrong length) gives up the whole batch of up to BATCH = 50 after MAX_ATTEMPTS. Review findings astromech-oixz and astromech-ugdy. Best effort: transport errors, timeouts, 408 and 429 can keep holding as they do now.
+
+## Close Reason
+
+Whole-request failures split in halves down to single events; request-level 5xx given up after MAX_ATTEMPTS; PR open, review outstanding
