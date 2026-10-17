@@ -3,6 +3,8 @@
 //! The reducer: folds journal events and Status.json snapshots into one [`GameState`]
 //! (ARCHITECTURE.md §5.2). Pure and synchronous so it can be replay-tested.
 
+pub mod mining;
+
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
@@ -79,6 +81,8 @@ pub struct GameState {
     pub cargo_tonnes: Option<f64>,
     pub cargo_capacity: Option<i64>,
     pub cargo_items: Vec<(String, i64)>,
+    /// Stolen tonnes aboard (`Cargo.json`).
+    pub cargo_stolen: i64,
     /// `Cargo.json`'s lines with their symbols (for "where should I sell my cargo?").
     pub cargo_inventory: Vec<astromech_journal::CargoItem>,
     pub legal_state: Option<String>,
@@ -239,6 +243,7 @@ impl GameState {
         self.cargo_tonnes = Some(c.count as f64);
         self.cargo_items = c.items.clone();
         self.cargo_inventory = c.inventory.clone();
+        self.cargo_stolen = c.inventory.iter().map(|i| i.stolen.max(0)).sum();
     }
 
     /// Keep a companion file that passed the freshness check (see `astromech_journal::companion`).

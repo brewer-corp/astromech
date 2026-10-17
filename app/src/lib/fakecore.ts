@@ -31,10 +31,26 @@ interface State {
   run: number | null;
   voice: { speaker: string; speed: number; colour: string };
   previews: string[];
+  /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
+  prospector: Record<string, number | null>;
   eddn: boolean;
 }
 
 let state: State | null = null;
+
+/** A few of the core's ores (crates/astromech-announce/src/prospector.rs `ORES`). */
+const PROSPECTOR_NAMES: Record<string, string> = { lowtemperaturediamond: "Low Temperature Diamonds", painite: "Painite", platinum: "Platinum" };
+const PROSPECTOR_DEFAULTS: Record<string, number | null> = { lowtemperaturediamond: 25, painite: 25, platinum: 20 };
+
+function prospectorReply(st: State): Reply {
+  const ores = Object.keys(PROSPECTOR_DEFAULTS).map((ore) => ({
+    ore,
+    name: PROSPECTOR_NAMES[ore],
+    default: PROSPECTOR_DEFAULTS[ore],
+    threshold: st.prospector[ore],
+  }));
+  return { ok: true, ores };
+}
 
 export function fakeScenario(): Scenario | null {
   if (typeof location === "undefined") return null;
@@ -60,6 +76,7 @@ function fresh(scenario: Scenario): State {
     run: null,
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
     previews: [],
+    prospector: { ...PROSPECTOR_DEFAULTS },
     eddn: false,
   };
 }
@@ -238,6 +255,14 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
       if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
       st.previews.push(st.voice.speaker);
       return { ok: true, line: "Landing gear deployed." };
+    case "prospector_thresholds":
+      return prospectorReply(st);
+    case "prospector_set": {
+      const c = JSON.parse(typeof args === "string" ? args : "{}") as { ore: string; threshold?: number | null; reset?: boolean };
+      if (!(c.ore in PROSPECTOR_DEFAULTS)) return { ok: false, error: `unknown ore "${c.ore}"` };
+      st.prospector[c.ore] = c.reset ? (PROSPECTOR_DEFAULTS[c.ore] ?? null) : (c.threshold ?? null);
+      return prospectorReply(st);
+    }
     case "eddn_log":
       // Sharing was on earlier (the sample's history); the switch is this PC's setting.
       return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };

@@ -6,8 +6,9 @@ use astromech_voice::client::Worker;
 use astromech_voice::proto::Request;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Something that says short confirmations. Must not block for long.
 pub trait Speaker: Send + Sync {
@@ -18,6 +19,10 @@ pub trait Speaker: Send + Sync {
     fn set_voice(&self, _voice: &VoiceParams) {}
     /// Does `say` make a sound (Kokoro), or only print? Default: only prints.
     fn speaks_aloud(&self) -> bool {
+        false
+    }
+    /// Still rendering or playing a line (callouts wait for it). Default: never.
+    fn busy(&self) -> bool {
         false
     }
 }
@@ -249,13 +254,77 @@ pub struct TtsSpeaker {
     /// The current voice, shared with the render thread so it can skip stale warm-ups.
     voice: Arc<Mutex<VoiceParams>>,
     prerender: Vec<String>,
+    activity: Arc<Activity>,
+    stopped_logged: AtomicBool,
+}
+
+/// What a speaker is doing, for [`Speaker::busy`]: lines handed over and not yet playing, and
+/// when the line playing without the mixer (Windows `PlaySoundW`, no output device) ends.
+#[derive(Default)]
+pub struct Activity {
+    rendering: AtomicUsize,
+    ends: Mutex<Option<Instant>>,
+    /// The thread that renders lines has stopped (it panicked); lines are printed only.
+    stopped: AtomicBool,
+}
+
+/// One line in progress; finished when dropped, including when rendering panics.
+pub struct Line(Arc<Activity>);
+
+impl Drop for Line {
+    fn drop(&mut self) {
+        self.0.rendering.fetch_sub(1, Ordering::SeqCst);
+    }
+}
+
+/// Marks the activity stopped when the rendering thread ends (dropped on panic too).
+pub struct Alive(Arc<Activity>);
+
+impl Drop for Alive {
+    fn drop(&mut self) {
+        self.0.stopped.store(true, Ordering::SeqCst);
+    }
+}
+
+impl Activity {
+    /// A line was handed over. Returns None (and counts nothing) once the renderer stopped.
+    pub fn begin(self: &Arc<Self>) -> Option<Line> {
+        if self.stopped.load(Ordering::SeqCst) {
+            return None;
+        }
+        self.rendering.fetch_add(1, Ordering::SeqCst);
+        Some(Line(self.clone()))
+    }
+
+    /// Guard for the rendering thread's lifetime.
+    pub fn worker(self: &Arc<Self>) -> Alive {
+        Alive(self.clone())
+    }
+
+    /// A line of `len` started playing outside the mixer at `now`.
+    pub fn playing(&self, now: Instant, len: Duration) {
+        *self.ends.lock().unwrap() = Some(now + len);
+    }
+
+    /// Playback was cut.
+    pub fn cut(&self) {
+        *self.ends.lock().unwrap() = None;
+    }
+
+    /// `mixer_queued`: samples still in the mixer.
+    pub fn busy(&self, now: Instant, mixer_queued: usize) -> bool {
+        self.rendering.load(Ordering::SeqCst) > 0
+            || mixer_queued > 0
+            || self.ends.lock().unwrap().is_some_and(|t| now < t)
+    }
 }
 
 /// Lines waiting to render. Replies (`speak`) always go before warm-ups, so a voice change's
 /// background re-render of the fixed phrases never delays the next reply or a preview.
 #[derive(Default)]
 struct Queue {
-    speak: VecDeque<(String, VoiceParams)>,
+    /// Each reply carries its [`Line`], so it counts as busy until played (or dropped).
+    speak: VecDeque<(String, VoiceParams, Line)>,
     warm: VecDeque<(String, VoiceParams)>,
     closed: bool,
 }
@@ -319,8 +388,16 @@ impl TtsSpeaker {
         let queue: Arc<(Mutex<Queue>, Condvar)> = Arc::default();
         let current = Arc::new(Mutex::new(voice));
         let (q, cur) = (queue.clone(), current.clone());
+        let activity = Arc::new(Activity::default());
+        let act = activity.clone();
         std::thread::Builder::new().name("tts".into()).spawn(move || {
+            // If this thread ends (a panic included), the speaker stops counting lines and the
+            // replies still queued are dropped, so busy() can't stay true.
+            let _alive = act.worker();
+            let _drain = DrainOnExit(q.clone());
             let mut render = |text: &str, v: &VoiceParams| -> Option<(u32, Vec<f32>, PathBuf)> {
+                // Reading rules (names, numbers, units); the cache key follows the spoken text.
+                let text = &astromech_voice::speakable::normalise(text);
                 let f = cache.join(cache_name(text, v.colour, &model, &v.speaker, v.speed));
                 if f.is_file() {
                     return astromech_voice::wav::read_mono_f32(&f).ok().map(|(sr, s)| (sr, s, f));
@@ -351,11 +428,11 @@ impl TtsSpeaker {
                     let (m, cv) = &*q;
                     let mut g = m.lock().unwrap();
                     loop {
-                        if let Some(j) = g.speak.pop_front() {
-                            break Some((true, j));
+                        if let Some((t, v, line)) = g.speak.pop_front() {
+                            break Some((Some(line), (t, v)));
                         }
                         if let Some(j) = g.warm.pop_front() {
-                            break Some((false, j));
+                            break Some((None, j));
                         }
                         if g.closed {
                             break None;
@@ -363,23 +440,29 @@ impl TtsSpeaker {
                         g = cv.wait(g).unwrap();
                     }
                 };
-                let Some((speak, (t, v))) = job else { break };
-                match speak {
-                    false => {
+                let Some((line, (t, v))) = job else { break };
+                match line {
+                    None => {
                         // A warm-up for a voice that's no longer selected would never be played.
                         if *cur.lock().unwrap() == v {
                             let _ = render(&t, &v);
                         }
                     }
-                    true => {
+                    Some(_line) => {
+                        // `_line` ends this reply when the arm is left, also by a panic.
                         let token = mix.token();
                         if let Some((sr, samples, f)) = render(&t, &v) {
                             if mix.has_device() {
                                 mix.play(token, &samples, sr);
-                            } else {
+                            } else if token == mix.token() {
                                 #[cfg(windows)]
-                                if let Err(e) = astromech_voice::player::play_wav_async(&f) {
-                                    eprintln!("{e:#}");
+                                match astromech_voice::player::play_wav_async(&f) {
+                                    // PlaySoundW gives no end signal: busy for the line's length.
+                                    Ok(()) => act.playing(
+                                        Instant::now(),
+                                        Duration::from_secs_f64(samples.len() as f64 / sr.max(1) as f64),
+                                    ),
+                                    Err(e) => eprintln!("{e:#}"),
                                 }
                                 #[cfg(not(windows))]
                                 {
@@ -391,14 +474,15 @@ impl TtsSpeaker {
                 }
             }
         })?;
-        let s = Self { queue, mixer, voice: current, prerender };
+        let s = Self { queue, mixer, voice: current, prerender, activity, stopped_logged: AtomicBool::new(false) };
         s.warm_up();
         Ok(s)
     }
 
     fn push(&self, f: impl FnOnce(&mut Queue)) {
         let (m, cv) = &*self.queue;
-        f(&mut m.lock().unwrap());
+        // A render thread that panicked may have poisoned the lock; the queue is still sound.
+        f(&mut m.lock().unwrap_or_else(|e| e.into_inner()));
         cv.notify_one();
     }
 
@@ -406,6 +490,15 @@ impl TtsSpeaker {
     fn warm_up(&self) {
         let v = self.voice.lock().unwrap().clone();
         self.push(|q| q.warm.extend(self.prerender.iter().map(|p| (p.clone(), v.clone()))));
+    }
+}
+
+/// Drops the replies still queued when the render thread ends (their [`Line`]s end with them).
+struct DrainOnExit(Arc<(Mutex<Queue>, Condvar)>);
+
+impl Drop for DrainOnExit {
+    fn drop(&mut self) {
+        self.0 .0.lock().unwrap_or_else(|e| e.into_inner()).speak.clear();
     }
 }
 
@@ -418,11 +511,21 @@ impl Drop for TtsSpeaker {
 impl Speaker for TtsSpeaker {
     fn say(&self, text: &str) {
         ConsoleSpeaker.say(text);
+        let Some(line) = self.activity.begin() else {
+            if !self.stopped_logged.swap(true, Ordering::SeqCst) {
+                crate::logging::log("text-to-speech stopped (see worker-tts.log); replies are printed only");
+            }
+            return;
+        };
         let v = self.voice.lock().unwrap().clone();
-        self.push(|q| q.speak.push_back((text.to_string(), v)));
+        self.push(|q| q.speak.push_back((text.to_string(), v, line)));
+    }
+    fn busy(&self) -> bool {
+        self.activity.busy(Instant::now(), self.mixer.queued())
     }
     fn interrupt(&self) {
         self.mixer.cut();
+        self.activity.cut();
         #[cfg(windows)]
         astromech_voice::player::stop();
     }
@@ -446,15 +549,15 @@ pub fn fixed_phrases() -> Vec<String> {
         for w in [s.on_word, s.off_word] {
             v.push(format!("{} {w}.", s.noun));
         }
-        v.push(format!("{} didn't respond.", s.noun));
+        v.push(format!("{} did not respond.", s.noun));
     }
     for s in [
-        "Didn't catch that.",
+        "Say again.",
         "Cancelled.",
         "Already on it.",
         "Kill switch on. All actions stopped.",
         "Re-armed.",
-        "Elite isn't the active window, so I didn't press anything.",
+        "Elite is not the active window. Nothing pressed.",
         "Silent running produces heat. Confirm?",
         "Silent running on.",
         "Flight assist on.",
@@ -466,7 +569,7 @@ pub fn fixed_phrases() -> Vec<String> {
         "Panel closed.",
         "Throttle zero.",
         "No route plotted.",
-        "Didn't catch that.",
+        "Say again.",
     ] {
         v.push(s.into());
     }
@@ -476,6 +579,87 @@ pub fn fixed_phrases() -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn busy_while_a_line_renders_or_plays_without_a_device() {
+        let a = Arc::new(Activity::default());
+        let t0 = Instant::now();
+        assert!(!a.busy(t0, 0));
+        let line = a.begin().unwrap();
+        assert!(a.busy(t0, 0));
+        drop(line);
+        assert!(!a.busy(t0, 0));
+        assert!(a.busy(t0, 10), "samples left in the mixer");
+        // No output device: PlaySoundW plays a 1.5 s line; busy until it ends, or until cut.
+        a.playing(t0, Duration::from_millis(1500));
+        assert!(a.busy(t0 + Duration::from_millis(1400), 0));
+        assert!(!a.busy(t0 + Duration::from_millis(1500), 0));
+        a.playing(t0, Duration::from_millis(1500));
+        a.cut();
+        assert!(!a.busy(t0, 0));
+    }
+
+    #[test]
+    fn a_panicking_renderer_does_not_leave_the_speaker_busy() {
+        let a = Arc::new(Activity::default());
+        let (tx, rx) = std::sync::mpsc::channel::<Line>();
+        tx.send(a.begin().unwrap()).unwrap();
+        tx.send(a.begin().unwrap()).unwrap(); // still queued when the thread dies
+        let act = a.clone();
+        let t = std::thread::spawn(move || {
+            let _alive = act.worker();
+            let _line = rx.recv().unwrap();
+            panic!("render failed");
+        });
+        assert!(t.join().is_err());
+        assert!(!a.busy(Instant::now(), 0));
+        // Later lines are not counted (they are printed only).
+        assert!(a.begin().is_none());
+        assert!(!a.busy(Instant::now(), 0));
+        drop(tx);
+    }
+
+    /// A synth that panics on its first line (a crashed renderer).
+    struct PanicSynth;
+    impl Synth for PanicSynth {
+        fn tts(&mut self, _: &str, _: &VoiceParams, _: &Path) -> Result<()> {
+            panic!("renderer crashed");
+        }
+    }
+
+    /// Busy while a reply renders, and not stuck busy when the render thread panics with
+    /// replies still queued; later lines are printed only.
+    #[test]
+    fn tts_speaker_busy_through_render_and_after_a_panic() {
+        use astromech_voice::colour::Colour;
+        let d = tempfile::tempdir().unwrap();
+        let emma = || VoiceParams::new("bf_emma", 1.0, Colour::Cockpit).unwrap();
+        let mixer = || astromech_voice::mixer::Mixer::silent(24000);
+        let log = Arc::new(Mutex::new(vec![]));
+        let slow =
+            TtsSpeaker::with_synth(SlowSynth(log.clone()), "kokoro-test", d.path(), emma(), mixer(), vec![]).unwrap();
+        assert!(!slow.busy());
+        slow.say("Cargo scan.");
+        assert!(slow.busy(), "busy while the reply renders");
+        wait_for(&log, 1);
+        // Rendered; with no output device (and not on Windows) nothing plays, so it frees up.
+        let t = std::time::Instant::now();
+        while slow.busy() && t.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(!slow.busy());
+
+        let crash = TtsSpeaker::with_synth(PanicSynth, "kokoro-test", d.path(), emma(), mixer(), vec![]).unwrap();
+        crash.say("First.");
+        crash.say("Second.");
+        let t = std::time::Instant::now();
+        while crash.busy() && t.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(!crash.busy(), "a dead renderer must not leave the speaker busy");
+        crash.say("Third.");
+        assert!(!crash.busy());
+    }
 
     /// Records which voice rendered each line and writes a short tone.
     struct FakeSynth(Arc<Mutex<Vec<(String, String)>>>);
