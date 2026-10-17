@@ -45,8 +45,8 @@ pub fn faction(f: &FactionSnap) -> Faction {
     }
 }
 
-/// The newest visit per system in `lines` (`FSDJump`, `CarrierJump` and `Location` arrivals; jumps without a `SystemAddress` or factions are
-/// skipped: an empty faction list is no news).
+/// The newest visit per system in `lines` (`FSDJump`, `CarrierJump` and `Location` arrivals;
+/// jumps without a `SystemAddress` or factions are skipped: an empty faction list is no news).
 pub fn visits_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -> Vec<Visit> {
     let mut by_id: HashMap<i64, Visit> = HashMap::new();
     for l in lines {
