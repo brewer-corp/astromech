@@ -4,6 +4,9 @@ id: "astromech-8joi"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8joi
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice query for nearby Powerplay targets"
-updated_at: "2026-10-17T07:38:18.657274444+00:00"
+updated_at: "2026-10-17T07:39:51.664424253+00:00"
 ---
 
 ## Goal
