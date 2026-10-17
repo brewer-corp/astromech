@@ -17,6 +17,10 @@ game_dir = ""                 # optional: game install folder (built-in presets,
 # Kill switch: press to cancel everything, release held keys and stop all actions.
 # Hold it for rearm_hold_ms to re-arm. Pick a button Elite doesn't use.
 kill_switch = { device = "Keyboard", key = "Key_ScrollLock" }
+# Optional paste button: with the galaxy map's search box selected, sends Ctrl+V and Enter, so
+# the route's next waypoint (on the clipboard) is searched without a keyboard. Saying "paste"
+# does the same. Pick a button Elite doesn't use.
+# paste = { device = "231D3201", key = "Joy_12" }
 rearm_hold_ms = 1000
 debounce_ms = 150              # PTT bounce filter: one push = one clip
 
@@ -45,6 +49,7 @@ dry_run = false               # true: log key presses, don't send them
 # [callouts.<id>]
 # enabled = false
 # cooldown_s = 30
+# route_follow is the route follower (docs/PLOTTING.md): off, jumps no longer move the route on.
 
 [update]
 check = true                  # poll GitHub for a signed payload (including mid-session)

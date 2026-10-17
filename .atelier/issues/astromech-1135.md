@@ -4,6 +4,9 @@ id: "astromech-1135"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-1135
 priority: "P1"
 relationships:
   blocks: []
@@ -19,9 +22,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:20:59.500389015+00:00"
+status: "done"
 title: "Alpha: land the route follower and the Go button"
-updated_at: "2026-10-17T17:01:44.545907856+00:00"
+updated_at: "2026-10-17T17:20:59.500389015+00:00"
 ---
 
 ## Goal
@@ -35,3 +39,7 @@ Every child issue is done.
 ## Scope
 
 The route follower from the `route-clipboard` checkout (astromech-5sbu, about 1,290 commits behind main, so effectively a re-land on top of main), the Go button (astromech-5akj).
+
+## Close Reason
+
+Both children done on feature/astromech-1135: the route follower re-landed on main (astromech-5sbu) and Go on search-kit results (astromech-5akj). Lands on main through independent review and atelier merge.

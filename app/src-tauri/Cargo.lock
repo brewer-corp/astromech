@@ -237,6 +237,7 @@ dependencies = [
  "astromech-galaxy",
  "astromech-history",
  "astromech-input",
+ "astromech-journal",
  "astromech-keybinds",
  "astromech-log",
  "astromech-market",

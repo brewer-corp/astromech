@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { fakeCall, resetFakeCore } from "../fakecore";
 import { DEFAULT_FILTERS, type Filters, type Origin, type Results } from "../search";
 import SearchKit from "./SearchKit.svelte";
 
@@ -75,5 +76,28 @@ describe("SearchKit", () => {
     await waitFor(() => expect(run).toHaveBeenLastCalledWith("Deciat", expect.anything()));
     expect(await screen.findByText("Ship's (L)")).toBeTruthy();
     expect(screen.queryByText("Ship's (M)")).toBeNull();
+  });
+
+  it("Go follows a station result, labelled with the station, and says when the core can't", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const station: Results = {
+      ...results,
+      rows: [{ key: 2, system: "Deciat", station: "Garay Terminal", ly: 12, jumps: 1, exact: true, updated_at: null }],
+    };
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(station);
+    // Outside the app with no preview core, the core isn't there to follow it.
+    history.replaceState(null, "", "/");
+    const { unmount } = render(SearchKit, { lookup: "stations.service", offers: [], run });
+    await fireEvent.click(await screen.findByRole("button", { name: "Go to Deciat" }));
+    expect(await screen.findByText("Couldn't follow it: not running inside the app")).toBeTruthy();
+    unmount();
+
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    render(SearchKit, { lookup: "stations.service", offers: [], run });
+    await fireEvent.click(await screen.findByRole("button", { name: "Go to Deciat" }));
+    expect(await screen.findByText("Following. Deciat is on your clipboard (Galaxy → Route).")).toBeTruthy();
+    expect((await fakeCall("route")).view.route.waypoints).toEqual([{ system: "Deciat", label: "Garay Terminal" }]);
+    history.replaceState(null, "", "/");
   });
 });

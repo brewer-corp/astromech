@@ -629,7 +629,8 @@ fn slot_order(slot: &str) -> (u8, u8, String) {
     (class, rank, slot.to_string())
 }
 
-const FLEET_EVENTS: &[&str] = &[
+/// Journal lines `from_journal_dir` reads (quoted event names).
+pub const FLEET_EVENTS: &[&str] = &[
     "\"Loadout\"",
     "\"StoredShips\"",
     "\"StoredModules\"",

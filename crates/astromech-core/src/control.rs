@@ -28,14 +28,15 @@ pub struct Request {
     pub token: String,
     /// "status", "open_window", "save_diagnostics", "ack_crash", "quit", "check_update", "install_update",
     /// "eddn_log", "voice_test", "voice_test_poll", "voice_test_stop", "voice_test_live",
-    /// "prospector_thresholds", "prospector_set" (text: the change as JSON), ...
+    /// "prospector_thresholds", "prospector_set" (text: the change as JSON), "route", "route_set"
+    /// (args: the route), "route_skip", "route_back", "route_clear", "route_copy", ...
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
     /// Argument for the voice tester: the phrase ("voice_test") or command id ("voice_test_live").
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
-    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`).
+    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`) and `route_set`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub args: Option<Value>,
 }

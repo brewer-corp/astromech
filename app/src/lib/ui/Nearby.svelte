@@ -27,6 +27,7 @@
       source: r.hits.some((h) => h.score != null) ? "Spansh, ranked by population and distance" : "Spansh",
       fetched: r.fetched,
       warning: r.warning,
+      label: r.query.label,
       rows: r.hits.map((h) => ({ key: h.id64, system: h.name, ly: h.ly, jumps: h.jumps, exact: h.exact, updated_at: h.updated_at, detail: detail(h) })),
     };
   }

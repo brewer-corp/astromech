@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-ztrb
 priority: "P1"
 relationships:
   blocks: []
@@ -19,9 +22,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:12:29.973198388+00:00"
+status: "done"
 title: "Builds page still lags journal changes on Windows"
-updated_at: "2026-10-17T17:01:40.033205506+00:00"
+updated_at: "2026-10-17T17:12:29.973198388+00:00"
 ---
 
 ## Goal
@@ -35,3 +39,11 @@ Appending engineering-relevant events (Loadout, EngineerCraft, EngineerProgress)
 ## Context
 
 `engineering_state` in `app/src-tauri/src/main.rs` still caches on `journal_folder_sig`, which reads `DirEntry::metadata`. On Windows that is the NTFS directory entry, which can lag appends to the file the game holds open (astromech-txzq). The stale key happens to throttle a full re-read: `astromech_engineering::from_journal_dir` and `engineers::from_journal_dir` parse every journal file on every miss, so switching to the live `astromech_materials::journal_version` key alone would re-read the whole journal history every few seconds in game. That needs an incremental replay (keep state plus a per-file offset) or a key that only changes on relevant events. The page also polls every 5 s (`app/src/modules/engineering/View.svelte`).
+
+## Notes
+
+- 2026-10-17 [note] Root cause: engineering_state cached on journal_folder_sig (DirEntry metadata: lags appends to the open journal on Windows, astromech-txzq). Switching to journal_version alone would re-read every journal on each append (all five replays rescan all history). Fix: astromech_journal::JournalWatch reads bytes appended to the newest journal through an open handle and bumps a generation only when a complete new line parses to a modelled (non-Other) event; JournalCache rebuilds only on a new generation. All replays use parse_line and none read Other, so unmodelled events (Music, ReceiveText) cannot change the page. Pages poll every 1 s. Unverified: real Windows timing (astromech-rggm covers Materials; Builds needs the same check); app/src-tauri cannot be built here (no webkit), so main.rs changes are checked by inspection and Windows CI build/clippy.
+
+## Close Reason
+
+Engineering state now rebuilds from JournalWatch/JournalCache (appended bytes read through an open handle, rebuild only on modelled events) instead of directory metadata; pages poll every 1 s. Tests: crates/astromech-journal/tests/live_watch.rs (mutation-checked). Not verified on real Windows; review outstanding.

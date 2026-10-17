@@ -16,9 +16,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:17:13.207272784+00:00"
+status: "done"
 title: "Land the route follower from the route-clipboard branch"
-updated_at: "2026-10-17T17:01:57.360204682+00:00"
+updated_at: "2026-10-17T17:17:13.207272784+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ Sumeet's work in progress; agents must not touch that checkout. Since this was f
 ## Notes
 
 - 2026-10-17 [note] 17 Oct: Sumeet's uncommitted work is now commit 400aace on branch route-clipboard (pushed to origin). Based on v0.1.5 (b662341), so it has to be re-applied on top of main.
+
+## Close Reason
+
+Route follower, clipboard, paste and the Route page re-landed on main in 0a2fa0a (feature/astromech-1135); tests and UI check recorded (astromech-ee2e and the route page screenshot). Merge to main waits on independent review of the branch.

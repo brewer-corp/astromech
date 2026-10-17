@@ -1,6 +1,6 @@
 <script lang="ts">
   // A system name with a one-click copy button, for pasting into the galaxy map.
-  // Uses the webview clipboard API; the core clipboard module has not landed.
+  // Uses the webview clipboard API; the core writes the clipboard only for the route follower.
   let { name }: { name: string } = $props();
   let copied = $state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;

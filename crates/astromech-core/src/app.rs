@@ -68,6 +68,9 @@ pub struct Core {
     pub history: crate::history::Following,
     /// API keys (EDSM's): the OS keyring.
     pub secrets: Arc<dyn astromech_store::secrets::Secrets>,
+    /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
+    /// window can set one while Elite isn't running.
+    pub route: Arc<crate::route::Desk>,
 }
 
 impl Core {
@@ -208,7 +211,7 @@ impl Core {
         self.notify();
         let t0 = Instant::now();
         let cfg = self.cfg();
-        let r = Session::start(&cfg, &self.opts.session).and_then(|mut s| {
+        let r = Session::start(&cfg, &self.opts.session, self.route.clone()).and_then(|mut s| {
             s.start_buttons(&cfg, &self.opts.session)?;
             Ok(s)
         });
@@ -546,8 +549,40 @@ impl Core {
         }
     }
 
+    /// The Route page's commands. `route_set` takes `{name, source, waypoints}` or, for an
+    /// import, `{name, source, text}` (a Spansh CSV or one system per line).
+    fn route_cmd(&self, r: &Request) -> Value {
+        use crate::route::{parse_list, Route, Waypoint};
+        let d = &self.route;
+        let v = match r.cmd.as_str() {
+            "route_set" => {
+                let a = r.args.clone().unwrap_or_default();
+                let s = |k: &str| a.get(k).and_then(|x| x.as_str()).unwrap_or_default().to_string();
+                let waypoints: Vec<Waypoint> = match a.get("text").and_then(|t| t.as_str()) {
+                    Some(t) => parse_list(t),
+                    None => match serde_json::from_value(a.get("waypoints").cloned().unwrap_or_default()) {
+                        Ok(w) => w,
+                        Err(e) => return json!({"ok": false, "error": format!("bad waypoints: {e}")}),
+                    },
+                };
+                let name = if s("name").trim().is_empty() { "Route".to_string() } else { s("name") };
+                match d.set(Route::new(&name, &s("source"), waypoints)) {
+                    Ok(v) => v,
+                    Err(e) => return json!({"ok": false, "error": e}),
+                }
+            }
+            "route_skip" => d.step(true),
+            "route_back" => d.step(false),
+            "route_clear" => d.clear(),
+            "route_copy" => d.copy_next(),
+            _ => d.view(),
+        };
+        json!({"ok": true, "view": v})
+    }
+
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
         match r.cmd.as_str() {
+            "route" | "route_set" | "route_skip" | "route_back" | "route_clear" | "route_copy" => self.route_cmd(r),
             "status" => self.status_json(),
             "open_window" => match self.open_window(r.route.as_deref()) {
                 Ok(()) => json!({"ok": true}),
@@ -1102,6 +1137,7 @@ pub fn run(opts: Opts) -> i32 {
     crate::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, Ordering::SeqCst);
     let secrets: Arc<dyn astromech_store::secrets::Secrets> = Arc::new(astromech_store::secrets::OsKeyring::new());
     apply_edsm_switch(&cfg, secrets.as_ref());
+    let route = Arc::new(crate::route::Desk::in_dir(&cfg.data_dir()));
     let (ui_tx, ui_rx) = channel();
     let core = Arc::new(Core {
         app_dir: app_dir.clone(),
@@ -1127,6 +1163,7 @@ pub fn run(opts: Opts) -> i32 {
         calibration: Mutex::new(None),
         history: Default::default(),
         secrets,
+        route,
     });
 
     let c = core.clone();
@@ -1261,7 +1298,34 @@ mod tests {
             onboarded: AtomicBool::new(false),
             history: Default::default(),
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
+            route: Arc::new(crate::route::Desk::open(None, Box::new(|_| Ok(())))),
         })
+    }
+
+    /// The Route page's commands, through the control API: set from waypoints or pasted text,
+    /// skip, go back, clear; a route with no systems is an error.
+    #[test]
+    fn route_commands_over_the_control_api() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        let call = |cmd: &str, args: Option<Value>| {
+            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args })
+        };
+        assert_eq!(call("route", None)["view"]["route"], Value::Null);
+        let v = call(
+            "route_set",
+            Some(json!({"name": "Trip", "source": "engineer trip", "waypoints": [
+                {"system": "Deciat", "label": "Felicity Farseer"}, {"system": "Kuk"}]})),
+        );
+        assert_eq!(v["view"]["next"]["system"], "Deciat", "{v}");
+        assert_eq!(v["view"]["route"]["source"], "engineer trip");
+        assert_eq!(call("route_skip", None)["view"]["next"]["system"], "Kuk");
+        assert_eq!(call("route_back", None)["view"]["remaining"], 2);
+        let v = call("route_set", Some(json!({"text": "System Name,Jumps\nSol,0\nColonia,40\n"})));
+        assert_eq!(v["view"]["route"]["name"], "Route");
+        assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
+        assert_eq!(call("route_clear", None)["view"]["route"], Value::Null);
+        assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
     }
 
     /// First run with no journal folder found: onboarding sets one (`set_folders`) and the
