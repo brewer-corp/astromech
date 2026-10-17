@@ -4,7 +4,7 @@ id: "astromech-r3s7"
 issue_type: "bug"
 labels:
 - "alpha"
-priority: "P3"
+priority: "P2"
 relationships:
   blocks: []
   children: []
@@ -13,8 +13,8 @@ relationships:
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
-title: "A touched journal that is the latest by name but not the game's is live in full (repeated hour after a fall-back)"
-updated_at: "2026-10-17T22:31:25.544034237+00:00"
+title: "A journal once judged the game's stays live after a newer session starts"
+updated_at: "2026-10-17T22:51:24.585382919+00:00"
 ---
 
 ## Goal
@@ -28,3 +28,7 @@ A pipeline test with those two journals shows lines appended late to the first (
 ## Context
 
 Review finding on the astromech-782v PR (reproduced: the EDDN queue went from 1 to 2). The fix is a design change: for example treat latest-by-name as the game's only until another journal has been judged the game's by its header and has produced a fresh line, or gate latest-by-name journals by line freshness too (many older fixtures use fixed old stamps and rely on the unconditional rule). Narrow: it needs two game starts in the repeated hour and a sync tool touching the first journal (EU 25 Oct, US 1 Nov 2026).
+
+## Notes
+
+- 2026-10-17 [note] 17 Oct, re-review of #149: reproduced with no clock change. The app follows A live; the game starts B (later name); a tool appends an old-stamped line to A and touches it; EDDN queue 1 -> 2. Cause: game_sessions (pipeline.rs ~203, 414-419) is never cleared, and a reopen applies the part past the read point as live. Fix: stop treating an older session as the game's once a newer one is, or check line freshness for any journal that isn't the current one. Same class as 0d7l; not an alpha blocker (needs a tool appending different content to an earlier journal while the app spans two sessions).
