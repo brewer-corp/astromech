@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T04:56:59.767905766+00:00"
+status: "done"
 title: "Bio signals and species prediction"
-updated_at: "2026-10-17T04:48:27.229762762+00:00"
+updated_at: "2026-10-17T04:56:59.767905766+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ For fixture bodies with known species, the prediction includes the real species 
 ## Context
 
 Counts from `FSSBodySignals` (FSS); genus list from `SAASignalsFound.Genuses` (DSS). Prediction tables are community data; check the licence for each.
+
+## Close Reason
+
+Genus list per body (FSS counts, DSS genera) and species prediction with min-max value in astromech-exobiology, folded into GameState; data from the wiki and EDMC-ExplorerLite (MIT), credited in NOTICE.md.
