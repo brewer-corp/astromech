@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:19:41.206256062+00:00"
 id: "astromech-e8up"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-e8up
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exploration values: no discovery bonuses for bodies already mapped in the bubble"
-updated_at: "2026-10-17T05:19:41.206256062+00:00"
+updated_at: "2026-10-17T07:33:04.026280930+00:00"
 ---
 
 ## Goal
