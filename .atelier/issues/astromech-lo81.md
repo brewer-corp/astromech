@@ -4,6 +4,9 @@ id: "astromech-lo81"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-lo81
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Route follower: track the current system even with route_follow turned off"
-updated_at: "2026-10-17T17:40:28.379811892+00:00"
+updated_at: "2026-10-17T18:58:25.100580858+00:00"
 ---
 
 ## Goal
