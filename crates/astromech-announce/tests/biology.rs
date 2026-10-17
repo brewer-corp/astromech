@@ -65,6 +65,19 @@ fn jump(ts: &str, system: &str, address: i64) -> String {
     )
 }
 
+fn carrier_jump(ts: &str, system: &str, address: i64) -> String {
+    format!(
+        r#"{{"timestamp":"{ts}","event":"CarrierJump","Docked":true,"StationName":"K7Q-1HT","StarSystem":"{system}","SystemAddress":{address},"StarPos":[6.3125,0.59375,1.71875]}}"#
+    )
+}
+
+/// A login (or a respawn) in a system.
+fn location(ts: &str, system: &str, address: i64) -> String {
+    format!(
+        r#"{{"timestamp":"{ts}","event":"Location","Docked":false,"StarSystem":"{system}","SystemAddress":{address},"StarPos":[6.3125,0.59375,1.71875]}}"#
+    )
+}
+
 fn epoch(ts: &str) -> i64 {
     chrono::DateTime::parse_from_rfc3339(ts).unwrap().timestamp()
 }
@@ -90,6 +103,24 @@ fn arrival_with_known_biology_says_it_before_any_scan() {
     assert_eq!(said, ["Known biology on 2 bodies.", "B 3: Fungoida Bullarum, 3.7 M."]);
     // A system nobody reported biology in: nothing.
     assert!(r.spoken(&jump("2026-10-17T10:05:00Z", "Elsewhere", 5)).is_empty());
+}
+
+#[test]
+fn a_carrier_jump_or_a_login_is_an_arrival_too() {
+    let known = ["Known biology on 2 bodies.", "B 3: Fungoida Bullarum, 3.7 M."];
+    let (mut r, _) = run(true);
+    assert_eq!(r.spoken(&carrier_jump("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN)), known);
+
+    let (mut r, _) = run(true);
+    assert_eq!(r.spoken(&location("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN)), known);
+    // Another Location in the same system (a respawn, a relog): already said here.
+    assert!(r.spoken(&location("2026-10-17T10:30:00Z", "Luhman 16", LUHMAN)).is_empty());
+
+    // A login whose answer comes later: said on the tick, like a jump's.
+    let (mut r, recorded) = run(false);
+    assert!(r.spoken(&location("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN)).is_empty());
+    recorded.ready.store(true, Ordering::SeqCst);
+    assert_eq!(tick(&mut r, "2026-10-17T10:00:03Z"), known);
 }
 
 #[test]
@@ -228,10 +259,8 @@ fn each_system_starts_afresh() {
 fn a_late_answer_awaited_in_one_system_is_not_said_in_the_next() {
     let (mut r, recorded) = run(false);
     r.spoken(&jump("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN));
-    // A login elsewhere (no jump to announce) before Luhman 16's answer came.
-    r.spoken(&format!(
-        r#"{{"timestamp":"2026-10-17T10:00:05Z","event":"Location","StarSystem":"Known Too","SystemAddress":{KNOWN_TOO},"StarPos":[0,0,0],"Docked":false}}"#
-    ));
+    // A login elsewhere, where nobody reported biology, before Luhman 16's answer came.
+    r.spoken(&location("2026-10-17T10:00:05Z", "Nothing Known", 5));
     recorded.ready.store(true, Ordering::SeqCst);
     assert!(tick(&mut r, "2026-10-17T10:00:10Z").is_empty());
 }

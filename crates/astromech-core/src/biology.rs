@@ -5,7 +5,9 @@
 //! The reaction engine asks on the pipeline thread and must never block, so a system's lookup
 //! runs on its own thread: the first ask starts it and answers None, later asks answer from
 //! what it found (`biology` says a late answer on the clock tick). One Spansh bodies search per
-//! system (`system_id64` plus `signals: Biological`), cached for the session by the client.
+//! system (`system_id64` plus `signals: Biological`), cached for the session by the client. A
+//! failed search is not cached: the system stays unknown (None, `known: null` on the page) and
+//! the next ask after [`RETRY_AFTER`] tries again.
 
 use crate::logging::log;
 use astromech_announce::biology::KnownBiology;
@@ -16,6 +18,7 @@ use astromech_gamestate::GameState;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 /// At most this many systems' answers are kept.
 const KEEP: usize = 64;
@@ -56,17 +59,24 @@ pub fn look_up(
 enum Lookup {
     Pending,
     Done(Vec<KnownBody>),
+    /// The lookup failed (offline, Spansh down) at this time: unknown, not "no biology". Asked
+    /// again once [`SpanshBiology::retry_after`] has passed.
+    Failed(Instant),
 }
+
+/// How long after a failed lookup the next ask tries again.
+const RETRY_AFTER: Duration = Duration::from_secs(15);
 
 /// Spansh lookups for [`KnownBiology`], one background thread per system.
 pub struct SpanshBiology {
     client: Arc<Client>,
     systems: Arc<Mutex<HashMap<i64, Lookup>>>,
+    retry_after: Duration,
 }
 
 impl SpanshBiology {
     pub fn new(client: Client) -> Self {
-        Self { client: Arc::new(client), systems: Arc::default() }
+        Self { client: Arc::new(client), systems: Arc::default(), retry_after: RETRY_AFTER }
     }
 }
 
@@ -76,7 +86,8 @@ impl KnownBiology for SpanshBiology {
         match systems.get(&system_address) {
             Some(Lookup::Done(v)) => return Some(v.clone()),
             Some(Lookup::Pending) => return None,
-            None => {}
+            Some(Lookup::Failed(at)) if at.elapsed() < self.retry_after => return None,
+            Some(Lookup::Failed(_)) | None => {}
         }
         if systems.len() >= KEEP {
             systems.retain(|_, l| matches!(l, Lookup::Pending));
@@ -84,12 +95,14 @@ impl KnownBiology for SpanshBiology {
         systems.insert(system_address, Lookup::Pending);
         let (client, all) = (self.client.clone(), self.systems.clone());
         let spawned = std::thread::Builder::new().name("known-biology".into()).spawn(move || {
-            let found = look_up(&client, system_address, star_pos).unwrap_or_else(|e| {
-                // Nothing to say rather than a wrong line; the page shows the system's own results.
-                log(&format!("known biology: {e}"));
-                vec![]
-            });
-            all.lock().unwrap().insert(system_address, Lookup::Done(found));
+            let found = match look_up(&client, system_address, star_pos) {
+                Ok(v) => Lookup::Done(v),
+                Err(e) => {
+                    log(&format!("known biology: {e}"));
+                    Lookup::Failed(Instant::now())
+                }
+            };
+            all.lock().unwrap().insert(system_address, found);
         });
         if spawned.is_err() {
             systems.remove(&system_address);
@@ -135,7 +148,6 @@ pub fn view(game: &GameState, known: Option<&dyn KnownBiology>) -> Value {
 mod tests {
     use super::*;
     use astromech_data::{Cache, Request, Response, Transport, TransportError};
-    use std::time::{Duration, Instant};
 
     const RECORDED: &str = include_str!("../../astromech-data/tests/fixtures/spansh-bodies-biology.json");
     const LUHMAN: i64 = 22960358574928;
@@ -179,6 +191,51 @@ mod tests {
         };
         assert_eq!(found.len(), 2);
         assert_eq!(k.known(LUHMAN, None).map(|v| v.len()), Some(2), "answered from what it found");
+    }
+
+    /// Fails its first n requests (connection lost), then answers from the recording.
+    struct Flaky(std::sync::atomic::AtomicUsize);
+    impl Transport for Flaky {
+        fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
+            let left = self.0.load(std::sync::atomic::Ordering::SeqCst);
+            if left > 0 {
+                self.0.store(left - 1, std::sync::atomic::Ordering::SeqCst);
+                return Err(TransportError::Offline("connection reset".into()));
+            }
+            Recorded.send(url, req)
+        }
+    }
+
+    /// Asks until the answer is in or `deadline` passes.
+    fn wait_for(k: &SpanshBiology, deadline: Duration) -> Option<Vec<KnownBody>> {
+        let until = Instant::now() + deadline;
+        loop {
+            if let Some(v) = k.known(LUHMAN, None) {
+                return Some(v);
+            }
+            if Instant::now() > until {
+                return None;
+            }
+            std::thread::sleep(Duration::from_millis(5));
+        }
+    }
+
+    #[test]
+    fn a_failed_lookup_is_unknown_not_nothing_and_is_tried_again() {
+        let flaky = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Flaky(1.into())));
+        let mut k = SpanshBiology::new(flaky);
+        k.retry_after = Duration::from_millis(200);
+        assert_eq!(k.known(LUHMAN, None), None);
+        // The failed lookup: still unknown (None), never "no biology here" (Some(empty)).
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while !matches!(k.systems.lock().unwrap().get(&LUHMAN), Some(Lookup::Failed(_))) {
+            assert!(Instant::now() < deadline, "the lookup never failed");
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert_eq!(k.known(LUHMAN, None), None, "a failure is not an answer");
+        // After the back-off, an ask looks it up again, and this time it answers.
+        let found = wait_for(&k, Duration::from_secs(10)).expect("tried again after the back-off");
+        assert_eq!(found.len(), 2);
     }
 
     #[test]

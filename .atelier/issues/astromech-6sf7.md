@@ -4,6 +4,9 @@ id: "astromech-6sf7"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-6sf7
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T07:54:36.031703064+00:00"
+status: "done"
 title: "Voice query for nearby Boom, Famine and War systems"
-updated_at: "2026-10-17T07:38:09.240690092+00:00"
+updated_at: "2026-10-17T07:54:36.031703064+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Phrase templates in the grammar for each state query, dispatched to the same Spa
 ## Context
 
 Found by the S1-S8 validation (astromech-e8ux).
+
+## Close Reason
+
+Faction-state lookups (famine, boom, war, civil unrest, outbreak, Federation, Empire) answer by voice from the current system via Galaxy::nearby with the remembered faction.<id> filters; phrase and recorded-fixture answer tests pass; gates green at a378516. Independent review not yet done.
