@@ -140,7 +140,8 @@ the clipboard. See [Routes](routes.md#following-a-route).
 
 Id: `prospector`. When a prospector limpet reports a rock worth mining: **"Platinum 34%."** At most
 two ores are named, most valuable first, or one after a motherlode: **"Motherlode. Void Opals.
-Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line.
+Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line. A second limpet on the same rock (the same ores
+in the same proportions) is not read again for ten minutes.
 The rock's content (low, medium, high) is not read: the prospector panel shows it. The per-ore
 percentage is set in [Settings](settings.md#prospector-callouts).
 

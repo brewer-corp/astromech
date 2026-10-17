@@ -1,4 +1,4 @@
-//! Faction states seen on arrival. Every `FSDJump` and `Location` carries the system's factions
+//! Faction states seen on arrival. Every `FSDJump`, `CarrierJump` and `Location` carries the system's factions
 //! and their active states, which is newer than Spansh's copy for any system the commander has
 //! just visited. [`crate::Galaxy::record_visits`] keeps the newest per system, and the faction
 //! lookups prefer it over an older Spansh answer.
@@ -45,8 +45,8 @@ pub fn faction(f: &FactionSnap) -> Faction {
     }
 }
 
-/// The newest visit per system in `lines` (jumps without a `SystemAddress` or factions are
-/// skipped: an empty faction list is no news).
+/// The newest visit per system in `lines` (`FSDJump`, `CarrierJump` and `Location` arrivals;
+/// jumps without a `SystemAddress` or factions are skipped: an empty faction list is no news).
 pub fn visits_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -> Vec<Visit> {
     let mut by_id: HashMap<i64, Visit> = HashMap::new();
     for l in lines {
@@ -85,7 +85,7 @@ pub fn visits_from_journal_dir(dir: &Path, max_files: usize) -> Vec<Visit> {
     let mut lines = vec![];
     for p in logs.iter().rev().take(max_files) {
         let Ok(text) = std::fs::read_to_string(p) else { continue };
-        for line in text.lines().filter(|l| l.contains("\"FSDJump\"") || l.contains("\"Location\"")) {
+        for line in text.lines().filter(|l| crate::POSITION_EVENTS.iter().any(|e| l.contains(e))) {
             if let Ok(l) = astromech_journal::parse_line(line.trim()) {
                 lines.push(l);
             }
@@ -124,5 +124,17 @@ mod tests {
         assert_eq!(v[0].seen, "2026-10-16T12:00:00Z");
         assert_eq!(v[0].factions[0].active_states, ["Civil War"]);
         assert_eq!(v[0].factions[0].state.as_deref(), Some("Civil War"));
+    }
+
+    /// The reader filters with `POSITION_EVENTS`, the same list a page watches: a carrier jump,
+    /// which carries the system's factions like any arrival, is a visit.
+    #[test]
+    fn a_carrier_jump_is_a_visit() {
+        let d = tempfile::tempdir().unwrap();
+        let line = r#"{"timestamp":"2026-10-16T12:00:00Z","event":"CarrierJump","StarSystem":"Tau Ceti","SystemAddress":7,"StarPos":[1,2,3],"Factions":[{"Name":"Tau Ceti Gang","Allegiance":"Independent","FactionState":"Boom","Influence":0.4,"ActiveStates":[{"State":"Boom"}]}]}"#;
+        std::fs::write(d.path().join("Journal.2026-10-16T110000.01.log"), format!("{line}\n")).unwrap();
+        let v = visits_from_journal_dir(d.path(), 5);
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].factions[0].state.as_deref(), Some("Boom"));
     }
 }

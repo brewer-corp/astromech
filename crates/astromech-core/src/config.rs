@@ -218,17 +218,109 @@ pub fn look_alikes(dir: &Path) -> Vec<PathBuf> {
     v
 }
 
+/// One value of `astromech.toml` that was ignored (the default is used for it).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Problem {
+    /// Dotted key, such as `controls.rearm_hold_ms`.
+    pub key: String,
+    /// 1-based line in the file.
+    pub line: usize,
+    pub message: String,
+}
+
+impl std::fmt::Display for Problem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "line {}: {} ({})", self.line, self.key, self.message)
+    }
+}
+
+/// The key path of the innermost value in `t` whose text covers byte `pos`.
+fn locate(t: &dyn toml_edit::TableLike, pos: usize, path: &mut Vec<String>) -> bool {
+    let covers = |item: &toml_edit::Item| item.span().is_some_and(|s| s.contains(&pos));
+    for (k, item) in t.iter() {
+        path.push(k.to_string());
+        // A standard table's span is only its header, so look inside it whatever its span says.
+        if let Some(sub) = item.as_table_like() {
+            if locate(sub, pos, path) || covers(item) {
+                return true;
+            }
+        } else if covers(item) {
+            return true;
+        }
+        path.pop();
+    }
+    false
+}
+
+/// The item at `path` below `t`.
+fn at_path<'a>(t: &'a dyn toml_edit::TableLike, path: &[String]) -> Option<&'a toml_edit::Item> {
+    let (first, rest) = path.split_first()?;
+    let item = t.get(first)?;
+    if rest.is_empty() {
+        Some(item)
+    } else {
+        at_path(item.as_table_like()?, rest)
+    }
+}
+
+/// Remove the item at `path` below `t`.
+fn remove_at(t: &mut dyn toml_edit::TableLike, path: &[String]) -> bool {
+    match path {
+        [] => false,
+        [last] => t.remove(last).is_some(),
+        [first, rest @ ..] => {
+            t.get_mut(first).and_then(|i| i.as_table_like_mut()).is_some_and(|sub| remove_at(sub, rest))
+        }
+    }
+}
+
 impl Config {
     pub fn load(path: &Path) -> Result<Self> {
-        let t = std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-        Self::parse(&t).with_context(|| format!("parsing {}", path.display()))
+        Ok(Self::load_report(path)?.0)
     }
 
-    /// Parse `astromech.toml` text, bringing old settings up to date.
+    /// Like [`Config::load`], and the values that were ignored. A file that isn't TOML is an error.
+    pub fn load_report(path: &Path) -> Result<(Self, Vec<Problem>)> {
+        let t = std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
+        Self::parse_report(&t).with_context(|| format!("parsing {}", path.display()))
+    }
+
+    /// Parse `astromech.toml` text, bringing old settings up to date. Any bad value is an error.
     pub fn parse(text: &str) -> Result<Self> {
         let mut c: Self = toml::from_str(text)?;
         c.voice.settle_speaker();
         Ok(c)
+    }
+
+    /// Parse `astromech.toml` text, dropping each value that doesn't fit its setting (a wrong
+    /// type, say) so it keeps its default and the rest of the file still applies.
+    pub fn parse_report(text: &str) -> Result<(Self, Vec<Problem>)> {
+        let original = toml_edit::Document::parse(text.to_string())?;
+        let mut doc = original.clone().into_mut();
+        let mut problems = vec![];
+        loop {
+            let current = doc.to_string();
+            let err = match toml::from_str::<Self>(&current) {
+                Ok(mut c) => {
+                    c.voice.settle_speaker();
+                    return Ok((c, problems));
+                }
+                Err(e) => e,
+            };
+            // Find the failing value in the current text, then drop it from `doc`.
+            let reparsed = toml_edit::Document::parse(current.as_str())?;
+            let mut path = vec![];
+            let found = err.span().is_some_and(|s| locate(reparsed.as_table(), s.start, &mut path));
+            if !found || !remove_at(doc.as_table_mut(), &path) {
+                return Err(err.into());
+            }
+            // The line is in the file as written, not in the text with earlier values dropped.
+            let line = at_path(original.as_table(), &path)
+                .and_then(|i| i.span())
+                .map(|s| text[..s.start.min(text.len())].matches('\n').count() + 1)
+                .unwrap_or(1);
+            problems.push(Problem { key: path.join("."), line, message: err.message().to_string() });
+        }
     }
 
     pub fn journal_dir(&self) -> Option<PathBuf> {
@@ -333,6 +425,34 @@ mod tests {
         assert!(!d.eddn.enabled, "nothing is sent to EDDN unless switched on");
         assert_eq!(d.voice.colour, astromech_voice::colour::Colour::Cockpit);
         assert_eq!(d.voice.speaker, astromech_voice::catalog::DEFAULT_VOICE);
+    }
+
+    #[test]
+    fn one_bad_value_costs_only_that_value() {
+        let text = "[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }\n\
+                    rearm_hold_ms = \"slow\"\ndebounce_ms = 90\n\n[voice]\nthreads = 2\nspeed = true\n\n\
+                    [eddn]\nenabled = true\n";
+        assert!(Config::parse(text).is_err(), "the strict parse still rejects it");
+        let (c, problems) = Config::parse_report(text).unwrap();
+        assert_eq!(c.controls.ptt.unwrap().key, "Joy_4");
+        assert_eq!((c.controls.debounce_ms, c.voice.threads, c.eddn.enabled), (90, 2, true));
+        assert_eq!((c.controls.rearm_hold_ms, c.voice.speed), (1000, 1.0), "the bad keys take their defaults");
+        let got: Vec<_> = problems.iter().map(|p| (p.key.as_str(), p.line)).collect();
+        assert_eq!(got, [("controls.rearm_hold_ms", 3), ("voice.speed", 8)]);
+        assert!(problems[0].to_string().starts_with("line 3: controls.rearm_hold_ms"), "{}", problems[0]);
+        // A bad value inside an inline table drops that table, not the file.
+        let (c, p) =
+            Config::parse_report("[controls]\nptt = { device = 5, key = \"Joy_4\" }\nrearm_hold_ms = 7").unwrap();
+        assert!(c.controls.ptt.is_none() && c.controls.rearm_hold_ms == 7 && p.len() == 2, "{p:?}");
+        assert_eq!((p[0].key.as_str(), p[1].key.as_str()), ("controls.ptt.device", "controls.ptt"));
+        assert!(Config::parse_report("[controls]\nptt = 1").unwrap().1[0].key.starts_with("controls.ptt"));
+        // A whole section of the wrong type.
+        let (c, p) = Config::parse_report("eddn = 3\n[edsm]\nenabled = true").unwrap();
+        assert!(c.edsm.enabled && !c.eddn.enabled);
+        assert_eq!((p[0].key.as_str(), p[0].line), ("eddn", 1));
+        // A clean file reports nothing; a file that isn't TOML is still an error.
+        assert!(Config::parse_report(SAMPLE).unwrap().1.is_empty());
+        assert!(Config::parse_report("[controls\nptt = ").is_err());
     }
 
     #[test]

@@ -51,15 +51,18 @@ pub fn targets_answer(
     let here = astromech_galaxy::Here { system, id64: None, pos };
     match galaxy.powerplay_targets(target, power, &here, range, targets::WITHIN_LY, 1, filters) {
         Ok(t) => targets::spoken(&t),
-        Err(e) => format!("Could not look that up. {e}"),
+        Err(e) => astromech_tools::lookup::failed(&e.to_string()),
     }
 }
+
+/// Said when Spansh does not know the commander's system and there are no coordinates to search from.
+pub const UNKNOWN_SYSTEM: &str = "Spansh does not know this system yet.";
 
 /// The spoken answer to `want` near the commander's current system, searched from its
 /// position (the journal's `StarPos`) when known, so a system Spansh hasn't heard of works too.
 pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState, now_s: i64) -> String {
     let Some(system) = game.system.as_deref() else {
-        return "I don't know which system you're in yet.".into();
+        return lookup::NO_POSITION.into();
     };
     let reference = match game.star_pos {
         Some(pos) => Reference::Coords(pos),
@@ -68,9 +71,7 @@ pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState,
     let by_name = matches!(reference, Reference::System(_));
     let found = stations::find(client, want, reference, filters, 1, now_s).map_err(|e| match e {
         // Spansh's answer to a reference system it doesn't know.
-        astromech_data::Error::Rejected { .. } if by_name => {
-            format!("Spansh doesn't know {system} yet, so I can't search from it.")
-        }
+        astromech_data::Error::Rejected { .. } if by_name => UNKNOWN_SYSTEM.into(),
         e => e.to_string(),
     });
     lookup::spoken(want, system, &found, now_s)
@@ -98,7 +99,7 @@ pub fn faction_answer(
     let here = astromech_galaxy::Here { system, id64: None, pos };
     match galaxy.nearby(q.id, &here, range, 1, filters) {
         Ok(n) => astromech_tools::faction::spoken(&n, now_s),
-        Err(e) => format!("Could not look that up. {e}"),
+        Err(e) => astromech_tools::lookup::failed(&e.to_string()),
     }
 }
 
@@ -370,7 +371,7 @@ mod tests {
         assert_eq!(body["filters"]["has_large_pad"]["value"], true, "an Anaconda needs a large pad");
 
         let lost = GameState::default();
-        assert_eq!(answer(&client, &f, &want, &lost, NOW), "I don't know which system you're in yet.");
+        assert_eq!(answer(&client, &f, &want, &lost, NOW), lookup::NO_POSITION);
     }
 
     /// Spansh's answer to a search from a system it doesn't know (HTTP 400), or the refuel
@@ -409,10 +410,7 @@ mod tests {
         assert_eq!(body["reference_coords"], serde_json::json!({ "x": 0.0, "y": 0.0, "z": 0.0 }));
         // No position yet: a plain answer, not Spansh's "Invalid request".
         let nameless = GameState { star_pos: None, ..here };
-        assert_eq!(
-            answer(&client, &f, &want, &nameless, NOW),
-            "Spansh doesn't know Oochoss XY-Z d1-23 yet, so I can't search from it."
-        );
+        assert_eq!(answer(&client, &f, &want, &nameless, NOW), UNKNOWN_SYSTEM);
     }
 
     /// One "position not known" line for every position-based lookup (astromech-ps6t).

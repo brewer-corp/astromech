@@ -112,3 +112,31 @@ fn a_depleted_rock_gets_only_its_motherlode_line() {
     // Partly mined is still worth it.
     assert_eq!(r.feed(&prospected_left("20:00:02", &[("Platinum", 34.0)], None, 40.0)), ["Platinum 34%."]);
 }
+
+#[test]
+fn the_same_rock_prospected_again_is_said_once() {
+    let mut r = Run::new();
+    let rock = prospected("20:00:00", &[("Platinum", 34.2), ("Painite", 31.5)], None);
+    assert_eq!(r.feed(&rock), ["Painite 31%. Platinum 34%."]);
+    // A second limpet on it, seconds later, in any order of the ores.
+    assert!(r.feed(&prospected("20:00:09", &[("Platinum", 34.2), ("Painite", 31.5)], None)).is_empty());
+    assert!(r.feed(&prospected("20:00:20", &[("Painite", 31.5), ("Platinum", 34.2)], None)).is_empty());
+    // Another rock still gets its own line, and so does the motherlode of a rock already heard.
+    assert_eq!(r.feed(&prospected("20:00:30", &[("Platinum", 28.0)], None)), ["Platinum 28%."]);
+    assert_eq!(
+        r.feed(&prospected("20:00:40", &[("Platinum", 34.2), ("Painite", 31.5)], Some("Opal"))),
+        ["Motherlode. Void Opals. Painite 31%."]
+    );
+    // Limpets sent at the same rock again, long after, are heard again.
+    assert_eq!(r.feed(&rock.replace("20:00:00", "20:30:00")), ["Painite 31%. Platinum 34%."]);
+}
+
+#[test]
+fn a_rock_below_threshold_is_not_remembered() {
+    let mut r = Run::new();
+    let rock = prospected("20:00:00", &[("Platinum", 34.0)], None);
+    r.thresholds.write().unwrap().set("platinum", Some(40.0)).unwrap();
+    assert!(r.feed(&rock).is_empty());
+    r.thresholds.write().unwrap().reset("platinum");
+    assert_eq!(r.feed(&rock), ["Platinum 34%."], "the threshold changed, so the rock is news");
+}

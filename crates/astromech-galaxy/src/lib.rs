@@ -25,6 +25,10 @@ pub use filters::{Facts, Filters, Pad};
 pub use map::{estimate, Hop, StarMap};
 pub use powerplay::{Logistics, LogisticsPoint, Target, TargetHit, Targets};
 pub use remote::{query, Faction, Hit, Query, QUERIES};
+/// The lookup warning when Spansh returns systems without the requested state.
+pub const NEARBY_MISMATCH_WARNING: &str =
+    "Spansh returned systems without the requested state; its search filter may have changed.";
+
 pub use sites::{site_kind, SiteHit, SiteKind, Sites, SITE_KINDS};
 pub use store::{dist, Sphere, Star, Store};
 pub use visits::{visits_from_journal_dir, visits_from_lines, Visit};
@@ -210,7 +214,7 @@ impl Galaxy {
             .into_iter()
             .find(|s| s.name.eq_ignore_ascii_case(name))
             .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
-            .ok_or_else(|| anyhow::anyhow!("Spansh doesn't know a system called {name}."))
+            .ok_or_else(|| anyhow::anyhow!("Spansh does not know a system called {name}."))
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -351,9 +355,8 @@ impl Galaxy {
             Some(search) => {
                 let page = self.remote.spansh_bodies(&search)?;
                 let found = sites::from_bodies(kind, &page.value.results);
-                let warning = (!page.value.results.is_empty() && found.is_empty()).then(|| {
-                    format!("Spansh returned bodies without {}; its search filter may have changed.", kind.noun)
-                });
+                let warning =
+                    (!page.value.results.is_empty() && found.is_empty()).then(|| sites::mismatch_warning(kind));
                 ("Spansh", page.fetched_at, found, warning)
             }
             None => ("astromech", now, sites::from_farms(here.pos), None),
@@ -442,9 +445,8 @@ impl Galaxy {
     ) -> Nearby {
         let n = hits.len();
         let matched: Vec<Hit> = hits.into_iter().filter(|h| q.matches(h)).collect();
-        let warning = (n > 0 && matched.is_empty() && q.min_population == 0).then(|| {
-            "Spansh returned systems without the requested state; its search filter may have changed.".to_string()
-        });
+        let warning =
+            (n > 0 && matched.is_empty() && q.min_population == 0).then(|| NEARBY_MISMATCH_WARNING.to_string());
         {
             let mut s = self.store();
             let _ = s.insert_systems(matched.iter().map(|h| (h.id64, h.name.as_str(), h.pos())));
@@ -495,6 +497,20 @@ fn hop_on(map: Option<&StarMap>, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
 /// Journal lines `here_from_journal_dir` and `visits_from_journal_dir` read (quoted event names).
 pub const POSITION_EVENTS: &[&str] = &["\"Location\"", "\"FSDJump\"", "\"CarrierJump\""];
 
+/// Every journal line the Engineering page's state is built from (`build_journal_state` in the
+/// app window), as the patterns its readers pre-filter with: fleet, engineers, the material
+/// ledger, and here and visits. A cache that watches the journals for changes watches exactly
+/// these (astromech-ldiz).
+pub fn engineering_journal_events() -> Vec<&'static str> {
+    [
+        astromech_engineering::FLEET_EVENTS,
+        astromech_engineering::engineers::EVENTS,
+        astromech_materials::LEDGER_EVENTS,
+        POSITION_EVENTS,
+    ]
+    .concat()
+}
+
 /// Newest `Location` / `FSDJump` / `CarrierJump` with `StarPos`, newest journal first.
 pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
     let mut logs = astromech_journal::journal_logs(dir);
@@ -517,6 +533,19 @@ pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_engineering_watch_list_has_every_reader_s_lines() {
+        let w = super::engineering_journal_events();
+        for list in [
+            astromech_engineering::FLEET_EVENTS,
+            astromech_engineering::engineers::EVENTS,
+            astromech_materials::LEDGER_EVENTS,
+            super::POSITION_EVENTS,
+        ] {
+            assert!(list.iter().all(|e| w.contains(e)), "{list:?} missing from {w:?}");
+        }
+    }
+
     use super::*;
     use astromech_data::{Cache, Client, Limiter, Request, Response, Transport, TransportError};
 
@@ -629,7 +658,7 @@ mod tests {
         assert_eq!(sd.pos, [55.71875, 17.59375, 27.15625]);
 
         let err = g.locate("Shin").unwrap_err().to_string();
-        assert_eq!(err, "Spansh doesn't know a system called Shin.", "a prefix is not a system");
+        assert_eq!(err, "Spansh does not know a system called Shin.", "a prefix is not a system");
     }
 
     #[test]
