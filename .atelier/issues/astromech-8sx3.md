@@ -4,6 +4,9 @@ id: "astromech-8sx3"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8sx3
 priority: "P1"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Bodies known to EDSM in the arrival briefing"
-updated_at: "2026-10-17T17:01:41.827505765+00:00"
+updated_at: "2026-10-17T19:12:02.031014088+00:00"
 ---
 
 ## Goal

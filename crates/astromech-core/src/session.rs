@@ -182,6 +182,12 @@ impl Session {
         shared.known_bio.set(Arc::new(crate::biology::SpanshBiology::new(astromech_data::Client::new(
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
         ))));
+        // The process's one remote-data client: the bodies-known callout looks up through it,
+        // as the voice lookups below do.
+        let (remote, galaxy) = remote_data(&data, Arc::new(astromech_data::HttpTransport::new()));
+        shared
+            .known_bodies
+            .set(Arc::new(crate::known_bodies::EdsmBodies::new(remote.clone(), Arc::new(|s: &str| log(s)))));
         shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
         // The route follower is the `route_follow` callout rule: live arrivals only.
         shared.follower.set(route.clone());
@@ -305,7 +311,6 @@ impl Session {
             skip_window_checks: cfg.actions.dry_run && !cfg!(windows),
             ..Default::default()
         };
-        let (remote, galaxy) = remote_data(&data, Arc::new(astromech_data::HttpTransport::new()));
         let runner = Arc::new(Runner {
             policy: Policy::new(platform, pcfg),
             hub: hub.clone(),

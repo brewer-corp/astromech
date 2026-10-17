@@ -3,8 +3,8 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, biology, builtin, discovery, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector,
-    route, sampling, scan, session_summary, signals,
+    arrival, biology, builtin, discovery, docking, fuel, hge, known_bodies, missions, powerplay_arrival,
+    project_market, prospector, route, sampling, scan, session_summary, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -35,6 +35,7 @@ fn callout_lines() -> Vec<String> {
             "docking",
             "fuel_range",
             "hge",
+            "known_bodies",
             "materials_cap",
             "missions",
             "powerplay_arrival",
@@ -100,6 +101,9 @@ fn callout_lines() -> Vec<String> {
     }
     for next in [2, 3] {
         v.push(sampling::line(next));
+    }
+    for (bodies, total) in [(0, None), (1, None), (12, None), (999, None), (1, Some(2)), (998, Some(999))] {
+        v.extend(known_bodies::line(known_bodies::Known { bodies, total }));
     }
     for n in [1, 2, 99] {
         v.push(biology::count_line(n, false));

@@ -7,7 +7,8 @@ that controls it.
 
 **What they need:** Elite running, the speech models installed and set up (see
 [Getting started](getting-started.md)). They come from the journal and the game's status files,
-so no network is needed except for the biology other players found. Most also appear as a
+so no network is needed except for the biology other players found and the bodies known to
+EDSM. Most also appear as a
 **toast**, a small note in the corner of the astromech window for a few seconds, if the window is
 open. A callout is never spoken for something that happened before astromech started: starting
 mid-session is silent until the next live event.
@@ -80,6 +81,20 @@ Id: `biology`. Part of the arrival briefing and the FSS.
 
 Values are Vista Genomics base values, before the first-logged bonus. Per-body signal counts
 are never spoken because the FSS shows them. See [Exploration](exploration.md#biology).
+
+## Bodies known to EDSM
+
+Id: `known_bodies`. Part of the arrival briefing. How much of the system other players have
+already scanned, so you know whether it is worth scanning yourself.
+
+- On arrival: **"2 of 9 bodies known."**: the bodies EDSM has against the system's body count.
+  **"12 bodies known."** when EDSM has no body count, and **"No bodies known."** when EDSM has no
+  bodies there or does not know the system. It is also said on login, once per system.
+- A system EDSM knows every body of says nothing. That is most of populated space.
+
+It needs internet (EDSM). If the answer arrives late it is said within the first minute after
+the jump; if EDSM is offline or slow, nothing is said and the reason goes to the log. EDSM's
+answer is reused for a week. Turn it off with `[callouts.known_bodies] enabled = false`.
 
 ## Powerplay arrival
 

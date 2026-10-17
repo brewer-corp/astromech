@@ -150,6 +150,7 @@ pub mod discovery;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod known_bodies;
 pub mod materials_cap;
 pub mod missions;
 pub mod powerplay_arrival;
@@ -177,6 +178,8 @@ pub struct Shared {
     /// Biology other players reported (Spansh), for the arrival's biology line (the core
     /// plugs it in).
     pub known_bio: biology::SharedKnownBio,
+    /// Bodies known to EDSM, for the arrival's bodies line (the core plugs it in).
+    pub known_bodies: known_bodies::SharedKnownBodies,
     /// The commander's session history, for the session summary (the core plugs it in).
     pub sessions: session_summary::SharedSessions,
     /// The route the core follows (the core plugs it in).
@@ -195,6 +198,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         }),
         Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
         Box::new(biology::Biology::new(shared.known_bio.clone())),
+        Box::new(known_bodies::KnownBodiesRule::new(shared.known_bodies.clone())),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
