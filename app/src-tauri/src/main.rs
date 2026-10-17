@@ -690,6 +690,24 @@ async fn galaxy_sites(
     .await
 }
 
+/// Colonisation candidates near `origin` or the commander: unclaimed systems within 15 ly of a
+/// populated one, with a body of `interest`, and jumps at the current ship's range.
+#[tauri::command]
+async fn colony_candidates(
+    app: tauri::AppHandle,
+    interest: astromech_galaxy::Interest,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let c = g.colony_candidates(interest, &here, range, 10, &filters).map_err(|e| e.to_string())?;
+        serde_json::to_value(c).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Where to sell or buy `commodities` (journal symbols) near `origin` or the commander, best
 /// price first (Ardent Insight), with jumps at the current ship's range.
 #[tauri::command]
@@ -1109,6 +1127,7 @@ fn main() {
             odyssey_shopping,
             galaxy_nearby,
             galaxy_sites,
+            colony_candidates,
             stations_nearby,
             galaxy_systems,
             trade_search,

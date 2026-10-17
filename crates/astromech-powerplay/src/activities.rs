@@ -108,6 +108,16 @@ pub fn rules_version() -> RulesVersion {
     RulesVersion { version: f.version, fetched: f.fetched.clone() }
 }
 
+/// The name of `power`'s commodity for a `work` target (acquisition, reinforcement or undermining).
+pub fn commodity(power: &str, work: Work) -> Option<&'static str> {
+    let c = file().commodities.get(power)?;
+    Some(match work {
+        Work::Acquire => &c.acquire,
+        Work::Reinforce => &c.reinforce,
+        Work::Undermine => &c.undermine,
+    })
+}
+
 impl SystemPower {
     /// Two or more powers, `me` among them, past the conflict threshold in an unoccupied system.
     fn in_conflict(&self, me: &str, threshold: f64) -> bool {
