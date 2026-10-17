@@ -20,9 +20,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T00:03:59.650193349+00:00"
+status: "done"
 title: "Start or re-point the history follower when the journal folder changes"
-updated_at: "2026-10-16T23:55:32.126559734+00:00"
+updated_at: "2026-10-17T00:03:59.650193349+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ After a successful set_folders the follower starts (or re-points) without a rest
 ## Context
 
 `crates/astromech-core/src/app.rs` (startup history start), `history.rs` (OnceLock follower). Found in review of the astromech-ipb5 main merge.
+
+## Close Reason
+
+History follower now starts or re-points after set_folders without a restart; old follower's thread is joined before the new one opens the database. Proof: evidence astromech-9m4k, astromech-sjma.
