@@ -9,6 +9,7 @@ import Engineers from "../../modules/unlocks/View.svelte";
 import Logbook from "../../modules/logbook/View.svelte";
 import Session from "../../modules/session/View.svelte";
 import Mining from "../../modules/mining/View.svelte";
+import Trade from "../../modules/trade/View.svelte";
 import Station from "../../modules/station/View.svelte";
 import Colonisation from "../../modules/colonisation/View.svelte";
 import Exploration from "../../modules/exploration/View.svelte";
@@ -49,7 +50,8 @@ const PAGES: Page[] = [
   { name: "Engineers", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
   { name: "Logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
   { name: "Session", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
-  { name: "Mining", view: Mining as unknown as Component, empty: /No mining yet/, loading: /Reading the run…/, failed: /The core isn't running/ },
+  { name: "Mining", view: Mining as unknown as Component, empty: /No mining yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
+  { name: "Trade", view: Trade as unknown as Component, empty: /None found/, loading: /Asking Ardent Insight…/, failed: /trade_search failed on purpose/ },
   { name: "Station", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
   { name: "Colonisation", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },
   { name: "Exploration", view: Exploration as unknown as Component, empty: /No system in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the system: / },
@@ -70,6 +72,11 @@ describe.each(PAGES)("$name", (p) => {
     at("?slow=never");
     render(p.view);
     expect((await screen.findAllByText(p.loading)).length).toBeGreaterThan(0);
+    // Still waiting once the first poll has had time to answer: the call really is pending.
+    await new Promise((r) => setTimeout(r, 120));
+    expect(screen.queryAllByText(p.loading).length).toBeGreaterThan(0);
+    expect(screen.queryByText(p.empty)).toBeNull();
+    expect(screen.queryByText(/Could not|failed on purpose/)).toBeNull();
   });
 
   it("says what failed, with no stuck waiting text", async () => {
