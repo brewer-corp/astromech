@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T06:26:55.652859271+00:00"
+status: "done"
 title: "Shell opens the core's files through the core's own path rules"
-updated_at: "2026-10-17T06:13:20.781993467+00:00"
+updated_at: "2026-10-17T06:26:55.652859271+00:00"
 ---
 
 ## Goal
@@ -33,3 +34,7 @@ A test of the shared rule covers portable mode, the override and the default; th
 ## Context
 
 Review findings astromech-0ohq and astromech-9gjv on astromech-n1ij. Related: astromech-zs2q.
+
+## Close Reason
+
+astromech_store::Paths is the one path rule; core Config and the shell use it; the shell opens galaxy.db, history.sqlite, outfitting.sqlite, astromech.sqlite, the remote cache and astromech.toml through it.
