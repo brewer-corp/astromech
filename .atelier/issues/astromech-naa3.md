@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:46:38.568267262+00:00"
+status: "done"
 title: "The tray menu has no Check for updates, though the release notes and design say it does"
-updated_at: "2026-10-17T19:42:19.373155798+00:00"
+updated_at: "2026-10-17T19:46:38.568267262+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ updated_at: "2026-10-17T19:42:19.373155798+00:00"
 ## Done when
 
 Either the tray gets a Check for updates item or the release notes and design text are corrected. Found while writing the user guide (docs/guide/getting-started.md describes the code).
+
+## Close Reason
+
+Tray item added in PR 137; unit test for the item's state; tray wiring unverified off Windows
