@@ -44,8 +44,9 @@ pub struct Session {
     pub stt: Option<Box<dyn Stt>>,
     /// Callout toasts for the app window.
     pub toasts: Arc<Toasts>,
-    /// Prospector thresholds the running rule reads; Settings changes go here too.
-    pub prospector: astromech_announce::prospector::SharedThresholds,
+    /// What the running rules read that the window changes (prospector thresholds, the
+    /// shopping list).
+    pub shared: astromech_announce::Shared,
     stop: Arc<AtomicBool>,
     _pipe: crate::pipeline::Pipeline,
     _callouts: SpeechOut,
@@ -148,12 +149,14 @@ impl Session {
         // 2. Game state pipeline, feeding the callouts (spoken once the speaker exists, step 3).
         let hub = Arc::new(StateHub::new());
         let jdir = cfg.journal_dir().context("can't find the journal folder; set game.journal_dir")?;
-        let prospector: astromech_announce::prospector::SharedThresholds = Arc::new(RwLock::new(
-            astromech_store::Store::open(&data.join("astromech.sqlite"))
-                .map(|st| callouts::load_thresholds(&st))
-                .unwrap_or_default(),
-        ));
-        let engine = astromech_announce::Engine::new(astromech_announce::builtin(prospector.clone()), &cfg.callouts);
+        let shared = match astromech_store::Store::open(&data.join("astromech.sqlite")) {
+            Ok(st) => astromech_announce::Shared {
+                prospector: Arc::new(RwLock::new(callouts::load_thresholds(&st))),
+                shopping: Arc::new(RwLock::new(callouts::load_shopping(&st))),
+            },
+            Err(_) => astromech_announce::Shared::default(),
+        };
+        let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
         }
@@ -314,7 +317,7 @@ impl Session {
             voice,
             stt,
             toasts,
-            prospector,
+            shared,
             stop: Arc::new(AtomicBool::new(false)),
             _pipe: pipe,
             _callouts: speech_out,

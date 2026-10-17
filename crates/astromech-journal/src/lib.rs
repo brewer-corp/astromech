@@ -109,6 +109,13 @@ pub enum JournalEvent {
         star_pos: Option<[f64; 3]>,
         /// The system's Powerplay fields, if it has any.
         powerplay: Option<Box<SystemPowerplay>>,
+        /// Tonnes of fuel the jump used and left in the main tank (`FuelUsed`, `FuelLevel`;
+        /// `FSDJump` only).
+        fuel_used: Option<f64>,
+        fuel_level: Option<f64>,
+        /// A supercharged or injected jump (`BoostUsed`: neutron, white dwarf, FSD injection):
+        /// the distance is boosted but the fuel is an ordinary jump's.
+        boost_used: bool,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -118,6 +125,10 @@ pub enum JournalEvent {
         signal_name: Option<String>,
         is_station: bool,
         system_address: Option<i64>,
+        /// The minor faction that spawned a USS and its state (`SpawningFaction`,
+        /// `SpawningState`, localised when the game gives it: "Boom").
+        spawning_faction: Option<String>,
+        spawning_state: Option<String>,
     },
     Docked {
         station_name: String,
@@ -258,7 +269,7 @@ pub struct EngineerSnap {
 }
 
 /// One minor faction on `Location` / `FSDJump` / `CarrierJump`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct FactionSnap {
     pub name: String,
     pub allegiance: String,
@@ -303,6 +314,17 @@ pub struct CargoItem {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct NavRouteSnap {
     pub systems: Vec<String>,
+    /// The same systems with their star class and position.
+    pub hops: Vec<RouteHop>,
+}
+
+/// One system of `NavRoute.json`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct RouteHop {
+    pub system: String,
+    /// `StarClass` as the game writes it: "K", "DA", "N", "M_RedGiant", ...
+    pub star_class: Option<String>,
+    pub star_pos: Option<[f64; 3]>,
 }
 
 struct Head {
@@ -407,6 +429,9 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
             powerplay: system_powerplay(&raw),
+            fuel_used: opt_f(&raw, "FuelUsed"),
+            fuel_level: opt_f(&raw, "FuelLevel"),
+            boost_used: opt_f(&raw, "BoostUsed").is_some_and(|b| b > 0.0),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -420,6 +445,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
                 signal_name: opt_s(&raw, "SignalName"),
                 is_station: raw.get("IsStation").and_then(|x| x.as_bool()).unwrap_or(false),
                 system_address: opt_i(&raw, "SystemAddress"),
+                spawning_faction: opt_s(&raw, "SpawningFaction_Localised").or_else(|| opt_s(&raw, "SpawningFaction")),
+                spawning_state: opt_s(&raw, "SpawningState_Localised").or_else(|| opt_s(&raw, "SpawningState")),
             }
         }
         "Docked" => JournalEvent::Docked {
@@ -706,9 +733,17 @@ pub fn parse_cargo(bytes: &[u8]) -> Option<CargoSnap> {
 pub fn parse_nav_route(bytes: &[u8]) -> Option<NavRouteSnap> {
     let v: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let route = v.get("Route").and_then(|x| x.as_array())?;
-    let systems =
-        route.iter().filter_map(|s| s.get("StarSystem").and_then(|x| x.as_str()).map(str::to_string)).collect();
-    Some(NavRouteSnap { systems })
+    let hops: Vec<RouteHop> = route
+        .iter()
+        .filter_map(|h| {
+            Some(RouteHop {
+                system: h.get("StarSystem")?.as_str()?.to_string(),
+                star_class: opt_s(h, "StarClass"),
+                star_pos: star_pos(h),
+            })
+        })
+        .collect();
+    Some(NavRouteSnap { systems: hops.iter().map(|h| h.system.clone()).collect(), hops })
 }
 
 fn is_journal_name(n: &str) -> bool {
@@ -786,6 +821,9 @@ mod tests {
                 system_address: None,
                 star_pos: None,
                 powerplay: None,
+                fuel_used: None,
+                fuel_level: None,
+                boost_used: false,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
@@ -991,6 +1029,31 @@ mod tests {
         )
         .unwrap();
         assert_eq!(r.systems, vec!["Sol", "Barnard's Star"]);
+        let r = parse_nav_route(
+            br#"{ "event":"NavRoute", "Route":[{"StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0.0,0.0,0.0],"StarClass":"G"},{"StarSystem":"Barnard's Star","StarPos":[-3.03125,1.375,4.9375],"StarClass":"M"}] }"#,
+        )
+        .unwrap();
+        assert_eq!(
+            r.hops[1],
+            RouteHop {
+                system: "Barnard's Star".into(),
+                star_class: Some("M".into()),
+                star_pos: Some([-3.03125, 1.375, 4.9375])
+            }
+        );
+        let j = parse_line(
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Sol","JumpDist":8.5,"FuelUsed":1.25,"FuelLevel":30.5}"#,
+        )
+        .unwrap();
+        assert!(matches!(
+            j.event,
+            JournalEvent::FsdJump { fuel_used: Some(1.25), fuel_level: Some(30.5), boost_used: false, .. }
+        ));
+        let j = parse_line(
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Sol","JumpDist":80.0,"FuelUsed":1.25,"BoostUsed":4}"#,
+        )
+        .unwrap();
+        assert!(matches!(j.event, JournalEvent::FsdJump { boost_used: true, .. }));
     }
 
     #[test]
@@ -1017,6 +1080,16 @@ mod tests {
             JournalEvent::FssSignal { high_grade, .. } => assert!(high_grade),
             _ => panic!("expected FSS"),
         }
+        // The game's own shape: a salvage type localised as High Grade Emissions, with who spawned it.
+        let l = parse_line(
+            r#"{ "timestamp":"t", "event":"FSSSignalDiscovered", "SystemAddress":1, "SignalName":"$USS_HighGradeEmission;", "SignalName_Localised":"Unidentified signal source", "USSType":"$USS_Type_VeryValuableSalvage;", "USSType_Localised":"High grade emissions", "SpawningState":"$FactionState_Boom_desc;", "SpawningState_Localised":"Boom", "SpawningFaction":"Empire League", "ThreatLevel":0, "TimeRemaining":1800.5 }"#,
+        )
+        .unwrap();
+        assert!(matches!(
+            l.event,
+            JournalEvent::FssSignal { high_grade: true, ref spawning_faction, ref spawning_state, .. }
+                if spawning_faction.as_deref() == Some("Empire League") && spawning_state.as_deref() == Some("Boom")
+        ));
         let l = parse_line(
             r#"{ "timestamp":"t", "event":"CarrierJump", "StarSystem":"Alioth", "SystemAllegiance":"Alliance", "Population":1000 }"#,
         )

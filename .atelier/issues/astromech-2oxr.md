@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T01:58:01.809924613+00:00"
+status: "done"
 title: "Route hazards from NavRoute"
-updated_at: "2026-10-15T20:36:13.654316291+00:00"
+updated_at: "2026-10-17T01:58:01.809924613+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ A route fixture with a white dwarf and a fuel gap gives one hazard line for each
 ## Context
 
 Star class is in NavRoute.
+
+## Close Reason
+
+A plotted route gives one line per hazard (fuel risk, summary, white dwarfs, neutron stars) from NavRoute.json, fed to the engine as a deduplicated route event (evidence astromech-u4nf).
