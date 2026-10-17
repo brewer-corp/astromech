@@ -165,3 +165,36 @@ fn a_session_that_ended_before_astromech_started_is_not_summarised_again() {
     r.spoken(SHUTDOWN);
     assert!(r.tick(NOW).is_empty());
 }
+
+#[test]
+fn a_catch_up_that_ends_in_the_shutdown_leaves_nothing_to_summarise() {
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(SHUTDOWN);
+    r.engine.set_live(true);
+    r.spoken(MENU);
+    assert!(r.tick(NOW).is_empty());
+}
+
+#[test]
+fn a_crashed_session_is_not_summarised_by_the_next_launch() {
+    // The catch-up holds a session that never logged out (a crash), then the next run's file.
+    let (mut r, h) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:00Z","event":"Fileheader","part":1,"gameversion":"4.0","build":"b"}"#);
+    r.engine.set_live(true);
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:01Z","event":"Music","MusicTrack":"MainMenu"}"#);
+    assert!(r.tick(NOW + 40_000).is_empty());
+    assert!(h.1.lock().unwrap().is_empty(), "nothing was even asked");
+
+    // A rollover to part 2 is the same session.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(r#"{"timestamp":"2026-10-16T20:00:00Z","event":"Fileheader","part":2,"gameversion":"4.0","build":"b"}"#);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert_eq!(r.tick(NOW), SAID);
+}

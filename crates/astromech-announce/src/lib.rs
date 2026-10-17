@@ -6,8 +6,9 @@
 //!
 //! - **Replay is silent.** While not live ([`Engine::set_live`]; the pipeline says which events
 //!   are: not the startup catch-up of the journal and Status.json, not a journal re-read as a
-//!   replay) no rule runs. The engine still tracks docking and combat from those events so quiet
-//!   is right at once.
+//!   replay) no rule reacts. The engine still tracks docking and combat from those events so
+//!   quiet is right at once, and a rule may be told of them through [`Rule::replayed`] (it must
+//!   not speak) to learn where the catch-up left the game.
 //! - **Per-rule toggle and cooldown** from [`Settings`] (`[callouts.<rule id>]` in
 //!   `astromech.toml`). A disabled rule is never asked. A rule that fired stays silent for its
 //!   cooldown, so a burst of the same event gives one callout; only a callout of higher
