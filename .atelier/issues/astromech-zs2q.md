@@ -21,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:58:07.172863174+00:00"
+status: "done"
 title: "Share one persistent data client across core and shell"
-updated_at: "2026-10-17T05:46:38.267746140+00:00"
+updated_at: "2026-10-17T05:58:07.172863174+00:00"
 ---
 
 ## Goal
@@ -40,3 +41,7 @@ One astromech-data `Client` per process, with a persistent cache, so rate limits
 ## Context
 
 From the independent review of astromech-h74l (R3, R4, R5, R8). Today `Galaxy::with_store` builds its own in-memory `Client`, so the limiter and cache are per `Client`; `Client::fetch_with` propagates `Error::Cache`; `Cache::put` never deletes; `Error::Schema` prints `({detail})`.
+
+## Close Reason
+
+One Arc<Client> per process (core session, shell startup) passed to galaxy and the runner's lookups; cache errors logged as misses with busy_timeout; expired rows pruned on put; spoken Error::Schema. Also covers review findings astromech-5zxz, astromech-anht, astromech-ay9o.
