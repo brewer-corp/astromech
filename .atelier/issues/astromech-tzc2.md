@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T05:03:49.266348809+00:00"
+status: "done"
 title: "Unsold data value"
-updated_at: "2026-10-17T04:39:43.055372851+00:00"
+updated_at: "2026-10-17T05:03:49.266348809+00:00"
 ---
 
 ## Goal
@@ -24,3 +25,7 @@ Running value of unsold cartographic and organic data, the nearest Vista Genomic
 ## Done when
 
 Replaying scans and a sale gives the right running total, reset by the sale.
+
+## Close Reason
+
+Unsold cartographic and organic value tracked from the history, reset by sales and death; reminder at 50 M cr; nearest UC / Vista Genomics via the search kit.

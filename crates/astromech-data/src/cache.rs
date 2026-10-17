@@ -18,6 +18,8 @@ impl Cache {
             let _ = std::fs::create_dir_all(d);
         }
         let db = Connection::open(path)?;
+        // The core and the app window share this file: wait for the other's write, not fail.
+        db.busy_timeout(std::time::Duration::from_secs(5))?;
         db.execute_batch("PRAGMA journal_mode=WAL;")?;
         db.execute_batch(SCHEMA)?;
         Ok(Cache { db })

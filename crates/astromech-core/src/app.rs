@@ -666,10 +666,10 @@ impl Core {
                 let creds = edsm_credentials(&self.cfg().edsm, self.secrets.as_ref());
                 match creds {
                     Ok(Some(c)) => {
-                        let api = astromech_eddn::edsm::api::HttpApi::new(&format!(
-                            "astromech/{}",
-                            env!("CARGO_PKG_VERSION")
-                        ));
+                        let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
+                            &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
+                            astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
+                        );
                         match astromech_eddn::edsm::api::flight_log(&api, &c) {
                             Ok(visits) => json!({"ok": true, "visits": visits}),
                             Err(e) => json!({"ok": false, "error": e}),
@@ -860,7 +860,9 @@ fn outbox_status(p: &Path, mut base: Value) -> Value {
         let mut v = base.clone();
         v["pending"] = json!(o.pending()?);
         v["last_sent"] = json!(o.recent_of(&[Sent], 1)?.pop());
-        v["last_error"] = json!(o.recent_of(&[Rejected, Retry, GaveUp], 1)?.pop());
+        // EDSM: errors logged before the commander name or key last changed are out of date.
+        let cleared = o.meta(astromech_eddn::edsm::ERRORS_CLEARED)?.and_then(|t| t.parse::<i64>().ok());
+        v["last_error"] = json!(o.recent_of_after(&[Rejected, Retry, GaveUp], cleared.unwrap_or(0), 1)?.pop());
         v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp, Discarded], 50)?);
         v["skipped"] = json!(o.recent_of(&[Dropped], 50)?);
         Ok(v)
@@ -1341,6 +1343,14 @@ mod tests {
         assert_eq!(v["last_error"]["at"], 12, "{}", v["last_error"]);
         let details: Vec<&Value> = v["log"].as_array().unwrap().iter().take(2).map(|e| &e["detail"]).collect();
         assert_eq!(details, [&json!("outbox full: 1 oldest dropped"), &json!("switched off: 1 queued discarded")]);
+
+        // EDSM: changing the commander name or key makes the errors before it out of date.
+        o.set_meta(astromech_eddn::edsm::ERRORS_CLEARED, &o.last_log_id().unwrap().to_string()).unwrap();
+        assert!(eddn_log(d.path(), true, false)["last_error"].is_null());
+        // An error from the same second, logged after the change (a key that is still wrong), shows.
+        let at = v["log"][0]["at"].as_i64().unwrap();
+        o.log(at, r, astromech_eddn::Outcome::Retry, "still wrong").unwrap();
+        assert_eq!(eddn_log(d.path(), true, false)["last_error"]["detail"], "still wrong");
     }
 
     fn set_edsm(core: &Arc<Core>, args: Value) -> Value {

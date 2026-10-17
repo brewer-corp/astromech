@@ -158,6 +158,15 @@ impl Worker {
         Ok(Self { tx, stop })
     }
 
+    /// A handle that does what [`Worker::wake`] does, for code that outlives a borrow of the
+    /// worker (the EDSM switch wakes the uploader when the credentials change).
+    pub fn waker(&self) -> impl Fn() + Send + Sync + 'static {
+        let tx = self.tx.clone();
+        move || {
+            let _ = tx.send(Signal::Wake);
+        }
+    }
+
     /// Something was queued: deliver it now. Never blocks.
     pub fn wake(&self) {
         let _ = self.tx.send(Signal::Wake);

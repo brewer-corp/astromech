@@ -18,10 +18,12 @@
 //!   the same journal folder can hold several commanders, and Legacy-mode play.
 
 mod commander;
+mod exploration;
 mod ledgers;
 mod logbook;
 mod session;
 
+pub use exploration::{Landing, UnsoldData};
 pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
 pub use logbook::{Logbook, Place, Totals};
 pub use session::{EarningTotal, Session};

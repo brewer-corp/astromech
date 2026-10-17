@@ -696,7 +696,11 @@
         "name": "Painite"
       },
       {
-        "best": {
+        "best": null,
+        "carried": 100,
+        "commodity": "platinum",
+        "name": "Platinum",
+        "partial": {
           "arrival_ls": 2404.246255,
           "commodity": "platinum",
           "exact": false,
@@ -711,11 +715,8 @@
           "station_type": "Outpost",
           "system": "LFT 65",
           "updated_at": "2026-10-16T03:39:59.000Z",
-          "volume": 2479
-        },
-        "carried": 100,
-        "commodity": "platinum",
-        "name": "Platinum"
+          "volume": 73
+        }
       }
     ],
     "stations": [

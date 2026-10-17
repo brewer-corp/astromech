@@ -1,5 +1,6 @@
 //! The arrival briefing's "been here before" (astromech-2myu): visit counts from the `visits`
-//! ledger of `history.sqlite`.
+//! ledger of `history.sqlite`, and the bodies landed on there (astromech-ce4s,
+//! `History::landings_before`).
 //!
 //! The reaction engine runs on the pipeline thread and must never block, and the history
 //! follower is the database's only writer. So this keeps one read-only connection (WAL lets it
@@ -9,7 +10,7 @@
 //! one being announced keeps that arrival out of its own count, whether or not the follower
 //! has imported it yet.
 
-use astromech_announce::arrival::{Past, VisitHistory};
+use astromech_announce::arrival::{Landed, Past, VisitHistory};
 use astromech_history::History;
 use std::path::PathBuf;
 use std::sync::Mutex;
@@ -29,22 +30,38 @@ impl HistoryVisits {
     }
 }
 
-impl VisitHistory for HistoryVisits {
-    fn before(&self, commander: &str, system_address: i64, before: &str) -> Option<Past> {
+impl HistoryVisits {
+    /// Ask the database, opening it first if needed. A failure reopens it next time (the file
+    /// may have been replaced or migrated).
+    fn ask<T>(&self, q: impl FnOnce(&History) -> astromech_history::Result<T>) -> Option<T> {
         let mut conn = self.conn.try_lock().ok()?;
         if conn.is_none() {
             let h = History::open_read_only(&self.db).ok()?;
             h.conn().busy_timeout(BUSY).ok()?;
             *conn = Some(h);
         }
-        match conn.as_ref()?.visits_before(commander, system_address, before) {
-            Ok(found) => found.map(|(visits, last)| Past { visits: visits.try_into().unwrap_or(u32::MAX), last }),
+        match q(conn.as_ref()?) {
+            Ok(v) => Some(v),
             Err(_) => {
-                // Reopen next time (the file may have been replaced or migrated).
                 *conn = None;
                 None
             }
         }
+    }
+}
+
+impl VisitHistory for HistoryVisits {
+    fn before(&self, commander: &str, system_address: i64, before: &str) -> Option<Past> {
+        let found = self.ask(|h| h.visits_before(commander, system_address, before))?;
+        found.map(|(visits, last)| Past { visits: visits.try_into().unwrap_or(u32::MAX), last })
+    }
+
+    fn landings(&self, commander: &str, system_address: i64, before: &str) -> Vec<Landed> {
+        self.ask(|h| h.landings_before(commander, system_address, before))
+            .unwrap_or_default()
+            .into_iter()
+            .map(|l| Landed { body: l.body, count: l.count })
+            .collect()
     }
 }
 
@@ -96,6 +113,23 @@ mod tests {
         assert_eq!(v.before("Nobody", 1, "2026-10-16T20:00:00Z"), None);
         // The first arrival ever has nothing before it.
         assert_eq!(v.before("Test", 1, "2026-10-01T10:00:00Z"), None);
+    }
+
+    #[test]
+    fn landings_come_from_the_history() {
+        let d = tempfile::tempdir().unwrap();
+        let lines = [
+            r#"{"timestamp":"2026-10-01T09:00:00Z","event":"LoadGame","FID":"F1","Commander":"Test","Ship":"krait_mkii"}"#.to_string(),
+            jump("2026-10-01T10:00:00Z", 1),
+            r#"{"timestamp":"2026-10-01T10:10:00Z","event":"Touchdown","PlayerControlled":true,"StarSystem":"S1","SystemAddress":1,"Body":"S1 A 2","BodyID":4,"OnStation":false,"OnPlanet":true}"#.to_string(),
+            jump("2026-10-16T20:00:00Z", 1),
+        ];
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines.join("\n") + "\n").unwrap();
+        let db = d.path().join("history.sqlite");
+        History::open(&db).unwrap().import(d.path(), &ImportOptions::default()).unwrap();
+        let v = HistoryVisits::new(db);
+        assert_eq!(v.landings("Test", 1, "2026-10-16T20:00:00Z"), [Landed { body: "S1 A 2".into(), count: 1 }]);
+        assert!(v.landings("Test", 1, "2026-10-01T10:05:00Z").is_empty());
     }
 
     #[test]

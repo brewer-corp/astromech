@@ -161,6 +161,9 @@ impl Clock for SystemClock {
     }
 }
 
+/// The file in the app data dir that holds the remote-data cache both processes share.
+pub const CACHE_FILE: &str = "remote_cache.sqlite";
+
 /// The one way to the remote services.
 pub struct Client {
     transport: Arc<dyn Transport>,
@@ -174,6 +177,19 @@ impl Client {
     /// Real HTTP, the system clock and the default rate limits.
     pub fn new(cache: Cache) -> Self {
         Self::with_transport(cache, Arc::new(HttpTransport::new()))
+    }
+
+    /// The client the core and the app window both use: real HTTP, with its cache in
+    /// [`CACHE_FILE`] under `dir`, so an answer fetched by one is served to the other. If the
+    /// file can't be opened the cache lives in memory for this run (`Err` says why).
+    pub fn shared(dir: &std::path::Path) -> (Self, Option<String>) {
+        match Cache::open(&dir.join(CACHE_FILE)) {
+            Ok(c) => (Self::new(c), None),
+            Err(e) => (
+                Self::new(Cache::in_memory().expect("an in-memory SQLite cache always opens")),
+                Some(format!("remote data cache not opened, answers won't be shared: {e}")),
+            ),
+        }
     }
 
     pub fn with_transport(cache: Cache, transport: Arc<dyn Transport>) -> Self {
@@ -254,7 +270,8 @@ impl Client {
         let key = req.cache_key(service.key());
         let now = self.clock.now_s();
         if let Some(ttl) = ttl {
-            if let Some((at, body)) = self.cache().get(&key, now, ttl)? {
+            // A cache that can't be read is a miss: the network may still answer.
+            if let Some((at, body)) = self.cache().get(&key, now, ttl).ok().flatten() {
                 // A stored body that no longer parses (the types changed) is refetched.
                 if let Ok(value) = parse(&body) {
                     return Ok(Fetched { value, fetched_at: at, cached: true });
@@ -264,7 +281,7 @@ impl Client {
         let body = self.send(service, req)?;
         let value = parse(&body)?;
         if ttl.is_some() {
-            self.cache().put(&key, now, &body)?;
+            let _ = self.cache().put(&key, now, &body);
         }
         Ok(Fetched { value, fetched_at: now, cached: false })
     }
