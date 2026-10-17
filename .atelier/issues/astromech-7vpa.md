@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:00:11.262408889+00:00"
+status: "done"
 title: "Exobiology sampling helper"
-updated_at: "2026-10-17T04:57:21.150156394+00:00"
+updated_at: "2026-10-17T05:00:11.262408889+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ Replaying a sampling sequence with positions cues at the genus's colony range.
 ## Context
 
 The most-loved OD Explorer and EDCoPilot exobiology feature. Uses the surface guidance maths.
+
+## Close Reason
+
+Sampling tracker (samples 1-3, positions from Status.json, colony range per genus) and the sampling callout that cues at the colony range; replay-tested.
