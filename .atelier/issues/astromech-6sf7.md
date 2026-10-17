@@ -4,6 +4,9 @@ id: "astromech-6sf7"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-6sf7
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice query for nearby Boom, Famine and War systems"
-updated_at: "2026-10-17T07:38:09.240690092+00:00"
+updated_at: "2026-10-17T07:39:48.763638694+00:00"
 ---
 
 ## Goal
