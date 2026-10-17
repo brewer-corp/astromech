@@ -213,9 +213,12 @@ fn real_journals() {
         let d = std::path::absolute(d).unwrap();
         let existing = d.ancestors().find(|a| a.exists()).unwrap().canonicalize().unwrap();
         let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").canonicalize().unwrap();
-        let inside = existing.starts_with(&repo) || existing.starts_with(src.canonicalize().unwrap());
+        // `..` after a missing folder would escape the check: refuse it outright.
+        let inside = d.components().any(|c| c == std::path::Component::ParentDir)
+            || existing.starts_with(&repo)
+            || existing.starts_with(src.canonicalize().unwrap());
         if inside {
-            eprintln!("real_journals: not writing ASTROMECH_REAL_OUT inside the repository or the journal folder");
+            eprintln!("real_journals: not writing ASTROMECH_REAL_OUT inside the repository or the journal folder (or a path with ..)");
         } else {
             std::fs::create_dir_all(&d).unwrap();
         }
