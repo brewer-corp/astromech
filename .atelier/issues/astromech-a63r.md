@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:14:57.406628626+00:00"
+status: "done"
 title: "System biology summary"
-updated_at: "2026-10-17T05:01:17.631365852+00:00"
+updated_at: "2026-10-17T05:14:57.406628626+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ Replay: the summary updates after FSS and after DSS; an arrival with recorded Sp
 ## Context
 
 Joins the arrival briefing when done.
+
+## Close Reason
+
+Biology callout (Spansh known biology on arrival, FSS summary, DSS body line, ranked by value) and the Galaxy > Biology page via the core's exobiology command; replay- and copy-tested.
