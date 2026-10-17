@@ -4,6 +4,9 @@ id: "astromech-qiey"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-qiey
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spansh and Inara links on current location and stored stations"
-updated_at: "2026-10-16T19:13:12.741983582+00:00"
+updated_at: "2026-10-17T03:23:12.244154511+00:00"
 ---
 
 ## Goal
