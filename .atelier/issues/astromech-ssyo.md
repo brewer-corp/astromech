@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:53:26.259649209+00:00"
+status: "done"
 title: "Search kit: live pad label and tests for the pad and age paths"
-updated_at: "2026-10-17T05:46:39.379439418+00:00"
+updated_at: "2026-10-17T05:53:26.259649209+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ The "Ship's (X)" label in SearchFilters.svelte shows the pad from when the filte
 ## Done when
 
 A ship-change test without re-selecting the lookup fails if the pad isn't re-resolved, the label follows the ship, and the bodies and colony searches have age-in-request tests.
+
+## Close Reason
+
+Pad label follows the ship per search; pad resolution and bodies/colonies age-in-request covered by tests. Gates green at 8de6464; review outstanding.
