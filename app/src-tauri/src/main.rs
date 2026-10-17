@@ -139,11 +139,13 @@ fn data_dir() -> PathBuf {
 fn make_api() -> Result<astromech_keybinds::api::Api, String> {
     let cfg = config();
     let opt = |s: &str| (!s.trim().is_empty()).then(|| PathBuf::from(s.trim()));
-    astromech_keybinds::api::Api::discover(
-        opt(&cfg.game.bindings_dir),
-        opt(&cfg.game.game_dir).as_deref(),
-        data_dir(),
-    )
+    let data = Paths::current().data_dir(&cfg.data_dir);
+    // Saved binding overrides used to live in the app dir whatever `data_dir` said; carry them
+    // across once (never overwriting). A failed copy only means the old overrides aren't seen.
+    if let Err(e) = Paths::current().carry_over("device-overrides.json", &data) {
+        astromech_log::log(&format!("could not carry device-overrides.json over to {}: {e}", data.display()));
+    }
+    astromech_keybinds::api::Api::discover(opt(&cfg.game.bindings_dir), opt(&cfg.game.game_dir).as_deref(), data)
     .map_err(|e| format!("{e:#}"))
 }
 
@@ -281,7 +283,7 @@ fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, a
     let state = match &*g {
         Some((v, p)) if *v == version => p.clone(),
         _ => {
-            let p = astromech_odyssey::journal_state(&dir);
+            let p = astromech_odyssey::journal_state(&dir, &astromech_log::log);
             *g = Some((version, p.clone()));
             p
         }
