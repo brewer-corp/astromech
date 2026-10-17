@@ -1656,7 +1656,7 @@ Implementation notes and divergences from the design above:
     - Noise-only transcripts are ignored.
     - Every push logs down/up times, the hold, the clip length, RMS and the loudest frame.
   - **Mic stream errors.** The WASAPI "A buffer underrun or overrun occurred." is counted and logged, and capture continues. Ring positions count only delivered samples, so an xrun just shortens a clip. A stalled stream (no callback for 1.5 s) or a lost or changed device is rebuilt on the same ring.
-  - **Missing keyboard key.** The spoken refusal now uses Elite's control name: "I can't switch night vision: it isn't bound to anything in your controls. In Elite, open Options, Controls, and give Night Vision a keyboard key."
+  - **Missing keyboard key.** The spoken refusal now uses Elite's control name: "Cannot switch night vision: it is not bound to anything in your controls. In Elite, open Options, Controls, and give Night Vision a keyboard key."
 - **Not in the slice:** the tray, the app window/API, a confirm button, SRV-specific lights, `request docking`, `plot route`, supercruise and jumps (recognised, answered "I can't do that yet").
 
 ### 17.9 M3 voice v1 (11 Oct 2026)

@@ -184,7 +184,7 @@ fn assert_schema_error(r: Result<impl std::fmt::Debug, Error>, service: Service)
             assert_eq!(e.service(), service);
             let msg = e.to_string();
             assert!(msg.starts_with(service.name()), "names the service: {msg}");
-            assert!(msg.contains("doesn't understand"), "plain words: {msg}");
+            assert!(msg.contains("does not understand"), "plain words: {msg}");
         }
         other => panic!("expected a {service} schema error, got {other:?}"),
     }
@@ -242,7 +242,7 @@ fn a_schema_error_is_one_spoken_sentence_without_the_serde_detail() {
     assert_eq!(log.len(), 1);
     assert!(log[0].starts_with("EDSM answer to /api-v1/system failed the schema check: "), "{log:?}");
     assert!(log[0].contains("missing field `coords`"), "the detail is logged: {log:?}");
-    assert_eq!(e.to_string(), "EDSM sent an answer astromech doesn't understand. Its format may have changed.");
+    assert_eq!(e.to_string(), "EDSM sent an answer astromech does not understand. Its format may have changed.");
     match e {
         Error::Schema { detail, .. } => assert!(detail.contains("coords"), "the detail stays in the field: {detail}"),
         e => panic!("{e:?}"),
@@ -330,7 +330,7 @@ fn no_network_gives_a_plain_words_error() {
     assert!(matches!(e, Error::Offline { service: Service::Spansh, .. }), "{e:?}");
     assert_eq!(
         e.to_string(),
-        "Can't reach Spansh. Check your internet connection; if it's working, Spansh may be down."
+        "Cannot reach Spansh. Check your internet connection. If it is working, Spansh may be down."
     );
 
     let (c, rec, _) = client();
@@ -338,7 +338,7 @@ fn no_network_gives_a_plain_words_error() {
     let e = c.ardent_nearest("Sol", StationService::InterstellarFactors, None).unwrap_err();
     assert_eq!(
         e.to_string(),
-        "Can't reach Ardent Insight. Check your internet connection; if it's working, Ardent Insight may be down."
+        "Cannot reach Ardent Insight. Check your internet connection. If it is working, Ardent Insight may be down."
     );
     rec.fail("edsm", TransportError::Timeout);
     assert_eq!(c.edsm_system("Sol").unwrap_err().to_string(), "EDSM took too long to answer. Try again in a minute.");
