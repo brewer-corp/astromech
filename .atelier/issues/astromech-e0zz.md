@@ -4,6 +4,9 @@ id: "astromech-e0zz"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-e0zz
 priority: "P1"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Push-to-talk release is acted on about 210 ms late, leaving no margin in the 400 ms action-start budget"
-updated_at: "2026-10-17T19:22:54.126798893+00:00"
+updated_at: "2026-10-17T23:38:43.196623969+00:00"
 ---
 
 ## Goal
