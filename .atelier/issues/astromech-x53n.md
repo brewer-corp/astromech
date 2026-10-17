@@ -4,6 +4,9 @@ id: "astromech-x53n"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-x53n
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Find a station with every module a build still needs"
-updated_at: "2026-10-15T20:36:13.655103980+00:00"
+updated_at: "2026-10-17T01:17:10.105187572+00:00"
 ---
 
 ## Goal
