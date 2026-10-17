@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-y296
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice: 'all stop' scores 81% on the synthetic eval (throttle.zero, T1)"
-updated_at: "2026-10-17T21:41:11.650963891+00:00"
+updated_at: "2026-10-17T22:19:37.927483926+00:00"
 ---
 
 ## Goal
