@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:34:57.140315876+00:00"
+status: "done"
 title: "Callout toggles and cooldowns in Settings"
-updated_at: "2026-10-17T19:20:54.574454079+00:00"
+updated_at: "2026-10-17T19:34:57.140315876+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ Turning a callout off or changing its cooldown in Settings is written to `[callo
 ## Context
 
 The reaction engine (astromech-ngyt) reads per-rule `enabled` and `cooldown_s` from `[callouts.<id>]` in `astromech.toml`; there is no UI for them yet. Today the window cannot write the config (it opens it in Notepad), so this needs a core command to change it. The prospector thresholds (astromech-omi1) belong on the same page.
+
+## Close Reason
+
+Delivered in PR 134; round-trip tests in core, setup and vitest
