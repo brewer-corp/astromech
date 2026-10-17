@@ -18,9 +18,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T22:31:27.200876165+00:00"
+status: "done"
 title: "A journal started in the repeated hour after a DST fall-back is never live"
-updated_at: "2026-10-17T22:28:22.495366754+00:00"
+updated_at: "2026-10-17T22:31:27.200876165+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A pipeline test with `Journal.2026-11-01T013000.01.log` followed by a newer-writ
 ## Context
 
 Found replaying real journals (astromech-yin0): journal names carry the PC's local time, while the lines inside are stamped in UTC. `crates/astromech-core/src/pipeline.rs` decides live-ness by name (`latest_journal`, `later`): only the latest journal by name is the game's. When a journal is started in the hour after a fall-back (US 1 Nov, EU 25 Oct 2026) and the previous one was started in the same wall-clock hour before it, the new one sorts earlier, so the whole session is replayed silently. The window is narrow (two game starts within the repeated hour). The `Fileheader` `timestamp` is UTC and could order files instead.
+
+## Close Reason
+
+Already covered by astromech-t16r: a journal that sorts before the previous one but whose header agrees with its name (fall-back ambiguity accepted either way) is gated by line freshness and live. Test a_journal_started_in_the_repeated_hour_after_the_clocks_go_back_is_live (America/New_York, exact shape; fails when only the first ambiguous reading is accepted) and a startup test. A touched first journal (latest by name) staying live is filed as astromech-r3s7. Review recorded.
