@@ -20,9 +20,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:00:39.268729455+00:00"
+status: "done"
 title: "Search kit follow-ups: shared settings path, safe migrations, origin Enter, live pad, age filter"
-updated_at: "2026-10-17T04:50:58.805900418+00:00"
+updated_at: "2026-10-17T05:00:39.268729455+00:00"
 ---
 
 ## Goal
@@ -49,3 +50,8 @@ Found in the independent review of feature/astromech-qz9u at 1d1921b (astromech-
 - 2026-10-16 [note] Also (review of qz9u round 3, N1): two overlapping filter changes can clobber each other in SearchKit when the first save fails; use a per-change counter like the search's asked counter.
 - 2026-10-16 [note] R4 (migrations outside a transaction) is fixed on feature/astromech-ipb5 by the astromech-ipb5 review fix: astromech_store::migrate now runs each migration and its user_version bump in one BEGIN IMMEDIATE transaction and re-reads user_version inside it (test failed_migration_rolls_back_whole). It reaches main when astromech-ipb5 merges.
 - 2026-10-16 [note] R7 fixed on feature/astromech-m30a: galaxy_nearby and stations_nearby both re-resolve the pad from the current ship (Filters::for_ship) on every search. The shell isn't unit-testable on Linux; the rule itself is covered by filters::tests::pad_follows_the_ship_unless_the_commander_set_it. The filter box's 'Ship's (X)' label still shows the pad from when the lookup's filters loaded.
+- 2026-10-17 [note] Implemented on task/astromech-n1ij at 2a32d75. R3: shell settings() uses astromech_store::data_dir (shared with Config::data_dir). R4: migrations were already transactional on main; added a concurrent first-open test, which exposed a real 'database is locked' on the WAL pragma, now retried. R6: enterChoice. R7: already server-side on main (search_origin resolves the pad on every search); no new code. R8: pads confirmed against Coriolis data (the wiki is behind a bot wall): Lynx M, Caspian L, Type-11 M, Kestrel S, no change needed. R9: updated_at sent to Spansh for systems, bodies, colony candidates, powerplay targets. N1: per-change counter in SearchKit. Shell main.rs is not compiled on Linux (inspection only).
+
+## Close Reason
+
+All items done on task/astromech-n1ij; awaiting independent review and merge by the orchestrator
