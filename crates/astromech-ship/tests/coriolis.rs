@@ -228,7 +228,8 @@ fn fer_de_lance_combat() {
             ("hull_caustic", Some("0.0")),
             ("module_armour", Some("235")),
             ("dps", Some("124.5")),
-            ("sustained_dps", Some("136.2")),
+            // Coriolis shows 136.2: it leaves the rail guns' charge out of the reload cycle.
+            ("sustained_dps", Some("108.8")),
             ("eps", Some("11.8")),
             ("time_to_drain", Some("0:21")),
             ("wep_capacity", Some("45.6")),
@@ -564,6 +565,32 @@ fn plan_thermal_boosters_3() {
     );
 }
 
+// Sustained DPS counts the last burst's charge (decision astromech-bnnh), so it departs from
+// Coriolis for the rail guns and never exceeds burst. Worked by hand from each weapon's
+// engineered stats; the cycle is the shots after the first, the burst overhead, the charge and
+// the reload, and the other weapons keep Coriolis's number:
+//   multi-cannon: 5.882 damage x 2 rounds a shot, 3.19875 shots/s, clip 77, reload 5 s, no charge:
+//     77 / (76 / 3.19875 + 5) = 2.6775 shots/s, 31.497 DPS.
+//   rail gun 1: 70.882 damage, 0.83 s interval + 1.2 s charge, clip 1, reload 1.5 s: one shot
+//     per 1.2 + 1.5 = 2.7 s (Coriolis: 1.5 s), 26.253 DPS.
+//   rail gun 2: 33.2 damage, 1 / 1.291339 s interval + 1.2 s charge, clip 2, reload 1 s: two
+//     shots per (1.2 + 1 / 1.291339 + 1.2) + 1 s, 15.907 DPS (the shot rate counts the charge).
+//   pulse laser 16.406 DPS and beam laser 18.759 DPS: no clip, unchanged.
+// Total 108.82 DPS, against 124.53 burst (Coriolis: 136.2).
+#[test]
+fn fer_de_lance_sustained_counts_charge() {
+    let (ship, modules) = loadout("fer_de_lance_combat");
+    let s = stats(&ship, &modules).unwrap();
+    let multi = 5.882 * 2.0 * 77.0 / (76.0 / 3.1987491611280325 + 5.0);
+    let rail1 = 70.882 / (1.2 + 1.5);
+    let shot2 = 1.0 / 1.291338989398107 + 1.2;
+    let rail2 = 2.0 * 33.2 / (shot2 + 1.2 + 1.0);
+    let expected: f64 = multi + rail1 + rail2 + 16.406199799012665 + 18.759384;
+    assert!((expected - 108.82).abs() < 0.01, "hand value {expected}");
+    assert!((s.weapons.sustained_dps - expected).abs() < 0.01, "{}", s.weapons.sustained_dps);
+    assert!(s.weapons.sustained_dps <= s.weapons.dps);
+}
+
 #[test]
 fn plan_thermal_boosters_4() {
     check_plan(
@@ -643,7 +670,8 @@ fn fer_de_lance_modifiers() {
             ("hull_caustic", Some("0.0")),
             ("module_armour", Some("235")),
             ("dps", Some("123.7")),
-            ("sustained_dps", Some("135.0")),
+            // Coriolis shows 135.0, for the same reason.
+            ("sustained_dps", Some("108.3")),
             ("eps", Some("11.8")),
             ("time_to_drain", Some("0:19")),
             ("wep_capacity", Some("45.6")),
