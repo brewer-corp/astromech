@@ -97,8 +97,8 @@ downloads it when found. Updates are signed; astromech checks the signature befo
   files only. Your settings, history, logs and speech models are never replaced.
 - In `astromech.toml` the `[update]` table has `check` (true or false), and `apply`: `ask`
   (the default, wait for you), `on_quit` (install when astromech quits) or `never`. Open the
-  file from Settings, Files, **Open**. With no file yet, that writes the sample, which sets the kill
-  switch to Scroll Lock.
+  file from Settings, Files, **Open**. With no file yet, that writes the sample, which
+  changes no setting: its examples (push-to-talk, kill switch, paste) are comments you can uncomment.
 
 If an update does not install, Settings says why. Run the setup.exe from the release page
 instead; it keeps your data.
