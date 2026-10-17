@@ -1,0 +1,26 @@
+---
+created_at: "2026-10-17T17:29:23.095776462+00:00"
+id: "astromech-koa6"
+issue_type: "bug"
+labels:
+- "docs-found"
+priority: "P3"
+relationships:
+  blocks: []
+  children: []
+  attachments: []
+  relates: []
+schema: "atelier.issue"
+schema_version: 2
+status: "todo"
+title: "Data sharing page says 30 minutes; the sender uses 5"
+updated_at: "2026-10-17T17:29:23.095776462+00:00"
+---
+
+## Goal
+
+app/src/modules/datasharing/View.svelte says nothing older than 30 minutes is sent. crates/astromech-eddn/src/feed.rs MAX_EVENT_AGE_SECS is 5 * 60, and the EDSM uploader follows the same notion of live. Make the page text match the code (or the code the text, if 30 minutes was intended).
+
+## Done when
+
+The page and the sender agree, and docs/guide/data-sharing.md says the same number. Found while writing the user guide.
