@@ -14,6 +14,6 @@ cd "$(dirname "$0")/.."
 MODELS="${MODELS:-$HOME/.cache/astromech/models}"
 OUT="${OUT:-results/voice-eval}"
 cargo build --release -p astromech-voice --features sherpa --bin astromech-voice-worker
-worker="target/release/astromech-voice-worker$( [[ "${OS:-}" == Windows_NT ]] && echo .exe || true )"
+worker="${CARGO_TARGET_DIR:-target}/release/astromech-voice-worker$( [[ "${OS:-}" == Windows_NT ]] && echo .exe || true )"
 cargo run -p astromech-core --example voice-eval -- \
   --worker "$worker" --models "$MODELS" --out "$OUT" --download "$@"

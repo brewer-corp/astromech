@@ -15,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice: 'Yes, sir.' is rejected (confirm scores 94% on the synthetic eval)"
-updated_at: "2026-10-17T21:41:11.818166743+00:00"
+updated_at: "2026-10-17T21:44:43.348840947+00:00"
 ---
 
 ## Goal
@@ -28,4 +28,4 @@ Accept a confirmation with a polite extra word. On the synthetic eval (astromech
 
 ## Context
 
-The transcript is right; the miss is the grammar's (one extra word on a one-word phrase). Confirm answers the silent-running and did-you-mean prompts, so it is part of ship control.
+The rendered text was "yes.": the "sir" is Parakeet adding a word on that voice, not a word the speaker said. Either way the grammar rejects a one-word phrase plus one extra word, and a commander may well say "yes sir". Check against real clips (astromech-cgrw) first. Confirm answers the silent-running and did-you-mean prompts, so it is part of ship control.

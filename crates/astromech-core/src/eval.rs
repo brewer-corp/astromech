@@ -107,12 +107,15 @@ pub fn load_dir(dir: &Path) -> Result<Vec<Clip>> {
             .or_else(|| field("label"))
             .or_else(|| field("command"))
             .unwrap_or_else(|| "nomatch".into());
-        if transcript.is_empty() {
+        let condition = field("condition");
+        // A Debug clip with no transcript caught nothing (the gate never opened); a synthetic
+        // clip (it has a condition) with none is a recognition failure and must count.
+        if transcript.is_empty() && condition.is_none() {
             continue;
         }
         clips.push(Clip {
             family: field("family").unwrap_or_else(|| family_of(&label)),
-            condition: field("condition").unwrap_or_default(),
+            condition: condition.unwrap_or_default(),
             said: field("text"),
             item: EvalItem { id, transcript, label },
         });
@@ -272,6 +275,19 @@ mod tests {
         assert_eq!(r.report.correct_reject, 1);
         assert_eq!(r.clips[0].family, "landing_gear");
         assert_eq!(r.clips[1].family, "nomatch");
+    }
+
+    #[test]
+    fn empty_synthetic_transcripts_count_as_misses() {
+        let d = tempfile::tempdir().unwrap();
+        // A Debug clip that caught nothing is skipped...
+        std::fs::write(d.path().join("a.json"), r#"{"transcript":"","command":"lights.on"}"#).unwrap();
+        // ...but a synthetic clip the recogniser returned nothing for is a miss.
+        std::fs::write(d.path().join("b.json"), r#"{"transcript":"","label":"lights.on","condition":"noise"}"#)
+            .unwrap();
+        let r = run(d.path()).unwrap();
+        assert_eq!(r.report.total, 1);
+        assert_eq!((r.report.rows[0].id.as_str(), r.report.miss), ("b", 1));
     }
 
     fn clip(id: &str, transcript: &str, label: &str, family: &str, condition: &str) -> Clip {
