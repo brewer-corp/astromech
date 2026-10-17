@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:02:43.373276974+00:00"
 id: "astromech-4kw5"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-4kw5
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Shell: write its log lines to a file"
-updated_at: "2026-10-17T06:02:43.373276974+00:00"
+updated_at: "2026-10-17T06:13:21.831375778+00:00"
 ---
 
 ## Goal
