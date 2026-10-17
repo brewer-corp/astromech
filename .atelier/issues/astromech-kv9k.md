@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T03:03:30.565472264+00:00"
+status: "done"
 title: "\"This market has N things the project needs\""
-updated_at: "2026-10-17T02:56:53.123481088+00:00"
+updated_at: "2026-10-17T03:03:30.565472264+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A docking fixture with a matching `Market.json` produces one line with the right
 ## Context
 
 `Market.json` plus the construction tracker.
+
+## Close Reason
+
+Voice line 'Sells N project commodities.' once per dock on a fresh Market.json; page display not done
