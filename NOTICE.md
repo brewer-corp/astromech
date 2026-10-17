@@ -178,3 +178,50 @@ Creative Commons Attribution-ShareAlike 3.0 licence
 The wiki page itself could not be fetched when this file was made, so it is credited only through
 that adaptation. The file stays under CC BY-SA 3.0, not the MIT licence. Rules the sources don't
 state are marked `uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.
+
+## Exploration values
+The body value formulae in `crates/astromech-exploration/src/value.rs` are written from the
+community's derivation in MattG's "Exploration value formulae" thread on the Frontier forums
+(https://forums.frontier.co.uk/threads/exploration-value-formulae.232000/), cross-checked against
+EDDiscovery's `EstimatedValues.cs` (https://github.com/EDDiscovery/EliteDangerousCore,
+Apache-2.0) and EDDI's `Body.cs` (https://github.com/EDCD/EDDI, Apache-2.0); no code was copied.
+The test fixture `crates/astromech-exploration/tests/fixtures/edsm-values.json` holds public body
+data (class, mass, terraform state) of fifteen real systems from Spansh's system dumps
+(https://spansh.co.uk) and EDSM's published value estimates for them
+(https://www.edsm.net/api-system-v1/estimated-value), fetched 17 Oct 2026. Credit: Spansh, EDSM
+and the EDDN contributors whose scans they hold. The worked example in `tests/values.rs` is from
+ED Scout's tests (https://github.com/joncage/ed-scout, MIT).
+
+## Exobiology values
+`data/catalog/exobiology.json` (what Vista Genomics pays per species) is game data as the in-game
+Codex shows it. The values are Elite Dangerous game data, © Frontier Developments plc.
+
+- The per-species values were read from EDR's `data/biology.json` (https://github.com/lekeno/edr,
+  Apache-2.0). Only facts were taken: each species' journal symbol, name and credit value,
+  written by a script into astromech's own file layout. No EDR code or file is copied, so the
+  file is not a copy of EDR's and stays under astromech's MIT licence.
+- The values of the single-value genera (anemones, brain trees, sinuous tubers, bark mounds,
+  amphora plants, crystalline shards), keyed by genus symbol, are from ED Assistant's seed data
+  (https://github.com/IgorBabayan/ed-assistant), which is under the MIT licence:
+
+```
+Copyright (c) 2026 Igor Babayan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

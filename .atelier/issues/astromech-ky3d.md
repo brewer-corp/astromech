@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:04:37.123409707+00:00"
 id: "astromech-ky3d"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ky3d
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T05:33:37.331154439+00:00"
+status: "done"
 title: "EDSM upload: recover after a key fix, give up on refused batches, flight-log timeout"
-updated_at: "2026-10-17T05:04:37.123409707+00:00"
+updated_at: "2026-10-17T05:33:37.331154439+00:00"
 ---
 
 ## Goal
@@ -29,3 +33,7 @@ Follow-ups from the astromech-ah0i review:
 ## Done when
 
 Tests: a key change after a 203 sends the held events at once; a batch refused past the attempt limit no longer blocks later events; a slow flight log shows EDSM's message or a specific timeout, not the generic one.
+
+## Close Reason
+
+Key-change recovery, give-up on refused batches and flight-log timeout done with tests

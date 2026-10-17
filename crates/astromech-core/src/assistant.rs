@@ -101,6 +101,11 @@ impl Assistant {
         Self { remote: Arc::new(remote), clock, ..self }
     }
 
+    /// Answer lookups through the process's one `remote` client (shared with the star map).
+    pub fn with_shared_remote(self, remote: Arc<astromech_data::Client>) -> Self {
+        Self { remote, ..self }
+    }
+
     /// Answer the session summary from `sessions` (the history the logout summary reads too).
     pub fn with_sessions(self, sessions: astromech_announce::session_summary::SharedSessions) -> Self {
         Self { sessions, ..self }

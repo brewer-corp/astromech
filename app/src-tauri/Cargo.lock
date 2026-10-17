@@ -81,6 +81,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-exploration"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-galaxy"
 version = "0.1.5"
 dependencies = [
@@ -112,6 +121,7 @@ dependencies = [
 name = "astromech-history"
 version = "0.1.5"
 dependencies = [
+ "astromech-exploration",
  "astromech-journal",
  "astromech-store",
  "serde",
@@ -199,7 +209,9 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-colonisation",
+ "astromech-data",
  "astromech-engineering",
+ "astromech-exploration",
  "astromech-galaxy",
  "astromech-history",
  "astromech-input",
