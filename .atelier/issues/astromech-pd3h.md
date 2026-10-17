@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T22:53:32.766861833+00:00"
+status: "done"
 title: "Presets and controller preset picker hide failed reloads"
-updated_at: "2026-10-17T22:17:44.533692818+00:00"
+updated_at: "2026-10-17T22:53:32.766861833+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ On Presets, a successful action followed by a failed reload (run() in presets/Vi
 ## Context
 
 Found in the re-review of PR #140 (R1, R2); both predate it. Related states are covered by app/src/lib/ui/emptystates.test.ts.
+
+## Close Reason
+
+Presets shows a failed reload after a successful action; the preset picker (and so the controller page) shows binds.error; tests fail before the fix. Reviewed.
