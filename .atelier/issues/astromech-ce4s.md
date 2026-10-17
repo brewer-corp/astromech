@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Landings per body and first-footfall hint"
-updated_at: "2026-10-15T20:36:13.665831070+00:00"
+updated_at: "2026-10-17T04:39:43.137869699+00:00"
 ---
 
 ## Goal

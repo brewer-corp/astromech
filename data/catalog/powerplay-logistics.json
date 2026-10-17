@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "fetched": "2026-10-16",
+  "licence": "The facts rest on Ian Doncaster's refcard (no licence stated; facts only, no text) and on the rules already adapted from the Elite Dangerous wiki into powerplay-activities.json (CC BY-SA 3.0, see NOTICE.md). This file is kept under CC BY-SA 3.0 because of that adaptation. The wording is our own.",
+  "sources": [
+    {
+      "title": "Ian Doncaster's Powerplay Tools reference card, 'Transport Power Commodity' and 'Transfer Power Data'",
+      "url": "https://heatmap.sotl.org.uk/powers/refcard",
+      "licence": "none stated; facts only, no text taken",
+      "fetched": "2026-10-16",
+      "used_for": "pickup and delivery places for commodities and data, the 20 ly and 30 ly supporting-system limits, the allocation and cargo-expiry notes"
+    },
+    {
+      "title": "Elite Dangerous wiki, Powerplay page, only through the rules already adapted into powerplay-activities.json",
+      "url": "https://elite-dangerous.fandom.com/wiki/Powerplay",
+      "licence": "CC BY-SA 3.0",
+      "fetched": "2026-10-16",
+      "used_for": "the same rules as already adapted into powerplay-activities.json (Fortified supplies acquisition within 20 ly, Stronghold within 30 ly). The page itself answered HTTP 402 when fetched for this file, so it was not read for it."
+    }
+  ],
+  "notes": "Frontier has changed Powerplay several times in 2024-25 and some merit sources were switched off and on again (for example on 11 Nov 2025), so nothing here is checked in game. 'pickups' say where a commodity of that kind can be collected for a target system of that kind: 'states' are the journal/Spansh PowerplayState values of the pledged power's own systems, 'max_ly' the distance from the target (null: no limit is documented, the caller's search radius applies). 'data_delivery' says where data of that kind is handed in: 'target' (the target system), 'supporting' (the pickup systems for acquisition) or 'controlled' (any system the pledged power controls). 'uncertain' marks rules the sources don't state clearly. Power data is picked up at Odyssey settlement data ports, not at a fixed place, so only where to hand it in is looked up.",
+  "pickups": [
+    { "work": "acquire", "states": ["Fortified"], "max_ly": 20 },
+    { "work": "acquire", "states": ["Stronghold"], "max_ly": 30 },
+    { "work": "reinforce", "states": ["Stronghold"], "max_ly": null, "uncertain": "No distance limit is documented for reinforcement supplies. The target system can't supply itself." },
+    { "work": "undermine", "states": ["Stronghold"], "max_ly": null, "uncertain": "No distance limit is documented for undermining supplies." }
+  ],
+  "data_delivery": [
+    { "work": "acquire", "at": "supporting" },
+    { "work": "reinforce", "at": "target" },
+    { "work": "undermine", "at": "controlled", "uncertain": "Sources say only 'a friendly system'; one guide says any system the power controls. The Steam guide also suggests the acquisition hand-in follows the 20/30 ly rule." }
+  ],
+  "controlled_states": ["Exploited", "Fortified", "Stronghold"],
+  "warnings": [
+    "Commodities are delivered to the Power Contact in the target system.",
+    "Allocation is limited to 15-250 units per half hour, depending on rank, and cargo not delivered vanishes when the weekly cycle ends.",
+    "Other powers' agents may attack your carrier; undermining supplies can be attacked legally.",
+    "Undermining does not count in a stronghold that has a Stronghold Carrier.",
+    "Research and industrial data do not count for reinforcement."
+  ]
+}
