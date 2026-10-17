@@ -18,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Colonisation candidates near me"
-updated_at: "2026-10-17T02:26:59.630188573+00:00"
+updated_at: "2026-10-17T02:47:11.946724045+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ A recorded Spansh response returns only unclaimed systems within 15 ly of a colo
 ## Context
 
 Spansh system and body search. Unverified: that the colonisation fields are exposed.
+
+## Notes
+
+- 2026-10-17 [note] Built: Trade > Colonisation lists unclaimed systems within 15 ly of a populated one (astromech_galaxy::colonies, shell colony_candidates). Spansh exposes the claim flags but its nearest_populated_distance lags new colonies, so only <=15 is trusted and the rest are measured against populated systems within radius + 15 ly; more than 500 populated around means some systems are counted as unchecked, never listed unproven. Data is Spansh's, so a claim made since its last update may still show as open.
