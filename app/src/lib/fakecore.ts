@@ -35,6 +35,8 @@ interface State {
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
+  /** Callouts the config changes, by id (core: `[callouts.<id>]`). */
+  callouts: Record<string, { enabled?: boolean; cooldown_s?: number }>;
   eddn: boolean;
   /** EDSM: the switch, the commander name, and whether a key is "in the keyring". */
   edsm: { enabled: boolean; commander: string; key: boolean };
@@ -48,6 +50,25 @@ let state: State | null = null;
 /** A few of the core's ores (crates/astromech-announce/src/prospector.rs `ORES`). */
 const PROSPECTOR_NAMES: Record<string, string> = { lowtemperaturediamond: "Low Temperature Diamonds", painite: "Painite", platinum: "Platinum" };
 const PROSPECTOR_DEFAULTS: Record<string, number | null> = { lowtemperaturediamond: 25, painite: 25, platinum: 20 };
+
+/** A few of the core's callouts (crates/astromech-announce `catalog()`). */
+const CALLOUTS = [
+  { id: "arrival", title: "Arrival briefing", default_enabled: true, default_cooldown_s: 0 },
+  { id: "powerplay_arrival", title: "Powerplay arrival", default_enabled: false, default_cooldown_s: 0 },
+  { id: "scan", title: "Scans", default_enabled: true, default_cooldown_s: 30 },
+  { id: "hge", title: "High Grade Emissions", default_enabled: true, default_cooldown_s: 30 },
+];
+
+function calloutsReply(st: State): Reply {
+  return {
+    ok: true,
+    callouts: CALLOUTS.map((c) => ({
+      ...c,
+      enabled: st.callouts[c.id]?.enabled ?? c.default_enabled,
+      cooldown_s: st.callouts[c.id]?.cooldown_s ?? c.default_cooldown_s,
+    })),
+  };
+}
 
 function prospectorReply(st: State): Reply {
   const ores = Object.keys(PROSPECTOR_DEFAULTS).map((ore) => ({
@@ -84,6 +105,7 @@ function fresh(scenario: Scenario): State {
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
+    callouts: {},
     eddn: false,
     edsm: { enabled: false, commander: "", key: false },
     route: null,
@@ -333,6 +355,20 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
       if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
       st.previews.push(st.voice.speaker);
       return { ok: true, line: "Landing gear deployed." };
+    case "callouts":
+      return calloutsReply(st);
+    case "set_callout": {
+      const c = (args ?? {}) as { id?: string; enabled?: boolean; cooldown_s?: number | null };
+      if (!CALLOUTS.some((x) => x.id === c.id)) return { ok: false, error: `unknown callout "${c.id}"` };
+      if (typeof c.cooldown_s === "number" && !(c.cooldown_s >= 0 && c.cooldown_s <= 86400)) {
+        return { ok: false, error: "cooldown_s must be between 0 and 86400 seconds" };
+      }
+      const cur = (st.callouts[c.id as string] ??= {});
+      if (typeof c.enabled === "boolean") cur.enabled = c.enabled;
+      if (c.cooldown_s === null) delete cur.cooldown_s;
+      else if (typeof c.cooldown_s === "number") cur.cooldown_s = c.cooldown_s;
+      return { ok: true, applies_next_session: false };
+    }
     case "prospector_thresholds":
       return prospectorReply(st);
     case "prospector_set": {

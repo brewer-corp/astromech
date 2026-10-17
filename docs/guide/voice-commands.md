@@ -114,6 +114,22 @@ connection. [Voice lookups](lookups.md) has the details of each.
 
 These work only right after a question. On their own, astromech says "Say again."
 
+## Routes
+
+These work on the route astromech follows ([Routes](routes.md)). The next waypoint is kept on
+your clipboard; "paste" puts it into the galaxy map's search box.
+
+| You say | What it does |
+|---|---|
+| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies the next waypoint again and says it: "Next waypoint. Deciat, for Felicity Farseer. 3 waypoints left." |
+| "skip waypoint", "skip this waypoint", "skip to the next waypoint" | Skips one and copies the one after: "Next waypoint. Kuk." |
+| "previous waypoint", "back one waypoint", "go back a waypoint" | Goes back one and copies it |
+| "clear route", "clear the route", "end route", "stop following the route" | "Route cleared." |
+| "paste", "paste it", "paste system", "paste waypoint", "paste system name" | With the galaxy map open and its search box selected, sends Ctrl+V, then Enter: "Pasted." Elsewhere: "Open the galaxy map and select its search box first." If the map closes in between, Enter is not sent: "Galaxy map closed. Search not sent." |
+
+With no route: "No route to follow. Set one on the Route page." Past the last stop: "Route
+complete."
+
 ## Recognised, but not built yet
 
 These are understood so you get a clear answer instead of a wrong guess. They do nothing.
@@ -123,7 +139,7 @@ These are understood so you get a clear answer instead of a wrong guess. They do
 | "supercruise", "engage supercruise", "enter supercruise", "drop out of supercruise", "exit supercruise" | "Supercruise is not available yet. Flight commands come later." |
 | "hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system" | "Hyperspace jumps are not available yet. Flight commands come later." |
 | "request docking", "request docking permission", "dock" | "Docking requests are not available yet." |
-| "plot route to {system}", "set course for {system}" | "Route plotting is not available yet." |
+| "plot route to {system}", "set course for {system}" | "Plotting is not available. Use the Route page, then paste." ([Routes](routes.md)) |
 
 ## What it does not do
 

@@ -103,30 +103,10 @@ fn watchdog(app: tauri::AppHandle) {
 
 struct Binds(std::sync::Mutex<Option<astromech_keybinds::api::Api>>);
 
-#[derive(Deserialize, Default)]
-struct GameCfg {
-    #[serde(default)]
-    bindings_dir: String,
-    #[serde(default)]
-    game_dir: String,
-    #[serde(default)]
-    journal_dir: String,
-}
-/// The parts of the core's `astromech.toml` the window reads.
-#[derive(Deserialize, Default)]
-struct Cfg {
-    #[serde(default)]
-    game: GameCfg,
-    #[serde(default)]
-    data_dir: String,
-}
-
-/// The core's config, from where the core reads it (`Paths::config_file`); defaults if missing.
-fn config() -> Cfg {
-    std::fs::read_to_string(Paths::current().config_file())
-        .ok()
-        .and_then(|t| toml::from_str(&t).ok())
-        .unwrap_or_default()
+/// The parts of the core's `astromech.toml` the window reads, from the file the core uses
+/// (`Paths::config_in_use`: its `--config`, or the default); defaults if missing.
+fn config() -> astromech_store::window::WindowConfig {
+    astromech_store::window::WindowConfig::load(&Paths::current())
 }
 
 /// The core's data folder (`Config::data_dir()` in the core): every file the window shares with
@@ -1118,6 +1098,10 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "voice_test_poll",
         "voice_test_stop",
         "voice_test_live",
+        "callouts",
+        "set_callout",
+        "learned_phrases",
+        "learned_forget",
         "prospector_thresholds",
         "prospector_set",
         "shopping_set",

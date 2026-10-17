@@ -31,7 +31,9 @@ mid-session is silent until the next live event.
 
 ## Turning callouts off
 
-Each callout has an id (in the headings below). In `astromech.toml` (Settings, Files, **Open**):
+In [Settings](settings.md#callouts), each callout has a switch and a cooldown. They are saved to
+`astromech.toml` and apply from the next time Elite starts. Each callout also has an id (in the
+headings below), which you can use to edit the file yourself (Settings, Files, **Open**):
 
 ```toml
 [callouts.scan]
@@ -141,11 +143,23 @@ distance of each hop by the size of your frame shift drive. Mass changes along t
 so it is an estimate. Scoopable stars are classes O, B, A, F, G, K and M, giants included. It needs
 a jump to go by, so there is no fuel line before your first jump.
 
+## Route follower
+
+Id: `route_follow`. When you jump into the next waypoint of the route astromech follows (or a
+later one), the route moves on, the next waypoint goes on your clipboard and astromech says
+**"Next waypoint. Deciat."** ("Not copied." after it if the clipboard could not be written). At
+the last stop: **"Final waypoint reached. Route complete."** A jump during the startup catch-up
+is silent and does not move the route.
+
+Turning it off (`enabled = false`) turns following off: jumps no longer move the route or write
+the clipboard. See [Routes](routes.md#following-a-route).
+
 ## Prospector
 
 Id: `prospector`. When a prospector limpet reports a rock worth mining: **"Platinum 34%."** At most
 two ores are named, most valuable first, or one after a motherlode: **"Motherlode. Void Opals.
-Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line.
+Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line. A second limpet on the same rock (the same ores
+in the same proportions) is not read again for ten minutes.
 The rock's content (low, medium, high) is not read: the prospector panel shows it. The per-ore
 percentage is set in [Settings](settings.md#prospector-callouts).
 

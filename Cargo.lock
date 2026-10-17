@@ -493,7 +493,9 @@ dependencies = [
  "astromech-log",
  "keyring-core",
  "rusqlite",
+ "serde",
  "tempfile",
+ "toml 0.9.12+spec-1.1.0",
  "windows-native-keyring-store",
 ]
 

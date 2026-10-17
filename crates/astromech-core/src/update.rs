@@ -72,6 +72,23 @@ pub enum Status {
     Error,
 }
 
+impl Status {
+    /// A check, download or install is running (a second check would do nothing).
+    pub fn busy(self) -> bool {
+        matches!(self, Status::Checking | Status::Downloading | Status::Applying)
+    }
+
+    /// The tray's "Check for updates" line and whether it can be clicked now.
+    pub fn tray_check_item(self) -> (&'static str, bool) {
+        match self {
+            Status::Checking => ("Checking for updates…", false),
+            Status::Downloading => ("Downloading the update…", false),
+            Status::Applying => ("Installing the update…", false),
+            _ => ("Check for updates", true),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct Snapshot {
     pub status: Status,
@@ -533,6 +550,17 @@ pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Resul
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn the_tray_check_item_follows_the_update_status() {
+        for s in [Status::Idle, Status::Available, Status::Ready, Status::Error] {
+            assert_eq!((s.tray_check_item(), s.busy()), (("Check for updates", true), false), "{s:?}");
+        }
+        for s in [Status::Checking, Status::Downloading, Status::Applying] {
+            let (text, enabled) = s.tray_check_item();
+            assert!(!enabled && text.ends_with('…') && s.busy(), "{s:?}");
+        }
+    }
+
     use super::*;
     use ed25519_dalek::Signer;
 

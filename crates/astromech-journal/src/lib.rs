@@ -932,6 +932,17 @@ pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
     v.into_iter().map(|x| x.3).collect()
 }
 
+/// The game's latest journal in `dir`: the one whose name carries the latest start time (both
+/// naming schemes). Names that aren't a journal stamp (a sync tool's conflict copy) are never it.
+pub fn latest_journal(dir: &Path) -> Option<PathBuf> {
+    std::fs::read_dir(dir)
+        .ok()?
+        .flatten()
+        .filter_map(|e| Some((journal_stamp(&e.file_name().to_string_lossy())?, e.path())))
+        .max()
+        .map(|x| x.1)
+}
+
 /// Changes whenever something read from the journals could give a different answer: a journal file
 /// is added or removed, or the newest one grows. The length is read through an open handle
 /// because on Windows a directory listing reports the size NTFS last stored in the directory
@@ -1071,6 +1082,28 @@ pub fn parse_file(path: &Path) -> Vec<JournalLine> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_latest_journal_is_by_the_stamp_in_its_name_and_never_a_conflict_copy() {
+        let d = tempfile::tempdir().unwrap();
+        for n in [
+            "Journal.221014080000.01.log",
+            "Journal.2026-10-16T120000.01.log",
+            "Journal.2026-10-16T120000.02.log",
+            "Journal.2026-10-16T120000.02-DESKTOP-ABC.log",
+            "Journal.2026-10-16T120000.02 (conflicted copy).log",
+        ] {
+            std::fs::write(d.path().join(n), "").unwrap();
+        }
+        let t = std::time::SystemTime::now() + std::time::Duration::from_secs(60);
+        std::fs::File::options()
+            .write(true)
+            .open(d.path().join("Journal.221014080000.01.log"))
+            .unwrap()
+            .set_modified(t)
+            .unwrap();
+        assert_eq!(latest_journal(d.path()), Some(d.path().join("Journal.2026-10-16T120000.02.log")));
+    }
     #[test]
     fn known_and_unknown_events() {
         let l = parse_line(

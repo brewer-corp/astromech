@@ -49,6 +49,7 @@ pub mod history;
 pub mod hub;
 pub mod instance;
 pub mod known_bodies;
+pub mod learned;
 pub mod logging;
 pub mod lookups;
 pub mod pipeline;

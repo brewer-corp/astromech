@@ -18,8 +18,9 @@
 //!   in case the notification never comes, until the event is older than five minutes.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
 //!   when the game wrote it while we run: not the startup replay of the current journal, not an
-//!   older or already-read journal that becomes newest (re-read as a replay, but only up to where
-//!   we had read it: what the game wrote since is live), but every line the game appends and a
+//!   already-read journal that becomes newest (re-read as a replay, but only up to where we had
+//!   read it: what the game wrote since is live), never a line of a journal earlier by name than
+//!   the folder's latest (the game writes only that one), but every line the game appends and a
 //!   journal it starts later. Status.json reads are live once the startup
 //!   catch-up (the replay, then the first Status.json read) is done.
 //! - Callouts: every journal line and Status.json read also goes to the reaction engine
@@ -120,7 +121,8 @@ struct Tailer {
     callouts: Option<Callouts>,
     eddn: Option<astromech_eddn::Feed>,
     edsm: Option<astromech_eddn::edsm::Uploader>,
-    /// False while replaying a journal written before we started.
+    /// False while replaying a journal written before we started, and for any journal that
+    /// isn't the folder's latest by name.
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
     caught_up: bool,
@@ -294,9 +296,13 @@ impl Tailer {
         };
         let n = replayed.len() + live.len();
         self.opened.insert(path.clone(), None);
-        self.live = !replay;
+        // The game writes only its latest journal by name. Any other one (a backup or sync tool
+        // restored, touched or copied it) is never live, including what lands in it after we
+        // open it: a tool may create the file and then write it, and we can follow it in between.
+        let games = astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
+        self.live = !replay && games;
         self.apply_lines(replayed);
-        self.live = true;
+        self.live = games;
         self.apply_lines(live);
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         self.hub.update(|g| g.journal_file = Some(name.clone()));
@@ -1186,6 +1192,68 @@ mod tests {
         append(&j2, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-0d7l: a sync tool restoring an older journal creates it, then writes it. We may
+    /// follow it in between (its creation makes it newest), but what lands in it afterwards is no
+    /// more live than what was there: the game only writes its latest journal.
+    #[test]
+    fn an_older_journal_written_after_we_follow_it_is_still_a_replay() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        std::fs::write(&j1, "").unwrap();
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1, "following the (still empty) older journal");
+        append(&j1, &format!("{}{}", session(&ts(30), "r1 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "lines written to an older journal are never live");
+
+        // Followed, left and written again: past the read point is still not the game's.
+        touch(&j2, 20);
+        t.on_journal_activity();
+        append(&j1, &docked(&ts(0)));
+        touch(&j1, 30);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]), "nor when we come back to it");
+
+        // The game's journal is still live once it's newest again.
+        append(&j2, &docked(&ts(0)));
+        touch(&j2, 40);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// A sync tool's conflict copy (a name that isn't a journal stamp) is never the game's
+    /// journal, so it is never live, and it doesn't stop the game's own journal being live.
+    #[test]
+    fn a_conflict_copy_is_never_live_and_does_not_silence_the_game() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T120000.01.log");
+        let copy = d.path().join("Journal.2026-10-16T120000.01-DESKTOP-ABC.log");
+        std::fs::write(&j, session(&ts(10), "r2 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j.clone(), true);
+
+        std::fs::write(&copy, "").unwrap();
+        touch(&copy, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, copy);
+        append(&copy, &format!("{}{}", session(&ts(5), "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "the copy is not the game's");
+
+        append(&j, &docked(&ts(0)));
+        touch(&j, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j);
+        assert_eq!(eddn_state(&db).0, 1, "the game's journal is live with the copy in the folder");
     }
 
     /// astromech-7uj3: what the game wrote to the current journal while a touched older one was

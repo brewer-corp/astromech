@@ -4,6 +4,9 @@ id: "astromech-54hd"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-54hd
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:33:33.551073116+00:00"
+status: "done"
 title: "Merged controller page: the other stick and per-action detail"
-updated_at: "2026-10-17T17:01:42.304580751+00:00"
+updated_at: "2026-10-17T19:33:33.551073116+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ With an activity chosen, actions on the other stick are listed; clicking an acti
 ## Context
 
 `app/src/modules/controller/View.svelte`. Found in review of astromech-q318 (round 1, R3). Ask Sumeet whether both sticks side by side are wanted back before v1.0.
+
+## Close Reason
+
+Done-when met: actions on the other stick are listed, clicking an action opens its detail with Bind another control, the activity survives a reload; component tests for each; PR 133; see evidence

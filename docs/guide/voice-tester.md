@@ -10,8 +10,14 @@ command it matched, how sure it is and what it would do. Find it under **Setting
 - Or **use push-to-talk** with the page open and visible. The result appears as you speak.
 
 While the page is open and visible, push-to-talk is in **test mode**: whatever you say is
-tested, and astromech does not act on it or answer out loud. Minimise the window or leave the
-page and push-to-talk goes back to normal within a few seconds.
+tested, and astromech does not act on it. The game cannot show this, so astromech says so: the
+tray status reads "Voice tester open · push-to-talk testing only" while test mode is on, and
+each phrase you speak is followed by "Test only. Nothing pressed." Minimise the window or leave
+the page and push-to-talk goes back to normal within a few seconds.
+
+A phrase is tested or run according to the mode when you let go of push-to-talk. If you leave
+the page while astromech is still working out what you said, that phrase is still only tested;
+if you open the page then, a phrase you said before it opened still runs for real.
 
 ## What it shows
 
@@ -32,6 +38,15 @@ For a command that presses a key, **Run live** sends it to the game for real. Cl
 switch to Elite within five seconds: astromech presses keys only while Elite is the active
 window. It skips the "Did you mean" or "Confirm" question that a spoken command would ask.
 It needs Elite running.
+
+## Learned phrases
+
+![The Voice tester's list of learned phrases](img/learned-phrases.png)
+
+When you answer **yes** to "Did you mean ...?", astromech remembers what it heard and runs that
+command next time without asking. The list at the bottom of the page shows each phrase and the
+command it runs, the most used first. **Remove** forgets one at once, here and on disk, so a
+wrong yes does not stay: astromech asks again the next time you say it.
 
 ## What it needs
 

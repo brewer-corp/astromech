@@ -125,6 +125,8 @@ export type CoreCmd =
   | "voice_test_poll"
   | "voice_test_stop"
   | "voice_test_live"
+  | "learned_phrases"
+  | "learned_forget"
   // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
   | "find_elite"
   | "set_ptt"
@@ -142,6 +144,9 @@ export type CoreCmd =
   | "set_voice"
   | "voice_settings"
   | "voice_preview"
+  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
+  | "callouts"
+  | "set_callout"
   // Settings → Prospector callouts (core: callouts.rs).
   | "prospector_thresholds"
   | "prospector_set"
