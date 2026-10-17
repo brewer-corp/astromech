@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:25:31.613341925+00:00"
+status: "done"
 title: "Trim per-PR CI: Release build only when packaging changes, skip docs-only, fewer pushes"
-updated_at: "2026-10-17T03:29:33.293913416+00:00"
+updated_at: "2026-10-17T17:25:31.613341925+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ Cut the time and churn of PR checks without losing the Windows signal that catch
 ## Context
 
 During the 2026-10-17 mission every push ran CI (~5 min) and Release build (~9 min, the merge gate). PRs averaged ~5 pushes (rebases), 71 of 186 PR runs were cancelled mid-run, and Release build never failed alone: both its failures duplicated the CI Windows app-shell build. The orchestrator polled gh pr checks in loops.
+
+## Close Reason
+
+Release build runs on PRs only for packaging-relevant paths (crates, build config, app build config, bundled files); CI skips docs/Markdown/.atelier-only changes. PR #61 checks green at cc8a190 (evidence astromech-mz74); reviewed twice.
