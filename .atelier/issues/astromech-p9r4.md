@@ -4,6 +4,9 @@ id: "astromech-p9r4"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-p9r4
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Show the mining run: tons refined and tons per hour"
-updated_at: "2026-10-16T20:11:50.449433736+00:00"
+updated_at: "2026-10-17T03:23:09.058665176+00:00"
 ---
 
 ## Goal
