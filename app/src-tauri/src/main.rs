@@ -205,19 +205,10 @@ fn binds_set_override(b: tauri::State<Binds>, device: String, control: String, j
     with_api(&b, |a| Ok(serde_json::to_value(a.set_override(&device, &control, joy.as_deref())?)?))
 }
 
+/// The game's journal folder, by the core's rule (`Paths::journal_dir`); empty if there is none,
+/// which callers report as a folder not found.
 fn journal_dir() -> PathBuf {
-    let cfg = config();
-    let j = cfg.game.journal_dir.trim();
-    if !j.is_empty() {
-        return PathBuf::from(j);
-    }
-    std::env::var_os("USERPROFILE")
-        .or_else(|| std::env::var_os("HOME"))
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("Saved Games")
-        .join("Frontier Developments")
-        .join("Elite Dangerous")
+    Paths::current().journal_dir(&config().game.journal_dir).unwrap_or_default()
 }
 
 struct MaterialsCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, Value)>>);
@@ -421,7 +412,7 @@ struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Gala
 
 /// The app window's one remote-data client, made at startup; every lookup goes through it (via
 /// the star map). Its cache is the core's file (in the data folder), so an answer the core fetched
-/// for a voice question is served here too. The shell has no log file: its problems go to stderr.
+/// for a voice question is served here too. Its problems go to the window's log.
 struct Remote(std::sync::Arc<astromech_data::Client>);
 
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
@@ -1129,6 +1120,15 @@ fn route_arg(args: &[String]) -> Option<String> {
 }
 
 fn main() {
+    // Release builds have no console, so the window's problems go to its own log in the core's
+    // log folder (`astromech-shell.log`).
+    let red = astromech_keybinds::report::Redactor::from_env();
+    astromech_log::init(
+        &Paths::current().log_dir(),
+        astromech_log::SHELL,
+        cfg!(debug_assertions),
+        Box::new(move |l: &str| red.apply(l)),
+    );
     let args: Vec<String> = std::env::args().collect();
     let route = route_arg(&args);
     tauri::Builder::default()
@@ -1147,7 +1147,7 @@ fn main() {
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
-        .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
+        .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(astromech_log::log))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![
@@ -1207,7 +1207,7 @@ fn main() {
                 .build()?;
             if !core_alive() {
                 if let Err(e) = start_core() {
-                    eprintln!("couldn't start the core: {e}");
+                    astromech_log::log(&format!("couldn't start the core: {e}"));
                 }
             }
             let h = app.handle().clone();

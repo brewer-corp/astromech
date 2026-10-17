@@ -16,6 +16,7 @@ name = "astromech-core"
 path = "src/main.rs"
 
 [dependencies]
+astromech-log.workspace = true
 astromech-proto.workspace = true
 astromech-journal.workspace = true
 astromech-status.workspace = true

@@ -229,10 +229,7 @@ impl Config {
     }
 
     pub fn journal_dir(&self) -> Option<PathBuf> {
-        opt(&self.game.journal_dir).or_else(|| {
-            std::env::var_os("USERPROFILE")
-                .map(|h| PathBuf::from(h).join("Saved Games").join("Frontier Developments").join("Elite Dangerous"))
-        })
+        Paths::current().journal_dir(&self.game.journal_dir)
     }
 
     pub fn bindings_dir(&self) -> Option<PathBuf> {
