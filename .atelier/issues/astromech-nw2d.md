@@ -5,7 +5,7 @@ issue_type: "bug"
 labels:
 - "alpha"
 workflow_branch:
-  branch_base: wt-base-nw2d
+  branch_base: main
   work_branch: bug/astromech-nw2d
 priority: "P2"
 relationships:
