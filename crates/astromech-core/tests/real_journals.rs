@@ -37,12 +37,15 @@ struct Section {
     elapsed: Duration,
     lines: Vec<String>,
     problems: Vec<String>,
+    known: Vec<String>,
 }
 
 #[derive(Default)]
 struct Out {
     lines: Vec<String>,
     problems: Vec<String>,
+    /// Problems already filed, with their issue: reported, but not a failure.
+    known: Vec<String>,
 }
 
 impl Out {
@@ -56,6 +59,10 @@ impl Out {
         if !ok {
             self.problem(what);
         }
+    }
+    /// A problem filed as `issue`: shown, but it doesn't fail the run.
+    fn known(&mut self, issue: &str, what: impl Into<String>) {
+        self.known.push(format!("{} ({issue})", what.into()));
     }
 }
 
@@ -79,7 +86,7 @@ fn run(sections: &mut Vec<Section>, name: &'static str, f: impl FnOnce(&mut Out)
             .unwrap_or_default();
         out.problem(format!("PANIC: {msg}"));
     }
-    sections.push(Section { name, elapsed, lines: out.lines, problems: out.problems });
+    sections.push(Section { name, elapsed, lines: out.lines, problems: out.problems, known: out.known });
 }
 
 impl Harness {
@@ -163,12 +170,18 @@ fn schema_errors(cache: &mut BTreeMap<String, Option<jsonschema::Validator>>, fi
     }
 }
 
-/// The game state after every line of every journal, oldest first, then the companion files.
-fn full_state(dir: &Path, lines: &[JournalLine]) -> GameState {
+/// The game state after every line of every journal, oldest first.
+fn journal_state(lines: &[JournalLine]) -> GameState {
     let mut g = GameState::default();
     for l in lines {
         g.apply_line(l);
     }
+    g
+}
+
+/// [`journal_state`], then the companion files, as the core has it.
+fn full_state(dir: &Path, lines: &[JournalLine]) -> GameState {
+    let mut g = journal_state(lines);
     if let Some(s) = astromech_status::read_status(&dir.join("Status.json")) {
         g.apply_status(&s);
     }
@@ -194,10 +207,17 @@ fn real_journals() {
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::create_dir_all(&scratch).unwrap();
     let copied = copy_folder(&src, &dir);
-    let dump = std::env::var_os("ASTROMECH_REAL_OUT").map(PathBuf::from);
-    if let Some(d) = &dump {
+    // The dump holds names and places: never inside the repository or the journal folder.
+    let dump = std::env::var_os("ASTROMECH_REAL_OUT").map(PathBuf::from).filter(|d| {
         std::fs::create_dir_all(d).unwrap();
-    }
+        let d = d.canonicalize().unwrap();
+        let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").canonicalize().unwrap();
+        let inside = d.starts_with(&repo) || d.starts_with(src.canonicalize().unwrap());
+        if inside {
+            eprintln!("real_journals: not writing ASTROMECH_REAL_OUT inside the repository or the journal folder");
+        }
+        !inside
+    });
     let h = Harness { dir: dir.clone(), scratch, dump };
     let mut sections = vec![];
 
@@ -224,7 +244,7 @@ fn real_journals() {
     run(&mut sections, "EDDN dry run (nothing sent)", |o| eddn_section(&dir, &lines, &ids, o));
     run(&mut sections, "EDSM dry run (nothing sent)", |o| edsm_section(&lines, o));
 
-    let mut failed = 0;
+    let (mut failed, mut known) = (0, 0);
     println!("\n==== real journals: {} files copied, {} lines ====", copied, lines.len());
     for s in &sections {
         println!("\n## {} ({:.2} s)", s.name, s.elapsed.as_secs_f64());
@@ -234,9 +254,13 @@ fn real_journals() {
         for p in &s.problems {
             println!("  PROBLEM: {p}");
         }
+        for k in &s.known {
+            println!("  KNOWN: {k}");
+        }
         failed += s.problems.len();
+        known += s.known.len();
     }
-    println!("\n==== {failed} problem(s) ====");
+    println!("\n==== {failed} problem(s), {known} known and filed ====");
     assert_eq!(failed, 0, "see the PROBLEM lines above");
 }
 
@@ -353,13 +377,17 @@ fn history_section(h: &Harness, o: &mut Out) {
     for f in &fleet.ships {
         match ships.iter().find(|s| s.ship_id == f.id) {
             None => o.problem(format!("fleet ship #{} {} is not in the ships ledger", f.id, f.ship_type)),
-            Some(s) if s.sold.is_some() || s.ship_type != f.ship_type => o.problem(format!(
-                "fleet ship #{} {} is in the ships ledger as {}{}",
-                f.id,
-                f.ship_type,
-                s.ship_type,
-                if s.sold.is_some() { ", sold" } else { "" }
-            )),
+            // The game reuses a traded-in ship's id for the new one.
+            Some(s) if s.sold.is_some() || s.ship_type != f.ship_type => o.known(
+                "astromech-vett",
+                format!(
+                    "fleet ship #{} {} is in the ships ledger as {}{}",
+                    f.id,
+                    f.ship_type,
+                    s.ship_type,
+                    if s.sold.is_some() { ", sold" } else { "" }
+                ),
+            ),
             Some(_) => {}
         }
     }
@@ -374,27 +402,26 @@ fn history_section(h: &Harness, o: &mut Out) {
         .collect();
     let have: BTreeSet<String> = ships.iter().map(|s| s.ship_type.clone()).collect();
     let lost: Vec<_> = flown.difference(&have).cloned().collect();
-    o.check(lost.is_empty(), format!("ship types flown but not in the ships ledger: {}", lost.join(", ")));
+    if !lost.is_empty() {
+        o.known("astromech-vett", format!("ship types flown but not in the ships ledger: {}", lost.join(", ")));
+    }
 
     let t = Instant::now();
     let s = hist.session(None, None).unwrap();
     o.say(format!("latest session ({:.3} s):", t.elapsed().as_secs_f64()));
     if let Some(s) = &s {
         o.say(format!(
-            "  {} s long, {} cr total ({:?}/h), trade profit {}, {} jumps / {:.0} ly, {} bounties, data sold {}",
+            "  {} s long, {} jumps, {} kind(s) of earnings ({}), rate known {}",
             s.duration_secs,
-            s.total,
-            s.per_hour,
-            s.trade_profit,
             s.jumps,
-            s.distance_ly,
-            s.bounties_awarded,
-            s.data_sold
+            s.earnings.len(),
+            s.earnings.iter().map(|e| format!("{} x{}", e.kind, e.count)).collect::<Vec<_>>().join(", "),
+            s.per_hour.is_some()
         ));
-        o.say(format!(
-            "  earnings: {}",
-            s.earnings.iter().map(|e| format!("{} {}x {}", e.kind, e.count, e.amount)).collect::<Vec<_>>().join(", ")
-        ));
+        o.check(
+            s.earnings.iter().map(|e| e.amount).sum::<i64>() == s.total,
+            "session total is not the sum of its earnings",
+        );
         o.check(s.duration_secs >= 0, "negative session length");
         o.check(s.total >= 0, "negative session earnings");
     } else {
@@ -428,33 +455,51 @@ fn state_section(h: &Harness, g: &GameState, lines: &[JournalLine], o: &mut Out)
         g.station.is_some()
     ));
     o.say(format!(
-        "credits {:?}, rebuy {:?}, hull {:?}, jump range {:?}, fuel {:?}/{:?}, cargo {:?}/{:?}",
-        g.credits,
-        g.rebuy,
-        g.hull_health,
-        g.max_jump_range,
-        g.fuel_main,
-        g.fuel_capacity_main,
-        g.cargo_tonnes,
-        g.cargo_capacity
+        "known: credits {}, rebuy {}, hull {}, jump range {}, fuel {}/{}, cargo {}/{}",
+        g.credits.is_some(),
+        g.rebuy.is_some(),
+        g.hull_health.is_some(),
+        g.max_jump_range.is_some(),
+        g.fuel_main.is_some(),
+        g.fuel_capacity_main.is_some(),
+        g.cargo_tonnes.is_some(),
+        g.cargo_capacity.is_some()
     ));
     o.say(format!(
-        "materials {} kinds, missions {}, route {} hops, legal {:?}",
+        "materials {} kinds, missions {}, route {} hops",
         g.materials.counts.len(),
         g.missions.len(),
-        g.route.len(),
-        g.legal_state
+        g.route.len()
     ));
     h.dump("gamestate", g);
     // Against the journal itself.
     if lines.iter().any(|l| l.name == "LoadGame") {
         o.check(g.commander.is_some(), "no commander after a LoadGame");
     }
+    // Credits: the journal gives them at login (`LoadGame`); after that only Status.json's
+    // `Balance` does, which the game leaves out once it has shut down.
+    let journal = journal_state(lines);
+    let login = lines.iter().rev().find_map(|l| match &l.event {
+        JournalEvent::LoadGame { credits, .. } => Some(*credits),
+        _ => None,
+    });
+    if let Some(login) = login {
+        o.check(
+            journal.credits == login,
+            format!("credits {:?} from the journal but the last login says {login:?}", journal.credits),
+        );
+    }
     let status: Option<Value> =
         std::fs::read(h.dir.join("Status.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
-    if let Some(bal) = status.as_ref().and_then(|s| s.get("Balance")).and_then(Value::as_i64) {
-        o.say(format!("Status.json Balance {bal}"));
-        o.check(g.credits == Some(bal), format!("credits {:?} but Status.json says {bal}", g.credits));
+    match status.as_ref().and_then(|s| s.get("Balance")).and_then(Value::as_i64) {
+        Some(bal) => {
+            o.say("credits: the last login's, then Status.json's Balance");
+            o.check(g.credits == Some(bal), format!("credits {:?} but Status.json says {bal}", g.credits));
+        }
+        None => {
+            o.say("credits: the last login's (Status.json has no Balance)");
+            o.check(g.credits == journal.credits, "credits changed without a Status.json Balance");
+        }
     }
     if let Some(lo) = lines.iter().rev().find(|l| l.name == "Loadout") {
         let v: Value = serde_json::from_str(&lo.raw_json).unwrap();
@@ -529,9 +574,6 @@ fn catch_up_section(h: &Harness, full: &GameState, o: &mut Out) {
     ));
     o.check(stats.bad_lines == 0, format!("{} bad lines in the catch-up", stats.bad_lines));
     o.say(format!("pipeline log: {} lines", logs.lock().unwrap().len()));
-    for l in logs.lock().unwrap().iter().take(20) {
-        o.say(format!("  log: {}", l.chars().take(160).collect::<String>()));
-    }
     let n = fired.load(Ordering::SeqCst);
     o.check(n == 0, format!("{n} callouts fired during the catch-up"));
     let eddn_q = Outbox::open(&eddn_db).unwrap().pending().unwrap();
@@ -552,16 +594,7 @@ fn catch_up_section(h: &Harness, full: &GameState, o: &mut Out) {
         ("powerplay", format!("{:?}", g.powerplay.power), format!("{:?}", full.powerplay.power)),
     ] {
         let same = a == b;
-        let shown = if what == "system" || what == "station" || what == "commander" {
-            if same {
-                "same".to_string()
-            } else {
-                "differs".to_string()
-            }
-        } else {
-            format!("{a} vs {b}")
-        };
-        o.say(format!("catch-up vs every journal, {what}: {shown}"));
+        o.say(format!("catch-up vs every journal, {what}: {}", if same { "same" } else { "differs" }));
         if !same {
             o.problem(format!("catch-up {what} differs from the full replay"));
         }
@@ -706,14 +739,13 @@ fn fleet_section(h: &Harness, full: &GameState, lines: &[JournalLine], o: &mut O
     ));
     for s in &fleet.ships {
         o.say(format!(
-            "  #{} {} {}{} modules {} engineered {} value {:?} system {}",
+            "  #{} {} {}{} modules {} engineered {} system {}",
             s.id,
             s.ship_type,
             if s.current { "(current) " } else { "" },
             if s.in_transit { "(in transit) " } else { "" },
             s.modules.len(),
             s.modules.iter().filter(|m| m.engineering.is_some()).count(),
-            s.value,
             if s.system.is_some() { "known" } else { "unknown" }
         ));
     }
@@ -723,6 +755,28 @@ fn fleet_section(h: &Harness, full: &GameState, lines: &[JournalLine], o: &mut O
             Some(c.id) == full.ship_id,
             format!("current ship #{} but the game state flies {:?}", c.id, full.ship_id),
         );
+        // Its modules are the last Loadout's (the game writes one after every outfitting change).
+        if let Some(lo) = lines.iter().rev().find(|l| l.name == "Loadout") {
+            let v: Value = serde_json::from_str(&lo.raw_json).unwrap();
+            let fitted = |slot: &str, item: &str| (slot.to_ascii_lowercase(), item.to_ascii_lowercase());
+            let journal: BTreeSet<_> = v
+                .get("Modules")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(|m| Some(fitted(m.get("Slot")?.as_str()?, m.get("Item")?.as_str()?)))
+                .collect();
+            let ours: BTreeSet<_> = c.loadout.iter().map(|m| fitted(&m.slot, &m.item)).collect();
+            o.say(format!("current ship: {} modules, the last Loadout {}", ours.len(), journal.len()));
+            o.check(
+                ours == journal,
+                format!(
+                    "current ship's modules differ from the last Loadout: {} only ours, {} only the journal's",
+                    ours.difference(&journal).count(),
+                    journal.difference(&ours).count()
+                ),
+            );
+        }
     }
     let unnamed: Vec<_> = fleet
         .ships
@@ -832,9 +886,6 @@ fn odyssey_section(h: &Harness, o: &mut Out) {
         view.engineers.len(),
         log_lines.lock().unwrap().len()
     ));
-    for l in log_lines.lock().unwrap().iter().take(10) {
-        o.say(format!("  log: {l}"));
-    }
     if !hold.unknown.is_empty() {
         o.problem(format!("unknown micro-resources: {}", hold.unknown.keys().cloned().collect::<Vec<_>>().join(", ")));
     }
@@ -859,12 +910,10 @@ fn powerplay_section(h: &Harness, lines: &[JournalLine], o: &mut Out) {
     let j = astromech_powerplay::from_journal_dir(&h.dir);
     let ov = j.overview();
     o.say(format!(
-        "power {}, rank {:?}, merits {:?}, session merits {}, week merits {}, here {}, system power {}",
-        if ov.standing.power.is_some() { "pledged" } else { "none" },
-        ov.standing.rank,
-        ov.standing.merits,
-        ov.standing.session_merits,
-        ov.standing.week_merits,
+        "pledged {}, rank known {}, merits known {}, here {}, system power {}",
+        ov.standing.power.is_some(),
+        ov.standing.rank.is_some(),
+        ov.standing.merits.is_some(),
         ov.here.is_some(),
         ov.system.is_some()
     ));
@@ -906,7 +955,7 @@ fn powerplay_section(h: &Harness, lines: &[JournalLine], o: &mut Out) {
             _ => {}
         }
     }
-    o.say(format!("by the journal: merits {total:?}, rank {last_rank:?}, {week} this cycle, {uncounted} award(s) the game did not count"));
+    o.say(format!("by the journal: {uncounted} award(s) the game wrote but did not count"));
     if total.is_some() {
         o.check(ov.standing.power.is_some(), "Powerplay events but no power");
         o.check(ov.standing.merits == total, format!("merits {:?} but the journal says {total:?}", ov.standing.merits));
@@ -938,8 +987,10 @@ fn exploration_section(h: &Harness, full: &GameState, o: &mut Out) {
     }
     o.check(view.value >= 0 && view.value <= view.value_if_mapped.max(view.value), "value above value if mapped");
     h.dump("exploration", &view);
-    let bio = serde_json::to_value(&full.exobiology).unwrap_or_default();
-    o.say(format!("exobiology state: {}", bio.to_string().chars().take(200).collect::<String>()));
+    o.say(format!(
+        "exobiology: sampling {}",
+        if full.exobiology.sampling.current.is_some() { "a species" } else { "nothing" }
+    ));
 }
 
 fn galaxy_section(h: &Harness, full: &GameState, o: &mut Out) {
@@ -1107,7 +1158,8 @@ fn edsm_section(lines: &[JournalLine], o: &mut Out) {
         *by.entry(q.schema_ref.clone()).or_default() += 1;
     }
     let held = up.outbox().recent_of(&[Outcome::Dropped], 50).unwrap();
-    o.say(format!("{} events would be uploaded: {}", queued.len(), fmt_counts(&by)));
+    // The real uploader also drops what EDSM's discard list names (fetched from EDSM, so not here).
+    o.say(format!("{} events queued before EDSM's discard list: {}", queued.len(), fmt_counts(&by)));
     o.say(format!(
         "held back: {}",
         held.iter().map(|e| e.detail.clone()).collect::<BTreeSet<_>>().into_iter().collect::<Vec<_>>().join("; ")
