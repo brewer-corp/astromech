@@ -231,7 +231,8 @@ astromech/
     astromech-policy/    tiers, confirmation, rate limits, kill switch: the ONLY path to the executor
     astromech-tools/     typed tool registry (depends on policy, never on input)
     astromech-overlay/   egui panels for the VR overlay (stub)
-    astromech-store/     SQLite (rusqlite, bundled) config + migrations
+    astromech-store/     SQLite (rusqlite, bundled) config + migrations; secrets (EDSM API key) in the
+                         OS keyring (keyring-core + its Windows Credential Manager store)
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
     astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records),
                          shopping list (remaining minus the hold, in loads); the app's Trade > Colonisation
@@ -296,7 +297,19 @@ astromech/
                          stopping never waits for a post. Off until switched on in Settings → Data
                          sharing ([eddn] enabled), which takes effect at once: off, nothing is queued
                          and the core discards the queue then and there. Discards aren't shown as
-                         the last error there; only rejected, retried and given-up sends are
+                         the last error there; only rejected, retried and given-up sends are.
+                         EDSM (`edsm`, written from EDSM's Journal API v1 and Logs API v1 docs, not
+                         EDMC): live journal events, unmodified plus the documented transient fields
+                         (_systemAddress, _systemName, _systemCoordinates, _marketId, _stationName,
+                         _shipId), to api-journal-v1 in batches of up to 50, one game session each;
+                         the same outbox shape (edsm.sqlite, no API key stored) and worker. EDSM's
+                         discard list (fetched before the first post, kept a day, refetched on a 304)
+                         stops listed events being queued and is applied again to every request;
+                         nothing is sent without it. Only for the commander set in Settings → Data
+                         sharing ([edsm] enabled, commander; the API key in the OS keyring), never
+                         beta, never in another commander's crew. A wrong key (201-203) or an
+                         outage keeps the events, backing off to an hour. The flight log (get-logs,
+                         last week) is read on demand from the same page
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
                          backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
     astromech-station/   docked-here facts (services, economies, faction, pads, upgrades on sale) and the outfitting book (`outfitting.sqlite`: every Outfitting.json seen, searched offline)
@@ -337,7 +350,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 | `reqwest` | 0.13.5 | 2026-09 | active | data, cAPI |
 | `governor` | 0.10.4 | 2025-12 | active | rate limits (data clients, policy) |
 | `oauth2` | 5.0.0 | 2025-01 | stable, slower cadence | cAPI PKCE |
-| `keyring` | 4.2.0 | 2026-08 | active | secrets (Windows Credential Manager): Frontier tokens, and the user's cloud API key in the later phase |
+| `keyring-core` + `windows-native-keyring-store` | 1.0.1 / 1.1.0 | 2026 | active | secrets (Windows Credential Manager): the EDSM API key; Frontier tokens and the user's cloud API key later. The parts of `keyring` 4.2.0 we need, without its Linux and macOS stores |
 | `rusqlite` (+ `bundled`), `rusqlite_migration` | 0.40.2 / 2.6.0 | 2026 | active | store |
 | `toml`, `directories` | 1.1.7 / 6.0.0 | 2026 / 2025-01 | active / stable | config, paths |
 | `cpal` | 0.18.2 | 2026-08 | active | audio I/O |
@@ -684,7 +697,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 ### 5.19 `astromech-store`
 - **Config:** `%APPDATA%\astromech\config.toml` (`directories::ProjectDirs`), versioned with migrations.
 - **Database:** `%LOCALAPPDATA%\astromech\astromech.db` (`rusqlite` bundled + `rusqlite_migration`). Tables: `audit_actions`, `announcements`, `api_cache`, `bookmarks`, `routes`, `session_stats`.
-- **Secrets:** Inara key, Frontier tokens, and later the user's own cloud-voice API key go in Windows Credential Manager via `keyring`. Never in config or logs.
+- **Secrets:** the EDSM API key (as built, `astromech_store::secrets`: `keyring-core` with its Windows store, the generic credential `edsm-api-key.astromech`), and later the Inara key, Frontier tokens and the user's own cloud-voice API key go in Windows Credential Manager. Never in config or logs. Off Windows there is no keyring and saving a key fails plainly.
 - **Models:** `%LOCALAPPDATA%\astromech\models\` (Parakeet, Kokoro, Silero VAD), with a SHA-256 manifest, resumable download, and each model's licence and attribution shown before download (Parakeet is CC-BY-4.0).
 - **Controls bindings:** stored in `config.toml` as device identity + button (§5.10a).
 
