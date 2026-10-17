@@ -216,7 +216,7 @@ impl Session {
         let voice_ok = !args.no_voice && worker.is_file();
         if !args.no_voice {
             use astromech_voice::models;
-            let stt_ok = models::stt_paths(&models::model_root(&models, &models::STT)).is_ok();
+            let stt_ok = models::find_stt(&models).is_ok();
             let tts_ok = models::find_tts(&models).is_ok();
             log(&format!(
                 "voice: worker {} ({}); models {}: speech-to-text {}, text-to-speech {}",
