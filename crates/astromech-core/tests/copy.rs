@@ -143,6 +143,14 @@ fn arrival_lines() -> Vec<String> {
         ..enemy.clone()
     };
     let mut v = vec![arrival::UNDISCOVERED.to_string()];
+    // Been here before: every unit of "ago", with the most digits each count and gap can have.
+    for visits in [1, 2, 99_999] {
+        for gap in [0, 90, 7_200, 200_000, 5_000_000, 90_000_000] {
+            let past = arrival::Past { visits, last: "2026-01-01T00:00:00Z".into() };
+            let now = chrono::DateTime::from_timestamp(1_767_225_600 + gap, 0).unwrap().to_rfc3339();
+            v.extend(arrival::visits_line(&past, &now));
+        }
+    }
     for spec in astromech_materials::catalog::catalog() {
         let wanted = vec![spec.id.to_string()];
         for f in &states {
