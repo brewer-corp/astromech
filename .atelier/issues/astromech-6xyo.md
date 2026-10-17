@@ -3,6 +3,9 @@ created_at: "2026-10-16T20:53:31.889432194+00:00"
 id: "astromech-6xyo"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-6xyo
 priority: "P1"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T00:04:19.183183361+00:00"
+status: "done"
 title: "Tidy EDDN switch-off and give-up reporting"
-updated_at: "2026-10-16T20:58:07.943137638+00:00"
+updated_at: "2026-10-17T00:04:19.183183361+00:00"
 ---
 
 ## Goal
@@ -37,3 +41,7 @@ Found in the final review of feature/astromech-tyjz (astromech-xvjs, astromech-0
 ## Notes
 
 - 2026-10-16 [note] Also (review round 8, R1): an event awaiting its companion file when sharing goes off, with the file arriving after sharing is back on, is sent with its original timestamp; apply the live-age check on that path too.
+
+## Close Reason
+
+set_eddn off discards the queue from the core at once and flips EDDN_SHARING; discarded rows (switched off, outbox full) are a separate outcome not shown as Last error, one row per overflow; stale companion files not sent. Tests fail without each fix.

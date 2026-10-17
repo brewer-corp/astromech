@@ -284,9 +284,11 @@ astromech/
                          Worker: delivery on its own thread and SQLite connection, so no lock is held
                          across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
                          also wait a minute on the monotonic clock; messages over 30 min old are given
-                         up, and at most 2000 are kept; stopping never waits for a post. Off until
-                         switched on in Settings → Data sharing ([eddn] enabled), which takes effect at
-                         once: off, nothing is queued and the queue is discarded
+                         up, and at most 2000 are kept (one "discarded" log row per overflow);
+                         stopping never waits for a post. Off until switched on in Settings → Data
+                         sharing ([eddn] enabled), which takes effect at once: off, nothing is queued
+                         and the core discards the queue then and there. Discards aren't shown as
+                         the last error there; only rejected, retried and given-up sends are
     astromech-history/   journal history (SQLite history.sqlite): every journal line in `events`, resumable
                          backfill by byte offset, ledgers (visits, earnings, ships, scans) derived from it
     astromech-station/   docked-here facts (services, economies, faction, pads, upgrades on sale) and the outfitting book (`outfitting.sqlite`: every Outfitting.json seen, searched offline)
