@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-s0gz
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Callout toggles and cooldowns in Settings"
-updated_at: "2026-10-17T17:01:41.508366203+00:00"
+updated_at: "2026-10-17T19:20:54.574454079+00:00"
 ---
 
 ## Goal

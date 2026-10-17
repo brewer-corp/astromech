@@ -142,6 +142,9 @@ export type CoreCmd =
   | "set_voice"
   | "voice_settings"
   | "voice_preview"
+  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
+  | "callouts"
+  | "set_callout"
   // Settings → Prospector callouts (core: callouts.rs).
   | "prospector_thresholds"
   | "prospector_set"

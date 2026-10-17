@@ -45,6 +45,26 @@ pub fn thresholds_json(t: &Thresholds) -> Value {
     json!({"ok": true, "ores": ores})
 }
 
+/// Every callout with what is in effect, for Settings → Callouts: `enabled` and `cooldown_s`
+/// are the configured values or the callout's own; `default_*` are the callout's own.
+pub fn callouts_json(settings: &astromech_announce::Settings) -> Value {
+    let list: Vec<Value> = astromech_announce::catalog()
+        .iter()
+        .map(|i| {
+            let s = settings.0.get(i.id).cloned().unwrap_or_default();
+            json!({
+                "id": i.id,
+                "title": i.title,
+                "enabled": s.enabled.unwrap_or(i.default_enabled),
+                "cooldown_s": s.cooldown_s.unwrap_or(i.default_cooldown_s),
+                "default_enabled": i.default_enabled,
+                "default_cooldown_s": i.default_cooldown_s,
+            })
+        })
+        .collect();
+    json!({"ok": true, "callouts": list})
+}
+
 /// A change from Settings: `{"ore": "platinum", "threshold": 25}` (`null` turns it off) or
 /// `{"ore": "platinum", "reset": true}`.
 pub fn apply_threshold_change(t: &mut Thresholds, text: &str) -> Result<(), String> {

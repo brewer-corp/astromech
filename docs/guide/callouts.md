@@ -30,7 +30,9 @@ mid-session is silent until the next live event.
 
 ## Turning callouts off
 
-Each callout has an id (in the headings below). In `astromech.toml` (Settings, Files, **Open**):
+In [Settings](settings.md#callouts), each callout has a switch and a cooldown. They are saved to
+`astromech.toml` and apply from the next time Elite starts. Each callout also has an id (in the
+headings below), which you can use to edit the file yourself (Settings, Files, **Open**):
 
 ```toml
 [callouts.scan]

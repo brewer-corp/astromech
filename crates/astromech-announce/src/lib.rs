@@ -211,6 +211,50 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     ]
 }
 
+/// How Settings names each rule (the guide page's headings). Every built-in rule has one.
+const TITLES: &[(&str, &str)] = &[
+    ("prospector", "Prospector"),
+    ("scan", "Scans"),
+    ("arrival", "Arrival briefing"),
+    ("powerplay_arrival", "Powerplay arrival"),
+    ("biology", "Known biology"),
+    ("docking", "Docking"),
+    ("scoopable", "Next scoopable star"),
+    ("fuel_range", "Fuel range"),
+    ("route", "Route summary"),
+    ("route_follow", "Route follower"),
+    ("hge", "High Grade Emissions"),
+    ("materials_cap", "Materials at the cap"),
+    ("missions", "Mission reminders"),
+    ("project_market", "Colonisation shopping"),
+    ("signals", "Signals"),
+    ("sampling", "Exobiology sampling"),
+    ("discovery", "Discoveries"),
+    ("session_summary", "Session summary"),
+];
+
+/// A rule as Settings lists it.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Info {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub default_enabled: bool,
+    pub default_cooldown_s: f64,
+}
+
+/// Every rule that ships, for Settings.
+pub fn catalog() -> Vec<Info> {
+    builtin(Shared::default())
+        .iter()
+        .map(|r| Info {
+            id: r.id(),
+            title: TITLES.iter().find(|(id, _)| *id == r.id()).map_or(r.id(), |(_, t)| t),
+            default_enabled: r.default_enabled(),
+            default_cooldown_s: r.cooldown().as_secs_f64(),
+        })
+        .collect()
+}
+
 /// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
@@ -532,5 +576,23 @@ mod tests {
         assert_eq!(s.0["prospector"].enabled, Some(false));
         assert_eq!(s.0["scan"].cooldown_s, Some(2.5));
         assert_eq!(toml::to_string(&s).unwrap(), "[prospector]\nenabled = false\n\n[scan]\ncooldown_s = 2.5\n");
+    }
+}
+
+#[cfg(test)]
+mod catalog_tests {
+    use super::*;
+
+    #[test]
+    fn every_built_in_rule_has_a_title_and_a_default() {
+        let c = catalog();
+        assert_eq!(c.len(), TITLES.len());
+        for (id, t) in TITLES {
+            let i = c.iter().find(|i| i.id == *id).unwrap_or_else(|| panic!("{id} has a title but no rule"));
+            assert_eq!(i.title, *t);
+        }
+        let off: Vec<_> = c.iter().filter(|i| !i.default_enabled).map(|i| i.id).collect();
+        assert_eq!(off, ["powerplay_arrival"]);
+        assert_eq!(c.iter().find(|i| i.id == "scan").unwrap().default_cooldown_s, 30.0);
     }
 }
