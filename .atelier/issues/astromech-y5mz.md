@@ -21,9 +21,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T23:37:16.607766495+00:00"
+status: "done"
 title: "Build the WebView2 cost harness"
-updated_at: "2026-10-17T20:36:24.051783242+00:00"
+updated_at: "2026-10-17T23:37:16.607766495+00:00"
 ---
 
 ## Goal
@@ -41,3 +42,7 @@ Matters more as the window gets more modules. Spike names aren't record IDs.
 ## Notes
 
 - 2026-10-17 [note] Handoff (Claude): PR #132 ready for review. scripts/webview_cost.py and the App window cost workflow (WebKitGTK reported, WebView2 gating). Windows runner: idle 141.6 MB, CPU 0.33% of the machine (1.32% of one core), cold start 0.65 s with the core running and 0.648 s without; start after a core crash 2.67 s (finding astromech-k8yk). Linux: 289 MB (over, not gating). Independent review done, FIX NOW items fixed and re-reviewed; awaiting Sumeet's approval. For Sumeet: decision astromech-8qcz (CPU basis). Deferred: astromech-wj8v, astromech-e7t5. Frame time next to Elite stays with astromech-7ck3.
+
+## Close Reason
+
+WebView cost harness built and run on the Windows runner: 141.6 MB idle, 0.33% machine CPU idle, 0.65 s cold start against the S11 budgets; Linux WebKitGTK reported only. Reviewed; the CPU-budget reading is decision astromech-8qcz.
