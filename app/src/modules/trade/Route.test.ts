@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import sample from "../../lib/fixtures/trade.json";
-import type { Filters, Origin } from "../../lib/search";
+import { DEFAULT_FILTERS, type Filters, type Origin } from "../../lib/search";
 import type { RouteAsk, RouteDefaults, RouteKind, RouteSearch, TradeRoute } from "../../lib/trade";
 import Route from "./Route.svelte";
 
@@ -17,7 +17,16 @@ vi.mock("../../lib/trade", async (orig) => ({
   tradeRouteDefaults: () => defaults(),
 }));
 
+// The shell resolves the pad for the ship flown now when it loads the filters.
+let shipPad: Filters["pad"] = "M";
+vi.mock("../../lib/search", async (orig) => ({
+  ...(await orig<typeof import("../../lib/search")>()),
+  loadFilters: async () => ({ ...DEFAULT_FILTERS, pad: shipPad }),
+  saveFilters: async () => {},
+}));
+
 beforeEach(() => {
+  shipPad = "M";
   localStorage.clear();
   route.mockReset();
   defaults.mockReset();
@@ -108,5 +117,14 @@ describe("Trade route", () => {
     await fireEvent.input(field("Cargo capacity"), { target: { value: "64" } });
     await fireEvent.input(field("Credits"), { target: { value: "1000000" } });
     expect((screen.getByRole("button", { name: "Find route" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("labels the ship's pad with the ship flown at the last search", async () => {
+    render(Route);
+    await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
+    expect(await screen.findByText("Ship's (M)")).toBeTruthy();
+    shipPad = "L"; // swapped to an Anaconda
+    await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
+    expect(await screen.findByText("Ship's (L)")).toBeTruthy();
   });
 });
