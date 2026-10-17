@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8fey
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice: single-word 'paste' scores 94% on the synthetic eval (galaxy_map.paste, T1)"
-updated_at: "2026-10-17T21:44:36.987014145+00:00"
+updated_at: "2026-10-17T23:19:55.816541401+00:00"
 ---
 
 ## Goal

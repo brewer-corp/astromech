@@ -408,9 +408,11 @@ pub fn is_noise_only(t: &str) -> bool {
     !w.is_empty() && w.iter().all(|w| NOISE_WORDS.contains(w) || *w == "hmm" || *w == "mm")
 }
 
-/// Mishearings of game words seen in real transcripts that are too ambiguous to execute on:
-/// the replacement is scored, but capped below EXECUTE so it becomes "Did you mean …?".
-const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear")];
+/// Mishearings of game words, too ambiguous to execute on: the replacement is scored, but capped
+/// below EXECUTE so it becomes "Did you mean …?". "you" for "gear" is from real transcripts;
+/// "pays" for "paste" (the final "st" lost) from the voice eval.
+const MISHEARD: &[(&str, &str)] =
+    &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear"), ("pays", "paste")];
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
@@ -1263,6 +1265,28 @@ mod tests {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
+    }
+
+    /// "paste" heard as "Pays." (voice eval, astromech-8fey): asks, never sends Ctrl+V on its own.
+    #[test]
+    fn pays_asks_for_paste() {
+        let g = g();
+        for t in ["Pays.", "pays"] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.phrase.as_str(), m.decision),
+                ("galaxy_map.paste", "paste", Decision::Ask),
+                "{t:?}"
+            );
+        }
+        assert_eq!(g.best("Paste.").decision, Decision::Execute);
+        // Everyday sentences with "pays" press nothing.
+        for t in ["Crime pays.", "It pays well", "Who pays the most for gold", "That pays off", "pays it"] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        assert_eq!(g.best("Crime pays.").decision, Decision::NoMatch);
+        assert_eq!(g.best("It pays well").decision, Decision::NoMatch);
     }
 
     #[test]
