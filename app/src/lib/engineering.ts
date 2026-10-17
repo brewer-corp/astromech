@@ -3,7 +3,7 @@
  * localStorage), and the materials and ship stats a plan gives, computed by the shell.
  */
 import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
+import { coreCall, inTauri } from "./core";
 import type { SourceNote } from "./materials";
 import sample from "./fixtures/engineering.json";
 import shipsSample from "./fixtures/ships.json";
@@ -281,6 +281,20 @@ export async function loadFleet(): Promise<Fleet> {
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
   if (!inTauri) return plan.ship_id === samplePlan.ship_id ? samplePlan : null;
   return await invoke<PlanResult>("engineering_plan", { plan });
+}
+
+/** What the core's arrival briefing listens for: the materials this plan still has to collect. */
+export function shoppingChange(r: PlanResult): { ship_id: number; materials: string[] } {
+  return { ship_id: r.ship_id, materials: r.farm.map((f) => f.id) };
+}
+
+/**
+ * Tell the core what this plan still needs, so arriving in a system whose state gives one of them
+ * is spoken (core callouts.rs `shopping_set`). Best effort: an older or stopped core is ignored.
+ */
+export function shareShoppingList(r: PlanResult): void {
+  if (!inTauri) return;
+  coreCall("shopping_set", JSON.stringify(shoppingChange(r))).catch(() => {});
 }
 
 const targetKey = (t: Target) => [t.slot, t.blueprint, t.grade, t.experimental ?? ""].join("|");

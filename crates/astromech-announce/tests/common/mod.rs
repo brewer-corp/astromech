@@ -1,0 +1,46 @@
+//! A live engine with the built-in rules, fed synthetic journal lines (and companion files)
+//! the way the pipeline feeds it: the game state takes each line first.
+
+#![allow(dead_code)]
+
+use astromech_announce::*;
+use astromech_gamestate::GameState;
+use astromech_journal::parse_line;
+use std::time::{Duration, Instant};
+
+pub struct Run {
+    pub engine: Engine,
+    pub state: GameState,
+    pub shared: Shared,
+    t0: Instant,
+    n: u64,
+}
+
+impl Run {
+    pub fn new() -> Self {
+        Self::with(Shared::default(), &Settings::default())
+    }
+
+    pub fn with(shared: Shared, settings: &Settings) -> Self {
+        let mut engine = Engine::new(builtin(shared.clone()), settings);
+        engine.set_live(true);
+        Self { engine, state: GameState::default(), shared, t0: Instant::now(), n: 0 }
+    }
+
+    /// Everything that fired for one journal line, one second after the previous line.
+    pub fn feed_all(&mut self, line: &str) -> Vec<Reaction> {
+        let j = parse_line(line).unwrap();
+        self.state.apply_line(&j);
+        self.n += 1;
+        self.engine.journal(&j, &self.state, self.t0 + Duration::from_secs(self.n))
+    }
+
+    /// Spoken lines for one or more journal lines (one per text line).
+    pub fn spoken(&mut self, lines: &str) -> Vec<String> {
+        let mut out = vec![];
+        for l in lines.lines().map(str::trim).filter(|l| !l.is_empty()) {
+            out.extend(self.feed_all(l).into_iter().filter(|r| r.channels.speech).map(|r| r.text));
+        }
+        out
+    }
+}

@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{builtin, prospector, scan};
+use astromech_announce::{arrival, builtin, prospector, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["prospector", "scan"],
+        ["arrival", "prospector", "scan"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -46,8 +46,56 @@ fn callout_lines() -> Vec<String> {
             v.push(scan::line(kind, stolen).0);
         }
     }
+    v.extend(arrival_lines());
     v.sort();
     v.dedup();
+    v
+}
+
+/// The arrival briefing: every state with every material it can name, alone and followed by
+/// each Powerplay line; the undiscovered line.
+fn arrival_lines() -> Vec<String> {
+    use astromech_journal::FactionSnap;
+    use astromech_powerplay::{PowerShare, SystemPower};
+    let faction = |allegiance: &str, state: &str| FactionSnap {
+        name: "F".into(),
+        allegiance: allegiance.into(),
+        state: state.into(),
+        influence: 0.5,
+        active_states: vec![state.into()],
+    };
+    let states = [
+        faction("Independent", "Boom"),
+        faction("Empire", "War"),
+        faction("Empire", "CivilWar"),
+        faction("Alliance", "CivilUnrest"),
+        faction("Alliance", "Outbreak"),
+        faction("Federation", "Famine"),
+    ];
+    let enemy = SystemPower {
+        system: "S".into(),
+        controlling_power: Some("Zachary Hudson".into()),
+        state: Some("Fortified".into()),
+        control_progress: Some(0.5),
+        reinforcement: Some(10),
+        undermining: Some(20),
+        contesting: vec![],
+        acquisition: vec![],
+    };
+    let unoccupied = SystemPower {
+        controlling_power: None,
+        acquisition: vec![PowerShare { power: "Aisling Duval".into(), progress: 0.3 }],
+        ..enemy.clone()
+    };
+    let mut v = vec![arrival::UNDISCOVERED.to_string()];
+    for spec in astromech_materials::catalog::catalog() {
+        let wanted = vec![spec.id.to_string()];
+        for f in &states {
+            for system in [None, Some(&enemy), Some(&unoccupied)] {
+                v.extend(arrival::line(std::slice::from_ref(f), 2_000_000_000, &wanted, system, Some("Aisling Duval")));
+            }
+        }
+    }
     v
 }
 
@@ -149,6 +197,8 @@ fn every_line_keeps_to_the_copy_guide() {
     // The enumeration really reaches the rules and the tools.
     assert!(callouts.iter().any(|l| l == "Motherlode. Void Opals."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Cargo scan. Stolen goods aboard."));
+    assert!(callouts.iter().any(|l| l == "Boom here. Proto Heat Radiators. Undermining target."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));
     assert!(replies.iter().any(|l| l.starts_with("Supercruise is not available")), "{replies:?}");

@@ -291,15 +291,27 @@ fn catch_up_leaves_docking_quiet_in_place() {
     assert_eq!(r.spoken(), ["Cargo scan."]);
 }
 
+/// One line per built-in rule that makes it speak, at minute `hm` ("19:59").
+fn one_line_per_rule(hm: &str) -> Vec<String> {
+    vec![
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"ProspectedAsteroid","Materials":[{{"Name":"Platinum","Proportion":40.0}}],"MotherlodeMaterial":"Opal","Remaining":100.0}}"#
+        ),
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:10Z","event":"Scanned","ScanType":"Cargo"}}"#),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:20Z","event":"Scan","ScanType":"AutoScan","BodyName":"Sys A","DistanceFromArrivalLS":0.0,"StarType":"K","WasDiscovered":false}}"#
+        ),
+    ]
+}
+
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 2, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 3, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
-    let rock = r#"{"timestamp":"2026-10-16T19:59:00Z","event":"ProspectedAsteroid","Materials":[{"Name":"Platinum","Proportion":40.0}],"MotherlodeMaterial":"Opal","Remaining":100.0}"#;
-    r.journal(&[rock.to_string(), scanned("19:59:10")].join("\n"));
+    r.journal(&one_line_per_rule("19:59").join("\n"));
     assert!(r.out.is_empty(), "{:?}", r.out);
     r.engine.set_live(true);
-    r.journal(&[rock.replace("19:59:00", "20:00:00"), scanned("20:00:10")].join("\n"));
-    assert_eq!(r.spoken(), ["Motherlode. Void Opals. Platinum 40%.", "Cargo scan."]);
+    r.journal(&one_line_per_rule("20:00").join("\n"));
+    assert_eq!(r.spoken(), ["Motherlode. Void Opals. Platinum 40%.", "Cargo scan.", "Undiscovered system."]);
 }

@@ -20,7 +20,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`] and [`scan`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`] and [`arrival`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
@@ -108,12 +108,26 @@ pub trait Rule: Send {
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout>;
 }
 
+pub mod arrival;
 pub mod prospector;
 pub mod scan;
 
-/// The rules that ship. `prospector`: the thresholds the core keeps (Settings changes them).
-pub fn builtin(prospector: prospector::SharedThresholds) -> Vec<Box<dyn Rule>> {
-    vec![Box::new(prospector::Prospector { thresholds: prospector }), Box::new(scan::Scan)]
+/// What the core keeps for the rules and may change while they run.
+#[derive(Debug, Clone, Default)]
+pub struct Shared {
+    /// Prospector thresholds (Settings changes them).
+    pub prospector: prospector::SharedThresholds,
+    /// What the Engineering plans still have to collect (the app sends it).
+    pub shopping: arrival::SharedShoppingList,
+}
+
+/// The rules that ship.
+pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
+    vec![
+        Box::new(prospector::Prospector { thresholds: shared.prospector }),
+        Box::new(scan::Scan),
+        Box::new(arrival::Arrival { shopping: shared.shopping }),
+    ]
 }
 
 /// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.

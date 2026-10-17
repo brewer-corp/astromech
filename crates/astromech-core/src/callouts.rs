@@ -7,6 +7,7 @@
 
 use crate::logging::log;
 use crate::speech::Speaker;
+use astromech_announce::arrival::ShoppingList;
 use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
 use serde::Serialize;
@@ -72,6 +73,64 @@ pub fn change_thresholds(store: &astromech_store::Store, text: &str) -> Result<T
     let v = serde_json::to_string(&t).map_err(|e| e.to_string())?;
     store.set(PROSPECTOR_KEY, &v).map_err(|e| format!("saving the prospector thresholds: {e}"))?;
     Ok(t)
+}
+
+/// Where the arrival briefing's shopping list lives in `astromech-store`: per ship id, the
+/// material ids its Engineering plan still has to collect (JSON object of lists). The app sends
+/// a ship's list whenever its plan is worked out.
+pub const SHOPPING_KEY: &str = "callouts.arrival.shopping";
+
+type ShipLists = std::collections::BTreeMap<String, Vec<String>>;
+
+fn ship_lists(store: &astromech_store::Store) -> ShipLists {
+    match store.get(SHOPPING_KEY) {
+        Ok(Some(v)) => serde_json::from_str(&v).unwrap_or_else(|e| {
+            log(&format!("the shopping list in the database is unreadable ({e}); starting empty"));
+            ShipLists::new()
+        }),
+        Ok(None) => ShipLists::new(),
+        Err(e) => {
+            log(&format!("couldn't read the shopping list ({e}); starting empty"));
+            ShipLists::new()
+        }
+    }
+}
+
+/// Every ship's list in one, each material once (ships in id order, each list in its order).
+fn merged(lists: &ShipLists) -> ShoppingList {
+    let mut all: Vec<String> = vec![];
+    for id in lists.values().flatten() {
+        if !all.contains(id) {
+            all.push(id.clone());
+        }
+    }
+    ShoppingList(all)
+}
+
+/// The stored shopping list (empty if none or unreadable, logged).
+pub fn load_shopping(store: &astromech_store::Store) -> ShoppingList {
+    merged(&ship_lists(store))
+}
+
+/// A plan worked out in the app: `{"ship_id": 7, "materials": ["protoheatradiators", ...]}`
+/// (an empty list drops the ship). Returns the new merged list.
+pub fn change_shopping(store: &astromech_store::Store, text: &str) -> Result<ShoppingList, String> {
+    #[derive(serde::Deserialize)]
+    struct Change {
+        ship_id: i64,
+        materials: Vec<String>,
+    }
+    let c: Change = serde_json::from_str(text).map_err(|e| format!("bad shopping list: {e}"))?;
+    let mut lists = ship_lists(store);
+    let materials: Vec<String> = c.materials.iter().map(|m| m.to_ascii_lowercase()).collect();
+    if materials.is_empty() {
+        lists.remove(&c.ship_id.to_string());
+    } else {
+        lists.insert(c.ship_id.to_string(), materials);
+    }
+    let v = serde_json::to_string(&lists).map_err(|e| e.to_string())?;
+    store.set(SHOPPING_KEY, &v).map_err(|e| format!("saving the shopping list: {e}"))?;
+    Ok(merged(&lists))
 }
 
 /// The engine plus where its reactions go. Lives on the pipeline thread.
@@ -559,6 +618,22 @@ mod tests {
         assert!(change_thresholds(&store, "not json").is_err());
         store.set(PROSPECTOR_KEY, "{broken").unwrap();
         assert_eq!(load_thresholds(&store), Thresholds::default());
+    }
+
+    #[test]
+    fn the_shopping_list_is_kept_per_ship_and_merged() {
+        let store = astromech_store::Store::in_memory().unwrap();
+        assert_eq!(load_shopping(&store), ShoppingList::default());
+        change_shopping(&store, r#"{"ship_id":7,"materials":["ProtoHeatRadiators","dataminedwake"]}"#).unwrap();
+        let l =
+            change_shopping(&store, r#"{"ship_id":3,"materials":["dataminedwake","militarygradealloys"]}"#).unwrap();
+        assert_eq!(l.0, ["dataminedwake", "militarygradealloys", "protoheatradiators"]);
+        // A ship's new plan replaces its old list; an empty one drops it.
+        change_shopping(&store, r#"{"ship_id":3,"materials":[]}"#).unwrap();
+        assert_eq!(load_shopping(&store).0, ["protoheatradiators", "dataminedwake"]);
+        assert!(change_shopping(&store, "not json").is_err());
+        store.set(SHOPPING_KEY, "{broken").unwrap();
+        assert_eq!(load_shopping(&store), ShoppingList::default());
     }
 
     #[test]

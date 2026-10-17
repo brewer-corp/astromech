@@ -4,7 +4,7 @@
   // inventory, trades, what to farm and the engineer trip.
   import { untrack } from "svelte";
   import {
-    DEFAULT_ROLLS, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shipStats, shipTitle,
+    DEFAULT_ROLLS, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
   import Stats from "./Stats.svelte";
@@ -81,6 +81,7 @@
       .then((r) => {
         if (mine !== seq) return; // a newer request (e.g. another ship) is in flight
         result = r;
+        if (r) shareShoppingList(r);
         failed = r ? null : "Plan maths runs in the app. Outside it, only the sample plan has numbers.";
       })
       .catch((e: unknown) => {
