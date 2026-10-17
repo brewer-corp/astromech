@@ -15,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Binds health check: warn when Key_V or Key_Enter is bound in the galaxy map"
-updated_at: "2026-10-17T18:39:47.974257111+00:00"
+updated_at: "2026-10-17T18:45:06.320368012+00:00"
 ---
 
 ## Goal
