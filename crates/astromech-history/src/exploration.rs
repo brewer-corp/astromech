@@ -9,7 +9,7 @@
 //! `BodyID`, else by name.
 
 use crate::ledgers::Commander;
-use astromech_exploration::system::SystemView;
+use astromech_exploration::system::{SystemFold, SystemView};
 use astromech_exploration::unsold::{self, Unsold};
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
 use astromech_store::rusqlite::{params, params_from_iter};
@@ -122,6 +122,55 @@ impl crate::History {
         }
         out.sort_by(|a, b| b.count.cmp(&a.count).then(b.last.cmp(&a.last)));
         Ok(out)
+    }
+
+    /// The stored lines of the most recently played commander's earlier visits to the system
+    /// `address` that make up its view, in game-time order: scans, mappings, completed samples
+    /// (through the `scans` ledger's index; the newest scan and the newest mapping of each body,
+    /// not one per arrival), body signals and the honk and all-bodies-found lines.
+    fn system_lines(&self, name: &str, address: i64) -> crate::Result<Vec<String>> {
+        let mut st = self.conn.prepare_cached(
+            "SELECT ts, id, json FROM events WHERE id IN (
+                 SELECT event_id FROM (
+                     SELECT event_id, kind, row_number() OVER (
+                         PARTITION BY cmdr, kind, coalesce(body_name, ''), coalesce(body_id, -1)
+                         ORDER BY ts DESC, event_id DESC) AS newest
+                     FROM scans WHERE system_address = ?1
+                       AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0))
+                 WHERE newest = 1 OR kind = 'organic')
+             UNION ALL
+             SELECT ts, id, json FROM events
+             WHERE event IN ('FSSBodySignals', 'SAASignalsFound') AND json_extract(json, '$.SystemAddress') = ?1
+               AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0)
+             UNION ALL
+             SELECT ts, id, json FROM events
+             WHERE event IN ('FSSDiscoveryScan', 'FSSAllBodiesFound') AND json_extract(json, '$.SystemAddress') = ?1
+               AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0)
+             ORDER BY ts, id",
+        )?;
+        let rows = st.query_map(params![address, name], |r| r.get::<_, String>(2))?;
+        Ok(rows.collect::<std::result::Result<_, _>>()?)
+    }
+
+    /// The system view of `live` (the current visit, folded from the newest journals) with what
+    /// the most recently played commander's earlier visits scanned and mapped there, and their
+    /// landings (astromech-0n4h, astromech-ce4s). Without a history, or if it can't be read,
+    /// just the live view: best effort.
+    pub fn system_view(&self, mut live: SystemFold) -> SystemView {
+        if let (Some(address), Ok(commanders)) = (live.system_address(), self.commanders()) {
+            if let Some(c) = commanders.first() {
+                if let Ok(lines) = self.system_lines(&c.name, address) {
+                    let mut earlier = SystemFold::default();
+                    for l in lines.iter().filter_map(|l| astromech_journal::parse_line(l).ok()) {
+                        earlier.apply(&l);
+                    }
+                    live.absorb(earlier);
+                }
+            }
+        }
+        let mut view = live.view();
+        let _ = self.add_landings(&mut view);
+        view
     }
 
     /// Fill in the most recently played commander's landings on the view's bodies.
@@ -397,5 +446,176 @@ mod tests {
         let v = f.view();
         assert_eq!(v.bodies.len(), 1);
         assert!(v.bodies[0].landable && !v.bodies[0].first_footfall_likely);
+    }
+
+    /// A system scanned (and one body mapped) on one visit, and entered again later: the view
+    /// shows the earlier bodies before anything is scanned again (astromech-0n4h).
+    #[test]
+    fn a_return_visit_shows_the_bodies_scanned_before_with_what_was_mapped() {
+        use astromech_exploration::SystemFold;
+        let d = tempfile::tempdir().unwrap();
+        let body = |ts: &str, address: i64, sys: &str, name: &str, id: i64, class: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"Detailed","BodyName":"{sys} {name}","BodyID":{id},"StarSystem":"{sys}","SystemAddress":{address},"PlanetClass":"{class}","MassEM":1.0,"Landable":false,"WasDiscovered":false,"WasMapped":false}}"#
+            )
+        };
+        let star = |ts: &str, address: i64, sys: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"AutoScan","BodyName":"{sys}","BodyID":0,"StarSystem":"{sys}","SystemAddress":{address},"StarType":"G","StellarMass":1.0,"WasDiscovered":false}}"#
+            )
+        };
+        let lines = vec![
+            load("2026-10-01T09:00:00Z", "F1", "Test"),
+            jump("2026-10-01T09:10:00Z", "Explo", 42, 0),
+            star("2026-10-01T09:10:01Z", 42, "Explo"),
+            body("2026-10-01T09:11:00Z", 42, "Explo", "A 1", 1, "Water world"),
+            body("2026-10-01T09:12:00Z", 42, "Explo", "A 2", 2, "Icy body"),
+            r#"{"timestamp":"2026-10-01T09:13:00Z","event":"SAAScanComplete","BodyName":"Explo A 1","BodyID":1,"SystemAddress":42,"ProbesUsed":5,"EfficiencyTarget":6}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:14:00Z","event":"FSSBodySignals","BodyName":"Explo A 2","BodyID":2,"SystemAddress":42,"Signals":[{"Type":"$SAA_SignalType_Biological;","Type_Localised":"Biological","Count":2}]}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:15:00Z","event":"FSSDiscoveryScan","Progress":0.5,"BodyCount":3,"NonBodyCount":0,"SystemName":"Explo","SystemAddress":42}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:16:00Z","event":"FSSAllBodiesFound","SystemName":"Explo","SystemAddress":42,"Count":3}"#.to_string(),
+            jump("2026-10-02T09:00:00Z", "Elsewhere", 43, 0),
+            body("2026-10-02T09:01:00Z", 43, "Elsewhere", "B 1", 1, "Icy body"),
+            // Back in Explo: only the arrival star is scanned again.
+            jump("2026-10-03T09:00:00Z", "Explo", 42, 0),
+            star("2026-10-03T09:00:01Z", 42, "Explo"),
+        ];
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines.join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+
+        let mut live = SystemFold::default();
+        for l in &lines[11..] {
+            live.apply(&astromech_journal::parse_line(l).unwrap());
+        }
+        // Without the history only the star is there.
+        assert_eq!(live.view().bodies.len(), 1);
+        assert_eq!((live.view().body_count, live.view().all_found), (None, false));
+        // What the first visit showed, as it ended.
+        let mut first = SystemFold::default();
+        for l in &lines[1..7] {
+            first.apply(&astromech_journal::parse_line(l).unwrap());
+        }
+        let was = first.view();
+
+        let v = h.system_view(live);
+        let by: Vec<(&str, bool, i64)> =
+            v.bodies.iter().map(|b| (b.short_name.as_str(), b.mapped, b.bio_signals)).collect();
+        assert_eq!(by, [("Explo", false, 0), ("A 1", true, 0), ("A 2", false, 2)]);
+        assert!(v.bodies[1].mapped_efficiently);
+        // The earlier honk and all-found flag come with it.
+        assert_eq!((v.body_count, v.all_found), (Some(3), true));
+        assert_eq!((v.value, v.value_if_mapped), (was.value, was.value_if_mapped));
+        // Another system's scans stay out.
+        assert!(v.bodies.iter().all(|b| b.name.starts_with("Explo")));
+    }
+
+    /// A star scanned on each of 50 arrivals is read once, and the system lookup stays on its
+    /// indexes (astromech-lelp).
+    #[test]
+    fn a_system_visited_often_reads_one_scan_per_body() {
+        let d = tempfile::tempdir().unwrap();
+        let mut lines = vec![load("2026-10-01T09:00:00Z", "F1", "Test")];
+        for day in 1..=50 {
+            lines.push(format!(
+                r#"{{"timestamp":"2026-10-{:02}T09:00:01Z","event":"Scan","ScanType":"AutoScan","BodyName":"Explo","BodyID":0,"StarSystem":"Explo","SystemAddress":42,"StarType":"G","StellarMass":{day}.0,"WasDiscovered":false}}"#,
+                day % 28 + 1
+            ));
+        }
+        lines.push(r#"{"timestamp":"2026-10-30T09:01:00Z","event":"Scan","ScanType":"Detailed","BodyName":"Explo A 1","BodyID":1,"StarSystem":"Explo","SystemAddress":42,"PlanetClass":"Icy body","MassEM":1.0,"WasDiscovered":false,"WasMapped":false}"#.to_string());
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines.join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+        let got = h.system_lines("Test", 42).unwrap();
+        assert_eq!(got.len(), 2, "{got:?}");
+        // The newest star scan (latest timestamp) is the one kept.
+        assert!(got.iter().any(|l| l.contains("\"BodyID\":0") && l.contains("2026-10-28T09:00:01Z")), "{got:?}");
+    }
+
+    /// 100k body-signal rows over 2000 systems: the signal half of a system's earlier visits
+    /// must not read them all (astromech-qbcf; it was 0.13 s at 60k rows on every poll).
+    #[test]
+    fn system_lines_are_fast_with_many_signal_rows() {
+        let h = History::in_memory().unwrap();
+        let c = h.conn();
+        c.execute(
+            "INSERT INTO commanders (cmdr, name, legacy, first_seen, last_seen) VALUES ('F1', 'Test', 0, '', '')",
+            [],
+        )
+        .unwrap();
+        c.execute_batch("BEGIN").unwrap();
+        {
+            let mut ins = c
+                .prepare("INSERT INTO events (file_id, offset, ts, event, json, cmdr) VALUES (1, ?1, ?2, ?3, ?4, 'F1')")
+                .unwrap();
+            for i in 0..100_000i64 {
+                let event = match i / 2000 % 4 {
+                    0 => "FSSBodySignals",
+                    1 => "SAASignalsFound",
+                    2 => "FSSDiscoveryScan",
+                    _ => "FSSAllBodiesFound",
+                };
+                let line = format!(
+                    r#"{{"timestamp":"2026-10-01T09:00:00Z","event":"{event}","BodyName":"S B{}","BodyID":{},"SystemAddress":{},"Signals":[]}}"#,
+                    i % 7,
+                    i % 7,
+                    i % 2000
+                );
+                ins.execute(astromech_store::rusqlite::params![
+                    i,
+                    format!("2026-10-01T{:02}:{:02}:00Z", i / 60 % 24, i % 60),
+                    event,
+                    line
+                ])
+                .unwrap();
+            }
+        }
+        c.execute_batch("COMMIT").unwrap();
+        let best = (0..5)
+            .map(|_| {
+                let t = std::time::Instant::now();
+                let l = h.system_lines("Test", 42).unwrap();
+                assert_eq!(l.len(), 50);
+                t.elapsed()
+            })
+            .min()
+            .unwrap();
+        assert!(best < std::time::Duration::from_millis(5), "system_lines took {best:?} at 100k signal rows");
+    }
+
+    /// The window's cache holds the current visit's fold, so a poll that hits it still shows the
+    /// earlier visits' bodies (astromech-25c5).
+    #[test]
+    fn a_cached_poll_still_shows_the_earlier_bodies() {
+        use astromech_exploration::SystemViewCache;
+        let d = tempfile::tempdir().unwrap();
+        let star = |ts: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"AutoScan","BodyName":"Explo","BodyID":0,"StarSystem":"Explo","SystemAddress":42,"StarType":"G","StellarMass":1.0,"WasDiscovered":false}}"#
+            )
+        };
+        let lines = [
+            load("2026-10-01T09:00:00Z", "F1", "Test"),
+            jump("2026-10-01T09:10:00Z", "Explo", 42, 0),
+            star("2026-10-01T09:10:01Z"),
+            r#"{"timestamp":"2026-10-01T09:11:00Z","event":"Scan","ScanType":"Detailed","BodyName":"Explo A 1","BodyID":1,"StarSystem":"Explo","SystemAddress":42,"PlanetClass":"Water world","MassEM":1.0,"WasDiscovered":false,"WasMapped":false}"#.to_string(),
+            jump("2026-10-02T09:00:00Z", "Elsewhere", 43, 0),
+            jump("2026-10-03T09:00:00Z", "Explo", 42, 0),
+            star("2026-10-03T09:00:01Z"),
+        ];
+        // The older journal holds the first visit, the newer one the return.
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines[..5].join("\n") + "\n").unwrap();
+        std::fs::write(d.path().join("Journal.2026-10-03T090000.01.log"), lines[5..].join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+        // Leave out the first journal from the window's fold: only the newest file folds.
+        std::fs::remove_file(d.path().join("Journal.2026-10-01T090000.01.log")).unwrap();
+        let mut cache = SystemViewCache::default();
+        for poll in 0..3 {
+            let v = h.system_view(cache.fold(d.path()));
+            let names: Vec<&str> = v.bodies.iter().map(|b| b.short_name.as_str()).collect();
+            assert_eq!(names, ["Explo", "A 1"], "poll {poll}");
+        }
+        assert_eq!(cache.parses(), 1, "the later polls hit the cache");
     }
 }

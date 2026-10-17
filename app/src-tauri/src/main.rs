@@ -482,15 +482,19 @@ struct ExplorationCache {
 }
 
 /// The current system's bodies as scanned, with their estimated values, from the newest journals,
-/// and the commander's landings on them from the history (when there is one).
+/// with the bodies scanned on earlier visits and the commander's landings on them from the history
+/// (when there is one).
 #[tauri::command]
 async fn exploration_system(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
-        let mut view = app.state::<ExplorationCache>().view.lock().map_err(|_| "busy".to_string())?.view(&journal_dir());
-        if let Ok(h) = astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
-            // Best effort: without it the view has no landings.
-            let _ = h.add_landings(&mut view);
-        }
+        let live = app.state::<ExplorationCache>().view.lock().map_err(|_| "busy".to_string())?.fold(&journal_dir());
+        // The history adds the bodies scanned on earlier visits and the landings on every poll
+        // (the cache holds only the current visit's fold); without it (best effort) the view is
+        // the live one.
+        let view = match astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
+            Ok(h) => h.system_view(live),
+            Err(_) => live.view(),
+        };
         serde_json::to_value(view).map_err(|e| e.to_string())
     })
     .await
