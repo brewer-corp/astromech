@@ -106,3 +106,42 @@ fn the_route_briefing_is_silent_during_the_catch_up() {
     r.engine.set_live(true);
     assert!(r.plot(&plain).is_empty());
 }
+
+/// An arrival in "Sys 1" (20 ly along) with `fuel` t left.
+fn arrive_sys1(fuel: f64) -> String {
+    format!(
+        r#"{{"timestamp":"2026-10-16T20:00:10Z","event":"FSDJump","StarSystem":"Sys 1","StarPos":[20,0,0],"JumpDist":20.0,"FuelUsed":2.0,"FuelLevel":{fuel},"Population":0,"Factions":[]}}"#
+    )
+}
+
+/// From the scoopable start, a G star at jump 3 and then 18 jumps to the next one (36 t).
+fn gap_route() -> Vec<&'static str> {
+    let mut c = vec!["K", "N", "N", "G"];
+    c.extend(["N"; 17]);
+    c.push("M");
+    c
+}
+
+#[test]
+fn an_arrival_warning_does_not_silence_a_new_routes_fuel_gap() {
+    let mut r = at_start(30.0);
+    assert_eq!(r.plot(&route(20.0, &["K", "N", "N", "N", "G"]))[0], "Route: 4 jumps, 80 ly.");
+    assert!(r.spoken(&arrive_sys1(1.0)).iter().any(|l| l == "Fuel too low to reach a scoopable star."));
+    // Replotted from Sys 1: a G star 5 ly away (in reach on 1 t), then an 18-jump gap.
+    let mut hops = vec![r#"{"StarSystem":"Sys 1","StarPos":[20.0,0,0],"StarClass":"N"}"#.to_string()];
+    hops.push(r#"{"StarSystem":"Near","StarPos":[25.0,0,0],"StarClass":"G"}"#.to_string());
+    for i in 1..=18 {
+        let class = if i == 18 { "M" } else { "N" };
+        hops.push(format!(r#"{{"StarSystem":"Far {i}","StarPos":[{}.0,0,0],"StarClass":"{class}"}}"#, 25 + i * 20));
+    }
+    let replot = format!(r#"{{"timestamp":"2026-10-16T20:00:20Z","event":"NavRoute","Route":[{}]}}"#, hops.join(","));
+    assert_eq!(r.plot(&replot)[0], "Fuel gap: 18 jumps between scoopable stars.");
+}
+
+#[test]
+fn a_routes_fuel_gap_does_not_silence_an_arrival_warning() {
+    let mut r = at_start(30.0);
+    assert_eq!(r.plot(&route(20.0, &gap_route()))[0], "Fuel gap: 18 jumps between scoopable stars.");
+    // Seconds later, arriving at a neutron star with 1 t: two jumps (4 t) to the G star.
+    assert!(r.spoken(&arrive_sys1(1.0)).iter().any(|l| l == "Fuel too low to reach a scoopable star."));
+}

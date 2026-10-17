@@ -115,6 +115,11 @@ pub trait Rule: Send {
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
         self.react(input, state).into_iter().collect()
     }
+    /// The cooldown holds back only a repeat of the same line, not a different one from the
+    /// same rule (distinct warnings that must each be heard). Default: any line.
+    fn cooldown_per_line(&self) -> bool {
+        false
+    }
 }
 
 pub mod arrival;
@@ -198,6 +203,9 @@ struct Slot {
     cooldown: Duration,
     /// When the rule last fired, and at what priority.
     fired: Option<(Instant, Priority)>,
+    /// For [`Rule::cooldown_per_line`] rules: each line said within the cooldown, when and at
+    /// what priority.
+    said: Vec<(String, Instant, Priority)>,
 }
 
 pub struct Engine {
@@ -231,7 +239,7 @@ impl Engine {
                         d
                     }
                 };
-                Slot { enabled: s.enabled.unwrap_or(true), cooldown, fired: None, rule }
+                Slot { enabled: s.enabled.unwrap_or(true), cooldown, fired: None, said: vec![], rule }
             })
             .collect();
         for id in settings.0.keys().filter(|id| !slots.iter().any(|s| s.rule.id() == id.as_str())) {
@@ -318,11 +326,19 @@ impl Engine {
         }
         let mut out = vec![];
         for s in self.slots.iter_mut().filter(|s| s.enabled) {
-            let cs = s.rule.react_all(input, state);
-            let Some(top) = cs.iter().map(|c| c.priority).max() else { continue };
+            let mut cs = s.rule.react_all(input, state);
             // A higher priority isn't held back by a cooldown a lower one started (a shown-only
             // crime scan must not swallow the urgent stolen-goods line seconds later).
-            if s.fired.is_some_and(|(t, p)| top <= p && now.saturating_duration_since(t) < s.cooldown) {
+            let held =
+                |t: Instant, p: Priority, c: &Callout| c.priority <= p && now.saturating_duration_since(t) < s.cooldown;
+            if s.rule.cooldown_per_line() {
+                s.said.retain(|(_, t, _)| now.saturating_duration_since(*t) < s.cooldown);
+                cs.retain(|c| !s.said.iter().any(|(text, t, p)| *text == c.text && held(*t, *p, c)));
+            }
+            let Some(top) = cs.iter().map(|c| c.priority).max() else { continue };
+            if !s.rule.cooldown_per_line()
+                && s.fired.is_some_and(|(t, p)| top <= p && now.saturating_duration_since(t) < s.cooldown)
+            {
                 continue;
             }
             for c in cs {
@@ -334,6 +350,10 @@ impl Engine {
                     continue;
                 }
                 s.fired = Some((now, top));
+                if s.rule.cooldown_per_line() {
+                    s.said.retain(|(text, _, _)| *text != c.text);
+                    s.said.push((c.text.clone(), now, c.priority));
+                }
                 out.push(Reaction { rule: s.rule.id(), text: c.text, priority: c.priority, channels, at: now });
             }
         }

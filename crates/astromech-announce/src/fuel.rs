@@ -10,8 +10,9 @@
 //!   scoopable star (or the end of the route if there is none), "Fuel too low to reach a
 //!   scoopable star."; at a scoopable star, "Scoop here. Next scoopable star out of reach."
 //!   It also gives the route briefing's fuel line when a route is plotted
-//!   ([`crate::route::fuel_line`]), so the two share one cooldown and the same warning isn't
-//!   said twice in a row. High priority, at most once per 10 minutes.
+//!   ([`crate::route::fuel_line`]). High priority. The cooldown is per line: the same warning
+//!   is said at most once per 10 minutes (a plot-time warning isn't repeated on the next
+//!   arrival), but a different one always gets through.
 //!
 //! Fuel per jump is estimated from the last ordinary jump (boosted jumps are skipped): the FSD's fuel use grows with distance to its
 //! power (2.0 for a size 2 drive up to 2.9 for size 8; 2.45 when the drive isn't known), so a hop
@@ -136,10 +137,14 @@ impl Rule for FuelRange {
     fn id(&self) -> &'static str {
         "fuel_range"
     }
-    /// Still short at the next jumps (the fuel balance doesn't change by jumping); say it again
-    /// only after a while.
+    /// Still short at the next jumps (the fuel balance doesn't change by jumping); say the same
+    /// warning again only after a while.
     fn cooldown(&self) -> Duration {
         Duration::from_secs(600)
+    }
+    /// A different warning (a new route's gap, an arrival short of fuel) is news.
+    fn cooldown_per_line(&self) -> bool {
+        true
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
         let text = match input {
