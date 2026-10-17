@@ -79,6 +79,20 @@ fn first_line_time(path: &Path) -> Option<i64> {
     chrono::DateTime::parse_from_rfc3339(v.get("timestamp")?.as_str()?).ok().map(|t| t.timestamp())
 }
 
+/// Whether a journal's Fileheader time (UTC seconds) is its name's time read in `tz`. `name_secs`
+/// is the name's stamp as `journal_name_stamp` gives it (the name's clock reading taken as UTC).
+/// Twice a year a local time is ambiguous (the fall-back hour: accept either reading) or doesn't
+/// exist (the spring-forward gap: the game never wrote it, so no).
+fn header_agrees_with_name<Tz: chrono::TimeZone>(tz: &Tz, name_secs: i64, header: i64) -> bool {
+    let Some(naive) = chrono::DateTime::from_timestamp(name_secs, 0).map(|t| t.naive_utc()) else { return false };
+    let near = |t: chrono::DateTime<Tz>| (t.timestamp() - header).abs() <= HEADER_SLACK_SECS;
+    match tz.from_local_datetime(&naive) {
+        chrono::LocalResult::Single(t) => near(t),
+        chrono::LocalResult::Ambiguous(a, b) => near(a) || near(b),
+        chrono::LocalResult::None => false,
+    }
+}
+
 /// Whether a journal line is stamped within [`FRESH_LINE_SECS`] of now (either side).
 fn line_is_fresh(line: &str) -> bool {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { return false };
@@ -409,19 +423,7 @@ impl Tailer {
             return *known;
         }
         let Some(header) = first_line_time(path) else { return false };
-        let name = chrono::DateTime::from_timestamp(stamp, 0).map(|t| t.naive_utc());
-        let agrees = name.is_some_and(|naive| {
-            use chrono::TimeZone;
-            // Twice a year a local time is ambiguous, or doesn't exist: accept either reading.
-            match chrono::Local.from_local_datetime(&naive) {
-                chrono::LocalResult::Single(t) => (t.timestamp() - header).abs() <= HEADER_SLACK_SECS,
-                chrono::LocalResult::Ambiguous(a, b) => {
-                    [a, b].iter().any(|t| (t.timestamp() - header).abs() <= HEADER_SLACK_SECS)
-                }
-                // A time that doesn't exist here (the spring-forward gap) is not one the game wrote.
-                chrono::LocalResult::None => false,
-            }
-        });
+        let agrees = header_agrees_with_name(&chrono::Local, stamp, header);
         self.header_agrees.insert(path.to_path_buf(), agrees);
         agrees
     }
@@ -1742,8 +1744,9 @@ mod tests {
         assert_eq!(eddn_state(&db).0, 1);
     }
 
-    /// Timestamps that don't parse or run out of order are judged line by line: a stale line after
-    /// a fresh one, or garbage, is never live.
+    /// Lines are judged one by one within a batch: a stale line (or one that doesn't parse) after a
+    /// fresh one is not live. Once a fresh line has been seen the journal is the game's, so lines
+    /// of later batches are live by design (see `a_gated_batch_...` for the order within one).
     #[test]
     fn gated_lines_are_judged_one_by_one() {
         let d = tempfile::tempdir().unwrap();
@@ -1764,5 +1767,80 @@ mod tests {
         );
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, base + 1, "only the fresh line is live");
+    }
+
+    /// astromech-t16r review: the daylight-saving branches of the header-vs-name check, in the
+    /// timezone of the machine that matters most during the alpha (the US fall-back, 1 Nov 2026).
+    #[test]
+    fn the_header_agrees_with_the_name_across_daylight_saving() {
+        use chrono::TimeZone;
+        let ny = chrono_tz::America::New_York;
+        let name = |y, mo, d, h, mi| {
+            chrono::NaiveDate::from_ymd_opt(y, mo, d).unwrap().and_hms_opt(h, mi, 0).unwrap().and_utc().timestamp()
+        };
+        let utc = |y, mo, d, h, mi| chrono::Utc.with_ymd_and_hms(y, mo, d, h, mi, 0).unwrap().timestamp();
+
+        // Fall-back: 01:30 happens twice, 05:30Z (EDT) and 06:30Z (EST). Either is the game's.
+        let fall = name(2026, 11, 1, 1, 30);
+        assert!(header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 5, 30)), "first 01:30, EDT");
+        assert!(header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 6, 30)), "second 01:30, EST");
+        assert!(!header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 7, 30)), "an hour past the second");
+        assert!(!header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 4, 30)), "an hour before the first");
+
+        // A session begun under EDT before the switch still agrees (judged by the date's own offset,
+        // not today's), and one begun after it agrees under EST.
+        assert!(header_agrees_with_name(&ny, name(2026, 11, 1, 0, 30), utc(2026, 11, 1, 4, 30)));
+        assert!(header_agrees_with_name(&ny, name(2026, 11, 1, 2, 30), utc(2026, 11, 1, 7, 30)));
+        assert!(
+            !header_agrees_with_name(&ny, name(2026, 11, 1, 0, 30), utc(2026, 11, 1, 5, 30)),
+            "EST offset on an EDT hour"
+        );
+
+        // Spring-forward: 02:30 on 14 Mar 2027 doesn't exist in New York.
+        let gap = name(2027, 3, 14, 2, 30);
+        assert!(!header_agrees_with_name(&ny, gap, utc(2027, 3, 14, 6, 30)), "read as EST");
+        assert!(!header_agrees_with_name(&ny, gap, utc(2027, 3, 14, 7, 30)), "read as EDT");
+
+        // A copy from a PC one hour west (CDT, UTC-5): its name is Chicago time.
+        assert!(!header_agrees_with_name(&ny, name(2026, 10, 17, 12, 0), utc(2026, 10, 17, 17, 0)));
+        assert!(header_agrees_with_name(&ny, name(2026, 10, 17, 12, 0), utc(2026, 10, 17, 16, 0)), "same offset");
+    }
+
+    /// One batch of a gated journal: a line 200 s old (inside EDDN's own 300 s age guard, so only
+    /// our rule keeps it out) followed by a fresh one. Only the fresh one is live.
+    #[test]
+    fn a_gated_batch_with_a_stale_line_then_a_fresh_one_makes_only_the_fresh_one_live() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        let base = eddn_state(&db).0;
+        append(&own, &docked(&ts(200)));
+        append(&own, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, base + 1, "the 200 s old line is a replay, the fresh one is live");
+    }
+
+    /// The startup replay is silent, even for a journal that is only the game's by its header and
+    /// holds lines stamped now.
+    #[test]
+    fn the_startup_replay_of_a_gated_journal_with_fresh_lines_is_silent() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(-30)), d.path().join(game_name(180)));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        std::fs::write(&own, format!("{}{}\n", session(&ts(1800), "r1 "), docked(&ts(0)))).unwrap();
+        touch(&own, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, own, "startup follows the newest by modified time");
+        assert_eq!(eddn_state(&db), (0, vec![]), "nothing from the startup replay");
+        append(&own, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "but what it writes next is live");
     }
 }
