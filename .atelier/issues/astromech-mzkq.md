@@ -3,6 +3,9 @@ created_at: "2026-10-17T08:19:28.809346663+00:00"
 id: "astromech-mzkq"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mzkq
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice lookups polish: short forms, visit states, one no-position line, colonisation journal cache"
-updated_at: "2026-10-17T08:19:28.809346663+00:00"
+updated_at: "2026-10-17T08:26:26.475316662+00:00"
 ---
 
 ## Goal
