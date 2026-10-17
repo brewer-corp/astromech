@@ -133,7 +133,7 @@ fn offline_edsm_says_nothing_and_logs_why() {
     assert!(took < Duration::from_millis(200), "no stall: {took:?}");
     assert!(r.ticks(1, 70).is_empty(), "nothing said");
     let log = r.log.lock().unwrap().clone();
-    assert!(log.iter().any(|l| l.starts_with("bodies known to EDSM, Alpha Centauri: Can't reach EDSM.")), "{log:?}");
+    assert!(log.iter().any(|l| l.starts_with("bodies known to EDSM, Alpha Centauri: Cannot reach EDSM.")), "{log:?}");
 }
 
 #[test]
