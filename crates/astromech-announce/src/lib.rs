@@ -18,10 +18,11 @@
 //!   an event, nor is a cleared route.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
-//! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
-//! and the game state after it, never the replayed history.
+//! dropped, low priority dropped first when it is full. Rules mostly decide from the event and the
+//! game state after it, never the replayed history; the few that remember something between
+//! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`] and [`project_market`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`], [`materials_cap`], [`missions`], [`project_market`] and [`signals`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::companion::MarketSnap;
@@ -104,9 +105,14 @@ pub enum Input<'a> {
     Route(&'a NavRouteSnap),
     /// A fresh `Market.json` for the market docked at, once per dock (see [`Engine::market`]).
     Market(&'a MarketSnap),
+    /// The clock moved on: `wall_secs` is the time now in seconds since the Unix epoch.
+    Tick {
+        wall_secs: i64,
+    },
 }
 
-/// A reaction rule. Stateless: decide from the event and the state after it.
+/// A reaction rule. Decides from the event and the state after it; a rule that must remember
+/// what it already said (once-only warnings) keeps that itself, behind `&self`.
 pub trait Rule: Send {
     /// Stable id, used in `[callouts.<id>]`.
     fn id(&self) -> &'static str;
@@ -137,11 +143,14 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod materials_cap;
+pub mod missions;
 pub mod powerplay_arrival;
 pub mod project_market;
 pub mod prospector;
 pub mod route;
 pub mod scan;
+pub mod signals;
 
 /// What the core keeps for the rules and may change while they run.
 #[derive(Debug, Clone, Default)]
@@ -173,7 +182,10 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(materials_cap::MaterialsCap),
+        Box::new(missions::Missions::default()),
         Box::new(project_market::ProjectMarket),
+        Box::new(signals::Signals::default()),
     ]
 }
 
@@ -311,13 +323,18 @@ impl Engine {
     pub fn journal(&mut self, line: &JournalLine, state: &GameState, now: Instant) -> Vec<Reaction> {
         // The event is judged against the mode before it: `DockingGranted` (the pad) is not
         // "during docking"; what follows it is.
-        let quiet = self.quiet(now);
+        let mut quiet = self.quiet(now);
         let name = line.name.as_str();
         if DOCKING_STARTS.contains(&name) {
             self.docking = true;
         } else if DOCKING_ENDS.contains(&name) {
             self.docking = false;
             self.market_done = None;
+            // Arriving ends the approach: what `Docked` says (trader suggestions) is not "during
+            // docking". Combat still holds it back.
+            if name == "Docked" {
+                quiet = self.quiet(now);
+            }
         }
         if name == "UnderAttack" && self.live {
             self.attacked_until = Some(now + ATTACK_QUIET);
@@ -362,6 +379,13 @@ impl Engine {
         self.market_done = Some(id);
         let quiet = self.quiet(now);
         self.fire(&Input::Market(market), state, now, quiet)
+    }
+
+    /// The clock moved on (`wall_secs`: seconds since the Unix epoch), for rules that remind by
+    /// time. The pipeline calls it about once a second; replay tests inject their own time.
+    pub fn tick(&mut self, wall_secs: i64, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let quiet = self.quiet(now);
+        self.fire(&Input::Tick { wall_secs }, state, now, quiet)
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {

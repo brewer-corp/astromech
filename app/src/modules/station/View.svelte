@@ -1,10 +1,12 @@
 <script lang="ts">
-  // The station you are docked at (services, economies, faction and its state, pads, and what its
-  // outfitting sells that the ship flown would be better for), and a search over every
-  // outfitting the core has seen: "where did I see a 5A drive?" works offline.
+  // The station you are docked at (services, economies, faction and its state, pads, its market
+  // and the hold against nearby prices, and what its outfitting sells that the ship flown would
+  // be better for), and a search over every outfitting the core has seen: "where did I see a 5A
+  // drive?" works offline.
   import { when } from "../../lib/logbook";
   import { loadHere, searchOutfitting, serviceName, type DockedHere, type OutfittingSearch } from "../../lib/station";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import Market from "./Market.svelte";
 
   let here = $state<DockedHere | null>(null);
   let failed = $state<string | null>(null);
@@ -97,6 +99,13 @@
         <dd class="services">{#each here.services as s (s)}<span class="svc">{serviceName(s)}</span>{/each}</dd>
       {/if}
     </dl>
+
+    <h3>Market</h3>
+    {#if !here.services.includes("commodities")}
+      <p class="lo">This station has no market.</p>
+    {:else}
+      <Market marketId={here.market_id} />
+    {/if}
 
     <h3>Outfitting{here.ship ? ` for ${here.ship}` : ""}</h3>
     {#if !here.services.includes("outfitting") && !here.outfitting}

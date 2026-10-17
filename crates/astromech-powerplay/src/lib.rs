@@ -3,15 +3,17 @@
 //! Powerplay 2.0 from the journal: the commander's standing ([`standing`]) and the current
 //! system's state ([`system`]), with the rank rules kept as data ([`rules`],
 //! `data/catalog/powerplay.json`) and what earns merits in each kind of system ([`activities`],
-//! `data/catalog/powerplay-activities.json`). Pure, so it can be replay-tested; the game state and the app
+//! `data/catalog/powerplay-activities.json`) and where power commodities and data move ([`logistics`],
+//! `data/catalog/powerplay-logistics.json`). Pure, so it can be replay-tested; the game state and the app
 //! window fold the same events.
 
 pub mod activities;
+pub mod logistics;
 pub mod rules;
 pub mod standing;
 pub mod system;
 
-pub use activities::{rules_version, RulesVersion, Suggestion};
+pub use activities::{commodity, rules_version, RulesVersion, Suggestion};
 pub use rules::{rules, Rules};
 pub use standing::{standing_from_journal_dir, standing_from_lines, NextRank, Standing, StandingView};
 pub use system::{PowerShare, SystemPower, Work};

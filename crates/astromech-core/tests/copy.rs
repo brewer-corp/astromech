@@ -3,7 +3,7 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, builtin, docking, fuel, hge, powerplay_arrival, project_market, prospector, route, scan,
+    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, scan, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -32,12 +32,15 @@ fn callout_lines() -> Vec<String> {
             "docking",
             "fuel_range",
             "hge",
+            "materials_cap",
+            "missions",
             "powerplay_arrival",
             "project_market",
             "prospector",
             "route",
             "scan",
             "scoopable",
+            "signals"
         ],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
@@ -70,6 +73,21 @@ fn callout_lines() -> Vec<String> {
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
         }
     }
+    for spec in astromech_materials::catalog::catalog() {
+        v.push(format!("{} at 300/300.", spec.name));
+        v.push(format!("Trader here. Trade down {}.", spec.name));
+    }
+    for (ty, name) in [
+        ("USS", "$Warzone_TG_VeryHigh:#index=1;"),
+        ("USS", "$Warzone_Powerplay_Med;"),
+        ("Combat", "$Warzone_PointRace_Med:#index=1;"),
+        ("$USS_Type_NonHuman;", "$USS_NonHumanSignal;"),
+        ("$USS_Type_PowerEmissions;", "$USS_PowerEmissions;"),
+        ("Titan", "Titan"),
+        ("Megaship", "Ship"),
+    ] {
+        v.extend(signals::line(ty, Some(name)));
+    }
     for n in [1, 2, 99] {
         v.push(project_market::line(n));
     }
@@ -80,6 +98,12 @@ fn callout_lines() -> Vec<String> {
             v.push(hge::line(Some(pool), &[spec.id.to_string()]));
         }
     }
+    for n in [1, 2, 99] {
+        for level in [1, 2] {
+            v.push(missions::expiry_line(n, level));
+        }
+    }
+    v.extend([missions::target_line(false).to_string(), missions::target_line(true).to_string()]);
     for first in [false, true] {
         for to_end in [false, true] {
             v.push(route::gap_line(250, first, to_end));
