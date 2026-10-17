@@ -91,6 +91,9 @@ pub struct GameState {
     pub hull_health: Option<f64>,
     pub max_jump_range: Option<f64>,
     pub route: Vec<String>,
+    /// The current system's minor factions and population (`Location` / `FSDJump`).
+    pub system_factions: Vec<astromech_journal::FactionSnap>,
+    pub system_population: i64,
     /// `NavRoute.json`'s systems with star class and position (the route as plotted: the first
     /// is where it was plotted from).
     pub route_hops: Vec<RouteHop>,
@@ -173,8 +176,19 @@ impl GameState {
                     .map(|d| d as u8);
             }
             JournalEvent::Location {
-                star_system, body, docked, station_name, market_id, star_pos, station, ..
+                star_system,
+                body,
+                docked,
+                station_name,
+                market_id,
+                star_pos,
+                station,
+                factions,
+                population,
+                ..
             } => {
+                self.system_factions = factions.clone();
+                self.system_population = *population;
                 if self.system.as_ref() != Some(star_system) || star_pos.is_some() {
                     self.star_pos = *star_pos;
                 }
@@ -199,7 +213,19 @@ impl GameState {
                 self.body = Some(body.clone());
             }
             JournalEvent::LeaveBody { .. } => self.body = None,
-            JournalEvent::FsdJump { star_system, from_carrier, star_pos, jump_dist, fuel_used, fuel_level, .. } => {
+            JournalEvent::FsdJump {
+                star_system,
+                from_carrier,
+                star_pos,
+                jump_dist,
+                fuel_used,
+                fuel_level,
+                factions,
+                population,
+                ..
+            } => {
+                self.system_factions = factions.clone();
+                self.system_population = *population;
                 self.system = Some(star_system.clone());
                 self.star_pos = *star_pos;
                 if let Some(f) = fuel_used.filter(|_| !from_carrier && *jump_dist > 0.0) {

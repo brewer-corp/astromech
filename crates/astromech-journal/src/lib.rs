@@ -122,6 +122,10 @@ pub enum JournalEvent {
         signal_name: Option<String>,
         is_station: bool,
         system_address: Option<i64>,
+        /// The minor faction that spawned a USS and its state (`SpawningFaction`,
+        /// `SpawningState`, localised when the game gives it: "Boom").
+        spawning_faction: Option<String>,
+        spawning_state: Option<String>,
     },
     Docked {
         station_name: String,
@@ -262,7 +266,7 @@ pub struct EngineerSnap {
 }
 
 /// One minor faction on `Location` / `FSDJump` / `CarrierJump`.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct FactionSnap {
     pub name: String,
     pub allegiance: String,
@@ -437,6 +441,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
                 signal_name: opt_s(&raw, "SignalName"),
                 is_station: raw.get("IsStation").and_then(|x| x.as_bool()).unwrap_or(false),
                 system_address: opt_i(&raw, "SystemAddress"),
+                spawning_faction: opt_s(&raw, "SpawningFaction_Localised").or_else(|| opt_s(&raw, "SpawningFaction")),
+                spawning_state: opt_s(&raw, "SpawningState_Localised").or_else(|| opt_s(&raw, "SpawningState")),
             }
         }
         "Docked" => JournalEvent::Docked {
@@ -1061,6 +1067,16 @@ mod tests {
             JournalEvent::FssSignal { high_grade, .. } => assert!(high_grade),
             _ => panic!("expected FSS"),
         }
+        // The game's own shape: a salvage type localised as High Grade Emissions, with who spawned it.
+        let l = parse_line(
+            r#"{ "timestamp":"t", "event":"FSSSignalDiscovered", "SystemAddress":1, "SignalName":"$USS_HighGradeEmission;", "SignalName_Localised":"Unidentified signal source", "USSType":"$USS_Type_VeryValuableSalvage;", "USSType_Localised":"High grade emissions", "SpawningState":"$FactionState_Boom_desc;", "SpawningState_Localised":"Boom", "SpawningFaction":"Empire League", "ThreatLevel":0, "TimeRemaining":1800.5 }"#,
+        )
+        .unwrap();
+        assert!(matches!(
+            l.event,
+            JournalEvent::FssSignal { high_grade: true, ref spawning_faction, ref spawning_state, .. }
+                if spawning_faction.as_deref() == Some("Empire League") && spawning_state.as_deref() == Some("Boom")
+        ));
         let l = parse_line(
             r#"{ "timestamp":"t", "event":"CarrierJump", "StarSystem":"Alioth", "SystemAllegiance":"Alliance", "Population":1000 }"#,
         )

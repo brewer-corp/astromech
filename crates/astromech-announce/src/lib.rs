@@ -21,7 +21,7 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`] and [`route`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`] and [`hge`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -120,6 +120,7 @@ pub trait Rule: Send {
 pub mod arrival;
 pub mod docking;
 pub mod fuel;
+pub mod hge;
 pub mod prospector;
 pub mod route;
 pub mod scan;
@@ -138,11 +139,12 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
         Box::new(prospector::Prospector { thresholds: shared.prospector }),
         Box::new(scan::Scan),
-        Box::new(arrival::Arrival { shopping: shared.shopping }),
+        Box::new(arrival::Arrival { shopping: shared.shopping.clone() }),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
+        Box::new(hge::Hge { shopping: shared.shopping.clone() }),
     ]
 }
 

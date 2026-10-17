@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "High Grade Emissions callout"
-updated_at: "2026-10-15T20:36:13.650423373+00:00"
+updated_at: "2026-10-17T01:58:01.937461700+00:00"
 ---
 
 ## Goal

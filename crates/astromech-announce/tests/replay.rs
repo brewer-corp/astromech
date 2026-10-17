@@ -308,13 +308,16 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0}}"#
         ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
+        ),
     ]
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 7, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 8, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
     let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"}]}"#;
     r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
@@ -340,6 +343,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Docking denied. No free pad.",
             "Next star is scoopable.",
             "Fuel too low to reach a scoopable star.",
+            "High Grade Emissions.",
             "Route: 3 jumps, 60 ly.",
         ]
     );

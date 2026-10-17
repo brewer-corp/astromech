@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, prospector, route, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "prospector", "route", "scan", "scoopable"],
+        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -55,6 +55,13 @@ fn callout_lines() -> Vec<String> {
         for here_scoopable in [None, Some(false), Some(true)] {
             let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0) };
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
+        }
+    }
+    v.push(hge::line(None, &[]));
+    for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {
+        v.push(hge::line(Some(pool), &[]));
+        for spec in astromech_materials::catalog::catalog() {
+            v.push(hge::line(Some(pool), &[spec.id.to_string()]));
         }
     }
     for first in [false, true] {
@@ -113,6 +120,8 @@ fn arrival_lines() -> Vec<String> {
         faction("Alliance", "CivilUnrest"),
         faction("Alliance", "Outbreak"),
         faction("Federation", "Famine"),
+        faction("Federation", "None"),
+        faction("Empire", "None"),
     ];
     let enemy = SystemPower {
         system: "S".into(),
@@ -245,6 +254,8 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Next scoopable star in 99 jumps."));
     assert!(callouts.iter().any(|l| l == "150 white dwarfs, first at jump 1."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Fuel gap: 250 jumps between scoopable stars."));
+    assert!(callouts.iter().any(|l| l == "High Grade Emissions. Federation composites."));
+    assert!(callouts.iter().any(|l| l == "Good for Core Dynamics Composites. Undermining target."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");

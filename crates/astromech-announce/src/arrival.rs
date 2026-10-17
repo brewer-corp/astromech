@@ -7,7 +7,8 @@
 //!   states count when a material on it comes from them: Boom, War, Civil War, Civil Unrest
 //!   and Outbreak for their High Grade Emissions pools (`astromech_materials::hge`), Famine for
 //!   wake scans. One state, the most influential faction's first, and the first material on the
-//!   list it gives.
+//!   list it gives. In a system of over a billion people, a Federation or Empire faction's High
+//!   Grade Emissions pool counts too: "Good for Imperial Shielding."
 //! - **What the system means for the pledged power**: "Undermining target." or "Acquisition
 //!   target." Reinforcing a system of one's own power is the normal case and stays quiet.
 //! - **Undiscovered**: the arrival star's automatic scan (`Scan`, `AutoScan`, 0 ls) with
@@ -38,20 +39,25 @@ pub struct Arrival {
     pub shopping: SharedShoppingList,
 }
 
-/// The faction states that can matter, with the source id (`astromech_materials` notes'
-/// `query`) a wanted material must list for the state to count.
-fn offers(f: &FactionSnap, population: i64) -> Vec<(&'static str, &'static str)> {
+/// High Grade Emissions from the allegiance pools spawn reliably only in systems this big.
+pub const HGE_POPULATION: i64 = 1_000_000_000;
+
+/// What a faction offers: the state to name (None: the system is simply good for it, an
+/// allegiance pool in a big system) and the source id (`astromech_materials` notes' `query`)
+/// a wanted material must list for it to count.
+fn offers(f: &FactionSnap, population: i64) -> Vec<(Option<&'static str>, &'static str)> {
     let mut v = vec![];
     match hge::faction_pool(f, population) {
-        Some("proto") => v.push(("Boom", "proto")),
-        Some("military") if hge::in_state(f, "Civil War") => v.push(("Civil war", "military")),
-        Some("military") => v.push(("War", "military")),
-        Some("improvised") => v.push(("Civil unrest", "improvised")),
-        Some("pharma") => v.push(("Outbreak", "pharma")),
+        Some("proto") => v.push((Some("Boom"), "proto")),
+        Some("military") if hge::in_state(f, "Civil War") => v.push((Some("Civil war"), "military")),
+        Some("military") => v.push((Some("War"), "military")),
+        Some("improvised") => v.push((Some("Civil unrest"), "improvised")),
+        Some("pharma") => v.push((Some("Outbreak"), "pharma")),
+        Some(pool @ ("fed_composites" | "empire_shielding")) if population >= HGE_POPULATION => v.push((None, pool)),
         _ => {}
     }
     if hge::in_state(f, "Famine") {
-        v.push(("Famine", "famine"));
+        v.push((Some("Famine"), "famine"));
     }
     v
 }
@@ -65,13 +71,17 @@ fn wanted_from(wanted: &[String], query: &str) -> Option<&'static str> {
 }
 
 /// "Boom here. Proto Heat Radiators." for the most influential faction whose state gives a
-/// material on `wanted`; None if no state does.
+/// material on `wanted`, or "Good for Imperial Shielding." for an allegiance pool in a system
+/// of over a billion people; None if nothing does.
 pub fn state_line(factions: &[FactionSnap], population: i64, wanted: &[String]) -> Option<String> {
     let mut fs: Vec<&FactionSnap> = factions.iter().collect();
     fs.sort_by(|a, b| b.influence.total_cmp(&a.influence));
     fs.iter().flat_map(|f| offers(f, population)).find_map(|(state, query)| {
         let name = wanted_from(wanted, query)?;
-        Some(format!("{state} here. {name}."))
+        Some(match state {
+            Some(state) => format!("{state} here. {name}."),
+            None => format!("Good for {name}."),
+        })
     })
 }
 
