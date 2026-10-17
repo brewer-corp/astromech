@@ -22,9 +22,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-17T19:25:57.128459615+00:00"
+status: "done"
 title: "Make voice tester test mode visible and fix it at push-to-talk release"
-updated_at: "2026-10-17T19:15:20.675487249+00:00"
+updated_at: "2026-10-17T19:25:57.128459615+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ When the Voice tester holds push-to-talk in test mode, the player can tell witho
 ## Context
 
 Review round of astromech-fa3g (findings R3b and R4). Today `tester::on_heard` checks `TESTER.armed` when transcription finishes, in the Windows-only stt thread in `crates/astromech-core/src/session.rs`; the tray status line is `Core::status_line` in `app.rs`.
+
+## Close Reason
+
+Done-when met: Tray status and spoken cue for test mode, mode fixed at release, tested with the routing helper; PR 125; see evidence
