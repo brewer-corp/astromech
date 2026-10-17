@@ -4,6 +4,9 @@ id: "astromech-bh0c"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-bh0c
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T22:21:36.689312296+00:00"
+status: "done"
 title: "Reopened journal: companion triggers in the replayed half can use up the live half's callout"
-updated_at: "2026-10-17T18:47:41.480795224+00:00"
+updated_at: "2026-10-17T22:21:36.689312296+00:00"
 ---
 
 ## Goal
@@ -28,3 +32,12 @@ A test with a Docked in each half at the same market shows the live one reaches 
 ## Context
 
 Review finding on the astromech-7uj3 PR (companion triggers can be used up by the replay half).
+
+## Notes
+
+- 2026-10-17 [note] Shown not to apply: Engine::market returns before setting market_done when not live, so a replayed Market.json read cannot use up the dock's callout, and every Docked (replayed or not) resets market_done, so a live dock in the live half of a reopened journal always gets its own chance. Test a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout passes on main (a regression guard, not a fail-before test). Mutation check: setting market_done before the live check does NOT fail it, because the Docked reset masks that; it would only matter for a Market with no Docked before it, which is not a new dock. One residual effect is not addressed: a replayed Docked clears market_done, so a live Market handled earlier for the same dock could in principle fire again if a live Market event for it were applied later; no such path exists today.
+- 2026-10-17 [note] Added an Engine-level guard a_replayed_market_read_does_not_use_up_the_docks_callout (crates/astromech-announce/tests/project_market.rs); it fails when market_done is set before the live check. Review follow-ups: the pending-retry stale callout is astromech-01c0; replaying a different older journal resets market_done through its LoadGame/FSDJump lines, which could duplicate a callout for a Market with no Docked before it (nit, not changed).
+
+## Close Reason
+
+Shown not to apply: Engine::market returns before setting market_done when not live and every Docked resets it. Tests: pipeline test of a live dock in a reopened journal's live half; engine-level guard that fails under the mutation. No fail-before test because there is no bug. Follow-up astromech-01c0. Review recorded.

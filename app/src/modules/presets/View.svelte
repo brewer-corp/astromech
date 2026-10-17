@@ -43,6 +43,7 @@
     {/each}
     <p class="lo">Click a cell to use that preset there (this writes StartPreset, like picking it in the game's Controls menu). Restart Elite, or pick the preset in Options → Controls, for it to take effect.</p>
     {#if msg}<p class="msg">{msg}</p>{/if}
+    {#if binds.state && binds.error}<p class="msg">{binds.error}</p>{/if}
 
     <h3 class="gap">Backups</h3>
     {#each binds.state?.backups ?? [] as b (b.path)}

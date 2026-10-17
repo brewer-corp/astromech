@@ -96,7 +96,7 @@ it("says when the card stats can't be worked out", async () => {
   headlinesFail = "journal folder not found: C:\\nowhere";
   render(View);
   const note = await screen.findByText(
-    (_, el) => el?.tagName === "P" && /^! Shield, DPS and calculated jump range are unavailable: journal folder not found/.test(el.textContent?.trim() ?? ""),
+    (_, el) => el?.tagName === "P" && /^! Could not work out shield, DPS and jump range: .*journal folder not found/.test(el.textContent?.trim() ?? ""),
   );
   expect(note).toBeTruthy();
   expect((await card("Synthetic_Krait"))["Shield"]).toBe("–");

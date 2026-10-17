@@ -1,6 +1,7 @@
 <script lang="ts">
   // The logbook: every system and station visited, how often and when, and the timeline of
   // arrivals and dockings, from the journal history the core keeps. Search narrows both.
+  import { failure } from "../../lib/ui/errors";
   import { coreStatus, type HistoryProgress } from "../../lib/core";
   import { loadLogbook, when, type Logbook } from "../../lib/logbook";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -20,7 +21,7 @@
       failed = null;
     } catch (e) {
       if (mine !== seq) return;
-      failed = String(e);
+      failed = failure("read the journal history", e);
     }
   }
 

@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-yin0
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T22:47:51.153976535+00:00"
+status: "done"
 title: "Replay real journals through every module"
-updated_at: "2026-10-17T17:01:43.101183343+00:00"
+updated_at: "2026-10-17T22:47:51.153976535+00:00"
 ---
 
 ## Goal
@@ -29,3 +33,12 @@ A replay of the full folder runs clean (no panics, every unknown event counted a
 ## Context
 
 Needs a copy of Sumeet's `Saved Games\Frontier Developments\Elite Dangerous` folder on the dev machine, kept outside the repo (it holds his commander name and history); only small, anonymised excerpts become fixtures. Also gives astromech-tqdh its import timing.
+
+## Notes
+
+- 2026-10-17 [note] Raw-event review (real logs, 35,955 lines, 137 event types, 0 malformed): 78 types typed, 59 kept as raw JSON (5,864 lines); ShipyardBuy without a trade-in and non-material EngineerContribution stay raw by design. Of the 59, read by name elsewhere: Music, UnderAttack, LaunchDrone, CollectCargo, EjectCargo, Commander, Repair, ShipyardSwap, Shutdown, Backpack, SuitLoadout, BuySuit, BuyWeapon, CreateSuitLoadout, SwitchSuitLoadout, ModuleInfo, ShipyardNew, CommunityGoalReward, SearchAndRescue, Died. Not needed by any toolbox module: costs (RefuelAll, RepairAll, BuyAmmo, BuyDrones, SellDrones, RestockVehicle, PayFines, BuyTradeData, BuyMicroResources: the next Cargo/ShipLocker snapshot carries the result), HUD-only state (ShieldState, HeatWarning, HullDamage, ReservoirReplenished), flight and SRV/on-foot transitions (SupercruiseDestinationDrop, USSDrop, DockingRequested, Liftoff, LaunchSRV, DockSRV, Embark, BookTaxi, GameModeChange, Resurrect), crime and combat (CommitCrime, CrimeVictim, FactionKillBond, EscapeInterdiction), and DatalinkScan, DataScanned, MaterialDiscovered, AsteroidCracked, Promotion, ModuleSwap, ModuleSell, LoadoutEquipModule (a Loadout follows every outfitting change). Matter but covered: CommunityGoal and CommunityGoalJoin (astromech-yfvv, Community goals near me), ShipRedeemed/ShipyardRedeem (a ship acquired without ShipyardNew: folded into astromech-vett). No new event needed a typed form.
+- 2026-10-17 [note] State of the harness on the real folder: it reports 2 problems until astromech-fg9l (materials counted past the cap, branch bug/astromech-fg9l) and astromech-dr5j (Powerplay awards the game wrote twice, branch bug/astromech-dr5j) land; with both merged locally it reports none. The ships-ledger problems print as KNOWN (astromech-vett) and don't fail it. The catch-up's choice of journal by modification time is on astromech-nrhv; the DST naming hazard is astromech-782v.
+
+## Close Reason
+
+Real journals (22, 35,955 lines) replayed through every module: 0 crashes, 0 parse failures; two real bugs fixed and merged (astromech-dr5j #143, astromech-fg9l #144); harness reports 0 problems on main with 3 known (astromech-vett). Harness merged as an opt-in test (ASTROMECH_REAL_JOURNALS).

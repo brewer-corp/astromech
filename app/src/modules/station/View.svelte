@@ -3,6 +3,7 @@
   // and the hold against nearby prices, and what its outfitting sells that the ship flown would
   // be better for), and a search over every outfitting the core has seen: "where did I see a 5A
   // drive?" works offline.
+  import { failure } from "../../lib/ui/errors";
   import { when } from "../../lib/logbook";
   import { loadHere, searchOutfitting, serviceName, type DockedHere, type OutfittingSearch } from "../../lib/station";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
@@ -24,7 +25,7 @@
           here = v;
           failed = null;
         })
-        .catch((e: unknown) => (failed = String(e)));
+        .catch((e: unknown) => (failed = failure("read the docked station", e)));
     void tick();
     const t = setInterval(() => void tick(), 5000);
     return () => clearInterval(t);

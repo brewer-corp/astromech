@@ -1,6 +1,7 @@
 <script lang="ts">
   // The session summary: what the latest game session earned and covered (EDMC's hourly
   // income), from the journal history the core keeps.
+  import { failure } from "../../lib/ui/errors";
   import { duration, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
@@ -15,7 +16,7 @@
           loaded = true;
           failed = null;
         })
-        .catch((e: unknown) => (failed = String(e)));
+        .catch((e: unknown) => (failed = failure("read the session", e)));
     void tick();
     const t = setInterval(() => void tick(), 5000);
     return () => clearInterval(t);

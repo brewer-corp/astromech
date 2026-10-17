@@ -5,6 +5,14 @@
  * - `new`: a fresh install on a PC with Elite, two sticks and two microphones;
  * - `ready`: the same PC after onboarding.
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
+ *
+ * Any scenario (or none) can also be made slow or broken, to see a page's loading and error states:
+ * - `?fail=<name>,<name>` (or `?fail=all`): those calls are rejected, as the shell rejects a command;
+ * - `?slow=<ms>` or `?slow=never`: every call waits that long, or never answers;
+ *   `?slow=never:<name>,<name>` limits it to the named calls.
+ * A name is the shell command or core command: `logbook`, `session_summary`, `engineering_fleet`,
+ * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `invoke` name in lib/*.ts).
+ * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData).
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
 import type { Route, RouteView, Waypoint } from "./route";
@@ -78,6 +86,39 @@ function prospectorReply(st: State): Reply {
     threshold: st.prospector[ore],
   }));
   return { ok: true, ores };
+}
+
+/** `?fail=` / `?slow=` entries: `all` or names; null when the parameter is absent. */
+function names(list: string | null): { all: boolean; some: Set<string> } | null {
+  if (list === null) return null;
+  const some = new Set(list.split(",").map((x) => x.trim()).filter(Boolean));
+  return { all: some.has("all") || some.size === 0, some };
+}
+
+/**
+ * Waits or fails as the URL asks for this call (see the top of this file). Every sample-backed
+ * call goes through here, so each page can be seen loading and failing.
+ */
+export async function previewGate(cmd: string): Promise<void> {
+  if (typeof location === "undefined") return;
+  const q = new URLSearchParams(location.search);
+  const fail = names(q.get("fail"));
+  const slow = q.get("slow");
+  if (slow) {
+    const [when, list] = slow.split(":") as [string, string | undefined];
+    const only = names(list ?? null);
+    if (!only || only.all || only.some.has(cmd)) {
+      if (when === "never") await new Promise<never>(() => {});
+      else if (Number(when) > 0) await sleep(Number(when));
+    }
+  }
+  if (fail && (fail.all || fail.some.has(cmd))) throw `preview: ${cmd} failed on purpose (?fail=)`;
+}
+
+/** What a sample-backed call answers in the browser: the sample, or `empty` under `?core=empty`. */
+export async function previewData<T>(cmd: string, sample: () => T, empty: () => T): Promise<T> {
+  await previewGate(cmd);
+  return fakeScenario() === "empty" ? empty() : sample();
 }
 
 export function fakeScenario(): Scenario | null {
@@ -256,6 +297,7 @@ export function fakePreviews(): string[] {
 const NO_MIC = "no recording device found (plug in a microphone or headset)";
 
 export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
+  await previewGate(cmd);
   const st = s();
   const a = (args ?? {}) as Record<string, string | null>;
   switch (cmd) {
@@ -379,6 +421,7 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
     }
     case "eddn_log":
       // Sharing was on earlier (the sample's history); the switch is this PC's setting.
+      if (st.scenario === "empty") return { ok: true, enabled: st.eddn, test: false, pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
       return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
     case "set_eddn":
       st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;

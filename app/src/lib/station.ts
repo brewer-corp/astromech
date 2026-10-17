@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/station.json";
 
 export interface Economy {
@@ -67,7 +68,13 @@ export interface OutfittingSearch {
 }
 
 export async function loadHere(): Promise<DockedHere> {
-  if (!inTauri) return { ...(sample.here as DockedHere), source: "Sample docking" };
+  if (!inTauri) {
+    const notDocked: DockedHere = {
+      docked: false, station: null, system: null, market_id: null, station_type: null, services: [], economies: [], faction: null,
+      government: null, allegiance: null, landing_pads: null, dist_from_star_ls: null, max_pad: null, ship: null, outfitting: null,
+    };
+    return previewData("docked_here", () => ({ ...(sample.here as DockedHere), source: "Sample docking" }), () => notDocked);
+  }
   return await invoke<DockedHere>("docked_here");
 }
 
@@ -82,7 +89,7 @@ export function searchSample(query: string): OutfittingSearch {
 }
 
 export async function searchOutfitting(query: string): Promise<OutfittingSearch> {
-  if (!inTauri) return searchSample(query);
+  if (!inTauri) return previewData("outfitting_search", () => searchSample(query), () => ({ stations: 0, snapshots: 0, found: [] }));
   return await invoke<OutfittingSearch>("outfitting_search", { query });
 }
 

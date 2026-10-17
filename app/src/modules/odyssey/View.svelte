@@ -2,6 +2,7 @@
   // Odyssey micro-resources: the ShipLocker + Backpack inventory with bartender values, a
   // blueprint picker (suit/weapon grade upgrades and modifications) with what each is missing and
   // one shopping list for them all, and the on-foot engineers' unlocks and referral chain.
+  import { failure } from "../../lib/ui/errors";
   import {
     fromGrades,
     hasPick,
@@ -59,7 +60,7 @@
         view = v;
         error = null;
       })
-      .catch((e: unknown) => (error = String(e)));
+      .catch((e: unknown) => (error = failure("read the inventory", e)));
   }
 
   $effect(() => {
@@ -83,7 +84,7 @@
       })
       .catch((e: unknown) => {
         shop = null;
-        shopError = String(e);
+        shopError = failure("work out the shopping list", e);
       });
   });
 
@@ -164,7 +165,7 @@
   </div>
   <p class="sub">
     {#if error}
-      Couldn't read the inventory: {error}
+      {error}
     {:else if view}
       {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
     {:else}
@@ -245,7 +246,7 @@
       <button class="add" disabled={!candidate} onclick={add}>Add</button>
     </div>
 
-    {#if shopError}<p class="sub">Couldn't work out the list: {shopError}</p>{/if}
+    {#if shopError}<p class="sub">{shopError}</p>{/if}
     {#if !picks.length}
       <p class="lo">Pick a suit or weapon upgrade, or a modification, to see what it needs and what you're short of.</p>
     {:else}

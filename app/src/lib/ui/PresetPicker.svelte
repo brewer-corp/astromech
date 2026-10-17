@@ -13,9 +13,11 @@
     {/each}
   </select>
 </label>
+{#if binds.error}<p class="err">{binds.error}</p>{/if}
 
 <style>
   .row { display: grid; grid-template-columns: 160px 1fr; align-items: center; margin-top: 12px; }
+  .err { margin: 8px 0 0; padding-left: 172px; color: var(--accent); }
   .lbl { padding-left: 34px; color: var(--text-lo); }
   select { all: unset; height: var(--row); padding: 0 12px; background: var(--cell); color: var(--accent); cursor: pointer; }
   option { background: var(--bg); color: var(--text); }
