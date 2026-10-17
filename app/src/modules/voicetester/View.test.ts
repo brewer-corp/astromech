@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import type { DryRun, Poll } from "../../lib/voice";
+import type { DryRun, LearnedPhrase, Poll } from "../../lib/voice";
 import View from "./View.svelte";
 
 // The real dry run (the browser fallback serves results recorded from the core's tester);
@@ -13,7 +13,11 @@ vi.mock("../../lib/voice", async (orig) => ({
   voicePoll: () => poll(),
   voiceStop: () => stop(),
   voiceLive: (c: string) => live(c),
+  learnedPhrases: () => learned(),
+  forgetPhrase: (h: string) => forget(h),
 }));
+const learned = vi.fn<() => Promise<LearnedPhrase[]>>();
+const forget = vi.fn<(heard: string) => Promise<LearnedPhrase[]>>();
 
 const heard: DryRun = {
   source: "voice",
@@ -41,6 +45,8 @@ describe("Voice tester", () => {
     poll.mockReset().mockResolvedValue({ listening: true, last: null });
     live.mockReset().mockResolvedValue("Pressed; the game confirmed it in 120 ms.");
     stop.mockReset().mockResolvedValue(undefined);
+    learned.mockReset().mockResolvedValue([]);
+    forget.mockReset().mockResolvedValue([]);
     setVisibility("visible");
   });
 
@@ -122,5 +128,34 @@ describe("Voice tester", () => {
     await typePhrase("lights on");
     expect(await screen.findByText("Live runs need Elite running.")).toBeTruthy();
     expect((screen.getByRole("button", { name: "Run live" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("lists the learned phrases and removes one", async () => {
+    const down = { heard: "You're down.", command: "landing_gear.down", does: "gear down" };
+    const lamps = { heard: "lamps", command: "lights.on", does: "lights on" };
+    learned.mockResolvedValue([down, lamps]);
+    forget.mockResolvedValue([lamps]);
+    render(View);
+
+    expect(await screen.findByText("You're down.")).toBeTruthy();
+    expect(screen.getByText("runs gear down")).toBeTruthy();
+    expect(screen.getByText("lamps")).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Remove You're down." }));
+    expect(forget).toHaveBeenCalledExactlyOnceWith("You're down.");
+    await vi.waitFor(() => expect(screen.queryByText("You're down.")).toBeNull());
+    expect(screen.getByText("lamps")).toBeTruthy();
+  });
+
+  it("says so when nothing was learned, and when the list cannot be read", async () => {
+    render(View);
+    expect(await screen.findByText(/None yet\./)).toBeTruthy();
+
+    forget.mockRejectedValue(new Error("opening the database: locked"));
+    learned.mockResolvedValue([{ heard: "lamps", command: "lights.on", does: "lights on" }]);
+    render(View);
+    await fireEvent.click(await screen.findByRole("button", { name: "Remove lamps" }));
+    expect(await screen.findByText("opening the database: locked")).toBeTruthy();
+    expect(screen.getByText("lamps")).toBeTruthy();
   });
 });

@@ -1,4 +1,4 @@
-//! Spansh: systems, stations and bodies search, and the neutron and trade route plotters.
+//! Spansh: systems, stations and bodies search, and the neutron, exact and trade route plotters.
 //!
 //! These APIs are undocumented. Request shapes were checked against spansh.co.uk on
 //! 16 Oct 2026. Spansh silently ignores a filter it doesn't recognise (and a recognised name
@@ -78,11 +78,29 @@
 //! Route plotters are jobs: the submit (a form post) answers HTTP 202 `{"job", "status":
 //! "queued"}`; `/api/results/{job}` answers HTTP 202 with `"status": "queued"` (`"state":
 //! "started"`) while it works and HTTP 200 with `"status": "ok"` and the `result` when done
-//! (checked 16 Oct 2026 for neutron and trade routes). An unknown job is HTTP 404
-//! `{"error": "Unable to find route"}`. A trade job that finds nothing is done with an empty
-//! `result` list.
+//! (checked 16 Oct 2026 for neutron and trade routes, 17 Oct 2026 for exact routes). An unknown
+//! job is HTTP 404 `{"error": "Unable to find route"}`. A trade job that finds nothing is done
+//! with an empty `result` list. The neutron plotter checks its systems when the job is
+//! submitted (HTTP 400 `{"error": "Could not find finishing system"}`); the exact plotter
+//! queues any name and the job then fails: its result is HTTP 500 `{"error": "Unable to find
+//! route", ...}`, which is a [`Error::Rejected`] with that message, not a server fault.
+//!
+//! The exact (galaxy) plotter (`/api/generic/route`, [`ExactRoute`]) takes the frame shift
+//! drive as numbers, not a ship build. Spansh's site works them out in the browser from a
+//! journal `Loadout` (its "SLEF" import) or a Coriolis build and posts them as a form; the
+//! build itself (`ship_build`) is optional and was sent empty here (checked 17 Oct 2026: the
+//! job answer echoes `"ship_build": null` and plots). From a `Loadout` the site sends the
+//! FSD's `FSDOptimalMass` and `MaxFuelPerJump` modifiers (else the drive's base values), its
+//! base `fuelmul` and `fuelpower`, `FuelCapacity.Main` as `tank_size`, `FuelCapacity.Reserve`
+//! as `internal_tank_size`, `UnladenMass` plus the reserve as `base_mass` (no main-tank fuel:
+//! Spansh adds what is in the tank jump by jump; a recorded Sol jump of 38.29 ly used 4.52 t,
+//! which is `fuel_multiplier * (d * (base_mass + 32) / optimal_mass) ^ fuel_power`), and the
+//! Guardian booster's jump boost as `range_boost`. Each jump of the result says whether to
+//! refuel there (`must_refuel`) and whether it is a neutron star (`has_neutron`).
 
-use crate::{encode_segment, parse_json, ttl, Client, Error, Fetched, Request, Result, Service};
+use crate::{
+    encode_segment, error_message, parse_json, status_result, ttl, Client, Error, Fetched, Request, Result, Service,
+};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
@@ -807,7 +825,94 @@ pub struct TradeHop {
     pub cumulative_profit: i64,
 }
 
-/// How long [`Client::spansh_trade_route_wait`] waits between polls and in all.
+/// An exact route request (`/api/generic/route`, Spansh's "galaxy plotter"): every jump, with
+/// refuel stops, for a ship described by its frame shift drive and masses (see the module
+/// docs for what each number is and how Spansh's site works them out from a `Loadout`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExactRoute {
+    pub from: String,
+    pub to: String,
+    /// The drive's optimal mass, engineering included, t.
+    pub optimal_mass: f64,
+    /// The most fuel one jump can use, engineering included, t.
+    pub max_fuel_per_jump: f64,
+    /// The drive's base `fuelmul` and `fuelpower`.
+    pub fuel_multiplier: f64,
+    pub fuel_power: f64,
+    /// Hull and modules with the fuel reservoir, without main-tank fuel or cargo, t.
+    pub base_mass: f64,
+    /// Main fuel tank, t.
+    pub tank_size: f64,
+    /// Fuel reservoir, t.
+    pub internal_tank_size: f64,
+    /// Guardian FSD booster, ly (0 without one).
+    pub range_boost: f64,
+    /// Cargo carried, t.
+    pub cargo: f64,
+    /// Fill up at every scoopable star, not only when the tank needs it (the site's default).
+    pub refuel_every_scoopable: bool,
+}
+
+impl ExactRoute {
+    /// The form Spansh's exact plotter posts. Options the site offers that astromech doesn't
+    /// (FSD injections, an already supercharged drive, skipping secondary stars, a fuel reserve)
+    /// are sent as the site's defaults: off. Neutron supercharges are used, as on the site.
+    fn form(&self) -> Vec<(String, String)> {
+        let flag = |b: bool| if b { "1" } else { "0" }.to_string();
+        vec![
+            ("source".into(), self.from.clone()),
+            ("destination".into(), self.to.clone()),
+            ("is_supercharged".into(), flag(false)),
+            ("use_supercharge".into(), flag(true)),
+            ("use_injections".into(), flag(false)),
+            ("use_injections_when_required".into(), flag(false)),
+            ("exclude_secondary".into(), flag(false)),
+            ("refuel_every_scoopable".into(), flag(self.refuel_every_scoopable)),
+            ("fuel_power".into(), self.fuel_power.to_string()),
+            ("fuel_multiplier".into(), self.fuel_multiplier.to_string()),
+            ("optimal_mass".into(), self.optimal_mass.to_string()),
+            ("base_mass".into(), self.base_mass.to_string()),
+            ("tank_size".into(), self.tank_size.to_string()),
+            ("internal_tank_size".into(), self.internal_tank_size.to_string()),
+            ("reserve_size".into(), "0".into()),
+            ("max_fuel_per_jump".into(), self.max_fuel_per_jump.to_string()),
+            ("range_boost".into(), self.range_boost.to_string()),
+            ("max_time".into(), "60".into()),
+            ("cargo".into(), self.cargo.to_string()),
+            ("algorithm".into(), "optimistic".into()),
+            ("supercharge_multiplier".into(), "4".into()),
+            ("injection_multiplier".into(), "2".into()),
+        ]
+    }
+}
+
+/// One jump of an exact route; the first is the start.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExactJump {
+    pub name: String,
+    pub id64: i64,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    /// Light years jumped to get here.
+    pub distance: f64,
+    pub distance_to_destination: f64,
+    /// Tonnes in the main tank on leaving (after refuelling here).
+    pub fuel_in_tank: f64,
+    pub fuel_used: f64,
+    /// Refuel here (scoop the star).
+    pub must_refuel: bool,
+    pub is_scoopable: bool,
+    /// A neutron star: the next jump is supercharged.
+    pub has_neutron: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ExactPlan {
+    pub jumps: Vec<ExactJump>,
+}
+
+/// How long the `*_wait` calls wait between polls and in all.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Polling {
     pub every: Duration,
@@ -815,7 +920,8 @@ pub struct Polling {
 }
 
 impl Default for Polling {
-    /// Trade jobs took 25–70 s on 16 Oct 2026.
+    /// Trade jobs took 25–70 s on 16 Oct 2026; exact routes are capped at 60 s of search
+    /// (`max_time`) after they leave the queue.
     fn default() -> Self {
         Polling { every: Duration::from_secs(3), timeout: Duration::from_secs(180) }
     }
@@ -876,11 +982,40 @@ impl Client {
     /// Queue a trade route and poll until it is done. Blocks (run it off the UI thread); past
     /// `polling.timeout` it gives up with [`Error::Timeout`].
     pub fn spansh_trade_route_wait(&self, r: &TradeRoute, polling: Polling) -> Result<Vec<TradeHop>> {
+        self.spansh_wait(|| self.spansh_trade_route(r), polling)
+    }
+
+    /// Queue a neutron route and poll until it is done; blocks like
+    /// [`Client::spansh_trade_route_wait`].
+    pub fn spansh_route_wait(&self, r: &NeutronRoute, polling: Polling) -> Result<NeutronPlan> {
+        self.spansh_wait(|| self.spansh_route(r), polling)
+    }
+
+    /// Queue an exact route; poll [`Client::spansh_exact_result`] with the job.
+    pub fn spansh_exact_route(&self, r: &ExactRoute) -> Result<Job> {
+        Ok(self.fetch(Service::Spansh, &Request::post_form("/api/generic/route", r.form()), None)?.value)
+    }
+
+    /// An exact job's jumps once done. A route Spansh can't find (an unknown system, a ship
+    /// that can't make a jump) is [`Error::Rejected`].
+    pub fn spansh_exact_result(&self, job: &str) -> Result<JobStatus<ExactPlan>> {
+        self.spansh_job(job)
+    }
+
+    /// Queue an exact route and poll until it is done; blocks like
+    /// [`Client::spansh_trade_route_wait`].
+    pub fn spansh_exact_route_wait(&self, r: &ExactRoute, polling: Polling) -> Result<ExactPlan> {
+        self.spansh_wait(|| self.spansh_exact_route(r), polling)
+    }
+
+    /// Submit a job with `submit`, then poll `/api/results/{job}` every `polling.every` until it
+    /// is done or `polling.timeout` has passed ([`Error::Timeout`]).
+    fn spansh_wait<T: DeserializeOwned>(&self, submit: impl FnOnce() -> Result<Job>, polling: Polling) -> Result<T> {
         let start = Instant::now();
-        let job = self.spansh_trade_route(r)?;
+        let job = submit()?;
         loop {
-            if let JobStatus::Done(hops) = self.spansh_trade_result(&job.job)? {
-                return Ok(hops);
+            if let JobStatus::Done(v) = self.spansh_job(&job.job)? {
+                return Ok(v);
             }
             if start.elapsed() + polling.every > polling.timeout {
                 return Err(Error::Timeout { service: Service::Spansh });
@@ -889,10 +1024,20 @@ impl Client {
         }
     }
 
-    /// Not cached: a pending answer must be asked again, and a finished one is the caller's.
+    /// Not cached: a pending answer must be asked again, and a finished one is the caller's. A
+    /// job that failed answers HTTP 500 with its reason, which is the request's fault (see the
+    /// module docs), so it is [`Error::Rejected`].
     fn spansh_job<T: DeserializeOwned>(&self, job: &str) -> Result<JobStatus<T>> {
+        let s = Service::Spansh;
         let req = Request::get(format!("/api/results/{}", encode_segment(job)));
-        Ok(self.fetch_with(Service::Spansh, &req, None, parse_job_status)?.value)
+        let resp = self.exchange(s, &req)?;
+        if resp.status >= 500 {
+            if let Some(message) = error_message(&resp.body) {
+                return Err(Error::Rejected { service: s, message });
+            }
+        }
+        let body = status_result(s, resp)?;
+        parse_job_status(&body).inspect_err(|e| self.log_schema(s, &req, e))
     }
 }
 

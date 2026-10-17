@@ -138,6 +138,9 @@ pub struct ShipStats {
     pub passenger_capacity: f64,
     /// `None` when the frame shift drive is missing or unpowered (Coriolis shows 0).
     pub jump: Option<JumpRange>,
+    /// The drive and masses route plotters work from; `None` when `jump` is.
+    #[serde(skip)]
+    pub fsd: Option<Fsd>,
     pub power: Power,
     /// `None` without a shield generator; strength 0 when it is switched off.
     pub shield: Option<Shield>,
@@ -163,6 +166,37 @@ pub struct JumpRange {
     /// Range on a full tank, jumping until empty.
     pub total_unladen: f64,
     pub total_laden: f64,
+}
+
+/// What a route plotter needs to know about the ship's jumps: the frame shift drive, engineering
+/// included, and the masses it moves (Spansh's exact plotter takes these numbers).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Fsd {
+    /// Optimal mass, t.
+    pub optimal_mass: f64,
+    /// The most fuel one jump can use, t.
+    pub max_fuel_per_jump: f64,
+    /// The drive's base fuel multiplier and power (engineering doesn't change them).
+    pub fuel_multiplier: f64,
+    pub fuel_power: f64,
+    /// Hull and modules with the fuel reservoir, without main-tank fuel or cargo, t.
+    pub base_mass: f64,
+    /// Main tank, t.
+    pub tank_size: f64,
+    /// Fuel reservoir, t.
+    pub reserve_size: f64,
+    /// Guardian FSD booster, ly.
+    pub range_boost: f64,
+}
+
+impl Fsd {
+    /// One jump's range with a full tank and `cargo` tonnes aboard, ly (`JumpRange::laden`
+    /// with a full hold).
+    pub fn range(&self, cargo: f64) -> f64 {
+        let mass = self.base_mass + self.tank_size + cargo.max(0.0);
+        (self.max_fuel_per_jump / self.fuel_multiplier).powf(1.0 / self.fuel_power) * self.optimal_mass / mass
+            + self.range_boost
+    }
 }
 
 /// Power plant output against module draw, MW.
@@ -513,6 +547,16 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
             total_laden: ship.total_jump_range(unladen + cargo, fsd, fuel),
         }
     });
+    let fsd = jump.as_ref().and_then(|_| ship.standard(Standard::Fsd)).map(|s| Fsd {
+        optimal_mass: s.module.get("optmass").unwrap_or(0.0),
+        max_fuel_per_jump: s.module.get("maxfuel").unwrap_or(0.0),
+        fuel_multiplier: s.module.base("fuelmul").unwrap_or(f64::NAN),
+        fuel_power: s.module.base("fuelpower").unwrap_or(f64::NAN),
+        base_mass: dry + def.reserve_fuel,
+        tank_size: fuel,
+        reserve_size: def.reserve_fuel,
+        range_boost: ship.jump_boost(),
+    });
 
     let power = Power { generation: ship.power_available, retracted: r, deployed: d };
     let shield = shield(&ship);
@@ -549,6 +593,7 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
         cargo_capacity: cargo,
         passenger_capacity: passengers,
         jump,
+        fsd,
         power,
         shield,
         armour,

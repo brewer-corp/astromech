@@ -66,6 +66,38 @@ export async function voiceStop(): Promise<void> {
   if (inTauri) await coreCall("voice_test_stop");
 }
 
+/** A phrase astromech learned from a "Did you mean ...?" answered yes. */
+export interface LearnedPhrase {
+  /** The words as they were heard. */
+  heard: string;
+  /** The command it now runs. */
+  command: string;
+  /** That command's usual phrase. */
+  does: string;
+}
+
+let previewLearned: LearnedPhrase[] = [
+  { heard: "You're down.", command: "landing_gear.down", does: "gear down" },
+  { heard: "lamps", command: "lights.on", does: "lights on" },
+];
+
+async function learned(r: Promise<Record<string, unknown>>): Promise<LearnedPhrase[]> {
+  const v = await r;
+  if (!v.ok || !Array.isArray(v.phrases)) throw new Error(String(v.error ?? "the core did not answer"));
+  return v.phrases as LearnedPhrase[];
+}
+
+/** The phrases learned so far, most used first. */
+export async function learnedPhrases(): Promise<LearnedPhrase[]> {
+  return inTauri ? learned(coreCall("learned_phrases")) : previewLearned;
+}
+
+/** Forget one learned phrase; it asks again next time. Returns the phrases that are left. */
+export async function forgetPhrase(heard: string): Promise<LearnedPhrase[]> {
+  if (!inTauri) return (previewLearned = previewLearned.filter((p) => p.heard !== heard));
+  return learned(coreCall("learned_forget", heard));
+}
+
 /** How long a live run waits for Elite to be the active window (the core's `tester::SWITCH_WAIT`). */
 export const SWITCH_SECONDS = 5;
 

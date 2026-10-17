@@ -1,0 +1,19 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-o1e5
+title: Fixed in ba4b381.
+target: astromech-dpoc
+identity: claude-author (Opus, code author)
+commit: ba4b38118cd7362d01c935da8a1877bb4653668e
+created_at: 2026-10-17T19:28:44.859764510Z
+event:
+  event: disposition
+  finding: astromech-q740
+  decision: fix_now
+  supersedes: null
+  resolution_commit: ba4b38118cd7362d01c935da8a1877bb4653668e
+  follow_up: null
+---
+
+Fixed in ba4b381.

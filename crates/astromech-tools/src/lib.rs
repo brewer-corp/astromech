@@ -185,9 +185,15 @@ impl Toggle {
                 "off",
                 true,
             ),
-            Toggle::SrvHandbrake => {
-                s("set_srv_handbrake", "Handbrake", flags::FLAG_SRV_HANDBRAKE, "Handbrake", "on", "off", true)
-            }
+            Toggle::SrvHandbrake => s(
+                "set_srv_handbrake",
+                "AutoBreakBuggyButton",
+                flags::FLAG_SRV_HANDBRAKE,
+                "Handbrake",
+                "on",
+                "off",
+                true,
+            ),
             Toggle::SrvDriveAssist => s(
                 "set_srv_drive_assist",
                 "ToggleDriveAssist",
@@ -216,6 +222,9 @@ impl Toggle {
 }
 
 impl Screen {
+    pub fn all() -> [Screen; 7] {
+        [Screen::GalaxyMap, Screen::SystemMap, Screen::Close, Screen::Left, Screen::Right, Screen::Comms, Screen::Role]
+    }
     pub fn action(self) -> &'static str {
         match self {
             Screen::GalaxyMap => "GalaxyMapOpen",
@@ -675,10 +684,30 @@ pub fn elite_action(call: ToolCall) -> Option<&'static str> {
     }
 }
 
+/// Every Elite action a tool can press, for the binds health check.
+pub fn pressed_actions() -> Vec<&'static str> {
+    let mut v: Vec<&'static str> = Toggle::all().iter().map(|t| t.spec().action).collect();
+    v.extend(Screen::all().iter().map(|s| s.action()));
+    v.push(elite_action(ToolCall::ThrottleZero).expect("throttle zero presses"));
+    v
+}
+
 #[cfg(test)]
 mod tests {
     use super::flags::*;
     use super::*;
+
+    #[test]
+    fn health_check_covers_every_pressed_action() {
+        let actions = pressed_actions();
+        assert!(actions.len() >= 18, "{actions:?}");
+        for a in actions {
+            assert!(
+                astromech_keybinds::catalog::VOICE_ACTIONS.contains(&a),
+                "{a} is pressed by a tool but missing from VOICE_ACTIONS (the No keyboard key health rule)"
+            );
+        }
+    }
 
     const FLYING: u64 = IN_MAIN_SHIP;
 
