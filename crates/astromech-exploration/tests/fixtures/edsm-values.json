@@ -1,0 +1,1956 @@
+{
+ "source": "Body classes, masses and terraform states from Spansh's system dumps (spansh.co.uk/api/dump/<id64>); published values from EDSM's estimated-value API (www.edsm.net/api-system-v1/estimated-value): estimatedValue is the system's bodies at their scan value, valueMax a valuable body's mapped value (not first discovered or mapped, no efficiency or Odyssey bonus). Fetched 17 Oct 2026.",
+ "systems": [
+  {
+   "system": "Sol",
+   "address": 10477373803,
+   "edsm_total": null,
+   "edsm_mapped": [
+    [
+     "Earth",
+     945428
+    ],
+    [
+     "Mars",
+     822273
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Sol",
+     "BodyID": 0,
+     "StarType": "G",
+     "StellarMass": 1.0
+    },
+    {
+     "BodyName": "Mercury",
+     "BodyID": 1,
+     "PlanetClass": "Metal rich body",
+     "MassEM": 0.055,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Venus",
+     "BodyID": 2,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.815,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Earth",
+     "BodyID": 3,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 1.0,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Moon",
+     "BodyID": 4,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.012304,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Mars",
+     "BodyID": 5,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 0.107,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Jupiter",
+     "BodyID": 7,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 317.799622,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Io",
+     "BodyID": 9,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.015,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Europa",
+     "BodyID": 10,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.008,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ganymede",
+     "BodyID": 11,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.024814,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Callisto",
+     "BodyID": 12,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.018016,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Saturn",
+     "BodyID": 13,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 95.159035,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Enceladus",
+     "BodyID": 15,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.8e-05,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Tethys",
+     "BodyID": 16,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000103,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Dione",
+     "BodyID": 17,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000183,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Rhea",
+     "BodyID": 18,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000386,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Titan",
+     "BodyID": 19,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.022499,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Iapetus",
+     "BodyID": 20,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.000302,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Uranus",
+     "BodyID": 22,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 14.539695,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ariel",
+     "BodyID": 24,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.000227,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Umbriel",
+     "BodyID": 25,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000196,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Titania",
+     "BodyID": 26,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000591,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Oberon",
+     "BodyID": 27,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.000505,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Neptune",
+     "BodyID": 28,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 17.149633,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Triton",
+     "BodyID": 30,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00359,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Pluto",
+     "BodyID": 32,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.00218,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Charon",
+     "BodyID": 33,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.000253,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "90482 Orcus",
+     "BodyID": 34,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.000107,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Vanth",
+     "BodyID": 35,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 7e-06,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "(307261) 2002 MS4",
+     "BodyID": 36,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00028,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Salacia",
+     "BodyID": 37,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.0028,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Actaea",
+     "BodyID": 38,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 3e-06,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Haumea",
+     "BodyID": 39,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00066,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Hi'iaka",
+     "BodyID": 40,
+     "PlanetClass": "Icy body",
+     "MassEM": 3e-06,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Quaoar",
+     "BodyID": 41,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.000234,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Makemake",
+     "BodyID": 42,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000736,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "(225088) 2007 OR10",
+     "BodyID": 43,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000435,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Eris",
+     "BodyID": 44,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.0028,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Sedna",
+     "BodyID": 45,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000435,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Persephone",
+     "BodyID": 46,
+     "PlanetClass": "Icy body",
+     "MassEM": 9.9997,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Ross 154",
+   "address": 7268024264105,
+   "edsm_total": 262811,
+   "edsm_mapped": [
+    [
+     "Merlin",
+     783237
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Ross 154",
+     "BodyID": 0,
+     "StarType": "M",
+     "StellarMass": 0.199219
+    },
+    {
+     "BodyName": "Aster",
+     "BodyID": 5,
+     "PlanetClass": "Sudarsky class II gas giant",
+     "MassEM": 109.76757,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Merlin",
+     "BodyID": 6,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 0.04,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Dust Ball",
+     "BodyID": 7,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.006,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 154 3",
+     "BodyID": 8,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.159204,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 154 4",
+     "BodyID": 9,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.136293,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 154 5",
+     "BodyID": 10,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.198983,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 154 6",
+     "BodyID": 11,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.1973,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 154 7",
+     "BodyID": 13,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.481136,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Kruger 60",
+   "address": 22660918617513,
+   "edsm_total": 173607,
+   "edsm_mapped": [
+    [
+     "Kruger 60 A 1",
+     517702
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Kruger 60",
+     "BodyID": 1,
+     "StarType": "M",
+     "StellarMass": 0.421875
+    },
+    {
+     "BodyName": "Kruger 60 B",
+     "BodyID": 2,
+     "StarType": "M",
+     "StellarMass": 0.175781
+    },
+    {
+     "BodyName": "Kruger 60 A 1",
+     "BodyID": 7,
+     "PlanetClass": "Ammonia world",
+     "MassEM": 1.365088,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 A 1 a",
+     "BodyID": 8,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.122521,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 A 2",
+     "BodyID": 10,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.620784,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 A 3",
+     "BodyID": 11,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.631533,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 A 4",
+     "BodyID": 12,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.860162,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 B 1",
+     "BodyID": 23,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.031222,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 B 2",
+     "BodyID": 24,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.066788,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 B 3",
+     "BodyID": 25,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.227015,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Kruger 60 B 4",
+     "BodyID": 26,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.073334,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Barnard's Star",
+   "address": 18263140541865,
+   "edsm_total": 160699,
+   "edsm_mapped": [
+    [
+     "Barnard's Star 2",
+     429314
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Barnard's Star",
+     "BodyID": 0,
+     "StarType": "M",
+     "StellarMass": 0.335938
+    },
+    {
+     "BodyName": "Barnard's Star 1",
+     "BodyID": 6,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.237245,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 2",
+     "BodyID": 7,
+     "PlanetClass": "Water world",
+     "MassEM": 16.105366,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Cooke",
+     "BodyID": 8,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.004,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Birmingham World",
+     "BodyID": 9,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.1,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5",
+     "BodyID": 13,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 536.446533,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 a",
+     "BodyID": 16,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00398,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 b",
+     "BodyID": 17,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00216,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 c",
+     "BodyID": 18,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.004664,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 d",
+     "BodyID": 19,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00687,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 e",
+     "BodyID": 20,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.006144,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 f",
+     "BodyID": 21,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00664,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 5 g",
+     "BodyID": 23,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.004398,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 6",
+     "BodyID": 26,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 492.095581,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 6 a",
+     "BodyID": 29,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.019923,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Barnard's Star 6 b",
+     "BodyID": 30,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.017545,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Alpha Centauri",
+   "address": 1178708478315,
+   "edsm_total": 60401,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "Alpha Centauri",
+     "BodyID": 2,
+     "StarType": "G",
+     "StellarMass": 1.175781
+    },
+    {
+     "BodyName": "Alpha Centauri B",
+     "BodyID": 3,
+     "StarType": "K",
+     "StellarMass": 0.855469
+    },
+    {
+     "BodyName": "Proxima Centauri",
+     "BodyID": 4,
+     "StarType": "M",
+     "StellarMass": 0.121094
+    },
+    {
+     "BodyName": "Alpha Centauri B 1",
+     "BodyID": 5,
+     "PlanetClass": "Metal rich body",
+     "MassEM": 0.674523,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "2045 PC2",
+     "BodyID": 6,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.001,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Lagrange",
+     "BodyID": 7,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 301.236633,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "2042 L1",
+     "BodyID": 8,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.001,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "2071 AC3",
+     "BodyID": 9,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 16.729904,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Eden",
+     "BodyID": 10,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.66,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Sirius",
+   "address": 121569805492,
+   "edsm_total": 28956,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "Sirius",
+     "BodyID": 1,
+     "StarType": "A",
+     "StellarMass": 2.53125
+    },
+    {
+     "BodyName": "Sirius B",
+     "BodyID": 2,
+     "StarType": "DA",
+     "StellarMass": 0.707031
+    },
+    {
+     "BodyName": "Waypoint",
+     "BodyID": 3,
+     "PlanetClass": "Sudarsky class III gas giant",
+     "MassEM": 351.399933,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Lucifer",
+     "BodyID": 4,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.05,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Jackson's Lighthouse",
+   "address": 5532807773,
+   "edsm_total": 34185,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "Jackson's Lighthouse",
+     "BodyID": 0,
+     "StarType": "N",
+     "StellarMass": 13.484375
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 1",
+     "BodyID": 1,
+     "PlanetClass": "Sudarsky class V gas giant",
+     "MassEM": 766.702148,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 2",
+     "BodyID": 2,
+     "StarType": "T",
+     "StellarMass": 0.03125
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 3",
+     "BodyID": 4,
+     "StarType": "L",
+     "StellarMass": 0.15625
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 4",
+     "BodyID": 5,
+     "StarType": "L",
+     "StellarMass": 0.121094
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 5",
+     "BodyID": 7,
+     "StarType": "L",
+     "StellarMass": 0.136719
+    },
+    {
+     "BodyName": "Jackson's Lighthouse 6",
+     "BodyID": 8,
+     "StarType": "L",
+     "StellarMass": 0.105469
+    }
+   ]
+  },
+  {
+   "system": "HIP 34707",
+   "address": 3385328213,
+   "edsm_total": 32808,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "HIP 34707 A",
+     "BodyID": 1,
+     "StarType": "B",
+     "StellarMass": 9.542969
+    },
+    {
+     "BodyName": "HIP 34707 B",
+     "BodyID": 2,
+     "StarType": "H",
+     "StellarMass": 3.1875
+    },
+    {
+     "BodyName": "HIP 34707 B 1",
+     "BodyID": 4,
+     "StarType": "Y",
+     "StellarMass": 0.011719
+    },
+    {
+     "BodyName": "HIP 34707 B 1 a",
+     "BodyID": 6,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.01197,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 1 b",
+     "BodyID": 7,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.014235,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 1 c",
+     "BodyID": 8,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.022074,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 1 d",
+     "BodyID": 9,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.012346,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2",
+     "BodyID": 10,
+     "PlanetClass": "Sudarsky class III gas giant",
+     "MassEM": 1348.978027,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 a",
+     "BodyID": 13,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002517,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 b",
+     "BodyID": 14,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002433,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 c",
+     "BodyID": 15,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.003105,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 d",
+     "BodyID": 16,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.003056,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 e",
+     "BodyID": 17,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002888,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 f",
+     "BodyID": 18,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.003749,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "HIP 34707 B 2 g",
+     "BodyID": 19,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.017861,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "LAWD 26",
+   "address": 2587474528619,
+   "edsm_total": 54753,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "LAWD 26",
+     "BodyID": 1,
+     "StarType": "DA",
+     "StellarMass": 1.105469
+    },
+    {
+     "BodyName": "Gliese 293 B",
+     "BodyID": 2,
+     "StarType": "W",
+     "StellarMass": 1.179688
+    },
+    {
+     "BodyName": "LAWD 26 A 1",
+     "BodyID": 20,
+     "PlanetClass": "Sudarsky class III gas giant",
+     "MassEM": 592.533325,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 a",
+     "BodyID": 22,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.005119,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 b",
+     "BodyID": 23,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.004729,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 c",
+     "BodyID": 24,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.004643,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 d",
+     "BodyID": 25,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.003428,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 e",
+     "BodyID": 26,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.010821,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 A 1 e a",
+     "BodyID": 27,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.000198,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "LAWD 26 B 1",
+     "BodyID": 28,
+     "PlanetClass": "Metal rich body",
+     "MassEM": 1.596666,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Duamta",
+   "address": 4339804408171,
+   "edsm_total": 527652,
+   "edsm_mapped": [
+    [
+     "Duamta 4",
+     973945
+    ],
+    [
+     "Duamta 5",
+     573939
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Duamta",
+     "BodyID": 0,
+     "StarType": "F",
+     "StellarMass": 1.066406
+    },
+    {
+     "BodyName": "Duamta 1",
+     "BodyID": 7,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.342832,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 2",
+     "BodyID": 8,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.933953,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 2 a",
+     "BodyID": 9,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.067478,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 3",
+     "BodyID": 10,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.303339,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 3 a",
+     "BodyID": 11,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.022161,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 4",
+     "BodyID": 12,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 1.493017,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Duamta 4 a",
+     "BodyID": 13,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.064427,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 5",
+     "BodyID": 14,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.953812,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Duamta 6",
+     "BodyID": 15,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.906736,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 7",
+     "BodyID": 16,
+     "PlanetClass": "Icy body",
+     "MassEM": 2.695543,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Duamta 8",
+     "BodyID": 20,
+     "PlanetClass": "Icy body",
+     "MassEM": 4.366951,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Togher",
+   "address": 3932143227610,
+   "edsm_total": 435703,
+   "edsm_mapped": [
+    [
+     "Togher B 1",
+     984431
+    ],
+    [
+     "Togher B 2",
+     338269
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Togher A",
+     "BodyID": 1,
+     "StarType": "K",
+     "StellarMass": 0.734375
+    },
+    {
+     "BodyName": "Togher B",
+     "BodyID": 3,
+     "StarType": "M",
+     "StellarMass": 0.460938
+    },
+    {
+     "BodyName": "Togher C",
+     "BodyID": 4,
+     "StarType": "L",
+     "StellarMass": 0.160156
+    },
+    {
+     "BodyName": "Togher A 1",
+     "BodyID": 15,
+     "PlanetClass": "Gas giant with water based life",
+     "MassEM": 204.780624,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 1 a",
+     "BodyID": 17,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000511,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 1 b",
+     "BodyID": 18,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000683,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 1 c",
+     "BodyID": 19,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002469,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 1 d",
+     "BodyID": 20,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.008364,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2",
+     "BodyID": 22,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 105.110077,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 a",
+     "BodyID": 23,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.003582,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 b",
+     "BodyID": 25,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.001511,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 c",
+     "BodyID": 26,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.0012,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 d",
+     "BodyID": 27,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.001208,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 e",
+     "BodyID": 28,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002514,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 2 f",
+     "BodyID": 29,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00093,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 3",
+     "BodyID": 30,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 22.588879,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 3 a",
+     "BodyID": 32,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000364,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 3 b",
+     "BodyID": 33,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000455,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 3 c",
+     "BodyID": 34,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000978,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4",
+     "BodyID": 35,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 20.854692,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 a",
+     "BodyID": 38,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000179,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 b",
+     "BodyID": 39,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000132,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 c",
+     "BodyID": 40,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000231,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 d",
+     "BodyID": 41,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000562,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 e",
+     "BodyID": 42,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00049,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 4 f",
+     "BodyID": 43,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.001365,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher A 5",
+     "BodyID": 44,
+     "PlanetClass": "Icy body",
+     "MassEM": 5.040902,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 1",
+     "BodyID": 53,
+     "PlanetClass": "Water world",
+     "MassEM": 1.716807,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Togher B 2",
+     "BodyID": 54,
+     "PlanetClass": "Water world",
+     "MassEM": 0.99465,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 3",
+     "BodyID": 55,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 87.806595,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 3 a",
+     "BodyID": 58,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002994,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 3 b",
+     "BodyID": 59,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002495,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 3 c",
+     "BodyID": 60,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.006122,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 4",
+     "BodyID": 61,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 11.271028,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 4 a",
+     "BodyID": 63,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000185,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher B 4 b",
+     "BodyID": 64,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000298,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 1",
+     "BodyID": 65,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 1.394451,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 1 a",
+     "BodyID": 66,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.128152,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 2",
+     "BodyID": 67,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.77638,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 3",
+     "BodyID": 68,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.945455,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 4",
+     "BodyID": 69,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.105628,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 4 a",
+     "BodyID": 70,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.038287,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 5",
+     "BodyID": 72,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.712476,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Togher C 6",
+     "BodyID": 73,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.471544,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Ross 780",
+   "address": 11665802274217,
+   "edsm_total": 100693,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "Ross 780",
+     "BodyID": 0,
+     "StarType": "M",
+     "StellarMass": 0.386719
+    },
+    {
+     "BodyName": "Ross 780 1",
+     "BodyID": 1,
+     "PlanetClass": "Sudarsky class III gas giant",
+     "MassEM": 617.167114,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Wireworld",
+     "BodyID": 2,
+     "PlanetClass": "Rocky body",
+     "MassEM": 5.838919,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 3",
+     "BodyID": 3,
+     "PlanetClass": "Sudarsky class II gas giant",
+     "MassEM": 617.167114,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 4",
+     "BodyID": 4,
+     "PlanetClass": "Rocky body",
+     "MassEM": 11.000004,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 5",
+     "BodyID": 6,
+     "PlanetClass": "Sudarsky class II gas giant",
+     "MassEM": 910.863281,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 5 a",
+     "BodyID": 8,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000193,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 5 b",
+     "BodyID": 9,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000375,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 5 c",
+     "BodyID": 10,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000212,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 5 d",
+     "BodyID": 11,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000167,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 6",
+     "BodyID": 12,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.060293,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7",
+     "BodyID": 14,
+     "PlanetClass": "Sudarsky class II gas giant",
+     "MassEM": 907.395569,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 a",
+     "BodyID": 17,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.002915,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 b",
+     "BodyID": 18,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.00341,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 c",
+     "BodyID": 19,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.011981,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 d",
+     "BodyID": 20,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.006517,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 e",
+     "BodyID": 21,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.011744,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 7 e a",
+     "BodyID": 22,
+     "PlanetClass": "Icy body",
+     "MassEM": 0.000228,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Ross 780 8",
+     "BodyID": 23,
+     "PlanetClass": "Icy body",
+     "MassEM": 9.402889,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "61 Cygni",
+   "address": 5856288576210,
+   "edsm_total": 62607,
+   "edsm_mapped": [],
+   "bodies": [
+    {
+     "BodyName": "61 Cygni",
+     "BodyID": 1,
+     "StarType": "K",
+     "StellarMass": 0.554688
+    },
+    {
+     "BodyName": "61 Cygni B",
+     "BodyID": 2,
+     "StarType": "K",
+     "StellarMass": 0.484375
+    },
+    {
+     "BodyName": "61 Cygni A 1",
+     "BodyID": 3,
+     "PlanetClass": "Metal rich body",
+     "MassEM": 0.152465,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "61 Cygni A 2",
+     "BodyID": 4,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.236698,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "61 Cygni A 3",
+     "BodyID": 5,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.348215,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "61 Cygni A 4",
+     "BodyID": 14,
+     "PlanetClass": "Icy body",
+     "MassEM": 1.920711,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Fulastobo",
+   "address": 4545962838387,
+   "edsm_total": 1660903,
+   "edsm_mapped": [
+    [
+     "Fulastobo A 1",
+     1015706
+    ],
+    [
+     "Fulastobo A 2",
+     600172
+    ],
+    [
+     "Fulastobo A 3",
+     1044857
+    ],
+    [
+     "Fulastobo A 3 a",
+     450323
+    ],
+    [
+     "Fulastobo B 7",
+     593002
+    ],
+    [
+     "Fulastobo B 8",
+     358570
+    ],
+    [
+     "Fulastobo B 9",
+     590142
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Fulastobo A",
+     "BodyID": 1,
+     "StarType": "A",
+     "StellarMass": 1.371094
+    },
+    {
+     "BodyName": "Fulastobo B",
+     "BodyID": 3,
+     "StarType": "G",
+     "StellarMass": 0.941406
+    },
+    {
+     "BodyName": "Fulastobo C",
+     "BodyID": 4,
+     "StarType": "M",
+     "StellarMass": 0.300781
+    },
+    {
+     "BodyName": "Fulastobo A 1",
+     "BodyID": 6,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 2.547818,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Fulastobo A 2",
+     "BodyID": 7,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.73601,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Fulastobo A 3",
+     "BodyID": 8,
+     "PlanetClass": "Water world",
+     "MassEM": 3.586221,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Fulastobo A 3 a",
+     "BodyID": 9,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.293636,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Fulastobo A 4",
+     "BodyID": 10,
+     "PlanetClass": "High metal content body",
+     "MassEM": 3.036875,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 4 a",
+     "BodyID": 11,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.138908,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 5",
+     "BodyID": 12,
+     "PlanetClass": "High metal content body",
+     "MassEM": 4.686665,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 6",
+     "BodyID": 13,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.915572,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 7",
+     "BodyID": 14,
+     "PlanetClass": "High metal content body",
+     "MassEM": 3.215411,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 7 a",
+     "BodyID": 15,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.307003,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo A 8",
+     "BodyID": 16,
+     "PlanetClass": "Icy body",
+     "MassEM": 6.372557,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 1",
+     "BodyID": 21,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.048341,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 2",
+     "BodyID": 22,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.589465,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 3",
+     "BodyID": 23,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.482278,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 4",
+     "BodyID": 24,
+     "PlanetClass": "High metal content body",
+     "MassEM": 2.024608,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 5",
+     "BodyID": 25,
+     "PlanetClass": "High metal content body",
+     "MassEM": 4.566256,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 5 a",
+     "BodyID": 26,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.227268,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 6",
+     "BodyID": 27,
+     "PlanetClass": "High metal content body",
+     "MassEM": 2.120719,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 7",
+     "BodyID": 28,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.484234,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Fulastobo B 8",
+     "BodyID": 30,
+     "PlanetClass": "Water world",
+     "MassEM": 2.145314,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 9",
+     "BodyID": 31,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.392364,
+     "TerraformState": "Terraformable"
+    },
+    {
+     "BodyName": "Fulastobo B 10",
+     "BodyID": 32,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.246165,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo B 11",
+     "BodyID": 33,
+     "PlanetClass": "High metal content body",
+     "MassEM": 1.629872,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 1",
+     "BodyID": 39,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.084244,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 2",
+     "BodyID": 40,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.091292,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 3",
+     "BodyID": 41,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.133305,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 3 a",
+     "BodyID": 42,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.009187,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 4",
+     "BodyID": 43,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.098779,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 5",
+     "BodyID": 44,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.586639,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 6",
+     "BodyID": 45,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.665908,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 6 a",
+     "BodyID": 46,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.029907,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 7",
+     "BodyID": 47,
+     "PlanetClass": "Rocky ice body",
+     "MassEM": 0.307931,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Fulastobo C 8",
+     "BodyID": 48,
+     "PlanetClass": "Sudarsky class I gas giant",
+     "MassEM": 2.275458,
+     "TerraformState": ""
+    }
+   ]
+  },
+  {
+   "system": "Agastani",
+   "address": 4820857522539,
+   "edsm_total": 867839,
+   "edsm_mapped": [
+    [
+     "Agastani A 3",
+     821821
+    ],
+    [
+     "Agastani A 4",
+     835442
+    ],
+    [
+     "Agastani A 5",
+     520099
+    ],
+    [
+     "Agastani A 9",
+     464608
+    ]
+   ],
+   "bodies": [
+    {
+     "BodyName": "Agastani A",
+     "BodyID": 1,
+     "StarType": "F",
+     "StellarMass": 1.390625
+    },
+    {
+     "BodyName": "Agastani B",
+     "BodyID": 4,
+     "StarType": "G",
+     "StellarMass": 1.03125
+    },
+    {
+     "BodyName": "Agastani C",
+     "BodyID": 5,
+     "StarType": "K",
+     "StellarMass": 0.597656
+    },
+    {
+     "BodyName": "Agastani D",
+     "BodyID": 6,
+     "StarType": "K",
+     "StellarMass": 0.726563
+    },
+    {
+     "BodyName": "Agastani A 1",
+     "BodyID": 7,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.905314,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 2",
+     "BodyID": 8,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.297879,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 2 a",
+     "BodyID": 9,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.006021,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 3",
+     "BodyID": 10,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 0.105899,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Agastani A 4",
+     "BodyID": 11,
+     "PlanetClass": "Earthlike body",
+     "MassEM": 0.143369,
+     "TerraformState": "Terraformed"
+    },
+    {
+     "BodyName": "Agastani A 5",
+     "BodyID": 12,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.210024,
+     "TerraformState": "Terraforming"
+    },
+    {
+     "BodyName": "Agastani A 6",
+     "BodyID": 13,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.155406,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 7",
+     "BodyID": 15,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.124411,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 8",
+     "BodyID": 16,
+     "PlanetClass": "High metal content body",
+     "MassEM": 0.118231,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 9",
+     "BodyID": 17,
+     "PlanetClass": "Ammonia world",
+     "MassEM": 0.277526,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 9 a",
+     "BodyID": 18,
+     "PlanetClass": "Rocky body",
+     "MassEM": 0.020409,
+     "TerraformState": ""
+    },
+    {
+     "BodyName": "Agastani A 10",
+     "BodyID": 19,
+     "PlanetClass": "Icy body",
+     "MassEM": 5.128051,
+     "TerraformState": ""
+    }
+   ]
+  }
+ ]
+}

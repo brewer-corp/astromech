@@ -62,6 +62,13 @@ impl Run {
         out.into_iter().filter(|r| r.channels.speech).map(|r| r.text).collect()
     }
 
+    /// The clock moved on to `wall_secs` (seconds since the Unix epoch). Spoken lines.
+    pub fn tick(&mut self, wall_secs: i64) -> Vec<String> {
+        self.n += 1;
+        let out = self.engine.tick(wall_secs, &self.state, self.t0 + Duration::from_secs(self.n));
+        out.into_iter().filter(|r| r.channels.speech).map(|r| r.text).collect()
+    }
+
     /// Spoken lines for one or more journal lines (one per text line).
     pub fn spoken(&mut self, lines: &str) -> Vec<String> {
         let mut out = vec![];

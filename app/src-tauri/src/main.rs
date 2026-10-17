@@ -421,7 +421,9 @@ fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Gal
         return Ok(x.clone());
     }
     let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
-    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref())
+    // The core's cache file: an answer it fetched for a voice question is served here too.
+    let (remote, _) = astromech_data::Client::shared(&app_dir());
+    let opened = astromech_galaxy::Galaxy::open_shared(&app_dir().join("galaxy.db"), preload.as_deref(), std::sync::Arc::new(remote))
         .map(std::sync::Arc::new)
         .map_err(|e| e.to_string())?;
     *g = Some(opened.clone());
@@ -465,6 +467,34 @@ async fn session_summary() -> Result<Value, String> {
         }
         let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
         serde_json::to_value(h.session(None, None).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The current system's bodies as scanned, with their estimated values, from the newest journals,
+/// and the commander's landings on them from the history (when there is one).
+#[tauri::command]
+async fn exploration_system() -> Result<Value, String> {
+    blocking(move || {
+        let mut view = astromech_exploration::system::from_journal_dir(&journal_dir());
+        if let Ok(h) = astromech_history::History::open_read_only(&app_dir().join("history.sqlite")) {
+            // Best effort: without it the view has no landings.
+            let _ = h.add_landings(&mut view);
+        }
+        serde_json::to_value(view).map_err(|e| e.to_string())
+    })
+    .await
+}
+
+/// The latest commander's unsold cartographic and organic data, from the history the core keeps
+/// (`history.sqlite`, read only); `null` before the first commander or without a history yet.
+#[tauri::command]
+async fn exploration_unsold() -> Result<Value, String> {
+    blocking(move || {
+        // No history yet (the core hasn't imported the journals) is `null`, like no commander.
+        let unsold = astromech_history::History::unsold_at(&app_dir().join("history.sqlite"), None)
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(unsold).map_err(|e| e.to_string())
     })
     .await
 }
@@ -1037,6 +1067,9 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "open_config",
         "eddn_log",
         "set_eddn",
+        "edsm_status",
+        "set_edsm",
+        "edsm_flight_log",
         "voice_test",
         "voice_test_poll",
         "voice_test_stop",
@@ -1162,7 +1195,9 @@ fn main() {
             logbook,
             docked_here,
             outfitting_search,
-            session_summary
+            session_summary,
+            exploration_system,
+            exploration_unsold
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());

@@ -1,7 +1,8 @@
 <script lang="ts">
-  // Settings → Data sharing (astromech-09s3): one row per service. EDDN is the only one so far;
-  // EDSM and Inara (with their keys) join when their uploads exist.
+  // Settings → Data sharing (astromech-09s3): one section per service, EDDN then EDSM
+  // (astromech-ah0i). Inara joins when its upload exists.
   import { eddnLog, schemaName, setEddn, when, type EddnLog } from "../../lib/eddn";
+  import Edsm from "./Edsm.svelte";
 
   let eddn = $state<EddnLog | null>(null);
   let loaded = $state(false);
@@ -72,6 +73,7 @@
         astromech starts, and nothing older than 30 minutes.
       </p>
     </div>
+    <Edsm />
   {/if}
 </section>
 

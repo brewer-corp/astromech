@@ -12,6 +12,7 @@ export const groups = [
   { id: "engineering", title: "Engineering" },
   { id: "galaxy", title: "Galaxy" },
   { id: "trade", title: "Trade" },
+  { id: "exploration", title: "Exploration" },
   { id: "powerplay", title: "Powerplay" },
   { id: "logbook", title: "Logbook" },
   { id: "settings", title: "Settings" },

@@ -3,7 +3,8 @@
 //! no contractions, no "I".
 
 use astromech_announce::{
-    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route, scan, signals,
+    arrival, builtin, discovery, docking, fuel, hge, missions, powerplay_arrival, project_market, prospector, route,
+    scan, session_summary, signals,
 };
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
@@ -29,6 +30,7 @@ fn callout_lines() -> Vec<String> {
         ids,
         [
             "arrival",
+            "discovery",
             "docking",
             "fuel_range",
             "hge",
@@ -40,6 +42,7 @@ fn callout_lines() -> Vec<String> {
             "route",
             "scan",
             "scoopable",
+            "session_summary",
             "signals"
         ],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
@@ -136,8 +139,80 @@ fn callout_lines() -> Vec<String> {
     ] {
         v.push(docking::denied_line(Some(reason)));
     }
+    v.extend(discovery_lines());
+    v.extend(session_summary_lines());
     v.sort();
     v.dedup();
+    v
+}
+
+/// The discovery callout for every planet class, terraformable or not, from the smallest value
+/// it can have to the largest (a heavy first-discovered body).
+fn discovery_lines() -> Vec<String> {
+    let classes = [
+        "Metal rich body",
+        "High metal content body",
+        "Rocky body",
+        "Icy body",
+        "Rocky ice body",
+        "Earthlike body",
+        "Water world",
+        "Ammonia world",
+        "Water giant",
+        "Water giant with life",
+        "Gas giant with water based life",
+        "Gas giant with ammonia based life",
+        "Sudarsky class I gas giant",
+        "Sudarsky class II gas giant",
+        "Sudarsky class III gas giant",
+        "Sudarsky class IV gas giant",
+        "Sudarsky class V gas giant",
+        "Helium rich gas giant",
+        "Helium gas giant",
+    ];
+    let mut v = vec![];
+    for class in classes {
+        for tf in ["", "Terraformable"] {
+            for mass in [0.001, 1.0, 5000.0] {
+                for new in [false, true] {
+                    let b = astromech_journal::ScanBody {
+                        scan_type: "Detailed".into(),
+                        planet_class: Some(class.into()),
+                        terraform_state: Some(tf.into()),
+                        mass_em: Some(mass),
+                        was_discovered: Some(!new),
+                        was_mapped: Some(!new),
+                        ..Default::default()
+                    };
+                    v.extend(discovery::line(&b));
+                }
+            }
+        }
+    }
+    v
+}
+
+/// The session summary, over the magnitudes credits, jumps and bounties are said in.
+fn session_summary_lines() -> Vec<String> {
+    let mut v = vec![];
+    for total in [1, 9_999, 52_000, 999_999, 4_200_000, 1_234_567_890] {
+        for per_hour in [None, Some(1), Some(1_900_000), Some(987_654_321)] {
+            for jumps in [0, 1, 38, 9_999] {
+                for bounties in [0, 1, 6, 1_234] {
+                    let t = session_summary::Totals {
+                        end: String::new(),
+                        total,
+                        per_hour,
+                        jumps,
+                        distance_ly: 123_456.7,
+                        bounties,
+                    };
+                    v.extend(session_summary::lines(&t));
+                }
+            }
+        }
+    }
+    v.extend(astromech_tools::session::answer(None));
     v
 }
 
@@ -345,6 +420,10 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(replies.iter().any(|l| l.contains("already")));
     assert!(replies.iter().any(|l| l.starts_with("Supercruise is not available")), "{replies:?}");
     assert!(answers.iter().any(|l| l.starts_with("Fuel:")), "{answers:?}");
+    // The session summary by voice says the same lines, one at a time.
+    assert!(callouts.iter().any(|l| l == "Earned 4.2 million credits, 1.9 million an hour."), "{callouts:?}");
+    let mut answers = answers;
+    answers.push(astromech_tools::session::NOTHING_YET.to_string());
     let mut bad = check("callout", &callouts, CALLOUT_WORDS);
     bad.extend(check("reply", &replies, REPLY_WORDS));
     bad.extend(check("answer", &answers, ANSWER_WORDS));

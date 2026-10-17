@@ -1,4 +1,5 @@
-//! The persistent outbox and send log (SQLite, `eddn.sqlite` in the data folder).
+//! The persistent outbox and send log (SQLite, `eddn.sqlite` in the data folder; the EDSM
+//! upload keeps its own, `edsm.sqlite`, in the same shape).
 //!
 //! Retry rules from EDCD `docs/Developers.md`: wait at least a minute before retrying, never
 //! retry a `400` or `426`, don't retry forever, and don't let one bad message hold up the rest
@@ -33,6 +34,8 @@ pub const MAX_QUEUED: i64 = 2000;
 /// How long a statement waits for the other connection's write to finish.
 const BUSY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
+/// Each runs in its own transaction with its `user_version` bump (`astromech_store::migrate`),
+/// so none may begin or commit one itself.
 const MIGRATIONS: &[&str] = &[
     // v1
     "CREATE TABLE outbox (
@@ -52,8 +55,7 @@ const MIGRATIONS: &[&str] = &[
      );",
     // v2: ids are never reused, so a delivery pass that read rows before `discard_all` can't
     // claim, post or remove a newer message that got a purged row's id.
-    "BEGIN;
-     CREATE TABLE outbox_new (
+    "CREATE TABLE outbox_new (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         schema_ref TEXT NOT NULL,
         body BLOB NOT NULL,
@@ -63,8 +65,9 @@ const MIGRATIONS: &[&str] = &[
      );
      INSERT INTO outbox_new SELECT id, schema_ref, body, attempts, next_try, created FROM outbox;
      DROP TABLE outbox;
-     ALTER TABLE outbox_new RENAME TO outbox;
-     COMMIT;",
+     ALTER TABLE outbox_new RENAME TO outbox;",
+    // v3: small values a sender keeps between runs (EDSM's discard list).
+    "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -124,8 +127,20 @@ pub fn backoff(attempts: i64) -> i64 {
     (MIN_RETRY_SECS << doublings).min(MAX_BACKOFF_SECS)
 }
 
+/// One queued message, for a sender that doesn't post one message at a time (EDSM batches).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Queued {
+    pub id: i64,
+    pub schema_ref: String,
+    pub body: Vec<u8>,
+    /// Tries so far.
+    pub attempts: i64,
+}
+
 pub struct Outbox {
     conn: Connection,
+    /// The service, for send-log rows about the whole queue ("switched off: ...").
+    label: &'static str,
     /// While the queue stays full: the send-log row for this overflow and how many it counts,
     /// so a long outage writes one row, not one per message queued.
     overflow: Cell<Option<(i64, i64)>>,
@@ -140,13 +155,13 @@ impl Outbox {
     }
     fn init(conn: Connection) -> Result<Self> {
         conn.busy_timeout(BUSY_TIMEOUT)?;
-        conn.pragma_update(None, "journal_mode", "WAL")?;
-        let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        for (i, m) in MIGRATIONS.iter().enumerate().skip(v as usize) {
-            conn.execute_batch(m)?;
-            conn.pragma_update(None, "user_version", (i + 1) as i64)?;
-        }
-        Ok(Self { conn, overflow: Cell::new(None) })
+        let conn = astromech_store::migrate(conn, MIGRATIONS)?;
+        Ok(Self { conn, label: "eddn", overflow: Cell::new(None) })
+    }
+
+    /// Name the service in send-log rows about the whole queue (default `eddn`).
+    pub fn with_label(self, label: &'static str) -> Self {
+        Self { label, ..self }
     }
 
     /// Queue a gzipped upload; it's due immediately. A full queue drops its oldest, counted in
@@ -183,7 +198,7 @@ impl Outbox {
     pub fn discard_all(&self, now: i64) -> Result<usize> {
         let n = self.conn.execute("DELETE FROM outbox", [])?;
         if n > 0 {
-            self.log(now, "eddn", Outcome::Discarded, &format!("switched off: {n} queued discarded"))?;
+            self.log(now, self.label, Outcome::Discarded, &format!("switched off: {n} queued discarded"))?;
         }
         Ok(n)
     }
@@ -322,6 +337,49 @@ impl Outbox {
 
     fn remove(&self, id: i64) -> Result<()> {
         self.conn.execute("DELETE FROM outbox WHERE id = ?1", [id])?;
+        Ok(())
+    }
+
+    /// Up to `limit` messages due at `now`, oldest first; with `retries` false only those never
+    /// tried. For a sender with its own delivery rules (EDSM); [`Outbox::deliver_due`] is EDDN's.
+    pub fn due(&self, now: i64, retries: bool, limit: usize) -> Result<Vec<Queued>> {
+        let mut st = self.conn.prepare(
+            "SELECT id, schema_ref, body, attempts FROM outbox
+             WHERE next_try <= ?1 AND (?2 OR attempts = 0) ORDER BY id LIMIT ?3",
+        )?;
+        let rows = st.query_map((now, retries, limit as i64), |r| {
+            Ok(Queued { id: r.get(0)?, schema_ref: r.get(1)?, body: r.get(2)?, attempts: r.get(3)? })
+        })?;
+        rows.collect()
+    }
+
+    /// Take a message off the queue (sent, or never to be sent). False if it was already gone
+    /// (discarded while it was being posted).
+    pub fn take(&self, id: i64) -> Result<bool> {
+        Ok(self.conn.execute("DELETE FROM outbox WHERE id = ?1", [id])? > 0)
+    }
+
+    /// Count a failed try and set when the message is due again. False if it's gone.
+    pub fn retry_at(&self, id: i64, attempts: i64, next_try: i64) -> Result<bool> {
+        Ok(self
+            .conn
+            .execute("UPDATE outbox SET attempts = ?2, next_try = ?3 WHERE id = ?1", (id, attempts, next_try))?
+            > 0)
+    }
+
+    /// Every message due at `now` waits until `until` (the service looks down).
+    pub fn hold_due(&self, now: i64, until: i64) -> Result<()> {
+        self.conn.execute("UPDATE outbox SET next_try = ?2 WHERE next_try <= ?1", (now, until))?;
+        Ok(())
+    }
+
+    /// A value the sender kept from an earlier run.
+    pub fn meta(&self, key: &str) -> Result<Option<String>> {
+        self.conn.query_row("SELECT value FROM meta WHERE key = ?1", [key], |r| r.get(0)).optional()
+    }
+
+    pub fn set_meta(&self, key: &str, value: &str) -> Result<()> {
+        self.conn.execute("INSERT OR REPLACE INTO meta(key, value) VALUES (?1, ?2)", (key, value))?;
         Ok(())
     }
 }
@@ -673,6 +731,38 @@ pub(crate) mod tests {
         o.enqueue(REF, b"n", 10).unwrap();
         let id: i64 = o.conn.query_row("SELECT id FROM outbox", [], |r| r.get(0)).unwrap();
         assert!(id > 7, "ids continue past the purged one, got {id}");
+    }
+
+    /// Two connections opening an old file at once apply each migration once: a second run of
+    /// v3 would fail with "table meta already exists".
+    #[test]
+    fn concurrent_open_of_an_old_file_migrates_once() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("eddn.sqlite");
+        for round in 0..20 {
+            let p = p.with_extension(format!("{round}"));
+            {
+                let c = Connection::open(&p).unwrap();
+                c.execute_batch(MIGRATIONS[0]).unwrap();
+                c.pragma_update(None, "user_version", 1).unwrap();
+            }
+            let gate = std::sync::Arc::new(std::sync::Barrier::new(2));
+            let hs: Vec<_> = (0..2)
+                .map(|_| {
+                    let (p, gate) = (p.clone(), gate.clone());
+                    std::thread::spawn(move || {
+                        gate.wait();
+                        Outbox::open(&p).map(|_| ()).map_err(|e| e.to_string())
+                    })
+                })
+                .collect();
+            for h in hs {
+                h.join().unwrap().unwrap();
+            }
+            let c = Connection::open(&p).unwrap();
+            let v: i64 = c.query_row("PRAGMA user_version", [], |r| r.get(0)).unwrap();
+            assert_eq!(v, MIGRATIONS.len() as i64);
+        }
     }
 
     #[test]

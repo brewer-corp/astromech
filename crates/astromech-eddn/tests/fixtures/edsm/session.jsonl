@@ -1,0 +1,20 @@
+{ "timestamp":"2026-10-16T12:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.0.0.1904", "build":"r307371/r0 " }
+{ "timestamp":"2026-10-16T12:00:05Z", "event":"Commander", "FID":"F0000001", "Name":"Jameson" }
+{ "timestamp":"2026-10-16T12:00:05Z", "event":"Materials", "Raw":[ { "Name":"iron", "Count":12 } ], "Manufactured":[], "Encoded":[] }
+{ "timestamp":"2026-10-16T12:00:06Z", "event":"LoadGame", "FID":"F0000001", "Commander":"Jameson", "Horizons":true, "Odyssey":true, "Ship":"Krait_MkII", "ShipID":7, "ShipName":"Test Ship", "ShipIdent":"TS-01", "FuelLevel":32.0, "FuelCapacity":32.0, "GameMode":"Solo", "Credits":1000000, "Loan":0, "language":"English/UK", "gameversion":"4.0.0.1904", "build":"r307371/r0 " }
+{ "timestamp":"2026-10-16T12:00:07Z", "event":"Loadout", "Ship":"krait_mkii", "ShipID":7, "ShipName":"Test Ship", "ShipIdent":"TS-01", "HullValue":40000000, "ModulesValue":60000000, "Rebuy":5000000, "Modules":[] }
+{ "timestamp":"2026-10-16T12:00:08Z", "event":"Music", "MusicTrack":"NoTrack" }
+{ "timestamp":"2026-10-16T12:00:09Z", "event":"Location", "Docked":true, "StationName":"Jameson Memorial", "StationType":"Orbis", "MarketID":128666762, "StarSystem":"Shinrarta Dezhra", "SystemAddress":3932277478106, "StarPos":[55.71875,17.59375,27.15625], "Body":"Shinrarta Dezhra A 1", "BodyType":"Planet" }
+{ "timestamp":"2026-10-16T12:00:10Z", "event":"ReceiveText", "From":"Test Pilot", "Message":"o7", "Channel":"local" }
+{ "timestamp":"2026-10-16T12:00:11Z", "event":"Market", "MarketID":128666762, "StationName":"Jameson Memorial", "StarSystem":"Shinrarta Dezhra" }
+{ "timestamp":"2026-10-16T12:01:00Z", "event":"MarketBuy", "MarketID":128666762, "Type":"gold", "Count":4, "BuyPrice":9000, "TotalCost":36000 }
+{ "timestamp":"2026-10-16T12:02:00Z", "event":"DockingRequested", "MarketID":128666762, "StationName":"Jameson Memorial" }
+{ "timestamp":"2026-10-16T12:02:30Z", "event":"Undocked", "StationName":"Jameson Memorial", "MarketID":128666762 }
+{ "timestamp":"2026-10-16T12:03:00Z", "event":"StartJump", "JumpType":"Hyperspace", "StarSystem":"Sol", "SystemAddress":10477373803, "StarClass":"G" }
+{ "timestamp":"2026-10-16T12:03:20Z", "event":"FSDJump", "StarSystem":"Sol", "SystemAddress":10477373803, "StarPos":[0.0,0.0,0.0], "Body":"Sol", "BodyType":"Star", "JumpDist":47.3, "FuelUsed":3.2, "FuelLevel":28.8 }
+{ "timestamp":"2026-10-16T12:03:25Z", "event":"FSSSignalDiscovered", "SystemAddress":10477373803, "SignalName":"Test Signal" }
+{ "timestamp":"2026-10-16T12:04:00Z", "event":"Scan", "ScanType":"Detailed", "BodyName":"Earth", "BodyID":3, "StarSystem":"Sol", "SystemAddress":10477373803, "DistanceFromArrivalLS":499.0, "PlanetClass":"Earthlike body" }
+{ "timestamp":"2026-10-16T12:05:00Z", "event":"Scanned", "ScanType":"Cargo" }
+{ "timestamp":"2026-10-16T12:06:00Z", "event":"Docked", "StationName":"Abraham Lincoln", "StationType":"Orbis", "StarSystem":"Sol", "SystemAddress":10477373803, "MarketID":128016640 }
+{ "timestamp":"2026-10-16T12:06:30Z", "event":"MarketSell", "MarketID":128016640, "Type":"gold", "Count":4, "SellPrice":9500, "TotalSale":38000, "AvgPricePaid":9000 }
+{ "timestamp":"2026-10-16T12:07:00Z", "event":"Shutdown" }

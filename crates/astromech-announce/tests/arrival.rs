@@ -270,3 +270,76 @@ fn how_long_ago_reads_in_the_nearest_unit() {
     }
     assert_eq!(arrival::visits_line(&arrival::Past { visits: 0, last: now.into() }, now), None);
 }
+
+/// Landings in a fixture history: (commander, system address, body, timestamp).
+struct Landings(Vec<(&'static str, i64, &'static str, &'static str)>);
+
+impl arrival::VisitHistory for Landings {
+    fn before(&self, _: &str, _: i64, _: &str) -> Option<arrival::Past> {
+        None
+    }
+    fn landings(&self, commander: &str, address: i64, before: &str) -> Vec<arrival::Landed> {
+        let mut out: Vec<arrival::Landed> = vec![];
+        for (c, a, body, t) in &self.0 {
+            if *c != commander || *a != address || *t >= before {
+                continue;
+            }
+            match out.iter_mut().find(|l| l.body == *body) {
+                Some(l) => l.count += 1,
+                None => out.push(arrival::Landed { body: body.to_string(), count: 1 }),
+            }
+        }
+        out
+    }
+}
+
+fn with_landings(rows: Vec<(&'static str, i64, &'static str, &'static str)>) -> Run {
+    let r = Run::new();
+    r.shared.visits.set(std::sync::Arc::new(Landings(rows)));
+    r
+}
+
+#[test]
+fn a_body_landed_on_before_is_named_with_how_often() {
+    let mut r = with_landings(vec![
+        ("Test", 1, "Sys A 2", "2026-10-01T10:00:00Z"),
+        ("Test", 1, "Sys A 2", "2026-10-13T10:00:00Z"),
+        // Another commander's landing, another system's, and one after this arrival.
+        ("Other", 1, "Sys A 3", "2026-10-01T10:00:00Z"),
+        ("Test", 2, "Else A 1", "2026-10-01T10:00:00Z"),
+        ("Test", 1, "Sys A 4", "2026-10-16T21:00:00Z"),
+    ]);
+    r.spoken(LOAD_GAME);
+    assert_eq!(r.spoken(&jump("Sys", 0, &[], "")), ["Landed on A 2 twice before."]);
+    // Arriving by carrier is not news.
+    let carrier = jump("Sys", 0, &[], "").replace(r#""event":"FSDJump""#, r#""event":"CarrierJump""#);
+    assert!(r.spoken(&carrier).is_empty());
+}
+
+#[test]
+fn several_bodies_are_counted_and_none_says_nothing() {
+    let mut r = with_landings(vec![
+        ("Test", 1, "Sys A 2", "2026-10-01T10:00:00Z"),
+        ("Test", 1, "Sys B 1", "2026-10-02T10:00:00Z"),
+        ("Test", 1, "Sys B 1 a", "2026-10-03T10:00:00Z"),
+    ]);
+    r.spoken(LOAD_GAME);
+    assert_eq!(r.spoken(&jump("Sys", 0, &[], "")), ["Landed on 3 bodies here before."]);
+    let mut r = with_landings(vec![]);
+    r.spoken(LOAD_GAME);
+    assert!(r.spoken(&jump("Sys", 0, &[], "")).is_empty());
+}
+
+#[test]
+fn landings_lines() {
+    let one = |body: &str, count| [arrival::Landed { body: body.into(), count }];
+    assert_eq!(arrival::landings_line("Sys", &one("Sys A 2", 1)).as_deref(), Some("Landed on A 2 before."));
+    assert_eq!(arrival::landings_line("Sys", &one("Sys A 2 a", 7)).as_deref(), Some("Landed on A 2 a 7 times before."));
+    // A body not named after the system, and one whose name is too long to read out.
+    assert_eq!(arrival::landings_line("Sol", &one("Earth", 2)).as_deref(), Some("Landed on Earth twice before."));
+    assert_eq!(
+        arrival::landings_line("Alpha Centauri", &one("Proxima Centauri b c d", 2)).as_deref(),
+        Some("Landed on a body here twice before.")
+    );
+    assert_eq!(arrival::landings_line("Sys", &[]), None);
+}
