@@ -238,6 +238,23 @@ impl Want {
         has.then(Offer::default)
     }
 
+    /// Why a page of stations has none offering this: the mount (which Spansh can't filter)
+    /// when they sell the module in other mounts, else Spansh ignored a filter.
+    fn none_offered(&self, results: &[Station]) -> String {
+        if let Want::Module(m @ ModuleWant { mount: Some(mount), .. }) = self {
+            let any = Want::Module(ModuleWant { mount: None, ..m.clone() });
+            if results.iter().any(|s| any.offer(s).is_some()) {
+                return format!(
+                    "None of the {} nearest stations selling {} sell it {}.",
+                    results.len(),
+                    any.label(),
+                    mount.word()
+                );
+            }
+        }
+        format!("Spansh returned stations without {}; its search filter may have changed.", self.label())
+    }
+
     /// The station field that says how old the answer is.
     fn age_field(&self) -> &'static str {
         match self {
@@ -353,8 +370,7 @@ pub fn find(
     let page = client.spansh_stations(&want.search(reference, filters, now_s))?;
     let results = &page.value.results;
     let offered: Vec<(&Station, Offer)> = results.iter().filter_map(|s| Some((s, want.offer(s)?))).collect();
-    let warning = (!results.is_empty() && offered.is_empty())
-        .then(|| format!("Spansh returned stations without {}; its search filter may have changed.", want.label()));
+    let warning = (!results.is_empty() && offered.is_empty()).then(|| want.none_offered(results));
     let mut hits: Vec<StationHit> = offered
         .into_iter()
         .filter(|(s, _)| {
@@ -612,6 +628,20 @@ mod tests {
     }
 
     #[test]
+    fn a_mount_none_of_the_page_sells_says_so_not_that_the_filter_changed() {
+        // The recorded 3C Multi-Cannon page sells fixed and gimballed ones only; Spansh can't
+        // filter the mount, so only the check here empties the page.
+        let (c, _) = client(Some(module_page("multicannon_3c")));
+        let turreted = Want::Module(ModuleWant::from_words("Multi-Cannon", "3c turreted"));
+        let found = find(&c, &turreted, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert!(found.hits.is_empty());
+        assert_eq!(
+            found.warning.as_deref(),
+            Some("None of the 8 nearest stations selling 3C Multi-Cannon sell it turreted.")
+        );
+    }
+
+    #[test]
     fn modules_spansh_names_differently_are_asked_for_by_every_name() {
         // A recorded FSD page with one station's module renamed the way Spansh lists the
         // standard fighter bay ("Fighter Hangar", symbol Int_FighterBay_Size5_Class1).
@@ -627,6 +657,60 @@ mod tests {
         assert_eq!((found.hits[0].name.as_str(), found.hits[0].price), ("Abraham Lincoln", Some(575_200)));
         let body = rec.bodies.lock().unwrap().last().unwrap().clone();
         assert_eq!(body["filters"]["modules"][0]["name"], serde_json::json!(["Vessel Hangar", "Fighter Hangar"]));
+    }
+
+    /// The recorded FSD page with its first two stations' modules replaced by `first` and
+    /// `second`.
+    fn page_selling(first: Value, second: Value) -> String {
+        let mut page: Value = serde_json::from_str(&module_page("fsd_5a")).unwrap();
+        page["results"][0]["modules"] = first;
+        page["results"][1]["modules"] = second;
+        page["results"].as_array_mut().unwrap().truncate(2);
+        page.to_string()
+    }
+
+    #[test]
+    fn armour_is_found_by_its_ship_symbols() {
+        let (c, _) = client(Some(page_selling(
+            serde_json::json!([{
+                "name": "Military Grade Composite", "class": 1, "rating": "I", "category": "standard",
+                "ship": "Adder", "ed_symbol": "Adder_Armour_Grade3", "price": 82_000
+            }]),
+            serde_json::json!([{
+                "name": "Reinforced Alloy", "class": 1, "rating": "I", "category": "standard",
+                "ship": "Adder", "ed_symbol": "Adder_Armour_Grade2", "price": 35_120
+            }]),
+        )));
+        assert!(crate::outfitting::module("Military Grade Composite").is_some(), "armour is in the catalogue");
+        let mgc = Want::Module(ModuleWant::from_words("Military Grade Composite", ""));
+        let found = find(&c, &mgc, sol(), &Filters::default(), 10, NOW).unwrap();
+        assert_eq!(found.hits.len(), 1);
+        assert_eq!((found.hits[0].name.as_str(), found.hits[0].price), ("Abraham Lincoln", Some(82_000)));
+    }
+
+    #[test]
+    fn a_pre_engineered_module_and_its_base_module_are_told_apart() {
+        // Spansh gives a pre-engineered module its base module's journal symbol.
+        let (c, _) = client(Some(page_selling(
+            serde_json::json!([{
+                "name": "Enduring Feedback Rail Gun", "class": 2, "rating": "B", "category": "hardpoint",
+                "ed_symbol": "Hpt_Railgun_Fixed_Medium", "price": 412_800
+            }]),
+            serde_json::json!([{
+                "name": "Rail Gun", "class": 2, "rating": "B", "category": "hardpoint",
+                "ed_symbol": "Hpt_Railgun_Fixed_Medium", "price": 412_800
+            }]),
+        )));
+        let names = |w: &Want| {
+            let found = find(&c, w, sol(), &Filters::default(), 10, NOW).unwrap();
+            found.hits.into_iter().map(|h| h.name).collect::<Vec<_>>()
+        };
+        let rail = Want::Module(ModuleWant::from_words("Rail Gun", "2b fixed"));
+        let all: Value = serde_json::from_str(MODULES).unwrap();
+        assert_eq!(names(&rail), [all["fsd_5a"]["results"][1]["name"].as_str().unwrap()]);
+        let efr = Want::Module(ModuleWant::from_words("Enduring Feedback Rail Gun", "fixed"));
+        assert!(crate::outfitting::module("Enduring Feedback Rail Gun").is_some(), "in the catalogue");
+        assert_eq!(names(&efr), ["Abraham Lincoln"]);
     }
 
     #[test]

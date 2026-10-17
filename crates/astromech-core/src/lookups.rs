@@ -31,13 +31,24 @@ pub fn filters_for(store: Option<&Store>, lookup: &str, game: &GameState) -> Fil
     store.and_then(|s| filters::load(s, lookup, pad).ok()).unwrap_or_default().for_ship(pad)
 }
 
-/// The spoken answer to `want` near the commander's current system.
+/// The spoken answer to `want` near the commander's current system, searched from its
+/// position (the journal's `StarPos`) when known, so a system Spansh hasn't heard of works too.
 pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState, now_s: i64) -> String {
     let Some(system) = game.system.as_deref() else {
         return "I don't know which system you're in yet.".into();
     };
-    let found = stations::find(client, want, Reference::System(system.to_string()), filters, 1, now_s)
-        .map_err(|e| e.to_string());
+    let reference = match game.star_pos {
+        Some(pos) => Reference::Coords(pos),
+        None => Reference::System(system.to_string()),
+    };
+    let by_name = matches!(reference, Reference::System(_));
+    let found = stations::find(client, want, reference, filters, 1, now_s).map_err(|e| match e {
+        // Spansh's answer to a reference system it doesn't know.
+        astromech_data::Error::Rejected { .. } if by_name => {
+            format!("Spansh doesn't know {system} yet, so I can't search from it.")
+        }
+        e => e.to_string(),
+    });
     lookup::spoken(want, system, &found, now_s)
 }
 
@@ -136,6 +147,14 @@ mod tests {
             ("where can I buy an advanced docking computer", "Advanced Docking Computer"),
             ("nearest 4A shield generator", "4A Shield Generator"),
             ("buy a guardian FSD booster", "Guardian FSD Booster"),
+            ("nearest A rated FSD", "A-rated Frame Shift Drive"),
+            ("nearest A-rated frame shift drive", "A-rated Frame Shift Drive"),
+            ("where can I buy a class five A FSD", "5A Frame Shift Drive"),
+            ("nearest military grade composite", "Military Grade Composite"),
+            ("where can I buy mirrored surface composite", "Mirrored Surface Composite"),
+            ("nearest enduring feedback rail gun", "Enduring Feedback Rail Gun"),
+            ("where can I buy a caustic sink launcher", "Caustic Sink Launcher"),
+            ("nearest long range detailed surface scanner", "Long Range Detailed Surface Scanner"),
         ] {
             assert_eq!(label(phrase), (Some(want.to_string()), Decision::Execute), "{phrase:?}");
         }
@@ -216,5 +235,47 @@ mod tests {
 
         let lost = GameState::default();
         assert_eq!(answer(&client, &f, &want, &lost, NOW), "I don't know which system you're in yet.");
+    }
+
+    /// Spansh's answer to a search from a system it doesn't know (HTTP 400), or the refuel
+    /// page for a search from coordinates.
+    struct Unknown {
+        bodies: Mutex<Vec<serde_json::Value>>,
+    }
+
+    impl Transport for Unknown {
+        fn send(&self, _url: &str, req: &Request) -> Result<Response, TransportError> {
+            let astromech_data::Body::Json(b) = &req.body else { panic!("expected JSON") };
+            self.bodies.lock().unwrap().push(b.clone());
+            if b.get("reference_system").is_some() {
+                return Ok(Response { status: 400, body: r#"{"error":"Invalid request"}"#.into() });
+            }
+            let all: serde_json::Value = serde_json::from_str(SERVICES).unwrap();
+            Ok(Response { status: 200, body: all["refuel"].to_string() })
+        }
+    }
+
+    #[test]
+    fn a_system_spansh_doesnt_know_is_searched_from_its_position_or_said_plainly() {
+        let rec = Arc::new(Unknown { bodies: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let want = Want::Service { service: Service::Refuel };
+        let f = Filters::default();
+        // Just discovered: the journal's StarPos is known, Spansh hasn't heard of the name.
+        let here = GameState {
+            system: Some("Oochoss XY-Z d1-23".into()),
+            star_pos: Some([0.0, 0.0, 0.0]),
+            ..Default::default()
+        };
+        let said = answer(&client, &f, &want, &here, NOW);
+        assert!(said.starts_with("Nearest refuel: "), "{said}");
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(body["reference_coords"], serde_json::json!({ "x": 0.0, "y": 0.0, "z": 0.0 }));
+        // No position yet: a plain answer, not Spansh's "Invalid request".
+        let nameless = GameState { star_pos: None, ..here };
+        assert_eq!(
+            answer(&client, &f, &want, &nameless, NOW),
+            "Spansh doesn't know Oochoss XY-Z d1-23 yet, so I can't search from it."
+        );
     }
 }

@@ -18,7 +18,18 @@ describe("outfitting catalogue", () => {
   it("finds what to buy for a fitted module from its journal symbol", () => {
     expect(wantFor("int_hyperdrive_size5_class5")).toEqual({ name: "Frame Shift Drive", class: 5, rating: "A", mount: null });
     expect(wantFor("Hpt_PulseLaser_Gimbal_Medium")).toEqual({ name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" });
+    // armour is sold per ship, and the search can't ask for one ship's
     expect(wantFor("anaconda_armour_grade1")).toBeNull();
+    // a pre-engineered module shares its base module's symbol; the symbol stays the base module's
+    expect(wantFor("hpt_railgun_fixed_medium")).toEqual({ name: "Rail Gun", class: 2, rating: "B", mount: "Fixed" });
+  });
+
+  it("offers armour and pre-engineered modules, and nothing stations never sell", () => {
+    const names = MODULES.map((m) => m.name);
+    for (const n of ["Military Grade Composite", "Mk II Ablative Reactive Surface Composite", "Enduring Feedback Rail Gun", "Rapid Phase Multi-Cannon", "Caustic Sink Launcher", "Extended Cargo Rack", "Long Range Detailed Surface Scanner"])
+      expect(names).toContain(n);
+    expect(names).not.toContain("Basic Discovery Scanner");
+    expect(parseModuleRoute("#/outfitting/Enduring%20Feedback%20Rail%20Gun")).toEqual({ name: "Enduring Feedback Rail Gun", class: null, rating: null, mount: null });
   });
 
   it("round-trips a module through the Outfitting route", () => {
