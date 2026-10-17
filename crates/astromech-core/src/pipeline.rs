@@ -93,6 +93,11 @@ fn header_agrees_with_name<Tz: chrono::TimeZone>(tz: &Tz, name_secs: i64, header
     }
 }
 
+/// The machine's own timezone for [`header_agrees_with_name`].
+fn local_header_check() -> Box<dyn Fn(i64, i64) -> bool + Send> {
+    Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header))
+}
+
 /// Whether a journal line is stamped within [`FRESH_LINE_SECS`] of now (either side).
 fn line_is_fresh(line: &str) -> bool {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { return false };
@@ -814,7 +819,7 @@ pub fn start_with_eddn(
         game_sessions: Default::default(),
         noted: Default::default(),
         header_agrees: Default::default(),
-        header_check: Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header)),
+        header_check: local_header_check(),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
@@ -851,7 +856,7 @@ mod tests {
             game_sessions: Default::default(),
             noted: Default::default(),
             header_agrees: Default::default(),
-            header_check: Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header)),
+            header_check: local_header_check(),
         };
         (t, hub, logs)
     }
@@ -1885,5 +1890,26 @@ mod tests {
         append(&older, &docked("2026-11-01T04:40:00Z"));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1, "nothing live from the older journal");
+    }
+
+    /// The same two journals at startup: the app starts while the game runs in the one named
+    /// 01:10 (written after 01:30's), so it follows that one by modified time. Its fresh lines are
+    /// live, though it is not the latest by name.
+    #[test]
+    fn the_app_starting_in_the_repeated_hour_follows_the_games_journal_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&second, session("2026-11-01T06:10:00Z", "r2 ")).unwrap();
+        touch(&second, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        assert_eq!(eddn_state(&db), (0, vec![]), "the startup replay is silent");
+        append(&second, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
     }
 }
