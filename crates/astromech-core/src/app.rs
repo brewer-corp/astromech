@@ -434,7 +434,7 @@ impl Core {
         let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
             crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
                 c.actions.dry_run |= self.opts.session.dry_run;
-                crate::pipeline::EDDN_SHARING.store(c.eddn.enabled, Ordering::SeqCst);
+                apply_eddn_switch(&c);
                 // Under the config lock, so concurrent edits re-point in the order they saved.
                 self.follow_history(&c);
                 *self.cfg.write().unwrap() = c;
@@ -695,12 +695,26 @@ impl Core {
     }
 }
 
+/// The EDDN switch after a config edit: set the flag the feed and its worker read, and when
+/// sharing goes off, empty the queue now. The worker would discard it on its next pass, but it
+/// may be asleep for minutes, and switched back on by then it would send the old messages.
+fn apply_eddn_switch(c: &Config) {
+    let was = crate::pipeline::EDDN_SHARING.swap(c.eddn.enabled, Ordering::SeqCst);
+    let p = c.data_dir().join(astromech_eddn::DB_FILE);
+    if was && !c.eddn.enabled && p.is_file() {
+        let now = astromech_eddn::worker::wall_now();
+        if let Err(e) = astromech_eddn::Outbox::open(&p).and_then(|o| o.discard_all(now)) {
+            log(&format!("EDDN outbox: {e}"));
+        }
+    }
+}
+
 /// EDDN status for Settings → Data sharing and the send log for Diagnostics: the switch, queue
-/// depth, last send and last error, the gateway's answers and (apart, so they can't push those
+/// depth, last send and last error (a failed send, not a message discarded here), the gateway's answers and (apart, so they can't push those
 /// off screen) the messages never queued. Reads `eddn.sqlite` only if it exists, so asking never
 /// creates it.
 pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Value {
-    use astromech_eddn::Outcome::{Dropped, GaveUp, Rejected, Retry, Sent};
+    use astromech_eddn::Outcome::{Discarded, Dropped, GaveUp, Rejected, Retry, Sent};
     let p = data_dir.join(astromech_eddn::DB_FILE);
     let base = json!({"ok": true, "enabled": enabled, "test": test, "pending": 0,
         "last_sent": null, "last_error": null, "log": [], "skipped": []});
@@ -713,7 +727,7 @@ pub fn eddn_log(data_dir: &Path, enabled: bool, test: bool) -> Value {
         v["pending"] = json!(o.pending()?);
         v["last_sent"] = json!(o.recent_of(&[Sent], 1)?.pop());
         v["last_error"] = json!(o.recent_of(&[Rejected, Retry, GaveUp], 1)?.pop());
-        v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp], 50)?);
+        v["log"] = json!(o.recent_of(&[Sent, Rejected, Retry, GaveUp, Discarded], 50)?);
         v["skipped"] = json!(o.recent_of(&[Dropped], 50)?);
         Ok(v)
     };
@@ -1072,6 +1086,10 @@ mod tests {
     use super::*;
     use astromech_voice::{catalog, download, models};
 
+    /// Held by tests that edit the config through a core: every edit sets the process-wide
+    /// EDDN switch.
+    static CONFIG_EDITS: Mutex<()> = Mutex::new(());
+
     /// A core as `run` builds it, on the config file `text` in `dir`, without its threads.
     fn core(dir: &Path, text: &str) -> Arc<Core> {
         let config_path = dir.join("astromech.toml");
@@ -1103,6 +1121,7 @@ mod tests {
     #[test]
     fn a_journal_folder_set_after_startup_is_imported() {
         use crate::history::tests::{journal_dir, wait_for};
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
         let d = tempfile::tempdir().unwrap();
         let data = d.path().join("data");
         // The configured folder doesn't exist: the first-run case, and never the real default
@@ -1174,5 +1193,58 @@ mod tests {
         let outcomes: Vec<&Value> = v["log"].as_array().unwrap().iter().map(|e| &e["outcome"]).collect();
         assert_eq!(outcomes, [&json!("retry"), &json!("sent")], "skips are listed apart");
         assert_eq!(v["skipped"][0]["detail"], "beta");
+
+        // Messages discarded here (switched off, outbox full) are listed, but aren't send errors.
+        o.discard_all(14).unwrap();
+        for i in 0..astromech_eddn::outbox::MAX_QUEUED + 1 {
+            o.enqueue(r, b"m", 15 + i).unwrap();
+        }
+        let v = eddn_log(d.path(), true, false);
+        assert_eq!(v["last_error"]["at"], 12, "{}", v["last_error"]);
+        let details: Vec<&Value> = v["log"].as_array().unwrap().iter().take(2).map(|e| &e["detail"]).collect();
+        assert_eq!(details, [&json!("outbox full: 1 oldest dropped"), &json!("switched off: 1 queued discarded")]);
+    }
+
+    fn set_eddn(core: &Arc<Core>, enabled: bool) -> Value {
+        core.handle(&Request {
+            token: String::new(),
+            cmd: "set_eddn".into(),
+            route: None,
+            text: None,
+            args: Some(json!({ "enabled": enabled })),
+        })
+    }
+
+    #[test]
+    fn set_eddn_flips_the_shared_switch_and_switching_off_empties_the_queue_at_once() {
+        use crate::pipeline::EDDN_SHARING;
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let missing = d.path().join("no journals here");
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), missing.display()),
+        );
+        assert_eq!(set_eddn(&core, true)["ok"], true);
+        assert!(EDDN_SHARING.load(Ordering::SeqCst));
+        assert!(core.cfg().eddn.enabled);
+
+        // Queued while the gateway is down: the worker sleeps until the retry is due.
+        let o = astromech_eddn::Outbox::open(&d.path().join(astromech_eddn::DB_FILE)).unwrap();
+        let r = "https://eddn.edcd.io/schemas/journal/1";
+        o.enqueue(r, b"a", 10).unwrap();
+        o.enqueue(r, b"b", 10).unwrap();
+
+        assert_eq!(set_eddn(&core, false)["ok"], true);
+        assert!(!EDDN_SHARING.load(Ordering::SeqCst));
+        assert_eq!(o.pending().unwrap(), 0, "discarded straight away, not on the worker's next pass");
+        assert_eq!(o.recent(1).unwrap()[0].detail, "switched off: 2 queued discarded");
+
+        // Back on before the worker wakes: nothing from before is left to send.
+        set_eddn(&core, true);
+        assert!(EDDN_SHARING.load(Ordering::SeqCst));
+        assert_eq!(o.pending().unwrap(), 0);
+        set_eddn(&core, false);
+        assert_eq!(o.recent(10).unwrap().len(), 1, "an empty queue writes no row");
     }
 }

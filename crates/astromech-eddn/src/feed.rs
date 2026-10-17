@@ -67,8 +67,9 @@ fn companion_spec(event: &str) -> Option<&'static SchemaSpec> {
 pub struct Feed {
     sender: Sender,
     events: EventSchemas,
-    /// Live companion events waiting for their file, by event name.
-    awaiting: HashMap<String, Value>,
+    /// Live companion events waiting for their file, by event name, with when each arrived
+    /// (Unix seconds).
+    awaiting: HashMap<String, (Value, i64)>,
     /// The last event was live (so a run of signals pending from the replay has been dropped).
     live: bool,
     /// Lines fed as live are arriving too old to send (logged once when this starts and ends).
@@ -156,7 +157,7 @@ impl Feed {
                     reason: "outfitting/2 is off until PowerPlay and tech-broker modules are filtered".into(),
                 }));
             } else {
-                self.awaiting.insert(name.to_owned(), ev.clone());
+                self.awaiting.insert(name.to_owned(), (ev.clone(), now));
             }
         }
         self.queue(built, now);
@@ -174,17 +175,23 @@ impl Feed {
 
     /// The companion file for a live `event`, as read. Ignored unless that event is waiting. A
     /// file older than the event is the last one, not this event's: the event keeps waiting
-    /// for the game to write the new one. Anything else unusable is logged and the event dropped.
+    /// for the game to write the new one. A file that comes more than [`MAX_EVENT_AGE_SECS`]
+    /// after its event arrived (sharing was off when the right one came) is no longer live: the
+    /// event is dropped. Anything else unusable is logged and the event dropped.
     pub fn companion_file(&mut self, event: &str, file: &Value, now: i64) {
-        let (Some(ev), Some(spec)) = (self.awaiting.get(event), companion_spec(event)) else {
+        let (Some((ev, arrived)), Some(spec)) = (self.awaiting.get(event), companion_spec(event)) else {
             return;
         };
+        if now - arrived > MAX_EVENT_AGE_SECS {
+            self.awaiting.remove(event);
+            return;
+        }
         if let (Some(f), Some(e)) = (game_timestamp(file), game_timestamp(ev)) {
             if f < e {
                 return;
             }
         }
-        let ev = self.awaiting.remove(event).expect("checked above");
+        let (ev, _) = self.awaiting.remove(event).expect("checked above");
         let built: Result<_, Unusable> = match event {
             "NavRoute" => events::navroute(&ev, file),
             "FCMaterials" => events::fcmaterials(&ev, file),
@@ -605,6 +612,30 @@ mod tests {
         let ups = sent(&f);
         assert_eq!(schemas(&ups), ["journal/1"]);
         assert_eq!(ups[0]["header"]["uploaderID"], "Jameson");
+    }
+
+    #[test]
+    fn a_companion_file_coming_minutes_after_its_event_is_not_sent() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        let now = unix_time(&json!({"timestamp":"2026-10-16T12:00:00Z"})).unwrap();
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, now);
+        // Sharing goes off and back on while the event waits; its file comes minutes later.
+        f.sharing.store(false, Ordering::SeqCst);
+        f.sharing.store(true, Ordering::SeqCst);
+        assert!(f.awaiting("Market"));
+        f.companion_file("Market", &fixture("Market.json"), now + MAX_EVENT_AGE_SECS + 1);
+        assert!(!f.awaiting("Market"));
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "a stale Market is not sent");
+        assert!(log(&f).is_empty());
+
+        // An event accepted near the live-age limit still gets its file, which comes seconds
+        // after it arrived.
+        let now = unix_time(&json!({"timestamp":"2026-10-16T12:04:50Z"})).unwrap();
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, now);
+        f.companion_file("Market", &fixture("Market.json"), now + 15);
+        assert!(!f.awaiting("Market"));
+        assert_eq!(f.sender().outbox().pending().unwrap(), 1, "queued");
     }
 
     #[test]
