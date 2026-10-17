@@ -23,9 +23,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:16:39.401461087+00:00"
+status: "done"
 title: "On foot: owned suits and weapons with their grades and mods"
-updated_at: "2026-10-17T05:09:50.402071312+00:00"
+updated_at: "2026-10-17T05:16:39.401461087+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ A synthetic journal with suit and weapon purchases and upgrades gives each owned
 ## Context
 
 Follow-up of astromech-j4c9, which built the picker with a free choice of grade range.
+
+## Close Reason
+
+Owned suits and weapons with grade and mods come from the journal; the picker upgrades owned gear from its current grade and hides fitted mods. Proof at 8c44bd9; review outstanding (orchestrator arranges).
