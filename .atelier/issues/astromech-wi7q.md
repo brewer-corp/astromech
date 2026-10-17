@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Guide: callouts and voice lookups"
-updated_at: "2026-10-17T16:54:23.898160490+00:00"
+updated_at: "2026-10-17T17:17:51.682426900+00:00"
 ---
 
 ## Goal
