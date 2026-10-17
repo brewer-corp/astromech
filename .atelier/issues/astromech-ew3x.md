@@ -4,6 +4,9 @@ id: "astromech-ew3x"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ew3x
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Signal callouts"
-updated_at: "2026-10-15T20:36:13.659207200+00:00"
+updated_at: "2026-10-17T03:07:44.703856036+00:00"
 ---
 
 ## Goal
