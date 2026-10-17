@@ -2,7 +2,9 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, hge, powerplay_arrival, prospector, route, scan, signals};
+use astromech_announce::{
+    arrival, builtin, docking, fuel, hge, missions, powerplay_arrival, prospector, route, scan, signals,
+};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -30,6 +32,7 @@ fn callout_lines() -> Vec<String> {
             "docking",
             "fuel_range",
             "hge",
+            "missions",
             "powerplay_arrival",
             "prospector",
             "route",
@@ -86,6 +89,12 @@ fn callout_lines() -> Vec<String> {
             v.push(hge::line(Some(pool), &[spec.id.to_string()]));
         }
     }
+    for n in [1, 2, 99] {
+        for level in [1, 2] {
+            v.push(missions::expiry_line(n, level));
+        }
+    }
+    v.extend([missions::target_line(false).to_string(), missions::target_line(true).to_string()]);
     for first in [false, true] {
         for to_end in [false, true] {
             v.push(route::gap_line(250, first, to_end));
