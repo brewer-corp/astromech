@@ -18,6 +18,7 @@ astromech-gamestate.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
 serde.workspace = true
+chrono.workspace = true
 
 [dev-dependencies]
 toml = "0.9"
