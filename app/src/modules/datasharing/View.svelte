@@ -70,7 +70,8 @@
         Your commander name goes with each message (EDDN asks for it and obfuscates it before passing messages on).
         Your credits, reputation, cargo, missions and
         anything personal are removed first. Only live play is sent: never the game's beta, never old journals when
-        astromech starts, and nothing older than 30 minutes.
+        astromech starts, and nothing the game wrote more than 5 minutes ago. A message that can't be delivered
+        within 30 minutes is dropped.
       </p>
     </div>
     <Edsm />

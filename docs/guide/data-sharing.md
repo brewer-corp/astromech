@@ -17,14 +17,16 @@ app](using-the-app.md#what-needs-the-network).
 
 - **Live play only.** Nothing is sent from the game's beta. Nothing is sent from a journal being
   re-read when astromech starts, and astromech starting mid-session does not send the session so
-  far. An event more than **5 minutes** old by its timestamp is treated as a replay and not sent. A journal
+  far. For EDDN, an event more than **5 minutes** old by its timestamp is
+  treated as a replay and not sent (EDSM has no timestamp check: it sends what arrives live). A journal
   file Elite starts while astromech runs is live from its first line.
 - **Elite must be running** and astromech watching its journal.
 - **You can turn them off at any time** with the same button (**Turn off**). Off, nothing new is queued
   and nothing is sent, and anything still waiting in the queue is discarded at once.
 - **A queue with retries.** Messages go to a queue on your PC and are sent in the background; a failed
   one is retried, backing off from a minute up to an hour. A message is dropped after 8 tries or after
-  30 minutes in the queue (at most 2,000 wait at once). The page shows how many are **waiting**, the
+  30 minutes in the queue (at most 2,000 wait at once). The 30 minutes is for
+  both services and is separate from the 5-minute check above, which happens before a message is queued. The page shows how many are **waiting**, the
   **last sent** and the **last error**. For EDDN, **Diagnostics** also shows a log of what the gateway
   answered and of what was **not sent**, each with the reason (for example "beta game version", "commander not known yet"). EDSM has no such log; its own
   page shows Waiting, Last sent and Last error.

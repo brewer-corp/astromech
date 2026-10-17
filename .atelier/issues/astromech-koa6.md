@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-koa6
 priority: "P3"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Data sharing page says 30 minutes; the sender uses 5"
-updated_at: "2026-10-17T17:41:20.458144468+00:00"
+updated_at: "2026-10-17T19:35:08.612690413+00:00"
 ---
 
 ## Goal
