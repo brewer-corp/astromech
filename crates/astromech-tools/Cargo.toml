@@ -19,6 +19,7 @@ astromech-announce.workspace = true
 astromech-gamestate.workspace = true
 astromech-galaxy.workspace = true
 astromech-market.workspace = true
+astromech-colonisation.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]

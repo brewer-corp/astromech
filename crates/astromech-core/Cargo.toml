@@ -32,6 +32,7 @@ astromech-announce.workspace = true
 astromech-data.workspace = true
 astromech-galaxy.workspace = true
 astromech-market.workspace = true
+astromech-colonisation.workspace = true
 astromech-eddn.workspace = true
 astromech-history.workspace = true
 astromech-station.workspace = true

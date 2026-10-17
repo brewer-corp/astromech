@@ -419,6 +419,87 @@ fn check(kind: &str, lines: &[String], budget: usize) -> Vec<String> {
     bad
 }
 
+/// The colonisation answers by voice: progress, what is left and where to buy, for a project with
+/// a long name, the largest amounts, cargo aboard and many loads, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_colonisation_answers_keep_to_the_copy_guide() {
+    use astromech_colonisation::shopping::{shopping_list, Hold};
+    use astromech_colonisation::{Project, ProjectView, Resource};
+    use astromech_market::list::{ListPlan, Need, StockLine, Stockist};
+    use astromech_tools::colonisation as c;
+    let now = 1_792_152_000; // 2026-10-16T12:00:00Z
+    let resource = |name: &str, local: &str| Resource {
+        name: name.into(),
+        name_localised: Some(local.into()),
+        required: 1_234_567,
+        provided: 1,
+        payment: 1,
+    };
+    let project = Project {
+        market_id: 1,
+        station_name: Some("Planetary Construction Site: Synuefe BY-F d12-39 Landing".into()),
+        system_name: Some("Synuefe BY-F d12-39".into()),
+        progress: 0.999,
+        complete: false,
+        failed: false,
+        resources: vec![
+            resource("$cmmcomposite_name;", "CMM Composite"),
+            resource("$ceramiccomposites_name;", "Ceramic Composites"),
+            resource("$insulatingmembrane_name;", "Insulating Membrane"),
+        ],
+        first_seen: String::new(),
+        depot_updated: String::new(),
+        contributions: vec![],
+    };
+    let mut lines = vec![c::NO_PROJECT.to_string(), c::NO_POSITION.to_string(), c::NO_STAR_MAP.to_string()];
+    let mut split = |s: String| lines.extend(s.split_inclusive(". ").map(|s| s.trim().to_string()));
+    for (capacity, aboard) in [(None, 0), (Some(1), 1), (Some(794), 999_999)] {
+        let mut hold = Hold { capacity, ..Hold::default() };
+        hold.cargo.insert("insulatingmembrane".into(), aboard);
+        let v = ProjectView { shopping: shopping_list(&project, &hold), project: project.clone() };
+        split(c::progress(&v));
+        split(c::remaining(&v));
+        for commodity in ["Insulating Membrane", "Low Temperature Diamonds", "nonsense"] {
+            if let Err(why) = c::need(&v, commodity) {
+                split(why);
+            }
+        }
+    }
+    let mut built = ProjectView { shopping: shopping_list(&project, &Hold::default()), project: project.clone() };
+    built.project.resources.iter_mut().for_each(|r| r.provided = r.required);
+    split(c::remaining(&built));
+    let need = Need { symbol: "insulatingmembrane".into(), name: "Insulating Membrane".into(), tonnes: 1_234_566 };
+    let stockist = Stockist {
+        market_id: 1,
+        station: "Carvalho Engineering Foundry".into(),
+        system: "Synuefe BY-F d12-39".into(),
+        system_pos: [0.0; 3],
+        hop: astromech_galaxy::Hop { ly: 499.6, jumps: 99, exact: false },
+        pad: None,
+        arrival_ls: None,
+        fleet_carrier: false,
+        odyssey: false,
+        updated_at: "2024-01-01T00:00:00Z".into(),
+        stocked: 1,
+        lines: vec![StockLine {
+            commodity: "insulatingmembrane".into(),
+            name: "Insulating Membrane".into(),
+            needed: 1_234_566,
+            stock: 9_999_999,
+            price: 123_456,
+        }],
+        missing: vec![],
+    };
+    for stations in [vec![], vec![stockist]] {
+        let plan = ListPlan { stations, unavailable: vec![], truncated: vec![], fetched_at: 0 };
+        split(c::buy(&need, &plan, 500, now));
+    }
+    assert!(lines.iter().any(|l| l.starts_with("Most needed: ")), "{lines:?}");
+    let bad = check("colonisation answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
 #[test]
 fn every_line_keeps_to_the_copy_guide() {
     let callouts = callout_lines();

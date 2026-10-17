@@ -219,6 +219,42 @@ pub const MVP: &[(&str, &[&str])] = &[
         "trade.sell_cargo",
         &["where to sell my cargo", "where should i sell my cargo", "best place to sell my cargo", "sell my cargo"],
     ),
+    // Colonisation (the construction tracker, Ardent for where to buy): answered by the core.
+    (
+        "colonisation.progress",
+        &[
+            "how is the build going",
+            "how's the build going",
+            "how is the construction going",
+            "build progress",
+            "construction progress",
+            "colonisation progress",
+            "how far along is the build",
+        ],
+    ),
+    (
+        "colonisation.remaining",
+        &[
+            "what is left to deliver",
+            "what's left to deliver",
+            "how much is left to deliver",
+            "what does the build need",
+            "what is left for the build",
+            "construction shopping list",
+        ],
+    ),
+    (
+        "colonisation.buy",
+        &[
+            "where can i buy {commodity} for the depot",
+            "where can i buy {commodity} for the build",
+            "where can i buy {commodity} for the construction",
+            "where can i buy {commodity} for the project",
+            "where to buy {commodity} for the depot",
+            "where to buy {commodity} for the build",
+            "buy {commodity} for the depot",
+        ],
+    ),
     // Station lookups (the slots' values come from astromech-galaxy).
     (
         "find.service",

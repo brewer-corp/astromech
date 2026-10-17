@@ -14,6 +14,8 @@ use astromech_status as st;
 pub mod session;
 pub mod trade;
 
+pub mod colonisation;
+
 pub use astromech_policy;
 
 pub mod lookup;

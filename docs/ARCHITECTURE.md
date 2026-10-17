@@ -238,7 +238,9 @@ astromech/
     astromech-materials/ engineering materials ledger + trader-style view (journal snapshot + deltas)
     astromech-colonisation/ construction tracker: depots, contributions, claims, beacons (journal fold + store records),
                          shopping list (remaining minus the hold, in loads); the app's Trade > Colonisation
-                         page replays the journal folder (nothing stored yet, astromech-0x68)
+                         page replays the journal folder (nothing stored yet, astromech-0x68), and so do
+                         the voice questions (astromech-3ez9: progress, what is left, where to buy;
+                         `astromech_tools::colonisation`, `astromech_core::colonisation`)
     astromech-engineering/ fleet loadouts (newest Loadout per ShipID + StoredShips), build plans,
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning

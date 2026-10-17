@@ -193,6 +193,7 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-announce",
+ "astromech-colonisation",
  "astromech-data",
  "astromech-eddn",
  "astromech-exobiology",
@@ -499,6 +500,7 @@ name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
  "astromech-announce",
+ "astromech-colonisation",
  "astromech-data",
  "astromech-galaxy",
  "astromech-gamestate",
