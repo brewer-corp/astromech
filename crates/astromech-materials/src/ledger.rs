@@ -71,7 +71,7 @@ impl Ledger {
         // The game logs all that was picked up but keeps no more than the grade's cap.
         let cap = catalog::lookup(&id).filter(|_| delta > 0).map(|s| catalog::capacity(s.grade));
         let n = self.counts.entry(id).or_insert(0);
-        *n = n.saturating_add(delta).max(0).min(cap.unwrap_or(i64::MAX));
+        *n = n.saturating_add(delta).max(0).min(cap.map_or(i64::MAX, |c| c.max(*n)));
     }
 
     pub fn count(&self, name: &str) -> i64 {

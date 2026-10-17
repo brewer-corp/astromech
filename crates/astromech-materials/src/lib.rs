@@ -99,6 +99,12 @@ mod tests {
             r#"{"timestamp":"2026-10-11T00:04:00Z","event":"MaterialTrade","MarketID":3221397760,"TraderType":"manufactured","Paid":{"Material":"fedcorecomposites","Material_Localised":"Core Dynamics Composites","Category":"Manufactured","Quantity":96},"Received":{"Material":"compoundshielding","Material_Localised":"Compound Shielding","Category":"Manufactured","Quantity":4}}"#,
         ]);
         assert_eq!(l.count("fedcorecomposites"), 4);
+        // A count already over the catalogue's cap (a snapshot says so) is never lowered by a gain.
+        let l = replay_lines([
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"Materials","Raw":[{"Name":"iron","Count":320}],"Manufactured":[],"Encoded":[]}"#,
+            r#"{"timestamp":"2026-10-11T00:01:00Z","event":"MaterialCollected","Category":"Raw","Name":"iron","Count":1}"#,
+        ]);
+        assert_eq!(l.count("iron"), 320);
     }
 
     #[test]

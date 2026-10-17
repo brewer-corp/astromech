@@ -11,7 +11,6 @@
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
-use astromech_journal::ExtraEvent;
 use astromech_journal::JournalEvent;
 use astromech_materials::catalog;
 use std::collections::BTreeSet;
@@ -23,24 +22,17 @@ const MAX_SUGGESTIONS: usize = 2;
 
 /// The materials ledger stops at the cap (the game logs the whole pickup but keeps no more), so
 /// the count after an event can't say whether it was full before. The rule keeps which trader
-/// materials were full after the last event that changed materials, live or replayed.
+/// materials were full after the last journal line, live or replayed.
 #[derive(Default)]
 pub struct MaterialsCap {
     full: Mutex<BTreeSet<&'static str>>,
 }
 
 impl MaterialsCap {
-    /// Note where materials stand after `input`, if it can have changed them.
+    /// Note where materials stand after each journal line (any line: the ledger alone knows
+    /// which events change them).
     fn remember(&self, input: &Input, state: &GameState) {
-        let Input::Journal(l) = input else { return };
-        let changes = matches!(
-            &l.event,
-            JournalEvent::Materials { .. }
-                | JournalEvent::MaterialDelta { .. }
-                | JournalEvent::EngineerCraft { .. }
-                | JournalEvent::Extra(ExtraEvent::MissionCompleted { .. })
-        );
-        if changes {
+        if let Input::Journal(_) = input {
             *self.full.lock().unwrap() = catalog::catalog()
                 .iter()
                 .filter(|s| s.on_trader && state.materials.count(s.id) >= catalog::capacity(s.grade))
