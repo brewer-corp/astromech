@@ -6,7 +6,7 @@ labels:
 - "alpha"
 - "size-s"
 workflow_branch:
-  branch_base: wt-base-0x68
+  branch_base: main
   work_branch: task/astromech-0x68
 priority: "P2"
 relationships:
