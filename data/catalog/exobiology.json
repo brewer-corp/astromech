@@ -1,0 +1,492 @@
+{
+ "source": "Species values (Vista Genomics' base payout per species, as the in-game Codex shows it) from EDR's data/biology.json (github.com/lekeno/edr, Apache-2.0), read 17 Oct 2026. The genera with one value for every species (anemones, brain trees, sinuous tubers, bark mounds, amphora plants, crystalline shards), keyed by genus symbol, from ED Assistant's seed data (github.com/IgorBabayan/ed-assistant, MIT), checked against the Artemis Scanner Tracker's price table (facts only). A first logged species pays a bonus on top when sold; that is not estimated.",
+ "species": [
+  {
+   "symbol": "$codex_ent_aleoids_01_name;",
+   "name": "Aleoida Arcus",
+   "value": 7252500
+  },
+  {
+   "symbol": "$codex_ent_aleoids_02_name;",
+   "name": "Aleoida Coronamus",
+   "value": 6284600
+  },
+  {
+   "symbol": "$codex_ent_aleoids_05_name;",
+   "name": "Aleoida Gravis",
+   "value": 12934900
+  },
+  {
+   "symbol": "$codex_ent_aleoids_04_name;",
+   "name": "Aleoida Laminiae",
+   "value": 3385200
+  },
+  {
+   "symbol": "$codex_ent_aleoids_03_name;",
+   "name": "Aleoida Spica",
+   "value": 3385200
+  },
+  {
+   "symbol": "$codex_ent_bacterial_04_name;",
+   "name": "Bacterium Acies",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_06_name;",
+   "name": "Bacterium Alcyoneum",
+   "value": 1658500
+  },
+  {
+   "symbol": "$codex_ent_bacterial_01_name;",
+   "name": "Bacterium Aurasus",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_10_name;",
+   "name": "Bacterium Bullaris",
+   "value": 1152500
+  },
+  {
+   "symbol": "$codex_ent_bacterial_12_name;",
+   "name": "Bacterium Cerbrus",
+   "value": 1689800
+  },
+  {
+   "symbol": "$codex_ent_bacterial_08_name;",
+   "name": "Bacterium Informem",
+   "value": 8418000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_02_name;",
+   "name": "Bacterium Nebulus",
+   "value": 5289900
+  },
+  {
+   "symbol": "$codex_ent_bacterial_11_name;",
+   "name": "Bacterium Omentum",
+   "value": 4638900
+  },
+  {
+   "symbol": "$codex_ent_bacterial_03_name;",
+   "name": "Bacterium Scopulum",
+   "value": 4934500
+  },
+  {
+   "symbol": "$codex_ent_bacterial_07_name;",
+   "name": "Bacterium Tela ",
+   "value": 1949000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_13_name;",
+   "name": "Bacterium Verrata",
+   "value": 3897000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_05_name;",
+   "name": "Bacterium Vesicula",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_bacterial_09_name;",
+   "name": "Bacterium Volu",
+   "value": 7774700
+  },
+  {
+   "symbol": "$codex_ent_cactoid_01_name;",
+   "name": "Cactoida Cortexum",
+   "value": 3667600
+  },
+  {
+   "symbol": "$codex_ent_cactoid_02_name;",
+   "name": "Cactoida Lapis",
+   "value": 2483600
+  },
+  {
+   "symbol": "$codex_ent_cactoid_05_name;",
+   "name": "Cactoida Peperatis",
+   "value": 2483600
+  },
+  {
+   "symbol": "$codex_ent_cactoid_04_name;",
+   "name": "Cactoida Pullulanta",
+   "value": 3667600
+  },
+  {
+   "symbol": "$codex_ent_cactoid_03_name;",
+   "name": "Cactoida Vermis",
+   "value": 16202800
+  },
+  {
+   "symbol": "$codex_ent_clypeus_01_name;",
+   "name": "Clypeus Lacrimam",
+   "value": 8418000
+  },
+  {
+   "symbol": "$codex_ent_clypeus_02_name;",
+   "name": "Clypeus Margaritus",
+   "value": 11873200
+  },
+  {
+   "symbol": "$codex_ent_clypeus_03_name;",
+   "name": "Clypeus Speculumi",
+   "value": 16202800
+  },
+  {
+   "symbol": "$codex_ent_conchas_02_name;",
+   "name": "Concha Aureolas",
+   "value": 7774700
+  },
+  {
+   "symbol": "$codex_ent_conchas_04_name;",
+   "name": "Concha Biconcavis",
+   "value": 19010800
+  },
+  {
+   "symbol": "$codex_ent_conchas_03_name;",
+   "name": "Concha Labiata",
+   "value": 2352400
+  },
+  {
+   "symbol": "$codex_ent_conchas_01_name;",
+   "name": "Concha Renibus",
+   "value": 4572400
+  },
+  {
+   "symbol": "$codex_ent_electricae_01_name;",
+   "name": "Electricae Pluma",
+   "value": 6284600
+  },
+  {
+   "symbol": "$codex_ent_electricae_02_name;",
+   "name": "Electricae Radialem",
+   "value": 6284600
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_02_name;",
+   "name": "Fonticulua Campestris",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_06_name;",
+   "name": "Fonticulua Digitos",
+   "value": 1804100
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_05_name;",
+   "name": "Fonticulua Fluctus",
+   "value": 20000000
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_04_name;",
+   "name": "Fonticulua Lapida",
+   "value": 3111000
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_01_name;",
+   "name": "Fonticulua Segmentatus",
+   "value": 19010800
+  },
+  {
+   "symbol": "$codex_ent_fonticulus_03_name;",
+   "name": "Fonticulua Upupam",
+   "value": 5727600
+  },
+  {
+   "symbol": "$codex_ent_shrubs_02_name;",
+   "name": "Frutexa Acus",
+   "value": 7774700
+  },
+  {
+   "symbol": "$codex_ent_shrubs_07_name;",
+   "name": "Frutexa Collum",
+   "value": 1639800
+  },
+  {
+   "symbol": "$codex_ent_shrubs_05_name;",
+   "name": "Frutexa Fera",
+   "value": 1632500
+  },
+  {
+   "symbol": "$codex_ent_shrubs_01_name;",
+   "name": "Frutexa Flabellum",
+   "value": 1808900
+  },
+  {
+   "symbol": "$codex_ent_shrubs_04_name;",
+   "name": "Frutexa Flammasis",
+   "value": 10326000
+  },
+  {
+   "symbol": "$codex_ent_shrubs_03_name;",
+   "name": "Frutexa Metallicum",
+   "value": 1632500
+  },
+  {
+   "symbol": "$codex_ent_shrubs_06_name;",
+   "name": "Frutexa Sponsae",
+   "value": 5988000
+  },
+  {
+   "symbol": "$codex_ent_fumerolas_04_name;",
+   "name": "Fumerola Aquatis",
+   "value": 6284600
+  },
+  {
+   "symbol": "$codex_ent_fumerolas_01_name;",
+   "name": "Fumerola Carbosis",
+   "value": 6284600
+  },
+  {
+   "symbol": "$codex_ent_fumerolas_02_name;",
+   "name": "Fumerola Extremus",
+   "value": 16202800
+  },
+  {
+   "symbol": "$codex_ent_fumerolas_03_name;",
+   "name": "Fumerola Nitris",
+   "value": 7500900
+  },
+  {
+   "symbol": "$codex_ent_fungoids_03_name;",
+   "name": "Fungoida Bullarum",
+   "value": 3703200
+  },
+  {
+   "symbol": "$codex_ent_fungoids_04_name;",
+   "name": "Fungoida Gelata",
+   "value": 3330300
+  },
+  {
+   "symbol": "$codex_ent_fungoids_01_name;",
+   "name": "Fungoida Setisis",
+   "value": 1670100
+  },
+  {
+   "symbol": "$codex_ent_fungoids_02_name;",
+   "name": "Fungoida Stabitis",
+   "value": 2680300
+  },
+  {
+   "symbol": "$codex_ent_osseus_05_name;",
+   "name": "Osseus Cornibus",
+   "value": 1483000
+  },
+  {
+   "symbol": "$codex_ent_osseus_02_name;",
+   "name": "Osseus Discus",
+   "value": 12934900
+  },
+  {
+   "symbol": "$codex_ent_osseus_01_name;",
+   "name": "Osseus Fractus",
+   "value": 4027800
+  },
+  {
+   "symbol": "$codex_ent_osseus_06_name;",
+   "name": "Osseus Pellebantus",
+   "value": 9739000
+  },
+  {
+   "symbol": "$codex_ent_osseus_04_name;",
+   "name": "Osseus Pumice",
+   "value": 3156300
+  },
+  {
+   "symbol": "$codex_ent_osseus_03_name;",
+   "name": "Osseus Spiralis",
+   "value": 2404700
+  },
+  {
+   "symbol": "$codex_ent_ingensradices_unicus_name;",
+   "name": "Radicoida Unicus",
+   "value": 119037
+  },
+  {
+   "symbol": "$codex_ent_recepta_03_name;",
+   "name": "Recepta Conditivus",
+   "value": 14313700
+  },
+  {
+   "symbol": "$codex_ent_recepta_02_name;",
+   "name": "Recepta Deltahedronix",
+   "value": 16202800
+  },
+  {
+   "symbol": "$codex_ent_recepta_01_name;",
+   "name": "Recepta Umbrux",
+   "value": 12934900
+  },
+  {
+   "symbol": "$codex_ent_stratum_04_name;",
+   "name": "Stratum Araneamus",
+   "value": 2448900
+  },
+  {
+   "symbol": "$codex_ent_stratum_06_name;",
+   "name": "Stratum Cucumisis",
+   "value": 16202800
+  },
+  {
+   "symbol": "$codex_ent_stratum_01_name;",
+   "name": "Stratum Excutitus",
+   "value": 2448900
+  },
+  {
+   "symbol": "$codex_ent_stratum_08_name;",
+   "name": "Stratum Frigus",
+   "value": 2637500
+  },
+  {
+   "symbol": "$codex_ent_stratum_03_name;",
+   "name": "Stratum Laminamus",
+   "value": 2788300
+  },
+  {
+   "symbol": "$codex_ent_stratum_05_name;",
+   "name": "Stratum Limaxus",
+   "value": 1362000
+  },
+  {
+   "symbol": "$codex_ent_stratum_02_name;",
+   "name": "Stratum Paleas",
+   "value": 1362000
+  },
+  {
+   "symbol": "$codex_ent_stratum_07_name;",
+   "name": "Stratum Tectonicas",
+   "value": 19010800
+  },
+  {
+   "symbol": "$codex_ent_tubus_03_name;",
+   "name": "Tubus Cavas",
+   "value": 11873200
+  },
+  {
+   "symbol": "$codex_ent_tubus_05_name;",
+   "name": "Tubus Compagibus",
+   "value": 7774700
+  },
+  {
+   "symbol": "$codex_ent_tubus_01_name;",
+   "name": "Tubus Conifer",
+   "value": 2415500
+  },
+  {
+   "symbol": "$codex_ent_tubus_04_name;",
+   "name": "Tubus Rosarium",
+   "value": 2637500
+  },
+  {
+   "symbol": "$codex_ent_tubus_02_name;",
+   "name": "Tubus Sororibus",
+   "value": 5727600
+  },
+  {
+   "symbol": "$codex_ent_tussocks_08_name;",
+   "name": "Tussock Albata",
+   "value": 3252500
+  },
+  {
+   "symbol": "$codex_ent_tussocks_15_name;",
+   "name": "Tussock Capillum",
+   "value": 7025800
+  },
+  {
+   "symbol": "$codex_ent_tussocks_11_name;",
+   "name": "Tussock Caputus",
+   "value": 3472400
+  },
+  {
+   "symbol": "$codex_ent_tussocks_05_name;",
+   "name": "Tussock Catena",
+   "value": 1766600
+  },
+  {
+   "symbol": "$codex_ent_tussocks_04_name;",
+   "name": "Tussock Cultro",
+   "value": 1766600
+  },
+  {
+   "symbol": "$codex_ent_tussocks_10_name;",
+   "name": "Tussock Divisa",
+   "value": 1766600
+  },
+  {
+   "symbol": "$codex_ent_tussocks_03_name;",
+   "name": "Tussock Ignis",
+   "value": 1849000
+  },
+  {
+   "symbol": "$codex_ent_tussocks_01_name;",
+   "name": "Tussock Pennata",
+   "value": 5853800
+  },
+  {
+   "symbol": "$codex_ent_tussocks_06_name;",
+   "name": "Tussock Pennatis",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_tussocks_09_name;",
+   "name": "Tussock Propagito",
+   "value": 1000000
+  },
+  {
+   "symbol": "$codex_ent_tussocks_07_name;",
+   "name": "Tussock Serrati",
+   "value": 4447100
+  },
+  {
+   "symbol": "$codex_ent_tussocks_13_name;",
+   "name": "Tussock Stigmasis",
+   "value": 19010800
+  },
+  {
+   "symbol": "$codex_ent_tussocks_12_name;",
+   "name": "Tussock Triticum",
+   "value": 7774700
+  },
+  {
+   "symbol": "$codex_ent_tussocks_02_name;",
+   "name": "Tussock Ventusa",
+   "value": 3227700
+  },
+  {
+   "symbol": "$codex_ent_tussocks_14_name;",
+   "name": "Tussock Virgam",
+   "value": 14313700
+  }
+ ],
+ "genera": [
+  {
+   "symbol": "$codex_ent_sphere_name;",
+   "name": "Anemone",
+   "value": 1499900
+  },
+  {
+   "symbol": "$codex_ent_brancae_name;",
+   "name": "Brain Tree",
+   "value": 1593700
+  },
+  {
+   "symbol": "$codex_ent_tube_name;",
+   "name": "Sinuous Tubers",
+   "value": 1514500
+  },
+  {
+   "symbol": "$codex_ent_cone_name;",
+   "name": "Bark Mound",
+   "value": 1471900
+  },
+  {
+   "symbol": "$codex_ent_vents_name;",
+   "name": "Amphora Plant",
+   "value": 1628800
+  },
+  {
+   "symbol": "$codex_ent_ground_struct_ice_name;",
+   "name": "Crystalline Shards",
+   "value": 1628800
+  }
+ ]
+}

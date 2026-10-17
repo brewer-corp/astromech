@@ -178,3 +178,23 @@ Creative Commons Attribution-ShareAlike 3.0 licence
 The wiki page itself could not be fetched when this file was made, so it is credited only through
 that adaptation. The file stays under CC BY-SA 3.0, not the MIT licence. Rules the sources don't
 state are marked `uncertain`. The facts are Elite Dangerous game data, © Frontier Developments plc.
+
+## Exploration values
+The body value formulae in `crates/astromech-exploration/src/value.rs` are written from the
+community's derivation in MattG's "Exploration value formulae" thread on the Frontier forums
+(https://forums.frontier.co.uk/threads/exploration-value-formulae.232000/), cross-checked against
+EDDiscovery's `EstimatedValues.cs` (https://github.com/EDDiscovery/EliteDangerousCore,
+Apache-2.0) and EDDI's `Body.cs` (https://github.com/EDCD/EDDI, Apache-2.0); no code was copied.
+The test fixture `crates/astromech-exploration/tests/fixtures/edsm-values.json` holds public body
+data (class, mass, terraform state) of fifteen real systems from Spansh's system dumps
+(https://spansh.co.uk) and EDSM's published value estimates for them
+(https://www.edsm.net/api-system-v1/estimated-value), fetched 17 Oct 2026. Credit: Spansh, EDSM
+and the EDDN contributors whose scans they hold. The worked example in `tests/values.rs` is from
+ED Scout's tests (https://github.com/joncage/ed-scout, MIT).
+
+## Exobiology values
+`data/catalog/exobiology.json` (what Vista Genomics pays per species) is game data as the in-game
+Codex shows it, taken from EDR's `data/biology.json` (https://github.com/lekeno/edr, Apache-2.0,
+Copyright the EDR authors) and, for the single-value genera, ED Assistant's seed data
+(https://github.com/IgorBabayan/ed-assistant, MIT). The values are Elite Dangerous game data,
+© Frontier Developments plc.

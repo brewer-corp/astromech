@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Live system view with body values"
-updated_at: "2026-10-17T04:39:42.891207228+00:00"
+updated_at: "2026-10-17T04:50:11.910843817+00:00"
 ---
 
 ## Goal

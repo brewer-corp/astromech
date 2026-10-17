@@ -469,6 +469,16 @@ async fn session_summary() -> Result<Value, String> {
     .await
 }
 
+/// The current system's bodies as scanned, with their estimated values, from the newest journals.
+#[tauri::command]
+async fn exploration_system() -> Result<Value, String> {
+    blocking(move || {
+        let view = astromech_exploration::system::from_journal_dir(&journal_dir());
+        serde_json::to_value(view).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// The station docked at: services, economies, faction and its state, pads, and which modules its
 /// outfitting sells that the ship flown would be better for. `docked: false` when not docked.
 #[tauri::command]
@@ -1145,7 +1155,8 @@ fn main() {
             logbook,
             docked_here,
             outfitting_search,
-            session_summary
+            session_summary,
+            exploration_system
         ])
         .setup(move |app| {
             let hash = route.as_deref().map(|r| format!("index.html#/{r}")).unwrap_or_else(|| "index.html".into());
