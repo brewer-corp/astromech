@@ -174,11 +174,17 @@ impl Feed {
 
     /// The companion file for a live `event`, as read. Ignored unless that event is waiting. A
     /// file older than the event is the last one, not this event's: the event keeps waiting
-    /// for the game to write the new one. Anything else unusable is logged and the event dropped.
+    /// for the game to write the new one. An event that has waited longer than
+    /// [`MAX_EVENT_AGE_SECS`] (sharing was off when its file came) is no longer live and is
+    /// dropped. Anything else unusable is logged and the event dropped.
     pub fn companion_file(&mut self, event: &str, file: &Value, now: i64) {
         let (Some(ev), Some(spec)) = (self.awaiting.get(event), companion_spec(event)) else {
             return;
         };
+        if unix_time(ev).is_some_and(|t| now - t > MAX_EVENT_AGE_SECS) {
+            self.awaiting.remove(event);
+            return;
+        }
         if let (Some(f), Some(e)) = (game_timestamp(file), game_timestamp(ev)) {
             if f < e {
                 return;
@@ -605,6 +611,22 @@ mod tests {
         let ups = sent(&f);
         assert_eq!(schemas(&ups), ["journal/1"]);
         assert_eq!(ups[0]["header"]["uploaderID"], "Jameson");
+    }
+
+    #[test]
+    fn a_companion_file_arriving_after_its_event_went_stale_is_not_sent() {
+        let mut f = feed();
+        feed_all(&mut f, &session("r1 ", "Jameson"), false);
+        let now = unix_time(&json!({"timestamp":"2026-10-16T12:00:00Z"})).unwrap();
+        f.journal(&market_event("2026-10-16T12:00:00Z"), true, now);
+        // Sharing goes off and back on while the event waits; its file comes minutes later.
+        f.sharing.store(false, Ordering::SeqCst);
+        f.sharing.store(true, Ordering::SeqCst);
+        assert!(f.awaiting("Market"));
+        f.companion_file("Market", &fixture("Market.json"), now + MAX_EVENT_AGE_SECS + 1);
+        assert!(!f.awaiting("Market"));
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "a stale Market is not sent");
+        assert!(log(&f).is_empty());
     }
 
     #[test]

@@ -11,7 +11,7 @@ export interface EddnLogEntry {
   /** Unix seconds. */
   at: number;
   schema_ref: string;
-  outcome: "sent" | "rejected" | "retry" | "gave_up" | "dropped";
+  outcome: "sent" | "rejected" | "retry" | "gave_up" | "discarded" | "dropped";
   detail: string;
 }
 
@@ -22,9 +22,9 @@ export interface EddnLog {
   test: boolean;
   pending: number;
   last_sent: EddnLogEntry | null;
-  /** The newest rejected, retried or given-up message. */
+  /** The newest rejected, retried or given-up message (not one discarded here: switched off, outbox full). */
   last_error: EddnLogEntry | null;
-  /** The gateway's answers (and give-ups), newest first. */
+  /** The gateway's answers (and give-ups and discards), newest first. */
   log: EddnLogEntry[];
   /** Messages never queued (beta client, location mismatch, ...), newest first. */
   skipped: EddnLogEntry[];

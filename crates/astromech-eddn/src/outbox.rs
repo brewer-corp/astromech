@@ -12,6 +12,7 @@
 use crate::transport::Transport;
 use rusqlite::{Connection, OptionalExtension, Result};
 use serde::Serialize;
+use std::cell::Cell;
 
 /// The first retry waits this long; each later one doubles it, up to [`MAX_BACKOFF_SECS`].
 pub const MIN_RETRY_SECS: i64 = 60;
@@ -60,8 +61,11 @@ pub enum Outcome {
     Rejected,
     /// Failed; queued for another try.
     Retry,
-    /// Failed [`MAX_ATTEMPTS`] times; dropped.
+    /// Failed [`MAX_ATTEMPTS`] times, or queued too long; dropped.
     GaveUp,
+    /// Queued but dropped here without a send failure: sharing was switched off, or the outbox
+    /// was full. Listed with the gateway's answers, but not a send error.
+    Discarded,
     /// Not queued at all (beta, too large, location mismatch, …).
     Dropped,
 }
@@ -73,6 +77,7 @@ impl Outcome {
             Outcome::Rejected => "rejected",
             Outcome::Retry => "retry",
             Outcome::GaveUp => "gave_up",
+            Outcome::Discarded => "discarded",
             Outcome::Dropped => "dropped",
         }
     }
@@ -106,6 +111,9 @@ pub fn backoff(attempts: i64) -> i64 {
 
 pub struct Outbox {
     conn: Connection,
+    /// While the queue stays full: the send-log row for this overflow and how many it counts,
+    /// so a long outage writes one row, not one per message queued.
+    overflow: Cell<Option<(i64, i64)>>,
 }
 
 impl Outbox {
@@ -123,10 +131,11 @@ impl Outbox {
             conn.execute_batch(m)?;
             conn.pragma_update(None, "user_version", (i + 1) as i64)?;
         }
-        Ok(Self { conn })
+        Ok(Self { conn, overflow: Cell::new(None) })
     }
 
-    /// Queue a gzipped upload; it's due immediately.
+    /// Queue a gzipped upload; it's due immediately. A full queue drops its oldest, counted in
+    /// one send-log row until an upload fits again.
     pub fn enqueue(&self, schema_ref: &str, gzipped: &[u8], now: i64) -> Result<()> {
         self.conn.execute(
             "INSERT INTO outbox(schema_ref, body, next_try, created) VALUES (?1, ?2, ?3, ?3)",
@@ -135,16 +144,33 @@ impl Outbox {
         let over = self.conn.execute(
             "DELETE FROM outbox WHERE id <= (SELECT id FROM outbox ORDER BY id DESC LIMIT 1 OFFSET ?1)",
             [MAX_QUEUED],
-        )?;
-        if over > 0 {
-            self.log(now, schema_ref, Outcome::GaveUp, &format!("outbox full: {over} oldest dropped"))?;
+        )? as i64;
+        match (over, self.overflow.get()) {
+            (0, _) => self.overflow.set(None),
+            (_, Some((row, total))) => {
+                let total = total + over;
+                self.conn.execute(
+                    "UPDATE send_log SET detail = ?2 WHERE id = ?1",
+                    (row, format!("outbox full: {total} oldest dropped")),
+                )?;
+                self.overflow.set(Some((row, total)));
+            }
+            (_, None) => {
+                self.log(now, schema_ref, Outcome::Discarded, &format!("outbox full: {over} oldest dropped"))?;
+                self.overflow.set(Some((self.conn.last_insert_rowid(), over)));
+            }
         }
         Ok(())
     }
 
-    /// Drop everything queued (the service was switched off). Returns how many.
-    pub fn purge(&self) -> Result<usize> {
-        self.conn.execute("DELETE FROM outbox", [])
+    /// Drop everything queued, because sharing was switched off, and say so in the send log.
+    /// Returns how many.
+    pub fn discard_all(&self, now: i64) -> Result<usize> {
+        let n = self.conn.execute("DELETE FROM outbox", [])?;
+        if n > 0 {
+            self.log(now, "eddn", Outcome::Discarded, &format!("switched off: {n} queued discarded"))?;
+        }
+        Ok(n)
     }
 
     pub fn pending(&self) -> Result<usize> {
@@ -528,9 +554,38 @@ pub(crate) mod tests {
             o.enqueue(REF, &i.to_le_bytes(), 1000).unwrap();
         }
         assert_eq!(o.pending().unwrap() as i64, MAX_QUEUED);
-        let gave_up = o.recent_of(&[Outcome::GaveUp], 10).unwrap();
-        assert_eq!(gave_up.len(), 3);
-        assert_eq!(gave_up[0].detail, "outbox full: 1 oldest dropped");
+        let rows = o.recent(10).unwrap();
+        assert_eq!(rows.len(), 1, "one row for the overflow, not one per message queued");
+        assert_eq!((rows[0].outcome.as_str(), rows[0].detail.as_str()), ("discarded", "outbox full: 3 oldest dropped"));
+        assert_eq!(rows[0].at, 1000);
+
+        // Delivery makes room: the next message fits and ends the overflow. Filling up again
+        // starts a new row.
+        o.conn.execute("DELETE FROM outbox WHERE id = (SELECT MIN(id) FROM outbox)", []).unwrap();
+        o.enqueue(REF, b"fits", 2000).unwrap();
+        assert_eq!(o.recent(10).unwrap().len(), 1);
+        o.enqueue(REF, b"over", 2001).unwrap();
+        let rows = o.recent(10).unwrap();
+        assert_eq!(rows.len(), 2);
+        assert_eq!((rows[0].at, rows[0].detail.as_str()), (2001, "outbox full: 1 oldest dropped"));
+        assert_eq!(rows[1].detail, "outbox full: 3 oldest dropped");
+    }
+
+    #[test]
+    fn discarding_the_queue_empties_it_and_logs_once() {
+        let o = Outbox::in_memory().unwrap();
+        assert_eq!(o.discard_all(1000).unwrap(), 0);
+        assert!(o.recent(10).unwrap().is_empty(), "nothing queued, nothing logged");
+        o.enqueue(REF, b"a", 1000).unwrap();
+        o.enqueue(REF, b"b", 1000).unwrap();
+        assert_eq!(o.discard_all(1001).unwrap(), 2);
+        assert_eq!(o.pending().unwrap(), 0);
+        let rows = o.recent(10).unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(
+            (rows[0].outcome.as_str(), rows[0].detail.as_str()),
+            ("discarded", "switched off: 2 queued discarded")
+        );
     }
 
     #[test]
