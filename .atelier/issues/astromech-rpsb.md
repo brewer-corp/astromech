@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T03:12:39.212811286+00:00"
+status: "done"
 title: "Mission reminders"
-updated_at: "2026-10-17T03:07:45.656572480+00:00"
+updated_at: "2026-10-17T03:12:39.212811286+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Replay with a `Missions` fixture warns at the right times, and an FSDJump into a
 ## Context
 
 `Missions` at login plus `Mission*` events.
+
+## Close Reason
+
+Missions state, Tick input, missions rule and tests landed; list UI filed as astromech-ak4v
