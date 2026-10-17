@@ -28,3 +28,7 @@ Close the edge cases the review of the My controller restore left open.
 ## Context
 
 Review findings R3 and R4 on PR #133 (astromech-54hd), both low and not regressions: elsewhere already ignored alternatives.
+
+## Also
+
+Second review of PR #133 (the fix commit): `showRow()` does not clear `unknown`, so after an unmapped press, clicking an action row lights its control but the panel keeps showing the unknown press (the template checks `unknown` before `sel`); the device switch buttons do not clear `unknown` either. One line each plus a test (press an unmapped key, click a row, expect "Action"). Not a regression from the PR.
