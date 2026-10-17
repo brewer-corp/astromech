@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:27:12.314263471+00:00"
 id: "astromech-243w"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-243w
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Trade lookups: blank age and distance selects, placeholder rows, shorter partial-buyer voice"
-updated_at: "2026-10-17T05:27:12.314263471+00:00"
+updated_at: "2026-10-17T05:46:43.437766035+00:00"
 ---
 
 ## Goal
