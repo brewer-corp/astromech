@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Flaky: gear_down a_replayed_older_journal_leaves_the_route_and_clipboard_alone"
-updated_at: "2026-10-17T20:05:18.845510745+00:00"
+updated_at: "2026-10-17T20:17:54.923132699+00:00"
 ---
 
 ## Goal
