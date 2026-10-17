@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Count Parakeet as installed only when its download finished"
-updated_at: "2026-10-16T18:58:51.991298875+00:00"
+updated_at: "2026-10-17T16:54:21.964696197+00:00"
 ---
 
 ## Goal

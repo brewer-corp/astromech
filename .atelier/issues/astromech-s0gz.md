@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Callout toggles and cooldowns in Settings"
-updated_at: "2026-10-16T19:47:26.525520987+00:00"
+updated_at: "2026-10-17T16:54:22.281844127+00:00"
 ---
 
 ## Goal

@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Onboarding follow-ups: shared config path, config error clears, fake-core contract test"
-updated_at: "2026-10-16T19:24:01.817300174+00:00"
+updated_at: "2026-10-17T16:54:22.597020171+00:00"
 ---
 
 ## Goal

@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Bodies known to EDSM in the arrival briefing"
-updated_at: "2026-10-17T01:45:29.110027209+00:00"
+updated_at: "2026-10-17T16:54:22.440151284+00:00"
 ---
 
 ## Goal

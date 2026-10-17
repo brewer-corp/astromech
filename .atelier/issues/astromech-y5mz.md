@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Build the WebView2 cost harness"
-updated_at: "2026-10-16T04:38:23.111550966+00:00"
+updated_at: "2026-10-17T16:54:23.278438076+00:00"
 ---
 
 ## Goal

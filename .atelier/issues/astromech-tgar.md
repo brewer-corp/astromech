@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ship stats: count charge time in sustained DPS"
-updated_at: "2026-10-17T16:28:50.524437750+00:00"
+updated_at: "2026-10-17T16:54:22.123952795+00:00"
 ---
 
 ## Goal

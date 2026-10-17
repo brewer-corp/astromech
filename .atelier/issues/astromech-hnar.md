@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Keep stored modules and ship locations current between visits"
-updated_at: "2026-10-16T19:02:52.923262726+00:00"
+updated_at: "2026-10-17T16:54:21.763824799+00:00"
 ---
 
 ## Goal

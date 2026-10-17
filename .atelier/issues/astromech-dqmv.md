@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Neutron plotter"
-updated_at: "2026-10-15T20:36:13.653800299+00:00"
+updated_at: "2026-10-17T16:54:22.975493182+00:00"
 ---
 
 ## Goal

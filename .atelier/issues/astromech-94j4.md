@@ -16,13 +16,16 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-5sbu"
+    type: "blocked_by"
+  - kind: "issue"
     id: "astromech-7q0z"
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Spansh plotters in the app"
-updated_at: "2026-10-16T18:26:24.582340876+00:00"
+updated_at: "2026-10-17T16:54:22.901487694+00:00"
 ---
 
 ## Goal

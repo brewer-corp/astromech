@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Merged controller page: the other stick and per-action detail"
-updated_at: "2026-10-16T18:56:53.832131635+00:00"
+updated_at: "2026-10-17T16:54:22.675344699+00:00"
 ---
 
 ## Goal

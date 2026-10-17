@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Find a station with every module a build still needs"
-updated_at: "2026-10-15T20:36:13.655103980+00:00"
+updated_at: "2026-10-17T16:54:21.284665838+00:00"
 ---
 
 ## Goal

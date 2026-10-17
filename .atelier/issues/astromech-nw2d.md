@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Undocked leaves the station set"
-updated_at: "2026-10-16T18:49:57.061032597+00:00"
+updated_at: "2026-10-17T16:54:21.642720058+00:00"
 ---
 
 ## Goal

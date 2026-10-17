@@ -19,7 +19,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Land the route follower from the route-clipboard branch"
-updated_at: "2026-10-16T19:05:38.928892788+00:00"
+updated_at: "2026-10-17T16:54:21.046646616+00:00"
 ---
 
 ## Goal

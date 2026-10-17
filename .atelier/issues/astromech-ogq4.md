@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Companion files: stale Backpack snapshot and lost watcher notifications"
-updated_at: "2026-10-16T18:46:17.956260345+00:00"
+updated_at: "2026-10-17T16:54:21.884248682+00:00"
 ---
 
 ## Goal
