@@ -19,7 +19,7 @@
 //! It arms on a `LoadGame` seen live, or when the startup catch-up ends inside a logged-in
 //! session, so starting astromech mid-session still summarises that session at its logout; a
 //! fresh launch's menu, before any login, says nothing. A replayed line starts the state over
-//! but keeps a summary that is waiting for the history.
+//! but keeps a summary that is waiting for the history and the fact that one was said.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -166,8 +166,11 @@ impl Rule for SessionSummary {
             // A summary already waiting for the history survives a replayed line: that session
             // really ended live, and the replay says nothing about it.
             let mut ended = self.ended.lock().unwrap();
+            // Nor does it forget that the session was already said: a replay that ends logged
+            // in arms the summary again, and the live `Shutdown` must not repeat it. A login
+            // seen live starts over (`react_all`).
             let pending = ended.pending.take();
-            *ended = Ended { pending, armed: state.logged_in, ..Ended::default() };
+            *ended = Ended { pending, spoken: ended.spoken, armed: state.logged_in };
         }
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
