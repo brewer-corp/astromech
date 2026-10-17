@@ -1,5 +1,5 @@
 //! Journal + Status.json pipeline. Driven by file notifications, plus a read of the journal
-//! whenever none arrive for a while (`Tailer::on_idle`), because on Windows they can be late or lost.
+//! whenever 250 ms have passed since the last read (`Tailer::on_wake`), because on Windows they can be late or lost.
 //!
 //! - Status.json: every change notification re-reads the file (with retries for half-written
 //!   files) and applies the flags.
@@ -9,8 +9,8 @@
 //!   state) and the saved position from the store tells us how much of it is new.
 //! - Because Windows may not report appends to a file the game keeps open until it flushes
 //!   metadata, the tail is read on every Status.json notification (several per second in game)
-//!   and also whenever 250 ms pass without any notification (`Tailer::on_idle`), so a journal
-//!   line is applied without any file event. ⚠ Unverified on the real game.
+//!   and also whenever 250 ms pass since the last read, however the loop was woken
+//!   (`Tailer::on_wake`), so a journal line is applied without any file event. ⚠ Unverified on the real game.
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file, and
@@ -175,6 +175,8 @@ struct Tailer {
     opened: std::collections::HashSet<PathBuf>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
+    /// When the journal tail was last read, for any reason.
+    last_read: Instant,
 }
 
 impl Tailer {
@@ -352,6 +354,7 @@ impl Tailer {
 
     /// Read what the game appended to the journal we follow, without waiting to be told.
     fn read_tail(&mut self) -> bool {
+        self.last_read = Instant::now();
         let Some(t) = &mut self.tail else { return false };
         let lines = t.read_new();
         let any = !lines.is_empty();
@@ -370,6 +373,14 @@ impl Tailer {
     /// for an open, growing journal can arrive late or never (astromech-mh3m), so read the tail
     /// anyway (an open and a read at the offset, nothing when nothing was appended) and look for
     /// a new journal once a second.
+    /// The loop woke for some reason (a notification, or the timeout): read the journal if that
+    /// hasn't happened for [`IDLE`], so notifications that name no journal can't starve it.
+    fn on_wake(&mut self) {
+        if self.last_read.elapsed() >= IDLE {
+            self.on_idle();
+        }
+    }
+
     fn on_idle(&mut self) {
         if self.read_tail() {
             self.save();
@@ -471,14 +482,12 @@ fn spawn_loop(
                     last_tick = Instant::now();
                     t.on_tick();
                 }
-                // The timeout lets us notice `stop`, tick, and read the journal without a notification.
+                // Whatever woke us, read the journal if it hasn't been for IDLE: with no
+                // notification at all the timeout below is what wakes us.
+                t.on_wake();
                 let ev = match rx.recv_timeout(IDLE) {
                     Ok(Ok(e)) => e,
-                    Ok(Err(_)) => continue,
-                    Err(RecvTimeoutError::Timeout) => {
-                        t.on_idle();
-                        continue;
-                    }
+                    Ok(Err(_)) | Err(RecvTimeoutError::Timeout) => continue,
                     Err(RecvTimeoutError::Disconnected) => break,
                 };
                 let mut status = false;
@@ -641,6 +650,7 @@ pub fn start_with_eddn(
         caught_up: false,
         opened: Default::default(),
         last_scan: Instant::now(),
+        last_read: Instant::now(),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
@@ -690,6 +700,7 @@ mod tests {
             caught_up: false,
             opened: Default::default(),
             last_scan: Instant::now(),
+            last_read: Instant::now(),
         };
         (t, hub, logs)
     }
@@ -872,6 +883,46 @@ mod tests {
         stop.store(true, Ordering::SeqCst);
         thread.join().unwrap();
         assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the loop never read the appended line");
+    }
+
+    /// astromech-mosx: a steady stream of notifications that name no journal (companion files,
+    /// other files, watcher errors) must not keep the loop from reading the journal.
+    #[test]
+    fn a_stream_of_unrelated_notifications_does_not_starve_the_journal_read() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.catch_up();
+        let (tx, rx) = std::sync::mpsc::channel();
+        let flood_stop = Arc::new(AtomicBool::new(false));
+        let (fs, other) = (flood_stop.clone(), d.path().join("Unrelated.txt"));
+        let flood = std::thread::spawn(move || {
+            while !fs.load(Ordering::SeqCst) {
+                let e = notify::Event::new(notify::EventKind::Any).add_path(other.clone());
+                if tx.send(Ok(e)).is_err() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        });
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        append(
+            &j,
+            r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
+        );
+        let started = Instant::now();
+        while hub.snapshot().system.as_deref() != Some("Sol") && started.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        let waited = started.elapsed();
+        flood_stop.store(true, Ordering::SeqCst);
+        stop.store(true, Ordering::SeqCst);
+        thread.join().unwrap();
+        flood.join().unwrap();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the flood starved the journal read");
+        assert!(waited < Duration::from_secs(1), "took {waited:?}");
     }
 
     #[test]

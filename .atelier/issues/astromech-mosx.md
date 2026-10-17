@@ -4,6 +4,9 @@ id: "astromech-mosx"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mosx
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Pipeline: read the journal on elapsed time, not only after 250 ms of silence"
-updated_at: "2026-10-17T17:35:54.889632866+00:00"
+updated_at: "2026-10-17T18:40:12.158546668+00:00"
 ---
 
 ## Goal
