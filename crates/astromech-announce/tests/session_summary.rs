@@ -213,3 +213,17 @@ fn a_crashed_session_is_not_summarised_by_the_next_launch() {
     r.spoken(SHUTDOWN);
     assert_eq!(r.tick(NOW), SAID);
 }
+
+#[test]
+fn a_replay_after_the_summary_was_said_does_not_let_it_be_said_again() {
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.spoken(LOAD_GAME);
+    r.spoken(MENU);
+    assert_eq!(r.tick(NOW), SAID);
+    // A journal re-read that ends logged in arms the session again, but it was already said.
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert!(r.tick(NOW + 10).is_empty(), "said once");
+}
