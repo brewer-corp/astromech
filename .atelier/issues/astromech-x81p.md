@@ -4,6 +4,9 @@ id: "astromech-x81p"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-x81p
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Browser preview cannot show empty, loading or error states for fixture-backed pages"
-updated_at: "2026-10-17T21:32:10.784901710+00:00"
+updated_at: "2026-10-17T22:29:29.874492548+00:00"
 ---
 
 ## Goal

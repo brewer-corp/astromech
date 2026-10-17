@@ -3,6 +3,7 @@
   // ship calculations, astromech-ship), and the modules in storage with where they are. Opening
   // a card shows that ship's detail (Build.svelte) at #/engineering/<id>, so back and reload
   // keep it.
+  import { failure } from "../../lib/ui/errors";
   import { loadFleet, loadHeadlines, type Fleet, type Headline, type Ship } from "../../lib/engineering";
   import Build from "./Build.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -10,6 +11,7 @@
   let fleet = $state<Fleet | null>(null);
   let headlines = $state<Record<string, Headline>>({});
   let headlinesErr = $state<string | null>(null);
+  let fleetErr = $state<string | null>(null);
   const readOpen = () => {
     const m = /^#\/engineering\/(-?\d+)$/.exec(location.hash);
     return m ? Number(m[1]) : null;
@@ -27,13 +29,16 @@
     let fleetKey = "";
     let headlinesKey = "";
     const tick = () => {
-      void loadFleet().then((f) => {
-        const k = JSON.stringify(f);
-        if (k !== fleetKey) {
-          fleetKey = k;
-          fleet = f;
-        }
-      });
+      void loadFleet()
+        .then((f) => {
+          fleetErr = null;
+          const k = JSON.stringify(f);
+          if (k !== fleetKey) {
+            fleetKey = k;
+            fleet = f;
+          }
+        })
+        .catch((e: unknown) => (fleetErr = failure("read the fleet", e)));
       void loadHeadlines()
         .then((h) => {
           const k = JSON.stringify(h);
@@ -46,7 +51,7 @@
         .catch((e: unknown) => {
           headlinesKey = "";
           headlines = {};
-          headlinesErr = e instanceof Error ? e.message : String(e);
+          headlinesErr = failure("work out shield, DPS and jump range", e);
         });
     };
     tick();
@@ -78,14 +83,14 @@
   <section>
     <p class="sub">
       {#if !fleet}
-        Reading the journal…
+        {fleetErr ?? "Reading the journal…"}
       {:else}
         {fleet.ships.length} {fleet.ships.length === 1 ? "ship" : "ships"} · {fleet.stored_modules.length} stored
         {fleet.stored_modules.length === 1 ? "module" : "modules"} · {fleet.source}
       {/if}
     </p>
     {#if headlinesErr}
-      <p class="sub"><b class="mark">!</b> Shield, DPS and calculated jump range are unavailable: {headlinesErr}</p>
+      <p class="sub"><b class="mark">!</b> {headlinesErr}</p>
     {/if}
 
     <div class="cards">

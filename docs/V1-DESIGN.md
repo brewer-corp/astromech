@@ -917,6 +917,11 @@ Total about **11 weeks**.
   background, but replies always render first and warm-ups for voices no longer chosen are skipped.
 - **Browser preview.** `?core=empty|new|ready` answers the core's commands from a recorded state
   (`app/src/lib/fakecore.ts`); `empty` also hides the example preset and controllers.
+  `empty` also makes the journal-backed pages (ships, materials, on foot, engineers, logbook, session,
+  mining, station, trade, colonisation, exploration, powerplay, data sharing) answer as a commander with no
+  history. `?fail=<call>,<call>` (or `?fail=all`) rejects those calls and `?slow=<ms>` or `?slow=never`
+  (optionally `?slow=never:<call>`) delays or hangs them, so loading and error states can be screenshotted;
+  a call is named as in `invoke` (`logbook`, `engineering_fleet`, `eddn_log`, `core_status`, ...).
 ### 7.15 As built: reaction engine (16 Oct 2026)
 - `astromech-announce`: rules see each journal line and each changed Status.json and may return a callout (text, priority, speech / app toast / Windows notification). Rules that ship:
   - **Prospector** (`prospector`): on `ProspectedAsteroid`, a rock with a high-value ore at or above its threshold gets "Platinum 34%." (at most two ores, most valuable first; one after a motherlode, and not the motherlode's own ore); a motherlode always gets "Motherlode. Void Opals."; a depleted rock (`Remaining` 0) gets only its motherlode line; anything else is silent. Default thresholds: platinum 20%, painite, Low Temperature Diamonds and osmium 25%, palladium, bromellite and tritium 30%. Thresholds are edited per ore in Settings → Prospector callouts and stored in the database (`callouts.prospector.thresholds`), since the window can't write the config file yet. No cooldown by default (each limpet reports a different rock). The refined count and tons per hour of the current mining run (`astromech_gamestate::mining`, kept by the core's state hub and sent in the status reply as `mining`) show on the window's Logbook → Mining page: tons refined by ore and tons per hour, measured to the latest journal line, ending at the next dock.

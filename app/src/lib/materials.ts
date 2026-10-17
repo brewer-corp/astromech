@@ -3,6 +3,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/materials.json";
 
 export interface SourceNote {
@@ -67,8 +68,23 @@ export interface Inventory {
   farm?: FarmLine[];
 }
 
+/** The same layout with nothing held, no snapshot and nowhere known (the preview's `?core=empty`). */
+function nothingHeld(): Inventory {
+  const inv = structuredClone(sample) as Inventory;
+  const zero = (c: Cell) => ({ ...c, count: 0 });
+  return {
+    ...inv,
+    source: "No journal yet",
+    snapshot_ts: null,
+    kinds: inv.kinds.map((k) => ({ ...k, held: 0, groups: k.groups.map((g) => ({ ...g, cells: g.cells.map(zero) })) })),
+    other: [],
+    here: null,
+    farm: [],
+  };
+}
+
 export async function loadMaterials(): Promise<Inventory> {
-  if (!inTauri) return sample as Inventory;
+  if (!inTauri) return previewData("materials_inventory", () => sample as Inventory, nothingHeld);
   try {
     return await invoke<Inventory>("materials_inventory");
   } catch {

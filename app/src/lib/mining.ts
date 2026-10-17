@@ -2,6 +2,7 @@
 // per hour. The sample is the same JSON the core's mining_status test builds from the mining
 // fixture, used outside the app.
 import { coreStatus, inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/mining.json";
 
 export interface MiningRun {
@@ -14,10 +15,14 @@ export interface MiningRun {
   per_hour: number | null;
 }
 
-/** The run, or null while the core isn't running (outside the app: the sample). */
+/** No game session yet: the core's `mining` is null until one runs. */
+const NO_RUN: MiningRun = { started: null, refined: {}, total: 0, per_hour: null };
+
+/** The run (outside the app: the sample); null only while the core isn't running. */
 export async function loadMining(): Promise<MiningRun | null> {
-  if (!inTauri) return sample as MiningRun;
-  return (await coreStatus())?.mining ?? null;
+  if (!inTauri) return previewData("core_status", () => sample as MiningRun, () => NO_RUN);
+  const status = await coreStatus();
+  return status ? (status.mining ?? NO_RUN) : null;
 }
 
 /** `low_temperature_diamond` as "Low Temperature Diamond". */

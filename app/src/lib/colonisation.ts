@@ -6,6 +6,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import projectsSample from "./fixtures/colonisation.json";
 import tradeSample from "./fixtures/trade.json";
 import type { Filters, Origin, Pad, Results } from "./search";
@@ -95,7 +96,7 @@ export interface BuySearch {
 /** Construction projects from the journals, those being built first. */
 export async function loadProjects(): Promise<Project[]> {
   if (inTauri) return await invoke<Project[]>("colonisation_projects");
-  return projectsSample as unknown as Project[];
+  return previewData("colonisation_projects", () => projectsSample as unknown as Project[], () => []);
 }
 
 /** A project's display name: the station, else its market id. */
@@ -126,11 +127,12 @@ export async function buyList(needs: Need[], origin: Origin = null, filters: Fil
   const s = tradeSample as unknown as { list: ListPlan; buy: { here: BuySearch["here"]; range: number } };
   const now = s.list.fetched_at * 1000;
   const keep = (x: Stockist) => !filters || previewKeeps(x, filters, now);
-  return {
+  const found = (stations: Stockist[]): BuySearch => ({
     here: origin ? { ...s.buy.here, system: origin } : s.buy.here,
     range: s.buy.range,
-    plan: { ...s.list, stations: s.list.stations.filter(keep) },
-  };
+    plan: { ...s.list, stations },
+  });
+  return previewData("colonisation_buy", () => found(s.list.stations.filter(keep)), () => found([]));
 }
 
 /** The stations as the search kit's rows: how much of the list each sells, and each stock. */
