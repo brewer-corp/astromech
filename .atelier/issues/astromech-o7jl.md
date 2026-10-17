@@ -3,6 +3,9 @@ created_at: "2026-10-17T00:46:21.886579582+00:00"
 id: "astromech-o7jl"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-o7jl
 priority: "P1"
 relationships:
   blocks: []
@@ -11,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Flaky Windows test: notifications_run_in_the_background_at_most_one_per_gap"
-updated_at: "2026-10-17T00:46:21.886579582+00:00"
+updated_at: "2026-10-17T00:46:32.182592324+00:00"
 ---
 
 ## Goal
