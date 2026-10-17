@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Learned voice phrases cannot be reviewed or removed"
-updated_at: "2026-10-17T19:15:24.998590896+00:00"
+updated_at: "2026-10-17T19:25:25.697685853+00:00"
 ---
 
 ## Goal
