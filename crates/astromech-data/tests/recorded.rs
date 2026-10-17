@@ -2,7 +2,7 @@
 //! see tests/fixtures). No test here touches the network.
 
 use astromech_data::ardent::{MarketFilter, StationService, Trade};
-use astromech_data::spansh::{NeutronRoute, Reference, RouteStatus, Search};
+use astromech_data::spansh::{JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute};
 use astromech_data::{
     ttl, Cache, Client, Clock, Error, HttpTransport, Limiter, Method, Request, Response, Service, Transport,
     TransportError,
@@ -16,14 +16,23 @@ macro_rules! fixture {
     };
 }
 
-/// Answers by URL substring (last matching rule wins) and logs every request.
+/// Answers by URL substring (last matching rule wins; a sequence answers in turn before the
+/// rules) and logs every request.
 #[derive(Default)]
 struct Recorded {
     rules: Mutex<Vec<(String, Result<Response, TransportError>)>>,
+    sequences: Mutex<Vec<(String, std::collections::VecDeque<Response>)>>,
     log: Mutex<Vec<(String, Request)>>,
 }
 
 impl Recorded {
+    /// Answer requests matching `url_part` with `answers`, one each, in order.
+    fn in_turn(&self, url_part: &str, answers: &[(u16, &str)]) -> &Self {
+        let q = answers.iter().map(|(status, body)| Response { status: *status, body: body.to_string() }).collect();
+        self.sequences.lock().unwrap().push((url_part.into(), q));
+        self
+    }
+
     fn on(&self, url_part: &str, status: u16, body: &str) -> &Self {
         self.rules.lock().unwrap().push((url_part.into(), Ok(Response { status, body: body.into() })));
         self
@@ -46,6 +55,13 @@ impl Recorded {
 impl Transport for Recorded {
     fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
         self.log.lock().unwrap().push((url.into(), req.clone()));
+        for (part, answers) in self.sequences.lock().unwrap().iter_mut() {
+            if url.contains(part.as_str()) {
+                if let Some(r) = answers.pop_front() {
+                    return Ok(r);
+                }
+            }
+        }
         let rules = self.rules.lock().unwrap();
         let rule = rules.iter().rev().find(|(part, _)| url.contains(part.as_str()));
         rule.map(|(_, r)| r.clone()).unwrap_or_else(|| panic!("no recorded answer for {url}"))
@@ -445,4 +461,114 @@ fn edsm_endpoints_parse_recorded_answers() {
     assert!(sphere.iter().any(|s| s.name == "Alpha Centauri" && s.coords.is_some()));
     rec.on("/api-v1/sphere-systems", 200, "{}");
     assert!(c.edsm_sphere([1e5, 0.0, 0.0], 50.0).unwrap().value.is_empty(), "EDSM's empty answer is no systems");
+}
+
+// --- Trade routes: a recorded job and its polls (16 Oct 2026, Sol / Abraham Lincoln, one hop) ---
+
+fn trade_request() -> TradeRoute {
+    TradeRoute {
+        system: "Sol".into(),
+        station: "Abraham Lincoln".into(),
+        max_hops: 1,
+        max_hop_distance: 30.0,
+        starting_capital: 10_000_000,
+        max_cargo: 200,
+        max_system_distance: 10_000_000,
+        max_price_age: Some(30 * 86_400),
+        requires_large_pad: true,
+        allow_planetary: true,
+        allow_player_owned: true,
+    }
+}
+
+const NO_WAIT: Polling = Polling { every: std::time::Duration::ZERO, timeout: std::time::Duration::from_secs(5) };
+
+#[test]
+fn spansh_trade_route_polls_until_the_job_is_done() {
+    let (c, rec, _) = client();
+    rec.on("/api/trade/route", 202, fixture!("spansh-trade-submit.json"));
+    rec.in_turn(
+        "/api/results/",
+        &[
+            (202, fixture!("spansh-trade-queued.json")),
+            (202, fixture!("spansh-trade-queued.json")),
+            (200, fixture!("spansh-trade-result.json")),
+        ],
+    );
+    let hops = c.spansh_trade_route_wait(&trade_request(), NO_WAIT).unwrap();
+
+    // The job was submitted as the site's form, then polled three times.
+    let log = rec.log.lock().unwrap().clone();
+    assert_eq!(log.len(), 4, "one submit and three polls");
+    assert_eq!(log[0].0, "https://spansh.co.uk/api/trade/route");
+    let astromech_data::Body::Form(form) = &log[0].1.body else { panic!("a form post") };
+    for (k, v) in [
+        ("system", "Sol"),
+        ("station", "Abraham Lincoln"),
+        ("max_hops", "1"),
+        ("max_hop_distance", "30"),
+        ("starting_capital", "10000000"),
+        ("max_cargo", "200"),
+        ("max_price_age", "2592000"),
+        ("requires_large_pad", "1"),
+        ("allow_player_owned", "1"),
+    ] {
+        assert!(form.contains(&(k.into(), v.into())), "form has {k}={v}: {form:?}");
+    }
+    assert!(log[1..].iter().all(|(u, _)| u == "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000002"));
+
+    assert_eq!(hops.len(), 1);
+    let h = &hops[0];
+    assert_eq!((h.source.station.as_str(), h.source.system.as_str()), ("Abraham Lincoln", "Sol"));
+    assert_eq!((h.destination.station.as_str(), h.destination.system.as_str()), ("Starbase Pratchett", "LP 71-165"));
+    assert!((h.distance - 23.77).abs() < 0.01);
+    assert_eq!(h.destination.distance_to_arrival, Some(6.0));
+    let cargo = &h.commodities[0];
+    assert_eq!((cargo.name.as_str(), cargo.amount, cargo.profit, cargo.total_profit), ("Biowaste", 200, 644, 128_800));
+    assert_eq!((cargo.source_commodity.buy_price, cargo.destination_commodity.sell_price), (110, 754));
+}
+
+#[test]
+fn spansh_trade_route_errors_are_plain_words() {
+    // An unknown start station: HTTP 400 with Spansh's reason.
+    let (c, rec, _) = client();
+    rec.on("/api/trade/route", 400, r#"{"error":"Could not find station"}"#);
+    let e = c.spansh_trade_route_wait(&trade_request(), NO_WAIT).unwrap_err();
+    assert!(matches!(e, Error::Rejected { service: Service::Spansh, .. }), "{e:?}");
+    assert_eq!(e.to_string(), "Spansh turned the request down: Could not find station.");
+    assert_eq!(rec.requests(), 1, "no polling after a refused submit");
+
+    // A job that fails while polling (the site reads `{"status": "error", "error": ...}`).
+    let (c, rec, _) = client();
+    rec.on("/api/trade/route", 202, fixture!("spansh-trade-submit.json"));
+    rec.in_turn(
+        "/api/results/",
+        &[(202, fixture!("spansh-trade-queued.json")), (200, r#"{"status":"error","error":"Station has no market"}"#)],
+    );
+    let e = c.spansh_trade_route_wait(&trade_request(), NO_WAIT).unwrap_err();
+    assert_eq!(e.to_string(), "Spansh turned the request down: Station has no market.");
+
+    // An expired job: HTTP 404.
+    let (c, rec, _) = client();
+    rec.on("/api/results/", 404, r#"{"error":"Unable to find route"}"#);
+    assert_eq!(c.spansh_trade_result("gone").unwrap_err().to_string(), "Spansh found nothing: Unable to find route.");
+
+    // A job that never finishes gives up at the timeout.
+    let (c, rec, _) = client();
+    rec.on("/api/trade/route", 202, fixture!("spansh-trade-submit.json"));
+    rec.on("/api/results/", 202, fixture!("spansh-trade-queued.json"));
+    let slow = Polling { every: std::time::Duration::from_millis(5), timeout: std::time::Duration::from_millis(40) };
+    let e = c.spansh_trade_route_wait(&trade_request(), slow).unwrap_err();
+    assert!(matches!(e, Error::Timeout { service: Service::Spansh }), "{e:?}");
+    assert!(rec.requests() > 2, "polled more than once before giving up");
+
+    // No route: done, with nothing in it.
+    let (c, rec, _) = client();
+    rec.on("/api/results/", 200, fixture!("spansh-trade-empty.json"));
+    assert_eq!(c.spansh_trade_result("job").unwrap(), JobStatus::Done(vec![]));
+
+    // A leg without its stations fails the schema check.
+    let no_source = fixture!("spansh-trade-result.json").replace("\"source\"", "\"from\"");
+    rec.on("/api/results/", 200, &no_source);
+    assert_schema_error(c.spansh_trade_result("job"), Service::Spansh);
 }

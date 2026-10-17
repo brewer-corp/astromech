@@ -6,11 +6,13 @@
 //! `astromech-data` (cache, schema check, rate limit); jump counts from `astromech-galaxy`'s
 //! star map. [`catalog`] names the market commodities for the app and the voice grammar;
 //! [`cargo`] plans the sale of the hold, as a whole load and per commodity; [`list`] finds where
-//! to buy a shopping list (colonisation), stations stocking most of it first.
+//! to buy a shopping list (colonisation), stations stocking most of it first; [`route`] finds
+//! single-hop and loop trade routes (Spansh's trade router, the way back from Ardent markets).
 
 pub mod cargo;
 pub mod catalog;
 pub mod list;
+pub mod route;
 pub mod trade;
 
 pub use catalog::Commodity;
