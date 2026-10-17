@@ -58,9 +58,31 @@ fn recall_on_held_out_bodies() {
     assert!(per_body <= CANDIDATES, "{per_body:.1} candidates per body, more than {CANDIDATES}");
 }
 
+/// The star gate is checked on most held-out bodies: their nearest star is known (the script
+/// works it out for moons too, as the game does from `Parents`).
+#[test]
+fn most_held_out_bodies_have_their_nearest_star() {
+    let all: Value = serde_json::from_str(HELD_OUT).unwrap();
+    let bodies = all["bodies"].as_array().unwrap();
+    let with_star = bodies.iter().filter(|b| b["star"].is_string()).count();
+    assert!(with_star * 4 >= bodies.len() * 3, "{with_star} of {} bodies have a star", bodies.len());
+}
+
+/// No condition rests on a single sighting (one is as likely a data slip as a habitat).
+#[test]
+fn every_condition_has_at_least_two_sightings() {
+    for g in catalog::genera() {
+        for s in &g.species {
+            for c in &s.rules {
+                assert!(c.seen >= 2, "{}: {:?} on {:?} seen {}", s.name, c.atmosphere, c.body_types, c.seen);
+            }
+        }
+    }
+}
+
 /// What the held-out bodies must reach (measured by the script and this test, then rounded down).
 const RECALL: f64 = 0.98;
-const CANDIDATES: f64 = 12.5;
+const CANDIDATES: f64 = 11.0;
 
 /// A condition measured from enough bodies to gate on star and volcanism, and a body in the
 /// middle of it.
@@ -129,6 +151,8 @@ fn the_catalogue_knows_names_from_the_journal_and_spansh() {
         ("$Codex_Ent_Clepeus_Genus_Name;", "Clypeus"),
         ("$Codex_Ent_Shrubs_Genus_Name;", "Frutexa"),
         ("$Codex_Ent_Brancae_Name;", "Brain Tree"),
+        // Elite Observatory has seen brain trees under this genus symbol too.
+        ("$Codex_Ent_Seed_Name;", "Brain Tree"),
         ("Bacterial", "Bacterium"),
         ("Fonticulus", "Fonticulua"),
         ("Brain Trees", "Brain Tree"),
@@ -141,6 +165,17 @@ fn the_catalogue_knows_names_from_the_journal_and_spansh() {
     assert_eq!((g.name.as_str(), s.value, g.colony_range_m), ("Stratum", 19_010_800, 500));
     assert_eq!(catalog::species("Fonticulua Fluctus").unwrap().1.value, 20_000_000);
     assert_eq!(catalog::species("Roseum Brain Tree").unwrap().0.name, "Brain Tree");
+    // Every species, Horizons-era ones included, has its journal symbol.
+    for g in catalog::genera() {
+        for s in &g.species {
+            assert!(s.symbol.is_some(), "{} has no symbol", s.name);
+        }
+    }
+    let by_symbol = |s: &str| catalog::species_by_symbol(s).map(|(_, s)| s.name.as_str());
+    assert_eq!(by_symbol("$Codex_Ent_SphereABCD_01_Name;"), Some("Croceum Anemone"));
+    assert_eq!(by_symbol("$Codex_Ent_Seed_Name;"), Some("Roseum Brain Tree"));
+    assert_eq!(by_symbol("$Codex_Ent_TubeABCD_02_Name;"), Some("Albidum Sinuous Tuber"));
+    assert_eq!(by_symbol("$Codex_Ent_Vents_Name;"), Some("Amphora Plant"));
     assert_eq!(catalog::genus("Stratum").unwrap().value_range(), (1_362_000, 19_010_800));
     for (t, class) in [
         ("DAB", "D"),

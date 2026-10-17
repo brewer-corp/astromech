@@ -109,15 +109,9 @@ pub fn species_by_symbol(symbol: &str) -> Option<(&'static Genus, &'static Speci
     })
 }
 
-/// What Vista Genomics pays for a sample, from the journal's `Species` and `Genus` symbols: the
-/// species' base value, else for a genus whose species have no symbol here (the Horizons-era
-/// anemones, brain trees, ...) the lowest value of its species. None if neither is known.
-pub fn sample_value(species: &str, genus: &str) -> Option<i64> {
-    if let Some((_, s)) = species_by_symbol(species) {
-        return Some(s.value);
-    }
-    let g = self::genus(genus)?;
-    g.species.iter().all(|s| s.symbol.is_none()).then(|| g.value_range().0)
+/// What Vista Genomics pays for a sample, from the journal's `Species` symbol. None if unknown.
+pub fn sample_value(species: &str) -> Option<i64> {
+    species_by_symbol(species).map(|(_, s)| s.value)
 }
 
 impl Genus {

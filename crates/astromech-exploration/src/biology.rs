@@ -75,7 +75,15 @@ fn stars(fold: &SystemFold) -> BTreeMap<i64, String> {
 /// One body's biology, or None if nothing says it has any.
 fn body_bio(r: &BodyRecord, stars: &BTreeMap<i64, String>) -> Option<BodyBio> {
     let dss: Vec<String> = r.genuses.iter().map(|g| genus_name(g)).collect();
-    let sampled: BTreeMap<String, &str> = r.sampled.iter().map(|(g, s)| (genus_name(g), s.as_str())).collect();
+    // The species by its symbol, the same in every language; by its (English) name otherwise.
+    let sampled: BTreeMap<String, Option<(&catalog::Genus, &catalog::Species)>> = r
+        .sampled
+        .iter()
+        .map(|s| {
+            let found = catalog::species_by_symbol(&s.species).or_else(|| s.name.as_deref().and_then(catalog::species));
+            (genus_name(&s.genus), found)
+        })
+        .collect();
     if r.bio_signals <= 0 && dss.is_empty() && sampled.is_empty() {
         return None;
     }
@@ -89,7 +97,7 @@ fn body_bio(r: &BodyRecord, stars: &BTreeMap<i64, String>) -> Option<BodyBio> {
         .unwrap_or_default();
     let genus_bio = |genus: &str, known: bool| -> GenusBio {
         let cat = catalog::genus(genus);
-        let species: Vec<Candidate> = match sampled.get(genus).and_then(|s| catalog::species(s)) {
+        let species: Vec<Candidate> = match sampled.get(genus).copied().flatten() {
             Some((g, s)) => vec![Candidate { genus: &g.name, species: &s.name, value: s.value, fit: 1.0 }],
             None => candidates.iter().filter(|c| c.genus == genus).cloned().collect(),
         };

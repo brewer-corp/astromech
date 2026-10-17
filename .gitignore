@@ -19,3 +19,4 @@ app/src-tauri/resources/starmap.db
 /.atelier/agent.json
 /.atelier/runtime/
 /.atelier-bundle-stage-*/
+__pycache__/
