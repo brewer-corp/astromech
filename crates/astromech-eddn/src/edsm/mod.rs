@@ -260,14 +260,16 @@ impl Uploader {
 enum Answer {
     /// One code and message per event, in order.
     Each(Vec<(i64, String)>),
-    /// Nothing was stored, but the events may be later: the site is down or busy, or the
-    /// commander name or API key is wrong (fixed in Settings). Every event waits.
+    /// Nothing was stored, but the events may be later: the site is unreachable or busy (a
+    /// transport error, 408, 429), or the commander name or API key is wrong (fixed in
+    /// Settings). Every event waits, however long it takes.
     Hold(String),
     /// Nothing was stored, and sending the same again won't change that.
     Reject(String),
-    /// EDSM refused the request itself (an HTTP status such as 413, an answer that isn't
-    /// readable, or one that doesn't cover every event). It may pass later, but a request that
-    /// is refused the same way every time is given up after [`MAX_ATTEMPTS`] instead of
+    /// The request failed without an answer per event: an HTTP status such as 413 or 5xx, a
+    /// request-level 5xx code, an answer that isn't readable, or one that doesn't cover every
+    /// event. A batch is split in halves on the next tries, down to single events; an event
+    /// that fails alone the same way every time is given up after [`MAX_ATTEMPTS`] instead of
     /// blocking the queue.
     Refused(String),
 }
@@ -280,8 +282,9 @@ fn answer(r: Result<crate::transport::Response, String>, n: usize) -> Answer {
     };
     let v = match api::json_answer(&r) {
         Ok(v) => v,
-        // Busy or broken at EDSM's end: wait. Any other status, or a body that isn't JSON: refused.
-        Err(e) if r.status == 408 || r.status == 429 || r.status >= 500 => return Answer::Hold(e),
+        // Too many requests or timed out: wait. Any other status (5xx included, which one bad
+        // event can cause), or a body that isn't JSON: refused.
+        Err(e) if r.status == 408 || r.status == 429 => return Answer::Hold(e),
         Err(e) => return Answer::Refused(e),
     };
     match api::code(&v) {
@@ -294,8 +297,10 @@ fn answer(r: Result<crate::transport::Response, String>, n: usize) -> Answer {
                 Answer::Refused(format!("answer for {} of {n} events", each.len()))
             }
         }
-        // 201-203: commander name or API key missing or unknown; 5xx: EDSM's own failure.
-        (c @ (201..=203 | 500..), msg) => Answer::Hold(format!("{c} {msg}")),
+        // 201-203: commander name or API key missing or unknown.
+        (c @ 201..=203, msg) => Answer::Hold(format!("{c} {msg}")),
+        // EDSM's own failure with the request.
+        (c @ 500.., msg) => Answer::Refused(format!("{c} {msg}")),
         (c, msg) => Answer::Reject(format!("{c} {msg}")),
     }
 }
@@ -312,6 +317,9 @@ pub struct Courier {
     stop: Arc<AtomicBool>,
     /// The switch's generation when the queue was last released.
     seen: u64,
+    /// Events per request at most: halved after a failed request, doubled after each pass of
+    /// a sent one, back to [`BATCH`].
+    cap: usize,
 }
 
 impl Courier {
@@ -324,7 +332,17 @@ impl Courier {
         started: Instant,
     ) -> Self {
         let seen = switch.generation();
-        Self { outbox, api, software, switch, discards, hold_until: started + MIN_RETRY, stop: Arc::default(), seen }
+        Self {
+            outbox,
+            api,
+            software,
+            switch,
+            discards,
+            hold_until: started + MIN_RETRY,
+            stop: Arc::default(),
+            seen,
+            cap: BATCH,
+        }
     }
 
     pub fn outbox(&self) -> &Outbox {
@@ -389,11 +407,13 @@ impl Courier {
 
     fn deliver(&mut self, creds: &Credentials, wall: i64, mono: Instant, d: &mut Delivery) -> rusqlite::Result<()> {
         let retries = mono >= self.hold_until;
+        // An event that failed alone in this pass.
+        let mut failed_alone = false;
         loop {
             if self.stop.load(Ordering::SeqCst) || self.switch.get().as_ref() != Some(creds) {
                 return Ok(());
             }
-            let due = self.outbox.due(wall, retries, BATCH)?;
+            let due = self.outbox.due(wall, retries, self.cap)?;
             if due.is_empty() {
                 return Ok(());
             }
@@ -408,7 +428,10 @@ impl Courier {
             rows.truncate(n);
             let body = serde_json::to_vec(&self.request(creds, &rows)).expect("JSON");
             match answer(self.api.post_json(api::JOURNAL_URL, &body), n) {
-                Answer::Each(codes) => self.each(&rows, codes, wall, d)?,
+                Answer::Each(codes) => {
+                    self.each(&rows, codes, wall, d)?;
+                    self.cap = (self.cap * 2).min(BATCH);
+                }
                 Answer::Reject(why) => {
                     for (q, _) in &rows {
                         self.outbox.take(q.id)?;
@@ -416,29 +439,41 @@ impl Courier {
                     self.outbox.log(wall, JOURNAL, Outcome::Rejected, &format!("{n} events: {why}"))?;
                     d.rejected += n;
                 }
+                Answer::Refused(why) if n > 1 => {
+                    // Nothing says which event EDSM chokes on: try the halves, and count no try
+                    // against any event until one is alone.
+                    self.cap = n.div_ceil(2);
+                    self.outbox.hold_due(wall, wall + MIN_RETRY_SECS)?;
+                    self.outbox.log(
+                        wall,
+                        JOURNAL,
+                        Outcome::Retry,
+                        &format!("{why}; {n} events, halves in {MIN_RETRY_SECS} s"),
+                    )?;
+                    d.retrying += n;
+                    d.stopped = true;
+                    self.hold_until = mono + MIN_RETRY;
+                    return Ok(());
+                }
                 Answer::Refused(why) => {
-                    let (mut given_up, mut waiting, mut wait) = (0, 0, 0);
-                    for (q, _) in &rows {
-                        // Only refusals count here: tries lost to outages or a wrong key don't.
-                        if q.refusals + 1 >= MAX_ATTEMPTS {
-                            self.outbox.take(q.id)?;
-                            given_up += 1;
-                        } else {
-                            let w = backoff(q.refusals + 1);
-                            self.outbox.refuse_at(q.id, q.attempts + 1, q.refusals + 1, wall + w)?;
-                            wait = wait.max(w);
-                            waiting += 1;
-                        }
-                    }
-                    if given_up > 0 {
-                        let why = format!("{given_up} events refused {MAX_ATTEMPTS} times; last: {why}");
+                    // One event fails alone. Only refusals count here: tries lost to outages or
+                    // a wrong key don't.
+                    let q = &rows[0].0;
+                    if q.refusals + 1 >= MAX_ATTEMPTS {
+                        self.outbox.take(q.id)?;
+                        let why = format!("{} refused {MAX_ATTEMPTS} times; last: {why}", q.schema_ref);
                         self.outbox.log(wall, JOURNAL, Outcome::GaveUp, &why)?;
-                        d.gave_up += given_up;
+                        d.gave_up += 1;
+                        continue;
                     }
-                    if waiting > 0 {
-                        self.outbox.hold_due(wall, wall + wait)?;
-                        self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; retry in {wait} s"))?;
-                        d.retrying += waiting;
+                    let w = backoff(q.refusals + 1);
+                    self.outbox.refuse_at(q.id, q.attempts + 1, q.refusals + 1, wall + w)?;
+                    self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; retry in {w} s"))?;
+                    d.retrying += 1;
+                    // The queue behind it moves on, unless a second event fails too: that
+                    // looks like an outage, not one bad event.
+                    if std::mem::replace(&mut failed_alone, true) {
+                        self.outbox.hold_due(wall, wall + w)?;
                         d.stopped = true;
                         self.hold_until = mono + MIN_RETRY;
                         return Ok(());

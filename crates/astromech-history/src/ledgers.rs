@@ -341,7 +341,7 @@ impl Ev<'_> {
         if name.is_empty() {
             return Ok(());
         }
-        let legacy = self.cmdr.ends_with(crate::commander::LEGACY_SUFFIX);
+        let legacy = self.cmdr.ends_with(astromech_journal::commander::LEGACY_SUFFIX);
         self.c
             .prepare_cached(
                 "INSERT INTO commanders(cmdr, name, legacy, first_seen, last_seen) VALUES (?1, ?2, ?3, ?4, ?4)

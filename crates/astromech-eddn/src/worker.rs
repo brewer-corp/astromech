@@ -134,7 +134,7 @@ impl Worker {
                     d.rejected,
                     d.retrying,
                     d.gave_up,
-                    if d.stopped { "; service unreachable, waiting" } else { "" }
+                    if d.stopped { "; stopped early, retrying later" } else { "" }
                 )),
                 Ok(_) => {}
                 Err(e) => log(&format!("{service} outbox: {e}")),
