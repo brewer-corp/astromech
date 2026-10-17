@@ -24,9 +24,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Exploration system view"
-updated_at: "2026-10-15T20:36:13.723223916+00:00"
+updated_at: "2026-10-17T04:39:39.248241931+00:00"
 ---
 
 ## Goal
