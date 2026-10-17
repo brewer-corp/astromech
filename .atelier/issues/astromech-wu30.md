@@ -13,7 +13,10 @@ relationships:
     id: "astromech-tzc2"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-0n4h"
+    type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
 closed_at: "2026-10-17T04:57:48.927472607+00:00"
