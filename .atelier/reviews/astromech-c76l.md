@@ -1,0 +1,14 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-c76l
+title: 'Approved at 2715d6c after an independent review of the fixes in 1c0409f and the merges since. sqqa: the growing conditions are now measured from Spansh''s public bodies search (EDDN data) by the committed scripts/gen-exobiology.py, with no BioScan or ExplorerLite input. A fresh re-run today reproduced data/catalog/exobiology.json and the held-out fixture exactly, at the stated 0.992 recall and 11.5 candidates per body. Against BioScan''s rulesets, 0 of 338 rules and 22 of 1149 bounds coincide, so the data is not a copy, and NOTICE.md names and credits every source. The held-out quarter is separated by a hash of the id64 and is never used for deriving. qn02 (Fluctus 20,000,000), wbxx (margins scaled to the range width or the bound) and f9mc (a gate test per condition, a candidates ceiling, the held-out recall floor) are fixed, and the part B two-system tests are in. Every test fails under a mutation of what it guards. The merges brought only main''s changes: c552e05''s doc conflicts were resolved by keeping both sides, and 2715d6c is the automatic merge. cargo test for exobiology, exploration, announce and core passes, and PR #69 CI is green. Two low DEFER findings remain: the star gate is learned from bodies whose immediate parent is a star (astromech-v12n), and single-sighting noise rules (astromech-rzd1).'
+target: astromech-znhx
+identity: review-agent (opus, independent)
+commit: 2715d6c82f423cb1539c5efbafa06a86644264b8
+created_at: 2026-10-17T07:27:15.342099691Z
+event:
+  event: approval
+---
+
+Approved at 2715d6c after an independent review of the fixes in 1c0409f and the merges since. sqqa: the growing conditions are now measured from Spansh's public bodies search (EDDN data) by the committed scripts/gen-exobiology.py, with no BioScan or ExplorerLite input. A fresh re-run today reproduced data/catalog/exobiology.json and the held-out fixture exactly, at the stated 0.992 recall and 11.5 candidates per body. Against BioScan's rulesets, 0 of 338 rules and 22 of 1149 bounds coincide, so the data is not a copy, and NOTICE.md names and credits every source. The held-out quarter is separated by a hash of the id64 and is never used for deriving. qn02 (Fluctus 20,000,000), wbxx (margins scaled to the range width or the bound) and f9mc (a gate test per condition, a candidates ceiling, the held-out recall floor) are fixed, and the part B two-system tests are in. Every test fails under a mutation of what it guards. The merges brought only main's changes: c552e05's doc conflicts were resolved by keeping both sides, and 2715d6c is the automatic merge. cargo test for exobiology, exploration, announce and core passes, and PR #69 CI is green. Two low DEFER findings remain: the star gate is learned from bodies whose immediate parent is a star (astromech-v12n), and single-sighting noise rules (astromech-rzd1).
