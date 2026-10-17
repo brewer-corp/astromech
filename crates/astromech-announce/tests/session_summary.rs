@@ -116,3 +116,20 @@ fn the_rule_can_be_switched_off() {
     r.spoken(SHUTDOWN);
     assert!(r.tick(NOW).is_empty());
 }
+
+#[test]
+fn a_menu_before_the_login_of_a_fresh_launch_says_nothing() {
+    // The history holds an earlier session of this commander, and the game state still names
+    // him from the journal's `Commander` line when `MainMenu` comes before `LoadGame`.
+    let (mut r, h) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:00Z","event":"Commander","Name":"Test","FID":"F1"}"#);
+    r.state.commander = Some("Test".into());
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:01Z","event":"Music","MusicTrack":"MainMenu"}"#);
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:02Z","event":"Shutdown"}"#);
+    assert!(r.tick(NOW + 40_000).is_empty());
+    assert!(h.1.lock().unwrap().is_empty(), "nothing was even asked");
+    // The login arms it: the session that follows ends with a summary.
+    r.spoken(LOAD_GAME);
+    r.spoken(MENU);
+    assert_eq!(r.tick(NOW), SAID);
+}

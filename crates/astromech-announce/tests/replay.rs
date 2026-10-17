@@ -298,6 +298,8 @@ fn catch_up_leaves_docking_quiet_in_place() {
 /// One line per built-in rule that makes it speak, at minute `hm` ("19:59").
 fn one_line_per_rule(hm: &str) -> Vec<String> {
     vec![
+        // The login that arms the session summary (the live pass sees it; the catch-up does not act on it).
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"LoadGame","Commander":"Test","Ship":"krait_mkii"}}"#),
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"ProspectedAsteroid","Materials":[{{"Name":"Platinum","Proportion":40.0}}],"MotherlodeMaterial":"Opal","Remaining":100.0}}"#
         ),

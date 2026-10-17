@@ -67,9 +67,10 @@ impl std::fmt::Debug for SharedSessions {
     }
 }
 
-/// "4.2 million credits", "578 thousand credits", "900 credits".
-fn credits(c: i64) -> String {
-    if c >= 1_000_000 {
+/// "5.1 million credits", "578 thousand credits", "900 credits". Rounds up into millions from
+/// 999,500, so it never says "1000 thousand".
+pub fn credits(c: i64) -> String {
+    if c >= 999_500 {
         format!("{:.1} million credits", c as f64 / 1e6)
     } else if c >= 10_000 {
         format!("{:.0} thousand credits", c as f64 / 1e3)
@@ -111,6 +112,10 @@ struct Ended {
     pending: Option<(Option<String>, String, Option<i64>)>,
     /// The session already said its summary.
     spoken: bool,
+    /// A `LoadGame` was seen live in this run. The game writes `Music` `MainMenu` at launch, and
+    /// possibly after `Commander` and before `LoadGame`, when the state still holds the
+    /// previous session: nothing ends a session that this run has not seen begin.
+    armed: bool,
 }
 
 pub struct SessionSummary {
@@ -153,8 +158,8 @@ impl Rule for SessionSummary {
         match input {
             Input::Journal(l) => {
                 if matches!(l.event, JournalEvent::LoadGame { .. }) {
-                    *ended = Ended::default();
-                } else if !ended.spoken && ends_session(&l.event) {
+                    *ended = Ended { armed: true, ..Ended::default() };
+                } else if ended.armed && !ended.spoken && ends_session(&l.event) {
                     ended.pending = Some((state.commander.clone(), l.timestamp.clone(), None));
                 }
                 vec![]
@@ -182,6 +187,27 @@ impl Rule for SessionSummary {
                 }
             }
             _ => vec![],
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::credits;
+
+    #[test]
+    fn credits_round_into_millions_at_the_boundary() {
+        for (c, said) in [
+            (900, "900 credits"),
+            (9_999, "9999 credits"),
+            (10_000, "10 thousand credits"),
+            (578_400, "578 thousand credits"),
+            (999_499, "999 thousand credits"),
+            (999_500, "1.0 million credits"),
+            (999_999, "1.0 million credits"),
+            (5_100_000, "5.1 million credits"),
+        ] {
+            assert_eq!(credits(c), said);
         }
     }
 }
