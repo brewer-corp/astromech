@@ -5,6 +5,7 @@
 
 pub mod paths;
 pub mod secrets;
+pub mod window;
 
 pub use paths::Paths;
 

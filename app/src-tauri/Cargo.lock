@@ -253,7 +253,6 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-single-instance",
- "toml 0.9.12+spec-1.1.0",
 ]
 
 [[package]]
@@ -291,6 +290,8 @@ version = "0.1.5"
 dependencies = [
  "keyring-core",
  "rusqlite",
+ "serde",
+ "toml 0.9.12+spec-1.1.0",
  "windows-native-keyring-store",
 ]
 

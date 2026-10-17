@@ -38,6 +38,16 @@ pub enum Ui {
     Quit,
 }
 
+/// The config file this run uses (`--config`, else the default), told to the app window so it
+/// reads the same one (`Paths::config_in_use`).
+fn choose_config(opts: &Opts, paths: &Paths) -> PathBuf {
+    let path = opts.config.clone().unwrap_or_else(|| paths.config_file());
+    if let Err(e) = paths.publish_config(&path) {
+        log(&format!("couldn't note the config path for the window: {e}"));
+    }
+    path
+}
+
 /// What Settings → Files says about the values `astromech.toml` had wrong.
 fn config_problems_note(problems: &[crate::config::Problem]) -> Option<String> {
     if problems.is_empty() {
@@ -45,6 +55,35 @@ fn config_problems_note(problems: &[crate::config::Problem]) -> Option<String> {
     }
     let list: Vec<String> = problems.iter().map(|p| p.to_string()).collect();
     Some(format!("These config values were ignored and are at their defaults: {}.", list.join("; ")))
+}
+
+/// What Settings → Files says when the whole file can't be read.
+fn config_unreadable_note(e: &anyhow::Error) -> String {
+    format!("The config file can't be read, so every setting is at its default: {e:#}")
+}
+
+/// What the config file's state is, and the file as last looked at (modified time and size).
+#[derive(Default)]
+pub struct ConfigWatch {
+    /// Shown in Settings → Files: values of the config file that were ignored, or why it
+    /// wasn't read at all. Cleared when the file is fixed (see [`Core::refresh_config`]).
+    pub note: Option<String>,
+    /// The whole file was unreadable, so every setting is a default.
+    pub failed: bool,
+    seen: Option<(std::time::SystemTime, u64)>,
+}
+
+fn file_stamp(path: &Path) -> Option<(std::time::SystemTime, u64)> {
+    let m = std::fs::metadata(path).ok()?;
+    Some((m.modified().ok()?, m.len()))
+}
+
+impl ConfigWatch {
+    /// The state after the file was loaded: `note` is what was wrong with it, if anything.
+    pub fn loaded(path: &Path, note: Option<String>, failed: bool) -> Self {
+        let seen = if note.is_some() { file_stamp(path) } else { None };
+        Self { note, failed, seen }
+    }
 }
 
 /// Shared state; the tray reads it, the watcher and control API write it.
@@ -58,11 +97,8 @@ pub struct Core {
     /// Kokoro for Settings' voice preview while no session runs (released when one starts, or
     /// after a minute unused).
     pub preview: crate::speech::PreviewSlot,
-    /// Shown in Settings → Files: values of the config file that were ignored, or why it
-    /// wasn't read at all.
-    pub config_note: Option<String>,
-    /// The whole file was unreadable, so every setting is a default.
-    pub config_failed: bool,
+    /// Shown in Settings → Files, and whether the whole file was unreadable.
+    pub config_watch: Mutex<ConfigWatch>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
     /// While a session loads (models take a few seconds).
@@ -105,6 +141,64 @@ impl Core {
         self.history.follow(cfg.journal_dir(), &cfg.data_dir(), Arc::new(|m: &str| log(m)));
     }
 
+    /// Why the config file wasn't used, if it wasn't.
+    pub fn config_note(&self) -> Option<String> {
+        self.config_watch.lock().unwrap().note.clone()
+    }
+
+    /// Make a config the one in force: the window's setup edits and a fixed file both come here.
+    fn install_config(&self, mut c: Config) {
+        c.actions.dry_run |= self.opts.session.dry_run;
+        apply_eddn_switch(&c);
+        apply_edsm_switch(&c, self.secrets.as_ref());
+        // Under the config lock, so concurrent edits re-point in the order they saved.
+        self.follow_history(&c);
+        *self.cfg.write().unwrap() = c;
+    }
+
+    /// Whether the whole config file was unreadable (so every setting is a default).
+    pub fn config_failed(&self) -> bool {
+        self.config_watch.lock().unwrap().failed
+    }
+
+    /// While the config file had something wrong (values ignored, or unreadable), look at it
+    /// again when it changes: use what loads and update or clear the note, so a fix needs no
+    /// restart. A file that loaded cleanly is never re-read here (edits to a working file apply
+    /// at the next start, as before).
+    pub fn refresh_config(&self) {
+        // The usual case (a good file) costs one look and never waits on an edit in progress.
+        if self.config_watch.lock().unwrap().note.is_none() {
+            return;
+        }
+        let _g = self.config_lock.lock().unwrap_or_else(|e| e.into_inner());
+        let mut w = self.config_watch.lock().unwrap();
+        if w.note.is_none() {
+            return;
+        }
+        let stamp = file_stamp(&self.config_path);
+        if stamp.is_none() || stamp == w.seen {
+            return;
+        }
+        w.seen = stamp;
+        match Config::load_report(&self.config_path) {
+            Ok((c, problems)) => {
+                log(&format!("config: {} read again; using it", self.config_path.display()));
+                for p in &problems {
+                    log(&format!("config: ignoring {p}; using the default for it"));
+                }
+                w.failed = false;
+                w.note = config_problems_note(&problems);
+                drop(w);
+                self.install_config(c);
+            }
+            Err(e) => {
+                log(&format!("config error, still using defaults: {e:#}"));
+                w.failed = true;
+                w.note = Some(config_unreadable_note(&e));
+            }
+        }
+    }
+
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
         self.status_line_for(TESTER.armed(Instant::now()))
@@ -135,7 +229,8 @@ impl Core {
     pub fn setup_needed(&self) -> Vec<&'static str> {
         let mut v = vec![];
         // A broken config falls back to defaults, which would otherwise read as "not set".
-        if self.config_failed {
+        self.refresh_config();
+        if self.config_failed() {
             v.push("config file has an error (see logs)");
             return v;
         }
@@ -150,6 +245,7 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
+        self.refresh_config();
         let (killed, toasts, mining) = match self.session.lock().unwrap().as_ref() {
             Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
             None => (false, vec![], None),
@@ -172,7 +268,7 @@ impl Core {
             "app_dir": self.app_dir.display().to_string(),
             "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
             "config": self.config_path.display().to_string(),
-            "config_note": self.config_note,
+            "config_note": self.config_note(),
             "setup_needed": self.setup_needed(),
             "ptt": button(&cfg.controls.ptt),
             "kill_switch": button(&cfg.controls.kill_switch),
@@ -467,14 +563,7 @@ impl Core {
     /// buttons and mic up the next time it starts (when Elite next starts).
     fn edit_config(&self, r: &Request) -> Value {
         let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
-            crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
-                c.actions.dry_run |= self.opts.session.dry_run;
-                apply_eddn_switch(&c);
-                apply_edsm_switch(&c, self.secrets.as_ref());
-                // Under the config lock, so concurrent edits re-point in the order they saved.
-                self.follow_history(&c);
-                *self.cfg.write().unwrap() = c;
-            })
+            crate::setup::edit(&self.config_lock, &self.config_path, &edits, |c| self.install_config(c))
         });
         match res {
             Ok(()) => {
@@ -1129,30 +1218,25 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
+    let config_path = choose_config(&opts, &paths);
     let config_exists = config_path.is_file();
-    let mut config_failed = false;
-    let (mut cfg, config_note) = if config_exists {
+    let (mut cfg, config_watch) = if config_exists {
         match Config::load_report(&config_path) {
             Ok((c, problems)) => {
                 log(&format!("config: {}", config_path.display()));
                 for p in &problems {
                     log(&format!("config: ignoring {p}; using the default for it"));
                 }
-                (c, config_problems_note(&problems))
+                (c, ConfigWatch::loaded(&config_path, config_problems_note(&problems), false))
             }
             Err(e) => {
                 log(&format!("config error, using defaults: {e:#}"));
-                config_failed = true;
-                (
-                    Config::default(),
-                    Some(format!("The config file can't be read, so every setting is at its default: {e:#}")),
-                )
+                (Config::default(), ConfigWatch::loaded(&config_path, Some(config_unreadable_note(&e)), true))
             }
         }
     } else {
         log(&format!("config: {} not found; using defaults (Settings → Open config file)", config_path.display()));
-        (Config::default(), None)
+        (Config::default(), ConfigWatch::default())
     };
     if opts.session.dry_run {
         cfg.actions.dry_run = true;
@@ -1195,8 +1279,7 @@ pub fn run(opts: Opts) -> i32 {
         config_lock: Mutex::new(()),
         preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
-        config_note,
-        config_failed,
+        config_watch: Mutex::new(config_watch),
         game: Mutex::new(Game::NotRunning),
         session: Mutex::new(None),
         starting: AtomicBool::new(false),
@@ -1330,8 +1413,7 @@ mod tests {
             config_path,
             config_lock: Mutex::new(()),
             preview: Default::default(),
-            config_note: None,
-            config_failed: false,
+            config_watch: Mutex::new(ConfigWatch::default()),
             game: Mutex::new(Game::NotRunning),
             session: Mutex::new(None),
             starting: AtomicBool::new(false),
@@ -1719,6 +1801,184 @@ mod tests {
         assert_eq!(o.pending().unwrap(), 0);
         set_eddn(&core, false);
         assert_eq!(o.recent(10).unwrap().len(), 1, "an empty queue writes no row");
+    }
+
+    #[test]
+    fn fixing_ignored_values_updates_then_clears_the_note_without_a_restart() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        // As `run` finds it: one bad value among good ones.
+        let bad = "[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }\nrearm_hold_ms = \"slow\"\n";
+        std::fs::write(&core.config_path, bad).unwrap();
+        let (c, problems) = Config::load_report(&core.config_path).unwrap();
+        *core.cfg.write().unwrap() = c;
+        let note = config_problems_note(&problems);
+        *core.config_watch.lock().unwrap() = ConfigWatch::loaded(&core.config_path, note, false);
+        let n = core.status_json()["config_note"].as_str().unwrap().to_string();
+        assert!(n.contains("These config values were ignored") && n.contains("line 3: controls.rearm_hold_ms"), "{n}");
+        // The good values are in force, and setup is not blocked by a note about one value.
+        assert!(!core.setup_needed().iter().any(|m| m.contains("config file")));
+        // A different mistake: the note follows the file.
+        std::fs::write(&core.config_path, format!("{bad}debounce_ms = true\n")).unwrap();
+        let n = core.status_json()["config_note"].as_str().unwrap().to_string();
+        assert!(n.contains("controls.rearm_hold_ms") && n.contains("controls.debounce_ms"), "{n}");
+        // Fixed: the note clears and the file's values are in force.
+        std::fs::write(
+            &core.config_path,
+            "[controls]\nrearm_hold_ms = 800\nptt = { device = \"231D3201\", key = \"Joy_4\" }\n",
+        )
+        .unwrap();
+        let st = core.status_json();
+        assert!(st["config_note"].is_null(), "{st}");
+        assert_eq!(core.cfg().controls.rearm_hold_ms, 800);
+        // Broken beyond TOML, then fixed again.
+        *core.config_watch.lock().unwrap() = ConfigWatch::loaded(&core.config_path, Some("x".into()), false);
+        std::fs::write(&core.config_path, "[controls\nptt = ").unwrap();
+        assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
+        assert!(core.config_note().unwrap().contains("can't be read"));
+        std::fs::write(&core.config_path, "[voice]\nthreads = 2\n").unwrap();
+        assert!(!core.setup_needed().iter().any(|m| m.contains("config file")));
+        assert!(core.config_note().is_none() && !core.config_failed());
+        assert_eq!(core.cfg().voice.threads, 2);
+    }
+
+    #[test]
+    fn fixing_a_broken_config_clears_the_error_without_a_restart() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        std::fs::write(&core.config_path, "[controls\nptt = ").unwrap();
+        // As `run` finds it: unreadable, so defaults and a note.
+        *core.config_watch.lock().unwrap() =
+            ConfigWatch::loaded(&core.config_path, Some("config error (see logs)".into()), true);
+        assert_eq!(core.status_json()["config_note"], "config error (see logs)");
+        assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
+        // Still broken, edited: still an error.
+        std::fs::write(&core.config_path, "[controls\nptt = {").unwrap();
+        assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
+        // Fixed in the editor: the note clears and the file's settings are in force.
+        std::fs::write(
+            &core.config_path,
+            "[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }\n[voice]\nmic = \"Example USB\"\n",
+        )
+        .unwrap();
+        let st = core.status_json();
+        assert!(st["config_note"].is_null(), "{st}");
+        assert_eq!(st["ptt"], "231D3201 Joy_4");
+        assert!(!core.setup_needed().iter().any(|m| m.contains("config file")), "{:?}", core.setup_needed());
+        assert_eq!(core.cfg().voice.mic, "Example USB");
+    }
+
+    /// What a reply looks like, ignoring values: each object's keys, recursively. Arrays count
+    /// as arrays (their items vary), and a value that may be null or not is just a value.
+    fn shape(v: &Value) -> Value {
+        match v {
+            Value::Object(m) => Value::Object(m.iter().map(|(k, v)| (k.clone(), shape(v))).collect()),
+            Value::Array(_) => json!("array"),
+            _ => json!("value"),
+        }
+    }
+
+    /// The window's fake core (`app/src/lib/fakecore.ts`) answers the setup and calibration
+    /// commands with hand-written JSON. This pins the real replies' shape in
+    /// `app/src/lib/core-reply-shapes.json`; the app's `fakecore.contract.test.ts` holds the
+    /// fake to the same file, so neither can change alone. Refresh the file after a deliberate
+    /// change with `ASTROMECH_UPDATE_SHAPES=1 cargo test -p astromech-core reply_shapes`.
+    /// It compares keys of the success replies in one scenario; not value types, array items,
+    /// error replies or the words a field may hold (a `verdict`, say).
+    #[test]
+    fn setup_and_calibration_reply_shapes_match_the_window_fake() {
+        use crate::calibration::{handle, Clip};
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let journals = d.path().join("journals");
+        std::fs::create_dir_all(&journals).unwrap();
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), journals.display()),
+        );
+        let ask = |cmd: &str| {
+            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args: None })
+        };
+
+        let tone = |ms: usize, amp: f32| -> Vec<f32> { (0..16 * ms).map(|i| amp * (i as f32 * 0.2).sin()).collect() };
+        let clips = [vec![0.0004f32; 16 * 2000], tone(900, 0.02), tone(700, 0.03), tone(1100, 0.015)];
+        let next = std::cell::Cell::new(0usize);
+        let record = |_ms: u64| {
+            let i = next.get().min(clips.len() - 1);
+            next.set(next.get() + 1);
+            Ok(Clip { device: "Microphone (Example USB Mic)".into(), rate: 16000, samples: clips[i].clone() })
+        };
+        let run = Mutex::new(None);
+        let store = || crate::calibration::open_store(d.path());
+        let mut got = serde_json::Map::new();
+        got.insert("find_elite".into(), shape(&ask("find_elite")));
+        got.insert("mic_list".into(), shape(&ask("mic_list")));
+        got.insert("calibrate_start".into(), shape(&handle("calibrate_start", &run, &record, &store)));
+        got.insert("calibrate_record".into(), shape(&handle("calibrate_record", &run, &record, &store)));
+        for _ in 0..3 {
+            handle("calibrate_record", &run, &record, &store);
+        }
+        got.insert("calibrate_finish".into(), shape(&handle("calibrate_finish", &run, &record, &store)));
+        got.insert("calibrate_cancel".into(), shape(&handle("calibrate_cancel", &run, &record, &store)));
+        got.insert("mic_check".into(), shape(&handle("mic_check", &run, &record, &store)));
+        for (cmd, v) in &got {
+            assert_eq!(v["ok"], "value", "{cmd} must answer ok");
+        }
+        let got = Value::Object(got);
+
+        let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../app/src/lib/core-reply-shapes.json");
+        if std::env::var_os("ASTROMECH_UPDATE_SHAPES").is_some() {
+            std::fs::write(&file, serde_json::to_string_pretty(&got).unwrap() + "\n").unwrap();
+        }
+        let want: Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+        assert_eq!(
+            got, want,
+            "the core's reply shapes changed: update core-reply-shapes.json (see this test) and fakecore.ts"
+        );
+    }
+
+    /// Done-when for astromech-c9em: a Bindings folder pasted in onboarding (`set_folders`, which
+    /// the core writes to its config) is what the window reads, in the default, portable and
+    /// `--config` layouts.
+    #[test]
+    fn a_pasted_bindings_folder_is_what_the_window_reads_in_every_layout() {
+        use astromech_store::window::WindowConfig;
+        let env = |app: &Path| {
+            let app = app.to_path_buf();
+            move |k: &str| (k == "XDG_DATA_HOME").then(|| app.clone().into_os_string())
+        };
+        let paste = |config: &Path, dir: &str| {
+            crate::setup::write(config, &[crate::setup::Edit::BindingsDir(dir.into())]).unwrap();
+        };
+        // `--config` somewhere else, with the window's Paths made afresh as the shell does.
+        for layout in ["default", "portable", "--config"] {
+            let (exe, app, elsewhere) =
+                (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+            if layout == "portable" {
+                std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
+            }
+            let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
+            let mut opts = Opts::default();
+            if layout == "--config" {
+                opts.config = Some(elsewhere.path().join("mine.toml"));
+            }
+            let used = choose_config(&opts, &paths());
+            paste(&used, "D:\\Pasted\\Bindings");
+            let seen = WindowConfig::load(&paths());
+            assert_eq!(seen.game.bindings_dir, "D:\\Pasted\\Bindings", "{layout}");
+            if layout == "--config" {
+                assert_eq!(used, elsewhere.path().join("mine.toml"));
+            }
+        }
+        // A later start without --config takes the window back to the default file.
+        let (exe, app) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
+        let custom = app.path().join("other.toml");
+        choose_config(&Opts { config: Some(custom), ..Opts::default() }, &paths());
+        choose_config(&Opts::default(), &paths());
+        assert_eq!(paths().config_in_use(), paths().config_file());
     }
 
     fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {

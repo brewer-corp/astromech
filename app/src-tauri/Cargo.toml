@@ -23,7 +23,6 @@ tauri = { version = "2", features = [] }
 tauri-plugin-single-instance = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.9"
 anyhow = "1"
 astromech-keybinds = { path = "../../crates/astromech-keybinds" }
 astromech-input = { path = "../../crates/astromech-input" }

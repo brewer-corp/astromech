@@ -97,10 +97,15 @@ restart afterwards.
 A value that does not fit its setting (a word where a number goes, say) is ignored on its own: that
 setting uses its default and the rest of the file applies. The log lists each one with its line, and
 Settings (under Files) and Diagnostics say "These config values were ignored", with the keys and lines.
-A `[callouts.<id>]` section whose id is not a callout is skipped the same way. Fix the line and restart astromech. A key astromech does not know is skipped without a message, so check
-the spelling if a setting seems to do nothing. If the file is not valid TOML at all (a missing bracket, an
-unclosed quote), astromech cannot read any of it and runs with every default, including no push-to-talk and
-no kill switch, until you fix it. Setup then says "config file has an error (see logs)".
+A `[callouts.<id>]` section whose id is not a callout is skipped the same way. A key astromech does not
+know is skipped without a message, so check the spelling if a setting seems to do nothing. If the file is
+not valid TOML at all (a missing bracket, an unclosed quote), astromech cannot read any of it and runs
+with every default, including no push-to-talk and no kill switch, until you fix it. Setup then says
+"config file has an error (see logs)".
+
+Fix the file and save it: you do not need to restart. The next time the window or tray checks, astromech
+reads it again, uses what is in it and updates or clears the message. Its settings then apply as after a
+change made in Settings (buttons and microphone from the next session).
 
 ## Diagnostics
 

@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-c9em
 priority: "P2"
 relationships:
   blocks: []
@@ -19,9 +22,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:45:12.645261307+00:00"
+status: "done"
 title: "Onboarding follow-ups: shared config path, config error clears, fake-core contract test"
-updated_at: "2026-10-17T17:01:42.146261371+00:00"
+updated_at: "2026-10-17T19:45:12.645261307+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Close three gaps review found in the onboarding slice (astromech-lxma):
 ## Done when
 
 A pasted Bindings folder is used by the window in portable and `--config` layouts (test); fixing a broken config clears the config error without a restart (test); a contract test fails when the core and fake-core reply shapes diverge.
+
+## Close Reason
+
+Fixed in PR 135; tests in store, core and vitest
