@@ -22,8 +22,8 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 |---|---|
 | Route model, Spansh CSV / plain-list import, the one active route saved to `<data>/route.json` | `crates/astromech-core/src/route.rs` |
 | Clipboard write (CF_UNICODETEXT) | `crates/astromech-core/src/clipboard.rs` |
-| Follower: a hub subscriber that moves the route on whenever the journal's system changes (`FSDJump`, `CarrierJump`, `Location`). Its line is a callout (`route_follow`): spoken through the callout queue, after push-to-talk and the current line, and shown as a toast | `session::follow_route` |
-| Paste: Ctrl+V, 500 ms, Enter. **Only while `GuiFocus == 6`** (galaxy map), through the policy layer | `Runner::paste` |
+| Follower: the callout rule `route_follow`, on live `FSDJump`, `CarrierJump` and `Location` only, so a replayed journal (the startup catch-up, an old journal a backup tool touched) never moves the route or writes the clipboard; it only updates where the commander is. Its line is spoken through the callout queue (after push-to-talk, quiet in combat and docking) and shown as a toast; `[callouts.route_follow] enabled = false` turns following off | `astromech_announce::route_follow`; the core's `Desk` is its `Follower` |
+| Paste: Ctrl+V, 500 ms, Enter. **Only while `GuiFocus == 6`** (galaxy map), checked before Ctrl+V and again before Enter (if the map closed, Enter is not sent), through the policy layer | `Runner::paste` |
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Control API: `route`, `route_set`, `route_skip`, `route_back`, `route_clear`, `route_copy` | `Core::route_cmd`; the shell's `core_call` allows them |
@@ -60,6 +60,8 @@ there too.
 - What V or Enter do if the search box is *not* selected while the galaxy map is open (any
   galaxy-map binding on those keys fires). The health check could warn about galaxy-map binds
   on `Key_V` or `Key_Enter`.
+- The second `GuiFocus` check before Enter sees the map close only once Status.json says so;
+  the game writes it up to about a second after a change (S5), longer than `PASTE_SETTLE`.
 - On foot, Status.json has no `GuiFocus` (EliteIntel), so paste is refused on foot. The journal's
   `Music: GalaxyMap` could be used instead.
 

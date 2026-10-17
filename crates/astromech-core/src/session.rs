@@ -139,57 +139,10 @@ pub fn remote_data(
     (remote, galaxy)
 }
 
-/// Move `desk`'s route on as the journal changes system (it copies the next waypoint), and
-/// hand each move to `announce`. The first snapshot (the game state caught up at start) only
-/// updates where we are, silently. Runs until `stop`.
-pub fn follow_route(
-    hub: &StateHub,
-    desk: Arc<crate::route::Desk>,
-    announce: impl Fn(&crate::route::Moved) + Send + 'static,
-    stop: Arc<AtomicBool>,
-) {
-    let rx = hub.subscribe();
-    let r = std::thread::Builder::new().name("route".into()).spawn(move || {
-        let mut last: Option<String> = None;
-        let mut first = true;
-        while !stop.load(Ordering::SeqCst) {
-            let g = match rx.recv_timeout(Duration::from_secs(1)) {
-                Ok(g) => g,
-                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
-                Err(_) => break,
-            };
-            if g.system != last {
-                last = g.system.clone();
-                if let Some(m) = last.as_deref().and_then(|s| desk.on_system(s)) {
-                    if !first {
-                        announce(&m);
-                    }
-                }
-            }
-            first = false;
-        }
-    });
-    if let Err(e) = r {
-        log(&format!("route follower didn't start: {e}"));
-    }
-}
-
-/// A route move as a callout: spoken (after push-to-talk and the current line, like every
-/// callout) and shown as a toast.
-fn route_reaction(m: &crate::route::Moved) -> astromech_announce::Reaction {
-    use astromech_announce::{Channels, Priority, Reaction};
-    Reaction {
-        rule: "route_follow",
-        text: m.spoken(),
-        priority: Priority::Normal,
-        channels: Channels { speech: true, toast: true, notification: false },
-        at: std::time::Instant::now(),
-    }
-}
-
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
-    /// `route` is the core's route follower; the session moves it on as the commander jumps.
+    /// `route` is the core's route follower; the session's callout rule moves it on as the
+    /// commander jumps.
     pub fn start(cfg: &Config, opts: &Opts, route: Arc<crate::route::Desk>) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir();
@@ -230,13 +183,18 @@ impl Session {
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
         ))));
         shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
+        // The route follower is the `route_follow` callout rule: live arrivals only.
+        shared.follower.set(route.clone());
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
         }
         let (pending, toasts) = (Arc::new(callouts::Pending::default()), Arc::new(Toasts::default()));
-        let notifier = callouts::default_notifier().context("starting the notification thread")?;
-        let deliver = Box::new(callouts::router(pending.clone(), toasts.clone(), notifier.clone()));
+        let deliver = Box::new(callouts::router(
+            pending.clone(),
+            toasts.clone(),
+            callouts::default_notifier().context("starting the notification thread")?,
+        ));
         let eddn = crate::pipeline::eddn_feed(cfg, &data);
         let pipe = crate::pipeline::start_with_eddn(
             &jdir,
@@ -248,9 +206,6 @@ impl Session {
             Some(Callouts { engine, deliver }),
         )
         .with_context(|| format!("journal folder {}", jdir.display()))?;
-        let stop = Arc::new(AtomicBool::new(false));
-        let route_deliver = callouts::router(pending.clone(), toasts.clone(), notifier);
-        follow_route(&hub, route.clone(), move |m| route_deliver(vec![route_reaction(m)]), stop.clone());
         let g = hub.snapshot();
         log(&format!(
             "game state: {} | system {} | status flags {}",
@@ -391,7 +346,7 @@ impl Session {
             stt,
             toasts,
             shared,
-            stop,
+            stop: Arc::new(AtomicBool::new(false)),
             _pipe: pipe,
             _callouts: speech_out,
             _hw: hw,

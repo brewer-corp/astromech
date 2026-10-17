@@ -460,40 +460,143 @@ fn route_commands_copy_and_speak() {
     assert!(r.game.log.lock().unwrap().is_empty(), "route commands press nothing");
 }
 
-#[test]
-fn jumping_into_a_waypoint_copies_and_announces_the_next() {
-    use astromech_core::route::{Route, Waypoint};
-    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
-    let journal = r.game.status.parent().unwrap().join("Journal.2026-10-15T120000.01.log");
-    let line = |sys: &str| {
-        format!("{{\"timestamp\":\"t\",\"event\":\"FSDJump\",\"StarSystem\":\"{sys}\",\"JumpDist\":9.0}}\r\n")
-    };
-    std::fs::write(&journal, line("Sol")).unwrap();
-    wait(|| r.hub.snapshot().system.as_deref() == Some("Sol"));
-    let (desk, copied) = recording_desk();
+/// The journal folder, game state and callout pipeline the route follower runs in: the callout
+/// engine with only the `route_follow` rule, its spoken lines collected in `said`.
+struct RouteRig {
+    dir: tempfile::TempDir,
+    hub: Arc<StateHub>,
+    said: Arc<Mutex<Vec<String>>>,
+    _pipe: astromech_core::pipeline::Pipeline,
+}
+
+const CURRENT_JOURNAL: &str = "Journal.2026-10-15T120000.01.log";
+
+fn jump_line(sys: &str) -> String {
+    format!("{{\"timestamp\":\"t\",\"event\":\"FSDJump\",\"StarSystem\":\"{sys}\",\"JumpDist\":9.0}}\r\n")
+}
+
+/// Start the pipeline on a journal that already says `start` (the catch-up) with `desk` as the
+/// route follower.
+fn route_rig(start: &str, desk: Arc<astromech_core::route::Desk>) -> RouteRig {
+    use astromech_announce::route_follow::{RouteFollow, SharedFollower};
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join(CURRENT_JOURNAL), jump_line(start)).unwrap();
+    mock::write_status(&dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
+    let follower = SharedFollower::default();
+    follower.set(desk);
+    let engine = astromech_announce::Engine::new(
+        vec![Box::new(RouteFollow { follower })],
+        &astromech_announce::Settings::default(),
+    );
     let said = Arc::new(Mutex::new(Vec::<String>::new()));
     let s2 = said.clone();
-    let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
-    astromech_core::session::follow_route(
-        &r.hub,
-        desk.clone(),
-        move |m| s2.lock().unwrap().push(m.spoken()),
-        stop.clone(),
-    );
-    wait(|| desk.view().here.as_deref() == Some("Sol"));
-    // Already in the first stop: the route starts at the second, which is copied at once.
-    desk.set(Route::new("t", "import", ["Sol", "Alpha Centauri", "Barnard's Star"].map(Waypoint::new).to_vec()))
-        .unwrap();
-    assert_eq!(copied.lock().unwrap().as_slice(), ["Alpha Centauri"]);
-    assert!(said.lock().unwrap().is_empty(), "the catch-up at start is silent");
-    let mut f = std::fs::OpenOptions::new().append(true).open(&journal).unwrap();
-    std::io::Write::write_all(&mut f, line("Alpha Centauri").as_bytes()).unwrap();
+    let deliver = Box::new(move |rs: Vec<astromech_announce::Reaction>| {
+        s2.lock().unwrap().extend(rs.into_iter().map(|r| r.text));
+    });
+    let hub = Arc::new(StateHub::new());
+    let pipe = astromech_core::pipeline::start(
+        dir.path(),
+        hub.clone(),
+        Some(&dir.path().join("db.sqlite")),
+        |_| {},
+        Some(astromech_core::callouts::Callouts { engine, deliver }),
+    )
+    .unwrap();
+    wait(|| hub.snapshot().system.as_deref() == Some(start));
+    RouteRig { dir, hub, said, _pipe: pipe }
+}
+
+/// Append `lines` to the journal `name` in the rig's folder, and nudge the pipeline (it also
+/// reads the journal on Status.json changes).
+fn append(r: &RouteRig, name: &str, lines: &[&str]) {
+    let mut f = std::fs::OpenOptions::new().create(true).append(true).open(r.dir.path().join(name)).unwrap();
+    for l in lines {
+        std::io::Write::write_all(&mut f, jump_line(l).as_bytes()).unwrap();
+    }
     drop(f);
-    // The pipeline also reads the journal on Status.json changes.
-    mock::write_status(&r.game.status, FLAG_IN_MAIN_SHIP, false);
-    wait(|| copied.lock().unwrap().len() == 2);
-    assert_eq!(copied.lock().unwrap().as_slice(), ["Alpha Centauri", "Barnard's Star"]);
-    wait(|| !said.lock().unwrap().is_empty());
-    assert_eq!(said.lock().unwrap().as_slice(), ["Next waypoint. Barnard's Star."]);
-    stop.store(true, Ordering::SeqCst);
+    mock::write_status(&r.dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
+}
+
+/// The startup catch-up lands in a waypoint: it only tells the follower where the commander
+/// is (nothing said, nothing copied, the route doesn't move). A live jump into a later
+/// waypoint moves it on, copies the next one and says it.
+#[test]
+fn the_catch_up_is_silent_and_a_live_jump_moves_the_route() {
+    use astromech_core::route::{Route, Waypoint};
+    let (desk, copied) = recording_desk();
+    desk.set(Route::new("t", "import", ["Deciat", "Kuk", "Colonia"].map(Waypoint::new).to_vec())).unwrap();
+    assert_eq!(std::mem::take(&mut *copied.lock().unwrap()), ["Deciat"], "set copies the first stop");
+    let r = route_rig("Deciat", desk.clone());
+    wait(|| desk.view().here.as_deref() == Some("Deciat"));
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(r.said.lock().unwrap().is_empty(), "the catch-up is silent");
+    assert!(copied.lock().unwrap().is_empty(), "the catch-up writes no clipboard");
+    assert_eq!(desk.view().next.unwrap().system, "Deciat", "the catch-up doesn't move the route");
+
+    append(&r, CURRENT_JOURNAL, &["Kuk"]);
+    wait(|| !r.said.lock().unwrap().is_empty());
+    assert_eq!(*r.said.lock().unwrap(), ["Next waypoint. Colonia."]);
+    assert_eq!(*copied.lock().unwrap(), ["Colonia"]);
+}
+
+/// An older journal re-read (a backup or sync tool touched it) is a replay: the route doesn't
+/// move, the clipboard isn't written and nothing is said, though it passes through waypoints.
+#[test]
+fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
+    use astromech_core::route::{Route, Waypoint};
+    let (desk, copied) = recording_desk();
+    let r = route_rig("Sol", desk.clone());
+    wait(|| desk.view().here.as_deref() == Some("Sol"));
+    desk.set(Route::new("t", "import", ["Deciat", "Kuk", "Colonia"].map(Waypoint::new).to_vec())).unwrap();
+    assert_eq!(*copied.lock().unwrap(), ["Deciat"]);
+
+    append(&r, "Journal.2026-10-14T080000.01.log", &["Kuk", "Wolf 359"]);
+    wait(|| r.hub.snapshot().system.as_deref() == Some("Wolf 359"));
+    std::thread::sleep(Duration::from_millis(300));
+    assert_eq!(*copied.lock().unwrap(), ["Deciat"], "no clipboard write from a replay");
+    assert!(r.said.lock().unwrap().is_empty(), "nothing said for a replay");
+    let v = desk.view();
+    assert_eq!(v.next.unwrap().system, "Deciat", "the route didn't move");
+    // Where the commander is follows the game state, like the rest of the app.
+    assert_eq!(v.here.as_deref(), Some("Wolf 359"));
+
+    // A live jump still works afterwards. (The game's next line makes the current journal
+    // newest again; the pipeline re-reads it as a replay, so the jump after that is live.)
+    append(&r, CURRENT_JOURNAL, &["Sol"]);
+    wait(|| r.hub.snapshot().system.as_deref() == Some("Sol"));
+    std::thread::sleep(Duration::from_millis(300));
+    assert!(r.said.lock().unwrap().is_empty() && copied.lock().unwrap().len() == 1);
+    append(&r, CURRENT_JOURNAL, &["Deciat"]);
+    wait(|| !r.said.lock().unwrap().is_empty());
+    assert_eq!(*r.said.lock().unwrap(), ["Next waypoint. Kuk."]);
+    assert_eq!(*copied.lock().unwrap(), ["Deciat", "Kuk"]);
+}
+
+/// The galaxy map closes between Ctrl+V and Enter: Enter is not sent (it would reach the
+/// cockpit, where it may be a ship binding).
+#[test]
+fn paste_stops_if_the_galaxy_map_closes_before_enter() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
+    write_gui(&r, 6);
+    let a = Assistant::new(r.runner.clone());
+    // Close the map as soon as Ctrl+V has gone out.
+    let (game, hub) = (r.game.clone(), r.hub.clone());
+    let closer = std::thread::spawn(move || {
+        wait(|| game.log.lock().unwrap().iter().any(|(k, up)| *k == key("Key_V") && !up));
+        let t = format!(
+            r#"{{ "timestamp":"2026-10-15T12:00:00Z", "event":"Status", "Flags":{FLAG_IN_MAIN_SHIP}, "GuiFocus":0 }}"#
+        );
+        std::fs::write(&game.status, t).unwrap();
+        assert!(hub.wait_gui(0, Duration::from_secs(2), &|| false), "the map closed");
+    });
+    let h = a.handle("paste", Origin::Voice);
+    closer.join().unwrap();
+    match h {
+        Handled::Ran { command: "galaxy_map.paste", outcome: Outcome::Refused(m) } => {
+            assert_eq!(m, astromech_core::route::PASTE_STOPPED)
+        }
+        h => panic!("{h:?}"),
+    }
+    let downs: Vec<ScanKey> = r.game.log.lock().unwrap().iter().filter(|(_, up)| !up).map(|(k, _)| *k).collect();
+    assert_eq!(downs, vec![key("Key_LeftControl"), key("Key_V")], "no Enter");
 }

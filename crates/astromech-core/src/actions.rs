@@ -99,12 +99,13 @@ impl Runner {
 
     /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.
     /// The player has selected the box already (in VR, with their UI keys). Only while the
-    /// galaxy map is showing: anywhere else V or Enter may be a ship binding.
+    /// galaxy map is showing, checked before each key: anywhere else V or Enter may be a ship
+    /// binding, so if the map closes between them, Enter is not sent.
     pub fn paste(&self, origin: Origin) -> Outcome {
-        use crate::route::{PASTED, PASTE_REFUSED};
+        use crate::route::{PASTED, PASTE_REFUSED, PASTE_STOPPED};
         let say = |s: &str| self.speaker.say(s);
-        let g = self.hub.snapshot();
-        if !g.status_seen || g.gui_focus != Some(astromech_status::GUI_GALAXY) {
+        let in_map = || self.hub.read(|g| g.gui_focus == Some(astromech_status::GUI_GALAXY));
+        if !in_map() {
             say(PASTE_REFUSED);
             return Outcome::Refused(PASTE_REFUSED.into());
         }
@@ -115,11 +116,17 @@ impl Runner {
                 return Outcome::Denied(d);
             }
         };
-        let r = ticket.press("Key_V", &["Key_LeftControl".to_string()]).and_then(|()| {
-            std::thread::sleep(PASTE_SETTLE);
-            ticket.press("Key_Enter", &[])
-        });
-        if let Err(e) = r {
+        if let Err(e) = ticket.press("Key_V", &["Key_LeftControl".to_string()]) {
+            say(&e.spoken());
+            return Outcome::PressFailed(e);
+        }
+        std::thread::sleep(PASTE_SETTLE);
+        if !in_map() {
+            (self.log)("paste_search: Ctrl+V sent; the galaxy map closed before Enter, so Enter was not sent");
+            say(PASTE_STOPPED);
+            return Outcome::Refused(PASTE_STOPPED.into());
+        }
+        if let Err(e) = ticket.press("Key_Enter", &[]) {
             say(&e.spoken());
             return Outcome::PressFailed(e);
         }

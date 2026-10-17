@@ -1,7 +1,8 @@
 //! Following a multi-stop route (docs/PLOTTING.md, layer 1). The game has no API for setting a
 //! destination, so the next waypoint goes on the clipboard, ready to paste into the galaxy
 //! map's search box, and is announced. Arriving in a waypoint's system (the journal's
-//! `FSDJump`, `CarrierJump` or `Location`) moves the route on and copies the stop after it.
+//! `FSDJump`, `CarrierJump` or `Location`, live only: the callout engine's `route_follow` rule
+//! calls [`Desk`] as a `Follower`) moves the route on and copies the stop after it.
 //!
 //! [`Route`] is the pure part. [`Desk`] owns the one active route: it saves it to
 //! `route.json`, so it survives restarts and can be set from the app window while Elite is not
@@ -163,9 +164,12 @@ pub const FINISHED: &str = "Final waypoint reached. Route complete.";
 /// "paste" outside the galaxy map.
 pub const PASTE_REFUSED: &str = "Open the galaxy map and select its search box first.";
 pub const PASTED: &str = "Pasted.";
+/// The galaxy map closed between Ctrl+V and Enter: Enter is not sent.
+pub const PASTE_STOPPED: &str = "Galaxy map closed. Search not sent.";
 
 /// Every fixed line above, for the speech cache and the copy check.
-pub const FIXED_LINES: &[&str] = &[NO_ROUTE, CLEARED, NOTHING_TO_CLEAR, COMPLETE, FINISHED, PASTE_REFUSED, PASTED];
+pub const FIXED_LINES: &[&str] =
+    &[NO_ROUTE, CLEARED, NOTHING_TO_CLEAR, COMPLETE, FINISHED, PASTE_REFUSED, PASTED, PASTE_STOPPED];
 
 /// "Deciat, for Felicity Farseer" (the label is what is there, e.g. the engineer).
 fn named(w: &Waypoint) -> String {
@@ -239,9 +243,7 @@ impl Command {
             Self::Skip => "Would skip the next waypoint and copy the one after it.",
             Self::Back => "Would go back one waypoint and copy it.",
             Self::Clear => "Would stop following the route.",
-            Self::Paste => {
-                "Would press Ctrl+V, then Enter, if the galaxy map is open (pastes the clipboard into its search box)."
-            }
+            Self::Paste => "Would press Ctrl+V, then Enter: pastes the clipboard into the galaxy map's search box.",
         }
     }
 }
@@ -412,7 +414,17 @@ impl Desk {
         Self::view_of(&st)
     }
 
-    /// The journal put us in `system`.
+    /// A replayed journal put us in `system`: remember where we are, but don't move the route
+    /// or write the clipboard (only live arrivals do, [`Desk::on_system`]).
+    pub fn set_here(&self, system: &str) {
+        let mut st = self.state.lock().unwrap();
+        if st.0.here.as_deref() != Some(system) {
+            st.0.here = Some(system.to_string());
+            self.save(&st.0);
+        }
+    }
+
+    /// A live arrival in `system`: moves the route on if it is a waypoint (copying the next).
     pub fn on_system(&self, system: &str) -> Option<Moved> {
         let mut st = self.state.lock().unwrap();
         let changed = st.0.here.as_deref() != Some(system);
@@ -437,6 +449,17 @@ impl Desk {
             Some(next) => Moved::Arrived { at, next, left, copied },
             None => Moved::Finished { at },
         })
+    }
+}
+
+/// The callout engine's `route_follow` rule drives the desk: it is asked only for live
+/// arrivals, so a replayed journal never moves the route or writes the clipboard.
+impl astromech_announce::route_follow::Follower for Desk {
+    fn arrived(&self, system: &str) -> Option<String> {
+        self.on_system(system).map(|m| m.spoken())
+    }
+    fn here(&self, system: &str) {
+        self.set_here(system);
     }
 }
 

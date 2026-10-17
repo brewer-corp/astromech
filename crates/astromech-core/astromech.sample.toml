@@ -49,6 +49,7 @@ dry_run = false               # true: log key presses, don't send them
 # [callouts.<id>]
 # enabled = false
 # cooldown_s = 30
+# route_follow is the route follower (docs/PLOTTING.md): off, jumps no longer move the route on.
 
 [update]
 check = true                  # poll GitHub for a signed payload (including mid-session)

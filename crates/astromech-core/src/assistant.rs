@@ -46,7 +46,7 @@ pub fn unavailable_reason(command: &str) -> &'static str {
         "supercruise" => "Supercruise is not available yet. Flight commands come later.",
         "hyperspace_jump" => "Hyperspace jumps are not available yet. Flight commands come later.",
         "request_docking" => "Docking requests are not available yet.",
-        "plot_route" => "Route plotting is not available yet. Use the Route page.",
+        "plot_route" => "Plotting is not available. Use the Route page, then paste.",
         _ => "That command is not available yet.",
     }
 }

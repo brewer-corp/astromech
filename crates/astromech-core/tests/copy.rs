@@ -41,6 +41,8 @@ fn callout_lines() -> Vec<String> {
             "project_market",
             "prospector",
             "route",
+            // Its lines come from the core's route follower: `the_route_lines_keep_to_the_copy_guide`.
+            "route_follow",
             "sampling",
             "scan",
             "scoopable",
