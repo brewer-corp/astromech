@@ -1045,7 +1045,7 @@
 "temperature_k": 184.77562,
 "gravity_g": 0.359822371775263,
 "pressure_atm": 0.00168872094744634,
-"star": null,
+"star": "K",
 "signals": 2,
 "species": [
 "Bacterium Cerbrus",
@@ -4290,7 +4290,7 @@
 "temperature_k": 79.517708,
 "gravity_g": 0.289632303456715,
 "pressure_atm": 0.0161545604737232,
-"star": null,
+"star": "M",
 "signals": 1,
 "species": [
 "Bacterium Informem"

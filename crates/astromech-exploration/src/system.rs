@@ -242,6 +242,42 @@ impl SystemFold {
         }
     }
 
+    /// Take in what an earlier visit to this system left (`earlier`: the stored lines of this
+    /// system's address folded in game-time order; astromech-0n4h). The game doesn't scan a body
+    /// again on a return, so the bodies this fold hasn't heard of come from there, and what it
+    /// lacks of the ones it has (mapping, signals, samples). What this fold knows wins. Another
+    /// system's fold is ignored.
+    pub fn absorb(&mut self, earlier: SystemFold) {
+        if earlier.address.is_none() || earlier.address != self.address {
+            return;
+        }
+        self.body_count = self.body_count.or(earlier.body_count);
+        self.all_found |= earlier.all_found;
+        if self.system.is_none() {
+            self.system = earlier.system;
+        }
+        for (name, old) in earlier.bodies {
+            // Samples named only by body id never found their body: leave them.
+            if name.starts_with('#') {
+                continue;
+            }
+            let b = self.body(&name, old.body_id);
+            b.scan = b.scan.take().or(old.scan);
+            b.mapped = b.mapped.or(old.mapped);
+            if b.bio == 0 && b.geo == 0 {
+                (b.bio, b.geo) = (old.bio, old.geo);
+            }
+            if b.genuses.is_empty() {
+                b.genuses = old.genuses;
+            }
+            for s in old.sampled {
+                if !b.sampled.iter().any(|t| t.genus.eq_ignore_ascii_case(&s.genus)) {
+                    b.sampled.push(s);
+                }
+            }
+        }
+    }
+
     pub fn system(&self) -> Option<&str> {
         self.system.as_deref()
     }
@@ -378,30 +414,37 @@ fn view_logs(dir: &Path) -> Vec<std::path::PathBuf> {
     logs.into_iter().skip(skip).collect()
 }
 
-/// The current system from the newest journal and the one before it.
-pub fn from_journal_dir(dir: &Path) -> SystemView {
+/// The fold of the current system from the newest journal and the one before it.
+pub fn fold_from_journal_dir(dir: &Path) -> SystemFold {
     let mut f = SystemFold::default();
     for p in view_logs(dir) {
         for l in astromech_journal::parse_file(&p) {
             f.apply(&l);
         }
     }
-    f.view()
+    f
 }
 
-/// [`from_journal_dir`] remembered between calls (astromech-dt5h): the Exploration page polls
-/// every few seconds, and the journals only change while the game writes. The answer is reused
-/// until one of the two journals is added, removed or grows. Lengths are read through an open
+/// The current system from the newest journal and the one before it.
+pub fn from_journal_dir(dir: &Path) -> SystemView {
+    fold_from_journal_dir(dir).view()
+}
+
+/// [`fold_from_journal_dir`] remembered between calls (astromech-dt5h): the Exploration page
+/// polls every few seconds, and the journals only change while the game writes. The fold is
+/// reused until one of the two journals is added, removed or grows. It is the fold, not its
+/// view, that is kept: the earlier visits' bodies are added from the history on every poll
+/// (`History::system_view`, astromech-25c5). Lengths are read through an open
 /// handle because on Windows a directory listing can lag appends to a file the game holds open
 /// (astromech-txzq).
 #[derive(Debug, Default)]
 pub struct SystemViewCache {
-    last: Option<(Vec<(std::path::PathBuf, u64)>, SystemView)>,
+    last: Option<(Vec<(std::path::PathBuf, u64)>, SystemFold)>,
     parses: usize,
 }
 
 impl SystemViewCache {
-    pub fn view(&mut self, dir: &Path) -> SystemView {
+    pub fn fold(&mut self, dir: &Path) -> SystemFold {
         let sig: Vec<(std::path::PathBuf, u64)> = view_logs(dir)
             .into_iter()
             .map(|p| {
@@ -413,7 +456,7 @@ impl SystemViewCache {
             Some((s, v)) if *s == sig => v.clone(),
             _ => {
                 self.parses += 1;
-                let v = from_journal_dir(dir);
+                let v = fold_from_journal_dir(dir);
                 self.last = Some((sig, v.clone()));
                 v
             }
@@ -438,15 +481,15 @@ mod tests {
         let jump = r#"{"timestamp":"2026-10-01T09:00:00Z","event":"FSDJump","StarSystem":"Alpha","SystemAddress":1,"StarPos":[0,0,0],"JumpDist":9.5}"#;
         std::fs::write(&log, format!("{jump}\n")).unwrap();
         let mut c = SystemViewCache::default();
-        let first = c.view(&d);
+        let first = c.fold(&d).view();
         assert_eq!(first.system.as_deref(), Some("Alpha"));
-        assert_eq!(c.view(&d), first);
-        assert_eq!(c.view(&d), first);
+        assert_eq!(c.fold(&d).view(), first);
+        assert_eq!(c.fold(&d).view(), first);
         assert_eq!(c.parses(), 1, "polling an unchanged journal re-parsed it");
         // Growth, or a newer file, is parsed.
         let jump2 = jump.replace("Alpha", "Beta").replace("09:00:00", "09:05:00");
         std::fs::write(&log, format!("{jump}\n{jump2}\n")).unwrap();
-        assert_eq!(c.view(&d).system.as_deref(), Some("Beta"));
+        assert_eq!(c.fold(&d).view().system.as_deref(), Some("Beta"));
         assert_eq!(c.parses(), 2);
         std::fs::remove_dir_all(&d).unwrap();
     }

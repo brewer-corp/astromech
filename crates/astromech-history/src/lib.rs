@@ -192,6 +192,14 @@ const MIGRATIONS: &[&str] = &[
     // Touchdown and Disembark rows through this instead of scanning every one.
     "CREATE INDEX events_landing_system ON events(json_extract(json, '$.SystemAddress'), ts)
         WHERE event IN ('Touchdown', 'Disembark');",
+    // v6 — body signals by system (astromech-qbcf): `History::system_view` finds a system's
+    // FSSBodySignals and SAASignalsFound rows through this.
+    "CREATE INDEX events_signal_system ON events(json_extract(json, '$.SystemAddress'), ts)
+        WHERE event IN ('FSSBodySignals', 'SAASignalsFound');",
+    // v7 — honks by system (astromech-lelp): `History::system_view` finds a system's
+    // FSSDiscoveryScan and FSSAllBodiesFound rows through this.
+    "CREATE INDEX events_honk_system ON events(json_extract(json, '$.SystemAddress'), ts)
+        WHERE event IN ('FSSDiscoveryScan', 'FSSAllBodiesFound');",
 ];
 
 /// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done
