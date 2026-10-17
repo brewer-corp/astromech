@@ -81,7 +81,7 @@ has gone.
   - **Restart to update** appears when an update is ready.
   - **Check for updates** asks GitHub straight away, the same as **Check now** in Settings. While a
     check, download or install is running it says so and does nothing. When a new version is found
-    it downloads, and **Restart to update** appears.
+    it downloads, and **Restart to update** appears (unless `apply` is `never`, which only reports that one is available).
   - **Quit astromech** stops the whole thing.
 
 By default astromech starts with Windows, quietly in the tray. Turn that off in

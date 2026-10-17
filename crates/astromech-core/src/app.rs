@@ -260,7 +260,6 @@ impl Core {
         self.notify();
     }
 
-    /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
     /// A requested check (Settings → Check now, the tray's Check for updates), off the caller's
     /// thread: it goes to the network.
     pub fn check_update_in_background(self: &Arc<Self>) {
@@ -268,6 +267,7 @@ impl Core {
         std::thread::spawn(move || c.check_update(true));
     }
 
+    /// Fetch `latest.json`, and download the zip if it is newer. Safe while Elite is running.
     pub fn check_update(self: &Arc<Self>, manual: bool) {
         {
             let mut h = self.update.lock().unwrap();
