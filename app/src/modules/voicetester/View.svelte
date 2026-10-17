@@ -3,7 +3,18 @@
   // is open, and see what was heard, the intent it matched, how sure the match is and the keys it
   // would send. Tests are dry runs; nothing reaches the game unless you click Run live.
   import { keyName } from "../../lib/format";
-  import { SWITCH_SECONDS, voiceLive, voicePoll, voiceStop, voiceTest, type DryRun, type Would } from "../../lib/voice";
+  import {
+    SWITCH_SECONDS,
+    forgetPhrase,
+    learnedPhrases,
+    voiceLive,
+    voicePoll,
+    voiceStop,
+    voiceTest,
+    type DryRun,
+    type LearnedPhrase,
+    type Would,
+  } from "../../lib/voice";
 
   let text = $state("");
   let result = $state<DryRun | null>(null);
@@ -50,6 +61,24 @@
       stop();
     };
   });
+
+  // Phrases learned from "Did you mean ...?" answered yes. A wrong yes teaches a wrong phrase for
+  // good, so each one can be removed here.
+  let learned = $state<LearnedPhrase[]>([]);
+  let learnedError = $state("");
+  $effect(() => {
+    learnedPhrases()
+      .then((l) => (learned = l))
+      .catch((e: unknown) => (learnedError = String(e instanceof Error ? e.message : e)));
+  });
+  async function forget(p: LearnedPhrase) {
+    try {
+      learned = await forgetPhrase(p.heard);
+      learnedError = "";
+    } catch (e) {
+      learnedError = String(e instanceof Error ? e.message : e);
+    }
+  }
 
   async function test(e: SubmitEvent) {
     e.preventDefault();
@@ -159,6 +188,23 @@
     {/if}
     {#if liveNote}<p class="note">{liveNote}</p>{/if}
   {/if}
+
+  <h2>Learned phrases</h2>
+  {#if learned.length === 0}
+    <p class="lo">None yet. When you answer yes to "Did you mean ...?", astromech remembers what it heard and runs that command next time.</p>
+  {:else}
+    <p class="lo">Phrases astromech runs without asking, because you once answered yes. Remove one that was taught wrongly.</p>
+    <ul class="learned">
+      {#each learned as p (p.heard)}
+        <li>
+          <span class="said">{p.heard}</span>
+          <span class="lo">runs {p.does}</span>
+          <button onclick={() => forget(p)} aria-label={`Remove ${p.heard}`}>Remove</button>
+        </li>
+      {/each}
+    </ul>
+  {/if}
+  {#if learnedError}<p class="note">{learnedError}</p>{/if}
 </section>
 
 <style>
@@ -179,5 +225,9 @@
   button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
   button:disabled { color: var(--text-lo); cursor: default; }
   button:not(:disabled):hover { color: var(--text-hi); }
+  h2 { margin: 32px 0 12px; font-size: var(--fs-l); color: var(--text-hi); font-weight: 600; }
+  .learned { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
+  .learned li { display: flex; gap: 24px; align-items: center; background: var(--cell-opt); padding: 0 12px; min-height: var(--row); }
+  .said { color: var(--text); flex: 1; }
   .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); margin-top: 12px; }
 </style>

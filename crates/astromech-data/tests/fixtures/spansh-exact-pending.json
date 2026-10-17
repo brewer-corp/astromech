@@ -1,0 +1,31 @@
+{
+ "created_at": "2026-10-17T18:39:43",
+ "job": "00000000-0000-0000-0000-000000000003",
+ "parameters": {
+  "algorithm": "optimistic",
+  "base_mass": 400.63,
+  "cargo": 0,
+  "destination_system": "Maia",
+  "exclude_secondary": false,
+  "fuel_multiplier": 0.012,
+  "fuel_power": 2.45,
+  "injection_multiplier": 2,
+  "internal_tank_size": 0.63,
+  "is_supercharged": false,
+  "max_fuel_per_jump": 5,
+  "optimal_mass": 1470,
+  "range_boost": 0,
+  "refuel_every_scoopable": 1,
+  "reserve_size": 0,
+  "ship_build": null,
+  "source_system": "Sol",
+  "supercharge_multiplier": 4,
+  "tank_size": 32,
+  "use_injections": false,
+  "use_injections_when_required": false,
+  "use_supercharge": true
+ },
+ "state": "started",
+ "status": "queued",
+ "updated_at": "2026-10-17T18:39:43"
+}

@@ -61,8 +61,8 @@ without a default are only called out as a motherlode. See [Callouts](callouts.m
 
 ### Files
 
-- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one, which sets the kill
-  switch to Scroll Lock (known bug: astromech-k20i); change it in setup if that is wrong. Keep the name exactly
+- **Config file.** The path of `astromech.toml`, with **Open**. If there is no config file yet, **Open** writes the sample one. It changes no
+  setting: the button examples in it, including a Scroll Lock kill switch, are comments. Keep the name exactly
   `astromech.toml`: if Notepad saves it as `astromech.toml.txt`, astromech reports the file it
   found instead.
 - **Logs.** The log folder, with **Open folder**.
@@ -85,11 +85,13 @@ restart afterwards.
 | `[game]` `journal_dir`, `bindings_dir`, `game_dir` | Where the game's files are, if not the usual places | empty |
 | `data_dir` | Where history, caches and models are kept | `%LOCALAPPDATA%\astromech\data` |
 
-A callout with an unknown id or a `cooldown_s` that is not a number of seconds is reported in the log
-and ignored on its own. Any other error in the file (a typo, a bad value) is different: the **whole file
-is discarded** and astromech runs with every default, including no push-to-talk and no kill switch,
-until you fix it. Setup says "config file has an error (see logs)"; Settings (under Files) and
-Diagnostics say "config error (see logs)". (Known bug: astromech-thym.)
+A value that does not fit its setting (a word where a number goes, say) is ignored on its own: that
+setting uses its default and the rest of the file applies. The log lists each one with its line, and
+Settings (under Files) and Diagnostics say "These config values were ignored", with the keys and lines.
+A `[callouts.<id>]` section whose id is not a callout is skipped the same way. Fix the line and restart astromech. A key astromech does not know is skipped without a message, so check
+the spelling if a setting seems to do nothing. If the file is not valid TOML at all (a missing bracket, an
+unclosed quote), astromech cannot read any of it and runs with every default, including no push-to-talk and
+no kill switch, until you fix it. Setup then says "config file has an error (see logs)".
 
 ## Diagnostics
 

@@ -125,6 +125,8 @@ export type CoreCmd =
   | "voice_test_poll"
   | "voice_test_stop"
   | "voice_test_live"
+  | "learned_phrases"
+  | "learned_forget"
   // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
   | "find_elite"
   | "set_ptt"

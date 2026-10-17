@@ -35,7 +35,7 @@ impl Denial {
     pub fn spoken(&self) -> String {
         match self {
             Denial::KillSwitch => "Kill switch is on. Re-arm it to allow actions.".into(),
-            Denial::NeverAutomated => "That's never automated.".into(),
+            Denial::NeverAutomated => "That is never automated.".into(),
             Denial::OriginNotAllowed => "Not allowed from there.".into(),
             Denial::Duplicate => "Already on it.".into(),
             Denial::RateLimited => "Too many actions, slow down.".into(),
@@ -72,7 +72,7 @@ impl PressError {
             PressError::Privilege(_) => {
                 "Windows is blocking key presses to the game. Run both normally, not as administrator.".into()
             }
-            PressError::UnknownKey(k) => format!("I can't press the key {k}. Please bind a different key."),
+            PressError::UnknownKey(k) => format!("The key {k} cannot be pressed. Bind a different key."),
             PressError::Send(_) => "The key press failed.".into(),
         }
     }
