@@ -158,3 +158,14 @@ fn a_first_poll_that_cannot_open_the_journal_does_not_pin_the_build() {
     std::fs::set_permissions(&j, std::fs::Permissions::from_mode(0o644)).unwrap();
     assert_eq!(*cache.get(d.path(), || 2), 2, "the build made while the journal was unreadable was kept");
 }
+
+#[test]
+fn a_journal_that_shrinks_counts() {
+    let d = tempfile::tempdir().unwrap();
+    let p = d.path().join("Journal.2026-10-16T120000.01.log");
+    std::fs::write(&p, format!("{HEADER}\n{HEADER}\n")).unwrap();
+    let mut w = JournalWatch::new(WATCHED);
+    let start = w.poll(d.path());
+    std::fs::write(&p, format!("{HEADER}\n")).unwrap();
+    assert!(w.poll(d.path()) > start);
+}
