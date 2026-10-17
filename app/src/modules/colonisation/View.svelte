@@ -1,8 +1,10 @@
 <script lang="ts">
   // Colonisation construction projects from the journals: what is left to buy for the picked
   // project, in loads for the current ship, and where to buy it, stations stocking the most of
-  // the list first, searched from the construction site's system (or near you).
+  // the list first, searched from the construction site's system (or near you). Below, systems
+  // still open to claim near you.
   import { untrack } from "svelte";
+  import Colonies from "../../lib/ui/Colonies.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { buyList, buyResults, loadProjects, LOOKUP, needsOf, projectName, type Need, type Project } from "../../lib/colonisation";
@@ -116,6 +118,7 @@
       </div>
     {/if}
   {/if}
+  <div class="main"><Colonies /></div>
 </section>
 
 <style>

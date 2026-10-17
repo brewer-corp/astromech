@@ -1,0 +1,63 @@
+{
+ "count": 5,
+ "from": 0,
+ "size": 500,
+ "results": [
+  {
+   "id64": 23204307324883,
+   "name": "Greae Phoea EM-K d9-675",
+   "x": 4758.5,
+   "y": -367.21875,
+   "z": 16423.46875,
+   "distance": 0.0,
+   "population": 76015,
+   "is_colonised": true,
+   "updated_at": "2026-10-15T15:09:02Z"
+  },
+  {
+   "id64": 7331642228561,
+   "name": "Greae Phoea US-M b39-3",
+   "x": 4751.4375,
+   "y": -384.3125,
+   "z": 16415.96875,
+   "distance": 19.9580859631504,
+   "population": 10460,
+   "is_being_colonised": true,
+   "updated_at": "2026-10-15T15:07:38Z"
+  },
+  {
+   "id64": 12827666337747,
+   "name": "Greae Phoea EM-K d9-373",
+   "x": 4757.03125,
+   "y": -383.40625,
+   "z": 16442.96875,
+   "distance": 25.3858697470167,
+   "population": 5063,
+   "is_being_colonised": true,
+   "updated_at": "2026-10-14T06:39:55Z"
+  },
+  {
+   "id64": 20432803307426,
+   "name": "Greae Phoea GD-V c18-74",
+   "x": 4750.875,
+   "y": -378.96875,
+   "z": 16402.03125,
+   "distance": 25.6079974080364,
+   "population": 10481,
+   "is_being_colonised": true,
+   "updated_at": "2026-10-15T15:06:33Z"
+  },
+  {
+   "id64": 22895069679571,
+   "name": "Greae Phoea EM-K d9-666",
+   "x": 4755.59375,
+   "y": -370.65625,
+   "z": 16382.4375,
+   "distance": 41.2774293273576,
+   "population": 2118919,
+   "is_colonised": true,
+   "is_being_colonised": true,
+   "updated_at": "2026-10-16T16:25:15Z"
+  }
+ ]
+}
