@@ -30,6 +30,11 @@ export interface State {
   notes: string[];
 }
 export interface Press { device: string; key: string; kind: string; down: boolean | null; device_name: string; t_ms: number }
+/**
+ * The window's own clicks reach Raw Input (INPUTSINK) as Mouse_1-3 presses, so they aren't game
+ * controls. Side buttons (Mouse_4, Mouse_5) don't click and are real presses.
+ */
+export const isWindowClick = (p: Press) => p.device === "Mouse" && /^Mouse_[123]$/.test(p.key);
 export const CONTEXTS = ["General", "Ship", "SRV", "On foot"] as const;
 
 // ---- Browser fallback: the fixture, with edits applied in memory.

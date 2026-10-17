@@ -4,6 +4,9 @@ id: "astromech-sltm"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-sltm
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T00:16:42.646506086+00:00"
+status: "done"
 title: "A click in the bind dialog captures Mouse 1 as the new binding"
-updated_at: "2026-10-16T19:21:14.595412647+00:00"
+updated_at: "2026-10-17T00:16:42.646506086+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ A Mouse_1 press that arrives while the bind dialog is capturing (the window's ow
 ## Context
 
 `app/src/lib/ui/BindDialog.svelte:26-31`. Same root cause as astromech-rhfn (the window's clicks reach Raw Input as Mouse_1-3); found in the re-review of feature/astromech-q318. Already on main.
+
+## Close Reason
+
+Fixed: the bind dialog (and onboarding capture) ignore Mouse_1-3 window clicks via isWindowClick; failing-first component test added.

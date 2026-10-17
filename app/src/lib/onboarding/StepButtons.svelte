@@ -2,7 +2,7 @@
   // Step 3: press-to-bind push-to-talk and the kill switch. astromech only listens to the
   // button; nothing is sent to the game. Saved to astromech.toml by the core.
   import { coreCall, parseButton, type CoreStatus } from "../core";
-  import type { Press } from "../binds";
+  import { isWindowClick, type Press } from "../binds";
   import { binds } from "../store.svelte";
   import { control } from "../format";
 
@@ -33,7 +33,7 @@
   $effect(() => () => (binds.capturing = false));
   $effect(() => {
     const p = binds.last;
-    if (!capturing || got || !p || binds.presses === seen || p.kind === "axis") return;
+    if (!capturing || got || !p || binds.presses === seen || p.kind === "axis" || isWindowClick(p)) return;
     got = p;
   });
 
