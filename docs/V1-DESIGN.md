@@ -889,7 +889,8 @@ Total about **11 weeks**.
 - **Personal aliases:** a did-you-mean "yes" stores transcript → command (cap 200). Policy still gates the command.
 - **Extra T1:** flight assist (flag bit 5 = FA *off*), HUD analysis/combat, panels and maps (`GuiFocus`), throttle to zero (unverified; refused near a body in supercruise), SRV handbrake / drive assist. Silent running on asks "Silent running produces heat. Confirm?" then presses.
 - **Status questions (T0):** fuel, cargo, jump range, location, jumps left, hull, shields, credits/rebuy, ship, legal state — from Status.json, journal `Loadout`/`LoadGame`, Cargo.json, NavRoute.json.
-- **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`.
+- **Eval:** `[voice] save_clips = true` writes WAV + JSON under `data/clips`. `astromech-core --eval DIR` scores execute-or-ask against `label` / `command` / `labels.json`. It reports a score per command family (a sidecar's `family`, else the command id's prefix) and per `condition` when the sidecars have one.
+- **Synthetic eval:** `scripts/voice-eval.sh` renders the 200-phrase set (`crates/astromech-core/tests/voice-eval-phrases.tsv`, every grammar command) with four Kokoro voices, clean, through the Cockpit chain, with pink noise at 10 dB SNR and both, transcribes it with Parakeet and runs it through the same scoring. Audio and the report go to `results/voice-eval/` (git-ignored). It catches recognition regressions on the desk; it does not replace the VR clip set.
 
 ### 7.14 As built in M4 onboarding and calibration (16 Oct 2026)
 - **Calibration is one path.** `astromech_core::calibration` measures and stores the gate for the CLI

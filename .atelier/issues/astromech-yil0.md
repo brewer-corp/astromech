@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-yil0
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice recognition eval on a synthetic 200-phrase set"
-updated_at: "2026-10-17T17:01:42.623174776+00:00"
+updated_at: "2026-10-17T20:55:41.063591947+00:00"
 ---
 
 ## Goal
