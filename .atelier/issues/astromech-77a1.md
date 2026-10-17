@@ -31,9 +31,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "review"
 title: "Arrival, docking and route callouts"
-updated_at: "2026-10-17T01:34:41.777234041+00:00"
+updated_at: "2026-10-17T02:01:23.452515083+00:00"
 ---
 
 ## Goal
@@ -47,3 +47,7 @@ Journal replay tests per callout. Independent review. The game check (astromech-
 ## Scope
 
 Star class, security and allegiance are on screen, so they're shown in the app, not spoken. Visit history and known biology join the arrival briefing when the history and exobiology work land.
+
+## Notes
+
+- 2026-10-17 [note] All five children done on feature/astromech-77a1 (nugx, lg9r, 6jzn, 2oxr, y916; evidence astromech-knhn, astromech-arti, 2oxr/6jzn records, astromech-21jd). Waiting on independent review of the branch before close and atelier merge; the game check astromech-505u follows the merge. Split out: astromech-8sx3 (bodies known to EDSM).
