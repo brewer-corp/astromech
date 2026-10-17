@@ -1,7 +1,8 @@
 name: Release build
 
 # docs/V1-DESIGN.md §7.8. Builds the per-user NSIS installer (unsigned, §7.4) on Windows,
-# installs it silently on the runner and smoke-tests it. Every PR and manual run uploads the
+# installs it silently on the runner and smoke-tests it. PRs that touch packaging (the paths
+# below) and manual runs upload the
 # installer as a workflow artifact; a `v*` tag also publishes a GitHub Release with SHA-256s
 # and a signed zip (`latest.json` + `.sig`) for in-app updates (§7.3).
 # Signing key: repo secret ASTROMECH_UPDATE_KEY (32-byte ed25519 seed hex). Public key is
@@ -10,7 +11,25 @@ name: Release build
 on:
   push:
     tags: ["v*"]
+  # Everything else a PR can break here (core, app shell, frontend) is built by CI's Windows
+  # job; this adds only the release packaging, so PRs run it when packaging changes.
   pull_request:
+    paths:
+      - .github/workflows/release.yml
+      - app/src-tauri/**
+      - app/package.json
+      - app/pnpm-lock.yaml
+      - Cargo.lock
+      - crates/astromech-voice/**
+      - crates/astromech-core/src/main.rs
+      - crates/astromech-core/src/autostart.rs
+      - crates/astromech-core/src/control.rs
+      - crates/astromech-core/src/instance.rs
+      - crates/astromech-core/src/update.rs
+      - crates/astromech-core/examples/sign-update.rs
+      - scripts/stage-sidecars.sh
+      - scripts/pack-update.py
+      - scripts/gen-starmap.py
   workflow_dispatch:
 
 permissions:
