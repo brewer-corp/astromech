@@ -21,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Check Materials page timing against the real game on Windows"
-updated_at: "2026-10-16T18:44:37.944173658+00:00"
+updated_at: "2026-10-17T17:17:34.564712096+00:00"
 ---
 
 ## Goal
@@ -39,3 +39,4 @@ With the app window on Materials, five material changes made in game (collect, d
 ## Notes
 
 - 2026-10-16 [note] Also confirm the regression test crates/astromech-materials/tests/live_journal.rs would fail on Windows with the old journal_folder_sig key (review finding R2 on astromech-txzq): it only bites on Windows.
+- 2026-10-17 [note] 17 Oct: also check the Engineering Builds page against the real game on Windows (astromech-ztrb changed it to read journal appends through an open handle and poll every 1 s).
