@@ -44,13 +44,25 @@ impl HttpApi {
         let resp = match r {
             Ok(r) => r,
             Err(ureq::Error::Status(_, r)) => r,
-            Err(ureq::Error::Transport(t)) => return Err(t.to_string()),
+            Err(ureq::Error::Transport(t)) => return Err(transport_error(&t)),
         };
         let status = resp.status();
         let mut body = String::new();
         resp.into_reader().take(MAX_ANSWER).read_to_string(&mut body).map_err(|e| e.to_string())?;
         Ok(Response { status, body })
     }
+}
+
+/// What went wrong, without the URL: ureq's own text starts with the URL, and a `GET` to EDSM
+/// carries the API key in its query.
+fn transport_error(t: &ureq::Transport) -> String {
+    let mut e = t.kind().to_string();
+    let mut cause = std::error::Error::source(t);
+    while let Some(c) = cause {
+        e = format!("{e}: {c}");
+        cause = c.source();
+    }
+    e
 }
 
 impl Api for HttpApi {
@@ -101,10 +113,13 @@ pub struct Visit {
 
 /// The commander's flight log on EDSM: the last week, as EDSM gives it without dates.
 pub fn flight_log(api: &dyn Api, c: &Credentials) -> Result<Vec<Visit>, String> {
-    let v = json_answer(&api.get(LOGS_URL, &[("commanderName", &c.commander), ("apiKey", &c.api_key)])?)?;
+    // Whatever goes wrong is shown in Settings: never with the key in it.
+    let hide = |e: String| if c.api_key.is_empty() { e } else { e.replace(&c.api_key, "<API key>") };
+    let r = api.get(LOGS_URL, &[("commanderName", &c.commander), ("apiKey", &c.api_key)]).map_err(hide)?;
+    let v = json_answer(&r).map_err(hide)?;
     match code(&v) {
         (100, _) => {}
-        (n, msg) => return Err(format!("EDSM {n}: {msg}")),
+        (n, msg) => return Err(hide(format!("EDSM {n}: {msg}"))),
     }
     let logs = v["logs"].as_array().map(Vec::as_slice).unwrap_or_default();
     Ok(logs
@@ -203,6 +218,24 @@ pub(crate) mod tests {
         assert_eq!(flight_log(&api, &creds()), Err("EDSM 203: Commander name/API Key not found".into()));
         api.answer(LOGS_URL, Ok(Response { status: 429, body: "slow down".into() }));
         assert_eq!(flight_log(&api, &creds()), Err("HTTP 429: slow down".into()));
+        // Anything that quotes the key back has it hidden.
+        api.answer(LOGS_URL, Err("https://www.edsm.net/api-logs-v1/get-logs?apiKey=k3y: timed out".into()));
+        let e = flight_log(&api, &creds()).unwrap_err();
+        assert!(!e.contains("k3y") && e.ends_with("apiKey=<API key>: timed out"), "{e}");
+    }
+
+    #[test]
+    fn a_failed_flight_log_request_never_shows_the_key() {
+        // A closed local port: the connection is refused.
+        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}/api-logs-v1/get-logs", l.local_addr().unwrap());
+        drop(l);
+        let api = HttpApi::new("astromech/test");
+        let e = api.get(&url, &[("commanderName", "Jameson"), ("apiKey", "SECRETKEY")]).unwrap_err();
+        assert!(!e.contains("SECRETKEY") && !e.contains("apiKey"), "{e}");
+        assert!(e.to_ascii_lowercase().contains("connection"), "still says what went wrong: {e}");
+        let e = api.post_json(&url, br#"{"apiKey":"SECRETKEY"}"#).unwrap_err();
+        assert!(!e.contains("SECRETKEY"), "{e}");
     }
 
     #[test]
