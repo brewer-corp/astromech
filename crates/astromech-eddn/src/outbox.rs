@@ -51,7 +51,22 @@ const MIGRATIONS: &[&str] = &[
         outcome TEXT NOT NULL,
         detail TEXT NOT NULL
      );",
-    // v2: small values a sender keeps between runs (EDSM's discard list).
+    // v2: ids are never reused, so a delivery pass that read rows before `discard_all` can't
+    // claim, post or remove a newer message that got a purged row's id.
+    "BEGIN;
+     CREATE TABLE outbox_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        schema_ref TEXT NOT NULL,
+        body BLOB NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        next_try INTEGER NOT NULL,
+        created INTEGER NOT NULL
+     );
+     INSERT INTO outbox_new SELECT id, schema_ref, body, attempts, next_try, created FROM outbox;
+     DROP TABLE outbox;
+     ALTER TABLE outbox_new RENAME TO outbox;
+     COMMIT;",
+    // v3: small values a sender keeps between runs (EDSM's discard list).
     "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
 ];
 
@@ -664,6 +679,63 @@ pub(crate) mod tests {
         assert_eq!(d, Delivery { sent: 1, ..Default::default() });
         let outcomes: Vec<String> = o.recent(10).unwrap().into_iter().map(|e| e.outcome).collect();
         assert_eq!(outcomes, ["sent", "discarded"]);
+    }
+
+    /// Purges the queue and queues fresh messages during its first post, as the core does when
+    /// sharing is switched off and on again and new events arrive mid-pass.
+    struct PurgeAndRequeue(std::path::PathBuf);
+    impl Transport for PurgeAndRequeue {
+        fn post(&self, b: &[u8]) -> std::result::Result<Response, String> {
+            if b == b"a" {
+                let o = Outbox::open(&self.0).unwrap();
+                o.discard_all(1000).unwrap();
+                for n in [b"x", b"y", b"z"] {
+                    o.enqueue(REF, n, 1000).unwrap();
+                }
+            }
+            Ok(Response { status: 200, body: "OK".into() })
+        }
+    }
+
+    #[test]
+    fn new_messages_never_take_a_purged_messages_id() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("eddn.sqlite");
+        let o = Outbox::open(&p).unwrap();
+        for b in [b"a", b"b", b"c"] {
+            o.enqueue(REF, b, 1000).unwrap();
+        }
+        let posted = RefCell::new(Vec::new());
+        struct Rec<'a>(PurgeAndRequeue, &'a RefCell<Vec<Vec<u8>>>);
+        impl Transport for Rec<'_> {
+            fn post(&self, b: &[u8]) -> std::result::Result<Response, String> {
+                self.1.borrow_mut().push(b.to_vec());
+                self.0.post(b)
+            }
+        }
+        let d = o.deliver_due(&Rec(PurgeAndRequeue(p), &posted), 1000, true, &no_stop).unwrap();
+        assert_eq!(*posted.borrow(), [b"a".to_vec()], "purged b and c must not be posted");
+        assert_eq!(d.sent, 1);
+        assert_eq!(o.pending().unwrap(), 3, "the new messages are untouched by the old pass");
+    }
+
+    #[test]
+    fn migrating_a_v1_outbox_keeps_its_rows() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("eddn.sqlite");
+        {
+            let c = Connection::open(&p).unwrap();
+            c.execute_batch(MIGRATIONS[0]).unwrap();
+            c.execute_batch("INSERT INTO outbox(id, schema_ref, body, next_try, created) VALUES (7, 'r', x'01', 5, 5)")
+                .unwrap();
+            c.pragma_update(None, "user_version", 1).unwrap();
+        }
+        let o = Outbox::open(&p).unwrap();
+        assert_eq!(o.pending().unwrap(), 1);
+        o.discard_all(10).unwrap();
+        o.enqueue(REF, b"n", 10).unwrap();
+        let id: i64 = o.conn.query_row("SELECT id FROM outbox", [], |r| r.get(0)).unwrap();
+        assert!(id > 7, "ids continue past the purged one, got {id}");
     }
 
     #[test]

@@ -5,6 +5,7 @@
   // drive?" works offline.
   import { when } from "../../lib/logbook";
   import { loadHere, searchOutfitting, serviceName, type DockedHere, type OutfittingSearch } from "../../lib/station";
+  import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import Market from "./Market.svelte";
 
@@ -63,7 +64,8 @@
   {:else}
     <p class="sub head">
       <span class="station">{here.station}</span>
-      {#if here.system}<SystemChip name={here.system} />{/if}
+      {#if here.station}<ExtLinks system={here.system ?? ""} station={here.station} marketId={here.market_id} />{/if}
+      {#if here.system}<SystemChip name={here.system} /><ExtLinks system={here.system} />{/if}
       {#if here.station_type}<span class="lo">{here.station_type}</span>{/if}
       {#if here.source}<span class="lo">· {here.source}</span>{/if}
     </p>

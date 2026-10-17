@@ -1,6 +1,7 @@
 //! Published game-state snapshots. Writers: the pipeline. Readers: tools (planning),
 //! verification (waiting for a flag), subscribers (the future API).
 
+use astromech_gamestate::mining::MiningRun;
 use astromech_gamestate::GameState;
 use astromech_journal::JournalLine;
 use astromech_status::StatusSnap;
@@ -13,6 +14,7 @@ pub struct StateHub {
     state: Mutex<(GameState, u64)>,
     cv: Condvar,
     subs: Mutex<Vec<Sender<GameState>>>,
+    mining: Mutex<MiningRun>,
 }
 
 impl StateHub {
@@ -61,7 +63,19 @@ impl StateHub {
     }
 
     pub fn apply_journal(&self, l: &JournalLine) {
+        self.mining.lock().unwrap().apply(l);
         self.update(|g| g.apply_line(l));
+    }
+
+    /// The current mining run, as the status reply shows it.
+    pub fn mining_json(&self) -> serde_json::Value {
+        let m = self.mining.lock().unwrap();
+        serde_json::json!({
+            "started": m.started.map(|t| t.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)),
+            "refined": m.refined,
+            "total": m.total(),
+            "per_hour": m.per_hour(),
+        })
     }
 
     /// Wait until `flag` is set (`expect`) or clear, up to `timeout`. Returns early (false)

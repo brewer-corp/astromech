@@ -37,6 +37,8 @@ export interface Ship {
   current: boolean;
   /** Being moved to a shipyard; `system` is where it is going, if known. */
   in_transit: boolean;
+  /** Market id of the station a stored ship is at, when the journal said. */
+  market_id: number | null;
   loadout_ts: string | null;
   /** Unladen maximum from the last Loadout, in ly. */
   max_jump_range: number | null;
