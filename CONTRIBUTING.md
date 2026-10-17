@@ -9,6 +9,7 @@ the code.
 - [docs/V1-DESIGN.md](docs/V1-DESIGN.md): what v1 is, and the copy rules for what astromech says (§6.5).
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, crates, dependency rules and spike
   results. Open an issue before large changes.
+- [docs/PLOTTING.md](docs/PLOTTING.md): routes: the next waypoint on the clipboard, "paste" in the galaxy map, and the plotting macro to come.
 - [docs/KEYBINDS.md](docs/KEYBINDS.md): the keybinds module and the health check.
 - [docs/REPORT.md](docs/REPORT.md) and [docs/COMPETITORS.md](docs/COMPETITORS.md): the research.
 - [docs/diagrams/](docs/diagrams/): Mermaid sources and rendered PNGs. [spikes/](spikes/): the

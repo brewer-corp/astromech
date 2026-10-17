@@ -314,7 +314,8 @@ fn run_console(args: Args) -> Result<()> {
     let opts = args.session_opts();
     astromech_core::pipeline::EDDN_SHARING.store(cfg.eddn.enabled, std::sync::atomic::Ordering::SeqCst);
     astromech_core::app::apply_edsm_switch(&cfg, &astromech_store::secrets::OsKeyring::new());
-    let mut s = Session::start(&cfg, &opts)?;
+    let route = std::sync::Arc::new(astromech_core::route::Desk::in_dir(&cfg.data_dir()));
+    let mut s = Session::start(&cfg, &opts, route)?;
     log(&s.voice);
 
     if let Some(wav) = &args.transcribe {

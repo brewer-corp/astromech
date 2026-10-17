@@ -491,7 +491,8 @@ fn hop_on(map: Option<&StarMap>, a: [f64; 3], b: [f64; 3], range: f64) -> Hop {
     }
 }
 
-const POSITION_EVENTS: &[&str] = &["\"Location\"", "\"FSDJump\"", "\"CarrierJump\""];
+/// Journal lines `here_from_journal_dir` and `visits_from_journal_dir` read (quoted event names).
+pub const POSITION_EVENTS: &[&str] = &["\"Location\"", "\"FSDJump\"", "\"CarrierJump\""];
 
 /// Newest `Location` / `FSDJump` / `CarrierJump` with `StarPos`, newest journal first.
 pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {

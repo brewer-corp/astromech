@@ -148,7 +148,14 @@ export type CoreCmd =
   // Engineering → the arrival briefing's shopping list (core: callouts.rs).
   | "shopping_set"
   // Exploration → Biology: the system's biology and the sampling in progress (core: biology.rs).
-  | "exobiology";
+  | "exobiology"
+  // Galaxy → Route: the route the core follows (core: route.rs, docs/PLOTTING.md).
+  | "route"
+  | "route_set"
+  | "route_skip"
+  | "route_back"
+  | "route_clear"
+  | "route_copy";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };

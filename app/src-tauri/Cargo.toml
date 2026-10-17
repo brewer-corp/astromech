@@ -28,6 +28,7 @@ anyhow = "1"
 astromech-keybinds = { path = "../../crates/astromech-keybinds" }
 astromech-input = { path = "../../crates/astromech-input" }
 astromech-materials = { path = "../../crates/astromech-materials" }
+astromech-journal = { path = "../../crates/astromech-journal" }
 astromech-engineering = { path = "../../crates/astromech-engineering" }
 astromech-ship = { path = "../../crates/astromech-ship" }
 astromech-data = { path = "../../crates/astromech-data" }

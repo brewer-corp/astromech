@@ -14,9 +14,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:20:25.490570344+00:00"
+status: "done"
 title: "Send a search result to the route follower with Go"
-updated_at: "2026-10-17T16:54:21.166853083+00:00"
+updated_at: "2026-10-17T17:20:25.490570344+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Go on a faction-state result puts that system on the route follower (UI check wi
 ## Context
 
 Split from astromech-pxy2: the route follower is not on main yet.
+
+## Close Reason
+
+Go on every search-kit result follows that system through the core's route follower (f47b3e4); Nearby/SearchKit tests and the faction-state UI check recorded. Merge to main waits on independent review of feature/astromech-1135.

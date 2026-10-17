@@ -1,9 +1,12 @@
 <script lang="ts">
   // The "search near me" kit every lookup uses: pick where to search from (current or typed
   // system) and the lookup's remembered filters, run the lookup, and list the nearest results
-  // with jumps at the current range, distance, pad size, arrival distance and data age.
+  // with jumps at the current range, distance, pad size, arrival distance and data age. Go on a
+  // result hands it to the core's route follower (docs/PLOTTING.md): its system goes on the
+  // clipboard for the galaxy map's search box.
   import { ago, jumps } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
+  import { followedNote, followRoute } from "../route";
   import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
@@ -45,6 +48,8 @@
   let filterErr = $state<string | null>(null);
   const store: FilterStore = { load: loadFilters, save: saveFilters };
   let busy = $state(false);
+  /** What Go did, or why it failed. */
+  let goNote = $state<string | null>(null);
   let asked = 0;
   let changed = 0; // filter changes made, so a slow earlier one can't overwrite a later one
 
@@ -74,6 +79,7 @@
     const n = ++asked;
     busy = true;
     err = null;
+    goNote = null;
     void followShip(lookup, n);
     run(o, s.filters)
       .then((r) => {
@@ -99,6 +105,16 @@
     }
   }
 
+  /** A one-stop route to the result's system, labelled with the station or what was found there. */
+  async function go(r: Results["rows"][number]) {
+    const label = r.station ?? res?.label;
+    try {
+      goNote = followedNote(await followRoute(r.system, "search", [{ system: r.system, ...(label ? { label } : {}) }]));
+    } catch (e) {
+      goNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
+    }
+  }
+
   function facts(r: Results["rows"][number]): string {
     return [padLabel(r.pad), arrivalLabel(r.arrival_ls), r.detail ?? "", `reported ${ago(r.updated_at)}`].filter(Boolean).join(" · ");
   }
@@ -118,7 +134,7 @@
     <ul class:stale={busy}>
       {#each res.rows as r (r.key)}
         <li>
-          <span class="sys">{r.station ? `${r.station} · ` : ""}<SystemChip name={r.system} /></span>
+          <span class="sys">{r.station ? `${r.station} · ` : ""}<SystemChip name={r.system} /><button type="button" class="go" aria-label={`Go to ${r.system}`} title="Follow it: the system goes on the clipboard for the galaxy map" onclick={() => void go(r)}>Go</button></span>
           <span class="q">{r.lead ? `${r.lead} · ` : ""}{jumps(r.jumps, r.exact)} · {r.ly.toFixed(1)} ly</span>
           <span class="lo">{facts(r)}</span>
         </li>
@@ -126,6 +142,7 @@
         <li class="lo">None found.</li>
       {/each}
     </ul>
+    {#if goNote}<p class="lo small">{goNote}</p>{/if}
     <p class="lo small">At {res.range.toFixed(1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
   {/if}
 </div>
@@ -137,6 +154,8 @@
   ul.stale { opacity: 0.5; }
   li { display: flex; flex-direction: column; gap: 1px; font-size: var(--fs-s); line-height: 1.35; }
   .sys { color: var(--text); }
+  .go { all: unset; cursor: pointer; margin-left: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  .go:hover, .go:focus-visible { color: var(--text-hi); }
   .q { color: var(--accent); font-family: var(--mono); }
   .lo { color: var(--text-lo); }
   .small { font-size: var(--fs-s); margin-top: 8px; }

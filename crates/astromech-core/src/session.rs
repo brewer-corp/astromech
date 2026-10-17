@@ -141,7 +141,9 @@ pub fn remote_data(
 
 impl Session {
     /// Start everything except the buttons and microphone ([`Session::start_buttons`]).
-    pub fn start(cfg: &Config, opts: &Opts) -> Result<Session> {
+    /// `route` is the core's route follower; the session's callout rule moves it on as the
+    /// commander jumps.
+    pub fn start(cfg: &Config, opts: &Opts, route: Arc<crate::route::Desk>) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir();
         std::fs::create_dir_all(&data).with_context(|| format!("creating {}", data.display()))?;
@@ -181,6 +183,8 @@ impl Session {
             astromech_data::Cache::in_memory().context("opening the known-biology cache")?,
         ))));
         shared.sessions.set(Arc::new(crate::summary::HistorySessions::new(data.join(crate::history::DB_FILE))));
+        // The route follower is the `route_follow` callout rule: live arrivals only.
+        shared.follower.set(route.clone());
         let engine = astromech_announce::Engine::new(astromech_announce::builtin(shared.clone()), &cfg.callouts);
         for p in engine.setting_problems() {
             log(&format!("config: {p}"));
@@ -315,8 +319,10 @@ impl Session {
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
-        let assistant =
-            Assistant::new(runner.clone()).with_sessions(shared.sessions.clone()).with_journals(jdir.clone());
+        let assistant = Assistant::new(runner.clone())
+            .with_sessions(shared.sessions.clone())
+            .with_journals(jdir.clone())
+            .with_route(route);
         let assistant = Arc::new(match alias_store {
             Some(st) => assistant.with_store(st),
             None => assistant,
@@ -406,6 +412,9 @@ fn start_voice(
     match &cfg.controls.kill_switch {
         Some(b) => log(&controls::describe_button("kill switch", b, &devices)),
         None => log("kill switch: NOT SET (use !kill in the console)"),
+    }
+    if let Some(b) = &cfg.controls.paste {
+        log(&controls::describe_button("paste button", b, &devices));
     }
     let have_stt = stt.is_some();
     let want_mic = cfg.voice.mic.trim();
@@ -616,6 +625,12 @@ fn start_voice(
                     // After any clip was queued as a job, so the hold doesn't lapse in between.
                     callouts::VOICE_TURN.ptt_up();
                 }
+                Control::PasteDown => {
+                    log("paste button pressed");
+                    let r = runner.clone();
+                    // A local button, like push-to-talk: the voice origin's limits apply.
+                    std::thread::spawn(move || r.paste(astromech_proto::Origin::Voice));
+                }
                 Control::KillDown => {
                     if !runner.policy.is_killed() {
                         runner.speaker.interrupt();
@@ -663,6 +678,7 @@ mod bus {
             let (status, devices) = crate::controls::start(
                 cfg.controls.ptt.clone(),
                 cfg.controls.kill_switch.clone(),
+                cfg.controls.paste.clone(),
                 debug,
                 cfg.controls.debounce_ms,
                 tx,
