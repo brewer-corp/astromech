@@ -98,7 +98,10 @@ fn no_facts_when_not_docked() {
     )
     .unwrap();
     state.apply_journal(&undock.event);
-    assert_eq!(DockedHere::new(&state, None, None), DockedHere::default());
+    // Only the system is kept, so the page can still link it.
+    let here = DockedHere::new(&state, None, None);
+    assert_eq!(here.system.as_deref(), Some("Test System"));
+    assert_eq!(here, DockedHere { system: here.system.clone(), ..DockedHere::default() });
 }
 
 #[test]

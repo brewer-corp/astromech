@@ -233,7 +233,8 @@ fn session_summary_lines() -> Vec<String> {
             }
         }
     }
-    v.extend(astromech_tools::session::answer(None));
+    v.extend(astromech_tools::session::answer(Ok(None)));
+    v.extend(astromech_tools::session::answer(Err(session_summary::Unreadable)));
     v
 }
 
@@ -449,4 +450,90 @@ fn every_line_keeps_to_the_copy_guide() {
     bad.extend(check("reply", &replies, REPLY_WORDS));
     bad.extend(check("answer", &answers, ANSWER_WORDS));
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// A hold of five commodities no market takes whole: the cargo answer adds at most two
+/// partial-buyer sentences, each within the answer budget, naming a station only when it is not
+/// the one the answer already gave.
+#[test]
+fn the_cargo_answer_limits_its_partial_buyer_sentences() {
+    use astromech_galaxy::Hop;
+    use astromech_market::cargo::{CargoPlan, CommoditySale, Load, SaleLine, StationSale};
+    use astromech_market::Offer;
+
+    let hop = Hop { ly: 12.0, jumps: 1, exact: false };
+    let offer = |market_id: i64, station: &str, price: i64, volume: i64| Offer {
+        commodity: "x".into(),
+        market_id,
+        station: station.into(),
+        station_type: None,
+        system: "Sol".into(),
+        system_pos: [0.0; 3],
+        hop,
+        price,
+        volume,
+        pad: None,
+        arrival_ls: None,
+        fleet_carrier: false,
+        odyssey: false,
+        updated_at: "2026-10-17T00:00:00Z".into(),
+    };
+    let names = ["Platinum", "Painite", "Osmium", "Gold", "Silver"];
+    let load: Vec<Load> =
+        names.iter().map(|n| Load { symbol: n.to_lowercase(), name: (*n).into(), tonnes: 100 }).collect();
+    // The best station takes part of each; the other commodities' best partial buyers differ.
+    let per_commodity: Vec<CommoditySale> = names
+        .iter()
+        .enumerate()
+        .map(|(i, n)| CommoditySale {
+            commodity: n.to_lowercase(),
+            name: (*n).into(),
+            carried: 100,
+            best: None,
+            partial: Some(if i % 2 == 0 {
+                offer(1, "Good Landing Orbital Starport", 1000 * (i as i64 + 1), 70)
+            } else {
+                offer(2 + i as i64, "Carvalho Engineering Foundry", 1000 * (i as i64 + 1), 60)
+            }),
+        })
+        .collect();
+    let lines = names
+        .iter()
+        .map(|n| SaleLine {
+            commodity: n.to_lowercase(),
+            name: (*n).into(),
+            carried: 100,
+            sold: 70,
+            price: 1000,
+            proceeds: 70_000,
+        })
+        .collect();
+    let best = StationSale {
+        market_id: 1,
+        station: "Good Landing Orbital Starport".into(),
+        system: "Sol".into(),
+        system_pos: [0.0; 3],
+        hop,
+        pad: None,
+        arrival_ls: None,
+        fleet_carrier: false,
+        odyssey: false,
+        updated_at: "2026-10-17T00:00:00Z".into(),
+        total: 350_000,
+        sold: 350,
+        lines,
+    };
+    let plan = CargoPlan { load, kept: vec![], stations: vec![best], per_commodity, fetched_at: 0 };
+    let now = chrono::DateTime::parse_from_rfc3339("2026-10-17T00:00:00Z").unwrap().timestamp();
+    let said = astromech_tools::trade::cargo_answer(&plan, 40, now);
+
+    let sentences: Vec<String> = said.split_inclusive(". ").map(|s| s.trim().to_string()).collect();
+    let partial: Vec<&String> = sentences.iter().filter(|s| s.contains(": only ")).collect();
+    assert_eq!(partial.len(), 2, "{said}");
+    let bad = check("partial buyer", &partial.iter().map(|s| s.to_string()).collect::<Vec<_>>(), ANSWER_WORDS);
+    assert!(bad.is_empty(), "{}\n{said}", bad.join("\n"));
+    // The two worth the most are said (Silver and Gold); Silver's buyer is the answer's station.
+    assert!(partial.iter().any(|s| s.starts_with("Silver") && s.contains("the same station")), "{said}");
+    assert!(partial.iter().any(|s| s.starts_with("Gold") && s.contains("Carvalho Engineering Foundry")), "{said}");
+    assert_eq!(said.matches("Good Landing Orbital Starport").count(), 1, "the station is not repeated: {said}");
 }

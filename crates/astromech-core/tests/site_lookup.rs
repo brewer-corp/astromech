@@ -70,7 +70,8 @@ fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeak
             g.max_jump_range = Some(30.0);
         }
     });
-    let client = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(transport)).limiter(Limiter::none());
+    let client =
+        Arc::new(Client::with_transport(Cache::in_memory().unwrap(), Arc::new(transport)).limiter(Limiter::none()));
     let exec = Arc::new(NoKeys::default());
     let speaker = Arc::new(RecordingSpeaker::default());
     let runner = Arc::new(Runner {
@@ -80,7 +81,8 @@ fn rig_with(at_sol: bool, transport: Recorded) -> (Assistant, Arc<RecordingSpeak
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
-        galaxy: Some(Arc::new(Galaxy::with_remote(Store::in_memory().unwrap(), client))),
+        galaxy: Some(Arc::new(Galaxy::with_remote(Store::in_memory().unwrap(), client.clone()))),
+        remote: client,
     });
     (Assistant::new(runner), speaker, exec)
 }

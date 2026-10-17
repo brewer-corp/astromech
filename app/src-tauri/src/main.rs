@@ -270,11 +270,11 @@ fn materials_inventory_now(cache: &MaterialsCache) -> Result<Value, String> {
     Ok(v)
 }
 
-/// On-foot engineer progress, re-read when the journal changes (the scan reads every journal).
-struct OdysseyCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, astromech_odyssey::Progress)>>);
+/// On-foot engineer progress and owned gear, re-read when the journal changes (the scan reads every journal).
+struct OdysseyCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, astromech_odyssey::JournalState)>>);
 
-/// The ShipLocker and Backpack (small files, read every call) and the engineer progress.
-fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, astromech_odyssey::Progress), String> {
+/// The ShipLocker and Backpack (small files, read every call) and what the journal says.
+fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, astromech_odyssey::JournalState), String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
@@ -282,15 +282,15 @@ fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, a
     let holdings = astromech_odyssey::Holdings::from_journal_dir(&dir);
     let version = astromech_materials::journal_version(&dir);
     let mut g = cache.0.lock().map_err(|_| "busy".to_string())?;
-    let progress = match &*g {
+    let state = match &*g {
         Some((v, p)) if *v == version => p.clone(),
         _ => {
-            let p = astromech_odyssey::progress_from_journal_dir(&dir);
+            let p = astromech_odyssey::journal_state(&dir);
             *g = Some((version, p.clone()));
             p
         }
     };
-    Ok((holdings, progress))
+    Ok((holdings, state))
 }
 
 /// Odyssey micro-resources: inventory, engineers, and the blueprint picker's choices.
@@ -308,7 +308,7 @@ async fn odyssey_view(app: tauri::AppHandle) -> Result<Value, String> {
 async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::Pick>) -> Result<Value, String> {
     blocking(move || {
         let (h, p) = odyssey_state(&app.state::<OdysseyCache>())?;
-        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p)).map_err(|e| e.to_string())
+        serde_json::to_value(astromech_odyssey::shopping(&picks, &h, &p.progress)).map_err(|e| e.to_string())
     })
     .await
 }
@@ -414,6 +414,11 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
 /// retried on the next call instead of being remembered.
 struct GalaxyState(std::sync::Mutex<Option<std::sync::Arc<astromech_galaxy::Galaxy>>>);
 
+/// The app window's one remote-data client, made at startup; every lookup goes through it (via
+/// the star map). Its cache is the core's file, so an answer the core fetched for a voice
+/// question is served here too. The shell has no log file: its problems go to stderr.
+struct Remote(std::sync::Arc<astromech_data::Client>);
+
 fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Galaxy>, String> {
     let st = app.state::<GalaxyState>();
     let mut g = st.0.lock().map_err(|_| "busy".to_string())?;
@@ -421,9 +426,8 @@ fn galaxy(app: &tauri::AppHandle) -> Result<std::sync::Arc<astromech_galaxy::Gal
         return Ok(x.clone());
     }
     let preload = app.path().resolve("starmap.db", tauri::path::BaseDirectory::Resource).ok();
-    // The core's cache file: an answer it fetched for a voice question is served here too.
-    let (remote, _) = astromech_data::Client::shared(&app_dir());
-    let opened = astromech_galaxy::Galaxy::open_shared(&app_dir().join("galaxy.db"), preload.as_deref(), std::sync::Arc::new(remote))
+    let remote = app.state::<Remote>().0.clone();
+    let opened = astromech_galaxy::Galaxy::open(&app_dir().join("galaxy.db"), preload.as_deref(), remote)
         .map(std::sync::Arc::new)
         .map_err(|e| e.to_string())?;
     *g = Some(opened.clone());
@@ -657,8 +661,8 @@ fn search_origin(
         None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
     };
     let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-    let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
-    Ok((here, range_of(current), filters.unwrap_or_default().for_ship(pad)))
+    let fleet = st.as_ref().ok().map(|s| &s.fleet);
+    Ok((here, range_of(current), astromech_galaxy::filters::resolve(filters, fleet)))
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)
@@ -972,9 +976,8 @@ fn settings() -> Result<astromech_store::Store, String> {
 async fn search_filters(app: tauri::AppHandle, lookup: String) -> Result<astromech_galaxy::Filters, String> {
     blocking(move || {
         let st = engineering_state(&app.state::<EngineeringCache>()).ok();
-        let ship = st.as_ref().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-        let pad = ship.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
-        astromech_galaxy::filters::load(&settings()?, &lookup, pad).map_err(|e| e.to_string())
+        astromech_galaxy::filters::load_for_fleet(&settings()?, &lookup, st.as_ref().map(|s| &s.fleet))
+            .map_err(|e| e.to_string())
     })
     .await
 }
@@ -1150,6 +1153,7 @@ fn main() {
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
+        .manage(Remote(astromech_data::Client::shared(&app_dir(), std::sync::Arc::new(|s: &str| eprintln!("{s}")))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![

@@ -219,6 +219,7 @@ dependencies = [
  "ed25519-dalek",
  "notify",
  "png",
+ "rusqlite",
  "serde",
  "serde_json",
  "sha2",
@@ -246,6 +247,7 @@ dependencies = [
 name = "astromech-eddn"
 version = "0.1.5"
 dependencies = [
+ "astromech-store",
  "flate2",
  "jsonschema",
  "rusqlite",
@@ -294,6 +296,7 @@ version = "0.1.5"
 dependencies = [
  "anyhow",
  "astromech-data",
+ "astromech-engineering",
  "astromech-journal",
  "astromech-materials",
  "astromech-powerplay",

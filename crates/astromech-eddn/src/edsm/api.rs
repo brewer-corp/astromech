@@ -16,6 +16,12 @@ pub const DISCARD_URL: &str = "https://www.edsm.net/api-journal-v1/discard";
 /// `GET`: the commander's flight log (one week at most; 360 requests an hour per user).
 pub const LOGS_URL: &str = "https://www.edsm.net/api-logs-v1/get-logs";
 
+/// How long a request may take overall. The flight log is read while the app window waits on
+/// the core, which it does for 15 s at most (`call_with` in the shell), so it must give up
+/// sooner for the page to show our own message.
+pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
+pub const FLIGHT_LOG_TIMEOUT: Duration = Duration::from_secs(10);
+
 /// Answers longer than this are cut off (the discard list is a few KB; a week of flight log
 /// well under this).
 const MAX_ANSWER: u64 = 4 * 1024 * 1024;
@@ -30,21 +36,24 @@ pub trait Api: Send {
 pub struct HttpApi {
     agent: ureq::Agent,
     user_agent: String,
+    timeout: Duration,
 }
 
 impl HttpApi {
     pub fn new(user_agent: &str) -> Self {
-        Self {
-            agent: ureq::AgentBuilder::new().timeout(Duration::from_secs(30)).build(),
-            user_agent: user_agent.into(),
-        }
+        Self::with_timeout(user_agent, REQUEST_TIMEOUT)
     }
 
-    fn answer(r: Result<ureq::Response, ureq::Error>) -> Result<Response, String> {
+    /// Every request gives up after `timeout` overall.
+    pub fn with_timeout(user_agent: &str, timeout: Duration) -> Self {
+        Self { agent: ureq::AgentBuilder::new().timeout(timeout).build(), user_agent: user_agent.into(), timeout }
+    }
+
+    fn answer(&self, r: Result<ureq::Response, ureq::Error>) -> Result<Response, String> {
         let resp = match r {
             Ok(r) => r,
             Err(ureq::Error::Status(_, r)) => r,
-            Err(ureq::Error::Transport(t)) => return Err(transport_error(&t)),
+            Err(ureq::Error::Transport(t)) => return Err(transport_error(&t, self.timeout)),
         };
         let status = resp.status();
         let mut body = String::new();
@@ -55,12 +64,19 @@ impl HttpApi {
 
 /// What went wrong, without the URL: ureq's own text starts with the URL, and a `GET` to EDSM
 /// carries the API key in its query.
-fn transport_error(t: &ureq::Transport) -> String {
+fn transport_error(t: &ureq::Transport, timeout: Duration) -> String {
     let mut e = t.kind().to_string();
     let mut cause = std::error::Error::source(t);
+    let mut timed_out = false;
     while let Some(c) = cause {
+        timed_out |= c
+            .downcast_ref::<std::io::Error>()
+            .is_some_and(|io| matches!(io.kind(), std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock));
         e = format!("{e}: {c}");
         cause = c.source();
+    }
+    if timed_out {
+        return format!("EDSM didn't answer within {} s", timeout.as_secs());
     }
     e
 }
@@ -71,12 +87,12 @@ impl Api for HttpApi {
         for (k, v) in query {
             req = req.query(k, v);
         }
-        Self::answer(req.call())
+        self.answer(req.call())
     }
 
     fn post_json(&self, url: &str, body: &[u8]) -> Result<Response, String> {
         let req = self.agent.post(url).set("User-Agent", &self.user_agent).set("Content-Type", "application/json");
-        Self::answer(req.send_bytes(body))
+        self.answer(req.send_bytes(body))
     }
 }
 
@@ -236,6 +252,19 @@ pub(crate) mod tests {
         assert!(e.to_ascii_lowercase().contains("connection"), "still says what went wrong: {e}");
         let e = api.post_json(&url, br#"{"apiKey":"SECRETKEY"}"#).unwrap_err();
         assert!(!e.contains("SECRETKEY"), "{e}");
+    }
+
+    #[test]
+    fn a_slow_flight_log_says_edsm_did_not_answer_in_time() {
+        // The app window gives up on the core after 15 s: ours must come first.
+        assert!(FLIGHT_LOG_TIMEOUT < Duration::from_secs(15));
+        // A server that accepts the connection and never answers.
+        let l = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let url = format!("http://{}/api-logs-v1/get-logs", l.local_addr().unwrap());
+        let api = HttpApi::with_timeout("astromech/test", Duration::from_secs(1));
+        let e = api.get(&url, &[("commanderName", "Jameson"), ("apiKey", "SECRETKEY")]).unwrap_err();
+        assert_eq!(e, "EDSM didn't answer within 1 s");
+        drop(l);
     }
 
     #[test]

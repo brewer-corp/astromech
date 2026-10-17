@@ -13,6 +13,7 @@ workspace = true
 
 [dependencies]
 astromech-journal.workspace = true
+astromech-engineering.workspace = true
 astromech-powerplay.workspace = true
 rusqlite = { version = "0.40", features = ["bundled"] }
 serde.workspace = true

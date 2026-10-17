@@ -28,8 +28,8 @@ use api::Api;
 use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::path::Path;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, RwLock};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Arc, Mutex, RwLock};
 use std::time::{Duration, Instant};
 use transient::Transient;
 
@@ -41,6 +41,9 @@ pub const KEY_SECRET: &str = "edsm-api-key";
 pub const BATCH: usize = 50;
 /// The discard list is fetched again after this long (seconds).
 pub const DISCARD_MAX_AGE: i64 = 24 * 3600;
+/// Outbox meta key: the newest send-log row id when the credentials last changed. The status
+/// doesn't show errors logged up to it as the last error.
+pub const ERRORS_CLEARED: &str = "errors_cleared_at";
 /// The send-log label for rows about requests (several events) rather than one event.
 pub const JOURNAL: &str = "journal";
 
@@ -64,17 +67,44 @@ impl std::fmt::Debug for Credentials {
 
 /// The user's EDSM switch: credentials while sharing is on, `None` while off (switched off, no
 /// commander name, or no API key). Read on every event and before every request, so a change
-/// takes effect at once.
-#[derive(Debug, Default)]
-pub struct Switch(RwLock<Option<Credentials>>);
+/// takes effect at once. Changed credentials also wake the uploader and tell the courier to
+/// retry what a wrong name or key held back, without waiting out the backoff.
+#[derive(Default)]
+pub struct Switch {
+    creds: RwLock<Option<Credentials>>,
+    /// Counts changes to the credentials (not turning off).
+    generation: AtomicU64,
+    waker: Mutex<Option<Box<dyn Fn() + Send + Sync>>>,
+}
+
+impl std::fmt::Debug for Switch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Switch").field("creds", &self.creds).finish_non_exhaustive()
+    }
+}
 
 impl Switch {
     /// Set the credentials (or turn sharing off). Returns whether sharing was on.
     pub fn set(&self, c: Option<Credentials>) -> bool {
-        std::mem::replace(&mut *self.0.write().unwrap(), c).is_some()
+        let new = c.is_some();
+        let old = std::mem::replace(&mut *self.creds.write().unwrap(), c.clone());
+        if new && old != c {
+            self.generation.fetch_add(1, Ordering::SeqCst);
+            if let Some(wake) = &*self.waker.lock().unwrap() {
+                wake();
+            }
+        }
+        old.is_some()
     }
     pub fn get(&self) -> Option<Credentials> {
-        self.0.read().unwrap().clone()
+        self.creds.read().unwrap().clone()
+    }
+    /// What to call when the credentials change (the uploader's [`Worker::waker`]).
+    pub fn set_waker(&self, wake: impl Fn() + Send + Sync + 'static) {
+        *self.waker.lock().unwrap() = Some(Box::new(wake));
+    }
+    fn generation(&self) -> u64 {
+        self.generation.load(Ordering::SeqCst)
     }
 }
 
@@ -174,6 +204,7 @@ impl Uploader {
         );
         let worker_log = log.clone();
         let worker = Worker::spawn(courier, "EDSM", move |m| worker_log(m))?;
+        switch.set_waker(worker.waker());
         Ok(Self { worker: Some(worker), log, ..Self::new(outbox, switch, discards) })
     }
 
@@ -234,13 +265,24 @@ enum Answer {
     Hold(String),
     /// Nothing was stored, and sending the same again won't change that.
     Reject(String),
+    /// EDSM refused the request itself (an HTTP status such as 413, an answer that isn't
+    /// readable, or one that doesn't cover every event). It may pass later, but a request that
+    /// is refused the same way every time is given up after [`MAX_ATTEMPTS`] instead of
+    /// blocking the queue.
+    Refused(String),
 }
 
 /// Read EDSM's answer to a request of `n` events (codes from the Journal API v1 docs).
 fn answer(r: Result<crate::transport::Response, String>, n: usize) -> Answer {
-    let v = match r.and_then(|r| api::json_answer(&r)) {
-        Ok(v) => v,
+    let r = match r {
+        Ok(r) => r,
         Err(e) => return Answer::Hold(e),
+    };
+    let v = match api::json_answer(&r) {
+        Ok(v) => v,
+        // Busy or broken at EDSM's end: wait. Any other status, or a body that isn't JSON: refused.
+        Err(e) if r.status == 408 || r.status == 429 || r.status >= 500 => return Answer::Hold(e),
+        Err(e) => return Answer::Refused(e),
     };
     match api::code(&v) {
         (100, _) => {
@@ -249,7 +291,7 @@ fn answer(r: Result<crate::transport::Response, String>, n: usize) -> Answer {
             if each.len() == n {
                 Answer::Each(each)
             } else {
-                Answer::Hold(format!("answer for {} of {n} events", each.len()))
+                Answer::Refused(format!("answer for {} of {n} events", each.len()))
             }
         }
         // 201-203: commander name or API key missing or unknown; 5xx: EDSM's own failure.
@@ -268,6 +310,8 @@ pub struct Courier {
     /// No retry before this instant: a minute after the last failure (or the start).
     hold_until: Instant,
     stop: Arc<AtomicBool>,
+    /// The switch's generation when the queue was last released.
+    seen: u64,
 }
 
 impl Courier {
@@ -279,7 +323,8 @@ impl Courier {
         discards: Arc<Discards>,
         started: Instant,
     ) -> Self {
-        Self { outbox, api, software, switch, discards, hold_until: started + MIN_RETRY, stop: Arc::default() }
+        let seen = switch.generation();
+        Self { outbox, api, software, switch, discards, hold_until: started + MIN_RETRY, stop: Arc::default(), seen }
     }
 
     pub fn outbox(&self) -> &Outbox {
@@ -371,6 +416,34 @@ impl Courier {
                     self.outbox.log(wall, JOURNAL, Outcome::Rejected, &format!("{n} events: {why}"))?;
                     d.rejected += n;
                 }
+                Answer::Refused(why) => {
+                    let (mut given_up, mut waiting, mut wait) = (0, 0, 0);
+                    for (q, _) in &rows {
+                        // Only refusals count here: tries lost to outages or a wrong key don't.
+                        if q.refusals + 1 >= MAX_ATTEMPTS {
+                            self.outbox.take(q.id)?;
+                            given_up += 1;
+                        } else {
+                            let w = backoff(q.refusals + 1);
+                            self.outbox.refuse_at(q.id, q.attempts + 1, q.refusals + 1, wall + w)?;
+                            wait = wait.max(w);
+                            waiting += 1;
+                        }
+                    }
+                    if given_up > 0 {
+                        let why = format!("{given_up} events refused {MAX_ATTEMPTS} times; last: {why}");
+                        self.outbox.log(wall, JOURNAL, Outcome::GaveUp, &why)?;
+                        d.gave_up += given_up;
+                    }
+                    if waiting > 0 {
+                        self.outbox.hold_due(wall, wall + wait)?;
+                        self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; retry in {wait} s"))?;
+                        d.retrying += waiting;
+                        d.stopped = true;
+                        self.hold_until = mono + MIN_RETRY;
+                        return Ok(());
+                    }
+                }
                 Answer::Hold(why) => {
                     let attempts = rows[0].0.attempts + 1;
                     let wait = backoff(attempts);
@@ -451,6 +524,15 @@ impl Pass for Courier {
             return Ok(Delivery { gave_up: n, ..Default::default() });
         };
         let mut d = Delivery::default();
+        // The name or key was changed in Settings: what a wrong one held back goes now, and the
+        // error it caused is no longer news.
+        let generation = self.switch.generation();
+        if generation != self.seen {
+            self.seen = generation;
+            self.outbox.make_due(wall)?;
+            self.outbox.set_meta(ERRORS_CLEARED, &self.outbox.last_log_id()?.to_string())?;
+            self.hold_until = mono;
+        }
         if self.outbox.pending()? == 0 {
             return Ok(d);
         }

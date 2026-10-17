@@ -1184,6 +1184,7 @@
   {
    "id": "maverick",
    "name": "Maverick Suit",
+   "journal": "utilitysuit",
    "upgrades": [
     {
      "grade": 2,
@@ -1234,6 +1235,7 @@
   {
    "id": "dominator",
    "name": "Dominator Suit",
+   "journal": "tacticalsuit",
    "upgrades": [
     {
      "grade": 2,
@@ -1284,6 +1286,7 @@
   {
    "id": "artemis",
    "name": "Artemis Suit",
+   "journal": "explorationsuit",
    "upgrades": [
     {
      "grade": 2,
@@ -1336,6 +1339,7 @@
   {
    "id": "karmaar50",
    "name": "Karma AR-50",
+   "journal": "wpn_m_assaultrifle_kinetic_fauto",
    "maker": "kinematic",
    "upgrades": [
     {
@@ -1387,6 +1391,7 @@
   {
    "id": "karmac44",
    "name": "Karma C-44",
+   "journal": "wpn_m_submachinegun_kinetic_fauto",
    "maker": "kinematic",
    "upgrades": [
     {
@@ -1438,6 +1443,7 @@
   {
    "id": "karmal6",
    "name": "Karma L-6",
+   "journal": "wpn_m_launcher_rocket_sauto",
    "maker": "kinematic",
    "upgrades": [
     {
@@ -1489,6 +1495,7 @@
   {
    "id": "karmap15",
    "name": "Karma P-15",
+   "journal": "wpn_s_pistol_kinetic_sauto",
    "maker": "kinematic",
    "upgrades": [
     {
@@ -1540,6 +1547,7 @@
   {
    "id": "manticoreexecutioner",
    "name": "Manticore Executioner",
+   "journal": "wpn_m_sniper_plasma_charged",
    "maker": "manticore",
    "upgrades": [
     {
@@ -1591,6 +1599,7 @@
   {
    "id": "manticoreintimidator",
    "name": "Manticore Intimidator",
+   "journal": "wpn_m_shotgun_plasma_doublebarrel",
    "maker": "manticore",
    "upgrades": [
     {
@@ -1642,6 +1651,7 @@
   {
    "id": "manticoreoppressor",
    "name": "Manticore Oppressor",
+   "journal": "wpn_m_assaultrifle_plasma_fauto",
    "maker": "manticore",
    "upgrades": [
     {
@@ -1693,6 +1703,7 @@
   {
    "id": "manticoretormentor",
    "name": "Manticore Tormentor",
+   "journal": "wpn_s_pistol_plasma_charged",
    "maker": "manticore",
    "upgrades": [
     {
@@ -1744,6 +1755,7 @@
   {
    "id": "tkaphelion",
    "name": "TK Aphelion",
+   "journal": "wpn_m_assaultrifle_laser_fauto",
    "maker": "takada",
    "upgrades": [
     {
@@ -1795,6 +1807,7 @@
   {
    "id": "tkeclipse",
    "name": "TK Eclipse",
+   "journal": "wpn_m_submachinegun_laser_fauto",
    "maker": "takada",
    "upgrades": [
     {
@@ -1846,6 +1859,7 @@
   {
    "id": "tkzenith",
    "name": "TK Zenith",
+   "journal": "wpn_s_pistol_laser_sauto",
    "maker": "takada",
    "upgrades": [
     {
@@ -1900,6 +1914,7 @@
    "id": "addedmeleedamage",
    "name": "Added Melee Damage",
    "kind": "suit",
+   "journal": "suit_increasedmeleedamage",
    "costs": [
     {
      "maker": null,
@@ -1917,6 +1932,7 @@
    "id": "combatmovementspeed",
    "name": "Combat Movement Speed",
    "kind": "suit",
+   "journal": "suit_adsmovementspeed",
    "costs": [
     {
      "maker": null,
@@ -1934,6 +1950,7 @@
    "id": "damageresistance",
    "name": "Damage Resistance",
    "kind": "suit",
+   "journal": "suit_improvedarmourrating",
    "costs": [
     {
      "maker": null,
@@ -1952,6 +1969,7 @@
    "id": "enhancedtracking",
    "name": "Enhanced Tracking",
    "kind": "suit",
+   "journal": "suit_improvedradar",
    "costs": [
     {
      "maker": null,
@@ -1970,6 +1988,7 @@
    "id": "extraammocapacity",
    "name": "Extra Ammo Capacity",
    "kind": "suit",
+   "journal": "suit_increasedammoreserves",
    "costs": [
     {
      "maker": null,
@@ -1987,6 +2006,7 @@
    "id": "extrabackpackcapacity",
    "name": "Extra Backpack Capacity",
    "kind": "suit",
+   "journal": "suit_backpackcapacity",
    "costs": [
     {
      "maker": null,
@@ -2005,6 +2025,7 @@
    "id": "fastershieldregen",
    "name": "Faster Shield Regen",
    "kind": "suit",
+   "journal": "suit_increasedshieldregen",
    "costs": [
     {
      "maker": null,
@@ -2022,6 +2043,7 @@
    "id": "improvedbatterycapacity",
    "name": "Improved Battery Capacity",
    "kind": "suit",
+   "journal": "suit_increasedbatterycapacity",
    "costs": [
     {
      "maker": null,
@@ -2040,6 +2062,7 @@
    "id": "improvedjumpassist",
    "name": "Improved Jump Assist",
    "kind": "suit",
+   "journal": "suit_improvedjumpassist",
    "costs": [
     {
      "maker": null,
@@ -2057,6 +2080,7 @@
    "id": "increasedairreserves",
    "name": "Increased Air Reserves",
    "kind": "suit",
+   "journal": "suit_increasedo2capacity",
    "costs": [
     {
      "maker": null,
@@ -2074,6 +2098,7 @@
    "id": "increasedsprintduration",
    "name": "Increased Sprint Duration",
    "kind": "suit",
+   "journal": "suit_increasedsprintduration",
    "costs": [
     {
      "maker": null,
@@ -2092,6 +2117,7 @@
    "id": "nightvision",
    "name": "Night Vision",
    "kind": "suit",
+   "journal": "suit_nightvision",
    "costs": [
     {
      "maker": null,
@@ -2110,6 +2136,7 @@
    "id": "quieterfootsteps",
    "name": "Quieter Footsteps",
    "kind": "suit",
+   "journal": "suit_quieterfootsteps",
    "costs": [
     {
      "maker": null,
@@ -2128,6 +2155,7 @@
    "id": "reducedtoolbatteryconsumption",
    "name": "Reduced Tool Battery Consumption",
    "kind": "suit",
+   "journal": "suit_reducedtoolbatteryconsumption",
    "costs": [
     {
      "maker": null,
@@ -2145,6 +2173,7 @@
    "id": "audiomasking",
    "name": "Audio Masking",
    "kind": "weapon",
+   "journal": "weapon_suppression_unpressurised",
    "costs": [
     {
      "maker": null,
@@ -2163,6 +2192,7 @@
    "id": "fasterhandling",
    "name": "Faster Handling",
    "kind": "weapon",
+   "journal": "weapon_handling",
    "costs": [
     {
      "maker": null,
@@ -2180,6 +2210,7 @@
    "id": "greaterrange",
    "name": "Greater Range",
    "kind": "weapon",
+   "journal": "weapon_range",
    "costs": [
     {
      "maker": "kinematic",
@@ -2220,6 +2251,7 @@
    "id": "headshotdamage",
    "name": "Headshot Damage",
    "kind": "weapon",
+   "journal": "weapon_headshotdamage",
    "costs": [
     {
      "maker": "kinematic",
@@ -2260,6 +2292,7 @@
    "id": "improvedhipfireaccuracy",
    "name": "Improved Hip Fire Accuracy",
    "kind": "weapon",
+   "journal": "weapon_accuracy",
    "costs": [
     {
      "maker": "kinematic",
@@ -2300,6 +2333,7 @@
    "id": "magazinesize",
    "name": "Magazine Size",
    "kind": "weapon",
+   "journal": "weapon_clipsize",
    "costs": [
     {
      "maker": null,
@@ -2318,6 +2352,7 @@
    "id": "noisesuppressor",
    "name": "Noise Suppressor",
    "kind": "weapon",
+   "journal": "weapon_suppression_pressurised",
    "costs": [
     {
      "maker": null,
@@ -2335,6 +2370,7 @@
    "id": "reloadspeed",
    "name": "Reload Speed",
    "kind": "weapon",
+   "journal": "weapon_reloadspeed",
    "costs": [
     {
      "maker": null,
@@ -2353,6 +2389,7 @@
    "id": "scope",
    "name": "Scope",
    "kind": "weapon",
+   "journal": "weapon_scope",
    "costs": [
     {
      "maker": null,
@@ -2370,6 +2407,7 @@
    "id": "stability",
    "name": "Stability",
    "kind": "weapon",
+   "journal": "weapon_stability",
    "costs": [
     {
      "maker": null,
@@ -2387,6 +2425,7 @@
    "id": "stowedreloading",
    "name": "Stowed Reloading",
    "kind": "weapon",
+   "journal": "weapon_backpackreloading",
    "costs": [
     {
      "maker": null,

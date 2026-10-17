@@ -93,6 +93,7 @@ fn asking_by_voice_answers_the_latest_session() {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     let assistant = Assistant::new(runner).with_sessions(shared.sessions.clone());
@@ -114,8 +115,39 @@ fn without_a_history_it_says_so() {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     Assistant::new(runner).handle("session summary", Origin::Voice);
     assert_eq!(speaker.take(), ["No session history yet."]);
+}
+
+#[test]
+fn a_history_that_cannot_be_read_says_so_rather_than_no_history() {
+    struct Locked;
+    impl astromech_announce::session_summary::SessionHistory for Locked {
+        fn session(
+            &self,
+            _: Option<&str>,
+            _: Option<&str>,
+        ) -> Result<Option<astromech_announce::session_summary::Totals>, astromech_announce::session_summary::Unreadable>
+        {
+            Err(astromech_announce::session_summary::Unreadable)
+        }
+    }
+    let shared = Shared::default();
+    shared.sessions.set(Arc::new(Locked));
+    let speaker = Arc::new(RecordingSpeaker::default());
+    let runner = Arc::new(Runner {
+        policy: Policy::new(Arc::new(NoKeys), PolicyConfig::default()),
+        hub: Arc::new(StateHub::new()),
+        binds: Arc::new(RwLock::new(BindsState::default())),
+        speaker: speaker.clone(),
+        verify_timeout: Duration::from_millis(200),
+        log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
+        galaxy: None,
+    });
+    Assistant::new(runner).with_sessions(shared.sessions.clone()).handle("session summary", Origin::Voice);
+    assert_eq!(speaker.take(), ["Session history is unreadable right now."]);
 }

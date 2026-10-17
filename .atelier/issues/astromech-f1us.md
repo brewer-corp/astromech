@@ -3,6 +3,9 @@ created_at: "2026-10-16T22:14:30.718314856+00:00"
 id: "astromech-f1us"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-f1us
 priority: "P2"
 relationships:
   blocks: []
@@ -13,13 +16,17 @@ relationships:
     id: "astromech-7q0z"
     type: "advances"
   - kind: "issue"
+    id: "astromech-d0zh"
+    type: "related"
+  - kind: "issue"
     id: "astromech-j4c9"
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T05:16:39.401461087+00:00"
+status: "done"
 title: "On foot: owned suits and weapons with their grades and mods"
-updated_at: "2026-10-16T22:14:30.718314856+00:00"
+updated_at: "2026-10-17T05:16:39.401461087+00:00"
 ---
 
 ## Goal
@@ -33,3 +40,7 @@ A synthetic journal with suit and weapon purchases and upgrades gives each owned
 ## Context
 
 Follow-up of astromech-j4c9, which built the picker with a free choice of grade range.
+
+## Close Reason
+
+Owned suits and weapons with grade and mods come from the journal; the picker upgrades owned gear from its current grade and hides fitted mods. Proof at 8c44bd9; review outstanding (orchestrator arranges).

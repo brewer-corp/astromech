@@ -2,7 +2,7 @@
 
 mod common;
 
-use astromech_announce::session_summary::{SessionHistory, Totals};
+use astromech_announce::session_summary::{SessionHistory, Totals, Unreadable};
 use astromech_announce::*;
 use common::Run;
 use std::sync::{Arc, Mutex};
@@ -24,9 +24,9 @@ const SAID: [&str; 3] =
 struct Fixture(Mutex<Option<Totals>>, Mutex<Vec<(Option<String>, Option<String>)>>);
 
 impl SessionHistory for Fixture {
-    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Option<Totals> {
+    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Result<Option<Totals>, Unreadable> {
         self.1.lock().unwrap().push((commander.map(Into::into), at.map(Into::into)));
-        self.0.lock().unwrap().clone()
+        Ok(self.0.lock().unwrap().clone())
     }
 }
 
@@ -83,6 +83,21 @@ fn it_waits_for_the_history_to_hold_the_last_line_and_gives_up_after_a_while() {
 }
 
 #[test]
+fn a_replayed_line_during_the_wait_keeps_the_pending_summary() {
+    let (mut r, h) = run(Some(totals("2026-10-16T20:59:00Z")));
+    r.spoken(LOAD_GAME);
+    r.spoken(SHUTDOWN);
+    assert!(r.tick(NOW).is_empty(), "the history has not caught up yet");
+    // A line replayed while it waits (for instance a journal re-read) must not drop the summary.
+    r.engine.set_live(false);
+    r.spoken(MENU);
+    r.engine.set_live(true);
+    *h.0.lock().unwrap() = Some(totals("2026-10-16T21:00:05Z"));
+    assert_eq!(r.tick(NOW + 2), SAID);
+    assert!(r.tick(NOW + 3).is_empty(), "and it speaks once");
+}
+
+#[test]
 fn a_session_with_nothing_to_report_says_nothing() {
     let quiet =
         Totals { total: 0, per_hour: None, jumps: 0, distance_ly: 0.0, bounties: 0, ..totals("2026-10-16T21:00:05Z") };
@@ -131,5 +146,70 @@ fn a_menu_before_the_login_of_a_fresh_launch_says_nothing() {
     // The login arms it: the session that follows ends with a summary.
     r.spoken(LOAD_GAME);
     r.spoken(MENU);
+    assert_eq!(r.tick(NOW), SAID);
+}
+
+#[test]
+fn a_start_in_the_middle_of_a_session_summarises_it_at_the_live_shutdown() {
+    // astromech starts after the login: the catch-up holds the `LoadGame`, only the end is live.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(true);
+    assert!(r.tick(NOW - 5).is_empty());
+    r.spoken(SHUTDOWN);
+    assert_eq!(r.tick(NOW), SAID);
+    assert!(r.tick(NOW + 1).is_empty(), "once");
+
+    // Same when the end is the first live thing, with no tick before it.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert_eq!(r.tick(NOW), SAID);
+}
+
+#[test]
+fn a_session_that_ended_before_astromech_started_is_not_summarised_again() {
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(MENU);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
+    assert!(r.tick(NOW).is_empty());
+}
+
+#[test]
+fn a_catch_up_that_ends_in_the_shutdown_leaves_nothing_to_summarise() {
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(SHUTDOWN);
+    r.engine.set_live(true);
+    r.spoken(MENU);
+    assert!(r.tick(NOW).is_empty());
+}
+
+#[test]
+fn a_crashed_session_is_not_summarised_by_the_next_launch() {
+    // The catch-up holds a session that never logged out (a crash), then the next run's file.
+    let (mut r, h) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:00Z","event":"Fileheader","part":1,"gameversion":"4.0","build":"b"}"#);
+    r.engine.set_live(true);
+    r.spoken(r#"{"timestamp":"2026-10-17T09:00:01Z","event":"Music","MusicTrack":"MainMenu"}"#);
+    assert!(r.tick(NOW + 40_000).is_empty());
+    assert!(h.1.lock().unwrap().is_empty(), "nothing was even asked");
+
+    // A rollover to part 2 is the same session.
+    let (mut r, _) = run(Some(totals("2026-10-16T21:00:05Z")));
+    r.engine.set_live(false);
+    r.spoken(LOAD_GAME);
+    r.spoken(r#"{"timestamp":"2026-10-16T20:00:00Z","event":"Fileheader","part":2,"gameversion":"4.0","build":"b"}"#);
+    r.engine.set_live(true);
+    r.spoken(SHUTDOWN);
     assert_eq!(r.tick(NOW), SAID);
 }

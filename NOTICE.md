@@ -108,6 +108,10 @@ page (elite-dangerous.fandom.com/wiki/Engineers, by its contributors, CC BY-SA p
 fandom.com/licensing); everything else is facts (names, numbers) without wiki text. The facts
 are Elite Dangerous game data, © Frontier Developments plc, as shown to every player in game.
 Values the wiki leaves blank or contradicts itself on are listed under `uncertain` in the file.
+The journal names of the suits, weapons and modifications in it (`journal` fields, used to read the
+owned gear from the journal) are from EDCD/EDDI's data definitions and the community journal
+schemas jixxed/ed-journal-schemas; only the identifiers are taken (no code or text), which the game writes to the player's
+own journal.
 ED Odyssey Materials Helper's game data is in a closed library and is not used.
 
 ## Exobiology data

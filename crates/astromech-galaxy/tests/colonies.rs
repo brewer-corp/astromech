@@ -243,3 +243,29 @@ fn the_age_filter_and_the_cache_apply() {
     let _ = g.colony_candidates(Interest::Any, &here(), 20.0, 100, &recent).unwrap();
     assert_eq!(rec.sent.lock().unwrap().len(), n, "the second search is served from the cache");
 }
+
+#[test]
+fn the_data_age_is_sent_with_the_unpopulated_search() {
+    let rec = Arc::new(Recorded::default());
+    let g = galaxy(rec.clone());
+    let now = chrono::Utc::now().timestamp();
+    let _ = g
+        .colony_candidates(Interest::Any, &here(), 20.0, 100, &Filters { max_age_days: Some(10), ..radius(30) })
+        .unwrap();
+    let rec2 = Arc::new(Recorded::default());
+    let _ = galaxy(rec2.clone()).colony_candidates(Interest::Any, &here(), 20.0, 100, &radius(30)).unwrap();
+    let unpopulated = |r: &Recorded| {
+        r.sent
+            .lock()
+            .unwrap()
+            .iter()
+            .find(|(u, b)| u.ends_with("/api/systems/search") && b["filters"]["population"]["value"][1] == "0")
+            .map(|(_, b)| b.clone())
+            .unwrap()
+    };
+    let age = &unpopulated(&rec)["filters"]["updated_at"];
+    assert_eq!(age["comparison"], "<=>");
+    let since = chrono::DateTime::parse_from_rfc3339(age["value"][0].as_str().unwrap()).unwrap().timestamp();
+    assert!((now - 10 * 86_400 - since).abs() <= 2 * 3600, "{age}");
+    assert!(unpopulated(&rec2)["filters"].get("updated_at").is_none());
+}

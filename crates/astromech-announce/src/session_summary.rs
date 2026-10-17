@@ -16,6 +16,10 @@
 //! clock tick asks the history, and asks again until it holds the line that ended the session
 //! (its `end` is not before it), giving up after [`WAIT_SECS`]. It speaks once per session: a
 //! `Shutdown` after a return to the menu says nothing new, and the next `LoadGame` starts over.
+//! It arms on a `LoadGame` seen live, or when the startup catch-up ends inside a logged-in
+//! session, so starting astromech mid-session still summarises that session at its logout; a
+//! fresh launch's menu, before any login, says nothing. A replayed line starts the state over
+//! but keeps a summary that is waiting for the history.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -38,13 +42,18 @@ pub struct Totals {
     pub bounties: i64,
 }
 
+/// The history could not be read (lock lost, database busy, read error): not the same as
+/// holding no session, so the voice query says so instead of "no history yet".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Unreadable;
+
 /// The commander's session history, as the summary needs it. Called from the pipeline thread,
-/// which must never block: answer from an indexed read with a short timeout, `None` when it
-/// can't (no history yet, database busy).
+/// which must never block: answer from an indexed read with a short timeout, `Err` when it
+/// can't (database busy or unreadable), `Ok(None)` when it holds no such session.
 pub trait SessionHistory: Send + Sync {
     /// The session of `commander` (the latest commander if `None`) that was going on at `at`
     /// (journal timestamp; the latest session if `None`).
-    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Option<Totals>;
+    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Result<Option<Totals>, Unreadable>;
 }
 
 /// The history the core plugs in once it has one.
@@ -112,9 +121,11 @@ struct Ended {
     pending: Option<(Option<String>, String, Option<i64>)>,
     /// The session already said its summary.
     spoken: bool,
-    /// A `LoadGame` was seen live in this run. The game writes `Music` `MainMenu` at launch, and
-    /// possibly after `Commander` and before `LoadGame`, when the state still holds the
-    /// previous session: nothing ends a session that this run has not seen begin.
+    /// A session is going on that this run has seen begin: a `LoadGame` seen live, or one in
+    /// the startup catch-up with no logout after it (astromech started mid-session). The game
+    /// writes `Music` `MainMenu` at launch, and possibly after `Commander` and before
+    /// `LoadGame`, when the state still holds the previous session: nothing ends a session
+    /// that this run has not seen begin.
     armed: bool,
 }
 
@@ -150,6 +161,15 @@ impl Rule for SessionSummary {
     fn cooldown(&self) -> Duration {
         Duration::ZERO
     }
+    fn replayed(&self, input: &Input, state: &GameState) {
+        if matches!(input, Input::Journal(_)) {
+            // A summary already waiting for the history survives a replayed line: that session
+            // really ended live, and the replay says nothing about it.
+            let mut ended = self.ended.lock().unwrap();
+            let pending = ended.pending.take();
+            *ended = Ended { pending, armed: state.logged_in, ..Ended::default() };
+        }
+    }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
         self.react_all(input, state).into_iter().next()
     }
@@ -170,7 +190,7 @@ impl Rule for SessionSummary {
                 let found = self
                     .sessions
                     .get()
-                    .and_then(|h| h.session(commander.as_deref(), Some(ts)))
+                    .and_then(|h| h.session(commander.as_deref(), Some(ts)).ok().flatten())
                     .filter(|t| t.end.as_str() >= ts.as_str());
                 match found {
                     Some(t) => {

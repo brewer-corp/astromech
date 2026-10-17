@@ -6,7 +6,10 @@ fn main() -> anyhow::Result<()> {
         anyhow::bail!("usage: nearby <galaxy.db> <system> <query> [range]");
     };
     let range: f64 = rest.first().map(|r| r.parse()).transpose()?.unwrap_or(30.0);
-    let g = astromech_galaxy::Galaxy::with_store(astromech_galaxy::Store::open(std::path::Path::new(db))?);
+    let g = astromech_galaxy::Galaxy::with_remote(
+        astromech_galaxy::Store::open(std::path::Path::new(db))?,
+        astromech_data::Client::new(astromech_data::Cache::in_memory()?),
+    );
     let pos = g.position(system)?.ok_or_else(|| anyhow::anyhow!("{system} is not in the store"))?;
     let here = astromech_galaxy::Here { system: system.clone(), id64: None, pos };
     let t = std::time::Instant::now();

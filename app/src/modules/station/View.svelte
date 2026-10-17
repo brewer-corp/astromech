@@ -61,6 +61,7 @@
     <p class="lo">Reading the journal…</p>
   {:else if !here.docked}
     <p class="lo">Not docked. Dock somewhere and the station's facts show here.</p>
+    {#if here.system}<p class="sub head"><SystemChip name={here.system} /><ExtLinks system={here.system} /></p>{/if}
   {:else}
     <p class="sub head">
       <span class="station">{here.station}</span>
