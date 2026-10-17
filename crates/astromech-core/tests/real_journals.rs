@@ -209,12 +209,15 @@ fn real_journals() {
     let copied = copy_folder(&src, &dir);
     // The dump holds names and places: never inside the repository or the journal folder.
     let dump = std::env::var_os("ASTROMECH_REAL_OUT").map(PathBuf::from).filter(|d| {
-        std::fs::create_dir_all(d).unwrap();
-        let d = d.canonicalize().unwrap();
+        // Judge the path by its nearest existing folder, before creating anything.
+        let d = std::path::absolute(d).unwrap();
+        let existing = d.ancestors().find(|a| a.exists()).unwrap().canonicalize().unwrap();
         let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").canonicalize().unwrap();
-        let inside = d.starts_with(&repo) || d.starts_with(src.canonicalize().unwrap());
+        let inside = existing.starts_with(&repo) || existing.starts_with(src.canonicalize().unwrap());
         if inside {
             eprintln!("real_journals: not writing ASTROMECH_REAL_OUT inside the repository or the journal folder");
+        } else {
+            std::fs::create_dir_all(&d).unwrap();
         }
         !inside
     });
@@ -1160,8 +1163,10 @@ fn edsm_section(lines: &[JournalLine], o: &mut Out) {
     let held = up.outbox().recent_of(&[Outcome::Dropped], 50).unwrap();
     // The real uploader also drops what EDSM's discard list names (fetched from EDSM, so not here).
     o.say(format!("{} events queued before EDSM's discard list: {}", queued.len(), fmt_counts(&by)));
-    o.say(format!(
-        "held back: {}",
-        held.iter().map(|e| e.detail.clone()).collect::<BTreeSet<_>>().into_iter().collect::<Vec<_>>().join("; ")
-    ));
+    // Reasons can name commanders ("playing as X, not Y"): keep the part before any colon.
+    let mut why: BTreeMap<String, usize> = BTreeMap::new();
+    for e in &held {
+        *why.entry(e.detail.split(':').next().unwrap_or("").to_string()).or_default() += 1;
+    }
+    o.say(format!("held back: {}", fmt_counts(&why)));
 }

@@ -26,7 +26,7 @@ The history's `ships` ledger keeps one row per ship the commander owned, even wh
 
 ## Done when
 
-A ledger test with a `ShipyardBuy` that trades in ship 5 (`SellShipID: 5`), then `ShipyardNew` `NewShipID: 5` of another type, leaves two rows: the old type sold, the new type unsold with `acquired` set. A `ShipRedeemed` (`NewShipID`) also sets `acquired`. A rebuild gives the same rows.
+A ledger test with a `ShipyardBuy` that trades in ship 5 (`SellShipID: 5`), then `ShipyardNew` `NewShipID: 5` of another type, leaves two rows: the old type sold, the new type unsold with `acquired` set. A `ShipRedeemed` (`NewShipID`) also sets `acquired`. A rebuild gives the same rows. The yin0 harness (`crates/astromech-core/tests/real_journals.rs`) reports its ships-ledger checks as problems again, not KNOWN (astromech-vett).
 
 ## Context
 
