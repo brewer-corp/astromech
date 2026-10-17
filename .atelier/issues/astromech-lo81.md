@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:13:37.920867910+00:00"
+status: "done"
 title: "Route follower: track the current system even with route_follow turned off"
-updated_at: "2026-10-17T18:58:25.100580858+00:00"
+updated_at: "2026-10-17T19:13:37.920867910+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ With the rule disabled, a jump updates the desk's current system, with a test.
 ## Context
 
 Review finding astromech-8os1 on PR #112 (astromech-1135). The engine asks only enabled rules, for both react() and replayed(), so with the toggle off the current system goes stale.
+
+## Close Reason
+
+With route_follow disabled, jumps (live and replayed) still update the desk's current system through the engine's new while_off hook; tests in announce and core. Reviewed in PR #126, no open FIX NOW.
