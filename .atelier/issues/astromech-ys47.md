@@ -3,6 +3,9 @@ created_at: "2026-10-17T07:27:41.075653802+00:00"
 id: "astromech-ys47"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ys47
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exobiology prediction: star class for moons and binary orbits; drop single-sighting conditions"
-updated_at: "2026-10-17T07:27:41.075653802+00:00"
+updated_at: "2026-10-17T07:33:08.788126393+00:00"
 ---
 
 ## Goal
