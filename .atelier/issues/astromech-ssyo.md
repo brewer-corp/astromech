@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:06:49.418327279+00:00"
 id: "astromech-ssyo"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ssyo
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Search kit: live pad label and tests for the pad and age paths"
-updated_at: "2026-10-17T05:06:49.418327279+00:00"
+updated_at: "2026-10-17T05:46:39.379439418+00:00"
 ---
 
 ## Goal
