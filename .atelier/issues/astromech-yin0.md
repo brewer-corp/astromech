@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-yin0
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Replay real journals through every module"
-updated_at: "2026-10-17T17:01:43.101183343+00:00"
+updated_at: "2026-10-17T21:10:20.815802064+00:00"
 ---
 
 ## Goal
