@@ -13,15 +13,20 @@
 //!   entry lazily; astromech-txzq), so notifications alone would stop following live play.
 //!
 //! The game-state pipeline never waits for it: separate thread, separate database file, and
-//! nothing here holds a lock the pipeline takes. Progress is in [`status`] (the control API's
-//! `status` reply, so the app can show it).
+//! nothing here holds a lock the pipeline takes. Progress is in [`Following::status`] (the control
+//! API's `status` reply, so the app can show it).
+//!
+//! The core follows the configured journal folder ([`Following`]): setting another one in the
+//! window (onboarding's `set_folders`) stops the follower and starts one on the new folder.
 
 use astromech_history::{History, ImportOptions};
 use notify::{RecursiveMode, Watcher};
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, Receiver, RecvTimeoutError, Sender};
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex};
+use std::thread::JoinHandle;
 use std::time::Duration;
 
 /// The history database's file name in the data folder.
@@ -83,17 +88,27 @@ pub struct Progress {
 
 type Log = Arc<dyn Fn(&str) + Send + Sync>;
 
-/// The history thread and its folder watcher. Dropping it stops both.
+/// The history thread and its folder watcher. Dropping it stops both, once a running import
+/// ends; [`Follower::stop`] also hands back the thread to wait for.
 pub struct Follower {
     progress: Arc<Mutex<Progress>>,
     poke: Sender<()>,
+    stop: Arc<AtomicBool>,
+    thread: Option<JoinHandle<()>>,
     _watcher: Option<Mutex<notify::RecommendedWatcher>>,
 }
 
 impl Follower {
     /// Start importing `dir` into `db` now and whenever its journals change. Returns at once.
     pub fn start(dir: PathBuf, db: PathBuf, timing: Timing, log: Log) -> Follower {
+        Self::start_after(None, dir, db, timing, log)
+    }
+
+    /// [`Follower::start`], but its thread first waits for `previous` (a stopped follower's
+    /// thread) to end, so two followers never write the database at once. Still returns at once.
+    fn start_after(previous: Option<JoinHandle<()>>, dir: PathBuf, db: PathBuf, timing: Timing, log: Log) -> Follower {
         let progress = Arc::new(Mutex::new(Progress::default()));
+        let stop = Arc::new(AtomicBool::new(false));
         let (poke, rx) = channel();
         let tx = poke.clone();
         let watcher = if timing.notify {
@@ -110,14 +125,18 @@ impl Follower {
         } else {
             None
         };
-        let p = progress.clone();
-        let l = log.clone();
-        if let Err(e) =
-            std::thread::Builder::new().name("history".into()).spawn(move || run(&dir, &db, timing, &p, &rx, &l))
-        {
-            log(&format!("history: can't start its thread: {e}"));
-        }
-        Follower { progress, poke, _watcher: watcher.map(Mutex::new) }
+        let (p, s, l) = (progress.clone(), stop.clone(), log.clone());
+        let thread = std::thread::Builder::new()
+            .name("history".into())
+            .spawn(move || {
+                if let Some(t) = previous {
+                    let _ = t.join();
+                }
+                run(&dir, &db, timing, &p, &s, &rx, &l)
+            })
+            .map_err(|e| log(&format!("history: can't start its thread: {e}")))
+            .ok();
+        Follower { progress, poke, stop, thread, _watcher: watcher.map(Mutex::new) }
     }
 
     pub fn progress(&self) -> Progress {
@@ -128,12 +147,31 @@ impl Follower {
     pub fn poke(&self) {
         let _ = self.poke.send(());
     }
+
+    /// Stop watching and importing. A running import finishes first (its batches commit as they
+    /// go, so nothing is lost either way); the returned thread ends after it.
+    pub fn stop(self) -> Option<JoinHandle<()>> {
+        self.stop.store(true, Ordering::SeqCst);
+        let _ = self.poke.send(());
+        self.thread
+    }
 }
 
-fn run(dir: &std::path::Path, db: &std::path::Path, timing: Timing, p: &Mutex<Progress>, rx: &Receiver<()>, log: &Log) {
+fn run(
+    dir: &std::path::Path,
+    db: &std::path::Path,
+    timing: Timing,
+    p: &Mutex<Progress>,
+    stop: &AtomicBool,
+    rx: &Receiver<()>,
+    log: &Log,
+) {
     let mut history: Option<History> = None;
     let mut first = true;
     loop {
+        if stop.load(Ordering::SeqCst) {
+            return;
+        }
         // Running from here: opening can migrate and rebuild the ledgers, which takes seconds.
         p.lock().unwrap().running = true;
         if history.is_none() {
@@ -185,6 +223,7 @@ fn run(dir: &std::path::Path, db: &std::path::Path, timing: Timing, p: &Mutex<Pr
         // journals to grow without one.
         loop {
             match rx.recv_timeout(timing.recheck) {
+                Ok(()) if stop.load(Ordering::SeqCst) => return,
                 Ok(()) => {
                     std::thread::sleep(timing.settle);
                     while rx.try_recv().is_ok() {}
@@ -203,32 +242,80 @@ fn run(dir: &std::path::Path, db: &std::path::Path, timing: Timing, p: &Mutex<Pr
     }
 }
 
-static CURRENT: OnceLock<Follower> = OnceLock::new();
-
-/// Start the core's one history follower (at core startup).
-pub fn start(dir: PathBuf, data_dir: PathBuf, log: Log) {
-    let _ = std::fs::create_dir_all(&data_dir);
-    let _ = CURRENT.set(Follower::start(dir, data_dir.join(DB_FILE), Timing::default(), log));
+/// The core's history follower, following the configured journal folder: [`Following::follow`]
+/// at startup and after every config edit starts it, or re-points it when the folder changed.
+///
+/// Re-pointing keeps what was imported. The history is keyed by commander and by journal file
+/// name, so another folder's journals add to it (logs from another PC are imported in game-time
+/// order, ARCHITECTURE.md §18.5) and the same journals seen through a different path aren't read
+/// twice. Deleting `history.sqlite` is how to start over.
+pub struct Following {
+    timing: Timing,
+    state: Mutex<Followed>,
 }
 
-/// The core's history progress, once [`start`] ran.
-pub fn status() -> Option<Progress> {
-    CURRENT.get().map(Follower::progress)
+#[derive(Default)]
+struct Followed {
+    /// The folder, the database and the follower importing one into the other.
+    current: Option<(PathBuf, PathBuf, Follower)>,
+    /// The thread of a follower stopped with no folder to follow next, still finishing.
+    ending: Option<JoinHandle<()>>,
+}
+
+impl Default for Following {
+    fn default() -> Self {
+        Self::new(Timing::default())
+    }
+}
+
+impl Following {
+    pub fn new(timing: Timing) -> Self {
+        Self { timing, state: Mutex::default() }
+    }
+
+    /// Import `dir`'s journals into `history.sqlite` in `data_dir` and keep following them (`None`:
+    /// stop). Nothing changes when that is already what happens. Returns at once: a replacement
+    /// waits on its own thread for the old follower's to end.
+    pub fn follow(&self, dir: Option<PathBuf>, data_dir: &Path, log: Log) {
+        let want = dir.map(|d| (d, data_dir.join(DB_FILE)));
+        let mut s = self.state.lock().unwrap();
+        if s.current.as_ref().map(|(d, db, _)| (d, db)) == want.as_ref().map(|(d, db)| (d, db)) {
+            return;
+        }
+        let previous = s.current.take().and_then(|(_, _, f)| f.stop()).or(s.ending.take());
+        match want {
+            Some((dir, db)) => {
+                let _ = std::fs::create_dir_all(data_dir);
+                log(&format!("history: following {}", dir.display()));
+                let f = Follower::start_after(previous, dir.clone(), db.clone(), self.timing, log);
+                s.current = Some((dir, db, f));
+            }
+            None => {
+                log("history: stopped; no journal folder");
+                s.ending = previous;
+            }
+        }
+    }
+
+    /// The history progress, while a folder is followed.
+    pub fn status(&self) -> Option<Progress> {
+        self.state.lock().unwrap().current.as_ref().map(|(_, _, f)| f.progress())
+    }
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::hub::StateHub;
     use std::io::Write;
-    use std::path::Path;
     use std::time::Instant;
 
     fn fixtures() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../astromech-history/tests/fixtures")
     }
 
-    fn journal_dir() -> tempfile::TempDir {
+    /// A folder with the history crate's fixture journals (52 events).
+    pub(crate) fn journal_dir() -> tempfile::TempDir {
         let d = tempfile::tempdir().unwrap();
         for p in astromech_journal::journal_logs(&fixtures()) {
             std::fs::copy(&p, d.path().join(p.file_name().unwrap())).unwrap();
@@ -236,7 +323,7 @@ mod tests {
         d
     }
 
-    fn wait_for(what: &str, mut ok: impl FnMut() -> bool) {
+    pub(crate) fn wait_for(what: &str, mut ok: impl FnMut() -> bool) {
         let end = Instant::now() + Duration::from_secs(20);
         while !ok() {
             assert!(Instant::now() < end, "timed out waiting for {what}");
@@ -333,6 +420,56 @@ mod tests {
         f.poke();
         wait_for("the import once the database is free", || f.progress().ready);
         assert_eq!(f.progress().events, 52);
+    }
+
+    const JUMP: &[u8] = b"{ \"timestamp\":\"2026-09-03T10:40:00Z\", \"event\":\"FSDJump\", \"StarSystem\":\"Ross 128\", \"SystemAddress\":3, \"JumpDist\":9.1 }\r\n";
+
+    /// Re-pointing (astromech-5t34): the new follower doesn't touch the database until the old
+    /// one's thread has ended, and the old folder isn't followed any more.
+    #[test]
+    fn re_pointing_stops_the_old_follower_first() {
+        let (j1, j2) = (journal_dir(), tempfile::tempdir().unwrap());
+        std::fs::write(
+            j2.path().join("Journal.2026-10-01T100000.01.log"),
+            concat!(
+                "{ \"timestamp\":\"2026-10-01T10:00:00Z\", \"event\":\"Fileheader\", \"part\":1, \"gameversion\":\"4.1.0.100\" }\r\n",
+                "{ \"timestamp\":\"2026-10-01T10:00:05Z\", \"event\":\"LoadGame\", \"FID\":\"F0000002\", \"Commander\":\"Other\", \"Credits\":1 }\r\n",
+                "{ \"timestamp\":\"2026-10-01T10:10:00Z\", \"event\":\"FSDJump\", \"StarSystem\":\"Barnard's Star\", \"SystemAddress\":4, \"JumpDist\":5.9 }\r\n",
+            ),
+        )
+        .unwrap();
+        let data = tempfile::tempdir().unwrap();
+        let db = data.path().join(DB_FILE);
+        let f = Following::new(fast(true));
+        f.follow(Some(j1.path().to_path_buf()), data.path(), quiet());
+        wait_for("the first folder", || f.status().is_some_and(|p| p.ready && p.events == 52));
+        f.follow(Some(j1.path().to_path_buf()), data.path(), quiet());
+        assert!(f.status().unwrap().ready, "the same folder again changes nothing");
+
+        // The old follower is busy: an import of a new line waits on another writer's lock.
+        let lock = rusqlite_lock(&db);
+        let newest = astromech_journal::newest_journal(j1.path()).unwrap();
+        std::fs::OpenOptions::new().append(true).open(&newest).unwrap().write_all(JUMP).unwrap();
+        wait_for("the old follower's import", || f.status().unwrap().running);
+        f.follow(Some(j2.path().to_path_buf()), data.path(), quiet());
+        std::thread::sleep(Duration::from_millis(300));
+        assert_eq!(f.status(), Some(Progress::default()), "the new follower waits for the old one to end");
+
+        drop(lock);
+        let reader = History::open(&db).unwrap();
+        wait_for("the new folder", || {
+            f.status().unwrap().ready
+                && reader.visits("F0000002").unwrap().iter().any(|v| v.star_system == "Barnard's Star")
+        });
+        let events = reader.event_count().unwrap();
+        assert_eq!(events, 52 + 1 + 3, "what was imported stays, the old import finished, then the new folder");
+
+        // The old folder changes: nobody imports it now.
+        std::fs::OpenOptions::new().append(true).open(&newest).unwrap().write_all(JUMP).unwrap();
+        std::fs::write(j1.path().join("Journal.2026-09-04T100000.01.log"), "{ \"timestamp\":\"2026-09-04T10:00:00Z\", \"event\":\"Fileheader\", \"part\":1, \"gameversion\":\"4.1.0.100\" }\r\n").unwrap();
+        std::thread::sleep(Duration::from_millis(500));
+        assert_eq!(reader.event_count().unwrap(), events, "the old follower stopped");
+        assert_eq!(f.status().unwrap().events, events);
     }
 
     /// An open write transaction on `db`: other writers wait, then fail with "busy".
