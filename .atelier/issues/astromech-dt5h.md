@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:19:41.130479584+00:00"
 id: "astromech-dt5h"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dt5h
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exploration: index landings by system and stop re-reading the journal for the system view"
-updated_at: "2026-10-17T05:19:41.130479584+00:00"
+updated_at: "2026-10-17T07:33:02.861272491+00:00"
 ---
 
 ## Goal
