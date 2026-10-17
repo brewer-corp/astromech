@@ -1195,4 +1195,24 @@ mod tests {
         go(&mut t, &j2);
         assert_eq!(eddn_state(&db).0, 2, "only the new line is live");
     }
+
+    /// A journal followed while still empty, left, and written to meanwhile: nothing had been read
+    /// from it (committed offset 0), so all of it is live when we come back, not a full replay.
+    #[test]
+    fn a_journal_left_while_empty_is_live_when_reopened() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, "").unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+        touch(&j1, 10);
+        t.on_journal_activity();
+        append(&j2, &format!("{}{}", session(&ts(10), "r2 "), docked(&ts(0))));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 2);
+    }
 }
