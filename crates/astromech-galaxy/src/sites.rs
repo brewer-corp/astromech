@@ -93,8 +93,11 @@ pub fn site_kind(id: &str) -> Option<&'static SiteKind> {
 
 impl SiteKind {
     /// The bodies search for this kind, nearest to `origin` first. `None` for the farms list.
-    pub fn search(&self, origin: [f64; 3], size: usize) -> Option<Search> {
-        let s = Search::near(Reference::Coords(origin)).size(size);
+    pub fn search(&self, origin: [f64; 3], size: usize, filters: &Filters, now_s: i64) -> Option<Search> {
+        let mut s = Search::near(Reference::Coords(origin)).size(size);
+        if let Some(since) = filters.updated_since(now_s) {
+            s = s.updated_since("updated_at", &since);
+        }
         match self.source {
             Source::Landmarks(subtypes) => Some(s.filter("landmark_subtype", json!({ "value": subtypes }))),
             Source::Signal(name) => {

@@ -21,8 +21,19 @@ const CONTROLLED: &[&str] = &["Exploited", "Fortified", "Stronghold"];
 
 impl Target {
     /// The Spansh search for `power`'s targets of this kind within `within_ly` of `origin`.
-    pub fn search(self, power: &str, origin: [f64; 3], within_ly: f64, size: usize) -> Search {
-        let q = Search::near(Reference::Coords(origin)).within(within_ly).size(size);
+    pub fn search(
+        self,
+        power: &str,
+        origin: [f64; 3],
+        within_ly: f64,
+        size: usize,
+        filters: &Filters,
+        now_s: i64,
+    ) -> Search {
+        let mut q = Search::near(Reference::Coords(origin)).within(within_ly).size(size);
+        if let Some(since) = filters.updated_since(now_s) {
+            q = q.updated_since("updated_at", &since);
+        }
         match self {
             Target::Acquire => q.power_state(&["Unoccupied"]).power(&[power]),
             Target::Reinforce => q.controlling_power(&[power]),
@@ -98,8 +109,8 @@ impl Galaxy {
     ) -> Result<Targets> {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
-        let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE))?;
         let now = crate::now_s();
+        let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE, filters, now))?;
         let n = page.value.results.len();
         let mut matched: Vec<System> = page.value.results.into_iter().filter(|s| target.matches(power, s)).collect();
         let warning = (n > 0 && matched.is_empty())
