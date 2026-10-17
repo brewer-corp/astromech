@@ -2,7 +2,7 @@
 
 mod common;
 
-use astromech_announce::session_summary::{SessionHistory, Totals};
+use astromech_announce::session_summary::{SessionHistory, Totals, Unreadable};
 use astromech_announce::*;
 use common::Run;
 use std::sync::{Arc, Mutex};
@@ -24,9 +24,9 @@ const SAID: [&str; 3] =
 struct Fixture(Mutex<Option<Totals>>, Mutex<Vec<(Option<String>, Option<String>)>>);
 
 impl SessionHistory for Fixture {
-    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Option<Totals> {
+    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Result<Option<Totals>, Unreadable> {
         self.1.lock().unwrap().push((commander.map(Into::into), at.map(Into::into)));
-        self.0.lock().unwrap().clone()
+        Ok(self.0.lock().unwrap().clone())
     }
 }
 
