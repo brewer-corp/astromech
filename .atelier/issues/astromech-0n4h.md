@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:07:39.115726457+00:00"
 id: "astromech-0n4h"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-0n4h
 priority: "P2"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "System view: bodies scanned on an earlier visit"
-updated_at: "2026-10-17T05:07:39.115726457+00:00"
+updated_at: "2026-10-17T07:33:05.085894729+00:00"
 ---
 
 ## Goal
