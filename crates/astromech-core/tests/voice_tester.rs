@@ -212,6 +212,36 @@ fn typed_phrase_without_elite_running_still_shows_keys() {
     assert_eq!(d.would, Would::Refused, "no game state: {}", d.message);
 }
 
+/// The route commands (docs/PLOTTING.md) are described, not reported as unavailable.
+#[test]
+fn route_commands_are_described() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut cfg = Config::default();
+    cfg.game.bindings_dir = write_binds(dir.path()).display().to_string();
+    cfg.data_dir = dir.path().join("data").display().to_string();
+    for (said, command, about) in
+        [("next waypoint", "route.next", "clipboard"), ("clear route", "route.clear", "route")]
+    {
+        let d = tester::dry_run_idle(&cfg, said);
+        assert_eq!(d.intent.unwrap().command, command);
+        assert_eq!(d.would, Would::Speak, "{said}: {}", d.message);
+        assert!(d.message.contains(about), "{said}: {}", d.message);
+    }
+    // Paste presses keys, and only in the galaxy map.
+    let d = tester::dry_run_idle(&cfg, "paste");
+    assert_eq!(d.intent.unwrap().command, "galaxy_map.paste");
+    assert_eq!((d.would, d.message.as_str()), (Would::Refused, astromech_core::route::PASTE_REFUSED));
+    let grammar = astromech_core::assistant::grammar();
+    let map = astromech_gamestate::GameState {
+        status_seen: true,
+        gui_focus: Some(astromech_status::GUI_GALAXY),
+        ..Default::default()
+    };
+    let d = tester::dry_run(&grammar, "paste", &map, &health::BindsState::default(), Source::Typed);
+    assert_eq!(d.would, Would::Press, "{}", d.message);
+    assert!(d.message.contains("Ctrl+V"), "{}", d.message);
+}
+
 /// A recorded clip through the same speech-to-text and tester path push-to-talk uses. Needs the
 /// voice worker and the Parakeet model, so it only runs when pointed at them:
 /// `ASTROMECH_TEST_WORKER=<astromech-voice-worker> ASTROMECH_TEST_MODELS=<models dir>

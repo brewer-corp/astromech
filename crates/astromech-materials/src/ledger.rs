@@ -140,6 +140,21 @@ pub fn replay_path(path: &Path) -> Ledger {
     std::fs::read(path).map(|b| replay_bytes(&b)).unwrap_or_default()
 }
 
+/// Journal lines that change a [`Ledger`], as the game writes them. `"event":"Materials"` and
+/// not just `"Materials"`: the latter is also a key on landable-body `Scan` lines.
+pub const LEDGER_EVENTS: &[&str] = &[
+    "\"event\":\"Materials\"",
+    "\"MaterialCollected\"",
+    "\"MaterialDiscarded\"",
+    "\"MaterialTrade\"",
+    "\"Synthesis\"",
+    "\"ScientificResearch\"",
+    "\"TechnologyBroker\"",
+    "\"EngineerContribution\"",
+    "\"EngineerCraft\"",
+    "\"MissionCompleted\"",
+];
+
 /// From the last `Materials` snapshot in the folder, then later deltas. Older files after that
 /// snapshot are ignored.
 pub fn replay_journal_dir(dir: &Path) -> Ledger {

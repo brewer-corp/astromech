@@ -40,7 +40,14 @@ pub enum Outcome {
     LookingUp(JoinHandle<String>),
     /// Silent running on: spoken warning, nothing pressed yet.
     NeedsConfirm(String),
+    /// Pressed, with nothing in Status.json to verify it by (paste).
+    Pressed(String),
 }
+
+/// Between Ctrl+V and Enter, for the search box to take the text. Pasting into the box works
+/// (players do it by hand); this delay and the Enter after it are unverified in the game. d47
+/// waits 1.5 s before its Return, but it then steps into the results itself (docs/PLOTTING.md).
+pub const PASTE_SETTLE: Duration = Duration::from_millis(500);
 
 pub struct Runner {
     pub policy: Policy,
@@ -88,6 +95,44 @@ impl Runner {
             m
         });
         Outcome::LookingUp(h)
+    }
+
+    /// Paste the clipboard into the galaxy map's search box: Ctrl+V, then Enter to search.
+    /// The player has selected the box already (in VR, with their UI keys). Only while the
+    /// galaxy map is showing, checked before each key: anywhere else V or Enter may be a ship
+    /// binding, so if the map closes between them, Enter is not sent.
+    pub fn paste(&self, origin: Origin) -> Outcome {
+        use crate::route::{PASTED, PASTE_REFUSED, PASTE_STOPPED};
+        let say = |s: &str| self.speaker.say(s);
+        let in_map = || self.hub.read(|g| g.gui_focus == Some(astromech_status::GUI_GALAXY));
+        if !in_map() {
+            say(PASTE_REFUSED);
+            return Outcome::Refused(PASTE_REFUSED.into());
+        }
+        let ticket = match self.policy.authorize("paste_search", Tier::T1, origin, Instant::now()) {
+            Ok(t) => t,
+            Err(d) => {
+                say(&d.spoken());
+                return Outcome::Denied(d);
+            }
+        };
+        if let Err(e) = ticket.press("Key_V", &["Key_LeftControl".to_string()]) {
+            say(&e.spoken());
+            return Outcome::PressFailed(e);
+        }
+        std::thread::sleep(PASTE_SETTLE);
+        if !in_map() {
+            (self.log)("paste_search: Ctrl+V sent; the galaxy map closed before Enter, so Enter was not sent");
+            say(PASTE_STOPPED);
+            return Outcome::Refused(PASTE_STOPPED.into());
+        }
+        if let Err(e) = ticket.press("Key_Enter", &[]) {
+            say(&e.spoken());
+            return Outcome::PressFailed(e);
+        }
+        (self.log)("paste_search: Ctrl+V, Enter sent to the galaxy map");
+        say(PASTED);
+        Outcome::Pressed(PASTED.into())
     }
 
     pub fn run(&self, call: ToolCall, origin: Origin) -> Outcome {

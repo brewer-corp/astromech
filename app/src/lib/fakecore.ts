@@ -7,6 +7,7 @@
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
+import type { Route, RouteView, Waypoint } from "./route";
 import eddnSample from "./fixtures/eddn-log.json";
 import biologySample from "./fixtures/exobiology.json";
 
@@ -37,6 +38,9 @@ interface State {
   eddn: boolean;
   /** EDSM: the switch, the commander name, and whether a key is "in the keyring". */
   edsm: { enabled: boolean; commander: string; key: boolean };
+  /** The route the core follows (core: route.rs `Desk`); `here` is where the journal says we are. */
+  route: Route | null;
+  here: string | null;
 }
 
 let state: State | null = null;
@@ -82,7 +86,70 @@ function fresh(scenario: Scenario): State {
     prospector: { ...PROSPECTOR_DEFAULTS },
     eddn: false,
     edsm: { enabled: false, commander: "", key: false },
+    route: null,
+    here: done ? "Sol" : null,
   };
+}
+
+const sameSystem = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/** As the core's `Route::new`: blank systems dropped, stops in one system merged. */
+function cleanStops(list: Waypoint[]): Waypoint[] {
+  const out: Waypoint[] = [];
+  for (const w of list) {
+    const system = w.system.trim();
+    if (!system) continue;
+    const last = out.at(-1);
+    if (last && sameSystem(last.system, system)) {
+      if (w.label && w.label !== last.label) last.label = last.label ? `${last.label}, ${w.label}` : w.label;
+    } else out.push({ system, ...(w.label ? { label: w.label } : {}) });
+  }
+  return out;
+}
+
+/** As the core's `parse_list`, roughly: a CSV's "System Name" column, or one system per line. */
+function parseList(text: string): Waypoint[] {
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const cells = (l: string) => l.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+  const col = lines[0] ? cells(lines[0]).findIndex((h) => /^system( name)?$/i.test(h)) : -1;
+  const rows = col >= 0 && lines[0]?.includes(",") ? lines.slice(1).map((l) => cells(l)[col] ?? "") : lines.map((l) => l.replace(/^"|"$/g, ""));
+  return rows.map((system) => ({ system }));
+}
+
+/** The preview's clipboard always takes the text. */
+function routeView(st: State): RouteView {
+  const r = st.route;
+  return {
+    route: r ? structuredClone(r) : null,
+    here: st.here,
+    next: r?.waypoints[r.next] ?? null,
+    remaining: r ? r.waypoints.length - r.next : 0,
+    clipboard_error: null,
+  };
+}
+
+function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Reply {
+  const r = st.route;
+  switch (cmd) {
+    case "route_set": {
+      const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : ((args.waypoints as Waypoint[] | undefined) ?? []));
+      if (!waypoints.length) return { ok: false, error: "the route has no systems" };
+      const first = waypoints[0];
+      const next = st.here && first && sameSystem(first.system, st.here) ? 1 : 0;
+      st.route = { name: String(args.name || "Route"), source: String(args.source ?? ""), waypoints, next };
+      break;
+    }
+    case "route_skip":
+      if (r) r.next = Math.min(r.next + 1, r.waypoints.length);
+      break;
+    case "route_back":
+      if (r) r.next = Math.max(r.next - 1, 0);
+      break;
+    case "route_clear":
+      st.route = null;
+      break;
+  }
+  return { ok: true, view: routeView(st) };
 }
 
 function s(): State {
@@ -170,6 +237,13 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
   const st = s();
   const a = (args ?? {}) as Record<string, string | null>;
   switch (cmd) {
+    case "route":
+    case "route_set":
+    case "route_skip":
+    case "route_back":
+    case "route_clear":
+    case "route_copy":
+      return routeCall(st, cmd, (args ?? {}) as Record<string, unknown>);
     case "find_elite":
       return {
         ok: true,

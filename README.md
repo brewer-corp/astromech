@@ -28,6 +28,7 @@ SteamVR overlay. Everything lives in one app.
 - [docs/KEYBINDS.md](docs/KEYBINDS.md): the keybinds module and the health check
 - [docs/REPORT.md](docs/REPORT.md): the initial research report (data sources, voice, EDCoPilot/COVAS as of 8 Oct)
 - [docs/COMPETITORS.md](docs/COMPETITORS.md): copilots and companions as of 11 Oct, and what to steal
+- [docs/PLOTTING.md](docs/PLOTTING.md): routes: the next waypoint on the clipboard, "paste" in the galaxy map, and the plotting macro to come
 - [docs/diagrams/](docs/diagrams/): Mermaid sources and rendered PNGs
 - [spikes/](spikes/): source of the feasibility spikes
 

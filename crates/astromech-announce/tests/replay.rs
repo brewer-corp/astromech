@@ -391,13 +391,24 @@ impl astromech_announce::session_summary::SessionHistory for Session {
     }
 }
 
+/// A route follower whose route has the next waypoint "A"; any arrival elsewhere is not news.
+struct Follower;
+
+impl astromech_announce::route_follow::Follower for Follower {
+    fn arrived(&self, system: &str) -> Option<String> {
+        (system == "A").then(|| "Next waypoint. B.".to_string())
+    }
+    fn here(&self, _: &str) {}
+}
+
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     // The history holds a session up to the end of the journal.
     let shared = Shared::default();
     shared.sessions.set(std::sync::Arc::new(Session));
+    shared.follower.set(std::sync::Arc::new(Follower));
     let rules = builtin(shared);
-    assert_eq!(rules.len(), 17, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 18, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -438,6 +449,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Zachary Hudson fortified, 40 percent.",
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
+            "Next waypoint. B.",
             "Mission target in this system.",
             "High Grade Emissions.",
             "Megaship in system.",

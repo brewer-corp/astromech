@@ -43,6 +43,8 @@ export interface Results {
   fetched: string;
   rows: Row[];
   warning?: string;
+  /** What the lookup found, e.g. "Famine": the label a result gets on the route (Go) when it has no station. */
+  label?: string;
 }
 
 /** One lookup's filters (astromech_galaxy::Filters). */

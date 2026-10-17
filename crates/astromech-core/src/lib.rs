@@ -16,6 +16,7 @@
 //! - [`biology`]: biology other players reported (Spansh) for the arrival briefing, and the
 //!   Biology page's view of the system (`exobiology`);
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
+//! - [`route`]: following a multi-stop route; the next waypoint goes on the [`clipboard`];
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
 //!   notifications);
 //! - [`calibration`]: the per-device mic gate, shared by `--calibrate-files` and the window;
@@ -32,6 +33,7 @@ pub mod autostart;
 pub mod biology;
 pub mod calibration;
 pub mod callouts;
+pub mod clipboard;
 pub mod colonisation;
 pub mod config;
 pub mod control;
@@ -47,6 +49,7 @@ pub mod instance;
 pub mod logging;
 pub mod lookups;
 pub mod pipeline;
+pub mod route;
 pub mod session;
 pub mod setup;
 pub mod speech;

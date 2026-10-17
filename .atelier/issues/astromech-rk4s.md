@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Fly a plotted route in the real game"
-updated_at: "2026-10-16T18:26:24.581804807+00:00"
+updated_at: "2026-10-17T17:33:48.869152273+00:00"
 ---
 
 ## Goal
@@ -27,4 +27,4 @@ Confirm the in-app plotters end to end.
 
 ## Done when
 
-A neutron route and an exact route plotted in the app are flown with the follower (evidence).
+A neutron route and an exact route plotted in the app are flown with the follower (evidence), and paste ("paste" by voice and the `controls.paste` button) lands the next waypoint in the galaxy map's search box and runs the search, both on a flat screen and in VR (docs/PLOTTING.md, "Still to verify").
