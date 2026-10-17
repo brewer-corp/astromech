@@ -712,6 +712,28 @@ async fn trade_search(
     .await
 }
 
+/// Where to sell or buy `commodity` (a journal symbol) anywhere in the galaxy, best price first
+/// (Ardent Insight's best 100), with distances from `origin` or the commander and jumps
+/// estimated at the current ship's range.
+#[tauri::command]
+async fn trade_anywhere(
+    app: tauri::AppHandle,
+    side: astromech_market::Side,
+    commodity: String,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let s = astromech_market::anywhere(g.remote(), &here, range, side, &commodity, &filters, now)
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(s).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// Where to sell the cargo in the hold (`Cargo.json`) near `origin` or the commander: the best
 /// stations for the whole load and the best for each commodity.
 #[tauri::command]
@@ -1064,6 +1086,7 @@ fn main() {
             stations_nearby,
             galaxy_systems,
             trade_search,
+            trade_anywhere,
             trade_cargo,
             trade_route_defaults,
             trade_route,

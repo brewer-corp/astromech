@@ -47,6 +47,21 @@ impl Hold {
                     self.add(name, -amount);
                 }
             }
+            // Not typed in the journal crate. `Transfers[]` entries carry `Type`, `Count` and
+            // `Direction`: `toship` adds to the hold, `tocarrier` and `tosrv` take it off the ship.
+            JournalEvent::Other { event, raw } if event == "CargoTransfer" => {
+                for t in raw.get("Transfers").and_then(|v| v.as_array()).into_iter().flatten() {
+                    let name = t.get("Type").and_then(|v| v.as_str()).unwrap_or_default();
+                    let count = t.get("Count").and_then(|v| v.as_i64()).unwrap_or(0);
+                    match t.get("Direction").and_then(|v| v.as_str()) {
+                        Some("toship") => self.add(name, count),
+                        Some("tocarrier" | "tosrv") => self.add(name, -count),
+                        _ => {}
+                    }
+                }
+            }
+            // The cargo is lost with the ship.
+            JournalEvent::Other { event, .. } if event == "Died" => self.cargo.clear(),
             // Not typed in the journal crate: `CollectCargo` is one unit per event, `EjectCargo`
             // carries `Count`. Either may be mission cargo (`MissionID`), which is not tracked.
             JournalEvent::Other { event, raw } if raw.get("MissionID").is_none() => {
@@ -61,8 +76,7 @@ impl Hold {
         }
     }
 
-    /// Take the ship's hold from `Cargo.json` (the game rewrites it on every change, including
-    /// carrier transfers the journal events above don't fold). An SRV's file, one that doesn't
+    /// Take the ship's hold from `Cargo.json` (the game rewrites it on every change). An SRV's file, one that doesn't
     /// parse, or one with a count but no list leaves the hold as it was. Mission cargo is skipped, as in `Cargo` events.
     pub fn apply_cargo_json(&mut self, bytes: &[u8]) {
         let Ok(v) = serde_json::from_slice::<serde_json::Value>(bytes) else { return };

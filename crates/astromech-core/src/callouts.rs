@@ -572,34 +572,61 @@ mod tests {
         drop(stuck);
     }
 
-    /// A notifier that takes a while, like PowerShell.
-    struct Slow(Mutex<Vec<String>>);
+    /// A notifier that takes a while, like PowerShell. Records what was delivered and when.
+    struct Slow(Mutex<Vec<(String, Instant)>>);
+    impl Slow {
+        fn new() -> Arc<Self> {
+            Arc::new(Self(Mutex::new(vec![])))
+        }
+        fn texts(&self) -> Vec<String> {
+            self.0.lock().unwrap().iter().map(|(t, _)| t.clone()).collect()
+        }
+        /// Polls until `want` is delivered, or fails after a generous deadline so a loaded
+        /// runner can't flake the test.
+        fn wait_for(&self, want: &[&str]) {
+            let deadline = Instant::now() + Duration::from_secs(10);
+            while self.texts() != want {
+                assert!(Instant::now() < deadline, "timed out; delivered {:?}, wanted {want:?}", self.texts());
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        }
+    }
     impl Notifier for Slow {
         fn notify(&self, text: &str) {
             std::thread::sleep(Duration::from_millis(200));
-            self.0.lock().unwrap().push(text.into());
+            self.0.lock().unwrap().push((text.into(), Instant::now()));
         }
     }
 
     #[test]
     fn notifications_run_in_the_background_at_most_one_per_gap() {
-        let slow = Arc::new(Slow(Mutex::new(vec![])));
+        // notify never blocks the caller, and the rest inside the gap are dropped.
+        let slow = Slow::new();
         let n = Background::start(slow.clone(), Duration::from_secs(60)).unwrap();
         let t0 = Instant::now();
         n.notify("First.");
         n.notify("Second.");
         n.notify("Third.");
         assert!(t0.elapsed() < Duration::from_millis(100), "notify blocked for {:?}", t0.elapsed());
-        std::thread::sleep(Duration::from_millis(700));
-        assert_eq!(*slow.0.lock().unwrap(), ["First."]);
-        // After the gap the next one goes.
-        let fast = Arc::new(Slow(Mutex::new(vec![])));
-        let n = Background::start(fast.clone(), Duration::from_millis(300)).unwrap();
-        n.notify("A.");
+        slow.wait_for(&["First."]);
+        // A negative check, so it has to wait: give the others time to (wrongly) go.
         std::thread::sleep(Duration::from_millis(600));
+        assert_eq!(slow.texts(), ["First."]);
+
+        // After the gap the next one goes. Measure the gap from A's delivery, which is never
+        // earlier than the start of A that the notifier measures from.
+        let gap = Duration::from_millis(300);
+        let fast = Slow::new();
+        let n = Background::start(fast.clone(), gap).unwrap();
+        n.notify("A.");
+        fast.wait_for(&["A."]);
+        let a_at = fast.0.lock().unwrap()[0].1;
+        while a_at.elapsed() < gap {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        assert!(a_at.elapsed() >= gap);
         n.notify("B.");
-        std::thread::sleep(Duration::from_millis(400));
-        assert_eq!(*fast.0.lock().unwrap(), ["A.", "B."]);
+        fast.wait_for(&["A.", "B."]);
     }
 
     #[test]
