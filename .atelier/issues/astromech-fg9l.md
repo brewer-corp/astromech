@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T22:32:49.400564202+00:00"
+status: "done"
 title: "Materials ledger counts collections past the cap"
-updated_at: "2026-10-17T21:32:47.885902866+00:00"
+updated_at: "2026-10-17T22:32:49.400564202+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ A ledger test from an anonymised excerpt: a `Materials` snapshot with a grade 5 
 ## Context
 
 Found replaying real journals (astromech-yin0). The harness checks the ledger against every later `Materials` snapshot (ARCHITECTURE §18.5's self-check): 11 counts in 24 snapshots were off, every one a material collected past its cap (152 → 150, 102 → 100, 252 → 250, 117 → 100) or traded down after that (6 where the game had 4). The Materials page, its farm list and the cap callout read the inflated counts until the next login.
+
+## Close Reason
+
+The materials ledger stops at the cap as the game does, and the cap callout still speaks once when a material fills. Found by the real-journal replay (11 wrong counts, 0 after). Reviewed twice.
