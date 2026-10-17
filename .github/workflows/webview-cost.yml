@@ -12,6 +12,8 @@ on:
       - .github/workflows/webview-cost.yml
       - scripts/webview_cost.py
       - app/src-tauri/**
+      - app/src/**
+      - app/index.html
       - app/package.json
       - app/pnpm-lock.yaml
   workflow_dispatch:
@@ -91,12 +93,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: harness tests
+        shell: bash
+        run: |
+          python -m pip install --quiet "psutil>=5.9,<8"
+          python scripts/test_webview_cost.py
       - name: measure
         continue-on-error: ${{ !matrix.gate }}
         shell: bash
         run: |
-          python -m pip install --quiet psutil
-          python scripts/test_webview_cost.py
           shell=app/src-tauri/target/release/astromech-shell${{ matrix.exe }}
           if [ "$RUNNER_OS" = Linux ]; then
             xvfb-run -a dbus-run-session -- python scripts/webview_cost.py --shell "$shell" --out webview-report

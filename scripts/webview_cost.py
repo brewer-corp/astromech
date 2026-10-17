@@ -43,25 +43,33 @@ PAGES = ["keybinds", "materials", "engineering", "trade", "logbook", "exploratio
 
 def judge(r: dict) -> list[dict]:
     """The S11 budgets against the measurements in `r` (see `measure`)."""
-    later = r["cold_start"]["later_s"]
+    cs = r["cold_start"]
+    later = cs["later_s"]
     med = statistics.median(later) if later else None
+    no_core = cs.get("core_not_running_s")
     idle, use = r["idle"], r["in_use"]
+    # The idle numbers count only if the window and its WebView were there to measure.
+    measured = idle.get("window_alive", False) and idle.get("webview_seen", False) and idle["uss_mb_max"] > 20
     return [
         {"id": "idle_memory", "budget": f"< {IDLE_MB_MAX:g} MB private working set, idle on a list-heavy page",
          "value": f"{idle['uss_mb_mean']} MB mean, {idle['uss_mb_max']} MB max (in use: peak {use['uss_mb_max']} MB)",
-         "pass": idle["uss_mb_max"] < IDLE_MB_MAX},
+         "pass": measured and idle["uss_mb_max"] < IDLE_MB_MAX},
         {"id": "idle_cpu", "budget": f"<= {IDLE_CPU_MAX:g}% CPU idle",
          "value": f"{idle['cpu_machine_pct']}% of the machine ({idle['cpu_core_pct']}% of one core); "
                   f"in use {use['cpu_machine_pct']}%",
-         "pass": idle["cpu_machine_pct"] <= IDLE_CPU_MAX},
+         "pass": measured and idle["cpu_machine_pct"] <= IDLE_CPU_MAX},
         {"id": "cold_start", "budget": f"< {COLD_START_MAX_S:g} s cold start",
-         "value": f"median {med if med is None else round(med, 2)} s over {len(later)} starts "
-                  f"(first start, new profile: {r['cold_start']['first_s']} s)",
-         "pass": med is not None and med < COLD_START_MAX_S},
+         "value": f"median {med if med is None else round(med, 2)} s over {len(later)} starts with the core "
+                  f"running; {no_core} s with the core not running (first start, new profile: {cs['first_s']} s)",
+         "pass": med is not None and med < COLD_START_MAX_S and no_core is not None and no_core < COLD_START_MAX_S},
         # The harness's own check: the page changes reached the running window.
         {"id": "page_changes", "budget": "harness check: every page change reached the running window",
-         "value": f"{use.get('switches', 0)} changes, {use.get('extra_windows', 0)} extra windows",
-         "pass": use.get("switches", 0) > 0 and use.get("extra_windows", 0) == 0},
+         "value": f"{use.get('switches', 0)} asked, {use.get('pages_received', 0)} received, "
+                  f"{use.get('extra_windows', 0)} extra windows, exit codes {use.get('switch_exit_codes')}; "
+                  f"window and WebView there throughout: {measured and use.get('window_alive', False)}",
+         "pass": measured and use.get("window_alive", False) and use.get("switches", 0) > 0
+                 and use.get("pages_received") == use.get("switches") and use.get("extra_windows", 0) == 0
+                 and use.get("switch_exit_codes") == [0]},
     ]
 
 
@@ -76,6 +84,8 @@ def markdown(rep: dict) -> str:
               f"the window's own count from process start to page load (ms): {r['cold_start']['in_process_ms']}.",
               f"- Idle on `{LIST_PAGE}` for {r['idle']['seconds']} s: {r['idle']['processes']} processes "
               f"({', '.join(r['idle']['names'])}).",
+              "- Cold start ends at the window's first page load (navigation finished; the app has mounted by "
+              "then). With the core not running, it includes the window starting the core.",
               f"- Starting the window after a core crash (core gone, its core.json left behind): "
               f"{r['cold_start'].get('after_core_crash_s')} s.",
               f"- In use: {r['in_use']['switches']} page changes over {r['in_use']['seconds']} s "
@@ -160,6 +170,7 @@ def window(shell, psutil, seconds: float, action=None) -> dict:
     wall = time.time() - t0
     used = cpu_s(procs, psutil) - c0
     names = sorted({p.name() for p in procs if p.is_running()})
+    webview = any(n.lower().startswith(("msedgewebview2", "webkit")) for n in names)
     return {
         "seconds": round(wall, 1),
         "uss_mb_mean": round(statistics.mean(mems), 1),
@@ -168,6 +179,7 @@ def window(shell, psutil, seconds: float, action=None) -> dict:
         "cpu_machine_pct": round(100 * used / wall / (os.cpu_count() or 1), 2),
         "processes": len(procs),
         "names": names,
+        "webview_seen": webview,
     }
 
 
@@ -187,12 +199,17 @@ class Profile:
             self.env["LOCALAPPDATA"] = str(root)  # where the keybinds look for Elite's Bindings folder
         self.log = root / "astromech" / "data" / "logs" / "astromech-shell.log"
 
-    def page_loads(self) -> list[str]:
+    def lines(self, text: str) -> list[str]:
         try:
-            return [l for l in self.log.read_text(encoding="utf-8", errors="replace").splitlines()
-                    if "window: page loaded" in l]
+            return [l for l in self.log.read_text(encoding="utf-8", errors="replace").splitlines() if text in l]
         except OSError:
             return []
+
+    def page_loads(self) -> list[str]:
+        return self.lines("window: page loaded")
+
+    def pages_asked(self) -> list[str]:
+        return self.lines(" asked for")
 
 
 def start(shell_exe: Path, prof: Profile, args=()) -> subprocess.Popen:
@@ -238,21 +255,30 @@ def measure(a, psutil) -> dict:
     prof = Profile(root)
     # The first start also starts the core; the later ones find it running (in the tray).
     starts = [cold_start(a.shell, prof, psutil, a.timeout) for _ in range(a.starts)]
+    # The core not running (it quit cleanly): the window starts it, as at a player's first launch
+    # of the day.
+    core_exe = a.shell.with_name("astromech-core" + (".exe" if os.name == "nt" else ""))
+    subprocess.run([str(core_exe), "--quit"], env=prof.env, timeout=30)
+    if our_cores(prof, psutil):
+        raise RuntimeError("the core didn't quit")
+    no_core = cold_start(a.shell, prof, psutil, a.timeout)
     # After a core crash: the core is gone but its endpoint file (core.json) is left behind.
     for c in our_cores(prof, psutil):
         c.kill()
     time.sleep(1)
     crashed = cold_start(a.shell, prof, psutil, a.timeout)
+    loads_before = len(prof.page_loads())
     shell = start(a.shell, prof, ["--route", LIST_PAGE])
     try:
         sp = psutil.Process(shell.pid)
         end = time.time() + a.timeout
-        while time.time() < end and not prof.page_loads()[len(starts):]:
+        while time.time() < end and len(prof.page_loads()) <= loads_before:
             time.sleep(0.05)
         time.sleep(a.settle)
         idle = window(sp, psutil, a.idle_seconds)
+        idle["window_alive"] = sp.is_running()
 
-        loads_before = len(prof.page_loads())
+        loads_before, asked_before = len(prof.page_loads()), len(prof.pages_asked())
         codes = []
 
         def switch(i):
@@ -265,6 +291,9 @@ def measure(a, psutil) -> dict:
         in_use["switch_exit_codes"] = sorted(set(codes))
         # A second start that opened its own window instead would load a page of its own.
         in_use["extra_windows"] = len(prof.page_loads()) - loads_before
+        # The running window logs each page a second start asks it for.
+        in_use["pages_received"] = len(prof.pages_asked()) - asked_before
+        in_use["window_alive"] = sp.is_running()
         cores = our_cores(prof, psutil)
         core_mb = round(uss_mb(cores, psutil), 1) if cores else None
     finally:
@@ -273,7 +302,8 @@ def measure(a, psutil) -> dict:
             c.kill()
     return {
         "cold_start": {"first_s": round(starts[0][0], 3), "later_s": [round(s, 3) for s, _ in starts[1:]],
-                       "in_process_ms": [ms for _, ms in starts], "after_core_crash_s": round(crashed[0], 3)},
+                       "in_process_ms": [ms for _, ms in starts], "core_not_running_s": round(no_core[0], 3),
+                       "after_core_crash_s": round(crashed[0], 3)},
         "idle": idle,
         "in_use": in_use,
         "core_mb": core_mb,

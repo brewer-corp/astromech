@@ -1154,7 +1154,10 @@ fn main() {
                 let _ = w.set_focus();
             }
             if let Some(r) = route_arg(&argv) {
-                let _ = app.emit("route", r);
+                match app.emit("route", &r) {
+                    Ok(()) => astromech_log::log(&format!("window: page {r} asked for")),
+                    Err(e) => astromech_log::log(&format!("window: couldn't switch to page {r}: {e}")),
+                }
             }
         }))
         .manage(Binds(std::sync::Mutex::new(None)))
