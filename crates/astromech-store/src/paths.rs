@@ -90,18 +90,39 @@ impl Paths {
     /// it) to `data_dir`, once: copies `name` only if the app dir has it and `data_dir` doesn't.
     /// Never overwrites or deletes either file. Returns whether it copied.
     pub fn carry_over(&self, name: &str, data_dir: &Path) -> std::io::Result<bool> {
+        self.carry_over_with(name, data_dir, |src, dst| std::io::copy(src, dst).map(|_| ()))
+    }
+
+    /// `carry_over` with the copy step injectable, so a test can fail it partway. The copy goes to
+    /// a temp file in `data_dir`, which is hard-linked to the final name (that fails if the name
+    /// exists, on every platform, so a file that appears meanwhile is never overwritten) and then
+    /// removed; a failed copy leaves nothing at the final name and the next call retries.
+    fn carry_over_with(
+        &self,
+        name: &str,
+        data_dir: &Path,
+        copy: impl FnOnce(&mut std::fs::File, &mut std::fs::File) -> std::io::Result<()>,
+    ) -> std::io::Result<bool> {
         let (from, to) = (self.app_dir.join(name), data_dir.join(name));
         if from == to || !from.is_file() || to.exists() {
             return Ok(false);
         }
         std::fs::create_dir_all(data_dir)?;
-        let mut src = std::fs::File::open(&from)?;
-        // `create_new` so a file that appears meanwhile is never overwritten.
-        match std::fs::OpenOptions::new().write(true).create_new(true).open(&to) {
-            Ok(mut dst) => std::io::copy(&mut src, &mut dst).map(|_| true),
+        let tmp = data_dir.join(format!(".{name}.carry-over.tmp"));
+        let staged = (|| {
+            let mut src = std::fs::File::open(&from)?;
+            // The temp name is ours; a leftover from an earlier crash is safe to replace.
+            let mut dst = std::fs::File::create(&tmp)?;
+            copy(&mut src, &mut dst)?;
+            dst.sync_all()
+        })();
+        let linked = staged.and_then(|()| match std::fs::hard_link(&tmp, &to) {
+            Ok(()) => Ok(true),
             Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
             Err(e) => Err(e),
-        }
+        });
+        let _ = std::fs::remove_file(&tmp);
+        linked
     }
 
     /// The game's journal folder: the config's `game.journal_dir` if set, else
@@ -229,5 +250,33 @@ mod tests {
         // Same folder (the default layout), or nothing to carry: no-ops.
         assert!(!p.carry_over("device-overrides.json", p.app_dir()).unwrap());
         assert!(!p.carry_over("absent.json", &dir).unwrap());
+    }
+
+    /// A copy that dies partway must not leave a (truncated) file at the target, and the next
+    /// call copies it.
+    #[test]
+    fn a_carry_over_that_fails_partway_leaves_no_target_and_is_retried() {
+        use std::io::Write;
+        let (app, exe, data) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let home = app.path().to_str().unwrap().to_string();
+        let p = Paths::new(exe.path().into(), env(&[("LOCALAPPDATA", &home)]));
+        std::fs::create_dir_all(p.app_dir()).unwrap();
+        std::fs::write(p.app_dir().join("device-overrides.json"), "mine").unwrap();
+        let dir = data.path().to_path_buf();
+        let new = dir.join("device-overrides.json");
+
+        let failed = p.carry_over_with("device-overrides.json", &dir, |_, dst| {
+            dst.write_all(b"mi")?;
+            Err(std::io::Error::other("disk full"))
+        });
+        assert!(failed.is_err());
+        assert!(!new.exists(), "no truncated file at the target");
+        assert_eq!(std::fs::read_to_string(p.app_dir().join("device-overrides.json")).unwrap(), "mine");
+
+        assert!(p.carry_over("device-overrides.json", &dir).unwrap(), "the next call copies it");
+        assert_eq!(std::fs::read_to_string(&new).unwrap(), "mine");
+        let left: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name()).collect();
+        assert_eq!(left.len(), 1, "no temp file left behind: {left:?}");
     }
 }
