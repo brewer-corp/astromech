@@ -2,7 +2,8 @@
   // Odyssey micro-resources: the ShipLocker + Backpack inventory with bartender values, a
   // blueprint picker (suit/weapon grade upgrades and modifications) with what each is missing and
   // one shopping list for them all, and the on-foot engineers' unlocks and referral chain.
-  import { failure } from "../../lib/ui/errors";
+  import { failure, pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import {
     fromGrades,
     hasPick,
@@ -60,7 +61,7 @@
         view = v;
         error = null;
       })
-      .catch((e: unknown) => (error = failure("read the inventory", e)));
+      .catch((e: unknown) => (error = pollFailure("read the inventory", e, view !== null)));
   }
 
   $effect(() => {
@@ -164,7 +165,7 @@
     {/each}
   </div>
   <p class="sub">
-    {#if error}
+    {#if error && !view}
       {error}
     {:else if view}
       {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
@@ -172,6 +173,7 @@
       Reading the ShipLocker…
     {/if}
   </p>
+  <Stale error={view ? error : null} />
 
   {#if view && tab === "inventory"}
     <div class="acts small">

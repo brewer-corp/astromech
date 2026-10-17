@@ -3,7 +3,8 @@
   // project, in loads for the current ship, and where to buy it, stations stocking the most of
   // the list first, searched from the construction site's system (or near you). Below, systems
   // still open to claim near you.
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { untrack } from "svelte";
   import Colonies from "../../lib/ui/Colonies.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -32,7 +33,7 @@
           const keep = untrack(() => picked);
           if (keep == null || !p.some((x) => x.market_id === keep)) picked = p[0]?.market_id ?? null;
         })
-        .catch((e: unknown) => (err = failure("read the construction sites", e)))
+        .catch((e: unknown) => (err = pollFailure("read the construction sites", e, projects !== null)))
         .finally(() => (inFlight = false));
     };
     void load();
@@ -68,6 +69,7 @@
 </script>
 
 <section>
+  <Stale error={projects ? err : null} />
   {#if err && !projects}
     <p class="lo">{err}</p>
   {:else if !projects}

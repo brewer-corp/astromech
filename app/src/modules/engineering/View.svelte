@@ -3,7 +3,8 @@
   // ship calculations, astromech-ship), and the modules in storage with where they are. Opening
   // a card shows that ship's detail (Build.svelte) at #/engineering/<id>, so back and reload
   // keep it.
-  import { failure } from "../../lib/ui/errors";
+  import { failure, pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { loadFleet, loadHeadlines, type Fleet, type Headline, type Ship } from "../../lib/engineering";
   import Build from "./Build.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -38,7 +39,7 @@
             fleet = f;
           }
         })
-        .catch((e: unknown) => (fleetErr = failure("read the fleet", e)));
+        .catch((e: unknown) => (fleetErr = pollFailure("read the fleet", e, fleet !== null)));
       void loadHeadlines()
         .then((h) => {
           const k = JSON.stringify(h);
@@ -89,6 +90,7 @@
         {fleet.stored_modules.length === 1 ? "module" : "modules"} · {fleet.source}
       {/if}
     </p>
+    <Stale error={fleet ? fleetErr : null} />
     {#if headlinesErr && fleet}
       <p class="sub"><b class="mark">!</b> {headlinesErr}</p>
     {/if}

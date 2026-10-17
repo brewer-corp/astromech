@@ -3,6 +3,8 @@
   // flight log and map keep up. The API key goes to the OS keyring; it's never shown again.
   import { edsmStatus, flightLog, setEdsm, type EdsmStatus, type Visit } from "../../lib/edsm";
   import { when } from "../../lib/eddn";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
 
   let st = $state<EdsmStatus | null>(null);
   let commander = $state("");
@@ -12,9 +14,15 @@
   let visits = $state<Visit[] | null>(null);
   let logError = $state("");
 
+  let readErr = $state<string | null>(null);
   async function refresh(first = false) {
-    st = await edsmStatus();
-    if (first && st) commander = st.commander;
+    try {
+      st = await edsmStatus();
+      readErr = null;
+      if (first && st) commander = st.commander;
+    } catch (e) {
+      readErr = pollFailure("read the EDSM status", e, st !== null);
+    }
   }
   $effect(() => {
     void refresh(true);
@@ -56,6 +64,7 @@
 
 {#if st}
   <h3>EDSM</h3>
+  <Stale error={readErr} />
   <dl>
     <dt>Upload to EDSM</dt>
     <dd>

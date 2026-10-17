@@ -2,7 +2,8 @@
   // Settings → Data sharing (astromech-09s3): one section per service, EDDN then EDSM
   // (astromech-ah0i). Inara joins when its upload exists.
   import { eddnLog, schemaName, setEddn, when, type EddnLog } from "../../lib/eddn";
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import Edsm from "./Edsm.svelte";
 
   let eddn = $state<EddnLog | null>(null);
@@ -16,7 +17,7 @@
       eddn = await eddnLog();
       failed = null;
     } catch (e) {
-      failed = failure("read the sharing log", e);
+      failed = pollFailure("read the sharing log", e, eddn !== null);
     }
     loaded = true;
   }
@@ -38,6 +39,7 @@
 </script>
 
 <section>
+  <Stale error={eddn ? failed : null} />
   {#if !loaded}
     <p class="lo">Reading the sharing log…</p>
   {:else if failed && !eddn}
