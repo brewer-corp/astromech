@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:06:49.258564988+00:00"
 id: "astromech-4yds"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-4yds
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Shell opens the core's files through the core's own path rules"
-updated_at: "2026-10-17T05:06:49.258564988+00:00"
+updated_at: "2026-10-17T06:13:20.781993467+00:00"
 ---
 
 ## Goal
