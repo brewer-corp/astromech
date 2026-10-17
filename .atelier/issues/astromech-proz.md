@@ -20,9 +20,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:18:34.698974739+00:00"
+status: "done"
 title: "Trade lookups: share the market cache between voice and app; partial buyer fallback per commodity"
-updated_at: "2026-10-17T05:00:29.255653733+00:00"
+updated_at: "2026-10-17T05:18:34.698974739+00:00"
 ---
 
 ## Goal
@@ -41,3 +42,7 @@ From independent review of astromech-zf3s (findings R3, R5). R3: `Assistant` in 
 ## Notes
 
 - 2026-10-16 [note] Also (review of zf3s round 2): R6 the age and distance selects show blank for a saved value equal to the default hint (normalise to empty); R7 the truncation check runs before placeholders are dropped, so 1000 placeholder rows would cut real markets.
+
+## Close Reason
+
+Shared remote_cache.sqlite between core and app; per-commodity partial buyer in app and voice. Awaiting independent review.
