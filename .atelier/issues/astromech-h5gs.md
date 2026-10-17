@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:33:31.541953355+00:00"
 id: "astromech-h5gs"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-h5gs
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T07:55:36.278919411+00:00"
+status: "done"
 title: "Exobiology follow-ups: failed lookups, carrier arrivals, re-logged samples, localised names, Horizons symbols"
-updated_at: "2026-10-17T06:33:31.541953355+00:00"
+updated_at: "2026-10-17T07:55:36.278919411+00:00"
 ---
 
 ## Goal
@@ -32,3 +36,7 @@ Deferred findings from the astromech-znhx review:
 ## Done when
 
 A test per item.
+
+## Close Reason
+
+All six deferred findings fixed with a test each: failed lookups stay unknown and retry; login arrivals; sampling cue re-arms per sample and survives a restart; sampled species by symbol; Horizons species symbols (Canonn codex reference) and the Seed alias; docs and GUI_SAA.

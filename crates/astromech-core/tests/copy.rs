@@ -419,6 +419,87 @@ fn check(kind: &str, lines: &[String], budget: usize) -> Vec<String> {
     bad
 }
 
+/// The colonisation answers by voice: progress, what is left and where to buy, for a project with
+/// a long name, the largest amounts, cargo aboard and many loads, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_colonisation_answers_keep_to_the_copy_guide() {
+    use astromech_colonisation::shopping::{shopping_list, Hold};
+    use astromech_colonisation::{Project, ProjectView, Resource};
+    use astromech_market::list::{ListPlan, Need, StockLine, Stockist};
+    use astromech_tools::colonisation as c;
+    let now = 1_792_152_000; // 2026-10-16T12:00:00Z
+    let resource = |name: &str, local: &str| Resource {
+        name: name.into(),
+        name_localised: Some(local.into()),
+        required: 1_234_567,
+        provided: 1,
+        payment: 1,
+    };
+    let project = Project {
+        market_id: 1,
+        station_name: Some("Planetary Construction Site: Synuefe BY-F d12-39 Landing".into()),
+        system_name: Some("Synuefe BY-F d12-39".into()),
+        progress: 0.999,
+        complete: false,
+        failed: false,
+        resources: vec![
+            resource("$cmmcomposite_name;", "CMM Composite"),
+            resource("$ceramiccomposites_name;", "Ceramic Composites"),
+            resource("$insulatingmembrane_name;", "Insulating Membrane"),
+        ],
+        first_seen: String::new(),
+        depot_updated: String::new(),
+        contributions: vec![],
+    };
+    let mut lines = vec![c::NO_PROJECT.to_string(), c::NO_POSITION.to_string(), c::NO_STAR_MAP.to_string()];
+    let mut split = |s: String| lines.extend(s.split_inclusive(". ").map(|s| s.trim().to_string()));
+    for (capacity, aboard) in [(None, 0), (Some(1), 1), (Some(794), 999_999)] {
+        let mut hold = Hold { capacity, ..Hold::default() };
+        hold.cargo.insert("insulatingmembrane".into(), aboard);
+        let v = ProjectView { shopping: shopping_list(&project, &hold), project: project.clone() };
+        split(c::progress(&v));
+        split(c::remaining(&v));
+        for commodity in ["Insulating Membrane", "Low Temperature Diamonds", "nonsense"] {
+            if let Err(why) = c::need(&v, commodity) {
+                split(why);
+            }
+        }
+    }
+    let mut built = ProjectView { shopping: shopping_list(&project, &Hold::default()), project: project.clone() };
+    built.project.resources.iter_mut().for_each(|r| r.provided = r.required);
+    split(c::remaining(&built));
+    let need = Need { symbol: "insulatingmembrane".into(), name: "Insulating Membrane".into(), tonnes: 1_234_566 };
+    let stockist = Stockist {
+        market_id: 1,
+        station: "Carvalho Engineering Foundry".into(),
+        system: "Synuefe BY-F d12-39".into(),
+        system_pos: [0.0; 3],
+        hop: astromech_galaxy::Hop { ly: 499.6, jumps: 99, exact: false },
+        pad: None,
+        arrival_ls: None,
+        fleet_carrier: false,
+        odyssey: false,
+        updated_at: "2024-01-01T00:00:00Z".into(),
+        stocked: 1,
+        lines: vec![StockLine {
+            commodity: "insulatingmembrane".into(),
+            name: "Insulating Membrane".into(),
+            needed: 1_234_566,
+            stock: 9_999_999,
+            price: 123_456,
+        }],
+        missing: vec![],
+    };
+    for stations in [vec![], vec![stockist]] {
+        let plan = ListPlan { stations, unavailable: vec![], truncated: vec![], fetched_at: 0 };
+        split(c::buy(&need, &plan, 500, now));
+    }
+    assert!(lines.iter().any(|l| l.starts_with("Most needed: ")), "{lines:?}");
+    let bad = check("colonisation answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
 #[test]
 fn every_line_keeps_to_the_copy_guide() {
     let callouts = callout_lines();
@@ -449,6 +530,54 @@ fn every_line_keeps_to_the_copy_guide() {
     let mut bad = check("callout", &callouts, CALLOUT_WORDS);
     bad.extend(check("reply", &replies, REPLY_WORDS));
     bad.extend(check("answer", &answers, ANSWER_WORDS));
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The Powerplay target answers by voice ("where can I undermine near me"): each kind, on a long
+/// procedural name far away, controlled by a long-named power, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_powerplay_target_answers_keep_to_the_copy_guide() {
+    use astromech_galaxy::{Here, Hop, Target, TargetHit, Targets};
+    use astromech_tools::targets;
+    let mut lines: Vec<String> =
+        [targets::NOT_PLEDGED, targets::NO_POSITION, targets::NO_STAR_MAP].iter().map(|s| s.to_string()).collect();
+    for target in [Target::Acquire, Target::Reinforce, Target::Undermine] {
+        let found = |hits| Targets {
+            target,
+            power: "Archon Delaine".into(),
+            here: Here { system: "Synuefe BY-F d12-39".into(), id64: None, pos: [0.0; 3] },
+            range: 20.0,
+            within_ly: targets::WITHIN_LY,
+            fetched: String::new(),
+            hits,
+            warning: None,
+        };
+        lines.push(targets::spoken(&found(vec![])));
+        for (ly, exact) in [(0.0, true), (4.0, true), (199.6, false)] {
+            for controller in [None, Some("Jerome Archer"), Some("Archon Delaine")] {
+                for state in ["Unoccupied", "Exploited", "Fortified", "Stronghold"] {
+                    let hit = TargetHit {
+                        name: "Synuefe BY-F d12-39".into(),
+                        id64: 1,
+                        hop: Hop { ly, jumps: 99, exact },
+                        controlling_power: controller.map(str::to_string),
+                        state: Some(state.into()),
+                        control_progress: controller.map(|_| 1.234),
+                        reinforcement: Some(123_456),
+                        undermining: Some(654_321),
+                        acquisition: controller.is_none().then_some(0.999),
+                        others: vec!["Aisling Duval".into(), "Zemina Torval".into()],
+                        updated_at: None,
+                    };
+                    let said = targets::spoken(&found(vec![hit]));
+                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                }
+            }
+        }
+    }
+    assert!(lines.iter().any(|l| l == "Jerome Archer stronghold, 123 percent."), "{lines:?}");
+    let bad = check("Powerplay target answer", &lines, ANSWER_WORDS);
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 
@@ -536,4 +665,51 @@ fn the_cargo_answer_limits_its_partial_buyer_sentences() {
     assert!(partial.iter().any(|s| s.starts_with("Silver") && s.contains("the same station")), "{said}");
     assert!(partial.iter().any(|s| s.starts_with("Gold") && s.contains("Carvalho Engineering Foundry")), "{said}");
     assert_eq!(said.matches("Good Landing Orbital Starport").count(), 1, "the station is not repeated: {said}");
+}
+
+/// The faction-state lookups by voice ("nearest famine system"): every lookup's answer, on a
+/// long procedural name far away, with each kind of data age, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_faction_lookup_answers_keep_to_the_copy_guide() {
+    use astromech_galaxy::{Here, Hop, Nearby, NearbyHit};
+    let now = 1_792_152_000; // 2026-10-16T12:00:00Z
+    let here = Here { system: "Synuefe BY-F d12-39".into(), id64: None, pos: [0.0; 3] };
+    let mut lines =
+        vec![astromech_core::lookups::NO_POSITION.to_string(), astromech_core::lookups::NO_STAR_MAP.to_string()];
+    for q in astromech_galaxy::QUERIES {
+        let nearby = |hits| Nearby {
+            query: q.clone(),
+            here: here.clone(),
+            range: 20.0,
+            fetched: String::new(),
+            hits,
+            warning: None,
+        };
+        lines.push(astromech_tools::faction::spoken(&nearby(vec![]), now));
+        for (ly, exact) in [(0.0, true), (4.0, true), (1999.6, false)] {
+            for population in [0, 9_000_000_000] {
+                for (updated_at, seen_on_visit) in
+                    [("2026-10-16T11:00:00Z", false), ("2026-10-15T11:00:00Z", true), ("2024-01-01T00:00:00Z", false)]
+                {
+                    let hit = NearbyHit {
+                        name: "Synuefe BY-F d12-39".into(),
+                        id64: 1,
+                        hop: Hop { ly, jumps: 99, exact },
+                        population,
+                        updated_at: Some(updated_at.into()),
+                        factions: vec![],
+                        seen_on_visit,
+                        score: None,
+                    };
+                    let said = astromech_tools::faction::spoken(&nearby(vec![hit]), now);
+                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                }
+            }
+        }
+    }
+    assert!(lines.iter().any(|l| l == "Seen on your visit yesterday."), "{lines:?}");
+    assert!(lines.iter().any(|l| l == "Over a billion people."), "{lines:?}");
+    let bad = check("faction answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }

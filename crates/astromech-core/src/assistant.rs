@@ -75,6 +75,8 @@ pub struct Assistant {
     clock: Arc<dyn astromech_data::Clock>,
     /// The journal history, for the session summary.
     sessions: astromech_announce::session_summary::SharedSessions,
+    /// The colonisation projects, replayed from the journals.
+    projects: Arc<crate::colonisation::Projects>,
 }
 
 impl Assistant {
@@ -86,7 +88,13 @@ impl Assistant {
             store: None,
             clock: Arc::new(astromech_data::SystemClock),
             sessions: Default::default(),
+            projects: Default::default(),
         }
+    }
+
+    /// Answer the colonisation questions from the journals in `dir`.
+    pub fn with_journals(self, dir: std::path::PathBuf) -> Self {
+        Self { projects: Arc::new(crate::colonisation::Projects::new(dir)), ..self }
     }
 
     /// Judge the age of market and station data by `clock` (tests pass the time their
@@ -141,6 +149,61 @@ impl Assistant {
         Handled::Lookup { command, want }
     }
 
+    /// Look up the pledged power's nearest target of `target`'s kind, with the app's remembered
+    /// filters for that search, and say the answer when it arrives (off this thread).
+    fn targets_lookup(&self, target: astromech_galaxy::Target) -> Outcome {
+        use astromech_tools::targets;
+        let game = self.runner.hub.snapshot();
+        let said = |m: &str| {
+            self.say(m);
+            Outcome::Spoken(m.into())
+        };
+        let galaxy = match (&game.powerplay.power, self.runner.galaxy.clone()) {
+            (None, _) => return said(targets::NOT_PLEDGED),
+            (_, None) => return said(targets::NO_STAR_MAP),
+            (Some(_), Some(g)) => g,
+        };
+        if game.system.is_none() || game.star_pos.is_none() {
+            return said(targets::NO_POSITION);
+        }
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), targets::lookup(target), &game)
+        };
+        self.say("Looking that up.");
+        let speaker = self.runner.speaker.clone();
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::lookups::targets_answer(&galaxy, &filters, target, &game);
+            speaker.say(&m);
+            m
+        }))
+    }
+
+    /// Look up the faction-state systems for `q` near the commander, with the app's remembered
+    /// filters for that lookup, and say the answer when it arrives (off this thread).
+    fn faction_lookup(&self, command: &'static str, q: &'static astromech_galaxy::Query) -> Outcome {
+        let game = self.runner.hub.snapshot();
+        let Some(galaxy) = self.runner.galaxy.clone() else {
+            self.say(crate::lookups::NO_STAR_MAP);
+            return Outcome::Spoken(crate::lookups::NO_STAR_MAP.into());
+        };
+        if game.system.is_none() || game.star_pos.is_none() {
+            self.say(crate::lookups::NO_POSITION);
+            return Outcome::Spoken(crate::lookups::NO_POSITION.into());
+        }
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), command, &game)
+        };
+        self.say("Looking that up.");
+        let (speaker, now) = (self.runner.speaker.clone(), self.clock.now_s());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::lookups::faction_answer(&galaxy, &filters, q, &game, now);
+            speaker.say(&m);
+            m
+        }))
+    }
+
     fn dispatch(
         &self,
         command: &'static str,
@@ -157,6 +220,9 @@ impl Assistant {
                 }
             };
         }
+        if let Some(q) = astromech_tools::faction::from_command(command) {
+            return Handled::Ran { command, outcome: self.faction_lookup(command, q) };
+        }
         if astromech_tools::session::is_summary(command) {
             let game = self.runner.hub.snapshot();
             let totals = match self.sessions.get() {
@@ -169,6 +235,9 @@ impl Assistant {
             }
             return Handled::Ran { command, outcome: Outcome::Spoken(lines.join(" ")) };
         }
+        if let Some(target) = astromech_tools::targets::from_command(command) {
+            return Handled::Ran { command, outcome: self.targets_lookup(target) };
+        }
         if let Some(ask) = astromech_tools::trade::from_command(command) {
             let game = self.runner.hub.snapshot();
             let filters = {
@@ -178,6 +247,9 @@ impl Assistant {
             let s = crate::trade::answer(&self.runner.remote, &filters, ask, slot, &game, self.clock.now_s());
             self.say(&s);
             return Handled::Ran { command, outcome: Outcome::Spoken(s) };
+        }
+        if let Some(ask) = astromech_tools::colonisation::from_command(command) {
+            return Handled::Ran { command, outcome: self.colonisation(ask, slot) };
         }
         match astromech_tools::from_command(command) {
             Some(call) => {
@@ -205,6 +277,28 @@ impl Assistant {
                 None
             }
         }
+    }
+
+    /// Answer a colonisation question off this thread (the first replay of the journals can
+    /// take a while); where to buy says "Looking that up." first.
+    fn colonisation(&self, ask: astromech_tools::colonisation::Ask, commodity: Option<&str>) -> Outcome {
+        let game = self.runner.hub.snapshot();
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), astromech_market::list::LOOKUP, &game)
+        };
+        if ask == astromech_tools::colonisation::Ask::Buy {
+            self.say("Looking that up.");
+        }
+        let (projects, galaxy, speaker) =
+            (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
+        let (commodity, now) = (commodity.map(str::to_string), self.clock.now_s());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let lookup = galaxy.as_deref().map(|g| (g, &filters));
+            let m = crate::colonisation::answer(ask, &projects.get(), commodity.as_deref(), lookup, &game, now);
+            speaker.say(&m);
+            m
+        }))
     }
 
     pub fn handle(&self, transcript: &str, origin: Origin) -> Handled {

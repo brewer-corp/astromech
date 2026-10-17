@@ -32,6 +32,7 @@ pub mod autostart;
 pub mod biology;
 pub mod calibration;
 pub mod callouts;
+pub mod colonisation;
 pub mod config;
 pub mod control;
 pub mod controls;

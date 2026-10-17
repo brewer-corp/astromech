@@ -89,8 +89,19 @@ struct Body {
     geo: i64,
     /// Genus symbols from the DSS.
     genuses: Vec<String>,
-    /// Species sampled here: (genus symbol, species name as the game wrote it).
-    sampled: Vec<(String, String)>,
+    /// Species sampled here, one per genus.
+    sampled: Vec<Sampled>,
+}
+
+/// A species sampled on a body (`ScanOrganic`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Sampled {
+    /// The journal's `Genus` symbol (`$Codex_Ent_Stratum_Genus_Name;`).
+    pub genus: String,
+    /// The journal's `Species` symbol (`$Codex_Ent_Stratum_07_Name;`), the same in every language.
+    pub species: String,
+    /// `Species_Localised`: the name in the client's language.
+    pub name: Option<String>,
 }
 
 /// One body as the fold knows it, for readers beyond the system view (the biology view).
@@ -102,8 +113,8 @@ pub struct BodyRecord<'a> {
     pub bio_signals: i64,
     /// Genus symbols from the DSS (`$Codex_Ent_Stratum_Genus_Name;`).
     pub genuses: &'a [String],
-    /// Species sampled here: (genus symbol, species name).
-    pub sampled: &'a [(String, String)],
+    /// Species sampled here, one per genus.
+    pub sampled: &'a [Sampled],
 }
 
 /// The fold behind [`SystemView`].
@@ -218,9 +229,12 @@ impl SystemFold {
                         .unwrap_or_else(|| format!("#{id}"));
                     let body = self.bodies.entry(key).or_default();
                     body.body_id = Some(*id);
-                    let name = species_localised.clone().unwrap_or_else(|| species.clone());
-                    body.sampled.retain(|(g, _)| !g.eq_ignore_ascii_case(genus));
-                    body.sampled.push((genus.clone(), name));
+                    body.sampled.retain(|s| !s.genus.eq_ignore_ascii_case(genus));
+                    body.sampled.push(Sampled {
+                        genus: genus.clone(),
+                        species: species.clone(),
+                        name: species_localised.clone(),
+                    });
                 }
                 _ => {}
             },

@@ -315,7 +315,8 @@ impl Session {
         let alias_store = astromech_store::Store::open(&data.join("astromech.sqlite"))
             .ok()
             .map(|s| Arc::new(std::sync::Mutex::new(s)));
-        let assistant = Assistant::new(runner.clone()).with_sessions(shared.sessions.clone());
+        let assistant =
+            Assistant::new(runner.clone()).with_sessions(shared.sessions.clone()).with_journals(jdir.clone());
         let assistant = Arc::new(match alias_store {
             Some(st) => assistant.with_store(st),
             None => assistant,
