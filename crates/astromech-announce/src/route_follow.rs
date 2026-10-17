@@ -4,8 +4,8 @@
 //! Deciat." The core owns the route, the clipboard and the lines ([`Follower`]); this rule only
 //! decides when, so the engine's rules hold for it: nothing moves the route or touches the
 //! clipboard unless the event is live (a replayed journal only tells it where the commander
-//! is), `[callouts.route_follow]` turns it off, and speech waits out combat and docking (the
-//! clipboard and the toast don't).
+//! is), `[callouts.route_follow]` turns it off (it still tells the route where the commander
+//! is), and speech waits out combat and docking (the clipboard and the toast don't).
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -75,6 +75,10 @@ impl Rule for RouteFollow {
             f.here(system);
         }
     }
+    /// Turned off, the route doesn't follow, but where the commander is stays current.
+    fn while_off(&self, input: &Input, state: &GameState) {
+        self.replayed(input, state);
+    }
 }
 
 #[cfg(test)]
@@ -119,16 +123,22 @@ mod tests {
         assert_eq!(*log.0.lock().unwrap(), ["here Kuk", "arrived Kuk", "arrived Sol"]);
     }
 
+    /// Off, the route doesn't move and nothing is said, but the follower still learns where the
+    /// commander is, replayed or live (the Route page's "you are here", and a route set later
+    /// starting after the system the commander is in).
     #[test]
-    fn the_toggle_turns_it_off() {
+    fn the_toggle_turns_following_off_but_not_where_you_are() {
         let log = Arc::new(Log::default());
         let shared = SharedFollower::default();
         shared.set(log.clone());
         let off: Settings = toml::from_str("[route_follow]\nenabled = false\n").unwrap();
         let mut e = Engine::new(vec![Box::new(RouteFollow { follower: shared })], &off);
+        let g = GameState::default();
+        let replayed = line(r#"{"timestamp":"t","event":"Location","StarSystem":"Sol"}"#);
+        assert!(e.journal(&replayed, &g, Instant::now()).is_empty());
         e.set_live(true);
         let jump = line(r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Kuk","JumpDist":9.0}"#);
-        assert!(e.journal(&jump, &GameState::default(), Instant::now()).is_empty());
-        assert!(log.0.lock().unwrap().is_empty());
+        assert!(e.journal(&jump, &g, Instant::now()).is_empty());
+        assert_eq!(*log.0.lock().unwrap(), ["here Sol", "here Kuk"]);
     }
 }

@@ -716,7 +716,7 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
 }
 
 /// The route follower (docs/PLOTTING.md): the arrival callout, the replies to the route
-/// commands and the answer to "next waypoint", on a procedural system name and an engineer, a
+/// commands and the answer to "next waypoint", on a procedural system name, an engineer and a plotter's labels, a
 /// sentence at a time (the name is a sentence of its own).
 #[test]
 fn the_route_lines_keep_to_the_copy_guide() {
@@ -724,7 +724,16 @@ fn the_route_lines_keep_to_the_copy_guide() {
     let w = |system: &str, label: Option<&str>| Waypoint { system: system.into(), label: label.map(Into::into) };
     let mut callouts = vec![];
     let (mut replies, mut answers) = (vec![], vec![]);
-    for next in [w("Deciat", None), w("Synuefe BY-F d12-39", Some("Felicity Farseer")), w("Kuk", Some("Ram Tah"))] {
+    // Plotted routes label their stops (astromech_galaxy::plot): the longest label on a long name.
+    use astromech_galaxy::plot::{FUEL, NEUTRON};
+    let both = format!("{NEUTRON} and {FUEL}");
+    for next in [
+        w("Deciat", None),
+        w("Synuefe BY-F d12-39", Some("Felicity Farseer")),
+        w("Kuk", Some("Ram Tah")),
+        w("Synuefe BY-F d12-39", Some(&both)),
+        w("PSR J1752-2806", Some(NEUTRON)),
+    ] {
         for copied in [true, false] {
             let m = Moved::Arrived { at: w("Sol", None), next: next.clone(), left: 99, copied };
             callouts.push(m.spoken());
@@ -738,6 +747,7 @@ fn the_route_lines_keep_to_the_copy_guide() {
     replies.extend(FIXED_LINES.iter().map(|s| s.to_string()));
     replies.push(unavailable_reason("plot_route").to_string());
     assert!(answers.iter().any(|l| l == "Next waypoint. Kuk, for Ram Tah. 99 waypoints left."), "{answers:?}");
+    assert!(answers.iter().any(|l| l == "Next waypoint. PSR J1752-2806, for neutron boost. 99 waypoints left."));
     let sentences = |v: &[String]| -> Vec<String> {
         v.iter().flat_map(|l| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect()
     };
@@ -747,4 +757,195 @@ fn the_route_lines_keep_to_the_copy_guide() {
     bad.extend(check("route reply", &replies, REPLY_WORDS));
     bad.extend(check("route answer", &answers, ANSWER_WORDS));
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// Help lines (setup problems) may run long, but they keep the other rules.
+const HELP_WORDS: usize = 40;
+
+/// The lines the lookups, the policy and the remote services say when something is missing or
+/// fails: not a callout and not a status answer, but spoken all the same (docs/V1-DESIGN.md §6.5).
+#[test]
+fn the_lookup_policy_and_service_lines_keep_to_the_copy_guide() {
+    use astromech_data::{Error, Service};
+    use astromech_policy::{Denial, PressError};
+    use astromech_tools::lookup;
+
+    let mut replies: Vec<String> = vec![
+        lookup::NOT_CAUGHT.into(),
+        astromech_core::trade::WHICH_COMMODITY.into(),
+        astromech_core::lookups::UNKNOWN_SYSTEM.into(),
+    ];
+    for d in
+        [Denial::KillSwitch, Denial::NeverAutomated, Denial::OriginNotAllowed, Denial::Duplicate, Denial::RateLimited]
+    {
+        replies.push(d.spoken());
+    }
+    for e in [
+        PressError::Cancelled,
+        PressError::NotForeground("Notepad".into()),
+        PressError::Privilege("x".into()),
+        PressError::UnknownKey("Key_Pause".into()),
+        PressError::Send("x".into()),
+    ] {
+        replies.push(e.spoken());
+    }
+    // What a failed lookup says: the service's own sentence follows the prefix. The services'
+    // sentences are help lines (they say what to do), checked on their own below.
+    let mut help = vec![];
+    for service in Service::ALL {
+        for e in [
+            Error::Offline { service, detail: String::new() },
+            Error::Timeout { service },
+            Error::RateLimited { service },
+            Error::NotFound { service, message: "no system named Sol".into() },
+            Error::Rejected { service, message: "Invalid request".into() },
+            Error::Unavailable { service, status: 503 },
+            Error::Schema { service, detail: String::new() },
+        ] {
+            help.push(e.to_string());
+            help.push(lookup::failed(&e.to_string()));
+        }
+    }
+    // The warnings a lookup says when Spansh's answer does not fit the search (help lines).
+    {
+        use astromech_galaxy::stations::Want;
+        help.push(astromech_galaxy::powerplay::MISMATCH_WARNING.to_string());
+        help.push(astromech_galaxy::NEARBY_MISMATCH_WARNING.to_string());
+        help.extend(astromech_galaxy::SITE_KINDS.iter().map(astromech_galaxy::sites::mismatch_warning));
+        for service in astromech_galaxy::stations::Service::ALL {
+            help.push(Want::Service { service }.none_offered(&[]));
+        }
+        for (said, name) in astromech_galaxy::outfitting::spoken_modules() {
+            let _ = said;
+            help.push(
+                Want::Module(astromech_galaxy::outfitting::ModuleWant::from_words(name, "5a gimballed"))
+                    .none_offered(&[]),
+            );
+        }
+        for (_, ship) in astromech_galaxy::outfitting::spoken_ships() {
+            help.push(Want::Ship { ship: ship.to_string() }.none_offered(&[]));
+        }
+    }
+    let sentences = |v: &[String]| -> Vec<String> {
+        v.iter().flat_map(|l| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect()
+    };
+    assert!(replies.iter().any(|l| l == "Did not catch what to look for."), "{replies:?}");
+    let mut bad = check("lookup or policy reply", &sentences(&replies), REPLY_WORDS);
+    bad.extend(check("service failure", &sentences(&help), HELP_WORDS));
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The setup-problem refusals when a voice action has no keyboard key: help lines, so they may
+/// run long, but they have no contractions and no "I".
+#[test]
+fn the_missing_key_help_lines_keep_to_the_copy_guide() {
+    use astromech_core::health::{run_check, BindsState};
+    let d = tempfile::tempdir().unwrap();
+    std::fs::write(
+        d.path().join("Pads.4.2.binds"),
+        r#"<?xml version="1.0" encoding="UTF-8" ?>
+<Root PresetName="Pads" MajorVersion="4" MinorVersion="2">
+ <LandingGearToggle><Primary Device="231D3201" Key="Joy_4" /><Secondary Device="{NoDevice}" Key="" /></LandingGearToggle>
+</Root>"#,
+    )
+    .unwrap();
+    std::fs::write(d.path().join("StartPreset.4.start"), "Pads\nPads\nPads\nPads\n").unwrap();
+    let read = run_check(d.path(), Some(&d.path().join("nogame")), false);
+    let mut lines = vec![];
+    for action in astromech_keybinds::catalog::VOICE_ACTIONS {
+        let noun = astromech_core::health::elite_ui_name(action);
+        lines.push(BindsState::default().missing_reason(action, noun));
+        lines.push(read.missing_reason(action, noun));
+    }
+    lines.sort();
+    lines.dedup();
+    // All three kinds of refusal were reached: unreadable, unbound, controller only.
+    for part in ["could not be read", "is not bound", "only bound to your controller"] {
+        assert!(lines.iter().any(|l| l.contains(part)), "{part}: {lines:?}");
+    }
+    let bad = check("missing key help line", &lines, HELP_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// Backstop: every string literal in a `say(...)` call anywhere in the core's sources is checked
+/// here, so a new spoken line cannot skip the copy guide even if no test above lists it.
+/// (Lines built elsewhere, such as the callout rules, are covered by the enumerations above.)
+#[test]
+fn every_literal_the_core_says_keeps_to_the_copy_guide() {
+    let src = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mut found = vec![];
+    for entry in std::fs::read_dir(&src).unwrap() {
+        let path = entry.unwrap().path();
+        if path.extension().is_none_or(|e| e != "rs") {
+            continue;
+        }
+        let text = std::fs::read_to_string(&path).unwrap();
+        // Unit tests say placeholder text ("First.", "Callout.") that is never spoken.
+        let code = text.split("\n#[cfg(test)]").next().unwrap();
+        for lit in say_literals(code) {
+            found.push((path.file_name().unwrap().to_string_lossy().to_string(), lit));
+        }
+    }
+    // The scan really reaches the calls (a change to how they are written must not blind it).
+    for expected in
+        ["Say again.", "Looking that up.", "Re-armed.", "Voice is not loaded. Type commands in the console."]
+    {
+        assert!(found.iter().any(|(_, l)| l == expected), "scan missed {expected:?}: {found:?}");
+    }
+    let lines: Vec<String> =
+        found.iter().flat_map(|(_, l)| l.split_inclusive(". ").map(|s| s.trim().to_string())).collect();
+    let bad = check("spoken literal", &lines, REPLY_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The string literals inside each `say(...)` call in `code`, `{...}` placeholders replaced by "x".
+fn say_literals(code: &str) -> Vec<String> {
+    let b = code.as_bytes();
+    let mut out = vec![];
+    let mut from = 0;
+    while let Some(i) = code[from..].find("say(").map(|i| i + from) {
+        from = i + 4;
+        // Calls, method or closure (`let say = |s| ..; say("..")`), not the definition `fn say(`
+        // or an identifier that only ends in "say(".
+        let before = &code[..i];
+        if before.ends_with("fn ") || before.ends_with(|c: char| c.is_alphanumeric() || c == '_') {
+            continue;
+        }
+        let (mut depth, mut j) = (1, i + 4);
+        while j < b.len() && depth > 0 {
+            match b[j] {
+                b'(' => depth += 1,
+                b')' => depth -= 1,
+                b'"' => {
+                    let mut lit = String::new();
+                    j += 1;
+                    while j < b.len() && b[j] != b'"' {
+                        if b[j] == b'\\' {
+                            j += 1;
+                        }
+                        lit.push(b[j] as char);
+                        j += 1;
+                    }
+                    let mut s = String::new();
+                    let mut skip = false;
+                    for c in lit.chars() {
+                        match c {
+                            '{' => {
+                                skip = true;
+                                s.push('x');
+                            }
+                            '}' => skip = false,
+                            _ if !skip => s.push(c),
+                            _ => {}
+                        }
+                    }
+                    out.push(s);
+                }
+                _ => {}
+            }
+            j += 1;
+        }
+        from = j;
+    }
+    out
 }
