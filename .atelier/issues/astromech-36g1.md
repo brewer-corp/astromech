@@ -2,8 +2,9 @@
 created_at: "2026-10-17T20:12:38.600227989+00:00"
 id: "astromech-36g1"
 issue_type: "bug"
-labels: []
-priority: "P3"
+labels:
+- "alpha"
+priority: "P2"
 relationships:
   blocks: []
   children: []
@@ -13,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "The game's journal is never live when a journal name's stamp disagrees with real time"
-updated_at: "2026-10-17T20:17:46.915288140+00:00"
+updated_at: "2026-10-17T20:20:34.481956351+00:00"
 ---
 
 ## Goal

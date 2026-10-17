@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-17T20:20:34.351713619+00:00"
+status: "done"
 title: "Flaky: gear_down a_replayed_older_journal_leaves_the_route_and_clipboard_alone"
-updated_at: "2026-10-17T20:17:54.923132699+00:00"
+updated_at: "2026-10-17T20:20:34.351713619+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Seen once on 17 Oct 2026 during `cargo test --workspace` on branch task/astromec
 ## Notes
 
 - 2026-10-17 [note] Diagnosis (production race, not test-only): Tailer::open set self.live=true after the replay part, and read_tail applied later lines with it. A journal earlier by name than the current one (a backup/sync tool) that is followed while empty or partly written (its creation makes it newest) had everything written after the open treated as live: route moved, clipboard written, callouts, EDDN/EDSM sends. The test's append() creates the file then writes it; the pipeline wins that gap under load. Repro: 5+ ms injected sleep between create and write gave 60/60 failures with the CI signature, against 0/30 without it and 0/40 under 24 busy loops. Same hole for the 7uj3 split on an older journal followed, left and written again. Fix: in open(), a journal is live only if it is the folder's latest by name (journal_logs().last()); that also holds for later tail reads. Tests: pipeline::tests::an_older_journal_written_after_we_follow_it_is_still_a_replay (fails before the fix with 2 EDDN sends); the gear_down test now forces the interleaving (creates the older journal empty, waits until it is followed, then writes), 5/5 fail before the fix.
+
+## Close Reason
+
+Production race fixed: only the folder's latest journal by name stamp can be live; deterministic gear_down test passes 50/50 under load; two independent reviews, no FIX NOW outstanding.
