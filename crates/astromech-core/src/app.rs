@@ -124,9 +124,9 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
-        let (killed, toasts) = match self.session.lock().unwrap().as_ref() {
-            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent()),
-            None => (false, vec![]),
+        let (killed, toasts, mining) = match self.session.lock().unwrap().as_ref() {
+            Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
+            None => (false, vec![], None),
         };
         let cfg = self.cfg();
         let button = |b: &Option<crate::config::Button>| b.as_ref().map(|b| format!("{} {}", b.device, b.key));
@@ -158,6 +158,7 @@ impl Core {
             "update": &self.update.lock().unwrap().snap,
             "toasts": toasts,
             "history": self.history.status(),
+            "mining": mining,
         })
     }
 
