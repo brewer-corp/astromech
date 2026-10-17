@@ -2,6 +2,17 @@
  "source": "EDCD/FDevIDs@c356129 (scripts/gen-outfitting.py)",
  "modules": [
   {
+   "name": "Balanced Power Distributor",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "A",
+     "symbols": []
+    }
+   ]
+  },
+  {
    "name": "Enhanced Performance Thrusters",
    "category": "standard",
    "sizes": [
@@ -875,6 +886,267 @@
    ]
   },
   {
+   "name": "Lightweight Alloy",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "C",
+     "symbols": [
+      "explorer_nx_armour_grade1_default",
+      "smallcombat01_nx_armour_grade1",
+      "mediumtransport01_armour_grade1"
+     ]
+    },
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": [
+      "sidewinder_armour_grade1",
+      "eagle_armour_grade1",
+      "hauler_armour_grade1",
+      "adder_armour_grade1",
+      "viper_armour_grade1",
+      "cobramkiii_armour_grade1",
+      "type6_armour_grade1",
+      "dolphin_armour_grade1",
+      "type7_armour_grade1",
+      "asp_armour_grade1",
+      "vulture_armour_grade1",
+      "empire_trader_armour_grade1",
+      "federation_dropship_armour_grade1",
+      "orca_armour_grade1",
+      "type9_armour_grade1",
+      "python_armour_grade1",
+      "belugaliner_armour_grade1",
+      "ferdelance_armour_grade1",
+      "anaconda_armour_grade1",
+      "federation_corvette_armour_grade1",
+      "cutter_armour_grade1",
+      "diamondback_armour_grade1",
+      "empire_courier_armour_grade1",
+      "diamondbackxl_armour_grade1",
+      "empire_eagle_armour_grade1",
+      "federation_dropship_mkii_armour_grade1",
+      "federation_gunship_armour_grade1",
+      "viper_mkiv_armour_grade1",
+      "cobramkiv_armour_grade1",
+      "independant_trader_armour_grade1",
+      "asp_scout_armour_grade1",
+      "type9_military_armour_grade1",
+      "krait_mkii_armour_grade1",
+      "typex_armour_grade1",
+      "typex_2_armour_grade1",
+      "typex_3_armour_grade1",
+      "krait_light_armour_grade1",
+      "mamba_armour_grade1",
+      "python_nx_armour_grade1",
+      "type8_armour_grade1",
+      "mandalay_armour_grade1",
+      "cobramkv_armour_grade1",
+      "corsair_armour_grade1",
+      "panthermkii_armour_grade1",
+      "lakonminer_armour_grade1"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Military Grade Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "smallcombat01_nx_armour_grade3",
+      "mediumtransport01_armour_grade3"
+     ]
+    },
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": [
+      "sidewinder_armour_grade3",
+      "eagle_armour_grade3",
+      "hauler_armour_grade3",
+      "adder_armour_grade3",
+      "viper_armour_grade3",
+      "cobramkiii_armour_grade3",
+      "type6_armour_grade3",
+      "dolphin_armour_grade3",
+      "type7_armour_grade3",
+      "asp_armour_grade3",
+      "vulture_armour_grade3",
+      "empire_trader_armour_grade3",
+      "federation_dropship_armour_grade3",
+      "orca_armour_grade3",
+      "type9_armour_grade3",
+      "python_armour_grade3",
+      "belugaliner_armour_grade3",
+      "ferdelance_armour_grade3",
+      "anaconda_armour_grade3",
+      "federation_corvette_armour_grade3",
+      "cutter_armour_grade3",
+      "diamondback_armour_grade3",
+      "empire_courier_armour_grade3",
+      "diamondbackxl_armour_grade3",
+      "empire_eagle_armour_grade3",
+      "federation_dropship_mkii_armour_grade3",
+      "federation_gunship_armour_grade3",
+      "viper_mkiv_armour_grade3",
+      "cobramkiv_armour_grade3",
+      "independant_trader_armour_grade3",
+      "asp_scout_armour_grade3",
+      "type9_military_armour_grade3",
+      "krait_mkii_armour_grade3",
+      "typex_armour_grade3",
+      "typex_2_armour_grade3",
+      "typex_3_armour_grade3",
+      "krait_light_armour_grade3",
+      "mamba_armour_grade3",
+      "python_nx_armour_grade3",
+      "type8_armour_grade3",
+      "mandalay_armour_grade3",
+      "cobramkv_armour_grade3",
+      "corsair_armour_grade3",
+      "panthermkii_armour_grade3",
+      "lakonminer_armour_grade3"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mirrored Surface Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "smallcombat01_nx_armour_mirrored",
+      "mediumtransport01_armour_mirrored"
+     ]
+    },
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": [
+      "sidewinder_armour_mirrored",
+      "eagle_armour_mirrored",
+      "hauler_armour_mirrored",
+      "adder_armour_mirrored",
+      "viper_armour_mirrored",
+      "cobramkiii_armour_mirrored",
+      "type6_armour_mirrored",
+      "dolphin_armour_mirrored",
+      "type7_armour_mirrored",
+      "asp_armour_mirrored",
+      "vulture_armour_mirrored",
+      "empire_trader_armour_mirrored",
+      "federation_dropship_armour_mirrored",
+      "orca_armour_mirrored",
+      "type9_armour_mirrored",
+      "python_armour_mirrored",
+      "belugaliner_armour_mirrored",
+      "ferdelance_armour_mirrored",
+      "anaconda_armour_mirrored",
+      "federation_corvette_armour_mirrored",
+      "cutter_armour_mirrored",
+      "diamondback_armour_mirrored",
+      "empire_courier_armour_mirrored",
+      "diamondbackxl_armour_mirrored",
+      "empire_eagle_armour_mirrored",
+      "federation_dropship_mkii_armour_mirrored",
+      "federation_gunship_armour_mirrored",
+      "viper_mkiv_armour_mirrored",
+      "cobramkiv_armour_mirrored",
+      "independant_trader_armour_mirrored",
+      "asp_scout_armour_mirrored",
+      "type9_military_armour_mirrored",
+      "krait_mkii_armour_mirrored",
+      "typex_armour_mirrored",
+      "typex_2_armour_mirrored",
+      "typex_3_armour_mirrored",
+      "krait_light_armour_mirrored",
+      "mamba_armour_mirrored",
+      "python_nx_armour_mirrored",
+      "type8_armour_mirrored",
+      "mandalay_armour_mirrored",
+      "cobramkv_armour_mirrored",
+      "corsair_armour_mirrored",
+      "panthermkii_armour_mirrored",
+      "lakonminer_armour_mirrored"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mk II Ablative Lightweight Alloys",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "C",
+     "symbols": [
+      "explorer_nx_armour_grade1"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mk II Ablative Military Grade Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "explorer_nx_armour_grade3"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mk II Ablative Mirrored Surface Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "explorer_nx_armour_mirrored"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mk II Ablative Reactive Surface Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "explorer_nx_armour_reactive"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Mk II Ablative Reinforced Alloys",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "symbols": [
+      "explorer_nx_armour_grade2"
+     ]
+    }
+   ]
+  },
+  {
    "name": "Mk II Agile Boost Thrusters",
    "category": "standard",
    "sizes": [
@@ -1453,6 +1725,136 @@
    ]
   },
   {
+   "name": "Reactive Surface Composite",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "A",
+     "symbols": [
+      "smallcombat01_nx_armour_reactive",
+      "mediumtransport01_armour_reactive"
+     ]
+    },
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": [
+      "sidewinder_armour_reactive",
+      "eagle_armour_reactive",
+      "hauler_armour_reactive",
+      "adder_armour_reactive",
+      "viper_armour_reactive",
+      "cobramkiii_armour_reactive",
+      "type6_armour_reactive",
+      "dolphin_armour_reactive",
+      "type7_armour_reactive",
+      "asp_armour_reactive",
+      "vulture_armour_reactive",
+      "empire_trader_armour_reactive",
+      "federation_dropship_armour_reactive",
+      "orca_armour_reactive",
+      "type9_armour_reactive",
+      "python_armour_reactive",
+      "belugaliner_armour_reactive",
+      "ferdelance_armour_reactive",
+      "anaconda_armour_reactive",
+      "federation_corvette_armour_reactive",
+      "cutter_armour_reactive",
+      "diamondback_armour_reactive",
+      "empire_courier_armour_reactive",
+      "diamondbackxl_armour_reactive",
+      "empire_eagle_armour_reactive",
+      "federation_dropship_mkii_armour_reactive",
+      "federation_gunship_armour_reactive",
+      "viper_mkiv_armour_reactive",
+      "cobramkiv_armour_reactive",
+      "independant_trader_armour_reactive",
+      "asp_scout_armour_reactive",
+      "type9_military_armour_reactive",
+      "krait_mkii_armour_reactive",
+      "typex_armour_reactive",
+      "typex_2_armour_reactive",
+      "typex_3_armour_reactive",
+      "krait_light_armour_reactive",
+      "mamba_armour_reactive",
+      "python_nx_armour_reactive",
+      "type8_armour_reactive",
+      "mandalay_armour_reactive",
+      "cobramkv_armour_reactive",
+      "corsair_armour_reactive",
+      "panthermkii_armour_reactive",
+      "lakonminer_armour_reactive"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Reinforced Alloy",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "B",
+     "symbols": [
+      "smallcombat01_nx_armour_grade2",
+      "mediumtransport01_armour_grade2"
+     ]
+    },
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": [
+      "sidewinder_armour_grade2",
+      "eagle_armour_grade2",
+      "hauler_armour_grade2",
+      "adder_armour_grade2",
+      "viper_armour_grade2",
+      "cobramkiii_armour_grade2",
+      "type6_armour_grade2",
+      "dolphin_armour_grade2",
+      "type7_armour_grade2",
+      "asp_armour_grade2",
+      "vulture_armour_grade2",
+      "empire_trader_armour_grade2",
+      "federation_dropship_armour_grade2",
+      "orca_armour_grade2",
+      "type9_armour_grade2",
+      "python_armour_grade2",
+      "belugaliner_armour_grade2",
+      "ferdelance_armour_grade2",
+      "anaconda_armour_grade2",
+      "federation_corvette_armour_grade2",
+      "cutter_armour_grade2",
+      "diamondback_armour_grade2",
+      "empire_courier_armour_grade2",
+      "diamondbackxl_armour_grade2",
+      "empire_eagle_armour_grade2",
+      "federation_dropship_mkii_armour_grade2",
+      "federation_gunship_armour_grade2",
+      "viper_mkiv_armour_grade2",
+      "cobramkiv_armour_grade2",
+      "independant_trader_armour_grade2",
+      "asp_scout_armour_grade2",
+      "type9_military_armour_grade2",
+      "krait_mkii_armour_grade2",
+      "typex_armour_grade2",
+      "typex_2_armour_grade2",
+      "typex_3_armour_grade2",
+      "krait_light_armour_grade2",
+      "mamba_armour_grade2",
+      "python_nx_armour_grade2",
+      "type8_armour_grade2",
+      "mandalay_armour_grade2",
+      "cobramkv_armour_grade2",
+      "corsair_armour_grade2",
+      "panthermkii_armour_grade2",
+      "lakonminer_armour_grade2"
+     ]
+    }
+   ]
+  },
+  {
    "name": "Sensors",
    "category": "standard",
    "sizes": [
@@ -1736,6 +2138,37 @@
      "symbols": [
       "int_sensors_size8_class1"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Support Focused Power Distributor",
+   "category": "standard",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "A",
+     "symbols": []
+    },
+    {
+     "class": 3,
+     "rating": "D",
+     "symbols": []
+    },
+    {
+     "class": 4,
+     "rating": "A",
+     "symbols": []
+    },
+    {
+     "class": 4,
+     "rating": "D",
+     "symbols": []
+    },
+    {
+     "class": 6,
+     "rating": "A",
+     "symbols": []
     }
    ]
   },
@@ -2304,19 +2737,6 @@
    ]
   },
   {
-   "name": "Basic Discovery Scanner",
-   "category": "internal",
-   "sizes": [
-    {
-     "class": 1,
-     "rating": "E",
-     "symbols": [
-      "int_stellarbodydiscoveryscanner_standard_free"
-     ]
-    }
-   ]
-  },
-  {
    "name": "Bi-Weave Shield Generator",
    "category": "internal",
    "sizes": [
@@ -2753,6 +3173,22 @@
      "symbols": [
       "int_expmodulestabiliser_size5_class3"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Extended Cargo Rack",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "E",
+     "symbols": []
+    },
+    {
+     "class": 6,
+     "rating": "E",
+     "symbols": []
     }
    ]
   },
@@ -3901,6 +4337,17 @@
    ]
   },
   {
+   "name": "Heavy Duty Module Reinforcement Package",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 5,
+     "rating": "D",
+     "symbols": []
+    }
+   ]
+  },
+  {
    "name": "Hull Reinforcement Package",
    "category": "internal",
    "sizes": [
@@ -4003,6 +4450,17 @@
       "int_largebuggybay_size6_class3",
       "int_largebuggybay_size6_class3_free"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Long Range Detailed Surface Scanner",
+   "category": "internal",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "I",
+     "symbols": []
     }
    ]
   },
@@ -6131,6 +6589,36 @@
    ]
   },
   {
+   "name": "Double Screaming Fragment Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "E",
+     "mount": "Gimballed",
+     "symbols": []
+    },
+    {
+     "class": 3,
+     "rating": "C",
+     "mount": "Gimballed",
+     "symbols": []
+    }
+   ]
+  },
+  {
+   "name": "Enduring Feedback Rail Gun",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
    "name": "Enforcer Cannon",
    "category": "hardpoint",
    "sizes": [
@@ -6247,6 +6735,42 @@
      "symbols": [
       "hpt_causticmissile_fixed_medium"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Exposing Missiles",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
+   "name": "Far-Reaching Abrasion Blaster",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
+   "name": "Force Impact Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 4,
+     "rating": "B",
+     "mount": "Fixed",
+     "symbols": []
     }
    ]
   },
@@ -6481,6 +7005,18 @@
    ]
   },
   {
+   "name": "High-Yield Enzyme Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
    "name": "Imperial Hammer Rail Gun",
    "category": "hardpoint",
    "sizes": [
@@ -6491,6 +7027,36 @@
      "symbols": [
       "hpt_railgun_fixed_medium_burst"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Lockdown Seeker Missile Rack",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "B",
+     "mount": "Fixed",
+     "symbols": []
+    },
+    {
+     "class": 3,
+     "rating": "A",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
+   "name": "Long Range Mining Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 1,
+     "rating": "D",
+     "mount": "Fixed",
+     "symbols": []
     }
    ]
   },
@@ -6721,6 +7287,18 @@
    ]
   },
   {
+   "name": "Overloaded Beam Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 4,
+     "rating": "A",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
    "name": "Pacifier Frag-Cannon",
    "category": "hardpoint",
    "sizes": [
@@ -6905,6 +7483,30 @@
      "symbols": [
       "hpt_railgun_fixed_medium"
      ]
+    }
+   ]
+  },
+  {
+   "name": "Rapid Phase Multi-Cannon",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "E",
+     "mount": "Fixed",
+     "symbols": []
+    }
+   ]
+  },
+  {
+   "name": "Regenerative Burst Laser",
+   "category": "hardpoint",
+   "sizes": [
+    {
+     "class": 2,
+     "rating": "F",
+     "mount": "Gimballed",
+     "symbols": []
     }
    ]
   },
@@ -7248,6 +7850,19 @@
    ]
   },
   {
+   "name": "Caustic Sink Launcher",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "I",
+     "symbols": [
+      "hpt_causticsinklauncher_turret_tiny"
+     ]
+    }
+   ]
+  },
+  {
    "name": "Chaff Launcher",
    "category": "utility",
    "sizes": [
@@ -7498,6 +8113,19 @@
      "rating": "F",
      "symbols": [
       "hpt_antiunknownshutdown_tiny"
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Thargoid Pulse Neutraliser",
+   "category": "utility",
+   "sizes": [
+    {
+     "class": 0,
+     "rating": "E",
+     "symbols": [
+      "hpt_antiunknownshutdown_tiny_v2"
      ]
     }
    ]
