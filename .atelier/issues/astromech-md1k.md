@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Guide: galaxy, Powerplay, colonisation, exploration, logbook and data sharing"
-updated_at: "2026-10-17T16:54:24.039482327+00:00"
+updated_at: "2026-10-17T17:21:51.968578109+00:00"
 ---
 
 ## Goal

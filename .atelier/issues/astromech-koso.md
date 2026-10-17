@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:21:42.883433140+00:00"
+status: "done"
 title: "Guide: ships, engineering, materials, trade and mining"
-updated_at: "2026-10-17T17:18:28.884953257+00:00"
+updated_at: "2026-10-17T17:21:42.883433140+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ Guide pages for the Ships page and build stats (including where they differ from
 ## Done when
 
 Each page matches the app on main and names its data sources (Spansh, Ardent, EDSM, journal).
+
+## Close Reason
+
+Ships, materials, engineers and on foot, galaxy, trade and mining pages written from the code.
