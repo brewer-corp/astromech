@@ -3,6 +3,9 @@ created_at: "2026-10-17T00:11:18.156254244+00:00"
 id: "astromech-8ozh"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-8ozh
 priority: "P3"
 relationships:
   blocks: []
@@ -11,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Outbox row ids are reused after a purge, so the claim in deliver_due can match a new row"
-updated_at: "2026-10-17T00:11:18.156254244+00:00"
+updated_at: "2026-10-17T03:23:15.140196156+00:00"
 ---
 
 ## Goal
