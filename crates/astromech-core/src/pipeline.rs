@@ -364,7 +364,7 @@ impl Tailer {
             "journal {} isn't the latest by name ({}): {}",
             name(path),
             latest.as_deref().map(name).unwrap_or_default(),
-            if games { "followed as the game's own (stamped now)" } else { "followed as a replay only" }
+            if games { "followed as the game's own" } else { "followed as a replay only" }
         ));
     }
 
