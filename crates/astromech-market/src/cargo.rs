@@ -5,7 +5,9 @@
 //! scored by what it would pay for everything it can take, `min(carried, demand) × price` per
 //! commodity (demand caps matter for mined goods, which come in hundreds of tonnes). Each
 //! commodity on its own: the single-commodity sell lookup ([`crate::prices`]) asking for demand
-//! of at least the tonnes carried, so the answer takes the whole lot.
+//! of at least the tonnes carried, so the answer takes the whole lot; when no market has that
+//! much demand (mined loads run to hundreds of tonnes), the market that pays the most for the
+//! part it takes.
 //!
 //! Mission cargo isn't the commander's to sell, stolen goods only sell at a black market, and
 //! limpets are kept for the next trip, so those are left out and listed as such.
@@ -160,6 +162,9 @@ pub struct CommoditySale {
     pub carried: i64,
     /// The single-commodity sell lookup's best market with demand for all of it.
     pub best: Option<Offer>,
+    /// With no market that takes it all: the market that pays the most for what it does take
+    /// (`min(carried, demand)` tonnes; its `volume` is its demand). Never set alongside `best`.
+    pub partial: Option<Offer>,
 }
 
 /// Where to sell the hold.
@@ -179,6 +184,16 @@ pub struct CargoPlan {
 pub fn single_filters(filters: &Filters, tonnes: i64) -> Filters {
     let need = u32::try_from(tonnes.max(0)).unwrap_or(u32::MAX).max(filters.min_volume.unwrap_or(0));
     Filters { min_volume: Some(need), ..filters.clone() }
+}
+
+/// The market among `offers` that pays the most in all for up to `tonnes` (capped by its
+/// demand); nearer first on a tie. Only markets that pass `filters` and want some.
+fn best_partial(tonnes: i64, offers: &[Offer], filters: &Filters, now_s: i64) -> Option<Offer> {
+    let mut kept = rank_offers(Side::Sell, offers.to_vec(), filters, now_s);
+    kept.retain(|o| o.volume > 0);
+    kept.into_iter().max_by(|a, b| {
+        (tonnes.min(a.volume) * a.price).cmp(&(tonnes.min(b.volume) * b.price)).then(b.hop.ly.total_cmp(&a.hop.ly))
+    })
 }
 
 /// Plan the sale of `inventory` near `origin`. One Ardent request per commodity (cached), plus
@@ -215,11 +230,14 @@ pub fn plan(
         } else {
             rank_offers(Side::Sell, p.offers.clone(), &single, now_s)
         };
+        let best = ranked.into_iter().next();
+        let partial = if best.is_some() { None } else { best_partial(l.tonnes, &whole_offers, filters, now_s) };
         per_commodity.push(CommoditySale {
             commodity: l.symbol.clone(),
             name: l.name.clone(),
             carried: l.tonnes,
-            best: ranked.into_iter().next(),
+            best,
+            partial,
         });
         offers.push(whole_offers);
     }
@@ -250,7 +268,7 @@ pub fn plan_search(
             s.hop = map.hop(here.pos, s.system_pos, range);
         }
         for c in &mut p.per_commodity {
-            if let Some(o) = &mut c.best {
+            for o in c.best.iter_mut().chain(c.partial.iter_mut()) {
                 o.hop = map.hop(here.pos, o.system_pos, range);
             }
         }

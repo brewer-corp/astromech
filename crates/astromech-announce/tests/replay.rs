@@ -329,6 +329,9 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"MaterialCollected","Category":"Raw","Name":"arsenic","Count":250}}"#
         ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"Scan","ScanType":"Detailed","BodyName":"A 2","BodyID":2,"PlanetClass":"Earthlike body","MassEM":1.0,"WasDiscovered":true,"WasMapped":true}}"#
+        ),
         // The session ends; the summary waits for a tick.
         format!(r#"{{"timestamp":"2026-10-16T{hm}:49Z","event":"Shutdown"}}"#),
     ]
@@ -356,7 +359,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let shared = Shared::default();
     shared.sessions.set(std::sync::Arc::new(Session));
     let rules = builtin(shared);
-    assert_eq!(rules.len(), 14, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 15, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -393,6 +396,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "High Grade Emissions.",
             "Megaship in system.",
             "Arsenic at 250/250.",
+            "Earth-like world. 1.5 million mapped.",
             "Route: 3 jumps, 60 ly.",
             "Mission expires within an hour.",
             "Earned 4.2 million credits, 1.9 million an hour.",

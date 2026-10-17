@@ -34,6 +34,8 @@ pub const MAX_QUEUED: i64 = 2000;
 /// How long a statement waits for the other connection's write to finish.
 const BUSY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
+/// Each runs in its own transaction with its `user_version` bump (`astromech_store::migrate`),
+/// so none may begin or commit one itself.
 const MIGRATIONS: &[&str] = &[
     // v1
     "CREATE TABLE outbox (
@@ -53,8 +55,7 @@ const MIGRATIONS: &[&str] = &[
      );",
     // v2: ids are never reused, so a delivery pass that read rows before `discard_all` can't
     // claim, post or remove a newer message that got a purged row's id.
-    "BEGIN;
-     CREATE TABLE outbox_new (
+    "CREATE TABLE outbox_new (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         schema_ref TEXT NOT NULL,
         body BLOB NOT NULL,
@@ -64,8 +65,7 @@ const MIGRATIONS: &[&str] = &[
      );
      INSERT INTO outbox_new SELECT id, schema_ref, body, attempts, next_try, created FROM outbox;
      DROP TABLE outbox;
-     ALTER TABLE outbox_new RENAME TO outbox;
-     COMMIT;",
+     ALTER TABLE outbox_new RENAME TO outbox;",
     // v3: small values a sender keeps between runs (EDSM's discard list).
     "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
     // v4: refusals counted apart from tries, so outages don't use up a message's refusals.
@@ -159,12 +159,7 @@ impl Outbox {
     }
     fn init(conn: Connection) -> Result<Self> {
         conn.busy_timeout(BUSY_TIMEOUT)?;
-        conn.pragma_update(None, "journal_mode", "WAL")?;
-        let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        for (i, m) in MIGRATIONS.iter().enumerate().skip(v as usize) {
-            conn.execute_batch(m)?;
-            conn.pragma_update(None, "user_version", (i + 1) as i64)?;
-        }
+        let conn = astromech_store::migrate(conn, MIGRATIONS)?;
         Ok(Self { conn, label: "eddn", overflow: Cell::new(None) })
     }
 
@@ -774,6 +769,38 @@ pub(crate) mod tests {
         o.enqueue(REF, b"n", 10).unwrap();
         let id: i64 = o.conn.query_row("SELECT id FROM outbox", [], |r| r.get(0)).unwrap();
         assert!(id > 7, "ids continue past the purged one, got {id}");
+    }
+
+    /// Two connections opening an old file at once apply each migration once: a second run of
+    /// v3 would fail with "table meta already exists".
+    #[test]
+    fn concurrent_open_of_an_old_file_migrates_once() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("eddn.sqlite");
+        for round in 0..20 {
+            let p = p.with_extension(format!("{round}"));
+            {
+                let c = Connection::open(&p).unwrap();
+                c.execute_batch(MIGRATIONS[0]).unwrap();
+                c.pragma_update(None, "user_version", 1).unwrap();
+            }
+            let gate = std::sync::Arc::new(std::sync::Barrier::new(2));
+            let hs: Vec<_> = (0..2)
+                .map(|_| {
+                    let (p, gate) = (p.clone(), gate.clone());
+                    std::thread::spawn(move || {
+                        gate.wait();
+                        Outbox::open(&p).map(|_| ()).map_err(|e| e.to_string())
+                    })
+                })
+                .collect();
+            for h in hs {
+                h.join().unwrap().unwrap();
+            }
+            let c = Connection::open(&p).unwrap();
+            let v: i64 = c.query_row("PRAGMA user_version", [], |r| r.get(0)).unwrap();
+            assert_eq!(v, MIGRATIONS.len() as i64);
+        }
     }
 
     #[test]

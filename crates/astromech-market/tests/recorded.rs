@@ -394,6 +394,36 @@ fn a_full_answer_is_asked_again_with_the_demand_needed() {
     assert_eq!(p.stations.len(), 1001, "every listed market, plus the re-asked one once");
 }
 
+/// Done when: a load no market has the demand for gets the best partial buyer, not nothing.
+#[test]
+fn a_load_too_big_for_any_market_gets_the_best_partial_buyer() {
+    let (c, _) = client();
+    let inv = vec![astromech_journal::CargoItem {
+        symbol: "lowtemperaturediamond".into(),
+        name: "Low Temperature Diamonds".into(),
+        count: 50_000,
+        ..Default::default()
+    }];
+    let p = plan(&c, &sol(), &inv, &week(), 20.0, now()).unwrap();
+    let ltd = &p.per_commodity[0];
+    assert!(ltd.best.is_none(), "no market wants 50,000 t");
+
+    // Independently, from the single-commodity lookup: the most credits for what a market takes.
+    let any = Filters { min_volume: None, ..week() };
+    let all = &prices(&c, &sol(), Side::Sell, &["lowtemperaturediamond"], &any, 20.0, now()).unwrap()[0].offers;
+    let top = all.iter().map(|o| o.volume.min(50_000) * o.price).max().unwrap();
+    let got = ltd.partial.as_ref().expect("a partial buyer");
+    assert_eq!(got.volume.min(50_000) * got.price, top);
+    assert!(got.volume > 0 && got.volume < 50_000);
+    // It is also the headline station for the whole load, taking the same tonnes.
+    assert_eq!((p.stations[0].market_id, p.stations[0].sold), (got.market_id, got.volume));
+
+    // A load some market takes whole has no partial answer.
+    let small = vec![astromech_journal::CargoItem { count: 5, ..inv[0].clone() }];
+    let p = plan(&c, &sol(), &small, &week(), 20.0, now()).unwrap();
+    assert!(p.per_commodity[0].best.is_some() && p.per_commodity[0].partial.is_none());
+}
+
 // --- astromech-mcxc: mining sale advisor and hotspot finder ---
 
 use astromech_market::mining;

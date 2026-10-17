@@ -135,3 +135,16 @@ it("shows a pick the game data no longer has on its own card, and the rest of th
   await fireEvent.click(within(bad).getByRole("button", { name: "Remove oldsuit grade 1 → 2" }));
   expect(saved()).toEqual([good]);
 });
+
+it("suggests what surplus to trade at a bartender and what is still short after", async () => {
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
+  const h = await screen.findByText("Bartender trade");
+  const swap = h.nextElementSibling!.querySelector("li")!;
+  expect(swap.textContent).toContain("Trade 2 Graphene, 1 Weapon Component, 1 Tungsten Carbide, 1 Circuit Switch for 7 Carbon Fibre Plating");
+  expect(swap.textContent).toContain("79 barter given for 77, 2 over");
+  // The goods and data the bartender can't cover are still short; the plating is not.
+  const left = screen.getByText(/Still short after the trade:/).textContent!;
+  expect(left).toContain("2 Health Monitor");
+  expect(left).not.toContain("Carbon Fibre Plating");
+});

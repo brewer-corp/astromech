@@ -18,6 +18,9 @@
 //! - **Been here before**: "Visited 2 times. Last here 3 days ago." from the history ledgers,
 //!   as its own line after the others. The arrival being announced is not counted, and a
 //!   system the commander has never been to says nothing.
+//! - **Landed here before**: "Landed on A 2 twice before." or "Landed on 3 bodies here
+//!   before." from the history (a flown touchdown or a dropship to the surface, by body), as
+//!   its own line after the visits line.
 //!
 //! A system with none of these gets nothing. Bodies known to EDSM and known biology are not
 //! part of the briefing yet.
@@ -78,6 +81,38 @@ pub trait VisitHistory: Send + Sync {
     /// The arrivals of commander `commander` in `system_address` strictly before `before` (the
     /// journal timestamp of the arrival being announced, which is therefore not counted).
     fn before(&self, commander: &str, system_address: i64, before: &str) -> Option<Past>;
+    /// The commander's landings in `system_address` strictly before `before`, by body, most
+    /// first. Empty when there are none or the history can't say.
+    fn landings(&self, _commander: &str, _system_address: i64, _before: &str) -> Vec<Landed> {
+        vec![]
+    }
+}
+
+/// The commander's landings on one body before an arrival.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Landed {
+    /// The body's full name ("Synuefe AB-C d1-2 A 2").
+    pub body: String,
+    pub count: u32,
+}
+
+/// "Landed on A 2 before." / "Landed on A 2 twice before." / "Landed on 3 bodies here before."
+/// for the landings in `system`; None with none. A long body name (more than three words once
+/// the system's name is taken off) is not read out.
+pub fn landings_line(system: &str, landed: &[Landed]) -> Option<String> {
+    match landed {
+        [] => None,
+        [one] => {
+            let short = one.body.strip_prefix(system).map(str::trim).filter(|s| !s.is_empty()).unwrap_or(&one.body);
+            let what = if short.split_whitespace().count() > 3 { "a body here".to_string() } else { short.to_string() };
+            Some(match one.count {
+                0 | 1 => format!("Landed on {what} before."),
+                2 => format!("Landed on {what} twice before."),
+                n => format!("Landed on {what} {n} times before."),
+            })
+        }
+        many => Some(format!("Landed on {} bodies here before.", many.len())),
+    }
 }
 
 /// The history the core plugs in once it has one. Shared like the shopping list.
@@ -220,20 +255,27 @@ impl Rule for Arrival {
         let Input::Journal(l) = input else { return vec![] };
         let say = |text| Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST };
         let text = match &l.event {
-            JournalEvent::FsdJump { factions, population, system_address, from_carrier, .. } => {
+            JournalEvent::FsdJump { star_system, factions, population, system_address, from_carrier, .. } => {
                 let wanted = self.shopping.read().unwrap().needed(state);
                 let system = state.system_power.as_ref().filter(|_| !self.powerplay_spoken.load(Ordering::Relaxed));
                 let briefing = line(factions, *population, &wanted, system, state.powerplay.power.as_deref());
+                let history = || Some((self.visits.get()?, state.commander.clone()?, (*system_address)?));
                 let been = (|| {
                     // Home again by carrier is not news.
                     if *from_carrier {
                         return None;
                     }
-                    let past =
-                        self.visits.get()?.before(state.commander.as_deref()?, (*system_address)?, &l.timestamp)?;
-                    visits_line(&past, &l.timestamp)
+                    let (h, commander, address) = history()?;
+                    visits_line(&h.before(&commander, address, &l.timestamp)?, &l.timestamp)
                 })();
-                return briefing.into_iter().chain(been).map(say).collect();
+                let landed = (|| {
+                    if *from_carrier {
+                        return None;
+                    }
+                    let (h, commander, address) = history()?;
+                    landings_line(star_system, &h.landings(&commander, address, &l.timestamp))
+                })();
+                return briefing.into_iter().chain(been).chain(landed).map(say).collect();
             }
             JournalEvent::Extra(ExtraEvent::Scan(b))
                 if b.scan_type.eq_ignore_ascii_case("AutoScan")
