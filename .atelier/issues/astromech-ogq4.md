@@ -18,9 +18,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:16:52.071152408+00:00"
+status: "done"
 title: "Companion files: stale Backpack snapshot and lost watcher notifications"
-updated_at: "2026-10-17T17:16:49.008480476+00:00"
+updated_at: "2026-10-17T17:16:52.071152408+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Tests show Backpack.json is re-read after a BackpackChange event, and that a pen
 ## Notes
 
 - 2026-10-17 [note] Root cause (shared with astromech-mh3m and ztrb): the pipeline acts only when told. (1) for_event mapped only the Backpack event to Backpack.json, but the game rewrites the file with each BackpackChange and writes no Backpack event; BackpackChange now triggers the read. (2) pending triggers were retried only from a notification naming their file; on_status now retries them (quietly: a retry that fails again neither logs nor counts, so the several-per-second status reads do not spam). Not checked (needs the game): whether other events also rewrite Backpack.json or ShipLocker.json without their own event (CollectItems, DropItems, UseConsumable, Buy/Sell/Trade/TransferMicroResources); only BackpackChange is mapped.
+
+## Close Reason
+
+BackpackChange now triggers a Backpack.json read; Tailer::retry_pending runs on every status read. Tests backpack_json_is_read_again_after_a_backpack_change and a_pending_companion_event_is_loaded_on_the_next_status_read (mutation-checked). Other events that may rewrite the files are unchecked (needs the game). Review outstanding.
