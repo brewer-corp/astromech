@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:15:24.124794829+00:00"
+status: "done"
 title: "One bad value in astromech.toml resets every setting to default"
-updated_at: "2026-10-17T18:34:18.250861244+00:00"
+updated_at: "2026-10-17T19:15:24.124794829+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ A test loads a file with one bad value among good ones and keeps every good valu
 ## Context
 
 Found by the guide accuracy check (astromech-mf5e). Only callout cooldown_s and unknown [callouts.<id>] are already handled per value.
+
+## Close Reason
+
+Fixed in PR 127; test one_bad_value_costs_only_that_value
