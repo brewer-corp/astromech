@@ -38,7 +38,7 @@ pub struct BodyView {
     pub class_name: String,
     pub terraformable: bool,
     pub landable: bool,
-    /// Rings, and asteroid belts (which the journal lists with the rings).
+    /// Has rings. Asteroid belts, which the journal lists with the rings, are `belts`.
     pub rings: bool,
     pub belts: bool,
     /// Surface gravity in g (planets).
