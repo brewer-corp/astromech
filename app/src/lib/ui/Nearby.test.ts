@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
+import { fakeCall, resetFakeCore } from "../fakecore";
 import { DEFAULT_FILTERS } from "../search";
 import Nearby from "./Nearby.svelte";
 
@@ -31,5 +32,17 @@ describe("Nearby", () => {
     const visited = screen.getAllByText(/seen on your visit/);
     expect(visited).toHaveLength(1);
     expect(visited[0]?.textContent).toMatch(/^Ross 154 Boys \(Independent, Famine\) · seen on your visit · reported /);
+  });
+
+  it("Go puts a faction-state system on the route follower", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    render(Nearby, { query: "famine" });
+    await fireEvent.click(await screen.findByRole("button", { name: "Go to Ross 154" }));
+    expect(await screen.findByText("Following. Ross 154 is on your clipboard (Galaxy → Route).")).toBeTruthy();
+    const { view } = await fakeCall("route");
+    expect(view.route).toMatchObject({ name: "Ross 154", source: "search", next: 0 });
+    expect(view.route.waypoints).toEqual([{ system: "Ross 154", label: "Famine (distribution centres)" }]);
+    history.replaceState(null, "", "/");
   });
 });

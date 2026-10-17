@@ -14,9 +14,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Send a search result to the route follower with Go"
-updated_at: "2026-10-17T16:54:21.166853083+00:00"
+updated_at: "2026-10-17T17:17:13.439492015+00:00"
 ---
 
 ## Goal
