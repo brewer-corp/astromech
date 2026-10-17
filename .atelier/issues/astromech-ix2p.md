@@ -4,6 +4,9 @@ id: "astromech-ix2p"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ix2p
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDSM split: two poisoned events hold the queue; cap re-halves from 50"
-updated_at: "2026-10-17T17:15:12.541037081+00:00"
+updated_at: "2026-10-17T22:26:23.903779752+00:00"
 ---
 
 ## Goal

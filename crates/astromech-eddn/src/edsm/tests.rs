@@ -461,13 +461,18 @@ impl api::Api for Choosy {
 
 /// A rig on `api` with `count` events queued, `Poison` (if any) at index `poison`.
 fn choosy_rig(api: Choosy, count: usize, poison: Option<usize>) -> Rig {
+    choosy_rig_with(api, count, poison.as_slice())
+}
+
+/// A rig on `api` with `count` events queued, `Poison` at each index in `poisons`.
+fn choosy_rig_with(api: Choosy, count: usize, poisons: &[usize]) -> Rig {
     let mut r = rig(true);
     r.courier.api = Box::new(api);
     r.discards.set(vec![], NOW);
     // The Commander event queues too, with no `n`.
     feed(&mut r, &session()[..2], true);
     for n in 0..count {
-        let event = if poison == Some(n) { "Poison" } else { "Scan" };
+        let event = if poisons.contains(&n) { "Poison" } else { "Scan" };
         r.up.journal(&json!({"event": event, "n": n}), true, NOW);
     }
     r
@@ -522,6 +527,44 @@ fn the_queue_behind_a_poisoned_event_moves_while_it_waits() {
     assert_eq!(api.stored.lock().unwrap().len(), 6);
 }
 
+/// astromech-ix2p: two poisoned events do not hold the queue. After the batches have been split
+/// down to them, each fails alone; the good events behind and between them keep going, pass
+/// after pass, instead of waiting out the second one's back-off.
+#[test]
+fn two_poisoned_events_do_not_hold_the_queue() {
+    let api = Choosy::new(500, BATCH);
+    // Twelve events, the first two poisoned.
+    let mut r = choosy_rig_with(api.clone(), 12, &[0, 1]);
+    for i in 1..=20 {
+        r.courier.pass(NOW + 100 * i, r.t0 + Duration::from_secs(100 * i as u64)).unwrap();
+    }
+    assert_eq!(r.courier.outbox().pending().unwrap(), 2, "only the two poisoned events are left");
+    assert_eq!(api.stored.lock().unwrap().iter().filter(|n| *n != "null").count(), 10);
+}
+
+/// A known-poisoned event goes alone, not back through 50, 25, 13, ... with the events beside it:
+/// once it has failed alone, the next pass in which it is due sends it by itself and the good
+/// events in one request, though the cap has grown back to a full batch.
+#[test]
+fn a_known_poisoned_event_is_not_sent_back_through_the_halving() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig_with(api.clone(), 40, &[5]);
+    // Until the poisoned event has failed alone once.
+    for i in 1..=12 {
+        r.courier.pass(NOW + 100 * i, r.t0 + Duration::from_secs(100 * i as u64)).unwrap();
+    }
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1, "only the poisoned event is left");
+    // New events arrive; later the poisoned one is due again, beside them.
+    for n in 100..140 {
+        r.up.journal(&json!({"event": "Scan", "n": n}), true, NOW + 5000);
+    }
+    let before = api.sizes.lock().unwrap().len();
+    r.courier.pass(NOW + 6000, r.t0 + Duration::from_secs(6000)).unwrap();
+    let sizes = api.sizes.lock().unwrap()[before..].to_vec();
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1, "the good events went in this one pass: {sizes:?}");
+    assert!(sizes.iter().all(|n| *n == 1 || *n == 40), "no batch holds the poisoned event with others: {sizes:?}");
+}
+
 #[test]
 fn a_413_batch_is_split_the_same_way() {
     let api = Choosy::new(413, 3);
@@ -567,8 +610,9 @@ fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
     for i in 1..=20u64 {
         gave_up += r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap().gave_up;
     }
-    // Without the outage guard every one of the 21 goes; with it only the few that fail alone first.
-    assert!((2..=4).contains(&gave_up), "gave up {gave_up} of {queued}");
+    // Without the outage guard every one of the 21 goes; with it only the few that fail alone
+    // first (OUTAGE_AFTER of them a pass, so that two poisoned events side by side don't look like one).
+    assert!((2..=6).contains(&gave_up), "gave up {gave_up} of {queued}");
     assert_eq!(r.courier.outbox().pending().unwrap(), queued - gave_up);
 }
 
