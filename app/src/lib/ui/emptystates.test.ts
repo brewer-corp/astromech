@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import KeybindsView from "../../modules/keybinds/KeybindsView.svelte";
 import PresetsView from "../../modules/presets/View.svelte";
+import ControllerView from "../../modules/controller/View.svelte";
 import PresetPicker from "./PresetPicker.svelte";
 import { binds } from "../store.svelte";
 import { api, type State } from "../binds";
@@ -106,7 +107,32 @@ describe("Presets states", () => {
   });
 });
 
+describe("Presets after an action", () => {
+  it("shows the error when the reload after a successful action fails", async () => {
+    vi.spyOn(api, "state").mockResolvedValueOnce(structuredClone(sample));
+    vi.spyOn(api, "view").mockResolvedValue(await api.view(sample.presets[0]!.path));
+    vi.spyOn(api, "copy").mockResolvedValue(undefined as never);
+    await show(PresetsView);
+    vi.spyOn(api, "state").mockRejectedValue(new Error("core went away"));
+    await fireEvent.click(screen.getByText("Copy"));
+    await screen.findByText(/Copied to/);
+    expect(await screen.findByText(/core went away/)).toBeTruthy();
+  });
+});
+
 describe("Preset picker", () => {
+  it("is where the controller page shows a failed load, once", async () => {
+    vi.spyOn(api, "state").mockRejectedValue(new Error("core is down"));
+    await show(ControllerView);
+    expect(screen.getAllByText(/core is down/)).toHaveLength(1);
+  });
+
+  it("shows a failed load once, so the controller page shows it too", async () => {
+    vi.spyOn(api, "state").mockRejectedValue(new Error("core is down"));
+    await show(PresetPicker);
+    expect(screen.getAllByText(/core is down/)).toHaveLength(1);
+  });
+
   it("offers 'No presets found' only once loaded with none", async () => {
     vi.spyOn(api, "state").mockImplementation(never);
     const view = render(PresetPicker);

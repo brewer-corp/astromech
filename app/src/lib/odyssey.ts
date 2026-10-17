@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { fakeScenario, previewData } from "./fakecore";
 import sample from "./fixtures/odyssey.json";
 
 export type Category = "goods" | "assets" | "data" | "consumables";
@@ -170,7 +171,10 @@ export function fromGrades(owned: OwnedGear[], gear: string): number[] {
 }
 
 export async function loadOdyssey(): Promise<OdysseyView> {
-  if (!inTauri) return sample.view as unknown as OdysseyView;
+  if (!inTauri) {
+    const bare = (): OdysseyView => ({ ...(sample.view as unknown as OdysseyView), source: "No journal yet", locker_ts: null, backpack_ts: null, items: [], owned: [] });
+    return previewData("odyssey_view", () => sample.view as unknown as OdysseyView, bare);
+  }
   return await invoke<OdysseyView>("odyssey_view");
 }
 
@@ -182,7 +186,7 @@ export function samePicks(a: Pick[], b: Pick[]): boolean {
 
 /** The list for `picks`; outside the app only for the sample picks (else null). */
 export async function loadShopping(picks: Pick[]): Promise<Shopping | null> {
-  if (!inTauri) return samePicks(picks, sample.picks as Pick[]) ? (sample.shopping as unknown as Shopping) : null;
+  if (!inTauri) return previewData("odyssey_shopping", () => (samePicks(picks, sample.picks as Pick[]) ? (sample.shopping as unknown as Shopping) : null), () => null);
   return await invoke<Shopping>("odyssey_shopping", { picks });
 }
 
@@ -198,7 +202,7 @@ export function savedPicks(): Pick[] {
   } catch {
     // ignore a damaged entry
   }
-  return inTauri ? [] : structuredClone(sample.picks as Pick[]);
+  return inTauri || fakeScenario() === "empty" ? [] : structuredClone(sample.picks as Pick[]);
 }
 
 export function savePicks(picks: Pick[]): void {

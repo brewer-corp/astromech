@@ -93,6 +93,11 @@ fn header_agrees_with_name<Tz: chrono::TimeZone>(tz: &Tz, name_secs: i64, header
     }
 }
 
+/// The machine's own timezone for [`header_agrees_with_name`].
+fn local_header_check() -> Box<dyn Fn(i64, i64) -> bool + Send> {
+    Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header))
+}
+
 /// Whether a journal line is stamped within [`FRESH_LINE_SECS`] of now (either side).
 fn line_is_fresh(line: &str) -> bool {
     let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { return false };
@@ -200,6 +205,9 @@ struct Tailer {
     noted: std::collections::HashSet<PathBuf>,
     /// Whether a journal's Fileheader time agrees with its name's local time, once it could be read.
     header_agrees: std::collections::HashMap<PathBuf, bool>,
+    /// Whether a Fileheader time (UTC seconds) is a journal name's local time: `(name, header)`.
+    /// The machine's own timezone; tests set another.
+    header_check: Box<dyn Fn(i64, i64) -> bool + Send>,
 }
 
 impl Tailer {
@@ -423,7 +431,7 @@ impl Tailer {
             return *known;
         }
         let Some(header) = first_line_time(path) else { return false };
-        let agrees = header_agrees_with_name(&chrono::Local, stamp, header);
+        let agrees = (self.header_check)(stamp, header);
         self.header_agrees.insert(path.to_path_buf(), agrees);
         agrees
     }
@@ -811,6 +819,7 @@ pub fn start_with_eddn(
         game_sessions: Default::default(),
         noted: Default::default(),
         header_agrees: Default::default(),
+        header_check: local_header_check(),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
@@ -847,6 +856,7 @@ mod tests {
             game_sessions: Default::default(),
             noted: Default::default(),
             header_agrees: Default::default(),
+            header_check: local_header_check(),
         };
         (t, hub, logs)
     }
@@ -1842,5 +1852,124 @@ mod tests {
         append(&own, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1, "but what it writes next is live");
+    }
+
+    /// astromech-782v: the game starts twice in the repeated hour after the clocks go back (US,
+    /// 1 Nov 2026). The second journal's name (01:10) sorts before the first's (01:30), but it was
+    /// written later and its header (06:10Z) is its name read as EST: its new lines are live. A
+    /// touched older journal from before the switch (00:30 EDT) stays a replay.
+    #[test]
+    fn a_journal_started_in_the_repeated_hour_after_the_clocks_go_back_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        let older = d.path().join("Journal.2026-11-01T003000.01.log");
+        // Header (UTC) of each: 01:30 EDT, 01:10 EST (the second 01:00-02:00), 00:30 EDT.
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        touch(&first, 5);
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, first);
+
+        // The game restarts after the clocks went back.
+        std::fs::write(&second, "").unwrap();
+        touch(&second, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        append(&second, &format!("{}{}", session("2026-11-01T06:10:00Z", "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "the new session's fresh line is live though its name sorts first");
+
+        // A tool touches the older journal and writes old lines into it: a replay.
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        touch(&older, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, older);
+        append(&older, &docked("2026-11-01T04:40:00Z"));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "nothing live from the older journal");
+    }
+
+    /// The same two journals at startup: the app starts while the game runs in the one named
+    /// 01:10 (written after 01:30's), so it follows that one by modified time. Its fresh lines are
+    /// live, though it is not the latest by name.
+    #[test]
+    fn the_app_starting_in_the_repeated_hour_follows_the_games_journal_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&second, session("2026-11-01T06:10:00Z", "r2 ")).unwrap();
+        touch(&second, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        assert_eq!(eddn_state(&db), (0, vec![]), "the startup replay is silent");
+        append(&second, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// "Market." on every fresh `Market.json` (the engine decides once per dock).
+    struct MarketRule;
+    impl astromech_announce::Rule for MarketRule {
+        fn id(&self) -> &'static str {
+            "market"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::ZERO
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
+            _: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            use astromech_announce::*;
+            matches!(input, Input::Market(_)).then(|| Callout {
+                text: "Market.".into(),
+                priority: Priority::Normal,
+                channels: Channels::SPEECH,
+            })
+        }
+    }
+
+    /// astromech-bh0c: a reopened journal is split into a replayed half and a live half. A Docked
+    /// at the same market in each: the replayed one reads Market.json with live=false and must not
+    /// use up the dock's one callout, so the live one reaches the callouts.
+    #[test]
+    fn a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, format!("{}{}\n{}\n", session(&ts(10), "r2 "), docked(&ts(5)), market_event(&ts(5), 7)))
+            .unwrap();
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(5), 7)).unwrap();
+        touch(&j2, 5);
+        let (mut t, _, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert!(fired.lock().unwrap().is_empty(), "the startup replay is silent");
+
+        // A touched older journal is followed (a replay); meanwhile the game docks again at the
+        // same market and writes a new Market.json.
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 7)).unwrap();
+        append(&j2, &docked(&ts(0)));
+        append(&j2, &market_event(&ts(0), 7));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
     }
 }

@@ -4,6 +4,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/powerplay.json";
 import sampleTargets from "./fixtures/powerplay-targets.json";
 import type { Filters, Origin } from "./search";
@@ -94,7 +95,11 @@ export function pct(f: number | null | undefined): string {
 }
 
 export async function loadOverview(): Promise<Overview> {
-  if (!inTauri) return sample as unknown as Overview;
+  if (!inTauri) {
+    const o = sample as unknown as Overview;
+    const unpledged: Overview = { standing: { power: null, rank: null, merits: null, time_pledged_secs: null, session_merits: 0, week_merits: 0, week_ends: o.standing.week_ends, next: null }, here: null, system: null };
+    return previewData("powerplay_overview", () => o, () => unpledged);
+  }
   return await invoke<Overview>("powerplay_overview");
 }
 
@@ -159,8 +164,8 @@ export interface Targets {
 export async function loadTargets(target: Target, origin: Origin, filters: Filters | null, withinLy: number): Promise<Targets> {
   if (!inTauri) {
     const s = (sampleTargets as unknown as Record<Target, Targets>)[target];
-    const hits = s.hits.filter((h) => h.ly <= withinLy);
-    return { ...s, hits, within_ly: withinLy, here: origin ? { ...s.here, system: origin } : s.here };
+    const shown = (hits: TargetHit[]) => ({ ...s, hits, within_ly: withinLy, here: origin ? { ...s.here, system: origin } : s.here });
+    return previewData("powerplay_targets", () => shown(s.hits.filter((h) => h.ly <= withinLy)), () => shown([]));
   }
   return await invoke<Targets>("powerplay_targets", { target, origin, filters, withinLy });
 }

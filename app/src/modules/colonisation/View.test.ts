@@ -148,7 +148,7 @@ describe("Colonisation", () => {
     load.mockImplementation(() => new Promise<Project[]>((_r, reject) => setTimeout(() => reject("journal folder not found: X:\\gone"), 5000)));
     render(View);
     await vi.advanceTimersByTimeAsync(5000);
-    expect(await screen.findByText("journal folder not found: X:\\gone")).toBeTruthy();
+    expect(await screen.findByText("Could not read the construction sites: journal folder not found: X:\\gone.")).toBeTruthy();
     expect(load).toHaveBeenCalledTimes(1);
   });
 
@@ -182,7 +182,7 @@ describe("Colonisation", () => {
 
     load.mockRejectedValue("journal folder not found: C:\\nowhere");
     render(View);
-    expect(await screen.findByText("journal folder not found: C:\\nowhere")).toBeTruthy();
+    expect(await screen.findByText("Could not read the construction sites: journal folder not found: C:\\nowhere.")).toBeTruthy();
     expect(buy).not.toHaveBeenCalled();
   });
 });

@@ -101,3 +101,17 @@ fn catch_up_is_silent_and_does_not_use_up_the_dock() {
     r.engine.set_live(true);
     assert_eq!(r.market(&m, EVENT_TS).len(), 1);
 }
+
+/// astromech-bh0c: a Market.json read while replaying (the replayed half of a reopened journal)
+/// says nothing and does not use up the dock's one callout: the same dock's file read live
+/// afterwards still speaks.
+#[test]
+fn a_replayed_market_read_does_not_use_up_the_docks_callout() {
+    let mut r = docked_with_project();
+    let m = market("2026-10-16T20:00:05Z", 128000000, &[("steel", 5), ("titanium", 5)]);
+    r.engine.set_live(false);
+    assert!(r.market(&m, EVENT_TS).is_empty(), "replayed history is silent");
+    r.engine.set_live(true);
+    assert_eq!(r.market(&m, EVENT_TS), ["Sells 2 project commodities."]);
+    assert!(r.market(&m, EVENT_TS).is_empty(), "once per dock");
+}

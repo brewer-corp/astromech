@@ -85,7 +85,7 @@ The side panel compares the ship **now** with the ship **when the plan is done**
 
 The numbers are a port of **Coriolis**'s calculations with the same base stats. They are
 tested against Coriolis's own code on reference builds, and the figures shown match to the last digit Coriolis shows (Coriolis
-as of 24 April 2026). Read this when you compare the two:
+as of 24 April 2026), except where listed below. Read this when you compare the two:
 
 - **Your fitted modules match.** For a module you have engineered, astromech reads the real values
   the game saved in your loadout, roll by roll, as Coriolis does when you import a loadout.
@@ -97,6 +97,7 @@ as of 24 April 2026). Read this when you compare the two:
   out of the numbers and flagged "Incomplete" with the list. A hull it does not know has no stats
   at all. Coriolis may know it; astromech's data is a snapshot.
 - **Sustained DPS.** astromech keeps an internal sustained figure that counts rail-gun charge time, which departs from Coriolis (astromech-bnnh); it is not shown.
+- **Time to drain with rail guns.** For a build with rail guns, time to drain counts their charge time over the same firing cycle as sustained DPS, so it is shorter than Coriolis shows (for example 0:15 where Coriolis shows 0:21). Builds without charged weapons match Coriolis.
 - **Fewer figures.** The page shows the groups above, not all of Coriolis's tables, and none of its
   build costs.
 - **Missing drive.** With no frame shift drive, or one that is unpowered, jump range is blank

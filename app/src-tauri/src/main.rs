@@ -326,6 +326,9 @@ async fn powerplay_targets(
 /// Everything the Engineering screen reads from the journals, re-read when the journals change.
 struct JournalState {
     fleet: astromech_engineering::Fleet,
+    /// When the next ship or module transfer under way lands: after that the fleet above is stale
+    /// though no journal line was written (astromech-4irh).
+    fleet_next_arrival: Option<i64>,
     ledger: astromech_materials::Ledger,
     engineers: Vec<astromech_engineering::EngineerView>,
     /// Every ship and suit engineer with the commander's progress and what is left to unlock.
@@ -352,13 +355,21 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    Ok(cache.0.get(&dir, || build_journal_state(&dir)))
+    // Rebuilt on a journal change, and also when a transfer lands on the clock.
+    let clock = astromech_data::SystemClock;
+    Ok(cache.0.get_fresh(
+        &dir,
+        |st| astromech_engineering::Settled::current(st.fleet_next_arrival, &clock),
+        || build_journal_state(&dir),
+    ))
 }
 
 fn build_journal_state(dir: &std::path::Path) -> JournalState {
     let progress = astromech_engineering::engineers::builder_from_journal_dir(dir);
+    let fleet = astromech_engineering::from_journal_dir_at(dir, &astromech_data::SystemClock);
     JournalState {
-        fleet: astromech_engineering::from_journal_dir(dir),
+        fleet: fleet.fleet,
+        fleet_next_arrival: fleet.next_arrival,
         ledger: astromech_materials::replay_journal_dir(dir),
         engineers: progress.build(),
         unlocks: astromech_engineering::unlocks::tree(&progress),

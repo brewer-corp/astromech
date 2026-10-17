@@ -2,15 +2,22 @@
   // Settings → Data sharing (astromech-09s3): one section per service, EDDN then EDSM
   // (astromech-ah0i). Inara joins when its upload exists.
   import { eddnLog, schemaName, setEddn, when, type EddnLog } from "../../lib/eddn";
+  import { failure } from "../../lib/ui/errors";
   import Edsm from "./Edsm.svelte";
 
   let eddn = $state<EddnLog | null>(null);
   let loaded = $state(false);
   let note = $state("");
   let busy = $state(false);
+  let failed = $state<string | null>(null);
 
   async function refresh() {
-    eddn = await eddnLog();
+    try {
+      eddn = await eddnLog();
+      failed = null;
+    } catch (e) {
+      failed = failure("read the sharing log", e);
+    }
     loaded = true;
   }
   $effect(() => {
@@ -32,7 +39,9 @@
 
 <section>
   {#if !loaded}
-    <p class="lo">…</p>
+    <p class="lo">Reading the sharing log…</p>
+  {:else if failed && !eddn}
+    <p class="lo">{failed}</p>
   {:else if !eddn}
     <p class="lo">astromech's background process isn't running, so sharing can't be shown. It starts with this window; if this stays, see Diagnostics.</p>
   {:else}

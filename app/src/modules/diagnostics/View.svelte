@@ -2,16 +2,23 @@
   // Diagnostics (docs/V1-DESIGN.md §2.2): what astromech sees right now, and Save diagnostics for
   // a bug report. Settings live in Settings; the key tester is under Controls.
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
+  import { failure } from "../../lib/ui/errors";
   import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
   let shell = $state("…");
   let note = $state("");
   let eddn = $state<EddnLog | null>(null);
+  let eddnErr = $state<string | null>(null);
 
   async function refresh() {
     status = await coreStatus();
-    eddn = await eddnLog();
+    try {
+      eddn = await eddnLog();
+      eddnErr = null;
+    } catch (e) {
+      eddnErr = failure("read the EDDN log", e);
+    }
   }
   $effect(() => {
     void refresh();
@@ -72,7 +79,9 @@
   {#if note}<p class="note">{note}</p>{/if}
 
   <h2>EDDN</h2>
-  {#if !eddn}
+  {#if eddnErr && !eddn}
+    <p class="note">{eddnErr}</p>
+  {:else if !eddn}
     <p class="note">—</p>
   {:else}
     <p class="note">{eddn.enabled ? "Sharing on" : "Sharing off"} · {eddn.pending} waiting to send</p>

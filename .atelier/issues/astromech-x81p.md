@@ -4,6 +4,9 @@ id: "astromech-x81p"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-x81p
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T23:04:44.639752219+00:00"
+status: "done"
 title: "Browser preview cannot show empty, loading or error states for fixture-backed pages"
-updated_at: "2026-10-17T21:32:10.784901710+00:00"
+updated_at: "2026-10-17T23:04:44.639752219+00:00"
 ---
 
 ## Goal
@@ -28,3 +32,7 @@ Engineering (ships), Materials, On foot, Engineers, Logbook, Session, Mining, St
 ## Context
 
 Found in the astromech-5qh0 walk: under ?core=empty these pages still render the sample fixture (Sample journal, CMDR Fixture, EDDN log), so their empty states were not seen. Evidence: docs/evidence/astromech-5qh0/ (full set kept locally in the worktree astromech-wt-walk).
+
+## Close Reason
+
+Preview can show empty, slow and failing states per call (?core=empty, ?fail=, ?slow=); every fixture-backed page walked in each state; hangs, leaked rejections and bare errors fixed with 39 state tests (15 fail on the old code). Reviewed twice.

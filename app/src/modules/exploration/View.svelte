@@ -2,6 +2,7 @@
   // The live system view (OD Explorer's system page): the bodies of the system you are in as you
   // scan them, with what each is worth now and mapped, which are worth mapping, and the facts
   // that decide where to fly (terraformable, landable, rings, gravity, signals).
+  import { failure } from "../../lib/ui/errors";
   import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
   import { when } from "../../lib/logbook";
   import type { Filters, Origin } from "../../lib/search";
@@ -20,7 +21,7 @@
           view = v;
           failed = null;
         })
-        .catch((e: unknown) => (failed = String(e)));
+        .catch((e: unknown) => (failed = failure("read the system", e)));
     void tick();
     const t = setInterval(() => void tick(), 3000);
     return () => clearInterval(t);
@@ -38,7 +39,7 @@
           unsoldLoaded = true;
           unsoldFailed = null;
         })
-        .catch((e: unknown) => (unsoldFailed = String(e)));
+        .catch((e: unknown) => (unsoldFailed = failure("read the unsold data", e)));
     void tick();
     const t = setInterval(() => void tick(), 15000);
     return () => clearInterval(t);
