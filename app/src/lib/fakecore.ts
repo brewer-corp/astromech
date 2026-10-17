@@ -34,6 +34,8 @@ interface State {
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
   eddn: boolean;
+  /** EDSM: the switch, the commander name, and whether a key is "in the keyring". */
+  edsm: { enabled: boolean; commander: string; key: boolean };
 }
 
 let state: State | null = null;
@@ -78,6 +80,7 @@ function fresh(scenario: Scenario): State {
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
     eddn: false,
+    edsm: { enabled: false, commander: "", key: false },
   };
 }
 
@@ -269,6 +272,25 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
     case "set_eddn":
       st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;
       return { ok: true, applies_next_session: false };
+    case "edsm_status": {
+      const e = st.edsm;
+      const uploading = e.enabled && e.key && e.commander !== "";
+      return { ok: true, enabled: e.enabled, commander: e.commander, has_key: e.key, key_error: null, uploading,
+        pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
+    }
+    case "set_edsm": {
+      const ch = (args ?? {}) as { enabled?: boolean; commander?: string; api_key?: string };
+      if (ch.enabled != null) st.edsm.enabled = ch.enabled;
+      if (ch.commander != null) st.edsm.commander = ch.commander.trim();
+      if (ch.api_key != null) st.edsm.key = ch.api_key.trim() !== "";
+      return { ok: true, applies_next_session: false };
+    }
+    case "edsm_flight_log":
+      if (!st.edsm.key || !st.edsm.commander) return { ok: false, error: "set your EDSM commander name and API key first" };
+      return { ok: true, visits: [
+        { system: "Sol", date: "2026-10-16 20:00:00", first_discover: false, ship_id: 7 },
+        { system: "Achenar", date: "2026-10-16 19:10:00", first_discover: true, ship_id: 7 },
+      ] };
     case "onboarding_done":
       st.onboarded = true;
       return { ok: true };
