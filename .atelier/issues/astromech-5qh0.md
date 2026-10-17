@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-5qh0
 priority: "P2"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Agent walk of every app screen"
-updated_at: "2026-10-17T17:01:42.942710798+00:00"
+updated_at: "2026-10-17T20:55:47.918112423+00:00"
 ---
 
 ## Goal
