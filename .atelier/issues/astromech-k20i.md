@@ -1,0 +1,31 @@
+---
+created_at: "2026-10-17T17:38:28.965938356+00:00"
+id: "astromech-k20i"
+issue_type: "bug"
+labels:
+- "alpha"
+- "size-s"
+priority: "P2"
+relationships:
+  blocks: []
+  children: []
+  attachments: []
+  relates: []
+schema: "atelier.issue"
+schema_version: 2
+status: "todo"
+title: "Opening the config writes a sample that silently sets Scroll Lock as the kill switch"
+updated_at: "2026-10-17T17:38:28.965938356+00:00"
+---
+
+## Goal
+
+Settings → Files → Open on a fresh install writes `astromech.sample.toml` as the config (`open_config` in crates/astromech-core/src/app.rs), and the sample contains `kill_switch = { device = "Keyboard", key = "Key_ScrollLock" }`. The user gets a kill switch they never chose and that the guide says is not set. Write a config without active binds (commented examples only), or one that reflects the current settings.
+
+## Done when
+
+A test calls open_config on an empty data folder and the written file changes no setting (loading it gives the same Config as no file), with the kill-switch example present only as a comment.
+
+## Context
+
+Found by the guide accuracy check (astromech-mf5e).
