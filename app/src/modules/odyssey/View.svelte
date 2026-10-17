@@ -272,6 +272,27 @@
           {/each}
         </tbody>
       </table>
+      <h3 class="list">Bartender trade</h3>
+      {#if list.trade.swaps.length}
+        <ul class="swaps">
+          {#each list.trade.swaps as w (w.get_id)}
+            <li>
+              Trade {w.gives.map((g) => `${g.count} ${g.name}`).join(", ")} for {w.get} {w.get_name}
+              <span class="lo">({w.barter_given} barter given for {w.barter_wanted}{w.barter_given > w.barter_wanted ? `, ${w.barter_given - w.barter_wanted} over` : ""})</span>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="lo">{list.barter_short ? "No surplus assets to trade for the short ones." : "No short assets to trade for."}</p>
+      {/if}
+      {#if list.trade.left.length}
+        <p class="sub">
+          Still short after the trade: {list.trade.left.map((l) => `${l.short} ${l.name}`).join(", ")}
+        </p>
+      {:else if list.trade.swaps.length}
+        <p class="ok">Nothing is short after the trade.</p>
+      {/if}
+      <p class="lo note">Assumes a bartender swaps equal barter value and that only assets are traded (the wiki gives barter values for assets only).</p>
       {:else if !shopError}
         <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
       {/if}
@@ -340,6 +361,7 @@
   .pick.bad h3 { color: var(--text-lo); }
   .pick p, .eng p { margin: 6px 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
+  .swaps { margin: 4px 0 8px; padding-left: 1.2rem; font-size: var(--fs-s); }
   h3.list { margin: 22px 0 4px; }
   .engs { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: var(--gap); }
   .eng .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }

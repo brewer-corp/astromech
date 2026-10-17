@@ -95,12 +95,43 @@ export interface PickResult {
   error: string | null;
 }
 
+export interface Give {
+  id: string;
+  name: string;
+  count: number;
+  barter: number;
+}
+
+/** A short asset covered from surplus at a bartender. */
+export interface Swap {
+  get_id: string;
+  get_name: string;
+  get: number;
+  barter_wanted: number;
+  gives: Give[];
+  barter_given: number;
+}
+
+export interface Left {
+  id: string;
+  name: string;
+  category: Category;
+  short: number;
+}
+
+export interface BarterPlan {
+  swaps: Swap[];
+  left: Left[];
+  barter_given: number;
+}
+
 export interface Shopping {
   picks: PickResult[];
   total: Need[];
   credits: number;
   credits_partial: boolean;
   barter_short: number;
+  trade: BarterPlan;
 }
 
 export const MAKERS: Record<string, string> = { kinematic: "Kinematic Armaments", manticore: "Manticore", takada: "Takada" };

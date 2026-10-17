@@ -18,6 +18,9 @@ relationships:
   - kind: "issue"
     id: "astromech-j4c9"
     type: "related"
+  - kind: "issue"
+    id: "astromech-t71i"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
