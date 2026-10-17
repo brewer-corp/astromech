@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T07:40:40.826650871+00:00"
+status: "done"
 title: "Exploration: index landings by system and stop re-reading the journal for the system view"
-updated_at: "2026-10-17T07:33:02.861272491+00:00"
+updated_at: "2026-10-17T07:40:40.826650871+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ updated_at: "2026-10-17T07:33:02.861272491+00:00"
 ## Done when
 
 A history of 100k landing rows answers landings_before in under 5 ms (bench or timed test), and an unchanged journal is not re-parsed by the page poll (test).
+
+## Close Reason
+
+Schema v5 landing index; SystemViewCache and UnsoldCache wired into the shell
