@@ -241,6 +241,9 @@ pub struct StoredShip {
     /// On its way to `system` (or to wherever it was last written, if `system` is `None`).
     pub in_transit: bool,
     pub value: Option<i64>,
+    /// Market id of the station it is at (`ShipMarketID`, or the shipyard's `MarketID` for ships
+    /// here); `None` in transit or when the journal did not say.
+    pub market_id: Option<i64>,
 }
 
 /// One entry of `StoredModules`.
@@ -557,6 +560,7 @@ fn stored_ships(v: &serde_json::Value) -> Vec<StoredShip> {
                 system: if in_transit { None } else { opt_s(x, "StarSystem").or_else(|| opt_s(v, "StarSystem")) },
                 in_transit,
                 value: opt_i(x, "Value"),
+                market_id: if in_transit { None } else { opt_i(x, "ShipMarketID").or_else(|| opt_i(v, "MarketID")) },
             })
         })
         .collect()

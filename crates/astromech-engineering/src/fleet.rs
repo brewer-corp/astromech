@@ -35,6 +35,8 @@ pub struct Ship {
     pub current: bool,
     /// Being moved to a shipyard; `system` is where it is going, if known.
     pub in_transit: bool,
+    /// Market id of the station a stored ship is at, for the Spansh station link.
+    pub market_id: Option<i64>,
     /// When this loadout was last seen. `None`: never flown while a journal was kept.
     pub loadout_ts: Option<String>,
     /// Unladen maximum from the last `Loadout`.
@@ -165,6 +167,7 @@ impl FleetBuilder {
                             system: self.here.clone(),
                             in_transit: false,
                             value: old.value,
+                            market_id: None,
                         });
                     }
                 }
@@ -205,8 +208,10 @@ impl FleetBuilder {
                     system: None,
                     in_transit: false,
                     value: None,
+                    market_id: None,
                 });
                 s.system = here;
+                s.market_id = None;
                 s.in_transit = true;
             }
             JournalEvent::StoredModules { items } => self.stored_modules = items.clone(),
@@ -304,6 +309,7 @@ impl FleetBuilder {
             system: stored.and_then(|s| s.system.clone()),
             current: self.current == Some(id),
             in_transit: stored.is_some_and(|s| s.in_transit),
+            market_id: stored.and_then(|s| s.market_id),
             loadout_ts: seen.map(|s| s.ts.clone()),
             max_jump_range: seen.and_then(|s| s.max_jump_range),
             value: stored.and_then(|s| s.value).or_else(|| seen.and_then(|s| s.value)),
