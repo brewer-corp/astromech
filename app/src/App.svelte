@@ -2,8 +2,10 @@
   // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
   // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
   // My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
-  // at #/setup or #/setup/<step>.
-  import { groups, groupModules, findModule } from "./lib/modules";
+  // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page.
+  import { groups, groupModules, findModule, modules } from "./lib/modules";
+  import { collect } from "./lib/palette";
+  import Palette from "./lib/ui/Palette.svelte";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
@@ -33,6 +35,9 @@
     window.addEventListener("hashchange", hash);
     return () => window.removeEventListener("hashchange", hash);
   });
+
+  const groupTitle = (id: string) => groups.find((g) => g.id === id)?.title ?? id;
+  const paletteItems = () => collect(modules, groupTitle);
 
   async function finishSetup() {
     status = await coreStatus();
@@ -83,6 +88,7 @@
   </main>
   <Toasts {status} />
 </div>
+<Palette load={paletteItems} onpick={go} />
 {/if}
 
 <style>

@@ -1,15 +1,25 @@
 <script lang="ts">
   // The nearest stations selling a module (by name, class, rating and mount), on the search kit.
-  import { CATEGORIES, MODULES, choices, settle } from "../../lib/outfitting";
+  // #/outfitting/<module>[?class=&rating=&mount=] picks the module (the command palette links
+  // there), so back and reload keep it.
+  import { CATEGORIES, MODULES, choices, moduleRoute, parseModuleRoute, settle } from "../../lib/outfitting";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults, type ModuleWant, type Mount } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
 
-  let want = $state<ModuleWant>({ name: "Frame Shift Drive", class: 5, rating: "A", mount: null });
+  const DEFAULT: ModuleWant = { name: "Frame Shift Drive", class: 5, rating: "A", mount: null };
+  let want = $state<ModuleWant>(parseModuleRoute(location.hash) ?? DEFAULT);
   const opts = $derived(choices(want));
+
+  $effect(() => {
+    const onHash = () => (want = parseModuleRoute(location.hash) ?? DEFAULT);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
 
   function pick(next: Partial<ModuleWant>) {
     want = settle({ ...want, ...next });
+    location.hash = `#/${moduleRoute(want)}`;
   }
 
   const num = (v: string): number | null => (v ? Number(v) : null);
