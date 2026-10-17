@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:25:51.321902969+00:00"
 id: "astromech-qtiw"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-qtiw
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T06:34:55.229570269+00:00"
+status: "done"
 title: "Remote cache: two processes opening a new cache file at once leave one in memory"
-updated_at: "2026-10-17T06:25:51.321902969+00:00"
+updated_at: "2026-10-17T06:34:55.229570269+00:00"
 ---
 
 ## Goal
@@ -26,3 +30,7 @@ Two processes opening a brand-new (or non-WAL) remote cache file at once leave o
 ## Done when
 
 The two-opener test gains a fresh-file case and both openers end on the file-backed cache.
+
+## Close Reason
+
+WAL switch retried; fresh-file two-opener test added and passing

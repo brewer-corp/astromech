@@ -470,6 +470,7 @@ dependencies = [
 name = "astromech-store"
 version = "0.1.5"
 dependencies = [
+ "astromech-log",
  "keyring-core",
  "rusqlite",
  "tempfile",

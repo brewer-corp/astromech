@@ -12,6 +12,23 @@ const SCHEMA: &str = "CREATE TABLE IF NOT EXISTS remote_cache(
 /// How long a write waits for the other process's write to the shared file.
 pub const BUSY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
+/// Switch to WAL, retrying while another process holds the file: SQLite doesn't run the busy
+/// handler for this switch, so two openers of a new file at once would otherwise fail. (Same
+/// as `astromech-store`'s, which this crate can't depend on.)
+fn enable_wal(db: &Connection) -> rusqlite::Result<()> {
+    let start = std::time::Instant::now();
+    loop {
+        match db.pragma_update(None, "journal_mode", "WAL") {
+            Err(rusqlite::Error::SqliteFailure(e, _))
+                if e.code == rusqlite::ErrorCode::DatabaseBusy && start.elapsed() < BUSY_TIMEOUT =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
+            r => return r,
+        }
+    }
+}
+
 pub struct Cache {
     db: Connection,
 }
@@ -25,7 +42,7 @@ impl Cache {
         let db = Connection::open(path)?;
         // The core and the app window share this file: wait for the other's write, not fail.
         db.busy_timeout(BUSY_TIMEOUT)?;
-        db.execute_batch("PRAGMA journal_mode=WAL;")?;
+        enable_wal(&db)?;
         Self::init(db)
     }
 
@@ -109,16 +126,32 @@ mod tests {
     }
 
     #[test]
+    fn two_openers_of_a_fresh_file_both_get_the_file_backed_cache() {
+        two_openers(|_| {});
+    }
+
+    #[test]
     fn two_openers_of_a_v015_file_both_get_the_file_backed_cache() {
-        let dir = std::env::temp_dir().join(format!("astromech-data-race-{}", std::process::id()));
+        two_openers(|path| {
+            Connection::open(path)
+                .unwrap()
+                .execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE remote_cache(key TEXT PRIMARY KEY, fetched INTEGER NOT NULL, body TEXT NOT NULL);")
+                .unwrap();
+        });
+    }
+
+    /// Two threads open the same path at once, over 50 files prepared by `prepare`.
+    fn two_openers(prepare: impl Fn(&Path)) {
+        let dir = std::env::temp_dir().join(format!(
+            "astromech-data-race-{}-{:?}",
+            std::process::id(),
+            std::thread::current().id()
+        ));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         for round in 0..50 {
             let path = dir.join(format!("remote{round}.db"));
-            Connection::open(&path)
-                .unwrap()
-                .execute_batch("PRAGMA journal_mode=WAL; CREATE TABLE remote_cache(key TEXT PRIMARY KEY, fetched INTEGER NOT NULL, body TEXT NOT NULL);")
-                .unwrap();
+            prepare(&path);
             let gate = std::sync::Arc::new(std::sync::Barrier::new(2));
             let openers: Vec<_> = (0..2)
                 .map(|_| {

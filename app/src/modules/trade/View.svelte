@@ -44,7 +44,7 @@
     }
     // The route mode has its own search (Route.svelte); only the market lookups get here.
     const side: Side = m === "buy" ? "buy" : "sell";
-    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(side, c, origin, filters));
+    if (anywhere) return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeAnywhere(side, c, origin, filters), true);
     return async (origin: Origin, filters: Filters): Promise<Results> => toResults(await tradeSearch(side, [c], origin, filters));
   });
 
