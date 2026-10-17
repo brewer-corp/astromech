@@ -4,6 +4,9 @@ id: "astromech-bf25"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-bf25
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Power commodities and data: collect and deliver"
-updated_at: "2026-10-15T20:36:13.656152745+00:00"
+updated_at: "2026-10-17T02:56:52.189687449+00:00"
 ---
 
 ## Goal
