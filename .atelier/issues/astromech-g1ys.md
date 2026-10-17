@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-17T19:25:36.658816618+00:00"
+status: "done"
 title: "Health check misses seven actions that voice presses"
-updated_at: "2026-10-17T18:43:20.988086287+00:00"
+updated_at: "2026-10-17T19:25:36.658816618+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ The binds health rule "No keyboard key" checks only VOICE_ACTIONS (crates/astrom
 ## Done when
 
 Every action astromech-tools can press is in the health rule, ideally derived from the tools so they cannot drift, with a test. Found while writing the user guide (docs/guide/controls.md says so; update it when fixed).
+
+## Close Reason
+
+Done-when met: the health rule lists every action astromech-tools can press, derived by a test; see evidence and PR 114
