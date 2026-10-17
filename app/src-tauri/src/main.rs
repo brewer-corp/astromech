@@ -472,15 +472,18 @@ async fn session_summary() -> Result<Value, String> {
 }
 
 /// The current system's bodies as scanned, with their estimated values, from the newest journals,
-/// and the commander's landings on them from the history (when there is one).
+/// with the bodies scanned on earlier visits and the commander's landings on them from the history
+/// (when there is one).
 #[tauri::command]
 async fn exploration_system() -> Result<Value, String> {
     blocking(move || {
-        let mut view = astromech_exploration::system::from_journal_dir(&journal_dir());
-        if let Ok(h) = astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
-            // Best effort: without it the view has no landings.
-            let _ = h.add_landings(&mut view);
-        }
+        let live = astromech_exploration::system::fold_from_journal_dir(&journal_dir());
+        // The history adds the bodies scanned on earlier visits and the landings; without it
+        // (best effort) the view is the live one.
+        let view = match astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
+            Ok(h) => h.system_view(live),
+            Err(_) => live.view(),
+        };
         serde_json::to_value(view).map_err(|e| e.to_string())
     })
     .await

@@ -9,7 +9,7 @@
 //! `BodyID`, else by name.
 
 use crate::ledgers::Commander;
-use astromech_exploration::system::SystemView;
+use astromech_exploration::system::{SystemFold, SystemView};
 use astromech_exploration::unsold::{self, Unsold};
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
 use astromech_store::rusqlite::{params, params_from_iter};
@@ -122,6 +122,45 @@ impl crate::History {
         }
         out.sort_by(|a, b| b.count.cmp(&a.count).then(b.last.cmp(&a.last)));
         Ok(out)
+    }
+
+    /// The stored lines of the most recently played commander's earlier visits to the system
+    /// `address` that make up its view, in game-time order: scans, mappings, completed samples
+    /// (through the `scans` ledger's index) and body signals.
+    fn system_lines(&self, name: &str, address: i64) -> crate::Result<Vec<String>> {
+        let mut st = self.conn.prepare_cached(
+            "SELECT ts, id, json FROM events WHERE id IN (
+                 SELECT event_id FROM scans WHERE system_address = ?1
+                   AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0))
+             UNION ALL
+             SELECT ts, id, json FROM events
+             WHERE event IN ('FSSBodySignals', 'SAASignalsFound') AND json_extract(json, '$.SystemAddress') = ?1
+               AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?2 AND legacy = 0)
+             ORDER BY ts, id",
+        )?;
+        let rows = st.query_map(params![address, name], |r| r.get::<_, String>(2))?;
+        Ok(rows.collect::<std::result::Result<_, _>>()?)
+    }
+
+    /// The system view of `live` (the current visit, folded from the newest journals) with what
+    /// the most recently played commander's earlier visits scanned and mapped there, and their
+    /// landings (astromech-0n4h, astromech-ce4s). Without a history, or if it can't be read,
+    /// just the live view: best effort.
+    pub fn system_view(&self, mut live: SystemFold) -> SystemView {
+        if let (Some(address), Ok(commanders)) = (live.system_address(), self.commanders()) {
+            if let Some(c) = commanders.first() {
+                if let Ok(lines) = self.system_lines(&c.name, address) {
+                    let mut earlier = SystemFold::default();
+                    for l in lines.iter().filter_map(|l| astromech_journal::parse_line(l).ok()) {
+                        earlier.apply(&l);
+                    }
+                    live.absorb(earlier);
+                }
+            }
+        }
+        let mut view = live.view();
+        let _ = self.add_landings(&mut view);
+        view
     }
 
     /// Fill in the most recently played commander's landings on the view's bodies.
@@ -298,5 +337,62 @@ mod tests {
         let v = f.view();
         assert_eq!(v.bodies.len(), 1);
         assert!(v.bodies[0].landable && !v.bodies[0].first_footfall_likely);
+    }
+
+    /// A system scanned (and one body mapped) on one visit, and entered again later: the view
+    /// shows the earlier bodies before anything is scanned again (astromech-0n4h).
+    #[test]
+    fn a_return_visit_shows_the_bodies_scanned_before_with_what_was_mapped() {
+        use astromech_exploration::SystemFold;
+        let d = tempfile::tempdir().unwrap();
+        let body = |ts: &str, address: i64, sys: &str, name: &str, id: i64, class: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"Detailed","BodyName":"{sys} {name}","BodyID":{id},"StarSystem":"{sys}","SystemAddress":{address},"PlanetClass":"{class}","MassEM":1.0,"Landable":false,"WasDiscovered":false,"WasMapped":false}}"#
+            )
+        };
+        let star = |ts: &str, address: i64, sys: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"AutoScan","BodyName":"{sys}","BodyID":0,"StarSystem":"{sys}","SystemAddress":{address},"StarType":"G","StellarMass":1.0,"WasDiscovered":false}}"#
+            )
+        };
+        let lines = vec![
+            load("2026-10-01T09:00:00Z", "F1", "Test"),
+            jump("2026-10-01T09:10:00Z", "Explo", 42, 0),
+            star("2026-10-01T09:10:01Z", 42, "Explo"),
+            body("2026-10-01T09:11:00Z", 42, "Explo", "A 1", 1, "Water world"),
+            body("2026-10-01T09:12:00Z", 42, "Explo", "A 2", 2, "Icy body"),
+            r#"{"timestamp":"2026-10-01T09:13:00Z","event":"SAAScanComplete","BodyName":"Explo A 1","BodyID":1,"SystemAddress":42,"ProbesUsed":5,"EfficiencyTarget":6}"#.to_string(),
+            r#"{"timestamp":"2026-10-01T09:14:00Z","event":"FSSBodySignals","BodyName":"Explo A 2","BodyID":2,"SystemAddress":42,"Signals":[{"Type":"$SAA_SignalType_Biological;","Type_Localised":"Biological","Count":2}]}"#.to_string(),
+            jump("2026-10-02T09:00:00Z", "Elsewhere", 43, 0),
+            body("2026-10-02T09:01:00Z", 43, "Elsewhere", "B 1", 1, "Icy body"),
+            // Back in Explo: only the arrival star is scanned again.
+            jump("2026-10-03T09:00:00Z", "Explo", 42, 0),
+            star("2026-10-03T09:00:01Z", 42, "Explo"),
+        ];
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines.join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+
+        let mut live = SystemFold::default();
+        for l in &lines[9..] {
+            live.apply(&astromech_journal::parse_line(l).unwrap());
+        }
+        // Without the history only the star is there.
+        assert_eq!(live.view().bodies.len(), 1);
+        // What the first visit showed, as it ended.
+        let mut first = SystemFold::default();
+        for l in &lines[1..7] {
+            first.apply(&astromech_journal::parse_line(l).unwrap());
+        }
+        let was = first.view();
+
+        let v = h.system_view(live);
+        let by: Vec<(&str, bool, i64)> =
+            v.bodies.iter().map(|b| (b.short_name.as_str(), b.mapped, b.bio_signals)).collect();
+        assert_eq!(by, [("Explo", false, 0), ("A 1", true, 0), ("A 2", false, 2)]);
+        assert!(v.bodies[1].mapped_efficiently);
+        assert_eq!((v.value, v.value_if_mapped), (was.value, was.value_if_mapped));
+        // Another system's scans stay out.
+        assert!(v.bodies.iter().all(|b| b.name.starts_with("Explo")));
     }
 }

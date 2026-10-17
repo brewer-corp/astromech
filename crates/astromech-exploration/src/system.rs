@@ -228,6 +228,42 @@ impl SystemFold {
         }
     }
 
+    /// Take in what an earlier visit to this system left (`earlier`: the stored lines of this
+    /// system's address folded in game-time order; astromech-0n4h). The game doesn't scan a body
+    /// again on a return, so the bodies this fold hasn't heard of come from there, and what it
+    /// lacks of the ones it has (mapping, signals, samples). What this fold knows wins. Another
+    /// system's fold is ignored.
+    pub fn absorb(&mut self, earlier: SystemFold) {
+        if earlier.address.is_none() || earlier.address != self.address {
+            return;
+        }
+        self.body_count = self.body_count.or(earlier.body_count);
+        self.all_found |= earlier.all_found;
+        if self.system.is_none() {
+            self.system = earlier.system;
+        }
+        for (name, old) in earlier.bodies {
+            // Samples named only by body id never found their body: leave them.
+            if name.starts_with('#') {
+                continue;
+            }
+            let b = self.body(&name, old.body_id);
+            b.scan = b.scan.take().or(old.scan);
+            b.mapped = b.mapped.or(old.mapped);
+            if b.bio == 0 && b.geo == 0 {
+                (b.bio, b.geo) = (old.bio, old.geo);
+            }
+            if b.genuses.is_empty() {
+                b.genuses = old.genuses;
+            }
+            for (genus, species) in old.sampled {
+                if !b.sampled.iter().any(|(g, _)| g.eq_ignore_ascii_case(&genus)) {
+                    b.sampled.push((genus, species));
+                }
+            }
+        }
+    }
+
     pub fn system(&self) -> Option<&str> {
         self.system.as_deref()
     }
