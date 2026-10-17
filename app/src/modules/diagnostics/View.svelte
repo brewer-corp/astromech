@@ -27,7 +27,7 @@
     await refresh();
   }
 
-  const outcome: Record<string, string> = { sent: "Sent", rejected: "Rejected", retry: "Will retry", gave_up: "Gave up", dropped: "Not sent" };
+  const outcome: Record<string, string> = { sent: "Sent", rejected: "Rejected", retry: "Will retry", gave_up: "Gave up", discarded: "Discarded", dropped: "Not sent" };
 
   const game = (g: CoreStatus["game"]) =>
     g === "running" ? "Running" : g === "launcher" ? "Launcher open" : "Not running";
@@ -109,6 +109,6 @@
   .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); color: var(--text); }
   .eddn li > span { padding: 0 12px; }
   .eddn .detail { color: var(--text-lo); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .eddn li.rejected, .eddn li.gave_up, .eddn li.dropped { color: var(--text-lo); }
+  .eddn li.rejected, .eddn li.gave_up, .eddn li.discarded, .eddn li.dropped { color: var(--text-lo); }
   .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); }
 </style>

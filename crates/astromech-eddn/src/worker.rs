@@ -11,7 +11,7 @@
 //! before each post and returns at once. A post in flight finishes (or times out) on the
 //! detached thread; its attempt and retry time were saved before it started.
 
-use crate::outbox::{Delivery, Outbox, Outcome, MIN_RETRY_SECS};
+use crate::outbox::{Delivery, Outbox, MIN_RETRY_SECS};
 use crate::transport::Transport;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender as Tx};
@@ -53,10 +53,7 @@ impl Courier {
     /// Switched off, it posts nothing and discards the queue instead.
     pub fn pass(&mut self, wall: i64, mono: Instant) -> rusqlite::Result<Delivery> {
         if !self.sharing.load(Ordering::SeqCst) {
-            let n = self.outbox.purge()?;
-            if n > 0 {
-                self.outbox.log(wall, "eddn", Outcome::GaveUp, &format!("switched off: {n} queued discarded"))?;
-            }
+            let n = self.outbox.discard_all(wall)?;
             return Ok(Delivery { gave_up: n, ..Default::default() });
         }
         let stop = || self.stop.load(Ordering::SeqCst) || !self.sharing.load(Ordering::SeqCst);
@@ -230,7 +227,8 @@ mod tests {
         assert_eq!(c.pass(1000, t0).unwrap().gave_up, 2);
         assert_eq!(script.calls(), 0);
         assert_eq!(c.outbox().pending().unwrap(), 0);
-        assert_eq!(c.outbox().recent(1).unwrap()[0].detail, "switched off: 2 queued discarded");
+        let row = &c.outbox().recent(1).unwrap()[0];
+        assert_eq!((row.outcome.as_str(), row.detail.as_str()), ("discarded", "switched off: 2 queued discarded"));
         // Nothing left: no more rows.
         c.pass(1001, t0).unwrap();
         assert_eq!(c.outbox().recent(10).unwrap().len(), 1);
