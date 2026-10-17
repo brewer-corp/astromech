@@ -13,8 +13,10 @@ import webview_cost as w  # noqa: E402
 def results(idle_mb=120.0, idle_cpu=0.2, later=(0.9, 1.1, 1.0), first=2.6):
     win = {"seconds": 30, "uss_mb_mean": idle_mb - 5, "uss_mb_max": idle_mb, "cpu_core_pct": idle_cpu * 4,
            "cpu_machine_pct": idle_cpu, "processes": 5, "names": ["astromech-shell", "WebKitWebProcess"]}
-    use = dict(win, uss_mb_max=idle_mb + 40, cpu_machine_pct=8.0, switches=15)
-    return {"cold_start": {"first_s": first, "later_s": list(later), "in_process_ms": [800, 700, 650, 690]},
+    use = dict(win, uss_mb_max=idle_mb + 40, cpu_machine_pct=8.0, switches=15, switch_exit_codes=[0],
+               extra_windows=0)
+    return {"cold_start": {"first_s": first, "later_s": list(later), "in_process_ms": [800, 700, 650, 690],
+                           "after_core_crash_s": 2.7},
             "idle": win, "in_use": use, "core_mb": 12.0}
 
 
@@ -24,7 +26,8 @@ def verdicts(r):
 
 class Judge(unittest.TestCase):
     def test_within_budget(self):
-        self.assertEqual(verdicts(results()), {"idle_memory": True, "idle_cpu": True, "cold_start": True})
+        self.assertEqual(verdicts(results()),
+                         {"idle_memory": True, "idle_cpu": True, "cold_start": True, "page_changes": True})
 
     def test_each_budget_can_fail(self):
         self.assertFalse(verdicts(results(idle_mb=250.0))["idle_memory"])
@@ -32,6 +35,11 @@ class Judge(unittest.TestCase):
         self.assertFalse(verdicts(results(idle_cpu=1.01))["idle_cpu"])
         self.assertTrue(verdicts(results(idle_cpu=1.0))["idle_cpu"])
         self.assertFalse(verdicts(results(later=(1.9, 2.0, 2.4)))["cold_start"])
+
+    def test_page_changes_that_open_a_second_window_fail(self):
+        r = results()
+        r["in_use"]["extra_windows"] = 2
+        self.assertFalse(verdicts(r)["page_changes"])
 
     def test_cold_start_judges_the_later_starts(self):
         # The first start makes the WebView profile, once per install.

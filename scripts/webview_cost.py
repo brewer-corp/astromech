@@ -6,8 +6,10 @@
 
 Runs the app window (WebView2 on Windows, WebKitGTK on Linux) in a scratch profile and measures:
 - cold start: from starting the process to the window's first page load (the shell logs
-  `window: page loaded`). The first start makes the WebView's profile; the later ones reuse it,
-  as a player's every start after the first does. The budget is judged on the later ones' median.
+  `window: page loaded`). The first start makes the WebView's profile and starts the core; the
+  later ones reuse the profile and find the core running (in the tray), as a player's usually
+  do. The budget is judged on the later ones' median. A start after a core crash (its endpoint
+  file left behind) is reported too.
 - memory: the private working set (USS) summed over the window process and its WebView
   processes (the core and its workers excluded), idle on a list-heavy page, and its peak while
   moving between pages.
@@ -56,6 +58,10 @@ def judge(r: dict) -> list[dict]:
          "value": f"median {med if med is None else round(med, 2)} s over {len(later)} starts "
                   f"(first start, new profile: {r['cold_start']['first_s']} s)",
          "pass": med is not None and med < COLD_START_MAX_S},
+        # The harness's own check: the page changes reached the running window.
+        {"id": "page_changes", "budget": "harness check: every page change reached the running window",
+         "value": f"{use.get('switches', 0)} changes, {use.get('extra_windows', 0)} extra windows",
+         "pass": use.get("switches", 0) > 0 and use.get("extra_windows", 0) == 0},
     ]
 
 
@@ -70,8 +76,11 @@ def markdown(rep: dict) -> str:
               f"the window's own count from process start to page load (ms): {r['cold_start']['in_process_ms']}.",
               f"- Idle on `{LIST_PAGE}` for {r['idle']['seconds']} s: {r['idle']['processes']} processes "
               f"({', '.join(r['idle']['names'])}).",
+              f"- Starting the window after a core crash (core gone, its core.json left behind): "
+              f"{r['cold_start'].get('after_core_crash_s')} s.",
               f"- In use: {r['in_use']['switches']} page changes over {r['in_use']['seconds']} s "
-              f"({', '.join(PAGES)}); peak {r['in_use']['uss_mb_max']} MB.",
+              f"({', '.join(PAGES)}); peak {r['in_use']['uss_mb_max']} MB; second starts exited with "
+              f"{r['in_use'].get('switch_exit_codes')}, extra windows opened: {r['in_use'].get('extra_windows')}.",
               f"- The core (not part of the window's budget): {r['core_mb']} MB private working set.",
               "", "Not covered: frame-time impact next to Elite (desktop and VR) and GPU use; that needs the game "
               "(astromech-7ck3). Pages show a fresh profile's data, not a played commander's."]
@@ -192,9 +201,11 @@ def start(shell_exe: Path, prof: Profile, args=()) -> subprocess.Popen:
 
 
 def stop(p: subprocess.Popen, psutil) -> None:
+    """Close the window and its WebView processes; the core stays, as it does for a player."""
     try:
         for c in psutil.Process(p.pid).children(recursive=True):
-            c.kill()
+            if not c.name().lower().startswith("astromech-"):
+                c.kill()
     except psutil.Error:
         pass
     p.kill()
@@ -225,7 +236,13 @@ def cold_start(shell_exe: Path, prof: Profile, psutil, timeout: float) -> tuple[
 def measure(a, psutil) -> dict:
     root = Path(tempfile.mkdtemp(prefix="webview-cost-", dir=a.work))
     prof = Profile(root)
+    # The first start also starts the core; the later ones find it running (in the tray).
     starts = [cold_start(a.shell, prof, psutil, a.timeout) for _ in range(a.starts)]
+    # After a core crash: the core is gone but its endpoint file (core.json) is left behind.
+    for c in our_cores(prof, psutil):
+        c.kill()
+    time.sleep(1)
+    crashed = cold_start(a.shell, prof, psutil, a.timeout)
     shell = start(a.shell, prof, ["--route", LIST_PAGE])
     try:
         sp = psutil.Process(shell.pid)
@@ -235,12 +252,19 @@ def measure(a, psutil) -> dict:
         time.sleep(a.settle)
         idle = window(sp, psutil, a.idle_seconds)
 
+        loads_before = len(prof.page_loads())
+        codes = []
+
         def switch(i):
+            # A second start hands the page to the running window and exits.
             if i % 2 == 0:
-                start(a.shell, prof, ["--route", PAGES[(i // 2) % len(PAGES)]]).wait(timeout=30)
+                codes.append(start(a.shell, prof, ["--route", PAGES[(i // 2) % len(PAGES)]]).wait(timeout=30))
 
         in_use = window(sp, psutil, a.use_seconds, switch)
-        in_use["switches"] = (int(a.use_seconds) + 1) // 2
+        in_use["switches"] = len(codes)
+        in_use["switch_exit_codes"] = sorted(set(codes))
+        # A second start that opened its own window instead would load a page of its own.
+        in_use["extra_windows"] = len(prof.page_loads()) - loads_before
         cores = our_cores(prof, psutil)
         core_mb = round(uss_mb(cores, psutil), 1) if cores else None
     finally:
@@ -249,7 +273,7 @@ def measure(a, psutil) -> dict:
             c.kill()
     return {
         "cold_start": {"first_s": round(starts[0][0], 3), "later_s": [round(s, 3) for s, _ in starts[1:]],
-                       "in_process_ms": [ms for _, ms in starts]},
+                       "in_process_ms": [ms for _, ms in starts], "after_core_crash_s": round(crashed[0], 3)},
         "idle": idle,
         "in_use": in_use,
         "core_mb": core_mb,
