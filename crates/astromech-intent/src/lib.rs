@@ -410,10 +410,10 @@ pub fn is_noise_only(t: &str) -> bool {
 
 /// Mishearings of game words, too ambiguous to execute on: the replacement is scored, but capped
 /// below EXECUTE so it becomes "Did you mean …?". "you" for "gear" is from real transcripts;
-/// "I'll" (normalised to "ill") and "old" for "all" ("all stop") from the voice eval, and they
+/// "I'll" (normalised to "iwill") and "old" for "all" ("all stop") from the voice eval, and they
 /// are everyday words, so a match through them must never press a key.
 const MISHEARD: &[(&str, &str)] =
-    &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear"), ("ill", "all"), ("old", "all")];
+    &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear"), ("iwill", "all"), ("old", "all")];
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
@@ -448,8 +448,9 @@ pub fn normalise(s: &str) -> Vec<String> {
             ("mk" | "mark", Some("iv" | "four" | "4")) => Some("mkiv"),
             ("mk" | "mark", Some("v" | "five" | "5")) => Some("mkv"),
             ("power", Some("play" | "plays")) => Some("powerplay"),
-            // "I'll" loses its apostrophe above; keep it one word so it can stand for "all".
-            ("i", Some("ll")) => Some("ill"),
+            // "I'll" loses its apostrophe above. Keep it one word so it can stand for "all", but
+            // not one close to "all" ("ill"), or fuzzy matching would score it past the cap.
+            ("i", Some("ll")) => Some("iwill"),
             _ => None,
         };
         if let Some(j) = joined {
@@ -1255,10 +1256,12 @@ mod tests {
     #[test]
     fn all_stop_mishearings_ask_and_never_execute() {
         let g = g();
-        for t in ["I'll stop.", "Old stopper.", "Old starper.", "ill stop"] {
+        for t in ["I'll stop.", "I’ll stop.", "Old stopper.", "Old starper."] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
             assert_eq!(m.phrase, "all stop", "{t:?}");
+            // Held by the cap, not by luck of the edit distance.
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
         }
         for t in ["All stop.", "Full stop.", "Zero throttle."] {
             let m = g.best(t);
@@ -1280,8 +1283,11 @@ mod tests {
             assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
         }
         // One extra word still asks, as "all stop here" does; a question presses nothing.
-        let m = g.best("I'll stop here.");
-        assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{m:?}");
+        for t in ["I'll stop here.", "I'll stop now", "I'll stop please"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
         assert_eq!(g.best("I'll be right back").decision, Decision::NoMatch);
     }
 
