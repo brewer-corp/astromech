@@ -260,7 +260,10 @@ astromech/
                          imports/exports, re-checked against the lookup's filters, best price first,
                          jumps from astromech-galaxy) or anywhere (Ardent's best 100), the commodity catalogue (data/catalog/commodities.json),
                          the cargo sale plan (whole load within demand caps, best per commodity), where
-                         to buy a shopping list (stations stocking most of it first, then nearest), and
+                         to buy a shopping list (stations stocking most of it first, then nearest), mining
+                         (where to sell a load of ore within demand caps; the nearest ring hotspot of an
+                         ore from Spansh's ring signals; the ore list is astromech_journal::ore, shared
+                         with the prospector callouts), and
                          trade routes (single hop from Spansh's trade router; a loop adds the best cargo
                          back from Ardent markets; profit per hour is an estimate, Spansh gives none)
     astromech-data/      remote data: Spansh (systems/stations/bodies search, neutron and trade route jobs),

@@ -12,6 +12,7 @@
 
 pub mod companion;
 mod detail;
+pub mod ore;
 
 use detail::system_powerplay;
 pub use detail::*;

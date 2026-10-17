@@ -21,6 +21,12 @@
 //!   nothing (16 Oct 2026), so search by subtype;
 //! - `signals` (bodies): `[{"name": ["Geological"]}]`;
 //! - `is_landable` (bodies): `{"value": true}`;
+//! - `ring_signals` (bodies, ring hotspots): `[{"name": ["Platinum"]}]` with the ore's name as
+//!   the rings list it (`Void Opal`, not `Void Opals`; an unknown name matches nothing). It
+//!   matches a body with the ore in any of its rings, not a particular ring, so check
+//!   [`Ring::signals`] on the result. Each ring of a hit carries `signals: [{"name", "count"}]`
+//!   (absent for a ring nobody has scanned) and `signals_updated_at` (checked 16 Oct 2026; a
+//!   `rings` filter in any shape tried was ignored);
 //! - `controlling_power`, `power` (any power active there, controller included) and
 //!   `power_state` (systems; `Unoccupied`, `Exploited`, `Fortified`, `Stronghold`):
 //!   `{"value": [..]}`, matching any listed value (checked 16 Oct 2026: an unknown filter name
@@ -201,6 +207,11 @@ impl Search {
     }
 
     /// Systems controlled by any of `powers`.
+    /// Bodies with a ring holding a hotspot of `ore` (the name the rings list, e.g. "Platinum").
+    pub fn ring_signal(self, ore: &str) -> Self {
+        self.push("ring_signals", json!({ "name": [ore] }))
+    }
+
     pub fn controlling_power(self, powers: &[&str]) -> Self {
         self.filter("controlling_power", json!({ "value": powers }))
     }
@@ -458,6 +469,27 @@ pub struct Share {
     pub share: f64,
 }
 
+/// A ring of a body, with the hotspots scanned in it.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Ring {
+    /// e.g. "Barnard's Star 5 A Ring".
+    pub name: String,
+    /// "Icy", "Rocky", "Metallic", "Metal Rich".
+    #[serde(rename = "type")]
+    pub ring_type: String,
+    #[serde(default)]
+    pub signals: Vec<Signal>,
+    #[serde(default)]
+    pub signals_updated_at: Option<String>,
+}
+
+impl Ring {
+    /// Hotspots of `ore` in this ring (0 if none).
+    pub fn hotspots(&self, ore: &str) -> u32 {
+        self.signals.iter().filter(|s| s.name.eq_ignore_ascii_case(ore)).map(|s| s.count).sum()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Body {
     pub id64: i64,
@@ -482,6 +514,8 @@ pub struct Body {
     pub terraforming_state: Option<String>,
     #[serde(default)]
     pub signals: Vec<Signal>,
+    #[serde(default)]
+    pub rings: Vec<Ring>,
     #[serde(default)]
     pub estimated_mapping_value: Option<i64>,
     #[serde(default)]
