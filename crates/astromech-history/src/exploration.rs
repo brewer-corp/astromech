@@ -79,6 +79,15 @@ impl crate::History {
         Ok(Some(UnsoldData { commander, unsold: unsold::from_json_lines(&lines) }))
     }
 
+    /// [`unsold`](Self::unsold) from the database at `db`, opened read only. No database yet
+    /// (before the core's first import) is the same as no commander: `None`, not an error.
+    pub fn unsold_at(db: &std::path::Path, cmdr: Option<&str>) -> crate::Result<Option<UnsoldData>> {
+        if !db.is_file() {
+            return Ok(None);
+        }
+        Self::open_read_only(db)?.unsold(cmdr)
+    }
+
     /// The landings of the commander called `name` in the system `address` before `before` (a
     /// journal timestamp, not included), by body, most first; Legacy-mode journals are ignored.
     pub fn landings_before(&self, name: &str, address: i64, before: &str) -> crate::Result<Vec<Landing>> {
@@ -185,6 +194,17 @@ mod tests {
         let other = h.unsold(None).unwrap().unwrap();
         assert_eq!((other.commander.name.as_str(), other.unsold.bodies), ("Other", 1));
         assert!(h.unsold(Some("nobody")).unwrap().is_none());
+    }
+
+    #[test]
+    fn no_database_yet_is_no_commander_not_an_error() {
+        let d = tempfile::tempdir().unwrap();
+        assert_eq!(History::unsold_at(&d.path().join("history.sqlite"), None).unwrap(), None);
+        // Once there, it answers.
+        let (_j, h) = imported();
+        let db = d.path().join("copy.sqlite");
+        h.conn().execute("VACUUM INTO ?1", [db.to_str().unwrap()]).unwrap();
+        assert_eq!(History::unsold_at(&db, Some("F1")).unwrap().unwrap().unsold.bodies, 1);
     }
 
     #[test]

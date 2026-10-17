@@ -20,6 +20,8 @@ export interface Body {
   terraformable: boolean;
   landable: boolean;
   rings: boolean;
+  /** Asteroid belts (the journal lists them with the rings). */
+  belts: boolean;
   /** Surface gravity in g. */
   gravity_g: number | null;
   distance_ls: number | null;

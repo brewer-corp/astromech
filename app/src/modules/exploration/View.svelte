@@ -57,6 +57,7 @@
     if (b.terraformable && b.class !== "Earthlike body") f.push("Terraformable");
     if (b.landable) f.push("Landable");
     if (b.rings) f.push("Rings");
+    if (b.belts) f.push("Belt");
     if (b.bio_signals) f.push(`Bio ${b.bio_signals}`);
     if (b.geo_signals) f.push(`Geo ${b.geo_signals}`);
     if (b.first_discovery) f.push("First discovery");

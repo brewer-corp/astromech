@@ -194,7 +194,34 @@ ED Scout's tests (https://github.com/joncage/ed-scout, MIT).
 
 ## Exobiology values
 `data/catalog/exobiology.json` (what Vista Genomics pays per species) is game data as the in-game
-Codex shows it, taken from EDR's `data/biology.json` (https://github.com/lekeno/edr, Apache-2.0,
-Copyright the EDR authors) and, for the single-value genera, ED Assistant's seed data
-(https://github.com/IgorBabayan/ed-assistant, MIT). The values are Elite Dangerous game data,
-© Frontier Developments plc.
+Codex shows it. The values are Elite Dangerous game data, © Frontier Developments plc.
+
+- The per-species values were read from EDR's `data/biology.json` (https://github.com/lekeno/edr,
+  Apache-2.0). Only facts were taken: each species' journal symbol, name and credit value,
+  written by a script into astromech's own file layout. No EDR code or file is copied, so the
+  file is not a copy of EDR's and stays under astromech's MIT licence.
+- The values of the single-value genera (anemones, brain trees, sinuous tubers, bark mounds,
+  amphora plants, crystalline shards), keyed by genus symbol, are from ED Assistant's seed data
+  (https://github.com/IgorBabayan/ed-assistant), which is under the MIT licence:
+
+```
+Copyright (c) 2026 Igor Babayan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

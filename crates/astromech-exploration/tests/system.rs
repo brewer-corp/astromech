@@ -33,7 +33,7 @@ pub fn unexplored() -> Vec<String> {
     vec![
         jump(s, a, 0),
         format!(
-            r#"{{"timestamp":"2026-10-17T10:00:05Z","event":"Scan","ScanType":"AutoScan","BodyName":"{s} A","BodyID":1,"StarSystem":"{s}","SystemAddress":{a},"DistanceFromArrivalLS":0.0,"StarType":"K","Subclass":3,"StellarMass":0.7,"WasDiscovered":false,"WasMapped":false}}"#
+            r#"{{"timestamp":"2026-10-17T10:00:05Z","event":"Scan","ScanType":"AutoScan","BodyName":"{s} A","BodyID":1,"StarSystem":"{s}","SystemAddress":{a},"DistanceFromArrivalLS":0.0,"StarType":"K","Subclass":3,"StellarMass":0.7,"Rings":[{{"Name":"{s} A Belt","RingClass":"eRingClass_Rocky"}}],"WasDiscovered":false,"WasMapped":false}}"#
         ),
         format!(
             r#"{{"timestamp":"2026-10-17T10:00:10Z","event":"FSSDiscoveryScan","Progress":0.4,"BodyCount":5,"NonBodyCount":2,"SystemName":"{s}","SystemAddress":{a}}}"#
@@ -93,6 +93,8 @@ fn a_replayed_system_shows_every_body_with_its_value() {
     let star = &v.bodies[0];
     assert!(star.star && star.first_discovery && !star.worth_mapping);
     assert_eq!(star.class_name, "K3 star");
+    // The journal lists the star's asteroid belt under Rings: a belt, not a ring.
+    assert!(star.belts && !star.rings);
     assert_eq!(star.value, astromech_exploration::value::star_value("K", Some(0.7), true));
 
     let elw = &v.bodies[1];
@@ -108,7 +110,7 @@ fn a_replayed_system_shows_every_body_with_its_value() {
     assert!(hmc.value_mapped > hmc.value * 5);
 
     let gg = &v.bodies[3];
-    assert!(gg.rings && !gg.landable && !gg.worth_mapping);
+    assert!(gg.rings && !gg.belts && !gg.landable && !gg.worth_mapping);
 
     let moon = &v.bodies[4];
     assert!(moon.landable && !moon.worth_mapping);

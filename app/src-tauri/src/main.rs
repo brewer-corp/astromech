@@ -485,16 +485,14 @@ async fn exploration_system() -> Result<Value, String> {
 }
 
 /// The latest commander's unsold cartographic and organic data, from the history the core keeps
-/// (`history.sqlite`, read only); `null` before the first commander.
+/// (`history.sqlite`, read only); `null` before the first commander or without a history yet.
 #[tauri::command]
 async fn exploration_unsold() -> Result<Value, String> {
     blocking(move || {
-        let db = app_dir().join("history.sqlite");
-        if !db.is_file() {
-            return Err("no journal history yet: the core builds it from the journals once it runs".into());
-        }
-        let h = astromech_history::History::open_read_only(&db).map_err(|e| e.to_string())?;
-        serde_json::to_value(h.unsold(None).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+        // No history yet (the core hasn't imported the journals) is `null`, like no commander.
+        let unsold = astromech_history::History::unsold_at(&app_dir().join("history.sqlite"), None)
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(unsold).map_err(|e| e.to_string())
     })
     .await
 }

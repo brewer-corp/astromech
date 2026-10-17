@@ -36,7 +36,9 @@ pub struct BodyView {
     pub class_name: String,
     pub terraformable: bool,
     pub landable: bool,
+    /// Rings, and asteroid belts (which the journal lists with the rings).
     pub rings: bool,
+    pub belts: bool,
     /// Surface gravity in g (planets).
     pub gravity_g: Option<f64>,
     pub distance_ls: Option<f64>,
@@ -214,6 +216,7 @@ fn body_view(b: &Body, system: Option<&str>, population: i64) -> Option<BodyView
         terraformable,
         landable: s.landable,
         rings: s.ring_count > 0,
+        belts: s.belt_count > 0,
         gravity_g: if star { None } else { s.surface_gravity.map(|g| g / G) },
         distance_ls: s.distance_from_arrival_ls,
         was_discovered: s.was_discovered,

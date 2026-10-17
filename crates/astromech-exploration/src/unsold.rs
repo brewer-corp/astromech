@@ -96,7 +96,7 @@ impl UnsoldFold {
                 }
             }
             X::ScanOrganic { scan_type, species, genus, .. } if scan_type == "Analyse" => {
-                let value = exobiology::species_value(species, genus).map(|(_, v)| v);
+                let value = exobiology::species_value(species, genus);
                 self.samples.push(Sample { species: species.to_ascii_lowercase(), value, ts: line.timestamp.clone() });
             }
             X::ExplorationSale { systems, .. } => {

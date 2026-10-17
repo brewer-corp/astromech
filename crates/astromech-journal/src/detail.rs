@@ -111,7 +111,10 @@ pub struct ScanBody {
     pub reserve_level: Option<String>,
     /// Surface materials: (name, percent).
     pub materials: Vec<(String, f64)>,
+    /// Rings, and asteroid belts (the journal lists both in `Rings`; a belt's name ends in
+    /// "Belt", a ring's in "Ring").
     pub ring_count: usize,
+    pub belt_count: usize,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -601,6 +604,11 @@ fn body_signals(v: &Value) -> BodySignals {
     }
 }
 
+/// An entry of a scan's `Rings` that is an asteroid belt ("Sol A Belt"), not a ring.
+fn is_belt(r: &Value) -> bool {
+    s(r, "Name").trim_end().ends_with("Belt")
+}
+
 fn scan_body(v: &Value) -> ScanBody {
     ScanBody {
         scan_type: s(v, "ScanType"),
@@ -628,7 +636,8 @@ fn scan_body(v: &Value) -> ScanBody {
         tidal_lock: opt_b(v, "TidalLock"),
         reserve_level: opt_s(v, "ReserveLevel"),
         materials: arr(v, "Materials").map(|m| (s(m, "Name"), opt_f(m, "Percent").unwrap_or(0.0))).collect(),
-        ring_count: arr(v, "Rings").count(),
+        ring_count: arr(v, "Rings").filter(|r| !is_belt(r)).count(),
+        belt_count: arr(v, "Rings").filter(|r| is_belt(r)).count(),
     }
 }
 

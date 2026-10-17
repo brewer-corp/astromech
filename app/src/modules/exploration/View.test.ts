@@ -16,6 +16,9 @@ describe("Exploration system view", () => {
     expect(screen.getByText("Mapped, efficiently")).toBeTruthy();
     expect(screen.getByText("First footfall likely")).toBeTruthy();
     expect(screen.getByText("Bio 2")).toBeTruthy();
+    // The star's asteroid belt is a belt; the gas giant's ring a ring.
+    expect(screen.getByText("Belt")).toBeTruthy();
+    expect(screen.getAllByText("Rings")).toHaveLength(1);
     expect(screen.getByText("Landed 2 times")).toBeTruthy();
   });
 
