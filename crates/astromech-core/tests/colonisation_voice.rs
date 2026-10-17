@@ -174,6 +174,18 @@ fn progress_and_what_is_left_are_about_the_project_last_delivered_to() {
 }
 
 #[test]
+fn the_project_last_delivered_to_wins_over_one_the_game_updated_later() {
+    let r = rig();
+    // Test Hub's depot reports again after the last delivery to Far Port (seen from the system
+    // map, say): the newest depot update is Test Hub's, the last delivery still Far Port's.
+    let journal = r._journals.path().join("Journal.2026-10-14T090000.01.log");
+    let later = r#"{"timestamp":"2026-10-15T12:00:00Z","event":"ColonisationConstructionDepot","MarketID":3900000001,"ConstructionProgress":0.55,"ConstructionComplete":false,"ConstructionFailed":false,"ResourcesRequired":[{"Name":"$steel_name;","Name_Localised":"Steel","RequiredAmount":800,"ProvidedAmount":500,"Payment":4000},{"Name":"$aluminium_name;","Name_Localised":"Aluminium","RequiredAmount":200,"ProvidedAmount":50,"Payment":3000}]}"#;
+    std::fs::write(&journal, format!("{JOURNAL}{later}\n")).unwrap();
+    let (_, said) = answered(r.assistant.handle("how is the build going", Origin::Voice));
+    assert_eq!(said, "Far Port is 10 percent built. 4,900 tonnes left to deliver.");
+}
+
+#[test]
 fn docked_at_a_site_the_answers_are_about_that_one() {
     let r = rig();
     r.hub.update(|g| {
