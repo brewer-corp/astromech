@@ -3,6 +3,9 @@ created_at: "2026-10-16T21:54:25.413632136+00:00"
 id: "astromech-970a"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-970a
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Outfitting lookup follow-ups: mount warning, A-rated, armour and unsold modules, unknown voice system"
-updated_at: "2026-10-16T21:59:20.912850340+00:00"
+updated_at: "2026-10-17T00:15:32.811083631+00:00"
 ---
 
 ## Goal
