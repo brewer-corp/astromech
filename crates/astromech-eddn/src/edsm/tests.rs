@@ -254,7 +254,7 @@ fn a_wrong_commander_or_key_keeps_the_events_for_later() {
     let mut r = rig(true);
     r.discards.set(vec![], NOW);
     feed(&mut r, &session()[..5], true);
-    r.api.answer(JOURNAL_URL, Ok(Response { status: 503, body: "busy".into() }));
+    r.api.answer(JOURNAL_URL, Err("connection refused".into()));
     assert!(r.courier.pass(NOW, r.t0).unwrap().stopped);
     assert_eq!(r.courier.outbox().pending().unwrap(), 4, "all but the Fileheader");
 }
@@ -391,20 +391,28 @@ fn a_key_that_is_still_wrong_shows_its_error_from_the_same_pass() {
 fn outages_do_not_use_up_a_messages_refusals() {
     let mut r = rig(true);
     r.discards.set(vec![], NOW);
-    feed(&mut r, &session()[..5], true);
-    let queued = r.courier.outbox().pending().unwrap();
+    // One event, so a refusal lands on it alone.
+    feed(&mut r, &session()[..2], true);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1);
     let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
     for i in 0..MAX_ATTEMPTS - 1 {
-        r.api.answer(JOURNAL_URL, Ok(Response { status: 503, body: "busy".into() }));
+        let outage =
+            if i % 2 == 0 { Ok(Response { status: 429, body: "slow down".into() }) } else { Err("timed out".into()) };
+        r.api.answer(JOURNAL_URL, outage);
         let (wall, mono) = at(i);
-        r.courier.pass(wall, mono).unwrap();
+        let d = r.courier.pass(wall, mono).unwrap();
+        assert_eq!((d.gave_up, d.retrying), (0, 1), "outage {i}: {d:?}");
     }
-    // The first refusal after seven outages gives nothing up.
-    r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
-    let (wall, mono) = at(MAX_ATTEMPTS);
-    let d = r.courier.pass(wall, mono).unwrap();
-    assert_eq!((d.gave_up, d.retrying), (0, queued), "{d:?}");
-    assert_eq!(r.courier.outbox().pending().unwrap(), queued);
+    // Seven outages have gone by: the event still has all its refusals, so it takes the full
+    // MAX_ATTEMPTS of them to give it up.
+    for i in 0..MAX_ATTEMPTS {
+        r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+        let (wall, mono) = at(MAX_ATTEMPTS + i);
+        let d = r.courier.pass(wall, mono).unwrap();
+        let last = i == MAX_ATTEMPTS - 1;
+        assert_eq!((d.gave_up, d.retrying), (last as usize, !last as usize), "refusal {i}: {d:?}");
+    }
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
 }
 
 #[test]
@@ -419,35 +427,149 @@ fn turning_sharing_off_does_not_wake_or_release_anything() {
     assert_eq!(woken.load(Ordering::SeqCst), 0);
 }
 
-#[test]
-fn a_refused_batch_is_given_up_after_the_attempt_limit_and_later_events_go() {
+/// An EDSM that fails the whole request (HTTP `status`) whenever it holds a "poisoned" event
+/// (one named `Poison`) or more than `max` events, and otherwise stores everything.
+#[derive(Clone)]
+struct Choosy {
+    status: u16,
+    max: usize,
+    sizes: Arc<Mutex<Vec<usize>>>,
+    stored: Arc<Mutex<Vec<String>>>,
+}
+
+impl Choosy {
+    fn new(status: u16, max: usize) -> Self {
+        Self { status, max, sizes: Arc::default(), stored: Arc::default() }
+    }
+}
+
+impl api::Api for Choosy {
+    fn get(&self, _: &str, _: &[(&str, &str)]) -> Result<Response, String> {
+        Ok(Response { status: 200, body: "[]".into() })
+    }
+    fn post_json(&self, _: &str, body: &[u8]) -> Result<Response, String> {
+        let req: Value = serde_json::from_slice(body).unwrap();
+        let events = req["message"].as_array().unwrap();
+        self.sizes.lock().unwrap().push(events.len());
+        if events.len() > self.max || events.iter().any(|e| e["event"] == "Poison") {
+            return Ok(Response { status: self.status, body: "no".into() });
+        }
+        self.stored.lock().unwrap().extend(events.iter().map(|e| e["n"].to_string()));
+        Ok(Response { status: 200, body: all_ok(events.len()).to_string() })
+    }
+}
+
+/// A rig on `api` with `count` events queued, `Poison` (if any) at index `poison`.
+fn choosy_rig(api: Choosy, count: usize, poison: Option<usize>) -> Rig {
     let mut r = rig(true);
+    r.courier.api = Box::new(api);
     r.discards.set(vec![], NOW);
-    feed(&mut r, &session()[..5], true);
-    let queued = r.courier.outbox().pending().unwrap();
-    assert_eq!(queued, 4);
+    // The Commander event queues too, with no `n`.
+    feed(&mut r, &session()[..2], true);
+    for n in 0..count {
+        let event = if poison == Some(n) { "Poison" } else { "Scan" };
+        r.up.journal(&json!({"event": event, "n": n}), true, NOW);
+    }
+    r
+}
+
+/// Run passes a minute apart until the queue is empty (or `limit` passes); the total counts.
+fn run_until_empty(r: &mut Rig, limit: u64) -> Delivery {
+    let mut total = Delivery::default();
+    for i in 1..=limit {
+        let d = r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap();
+        total.sent += d.sent;
+        total.gave_up += d.gave_up;
+        if r.courier.outbox().pending().unwrap() == 0 {
+            break;
+        }
+    }
+    total
+}
+
+#[test]
+fn a_poisoned_event_costs_only_itself() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig(api.clone(), 30, Some(17));
+    assert_eq!(r.courier.outbox().pending().unwrap(), 31);
+    let d = run_until_empty(&mut r, 100);
+    assert_eq!((d.sent, d.gave_up), (30, 1), "{d:?}");
+    let mut stored: Vec<i64> =
+        api.stored.lock().unwrap().iter().filter(|n| *n != "null").map(|n| n.parse().unwrap()).collect();
+    stored.sort();
+    assert_eq!(stored, (0..30).filter(|n| *n != 17).collect::<Vec<_>>(), "everything but the poisoned one");
+    let sizes = api.sizes.lock().unwrap().clone();
+    assert_eq!(sizes[0], 31, "the whole batch goes first");
+    assert_eq!(sizes[1], 16, "then the halves");
+    let row = r.courier.outbox().recent_of(&[Outcome::GaveUp], 5).unwrap();
+    assert_eq!(row.len(), 1);
+    assert!(
+        row[0].detail.contains("Poison refused 8 times") && row[0].detail.contains("HTTP 500"),
+        "{}",
+        row[0].detail
+    );
+}
+
+#[test]
+fn the_queue_behind_a_poisoned_event_moves_while_it_waits() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig(api.clone(), 6, Some(0));
+    // Passes until the poisoned event is alone and has failed once; it has not used up its tries.
+    for i in 1..=8 {
+        r.courier.pass(NOW + 100 * i, r.t0 + Duration::from_secs(100 * i as u64)).unwrap();
+    }
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1, "only the poisoned event is left");
+    assert_eq!(api.stored.lock().unwrap().len(), 6);
+}
+
+#[test]
+fn a_413_batch_is_split_the_same_way() {
+    let api = Choosy::new(413, 3);
+    let mut r = choosy_rig(api.clone(), 8, None);
+    let d = run_until_empty(&mut r, 20);
+    assert_eq!((d.sent, d.gave_up), (9, 0), "{d:?}");
+    let sizes = api.sizes.lock().unwrap().clone();
+    assert_eq!(sizes[..2], [9, 5], "the refused batch is halved");
+    assert!(sizes[2..].iter().any(|n| *n <= 3), "{sizes:?}");
+    assert_eq!(api.stored.lock().unwrap().len(), 9);
+}
+
+#[test]
+fn a_single_event_that_keeps_failing_is_given_up_and_later_events_go() {
+    let api = Choosy::new(413, 0);
+    let mut r = choosy_rig(api.clone(), 0, None);
+    r.up.journal(&json!({"event": "Scan"}), true, NOW);
+    r.courier.outbox().take(r.courier.outbox().due(NOW, true, 1).unwrap()[0].id).unwrap();
     let hour = |i: i64| Duration::from_secs(4000 * i as u64);
     for i in 0..MAX_ATTEMPTS - 1 {
-        r.api.answer(JOURNAL_URL, Ok(Response { status: 413, body: "too large".into() }));
         let d = r.courier.pass(NOW + 4000 * i, r.t0 + hour(i)).unwrap();
-        assert!(d.stopped && d.retrying == queued, "try {i}: {d:?}");
-        assert_eq!(r.courier.outbox().pending().unwrap(), queued);
+        assert_eq!((d.gave_up, d.retrying), (0, 1), "try {i}: {d:?}");
     }
-    // A later event joins the queue; the old batch is refused one last time.
     let last = MAX_ATTEMPTS - 1;
-    r.api.answer(JOURNAL_URL, Ok(Response { status: 413, body: "too large".into() }));
     let d = r.courier.pass(NOW + 4000 * last, r.t0 + hour(last)).unwrap();
-    assert_eq!((d.gave_up, d.retrying), (queued, 0));
+    assert_eq!((d.gave_up, d.retrying), (1, 0));
     assert_eq!(r.courier.outbox().pending().unwrap(), 0);
-    let row = &r.courier.outbox().recent(1).unwrap()[0];
-    assert_eq!(row.outcome, "gave_up");
-    assert!(row.detail.contains("refused 8 times") && row.detail.contains("HTTP 413: too large"), "{}", row.detail);
 
     let later = NOW + 4000 * last + 1;
     r.up.journal(&json!({"event":"Scan"}), true, later);
-    r.api.ok(JOURNAL_URL, all_ok(1));
+    r.courier.api = Box::new(Choosy::new(200, BATCH));
     let d = r.courier.pass(later, r.t0 + hour(last) + Duration::from_secs(1)).unwrap();
     assert_eq!(d.sent, 1, "the queue is not blocked: {d:?}");
+}
+
+#[test]
+fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
+    let api = Choosy::new(503, 0);
+    let mut r = choosy_rig(api, 20, None);
+    let queued = r.courier.outbox().pending().unwrap();
+    assert_eq!(queued, 21);
+    let mut gave_up = 0;
+    for i in 1..=20u64 {
+        gave_up += r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap().gave_up;
+    }
+    // Without the outage guard every one of the 21 goes; with it only the few that fail alone first.
+    assert!((2..=4).contains(&gave_up), "gave up {gave_up} of {queued}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), queued - gave_up);
 }
 
 #[test]
@@ -457,8 +579,12 @@ fn what_counts_as_refused_and_what_is_only_held() {
     assert!(matches!(answer(ok(400, ""), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, "<html>"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, &all_ok(1).to_string()), 2), Answer::Refused(_)), "wrong length");
-    for held in [ok(503, "x"), ok(429, "x"), ok(408, "x"), Err("timed out".into())] {
+    for held in [ok(429, "x"), ok(408, "x"), Err("timed out".into())] {
         assert!(matches!(answer(held, 2), Answer::Hold(_)));
     }
     assert!(matches!(answer(ok(200, r#"{"msgnum":203,"msg":"x"}"#), 2), Answer::Hold(_)));
+    // Request-level 5xx, HTTP or code, is a failure of the request: split, then given up.
+    assert!(matches!(answer(ok(500, "x"), 2), Answer::Refused(_)));
+    assert!(matches!(answer(ok(503, "x"), 2), Answer::Refused(_)));
+    assert!(matches!(answer(ok(200, r#"{"msgnum":500,"msg":"x"}"#), 2), Answer::Refused(_)));
 }

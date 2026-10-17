@@ -17,7 +17,6 @@
 //! - Every event carries its commander (see `commander`), and every ledger is per commander:
 //!   the same journal folder can hold several commanders, and Legacy-mode play.
 
-mod commander;
 mod exploration;
 mod ledgers;
 mod logbook;
@@ -28,7 +27,7 @@ pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
 pub use logbook::{Logbook, Place, Totals};
 pub use session::{EarningTotal, Session};
 
-use commander::FileCommander;
+use astromech_journal::commander::{self, FileCommander};
 
 use astromech_journal::parse_line;
 use astromech_store::rusqlite::{self, params, Connection, OptionalExtension};
