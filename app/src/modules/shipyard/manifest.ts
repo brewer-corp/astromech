@@ -8,6 +8,7 @@ const manifest: ModuleManifest = {
   order: 20,
   api: ["stations"],
   load: () => import("./View.svelte"),
+  palette: async () => (await import("./palette")).default(),
 };
 
 export default manifest;
