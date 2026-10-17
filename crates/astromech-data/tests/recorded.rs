@@ -1,8 +1,10 @@
-//! Behaviour on recorded responses (captured from the live services on 16 Oct 2026, trimmed;
+//! Behaviour on recorded responses (captured from the live services on 16 and 17 Oct 2026, trimmed;
 //! see tests/fixtures). No test here touches the network.
 
 use astromech_data::ardent::{MarketFilter, StationService, Trade};
-use astromech_data::spansh::{JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute};
+use astromech_data::spansh::{
+    ExactRoute, JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute,
+};
 use astromech_data::{
     ttl, Cache, Client, Clock, Error, HttpTransport, Limiter, Method, Request, Response, Service, Transport,
     TransportError,
@@ -182,7 +184,7 @@ fn assert_schema_error(r: Result<impl std::fmt::Debug, Error>, service: Service)
             assert_eq!(e.service(), service);
             let msg = e.to_string();
             assert!(msg.starts_with(service.name()), "names the service: {msg}");
-            assert!(msg.contains("doesn't understand"), "plain words: {msg}");
+            assert!(msg.contains("does not understand"), "plain words: {msg}");
         }
         other => panic!("expected a {service} schema error, got {other:?}"),
     }
@@ -240,7 +242,7 @@ fn a_schema_error_is_one_spoken_sentence_without_the_serde_detail() {
     assert_eq!(log.len(), 1);
     assert!(log[0].starts_with("EDSM answer to /api-v1/system failed the schema check: "), "{log:?}");
     assert!(log[0].contains("missing field `coords`"), "the detail is logged: {log:?}");
-    assert_eq!(e.to_string(), "EDSM sent an answer astromech doesn't understand. Its format may have changed.");
+    assert_eq!(e.to_string(), "EDSM sent an answer astromech does not understand. Its format may have changed.");
     match e {
         Error::Schema { detail, .. } => assert!(detail.contains("coords"), "the detail stays in the field: {detail}"),
         e => panic!("{e:?}"),
@@ -328,7 +330,7 @@ fn no_network_gives_a_plain_words_error() {
     assert!(matches!(e, Error::Offline { service: Service::Spansh, .. }), "{e:?}");
     assert_eq!(
         e.to_string(),
-        "Can't reach Spansh. Check your internet connection; if it's working, Spansh may be down."
+        "Cannot reach Spansh. Check your internet connection. If it is working, Spansh may be down."
     );
 
     let (c, rec, _) = client();
@@ -336,7 +338,7 @@ fn no_network_gives_a_plain_words_error() {
     let e = c.ardent_nearest("Sol", StationService::InterstellarFactors, None).unwrap_err();
     assert_eq!(
         e.to_string(),
-        "Can't reach Ardent Insight. Check your internet connection; if it's working, Ardent Insight may be down."
+        "Cannot reach Ardent Insight. Check your internet connection. If it is working, Ardent Insight may be down."
     );
     rec.fail("edsm", TransportError::Timeout);
     assert_eq!(c.edsm_system("Sol").unwrap_err().to_string(), "EDSM took too long to answer. Try again in a minute.");
@@ -686,4 +688,120 @@ fn spansh_trade_route_errors_are_plain_words() {
     let no_source = fixture!("spansh-trade-result.json").replace("\"source\"", "\"from\"");
     rec.on("/api/results/", 200, &no_source);
     assert_schema_error(c.spansh_trade_result("job"), Service::Spansh);
+}
+
+// --- Exact routes: a recorded job (17 Oct 2026, Sol to Maia, an Asp with a 32 t tank) ---
+
+fn exact_request() -> ExactRoute {
+    ExactRoute {
+        from: "Sol".into(),
+        to: "Maia".into(),
+        optimal_mass: 1470.0,
+        max_fuel_per_jump: 5.0,
+        fuel_multiplier: 0.012,
+        fuel_power: 2.45,
+        base_mass: 400.63,
+        tank_size: 32.0,
+        internal_tank_size: 0.63,
+        range_boost: 0.0,
+        cargo: 0.0,
+        refuel_every_scoopable: true,
+    }
+}
+
+#[test]
+fn spansh_exact_route_posts_the_drive_and_polls_until_done() {
+    let (c, rec, _) = client();
+    rec.on("/api/generic/route", 202, fixture!("spansh-exact-submit.json"));
+    rec.in_turn(
+        "/api/results/",
+        &[(202, fixture!("spansh-exact-pending.json")), (200, fixture!("spansh-exact-result.json"))],
+    );
+    let plan = c.spansh_exact_route_wait(&exact_request(), NO_WAIT).unwrap();
+
+    let log = rec.log.lock().unwrap().clone();
+    assert_eq!(log.len(), 3, "one submit and two polls");
+    assert_eq!(log[0].0, "https://spansh.co.uk/api/generic/route");
+    let astromech_data::Body::Form(form) = &log[0].1.body else { panic!("a form post") };
+    // The fields the site posts (its exact-plotter controller), with the values of the
+    // recorded request: the job answer echoes them back as its `parameters`.
+    let echoed: serde_json::Value = serde_json::from_str(fixture!("spansh-exact-result.json")).unwrap();
+    for (k, v) in [
+        ("source", "Sol"),
+        ("destination", "Maia"),
+        ("optimal_mass", "1470"),
+        ("max_fuel_per_jump", "5"),
+        ("fuel_multiplier", "0.012"),
+        ("fuel_power", "2.45"),
+        ("base_mass", "400.63"),
+        ("tank_size", "32"),
+        ("internal_tank_size", "0.63"),
+        ("range_boost", "0"),
+        ("cargo", "0"),
+        ("refuel_every_scoopable", "1"),
+        ("use_supercharge", "1"),
+        ("use_injections", "0"),
+        ("algorithm", "optimistic"),
+    ] {
+        assert!(form.contains(&(k.into(), v.into())), "form has {k}={v}: {form:?}");
+        let param = match k {
+            "source" => "source_system",
+            "destination" => "destination_system",
+            k => k,
+        };
+        let e = &echoed["parameters"][param];
+        let same =
+            e.as_str() == Some(v) || e.as_f64().is_some_and(|n| n.to_string() == v) || e.as_bool() == Some(v == "1");
+        assert!(same, "Spansh took {k}={v} as {e}");
+    }
+    assert!(log[1..].iter().all(|(u, _)| u == "https://spansh.co.uk/api/results/00000000-0000-0000-0000-000000000003"));
+
+    assert_eq!(plan.jumps.len(), 10);
+    assert_eq!(plan.jumps[0].name, "Sol");
+    assert_eq!(plan.jumps.last().unwrap().name, "Maia");
+    let refuels: Vec<&str> = plan.jumps.iter().filter(|j| j.must_refuel).map(|j| j.name.as_str()).collect();
+    assert_eq!(refuels, ["Tascheter Sector MN-T b3-6", "Hyades Sector DB-W b2-6", "98 k Tauri"]);
+    assert!(plan.jumps[8].has_neutron, "98 k Tauri is a neutron star");
+    assert!((plan.jumps[1].fuel_used - 4.517).abs() < 0.001);
+}
+
+#[test]
+fn spansh_exact_route_failures_are_plain_words() {
+    // Spansh queues any system name; the job then fails with HTTP 500 and its reason.
+    let (c, rec, _) = client();
+    rec.on("/api/generic/route", 202, fixture!("spansh-exact-submit.json"));
+    rec.on("/api/results/", 500, fixture!("spansh-exact-failed.json"));
+    let e = c.spansh_exact_route_wait(&exact_request(), NO_WAIT).unwrap_err();
+    assert!(matches!(e, Error::Rejected { service: Service::Spansh, .. }), "{e:?}");
+    assert_eq!(e.to_string(), "Spansh turned the request down: Unable to find route.");
+
+    // A 500 without Spansh's error object is still the service having trouble.
+    rec.on("/api/results/", 500, "<html>Internal Server Error</html>");
+    assert!(matches!(c.spansh_exact_result("job").unwrap_err(), Error::Unavailable { status: 500, .. }));
+
+    // A finished route without its jumps fails the schema check.
+    let no_jumps = fixture!("spansh-exact-result.json").replace("\"jumps\"", "\"systems\"");
+    rec.on("/api/results/", 200, &no_jumps);
+    assert_schema_error(c.spansh_exact_result("job"), Service::Spansh);
+}
+
+#[test]
+fn spansh_neutron_route_polls_until_done() {
+    let (c, rec, _) = client();
+    rec.on("/api/route", 202, fixture!("spansh-route-queued.json"));
+    rec.in_turn(
+        "/api/results/",
+        &[(202, fixture!("spansh-route-pending.json")), (200, fixture!("spansh-route-result.json"))],
+    );
+    let r = NeutronRoute { from: "Sol".into(), to: "Colonia".into(), range: 50.0, efficiency: 60 };
+    let plan = c.spansh_route_wait(&r, NO_WAIT).unwrap();
+    assert_eq!(rec.requests(), 3, "one submit and two polls");
+    assert_eq!(plan.system_jumps.len(), 3);
+
+    // The neutron plotter checks its systems when the job is submitted.
+    let (c, rec, _) = client();
+    rec.on("/api/route", 400, r#"{"error":"Could not find finishing system"}"#);
+    let e = c.spansh_route_wait(&r, NO_WAIT).unwrap_err();
+    assert_eq!(e.to_string(), "Spansh turned the request down: Could not find finishing system.");
+    assert_eq!(rec.requests(), 1);
 }

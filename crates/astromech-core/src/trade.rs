@@ -14,6 +14,9 @@ use astromech_tools::trade::{answer as spoken, cargo_answer, Ask};
 /// Jump range for the estimated jump counts when the ship's isn't known.
 const DEFAULT_RANGE_LY: f64 = 20.0;
 
+/// Said when a trade question names no commodity the catalogue knows.
+pub const WHICH_COMMODITY: &str = "Which commodity? Say, for example, where to sell gold.";
+
 /// The spoken answer to a trade question. `commodity` is the grammar's slot value (a
 /// catalogue name).
 pub fn answer(
@@ -25,7 +28,7 @@ pub fn answer(
     now_s: i64,
 ) -> String {
     let Some(system) = game.system.as_deref() else {
-        return "I don't know where you are yet.".into();
+        return astromech_tools::lookup::NO_POSITION.into();
     };
     let origin = Origin { system: system.to_string(), pos: None };
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(DEFAULT_RANGE_LY);
@@ -37,7 +40,7 @@ pub fn answer(
         };
     }
     let Some(c) = commodity.and_then(catalog::find) else {
-        return "Which commodity? Say, for example, where can I sell gold.".into();
+        return WHICH_COMMODITY.into();
     };
     match prices(client, &origin, ask.side(), &[c.symbol.as_str()], filters, range, now_s) {
         Ok(p) => spoken(ask, &c.name, &p[0], max_ly, now_s),

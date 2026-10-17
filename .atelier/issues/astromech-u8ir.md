@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-u8ir
 priority: "P2"
 relationships:
   blocks: []
@@ -16,9 +19,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:25:55.212585835+00:00"
+status: "done"
 title: "Callout loose ends: repeat prospects, threshold storage on a fresh machine, help-line copy"
-updated_at: "2026-10-17T17:01:41.665525400+00:00"
+updated_at: "2026-10-17T19:25:55.212585835+00:00"
 ---
 
 ## Goal
@@ -36,3 +40,7 @@ A replay test shows a repeated prospect of the same rock gives one line and a di
 ## Context
 
 Review findings R2, R3 and R9 on feature/astromech-cmhv (prospector astromech-omi1, copy guide astromech-wq3f). How to tell "the same rock" needs a check: `ProspectedAsteroid` has no rock id, so the material list plus a short time window is the likely key.
+
+## Close Reason
+
+Done-when met: Repeat prospects said once, thresholds open on a fresh machine, help-line copy done in PR 120; PR 123; see evidence
