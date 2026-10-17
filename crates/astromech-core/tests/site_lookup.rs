@@ -141,7 +141,7 @@ fn without_a_position_it_says_so() {
     else {
         panic!("not spoken")
     };
-    assert!(s.starts_with("Your position isn't known yet"), "{s}");
+    assert_eq!(s, astromech_tools::lookup::NO_POSITION);
     assert_eq!(speaker.take(), vec![s]);
 }
 

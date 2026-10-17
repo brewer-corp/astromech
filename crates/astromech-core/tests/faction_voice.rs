@@ -73,6 +73,11 @@ struct Rig {
 
 /// In Sol (position known when `at_sol`), on recorded answers with no rate limit.
 fn rig(at_sol: bool) -> Rig {
+    rig_with_journals(at_sol, None)
+}
+
+/// [`rig`] with the voice reading the commander's journals in `journals`.
+fn rig_with_journals(at_sol: bool, journals: Option<&std::path::Path>) -> Rig {
     let rec = Arc::new(Recorded::default());
     let client = Arc::new(Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none()));
     let hub = Arc::new(StateHub::new());
@@ -97,7 +102,10 @@ fn rig(at_sol: bool) -> Rig {
         remote: client,
     });
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));
-    let assistant = Assistant::new(runner).with_store(store.clone()).with_clock(Arc::new(Later));
+    let mut assistant = Assistant::new(runner).with_store(store.clone()).with_clock(Arc::new(Later));
+    if let Some(dir) = journals {
+        assistant = assistant.with_journals(dir.to_path_buf());
+    }
     Rig { assistant, speaker, rec, store }
 }
 
@@ -162,4 +170,23 @@ fn the_tester_shows_the_lookup_without_running_it() {
     assert_eq!(d.intent.map(|i| i.command), Some("faction.pharma".to_string()));
     assert_eq!(d.message, "Would look up the best outbreak system on Spansh and say it.");
     assert!(r.rec.bodies.lock().unwrap().is_empty(), "a dry run asks Spansh nothing");
+}
+
+/// The app records the commander's own visits before a faction search (astromech-9mvu), so a
+/// system visited since Spansh's report is said with the states seen on the visit.
+#[test]
+fn a_visit_newer_than_spanshs_report_is_said_as_seen_on_your_visit() {
+    let journals = tempfile::tempdir().unwrap();
+    // WISE 0855-0714, jumped to on 16 Oct, after Spansh's report of 14 Oct.
+    let jump = r#"{"timestamp":"2026-10-16T20:00:00Z","event":"FSDJump","StarSystem":"WISE 0855-0714","SystemAddress":58144730663760,"StarPos":[6.5,-2.2,2.0],"JumpDist":7.2,"Factions":[{"Name":"WISE 0855-0714 Gold Gang","Allegiance":"Independent","FactionState":"Famine","Influence":0.4,"ActiveStates":[{"State":"Famine"}]}]}"#;
+    std::fs::write(journals.path().join("Journal.2026-10-16T190000.01.log"), format!("{jump}\n")).unwrap();
+    let r = rig_with_journals(true, Some(journals.path()));
+
+    let (_, said) = looked_up(r.assistant.handle("nearest famine system", Origin::Voice));
+    assert_eq!(said, "Nearest famine system: WISE 0855-0714. 7.2 light years, about 1 jump. Seen on your visit today.");
+
+    // Without journals the answer is Spansh's, as before.
+    let r = rig(true);
+    let (_, said) = looked_up(r.assistant.handle("nearest famine system", Origin::Voice));
+    assert_eq!(said, FAMINE);
 }

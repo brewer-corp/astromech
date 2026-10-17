@@ -133,6 +133,17 @@ fn answered(h: Handled) -> (&'static str, String) {
     }
 }
 
+/// astromech-uwwg, kept on purpose: "for the station" in a buy question is the construction
+/// depot (no other lookup says it), and a bare "what is left" is only asked about, never run.
+#[test]
+fn the_loose_colonisation_phrasings_are_kept_as_they_are() {
+    let g = astromech_core::assistant::grammar();
+    let m = g.best("where can I buy steel for the station");
+    assert_eq!((m.command, m.slot.as_deref(), m.decision), ("colonisation.buy", Some("Steel"), Decision::Execute));
+    let m = g.best("what is left");
+    assert_eq!((m.command, m.decision), ("colonisation.remaining", Decision::Ask));
+}
+
 #[test]
 fn colonisation_phrases_resolve_to_their_commands() {
     let g = astromech_core::assistant::grammar();
@@ -164,13 +175,17 @@ fn progress_and_what_is_left_are_about_the_project_last_delivered_to() {
     let r = rig();
     let (command, said) = answered(r.assistant.handle("How is the build going?", Origin::Voice));
     assert_eq!(command, "colonisation.progress");
-    assert_eq!(said, "Far Port is 10 percent built. 4,900 tonnes left to deliver.");
+    let progress = "Far Port is 10 percent built. 4,900 tonnes left to deliver.".to_string();
+    assert_eq!(said, progress);
     let (_, said) = answered(r.assistant.handle("What is left to deliver?", Origin::Voice));
+    let remaining = "4,900 tonnes left to deliver to Far Port. 13 more loads at 400 tonnes. Most needed: CMM Composite, 4,900 tonnes.".to_string();
+    assert_eq!(said, remaining);
+    let lookup = "Looking that up.".to_string();
     assert_eq!(
-        said,
-        "4,900 tonnes left to deliver to Far Port. 13 more loads at 400 tonnes. Most needed: CMM Composite, 4,900 tonnes."
+        r.speaker.take(),
+        vec![lookup.clone(), progress, lookup, remaining],
+        "each answer once, after the lookup line"
     );
-    assert_eq!(r.speaker.take().len(), 2, "each answer once, no lookup line");
 }
 
 #[test]

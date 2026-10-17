@@ -196,8 +196,26 @@ pub const MVP: &[(&str, &[&str])] = &[
         &["nearest civil unrest system", "nearest civil unrest", "where is there civil unrest near me"],
     ),
     ("faction.pharma", &["nearest outbreak system", "nearest outbreak", "where is there an outbreak near me"]),
-    ("faction.fed_composites", &["nearest federation system", "nearest federal system", "nearest federation faction"]),
-    ("faction.empire_shielding", &["nearest empire system", "nearest imperial system", "nearest empire faction"]),
+    (
+        "faction.fed_composites",
+        &[
+            "nearest federation system",
+            "nearest federal system",
+            "nearest federation faction",
+            "nearest federation",
+            "nearest federal",
+        ],
+    ),
+    (
+        "faction.empire_shielding",
+        &[
+            "nearest empire system",
+            "nearest imperial system",
+            "nearest empire faction",
+            "nearest empire",
+            "nearest imperial",
+        ],
+    ),
     (
         "status.system_power",
         &["who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here"],

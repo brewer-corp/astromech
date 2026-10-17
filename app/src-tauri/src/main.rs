@@ -402,7 +402,7 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
         engineers: progress.build(),
         unlocks: astromech_engineering::unlocks::tree(&progress),
         here: astromech_galaxy::here_from_journal_dir(&dir),
-        visits: astromech_galaxy::visits_from_journal_dir(&dir, 20),
+        visits: astromech_galaxy::visits_from_journal_dir(&dir, astromech_galaxy::visits::RECENT_JOURNALS),
     });
     *cache.0.lock().map_err(|_| "busy".to_string())? = Some((sig, v.clone()));
     Ok(v)

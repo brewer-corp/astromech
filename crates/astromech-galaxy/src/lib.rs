@@ -256,6 +256,12 @@ impl Galaxy {
         Ok(())
     }
 
+    /// Remember the visits in the commander's newest journals in `dir`
+    /// ([`visits::RECENT_JOURNALS`]), so the next lookup prefers them over an older Spansh answer.
+    pub fn record_journal_visits(&self, dir: &std::path::Path) -> Result<()> {
+        self.record_visits(&visits::visits_from_journal_dir(dir, visits::RECENT_JOURNALS))
+    }
+
     /// Replace a hit's factions and age with the commander's own visit when that is newer.
     fn refresh_from_visits(&self, hits: &mut [Hit]) -> std::collections::HashSet<i64> {
         let mut seen = std::collections::HashSet::new();

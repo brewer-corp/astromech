@@ -452,7 +452,7 @@ fn the_colonisation_answers_keep_to_the_copy_guide() {
         depot_updated: String::new(),
         contributions: vec![],
     };
-    let mut lines = vec![c::NO_PROJECT.to_string(), c::NO_POSITION.to_string(), c::NO_STAR_MAP.to_string()];
+    let mut lines = vec![c::NO_PROJECT.to_string()];
     let mut split = |s: String| lines.extend(s.split_inclusive(". ").map(|s| s.trim().to_string()));
     for (capacity, aboard) in [(None, 0), (Some(1), 1), (Some(794), 999_999)] {
         let mut hold = Hold { capacity, ..Hold::default() };
@@ -540,8 +540,7 @@ fn every_line_keeps_to_the_copy_guide() {
 fn the_powerplay_target_answers_keep_to_the_copy_guide() {
     use astromech_galaxy::{Here, Hop, Target, TargetHit, Targets};
     use astromech_tools::targets;
-    let mut lines: Vec<String> =
-        [targets::NOT_PLEDGED, targets::NO_POSITION, targets::NO_STAR_MAP].iter().map(|s| s.to_string()).collect();
+    let mut lines: Vec<String> = [targets::NOT_PLEDGED].iter().map(|s| s.to_string()).collect();
     for target in [Target::Acquire, Target::Reinforce, Target::Undermine] {
         let found = |hits| Targets {
             target,
@@ -676,7 +675,7 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
     let now = 1_792_152_000; // 2026-10-16T12:00:00Z
     let here = Here { system: "Synuefe BY-F d12-39".into(), id64: None, pos: [0.0; 3] };
     let mut lines =
-        vec![astromech_core::lookups::NO_POSITION.to_string(), astromech_core::lookups::NO_STAR_MAP.to_string()];
+        vec![astromech_tools::lookup::NO_POSITION.to_string(), astromech_tools::lookup::NO_STAR_MAP.to_string()];
     for q in astromech_galaxy::QUERIES {
         let nearby = |hits| Nearby {
             query: q.clone(),

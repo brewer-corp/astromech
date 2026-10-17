@@ -160,11 +160,11 @@ impl Assistant {
         };
         let galaxy = match (&game.powerplay.power, self.runner.galaxy.clone()) {
             (None, _) => return said(targets::NOT_PLEDGED),
-            (_, None) => return said(targets::NO_STAR_MAP),
+            (_, None) => return said(lookup::NO_STAR_MAP),
             (Some(_), Some(g)) => g,
         };
         if game.system.is_none() || game.star_pos.is_none() {
-            return said(targets::NO_POSITION);
+            return said(lookup::NO_POSITION);
         }
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
@@ -184,12 +184,12 @@ impl Assistant {
     fn faction_lookup(&self, command: &'static str, q: &'static astromech_galaxy::Query) -> Outcome {
         let game = self.runner.hub.snapshot();
         let Some(galaxy) = self.runner.galaxy.clone() else {
-            self.say(crate::lookups::NO_STAR_MAP);
-            return Outcome::Spoken(crate::lookups::NO_STAR_MAP.into());
+            self.say(lookup::NO_STAR_MAP);
+            return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
         if game.system.is_none() || game.star_pos.is_none() {
-            self.say(crate::lookups::NO_POSITION);
-            return Outcome::Spoken(crate::lookups::NO_POSITION.into());
+            self.say(lookup::NO_POSITION);
+            return Outcome::Spoken(lookup::NO_POSITION.into());
         }
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
@@ -197,8 +197,9 @@ impl Assistant {
         };
         self.say("Looking that up.");
         let (speaker, now) = (self.runner.speaker.clone(), self.clock.now_s());
+        let journals = self.projects.dir().map(std::path::Path::to_path_buf);
         Outcome::LookingUp(std::thread::spawn(move || {
-            let m = crate::lookups::faction_answer(&galaxy, &filters, q, &game, now);
+            let m = crate::lookups::faction_answer(&galaxy, &filters, q, &game, journals.as_deref(), now);
             speaker.say(&m);
             m
         }))
@@ -279,17 +280,16 @@ impl Assistant {
         }
     }
 
-    /// Answer a colonisation question off this thread (the first replay of the journals can
-    /// take a while); where to buy says "Looking that up." first.
+    /// Answer a colonisation question off this thread (a replay of the journals can take a
+    /// while); says "Looking that up." first.
     fn colonisation(&self, ask: astromech_tools::colonisation::Ask, commodity: Option<&str>) -> Outcome {
         let game = self.runner.hub.snapshot();
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), astromech_market::list::LOOKUP, &game)
         };
-        if ask == astromech_tools::colonisation::Ask::Buy {
-            self.say("Looking that up.");
-        }
+        // Every question can replay the journals (they grow all through play), as well as search.
+        self.say("Looking that up.");
         let (projects, galaxy, speaker) =
             (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
         let (commodity, now) = (commodity.map(str::to_string), self.clock.now_s());

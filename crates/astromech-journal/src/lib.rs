@@ -790,6 +790,25 @@ pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
     v.into_iter().map(|x| x.3).collect()
 }
 
+/// Changes whenever something read from the journals could give a different answer: a journal file
+/// is added or removed, or the newest one grows. The length is read through an open handle
+/// because on Windows a directory listing reports the size NTFS last stored in the directory
+/// entry, which can lag appends to a file the game still holds open (astromech-txzq).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct JournalVersion {
+    files: usize,
+    newest: Option<PathBuf>,
+    len: u64,
+}
+
+pub fn journal_version(dir: &Path) -> JournalVersion {
+    let logs = journal_logs(dir);
+    let newest = logs.last().cloned();
+    let len =
+        newest.as_deref().and_then(|p| std::fs::File::open(p).and_then(|f| f.metadata()).ok()).map_or(0, |m| m.len());
+    JournalVersion { files: logs.len(), newest, len }
+}
+
 /// The journal file the game is writing: most recently modified `Journal.*.log`.
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
     let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)

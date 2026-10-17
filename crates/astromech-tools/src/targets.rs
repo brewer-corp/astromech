@@ -12,12 +12,6 @@ pub const WITHIN_LY: f64 = 40.0;
 /// Said to a commander who is not pledged to a power.
 pub const NOT_PLEDGED: &str = "Not pledged to a power, so there are no targets.";
 
-/// Said when the journal has not given the commander's position yet.
-pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
-
-/// Said when the galaxy store could not be opened.
-pub const NO_STAR_MAP: &str = "Powerplay targets are not available: the star map could not be opened.";
-
 /// The kind of work behind an `astromech-intent` command id.
 pub fn from_command(command: &str) -> Option<Target> {
     match command {

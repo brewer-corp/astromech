@@ -6,6 +6,13 @@ use astromech_announce::session_summary::credits;
 use astromech_galaxy::outfitting::{self, ModuleWant};
 use astromech_galaxy::stations::{Found, Service, Want};
 
+/// Said when the journal has not given the commander's position yet: the one line every
+/// position-based voice lookup (stations, sites, factions, Powerplay targets, colonisation) uses.
+pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
+
+/// Said when the galaxy store could not be opened: the one line every star-map voice lookup uses.
+pub const NO_STAR_MAP: &str = "Lookups are not available: the star map could not be opened.";
+
 /// Commands that look something up instead of pressing keys.
 pub fn is_lookup(command: &str) -> bool {
     command.starts_with("find.")

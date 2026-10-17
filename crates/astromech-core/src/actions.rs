@@ -66,12 +66,12 @@ impl Runner {
     pub fn nearest_site(&self, kind: &'static str) -> Outcome {
         let g = self.hub.snapshot();
         let (Some(system), Some(pos)) = (g.system.clone(), g.star_pos) else {
-            let m = "Your position isn't known yet. It comes from the next jump or login.".to_string();
+            let m = astromech_tools::lookup::NO_POSITION.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         };
         let Some(galaxy) = self.galaxy.clone() else {
-            let m = "Site lookups aren't available: the star map couldn't be opened.".to_string();
+            let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         };

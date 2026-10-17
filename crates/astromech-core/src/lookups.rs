@@ -45,7 +45,7 @@ pub fn targets_answer(
         return targets::NOT_PLEDGED.into();
     };
     let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
-        return targets::NO_POSITION.into();
+        return lookup::NO_POSITION.into();
     };
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
     let here = astromech_galaxy::Here { system, id64: None, pos };
@@ -76,11 +76,6 @@ pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState,
     lookup::spoken(want, system, &found, now_s)
 }
 
-/// Said when the journal has not given the commander's position yet.
-pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
-/// Said when the galaxy store could not be opened.
-pub const NO_STAR_MAP: &str = "Faction lookups are not available: the star map could not be opened.";
-
 /// The spoken answer to a faction-state lookup (`q`, from `astromech_galaxy::QUERIES`) near
 /// the commander: the app's Nearby search (`Galaxy::nearby`) from the journal's position, with
 /// jumps at the ship's range (20 ly when unknown).
@@ -89,11 +84,16 @@ pub fn faction_answer(
     filters: &Filters,
     q: &astromech_galaxy::Query,
     game: &GameState,
+    journals: Option<&std::path::Path>,
     now_s: i64,
 ) -> String {
     let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
-        return NO_POSITION.into();
+        return lookup::NO_POSITION.into();
     };
+    if let Some(dir) = journals {
+        // As the app does before a search. Best effort: without them the answer is Spansh's.
+        let _ = galaxy.record_journal_visits(dir);
+    }
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
     let here = astromech_galaxy::Here { system, id64: None, pos };
     match galaxy.nearby(q.id, &here, range, 1, filters) {
@@ -324,6 +324,10 @@ mod tests {
             ("nearest federal system", "fed_composites"),
             ("nearest empire system", "empire_shielding"),
             ("nearest imperial system", "empire_shielding"),
+            ("nearest federation", "fed_composites"),
+            ("nearest federal", "fed_composites"),
+            ("nearest empire", "empire_shielding"),
+            ("nearest imperial", "empire_shielding"),
         ] {
             let m = g.best(phrase);
             let q = astromech_tools::faction::from_command(m.command).map(|q| q.id);
@@ -409,5 +413,21 @@ mod tests {
             answer(&client, &f, &want, &nameless, NOW),
             "Spansh doesn't know Oochoss XY-Z d1-23 yet, so I can't search from it."
         );
+    }
+
+    /// One "position not known" line for every position-based lookup (astromech-ps6t).
+    #[test]
+    fn the_faction_and_powerplay_lookups_share_one_no_position_line() {
+        let client = Arc::new(Client::with_transport(
+            Cache::in_memory().unwrap(),
+            Arc::new(Recorded { page: "refuel", bodies: Mutex::new(vec![]) }),
+        ));
+        let galaxy = astromech_galaxy::Galaxy::with_remote(astromech_galaxy::Store::in_memory().unwrap(), client);
+        let mut game = GameState::default();
+        game.powerplay.power = Some("Archon Delaine".into());
+        let q = &astromech_galaxy::QUERIES[0];
+        assert_eq!(faction_answer(&galaxy, &Filters::default(), q, &game, None, NOW), lookup::NO_POSITION);
+        let t = astromech_galaxy::Target::Undermine;
+        assert_eq!(targets_answer(&galaxy, &Filters::default(), t, &game), lookup::NO_POSITION);
     }
 }

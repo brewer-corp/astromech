@@ -34,12 +34,6 @@ pub fn from_command(command: &str) -> Option<Ask> {
 /// Said when no project is being built.
 pub const NO_PROJECT: &str = "No construction project in progress.";
 
-/// Said when the journal has not given the commander's position yet.
-pub const NO_POSITION: &str = "Your position is not known yet. It comes from the next jump or login.";
-
-/// Said when the galaxy store could not be opened.
-pub const NO_STAR_MAP: &str = "Market lookups are not available: the star map could not be opened.";
-
 /// What the voice tester shows instead of reading the journals.
 pub fn describe(ask: Ask, commodity: Option<&str>) -> String {
     match ask {
