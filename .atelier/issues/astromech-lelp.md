@@ -3,6 +3,9 @@ created_at: "2026-10-17T08:01:20.771980573+00:00"
 id: "astromech-lelp"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-lelp
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "System view from history: honk counts, and only the newest scan per body"
-updated_at: "2026-10-17T08:01:20.771980573+00:00"
+updated_at: "2026-10-17T08:42:10.574763030+00:00"
 ---
 
 ## Goal
