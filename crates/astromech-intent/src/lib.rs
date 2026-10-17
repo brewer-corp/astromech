@@ -168,6 +168,36 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("sites.crashed_ships", &["nearest crashed ship", "find a crashed ship", "nearest wreck site"]),
     ("sites.geological", &["nearest geological sites", "find geological sites", "nearest geology"]),
     ("sites.raw_farms", &["nearest raw material farm", "nearest raw farm", "where can i farm raw materials"]),
+    // Faction-state lookups (astromech-galaxy `QUERIES`, `faction.<id>`): spoken answer, nothing
+    // pressed.
+    (
+        "faction.famine",
+        &[
+            "nearest famine system",
+            "nearest famine",
+            "where is there a famine near me",
+            "find a famine system",
+            "famine near me",
+        ],
+    ),
+    ("faction.proto", &["nearest boom system", "nearest boom", "where is there a boom near me", "find a boom system"]),
+    (
+        "faction.military",
+        &[
+            "nearest war system",
+            "nearest war",
+            "where is there a war near me",
+            "nearest civil war",
+            "find a war system",
+        ],
+    ),
+    (
+        "faction.improvised",
+        &["nearest civil unrest system", "nearest civil unrest", "where is there civil unrest near me"],
+    ),
+    ("faction.pharma", &["nearest outbreak system", "nearest outbreak", "where is there an outbreak near me"]),
+    ("faction.fed_composites", &["nearest federation system", "nearest federal system", "nearest federation faction"]),
+    ("faction.empire_shielding", &["nearest empire system", "nearest imperial system", "nearest empire faction"]),
     (
         "status.system_power",
         &["who controls this system", "who controls the system", "system power", "system powerplay", "powerplay here"],
@@ -187,6 +217,38 @@ pub const MVP: &[(&str, &[&str])] = &[
     (
         "status.merits_here",
         &["what earns merits here", "how do i earn merits here", "merits here", "powerplay activities"],
+    ),
+    // Nearby Powerplay targets for the pledged power (astromech-galaxy `Target`,
+    // `powerplay.<kind>`): spoken answer, nothing pressed.
+    (
+        "powerplay.acquire",
+        &[
+            "where can i acquire near me",
+            "nearest system to acquire",
+            "nearest acquisition target",
+            "nearest acquisition system",
+            "where can i acquire",
+        ],
+    ),
+    (
+        "powerplay.reinforce",
+        &[
+            "where can i reinforce near me",
+            "nearest system to reinforce",
+            "nearest reinforcement target",
+            "nearest system to fortify",
+            "where can i reinforce",
+        ],
+    ),
+    (
+        "powerplay.undermine",
+        &[
+            "where can i undermine near me",
+            "nearest system to undermine",
+            "nearest undermining target",
+            "nearest undermining system",
+            "where can i undermine",
+        ],
     ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
@@ -1036,8 +1098,10 @@ mod tests {
             (m.command, m.slot.as_deref(), m.decision),
             ("plot_route", Some("Shinrarta Dezhra"), Decision::Execute)
         );
-        // a slot with no values never matches well
-        assert_eq!(Grammar::mvp(&["Sol"]).best("nearest bartender").decision, Decision::NoMatch);
+        // a slot with no values never matches well (at most a short "nearest ..." phrase is
+        // offered as "Did you mean …?")
+        let m = Grammar::mvp(&["Sol"]).best("nearest bartender");
+        assert!(m.command != "find.service" && m.decision != Decision::Execute, "{m:?}");
     }
 
     #[test]

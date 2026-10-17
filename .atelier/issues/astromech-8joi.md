@@ -4,6 +4,9 @@ id: "astromech-8joi"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8joi
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T08:01:28.724360873+00:00"
+status: "done"
 title: "Voice query for nearby Powerplay targets"
-updated_at: "2026-10-17T07:38:18.657274444+00:00"
+updated_at: "2026-10-17T08:01:28.724360873+00:00"
 ---
 
 ## Goal
@@ -34,3 +38,7 @@ Phrase templates per target kind, dispatched to the same Spansh search with the 
 ## Context
 
 Found by the S1-S8 validation (astromech-e8ux).
+
+## Close Reason
+
+Powerplay targets (acquire, reinforce, undermine) answer by voice via Galaxy::powerplay_targets for the journal's pledged power with the remembered powerplay.<kind> filters; unpledged commanders are told so; gates green at 63a82c4. Independent review not yet done.

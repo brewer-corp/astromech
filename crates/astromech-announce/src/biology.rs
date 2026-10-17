@@ -3,11 +3,12 @@
 //! lists, species predictions),
 //! and on arrival from what other players reported (Spansh).
 //!
-//! - **On arrival** (`FSDJump`), before any scan: "Known biology on 3 bodies." and the most
-//!   valuable known thing: "A 2: Stratum Tectonicas, 19 M." It comes from a [`KnownBiology`]
-//!   the core plugs in, which answers from what it has and looks the system up in the
-//!   background; an answer that arrives later is said on the clock tick, until the first FSS
-//!   or DSS biology result in the system or a minute after the jump, whichever is first.
+//! - **On arrival** (`FSDJump`, `CarrierJump`, or a login: `Location`, once a system), before any
+//!   scan: "Known biology on 3 bodies." and the most valuable known thing: "A 2: Stratum
+//!   Tectonicas, 19 M." It comes from a [`KnownBiology`] the core plugs in, which answers from
+//!   what it has and looks the system up in the background; an answer that arrives later is
+//!   said on the clock tick, until the first FSS or DSS biology result in the system or a minute
+//!   after the arrival, whichever is first. A failed lookup is tried again within that minute.
 //!   Part of the arrival briefing: it follows `arrival`'s lines.
 //! - **After the FSS**: leaving the FSS scanner (Status.json's `GuiFocus` leaves 9), "Biology on
 //!   3 bodies." and the most valuable body's best genus: "A 2: Stratum, up to 19 M." (the top
@@ -127,6 +128,8 @@ pub fn summary_lines(state: &GameState) -> Vec<String> {
 #[derive(Default)]
 struct Said {
     system: Option<i64>,
+    /// The arrival here (a jump or a login) has been handled: the known biology said or awaited.
+    arrived: bool,
     /// A remote answer still awaited: until this time (Unix seconds).
     waiting_until: Option<i64>,
     /// The last FSS summary said.
@@ -180,14 +183,19 @@ impl Rule for Biology {
         }
         match input {
             Input::Journal(l) => match &l.event {
-                JournalEvent::FsdJump { .. } => match self.ask(state) {
-                    Some(bodies) => say(known_lines(bodies, sys.system())),
-                    None => {
-                        let ts = chrono::DateTime::parse_from_rfc3339(&l.timestamp).ok().map(|t| t.timestamp());
-                        said.waiting_until = ts.map(|t| t + LATE_KNOWN_S);
-                        vec![]
+                // `FsdJump` is a carrier jump too; `Location` a login or a respawn, said once a
+                // system.
+                JournalEvent::FsdJump { .. } | JournalEvent::Location { .. } if !said.arrived => {
+                    said.arrived = true;
+                    match self.ask(state) {
+                        Some(bodies) => say(known_lines(bodies, sys.system())),
+                        None => {
+                            let ts = chrono::DateTime::parse_from_rfc3339(&l.timestamp).ok().map(|t| t.timestamp());
+                            said.waiting_until = ts.map(|t| t + LATE_KNOWN_S);
+                            vec![]
+                        }
                     }
-                },
+                }
                 JournalEvent::Extra(ExtraEvent::SaaSignalsFound(s)) if !s.genuses.is_empty() => {
                     let Some(b) = s.body_id.and_then(|id| biology::body(sys, id)) else {
                         return vec![];

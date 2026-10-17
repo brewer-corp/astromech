@@ -11,6 +11,7 @@ use astromech_gamestate::GameState;
 use astromech_proto::Tier;
 use astromech_status as st;
 
+pub mod faction;
 pub mod session;
 pub mod trade;
 
@@ -19,6 +20,7 @@ pub mod colonisation;
 pub use astromech_policy;
 
 pub mod lookup;
+pub mod targets;
 
 /// Status.json flag bits used here (Frontier's Status file documentation).
 pub mod flags {

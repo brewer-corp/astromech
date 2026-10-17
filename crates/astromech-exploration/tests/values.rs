@@ -164,3 +164,33 @@ fn first_mapped_only_and_stars() {
     assert_eq!(star_value("G", Some(1.0), false), 1218);
     assert_eq!(star_value("G", Some(1.0), true), 3167);
 }
+
+/// A planet the journal calls undiscovered but already mapped is in the pre-Odyssey populated
+/// bubble. EDDI (`DataDefinitions/Body.cs`, `estimateBodyValue`, `isPreOdysseyBubble =
+/// isFirstDiscoverer && !isFirstMapper`) values it as a discovered, mapped body: the 10/3
+/// multiplier, no Odyssey 30% and no x2.6 first-discovery bonus; the efficiency bonus stays.
+#[test]
+fn undiscovered_but_mapped_bodies_get_no_discovery_bonuses() {
+    use astromech_exploration::value::planet_value;
+    let b = ScanBody {
+        body_name: "Bubble 1".into(),
+        planet_class: Some("Water world".into()),
+        mass_em: Some(1.0),
+        was_discovered: Some(false),
+        was_mapped: Some(true),
+        ..Default::default()
+    };
+    let terms = Terms::from_scan(&b);
+    assert!(terms.first_discovery && !terms.first_mapped);
+    let base = planet_value("Water world", false, Some(1.0), EDSM);
+    // EDDI: (k + k q m^0.2) x 3.3333333333 [x 1.25 if efficient].
+    let eddi_mapped = (base as f64 * 3.333_333_333_3).round() as i64;
+    assert!((body_value(&b, terms.mapped(false)).unwrap() - eddi_mapped).abs() <= 1);
+    let eddi_efficient = (base as f64 * 3.333_333_333_3 * 1.25).round() as i64;
+    assert!((body_value(&b, terms.mapped(true)).unwrap() - eddi_efficient).abs() <= 1);
+    // Scanned only: no x2.6 either.
+    assert_eq!(body_value(&b, terms).unwrap(), base);
+    // A star in the same state keeps its first-discovery bonus (EDDI's star value has no such rule).
+    use astromech_exploration::value::star_value;
+    assert_eq!(star_value("G", Some(1.0), true), 3167);
+}

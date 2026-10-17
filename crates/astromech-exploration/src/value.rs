@@ -18,6 +18,10 @@
 //!   10/3 otherwise; since Odyssey the mapped value then gains 30% (at least 555 credits), and
 //!   mapping within the efficiency target another 25%.
 //! - Being the first to discover a body (`WasDiscovered: false`) multiplies the result by 2.6.
+//! - Except a planet that was undiscovered yet already mapped (`WasMapped: true`): the old
+//!   populated bubble, where EDDI's `Body.cs` (`isPreOdysseyBubble`) gives neither the 2.6 nor
+//!   the Odyssey 30%. It is valued as discovered and mapped (10/3), the efficiency bonus kept.
+//!   Stars have no such rule.
 //!
 //! What it doesn't know: whether a body really is the commander's first discovery (the journal
 //! says only whether someone else had it before the scan), selling through a fleet carrier
@@ -71,6 +75,13 @@ impl Terms {
         }
     }
 
+    /// A planet the journal calls undiscovered but already mapped lies in the pre-Odyssey
+    /// populated bubble, where EDDI (`Body.cs`, `isPreOdysseyBubble = isFirstDiscoverer &&
+    /// !isFirstMapper`) gives neither the first-discovery x2.6 nor the Odyssey 30%.
+    pub fn pre_odyssey_bubble(self) -> bool {
+        self.first_discovery && !self.first_mapped
+    }
+
     pub fn mapped(self, efficient: bool) -> Self {
         Self { mapping: Some(Mapping { efficient }), ..self }
     }
@@ -122,6 +133,7 @@ pub fn planet_value(planet_class: &str, terraformable: bool, mass_em: Option<f64
     let k = planet_k(planet_class, terraformable);
     let base = (k + k * PLANET_Q * mass_em.unwrap_or(1.0).powf(PLANET_POWER)).max(MIN_PLANET);
     let mut v = base;
+    let bubble = terms.pre_odyssey_bubble();
     if let Some(m) = terms.mapping {
         let mult = if terms.first_discovery && terms.first_mapped {
             MAP_FIRST_DISCOVERED_AND_MAPPED
@@ -131,14 +143,14 @@ pub fn planet_value(planet_class: &str, terraformable: bool, mass_em: Option<f64
             MAP_ALREADY_MAPPED
         };
         v *= mult;
-        if terms.odyssey {
+        if terms.odyssey && !bubble {
             v += (v * 0.3).max(555.0);
         }
         if m.efficient {
             v *= EFFICIENT;
         }
     }
-    if terms.first_discovery {
+    if terms.first_discovery && !bubble {
         v *= FIRST_DISCOVERY;
     }
     v.round() as i64

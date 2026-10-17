@@ -414,7 +414,6 @@ name = "astromech-odyssey"
 version = "0.1.5"
 dependencies = [
  "astromech-journal",
- "astromech-log",
  "serde",
  "serde_json",
  "tempfile",

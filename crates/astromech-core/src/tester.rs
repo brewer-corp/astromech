@@ -136,10 +136,24 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
             };
         return r;
     }
+    if let Some(q) = astromech_tools::faction::from_command(m.command) {
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, astromech_tools::faction::describe(q)),
+        };
+        return r;
+    }
     if astromech_tools::session::is_summary(m.command) {
         (r.would, r.message) = match m.decision {
             Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
             _ => (Would::Speak, astromech_tools::session::describe()),
+        };
+        return r;
+    }
+    if let Some(target) = astromech_tools::targets::from_command(m.command) {
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, astromech_tools::targets::describe(target)),
         };
         return r;
     }

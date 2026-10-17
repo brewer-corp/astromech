@@ -23,7 +23,7 @@ mod ledgers;
 mod logbook;
 mod session;
 
-pub use exploration::{Landing, UnsoldData};
+pub use exploration::{Landing, UnsoldCache, UnsoldData};
 pub use ledgers::{Commander, Earning, Scan, Ship, Visit};
 pub use logbook::{Logbook, Place, Totals};
 pub use session::{EarningTotal, Session};
@@ -188,6 +188,10 @@ const MIGRATIONS: &[&str] = &[
     // jumps have no jump distance, and PowerplaySalary is an earning.
     "ALTER TABLE visits ADD COLUMN via TEXT NOT NULL DEFAULT '';
      INSERT OR IGNORE INTO pending VALUES ('rebuild');",
+    // v5 — landings by system (astromech-dt5h): `History::landings_before` finds a system's
+    // Touchdown and Disembark rows through this instead of scanning every one.
+    "CREATE INDEX events_landing_system ON events(json_extract(json, '$.SystemAddress'), ts)
+        WHERE event IN ('Touchdown', 'Disembark');",
 ];
 
 /// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done

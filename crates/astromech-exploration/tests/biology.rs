@@ -120,3 +120,24 @@ fn a_dss_genus_the_conditions_do_not_explain_keeps_its_whole_range() {
     assert!(f.species.is_empty());
     assert_eq!(f.value, astromech_exobiology::catalog::genus("Fonticulua").unwrap().value_range());
 }
+
+/// A non-English client writes the species' name in its language; the symbol still pins it.
+#[test]
+fn a_sample_on_a_non_english_client_pins_the_species_by_its_symbol() {
+    let mut s = SystemFold::default();
+    feed(&mut s, ARRIVE);
+    feed(&mut s, SCAN_A2);
+    feed(&mut s, FSS_A2);
+    feed(&mut s, DSS_A2);
+    // Stratum Excutitus (a species the conditions don't single out here), in German.
+    let sample = SAMPLE_A2.replace("Stratum_07", "Stratum_01").replace(
+        "\"Species_Localised\":\"Stratum Tectonicas\"",
+        "\"Species_Localised\":\"Stratum excutitus (Deutsch)\"",
+    );
+    feed(&mut s, &sample);
+    let b = &ranked(&s)[0];
+    let stratum = b.genera.iter().find(|g| g.genus == "Stratum").unwrap();
+    let named: Vec<&str> = stratum.species.iter().map(|c| c.species).collect();
+    assert_eq!(named, ["Stratum Excutitus"]);
+    assert_eq!(stratum.value, (2_448_900, 2_448_900));
+}

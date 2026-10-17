@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:19:41.206256062+00:00"
 id: "astromech-e8up"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-e8up
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T07:46:29.884385494+00:00"
+status: "done"
 title: "Exploration values: no discovery bonuses for bodies already mapped in the bubble"
-updated_at: "2026-10-17T05:19:41.206256062+00:00"
+updated_at: "2026-10-17T07:46:29.884385494+00:00"
 ---
 
 ## Goal
@@ -26,3 +30,7 @@ Bodies with WasDiscovered false but WasMapped true (the old populated bubble) st
 ## Done when
 
 A value test for a WasDiscovered=false, WasMapped=true body matches EDDI's estimate.
+
+## Close Reason
+
+Pre-Odyssey bubble rule per EDDI Body.cs; ring doc comments (astromech-99ki) fixed

@@ -18,5 +18,5 @@ pub mod system;
 pub mod unsold;
 pub mod value;
 
-pub use system::{BodyView, SystemFold, SystemView};
+pub use system::{BodyView, SystemFold, SystemView, SystemViewCache};
 pub use unsold::{Unsold, UnsoldFold};
