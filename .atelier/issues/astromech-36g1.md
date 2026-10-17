@@ -4,6 +4,9 @@ id: "astromech-36g1"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-36g1
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "The game's journal is never live when a journal name's stamp disagrees with real time"
-updated_at: "2026-10-17T20:20:34.481956351+00:00"
+updated_at: "2026-10-17T21:07:40.305590960+00:00"
 ---
 
 ## Goal
@@ -32,3 +35,7 @@ The game's own journal is live even when the folder holds a journal whose name s
 ## Context
 
 Found in review of astromech-0d7l (findings R2 and F1). Since 0d7l, Tailer::open treats only the folder's latest journal by name stamp (astromech_journal::latest_journal) as live. In these cases EDDN, EDSM and callouts go quiet with no log line until real time passes the stamp. One option is "latest by stamp, or created after we started".
+
+## Notes
+
+- 2026-10-17 [note] Check of the claim that the game names journals in local time: confirmed on real journals. All 22 files in ~/edjournal (Odyssey names, Journal.YYYY-MM-DDTHHMMSS.NN.log, October 2026) have a stamp exactly 4.0 h behind their Fileheader's UTC timestamp, on an America/New_York machine in EDT (-0400); for example a 13:35:02 stamp has a 17:34:54Z header. So the stamp is local start time and the US fall-back (1 Nov 2026) will name the next session up to an hour earlier than the previous one. Documentation does not say (the Frontier Journal Manual v30 and elite-journal.readthedocs only say the header timestamp is GMT; kayahr/ed-journal and ed-journals say nothing). One machine and one offset, so DST handling and other timezones are inferred, not observed. The names and offsets are recorded here; no journal content is committed. Rule chosen: a journal is the game's if it is the folder's latest by stamp, or its stamp is within 120 s of local wall-clock time (checked when we open it), or it shares the stamp of a session already judged the game's (later parts). A restored, copied or touched older journal has an old stamp so stays a replay; conflict copies have no stamp. Not covered: an app started after DST rolled back while the game's session is already running (that journal is not latest and its stamp is old; it stays quiet until a new session).
