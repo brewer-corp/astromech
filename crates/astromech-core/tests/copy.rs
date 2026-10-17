@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan, signals};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable"],
+        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable", "signals"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -56,6 +56,17 @@ fn callout_lines() -> Vec<String> {
             let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0), new_stretch: true };
             v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
         }
+    }
+    for (ty, name) in [
+        ("USS", "$Warzone_TG_VeryHigh:#index=1;"),
+        ("USS", "$Warzone_Powerplay_Med;"),
+        ("Combat", "$Warzone_PointRace_Med:#index=1;"),
+        ("$USS_Type_NonHuman;", "$USS_NonHumanSignal;"),
+        ("$USS_Type_PowerEmissions;", "$USS_PowerEmissions;"),
+        ("Titan", "Titan"),
+        ("Megaship", "Ship"),
+    ] {
+        v.extend(signals::line(ty, Some(name)));
     }
     v.push(hge::line(None, &[]));
     for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {
