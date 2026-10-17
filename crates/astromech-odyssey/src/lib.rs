@@ -18,7 +18,7 @@ pub mod shopping;
 pub use catalog::catalog;
 pub use engineers::{EngineerLine, Progress};
 pub use inventory::{Holdings, ItemLine};
-pub use owned::{Owned, OwnedGear};
+pub use owned::{Log, Owned, OwnedGear};
 pub use shopping::{shopping, Pick, Shopping};
 
 use serde::Serialize;
@@ -75,7 +75,7 @@ pub struct JournalState {
 
 /// Read every journal once for `EngineerProgress` and the suit and weapon events (only those
 /// lines are parsed).
-pub fn journal_state(dir: &Path) -> JournalState {
+pub fn journal_state(dir: &Path, log: Log) -> JournalState {
     const EVENTS: [&str; 10] = [
         "\"EngineerProgress\"",
         "\"BuySuit\"",
@@ -97,7 +97,7 @@ pub fn journal_state(dir: &Path) -> JournalState {
                     engineers::apply(&mut st.progress, &l.event);
                 }
             } else if let Ok(v) = serde_json::from_str(line.trim()) {
-                st.owned.apply(&v);
+                st.owned.apply(&v, log);
             }
         }
     }
@@ -158,7 +158,7 @@ pub fn view(h: &Holdings, state: &JournalState, source: &str) -> OdysseyView {
 /// The synthetic fixtures (app window sample): a ShipLocker, a Backpack and a journal.
 pub fn sample() -> (Holdings, JournalState) {
     let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
-    (Holdings::from_journal_dir(&dir), journal_state(&dir))
+    (Holdings::from_journal_dir(&dir), journal_state(&dir, &|s| eprintln!("{s}")))
 }
 
 #[cfg(test)]
@@ -309,12 +309,13 @@ mod tests {
     fn a_later_loadout_replaces_the_mods_and_events_for_unknown_gear_are_ignored() {
         let mut o = Owned::default();
         let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
-        o.apply(&line(r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class3","SuitMods":["suit_nightvision","suit_notamod"],"Modules":[]}"#));
-        o.apply(&line(r#"{"event":"SwitchSuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class4","SuitMods":["suit_improvedarmourrating"],"Modules":[]}"#));
-        o.apply(&line(
-            r#"{"event":"BuyWeapon","Name":"Wpn_X_Plasma_Pistol","Class":1,"SuitModuleID":9,"WeaponMods":[]}"#,
-        ));
-        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"UtilitySuit_Class9","SuitID":2,"Class":9,"Cost":0}"#));
+        o.apply(&line(r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class3","SuitMods":["suit_nightvision","suit_notamod"],"Modules":[]}"#), &|_| {});
+        o.apply(&line(r#"{"event":"SwitchSuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class4","SuitMods":["suit_improvedarmourrating"],"Modules":[]}"#), &|_| {});
+        o.apply(
+            &line(r#"{"event":"BuyWeapon","Name":"Wpn_X_Plasma_Pistol","Class":1,"SuitModuleID":9,"WeaponMods":[]}"#),
+            &|_| {},
+        );
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"UtilitySuit_Class9","SuitID":2,"Class":9,"Cost":0}"#), &|_| {});
         let g = o.gear();
         assert_eq!(g.len(), 1);
         assert_eq!(
@@ -324,14 +325,30 @@ mod tests {
     }
 
     #[test]
+    fn an_unknown_mod_is_reported_once_through_the_injected_callback() {
+        let said = std::sync::Mutex::new(Vec::<String>::new());
+        let log = |s: &str| said.lock().unwrap().push(s.to_string());
+        let ev: serde_json::Value = serde_json::from_str(
+            r#"{"event":"SuitLoadout","SuitID":1,"SuitName":"tacticalsuit_class3","SuitMods":["suit_captured_by_test"],"Modules":[]}"#,
+        )
+        .unwrap();
+        let mut o = Owned::default();
+        o.apply(&ev, &log);
+        o.apply(&ev, &log);
+        let said = said.into_inner().unwrap();
+        assert_eq!(said.len(), 1, "once: {said:?}");
+        assert!(said[0].contains("suit_captured_by_test"), "{said:?}");
+    }
+
+    #[test]
     fn upgrading_keeps_the_mods_and_the_name_not_the_localised_text_identifies_gear() {
         let mut o = Owned::default();
         let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
-        o.apply(&line(r#"{"event":"BuySuit","Name":"UtilitySuit_Class2","Name_Localised":"$UtilitySuit_Class1_Name;","Price":1,"SuitID":7,"SuitMods":["suit_nightvision"]}"#));
+        o.apply(&line(r#"{"event":"BuySuit","Name":"UtilitySuit_Class2","Name_Localised":"$UtilitySuit_Class1_Name;","Price":1,"SuitID":7,"SuitMods":["suit_nightvision"]}"#), &|_| {});
         // The purchase alone sets the grade, from the Name suffix.
         assert_eq!((o.gear()[0].gear.as_str(), o.gear()[0].grade), ("maverick", 2));
-        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"utilitysuit_class3","SuitID":7,"Class":3,"Cost":1}"#));
-        o.apply(&line(r#"{"event":"BuyWeapon","Name":"Wpn_S_Pistol_Laser_SAuto","Name_Localised":"Zenith en francais","Class":2,"Price":1,"SuitModuleID":8,"WeaponMods":["weapon_suppression_unpressurised"]}"#));
+        o.apply(&line(r#"{"event":"UpgradeSuit","Name":"utilitysuit_class3","SuitID":7,"Class":3,"Cost":1}"#), &|_| {});
+        o.apply(&line(r#"{"event":"BuyWeapon","Name":"Wpn_S_Pistol_Laser_SAuto","Name_Localised":"Zenith en francais","Class":2,"Price":1,"SuitModuleID":8,"WeaponMods":["weapon_suppression_unpressurised"]}"#), &|_| {});
         let g = o.gear();
         assert_eq!(
             (g[0].gear.as_str(), g[0].grade, g[0].mods.as_slice()),
@@ -371,6 +388,6 @@ mod tests {
         std::fs::write(d.path().join("ShipLocker.json"), "{\"timestamp\":").unwrap();
         let h = Holdings::from_journal_dir(d.path());
         assert_eq!(h, Holdings::default());
-        assert_eq!(journal_state(d.path()), JournalState::default());
+        assert_eq!(journal_state(d.path(), &|_| {}), JournalState::default());
     }
 }

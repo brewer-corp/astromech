@@ -86,6 +86,24 @@ impl Paths {
         if self.portable { self.exe_dir.join("astromech-data") } else { self.app_dir.clone() }.join("logs")
     }
 
+    /// Carries a user file from the app dir (where the window kept it before `data_dir` applied to
+    /// it) to `data_dir`, once: copies `name` only if the app dir has it and `data_dir` doesn't.
+    /// Never overwrites or deletes either file. Returns whether it copied.
+    pub fn carry_over(&self, name: &str, data_dir: &Path) -> std::io::Result<bool> {
+        let (from, to) = (self.app_dir.join(name), data_dir.join(name));
+        if from == to || !from.is_file() || to.exists() {
+            return Ok(false);
+        }
+        std::fs::create_dir_all(data_dir)?;
+        let mut src = std::fs::File::open(&from)?;
+        // `create_new` so a file that appears meanwhile is never overwritten.
+        match std::fs::OpenOptions::new().write(true).create_new(true).open(&to) {
+            Ok(mut dst) => std::io::copy(&mut src, &mut dst).map(|_| true),
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => Ok(false),
+            Err(e) => Err(e),
+        }
+    }
+
     /// The game's journal folder: the config's `game.journal_dir` if set, else
     /// `%USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous`; `None` without either.
     pub fn journal_dir(&self, configured: &str) -> Option<PathBuf> {
@@ -187,5 +205,29 @@ mod tests {
         std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
         let portable = Paths::new(exe.path().into(), env(&[("LOCALAPPDATA", "/l")]));
         assert_eq!(portable.data_dir("/d"), Path::new("/d"));
+    }
+
+    #[test]
+    fn overrides_in_the_old_app_dir_are_found_in_the_data_dir_once() {
+        let (app, exe, data) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let home = app.path().to_str().unwrap().to_string();
+        let p = Paths::new(exe.path().into(), env(&[("LOCALAPPDATA", &home)]));
+        let old = p.app_dir().join("device-overrides.json");
+        std::fs::create_dir_all(p.app_dir()).unwrap();
+        std::fs::write(&old, "mine").unwrap();
+        let dir = p.data_dir(data.path().to_str().unwrap());
+        let new = dir.join("device-overrides.json");
+
+        assert!(p.carry_over("device-overrides.json", &dir).unwrap(), "first call copies");
+        assert_eq!(std::fs::read_to_string(&new).unwrap(), "mine");
+        assert_eq!(std::fs::read_to_string(&old).unwrap(), "mine", "the old file stays");
+
+        std::fs::write(&new, "edited").unwrap();
+        assert!(!p.carry_over("device-overrides.json", &dir).unwrap(), "once only");
+        assert_eq!(std::fs::read_to_string(&new).unwrap(), "edited", "never overwritten");
+        // Same folder (the default layout), or nothing to carry: no-ops.
+        assert!(!p.carry_over("device-overrides.json", p.app_dir()).unwrap());
+        assert!(!p.carry_over("absent.json", &dir).unwrap());
     }
 }
