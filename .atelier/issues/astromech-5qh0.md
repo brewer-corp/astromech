@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T21:43:07.393243889+00:00"
+status: "done"
 title: "Agent walk of every app screen"
-updated_at: "2026-10-17T21:26:36.026313933+00:00"
+updated_at: "2026-10-17T21:43:07.393243889+00:00"
 ---
 
 ## Goal
@@ -40,3 +41,7 @@ A note lists every page with ok or the issue filed or fixed for it, with the scr
   OK: controller, engineering ships, materials, on foot, engineers, outfitting, shipyard, services, route (empty, plotted, 900/1400), trade, colonisation, exploration, exobiology (incl. Elite not running), powerplay, logbook, session, mining, station, settings (callouts, prospector thresholds), data sharing, diagnostics, voice tester (learned phrases), setup wizard (all 6 steps, empty/new, 900/1400), command palette, bind dialog. Console 404 is favicon.ico in the preview only.
   FILED: astromech-x81p (preview cannot show empty/loading/error for fixture-backed pages, so those states were NOT seen: engineering, materials, logbook, session, mining, station, trade, colonisation, exploration, powerplay, data sharing, diagnostics); astromech-ak62 (header wraps at 900, Powerplay gap).
   Frontend checks after the change: pnpm lint, check, build, test (216 pass), scripts/check-guide.py (0 problems).
+
+## Close Reason
+
+Every page and state walked at 900 and 1400 px; visible problems fixed with state tests (PR #140); gaps filed as astromech-x81p (alpha), astromech-ak62 and astromech-pd3h.
