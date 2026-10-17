@@ -1,4 +1,4 @@
-//! Faction states seen on arrival. Every `FSDJump` and `Location` carries the system's factions
+//! Faction states seen on arrival. Every `FSDJump`, `CarrierJump` and `Location` carries the system's factions
 //! and their active states, which is newer than Spansh's copy for any system the commander has
 //! just visited. [`crate::Galaxy::record_visits`] keeps the newest per system, and the faction
 //! lookups prefer it over an older Spansh answer.
@@ -45,7 +45,7 @@ pub fn faction(f: &FactionSnap) -> Faction {
     }
 }
 
-/// The newest visit per system in `lines` (jumps without a `SystemAddress` or factions are
+/// The newest visit per system in `lines` (`FSDJump`, `CarrierJump` and `Location` arrivals; jumps without a `SystemAddress` or factions are
 /// skipped: an empty faction list is no news).
 pub fn visits_from_lines<'a>(lines: impl IntoIterator<Item = &'a JournalLine>) -> Vec<Visit> {
     let mut by_id: HashMap<i64, Visit> = HashMap::new();
