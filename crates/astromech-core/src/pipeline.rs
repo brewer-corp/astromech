@@ -2061,4 +2061,41 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, sent + 1, "the game's journal is still live");
     }
+
+    /// A foreign journal stamped later and touched takes the session while the game is quiet, but
+    /// the game's own next fresh line takes it back, and the foreign one is then a replay however
+    /// often it is touched again.
+    #[test]
+    fn the_games_journal_takes_the_session_back_from_a_touched_foreign_one() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(0)), d.path().join(game_name(180)));
+        std::fs::write(&own, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert!(sent >= 1, "the game's fresh line is live");
+
+        for n in 1..=2u64 {
+            let before = eddn_state(&db).0;
+            append(&foreign, &docked(&ts(200)));
+            touch(&foreign, 20 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+            assert_eq!(eddn_state(&db).0, before, "touch {n}: the foreign journal is a replay now");
+            append(&own, &docked(&ts(0)));
+            touch(&own, 25 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(eddn_state(&db).0, before + 1, "the game's journal is live again");
+        }
+    }
 }
