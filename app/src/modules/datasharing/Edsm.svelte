@@ -15,17 +15,22 @@
   let logError = $state("");
 
   let readErr = $state<string | null>(null);
-  async function refresh(first = false) {
+  /** The name field takes the saved commander once, from the first read that works. */
+  let seeded = false;
+  async function refresh() {
     try {
       st = await edsmStatus();
       readErr = null;
-      if (first && st) commander = st.commander;
+      if (!seeded) {
+        seeded = true;
+        commander = st.commander;
+      }
     } catch (e) {
       readErr = pollFailure("read the EDSM status", e, st !== null);
     }
   }
   $effect(() => {
-    void refresh(true);
+    void refresh();
     const t = setInterval(() => void refresh(), 2000);
     return () => clearInterval(t);
   });

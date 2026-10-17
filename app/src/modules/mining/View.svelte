@@ -36,7 +36,7 @@
   {:else if failed && !run}
     <p class="sub">{failed}</p>
   {:else if !run}
-    <p class="sub">The core isn't running, so there is no mining run to show.</p>
+    <p class="sub">No mining run yet.</p>
   {:else if !run.started}
     <p class="sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
   {:else}

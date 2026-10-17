@@ -30,6 +30,19 @@ describe("EDSM, first read failing", () => {
   });
 });
 
+describe("EDSM, first read failing then working", () => {
+  it("fills the commander name from the first read that works, so Save cannot write an empty name", async () => {
+    edsm.status.mockReset();
+    edsm.status.mockRejectedValueOnce("the core is not running");
+    edsm.status.mockResolvedValue({ ...STATUS, commander: "Jameson" });
+    render(Edsm as unknown as Component);
+    await screen.findByText(/Could not read the EDSM status/);
+    await vi.advanceTimersByTimeAsync(2000);
+    const field = (await screen.findByLabelText("Commander name")) as HTMLInputElement;
+    expect(field.value).toBe("Jameson");
+  });
+});
+
 describe("pollFailure", () => {
   it("is the full error with nothing shown and 'Could not refresh' once there is data", () => {
     expect(pollFailure("read the fleet", "journal folder not found: C:\\x", false)).toBe("Could not read the fleet: journal folder not found: C:\\x.");
