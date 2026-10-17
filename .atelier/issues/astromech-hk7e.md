@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:47:48.456521773+00:00"
 id: "astromech-hk7e"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-hk7e
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Session summary: a replay during the wait drops a pending summary"
-updated_at: "2026-10-17T05:47:48.456521773+00:00"
+updated_at: "2026-10-17T06:13:24.044802900+00:00"
 ---
 
 ## Goal
