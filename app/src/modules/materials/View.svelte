@@ -4,6 +4,7 @@
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import Sites from "../../lib/ui/Sites.svelte";
+  import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let inv = $state<Inventory | null>(null);
@@ -92,7 +93,7 @@
   </p>
   {#if kindId === "manufactured" && inv?.here}
     <p class="sub here">
-      <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`}
+      <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />
     </p>
   {/if}
 

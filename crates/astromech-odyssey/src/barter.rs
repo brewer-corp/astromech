@@ -152,7 +152,7 @@ mod tests {
             Pick::Mod { id: "nightvision".into(), maker: None },
             Pick::Upgrade { gear: "karmap15".into(), from: 1, to: 2 },
         ];
-        let s = shopping(&picks, &h, &p);
+        let s = shopping(&picks, &h, &p.progress);
         assert_eq!(s.barter_short, 77);
         let t = &s.trade;
         assert_eq!(t.swaps.len(), 1);

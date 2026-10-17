@@ -33,6 +33,9 @@ pub struct Upgrade {
 pub struct Gear {
     pub id: String,
     pub name: String,
+    /// What the journal calls it, lowercase: a suit's symbol before `_class<grade>`
+    /// (`utilitysuit`), a weapon's `Name` / `ModuleName` (`wpn_m_assaultrifle_kinetic_fauto`).
+    pub journal: String,
     /// Weapons only: `kinematic`, `manticore` or `takada` (modification costs differ by maker).
     #[serde(default)]
     pub maker: Option<String>,
@@ -54,6 +57,8 @@ pub struct Modification {
     pub name: String,
     /// `suit` or `weapon`.
     pub kind: String,
+    /// The name in `SuitMods` / `WeaponMods` (`suit_increasedo2capacity`).
+    pub journal: String,
     pub costs: Vec<ModCost>,
 }
 
@@ -155,6 +160,31 @@ mod tests {
             assert!(e.mods.iter().all(|m| c.modification(m).is_some()), "{}", e.name);
             assert!(e.referred_by.iter().all(|r| c.engineers.iter().any(|x| &x.name == r)), "{}", e.name);
         }
+    }
+
+    #[test]
+    fn every_suit_weapon_and_mod_has_its_own_journal_name() {
+        let c = catalog();
+        let mut seen = std::collections::BTreeSet::new();
+        for g in c.suits.iter().chain(&c.weapons) {
+            assert_eq!(g.journal, g.journal.to_ascii_lowercase(), "{}", g.name);
+            let weapon = !c.is_suit(&g.id);
+            assert_eq!(g.journal.starts_with("wpn_"), weapon, "{}", g.name);
+            assert!(seen.insert(&g.journal), "{} shares its journal name", g.name);
+        }
+        for m in &c.mods {
+            assert!(m.journal.starts_with(&format!("{}_", m.kind)), "{}: {}", m.name, m.journal);
+            assert!(seen.insert(&m.journal), "{} shares its journal name", m.name);
+        }
+        // Journal names from real journals (jixxed/ed-journal-schemas examples; EDCD/EDDI).
+        let by = |j: &str| c.mods.iter().find(|m| m.journal == j).map(|m| m.id.as_str());
+        assert_eq!(by("suit_increasedo2capacity"), Some("increasedairreserves"));
+        assert_eq!(by("weapon_clipsize"), Some("magazinesize"));
+        assert_eq!(by("weapon_backpackreloading"), Some("stowedreloading"));
+        assert_eq!(
+            c.weapons.iter().find(|g| g.journal == "wpn_m_assaultrifle_kinetic_fauto").map(|g| g.name.as_str()),
+            Some("Karma AR-50")
+        );
     }
 
     #[test]
