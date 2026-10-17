@@ -38,6 +38,16 @@ pub enum Ui {
     Quit,
 }
 
+/// The config file this run uses (`--config`, else the default), told to the app window so it
+/// reads the same one (`Paths::config_in_use`).
+fn choose_config(opts: &Opts, paths: &Paths) -> PathBuf {
+    let path = opts.config.clone().unwrap_or_else(|| paths.config_file());
+    if let Err(e) = paths.publish_config(&path) {
+        log(&format!("couldn't note the config path for the window: {e}"));
+    }
+    path
+}
+
 /// Whether the config file loaded, and the file as last looked at (modified time and size).
 #[derive(Default)]
 pub struct ConfigWatch {
@@ -132,6 +142,10 @@ impl Core {
     /// and clear the error, so a fix needs no restart. A file that loaded is never re-read here
     /// (edits to a working file apply at the next start, as before).
     pub fn refresh_config(&self) {
+        // The usual case (a good file) costs one look and never waits on an edit in progress.
+        if self.config_watch.lock().unwrap().note.is_none() {
+            return;
+        }
         let _g = self.config_lock.lock().unwrap_or_else(|e| e.into_inner());
         let mut w = self.config_watch.lock().unwrap();
         if w.note.is_none() {
@@ -1151,10 +1165,7 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
-    if let Err(e) = paths.publish_config(&config_path) {
-        log(&format!("couldn't note the config path for the window: {e}"));
-    }
+    let config_path = choose_config(&opts, &paths);
     let config_exists = config_path.is_file();
     let (mut cfg, config_watch) = if config_exists {
         match Config::load(&config_path) {
@@ -1641,6 +1652,8 @@ mod tests {
     /// `app/src/lib/core-reply-shapes.json`; the app's `fakecore.contract.test.ts` holds the
     /// fake to the same file, so neither can change alone. Refresh the file after a deliberate
     /// change with `ASTROMECH_UPDATE_SHAPES=1 cargo test -p astromech-core reply_shapes`.
+    /// It compares keys of the success replies in one scenario; not value types, array items,
+    /// error replies or the words a field may hold (a `verdict`, say).
     #[test]
     fn setup_and_calibration_reply_shapes_match_the_window_fake() {
         use crate::calibration::{handle, Clip};
@@ -1691,5 +1704,47 @@ mod tests {
             got, want,
             "the core's reply shapes changed: update core-reply-shapes.json (see this test) and fakecore.ts"
         );
+    }
+
+    /// Done-when for astromech-c9em: a Bindings folder pasted in onboarding (`set_folders`, which
+    /// the core writes to its config) is what the window reads, in the default, portable and
+    /// `--config` layouts.
+    #[test]
+    fn a_pasted_bindings_folder_is_what_the_window_reads_in_every_layout() {
+        use astromech_store::window::WindowConfig;
+        let env = |app: &Path| {
+            let app = app.to_path_buf();
+            move |k: &str| (k == "XDG_DATA_HOME").then(|| app.clone().into_os_string())
+        };
+        let paste = |config: &Path, dir: &str| {
+            crate::setup::write(config, &[crate::setup::Edit::BindingsDir(dir.into())]).unwrap();
+        };
+        // `--config` somewhere else, with the window's Paths made afresh as the shell does.
+        for layout in ["default", "portable", "--config"] {
+            let (exe, app, elsewhere) =
+                (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+            if layout == "portable" {
+                std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
+            }
+            let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
+            let mut opts = Opts::default();
+            if layout == "--config" {
+                opts.config = Some(elsewhere.path().join("mine.toml"));
+            }
+            let used = choose_config(&opts, &paths());
+            paste(&used, "D:\\Pasted\\Bindings");
+            let seen = WindowConfig::load(&paths());
+            assert_eq!(seen.game.bindings_dir, "D:\\Pasted\\Bindings", "{layout}");
+            if layout == "--config" {
+                assert_eq!(used, elsewhere.path().join("mine.toml"));
+            }
+        }
+        // A later start without --config takes the window back to the default file.
+        let (exe, app) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
+        let custom = app.path().join("other.toml");
+        choose_config(&Opts { config: Some(custom), ..Opts::default() }, &paths());
+        choose_config(&Opts::default(), &paths());
+        assert_eq!(paths().config_in_use(), paths().config_file());
     }
 }

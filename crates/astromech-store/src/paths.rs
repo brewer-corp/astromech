@@ -73,6 +73,8 @@ impl Paths {
     /// without `--config` replaces an earlier one's.
     pub fn publish_config(&self, path: &Path) -> std::io::Result<()> {
         std::fs::create_dir_all(&self.app_dir)?;
+        // Absolute, since the window's working folder isn't the core's.
+        let path = std::path::absolute(path)?;
         std::fs::write(self.app_dir.join(CONFIG_IN_USE), path.to_string_lossy().as_bytes())
     }
 
@@ -245,6 +247,9 @@ mod tests {
         p.publish_config(&custom).unwrap();
         assert_eq!(mk().config_in_use(), custom);
         assert!(std::fs::read_to_string(mk().config_in_use()).unwrap().contains("/pasted"));
+        // A relative --config is published as an absolute path (the window's folder differs).
+        p.publish_config(Path::new("rel.toml")).unwrap();
+        assert!(mk().config_in_use().is_absolute() && mk().config_in_use().ends_with("rel.toml"));
         // A later start without --config takes the file back.
         p.publish_config(&p.config_file()).unwrap();
         assert_eq!(mk().config_in_use(), p.config_file());
