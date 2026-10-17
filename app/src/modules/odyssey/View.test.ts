@@ -74,10 +74,10 @@ it("removes and adds picks, and keeps them", async () => {
   await fireEvent.change(screen.getByLabelText("Modification"), { target: { value: "headshotdamage" } });
   // A weapon mod's cost depends on the maker, so it needs one.
   expect((add as HTMLButtonElement).disabled).toBe(true);
-  await fireEvent.change(screen.getByLabelText("Weapon maker"), { target: { value: "takada" } });
+  await fireEvent.change(screen.getByLabelText("Weapon maker"), { target: { value: "manticore" } });
   await fireEvent.click(add);
   const saved = JSON.parse(localStorage.getItem("astromech.odyssey.picks")!) as unknown[];
-  expect(saved.at(-1)).toEqual({ kind: "mod", id: "headshotdamage", maker: "takada" });
+  expect(saved.at(-1)).toEqual({ kind: "mod", id: "headshotdamage", maker: "manticore" });
   expect(saved).toHaveLength(3);
   // Adding the same pick twice does nothing.
   await fireEvent.click(add);
@@ -134,4 +134,30 @@ it("shows a pick the game data no longer has on its own card, and the rest of th
   expect(screen.getByText("Shopping list")).toBeTruthy();
   await fireEvent.click(within(bad).getByRole("button", { name: "Remove oldsuit grade 1 → 2" }));
   expect(saved()).toEqual([good]);
+});
+
+it("starts an owned suit's upgrade at a grade it has and leaves out mods already fitted", async () => {
+  render(View);
+  await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
+  // From the journal: a Maverick at G1 and another at G3, and what is fitted to them.
+  expect((await screen.findByText(/Owned \(from the journal\)/)).textContent).toContain("Maverick Suit G3");
+  const gear = screen.getByLabelText("Suit or weapon") as HTMLSelectElement;
+  await fireEvent.change(gear, { target: { value: "maverick" } });
+  const opts = (label: string) => [...(screen.getByLabelText(label) as HTMLSelectElement).options].map((o) => o.textContent);
+  expect(opts("From grade")).toEqual(["G1", "G3"]);
+  expect(opts("To grade")).toEqual(["G2", "G3", "G4", "G5"]);
+  await fireEvent.change(screen.getByLabelText("From grade"), { target: { value: "3" } });
+  expect(opts("To grade")).toEqual(["G4", "G5"]);
+  // A suit the commander doesn't own is still a free choice.
+  await fireEvent.change(gear, { target: { value: "artemis" } });
+  expect(opts("From grade")).toEqual(["G1", "G2", "G3", "G4"]);
+  // Stability is on every owned weapon; Takada's Headshot Damage is on the Aphelion.
+  await fireEvent.change(screen.getByLabelText("Blueprint type"), { target: { value: "mod" } });
+  const mods = [...(screen.getByLabelText("Modification") as HTMLSelectElement).options].map((o) => o.textContent);
+  expect(mods).not.toContain("Stability");
+  expect(mods).toContain("Night Vision");
+  await fireEvent.change(screen.getByLabelText("Modification"), { target: { value: "headshotdamage" } });
+  const makers = [...(screen.getByLabelText("Weapon maker") as HTMLSelectElement).options].map((o) => o.textContent);
+  expect(makers).not.toContain("Takada");
+  expect(makers).toContain("Kinematic Armaments");
 });

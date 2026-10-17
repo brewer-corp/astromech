@@ -1,0 +1,16 @@
+{ "timestamp":"2026-10-14T13:00:00Z", "event":"Fileheader", "part":1, "language":"English/UK", "Odyssey":true, "gameversion":"4.2.0.0", "build":"r000000/r0 " }
+{ "timestamp":"2026-10-14T13:00:10Z", "event":"BuySuit", "Name":"UtilitySuit_Class1", "Name_Localised":"Maverick Suit", "Price":150000, "SuitID":1700000001 }
+{ "timestamp":"2026-10-14T13:00:20Z", "event":"BuySuit", "Name":"TacticalSuit_Class1", "Name_Localised":"Dominator Suit", "Price":150000, "SuitID":1700000002 }
+{ "timestamp":"2026-10-14T13:00:30Z", "event":"BuySuit", "Name":"ExplorationSuit_Class1", "Name_Localised":"Artemis Suit", "Price":150000, "SuitID":1700000003 }
+{ "timestamp":"2026-10-14T13:00:40Z", "event":"UpgradeSuit", "Name":"TacticalSuit_Class1", "Name_Localised":"Dominator Suit", "SuitID":1700000002, "Class":2, "Cost":600000 }
+{ "timestamp":"2026-10-14T13:00:50Z", "event":"SellSuit", "Name":"ExplorationSuit_Class1", "Name_Localised":"Artemis Suit", "SuitID":1700000003, "Price":150000 }
+{ "timestamp":"2026-10-14T13:01:00Z", "event":"BuySuit", "Name":"UtilitySuit_Class1", "Name_Localised":"Maverick Suit", "Price":150000, "SuitID":1700000004 }
+{ "timestamp":"2026-10-14T13:01:10Z", "event":"UpgradeSuit", "Name":"UtilitySuit_Class1", "Name_Localised":"Maverick Suit", "SuitID":1700000004, "Class":2, "Cost":600000 }
+{ "timestamp":"2026-10-14T13:01:20Z", "event":"UpgradeSuit", "Name":"UtilitySuit_Class1", "Name_Localised":"Maverick Suit", "SuitID":1700000004, "Class":3, "Cost":2250000 }
+{ "timestamp":"2026-10-14T13:02:00Z", "event":"BuyWeapon", "Name":"Wpn_M_AssaultRifle_Kinetic_FAssault", "Name_Localised":"Karma AR-50", "Price":50000, "SuitModuleID":1800000001 }
+{ "timestamp":"2026-10-14T13:02:10Z", "event":"UpgradeWeapon", "Name":"Wpn_M_AssaultRifle_Kinetic_FAssault", "Name_Localised":"Karma AR-50", "SuitModuleID":1800000001, "Class":2, "Cost":150000 }
+{ "timestamp":"2026-10-14T13:02:20Z", "event":"BuyWeapon", "Name":"Wpn_M_AssaultRifle_Laser_FAssault", "Name_Localised":"TK Aphelion", "Price":50000, "SuitModuleID":1800000002 }
+{ "timestamp":"2026-10-14T13:02:30Z", "event":"BuyWeapon", "Name":"Wpn_M_AssaultRifle_Plasma_FAssault", "Name_Localised":"Manticore Oppressor", "Price":50000, "SuitModuleID":1800000003 }
+{ "timestamp":"2026-10-14T13:02:40Z", "event":"SellWeapon", "Name":"Wpn_M_AssaultRifle_Plasma_FAssault", "Name_Localised":"Manticore Oppressor", "Price":25000, "SuitModuleID":1800000003 }
+{ "timestamp":"2026-10-14T13:03:00Z", "event":"SuitLoadout", "SuitID":1700000001, "SuitName":"utilitysuit_class1", "SuitName_Localised":"Maverick Suit", "LoadoutID":4293000001, "LoadoutName":"Explore", "SuitMods":[ "suit_nightvision", "suit_increasedairreserves" ], "Modules":[ { "SlotName":"PrimaryWeapon1", "SuitModuleID":1800000001, "ModuleName":"wpn_m_assaultrifle_kinetic_fassault", "ModuleName_Localised":"Karma AR-50", "Class":2, "WeaponMods":[ "weapon_stability" ] }, { "SlotName":"PrimaryWeapon2", "SuitModuleID":1800000002, "ModuleName":"wpn_m_assaultrifle_laser_fassault", "ModuleName_Localised":"TK Aphelion", "Class":1, "WeaponMods":[ "weapon_stability", "weapon_headshotdamage" ] } ] }
+{ "timestamp":"2026-10-14T13:03:05Z", "event":"SuitLoadout", "SuitID":1700000099, "SuitName":"flightsuit", "SuitName_Localised":"Flight Suit", "LoadoutID":4293000002, "LoadoutName":"Flight", "SuitMods":[], "Modules":[] }

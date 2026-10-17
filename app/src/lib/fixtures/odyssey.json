@@ -3088,102 +3088,136 @@
     "locker_ts": "2026-10-14T12:05:00Z",
     "mods": [
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "addedmeleedamage",
         "kind": "suit",
         "makers": [],
         "name": "Added Melee Damage"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "combatmovementspeed",
         "kind": "suit",
         "makers": [],
         "name": "Combat Movement Speed"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "damageresistance",
         "kind": "suit",
         "makers": [],
         "name": "Damage Resistance"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "enhancedtracking",
         "kind": "suit",
         "makers": [],
         "name": "Enhanced Tracking"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "extraammocapacity",
         "kind": "suit",
         "makers": [],
         "name": "Extra Ammo Capacity"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "extrabackpackcapacity",
         "kind": "suit",
         "makers": [],
         "name": "Extra Backpack Capacity"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "fastershieldregen",
         "kind": "suit",
         "makers": [],
         "name": "Faster Shield Regen"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "improvedbatterycapacity",
         "kind": "suit",
         "makers": [],
         "name": "Improved Battery Capacity"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "improvedjumpassist",
         "kind": "suit",
         "makers": [],
         "name": "Improved Jump Assist"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "increasedairreserves",
         "kind": "suit",
         "makers": [],
         "name": "Increased Air Reserves"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "increasedsprintduration",
         "kind": "suit",
         "makers": [],
         "name": "Increased Sprint Duration"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "nightvision",
         "kind": "suit",
         "makers": [],
         "name": "Night Vision"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "quieterfootsteps",
         "kind": "suit",
         "makers": [],
         "name": "Quieter Footsteps"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "reducedtoolbatteryconsumption",
         "kind": "suit",
         "makers": [],
         "name": "Reduced Tool Battery Consumption"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "audiomasking",
         "kind": "weapon",
         "makers": [],
         "name": "Audio Masking"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "fasterhandling",
         "kind": "weapon",
         "makers": [],
         "name": "Faster Handling"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "greaterrange",
         "kind": "weapon",
         "makers": [
@@ -3194,6 +3228,10 @@
         "name": "Greater Range"
       },
       {
+        "fitted": false,
+        "fitted_makers": [
+          "takada"
+        ],
         "id": "headshotdamage",
         "kind": "weapon",
         "makers": [
@@ -3204,6 +3242,8 @@
         "name": "Headshot Damage"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "improvedhipfireaccuracy",
         "kind": "weapon",
         "makers": [
@@ -3214,40 +3254,102 @@
         "name": "Improved Hip Fire Accuracy"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "magazinesize",
         "kind": "weapon",
         "makers": [],
         "name": "Magazine Size"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "noisesuppressor",
         "kind": "weapon",
         "makers": [],
         "name": "Noise Suppressor"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "reloadspeed",
         "kind": "weapon",
         "makers": [],
         "name": "Reload Speed"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "scope",
         "kind": "weapon",
         "makers": [],
         "name": "Scope"
       },
       {
+        "fitted": true,
+        "fitted_makers": [],
         "id": "stability",
         "kind": "weapon",
         "makers": [],
         "name": "Stability"
       },
       {
+        "fitted": false,
+        "fitted_makers": [],
         "id": "stowedreloading",
         "kind": "weapon",
         "makers": [],
         "name": "Stowed Reloading"
+      }
+    ],
+    "owned": [
+      {
+        "gear": "maverick",
+        "grade": 1,
+        "kind": "suit",
+        "maker": null,
+        "mods": [
+          "increasedairreserves",
+          "nightvision"
+        ],
+        "name": "Maverick Suit"
+      },
+      {
+        "gear": "maverick",
+        "grade": 3,
+        "kind": "suit",
+        "maker": null,
+        "mods": [],
+        "name": "Maverick Suit"
+      },
+      {
+        "gear": "dominator",
+        "grade": 2,
+        "kind": "suit",
+        "maker": null,
+        "mods": [],
+        "name": "Dominator Suit"
+      },
+      {
+        "gear": "karmaar50",
+        "grade": 2,
+        "kind": "weapon",
+        "maker": "kinematic",
+        "mods": [
+          "stability"
+        ],
+        "name": "Karma AR-50"
+      },
+      {
+        "gear": "tkaphelion",
+        "grade": 1,
+        "kind": "weapon",
+        "maker": "takada",
+        "mods": [
+          "headshotdamage",
+          "stability"
+        ],
+        "name": "TK Aphelion"
       }
     ],
     "source": "Sample ShipLocker"
