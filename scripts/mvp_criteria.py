@@ -554,7 +554,7 @@ def markdown(report: dict) -> str:
     for p in s["problems"]:
         lines.append(f"- Problem: {p}")
     for e in s["unintended_events"][:10]:
-        lines.append(f"- Unintended: scan {e['scan']:02X} at {e['t']:.3f}")
+        lines.append(f"- Unintended: scan {e['scan']:02X}{' (auto-repeat)' if e['repeat'] else ''} at {e['t']:.3f}")
     lines += [
         "",
         "## Kill switch",
