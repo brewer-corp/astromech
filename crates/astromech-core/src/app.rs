@@ -1308,8 +1308,6 @@ mod tests {
         })
     }
 
-    /// The Route page's commands, through the control API: set from waypoints or pasted text,
-    /// skip, go back, clear; a route with no systems is an error.
     #[test]
     fn the_sample_config_written_by_open_config_changes_no_setting() {
         let d = tempfile::tempdir().unwrap();
@@ -1329,6 +1327,8 @@ mod tests {
         assert_eq!(std::fs::read_to_string(&p).unwrap(), "data_dir = \"x\"");
     }
 
+    /// The Route page's commands, through the control API: set from waypoints or pasted text,
+    /// skip, go back, clear; a route with no systems is an error.
     #[test]
     fn route_commands_over_the_control_api() {
         let d = tempfile::tempdir().unwrap();
