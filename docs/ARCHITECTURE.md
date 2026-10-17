@@ -245,7 +245,10 @@ astromech/
                          values; game data from data/catalog/odyssey.json
     astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
                          cycle, next rank and reward), the system's state on arrival and its spoken
-                         line; rank rules from data/catalog/powerplay.json
+                         line, what earns merits there (per acquire / conflict / reinforce / undermine
+                         and state, ethos and weak spots first); rank rules from
+                         data/catalog/powerplay.json, activity rules from
+                         data/catalog/powerplay-activities.json (versioned, sourced, uncertain marked)
     astromech-ship/      ship stats from fitted modules and engineering (mass, jump range, power,
                          shields, armour, weapons, distributor, speed), ported from Coriolis;
                          base stats from data/catalog/ships.json
@@ -1739,7 +1742,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
 | **M5** | **Route planner** | `astromech-nav` (existing), `astromech-data` (Spansh, opt-in) | Existing plotting tools, plus neutron and R2R routes (tier 1, network) |
 | **M6** | **Trading & market** | `astromech-market`, EDDN (opt-in) | "Best place to sell gold within 20 ly?", "what's the price here vs. nearby?". **As built (astromech-xqdl):** "where can I sell / buy {commodity}" (the grammar's `{commodity}` slot, from the catalogue, multi-word names and aliases like "LTDs") answered by the core from Ardent with the Trade page's remembered filters; "where should I sell my cargo" (astromech-sd56) plans the hold from `Cargo.json`: whole-load proceeds within demand caps, plus the single-commodity lookup per commodity. The Trade page's Route mode (astromech-mljg, `astromech_market::route`) finds a single hop or a loop from a station (typed, the docked one, or the one nearest the star) for the hold, credits, pad and hop distance (defaults from the current `Loadout`, `Status.json` balance and jump range): Spansh's trade router, one hop, submitted and polled off the UI thread with a 3-minute timeout; a loop's way back is the best cargo from both stations' Ardent markets. Spansh gives no profit per hour, so it's an estimate over the round trip (a single hop flies back empty; 50 s a jump, 2 min docked, supercruise by arrival distance) and the page says so. Spansh can only require a large pad, so each stop's largest pad is looked up in Ardent and the page warns about a stop the ship can't land at. The shell runs one route search at a time |
 | **M7** | **Exploration & exobiology** | `astromech-history` (scans), game data | "Is this system worth mapping?", "which organics haven't I scanned here?" |
-| Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?" |
+| Toolbox S4 | **Powerplay** | `astromech-powerplay`, `astromech-galaxy` (Spansh targets) | "What's my Powerplay rank?", "who controls this system?", "what earns merits here?" |
 | M8+ | Missions/CGs, Fleet carrier, Galaxy map, 3D ship | — | Deferred |
 
 Each module ships with its voice queries in the same release: a module isn't "done" until its `voice_exposed` queries have phrase templates and tests.

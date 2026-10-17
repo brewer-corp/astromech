@@ -31,6 +31,29 @@ export interface Standing {
 /** What a system offers the pledged power. */
 export type Work = "reinforce" | "undermine" | "acquire";
 
+/** Something that earns the pledged power merits here (astromech_powerplay::Suggestion). */
+export interface Suggestion {
+  /** Stable id from the rules table, e.g. "bounty-hunting". */
+  activity: string;
+  name: string;
+  how: string;
+  /** On foot (Odyssey). */
+  odyssey: boolean;
+  /** The pledged power's ethos favours it: bonus merits. */
+  favoured: boolean;
+  /** The controlling power is weak to it (undermining). */
+  weak_spot: boolean;
+  /** Why the rule isn't verified in game, if it isn't. */
+  uncertain: string | null;
+}
+
+/** The activity rules table the suggestions come from. */
+export interface RulesVersion {
+  version: number;
+  /** YYYY-MM-DD. */
+  fetched: string;
+}
+
 export interface SystemPower {
   system: string;
   controlling_power: string | null;
@@ -46,6 +69,9 @@ export interface SystemPower {
   acquisition: { power: string; progress: number }[];
   work: Work | null;
   summary: string;
+  /** What earns the pledged power merits here; empty when not pledged or nothing does. */
+  suggestions: Suggestion[];
+  activity_rules: RulesVersion;
 }
 
 export interface Overview {

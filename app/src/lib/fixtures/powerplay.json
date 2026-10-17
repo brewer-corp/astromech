@@ -28,6 +28,138 @@
     ],
     "acquisition": [],
     "work": "undermine",
-    "summary": "Pranav Antal exploited, 8% \u00b7 reinforcement 0, undermining 9 \u00b7 also Li Yong-Rui"
+    "summary": "Pranav Antal exploited, 8% · reinforcement 0, undermining 9 · also Li Yong-Rui",
+    "activity_rules": {
+      "fetched": "2026-10-16",
+      "version": 1
+    },
+    "suggestions": [
+      {
+        "activity": "commit-crimes",
+        "favoured": true,
+        "how": "Murder ships or crew of the controlling power or local factions here; system authority ships don't count.",
+        "name": "Crimes",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "flood-markets",
+        "favoured": true,
+        "how": "Sell goods worth 500 cr a ton or less here (hydrogen fuel and limpets work); the market must list them, and cheaper is better.",
+        "name": "Flood markets",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": true
+      },
+      {
+        "activity": "holoscreen-hacking",
+        "favoured": true,
+        "how": "Hack the holo-adverts at starports here with a recon limpet. Illegal, and it hurts your standing with the station's owner.",
+        "name": "Holoscreen hacking",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "classified-data",
+        "favoured": false,
+        "how": "Download power classified data from settlements here; hand it in at one of your power's systems.",
+        "name": "Power classified data",
+        "odyssey": true,
+        "uncertain": null,
+        "weak_spot": true
+      },
+      {
+        "activity": "political-data",
+        "favoured": true,
+        "how": "Download power association and political data from settlements here; hand it in at one of your power's systems.",
+        "name": "Power political data",
+        "odyssey": true,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "research-data",
+        "favoured": true,
+        "how": "Download power research and industrial data from settlements here; hand it in at one of your power's systems.",
+        "name": "Power research data",
+        "odyssey": true,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "support-missions",
+        "favoured": false,
+        "how": "Do Support missions from stations here; cargo donations count most.",
+        "name": "Support missions",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "salvage",
+        "favoured": false,
+        "how": "Collect salvage here and hand it to a Power Contact in one of your power's systems.",
+        "name": "Salvage",
+        "odyssey": false,
+        "uncertain": "The wiki doesn't say where to hand it in; the refcard says any of your power's systems.",
+        "weak_spot": false
+      },
+      {
+        "activity": "power-kills",
+        "favoured": false,
+        "how": "Destroy the controlling power's ships here; other underminers' ships don't count.",
+        "name": "Power kills",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "retrieve-goods",
+        "favoured": false,
+        "how": "Open the locked power containers at settlements here and take the goods to a Power Contact in one of your power's systems.",
+        "name": "Retrieve power goods",
+        "odyssey": true,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "scan-datalinks",
+        "favoured": false,
+        "how": "Scan the ship log uplinks of megaships here with a data link scanner.",
+        "name": "Scan datalinks",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "sell-mined",
+        "favoured": false,
+        "how": "Mine here and sell what you mined at a station here.",
+        "name": "Mine and sell",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "power-commodities",
+        "favoured": false,
+        "how": "Pick up Sirius Corporate Contracts from the Power Contact in one of your strongholds and deliver it to the Power Contact here. Other powers' agents may attack you.",
+        "name": "Power commodities",
+        "odyssey": false,
+        "uncertain": null,
+        "weak_spot": false
+      },
+      {
+        "activity": "upload-malware",
+        "favoured": false,
+        "how": "Get tracker malware from a Power Contact and upload it to settlement data ports here, one per port.",
+        "name": "Upload power malware",
+        "odyssey": true,
+        "uncertain": null,
+        "weak_spot": false
+      }
+    ]
   }
 }

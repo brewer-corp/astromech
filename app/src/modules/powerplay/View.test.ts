@@ -31,6 +31,11 @@ const undermine: Overview["system"] = {
   acquisition: [],
   work: "undermine",
   summary: "",
+  suggestions: [
+    { activity: "commit-crimes", name: "Crimes", how: "Murder ships or crew of the controlling power here.", odyssey: false, favoured: true, weak_spot: false, uncertain: null },
+    { activity: "salvage", name: "Salvage", how: "Collect salvage here.", odyssey: false, favoured: false, weak_spot: false, uncertain: "Hand-in place not documented." },
+  ],
+  activity_rules: { version: 1, fetched: "2026-10-16" },
 };
 
 describe("Powerplay page", () => {
@@ -71,9 +76,26 @@ describe("Powerplay page", () => {
     expect(screen.getByText("0%")).toBeTruthy();
   });
 
+  it("shows what earns merits in the current system", async () => {
+    overview.mockResolvedValue({ standing, here: undermine.system, system: undermine });
+    render(View);
+    expect(await screen.findByText("What earns merits here")).toBeTruthy();
+    expect(screen.getByText("Crimes")).toBeTruthy();
+    expect(screen.getByText("ethos")).toBeTruthy();
+    expect(screen.getByTitle("Not checked in game: Hand-in place not documented.")).toBeTruthy();
+  });
+
+  it("says when nothing here earns the power merits", async () => {
+    const other = { ...undermine, controlling_power: null, state: "Unoccupied", contesting: ["Felicia Winters"], work: null, acquisition: [{ power: "Felicia Winters", progress: 0.2 }], suggestions: [] };
+    overview.mockResolvedValue({ standing, here: other.system, system: other });
+    render(View);
+    expect(await screen.findByText(/Nothing here earns Li Yong-Rui merits/)).toBeTruthy();
+  });
+
   it("says when the system has no Powerplay", async () => {
     overview.mockResolvedValue({ standing, here: "Test Empty", system: null });
     render(View);
     expect(await screen.findByText("No Powerplay activity here.")).toBeTruthy();
+    expect(screen.getByText("Nothing: no Powerplay activity here.")).toBeTruthy();
   });
 });

@@ -140,3 +140,21 @@ whose text is under the Creative Commons Attribution-ShareAlike 3.0 licence
 (https://creativecommons.org/licenses/by-sa/3.0/). The file stays under CC BY-SA 3.0, not the MIT
 licence; credit: the Elite Dangerous wiki contributors. The weekly cycle time (Thursday 07:00 UTC) is the commonly
 reported cycle tick. The facts are Elite Dangerous game data, © Frontier Developments plc.
+
+## Powerplay activities
+`data/catalog/powerplay-activities.json` (what earns merits in acquisition, conflict, reinforcement
+and undermining systems, each power's preferred activities and weak spots, and the power
+commodities) is adapted from the Elite Dangerous wiki's Powerplay page
+(https://elite-dangerous.fandom.com/wiki/Powerplay, sections "Detailed Guide for activities and
+effects", "Undermining vulnerabilities" and "Commodities", fetched 2026-10-16), whose text is under
+the Creative Commons Attribution-ShareAlike 3.0 licence
+(https://creativecommons.org/licenses/by-sa/3.0/); credit: the Elite Dangerous wiki contributors.
+The descriptions are reworded, not copied, but the file stays under CC BY-SA 3.0, not the MIT
+licence. Each activity was cross-checked against Ian Doncaster's Powerplay Tools reference card
+(https://heatmap.sotl.org.uk/powers/refcard), which states no licence, so only facts were taken
+from it (no text), such as the conflict threshold, stronghold carriers, pickup and hand-in places,
+and conditions like rare goods having to be legal where they are sold.
+Inara's Powerplay 2.0 guide (inara.cz/elite/logbook/84502) could not be reached when the file was
+made and was not used. Rules the sources disagree on, or that nobody has checked in game, are
+marked `uncertain` in the file. The facts are Elite Dangerous game data, © Frontier Developments
+plc.

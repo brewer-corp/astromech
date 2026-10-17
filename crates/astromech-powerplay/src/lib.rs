@@ -2,13 +2,16 @@
 //!
 //! Powerplay 2.0 from the journal: the commander's standing ([`standing`]) and the current
 //! system's state ([`system`]), with the rank rules kept as data ([`rules`],
-//! `data/catalog/powerplay.json`). Pure, so it can be replay-tested; the game state and the app
+//! `data/catalog/powerplay.json`) and what earns merits in each kind of system ([`activities`],
+//! `data/catalog/powerplay-activities.json`). Pure, so it can be replay-tested; the game state and the app
 //! window fold the same events.
 
+pub mod activities;
 pub mod rules;
 pub mod standing;
 pub mod system;
 
+pub use activities::{rules_version, RulesVersion, Suggestion};
 pub use rules::{rules, Rules};
 pub use standing::{standing_from_journal_dir, standing_from_lines, NextRank, Standing, StandingView};
 pub use system::{PowerShare, SystemPower, Work};
@@ -44,6 +47,10 @@ pub struct SystemView {
     /// What it offers the pledged power.
     pub work: Option<Work>,
     pub summary: String,
+    /// What earns the pledged power merits here.
+    pub suggestions: Vec<Suggestion>,
+    /// The activity table the suggestions come from.
+    pub activity_rules: RulesVersion,
 }
 
 /// The page's data as of now.
@@ -73,6 +80,8 @@ impl Journal {
             system: self.system.as_ref().map(|s| SystemView {
                 work: s.work_for(pledged),
                 summary: s.summary(),
+                suggestions: s.suggestions(pledged),
+                activity_rules: rules_version(),
                 power: s.clone(),
             }),
         }

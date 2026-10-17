@@ -163,6 +163,10 @@ pub const MVP: &[(&str, &[&str])] = &[
         "status.powerplay",
         &["what's my powerplay rank", "powerplay rank", "powerplay status", "how many merits", "merits"],
     ),
+    (
+        "status.merits_here",
+        &["what earns merits here", "how do i earn merits here", "merits here", "powerplay activities here"],
+    ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
     ("request_docking", &["request docking", "request docking permission", "dock"]),
@@ -1023,6 +1027,9 @@ mod tests {
             ("How many merits?", "status.powerplay"),
             ("Who controls this system?", "status.system_power"),
             ("system powerplay", "status.system_power"),
+            ("What earns merits here?", "status.merits_here"),
+            ("how do I earn merits here", "status.merits_here"),
+            ("merits here", "status.merits_here"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
