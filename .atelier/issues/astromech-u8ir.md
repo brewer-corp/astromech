@@ -19,9 +19,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Callout loose ends: repeat prospects, threshold storage on a fresh machine, help-line copy"
-updated_at: "2026-10-17T18:51:45.408702178+00:00"
+updated_at: "2026-10-17T19:15:14.421267023+00:00"
 ---
 
 ## Goal
