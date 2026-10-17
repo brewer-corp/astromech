@@ -145,6 +145,7 @@ fn a_history_that_cannot_be_read_says_so_rather_than_no_history() {
         speaker: speaker.clone(),
         verify_timeout: Duration::from_millis(200),
         log: Arc::new(|_: &str| {}),
+        remote: Arc::new(astromech_data::Client::new(astromech_data::Cache::in_memory().unwrap())),
         galaxy: None,
     });
     Assistant::new(runner).with_sessions(shared.sessions.clone()).handle("session summary", Origin::Voice);
