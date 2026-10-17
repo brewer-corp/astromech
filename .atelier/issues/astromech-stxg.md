@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Guide skeleton, README rewrite and the docs rule"
-updated_at: "2026-10-17T16:54:23.760071831+00:00"
+updated_at: "2026-10-17T17:04:03.942735513+00:00"
 ---
 
 ## Goal

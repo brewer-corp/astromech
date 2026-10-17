@@ -4,6 +4,9 @@ id: "astromech-mf5e"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-mf5e
 priority: "P1"
 relationships:
   blocks: []
@@ -29,7 +32,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Alpha: a user guide for every feature, and a current README"
-updated_at: "2026-10-17T17:01:43.796194086+00:00"
+updated_at: "2026-10-17T17:04:03.942733519+00:00"
 ---
 
 ## Goal
