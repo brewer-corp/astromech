@@ -4,6 +4,9 @@ id: "astromech-xca4"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-xca4
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Sustained EPS and clamp: charged weapons and engineered reloads"
-updated_at: "2026-10-17T17:13:42.109076861+00:00"
+updated_at: "2026-10-17T22:38:14.316460715+00:00"
 ---
 
 ## Goal

@@ -231,7 +231,9 @@ fn fer_de_lance_combat() {
             // Coriolis shows 136.2: it leaves the rail guns' charge out of the reload cycle.
             ("sustained_dps", Some("108.8")),
             ("eps", Some("11.8")),
-            ("time_to_drain", Some("0:21")),
+            // Coriolis shows 0:21: the rail guns' draw uses the same charge-and-reload cycle as
+            // their damage (astromech-bnnh, astromech-xca4); the other weapons are unchanged.
+            ("time_to_drain", Some("0:15")),
             ("wep_capacity", Some("45.6")),
             ("wep_recharge", Some("7.8")),
             ("sys_capacity", Some("31.9")),
@@ -673,7 +675,8 @@ fn fer_de_lance_modifiers() {
             // Coriolis shows 135.0, for the same reason.
             ("sustained_dps", Some("108.3")),
             ("eps", Some("11.8")),
-            ("time_to_drain", Some("0:19")),
+            // Coriolis shows 0:19, for the same reason.
+            ("time_to_drain", Some("0:14")),
             ("wep_capacity", Some("45.6")),
             ("wep_recharge", Some("7.6")),
             ("sys_capacity", Some("31.9")),
