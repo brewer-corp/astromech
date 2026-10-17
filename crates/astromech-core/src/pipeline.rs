@@ -231,7 +231,19 @@ impl Tailer {
                     feed.companion_file(event, &file, wall_now());
                 }
             }
+            let is_market = matches!(f, CompanionFile::Market(_));
             self.hub.update(|g| g.apply_companion(f));
+            // A fresh Market.json is an event for the callouts (once per dock; the engine decides).
+            if let (true, Some(c)) = (is_market, &mut self.callouts) {
+                c.engine.set_live(self.caught_up && self.live);
+                let fired = self.hub.read(|g| {
+                    let m = g.companions.market.clone()?;
+                    Some(c.engine.market(&m, g, Instant::now()))
+                });
+                if let Some(fired) = fired.filter(|f| !f.is_empty()) {
+                    (c.deliver)(fired);
+                }
+            }
         }
         for r in reports {
             (self.log)(&format!("companion file {r}"));

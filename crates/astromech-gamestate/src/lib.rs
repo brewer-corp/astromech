@@ -8,10 +8,11 @@ pub mod mining;
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
+use astromech_journal::{CargoSnap, ExtraEvent, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 /// A snapshot shared by every copy of the state. The hub clones and compares the whole state on
@@ -114,6 +115,12 @@ pub struct GameState {
     pub powerplay: astromech_powerplay::Standing,
     /// The current system's Powerplay state (`None`: no Powerplay activity, or not known yet).
     pub system_power: Option<astromech_powerplay::SystemPower>,
+    /// Colonisation projects still being built, by the `MarketID` of the construction site: the
+    /// commodities (lower-case journal symbols, `$steel_name;`) each still needs delivered, from
+    /// the last `ColonisationConstructionDepot` seen (this journal; older ones are not read).
+    /// A project that is complete or failed is dropped.
+    #[serde(skip)]
+    pub project_needs: BTreeMap<i64, Vec<String>>,
     #[serde(skip)]
     pub companions: Companions,
 }
@@ -259,6 +266,21 @@ impl GameState {
                 self.station_info = Some(station.clone());
                 self.system = Some(star_system.clone());
                 self.docked = true;
+            }
+            JournalEvent::Extra(ExtraEvent::ColonisationConstructionDepot(d)) => {
+                if let Some(id) = d.market_id {
+                    let needs: Vec<String> = d
+                        .resources
+                        .iter()
+                        .filter(|r| r.required > r.provided)
+                        .map(|r| r.name.to_ascii_lowercase())
+                        .collect();
+                    if d.complete || d.failed || needs.is_empty() {
+                        self.project_needs.remove(&id);
+                    } else {
+                        self.project_needs.insert(id, needs);
+                    }
+                }
             }
             JournalEvent::Undocked { .. } => {
                 self.docked = false;

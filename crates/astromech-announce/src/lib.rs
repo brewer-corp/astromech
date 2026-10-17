@@ -21,9 +21,10 @@
 //! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
 //! and the game state after it, never the replayed history.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`docking`], [`fuel`], [`route`], [`hge`] and [`project_market`].
 
 use astromech_gamestate::GameState;
+use astromech_journal::companion::MarketSnap;
 use astromech_journal::{JournalLine, NavRouteSnap};
 use astromech_status::{StatusSnap, FLAG_BEING_INTERDICTED, FLAG_IN_DANGER};
 use serde::{Deserialize, Serialize};
@@ -101,6 +102,8 @@ pub enum Input<'a> {
     /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
     /// empty (a cleared route isn't an event).
     Route(&'a NavRouteSnap),
+    /// A fresh `Market.json` for the market docked at, once per dock (see [`Engine::market`]).
+    Market(&'a MarketSnap),
 }
 
 /// A reaction rule. Stateless: decide from the event and the state after it.
@@ -126,6 +129,7 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod project_market;
 pub mod prospector;
 pub mod route;
 pub mod scan;
@@ -150,6 +154,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(project_market::ProjectMarket),
     ]
 }
 
@@ -217,6 +222,8 @@ pub struct Engine {
     attacked_until: Option<Instant>,
     last_status: Option<StatusSnap>,
     last_route: Option<NavRouteSnap>,
+    /// The market a live `Market.json` was already handled for since the last dock event.
+    market_done: Option<i64>,
 }
 
 impl Engine {
@@ -254,6 +261,7 @@ impl Engine {
             attacked_until: None,
             last_status: None,
             last_route: None,
+            market_done: None,
         }
     }
 
@@ -288,6 +296,7 @@ impl Engine {
             self.docking = true;
         } else if DOCKING_ENDS.contains(&name) {
             self.docking = false;
+            self.market_done = None;
         }
         if name == "UnderAttack" && self.live {
             self.attacked_until = Some(now + ATTACK_QUIET);
@@ -318,6 +327,20 @@ impl Engine {
         }
         let quiet = self.quiet(now);
         self.fire(&Input::Route(route), state, now, quiet)
+    }
+
+    /// A fresh `Market.json`, already applied to `state` (the pipeline only offers a file newer
+    /// than the `Market` event that announced it). Handled once per dock: a rewrite while still
+    /// docked there (opening the market again) is not an event. Only a live file counts, so the
+    /// catch-up replay of the same dock doesn't use up the dock's one chance.
+    pub fn market(&mut self, market: &MarketSnap, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let Some(id) = market.market_id else { return vec![] };
+        if !self.live || self.market_done == Some(id) {
+            return vec![];
+        }
+        self.market_done = Some(id);
+        let quiet = self.quiet(now);
+        self.fire(&Input::Market(market), state, now, quiet)
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
