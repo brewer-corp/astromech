@@ -5,16 +5,17 @@
 //! Everything else stays quiet. A depleted rock (`Remaining` 0) gets only its motherlode line.
 //! `Content` (low / medium / high) isn't read: the prospector panel shows it.
 //!
-//! Thresholds are per ore: [`ORES`] gives the defaults (a static value order until the mining
-//! sale advisor exists); the commander's changes are [`Thresholds`] (stored by the core, edited
+//! Thresholds are per ore: [`ORES`] gives the defaults (in the value order shared with the mining
+//! lookups); the commander's changes are [`Thresholds`] (stored by the core, edited
 //! in Settings). An ore set to `None` is never called out.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
+use astromech_journal::ore as shared;
 use astromech_journal::{ExtraEvent, JournalEvent};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, LazyLock, RwLock};
 use std::time::Duration;
 
 /// One ore astromech knows: the journal symbol (lower case), the name to say, and the default
@@ -26,25 +27,30 @@ pub struct Ore {
     pub default: Option<f64>,
 }
 
-/// High-value ores, most valuable first (static order, wiki-visible names). Lines name at most
-/// two ores, in this order.
-pub const ORES: &[Ore] = &[
-    Ore { symbol: "opal", name: "Void Opals", default: None },
-    Ore { symbol: "lowtemperaturediamond", name: "Low Temperature Diamonds", default: Some(25.0) },
-    Ore { symbol: "painite", name: "Painite", default: Some(25.0) },
-    Ore { symbol: "platinum", name: "Platinum", default: Some(20.0) },
-    Ore { symbol: "musgravite", name: "Musgravite", default: None },
-    Ore { symbol: "grandidierite", name: "Grandidierite", default: None },
-    Ore { symbol: "alexandrite", name: "Alexandrite", default: None },
-    Ore { symbol: "benitoite", name: "Benitoite", default: None },
-    Ore { symbol: "monazite", name: "Monazite", default: None },
-    Ore { symbol: "rhodplumsite", name: "Rhodplumsite", default: None },
-    Ore { symbol: "serendibite", name: "Serendibite", default: None },
-    Ore { symbol: "osmium", name: "Osmium", default: Some(25.0) },
-    Ore { symbol: "palladium", name: "Palladium", default: Some(30.0) },
-    Ore { symbol: "bromellite", name: "Bromellite", default: Some(30.0) },
-    Ore { symbol: "tritium", name: "Tritium", default: Some(30.0) },
+/// The default thresholds (percent) of the ores that have one; the others are only called out
+/// as a motherlode.
+const DEFAULTS: &[(&str, f64)] = &[
+    ("lowtemperaturediamond", 25.0),
+    ("painite", 25.0),
+    ("platinum", 20.0),
+    ("osmium", 25.0),
+    ("palladium", 30.0),
+    ("bromellite", 30.0),
+    ("tritium", 30.0),
 ];
+
+/// High-value ores, most valuable first: the order of `astromech_journal::ore::VALUE_ORDER`,
+/// shared with the mining lookups. Lines name at most two ores, in this order.
+pub static ORES: LazyLock<Vec<Ore>> = LazyLock::new(|| {
+    shared::VALUE_ORDER
+        .iter()
+        .map(|o| Ore {
+            symbol: o.symbol,
+            name: o.name,
+            default: DEFAULTS.iter().find(|(s, _)| *s == o.symbol).map(|(_, t)| *t),
+        })
+        .collect()
+});
 
 pub fn ore(symbol: &str) -> Option<&'static Ore> {
     let s = symbol.to_ascii_lowercase();

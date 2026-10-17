@@ -772,6 +772,32 @@ async fn trade_cargo(
     .await
 }
 
+/// The station docked at (`Market.json`) and the hold against the best nearby prices: what each
+/// carried commodity fetches here and nearby, and what the goods for sale here sell for nearby
+/// (Ardent Insight, the sell lookup's remembered filters). `null` when not docked.
+#[tauri::command]
+async fn market_compare(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let state = astromech_station::state_from_journal_dir(&journal_dir());
+        if !state.docked {
+            return Ok(Value::Null);
+        }
+        let market = astromech_market::here::from_journal_dir(&journal_dir())
+            .filter(|m| m.market_id.is_some() && m.market_id == state.station_market_id)
+            .ok_or("no market seen here yet: open the commodity market once")?;
+        let g = galaxy(&app)?;
+        let saved = astromech_galaxy::filters::load(&settings()?, astromech_market::Side::Sell.lookup(), None)
+            .map_err(|e| e.to_string())?;
+        let (here, range, filters) = search_origin(&app, &g, None, Some(saved))?;
+        let hold = astromech_market::cargo::from_journal_dir(&journal_dir());
+        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
+        let c = astromech_market::here::compare_search(&g, &here, range, &market, &hold, &filters, now)
+            .map_err(|e| e.to_string())?;
+        serde_json::to_value(c).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// The current ship's and commander's numbers for a trade route: cargo capacity and jump range
 /// from the latest `Loadout`, credits from `Status.json` (else the latest `LoadGame`), and the
 /// station docked at.
@@ -1107,6 +1133,7 @@ fn main() {
             trade_search,
             trade_anywhere,
             trade_cargo,
+            market_compare,
             trade_route_defaults,
             trade_route,
             colonisation_projects,
