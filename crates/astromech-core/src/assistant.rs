@@ -141,6 +141,36 @@ impl Assistant {
         Handled::Lookup { command, want }
     }
 
+    /// Look up the pledged power's nearest target of `target`'s kind, with the app's remembered
+    /// filters for that search, and say the answer when it arrives (off this thread).
+    fn targets_lookup(&self, target: astromech_galaxy::Target) -> Outcome {
+        use astromech_tools::targets;
+        let game = self.runner.hub.snapshot();
+        let said = |m: &str| {
+            self.say(m);
+            Outcome::Spoken(m.into())
+        };
+        let galaxy = match (&game.powerplay.power, self.runner.galaxy.clone()) {
+            (None, _) => return said(targets::NOT_PLEDGED),
+            (_, None) => return said(targets::NO_STAR_MAP),
+            (Some(_), Some(g)) => g,
+        };
+        if game.system.is_none() || game.star_pos.is_none() {
+            return said(targets::NO_POSITION);
+        }
+        let filters = {
+            let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
+            crate::lookups::filters_for(st.as_deref(), targets::lookup(target), &game)
+        };
+        self.say("Looking that up.");
+        let speaker = self.runner.speaker.clone();
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::lookups::targets_answer(&galaxy, &filters, target, &game);
+            speaker.say(&m);
+            m
+        }))
+    }
+
     fn dispatch(
         &self,
         command: &'static str,
@@ -168,6 +198,9 @@ impl Assistant {
                 self.say(l);
             }
             return Handled::Ran { command, outcome: Outcome::Spoken(lines.join(" ")) };
+        }
+        if let Some(target) = astromech_tools::targets::from_command(command) {
+            return Handled::Ran { command, outcome: self.targets_lookup(target) };
         }
         if let Some(ask) = astromech_tools::trade::from_command(command) {
             let game = self.runner.hub.snapshot();

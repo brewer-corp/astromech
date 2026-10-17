@@ -143,6 +143,13 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         };
         return r;
     }
+    if let Some(target) = astromech_tools::targets::from_command(m.command) {
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, astromech_tools::targets::describe(target)),
+        };
+        return r;
+    }
     if let Some(ask) = astromech_tools::trade::from_command(m.command) {
         // A lookup, not a press: say what it would look up, without asking Ardent.
         (r.would, r.message) = match m.decision {

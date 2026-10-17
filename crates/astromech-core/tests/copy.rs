@@ -452,6 +452,54 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 
+/// The Powerplay target answers by voice ("where can I undermine near me"): each kind, on a long
+/// procedural name far away, controlled by a long-named power, a sentence at a time within the
+/// answer budget; and the lines said when there is no answer.
+#[test]
+fn the_powerplay_target_answers_keep_to_the_copy_guide() {
+    use astromech_galaxy::{Here, Hop, Target, TargetHit, Targets};
+    use astromech_tools::targets;
+    let mut lines: Vec<String> =
+        [targets::NOT_PLEDGED, targets::NO_POSITION, targets::NO_STAR_MAP].iter().map(|s| s.to_string()).collect();
+    for target in [Target::Acquire, Target::Reinforce, Target::Undermine] {
+        let found = |hits| Targets {
+            target,
+            power: "Archon Delaine".into(),
+            here: Here { system: "Synuefe BY-F d12-39".into(), id64: None, pos: [0.0; 3] },
+            range: 20.0,
+            within_ly: targets::WITHIN_LY,
+            fetched: String::new(),
+            hits,
+            warning: None,
+        };
+        lines.push(targets::spoken(&found(vec![])));
+        for (ly, exact) in [(0.0, true), (4.0, true), (199.6, false)] {
+            for controller in [None, Some("Jerome Archer"), Some("Archon Delaine")] {
+                for state in ["Unoccupied", "Exploited", "Fortified", "Stronghold"] {
+                    let hit = TargetHit {
+                        name: "Synuefe BY-F d12-39".into(),
+                        id64: 1,
+                        hop: Hop { ly, jumps: 99, exact },
+                        controlling_power: controller.map(str::to_string),
+                        state: Some(state.into()),
+                        control_progress: controller.map(|_| 1.234),
+                        reinforcement: Some(123_456),
+                        undermining: Some(654_321),
+                        acquisition: controller.is_none().then_some(0.999),
+                        others: vec!["Aisling Duval".into(), "Zemina Torval".into()],
+                        updated_at: None,
+                    };
+                    let said = targets::spoken(&found(vec![hit]));
+                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                }
+            }
+        }
+    }
+    assert!(lines.iter().any(|l| l == "Jerome Archer stronghold, 123 percent."), "{lines:?}");
+    let bad = check("Powerplay target answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
 /// A hold of five commodities no market takes whole: the cargo answer adds at most two
 /// partial-buyer sentences, each within the answer budget, naming a station only when it is not
 /// the one the answer already gave.

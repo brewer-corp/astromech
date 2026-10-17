@@ -9,7 +9,7 @@ use astromech_galaxy::{filters, Filters, Pad};
 use astromech_gamestate::GameState;
 use astromech_intent::Grammar;
 use astromech_store::Store;
-use astromech_tools::lookup;
+use astromech_tools::{lookup, targets};
 
 /// The command grammar with the lookups' slot values: market commodities (trade), station
 /// services, modules and ships.
@@ -29,6 +29,30 @@ pub fn grammar(systems: &[&str]) -> Grammar {
 pub fn filters_for(store: Option<&Store>, lookup: &str, game: &GameState) -> Filters {
     let pad = game.ship.as_deref().and_then(Pad::for_ship);
     store.and_then(|s| filters::load(s, lookup, pad).ok()).unwrap_or_default().for_ship(pad)
+}
+
+/// The spoken answer to "where can I undermine near me" and the other Powerplay target
+/// questions: the Where to work search (`Galaxy::powerplay_targets`) for the power pledged to in
+/// the journal, within [`targets::WITHIN_LY`] of the journal's position, with jumps at the
+/// ship's range (20 ly when unknown).
+pub fn targets_answer(
+    galaxy: &astromech_galaxy::Galaxy,
+    filters: &Filters,
+    target: astromech_galaxy::Target,
+    game: &GameState,
+) -> String {
+    let Some(power) = game.powerplay.power.as_deref() else {
+        return targets::NOT_PLEDGED.into();
+    };
+    let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
+        return targets::NO_POSITION.into();
+    };
+    let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
+    let here = astromech_galaxy::Here { system, id64: None, pos };
+    match galaxy.powerplay_targets(target, power, &here, range, targets::WITHIN_LY, 1, filters) {
+        Ok(t) => targets::spoken(&t),
+        Err(e) => format!("Could not look that up. {e}"),
+    }
 }
 
 /// The spoken answer to `want` near the commander's current system, searched from its
@@ -127,6 +151,39 @@ mod tests {
             ("how much did I make this session", "session.summary"),
             ("session summary", "session.summary"),
             ("How much have I earned?", "session.summary"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+    }
+
+    #[test]
+    fn powerplay_target_phrases_resolve_to_the_galaxy_search() {
+        use astromech_galaxy::Target;
+        let g = grammar(&["Sol"]);
+        for (phrase, target) in [
+            ("Where can I undermine near me?", Target::Undermine),
+            ("nearest system to undermine", Target::Undermine),
+            ("where can I undermine", Target::Undermine),
+            ("nearest undermining target", Target::Undermine),
+            ("Nearest system to reinforce.", Target::Reinforce),
+            ("where can I reinforce near me", Target::Reinforce),
+            ("nearest reinforcement target", Target::Reinforce),
+            ("where can I acquire near me", Target::Acquire),
+            ("nearest system to acquire", Target::Acquire),
+            ("nearest acquisition target", Target::Acquire),
+        ] {
+            let m = g.best(phrase);
+            let t = astromech_tools::targets::from_command(m.command);
+            assert_eq!((t, m.decision), (Some(target), Decision::Execute), "{phrase:?} -> {m:?}");
+            // the command is the key the app remembers the search's filters under
+            assert_eq!(astromech_tools::targets::lookup(target), m.command);
+        }
+        // the Powerplay status questions keep their phrases
+        for (t, c) in [
+            ("what's my powerplay rank", "status.powerplay"),
+            ("who controls this system", "status.system_power"),
+            ("what earns merits here", "status.merits_here"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

@@ -188,6 +188,38 @@ pub const MVP: &[(&str, &[&str])] = &[
         "status.merits_here",
         &["what earns merits here", "how do i earn merits here", "merits here", "powerplay activities"],
     ),
+    // Nearby Powerplay targets for the pledged power (astromech-galaxy `Target`,
+    // `powerplay.<kind>`): spoken answer, nothing pressed.
+    (
+        "powerplay.acquire",
+        &[
+            "where can i acquire near me",
+            "nearest system to acquire",
+            "nearest acquisition target",
+            "nearest acquisition system",
+            "where can i acquire",
+        ],
+    ),
+    (
+        "powerplay.reinforce",
+        &[
+            "where can i reinforce near me",
+            "nearest system to reinforce",
+            "nearest reinforcement target",
+            "nearest system to fortify",
+            "where can i reinforce",
+        ],
+    ),
+    (
+        "powerplay.undermine",
+        &[
+            "where can i undermine near me",
+            "nearest system to undermine",
+            "nearest undermining target",
+            "nearest undermining system",
+            "where can i undermine",
+        ],
+    ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
     ("request_docking", &["request docking", "request docking permission", "dock"]),
