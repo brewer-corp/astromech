@@ -87,3 +87,33 @@ fn merits_for_another_power_are_ignored() {
     ]);
     assert_eq!((s.merits, s.session_merits), (Some(45_000), 0));
 }
+
+/// The game sometimes writes one award twice (same second and gain, `TotalMerits` counting both)
+/// but counts it once, as the next award's `TotalMerits - MeritsGained` or the next login's
+/// `Merits` show (two days of a real journal, anonymised).
+#[test]
+fn an_award_the_game_wrote_twice_counts_once() {
+    const LOGIN: &str = r#"{"timestamp":"2026-10-15T22:32:52Z","event":"Powerplay","Power":"Nakato Kaine","Rank":0,"Merits":3951,"TimePledged":941980}"#;
+    const LOAD: &str = r#"{"timestamp":"2026-10-16T04:03:36Z","event":"LoadGame","FID":"F0000001","Commander":"Jameson","Horizons":true,"Odyssey":true,"Ship":"Mandalay","ShipID":9,"GameMode":"Solo","Credits":1000,"Loan":0}"#;
+    let award = |ts: &str, gained: i64, total: i64| {
+        format!(
+            r#"{{"timestamp":"2026-10-16T{ts}Z","event":"PowerplayMerits","Power":"Nakato Kaine","MeritsGained":{gained},"TotalMerits":{total}}}"#
+        )
+    };
+    let (a, b, dup) = (award("02:26:50", 31, 3982), award("02:26:57", 41, 4023), award("02:26:57", 41, 4064));
+    let now = at("2026-10-16T12:00:00Z");
+
+    // Corrected by the next login's total.
+    let next_login = r#"{"timestamp":"2026-10-16T04:04:14Z","event":"Powerplay","Power":"Nakato Kaine","Rank":0,"Merits":4023,"TimePledged":961862}"#;
+    let s = fold(&[LOGIN, &a, &b, &dup, LOAD, next_login]);
+    assert_eq!((s.merits, s.merits_this_week(now), s.session_merits), (Some(4023), 72, 0));
+
+    // Corrected by the next award in the same session.
+    let next = award("03:00:00", 17, 4040);
+    let s = fold(&[LOGIN, &a, &b, &dup, &next]);
+    assert_eq!((s.merits, s.merits_this_week(now), s.session_merits), (Some(4040), 89, 89));
+
+    // Two real awards of the same size in one second both count.
+    let s = fold(&[LOGIN, &a, &b, &dup, &award("03:00:00", 17, 4081)]);
+    assert_eq!((s.merits, s.merits_this_week(now)), (Some(4081), 130));
+}

@@ -11,6 +11,11 @@
 //! Week merits are the sum of `MeritsGained` since the cycle tick, not a difference of totals:
 //! the commander is rarely logged in at the tick. Weekly assignment rewards are not in the
 //! journal, so the week total can be short of the game's.
+//!
+//! The game sometimes writes one `PowerplayMerits` twice (same second and gain, `TotalMerits`
+//! counting both) but counts it once. The total before an award (`TotalMerits - MeritsGained`)
+//! and the login `Merits` give the game's count, so when either is below the running total the
+//! difference is taken back from the session and the week.
 
 use crate::rules::rules;
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine, PowerplayEvent};
@@ -80,12 +85,23 @@ impl Standing {
         *self = Standing { power, merits: Some(0), session_merits: self.session_merits, ..Standing::default() };
     }
 
+    /// The game's total is `total`, below the running one: awards it wrote but didn't count.
+    fn take_back(&mut self, total: Option<i64>) {
+        let excess = self.merits.zip(total).map_or(0, |(ours, game)| ours - game);
+        if excess > 0 {
+            self.session_merits = (self.session_merits - excess).max(0);
+            self.cycle_merits = (self.cycle_merits - excess).max(0);
+        }
+    }
+
     fn apply_powerplay(&mut self, ts: &str, p: &PowerplayEvent) {
         match p.kind.as_str() {
             "Powerplay" => {
                 if self.power != p.power {
                     self.cycle_start = None;
                     self.cycle_merits = 0;
+                } else {
+                    self.take_back(p.total_merits);
                 }
                 self.power = p.power.clone();
                 self.rank = p.rank;
@@ -100,6 +116,7 @@ impl Standing {
                     self.power = p.power.clone();
                 }
                 let gained = p.merits_gained.unwrap_or(0);
+                self.take_back(p.total_merits.map(|t| t - gained));
                 self.merits = p.total_merits.or(self.merits.map(|m| m + gained));
                 self.session_merits += gained;
                 if let Some(t) = parse_ts(ts) {
