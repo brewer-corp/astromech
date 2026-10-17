@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T08:46:06.504998238+00:00"
+status: "done"
 title: "System view from history: honk counts, and only the newest scan per body"
-updated_at: "2026-10-17T08:42:10.574763030+00:00"
+updated_at: "2026-10-17T08:46:06.504998238+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ Follow-ups on astromech-0n4h: the body count and 'all bodies found' flag from an
 ## Done when
 
 A return visit shows the earlier body count and all-found flag; a system with 50 stored arrival scans reads one per body (test).
+
+## Close Reason
+
+Earlier honk count and all-found flag now selected; newest scan/mapping per body only; v7 index
