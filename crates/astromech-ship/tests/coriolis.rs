@@ -231,7 +231,9 @@ fn fer_de_lance_combat() {
             // Coriolis shows 136.2: it leaves the rail guns' charge out of the reload cycle.
             ("sustained_dps", Some("108.8")),
             ("eps", Some("11.8")),
-            ("time_to_drain", Some("0:21")),
+            // Coriolis shows 0:21: the rail guns' draw uses the same charge-and-reload cycle as
+            // their damage (astromech-bnnh, astromech-xca4); the other weapons are unchanged.
+            ("time_to_drain", Some("0:15")),
             ("wep_capacity", Some("45.6")),
             ("wep_recharge", Some("7.8")),
             ("sys_capacity", Some("31.9")),
@@ -673,7 +675,8 @@ fn fer_de_lance_modifiers() {
             // Coriolis shows 135.0, for the same reason.
             ("sustained_dps", Some("108.3")),
             ("eps", Some("11.8")),
-            ("time_to_drain", Some("0:19")),
+            // Coriolis shows 0:19, for the same reason.
+            ("time_to_drain", Some("0:14")),
             ("wep_capacity", Some("45.6")),
             ("wep_recharge", Some("7.6")),
             ("sys_capacity", Some("31.9")),
@@ -802,4 +805,28 @@ fn card_headline_for_the_krait_mkii_combat_build() {
     assert_eq!(format!("{:.0}", k.shield.unwrap()), "1428");
     assert_eq!(format!("{:.1}", k.dps.unwrap()), "107.2");
     assert_eq!(format!("{:.2}", k.jump.unwrap()), "24.87");
+}
+
+/// What a route plotter is given (Spansh's exact plotter, astromech-data `ExactRoute`): the
+/// drive with its journal roll, the masses without main-tank fuel, and the booster; its range
+/// with a full tank is the laden and unladen range above.
+#[test]
+fn fsd_for_route_plotters() {
+    let (ship, modules) = loadout("anaconda_legacy");
+    let s = stats(&ship, &modules).unwrap();
+    let f = s.fsd.clone().expect("a powered drive");
+    assert_eq!(f.optimal_mass, 2755.8, "the journal's FSDOptimalMass modifier");
+    assert_eq!((f.max_fuel_per_jump, f.fuel_multiplier, f.fuel_power), (8.0, 0.012, 2.6), "6A drive");
+    assert_eq!(f.tank_size, s.fuel_capacity);
+    assert_eq!(f.reserve_size, 1.07, "Anaconda reservoir");
+    assert!((f.base_mass - (s.unladen_mass - s.fuel_capacity + 1.07)).abs() < 1e-9);
+    assert_eq!(f.range_boost, 10.5, "size 5 Guardian booster");
+    let j = s.jump.unwrap();
+    assert!((f.range(0.0) - j.unladen).abs() < 1e-9, "{} vs {}", f.range(0.0), j.unladen);
+    assert!((f.range(s.cargo_capacity) - j.laden).abs() < 1e-9);
+    assert!(f.range(100.0) < f.range(0.0));
+
+    // No drive, no profile.
+    let no_fsd: Vec<_> = modules.into_iter().filter(|m| m.slot != "FrameShiftDrive").collect();
+    assert_eq!(stats(&ship, &no_fsd).unwrap().fsd, None);
 }

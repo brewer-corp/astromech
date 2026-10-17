@@ -418,10 +418,9 @@ impl Module {
     /// give Coriolis's numbers, except that a cycle of no time at all (a one-round clip with no
     /// reload: the seismic charge launchers) gets 1, where Coriolis divides by zero.
     ///
-    /// Like Coriolis, the cycle leaves out the last shot's own fire interval, so the factor is at
-    /// most 1 only while the reload takes at least that long (true of every stock weapon in the
-    /// catalogue, checked by a test; a build that engineers the reload below the interval can
-    /// still come out above 1).
+    /// The cycle leaves out the last shot's own fire interval, as Coriolis does, so a build that
+    /// engineers the reload below the interval would come out above burst: the factor is clamped
+    /// at 1 (sustained never exceeds burst).
     pub fn sustained_factor(&self) -> f64 {
         let Some(mut clip) = self.clip() else { return 1.0 };
         // An auto-loader gives one reload for every two shots fired.
@@ -436,7 +435,7 @@ impl Module {
         if cycle <= 0.0 {
             return 1.0;
         }
-        (clip / cycle) / rof
+        ((clip / cycle) / rof).min(1.0)
     }
 
     pub fn sustained_dps(&self) -> f64 {
@@ -444,7 +443,18 @@ impl Module {
     }
 
     /// Distributor draw per second over a reload cycle (`timeToDrainWep`).
+    ///
+    /// Charged weapons use the same cycle as [`Module::sustained_factor`] (decision
+    /// astromech-bnnh): the draw per shot over charge plus reload, so a rail gun's draw and its
+    /// damage describe one cycle, and an engineered reload below the fire interval is clamped the
+    /// same way. Every other weapon keeps Coriolis's `timeToDrainWep` cycle, the clip's shots at
+    /// the burst rate plus the reload, on purpose: Coriolis's own damage cycle leaves the last
+    /// shot's interval out and its draw cycle counts it, and the Coriolis numbers are what users
+    /// cross-check. That cycle is never shorter than the burst rate, so it never exceeds it.
     pub fn sustained_eps(&self) -> f64 {
+        if or(self.get("charge"), 0.0) > 0.0 {
+            return self.eps() * self.sustained_factor();
+        }
         match self.clip() {
             Some(clip) => {
                 let rof = self.rof();
@@ -508,6 +518,39 @@ mod tests {
         assert!((m.dps() - 41.5 / 2.03).abs() < 1e-9);
         assert!((m.sustained_dps() - 41.5 / 2.2).abs() < 1e-9);
         assert!((m.sustained_factor() - 2.03 / 2.2).abs() < 1e-9);
+    }
+
+    #[test]
+    fn rail_gun_sustained_draw_uses_the_same_cycle_as_sustained_damage() {
+        // Medium fixed rail gun: a shot every 2.03 s (0.83 s interval, 1.2 s charge), clip 1,
+        // reload 1 s, so a cycle of 2.2 s: the distributor draw per shot over 2.2 s, as the damage.
+        let m = Module::new(crate::data::module("hpt_railgun_fixed_medium").unwrap());
+        let draw = m.get("distdraw").unwrap();
+        assert!(draw > 0.0);
+        assert!((m.eps() - draw / 2.03).abs() < 1e-9);
+        assert!((m.sustained_eps() - draw / 2.2).abs() < 1e-9);
+        assert!((m.sustained_eps() / m.eps() - m.sustained_factor()).abs() < 1e-9);
+    }
+
+    #[test]
+    fn an_engineered_reload_below_the_fire_interval_never_shows_sustained_above_burst() {
+        // The same rail gun with the reload engineered down to 0.1 s: a cycle of charge plus
+        // reload, 1.3 s, is shorter than the 2.03 s a shot takes, which would read as 156 % of burst.
+        let (m, missing) = journal("hpt_railgun_fixed_medium", "Weapon_Rapid", None, &[("ReloadTime", 0.1, 1.0)]);
+        assert!(missing.is_empty(), "{missing:?}");
+        assert!((m.get("reload").unwrap() - 0.1).abs() < 1e-9);
+        assert_eq!(m.sustained_factor(), 1.0);
+        assert_eq!(m.sustained_dps(), m.dps());
+        assert_eq!(m.sustained_eps(), m.eps());
+    }
+
+    #[test]
+    fn a_weapon_without_charge_with_a_tiny_reload_keeps_sustained_draw_and_damage_within_burst() {
+        let (m, missing) = journal("hpt_multicannon_fixed_medium", "Weapon_Rapid", None, &[("ReloadTime", 0.01, 5.0)]);
+        assert!(missing.is_empty(), "{missing:?}");
+        assert!(m.get("reload").unwrap() < 0.02);
+        assert!(m.sustained_dps() <= m.dps() + 1e-9);
+        assert!(m.sustained_eps() <= m.eps() + 1e-9);
     }
 
     #[test]

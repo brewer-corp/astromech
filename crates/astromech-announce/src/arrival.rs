@@ -23,7 +23,7 @@
 //!   its own line after the visits line.
 //!
 //! A system with none of these gets nothing. Known biology (Spansh) follows these lines from its
-//! own callout, [`crate::biology`]; bodies known to EDSM are not part of the briefing yet.
+//! own callout, [`crate::biology`], and the bodies known to EDSM from [`crate::known_bodies`].
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;

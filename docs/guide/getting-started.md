@@ -72,13 +72,17 @@ has gone.
 
 - Left-click the icon to open the window.
 - Right-click for the menu. The first line says what astromech is doing: "Waiting for Elite",
-  "Elite running", "Starting voice", and so on.
+  "Elite running", "Starting voice", and so on. While the [Voice tester](voice-tester.md) is
+  open it reads "Voice tester open · push-to-talk testing only".
   - **Open astromech** opens the window.
   - **Pause voice** stops it listening to push-to-talk. Spoken [callouts](callouts.md) carry on.
   - **Kill switch (stop all actions)** appears while Elite is running. When the kill switch is
     on it reads **Re-arm**.
   - **Finish setup** appears while something is missing.
   - **Restart to update** appears when an update is ready.
+  - **Check for updates** asks GitHub straight away, the same as **Check now** in Settings. While a
+    check, download or install is running it says so and does nothing. When a new version is found
+    it downloads, and **Restart to update** appears (unless `apply` is `never`, which only reports that one is available).
   - **Quit astromech** stops the whole thing.
 
 By default astromech starts with Windows, quietly in the tray. Turn that off in
@@ -92,13 +96,13 @@ downloads it when found. Updates are signed; astromech checks the signature befo
 - **Settings, Updates** shows the version and whether an update is available. **Check now**
   asks straight away. When an update is ready, **Install and restart** closes astromech for a few
   seconds and reopens it. Elite can keep running.
-- The tray menu shows **Restart to update** when one is ready.
+- The tray menu has **Check for updates**, and shows **Restart to update** when one is ready.
 - The first install is the setup.exe. Later versions are zips that replace astromech's
   files only. Your settings, history, logs and speech models are never replaced.
 - In `astromech.toml` the `[update]` table has `check` (true or false), and `apply`: `ask`
   (the default, wait for you), `on_quit` (install when astromech quits) or `never`. Open the
-  file from Settings, Files, **Open**. With no file yet, that writes the sample, which sets the kill
-  switch to Scroll Lock.
+  file from Settings, Files, **Open**. With no file yet, that writes the sample, which
+  changes no setting: its examples (push-to-talk, kill switch, paste) are comments you can uncomment.
 
 If an update does not install, Settings says why. Run the setup.exe from the release page
 instead; it keeps your data.

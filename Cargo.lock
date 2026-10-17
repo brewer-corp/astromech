@@ -196,6 +196,7 @@ dependencies = [
  "astromech-colonisation",
  "astromech-data",
  "astromech-eddn",
+ "astromech-engineering",
  "astromech-exobiology",
  "astromech-exploration",
  "astromech-galaxy",
@@ -208,17 +209,22 @@ dependencies = [
  "astromech-log",
  "astromech-market",
  "astromech-materials",
+ "astromech-odyssey",
  "astromech-policy",
  "astromech-powerplay",
  "astromech-proto",
+ "astromech-ship",
  "astromech-station",
  "astromech-status",
  "astromech-store",
  "astromech-tools",
  "astromech-voice",
  "chrono",
+ "chrono-tz",
  "clap",
  "ed25519-dalek",
+ "flate2",
+ "jsonschema",
  "notify",
  "png",
  "rusqlite",
@@ -263,6 +269,7 @@ dependencies = [
 name = "astromech-engineering"
 version = "0.1.5"
 dependencies = [
+ "astromech-data",
  "astromech-journal",
  "astromech-materials",
  "base64",
@@ -303,6 +310,7 @@ dependencies = [
  "astromech-journal",
  "astromech-materials",
  "astromech-powerplay",
+ "astromech-ship",
  "astromech-store",
  "chrono",
  "rusqlite",
@@ -491,7 +499,9 @@ dependencies = [
  "astromech-log",
  "keyring-core",
  "rusqlite",
+ "serde",
  "tempfile",
+ "toml 0.9.12+spec-1.1.0",
  "windows-native-keyring-store",
 ]
 
@@ -505,6 +515,7 @@ dependencies = [
  "astromech-galaxy",
  "astromech-gamestate",
  "astromech-journal",
+ "astromech-keybinds",
  "astromech-market",
  "astromech-policy",
  "astromech-proto",
@@ -759,6 +770,16 @@ dependencies = [
  "iana-time-zone",
  "num-traits",
  "windows-link",
+]
+
+[[package]]
+name = "chrono-tz"
+version = "0.10.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6139a8597ed92cf816dfb33f5dd6cf0bb93a6adc938f11039f371bc5bcd26c3"
+dependencies = [
+ "chrono",
+ "phf",
 ]
 
 [[package]]
@@ -2727,6 +2748,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
+name = "phf"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "913273894cec178f401a31ec4b656318d95473527be05c0752cc41cdc32be8b7"
+dependencies = [
+ "phf_shared",
+]
+
+[[package]]
+name = "phf_shared"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06005508882fb681fd97892ecff4b7fd0fee13ef1aa569f8695dae7ab9099981"
+dependencies = [
+ "siphasher",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3259,6 +3298,12 @@ name = "simdutf8"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
+
+[[package]]
+name = "siphasher"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256"
 
 [[package]]
 name = "skrifa"

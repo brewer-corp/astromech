@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewGate } from "./fakecore";
 import sample from "./fixtures/stations.json";
 import moduleSample from "./fixtures/stations-module.json";
 import shipSample from "./fixtures/stations-ship.json";
@@ -93,7 +94,10 @@ function preview(want: Want, origin: Origin, f: Filters): StationsNearby {
 
 /** The nearest stations offering `want` near `origin` (or the commander) that pass `filters`. */
 export async function stations(want: Want, origin: Origin, filters: Filters): Promise<StationsNearby> {
-  if (!inTauri) return preview(want, origin, filters);
+  if (!inTauri) {
+    await previewGate("stations_nearby");
+    return preview(want, origin, filters);
+  }
   return await invoke<StationsNearby>("stations_nearby", { want, origin, filters });
 }
 

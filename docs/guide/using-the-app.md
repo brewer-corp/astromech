@@ -57,7 +57,7 @@ you use it.
 |---|---|
 | **Spansh** (spansh.co.uk) | Nearest stations, modules and ships; raw material sites; faction states; Powerplay targets; colonisation candidates; trade routes; system name suggestions; biology other players found |
 | **Ardent Insight** (api.ardent-insight.com) | Commodity prices and markets, the cargo and colonisation buy lists |
-| **EDSM** (edsm.net) | Filling in the star map around you as you travel; your flight log, if you turn on EDSM sharing |
+| **EDSM** (edsm.net) | Filling in the star map around you as you travel; the bodies other players scanned, on arrival; your flight log, if you turn on EDSM sharing |
 | **EDDN** | Only if you turn on [Data sharing](data-sharing.md) |
 | **GitHub** | Update checks and downloads; the speech models (sherpa-onnx releases) |
 

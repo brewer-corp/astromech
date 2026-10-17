@@ -22,6 +22,13 @@ impl JournalTail {
 
     /// Complete new lines since the last call.
     pub fn read_new(&mut self) -> Vec<String> {
+        self.read_to(u64::MAX)
+    }
+
+    /// Complete lines from the current offset up to byte `limit` of the file; the rest stays for
+    /// the next call. With `limit` at a line start (a [`JournalTail::committed`] of an earlier
+    /// read) the split falls between two lines.
+    pub fn read_to(&mut self, limit: u64) -> Vec<String> {
         let Ok(mut f) = File::open(&self.path) else { return vec![] };
         let Ok(len) = f.metadata().map(|m| m.len()) else { return vec![] };
         if len < self.offset {
@@ -34,7 +41,7 @@ impl JournalTail {
             return vec![];
         }
         let mut buf = vec![];
-        if f.read_to_end(&mut buf).is_err() {
+        if f.take(limit.saturating_sub(self.offset)).read_to_end(&mut buf).is_err() {
             return vec![];
         }
         self.offset += buf.len() as u64;
@@ -81,6 +88,17 @@ mod tests {
         let l = t.read_new();
         assert_eq!(l, vec!["{\"timestamp\":\"t\",\"event\":\"B\"}".to_string()]);
         assert!(t.committed() > c);
+    }
+
+    #[test]
+    fn read_to_stops_at_the_limit_and_read_new_takes_the_rest() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-10T120000.01.log");
+        std::fs::write(&p, "{\"event\":\"A\"}\n{\"event\":\"B\"}\n{\"event\":\"C\"}\n").unwrap();
+        let first = std::fs::metadata(&p).unwrap().len() / 3 * 2;
+        let mut t = JournalTail::new(p, 0);
+        assert_eq!(t.read_to(first).len(), 2);
+        assert_eq!(t.read_new(), vec!["{\"event\":\"C\"}".to_string()]);
     }
 
     #[test]

@@ -5,7 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { fakeCall, fakeScenario, fakeStatus } from "./fakecore";
+import { fakeCall, fakeScenario, fakeStatus, previewGate } from "./fakecore";
 import type { MiningRun } from "./mining";
 
 export interface UpdateStatus {
@@ -95,7 +95,15 @@ export function freshToasts(list: Toast[], lastSeen: number | null): { show: Toa
 export const inTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
 export async function coreStatus(): Promise<CoreStatus | null> {
-  if (!inTauri) return fakeScenario() ? fakeStatus() : null;
+  if (!inTauri) {
+    if (!fakeScenario()) return null;
+    try {
+      await previewGate("core_status");
+    } catch {
+      return null;
+    }
+    return fakeStatus();
+  }
   try {
     return await invoke<CoreStatus | null>("core_status");
   } catch {
@@ -125,6 +133,8 @@ export type CoreCmd =
   | "voice_test_poll"
   | "voice_test_stop"
   | "voice_test_live"
+  | "learned_phrases"
+  | "learned_forget"
   // Onboarding and Settings → Microphone (core: setup.rs, calibration.rs).
   | "find_elite"
   | "set_ptt"
@@ -142,6 +152,9 @@ export type CoreCmd =
   | "set_voice"
   | "voice_settings"
   | "voice_preview"
+  // Settings → Callouts: each callout's switch and cooldown (core: callouts.rs, setup.rs).
+  | "callouts"
+  | "set_callout"
   // Settings → Prospector callouts (core: callouts.rs).
   | "prospector_thresholds"
   | "prospector_set"

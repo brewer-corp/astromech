@@ -6,7 +6,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { inTauri } from "./core";
-import { fakeScenario } from "./fakecore";
+import { fakeScenario, previewGate } from "./fakecore";
 import fixture from "./fixtures/sample.json";
 
 export interface Modifier { device: string; key: string }
@@ -74,6 +74,7 @@ function emptyState(): State {
 
 async function call<T>(cmd: string, args: Record<string, unknown> = {}): Promise<T> {
   if (inTauri) return await invoke<T>(cmd, args);
+  await previewGate(cmd);
   switch (cmd) {
     case "binds_state":
     case "binds_refresh_devices":

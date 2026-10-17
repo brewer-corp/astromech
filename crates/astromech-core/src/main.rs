@@ -238,7 +238,11 @@ fn run_console(args: Args) -> Result<()> {
         || args.eval.is_some();
     let mut cfg = if cfg_path.exists() {
         log(&format!("config: {}", cfg_path.display()));
-        Config::load(&cfg_path)?
+        let (c, problems) = Config::load_report(&cfg_path)?;
+        for p in &problems {
+            log(&format!("config: ignoring {p}; using the default for it"));
+        }
+        c
     } else {
         let mut alike = astromech_core::config::look_alikes(cfg_path.parent().unwrap_or(Path::new(".")));
         let exe_dir = Paths::current().exe_dir().to_path_buf();
@@ -288,9 +292,10 @@ fn run_console(args: Args) -> Result<()> {
         return calibrate_files(&cfg, &files);
     }
     if let Some(dir) = args.eval {
-        let r = astromech_core::eval::run(&dir)?;
-        println!("{}", r.summary());
-        for row in &r.rows {
+        let run = astromech_core::eval::run(&dir)?;
+        println!("{}\n", run.report.summary());
+        println!("{}", run.table("Family", |c| c.family.clone()));
+        for row in &run.report.rows {
             println!("  {}  {:?}  label={} got={}", row.id, row.kind, row.label, row.got);
         }
         return Ok(());

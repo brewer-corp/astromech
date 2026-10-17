@@ -4,6 +4,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { coreCall, inTauri } from "./core";
+import { previewData } from "./fakecore";
 import type { SourceNote } from "./materials";
 import sample from "./fixtures/engineering.json";
 import shipsSample from "./fixtures/ships.json";
@@ -271,17 +272,13 @@ function sampleFleet(): Fleet {
 }
 
 export async function loadFleet(): Promise<Fleet> {
-  if (!inTauri) return sampleFleet();
-  try {
-    return await invoke<Fleet>("engineering_fleet");
-  } catch {
-    return { ...sampleFleet(), source: "Sample journal (no live journal folder)" };
-  }
+  if (!inTauri) return previewData("engineering_fleet", sampleFleet, () => ({ source: "No journal yet", ships: [], stored_modules: [], groups: {} }));
+  return await invoke<Fleet>("engineering_fleet");
 }
 
 /** Outside the app there is no planner: only the sample ship's sample plan has a result. */
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
-  if (!inTauri) return plan.ship_id === samplePlan.ship_id ? samplePlan : null;
+  if (!inTauri) return previewData("engineering_plan", () => (plan.ship_id === samplePlan.ship_id ? samplePlan : null), () => null);
   return await invoke<PlanResult>("engineering_plan", { plan });
 }
 
@@ -330,15 +327,18 @@ export function samePlan(a: Plan, b: Plan): boolean {
 /** Current and planned stats. Outside the app only the sample's precomputed plans have them. */
 export async function shipStats(plan: Plan): Promise<Compared | null> {
   if (!inTauri) {
-    const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
-    return c ? (c.stats as unknown as StatsComparison) : null;
+    const sampled = () => {
+      const c = shipsSample.cases.find((c) => samePlan(c.plan as unknown as Plan, plan));
+      return c ? (c.stats as unknown as StatsComparison) : null;
+    };
+    return previewData("engineering_stats", sampled, () => null);
   }
   return await invoke<Compared>("engineering_stats", { plan });
 }
 
 /** Card stats by ship id, for every ship with a known loadout. */
 export async function loadHeadlines(): Promise<Record<string, Headline>> {
-  if (!inTauri) return shipsSample.headlines as unknown as Record<string, Headline>;
+  if (!inTauri) return previewData("engineering_headlines", () => shipsSample.headlines as unknown as Record<string, Headline>, () => ({}));
   return await invoke<Record<string, Headline>>("engineering_headlines");
 }
 
@@ -363,13 +363,13 @@ export function savePlan(plan: Plan): void {
 }
 
 export async function loadEngineers(): Promise<Engineers> {
-  if (!inTauri) return sample.engineers as unknown as Engineers;
+  if (!inTauri) return previewData("engineering_engineers", () => sample.engineers as unknown as Engineers, () => ({ engineers: [], here: null }));
   return await invoke<Engineers>("engineering_engineers");
 }
 
 /** Outside the app only the sample plan has a trip. */
 export async function planTrip(plan: Plan): Promise<Trip | null> {
-  if (!inTauri) return plan.ship_id === samplePlan.ship_id ? (sample.trip as unknown as Trip) : null;
+  if (!inTauri) return previewData("engineering_trip", () => (plan.ship_id === samplePlan.ship_id ? (sample.trip as unknown as Trip) : null), () => null);
   return await invoke<Trip>("engineering_trip", { plan });
 }
 

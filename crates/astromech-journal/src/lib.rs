@@ -912,6 +912,13 @@ fn journal_stamp(name: &str) -> Option<(i64, u32)> {
     Some((dt.and_utc().timestamp(), part))
 }
 
+/// The start stamp in a journal's file name (seconds, read as if the name's time were UTC) and its
+/// part number. `None` for a name that isn't a journal stamp (a sync tool's conflict copy).
+/// The game writes the name in the machine's local time, so compare it with local wall-clock time.
+pub fn journal_name_stamp(path: &Path) -> Option<(i64, u32)> {
+    journal_stamp(&path.file_name()?.to_string_lossy())
+}
+
 /// Journal logs in `dir`, oldest first by the date in the file name (both naming schemes).
 pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
     let mut v: Vec<(i64, u32, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
@@ -930,6 +937,17 @@ pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
         .collect();
     v.sort();
     v.into_iter().map(|x| x.3).collect()
+}
+
+/// The game's latest journal in `dir`: the one whose name carries the latest start time (both
+/// naming schemes). Names that aren't a journal stamp (a sync tool's conflict copy) are never it.
+pub fn latest_journal(dir: &Path) -> Option<PathBuf> {
+    std::fs::read_dir(dir)
+        .ok()?
+        .flatten()
+        .filter_map(|e| Some((journal_stamp(&e.file_name().to_string_lossy())?, e.path())))
+        .max()
+        .map(|x| x.1)
 }
 
 /// Changes whenever something read from the journals could give a different answer: a journal file
@@ -1035,11 +1053,17 @@ impl<T> JournalCache<T> {
 
     /// The cached value, or `build()`'s if the journals changed since it was built.
     pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        self.get_fresh(dir, |_| true, build)
+    }
+
+    /// Like [`JournalCache::get`], and also rebuilds when `fresh` says the cached value has gone
+    /// stale without any journal change (it was settled against a clock that has moved on).
+    pub fn get_fresh(&self, dir: &Path, fresh: impl Fn(&T) -> bool, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
         // A build that panicked left no value behind; the next call builds again.
         let mut g = self.0.lock().unwrap_or_else(|e| e.into_inner());
         let generation = g.0.poll(dir);
         if let Some((built_at, v)) = &g.1 {
-            if *built_at == generation {
+            if *built_at == generation && fresh(v) {
                 return v.clone();
             }
         }
@@ -1071,6 +1095,28 @@ pub fn parse_file(path: &Path) -> Vec<JournalLine> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_latest_journal_is_by_the_stamp_in_its_name_and_never_a_conflict_copy() {
+        let d = tempfile::tempdir().unwrap();
+        for n in [
+            "Journal.221014080000.01.log",
+            "Journal.2026-10-16T120000.01.log",
+            "Journal.2026-10-16T120000.02.log",
+            "Journal.2026-10-16T120000.02-DESKTOP-ABC.log",
+            "Journal.2026-10-16T120000.02 (conflicted copy).log",
+        ] {
+            std::fs::write(d.path().join(n), "").unwrap();
+        }
+        let t = std::time::SystemTime::now() + std::time::Duration::from_secs(60);
+        std::fs::File::options()
+            .write(true)
+            .open(d.path().join("Journal.221014080000.01.log"))
+            .unwrap()
+            .set_modified(t)
+            .unwrap();
+        assert_eq!(latest_journal(d.path()), Some(d.path().join("Journal.2026-10-16T120000.02.log")));
+    }
     #[test]
     fn known_and_unknown_events() {
         let l = parse_line(

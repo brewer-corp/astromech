@@ -1,6 +1,7 @@
 <script lang="ts">
   // Powerplay for daily use: my standing and the current system's state from the journal, and
   // where my power wants work nearby (Spansh).
+  import { failure } from "../../lib/ui/errors";
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -17,7 +18,7 @@
           ov = v;
           err = null;
         })
-        .catch((e: unknown) => (err = String(e)));
+        .catch((e: unknown) => (err = failure("read your Powerplay standing", e)));
     void load();
     const t = setInterval(() => void load(), 2000);
     return () => clearInterval(t);
@@ -66,7 +67,7 @@
   <div class="panel">
     <h3>This system</h3>
     {#if !ov}
-      <p class="lo">Reading the journal…</p>
+      <p class="lo">{err ? "Not shown until the journal can be read." : "Reading the journal…"}</p>
     {:else if !ov.here}
       <p class="lo">No jump or location in the journal yet.</p>
     {:else if !sys}
@@ -103,7 +104,7 @@
   <div class="panel">
     <h3>What earns merits here</h3>
     {#if !ov}
-      <p class="lo">Reading the journal…</p>
+      <p class="lo">{err ? "Not shown until the journal can be read." : "Reading the journal…"}</p>
     {:else if !st?.power}
       <p class="lo">Pledge to a power to see what earns it merits here.</p>
     {:else if !sys}

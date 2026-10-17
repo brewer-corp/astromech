@@ -81,6 +81,32 @@ mod tests {
         assert_eq!(wakes.cells[0].count, 4);
     }
 
+    /// The game logs everything picked up, but a material stops at its grade's cap (a real
+    /// journal: 99 + 3 of a grade 5 made 100 at the next login, and trading 96 away left 4).
+    #[test]
+    fn collecting_past_the_cap_stops_at_the_cap() {
+        let l = replay_lines([
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"Materials","Raw":[{"Name":"iron","Count":299}],"Manufactured":[{"Name":"fedcorecomposites","Name_Localised":"Core Dynamics Composites","Count":99}],"Encoded":[]}"#,
+            r#"{"timestamp":"2026-10-11T00:01:00Z","event":"MaterialCollected","Category":"Manufactured","Name":"fedcorecomposites","Name_Localised":"Core Dynamics Composites","Count":3}"#,
+            r#"{"timestamp":"2026-10-11T00:02:00Z","event":"MaterialCollected","Category":"Raw","Name":"iron","Count":3}"#,
+            r#"{"timestamp":"2026-10-11T00:03:00Z","event":"MaterialCollected","Category":"Raw","Name":"notarealmat","Count":400}"#,
+        ]);
+        assert_eq!((l.count("fedcorecomposites"), l.count("iron")), (100, 300));
+        assert_eq!(l.count("notarealmat"), 400, "an unknown material has no known cap");
+        let l = replay_lines([
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"Materials","Raw":[{"Name":"iron","Count":299}],"Manufactured":[{"Name":"fedcorecomposites","Name_Localised":"Core Dynamics Composites","Count":99}],"Encoded":[]}"#,
+            r#"{"timestamp":"2026-10-11T00:01:00Z","event":"MaterialCollected","Category":"Manufactured","Name":"fedcorecomposites","Name_Localised":"Core Dynamics Composites","Count":3}"#,
+            r#"{"timestamp":"2026-10-11T00:04:00Z","event":"MaterialTrade","MarketID":3221397760,"TraderType":"manufactured","Paid":{"Material":"fedcorecomposites","Material_Localised":"Core Dynamics Composites","Category":"Manufactured","Quantity":96},"Received":{"Material":"compoundshielding","Material_Localised":"Compound Shielding","Category":"Manufactured","Quantity":4}}"#,
+        ]);
+        assert_eq!(l.count("fedcorecomposites"), 4);
+        // A count already over the catalogue's cap (a snapshot says so) is never lowered by a gain.
+        let l = replay_lines([
+            r#"{"timestamp":"2026-10-11T00:00:00Z","event":"Materials","Raw":[{"Name":"iron","Count":320}],"Manufactured":[],"Encoded":[]}"#,
+            r#"{"timestamp":"2026-10-11T00:01:00Z","event":"MaterialCollected","Category":"Raw","Name":"iron","Count":1}"#,
+        ]);
+        assert_eq!(l.count("iron"), 320);
+    }
+
     #[test]
     fn unknown_material_lands_in_other() {
         let l = replay_lines([

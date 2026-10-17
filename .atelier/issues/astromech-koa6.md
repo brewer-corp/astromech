@@ -5,6 +5,9 @@ issue_type: "bug"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-koa6
 priority: "P3"
 relationships:
   blocks: []
@@ -13,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:45:31.833848123+00:00"
+status: "done"
 title: "Data sharing page says 30 minutes; the sender uses 5"
-updated_at: "2026-10-17T17:41:20.458144468+00:00"
+updated_at: "2026-10-17T19:45:31.833848123+00:00"
 ---
 
 ## Goal
@@ -25,3 +29,7 @@ app/src/modules/datasharing/View.svelte says nothing older than 30 minutes is se
 ## Done when
 
 The page and the sender agree, and docs/guide/data-sharing.md says the same number. Found while writing the user guide.
+
+## Close Reason
+
+Fixed in PR 136; guide and page match the sender (two limits, EDDN-only 30 min)
