@@ -264,6 +264,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-exobiology"
+version = "0.1.5"
+
+[[package]]
 name = "astromech-galaxy"
 version = "0.1.5"
 dependencies = [

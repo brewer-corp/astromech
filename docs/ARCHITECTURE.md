@@ -243,6 +243,8 @@ astromech/
                          suit/weapon grade upgrades and modifications with what's missing, a shopping
                          list, on-foot engineers (EngineerProgress 4000xx, referral chain), bartender
                          values; game data from data/catalog/odyssey.json
+    astromech-exobiology/ exobiology: surface guidance (great-circle bearing and distance between two
+                         latitude/longitude points on a body of Status.json's PlanetRadius)
     astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
                          cycle, next rank and reward), the system's state on arrival and its spoken
                          line, what earns merits there (per acquire / conflict / reinforce / undermine

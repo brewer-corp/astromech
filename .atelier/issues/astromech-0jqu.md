@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Surface guidance"
-updated_at: "2026-10-17T04:39:43.219502867+00:00"
+updated_at: "2026-10-17T04:46:45.142718928+00:00"
 ---
 
 ## Goal

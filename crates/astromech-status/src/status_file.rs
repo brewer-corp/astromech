@@ -38,6 +38,21 @@ pub struct StatusSnap {
     pub legal_state: Option<String>,
     pub body_name: Option<String>,
     pub balance: Option<i64>,
+    /// Position over or on a body (`Latitude`, `Longitude` in degrees; `Altitude` in metres,
+    /// `Heading` in degrees). Present only near a planet's surface.
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub altitude: Option<f64>,
+    pub heading: Option<f64>,
+    /// The body's radius in metres (`PlanetRadius`, Odyssey), present with the position.
+    pub planet_radius: Option<f64>,
+}
+
+impl StatusSnap {
+    /// Latitude and longitude, when Status.json gives both.
+    pub fn lat_lon(&self) -> Option<(f64, f64)> {
+        Some((self.latitude?, self.longitude?))
+    }
 }
 
 /// Parse Status.json contents. Returns None for partial/invalid writes or when there are no Flags
@@ -56,6 +71,11 @@ pub fn parse_status(bytes: &[u8]) -> Option<StatusSnap> {
         legal_state: v.get("LegalState").and_then(|x| x.as_str()).map(str::to_string),
         body_name: v.get("BodyName").and_then(|x| x.as_str()).filter(|s| !s.is_empty()).map(str::to_string),
         balance: v.get("Balance").and_then(|x| x.as_i64()),
+        latitude: v.get("Latitude").and_then(|x| x.as_f64()),
+        longitude: v.get("Longitude").and_then(|x| x.as_f64()),
+        altitude: v.get("Altitude").and_then(|x| x.as_f64()),
+        heading: v.get("Heading").and_then(|x| x.as_f64()),
+        planet_radius: v.get("PlanetRadius").and_then(|x| x.as_f64()),
     })
 }
 
@@ -112,4 +132,23 @@ pub fn latest_fileheader(dir: &Path) -> Option<GameBuild> {
         }
     }
     Some(GameBuild { journal: path, gameversion: None, build: None })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn position_on_a_body_is_read() {
+        let s = parse_status(
+            br#"{"timestamp":"2026-10-17T12:00:00Z","event":"Status","Flags":2097152,"Flags2":16,
+                "Latitude":-12.345678,"Longitude":101.5,"Altitude":0,"Heading":271,
+                "BodyName":"Synthetic 1 a","PlanetRadius":2964202.5}"#,
+        )
+        .unwrap();
+        assert_eq!(s.lat_lon(), Some((-12.345678, 101.5)));
+        assert_eq!((s.altitude, s.heading, s.planet_radius), (Some(0.0), Some(271.0), Some(2964202.5)));
+        let s = parse_status(br#"{"Flags":16777216}"#).unwrap();
+        assert_eq!((s.lat_lon(), s.planet_radius), (None, None));
+    }
 }
