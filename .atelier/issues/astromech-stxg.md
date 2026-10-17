@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T17:10:57.551420734+00:00"
+status: "done"
 title: "Guide skeleton, README rewrite and the docs rule"
-updated_at: "2026-10-17T17:04:03.942735513+00:00"
+updated_at: "2026-10-17T17:10:57.551420734+00:00"
 ---
 
 ## Goal
@@ -24,3 +25,7 @@ Set up `docs/guide/` (an index plus one page per area), rewrite the README as a 
 ## Done when
 
 The README describes the current app (no M0/gear-down-slice framing), links every guide page, and CONTRIBUTING.md says a user-visible change updates its guide page in the same PR.
+
+## Close Reason
+
+Skeleton, README and CONTRIBUTING docs rule done; guide link checker passes.
