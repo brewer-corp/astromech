@@ -13,9 +13,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T18:19:56.378148073+00:00"
+status: "done"
 title: "Merge task/astromech-3cxd (per-PR CI trim)"
-updated_at: "2026-10-17T17:01:43.577137961+00:00"
+updated_at: "2026-10-17T18:19:56.378148073+00:00"
 ---
 
 ## Goal
@@ -25,3 +26,7 @@ Land the per-PR CI trim from `task/astromech-3cxd` (one commit: Release build on
 ## Done when
 
 The branch is reviewed and merged to main with its record, and a docs-only PR after it skips the Release build (CI run linked as evidence).
+
+## Close Reason
+
+PR #61 merged into main (dd5e92c) after two independent reviews; see astromech-3cxd.
