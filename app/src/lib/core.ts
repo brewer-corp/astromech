@@ -138,7 +138,9 @@ export type CoreCmd =
   | "voice_preview"
   // Settings → Prospector callouts (core: callouts.rs).
   | "prospector_thresholds"
-  | "prospector_set";
+  | "prospector_set"
+  // Engineering → the arrival briefing's shopping list (core: callouts.rs).
+  | "shopping_set";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };

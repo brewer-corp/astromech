@@ -165,6 +165,8 @@ version = "0.1.5"
 dependencies = [
  "astromech-gamestate",
  "astromech-journal",
+ "astromech-materials",
+ "astromech-powerplay",
  "astromech-status",
  "serde",
  "toml 0.9.12+spec-1.1.0",
@@ -197,7 +199,9 @@ dependencies = [
  "astromech-journal",
  "astromech-keybinds",
  "astromech-market",
+ "astromech-materials",
  "astromech-policy",
+ "astromech-powerplay",
  "astromech-proto",
  "astromech-station",
  "astromech-status",

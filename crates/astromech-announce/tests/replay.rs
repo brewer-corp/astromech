@@ -291,15 +291,60 @@ fn catch_up_leaves_docking_quiet_in_place() {
     assert_eq!(r.spoken(), ["Cargo scan."]);
 }
 
+/// One line per built-in rule that makes it speak, at minute `hm` ("19:59").
+fn one_line_per_rule(hm: &str) -> Vec<String> {
+    vec![
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:00Z","event":"ProspectedAsteroid","Materials":[{{"Name":"Platinum","Proportion":40.0}}],"MotherlodeMaterial":"Opal","Remaining":100.0}}"#
+        ),
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:10Z","event":"Scanned","ScanType":"Cargo"}}"#),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:20Z","event":"Scan","ScanType":"AutoScan","BodyName":"Sys A","DistanceFromArrivalLS":0.0,"StarType":"K","WasDiscovered":false}}"#
+        ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:30Z","event":"DockingDenied","Reason":"NoSpace","StationType":"Coriolis"}}"#
+        ),
+        // On the route below, at a neutron star with 1 t left: scoopable and fuel_range.
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0}}"#
+        ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
+        ),
+    ]
+}
+
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 2, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 8, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
-    let rock = r#"{"timestamp":"2026-10-16T19:59:00Z","event":"ProspectedAsteroid","Materials":[{"Name":"Platinum","Proportion":40.0}],"MotherlodeMaterial":"Opal","Remaining":100.0}"#;
-    r.journal(&[rock.to_string(), scanned("19:59:10")].join("\n"));
+    let route = br#"{"Route":[{"StarSystem":"Start","StarPos":[0,0,0],"StarClass":"K"},{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"B","StarPos":[40,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[60,0,0],"StarClass":"G"}]}"#;
+    r.state.apply_route(&astromech_journal::parse_nav_route(route).unwrap());
+    r.journal(&one_line_per_rule("19:59").join("\n"));
+    // The route file read at startup.
+    let rs =
+        r.engine.route(&astromech_journal::parse_nav_route(route).unwrap(), &r.state, r.at("2026-10-16T19:59:50Z"));
+    r.record(rs);
     assert!(r.out.is_empty(), "{:?}", r.out);
     r.engine.set_live(true);
-    r.journal(&[rock.replace("19:59:00", "20:00:00"), scanned("20:00:10")].join("\n"));
-    assert_eq!(r.spoken(), ["Motherlode. Void Opals. Platinum 40%.", "Cargo scan."]);
+    r.journal(&one_line_per_rule("20:00").join("\n"));
+    // A new route once live.
+    let replot = br#"{"Route":[{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"},{"StarSystem":"B","StarPos":[60,0,0],"StarClass":"M"},{"StarSystem":"C","StarPos":[80,0,0],"StarClass":"K"}]}"#;
+    let replot = astromech_journal::parse_nav_route(replot).unwrap();
+    let rs = r.engine.route(&replot, &r.state, r.at("2026-10-16T20:00:50Z"));
+    r.record(rs);
+    assert_eq!(
+        r.spoken(),
+        [
+            "Motherlode. Void Opals. Platinum 40%.",
+            "Cargo scan.",
+            "Undiscovered system.",
+            "Docking denied. No free pad.",
+            "Next scoopable star in 2 jumps.",
+            "Fuel too low to reach a scoopable star.",
+            "High Grade Emissions.",
+            "Route: 3 jumps, 60 ly.",
+        ]
+    );
 }

@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T02:01:10.055210005+00:00"
+status: "done"
 title: "High Grade Emissions callout"
-updated_at: "2026-10-15T20:36:13.650423373+00:00"
+updated_at: "2026-10-17T02:01:10.055210005+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Replay tests: an HGE signal in a Famine system names the right pool; non-HGE sig
 ## Context
 
 The pool logic exists in `crates/astromech-materials/src/hge.rs`.
+
+## Close Reason
+
+HGE signals are announced with the spawning faction's likely pool (Famine system case tested), other signals stay quiet, and arrival says 'Good for <material>' for a billion-plus system whose allegiance pool has a wanted material (evidence astromech-21jd).

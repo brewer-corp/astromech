@@ -1000,6 +1000,7 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "voice_test_live",
         "prospector_thresholds",
         "prospector_set",
+        "shopping_set",
         "find_elite",
         "set_ptt",
         "set_kill_switch",

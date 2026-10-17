@@ -595,10 +595,30 @@ impl Core {
                 match res {
                     Ok(t) => {
                         if let Some(s) = self.session.lock().unwrap().as_ref() {
-                            *s.prospector.write().unwrap() = t.clone();
+                            *s.shared.prospector.write().unwrap() = t.clone();
                         }
                         log(&format!("prospector thresholds changed: {text}"));
                         crate::callouts::thresholds_json(&t)
+                    }
+                    Err(e) => json!({"ok": false, "error": e}),
+                }
+            }
+            "shopping_set" => {
+                let text = r.text.clone().unwrap_or_default();
+                let res = std::fs::create_dir_all(self.cfg().data_dir())
+                    .map_err(|e| e.to_string())
+                    .and_then(|_| {
+                        astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite"))
+                            .map_err(|e| format!("opening the database: {e}"))
+                    })
+                    .and_then(|st| crate::callouts::change_shopping(&st, &text));
+                match res {
+                    Ok(list) => {
+                        let n = list.0.len();
+                        if let Some(s) = self.session.lock().unwrap().as_ref() {
+                            *s.shared.shopping.write().unwrap() = list;
+                        }
+                        json!({"ok": true, "materials": n})
                     }
                     Err(e) => json!({"ok": false, "error": e}),
                 }

@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{builtin, prospector, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, hge, prospector, route, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["prospector", "scan"],
+        ["arrival", "docking", "fuel_range", "hge", "prospector", "route", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -46,8 +46,107 @@ fn callout_lines() -> Vec<String> {
             v.push(scan::line(kind, stolen).0);
         }
     }
+    v.extend(arrival_lines());
+    for pad in 0..=46 {
+        v.extend(docking::pad_line(pad, "Coriolis"));
+    }
+    for jumps in [None, Some(1), Some(2), Some(99)] {
+        v.push(fuel::next_line(jumps));
+        for here_scoopable in [None, Some(false), Some(true)] {
+            let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0), new_stretch: true };
+            v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
+        }
+    }
+    v.push(hge::line(None, &[]));
+    for pool in ["fed_composites", "empire_shielding", "proto", "military", "improvised", "pharma"] {
+        v.push(hge::line(Some(pool), &[]));
+        for spec in astromech_materials::catalog::catalog() {
+            v.push(hge::line(Some(pool), &[spec.id.to_string()]));
+        }
+    }
+    for first in [false, true] {
+        for to_end in [false, true] {
+            v.push(route::gap_line(250, first, to_end));
+        }
+    }
+    let hop = |c: &str, x: f64| astromech_journal::RouteHop {
+        system: "Synuefe BY-F d12-39".into(),
+        star_class: Some(c.into()),
+        star_pos: Some([x, 0.0, 0.0]),
+    };
+    let long: Vec<_> = (0..300).map(|i| hop(if i % 2 == 0 { "N" } else { "DA" }, i as f64 * 61.7)).collect();
+    v.push(route::summary_line(&long));
+    v.push(route::summary_line(&[hop("K", 0.0), astromech_journal::RouteHop { star_pos: None, ..hop("K", 1.0) }]));
+    for hops in [&long[..], &long[..3]] {
+        v.extend(route::stars_line(hops, route::white_dwarf, "White dwarf", "white dwarfs"));
+        v.extend(route::stars_line(hops, route::neutron, "Neutron star", "neutron stars"));
+    }
+    for reason in [
+        "NoSpace",
+        "TooLarge",
+        "Hostile",
+        "Offences",
+        "Distance",
+        "ActiveFighter",
+        "NoReason",
+        "RestrictedAccess",
+        "DockOffline",
+        "JumpImminent",
+        "Unknown",
+    ] {
+        v.push(docking::denied_line(Some(reason)));
+    }
     v.sort();
     v.dedup();
+    v
+}
+
+/// The arrival briefing: every state with every material it can name, alone and followed by
+/// each Powerplay line; the undiscovered line.
+fn arrival_lines() -> Vec<String> {
+    use astromech_journal::FactionSnap;
+    use astromech_powerplay::{PowerShare, SystemPower};
+    let faction = |allegiance: &str, state: &str| FactionSnap {
+        name: "F".into(),
+        allegiance: allegiance.into(),
+        state: state.into(),
+        influence: 0.5,
+        active_states: vec![state.into()],
+    };
+    let states = [
+        faction("Independent", "Boom"),
+        faction("Empire", "War"),
+        faction("Empire", "CivilWar"),
+        faction("Alliance", "CivilUnrest"),
+        faction("Alliance", "Outbreak"),
+        faction("Federation", "Famine"),
+        faction("Federation", "None"),
+        faction("Empire", "None"),
+    ];
+    let enemy = SystemPower {
+        system: "S".into(),
+        controlling_power: Some("Zachary Hudson".into()),
+        state: Some("Fortified".into()),
+        control_progress: Some(0.5),
+        reinforcement: Some(10),
+        undermining: Some(20),
+        contesting: vec![],
+        acquisition: vec![],
+    };
+    let unoccupied = SystemPower {
+        controlling_power: None,
+        acquisition: vec![PowerShare { power: "Aisling Duval".into(), progress: 0.3 }],
+        ..enemy.clone()
+    };
+    let mut v = vec![arrival::UNDISCOVERED.to_string()];
+    for spec in astromech_materials::catalog::catalog() {
+        let wanted = vec![spec.id.to_string()];
+        for f in &states {
+            for system in [None, Some(&enemy), Some(&unoccupied)] {
+                v.extend(arrival::line(std::slice::from_ref(f), 2_000_000_000, &wanted, system, Some("Aisling Duval")));
+            }
+        }
+    }
     v
 }
 
@@ -149,6 +248,16 @@ fn every_line_keeps_to_the_copy_guide() {
     // The enumeration really reaches the rules and the tools.
     assert!(callouts.iter().any(|l| l == "Motherlode. Void Opals."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Cargo scan. Stolen goods aboard."));
+    assert!(callouts.iter().any(|l| l == "Boom here. Proto Heat Radiators. Undermining target."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Pad at eleven, middle."));
+    assert!(callouts.iter().any(|l| l == "Scoop here. Next scoopable star out of reach."));
+    assert!(callouts.iter().any(|l| l == "Next scoopable star in 99 jumps."));
+    assert!(callouts.iter().any(|l| l == "150 white dwarfs, first at jump 1."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Fuel gap: 250 jumps between scoopable stars."));
+    assert!(callouts.iter().any(|l| l == "High Grade Emissions. Federation composites."));
+    assert!(callouts.iter().any(|l| l == "Good for Core Dynamics Composites. Undermining target."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
+    assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));
     assert!(replies.iter().any(|l| l.starts_with("Supercruise is not available")), "{replies:?}");

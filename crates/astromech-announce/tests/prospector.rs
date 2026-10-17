@@ -29,7 +29,8 @@ struct Run {
 impl Run {
     fn new() -> Self {
         let thresholds = SharedThresholds::default();
-        let mut engine = Engine::new(builtin(thresholds.clone()), &Settings::default());
+        let mut engine =
+            Engine::new(builtin(Shared { prospector: thresholds.clone(), ..Default::default() }), &Settings::default());
         engine.set_live(true);
         Self { engine, thresholds, t0: Instant::now(), n: 0 }
     }

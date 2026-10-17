@@ -136,6 +136,24 @@ fn rule_for_faction(f: &FactionSnap, population: i64) -> Option<&'static Rule> {
     None
 }
 
+/// The pool a faction would spawn High Grade Emissions from, as its lookup id
+/// (`fed_composites`, `empire_shielding`, `proto`, `military`, `improvised`, `pharma`; the
+/// ids of `astromech_galaxy::QUERIES`), or None.
+pub fn faction_pool(f: &FactionSnap, population: i64) -> Option<&'static str> {
+    rule_for_faction(f, population).map(|r| r.id)
+}
+
+/// The materials of a pool id from [`faction_pool`].
+pub fn pool_materials(pool: &str) -> &'static [&'static str] {
+    RULES.iter().find(|r| r.id == pool).map(|r| r.ids).unwrap_or(&[])
+}
+
+/// Whether the faction is in `state` (as the journal or Spansh writes it: "Civil War",
+/// "CivilWar" and "civilwar" are the same), as its main state or an active one.
+pub fn in_state(f: &FactionSnap, state: &str) -> bool {
+    has_state(&faction_states(f), &key(state))
+}
+
 pub fn pool_for_factions(factions: &[FactionSnap], population: i64) -> Vec<PoolMat> {
     let mut scored: Vec<(&Rule, f64)> = vec![];
     for f in factions {

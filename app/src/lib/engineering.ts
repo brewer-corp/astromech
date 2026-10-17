@@ -3,7 +3,7 @@
  * localStorage), and the materials and ship stats a plan gives, computed by the shell.
  */
 import { invoke } from "@tauri-apps/api/core";
-import { inTauri } from "./core";
+import { coreCall, inTauri } from "./core";
 import type { SourceNote } from "./materials";
 import sample from "./fixtures/engineering.json";
 import shipsSample from "./fixtures/ships.json";
@@ -281,6 +281,39 @@ export async function loadFleet(): Promise<Fleet> {
 export async function evaluatePlan(plan: Plan): Promise<PlanResult | null> {
   if (!inTauri) return plan.ship_id === samplePlan.ship_id ? samplePlan : null;
   return await invoke<PlanResult>("engineering_plan", { plan });
+}
+
+/** One material for the core's shopping list: collect it until holding `until`. */
+export interface Want {
+  id: string;
+  until: number;
+}
+
+/**
+ * What the core's arrival briefing listens for: the materials this plan still has to collect, each
+ * with the count to hold when done. The core compares that with the materials held, so collecting
+ * in game needs no new list. An empty plan sends an empty list, which drops the ship.
+ */
+export function shoppingChange(r: PlanResult): { ship_id: number; materials: Want[] } {
+  return { ship_id: r.ship_id, materials: r.farm.map((f) => ({ id: f.id, until: f.have + f.collect })) };
+}
+
+function sendShopping(change: { ship_id: number; materials: Want[] }): void {
+  if (!inTauri) return;
+  coreCall("shopping_set", JSON.stringify(change)).catch(() => {});
+}
+
+/**
+ * Tell the core what this plan still needs, so arriving in a system whose state gives one of them
+ * is spoken (core callouts.rs `shopping_set`). Best effort: an older or stopped core is ignored.
+ */
+export function shareShoppingList(r: PlanResult): void {
+  sendShopping(shoppingChange(r));
+}
+
+/** The ship has no plan the core should listen for (it left the fleet). */
+export function dropShoppingList(shipId: number): void {
+  sendShopping({ ship_id: shipId, materials: [] });
 }
 
 const targetKey = (t: Target) => [t.slot, t.blueprint, t.grade, t.experimental ?? ""].join("|");

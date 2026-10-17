@@ -7,6 +7,7 @@
 
 use crate::logging::log;
 use crate::speech::Speaker;
+use astromech_announce::arrival::{ShoppingList, Want};
 use astromech_announce::prospector::{self, Thresholds};
 use astromech_announce::{Engine, Reaction, SpeechQueue};
 use serde::Serialize;
@@ -72,6 +73,68 @@ pub fn change_thresholds(store: &astromech_store::Store, text: &str) -> Result<T
     let v = serde_json::to_string(&t).map_err(|e| e.to_string())?;
     store.set(PROSPECTOR_KEY, &v).map_err(|e| format!("saving the prospector thresholds: {e}"))?;
     Ok(t)
+}
+
+/// Where the arrival briefing's shopping list lives in `astromech-store`: per ship id, what its
+/// Engineering plan still has to collect, each material with the count to hold when done (JSON
+/// object of `[{"id", "until"}]` lists). The app sends a ship's list whenever its plan is worked
+/// out; the rules compare it with the materials held, so collecting needs no new list.
+pub const SHOPPING_KEY: &str = "callouts.arrival.shopping";
+
+type ShipLists = std::collections::BTreeMap<String, Vec<Want>>;
+
+fn ship_lists(store: &astromech_store::Store) -> ShipLists {
+    match store.get(SHOPPING_KEY) {
+        Ok(Some(v)) => serde_json::from_str(&v).unwrap_or_else(|e| {
+            log(&format!("the shopping list in the database is unreadable ({e}); starting empty"));
+            ShipLists::new()
+        }),
+        Ok(None) => ShipLists::new(),
+        Err(e) => {
+            log(&format!("couldn't read the shopping list ({e}); starting empty"));
+            ShipLists::new()
+        }
+    }
+}
+
+/// Every ship's list in one, each material once with the highest count any ship wants (ships
+/// in id order, each list in its order).
+fn merged(lists: &ShipLists) -> ShoppingList {
+    let mut all: Vec<Want> = vec![];
+    for w in lists.values().flatten() {
+        match all.iter_mut().find(|a| a.id == w.id) {
+            Some(a) => a.until = a.until.max(w.until),
+            None => all.push(w.clone()),
+        }
+    }
+    ShoppingList(all)
+}
+
+/// The stored shopping list (empty if none or unreadable, logged).
+pub fn load_shopping(store: &astromech_store::Store) -> ShoppingList {
+    merged(&ship_lists(store))
+}
+
+/// A plan worked out in the app: `{"ship_id": 7, "materials": [{"id": "protoheatradiators",
+/// "until": 12}, ...]}` (an empty list drops the ship). Returns the new merged list.
+pub fn change_shopping(store: &astromech_store::Store, text: &str) -> Result<ShoppingList, String> {
+    #[derive(serde::Deserialize)]
+    struct Change {
+        ship_id: i64,
+        materials: Vec<Want>,
+    }
+    let c: Change = serde_json::from_str(text).map_err(|e| format!("bad shopping list: {e}"))?;
+    let mut lists = ship_lists(store);
+    let materials: Vec<Want> =
+        c.materials.into_iter().map(|w| Want { id: w.id.to_ascii_lowercase(), until: w.until }).collect();
+    if materials.is_empty() {
+        lists.remove(&c.ship_id.to_string());
+    } else {
+        lists.insert(c.ship_id.to_string(), materials);
+    }
+    let v = serde_json::to_string(&lists).map_err(|e| e.to_string())?;
+    store.set(SHOPPING_KEY, &v).map_err(|e| format!("saving the shopping list: {e}"))?;
+    Ok(merged(&lists))
 }
 
 /// The engine plus where its reactions go. Lives on the pipeline thread.
@@ -586,6 +649,34 @@ mod tests {
         assert!(change_thresholds(&store, "not json").is_err());
         store.set(PROSPECTOR_KEY, "{broken").unwrap();
         assert_eq!(load_thresholds(&store), Thresholds::default());
+    }
+
+    #[test]
+    fn the_shopping_list_is_kept_per_ship_and_merged() {
+        let store = astromech_store::Store::in_memory().unwrap();
+        assert_eq!(load_shopping(&store), ShoppingList::default());
+        let ids = |l: &ShoppingList| l.0.iter().map(|w| (w.id.clone(), w.until)).collect::<Vec<_>>();
+        change_shopping(
+            &store,
+            r#"{"ship_id":7,"materials":[{"id":"ProtoHeatRadiators","until":12},{"id":"dataminedwake","until":30}]}"#,
+        )
+        .unwrap();
+        let l = change_shopping(
+            &store,
+            r#"{"ship_id":3,"materials":[{"id":"dataminedwake","until":45},{"id":"militarygradealloys","until":6}]}"#,
+        )
+        .unwrap();
+        // Each material once, at the highest count wanted.
+        assert_eq!(
+            ids(&l),
+            [("dataminedwake".into(), 45), ("militarygradealloys".into(), 6), ("protoheatradiators".into(), 12)]
+        );
+        // A ship's new plan replaces its old list; an empty one drops it.
+        change_shopping(&store, r#"{"ship_id":3,"materials":[]}"#).unwrap();
+        assert_eq!(ids(&load_shopping(&store)), [("protoheatradiators".into(), 12), ("dataminedwake".into(), 30)]);
+        assert!(change_shopping(&store, "not json").is_err());
+        store.set(SHOPPING_KEY, "{broken").unwrap();
+        assert_eq!(load_shopping(&store), ShoppingList::default());
     }
 
     #[test]

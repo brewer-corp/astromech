@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T01:45:34.689552708+00:00"
+status: "done"
 title: "Arrival briefing"
-updated_at: "2026-10-15T20:36:13.658000951+00:00"
+updated_at: "2026-10-17T01:45:34.689552708+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ Replay tests: a system matching the shopping list gets its state line; a visited
 ## Context
 
 The single most-used EDCoPilot feature.
+
+## Close Reason
+
+Arrival rule speaks a shopping-list faction state, Undermining/Acquisition target for the pledged power, and Undiscovered system from the arrival AutoScan; star class, security and allegiance never spoken (evidence astromech-knhn). Bodies known to EDSM split to astromech-8sx3; visit history stays with astromech-2myu.
