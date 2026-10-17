@@ -30,6 +30,7 @@ astromech-input = { path = "../../crates/astromech-input" }
 astromech-materials = { path = "../../crates/astromech-materials" }
 astromech-engineering = { path = "../../crates/astromech-engineering" }
 astromech-ship = { path = "../../crates/astromech-ship" }
+astromech-data = { path = "../../crates/astromech-data" }
 astromech-galaxy = { path = "../../crates/astromech-galaxy" }
 astromech-market = { path = "../../crates/astromech-market" }
 astromech-colonisation = { path = "../../crates/astromech-colonisation" }

@@ -191,7 +191,7 @@ export interface CargoPlan {
   load: { symbol: string; name: string; tonnes: number }[];
   kept: { name: string; tonnes: number; reason: string }[];
   stations: StationSale[];
-  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null }[];
+  per_commodity: { commodity: string; name: string; carried: number; best: Offer | null; partial?: Offer | null }[];
   fetched_at: number;
 }
 
@@ -213,7 +213,11 @@ export async function tradeCargo(origin: Origin = null, filters: Filters | null 
     plan: {
       ...s.cargo,
       stations: s.cargo.stations.filter(keep),
-      per_commodity: s.cargo.per_commodity.map((c) => ({ ...c, best: c.best && keep(c.best) ? c.best : null })),
+      per_commodity: s.cargo.per_commodity.map((c) => ({
+        ...c,
+        best: c.best && keep(c.best) ? c.best : null,
+        partial: c.partial && keep(c.partial) ? c.partial : null,
+      })),
     },
   };
 }
