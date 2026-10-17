@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T19:22:32.887513164+00:00"
+status: "done"
 title: "Opening the config writes a sample that silently sets Scroll Lock as the kill switch"
-updated_at: "2026-10-17T19:15:28.480793541+00:00"
+updated_at: "2026-10-17T19:22:32.887513164+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ A test calls open_config on an empty data folder and the written file changes no
 ## Context
 
 Found by the guide accuracy check (astromech-mf5e).
+
+## Close Reason
+
+Fixed in PR 128; test the_sample_config_written_by_open_config_changes_no_setting
