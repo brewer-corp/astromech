@@ -292,9 +292,10 @@ fn run_console(args: Args) -> Result<()> {
         return calibrate_files(&cfg, &files);
     }
     if let Some(dir) = args.eval {
-        let r = astromech_core::eval::run(&dir)?;
-        println!("{}", r.summary());
-        for row in &r.rows {
+        let run = astromech_core::eval::run(&dir)?;
+        println!("{}\n", run.report.summary());
+        println!("{}", run.table("Family", |c| c.family.clone()));
+        for row in &run.report.rows {
             println!("  {}  {:?}  label={} got={}", row.id, row.kind, row.label, row.got);
         }
         return Ok(());
