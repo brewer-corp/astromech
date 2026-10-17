@@ -57,6 +57,7 @@ windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_
 png = "0.18"
 
 [dev-dependencies]
+chrono-tz.workspace = true
 tempfile.workspace = true
 astromech-data.workspace = true
 astromech-materials.workspace = true

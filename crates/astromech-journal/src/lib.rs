@@ -912,6 +912,13 @@ fn journal_stamp(name: &str) -> Option<(i64, u32)> {
     Some((dt.and_utc().timestamp(), part))
 }
 
+/// The start stamp in a journal's file name (seconds, read as if the name's time were UTC) and its
+/// part number. `None` for a name that isn't a journal stamp (a sync tool's conflict copy).
+/// The game writes the name in the machine's local time, so compare it with local wall-clock time.
+pub fn journal_name_stamp(path: &Path) -> Option<(i64, u32)> {
+    journal_stamp(&path.file_name()?.to_string_lossy())
+}
+
 /// Journal logs in `dir`, oldest first by the date in the file name (both naming schemes).
 pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
     let mut v: Vec<(i64, u32, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
