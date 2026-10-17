@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Polling pages hide a failure after the first successful read"
-updated_at: "2026-10-17T22:48:16.486252976+00:00"
+updated_at: "2026-10-17T23:04:44.435930744+00:00"
 ---
 
 ## Goal

@@ -4,7 +4,7 @@ id: "astromech-32i6"
 issue_type: "task"
 labels:
 - "alpha"
-priority: "P1"
+priority: "P2"
 relationships:
   blocks: []
   children: []
@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Engineering and Materials show the sample fleet and inventory when the journal cannot be read"
-updated_at: "2026-10-17T22:43:25.081889725+00:00"
+updated_at: "2026-10-17T23:04:44.345141590+00:00"
 ---
 
 ## Goal
