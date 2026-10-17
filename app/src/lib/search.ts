@@ -124,6 +124,17 @@ export async function systemNames(prefix: string): Promise<string[]> {
   return await invoke<string[]>("galaxy_systems", { prefix: p });
 }
 
+/**
+ * What Enter in the origin box picks. Spansh's autocomplete is fuzzy, so the first suggestion
+ * is not always what was typed: a suggestion the commander arrowed to wins, else a suggestion
+ * equal to the typed text (ignoring case), else the typed text itself.
+ */
+export function enterChoice(text: string, hits: string[], sel: number, moved: boolean): string {
+  if (moved && hits[sel]) return hits[sel];
+  const t = text.trim().toLowerCase();
+  return hits.find((h) => h.toLowerCase() === t) ?? text;
+}
+
 /** "L pad", or "" when the source doesn't say. */
 export function padLabel(p: Pad | null | undefined): string {
   return p ? `${p} pad` : "";
