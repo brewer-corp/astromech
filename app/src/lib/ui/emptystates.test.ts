@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import KeybindsView from "../../modules/keybinds/KeybindsView.svelte";
 import PresetsView from "../../modules/presets/View.svelte";
+import ControllerView from "../../modules/controller/View.svelte";
 import PresetPicker from "./PresetPicker.svelte";
 import { binds } from "../store.svelte";
 import { api, type State } from "../binds";
@@ -120,6 +121,12 @@ describe("Presets after an action", () => {
 });
 
 describe("Preset picker", () => {
+  it("is where the controller page shows a failed load, once", async () => {
+    vi.spyOn(api, "state").mockRejectedValue(new Error("core is down"));
+    await show(ControllerView);
+    expect(screen.getAllByText(/core is down/)).toHaveLength(1);
+  });
+
   it("shows a failed load once, so the controller page shows it too", async () => {
     vi.spyOn(api, "state").mockRejectedValue(new Error("core is down"));
     await show(PresetPicker);
