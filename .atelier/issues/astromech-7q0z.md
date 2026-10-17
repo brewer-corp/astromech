@@ -12,6 +12,9 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
+    id: "astromech-0n4h"
+    type: "advances"
+  - kind: "issue"
     id: "astromech-1per"
     type: "advances"
   - kind: "issue"
@@ -184,6 +187,9 @@ relationships:
     type: "advances"
   - kind: "issue"
     id: "astromech-shi5"
+    type: "advances"
+  - kind: "issue"
+    id: "astromech-sklz"
     type: "advances"
   - kind: "issue"
     id: "astromech-ssyo"

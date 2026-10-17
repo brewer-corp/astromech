@@ -104,7 +104,7 @@ pub struct StationsNearby {
 
 pub struct Galaxy {
     store: Mutex<Store>,
-    remote: astromech_data::Client,
+    remote: Arc<astromech_data::Client>,
     map: RwLock<Option<Arc<StarMap>>>,
     /// Last failed EDSM fill-in: don't retry for [`FILL_RETRY_S`].
     fill_failed: Mutex<Option<i64>>,
@@ -154,6 +154,20 @@ impl Galaxy {
 
     /// `remote` answers the Spansh and EDSM requests (tests pass a recorded transport).
     pub fn with_remote(s: Store, remote: astromech_data::Client) -> Self {
+        Self::with_shared_remote(s, Arc::new(remote))
+    }
+
+    /// Like [`Galaxy::open`], answering remote requests through the process's shared `remote`.
+    pub fn open_shared(path: &Path, preload: Option<&Path>, remote: Arc<astromech_data::Client>) -> Result<Self> {
+        let mut s = Store::open(path)?;
+        if let Some(p) = preload {
+            s.seed_from(p)?;
+        }
+        Ok(Self::with_shared_remote(s, remote))
+    }
+
+    /// `remote` is shared with other lookups in the process (one limiter, one cache).
+    pub fn with_shared_remote(s: Store, remote: Arc<astromech_data::Client>) -> Self {
         Galaxy { store: Mutex::new(s), remote, map: RwLock::new(None), fill_failed: Mutex::new(None) }
     }
 
