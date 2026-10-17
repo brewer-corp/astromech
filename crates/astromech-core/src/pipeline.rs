@@ -13,7 +13,9 @@
 //!   line is applied without any file event. ⚠ Unverified on the real game.
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
-//!   event is logged and not used; it is tried again when the game next writes that file.
+//!   event is logged and not used; it is tried again when the game next writes that file, and
+//!   also after every journal read that follows a Status.json write and once a second when idle,
+//!   in case the notification never comes, until the event is older than five minutes.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
 //!   when the game wrote it while we run: not the startup replay of the current journal, not an
 //!   older or already-read journal that becomes newest (re-read as a replay), but every line the
@@ -298,12 +300,22 @@ impl Tailer {
     }
 
     /// Try every waiting event again, whether or not the watcher reported its file: Windows can
-    /// drop the notification for a file the game rewrites (astromech-ogq4).
+    /// drop the notification for a file the game rewrites (astromech-ogq4). Run after the journal
+    /// read, so a newer event's file is never taken for an older event's. An event older than
+    /// [`astromech_eddn::feed::MAX_EVENT_AGE_SECS`] is given up on (once, logged): its file isn't coming.
     fn retry_pending(&mut self) {
         if self.pending.is_empty() {
             return;
         }
-        let waiting = std::mem::take(&mut self.pending);
+        let now = chrono::Utc::now();
+        let (waiting, stale): (Vec<Trigger>, Vec<Trigger>) =
+            std::mem::take(&mut self.pending).into_iter().partition(|p| {
+                chrono::DateTime::parse_from_rfc3339(&p.event_ts)
+                    .map_or(true, |t| (now - t.to_utc()).num_seconds() <= astromech_eddn::feed::MAX_EVENT_AGE_SECS)
+            });
+        for p in stale {
+            (self.log)(&format!("companion file {}: gave up waiting for the {} event", p.kind.file_name(), p.event_ts));
+        }
         self.load_companions(waiting, false);
     }
 
@@ -350,6 +362,7 @@ impl Tailer {
     fn on_journal_activity(&mut self) {
         self.read_tail();
         self.follow_newest();
+        self.retry_pending();
         self.save();
     }
 
@@ -364,6 +377,7 @@ impl Tailer {
         if self.last_scan.elapsed() >= SCAN_EVERY {
             self.last_scan = Instant::now();
             self.follow_newest();
+            self.retry_pending();
         }
     }
 
@@ -400,7 +414,6 @@ impl Tailer {
             }
         }
         self.on_companions();
-        self.retry_pending();
     }
 
     /// Startup: replay the current journal to rebuild state, read Status.json, then go live.
@@ -929,26 +942,95 @@ mod tests {
         assert_eq!(items(&hub), Some(vec!["bypass".to_string()]));
     }
 
+    fn market_event(ts: &str, id: i64) -> String {
+        format!(r#"{{"timestamp":"{ts}","event":"Market","MarketID":{id},"StationName":"S{id}","StarSystem":"Sys"}}"#)
+    }
+    fn market_file(ts: &str, id: i64) -> String {
+        format!(
+            r#"{{"timestamp":"{ts}","event":"Market","MarketID":{id},"StationName":"S{id}","StarSystem":"Sys","Items":[]}}"#
+        )
+    }
+
     /// astromech-ogq4: a pending companion event must not depend on the watcher reporting its
-    /// file; the next Status.json read tries it again, quietly.
+    /// file; the journal read that follows a Status.json write tries it again, quietly.
     #[test]
     fn a_pending_companion_event_is_loaded_on_the_next_status_read() {
         let d = tempfile::tempdir().unwrap();
         std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
         let (mut t, hub, logs) = tailer(d.path());
-        t.apply_lines(vec![MARKET_EVENT.into()]);
-        t.on_status();
-        t.on_status();
+        let now = ts(0);
+        t.apply_lines(vec![market_event(&now, 7)]);
+        for _ in 0..2 {
+            t.on_status();
+            t.on_journal_activity();
+        }
         assert!(hub.snapshot().companions.market.is_none());
         assert_eq!(t.pending.len(), 1);
         assert_eq!(logs.lock().unwrap().len(), 1, "retries from the status read don't repeat the report");
         assert_eq!(t.stats.lock().unwrap().companions_unused, 1);
 
         // The game finishes the write; no notification for Market.json reaches us.
-        std::fs::write(d.path().join("Market.json"), MARKET_FILE).unwrap();
+        std::fs::write(d.path().join("Market.json"), market_file(&now, 7)).unwrap();
         t.on_status();
+        t.on_journal_activity();
         assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
         assert!(t.pending.is_empty());
+    }
+
+    /// Docked and idle there is no Status.json write either: the idle scan retries too.
+    #[test]
+    fn a_pending_companion_event_is_loaded_when_idle() {
+        let d = tempfile::tempdir().unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        let now = ts(0);
+        t.apply_lines(vec![market_event(&now, 7)]);
+        std::fs::write(d.path().join("Market.json"), market_file(&now, 7)).unwrap();
+        t.on_idle();
+        assert!(hub.snapshot().companions.market.is_none(), "the retry is throttled to the scan rate");
+        t.last_scan = Instant::now() - SCAN_EVERY;
+        t.on_idle();
+        assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(7));
+    }
+
+    /// A retry runs after the journal read: the station-8 file must not be taken for the
+    /// station-7 event, and is read once for the station-8 event.
+    #[test]
+    fn a_retry_never_runs_ahead_of_the_journal_lines_of_its_batch() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.open(j.clone(), true);
+        let (t7, t8) = (ts(30), ts(0));
+        append(&j, &market_event(&t7, 7));
+        t.on_journal_activity();
+        assert_eq!(t.pending.len(), 1);
+        let read_before = t.stats.lock().unwrap().companions_read;
+
+        // Station 8: its file and its journal line arrive together with a Status.json write.
+        std::fs::write(d.path().join("Market.json"), market_file(&t8, 8)).unwrap();
+        append(&j, &market_event(&t8, 8));
+        t.on_status();
+        t.on_journal_activity();
+        assert_eq!(hub.snapshot().companions.market.unwrap().market_id, Some(8));
+        assert_eq!(t.stats.lock().unwrap().companions_read - read_before, 1, "the file was read twice");
+        assert!(t.pending.is_empty());
+    }
+
+    #[test]
+    fn a_pending_event_whose_file_never_comes_is_given_up_once() {
+        let d = tempfile::tempdir().unwrap();
+        let (mut t, _, logs) = tailer(d.path());
+        t.apply_lines(vec![market_event(&ts(10 * 60), 7)]);
+        assert_eq!(t.pending.len(), 1);
+        let before = logs.lock().unwrap().len();
+        t.retry_pending();
+        t.retry_pending();
+        assert!(t.pending.is_empty());
+        let log = logs.lock().unwrap();
+        assert_eq!(log.len() - before, 1);
+        assert!(log.last().unwrap().contains("gave up"));
     }
 
     #[test]
