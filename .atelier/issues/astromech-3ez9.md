@@ -21,9 +21,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T08:11:30.909769439+00:00"
+status: "done"
 title: "Voice queries for colonisation progress, what is left and where to buy"
-updated_at: "2026-10-17T07:39:53.547560207+00:00"
+updated_at: "2026-10-17T08:11:30.909769439+00:00"
 ---
 
 ## Goal
@@ -37,3 +38,7 @@ Phrase templates for progress, remaining deliveries (loads at the current ship's
 ## Context
 
 Found by the S1-S8 validation (astromech-e8ux). The plain "where can I buy {commodity}" trade query already works; this item is about the colonisation-specific answers.
+
+## Close Reason
+
+Colonisation progress, what is left (tonnes, aboard, loads at the current ship's capacity, most needed) and where to buy a needed commodity answer by voice about the docked or last-delivered project, from the journals and the Colonisation page's Ardent lookup with remembered colonisation.buy filters; gates green at e2aea26. Independent review not yet done.
