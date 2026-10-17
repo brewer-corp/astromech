@@ -89,7 +89,7 @@ impl Runner {
         let h = std::thread::spawn(move || {
             let m = match galaxy.sites(kind, &here, range, 1, &astromech_galaxy::Filters::default()) {
                 Ok(s) => astromech_galaxy::sites::spoken(&s),
-                Err(e) => format!("Couldn't look that up. {e}"),
+                Err(e) => astromech_tools::lookup::failed(&e.to_string()),
             };
             speaker.say(&m);
             m

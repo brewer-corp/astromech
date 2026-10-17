@@ -23,6 +23,7 @@ astromech-colonisation.workspace = true
 chrono.workspace = true
 
 [dev-dependencies]
+astromech-keybinds.workspace = true
 astromech-data.workspace = true
 astromech-journal.workspace = true
 serde_json.workspace = true

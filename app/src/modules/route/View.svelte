@@ -1,8 +1,10 @@
 <script lang="ts">
   // Route (docs/PLOTTING.md, layer 1): the route the core follows. Its next waypoint is on the
   // clipboard for the galaxy map's search box; jumping into it copies the one after. Routes come
-  // from the engineer trip, Go on a search result or an import (a Spansh CSV, or a list of systems).
+  // from Spansh's plotters (Plot.svelte), the engineer trip, Go on a search result or an import
+  // (a Spansh CSV, or a list of systems).
   import { backWaypoint, clearRoute, copyNext, getRoute, importRoute, skipWaypoint, type RouteView } from "../../lib/route";
+  import Plot from "./Plot.svelte";
 
   let view = $state<RouteView | null>(null);
   let err = $state<string | null>(null);
@@ -73,7 +75,7 @@
       {/each}
     </ol>
   {:else if view}
-    <p class="lo">No route. Follow the engineer trip, press Go on a search result, or import one below.</p>
+    <p class="lo">No route. Plot one below, follow the engineer trip, press Go on a search result, or import one.</p>
   {/if}
 
   <div class="how">
@@ -81,6 +83,8 @@
     <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
     <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
   </div>
+
+  <Plot onfollow={(v) => (view = v)} />
 
   <div class="import">
     <h4>Import</h4>

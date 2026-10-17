@@ -566,7 +566,7 @@ fn start_voice(
                         runner.speaker.say(if have_stt {
                             "No microphone found. Check the Windows sound input settings."
                         } else {
-                            "Voice isn't loaded. Type commands in the console."
+                            "Voice is not loaded. Type commands in the console."
                         });
                     }
                 }

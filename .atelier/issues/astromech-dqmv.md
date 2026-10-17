@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:11:49.568521587+00:00"
+status: "done"
 title: "Neutron plotter"
-updated_at: "2026-10-17T16:54:22.975493182+00:00"
+updated_at: "2026-10-17T19:11:49.568521587+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ A recorded `/api/route` job/poll exchange loads the route into the follower.
 ## Context
 
 Spansh `/api/route` (job, then poll).
+
+## Close Reason
+
+Neutron routes plot from the Route page with the range from the current loadout; a recorded /api/route job/poll exchange loads into the follower (core plotted_routes_load_into_the_follower, galaxy tests/plot.rs). Reviewed in PR #122.
