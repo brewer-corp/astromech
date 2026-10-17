@@ -10,8 +10,8 @@ What it does, in the order a new player would:
 1. Elite has run once on this account: its Bindings folder (a custom preset with a keyboard
    key for the landing gear) and journal folder exist in their default places.
 2. Silent install (`setup.exe /S`), then the app window is started from the install folder,
-   with WebView2's remote debugging on (ASTROMECH_WEBVIEW_DEBUG_PORT) so the page can be driven
-   over the Chrome DevTools Protocol.
+   with WebView2's remote debugging on (`--webview-debug-port`) so the page can be driven over
+   the Chrome DevTools Protocol.
 3. The wizard: Find Elite must show both folders found; push-to-talk and the kill switch are
    bound by pressing keys (SendInput; the window's own Raw Input listener sees them) and saved;
    the mic and calibration steps are skipped (the runner has no mic); Finish.
@@ -35,6 +35,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from pathlib import Path
@@ -222,7 +223,7 @@ def kill(name: str) -> None:
     subprocess.run(["taskkill", "/F", "/IM", name], capture_output=True)
 
 
-def smoke(a, run: Run, work: Path) -> None:
+def smoke(a, run: Run) -> None:
     la, home = Path(os.environ["LOCALAPPDATA"]), Path(os.environ["USERPROFILE"])
     # A fresh install: no astromech data from an earlier step on this runner.
     for p in ("astromech-shell.exe", "astromech-core.exe"):
@@ -241,8 +242,26 @@ def smoke(a, run: Run, work: Path) -> None:
     inst = install_dir()
     run.step(f"silent install ({inst})")
 
-    env = dict(os.environ, ASTROMECH_WEBVIEW_DEBUG_PORT=str(CDP_PORT))
-    shell = subprocess.Popen([str(inst / "astromech-shell.exe")], env=env)
+    procs: list[subprocess.Popen] = []
+    try:
+        drive(a, run, inst, journal, procs)
+    finally:
+        cleanup(inst, procs)
+
+
+def cleanup(inst: Path, procs: list) -> None:
+    """Close what the run started and uninstall; a failure here doesn't hide the run's own error."""
+    for p in procs:
+        p.kill()
+    for cmd, timeout in (([str(inst / "astromech-core.exe"), "--quit"], 30), ([str(inst / "uninstall.exe"), "/S"], 120)):
+        try:
+            subprocess.run(cmd, timeout=timeout)
+        except (OSError, subprocess.SubprocessError) as e:
+            print(f"cleanup: {cmd[0]}: {e}", flush=True)
+
+
+def drive(a, run: Run, inst: Path, journal: Path, procs: list) -> None:
+    procs.append(subprocess.Popen([str(inst / "astromech-shell.exe"), "--webview-debug-port", str(CDP_PORT)]))
     page = Page(CDP_PORT, 60)
     page.wait(page.has("Find Elite"), "the onboarding wizard", 60)
     run.step("app window open on the wizard")
@@ -282,40 +301,31 @@ def smoke(a, run: Run, work: Path) -> None:
                      f"still to set up: {st.get('setup_needed')}")
 
     # The game starts.
-    game = work / "EliteDangerous64.exe"
+    game = Path(tempfile.mkdtemp(prefix="mock-elite-")) / "EliteDangerous64.exe"
     shutil.copy(a.mock, game)
-    mock = subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
-                             str(a.mock_drop)])
-    try:
-        wait_core(lambda s: s.get("active") is True, "the core's session (game detected)", 30)
-        run.step("game detected, session running")
+    procs.append(subprocess.Popen([str(game), str(journal), f"{SCAN_L:x}", "0", str(GEAR), "0-1000", "600",
+                                   str(a.mock_drop)]))
+    wait_core(lambda s: s.get("active") is True, "the core's session (game detected)", 30)
+    run.step("game detected, session running")
 
-        page.eval("location.hash = '#/voicetester'")
-        page.wait("!!document.querySelector('input[aria-label=\"Phrase\"]')", "the voice tester")
-        page.eval("(() => { const i = document.querySelector('input[aria-label=\"Phrase\"]'); i.value = 'gear down'; "
-                  "i.dispatchEvent(new Event('input', { bubbles: true })); i.form.requestSubmit(); })()")
-        page.click("Run live", "Run live (needs the session)", 15)
-        t_live = time.time()
-        if not bring_to_front(ELITE_TITLE):
-            raise RuntimeError("couldn't bring the mock game to the front")
-        note = page.wait("(() => { const n = document.querySelector('.note'); return n && n.innerText; })()",
-                         "the live run's result", 15)
-        run.notes.append(f"voice tester: {note}")
-        if "confirmed it in" not in note:
-            raise RuntimeError(f"gear down wasn't verified: {note}")
-        run.step(f"gear down verified ({time.time() - t_live:.2f} s from Run live)")
-        keys = (journal / "keys.log").read_text(encoding="utf-8")
-        flags = json.loads((journal / "Status.json").read_text(encoding="utf-8"))["Flags"]
-        if "down scan=26" not in keys or not flags & GEAR:
-            raise RuntimeError("the mock didn't get the gear key, or its gear flag isn't set")
-    finally:
-        mock.kill()
-        shell.kill()
-        subprocess.run([str(inst / "astromech-core.exe"), "--quit"], timeout=30)
-        uninstaller = inst / "uninstall.exe"
-        if uninstaller.is_file():
-            subprocess.run([str(uninstaller), "/S"], timeout=120)
-
+    page.eval("location.hash = '#/voicetester'")
+    page.wait("!!document.querySelector('input[aria-label=\"Phrase\"]')", "the voice tester")
+    page.eval("(() => { const i = document.querySelector('input[aria-label=\"Phrase\"]'); i.value = 'gear down'; "
+              "i.dispatchEvent(new Event('input', { bubbles: true })); i.form.requestSubmit(); })()")
+    page.click("Run live", "Run live (needs the session)", 15)
+    t_live = time.time()
+    if not bring_to_front(ELITE_TITLE):
+        raise RuntimeError("couldn't bring the mock game to the front")
+    note = page.wait("(() => { const n = document.querySelector('.note'); return n && n.innerText; })()",
+                     "the live run's result", 15)
+    run.notes.append(f"voice tester: {note}")
+    if "confirmed it in" not in note:
+        raise RuntimeError(f"gear down wasn't verified: {note}")
+    run.step(f"gear down verified ({time.time() - t_live:.2f} s from Run live)")
+    keys = (journal / "keys.log").read_text(encoding="utf-8")
+    flags = json.loads((journal / "Status.json").read_text(encoding="utf-8"))["Flags"]
+    if "down scan=26" not in keys or not flags & GEAR:
+        raise RuntimeError("the mock didn't get the gear key, or its gear flag isn't set")
 
 def report_md(r: dict) -> str:
     lines = ["# Onboarding smoke test: fresh install to a verified gear-down (mock game)", "",
@@ -345,7 +355,7 @@ def main(argv=None) -> int:
     run = Run()
     error = None
     try:
-        smoke(a, run, a.out)
+        smoke(a, run)
     except Exception as e:  # report what got done, then fail
         error = f"{type(e).__name__}: {e}"
     reached = any(s["step"].startswith("gear down verified") for s in run.steps)

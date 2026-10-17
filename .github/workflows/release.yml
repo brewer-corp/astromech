@@ -49,6 +49,11 @@ on:
       - scripts/pack-update.py
       - scripts/gen-starmap.py
       - scripts/onboarding_smoke.py
+      # What the onboarding smoke test drives: the wizard, the voice tester and the mock game
+      - app/src/lib/onboarding/**
+      - app/src/modules/voicetester/**
+      - app/src/App.svelte
+      - crates/astromech-core/examples/mockgame.rs
   workflow_dispatch:
 
 permissions:
@@ -207,6 +212,11 @@ jobs:
           Start-Sleep -Seconds 3
           if (Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name astromech -ErrorAction SilentlyContinue) { throw "uninstall left the Run value" }
           Write-Host "smoke test OK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: astromech-installer-windows-x64
+          path: dist-release/
+          if-no-files-found: error
       - name: onboarding smoke test (fresh install, wizard, verified gear-down vs the mock game)
         shell: pwsh
         run: |
@@ -226,11 +236,6 @@ jobs:
           name: onboarding-smoke-report
           path: onboarding-report/
           if-no-files-found: warn
-      - uses: actions/upload-artifact@v4
-        with:
-          name: astromech-installer-windows-x64
-          path: dist-release/
-          if-no-files-found: error
 
   publish:
     name: GitHub Release
