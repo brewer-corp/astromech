@@ -14,9 +14,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T04:47:38.895463828+00:00"
+status: "done"
 title: "Outbox row ids are reused after a purge, so the claim in deliver_due can match a new row"
-updated_at: "2026-10-17T03:23:15.140196156+00:00"
+updated_at: "2026-10-17T04:47:38.895463828+00:00"
 ---
 
 ## Goal
@@ -26,3 +27,7 @@ The outbox `id` is a plain INTEGER PRIMARY KEY, so after discard_all the next en
 ## Done when
 
 A test enqueues new messages mid-pass after a purge and the purged bodies are not posted.
+
+## Close Reason
+
+Outbox ids are AUTOINCREMENT via a v2 migration that keeps rows; test of a purge and requeue mid-pass shows purged bodies are not posted
