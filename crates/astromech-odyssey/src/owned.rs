@@ -20,6 +20,9 @@ use std::collections::btree_map::Entry;
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Mutex;
 
+/// Where the crate reports what it could not map; the caller supplies it (no global sink).
+pub type Log<'a> = &'a dyn Fn(&str);
+
 /// One owned suit or weapon.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct OwnedGear {
@@ -70,15 +73,15 @@ fn grade_of(g: Option<i64>) -> Option<u8> {
 }
 
 /// A journal mod name the catalogue does not have; each is reported once.
-fn report_unknown_mod(name: &str) {
+fn report_unknown_mod(name: &str, log: Log) {
     static SEEN: Mutex<BTreeSet<String>> = Mutex::new(BTreeSet::new());
     if SEEN.lock().is_ok_and(|mut s| s.insert(name.to_string())) {
-        astromech_log::log(&format!("odyssey: unknown {name} in the journal (not in data/catalog/odyssey.json)"));
+        log(&format!("odyssey: unknown {name} in the journal (not in data/catalog/odyssey.json)"));
     }
 }
 
 /// `SuitMods` / `WeaponMods` → the catalogue modification ids of `kind`.
-fn mod_ids(v: Option<&Value>, kind: &str) -> Vec<String> {
+fn mod_ids(v: Option<&Value>, kind: &str, log: Log) -> Vec<String> {
     let mut out: Vec<String> = v
         .and_then(Value::as_array)
         .into_iter()
@@ -88,7 +91,7 @@ fn mod_ids(v: Option<&Value>, kind: &str) -> Vec<String> {
             let lower = m.to_ascii_lowercase();
             let found = catalog().mods.iter().find(|md| md.kind == kind && md.journal == lower);
             if found.is_none() {
-                report_unknown_mod(m);
+                report_unknown_mod(m, log);
             }
             found.map(|md| md.id.clone())
         })
@@ -131,7 +134,7 @@ impl Owned {
     }
 
     /// Apply one journal line (already parsed as JSON); other events are ignored.
-    pub fn apply(&mut self, ev: &Value) {
+    pub fn apply(&mut self, ev: &Value, log: Log) {
         let Some(event) = str_of(ev, "event") else { return };
         match event {
             "BuySuit" | "UpgradeSuit" => {
@@ -144,7 +147,7 @@ impl Owned {
                 };
                 let Some(grade) = grade else { return };
                 if event == "BuySuit" {
-                    Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit"));
+                    Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit", log));
                 } else {
                     Self::regrade(&mut self.suits, id, gear, grade);
                 }
@@ -163,7 +166,7 @@ impl Owned {
                     return;
                 };
                 if event == "BuyWeapon" {
-                    Self::set(&mut self.weapons, id, gear, grade, mod_ids(ev.get("WeaponMods"), "weapon"));
+                    Self::set(&mut self.weapons, id, gear, grade, mod_ids(ev.get("WeaponMods"), "weapon", log));
                 } else {
                     Self::regrade(&mut self.weapons, id, gear, grade);
                 }
@@ -173,18 +176,18 @@ impl Owned {
                     self.weapons.remove(&id);
                 }
             }
-            "SuitLoadout" | "SwitchSuitLoadout" | "CreateSuitLoadout" => self.loadout(ev),
+            "SuitLoadout" | "SwitchSuitLoadout" | "CreateSuitLoadout" => self.loadout(ev, log),
             _ => {}
         }
     }
 
     /// A loadout event states the suit's grade and mods, and each weapon's.
-    fn loadout(&mut self, ev: &Value) {
+    fn loadout(&mut self, ev: &Value, log: Log) {
         if let (Some(id), Some((gear, Some(grade)))) =
             (int_of(ev, "SuitID"), suit_of(str_of(ev, "SuitName").unwrap_or("")))
         {
             if let Some(grade) = grade_of(Some(i64::from(grade))) {
-                Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit"));
+                Self::set(&mut self.suits, id, gear, grade, mod_ids(ev.get("SuitMods"), "suit", log));
             }
         }
         for m in ev.get("Modules").and_then(Value::as_array).into_iter().flatten() {
@@ -195,7 +198,7 @@ impl Owned {
             ) else {
                 continue;
             };
-            Self::set(&mut self.weapons, id, gear, grade, mod_ids(m.get("WeaponMods"), "weapon"));
+            Self::set(&mut self.weapons, id, gear, grade, mod_ids(m.get("WeaponMods"), "weapon", log));
         }
     }
 

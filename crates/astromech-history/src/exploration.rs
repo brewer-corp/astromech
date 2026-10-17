@@ -184,6 +184,45 @@ impl crate::History {
     }
 }
 
+/// [`History::unsold_at`] remembered between calls (astromech-dt5h): the page asks every 15 s and
+/// folds every scan line since the last death, but the answer only changes when the core imports
+/// something. The database file and its WAL (where fresh commits sit) tell whether it has.
+#[derive(Debug, Default)]
+pub struct UnsoldCache {
+    last: Option<(Stamp, Option<String>, Option<UnsoldData>)>,
+    folds: usize,
+}
+
+/// Length and modification time of the database and its WAL.
+type Stamp = [Option<(u64, Option<std::time::SystemTime>)>; 2];
+
+fn stamp(db: &std::path::Path) -> Stamp {
+    let of = |p: &std::path::Path| std::fs::metadata(p).ok().map(|m| (m.len(), m.modified().ok()));
+    let mut wal = db.as_os_str().to_owned();
+    wal.push("-wal");
+    [of(db), of(std::path::Path::new(&wal))]
+}
+
+impl UnsoldCache {
+    pub fn unsold_at(&mut self, db: &std::path::Path, cmdr: Option<&str>) -> crate::Result<Option<UnsoldData>> {
+        let now = stamp(db);
+        if let Some((s, c, v)) = &self.last {
+            if *s == now && c.as_deref() == cmdr {
+                return Ok(v.clone());
+            }
+        }
+        self.folds += 1;
+        let v = crate::History::unsold_at(db, cmdr)?;
+        self.last = Some((now, cmdr.map(str::to_string), v.clone()));
+        Ok(v)
+    }
+
+    /// How many times the history was folded (for tests).
+    pub fn folds(&self) -> usize {
+        self.folds
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{History, ImportOptions};
@@ -236,6 +275,27 @@ mod tests {
     }
 
     #[test]
+    fn unsold_is_not_folded_again_until_the_database_changes() {
+        let (_j, h) = imported();
+        let d = tempfile::tempdir().unwrap();
+        let db = d.path().join("history.sqlite");
+        h.conn().execute("VACUUM INTO ?1", [db.to_str().unwrap()]).unwrap();
+        let mut c = super::UnsoldCache::default();
+        let first = c.unsold_at(&db, Some("F1")).unwrap();
+        assert_eq!(first.as_ref().unwrap().unsold.bodies, 1);
+        assert_eq!(c.unsold_at(&db, Some("F1")).unwrap(), first);
+        assert_eq!(c.folds(), 1);
+        // Another commander asks again; a changed database folds again.
+        c.unsold_at(&db, None).unwrap();
+        assert_eq!(c.folds(), 2);
+        let w = History::open(&db).unwrap();
+        w.conn().execute("INSERT INTO pending VALUES ('x')", []).unwrap();
+        drop(w);
+        c.unsold_at(&db, None).unwrap();
+        assert_eq!(c.folds(), 3);
+    }
+
+    #[test]
     fn no_database_yet_is_no_commander_not_an_error() {
         let d = tempfile::tempdir().unwrap();
         assert_eq!(History::unsold_at(&d.path().join("history.sqlite"), None).unwrap(), None);
@@ -263,7 +323,7 @@ mod tests {
         )
     }
 
-    fn touchdown(ts: &str, address: i64, body: &str, id: i64, extra: &str) -> String {
+    pub(super) fn touchdown(ts: &str, address: i64, body: &str, id: i64, extra: &str) -> String {
         format!(
             r#"{{"timestamp":"{ts}","event":"Touchdown","PlayerControlled":true,"Latitude":1.0,"Longitude":2.0,"NearestDestination":"","StarSystem":"S{address}","SystemAddress":{address},"Body":"{body}","BodyID":{id},"OnStation":false,"OnPlanet":true{extra}}}"#
         )
@@ -310,6 +370,45 @@ mod tests {
         assert_eq!(h.landings_before("Test", 42, "2026-10-02T00:00:00Z").unwrap()[0].count, 1);
         assert!(h.landings_before("Other", 42, "9999").unwrap().is_empty());
         assert_eq!(h.landings_before("Test", 43, "9999").unwrap().len(), 1);
+    }
+
+    /// 100k landing rows over 2000 systems: the answer for one system must not scan them all
+    /// (astromech-dt5h; it was ~40 ms at 60k rows).
+    #[test]
+    fn landings_before_is_fast_with_a_large_history() {
+        let h = History::in_memory().unwrap();
+        let c = h.conn();
+        c.execute(
+            "INSERT INTO commanders (cmdr, name, legacy, first_seen, last_seen) VALUES ('F1', 'Test', 0, '', '')",
+            [],
+        )
+        .unwrap();
+        c.execute_batch("BEGIN").unwrap();
+        {
+            let mut ins = c
+                .prepare("INSERT INTO events (file_id, offset, ts, event, json, cmdr) VALUES (1, ?1, ?2, 'Touchdown', ?3, 'F1')")
+                .unwrap();
+            for i in 0..100_000i64 {
+                let line = touchdown(&format!("2026-10-01T09:{:02}:00Z", i % 60), i % 2000, "B", i % 7, "");
+                ins.execute(astromech_store::rusqlite::params![
+                    i,
+                    format!("2026-10-01T{:02}:{:02}:00Z", i / 60 % 24, i % 60),
+                    line
+                ])
+                .unwrap();
+            }
+        }
+        c.execute_batch("COMMIT").unwrap();
+        let best = (0..5)
+            .map(|_| {
+                let t = std::time::Instant::now();
+                let l = h.landings_before("Test", 42, "9999").unwrap();
+                assert!(!l.is_empty());
+                t.elapsed()
+            })
+            .min()
+            .unwrap();
+        assert!(best < std::time::Duration::from_millis(5), "landings_before took {best:?} at 100k rows");
     }
 
     #[test]
@@ -394,5 +493,87 @@ mod tests {
         assert_eq!((v.value, v.value_if_mapped), (was.value, was.value_if_mapped));
         // Another system's scans stay out.
         assert!(v.bodies.iter().all(|b| b.name.starts_with("Explo")));
+    }
+
+    /// 100k body-signal rows over 2000 systems: the signal half of a system's earlier visits
+    /// must not read them all (astromech-qbcf; it was 0.13 s at 60k rows on every poll).
+    #[test]
+    fn system_lines_are_fast_with_many_signal_rows() {
+        let h = History::in_memory().unwrap();
+        let c = h.conn();
+        c.execute(
+            "INSERT INTO commanders (cmdr, name, legacy, first_seen, last_seen) VALUES ('F1', 'Test', 0, '', '')",
+            [],
+        )
+        .unwrap();
+        c.execute_batch("BEGIN").unwrap();
+        {
+            let mut ins = c
+                .prepare("INSERT INTO events (file_id, offset, ts, event, json, cmdr) VALUES (1, ?1, ?2, ?3, ?4, 'F1')")
+                .unwrap();
+            for i in 0..100_000i64 {
+                let event = if i % 2 == 0 { "FSSBodySignals" } else { "SAASignalsFound" };
+                let line = format!(
+                    r#"{{"timestamp":"2026-10-01T09:00:00Z","event":"{event}","BodyName":"S B{}","BodyID":{},"SystemAddress":{},"Signals":[]}}"#,
+                    i % 7,
+                    i % 7,
+                    i % 2000
+                );
+                ins.execute(astromech_store::rusqlite::params![
+                    i,
+                    format!("2026-10-01T{:02}:{:02}:00Z", i / 60 % 24, i % 60),
+                    event,
+                    line
+                ])
+                .unwrap();
+            }
+        }
+        c.execute_batch("COMMIT").unwrap();
+        let best = (0..5)
+            .map(|_| {
+                let t = std::time::Instant::now();
+                let l = h.system_lines("Test", 42).unwrap();
+                assert_eq!(l.len(), 50);
+                t.elapsed()
+            })
+            .min()
+            .unwrap();
+        assert!(best < std::time::Duration::from_millis(5), "system_lines took {best:?} at 100k signal rows");
+    }
+
+    /// The window's cache holds the current visit's fold, so a poll that hits it still shows the
+    /// earlier visits' bodies (astromech-25c5).
+    #[test]
+    fn a_cached_poll_still_shows_the_earlier_bodies() {
+        use astromech_exploration::SystemViewCache;
+        let d = tempfile::tempdir().unwrap();
+        let star = |ts: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"Scan","ScanType":"AutoScan","BodyName":"Explo","BodyID":0,"StarSystem":"Explo","SystemAddress":42,"StarType":"G","StellarMass":1.0,"WasDiscovered":false}}"#
+            )
+        };
+        let lines = [
+            load("2026-10-01T09:00:00Z", "F1", "Test"),
+            jump("2026-10-01T09:10:00Z", "Explo", 42, 0),
+            star("2026-10-01T09:10:01Z"),
+            r#"{"timestamp":"2026-10-01T09:11:00Z","event":"Scan","ScanType":"Detailed","BodyName":"Explo A 1","BodyID":1,"StarSystem":"Explo","SystemAddress":42,"PlanetClass":"Water world","MassEM":1.0,"WasDiscovered":false,"WasMapped":false}"#.to_string(),
+            jump("2026-10-02T09:00:00Z", "Elsewhere", 43, 0),
+            jump("2026-10-03T09:00:00Z", "Explo", 42, 0),
+            star("2026-10-03T09:00:01Z"),
+        ];
+        // The older journal holds the first visit, the newer one the return.
+        std::fs::write(d.path().join("Journal.2026-10-01T090000.01.log"), lines[..5].join("\n") + "\n").unwrap();
+        std::fs::write(d.path().join("Journal.2026-10-03T090000.01.log"), lines[5..].join("\n") + "\n").unwrap();
+        let mut h = History::in_memory().unwrap();
+        h.import(d.path(), &ImportOptions::default()).unwrap();
+        // Leave out the first journal from the window's fold: only the newest file folds.
+        std::fs::remove_file(d.path().join("Journal.2026-10-01T090000.01.log")).unwrap();
+        let mut cache = SystemViewCache::default();
+        for poll in 0..3 {
+            let v = h.system_view(cache.fold(d.path()));
+            let names: Vec<&str> = v.bodies.iter().map(|b| b.short_name.as_str()).collect();
+            assert_eq!(names, ["Explo", "A 1"], "poll {poll}");
+        }
+        assert_eq!(cache.parses(), 1, "the later polls hit the cache");
     }
 }

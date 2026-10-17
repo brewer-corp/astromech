@@ -12,7 +12,6 @@ publish.workspace = true
 workspace = true
 
 [dependencies]
-astromech-log.workspace = true
 astromech-journal.workspace = true
 serde.workspace = true
 serde_json.workspace = true

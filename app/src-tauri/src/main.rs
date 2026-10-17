@@ -139,11 +139,13 @@ fn data_dir() -> PathBuf {
 fn make_api() -> Result<astromech_keybinds::api::Api, String> {
     let cfg = config();
     let opt = |s: &str| (!s.trim().is_empty()).then(|| PathBuf::from(s.trim()));
-    astromech_keybinds::api::Api::discover(
-        opt(&cfg.game.bindings_dir),
-        opt(&cfg.game.game_dir).as_deref(),
-        data_dir(),
-    )
+    let data = Paths::current().data_dir(&cfg.data_dir);
+    // Saved binding overrides used to live in the app dir whatever `data_dir` said; carry them
+    // across once (never overwriting). A failed copy only means the old overrides aren't seen.
+    if let Err(e) = Paths::current().carry_over("device-overrides.json", &data) {
+        astromech_log::log(&format!("could not carry device-overrides.json over to {}: {e}", data.display()));
+    }
+    astromech_keybinds::api::Api::discover(opt(&cfg.game.bindings_dir), opt(&cfg.game.game_dir).as_deref(), data)
     .map_err(|e| format!("{e:#}"))
 }
 
@@ -281,7 +283,7 @@ fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, a
     let state = match &*g {
         Some((v, p)) if *v == version => p.clone(),
         _ => {
-            let p = astromech_odyssey::journal_state(&dir);
+            let p = astromech_odyssey::journal_state(&dir, &astromech_log::log);
             *g = Some((version, p.clone()));
             p
         }
@@ -471,15 +473,24 @@ async fn session_summary() -> Result<Value, String> {
     .await
 }
 
+/// What the Exploration pages poll for, remembered while the journals and the history are
+/// unchanged (astromech-dt5h).
+#[derive(Default)]
+struct ExplorationCache {
+    view: std::sync::Mutex<astromech_exploration::SystemViewCache>,
+    unsold: std::sync::Mutex<astromech_history::UnsoldCache>,
+}
+
 /// The current system's bodies as scanned, with their estimated values, from the newest journals,
 /// with the bodies scanned on earlier visits and the commander's landings on them from the history
 /// (when there is one).
 #[tauri::command]
-async fn exploration_system() -> Result<Value, String> {
+async fn exploration_system(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
-        let live = astromech_exploration::system::fold_from_journal_dir(&journal_dir());
-        // The history adds the bodies scanned on earlier visits and the landings; without it
-        // (best effort) the view is the live one.
+        let live = app.state::<ExplorationCache>().view.lock().map_err(|_| "busy".to_string())?.fold(&journal_dir());
+        // The history adds the bodies scanned on earlier visits and the landings on every poll
+        // (the cache holds only the current visit's fold); without it (best effort) the view is
+        // the live one.
         let view = match astromech_history::History::open_read_only(&data_dir().join("history.sqlite")) {
             Ok(h) => h.system_view(live),
             Err(_) => live.view(),
@@ -492,10 +503,15 @@ async fn exploration_system() -> Result<Value, String> {
 /// The latest commander's unsold cartographic and organic data, from the history the core keeps
 /// (`history.sqlite`, read only); `null` before the first commander or without a history yet.
 #[tauri::command]
-async fn exploration_unsold() -> Result<Value, String> {
+async fn exploration_unsold(app: tauri::AppHandle) -> Result<Value, String> {
     blocking(move || {
         // No history yet (the core hasn't imported the journals) is `null`, like no commander.
-        let unsold = astromech_history::History::unsold_at(&data_dir().join("history.sqlite"), None)
+        let unsold = app
+            .state::<ExplorationCache>()
+            .unsold
+            .lock()
+            .map_err(|_| "busy".to_string())?
+            .unsold_at(&data_dir().join("history.sqlite"), None)
             .map_err(|e| e.to_string())?;
         serde_json::to_value(unsold).map_err(|e| e.to_string())
     })
@@ -1148,6 +1164,7 @@ fn main() {
         .manage(Binds(std::sync::Mutex::new(None)))
         .manage(MaterialsCache(std::sync::Mutex::new(None)))
         .manage(EngineeringCache(std::sync::Mutex::new(None)))
+        .manage(ExplorationCache::default())
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
         .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(astromech_log::log))))
