@@ -4,6 +4,9 @@ id: "astromech-rpsb"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-rpsb
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Mission reminders"
-updated_at: "2026-10-15T20:36:13.658937507+00:00"
+updated_at: "2026-10-17T03:07:45.656572480+00:00"
 ---
 
 ## Goal
