@@ -809,6 +809,95 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
     JournalVersion { files: logs.len(), newest, len }
 }
 
+/// Counts the changes in the journals that a reader of [`JournalEvent`] can see, so a cache can
+/// skip a re-read when the game only appended events nothing models (`Music`, `ReceiveText`, ...).
+///
+/// [`JournalWatch::poll`] never trusts file notifications or directory metadata. Each call lists
+/// the journals and reads whatever was appended to the newest one through an open handle, which
+/// is current on Windows when a directory entry is not (astromech-txzq). A new, removed or
+/// shrunken journal always counts as a change. The first call only records where the journal ends.
+#[derive(Debug, Default)]
+pub struct JournalWatch {
+    files: usize,
+    newest: Option<PathBuf>,
+    /// Bytes of `newest` already seen, always at a line start.
+    offset: u64,
+    started: bool,
+    generation: u64,
+}
+
+impl JournalWatch {
+    /// The change count so far: unchanged since the last call means no typed event arrived.
+    pub fn poll(&mut self, dir: &Path) -> u64 {
+        let logs = journal_logs(dir);
+        let newest = logs.last().cloned();
+        let same_file = self.started && self.files == logs.len() && self.newest == newest;
+        self.files = logs.len();
+        self.newest = newest.clone();
+        let Some(path) = newest else {
+            self.offset = 0;
+            self.generation += u64::from(self.started && !same_file);
+            self.started = true;
+            return self.generation;
+        };
+        let Ok(mut f) = std::fs::File::open(&path) else { return self.generation };
+        let Ok(len) = f.metadata().map(|m| m.len()) else { return self.generation };
+        if !self.started {
+            self.started = true;
+            self.offset = len;
+        } else if !same_file || len < self.offset {
+            self.generation += 1;
+            self.offset = len;
+        } else if len > self.offset {
+            use std::io::{Read, Seek, SeekFrom};
+            let mut buf = Vec::new();
+            if f.seek(SeekFrom::Start(self.offset))
+                .and_then(|_| f.take(len - self.offset).read_to_end(&mut buf))
+                .is_ok()
+            {
+                // A line the game is still writing waits for its newline.
+                let complete = buf.iter().rposition(|b| *b == b'\n').map_or(0, |i| i + 1);
+                self.offset += complete as u64;
+                let typed = String::from_utf8_lossy(&buf[..complete])
+                    .lines()
+                    .filter_map(|l| parse_line(l.trim()).ok())
+                    .any(|l| !matches!(l.event, JournalEvent::Other { .. }));
+                if typed {
+                    self.generation += 1;
+                }
+            }
+        }
+        self.generation
+    }
+}
+
+/// One value built from the journals, rebuilt only when [`JournalWatch`] sees a change. The lock
+/// is held while building, so concurrent callers share one rebuild.
+pub struct JournalCache<T>(std::sync::Mutex<(JournalWatch, Option<(u64, std::sync::Arc<T>)>)>);
+
+impl<T> Default for JournalCache<T> {
+    fn default() -> Self {
+        Self(std::sync::Mutex::new((JournalWatch::default(), None)))
+    }
+}
+
+impl<T> JournalCache<T> {
+    /// The cached value, or `build()`'s if the journals changed since it was built. `None` only
+    /// if an earlier build panicked.
+    pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> Option<std::sync::Arc<T>> {
+        let mut g = self.0.lock().ok()?;
+        let generation = g.0.poll(dir);
+        if let Some((built_at, v)) = &g.1 {
+            if *built_at == generation {
+                return Some(v.clone());
+            }
+        }
+        let v = std::sync::Arc::new(build());
+        g.1 = Some((generation, v.clone()));
+        Some(v)
+    }
+}
+
 /// The journal file the game is writing: most recently modified `Journal.*.log`.
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
     let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)

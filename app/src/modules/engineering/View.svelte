@@ -36,7 +36,7 @@
         });
     };
     tick();
-    const t = setInterval(tick, 5000);
+    const t = setInterval(tick, 1000);
     return () => clearInterval(t);
   });
 
