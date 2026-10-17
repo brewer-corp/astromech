@@ -14,6 +14,8 @@
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
 //! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
+//! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
+//!   notifications);
 //! - [`calibration`]: the per-device mic gate, shared by `--calibrate-files` and the window;
 //! - [`setup`]: onboarding's checks and the config edits the window makes;
 //! - [`config`]: the `astromech.toml` file (PTT and kill-switch buttons, folders, timings);
@@ -26,6 +28,7 @@ pub mod app;
 pub mod assistant;
 pub mod autostart;
 pub mod calibration;
+pub mod callouts;
 pub mod config;
 pub mod control;
 pub mod controls;

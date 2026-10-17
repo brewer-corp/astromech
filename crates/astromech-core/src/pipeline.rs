@@ -12,6 +12,14 @@
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file.
+//! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
+//!   when the game wrote it while we run: not the startup replay of the current journal, not an
+//!   older or already-read journal that becomes newest (re-read as a replay), but every line the
+//!   game appends and a journal it starts later. Status.json reads are live once the startup
+//!   catch-up (the replay, then the first Status.json read) is done.
+//! - Callouts: every journal line and Status.json read also goes to the reaction engine
+//!   ([`crate::callouts`]) after the game state has it; only live ones may fire, and reactions
+//!   are delivered with no lock held.
 //! - EDDN (when switched on): every journal line goes to the [`astromech_eddn::Feed`] in order,
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
@@ -19,6 +27,7 @@
 //!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
 
+use crate::callouts::Callouts;
 use crate::hub::StateHub;
 use anyhow::{Context, Result};
 use astromech_eddn::worker::wall_now;
@@ -30,7 +39,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Tail one journal file from a byte offset.
 pub struct JournalTail {
@@ -144,9 +153,12 @@ struct Tailer {
     log: Box<dyn Fn(&str) + Send>,
     /// Companion events whose file was not usable yet; tried again when the game touches the file.
     pending: Vec<Trigger>,
+    callouts: Option<Callouts>,
     eddn: Option<astromech_eddn::Feed>,
     /// False while replaying a journal written before we started.
     live: bool,
+    /// The startup catch-up is done (until then nothing is live, Status.json included).
+    caught_up: bool,
     /// Journals opened this run: opening one again is a replay, never live.
     opened: std::collections::HashSet<PathBuf>,
 }
@@ -155,6 +167,7 @@ impl Tailer {
     /// Apply journal lines to the state, then read the companion files their events announced.
     fn apply_lines(&mut self, lines: Vec<String>) {
         let mut parsed = Vec::with_capacity(lines.len());
+        let mut fired = vec![];
         {
             let mut st = self.stats.lock().unwrap();
             for l in lines {
@@ -162,6 +175,10 @@ impl Tailer {
                     Ok(j) => {
                         st.journal_lines += 1;
                         self.hub.apply_journal(&j);
+                        if let Some(c) = &mut self.callouts {
+                            c.engine.set_live(self.caught_up && self.live);
+                            fired.extend(self.hub.read(|g| c.engine.journal(&j, g, Instant::now())));
+                        }
                         if let (Some(f), Ok(raw)) = (&mut self.eddn, serde_json::from_str(&j.raw_json)) {
                             f.journal(&raw, self.live, wall_now());
                         }
@@ -170,6 +187,10 @@ impl Tailer {
                     Err(_) => st.bad_lines += 1,
                 }
             }
+        }
+        // Delivered with no lock held.
+        if let (Some(c), false) = (&self.callouts, fired.is_empty()) {
+            (c.deliver)(fired);
         }
         // Events first, files after: a slow file never delays the journal state.
         let found = triggers(&parsed);
@@ -289,8 +310,24 @@ impl Tailer {
                 f.status(&serde_json::json!({ "BodyName": s.body_name }));
             }
             self.hub.apply_status(&s);
+            if let Some(c) = &mut self.callouts {
+                c.engine.set_live(self.caught_up);
+                let fired = self.hub.read(|g| c.engine.status(&s, g, Instant::now()));
+                (c.deliver)(fired);
+            }
         }
         self.on_companions();
+    }
+
+    /// Startup: replay the current journal to rebuild state, read Status.json, then go live.
+    fn catch_up(&mut self) {
+        if let Some(n) = astromech_journal::newest_journal(&self.dir) {
+            self.open(n, true);
+        } else {
+            (self.log)("no journal file yet; waiting for the game to create one");
+        }
+        self.on_status();
+        self.caught_up = true;
     }
 
     fn on_companions(&mut self) {
@@ -315,13 +352,15 @@ impl Tailer {
 }
 
 /// Start watching `dir`. `db` is the store file for read positions (None: don't persist).
+/// `callouts`: the reaction engine and where its reactions go (None: no callouts).
 pub fn start(
     dir: &Path,
     hub: Arc<StateHub>,
     db: Option<&Path>,
     log: impl Fn(&str) + Send + 'static,
+    callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
-    start_with_eddn(dir, hub, db, log, None)
+    start_with_eddn(dir, hub, db, log, None, callouts)
 }
 
 /// The user's EDDN switch (`[eddn] enabled`, Settings → Data sharing), read by the feed on every
@@ -366,6 +405,7 @@ pub fn start_with_eddn(
     db: Option<&Path>,
     log: impl Fn(&str) + Send + 'static,
     eddn: Option<astromech_eddn::Feed>,
+    callouts: Option<Callouts>,
 ) -> Result<Pipeline> {
     let (tx, rx) = channel::<notify::Result<notify::Event>>();
     let mut watcher = notify::recommended_watcher(tx).context("creating file watcher")?;
@@ -391,16 +431,13 @@ pub fn start_with_eddn(
         stats: stats.clone(),
         log: Box::new(log),
         pending: vec![],
+        callouts,
         eddn,
         live: true,
+        caught_up: false,
         opened: Default::default(),
     };
-    if let Some(n) = astromech_journal::newest_journal(dir) {
-        t.open(n, true);
-    } else {
-        (t.log)("no journal file yet; waiting for the game to create one");
-    }
-    t.on_status();
+    t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
     let stop2 = stop.clone();
     let thread = std::thread::Builder::new()
@@ -492,11 +529,99 @@ mod tests {
             stats: Arc::new(std::sync::Mutex::new(Stats::default())),
             log: Box::new(move |m| l2.lock().unwrap().push(m.to_string())),
             pending: vec![],
+            callouts: None,
             eddn: None,
             live: true,
+            caught_up: false,
             opened: Default::default(),
         };
         (t, hub, logs)
+    }
+
+    /// "Cargo scan." on every `Scanned`, no cooldown.
+    struct ScanRule;
+    impl astromech_announce::Rule for ScanRule {
+        fn id(&self) -> &'static str {
+            "scan"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::ZERO
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
+            _: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            use astromech_announce::*;
+            matches!(input, Input::Journal(l) if l.name == "Scanned").then(|| Callout {
+                text: "Cargo scan.".into(),
+                priority: Priority::Normal,
+                channels: Channels::SPEECH,
+            })
+        }
+    }
+
+    fn scanned(ts: &str) -> String {
+        format!("{{\"timestamp\":\"2026-10-16T{ts}Z\",\"event\":\"Scanned\",\"ScanType\":\"Cargo\"}}\r\n")
+    }
+
+    #[test]
+    fn callouts_are_silent_for_the_startup_catch_up_and_live_after_it() {
+        let d = tempfile::tempdir().unwrap();
+        let p = d.path().join("Journal.2026-10-16T195000.01.log");
+        std::fs::write(&p, scanned("19:50:00") + &scanned("19:55:00")).unwrap();
+        // A half-written line at the end of the catch-up belongs to the live part.
+        let mut f = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+        write!(f, "{{\"timestamp\":\"2026-10-16T20:00:00Z\",\"event\":\"Scan").unwrap();
+        std::fs::write(d.path().join("Status.json"), r#"{"timestamp":"t","event":"Status","Flags":16842765}"#).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        // Delivery happens with the stats lock released (a slow sink must not hold it).
+        let stats = t.stats.clone();
+        let unlocked = Arc::new(std::sync::Mutex::new(vec![]));
+        let u2 = unlocked.clone();
+        let inner = std::mem::replace(&mut t.callouts.as_mut().unwrap().deliver, Box::new(|_| {}));
+        t.callouts.as_mut().unwrap().deliver = Box::new(move |rs| {
+            u2.lock().unwrap().push(stats.try_lock().is_ok());
+            inner(rs)
+        });
+        t.catch_up();
+        assert_eq!(t.stats.lock().unwrap().journal_lines, 2);
+        assert!(hub.snapshot().status_seen);
+        assert!(fired.lock().unwrap().is_empty(), "{:?}", fired.lock().unwrap());
+        // Live: the rest of the half line, then a new line.
+        write!(f, "ned\",\"ScanType\":\"Cargo\"}}\r\n{}", scanned("20:00:05")).unwrap();
+        f.flush().unwrap();
+        t.on_journal_activity();
+        assert_eq!(*fired.lock().unwrap(), ["Cargo scan.", "Cargo scan."]);
+        // A journal file the game starts later is live from its first line.
+        std::fs::write(d.path().join("Journal.2026-10-16T201000.01.log"), scanned("20:10:00")).unwrap();
+        t.on_journal_activity();
+        assert_eq!(fired.lock().unwrap().len(), 3);
+        // The same notion of live as EDDN: an older journal that becomes newest (a sync tool
+        // touched it) is re-read as a replay, so none of its lines fire again. The touch is what
+        // a sync tool does: its own handle, closed, then a later modified time. Writing through
+        // the game's still-open handle `f` doesn't work on Windows: NTFS updates the directory
+        // entry (which `newest_journal`'s listing reads) only when a handle closes. The explicit
+        // time also keeps the order from depending on timestamp granularity.
+        drop(f);
+        {
+            let mut g = std::fs::OpenOptions::new().append(true).open(&p).unwrap();
+            writeln!(g, "{{\"timestamp\":\"2026-10-16T20:11:00Z\",\"event\":\"Music\"}}").unwrap();
+        }
+        let later = std::time::SystemTime::now() + Duration::from_secs(3600);
+        std::fs::OpenOptions::new().write(true).open(&p).unwrap().set_modified(later).unwrap();
+        t.on_journal_activity();
+        assert_eq!(astromech_journal::newest_journal(d.path()), Some(p.clone()));
+        let got = fired.lock().unwrap().clone();
+        assert_eq!(got.len(), 3, "{got:?}");
+        let u = unlocked.lock().unwrap();
+        assert!(!u.is_empty() && u.iter().all(|ok| *ok), "{u:?}");
     }
 
     const MARKET_EVENT: &str =

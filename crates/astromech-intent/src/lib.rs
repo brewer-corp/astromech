@@ -8,7 +8,7 @@
 //! Decision thresholds:
 //! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute;
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
-//! - below 0.60: "Didn't catch that".
+//! - below 0.60: "Say again".
 //!
 //! Phrases may contain one slot, `{name}`, filled by one or more words of the transcript and
 //! resolved against values the caller supplies for that slot (`{system}`: known system names;
