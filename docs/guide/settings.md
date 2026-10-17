@@ -89,7 +89,8 @@ A callout with an unknown id or a `cooldown_s` that is not a number of seconds i
 and ignored on its own. Any other error in the file (a typo, a bad value) is different: the **whole file
 is discarded** and astromech runs with every default, including no push-to-talk and no kill switch,
 until you fix it. Setup says "config file has an error (see logs)"; Settings (under Files) and
-Diagnostics say "config error (see logs)". (Known bug: astromech-thym.)
+Diagnostics say "config error (see logs)". Once you save a fixed file, astromech reads it within a
+few seconds and the message goes away; you do not need to restart. (Known bug: astromech-thym.)
 
 ## Diagnostics
 

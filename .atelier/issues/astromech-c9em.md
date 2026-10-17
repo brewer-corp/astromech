@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-c9em
 priority: "P2"
 relationships:
   blocks: []
@@ -19,9 +22,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Onboarding follow-ups: shared config path, config error clears, fake-core contract test"
-updated_at: "2026-10-17T17:01:42.146261371+00:00"
+updated_at: "2026-10-17T19:29:19.254857051+00:00"
 ---
 
 ## Goal

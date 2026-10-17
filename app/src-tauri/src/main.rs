@@ -121,9 +121,10 @@ struct Cfg {
     data_dir: String,
 }
 
-/// The core's config, from where the core reads it (`Paths::config_file`); defaults if missing.
+/// The core's config, from where the core reads it (`Paths::config_in_use`: its `--config`, or
+/// the default file); defaults if missing.
 fn config() -> Cfg {
-    std::fs::read_to_string(Paths::current().config_file())
+    std::fs::read_to_string(Paths::current().config_in_use())
         .ok()
         .and_then(|t| toml::from_str(&t).ok())
         .unwrap_or_default()

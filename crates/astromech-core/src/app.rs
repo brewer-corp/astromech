@@ -38,6 +38,26 @@ pub enum Ui {
     Quit,
 }
 
+/// Whether the config file loaded, and the file as last looked at (modified time and size).
+#[derive(Default)]
+pub struct ConfigWatch {
+    /// Set while the file can't be read; the window shows it and setup waits.
+    pub note: Option<String>,
+    seen: Option<(std::time::SystemTime, u64)>,
+}
+
+fn file_stamp(path: &Path) -> Option<(std::time::SystemTime, u64)> {
+    let m = std::fs::metadata(path).ok()?;
+    Some((m.modified().ok()?, m.len()))
+}
+
+impl ConfigWatch {
+    /// A watch on a config that just failed to load.
+    pub fn failed(path: &Path, note: String) -> Self {
+        Self { note: Some(note), seen: file_stamp(path) }
+    }
+}
+
 /// Shared state; the tray reads it, the watcher and control API write it.
 pub struct Core {
     pub app_dir: PathBuf,
@@ -49,7 +69,8 @@ pub struct Core {
     /// Kokoro for Settings' voice preview while no session runs (released when one starts, or
     /// after a minute unused).
     pub preview: crate::speech::PreviewSlot,
-    pub config_note: Option<String>,
+    /// Why the config file wasn't used, until the file is fixed (see [`Core::refresh_config`]).
+    pub config_watch: Mutex<ConfigWatch>,
     pub game: Mutex<Game>,
     pub session: Mutex<Option<Session>>,
     /// While a session loads (models take a few seconds).
@@ -92,6 +113,49 @@ impl Core {
         self.history.follow(cfg.journal_dir(), &cfg.data_dir(), Arc::new(|m: &str| log(m)));
     }
 
+    /// Why the config file wasn't used, if it wasn't.
+    pub fn config_note(&self) -> Option<String> {
+        self.config_watch.lock().unwrap().note.clone()
+    }
+
+    /// Make a config the one in force: the window's setup edits and a fixed file both come here.
+    fn install_config(&self, mut c: Config) {
+        c.actions.dry_run |= self.opts.session.dry_run;
+        apply_eddn_switch(&c);
+        apply_edsm_switch(&c, self.secrets.as_ref());
+        // Under the config lock, so concurrent edits re-point in the order they saved.
+        self.follow_history(&c);
+        *self.cfg.write().unwrap() = c;
+    }
+
+    /// While the config file is broken, look at it again when it changes: once it loads, use it
+    /// and clear the error, so a fix needs no restart. A file that loaded is never re-read here
+    /// (edits to a working file apply at the next start, as before).
+    pub fn refresh_config(&self) {
+        let _g = self.config_lock.lock().unwrap_or_else(|e| e.into_inner());
+        let mut w = self.config_watch.lock().unwrap();
+        if w.note.is_none() {
+            return;
+        }
+        let stamp = file_stamp(&self.config_path);
+        if stamp.is_none() || stamp == w.seen {
+            return;
+        }
+        w.seen = stamp;
+        match Config::load(&self.config_path) {
+            Ok(c) => {
+                log(&format!("config: {} is readable now; using it", self.config_path.display()));
+                w.note = None;
+                drop(w);
+                self.install_config(c);
+            }
+            Err(e) => {
+                log(&format!("config error, still using defaults: {e:#}"));
+                w.note = Some("config error (see logs)".to_string());
+            }
+        }
+    }
+
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
         let game = *self.game.lock().unwrap();
@@ -115,7 +179,8 @@ impl Core {
     pub fn setup_needed(&self) -> Vec<&'static str> {
         let mut v = vec![];
         // A broken config falls back to defaults, which would otherwise read as "not set".
-        if self.config_note.is_some() {
+        self.refresh_config();
+        if self.config_note().is_some() {
             v.push("config file has an error (see logs)");
             return v;
         }
@@ -130,6 +195,7 @@ impl Core {
     }
 
     pub fn status_json(&self) -> Value {
+        self.refresh_config();
         let (killed, toasts, mining) = match self.session.lock().unwrap().as_ref() {
             Some(s) => (s.runner.policy.is_killed(), s.toasts.recent(), Some(s.hub.mining_json())),
             None => (false, vec![], None),
@@ -152,7 +218,7 @@ impl Core {
             "app_dir": self.app_dir.display().to_string(),
             "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
             "config": self.config_path.display().to_string(),
-            "config_note": self.config_note,
+            "config_note": self.config_note(),
             "setup_needed": self.setup_needed(),
             "ptt": button(&cfg.controls.ptt),
             "kill_switch": button(&cfg.controls.kill_switch),
@@ -440,14 +506,7 @@ impl Core {
     /// buttons and mic up the next time it starts (when Elite next starts).
     fn edit_config(&self, r: &Request) -> Value {
         let res = crate::setup::Edit::from_request(&r.cmd, r.args.as_ref()).and_then(|edits| {
-            crate::setup::edit(&self.config_lock, &self.config_path, &edits, |mut c| {
-                c.actions.dry_run |= self.opts.session.dry_run;
-                apply_eddn_switch(&c);
-                apply_edsm_switch(&c, self.secrets.as_ref());
-                // Under the config lock, so concurrent edits re-point in the order they saved.
-                self.follow_history(&c);
-                *self.cfg.write().unwrap() = c;
-            })
+            crate::setup::edit(&self.config_lock, &self.config_path, &edits, |c| self.install_config(c))
         });
         match res {
             Ok(()) => {
@@ -1093,21 +1152,24 @@ pub fn run(opts: Opts) -> i32 {
     ));
 
     let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
+    if let Err(e) = paths.publish_config(&config_path) {
+        log(&format!("couldn't note the config path for the window: {e}"));
+    }
     let config_exists = config_path.is_file();
-    let (mut cfg, config_note) = if config_exists {
+    let (mut cfg, config_watch) = if config_exists {
         match Config::load(&config_path) {
             Ok(c) => {
                 log(&format!("config: {}", config_path.display()));
-                (c, None)
+                (c, ConfigWatch::default())
             }
             Err(e) => {
                 log(&format!("config error, using defaults: {e:#}"));
-                (Config::default(), Some("config error (see logs)".to_string()))
+                (Config::default(), ConfigWatch::failed(&config_path, "config error (see logs)".to_string()))
             }
         }
     } else {
         log(&format!("config: {} not found; using defaults (Settings → Open config file)", config_path.display()));
-        (Config::default(), None)
+        (Config::default(), ConfigWatch::default())
     };
     if opts.session.dry_run {
         cfg.actions.dry_run = true;
@@ -1150,7 +1212,7 @@ pub fn run(opts: Opts) -> i32 {
         config_lock: Mutex::new(()),
         preview: Default::default(),
         cfg: std::sync::RwLock::new(cfg),
-        config_note,
+        config_watch: Mutex::new(config_watch),
         game: Mutex::new(Game::NotRunning),
         session: Mutex::new(None),
         starting: AtomicBool::new(false),
@@ -1284,7 +1346,7 @@ mod tests {
             config_path,
             config_lock: Mutex::new(()),
             preview: Default::default(),
-            config_note: None,
+            config_watch: Mutex::new(ConfigWatch::default()),
             game: Mutex::new(Game::NotRunning),
             session: Mutex::new(None),
             starting: AtomicBool::new(false),
@@ -1536,5 +1598,98 @@ mod tests {
         assert_eq!(o.pending().unwrap(), 0);
         set_eddn(&core, false);
         assert_eq!(o.recent(10).unwrap().len(), 1, "an empty queue writes no row");
+    }
+
+    #[test]
+    fn fixing_a_broken_config_clears_the_error_without_a_restart() {
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        std::fs::write(&core.config_path, "[controls\nptt = ").unwrap();
+        // As `run` finds it: unreadable, so defaults and a note.
+        *core.config_watch.lock().unwrap() = ConfigWatch::failed(&core.config_path, "config error (see logs)".into());
+        assert_eq!(core.status_json()["config_note"], "config error (see logs)");
+        assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
+        // Still broken, edited: still an error.
+        std::fs::write(&core.config_path, "[controls\nptt = {").unwrap();
+        assert_eq!(core.setup_needed(), ["config file has an error (see logs)"]);
+        // Fixed in the editor: the note clears and the file's settings are in force.
+        std::fs::write(
+            &core.config_path,
+            "[controls]\nptt = { device = \"231D3201\", key = \"Joy_4\" }\n[voice]\nmic = \"Example USB\"\n",
+        )
+        .unwrap();
+        let st = core.status_json();
+        assert!(st["config_note"].is_null(), "{st}");
+        assert_eq!(st["ptt"], "231D3201 Joy_4");
+        assert!(!core.setup_needed().iter().any(|m| m.contains("config file")), "{:?}", core.setup_needed());
+        assert_eq!(core.cfg().voice.mic, "Example USB");
+    }
+
+    /// What a reply looks like, ignoring values: each object's keys, recursively. Arrays count
+    /// as arrays (their items vary), and a value that may be null or not is just a value.
+    fn shape(v: &Value) -> Value {
+        match v {
+            Value::Object(m) => Value::Object(m.iter().map(|(k, v)| (k.clone(), shape(v))).collect()),
+            Value::Array(_) => json!("array"),
+            _ => json!("value"),
+        }
+    }
+
+    /// The window's fake core (`app/src/lib/fakecore.ts`) answers the setup and calibration
+    /// commands with hand-written JSON. This pins the real replies' shape in
+    /// `app/src/lib/core-reply-shapes.json`; the app's `fakecore.contract.test.ts` holds the
+    /// fake to the same file, so neither can change alone. Refresh the file after a deliberate
+    /// change with `ASTROMECH_UPDATE_SHAPES=1 cargo test -p astromech-core reply_shapes`.
+    #[test]
+    fn setup_and_calibration_reply_shapes_match_the_window_fake() {
+        use crate::calibration::{handle, Clip};
+        let _g = CONFIG_EDITS.lock().unwrap_or_else(|e| e.into_inner());
+        let d = tempfile::tempdir().unwrap();
+        let journals = d.path().join("journals");
+        std::fs::create_dir_all(&journals).unwrap();
+        let core = core(
+            d.path(),
+            &format!("data_dir = '{}'\n[game]\njournal_dir = '{}'\n", d.path().display(), journals.display()),
+        );
+        let ask = |cmd: &str| {
+            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args: None })
+        };
+
+        let tone = |ms: usize, amp: f32| -> Vec<f32> { (0..16 * ms).map(|i| amp * (i as f32 * 0.2).sin()).collect() };
+        let clips = [vec![0.0004f32; 16 * 2000], tone(900, 0.02), tone(700, 0.03), tone(1100, 0.015)];
+        let next = std::cell::Cell::new(0usize);
+        let record = |_ms: u64| {
+            let i = next.get().min(clips.len() - 1);
+            next.set(next.get() + 1);
+            Ok(Clip { device: "Microphone (Example USB Mic)".into(), rate: 16000, samples: clips[i].clone() })
+        };
+        let run = Mutex::new(None);
+        let store = || crate::calibration::open_store(d.path());
+        let mut got = serde_json::Map::new();
+        got.insert("find_elite".into(), shape(&ask("find_elite")));
+        got.insert("mic_list".into(), shape(&ask("mic_list")));
+        got.insert("calibrate_start".into(), shape(&handle("calibrate_start", &run, &record, &store)));
+        got.insert("calibrate_record".into(), shape(&handle("calibrate_record", &run, &record, &store)));
+        for _ in 0..3 {
+            handle("calibrate_record", &run, &record, &store);
+        }
+        got.insert("calibrate_finish".into(), shape(&handle("calibrate_finish", &run, &record, &store)));
+        got.insert("calibrate_cancel".into(), shape(&handle("calibrate_cancel", &run, &record, &store)));
+        got.insert("mic_check".into(), shape(&handle("mic_check", &run, &record, &store)));
+        for (cmd, v) in &got {
+            assert_eq!(v["ok"], "value", "{cmd} must answer ok");
+        }
+        let got = Value::Object(got);
+
+        let file = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../app/src/lib/core-reply-shapes.json");
+        if std::env::var_os("ASTROMECH_UPDATE_SHAPES").is_some() {
+            std::fs::write(&file, serde_json::to_string_pretty(&got).unwrap() + "\n").unwrap();
+        }
+        let want: Value = serde_json::from_str(&std::fs::read_to_string(&file).unwrap()).unwrap();
+        assert_eq!(
+            got, want,
+            "the core's reply shapes changed: update core-reply-shapes.json (see this test) and fakecore.ts"
+        );
     }
 }
