@@ -353,7 +353,7 @@ astromech/
 - `astromech-proto` depends on nothing internal.
 - `astromech-voice` and `astromech-tools` never depend on `astromech-input` directly. Every action passes through `astromech-policy`.
 - `astromech-intent` depends on nothing internal (it only maps text to command ids).
-- `astromech-log` depends on nothing internal (the core, the app window and library crates such as `astromech-odyssey` log through it).
+- `astromech-log` depends on nothing internal (the core and the app window log through it; library crates take an injected log callback, as `astromech-data` and `astromech-odyssey` do).
 - `astromech-core`, as composition root, does depend on `astromech-input`: it constructs the platform (`WinPlatform`) that it hands to the policy, and runs `input::listen` for the PTT/kill buttons. It never calls `send_key` itself; presses happen only through `astromech_policy::Ticket::press`.
 - Only `astromech-input` (and later `astromech-vision`) may use `windows` crate features that touch input or capture.
 - `astromech-realtime` (later) doesn't depend on `astromech-input`. It's behind the `cloud-voice` cargo feature, which is off by default and absent from MVP builds.

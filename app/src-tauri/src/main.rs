@@ -281,7 +281,7 @@ fn odyssey_state(cache: &OdysseyCache) -> Result<(astromech_odyssey::Holdings, a
     let state = match &*g {
         Some((v, p)) if *v == version => p.clone(),
         _ => {
-            let p = astromech_odyssey::journal_state(&dir);
+            let p = astromech_odyssey::journal_state(&dir, &astromech_log::log);
             *g = Some((version, p.clone()));
             p
         }
