@@ -1,0 +1,385 @@
+{
+  "any": {
+    "fetched": "2026-10-17T02:35:00Z",
+    "here": {
+      "id64": 23204307324883,
+      "pos": [
+        4758.5,
+        -367.21875,
+        16423.46875
+      ],
+      "system": "Greae Phoea EM-K d9-675"
+    },
+    "hits": [
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 6,
+          "landable": 4,
+          "main_star": "M (Red dwarf) star",
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675",
+        "exact": true,
+        "id64": 64506515308369,
+        "jumps": 1,
+        "ly": 9.514072636100694,
+        "name": "Greae Phoea VS-M b39-29",
+        "populated": {
+          "id64": 23204307324883,
+          "ly": 9.514072636100694,
+          "name": "Greae Phoea EM-K d9-675"
+        },
+        "updated_at": "2026-10-14T09:55:57Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 1,
+          "landable": 0,
+          "main_star": "T (Brown dwarf) star",
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "T (Brown dwarf) star · 12.1 ly from Greae Phoea EM-K d9-675",
+        "exact": true,
+        "id64": 5878195060376,
+        "jumps": 1,
+        "ly": 12.120730562758995,
+        "name": "Greae Phoea KK-B a78-0",
+        "populated": {
+          "id64": 23204307324883,
+          "ly": 12.120730562758995,
+          "name": "Greae Phoea EM-K d9-675"
+        },
+        "updated_at": "2026-10-15T15:40:15Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 13.7 ly from Greae Phoea US-M b39-3",
+        "exact": true,
+        "id64": 56441809117098,
+        "jumps": 1,
+        "ly": 13.998221148149502,
+        "name": "Greae Phoea KJ-T c19-205",
+        "populated": {
+          "id64": 7331642228561,
+          "ly": 13.710596950898966,
+          "name": "Greae Phoea US-M b39-3"
+        },
+        "updated_at": "2022-04-04T11:38:14Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 9.4 ly from Greae Phoea US-M b39-3",
+        "exact": true,
+        "id64": 51219128885162,
+        "jumps": 1,
+        "ly": 16.92726281956123,
+        "name": "Greae Phoea KJ-T c19-186",
+        "populated": {
+          "id64": 7331642228561,
+          "ly": 9.445774518270062,
+          "name": "Greae Phoea US-M b39-3"
+        },
+        "updated_at": "2023-05-10T04:45:51Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 3,
+          "landable": 0,
+          "main_star": "M (Red dwarf) star",
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "M (Red dwarf) star · 4.3 ly from Greae Phoea US-M b39-3",
+        "exact": true,
+        "id64": 11729957175121,
+        "jumps": 1,
+        "ly": 17.766140328937514,
+        "name": "Greae Phoea VS-M b39-5",
+        "populated": {
+          "id64": 7331642228561,
+          "ly": 4.300027252820614,
+          "name": "Greae Phoea US-M b39-3"
+        },
+        "updated_at": "2026-10-14T06:38:59Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 6.9 ly from Greae Phoea GD-V c18-74",
+        "exact": true,
+        "id64": 19390376366035,
+        "jumps": 1,
+        "ly": 19.204364534852488,
+        "name": "Greae Phoea EM-K d9-564",
+        "populated": {
+          "id64": 20432803307426,
+          "ly": 6.928414659032757,
+          "name": "Greae Phoea GD-V c18-74"
+        },
+        "updated_at": "2023-05-10T04:45:51Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 9.9 ly from Greae Phoea US-M b39-3",
+        "exact": false,
+        "id64": 8063297462186,
+        "jumps": 2,
+        "ly": 20.349773493825428,
+        "name": "Greae Phoea ME-T c19-29",
+        "populated": {
+          "id64": 7331642228561,
+          "ly": 9.891056961341391,
+          "name": "Greae Phoea US-M b39-3"
+        },
+        "updated_at": "2023-05-10T04:46:00Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 6.2 ly from Greae Phoea EM-K d9-373",
+        "exact": false,
+        "id64": 93093817630553,
+        "jumps": 2,
+        "ly": 21.959435258562547,
+        "name": "Greae Phoea ZY-K b40-42",
+        "populated": {
+          "id64": 12827666337747,
+          "ly": 6.161482547853236,
+          "name": "Greae Phoea EM-K d9-373"
+        },
+        "updated_at": "2026-08-11T01:36:16Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 0,
+          "landable": 0,
+          "main_star": null,
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "bodies not on Spansh · 9.1 ly from Greae Phoea EM-K d9-373",
+        "exact": false,
+        "id64": 56991564898218,
+        "jumps": 2,
+        "ly": 22.47400842501177,
+        "name": "Greae Phoea ME-T c19-207",
+        "populated": {
+          "id64": 12827666337747,
+          "ly": 9.138367776851618,
+          "name": "Greae Phoea EM-K d9-373"
+        },
+        "updated_at": "2023-05-10T04:46:00Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 1,
+          "landable": 0,
+          "main_star": "M (Red dwarf) star",
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "M (Red dwarf) star · 11.7 ly from Greae Phoea GD-V c18-74",
+        "exact": false,
+        "id64": 88695771119433,
+        "jumps": 2,
+        "ly": 22.8809333152081,
+        "name": "Greae Phoea RM-O b38-40",
+        "populated": {
+          "id64": 20432803307426,
+          "ly": 11.717124887317707,
+          "name": "Greae Phoea GD-V c18-74"
+        },
+        "updated_at": "2026-10-15T15:41:21Z"
+      }
+    ],
+    "interest": "any",
+    "radius_ly": 30.0,
+    "range": 20.0,
+    "unchecked": 0
+  },
+  "earth_like": {
+    "fetched": "2026-10-17T02:35:00Z",
+    "here": {
+      "id64": 23204307324883,
+      "pos": [
+        4758.5,
+        -367.21875,
+        16423.46875
+      ],
+      "system": "Greae Phoea EM-K d9-675"
+    },
+    "hits": [],
+    "interest": "earth_like",
+    "radius_ly": 30.0,
+    "range": 20.0,
+    "unchecked": 0
+  },
+  "landable": {
+    "fetched": "2026-10-17T02:35:00Z",
+    "here": {
+      "id64": 23204307324883,
+      "pos": [
+        4758.5,
+        -367.21875,
+        16423.46875
+      ],
+      "system": "Greae Phoea EM-K d9-675"
+    },
+    "hits": [
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 6,
+          "landable": 4,
+          "main_star": "M (Red dwarf) star",
+          "ringed": 0,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675",
+        "exact": true,
+        "id64": 64506515308369,
+        "jumps": 1,
+        "ly": 9.514072636100694,
+        "name": "Greae Phoea VS-M b39-29",
+        "populated": {
+          "id64": 23204307324883,
+          "ly": 9.514072636100694,
+          "name": "Greae Phoea EM-K d9-675"
+        },
+        "updated_at": "2026-10-14T09:55:57Z"
+      },
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 28,
+          "landable": 17,
+          "main_star": "G (White-Yellow) star",
+          "ringed": 3,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "G (White-Yellow) star · 3 ringed · 17 landable · 3.2 ly from Greae Phoea EM-K d9-373",
+        "exact": false,
+        "id64": 14110611447722,
+        "jumps": 2,
+        "ly": 24.433203746387825,
+        "name": "Greae Phoea KJ-T c19-51",
+        "populated": {
+          "id64": 12827666337747,
+          "ly": 3.2424792790394203,
+          "name": "Greae Phoea EM-K d9-373"
+        },
+        "updated_at": "2026-08-11T01:35:48Z"
+      }
+    ],
+    "interest": "landable",
+    "radius_ly": 30.0,
+    "range": 20.0,
+    "unchecked": 0
+  },
+  "rings": {
+    "fetched": "2026-10-17T02:35:00Z",
+    "here": {
+      "id64": 23204307324883,
+      "pos": [
+        4758.5,
+        -367.21875,
+        16423.46875
+      ],
+      "system": "Greae Phoea EM-K d9-675"
+    },
+    "hits": [
+      {
+        "bodies": {
+          "ammonia_worlds": 0,
+          "earth_like": 0,
+          "known": 28,
+          "landable": 17,
+          "main_star": "G (White-Yellow) star",
+          "ringed": 3,
+          "terraformable": 0,
+          "water_worlds": 0
+        },
+        "detail": "G (White-Yellow) star · 3 ringed · 17 landable · 3.2 ly from Greae Phoea EM-K d9-373",
+        "exact": false,
+        "id64": 14110611447722,
+        "jumps": 2,
+        "ly": 24.433203746387825,
+        "name": "Greae Phoea KJ-T c19-51",
+        "populated": {
+          "id64": 12827666337747,
+          "ly": 3.2424792790394203,
+          "name": "Greae Phoea EM-K d9-373"
+        },
+        "updated_at": "2026-08-11T01:35:48Z"
+      }
+    ],
+    "interest": "rings",
+    "radius_ly": 30.0,
+    "range": 20.0,
+    "unchecked": 0
+  }
+}

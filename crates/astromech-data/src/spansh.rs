@@ -30,7 +30,24 @@
 //! - `controlling_power`, `power` (any power active there, controller included) and
 //!   `power_state` (systems; `Unoccupied`, `Exploited`, `Fortified`, `Stronghold`):
 //!   `{"value": [..]}`, matching any listed value (checked 16 Oct 2026: an unknown filter name
-//!   left the count at 204, `power_state: Unoccupied` cut it to 63).
+//!   left the count at 204, `power_state: Unoccupied` cut it to 63);
+//! - `population` (systems): `{"value": [min, max], "comparison": "<=>"}` (`{"min", "max"}` is
+//!   ignored);
+//! - `is_colonised`, `is_being_colonised` (systems): `{"value": true}`; `{"value": false}`
+//!   matches only systems that carry the field as false, and unclaimed systems leave it out, so
+//!   it matched nothing (17 Oct 2026). Check claims on the result ([`System::is_claimed`]);
+//! - `nearest_populated_distance` (systems): `{"value": [min, max], "comparison": "<=>"}`;
+//! - `system_id64` (bodies): `{"value": [..]}`, every body of the listed systems (checked
+//!   17 Oct 2026: 40 systems, 257 bodies, all in them; `system_ids` and `system_id` are ignored).
+//!
+//! Systems answer colonisation as `is_colonised` (claimed by an architect, under construction
+//! included) and `is_being_colonised` (a construction site is active), each left out rather
+//! than false for most systems, and, for unpopulated systems, `nearest_populated_distance` and
+//! `nearest_populated_id64`. That distance is precomputed and lags new colonies (17 Oct 2026:
+//! Greae Phoea KM-W b47-47 said 118.8 ly, 8.3 ly from a colony of 10,478 people), so a small
+//! one is evidence and a large one is not. Neither flag is reliable alone: the populated colony
+//! Greae Phoea EM-K d9-373 had `is_being_colonised` and no `is_colonised`. A system's own
+//! `bodies` list has type and subtype only; the bodies search has rings and landability.
 //!
 //! Systems answer Powerplay as `controlling_power`, `power` (list), `power_state`,
 //! `power_state_control_progress` (a fraction of the state's band),
@@ -221,6 +238,16 @@ impl Search {
         self.filter("power", json!({ "value": powers }))
     }
 
+    /// Systems with `min` to `max` people (`0, 0`: unpopulated).
+    pub fn population(self, min: i64, max: i64) -> Self {
+        self.filter("population", json!({ "value": [min.to_string(), max.to_string()], "comparison": "<=>" }))
+    }
+
+    /// Bodies in any of these systems.
+    pub fn in_systems(self, id64s: &[i64]) -> Self {
+        self.filter("system_id64", json!({ "value": id64s }))
+    }
+
     /// Systems in any of these Powerplay states.
     pub fn power_state(self, states: &[&str]) -> Self {
         self.filter("power_state", json!({ "value": states }))
@@ -307,6 +334,18 @@ pub struct System {
     pub updated_at: Option<String>,
     #[serde(default)]
     pub minor_faction_presences: Vec<Faction>,
+    /// Claimed by an architect (construction under way included). Usually left out, not false.
+    #[serde(default)]
+    pub is_colonised: Option<bool>,
+    /// A colonisation construction site is active.
+    #[serde(default)]
+    pub is_being_colonised: Option<bool>,
+    /// Unpopulated systems: light years to the nearest populated system when Spansh last
+    /// worked it out (it lags new colonies, see the module docs).
+    #[serde(default)]
+    pub nearest_populated_distance: Option<f64>,
+    #[serde(default)]
+    pub nearest_populated_id64: Option<i64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -318,6 +357,11 @@ pub struct PowerProgress {
 impl System {
     pub fn pos(&self) -> [f64; 3] {
         [self.x, self.y, self.z]
+    }
+
+    /// An architect has claimed it, or a construction site is active.
+    pub fn is_claimed(&self) -> bool {
+        self.is_colonised == Some(true) || self.is_being_colonised == Some(true)
     }
 }
 
@@ -469,7 +513,7 @@ pub struct Share {
     pub share: f64,
 }
 
-/// A ring of a body, with the hotspots scanned in it.
+/// A planetary ring (asteroid belts around stars are not listed), with the hotspots scanned in it.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ring {
     /// e.g. "Barnard's Star 5 A Ring".
@@ -524,6 +568,12 @@ pub struct Body {
     pub landmarks: Vec<Landmark>,
     #[serde(default)]
     pub materials: Vec<Share>,
+    /// Stars: the arrival star.
+    #[serde(default)]
+    pub is_main_star: Option<bool>,
+    /// Ringed bodies: "Pristine", "Major", "Common", "Low" or "Depleted".
+    #[serde(default)]
+    pub reserve_level: Option<String>,
     #[serde(default)]
     pub updated_at: Option<String>,
 }
@@ -869,6 +919,9 @@ mod tests {
         assert_eq!(p["filters"]["power_state"]["value"][0], "Unoccupied");
         assert_eq!(p["filters"]["power"]["value"][0], "Li Yong-Rui");
         assert_eq!(p["filters"]["controlling_power"]["value"][1], "Yuri Grom");
+        let col = Search::near(Reference::System("Sol".into())).population(0, 0).in_systems(&[1, 2]).body();
+        assert_eq!(col["filters"]["population"], json!({ "value": ["0", "0"], "comparison": "<=>" }));
+        assert_eq!(col["filters"]["system_id64"], json!({ "value": [1, 2] }));
         let c = Search::near(Reference::Coords([1.0, 2.0, 3.0])).body();
         assert_eq!(c["reference_coords"]["z"], 3.0);
         assert!(c.get("reference_system").is_none());

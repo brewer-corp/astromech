@@ -201,6 +201,17 @@ impl Tailer {
         self.eddn_nav_route();
     }
 
+    /// The clock, for the rules that remind by time (mission expiry).
+    fn on_tick(&mut self) {
+        if let Some(c) = &mut self.callouts {
+            c.engine.set_live(self.caught_up);
+            let fired = self.hub.read(|g| c.engine.tick(chrono::Utc::now().timestamp(), g, Instant::now()));
+            if !fired.is_empty() {
+                (c.deliver)(fired);
+            }
+        }
+    }
+
     /// `NavRoute.json` for a live `NavRoute` event: read after the event and whenever the game
     /// writes the file, until the feed has the file the event announced.
     fn eddn_nav_route(&mut self) {
@@ -451,8 +462,13 @@ pub fn start_with_eddn(
     let thread = std::thread::Builder::new()
         .name("pipeline".into())
         .spawn(move || {
+            let mut last_tick = Instant::now();
             while !stop2.load(Ordering::SeqCst) {
-                // The timeout only lets us notice `stop`; no file is read on timeout.
+                if last_tick.elapsed() >= Duration::from_secs(1) {
+                    last_tick = Instant::now();
+                    t.on_tick();
+                }
+                // The timeout lets us notice `stop` and tick; no file is read on timeout.
                 let ev = match rx.recv_timeout(Duration::from_millis(250)) {
                     Ok(Ok(e)) => e,
                     Ok(Err(_)) => continue,

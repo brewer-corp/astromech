@@ -109,6 +109,10 @@ fn secs(ts: &str) -> u64 {
     p[0] * 3600 + p[1] * 60 + p[2]
 }
 
+fn epoch(ts: &str) -> i64 {
+    chrono::DateTime::parse_from_rfc3339(ts).unwrap().timestamp()
+}
+
 impl Replay {
     fn new(rules: Vec<Box<dyn Rule>>, settings: &Settings) -> Self {
         Self { engine: Engine::new(rules, settings), state: GameState::default(), t0: Instant::now(), out: vec![] }
@@ -304,6 +308,10 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:30Z","event":"DockingDenied","Reason":"NoSpace","StationType":"Coriolis"}}"#
         ),
+        // Bound for system A, with 30 minutes left at the time of the tick below.
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:35Z","event":"MissionAccepted","MissionID":7,"Name":"Mission_Massacre","Faction":"F","DestinationSystem":"A","Expiry":"2026-10-16T20:30:00Z"}}"#
+        ),
         // On the route below, at a neutron star with 1 t left: scoopable and fuel_range.
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:40Z","event":"FSDJump","StarSystem":"A","JumpDist":20.0,"FuelUsed":5.0,"FuelLevel":1.0,"ControllingPower":"Zachary Hudson","Powers":["Zachary Hudson"],"PowerplayState":"Fortified","PowerplayStateControlProgress":0.4}}"#
@@ -311,13 +319,16 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:45Z","event":"FSSSignalDiscovered","USSType":"$USS_Type_VeryValuableSalvage;","USSType_Localised":"High grade emissions"}}"#
         ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:46Z","event":"FSSSignalDiscovered","SystemAddress":1,"SignalName":"Ship","SignalType":"Megaship"}}"#
+        ),
     ]
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 9, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 11, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -328,6 +339,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rs =
         r.engine.route(&astromech_journal::parse_nav_route(route).unwrap(), &r.state, r.at("2026-10-16T19:59:50Z"));
     r.record(rs);
+    let rs = r.engine.tick(epoch("2026-10-16T19:59:55Z"), &r.state, r.at("2026-10-16T19:59:55Z"));
+    r.record(rs);
     assert!(r.out.is_empty(), "{:?}", r.out);
     r.engine.set_live(true);
     r.journal(&one_line_per_rule("20:00").join("\n"));
@@ -335,6 +348,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let replot = br#"{"Route":[{"StarSystem":"A","StarPos":[20,0,0],"StarClass":"N"},{"StarSystem":"Fuel","StarPos":[40,0,0],"StarClass":"G"},{"StarSystem":"B","StarPos":[60,0,0],"StarClass":"M"},{"StarSystem":"C","StarPos":[80,0,0],"StarClass":"K"}]}"#;
     let replot = astromech_journal::parse_nav_route(replot).unwrap();
     let rs = r.engine.route(&replot, &r.state, r.at("2026-10-16T20:00:50Z"));
+    r.record(rs);
+    let rs = r.engine.tick(epoch("2026-10-16T20:01:00Z"), &r.state, r.at("2026-10-16T20:01:00Z"));
     r.record(rs);
     assert_eq!(
         r.spoken(),
@@ -346,8 +361,11 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Zachary Hudson fortified, 40 percent.",
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
+            "Mission target in this system.",
             "High Grade Emissions.",
+            "Megaship in system.",
             "Route: 3 jumps, 60 ly.",
+            "Mission expires within an hour.",
         ]
     );
 }

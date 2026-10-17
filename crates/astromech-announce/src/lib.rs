@@ -18,10 +18,11 @@
 //!   an event, nor is a cleared route.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
-//! dropped, low priority dropped first when it is full. Rules are stateless: they see the event
-//! and the game state after it, never the replayed history.
+//! dropped, low priority dropped first when it is full. Rules mostly decide from the event and the
+//! game state after it, never the replayed history; the few that remember something between
+//! events (`missions`: which expiry warnings it gave) keep it themselves.
 //!
-//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`] and [`hge`].
+//! The rules that ship are in [`builtin`]: [`prospector`], [`scan`], [`arrival`], [`powerplay_arrival`] (off by default), [`docking`], [`fuel`], [`route`], [`hge`], [`missions`] and [`signals`].
 
 use astromech_gamestate::GameState;
 use astromech_journal::{JournalLine, NavRouteSnap};
@@ -101,9 +102,14 @@ pub enum Input<'a> {
     /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
     /// empty (a cleared route isn't an event).
     Route(&'a NavRouteSnap),
+    /// The clock moved on: `wall_secs` is the time now in seconds since the Unix epoch.
+    Tick {
+        wall_secs: i64,
+    },
 }
 
-/// A reaction rule. Stateless: decide from the event and the state after it.
+/// A reaction rule. Decides from the event and the state after it; a rule that must remember
+/// what it already said (once-only warnings) keeps that itself, behind `&self`.
 pub trait Rule: Send {
     /// Stable id, used in `[callouts.<id>]`.
     fn id(&self) -> &'static str;
@@ -134,10 +140,12 @@ pub mod arrival;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod missions;
 pub mod powerplay_arrival;
 pub mod prospector;
 pub mod route;
 pub mod scan;
+pub mod signals;
 
 /// What the core keeps for the rules and may change while they run.
 #[derive(Debug, Clone, Default)]
@@ -169,6 +177,8 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
+        Box::new(missions::Missions::default()),
+        Box::new(signals::Signals::default()),
     ]
 }
 
@@ -339,6 +349,13 @@ impl Engine {
         }
         let quiet = self.quiet(now);
         self.fire(&Input::Route(route), state, now, quiet)
+    }
+
+    /// The clock moved on (`wall_secs`: seconds since the Unix epoch), for rules that remind by
+    /// time. The pipeline calls it about once a second; replay tests inject their own time.
+    pub fn tick(&mut self, wall_secs: i64, state: &GameState, now: Instant) -> Vec<Reaction> {
+        let quiet = self.quiet(now);
+        self.fire(&Input::Tick { wall_secs }, state, now, quiet)
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
