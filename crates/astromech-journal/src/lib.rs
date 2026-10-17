@@ -109,6 +109,10 @@ pub enum JournalEvent {
         star_pos: Option<[f64; 3]>,
         /// The system's Powerplay fields, if it has any.
         powerplay: Option<Box<SystemPowerplay>>,
+        /// Tonnes of fuel the jump used and left in the main tank (`FuelUsed`, `FuelLevel`;
+        /// `FSDJump` only).
+        fuel_used: Option<f64>,
+        fuel_level: Option<f64>,
     },
     /// FSS signal in the current system (`FSSSignalDiscovered`).
     FssSignal {
@@ -303,6 +307,17 @@ pub struct CargoItem {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct NavRouteSnap {
     pub systems: Vec<String>,
+    /// The same systems with their star class and position.
+    pub hops: Vec<RouteHop>,
+}
+
+/// One system of `NavRoute.json`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize)]
+pub struct RouteHop {
+    pub system: String,
+    /// `StarClass` as the game writes it: "K", "DA", "N", "M_RedGiant", ...
+    pub star_class: Option<String>,
+    pub star_pos: Option<[f64; 3]>,
 }
 
 struct Head {
@@ -407,6 +422,8 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             system_address: opt_i(&raw, "SystemAddress"),
             star_pos: star_pos(&raw),
             powerplay: system_powerplay(&raw),
+            fuel_used: opt_f(&raw, "FuelUsed"),
+            fuel_level: opt_f(&raw, "FuelLevel"),
         },
         "FSSSignalDiscovered" => {
             let uss_type = opt_s(&raw, "USSType")
@@ -706,9 +723,17 @@ pub fn parse_cargo(bytes: &[u8]) -> Option<CargoSnap> {
 pub fn parse_nav_route(bytes: &[u8]) -> Option<NavRouteSnap> {
     let v: serde_json::Value = serde_json::from_slice(bytes).ok()?;
     let route = v.get("Route").and_then(|x| x.as_array())?;
-    let systems =
-        route.iter().filter_map(|s| s.get("StarSystem").and_then(|x| x.as_str()).map(str::to_string)).collect();
-    Some(NavRouteSnap { systems })
+    let hops: Vec<RouteHop> = route
+        .iter()
+        .filter_map(|h| {
+            Some(RouteHop {
+                system: h.get("StarSystem")?.as_str()?.to_string(),
+                star_class: opt_s(h, "StarClass"),
+                star_pos: star_pos(h),
+            })
+        })
+        .collect();
+    Some(NavRouteSnap { systems: hops.iter().map(|h| h.system.clone()).collect(), hops })
 }
 
 fn is_journal_name(n: &str) -> bool {
@@ -786,6 +811,8 @@ mod tests {
                 system_address: None,
                 star_pos: None,
                 powerplay: None,
+                fuel_used: None,
+                fuel_level: None,
             }
         );
         let l = parse_line(r#"{ "timestamp":"2026-10-10T20:00:01Z", "event":"SomethingNew", "X":1 }"#).unwrap();
@@ -991,6 +1018,23 @@ mod tests {
         )
         .unwrap();
         assert_eq!(r.systems, vec!["Sol", "Barnard's Star"]);
+        let r = parse_nav_route(
+            br#"{ "event":"NavRoute", "Route":[{"StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0.0,0.0,0.0],"StarClass":"G"},{"StarSystem":"Barnard's Star","StarPos":[-3.03125,1.375,4.9375],"StarClass":"M"}] }"#,
+        )
+        .unwrap();
+        assert_eq!(
+            r.hops[1],
+            RouteHop {
+                system: "Barnard's Star".into(),
+                star_class: Some("M".into()),
+                star_pos: Some([-3.03125, 1.375, 4.9375])
+            }
+        );
+        let j = parse_line(
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Sol","JumpDist":8.5,"FuelUsed":1.25,"FuelLevel":30.5}"#,
+        )
+        .unwrap();
+        assert!(matches!(j.event, JournalEvent::FsdJump { fuel_used: Some(1.25), fuel_level: Some(30.5), .. }));
     }
 
     #[test]

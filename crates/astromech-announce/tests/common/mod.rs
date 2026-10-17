@@ -5,7 +5,7 @@
 
 use astromech_announce::*;
 use astromech_gamestate::GameState;
-use astromech_journal::parse_line;
+use astromech_journal::{parse_line, parse_nav_route};
 use std::time::{Duration, Instant};
 
 pub struct Run {
@@ -33,6 +33,11 @@ impl Run {
         self.state.apply_line(&j);
         self.n += 1;
         self.engine.journal(&j, &self.state, self.t0 + Duration::from_secs(self.n))
+    }
+
+    /// The game wrote `NavRoute.json` (the pipeline reads it into the state).
+    pub fn route(&mut self, json: &str) {
+        self.state.apply_route(&parse_nav_route(json.as_bytes()).unwrap());
     }
 
     /// Spoken lines for one or more journal lines (one per text line).

@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, docking, prospector, scan};
+use astromech_announce::{arrival, builtin, docking, fuel, prospector, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "docking", "prospector", "scan"],
+        ["arrival", "docking", "fuel_range", "prospector", "scan", "scoopable"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -49,6 +49,13 @@ fn callout_lines() -> Vec<String> {
     v.extend(arrival_lines());
     for pad in 0..=46 {
         v.extend(docking::pad_line(pad, "Coriolis"));
+    }
+    for jumps in [None, Some(1), Some(2), Some(99)] {
+        v.push(fuel::next_line(jumps));
+        for here_scoopable in [None, Some(false), Some(true)] {
+            let a = fuel::Ahead { here_scoopable, jumps, fuel_needed: Some(10.0) };
+            v.extend(fuel::range_line(&a, 1.0).map(str::to_string));
+        }
     }
     for reason in [
         "NoSpace",
@@ -217,6 +224,8 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Cargo scan. Stolen goods aboard."));
     assert!(callouts.iter().any(|l| l == "Boom here. Proto Heat Radiators. Undermining target."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Pad at eleven, middle."));
+    assert!(callouts.iter().any(|l| l == "Scoop here. Next scoopable star out of reach."));
+    assert!(callouts.iter().any(|l| l == "Next scoopable star in 99 jumps."));
     assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");

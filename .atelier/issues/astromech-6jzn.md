@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Fuel: next scoopable star on the route"
-updated_at: "2026-10-15T20:36:13.658801674+00:00"
+updated_at: "2026-10-17T01:49:37.497650164+00:00"
 ---
 
 ## Goal

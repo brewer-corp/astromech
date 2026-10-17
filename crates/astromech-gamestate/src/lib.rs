@@ -8,7 +8,7 @@ pub mod mining;
 use astromech_journal::companion::{
     CompanionFile, FcMaterialsSnap, InventorySnap, MarketSnap, ModulesInfoSnap, OutfittingSnap, ShipyardSnap,
 };
-use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, StationInfo};
+use astromech_journal::{CargoSnap, JournalEvent, JournalLine, NavRouteSnap, RouteHop, StationInfo};
 use astromech_materials::Ledger;
 use astromech_status::{StatusSnap, FLAG_DOCKED, FLAG_GEAR, FLAG_SUPERCRUISE};
 use serde::Serialize;
@@ -91,6 +91,13 @@ pub struct GameState {
     pub hull_health: Option<f64>,
     pub max_jump_range: Option<f64>,
     pub route: Vec<String>,
+    /// `NavRoute.json`'s systems with star class and position (the route as plotted: the first
+    /// is where it was plotted from).
+    pub route_hops: Vec<RouteHop>,
+    /// The last hyperspace jump: (distance in ly, tonnes of fuel it used).
+    pub last_jump: Option<(f64, f64)>,
+    /// Frame Shift Drive size from the loadout (2 to 8), for fuel per jump.
+    pub fsd_size: Option<u8>,
     /// Journal file currently followed.
     pub journal_file: Option<String>,
     /// Ship engineering materials (login snapshot + later deltas).
@@ -146,6 +153,7 @@ impl GameState {
                 max_jump_range,
                 fuel_capacity_main,
                 rebuy,
+                modules,
                 ..
             } => {
                 if ship.is_some() {
@@ -158,6 +166,11 @@ impl GameState {
                 self.max_jump_range = *max_jump_range;
                 self.fuel_capacity_main = *fuel_capacity_main;
                 self.rebuy = *rebuy;
+                self.fsd_size = modules
+                    .iter()
+                    .find(|m| m.slot.eq_ignore_ascii_case("FrameShiftDrive"))
+                    .and_then(|m| m.item.split("_size").nth(1)?.chars().next()?.to_digit(10))
+                    .map(|d| d as u8);
             }
             JournalEvent::Location {
                 star_system, body, docked, station_name, market_id, star_pos, station, ..
@@ -186,9 +199,15 @@ impl GameState {
                 self.body = Some(body.clone());
             }
             JournalEvent::LeaveBody { .. } => self.body = None,
-            JournalEvent::FsdJump { star_system, from_carrier, star_pos, .. } => {
+            JournalEvent::FsdJump { star_system, from_carrier, star_pos, jump_dist, fuel_used, fuel_level, .. } => {
                 self.system = Some(star_system.clone());
                 self.star_pos = *star_pos;
+                if let Some(f) = fuel_used.filter(|_| !from_carrier && *jump_dist > 0.0) {
+                    self.last_jump = Some((*jump_dist, f));
+                }
+                if fuel_level.is_some() {
+                    self.fuel_main = *fuel_level;
+                }
                 if !from_carrier {
                     self.station = None;
                     self.station_market_id = None;
@@ -262,6 +281,7 @@ impl GameState {
 
     pub fn apply_route(&mut self, r: &NavRouteSnap) {
         self.route = r.systems.clone();
+        self.route_hops = r.hops.clone();
     }
 }
 
@@ -283,7 +303,7 @@ mod tests {
         assert_eq!(g.credits, Some(50));
         g.apply_status(&StatusSnap { flags: FLAG_GEAR, gui_focus: None, ..Default::default() });
         assert!(g.gear_down && !g.docked);
-        g.apply_route(&NavRouteSnap { systems: vec!["Shinrarta Dezhra".into(), "Sol".into()] });
+        g.apply_route(&NavRouteSnap { systems: vec!["Shinrarta Dezhra".into(), "Sol".into()], hops: vec![] });
         assert_eq!(g.route.len(), 2);
         g.apply_journal(
             &astromech_journal::parse_line(
