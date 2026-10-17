@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:04:37.123409707+00:00"
 id: "astromech-ky3d"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ky3d
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDSM upload: recover after a key fix, give up on refused batches, flight-log timeout"
-updated_at: "2026-10-17T05:04:37.123409707+00:00"
+updated_at: "2026-10-17T05:20:55.952618909+00:00"
 ---
 
 ## Goal
