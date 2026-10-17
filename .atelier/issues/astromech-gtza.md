@@ -4,6 +4,9 @@ id: "astromech-gtza"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-gtza
 priority: "P0"
 relationships:
   blocks:
@@ -17,9 +20,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Speak the system's Powerplay state on arrival"
-updated_at: "2026-10-16T20:56:12.188595776+00:00"
+updated_at: "2026-10-17T02:38:02.173042551+00:00"
 ---
 
 ## Goal
