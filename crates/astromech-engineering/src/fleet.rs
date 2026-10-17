@@ -191,6 +191,8 @@ impl FleetBuilder {
                             in_transit: false,
                             value: old.value,
                             market_id: self.here_market,
+                            transfer_cost: None,
+                            transfer_time: None,
                         });
                     }
                 }
@@ -214,7 +216,13 @@ impl FleetBuilder {
             }
             JournalEvent::StoredShips { ships } => {
                 self.stored = ships.iter().map(|s| (s.ship_id, s.clone())).collect();
-                self.ship_arrivals.clear();
+                // A transfer still under way stays one; the list puts the rest at a station.
+                for (id, a) in std::mem::take(&mut self.ship_arrivals) {
+                    if let Some(s) = self.stored.get_mut(&id).filter(|s| s.in_transit) {
+                        s.system = a.system.clone();
+                        self.ship_arrivals.insert(id, a);
+                    }
+                }
                 let current = self.current;
                 self.loadouts.retain(|id, _| Some(*id) == current || self.stored.contains_key(id));
             }
@@ -237,6 +245,8 @@ impl FleetBuilder {
                     in_transit: false,
                     value: None,
                     market_id: None,
+                    transfer_cost: None,
+                    transfer_time: None,
                 });
                 s.system = here.clone();
                 s.market_id = None;
@@ -247,30 +257,68 @@ impl FleetBuilder {
                 }
             }
             JournalEvent::StoredModules { items } => {
-                self.stored_modules = items.iter().map(|m| (m.clone(), None)).collect();
+                // The list is the truth about where each module is. One it still reports on its
+                // way (same slot, same item) keeps the arrival we worked out.
+                let old = std::mem::take(&mut self.stored_modules);
+                self.stored_modules = items
+                    .iter()
+                    .map(|m| {
+                        let arrival = m
+                            .system
+                            .is_none()
+                            .then(|| {
+                                old.iter().find(|(o, a)| {
+                                    a.is_some()
+                                        && m.storage_slot.is_some()
+                                        && o.storage_slot == m.storage_slot
+                                        && o.item == m.item
+                                })
+                            })
+                            .flatten()
+                            .and_then(|(_, a)| a.clone());
+                        (m.clone(), arrival)
+                    })
+                    .collect();
             }
-            JournalEvent::ModuleStore { module } => {
-                self.stored_modules.push((StoredModule { system: self.here.clone(), ..module.clone() }, None));
+            JournalEvent::ModuleStore { module, .. } => self.store_module(module.clone()),
+            JournalEvent::MassModuleStore { items } => {
+                for (_, module) in items {
+                    self.store_module(module.clone());
+                }
             }
-            JournalEvent::ModuleRetrieve { module, swapped_out } => {
+            JournalEvent::ModuleBuy { slot, stored: Some(old) } => {
+                let old = self.as_fitted(slot, old);
+                self.store_module(old);
+            }
+            JournalEvent::ModuleRetrieve { slot, module, swapped_out } => {
                 self.take_module(|m| {
                     m.item == module.item && m.blueprint == module.blueprint && m.level == module.level
                 });
                 if let Some(old) = swapped_out {
-                    self.stored_modules.push((StoredModule { system: self.here.clone(), ..old.clone() }, None));
+                    let old = self.as_fitted(slot, old);
+                    self.store_module(old);
                 }
             }
-            JournalEvent::ModuleSellRemote { item } => self.take_module(|m| m.item == *item),
-            JournalEvent::ModuleFetch { item, transfer_time, .. } => {
-                // The event does not say which one; the nearest to being ready is not known
-                // either, so take the first stored copy that is not already on its way here.
+            JournalEvent::ModuleSellRemote { item, storage_slot } => {
+                if let Some(i) = self.find_module(item, *storage_slot) {
+                    self.stored_modules.remove(i);
+                }
+            }
+            JournalEvent::ModuleFetch { item, storage_slot, transfer_time, .. } => {
                 let at = epoch(ts).zip(*transfer_time).map(|(t, secs)| t + secs);
                 let here = self.here.clone();
-                if let Some((m, arrival)) = self
-                    .stored_modules
-                    .iter_mut()
-                    .find(|(m, a)| m.item == *item && a.is_none() && m.system.is_some() && m.system != here)
-                {
+                // Without a slot that matches, take a copy that is not already on its way,
+                // preferring one from elsewhere.
+                let by_slot = storage_slot.and_then(|slot| {
+                    self.stored_modules.iter().position(|(m, _)| m.storage_slot == Some(slot) && m.item == *item)
+                });
+                let i = by_slot.or_else(|| {
+                    let idle =
+                        |(m, a): &(StoredModule, Option<Arrival>)| m.item == *item && a.is_none() && m.system.is_some();
+                    let elsewhere = self.stored_modules.iter().position(|e| idle(e) && e.0.system != here);
+                    elsewhere.or_else(|| self.stored_modules.iter().position(idle))
+                });
+                if let Some((m, arrival)) = i.and_then(|i| self.stored_modules.get_mut(i)) {
                     m.system = None;
                     *arrival = at.map(|at| Arrival { at, system: here, market_id: None });
                 }
@@ -317,6 +365,37 @@ impl FleetBuilder {
             }
             _ => {}
         }
+    }
+
+    /// Put `module` into storage where we are docked.
+    fn store_module(&mut self, module: StoredModule) {
+        self.stored_modules.push((StoredModule { system: self.here.clone(), storage_slot: None, ..module }, None));
+    }
+
+    /// `module`, the one a purchase or retrieval just took out of ship slot `slot`, with the
+    /// engineering the flown ship's last `Loadout` has in that slot when it is the same module.
+    fn as_fitted(&self, slot: &str, module: &StoredModule) -> StoredModule {
+        let fitted = self
+            .current
+            .and_then(|id| self.loadouts.get(&id))
+            .and_then(|seen| seen.modules.iter().find(|m| m.slot.eq_ignore_ascii_case(slot) && m.item == module.item))
+            .and_then(|m| m.engineering.as_ref());
+        match fitted {
+            Some(e) if module.blueprint.is_none() => {
+                StoredModule { blueprint: Some(e.blueprint.clone()), level: Some(e.level), ..module.clone() }
+            }
+            _ => module.clone(),
+        }
+    }
+
+    /// The stored module a remote sale or fetch means: the one in that `StorageSlot` if it is
+    /// the named item, else the first copy of the item.
+    fn find_module(&self, item: &str, storage_slot: Option<i64>) -> Option<usize> {
+        storage_slot
+            .and_then(|slot| {
+                self.stored_modules.iter().position(|(m, _)| m.storage_slot == Some(slot) && m.item == item)
+            })
+            .or_else(|| self.stored_modules.iter().position(|(m, _)| m.item == item))
     }
 
     /// Remove the first stored module `pred` accepts, preferring one stored where we are docked.
@@ -556,6 +635,9 @@ const FLEET_EVENTS: &[&str] = &[
     "\"StoredModules\"",
     "\"ShipyardTransfer\"",
     "\"ModuleStore\"",
+    "\"MassModuleStore\"",
+    "\"ModuleBuy\"",
+    "\"ModuleBuyAndStore\"",
     "\"ModuleRetrieve\"",
     "\"ModuleSellRemote\"",
     "\"FetchRemoteModule\"",

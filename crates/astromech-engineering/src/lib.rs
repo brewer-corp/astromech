@@ -434,7 +434,7 @@ mod tests {
 
     const DOCK_SOL: &str = r#"{"timestamp":"2026-10-10T10:00:00Z","event":"Docked","StationName":"Abraham Lincoln","StarSystem":"Sol","MarketID":1}"#;
     const DOCK_LHS: &str = r#"{"timestamp":"2026-10-10T11:00:00Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#;
-    const STORED: &str = r#"{"timestamp":"2026-10-10T10:01:00Z","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$hpt_pulselaser_fixed_small_name;","StarSystem":"Sol","BuyPrice":10,"Hot":true},{"Name":"$int_shieldgenerator_size5_class5_name;","StarSystem":"LHS 3447","BuyPrice":20}]}"#;
+    const STORED: &str = r#"{"timestamp":"2026-10-10T10:01:00Z","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$hpt_pulselaser_fixed_small_name;","StorageSlot":1,"StarSystem":"Sol","BuyPrice":10,"Hot":true},{"Name":"$int_shieldgenerator_size5_class5_name;","StorageSlot":2,"StarSystem":"LHS 3447","BuyPrice":20}]}"#;
 
     #[test]
     fn stored_modules_follow_store_retrieve_and_remote_sale() {
@@ -500,6 +500,109 @@ mod tests {
         b.apply(&l.timestamp, &l.event);
         let s = ship(&b);
         assert_eq!((s.in_transit, s.system.as_deref(), s.market_id), (false, Some("LHS 3447"), Some(2)));
+    }
+
+    fn at(b: &mut FleetBuilder, line: &str) {
+        let l = astromech_journal::parse_line(line).unwrap();
+        b.apply(&l.timestamp, &l.event);
+    }
+
+    #[test]
+    fn a_shipyard_reopened_mid_transfer_keeps_the_arrival() {
+        let stored_ships = |ts: &str| {
+            format!(
+                r#"{{"timestamp":"{ts}","event":"StoredShips","StarSystem":"LHS 3447","MarketID":2,"ShipsHere":[],"ShipsRemote":[{{"ShipID":12,"ShipType":"anaconda","InTransit":true,"TransferPrice":1200,"TransferTime":300}}]}}"#
+            )
+        };
+        let transfer = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"ShipyardTransfer","ShipType":"anaconda","ShipID":12,"System":"Sol","TransferPrice":1200,"TransferTime":600}"#;
+        let mut b = fold(&[DOCK_LHS, transfer]);
+        at(&mut b, &stored_ships("2026-10-10T11:05:00Z"));
+        let ship = |b: &FleetBuilder| b.build("t").ships.into_iter().find(|s| s.id == 12).unwrap();
+        let s = ship(&b);
+        assert_eq!((s.in_transit, s.system.as_deref()), (true, Some("LHS 3447")), "still on its way, to here");
+        let l = r#"{"timestamp":"2026-10-10T11:11:30Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#;
+        at(&mut b, l);
+        let s = ship(&b);
+        assert_eq!((s.in_transit, s.market_id), (false, Some(2)), "landed at the ten-minute mark");
+    }
+
+    #[test]
+    fn a_refreshed_module_list_keeps_a_transfer_under_way() {
+        let fetch = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"FetchRemoteModule","StorageSlot":2,"StoredItem":"$int_shieldgenerator_size5_class5_name;","TransferCost":500,"TransferTime":300}"#;
+        let refresh = r#"{"timestamp":"2026-10-10T11:02:00Z","event":"StoredModules","MarketID":2,"StarSystem":"LHS 3447","Items":[{"Name":"$hpt_pulselaser_fixed_small_name;","StorageSlot":1,"StarSystem":"Sol"},{"Name":"$int_shieldgenerator_size5_class5_name;","StorageSlot":2,"InTransit":true}]}"#;
+        let mut b = fold(&[DOCK_SOL, STORED, DOCK_LHS, fetch, refresh]);
+        let shield = |b: &FleetBuilder| stored(b).into_iter().find(|(i, _)| i.starts_with("int_shield")).unwrap().1;
+        assert_eq!(shield(&b), None);
+        at(
+            &mut b,
+            r#"{"timestamp":"2026-10-10T11:07:00Z","event":"Docked","StationName":"Hub","StarSystem":"LHS 3447","MarketID":2}"#,
+        );
+        assert_eq!(shield(&b).as_deref(), Some("LHS 3447"));
+    }
+
+    #[test]
+    fn remote_sale_and_fetch_follow_the_storage_slot() {
+        let list = r#"{"timestamp":"2026-10-10T10:01:00Z","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$hpt_x_name;","StorageSlot":1,"StarSystem":"Sol","MarketID":1},{"Name":"$hpt_x_name;","StorageSlot":2,"StarSystem":"Sol","MarketID":9,"EngineerModifications":"Weapon_Overcharged","Level":3}]}"#;
+        // The engineered copy (slot 2) is sold; the plain one stays.
+        let sold = r#"{"timestamp":"2026-10-10T10:02:00Z","event":"ModuleSellRemote","StorageSlot":2,"SellItem":"$hpt_x_name;","SellPrice":1}"#;
+        let b = fold(&[DOCK_SOL, list, sold]);
+        let left: Vec<_> = b.build("t").stored_modules.into_iter().map(|m| m.blueprint_name).collect();
+        assert_eq!(left, [None]);
+        // Another station in the same system: the fetch still finds slot 2, not slot 1.
+        let mut b2 = fold(&[DOCK_SOL, list]);
+        let fetch = r#"{"timestamp":"2026-10-10T10:03:00Z","event":"FetchRemoteModule","StorageSlot":2,"StoredItem":"$hpt_x_name;","TransferCost":1,"TransferTime":60}"#;
+        at(&mut b2, fetch);
+        let systems: Vec<_> = b2.build("t").stored_modules.into_iter().map(|m| m.system).collect();
+        assert_eq!(systems, [Some("Sol".to_string()), None], "slot 2 is on its way");
+    }
+
+    #[test]
+    fn mass_store_and_buy_keep_the_stored_list_current() {
+        let loadout = r#"{"timestamp":"2026-10-10T09:00:00Z","event":"Loadout","Ship":"asp","ShipID":4,"Modules":[{"Slot":"PowerPlant","Item":"int_powerplant_size4_class5","On":true,"Priority":1,"Engineering":{"BlueprintName":"PowerPlant_Boosted","Level":2,"Quality":0.5}}]}"#;
+        let mass = r#"{"timestamp":"2026-10-10T10:02:00Z","event":"MassModuleStore","MarketID":1,"Ship":"asp","ShipID":4,"Items":[{"Slot":"Slot02_Size4","Name":"$int_cargorack_size4_class1_name;","Hot":false},{"Slot":"Slot03_Size2","Name":"$int_cargorack_size2_class1_name;","Hot":true}]}"#;
+        let b = fold(&[loadout, DOCK_SOL, mass]);
+        assert_eq!(stored(&b).len(), 2);
+        // Buying over the engineered power plant keeps the old one in storage, engineering and all.
+        let buy = r#"{"timestamp":"2026-10-10T10:03:00Z","event":"ModuleBuy","Slot":"PowerPlant","BuyItem":"$int_powerplant_size4_class5_name;","StoredItem":"$int_powerplant_size4_class5_name;","MarketID":1,"BuyPrice":9,"Ship":"asp","ShipID":4}"#;
+        let b = fold(&[loadout, DOCK_SOL, mass, buy]);
+        let m = b.build("t").stored_modules;
+        assert_eq!(m.len(), 3);
+        assert_eq!(m[2].grade, Some(2));
+        assert!(m[2].blueprint_name.is_some());
+    }
+
+    #[test]
+    fn a_swapped_out_module_keeps_its_engineering() {
+        let loadout = r#"{"timestamp":"2026-10-10T09:00:00Z","event":"Loadout","Ship":"asp","ShipID":4,"Modules":[{"Slot":"PowerPlant","Item":"int_powerplant_size4_class5","On":true,"Priority":1,"Engineering":{"BlueprintName":"PowerPlant_Boosted","Level":4,"Quality":0.5}}]}"#;
+        let list = r#"{"timestamp":"2026-10-10T10:01:00Z","event":"StoredModules","MarketID":1,"StarSystem":"Sol","Items":[{"Name":"$hpt_x_name;","StorageSlot":1,"StarSystem":"Sol"}]}"#;
+        let retrieve = r#"{"timestamp":"2026-10-10T10:02:00Z","event":"ModuleRetrieve","MarketID":1,"Slot":"PowerPlant","RetrievedItem":"$hpt_x_name;","Ship":"asp","ShipID":4,"SwapOutItem":"$int_powerplant_size4_class5_name;"}"#;
+        let b = fold(&[loadout, DOCK_SOL, list, retrieve]);
+        let m = b.build("t").stored_modules;
+        assert_eq!(m.len(), 1);
+        assert_eq!((m[0].item.as_str(), m[0].grade), ("int_powerplant_size4_class5", Some(4)));
+    }
+
+    #[test]
+    fn a_journal_folder_replays_the_stored_events() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/stored");
+        let f = from_journal_dir(&dir);
+        let mods: Vec<_> = f.stored_modules.iter().map(|m| (m.item.as_str(), m.system.as_deref(), m.grade)).collect();
+        // Slot 1 laser retrieved, slot 2 laser sold, the engineered power plant and the cargo
+        // rack stored, the old shield generator put away, the size 5 shield fetched to Sol.
+        assert_eq!(
+            mods,
+            [
+                ("int_shieldgenerator_size5_class5", Some("Sol"), None),
+                ("int_powerplant_size4_class5", Some("Sol"), Some(2)),
+                ("int_shieldgenerator_size4_class3", Some("Sol"), None),
+                ("int_cargorack_size2_class1", Some("Sol"), None),
+            ]
+        );
+        let anaconda = f.ships.iter().find(|s| s.id == 12).unwrap();
+        assert_eq!(
+            (anaconda.in_transit, anaconda.system.as_deref(), anaconda.market_id),
+            (false, Some("Sol"), Some(1))
+        );
     }
 
     #[test]
