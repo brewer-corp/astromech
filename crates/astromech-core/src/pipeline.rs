@@ -38,61 +38,13 @@ use crate::hub::StateHub;
 use anyhow::{Context, Result};
 use astromech_eddn::worker::wall_now;
 use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
+use astromech_journal::JournalTail;
 use notify::{RecursiveMode, Watcher};
-use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-
-/// Tail one journal file from a byte offset.
-pub struct JournalTail {
-    pub path: PathBuf,
-    pub offset: u64,
-    partial: Vec<u8>,
-}
-
-impl JournalTail {
-    pub fn new(path: PathBuf, offset: u64) -> Self {
-        Self { path, offset, partial: vec![] }
-    }
-
-    /// Complete new lines since the last call.
-    pub fn read_new(&mut self) -> Vec<String> {
-        let Ok(mut f) = File::open(&self.path) else { return vec![] };
-        let len = f.metadata().map(|m| m.len()).unwrap_or(0);
-        if len < self.offset {
-            // Truncated or replaced: start over.
-            self.offset = 0;
-            self.partial.clear();
-        }
-        if f.seek(SeekFrom::Start(self.offset)).is_err() {
-            return vec![];
-        }
-        let mut buf = vec![];
-        if f.read_to_end(&mut buf).is_err() {
-            return vec![];
-        }
-        self.offset += buf.len() as u64;
-        self.partial.extend_from_slice(&buf);
-        let mut out = vec![];
-        while let Some(p) = self.partial.iter().position(|b| *b == b'\n') {
-            let line: Vec<u8> = self.partial.drain(..=p).collect();
-            let s = String::from_utf8_lossy(&line).trim().to_string();
-            if !s.is_empty() {
-                out.push(s);
-            }
-        }
-        out
-    }
-
-    /// Offset of the last complete line (what we persist).
-    pub fn committed(&self) -> u64 {
-        self.offset - self.partial.len() as u64
-    }
-}
 
 /// How long to wait for a file notification before reading the journal anyway.
 const IDLE: Duration = Duration::from_millis(250);
@@ -652,23 +604,6 @@ pub fn start_with_eddn(
 mod tests {
     use super::*;
     use std::io::Write;
-
-    #[test]
-    fn tail_keeps_partial_lines() {
-        let d = tempfile::tempdir().unwrap();
-        let p = d.path().join("Journal.2026-10-10T120000.01.log");
-        let mut f = std::fs::File::create(&p).unwrap();
-        write!(f, "{{\"timestamp\":\"t\",\"event\":\"A\"}}\r\n{{\"timestamp\":\"t\",\"ev").unwrap();
-        f.flush().unwrap();
-        let mut t = JournalTail::new(p.clone(), 0);
-        assert_eq!(t.read_new().len(), 1);
-        let c = t.committed();
-        write!(f, "ent\":\"B\"}}\r\n").unwrap();
-        f.flush().unwrap();
-        let l = t.read_new();
-        assert_eq!(l, vec!["{\"timestamp\":\"t\",\"event\":\"B\"}".to_string()]);
-        assert!(t.committed() > c);
-    }
 
     fn tailer(dir: &Path) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
         let hub = Arc::new(StateHub::new());

@@ -4,6 +4,9 @@ id: "astromech-p4um"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-p4um
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Share JournalTail between the core pipeline and astromech-journal"
-updated_at: "2026-10-17T17:23:49.179329542+00:00"
+updated_at: "2026-10-17T18:31:57.418600868+00:00"
 ---
 
 ## Goal
