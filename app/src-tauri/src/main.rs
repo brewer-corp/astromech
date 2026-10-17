@@ -915,11 +915,28 @@ async fn colonisation_buy(
     .await
 }
 
-/// The settings store, `astromech.sqlite` in the shell's app dir. That is the core's file only
-/// when the core uses its default data dir (not portable mode or a `data_dir` override).
+/// The core's data folder (`Config::data_dir()`): the `data_dir` override in `astromech.toml`,
+/// else next to the exe in portable mode, else the app dir; see `astromech_store::data_dir`.
+fn core_data_dir() -> PathBuf {
+    #[derive(Deserialize, Default)]
+    struct DataCfg {
+        #[serde(default)]
+        data_dir: String,
+    }
+    let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(PathBuf::from)).unwrap_or_else(|| ".".into());
+    let portable_cfg = exe_dir.join("astromech.toml");
+    let portable = portable_cfg.is_file();
+    let cfg_path = if portable { portable_cfg } else { app_dir().join("astromech.toml") };
+    let cfg: DataCfg = std::fs::read_to_string(cfg_path).ok().and_then(|t| toml::from_str(&t).ok()).unwrap_or_default();
+    astromech_store::data_dir(&cfg.data_dir, portable, &exe_dir, &app_dir())
+}
+
+/// The settings store, `astromech.sqlite` in the core's data folder, so filters land in the file
+/// the core uses.
 fn settings() -> Result<astromech_store::Store, String> {
-    std::fs::create_dir_all(app_dir()).map_err(|e| e.to_string())?;
-    astromech_store::Store::open(&app_dir().join("astromech.sqlite")).map_err(|e| e.to_string())
+    let dir = core_data_dir();
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    astromech_store::Store::open(&dir.join("astromech.sqlite")).map_err(|e| e.to_string())
 }
 
 /// A search's remembered filters, with the pad taken from the current ship unless set.
@@ -1022,6 +1039,9 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "open_config",
         "eddn_log",
         "set_eddn",
+        "edsm_status",
+        "set_edsm",
+        "edsm_flight_log",
         "voice_test",
         "voice_test_poll",
         "voice_test_stop",

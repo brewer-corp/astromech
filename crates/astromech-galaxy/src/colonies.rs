@@ -159,8 +159,12 @@ pub struct Candidates {
 }
 
 /// Unpopulated systems within `radius` ly of `origin`, nearest first.
-pub fn candidate_search(origin: [f64; 3], radius: f64) -> Search {
-    Search::near(Reference::Coords(origin)).within(radius).population(0, 0).size(CANDIDATES)
+pub fn candidate_search(origin: [f64; 3], radius: f64, filters: &Filters, now_s: i64) -> Search {
+    let s = Search::near(Reference::Coords(origin)).within(radius).population(0, 0).size(CANDIDATES);
+    match filters.updated_since(now_s) {
+        Some(since) => s.updated_since("updated_at", &since),
+        None => s,
+    }
 }
 
 /// Populated systems that could put a candidate within `radius` ly of `origin` in range.
@@ -213,7 +217,8 @@ impl Galaxy {
         // Fill-in is best effort: without it the jump counts are estimates.
         let _ = self.ensure_covered(here.pos);
         let radius = filters.max_distance_ly.unwrap_or(DEFAULT_RADIUS_LY) as f64;
-        let page = self.remote.spansh_systems(&candidate_search(here.pos, radius))?;
+        let now = crate::now_s();
+        let page = self.remote.spansh_systems(&candidate_search(here.pos, radius, filters, now))?;
         let fetched = page.fetched_at;
         // Every system claimed is an answer; no unpopulated system at all means the filter was ignored.
         let ignored = !page.value.results.is_empty() && page.value.results.iter().all(|s| s.population > 0);
@@ -229,7 +234,6 @@ impl Galaxy {
         };
         let all_populated = populated.as_ref().is_none_or(|p| p.count as usize <= p.results.len());
         let mut unchecked = 0;
-        let now = crate::now_s();
         let mut found: Vec<(System, Populated)> = vec![];
         for s in open {
             match in_range(&s, populated.as_ref().map_or(&[], |p| &p.results)) {

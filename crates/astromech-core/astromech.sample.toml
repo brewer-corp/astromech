@@ -54,3 +54,7 @@ feed = ""                     # empty: GitHub latest.json
 [eddn]
 enabled = false               # share market, shipyard, exploration and route data with EDDN (live play only)
 test = false                  # send to EDDN's /test schemas instead (debug builds always do)
+
+[edsm]
+enabled = false               # upload your journal to your EDSM account (flight log, map; live play only)
+commander = ""                # your commander name as registered on EDSM; the API key goes in the OS keyring (Settings)

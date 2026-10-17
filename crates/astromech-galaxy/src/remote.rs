@@ -106,7 +106,15 @@ impl Query {
     /// The search Spansh's site posts, nearest first. `min_population`: only systems with at
     /// least this many people (checked 17 Oct 2026: from Deciat the Federation search went from
     /// 10000 matches to 2117, all 50 returned over a billion).
-    pub fn body(&self, origin: [f64; 3], size: usize, min_population: Option<i64>) -> serde_json::Value {
+    /// `updated_since` (RFC 3339): only systems updated at or after it (checked 17 Oct 2026:
+    /// from Sol, 10000 matches became 562 for the last 40 minutes).
+    pub fn body(
+        &self,
+        origin: [f64; 3],
+        size: usize,
+        min_population: Option<i64>,
+        updated_since: Option<&str>,
+    ) -> serde_json::Value {
         let mut presence = serde_json::Map::new();
         if !self.allegiances.is_empty() {
             presence.insert("allegiance".into(), serde_json::json!({ "value": self.allegiances }));
@@ -118,6 +126,10 @@ impl Query {
         if let Some(min) = min_population {
             filters["population"] =
                 serde_json::json!({ "comparison": "<=>", "value": [min.to_string(), "100000000000"] });
+        }
+        if let Some(since) = updated_since {
+            filters["updated_at"] =
+                serde_json::json!({ "comparison": "<=>", "value": [since, "2999-12-31T23:59:59Z"] });
         }
         serde_json::json!({
             "filters": filters,
@@ -140,9 +152,12 @@ pub fn spansh_search(
     origin: [f64; 3],
     size: usize,
     min_population: Option<i64>,
+    updated_since: Option<&str>,
 ) -> Result<String> {
-    Ok(client
-        .send(Service::Spansh, &Request::post_json("/api/systems/search", q.body(origin, size, min_population)))?)
+    Ok(client.send(
+        Service::Spansh,
+        &Request::post_json("/api/systems/search", q.body(origin, size, min_population, updated_since)),
+    )?)
 }
 
 /// Every system EDSM knows within `radius` ly (max 100) of `p`, as `(id64, name, position)`.
@@ -171,9 +186,9 @@ mod tests {
                 || hits[1].minor_faction_presences.iter().any(|f| f.state.as_deref() == Some("Boom"))
         );
         assert!(parse_search(r#"{"error":"bad filter"}"#).is_err());
-        let b = query("proto").unwrap().body([1.0, 2.0, 3.0], 20, None);
+        let b = query("proto").unwrap().body([1.0, 2.0, 3.0], 20, None, None);
         assert!(b["filters"].get("population").is_none());
-        let big = query("fed_composites").unwrap().body([0.0; 3], 50, Some(1_000_000_000));
+        let big = query("fed_composites").unwrap().body([0.0; 3], 50, Some(1_000_000_000), None);
         assert_eq!(big["filters"]["population"]["value"][0], "1000000000");
         assert_eq!(big["filters"]["population"]["comparison"], "<=>");
         assert_eq!(b["filters"]["minor_faction_presences"][0]["state"]["value"][0], "Boom");

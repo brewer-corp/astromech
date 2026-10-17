@@ -14,7 +14,10 @@ pub enum Pad {
 
 impl Pad {
     /// The pad a ship needs, by its journal symbol (`Loadout.Ship`); `None` if unknown.
-    /// Player-visible game data (Elite Dangerous wiki, ship pages).
+    /// Player-visible game data (Elite Dangerous wiki, ship pages). The 2024-26 hulls
+    /// (`explorer_nx`, `smallcombat01_nx`, `lakonminer`, `mediumtransport01`) were checked on
+    /// 17 Oct 2026 against Coriolis' ship data (EDCD/coriolis-data, hull `class` 1/2/3 is the
+    /// pad size) by symbol id from FDevIDs; the wiki itself was behind a bot wall.
     pub fn for_ship(symbol: &str) -> Option<Pad> {
         let s = symbol.to_ascii_lowercase();
         let pad = match s.as_str() {
@@ -102,6 +105,13 @@ impl Filters {
             self.pad = ship_pad;
         }
         self
+    }
+
+    /// The oldest `updated_at` the data-age filter allows (RFC 3339, to the hour), to send to
+    /// Spansh so its nearest matches are already fresh. `None` without an age filter.
+    pub fn updated_since(&self, now_s: i64) -> Option<String> {
+        let days = self.max_age_days?;
+        Some(crate::iso((now_s - days as i64 * 86_400).div_euclid(3600) * 3600))
     }
 
     pub fn keeps(&self, f: &Facts, now_s: i64) -> bool {
@@ -196,6 +206,28 @@ mod tests {
         save(&st, "outfitting", &Filters { pad: None, pad_set: true, ..Filters::default() }).unwrap();
         assert_eq!(load(&st, "outfitting", anaconda).unwrap().pad, None);
         assert_eq!(load(&st, "trade", anaconda).unwrap().pad, Some(Pad::L), "another lookup still follows the ship");
+    }
+
+    /// Pads of the hulls added from memory, checked against Coriolis' data (see `for_ship`).
+    #[test]
+    fn newer_hulls_have_their_checked_pads() {
+        for (symbol, pad) in [
+            ("MediumTransport01", Pad::M), // Lynx Highliner
+            ("Explorer_NX", Pad::L),       // Caspian Explorer
+            ("LakonMiner", Pad::M),        // Type-11 Prospector
+            ("SmallCombat01_NX", Pad::S),  // Kestrel Mk II
+            ("PantherMkII", Pad::L),
+        ] {
+            assert_eq!(Pad::for_ship(symbol), Some(pad), "{symbol}");
+        }
+    }
+
+    #[test]
+    fn updated_since_rounds_down_to_the_hour() {
+        let now = parse_time("2026-10-17T12:34:56Z").unwrap();
+        assert_eq!(Filters::default().updated_since(now), None);
+        let f = Filters { max_age_days: Some(2), ..Filters::default() };
+        assert_eq!(f.updated_since(now).as_deref(), Some("2026-10-15T12:00:00Z"));
     }
 
     #[test]

@@ -124,6 +124,9 @@ mod tests {
             ("Who controls this system?", "status.system_power"),
             ("system powerplay", "status.system_power"),
             ("What earns merits here?", "status.merits_here"),
+            ("how much did I make this session", "session.summary"),
+            ("session summary", "session.summary"),
+            ("How much have I earned?", "session.summary"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

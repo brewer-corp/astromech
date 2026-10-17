@@ -76,6 +76,8 @@ pub struct Assistant {
     remote: Arc<astromech_data::Client>,
     /// Judges the age of market and station data.
     clock: Arc<dyn astromech_data::Clock>,
+    /// The journal history, for the session summary.
+    sessions: astromech_announce::session_summary::SharedSessions,
 }
 
 impl Assistant {
@@ -89,6 +91,7 @@ impl Assistant {
                 astromech_data::Cache::in_memory().expect("an in-memory SQLite cache always opens"),
             )),
             clock: Arc::new(astromech_data::SystemClock),
+            sessions: Default::default(),
         }
     }
 
@@ -101,6 +104,11 @@ impl Assistant {
     /// Answer lookups through the process's one `remote` client (shared with the star map).
     pub fn with_shared_remote(self, remote: Arc<astromech_data::Client>) -> Self {
         Self { remote, ..self }
+    }
+
+    /// Answer the session summary from `sessions` (the history the logout summary reads too).
+    pub fn with_sessions(self, sessions: astromech_announce::session_summary::SharedSessions) -> Self {
+        Self { sessions, ..self }
     }
 
     pub fn with_store(self, store: Arc<Mutex<Store>>) -> Self {
@@ -159,6 +167,15 @@ impl Assistant {
                     Handled::NotUnderstood
                 }
             };
+        }
+        if astromech_tools::session::is_summary(command) {
+            let game = self.runner.hub.snapshot();
+            let totals = self.sessions.get().and_then(|h| h.session(game.commander.as_deref(), None));
+            let lines = astromech_tools::session::answer(totals.as_ref());
+            for l in &lines {
+                self.say(l);
+            }
+            return Handled::Ran { command, outcome: Outcome::Spoken(lines.join(" ")) };
         }
         if let Some(ask) = astromech_tools::trade::from_command(command) {
             let game = self.runner.hub.snapshot();
