@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/svelte";
+import * as station from "../../lib/station";
 import View from "./View.svelte";
 
 // Outside the app the view shows the sample docking and searches the sample outfitting history
@@ -57,5 +58,21 @@ describe("Station", () => {
     render(View);
     await fireEvent.input(screen.getByPlaceholderText(/5a frame shift/), { target: { value: "railgun" } });
     expect(await screen.findByText("No remembered station sold “railgun”.")).toBeTruthy();
+  });
+
+  it("links the current system when no station is docked", async () => {
+    const sample = await station.loadHere();
+    vi.spyOn(station, "loadHere").mockResolvedValue({ ...sample, docked: false, station: null, market_id: null, system: "Deciat", services: [] });
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(View);
+    expect(await screen.findByText(/Not docked/)).toBeTruthy();
+    expect(screen.getByText("Deciat")).toBeTruthy();
+    await fireEvent.click(screen.getByTitle("Open Deciat on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      "https://spansh.co.uk/search/Deciat",
+      "https://inara.cz/elite/starsystem/?search=Deciat",
+    ]);
+    opened.mockRestore();
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
 import type { Overview } from "../../lib/powerplay";
 import View from "./View.svelte";
 
@@ -39,6 +39,19 @@ const undermine: Overview["system"] = {
 };
 
 describe("Powerplay page", () => {
+  it("links the current system to Spansh and Inara", async () => {
+    const opened = vi.spyOn(window, "open").mockImplementation(() => null);
+    overview.mockResolvedValue({ standing, here: "Deciat", system: null });
+    render(View);
+    await fireEvent.click(await screen.findByTitle("Open Deciat on Spansh"));
+    await fireEvent.click(screen.getByTitle("Open Deciat on Inara"));
+    expect(opened.mock.calls.map((c) => c[0])).toEqual([
+      "https://spansh.co.uk/search/Deciat",
+      "https://inara.cz/elite/starsystem/?search=Deciat",
+    ]);
+    opened.mockRestore();
+  });
+
   it("shows the standing from the journal", async () => {
     overview.mockResolvedValue({ standing, here: null, system: null });
     render(View);
