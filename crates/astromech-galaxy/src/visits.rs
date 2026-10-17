@@ -85,7 +85,7 @@ pub fn visits_from_journal_dir(dir: &Path, max_files: usize) -> Vec<Visit> {
     let mut lines = vec![];
     for p in logs.iter().rev().take(max_files) {
         let Ok(text) = std::fs::read_to_string(p) else { continue };
-        for line in text.lines().filter(|l| l.contains("\"FSDJump\"") || l.contains("\"Location\"")) {
+        for line in text.lines().filter(|l| crate::POSITION_EVENTS.iter().any(|e| l.contains(e))) {
             if let Ok(l) = astromech_journal::parse_line(line.trim()) {
                 lines.push(l);
             }

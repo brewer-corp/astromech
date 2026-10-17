@@ -360,7 +360,10 @@ struct JournalState {
 struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
 
 impl Default for EngineeringCache {
-    /// Watches exactly the lines the replays in `build_journal_state` read.
+    /// Watches exactly the lines the replays in `build_journal_state` read: each of them pre-filters
+    /// the journal lines with the constant listed here (fleet, engineers, ledger, and the galaxy's
+    /// here and visits), so a reader and its watch pattern can't drift apart. A reader added to
+    /// `build_journal_state` must add its constant here (astromech-ldiz).
     fn default() -> Self {
         let events: Vec<&str> = [
             astromech_engineering::FLEET_EVENTS,

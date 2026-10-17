@@ -4,6 +4,9 @@ id: "astromech-ldiz"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ldiz
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Tie the shell's Engineering watch list to build_journal_state"
-updated_at: "2026-10-17T17:28:29.762459570+00:00"
+updated_at: "2026-10-17T18:48:34.521956523+00:00"
 ---
 
 ## Goal
