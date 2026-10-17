@@ -3,6 +3,7 @@
   // where my power wants work nearby (Spansh).
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import Suggestions from "./Suggestions.svelte";
   import Targets from "./Targets.svelte";
 
   let ov = $state<Overview | null>(null);
@@ -95,6 +96,21 @@
         {/if}
       </dl>
       <p class="lo small">As of your last jump. The game shows this in the system map, not on the HUD.</p>
+    {/if}
+  </div>
+
+  <div class="panel">
+    <h3>What earns merits here</h3>
+    {#if !ov}
+      <p class="lo">Reading the journal…</p>
+    {:else if !st?.power}
+      <p class="lo">Pledge to a power to see what earns it merits here.</p>
+    {:else if !sys}
+      <p class="lo">Nothing: no Powerplay activity here.</p>
+    {:else if !sys.suggestions.length}
+      <p class="lo">Nothing here earns {st.power} merits: it isn’t acquiring this system.</p>
+    {:else}
+      <Suggestions items={sys.suggestions} rules={sys.activity_rules} />
     {/if}
   </div>
 

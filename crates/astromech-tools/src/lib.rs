@@ -77,6 +77,8 @@ pub enum Query {
     Legal,
     Powerplay,
     SystemPower,
+    /// What earns the pledged power merits in the current system.
+    MeritsHere,
 }
 
 /// One typed tool call.
@@ -277,6 +279,7 @@ pub fn from_command(id: &str) -> Option<ToolCall> {
             "legal" => Query::Legal,
             "powerplay" => Query::Powerplay,
             "system_power" => Query::SystemPower,
+            "merits_here" => Query::MeritsHere,
             _ => return None,
         };
         return Some(ToolCall::Query(q));
@@ -603,7 +606,30 @@ pub fn answer(q: Query, g: &GameState) -> String {
             (None, Some(sys)) => format!("No Powerplay activity in {sys}."),
             (None, None) => "Location not known yet.".into(),
         },
+        Query::MeritsHere => merits_here(g),
     }
+}
+
+/// The first few activities that earn merits here, the power's favourites first.
+fn merits_here(g: &GameState) -> String {
+    let Some(power) = g.powerplay.power.as_deref() else { return "Not pledged to a power.".into() };
+    let Some(s) = &g.system_power else {
+        return match &g.system {
+            Some(sys) => format!("No Powerplay activity in {sys}."),
+            None => "Location not known yet.".into(),
+        };
+    };
+    let all = s.suggestions(Some(power));
+    if all.is_empty() {
+        return format!("Nothing for {power} in {}.", s.system);
+    }
+    let top: Vec<String> = all.iter().take(4).map(|x| x.name.to_lowercase()).collect();
+    let more = all.len().saturating_sub(top.len());
+    let mut line = format!("Merits here: {}", top.join(", "));
+    if more > 0 {
+        line += &format!(", and {more} more on the Powerplay page");
+    }
+    line + "."
 }
 
 /// Turn a spoken-confirm plan into a press (after the user said yes).
@@ -831,6 +857,34 @@ mod tests {
         assert_eq!(
             answer(Query::SystemPower, &g),
             "Li Yong-Rui stronghold, 25 percent. Reinforcement 0, undermining 166. Your power: reinforce here."
+        );
+    }
+
+    #[test]
+    fn merits_here_names_the_first_activities() {
+        let mut g = GameState::default();
+        assert_eq!(from_command("status.merits_here"), Some(ToolCall::Query(Query::MeritsHere)));
+        assert_eq!(answer(Query::MeritsHere, &g), "Not pledged to a power.");
+        let feed = |g: &mut GameState, l: &str| g.apply_line(&astromech_journal::parse_line(l).unwrap());
+        feed(
+            &mut g,
+            r#"{"timestamp":"t","event":"Powerplay","Power":"Li Yong-Rui","Rank":8,"Merits":45000,"TimePledged":1}"#,
+        );
+        assert_eq!(answer(Query::MeritsHere, &g), "Location not known yet.");
+        feed(&mut g, r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Test Empty","JumpDist":5.0}"#);
+        assert_eq!(answer(Query::MeritsHere, &g), "No Powerplay activity in Test Empty.");
+        feed(
+            &mut g,
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Test Other","JumpDist":5.0,"Powers":["Felicia Winters"],"PowerplayState":"Unoccupied","PowerplayConflictProgress":[{"Power":"Felicia Winters","ConflictProgress":0.2}]}"#,
+        );
+        assert_eq!(answer(Query::MeritsHere, &g), "Nothing for Li Yong-Rui in Test Other.");
+        feed(
+            &mut g,
+            r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Test Enemy","JumpDist":5.0,"ControllingPower":"Pranav Antal","Powers":["Pranav Antal"],"PowerplayState":"Exploited","PowerplayStateControlProgress":0.1}"#,
+        );
+        assert_eq!(
+            answer(Query::MeritsHere, &g),
+            "Merits here: crimes, flood markets, holoscreen hacking, power classified data, and 10 more on the Powerplay page."
         );
     }
 }
