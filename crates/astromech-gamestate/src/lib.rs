@@ -448,6 +448,12 @@ mod tests {
             r#"{"timestamp":"2026-10-16T21:01:00Z","event":"MissionRedirected","MissionID":1,"NewDestinationSystem":"Elsewhere"}"#,
         );
         assert_eq!(g.missions[0].destination_system.as_deref(), Some("Elsewhere"));
+        // A redirect to a station only (no new system) keeps the system.
+        apply(
+            &mut g,
+            r#"{"timestamp":"2026-10-16T21:01:30Z","event":"MissionRedirected","MissionID":1,"NewDestinationStation":"Only A Station"}"#,
+        );
+        assert_eq!(g.missions[0].destination_system.as_deref(), Some("Elsewhere"));
         apply(
             &mut g,
             r#"{"timestamp":"2026-10-16T21:02:00Z","event":"MissionCompleted","MissionID":1,"Name":"Mission_Massacre"}"#,
