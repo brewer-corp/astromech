@@ -14,7 +14,8 @@
 //! - [`tester`]: the voice command tester's dry run (nothing pressed) and its live run;
 //! - [`trade`]: trade questions by voice (where to sell or buy a commodity, Ardent Insight);
 //! - [`biology`]: biology other players reported (Spansh) for the arrival briefing, and the
-//!   Biology page's view of the system (`exobiology`);
+//!   Biology page's view of the system (`exobiology`); [`known_bodies`]: bodies known to EDSM
+//!   for the arrival briefing; both look up in the [`background`];
 //! - [`speech`]: Kokoro TTS / Parakeet STT through the voice worker, or console fallbacks;
 //! - [`route`]: following a multi-stop route; the next waypoint goes on the [`clipboard`];
 //! - [`callouts`]: delivers the reaction engine's callouts (speech queue, app toasts, Windows
@@ -30,6 +31,7 @@ pub mod actions;
 pub mod app;
 pub mod assistant;
 pub mod autostart;
+pub mod background;
 pub mod biology;
 pub mod calibration;
 pub mod callouts;
@@ -46,6 +48,8 @@ pub mod health;
 pub mod history;
 pub mod hub;
 pub mod instance;
+pub mod known_bodies;
+pub mod learned;
 pub mod logging;
 pub mod lookups;
 pub mod pipeline;

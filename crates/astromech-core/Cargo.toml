@@ -57,10 +57,16 @@ windows-sys = { workspace = true, features = ["Win32_Foundation", "Win32_System_
 png = "0.18"
 
 [dev-dependencies]
+chrono-tz.workspace = true
 tempfile.workspace = true
 astromech-data.workspace = true
 astromech-materials.workspace = true
 astromech-powerplay.workspace = true
+astromech-ship.workspace = true
+astromech-engineering.workspace = true
+astromech-odyssey.workspace = true
+jsonschema = { version = "0.58", default-features = false }
+flate2 = "1"
 rusqlite = { version = "0.40", features = ["bundled"] }
 
 [target.'cfg(windows)'.dev-dependencies]

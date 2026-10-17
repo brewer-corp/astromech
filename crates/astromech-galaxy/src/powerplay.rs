@@ -8,6 +8,9 @@ use anyhow::Result;
 use astromech_data::spansh::{Reference, Search, System};
 use serde::{Deserialize, Serialize};
 
+/// Said (as a lookup warning) when Spansh returns systems that do not fit the search.
+pub const MISMATCH_WARNING: &str = "Spansh returned systems that do not fit the search; its filters may have changed.";
+
 /// What kind of work to look for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -113,8 +116,7 @@ impl Galaxy {
         let page = self.remote.spansh_systems(&target.search(power, here.pos, within_ly, SEARCH_SIZE, filters, now))?;
         let n = page.value.results.len();
         let mut matched: Vec<System> = page.value.results.into_iter().filter(|s| target.matches(power, s)).collect();
-        let warning = (n > 0 && matched.is_empty())
-            .then(|| "Spansh returned systems that don't fit the search; its filters may have changed.".to_string());
+        let warning = (n > 0 && matched.is_empty()).then(|| MISMATCH_WARNING.to_string());
         matched.retain(|s| filters.keeps(&Facts { updated_at: s.updated_at.as_deref(), ..Facts::default() }, now));
         {
             let mut st = self.store();

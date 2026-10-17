@@ -27,7 +27,12 @@ boxes.
 - Pick an **activity** to light just that activity's actions: Flight basics, Supercruise and jumps,
   Exploration (FSS and DSS), Trading, Mining, Combat, Docking and landing, SRV, On foot. Below the
   sheet, **Not bound yet** lists the important actions with nothing on this stick, each with
-  **Bind this**. **Elsewhere** lists the ones bound only to the keyboard or mouse.
+  **Bind this**. **On the other stick** lists the ones bound only on your other stick, with the
+  control. **Elsewhere** lists the ones bound only to the keyboard or mouse. astromech remembers
+  the activity you chose, so the page opens on it next time.
+- **Click an action** in any of those lists to see its slots and any issues in the panel on the
+  right. **Bind another control** (or **Bind this**, if it has nothing yet) opens the bind dialog
+  for it.
 - Button numbers come from VKB's factory profile. If you pressed a control and the sheet does
   not know it (a stick you remapped in VKB's tool), it says so and asks "Which control did you
   just press?". Click it on the sheet and astromech remembers. A box marked "not confirmed" is a
@@ -35,6 +40,8 @@ boxes.
   your correction.
 - The **Preset** menu at the top picks which preset the page shows. It starts with the one the
   game uses for the ship. "Connected" or "Not connected" shows below the sheet.
+
+![Mining chosen: its actions on this stick, the ones on the other stick, and the Hardpoints detail](img/controller-activity.png)
 
 ## All keybinds
 
@@ -57,11 +64,14 @@ A marker appears on the row, with the reason in the about panel:
 
 - **No keyboard key** (an error). astromech presses keys only, so each action it uses by voice
   needs a keyboard key: landing gear, lights, hardpoints, cargo scoop, night vision, flight
-  assist, silent running, HUD mode, left and right panels, throttle to zero. Put a key in the empty slot. The
-  health check does not yet look at the galaxy map, system map, back, comms and role panel,
-  handbrake and drive assist, which voice also uses; the voice reply tells you when one is missing.
+  assist, silent running, HUD mode, the galaxy map, system map, back, the left, right, comms and
+  role panels, throttle to zero, and in the SRV the handbrake and drive assist. Put a key in the
+  empty slot.
 - **Joy number above 32** (an error). Elite reads only buttons 1 to 32 on each device. Anything
   higher is ignored.
+- **Clashes with route paste** (a warning): V or Enter is on a galaxy map action. The route "paste" sends Ctrl+V, then Enter,
+  while the galaxy map is open. If the search box does not have focus, a galaxy map action on one
+  of those keys would run instead. Move that action to another key.
 - **Device not connected** (a warning).
 - **Same control as ...** (a note). Two actions in the same context share a control.
 - A preset-level warning if a device's product ID looks different from what the preset names

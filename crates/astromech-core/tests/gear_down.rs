@@ -228,9 +228,7 @@ fn state_rules_press_nothing() {
 fn no_keyboard_binding_refuses_clearly() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[0]);
     let lights = ToolCall::Toggle { toggle: Toggle::Lights, target: Target::On };
-    assert!(
-        matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("I can't switch lights"))
-    );
+    assert!(matches!(r.runner.run(lights, Origin::Voice), Outcome::NoBinding(m) if m.contains("Cannot switch lights")));
     assert!(r
         .runner
         .binds
@@ -311,7 +309,7 @@ fn night_vision_without_keyboard_key_is_refused_clearly() {
     assert!(matches!(h, Handled::Ran { outcome: Outcome::NoBinding(_), .. }), "{h:?}");
     let said = r.speaker.take();
     assert_eq!(said.len(), 1);
-    assert!(said[0].starts_with("I can't switch night vision:"), "{said:?}");
+    assert!(said[0].starts_with("Cannot switch night vision:"), "{said:?}");
     assert!(said[0].contains("give Night Vision a keyboard key") && !said[0].contains("NightVisionToggle"), "{said:?}");
     assert_eq!(r.game.presses.load(Ordering::SeqCst), 0);
 }
@@ -541,16 +539,28 @@ fn the_catch_up_is_silent_and_a_live_jump_moves_the_route() {
 
 /// An older journal re-read (a backup or sync tool touched it) is a replay: the route doesn't
 /// move, the clipboard isn't written and nothing is said, though it passes through waypoints.
+/// The tool creates the file and then writes it, and the pipeline follows it in between: what
+/// lands in it afterwards is a replay too (astromech-0d7l).
 #[test]
 fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
     use astromech_core::route::{Route, Waypoint};
+    const OLDER: &str = "Journal.2026-10-14T080000.01.log";
     let (desk, copied) = recording_desk();
     let r = route_rig("Sol", desk.clone());
     wait(|| desk.view().here.as_deref() == Some("Sol"));
     desk.set(Route::new("t", "import", ["Deciat", "Kuk", "Colonia"].map(Waypoint::new).to_vec())).unwrap();
     assert_eq!(*copied.lock().unwrap(), ["Deciat"]);
 
-    append(&r, "Journal.2026-10-14T080000.01.log", &["Kuk", "Wolf 359"]);
+    // One that appears with its lines already in it (written elsewhere, then moved in).
+    let tmp = r.dir.path().join("restore.tmp");
+    std::fs::write(&tmp, jump_line("Kuk")).unwrap();
+    std::fs::rename(&tmp, r.dir.path().join("Journal.2026-10-13T080000.01.log")).unwrap();
+    mock::write_status(&r.dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
+    wait(|| r.hub.snapshot().system.as_deref() == Some("Kuk"));
+    // One we follow while it is still empty.
+    append(&r, OLDER, &[]);
+    wait(|| r.hub.snapshot().journal_file.as_deref() == Some(OLDER));
+    append(&r, OLDER, &["Kuk", "Wolf 359"]);
     wait(|| r.hub.snapshot().system.as_deref() == Some("Wolf 359"));
     std::thread::sleep(Duration::from_millis(300));
     assert_eq!(*copied.lock().unwrap(), ["Deciat"], "no clipboard write from a replay");
@@ -561,7 +571,7 @@ fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
     assert_eq!(v.here.as_deref(), Some("Wolf 359"));
 
     // A live jump still works afterwards. (The game's next line makes the current journal
-    // newest again; the pipeline re-reads it as a replay, so the jump after that is live.)
+    // newest again; what it wrote since we left it is live, and so is the jump after that.)
     append(&r, CURRENT_JOURNAL, &["Sol"]);
     wait(|| r.hub.snapshot().system.as_deref() == Some("Sol"));
     std::thread::sleep(Duration::from_millis(300));

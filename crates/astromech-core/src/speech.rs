@@ -646,6 +646,7 @@ pub fn fixed_phrases() -> Vec<String> {
     }
     for s in [
         "Say again.",
+        crate::tester::TEST_ONLY,
         "Cancelled.",
         "Already on it.",
         "Kill switch on. All actions stopped.",

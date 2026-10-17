@@ -7,7 +7,8 @@ that controls it.
 
 **What they need:** Elite running, the speech models installed and set up (see
 [Getting started](getting-started.md)). They come from the journal and the game's status files,
-so no network is needed except for the biology other players found. Most also appear as a
+so no network is needed except for the biology other players found and the bodies known to
+EDSM. Most also appear as a
 **toast**, a small note in the corner of the astromech window for a few seconds, if the window is
 open. A callout is never spoken for something that happened before astromech started: starting
 mid-session is silent until the next live event.
@@ -30,7 +31,9 @@ mid-session is silent until the next live event.
 
 ## Turning callouts off
 
-Each callout has an id (in the headings below). In `astromech.toml` (Settings, Files, **Open**):
+In [Settings](settings.md#callouts), each callout has a switch and a cooldown. They are saved to
+`astromech.toml` and apply from the next time Elite starts. Each callout also has an id (in the
+headings below), which you can use to edit the file yourself (Settings, Files, **Open**):
 
 ```toml
 [callouts.scan]
@@ -81,6 +84,21 @@ Id: `biology`. Part of the arrival briefing and the FSS.
 Values are Vista Genomics base values, before the first-logged bonus. Per-body signal counts
 are never spoken because the FSS shows them. See [Exploration](exploration.md#biology).
 
+## Bodies known to EDSM
+
+Id: `known_bodies`. Part of the arrival briefing. How much of the system other players have
+already scanned, so you know whether it is worth scanning yourself.
+
+- On arrival: **"2 of 9 bodies known."**: the bodies EDSM has against the system's body count.
+  **"12 bodies known."** when EDSM has no body count, and **"No bodies known."** when EDSM has no
+  bodies there or does not know the system. It is also said on login, once per system.
+- A system EDSM knows every body of says nothing. That is most of populated space.
+
+It needs internet (EDSM). If the answer arrives late it is said within the first minute after
+the jump; later than that, nothing is said. If EDSM cannot be reached, nothing is said and the
+reason goes to the log. EDSM's
+answer is reused for a week. Turn it off with `[callouts.known_bodies] enabled = false`.
+
 ## Powerplay arrival
 
 Id: `powerplay_arrival`. **Off by default.** On a jump into a system with Powerplay activity: "Zachary
@@ -125,11 +143,23 @@ distance of each hop by the size of your frame shift drive. Mass changes along t
 so it is an estimate. Scoopable stars are classes O, B, A, F, G, K and M, giants included. It needs
 a jump to go by, so there is no fuel line before your first jump.
 
+## Route follower
+
+Id: `route_follow`. When you jump into the next waypoint of the route astromech follows (or a
+later one), the route moves on, the next waypoint goes on your clipboard and astromech says
+**"Next waypoint. Deciat."** ("Not copied." after it if the clipboard could not be written). At
+the last stop: **"Final waypoint reached. Route complete."** A jump during the startup catch-up
+is silent and does not move the route.
+
+Turning it off (`enabled = false`) turns following off: jumps no longer move the route or write
+the clipboard. See [Routes](routes.md#following-a-route).
+
 ## Prospector
 
 Id: `prospector`. When a prospector limpet reports a rock worth mining: **"Platinum 34%."** At most
 two ores are named, most valuable first, or one after a motherlode: **"Motherlode. Void Opals.
-Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line.
+Platinum 34%."** A motherlode is always read out. A depleted rock only gets its motherlode line. A second limpet on the same rock (the same ores
+in the same proportions) is not read again for ten minutes.
 The rock's content (low, medium, high) is not read: the prospector panel shows it. The per-ore
 percentage is set in [Settings](settings.md#prospector-callouts).
 

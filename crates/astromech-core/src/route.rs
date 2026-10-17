@@ -551,6 +551,38 @@ mod tests {
         assert_eq!(v.here.as_deref(), Some("A"));
     }
 
+    /// `[callouts.route_follow] enabled = false`: jumping doesn't move the route or copy, but the
+    /// desk still knows where the commander is, so the Route page's "you are here" is right and a
+    /// route set now starts after the system the commander is in.
+    #[test]
+    fn with_following_off_jumps_still_update_where_you_are() {
+        use astromech_announce::route_follow::{RouteFollow, SharedFollower};
+        use astromech_announce::{Engine, Settings};
+        let (d, got) = desk();
+        let d = Arc::new(d);
+        d.set(route(&["A", "B"])).unwrap();
+        let shared = SharedFollower::default();
+        shared.set(d.clone());
+        let off: Settings = toml::from_str("[route_follow]\nenabled = false\n").unwrap();
+        let mut e = Engine::new(vec![Box::new(RouteFollow { follower: shared })], &off);
+        e.set_live(true);
+        let g = astromech_gamestate::GameState::default();
+        let mut jump = |system: &str| {
+            let l = astromech_journal::parse_line(&format!(
+                r#"{{"timestamp":"t","event":"FSDJump","StarSystem":"{system}","JumpDist":9.0}}"#
+            ))
+            .unwrap();
+            e.journal(&l, &g, std::time::Instant::now())
+        };
+        assert!(jump("A").is_empty(), "nothing said");
+        let v = d.view();
+        assert_eq!(v.here.as_deref(), Some("A"));
+        assert_eq!(v.next.unwrap().system, "A", "the route did not move");
+        assert_eq!(got.lock().unwrap().len(), 1, "only the copy when the route was set");
+        let v = d.set(route(&["A", "C"])).unwrap();
+        assert_eq!(v.next.unwrap().system, "C", "a route set now starts after where you are");
+    }
+
     #[test]
     fn merges_stops_in_one_system() {
         let r = Route::new(

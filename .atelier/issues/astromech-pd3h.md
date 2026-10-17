@@ -1,0 +1,38 @@
+---
+created_at: "2026-10-17T21:32:03.895164138+00:00"
+id: "astromech-pd3h"
+issue_type: "task"
+labels:
+- "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-pd3h
+priority: "P3"
+relationships:
+  blocks: []
+  children: []
+  attachments: []
+  relates: []
+schema: "atelier.issue"
+schema_version: 2
+closed_at: "2026-10-17T22:53:32.766861833+00:00"
+status: "done"
+title: "Presets and controller preset picker hide failed reloads"
+updated_at: "2026-10-17T22:53:32.766861833+00:00"
+---
+
+## Goal
+
+A failed binds reload is visible wherever the preset list is shown.
+
+## Done when
+
+On Presets, a successful action followed by a failed reload (run() in presets/View.svelte) shows the error, not only the success message over the old list. The preset picker on the controller page shows binds.error when the load failed.
+
+## Context
+
+Found in the re-review of PR #140 (R1, R2); both predate it. Related states are covered by app/src/lib/ui/emptystates.test.ts.
+
+## Close Reason
+
+Presets shows a failed reload after a successful action; the preset picker (and so the controller page) shows binds.error; tests fail before the fix. Reviewed.

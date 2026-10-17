@@ -2,6 +2,7 @@
   // The engineer unlock guide as a tech tree: a column per introduction step, each engineer with
   // the commander's progress, who introduces them, and what is left. The ones that can be worked
   // on now stand out.
+  import { failure } from "../../lib/ui/errors";
   import { columns, loadUnlocks, STATUS_LABEL, type UnlockTree } from "../../lib/unlocks";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
@@ -12,7 +13,7 @@
   $effect(() => {
     loadUnlocks()
       .then((t) => (tree = t))
-      .catch((e: unknown) => (err = String(e)));
+      .catch((e: unknown) => (err = failure("read the engineer list", e)));
   });
 
   const cols = $derived(tree ? columns(tree, kind) : []);

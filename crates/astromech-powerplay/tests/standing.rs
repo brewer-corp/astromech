@@ -87,3 +87,33 @@ fn merits_for_another_power_are_ignored() {
     ]);
     assert_eq!((s.merits, s.session_merits), (Some(45_000), 0));
 }
+
+/// The game sometimes writes one award twice (same second and gain, `TotalMerits` counting both)
+/// but counts it once, as the next award's `TotalMerits - MeritsGained` or the next login's
+/// `Merits` show (seen in a real journal; the values here are made up).
+#[test]
+fn an_award_the_game_wrote_twice_counts_once() {
+    const LOGIN: &str = r#"{"timestamp":"2026-10-15T09:00:00Z","event":"Powerplay","Power":"Nakato Kaine","Rank":0,"Merits":1200,"TimePledged":360000}"#;
+    const LOAD: &str = r#"{"timestamp":"2026-10-16T08:00:00Z","event":"LoadGame","FID":"F0000001","Commander":"Jameson","Horizons":true,"Odyssey":true,"Ship":"Mandalay","ShipID":9,"GameMode":"Solo","Credits":1000,"Loan":0}"#;
+    let award = |ts: &str, gained: i64, total: i64| {
+        format!(
+            r#"{{"timestamp":"2026-10-16T{ts}Z","event":"PowerplayMerits","Power":"Nakato Kaine","MeritsGained":{gained},"TotalMerits":{total}}}"#
+        )
+    };
+    let (a, b, dup) = (award("06:00:00", 31, 1231), award("06:00:07", 41, 1272), award("06:00:07", 41, 1313));
+    let now = at("2026-10-16T12:00:00Z");
+
+    // Corrected by the next login's total.
+    let next_login = r#"{"timestamp":"2026-10-16T08:00:30Z","event":"Powerplay","Power":"Nakato Kaine","Rank":0,"Merits":1272,"TimePledged":441000}"#;
+    let s = fold(&[LOGIN, &a, &b, &dup, LOAD, next_login]);
+    assert_eq!((s.merits, s.merits_this_week(now), s.session_merits), (Some(1272), 72, 0));
+
+    // Corrected by the next award in the same session.
+    let next = award("07:00:00", 17, 1289);
+    let s = fold(&[LOGIN, &a, &b, &dup, &next]);
+    assert_eq!((s.merits, s.merits_this_week(now), s.session_merits), (Some(1289), 89, 89));
+
+    // Two real awards of the same size in one second both count.
+    let s = fold(&[LOGIN, &a, &b, &dup, &award("07:00:00", 17, 1330)]);
+    assert_eq!((s.merits, s.merits_this_week(now)), (Some(1330), 130));
+}

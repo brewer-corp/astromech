@@ -5,6 +5,14 @@
  * - `new`: a fresh install on a PC with Elite, two sticks and two microphones;
  * - `ready`: the same PC after onboarding.
  * Commands mutate the in-memory state the way the core would. Synthetic data only.
+ *
+ * Any scenario (or none) can also be made slow or broken, to see a page's loading and error states:
+ * - `?fail=<name>,<name>` (or `?fail=all`): those calls are rejected, as the shell rejects a command;
+ * - `?slow=<ms>` or `?slow=never`: every call waits that long, or never answers;
+ *   `?slow=never:<name>,<name>` limits it to the named calls.
+ * A name is the shell command or core command: `logbook`, `session_summary`, `engineering_fleet`,
+ * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `invoke` name in lib/*.ts).
+ * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData).
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
 import type { Route, RouteView, Waypoint } from "./route";
@@ -35,6 +43,8 @@ interface State {
   previews: string[];
   /** Prospector thresholds by ore (null: off), as the core's `prospector_thresholds` lists. */
   prospector: Record<string, number | null>;
+  /** Callouts the config changes, by id (core: `[callouts.<id>]`). */
+  callouts: Record<string, { enabled?: boolean; cooldown_s?: number }>;
   eddn: boolean;
   /** EDSM: the switch, the commander name, and whether a key is "in the keyring". */
   edsm: { enabled: boolean; commander: string; key: boolean };
@@ -49,6 +59,25 @@ let state: State | null = null;
 const PROSPECTOR_NAMES: Record<string, string> = { lowtemperaturediamond: "Low Temperature Diamonds", painite: "Painite", platinum: "Platinum" };
 const PROSPECTOR_DEFAULTS: Record<string, number | null> = { lowtemperaturediamond: 25, painite: 25, platinum: 20 };
 
+/** A few of the core's callouts (crates/astromech-announce `catalog()`). */
+const CALLOUTS = [
+  { id: "arrival", title: "Arrival briefing", default_enabled: true, default_cooldown_s: 0 },
+  { id: "powerplay_arrival", title: "Powerplay arrival", default_enabled: false, default_cooldown_s: 0 },
+  { id: "scan", title: "Scans", default_enabled: true, default_cooldown_s: 30 },
+  { id: "hge", title: "High Grade Emissions", default_enabled: true, default_cooldown_s: 30 },
+];
+
+function calloutsReply(st: State): Reply {
+  return {
+    ok: true,
+    callouts: CALLOUTS.map((c) => ({
+      ...c,
+      enabled: st.callouts[c.id]?.enabled ?? c.default_enabled,
+      cooldown_s: st.callouts[c.id]?.cooldown_s ?? c.default_cooldown_s,
+    })),
+  };
+}
+
 function prospectorReply(st: State): Reply {
   const ores = Object.keys(PROSPECTOR_DEFAULTS).map((ore) => ({
     ore,
@@ -57,6 +86,39 @@ function prospectorReply(st: State): Reply {
     threshold: st.prospector[ore],
   }));
   return { ok: true, ores };
+}
+
+/** `?fail=` / `?slow=` entries: `all` or names; null when the parameter is absent. */
+function names(list: string | null): { all: boolean; some: Set<string> } | null {
+  if (list === null) return null;
+  const some = new Set(list.split(",").map((x) => x.trim()).filter(Boolean));
+  return { all: some.has("all") || some.size === 0, some };
+}
+
+/**
+ * Waits or fails as the URL asks for this call (see the top of this file). Every sample-backed
+ * call goes through here, so each page can be seen loading and failing.
+ */
+export async function previewGate(cmd: string): Promise<void> {
+  if (typeof location === "undefined") return;
+  const q = new URLSearchParams(location.search);
+  const fail = names(q.get("fail"));
+  const slow = q.get("slow");
+  if (slow) {
+    const [when, list] = slow.split(":") as [string, string | undefined];
+    const only = names(list ?? null);
+    if (!only || only.all || only.some.has(cmd)) {
+      if (when === "never") await new Promise<never>(() => {});
+      else if (Number(when) > 0) await sleep(Number(when));
+    }
+  }
+  if (fail && (fail.all || fail.some.has(cmd))) throw `preview: ${cmd} failed on purpose (?fail=)`;
+}
+
+/** What a sample-backed call answers in the browser: the sample, or `empty` under `?core=empty`. */
+export async function previewData<T>(cmd: string, sample: () => T, empty: () => T): Promise<T> {
+  await previewGate(cmd);
+  return fakeScenario() === "empty" ? empty() : sample();
 }
 
 export function fakeScenario(): Scenario | null {
@@ -84,6 +146,7 @@ function fresh(scenario: Scenario): State {
     voice: { speaker: "bf_emma", speed: 1, colour: "cockpit" },
     previews: [],
     prospector: { ...PROSPECTOR_DEFAULTS },
+    callouts: {},
     eddn: false,
     edsm: { enabled: false, commander: "", key: false },
     route: null,
@@ -234,6 +297,7 @@ export function fakePreviews(): string[] {
 const NO_MIC = "no recording device found (plug in a microphone or headset)";
 
 export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
+  await previewGate(cmd);
   const st = s();
   const a = (args ?? {}) as Record<string, string | null>;
   switch (cmd) {
@@ -333,6 +397,20 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
       if (!st.models) return { ok: false, error: "download the speech models first (Speech models, above)" };
       st.previews.push(st.voice.speaker);
       return { ok: true, line: "Landing gear deployed." };
+    case "callouts":
+      return calloutsReply(st);
+    case "set_callout": {
+      const c = (args ?? {}) as { id?: string; enabled?: boolean; cooldown_s?: number | null };
+      if (!CALLOUTS.some((x) => x.id === c.id)) return { ok: false, error: `unknown callout "${c.id}"` };
+      if (typeof c.cooldown_s === "number" && !(c.cooldown_s >= 0 && c.cooldown_s <= 86400)) {
+        return { ok: false, error: "cooldown_s must be between 0 and 86400 seconds" };
+      }
+      const cur = (st.callouts[c.id as string] ??= {});
+      if (typeof c.enabled === "boolean") cur.enabled = c.enabled;
+      if (c.cooldown_s === null) delete cur.cooldown_s;
+      else if (typeof c.cooldown_s === "number") cur.cooldown_s = c.cooldown_s;
+      return { ok: true, applies_next_session: false };
+    }
     case "prospector_thresholds":
       return prospectorReply(st);
     case "prospector_set": {
@@ -343,6 +421,7 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
     }
     case "eddn_log":
       // Sharing was on earlier (the sample's history); the switch is this PC's setting.
+      if (st.scenario === "empty") return { ok: true, enabled: st.eddn, test: false, pending: 0, last_sent: null, last_error: null, log: [], skipped: [] };
       return { ok: true, ...eddnSample, enabled: st.eddn, pending: st.eddn ? eddnSample.pending : 0 };
     case "set_eddn":
       st.eddn = (args as { enabled?: boolean } | null)?.enabled === true;

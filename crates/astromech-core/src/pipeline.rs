@@ -1,5 +1,5 @@
 //! Journal + Status.json pipeline. Driven by file notifications, plus a read of the journal
-//! whenever none arrive for a while (`Tailer::on_idle`), because on Windows they can be late or lost.
+//! whenever 250 ms have passed since the last read (`Tailer::on_wake`), because on Windows they can be late or lost.
 //!
 //! - Status.json: every change notification re-reads the file (with retries for half-written
 //!   files) and applies the flags.
@@ -9,8 +9,8 @@
 //!   state) and the saved position from the store tells us how much of it is new.
 //! - Because Windows may not report appends to a file the game keeps open until it flushes
 //!   metadata, the tail is read on every Status.json notification (several per second in game)
-//!   and also whenever 250 ms pass without any notification (`Tailer::on_idle`), so a journal
-//!   line is applied without any file event. ⚠ Unverified on the real game.
+//!   and also whenever 250 ms pass since the last read, however the loop was woken
+//!   (`Tailer::on_wake`), so a journal line is applied without any file event. ⚠ Unverified on the real game.
 //! - Companion files (`Market.json`, ...): read after the journal event that announces them,
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file, and
@@ -18,8 +18,14 @@
 //!   in case the notification never comes, until the event is older than five minutes.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
 //!   when the game wrote it while we run: not the startup replay of the current journal, not an
-//!   older or already-read journal that becomes newest (re-read as a replay), but every line the
-//!   game appends and a journal it starts later. Status.json reads are live once the startup
+//!   already-read journal that becomes newest (re-read as a replay, but only up to where we had
+//!   read it: what the game wrote since is live), never a line of a journal the game doesn't
+//!   write (`Tailer::classify`: the folder's latest by name stamp, or one whose Fileheader time
+//!   agrees with its name's local time, whose lines stamped now are live, so a clock that went
+//!   back, a foreign journal stamped later or a late start can't silence it; never a conflict
+//!   copy, a copy from another PC's offset, or the old lines of a restored one), but every line the
+//!   game appends and a
+//!   journal it starts later. Status.json reads are live once the startup
 //!   catch-up (the replay, then the first Status.json read) is done.
 //! - Callouts: every journal line and Status.json read also goes to the reaction engine
 //!   ([`crate::callouts`]) after the game state has it, and so does every `NavRoute.json` read
@@ -28,7 +34,7 @@
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
 //!   journal the game starts while we run (later by name, not opened before) is live from its
-//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay. Delivery runs on the
+//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay (up to where it had been read, if it had). Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
 //! - EDSM (when switched on): every journal line also goes to the [`astromech_eddn::edsm::Uploader`],
 //!   with the same notion of live; it sends to the commander's EDSM account from its own thread.
@@ -38,64 +44,77 @@ use crate::hub::StateHub;
 use anyhow::{Context, Result};
 use astromech_eddn::worker::wall_now;
 use astromech_journal::companion::{load, triggers, CompanionFile, CompanionKind, Trigger};
+use astromech_journal::JournalTail;
 use notify::{RecursiveMode, Watcher};
-use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-/// Tail one journal file from a byte offset.
-pub struct JournalTail {
-    pub path: PathBuf,
-    pub offset: u64,
-    partial: Vec<u8>,
+/// What the pipeline knows about a followed journal (see `Tailer::classify`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Class {
+    /// The game writes it: everything appended is live.
+    Game,
+    /// Its header agrees with its name, so the game wrote it here, but it may have been written by
+    /// a tool since: only lines stamped now are live.
+    Gated,
+    /// A restored or copied journal, a conflict copy, another PC's: a replay only.
+    Foreign,
 }
 
-impl JournalTail {
-    pub fn new(path: PathBuf, offset: u64) -> Self {
-        Self { path, offset, partial: vec![] }
+/// The UTC time (seconds) in a journal's first line, if it is there yet.
+fn first_line_time(path: &Path) -> Option<i64> {
+    use std::io::BufRead;
+    let mut line = String::new();
+    std::io::BufReader::new(std::fs::File::open(path).ok()?).read_line(&mut line).ok()?;
+    if !line.ends_with('\n') {
+        return None; // still being written
     }
+    let v: serde_json::Value = serde_json::from_str(line.trim()).ok()?;
+    if v.get("event")?.as_str()? != "Fileheader" {
+        return None;
+    }
+    chrono::DateTime::parse_from_rfc3339(v.get("timestamp")?.as_str()?).ok().map(|t| t.timestamp())
+}
 
-    /// Complete new lines since the last call.
-    pub fn read_new(&mut self) -> Vec<String> {
-        let Ok(mut f) = File::open(&self.path) else { return vec![] };
-        let len = f.metadata().map(|m| m.len()).unwrap_or(0);
-        if len < self.offset {
-            // Truncated or replaced: start over.
-            self.offset = 0;
-            self.partial.clear();
-        }
-        if f.seek(SeekFrom::Start(self.offset)).is_err() {
-            return vec![];
-        }
-        let mut buf = vec![];
-        if f.read_to_end(&mut buf).is_err() {
-            return vec![];
-        }
-        self.offset += buf.len() as u64;
-        self.partial.extend_from_slice(&buf);
-        let mut out = vec![];
-        while let Some(p) = self.partial.iter().position(|b| *b == b'\n') {
-            let line: Vec<u8> = self.partial.drain(..=p).collect();
-            let s = String::from_utf8_lossy(&line).trim().to_string();
-            if !s.is_empty() {
-                out.push(s);
-            }
-        }
-        out
+/// Whether a journal's Fileheader time (UTC seconds) is its name's time read in `tz`. `name_secs`
+/// is the name's stamp as `journal_name_stamp` gives it (the name's clock reading taken as UTC).
+/// Twice a year a local time is ambiguous (the fall-back hour: accept either reading) or doesn't
+/// exist (the spring-forward gap: the game never wrote it, so no).
+fn header_agrees_with_name<Tz: chrono::TimeZone>(tz: &Tz, name_secs: i64, header: i64) -> bool {
+    let Some(naive) = chrono::DateTime::from_timestamp(name_secs, 0).map(|t| t.naive_utc()) else { return false };
+    let near = |t: chrono::DateTime<Tz>| (t.timestamp() - header).abs() <= HEADER_SLACK_SECS;
+    match tz.from_local_datetime(&naive) {
+        chrono::LocalResult::Single(t) => near(t),
+        chrono::LocalResult::Ambiguous(a, b) => near(a) || near(b),
+        chrono::LocalResult::None => false,
     }
+}
 
-    /// Offset of the last complete line (what we persist).
-    pub fn committed(&self) -> u64 {
-        self.offset - self.partial.len() as u64
-    }
+/// The machine's own timezone for [`header_agrees_with_name`].
+fn local_header_check() -> Box<dyn Fn(i64, i64) -> bool + Send> {
+    Box::new(|name, header| header_agrees_with_name(&chrono::Local, name, header))
+}
+
+/// Whether a journal line is stamped within [`FRESH_LINE_SECS`] of now (either side).
+fn line_is_fresh(line: &str) -> bool {
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { return false };
+    let Some(t) =
+        v.get("timestamp").and_then(|t| t.as_str()).and_then(|t| chrono::DateTime::parse_from_rfc3339(t).ok())
+    else {
+        return false;
+    };
+    (chrono::Utc::now().timestamp() - t.timestamp()).abs() <= FRESH_LINE_SECS
 }
 
 /// How long to wait for a file notification before reading the journal anyway.
 const IDLE: Duration = Duration::from_millis(250);
+/// How far a Fileheader's time may be from its name's local time (names have 1 s resolution).
+const HEADER_SLACK_SECS: i64 = 120;
+/// How old a line of a [`Class::Gated`] journal may be and still be live.
+const FRESH_LINE_SECS: i64 = 120;
 /// How often an idle pipeline looks for a new journal file.
 const SCAN_EVERY: Duration = Duration::from_secs(1);
 
@@ -167,14 +186,31 @@ struct Tailer {
     callouts: Option<Callouts>,
     eddn: Option<astromech_eddn::Feed>,
     edsm: Option<astromech_eddn::edsm::Uploader>,
-    /// False while replaying a journal written before we started.
+    /// False while replaying a journal written before we started, and for any journal that
+    /// isn't the folder's latest by name.
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
     caught_up: bool,
-    /// Journals opened this run: opening one again is a replay, never live.
-    opened: std::collections::HashSet<PathBuf>,
+    /// Journals opened this run, with how far we had read when we left each (`None` while
+    /// followed). Opening one again replays up to that point; what the game wrote since is live.
+    opened: std::collections::HashMap<PathBuf, Option<u64>>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
+    /// When the journal tail was last read, for any reason.
+    last_read: Instant,
+    /// Name stamp of the session the game is writing now (see `classify`); a later part of it
+    /// (same stamp) is the game's too.
+    game_session: Option<i64>,
+    /// Name stamps of sessions the game has left for a newer one: never the game's again, so a
+    /// tool appending to an earlier journal can't make its lines live (astromech-r3s7).
+    retired: std::collections::HashSet<i64>,
+    /// Journals already logged as followed without being the folder's latest.
+    noted: std::collections::HashSet<PathBuf>,
+    /// Whether a journal's Fileheader time agrees with its name's local time, once it could be read.
+    header_agrees: std::collections::HashMap<PathBuf, bool>,
+    /// Whether a Fileheader time (UTC seconds) is a journal name's local time: `(name, header)`.
+    /// The machine's own timezone; tests set another.
+    header_check: Box<dyn Fn(i64, i64) -> bool + Send>,
 }
 
 impl Tailer {
@@ -331,12 +367,21 @@ impl Tailer {
         // Every journal is read from its first line (the Fileheader). At startup that's a replay
         // of what happened before we started; a file the game starts later is live throughout.
         let mut t = JournalTail::new(path.clone(), 0);
-        let lines = t.read_new();
-        let n = lines.len();
-        self.opened.insert(path.clone());
-        self.live = !replay;
-        self.apply_lines(lines);
-        self.live = true;
+        // A journal we followed before is a replay only up to where we had read it.
+        let known = self.opened.get(&path).copied().flatten().filter(|_| replay);
+        let (replayed, live) = match known {
+            Some(read) => (t.read_to(read), t.read_new()),
+            None => (t.read_new(), vec![]),
+        };
+        let n = replayed.len() + live.len();
+        self.opened.insert(path.clone(), None);
+        // Only the game's own journal is live (see `classify`), including what lands in it after
+        // we open it: a backup or sync tool may create a file and then write it, and we can
+        // follow it in between.
+        let class = self.classify(&path);
+        self.note_if_not_latest(&path, class);
+        self.apply_class(&path, class, replayed, !replay, known.is_none());
+        self.apply_class(&path, class, live, true, true);
         let name = path.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         self.hub.update(|g| g.journal_file = Some(name.clone()));
         match (replay, saved) {
@@ -350,12 +395,144 @@ impl Tailer {
         self.save();
     }
 
+    /// Whether `path` is a journal the game itself writes, as opposed to one a backup or sync tool
+    /// restored, touched or copied. The game's are:
+    /// - [`Class::Game`], whose appended lines are all live: the session the game is writing, which
+    ///   is the folder's latest by name stamp the first time we see it (the common case, and all
+    ///   there is at startup), and a later part of it (same stamp). Starting a newer session leaves
+    ///   the earlier one for good (`retired`): it is then judged like any other journal;
+    /// - [`Class::Gated`], whose fresh lines are live: any other journal whose Fileheader agrees
+    ///   with its name. The game names a journal with its local start time (checked against real
+    ///   journals: the stamp is the header's UTC time shifted by the machine's offset), so a
+    ///   header that matches the name was written by the game on this machine, however the name
+    ///   ranks against the others (the clock went back for daylight saving, another PC with a later
+    ///   or skewed clock synced the folder, the app started or resumed long after the session
+    ///   began: astromech-36g1, astromech-t16r). A restored or copied journal can agree too, so
+    ///   only its lines stamped within [`FRESH_LINE_SECS`] of now are live: what a tool writes late
+    ///   is old.
+    ///
+    /// Anything else, including a conflict copy (a name that isn't a stamp) and a copy from a PC
+    /// with another offset (header and name disagree), is [`Class::Foreign`]: a replay only.
+    fn classify(&mut self, path: &Path) -> Class {
+        let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) else { return Class::Foreign };
+        // The session the game is writing: no directory listing.
+        if self.game_session == Some(stamp) {
+            return Class::Game;
+        }
+        let latest = !self.retired.contains(&stamp)
+            && astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
+        if latest {
+            self.set_game_session(stamp);
+            Class::Game
+        } else if self.header_agrees_with_name(path, stamp) {
+            Class::Gated
+        } else {
+            Class::Foreign
+        }
+    }
+
+    /// The game is writing the session stamped `stamp`: the one before it is left for good.
+    fn set_game_session(&mut self, stamp: i64) {
+        if let Some(old) = self.game_session.filter(|old| *old != stamp) {
+            self.retired.insert(old);
+        }
+        self.retired.remove(&stamp);
+        self.game_session = Some(stamp);
+    }
+
+    /// Whether the Fileheader's UTC time is the name's local time. Remembered once the header
+    /// could be read (a journal may be followed while still empty).
+    fn header_agrees_with_name(&mut self, path: &Path, stamp: i64) -> bool {
+        if let Some(known) = self.header_agrees.get(path) {
+            return *known;
+        }
+        let Some(header) = first_line_time(path) else { return false };
+        let agrees = (self.header_check)(stamp, header);
+        self.header_agrees.insert(path.to_path_buf(), agrees);
+        agrees
+    }
+
+    /// Apply `lines` of the journal at `path` by its class. `game_live`: a [`Class::Game`] batch is
+    /// live (not at the startup replay). `may_be_live`: a [`Class::Gated`] batch may hold fresh
+    /// lines (not at startup, nor for lines read before).
+    fn apply_class(&mut self, path: &Path, class: Class, lines: Vec<String>, game_live: bool, may_be_live: bool) {
+        match class {
+            Class::Game => {
+                self.live = game_live;
+                self.apply_lines(lines);
+            }
+            Class::Foreign => {
+                self.live = false;
+                self.apply_lines(lines);
+            }
+            Class::Gated if self.caught_up && may_be_live => {
+                // Each line by its own time, in order: the stale ones are the replay, the fresh
+                // ones live. Runs of equal freshness are applied together.
+                let mut run: Vec<String> = vec![];
+                let mut run_fresh = false;
+                for line in lines {
+                    let fresh = line_is_fresh(&line);
+                    if fresh != run_fresh && !run.is_empty() {
+                        self.apply_gated_run(path, std::mem::take(&mut run), run_fresh);
+                    }
+                    run_fresh = fresh;
+                    run.push(line);
+                }
+                if !run.is_empty() {
+                    self.apply_gated_run(path, run, run_fresh);
+                }
+            }
+            Class::Gated => {
+                self.live = false;
+                self.apply_lines(lines);
+            }
+        }
+    }
+
+    fn apply_gated_run(&mut self, path: &Path, lines: Vec<String>, fresh: bool) {
+        if fresh {
+            // The game is writing it: a later part of this session is too.
+            if let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) {
+                self.set_game_session(stamp);
+            }
+        }
+        self.live = fresh;
+        self.apply_lines(lines);
+    }
+
+    /// Log once when the journal we follow isn't the folder's latest by name: whether it is live
+    /// anyway, or is a restored or copied one that is only replayed.
+    fn note_if_not_latest(&mut self, path: &Path, class: Class) {
+        let latest = astromech_journal::latest_journal(&self.dir);
+        if latest.as_deref().is_some_and(|l| l.file_name() == path.file_name())
+            || !self.noted.insert(path.to_path_buf())
+        {
+            return;
+        }
+        let name = |p: &Path| p.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+        (self.log)(&format!(
+            "journal {} isn't the latest by name ({}): {}",
+            name(path),
+            latest.as_deref().map(name).unwrap_or_default(),
+            match class {
+                Class::Game => "followed as the game's own",
+                Class::Gated => "followed as the game's own (its header matches its name); fresh lines are live",
+                Class::Foreign => "followed as a replay only",
+            }
+        ));
+    }
+
     /// Read what the game appended to the journal we follow, without waiting to be told.
     fn read_tail(&mut self) -> bool {
+        self.last_read = Instant::now();
         let Some(t) = &mut self.tail else { return false };
-        let lines = t.read_new();
+        let (path, lines) = (t.path.clone(), t.read_new());
         let any = !lines.is_empty();
-        self.apply_lines(lines);
+        if any {
+            // Judged on every batch: a journal followed while still empty has no header yet.
+            let class = self.classify(&path);
+            self.apply_class(&path, class, lines, true, true);
+        }
         any
     }
 
@@ -364,6 +541,14 @@ impl Tailer {
         self.follow_newest();
         self.retry_pending();
         self.save();
+    }
+
+    /// The loop woke for some reason (a notification, or the timeout): read the journal if that
+    /// hasn't happened for [`IDLE`], so notifications that name no journal can't starve it.
+    fn on_wake(&mut self) {
+        if self.last_read.elapsed() >= IDLE {
+            self.on_idle();
+        }
     }
 
     /// Nothing was reported for a while. File notifications are not a clock: on Windows the ones
@@ -390,10 +575,14 @@ impl Tailer {
                     self.stats.lock().unwrap().rollovers += 1;
                 }
                 self.flush_eddn();
+                if let Some(t) = &self.tail {
+                    self.opened.insert(t.path.clone(), Some(t.committed()));
+                }
                 // Newest by mtime isn't always the game's new journal: a backup or sync tool can
                 // touch an old one, or another client can write the same folder. Only a journal
                 // not opened yet this run and later by name than the current one is live.
-                let live = !self.opened.contains(&n) && self.tail.as_ref().is_none_or(|t| later(&n, &t.path));
+                let live = !self.opened.contains_key(&n)
+                    && (self.tail.as_ref().is_none_or(|t| later(&n, &t.path)) || self.classify(&n) == Class::Game);
                 self.open(n, !live);
             }
         }
@@ -471,14 +660,12 @@ fn spawn_loop(
                     last_tick = Instant::now();
                     t.on_tick();
                 }
-                // The timeout lets us notice `stop`, tick, and read the journal without a notification.
+                // Whatever woke us, read the journal if it hasn't been for IDLE: with no
+                // notification at all the timeout below is what wakes us.
+                t.on_wake();
                 let ev = match rx.recv_timeout(IDLE) {
                     Ok(Ok(e)) => e,
-                    Ok(Err(_)) => continue,
-                    Err(RecvTimeoutError::Timeout) => {
-                        t.on_idle();
-                        continue;
-                    }
+                    Ok(Err(_)) | Err(RecvTimeoutError::Timeout) => continue,
                     Err(RecvTimeoutError::Disconnected) => break,
                 };
                 let mut status = false;
@@ -501,9 +688,12 @@ fn spawn_loop(
                     }
                 };
                 classify(&ev.paths);
-                // Coalesce a burst of notifications.
+                // Coalesce a burst of notifications, but not so long that the journal waits for it.
                 while let Ok(Ok(e)) = rx.try_recv() {
                     classify(&e.paths);
+                    if t.last_read.elapsed() >= IDLE {
+                        break;
+                    }
                 }
                 if status {
                     t.on_status();
@@ -641,6 +831,12 @@ pub fn start_with_eddn(
         caught_up: false,
         opened: Default::default(),
         last_scan: Instant::now(),
+        last_read: Instant::now(),
+        game_session: None,
+        retired: Default::default(),
+        noted: Default::default(),
+        header_agrees: Default::default(),
+        header_check: local_header_check(),
     };
     t.catch_up();
     let stop = Arc::new(AtomicBool::new(false));
@@ -652,23 +848,6 @@ pub fn start_with_eddn(
 mod tests {
     use super::*;
     use std::io::Write;
-
-    #[test]
-    fn tail_keeps_partial_lines() {
-        let d = tempfile::tempdir().unwrap();
-        let p = d.path().join("Journal.2026-10-10T120000.01.log");
-        let mut f = std::fs::File::create(&p).unwrap();
-        write!(f, "{{\"timestamp\":\"t\",\"event\":\"A\"}}\r\n{{\"timestamp\":\"t\",\"ev").unwrap();
-        f.flush().unwrap();
-        let mut t = JournalTail::new(p.clone(), 0);
-        assert_eq!(t.read_new().len(), 1);
-        let c = t.committed();
-        write!(f, "ent\":\"B\"}}\r\n").unwrap();
-        f.flush().unwrap();
-        let l = t.read_new();
-        assert_eq!(l, vec!["{\"timestamp\":\"t\",\"event\":\"B\"}".to_string()]);
-        assert!(t.committed() > c);
-    }
 
     fn tailer(dir: &Path) -> (Tailer, Arc<StateHub>, Arc<std::sync::Mutex<Vec<String>>>) {
         let hub = Arc::new(StateHub::new());
@@ -690,6 +869,12 @@ mod tests {
             caught_up: false,
             opened: Default::default(),
             last_scan: Instant::now(),
+            last_read: Instant::now(),
+            game_session: None,
+            retired: Default::default(),
+            noted: Default::default(),
+            header_agrees: Default::default(),
+            header_check: local_header_check(),
         };
         (t, hub, logs)
     }
@@ -872,6 +1057,46 @@ mod tests {
         stop.store(true, Ordering::SeqCst);
         thread.join().unwrap();
         assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the loop never read the appended line");
+    }
+
+    /// astromech-mosx: a steady stream of notifications that name no journal (companion files,
+    /// other files, watcher errors) must not keep the loop from reading the journal.
+    #[test]
+    fn a_stream_of_unrelated_notifications_does_not_starve_the_journal_read() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T110000.01.log");
+        std::fs::write(&j, format!("{}\n", session(&ts(120), "r1 "))).unwrap();
+        let (mut t, hub, _) = tailer(d.path());
+        t.catch_up();
+        let (tx, rx) = std::sync::mpsc::channel();
+        let flood_stop = Arc::new(AtomicBool::new(false));
+        let (fs, other) = (flood_stop.clone(), d.path().join("Unrelated.txt"));
+        let flood = std::thread::spawn(move || {
+            while !fs.load(Ordering::SeqCst) {
+                let e = notify::Event::new(notify::EventKind::Any).add_path(other.clone());
+                if tx.send(Ok(e)).is_err() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+        });
+        let stop = Arc::new(AtomicBool::new(false));
+        let thread = spawn_loop(t, rx, stop.clone()).unwrap();
+        append(
+            &j,
+            r#"{"timestamp":"2026-10-16T11:30:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":8.5}"#,
+        );
+        let started = Instant::now();
+        while hub.snapshot().system.as_deref() != Some("Sol") && started.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        let waited = started.elapsed();
+        flood_stop.store(true, Ordering::SeqCst);
+        stop.store(true, Ordering::SeqCst);
+        thread.join().unwrap();
+        flood.join().unwrap();
+        assert_eq!(hub.snapshot().system.as_deref(), Some("Sol"), "the flood starved the journal read");
+        assert!(waited < Duration::from_secs(1), "took {waited:?}");
     }
 
     #[test]
@@ -1187,5 +1412,690 @@ mod tests {
         append(&j2, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-0d7l: a sync tool restoring an older journal creates it, then writes it. We may
+    /// follow it in between (its creation makes it newest), but what lands in it afterwards is no
+    /// more live than what was there: the game only writes its latest journal.
+    #[test]
+    fn an_older_journal_written_after_we_follow_it_is_still_a_replay() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        std::fs::write(&j1, "").unwrap();
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1, "following the (still empty) older journal");
+        append(&j1, &format!("{}{}", session(&ts(30), "r1 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "lines written to an older journal are never live");
+
+        // Followed, left and written again: past the read point is still not the game's.
+        touch(&j2, 20);
+        t.on_journal_activity();
+        append(&j1, &docked(&ts(0)));
+        touch(&j1, 30);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]), "nor when we come back to it");
+
+        // The game's journal is still live once it's newest again.
+        append(&j2, &docked(&ts(0)));
+        touch(&j2, 40);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// A sync tool's conflict copy (a name that isn't a journal stamp) is never the game's
+    /// journal, so it is never live, and it doesn't stop the game's own journal being live.
+    #[test]
+    fn a_conflict_copy_is_never_live_and_does_not_silence_the_game() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join("Journal.2026-10-16T120000.01.log");
+        let copy = d.path().join("Journal.2026-10-16T120000.01-DESKTOP-ABC.log");
+        std::fs::write(&j, session(&ts(10), "r2 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j.clone(), true);
+
+        std::fs::write(&copy, "").unwrap();
+        touch(&copy, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, copy);
+        append(&copy, &format!("{}{}", session(&ts(5), "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "the copy is not the game's");
+
+        append(&j, &docked(&ts(0)));
+        touch(&j, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j);
+        assert_eq!(eddn_state(&db).0, 1, "the game's journal is live with the copy in the folder");
+    }
+
+    /// astromech-7uj3: what the game wrote to the current journal while a touched older one was
+    /// followed is live when we come back to it; only what we had read before is the replay.
+    #[test]
+    fn a_reopened_journal_replays_only_what_was_read_before() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, format!("{}{}\n", session(&ts(30), "r1 "), docked(&ts(20)))).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+
+        // A backup tool touches the older journal; we follow it (a replay).
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        assert_eq!(eddn_state(&db), (0, vec![]));
+
+        // The game writes to its journal meanwhile (nothing reaches us), then the next event
+        // makes it newest again.
+        append(&j2, &docked(&ts(0)));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(eddn_state(&db).0, 1, "the line written while another journal was followed is live");
+    }
+
+    /// Leaving and coming back to the same journal more than once keeps the split exact: every
+    /// line is queued once, in the batch it belongs to.
+    #[test]
+    fn a_journal_left_twice_is_split_at_the_latest_read_point() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, session(&ts(10), "r2 ")).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+        let mut clock = 10;
+        let mut go = |t: &mut Tailer, to: &PathBuf| {
+            clock += 10;
+            touch(to, clock);
+            t.on_journal_activity();
+            assert_eq!(&t.tail.as_ref().unwrap().path, to);
+        };
+        let dock = |id: i64| docked(&ts(0)).replace("\"MarketID\":7", &format!("\"MarketID\":{id}"));
+
+        go(&mut t, &j1);
+        append(&j2, &dock(8));
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 1);
+        go(&mut t, &j1);
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 1, "nothing new: nothing sent again");
+        go(&mut t, &j1);
+        append(&j2, &dock(9));
+        go(&mut t, &j2);
+        assert_eq!(eddn_state(&db).0, 2, "only the new line is live");
+    }
+
+    /// A journal followed while still empty, left, and written to meanwhile: nothing had been read
+    /// from it (committed offset 0), so all of it is live when we come back, not a full replay.
+    #[test]
+    fn a_journal_left_while_empty_is_live_when_reopened() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, "").unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.open(j2.clone(), true);
+        touch(&j1, 10);
+        t.on_journal_activity();
+        append(&j2, &format!("{}{}", session(&ts(10), "r2 "), docked(&ts(0))));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 2);
+    }
+
+    /// "Now" as the game would stamp a journal that starts now: local time, in the name's format.
+    fn game_name(minutes_from_now: i64) -> String {
+        let t = chrono::Local::now().naive_local() + chrono::Duration::minutes(minutes_from_now);
+        format!("Journal.{}.01.log", t.format("%Y-%m-%dT%H%M%S"))
+    }
+
+    /// astromech-36g1, shape 1: the clock went back (daylight saving, travel), so the game's new
+    /// session journal is named earlier than the previous one in the folder. It was created after
+    /// we started and is stamped now, so it is the game's and its lines are live.
+    #[test]
+    fn a_new_session_named_earlier_than_the_followed_one_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let before = d.path().join(game_name(60));
+        std::fs::write(&before, session(&ts(3600), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, before);
+
+        let new = d.path().join(game_name(0));
+        std::fs::write(&new, "").unwrap();
+        touch(&new, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, new, "the game's new journal is followed");
+        append(&new, &format!("{}{}", session(&ts(1), "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        // The new header's Location and the Docked: both are live.
+        assert_eq!(eddn_state(&db).0, 2, "named earlier than the previous journal, but the game's own");
+    }
+
+    /// astromech-36g1, shape 2: another PC (later timezone, skewed clock) syncs a journal stamped
+    /// later than the game's current one into the folder. Once the game writes again, its lines
+    /// are live even though it is no longer the latest by name.
+    #[test]
+    fn the_games_journal_stays_live_beside_a_foreign_one_stamped_later() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(0)), d.path().join(game_name(180)));
+        std::fs::write(&own, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert_eq!(eddn_state(&db).0, 1, "the game's line is live beside a journal stamped later");
+    }
+
+    /// The same shapes with a restored or copied journal rather than the game's: an old stamp, a
+    /// conflict copy and a later part of a session we don't know are not the game's.
+    #[test]
+    fn a_journal_stamped_long_ago_is_not_taken_for_the_games() {
+        let d = tempfile::tempdir().unwrap();
+        let current = d.path().join(game_name(0));
+        std::fs::write(&current, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let restored = d.path().join(game_name(-600));
+        std::fs::write(&restored, "").unwrap();
+        touch(&restored, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, restored);
+        append(&restored, &format!("{}{}", session(&ts(30), "r0 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]));
+    }
+
+    /// A followed journal that isn't the folder's latest is logged once, whichever way it goes.
+    #[test]
+    fn following_a_journal_that_is_not_the_latest_is_logged_once() {
+        let d = tempfile::tempdir().unwrap();
+        let (current, restored) = (d.path().join(game_name(0)), d.path().join(game_name(-600)));
+        std::fs::write(&current, session(&ts(10), "r1 ")).unwrap();
+        std::fs::write(&restored, session(&ts(30), "r0 ")).unwrap();
+        let (mut t, _, logs) = tailer(d.path());
+        t.open(current.clone(), true);
+        let count = |logs: &Arc<std::sync::Mutex<Vec<String>>>| {
+            logs.lock().unwrap().iter().filter(|l| l.contains("isn't the latest")).count()
+        };
+        assert_eq!(count(&logs), 0, "the latest is not remarked on");
+        for n in 1..=3 {
+            touch(&restored, 10 * n);
+            t.on_journal_activity();
+            touch(&current, 10 * n + 5);
+            t.on_journal_activity();
+        }
+        assert_eq!(count(&logs), 1);
+        assert!(logs.lock().unwrap().iter().any(|l| l.contains("replay only")));
+    }
+
+    /// astromech-t16r, case 1: the app starts while the game runs and a foreign journal stamped
+    /// later is the newest in the folder. The game's own journal (started half an hour ago,
+    /// neither the latest by name nor stamped now) is the game's by its header: the Fileheader's
+    /// UTC time is its name's local time. Its new lines are live; what it held is the replay.
+    #[test]
+    fn the_game_running_before_we_start_is_live_beside_a_later_foreign_journal() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(-30)), d.path().join(game_name(180)));
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign, "startup follows the newest by modified time");
+
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert_eq!(eddn_state(&db).0, 1, "the game's new line is live; its older lines are not");
+    }
+
+    /// astromech-t16r, case 2: the game's journal is first seen long after it started (sleep and
+    /// resume), and isn't the latest by name.
+    #[test]
+    fn the_games_journal_first_seen_long_after_it_started_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        let own = d.path().join(game_name(-45));
+        std::fs::write(&own, format!("{}{}\n", session(&ts(2700), "r1 "), docked(&ts(0)))).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert_eq!(eddn_state(&db).0, 1, "only the fresh line is live");
+    }
+
+    /// A restored journal of this machine (name and header agree, both old) written late carries
+    /// old lines: replay, however its header matches its name. A copy with another PC's offset
+    /// (header and name disagree) is not the game's either.
+    #[test]
+    fn a_restored_journal_written_late_stays_a_replay_whatever_its_header_says() {
+        let d = tempfile::tempdir().unwrap();
+        let current = d.path().join(game_name(0));
+        std::fs::write(&current, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        let two_days = 2 * 24 * 3600;
+        let restored = d.path().join(game_name(-2 * 24 * 60));
+        std::fs::write(&restored, "").unwrap();
+        touch(&restored, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, restored);
+        append(&restored, &format!("{}{}", session(&ts(two_days), "r0 "), docked(&ts(two_days - 60))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "old lines are a replay");
+        assert!(!t.live, "nothing fresh in it");
+        // Recent enough for EDDN's own age guard, but not stamped now: a tool wrote it late.
+        append(&restored, &docked(&ts(200)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "a line from minutes ago is not live either");
+
+        let abroad = d.path().join(game_name(-3 * 60));
+        std::fs::write(&abroad, "").unwrap();
+        touch(&abroad, 20);
+        t.on_journal_activity();
+        // Another PC five hours from us: its header (UTC) doesn't match its local-time name.
+        append(&abroad, &format!("{}{}", session(&ts(60), "r5 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "a journal whose header and name disagree is not the game's");
+    }
+
+    /// A later part of a session the game is writing (same stamp, header written when the part
+    /// began) is the game's too, though its header doesn't match the name.
+    #[test]
+    fn a_later_part_of_a_session_judged_the_games_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-45));
+        std::fs::write(&own, format!("{}{}\n", session(&ts(2700), "r1 "), docked(&ts(0)))).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(sent, 1);
+
+        let part2 = PathBuf::from(own.to_string_lossy().replace(".01.log", ".02.log"));
+        std::fs::write(&part2, session(&ts(5), "r1 ").replace("\"part\":1", "\"part\":2")).unwrap();
+        touch(&part2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, part2);
+        append(&part2, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, sent + 2, "the next part's header Location and Docked are live");
+    }
+
+    /// The game's journal followed while still empty (no header yet), then written: judged on its
+    /// first batch, whose fresh lines are live.
+    #[test]
+    fn the_games_journal_followed_while_empty_is_live_once_written() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, "").unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        append(&own, &format!("{}{}", session(&ts(1800), "r1 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// Lines are judged one by one within a batch: a stale line (or one that doesn't parse) after a
+    /// fresh one is not live. Once a fresh line has been seen the journal is the game's, so lines
+    /// of later batches are live by design (see `a_gated_batch_...` for the order within one).
+    #[test]
+    fn gated_lines_are_judged_one_by_one() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        let base = eddn_state(&db).0;
+        append(&own, &docked(&ts(0)));
+        append(&own, &docked(&ts(200)));
+        append(
+            &own,
+            r#"{"timestamp":"garbage","event":"Docked","StationName":"S","MarketID":9,"StarSystem":"Sys","SystemAddress":5}"#,
+        );
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, base + 1, "only the fresh line is live");
+    }
+
+    /// astromech-t16r review: the daylight-saving branches of the header-vs-name check, in the
+    /// timezone of the machine that matters most during the alpha (the US fall-back, 1 Nov 2026).
+    #[test]
+    fn the_header_agrees_with_the_name_across_daylight_saving() {
+        use chrono::TimeZone;
+        let ny = chrono_tz::America::New_York;
+        let name = |y, mo, d, h, mi| {
+            chrono::NaiveDate::from_ymd_opt(y, mo, d).unwrap().and_hms_opt(h, mi, 0).unwrap().and_utc().timestamp()
+        };
+        let utc = |y, mo, d, h, mi| chrono::Utc.with_ymd_and_hms(y, mo, d, h, mi, 0).unwrap().timestamp();
+
+        // Fall-back: 01:30 happens twice, 05:30Z (EDT) and 06:30Z (EST). Either is the game's.
+        let fall = name(2026, 11, 1, 1, 30);
+        assert!(header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 5, 30)), "first 01:30, EDT");
+        assert!(header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 6, 30)), "second 01:30, EST");
+        assert!(!header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 7, 30)), "an hour past the second");
+        assert!(!header_agrees_with_name(&ny, fall, utc(2026, 11, 1, 4, 30)), "an hour before the first");
+
+        // A session begun under EDT before the switch still agrees (judged by the date's own offset,
+        // not today's), and one begun after it agrees under EST.
+        assert!(header_agrees_with_name(&ny, name(2026, 11, 1, 0, 30), utc(2026, 11, 1, 4, 30)));
+        assert!(header_agrees_with_name(&ny, name(2026, 11, 1, 2, 30), utc(2026, 11, 1, 7, 30)));
+        assert!(
+            !header_agrees_with_name(&ny, name(2026, 11, 1, 0, 30), utc(2026, 11, 1, 5, 30)),
+            "EST offset on an EDT hour"
+        );
+
+        // Spring-forward: 02:30 on 14 Mar 2027 doesn't exist in New York.
+        let gap = name(2027, 3, 14, 2, 30);
+        assert!(!header_agrees_with_name(&ny, gap, utc(2027, 3, 14, 6, 30)), "read as EST");
+        assert!(!header_agrees_with_name(&ny, gap, utc(2027, 3, 14, 7, 30)), "read as EDT");
+
+        // A copy from a PC one hour west (CDT, UTC-5): its name is Chicago time.
+        assert!(!header_agrees_with_name(&ny, name(2026, 10, 17, 12, 0), utc(2026, 10, 17, 17, 0)));
+        assert!(header_agrees_with_name(&ny, name(2026, 10, 17, 12, 0), utc(2026, 10, 17, 16, 0)), "same offset");
+    }
+
+    /// One batch of a gated journal: a line 200 s old (inside EDDN's own 300 s age guard, so only
+    /// our rule keeps it out) followed by a fresh one. Only the fresh one is live.
+    #[test]
+    fn a_gated_batch_with_a_stale_line_then_a_fresh_one_makes_only_the_fresh_one_live() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        let base = eddn_state(&db).0;
+        append(&own, &docked(&ts(200)));
+        append(&own, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, base + 1, "the 200 s old line is a replay, the fresh one is live");
+    }
+
+    /// The startup replay is silent, even for a journal that is only the game's by its header and
+    /// holds lines stamped now.
+    #[test]
+    fn the_startup_replay_of_a_gated_journal_with_fresh_lines_is_silent() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(-30)), d.path().join(game_name(180)));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        std::fs::write(&own, format!("{}{}\n", session(&ts(1800), "r1 "), docked(&ts(0)))).unwrap();
+        touch(&own, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, own, "startup follows the newest by modified time");
+        assert_eq!(eddn_state(&db), (0, vec![]), "nothing from the startup replay");
+        append(&own, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "but what it writes next is live");
+    }
+
+    /// astromech-782v: the game starts twice in the repeated hour after the clocks go back (US,
+    /// 1 Nov 2026). The second journal's name (01:10) sorts before the first's (01:30), but it was
+    /// written later and its header (06:10Z) is its name read as EST: its new lines are live. A
+    /// touched older journal from before the switch (00:30 EDT) stays a replay.
+    #[test]
+    fn a_journal_started_in_the_repeated_hour_after_the_clocks_go_back_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        let older = d.path().join("Journal.2026-11-01T003000.01.log");
+        // Header (UTC) of each: 01:30 EDT, 01:10 EST (the second 01:00-02:00), 00:30 EDT.
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        touch(&first, 5);
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, first);
+
+        // The game restarts after the clocks went back.
+        std::fs::write(&second, "").unwrap();
+        touch(&second, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        append(&second, &format!("{}{}", session("2026-11-01T06:10:00Z", "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "the new session's fresh line is live though its name sorts first");
+
+        // A tool touches the older journal and writes old lines into it: a replay.
+        std::fs::write(&older, session("2026-11-01T04:30:00Z", "r0 ")).unwrap();
+        touch(&older, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, older);
+        append(&older, &docked("2026-11-01T04:40:00Z"));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "nothing live from the older journal");
+    }
+
+    /// The same two journals at startup: the app starts while the game runs in the one named
+    /// 01:10 (written after 01:30's), so it follows that one by modified time. Its fresh lines are
+    /// live, though it is not the latest by name.
+    #[test]
+    fn the_app_starting_in_the_repeated_hour_follows_the_games_journal_live() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        std::fs::write(&second, session("2026-11-01T06:10:00Z", "r2 ")).unwrap();
+        touch(&second, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, second);
+        assert_eq!(eddn_state(&db), (0, vec![]), "the startup replay is silent");
+        append(&second, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// "Market." on every fresh `Market.json` (the engine decides once per dock).
+    struct MarketRule;
+    impl astromech_announce::Rule for MarketRule {
+        fn id(&self) -> &'static str {
+            "market"
+        }
+        fn cooldown(&self) -> Duration {
+            Duration::ZERO
+        }
+        fn react(
+            &self,
+            input: &astromech_announce::Input,
+            _: &astromech_gamestate::GameState,
+        ) -> Option<astromech_announce::Callout> {
+            use astromech_announce::*;
+            matches!(input, Input::Market(_)).then(|| Callout {
+                text: "Market.".into(),
+                priority: Priority::Normal,
+                channels: Channels::SPEECH,
+            })
+        }
+    }
+
+    /// astromech-bh0c: a reopened journal is split into a replayed half and a live half. A Docked
+    /// at the same market in each: the replayed one reads Market.json with live=false and must not
+    /// use up the dock's one callout, so the live one reaches the callouts.
+    #[test]
+    fn a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&j1, session(&ts(30), "r1 ")).unwrap();
+        std::fs::write(&j2, format!("{}{}\n{}\n", session(&ts(10), "r2 "), docked(&ts(5)), market_event(&ts(5), 7)))
+            .unwrap();
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(5), 7)).unwrap();
+        touch(&j2, 5);
+        let (mut t, _, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert!(fired.lock().unwrap().is_empty(), "the startup replay is silent");
+
+        // A touched older journal is followed (a replay); meanwhile the game docks again at the
+        // same market and writes a new Market.json.
+        touch(&j1, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j1);
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 7)).unwrap();
+        append(&j2, &docked(&ts(0)));
+        append(&j2, &market_event(&ts(0), 7));
+        touch(&j2, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
+    }
+
+    /// astromech-r3s7: once the game has started a newer session, the earlier journal is no longer
+    /// the game's, though it was and though nothing changed in the folder's names: a tool that
+    /// appends to it and touches it is a replay (EDDN's own 300 s age guard is why the line is
+    /// 200 s old: only our rule keeps it out).
+    #[test]
+    fn an_earlier_session_is_not_live_once_a_newer_one_has_started() {
+        let d = tempfile::tempdir().unwrap();
+        let (a, b) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&a, session(&ts(60), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        append(&a, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "the game's own line is live");
+
+        // The game starts its next session.
+        std::fs::write(&b, session(&ts(5), "r2 ")).unwrap();
+        touch(&b, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, b);
+        let sent = eddn_state(&db).0;
+
+        // A tool appends an older line to the first session's journal and touches it.
+        append(&a, &docked(&ts(200)));
+        touch(&a, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, a);
+        assert_eq!(eddn_state(&db).0, sent, "nothing live from a session the game has left");
+
+        // The game's current journal is live again when it is written.
+        append(&b, &docked(&ts(0)));
+        touch(&b, 30);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, sent + 1);
+    }
+
+    /// astromech-r3s7, the repeated hour after a fall-back: the game's second session (01:10) sorts
+    /// before the first (01:30), which is therefore still the latest by name. Once the second is
+    /// the game's, a tool appending to the first is a replay, though it is the latest by name.
+    #[test]
+    fn a_touched_first_journal_of_the_repeated_hour_is_not_live_once_the_second_is() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        touch(&first, 5);
+        t.catch_up();
+
+        std::fs::write(&second, "").unwrap();
+        touch(&second, 10);
+        t.on_journal_activity();
+        append(&second, &format!("{}{}", session("2026-11-01T06:10:00Z", "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(sent, 1, "the second session is live");
+
+        append(&first, &docked(&ts(200)));
+        touch(&first, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, first);
+        assert_eq!(eddn_state(&db).0, sent, "the first journal is the latest by name but not the game's now");
+
+        append(&second, &docked(&ts(0)));
+        touch(&second, 30);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, sent + 1, "the game's journal is still live");
+    }
+
+    /// A foreign journal stamped later and touched takes the session while the game is quiet, but
+    /// the game's own next fresh line takes it back, and the foreign one is then a replay however
+    /// often it is touched again.
+    #[test]
+    fn the_games_journal_takes_the_session_back_from_a_touched_foreign_one() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(0)), d.path().join(game_name(180)));
+        std::fs::write(&own, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert!(sent >= 1, "the game's fresh line is live");
+
+        for n in 1..=2u64 {
+            let before = eddn_state(&db).0;
+            append(&foreign, &docked(&ts(200)));
+            touch(&foreign, 20 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+            assert_eq!(eddn_state(&db).0, before, "touch {n}: the foreign journal is a replay now");
+            append(&own, &docked(&ts(0)));
+            touch(&own, 25 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(eddn_state(&db).0, before + 1, "the game's journal is live again");
+        }
     }
 }

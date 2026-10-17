@@ -36,6 +36,37 @@ pub fn load_thresholds(store: &astromech_store::Store) -> Thresholds {
     }
 }
 
+/// Open the database in `data`, creating the folder first (a fresh machine has none yet).
+fn open_store(data: &std::path::Path) -> Result<astromech_store::Store, String> {
+    std::fs::create_dir_all(data).map_err(|e| format!("creating {}: {e}", data.display()))?;
+    astromech_store::Store::open(&data.join("astromech.sqlite")).map_err(|e| format!("opening the database: {e}"))
+}
+
+/// The prospector thresholds for Settings, as [`thresholds_json`]: the defaults on a machine
+/// whose data folder does not exist yet.
+pub fn thresholds_view(data: &std::path::Path) -> Value {
+    match open_store(data) {
+        Ok(st) => thresholds_json(&load_thresholds(&st)),
+        Err(e) => json!({"ok": false, "error": e}),
+    }
+}
+
+/// What the callout rules share, with the thresholds and shopping list read from the database in
+/// `data`. When it will not open the rules use the defaults, and `log` says so.
+pub fn shared_from_store(data: &std::path::Path, log: &dyn Fn(&str)) -> astromech_announce::Shared {
+    match open_store(data) {
+        Ok(st) => astromech_announce::Shared {
+            prospector: std::sync::Arc::new(std::sync::RwLock::new(load_thresholds(&st))),
+            shopping: std::sync::Arc::new(std::sync::RwLock::new(load_shopping(&st))),
+            ..Default::default()
+        },
+        Err(e) => {
+            log(&format!("callouts: {e}; using the default prospector thresholds and an empty shopping list"));
+            astromech_announce::Shared::default()
+        }
+    }
+}
+
 /// Every ore with its default and current threshold (`null`: not called out), for Settings.
 pub fn thresholds_json(t: &Thresholds) -> Value {
     let ores: Vec<Value> = prospector::ORES
@@ -43,6 +74,26 @@ pub fn thresholds_json(t: &Thresholds) -> Value {
         .map(|o| json!({"ore": o.symbol, "name": o.name, "default": o.default, "threshold": t.get(o.symbol)}))
         .collect();
     json!({"ok": true, "ores": ores})
+}
+
+/// Every callout with what is in effect, for Settings → Callouts: `enabled` and `cooldown_s`
+/// are the configured values or the callout's own; `default_*` are the callout's own.
+pub fn callouts_json(settings: &astromech_announce::Settings) -> Value {
+    let list: Vec<Value> = astromech_announce::catalog()
+        .iter()
+        .map(|i| {
+            let s = settings.0.get(i.id).cloned().unwrap_or_default();
+            json!({
+                "id": i.id,
+                "title": i.title,
+                "enabled": s.enabled.unwrap_or(i.default_enabled),
+                "cooldown_s": s.cooldown_s.unwrap_or(i.default_cooldown_s),
+                "default_enabled": i.default_enabled,
+                "default_cooldown_s": i.default_cooldown_s,
+            })
+        })
+        .collect();
+    json!({"ok": true, "callouts": list})
 }
 
 /// A change from Settings: `{"ore": "platinum", "threshold": 25}` (`null` turns it off) or
@@ -649,6 +700,30 @@ mod tests {
         assert!(change_thresholds(&store, "not json").is_err());
         store.set(PROSPECTOR_KEY, "{broken").unwrap();
         assert_eq!(load_thresholds(&store), Thresholds::default());
+    }
+
+    #[test]
+    fn thresholds_open_on_a_fresh_machine_and_a_broken_store_is_logged() {
+        let d = tempfile::tempdir().unwrap();
+        // No data folder yet: Settings gets the defaults, not "opening the database".
+        let data = d.path().join("not").join("yet");
+        let v = thresholds_view(&data);
+        assert_eq!(v["ok"], true, "{v}");
+        let plat = v["ores"].as_array().unwrap().iter().find(|o| o["ore"] == "platinum").unwrap().clone();
+        assert_eq!(plat["threshold"].as_f64(), Some(20.0));
+        assert!(data.join("astromech.sqlite").exists());
+        // A store that will not open: the defaults, and a line in the log saying so.
+        let blocked = d.path().join("file");
+        std::fs::write(&blocked, "x").unwrap();
+        let logged = std::sync::Mutex::new(vec![]);
+        let shared = shared_from_store(&blocked.join("data"), &|m: &str| logged.lock().unwrap().push(m.to_string()));
+        assert_eq!(*shared.prospector.read().unwrap(), Thresholds::default());
+        let logged = logged.into_inner().unwrap();
+        assert!(logged.len() == 1 && logged[0].contains("default prospector thresholds"), "{logged:?}");
+        // One that opens logs nothing and reads what Settings stored.
+        change_thresholds(&open_store(&data).unwrap(), r#"{"ore":"platinum","threshold":35}"#).unwrap();
+        let shared = shared_from_store(&data, &|m: &str| panic!("{m}"));
+        assert_eq!(shared.prospector.read().unwrap().get("platinum"), Some(35.0));
     }
 
     #[test]

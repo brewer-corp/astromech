@@ -1,0 +1,70 @@
+{
+  "calibrate_cancel": {
+    "ok": "value"
+  },
+  "calibrate_finish": {
+    "device": "value",
+    "gain_db": "value",
+    "min_level_dbfs": "value",
+    "noise_dbfs": "value",
+    "ok": "value",
+    "speech_peak_dbfs": "value"
+  },
+  "calibrate_record": {
+    "level": {
+      "device": "value",
+      "noise_dbfs": "value",
+      "peak_dbfs": "value",
+      "verdict": "value"
+    },
+    "next": {
+      "ms": "value",
+      "phrase": "value",
+      "step": "value",
+      "steps": "value"
+    },
+    "ok": "value"
+  },
+  "calibrate_start": {
+    "next": {
+      "ms": "value",
+      "phrase": "value",
+      "step": "value",
+      "steps": "value"
+    },
+    "ok": "value",
+    "phrases": "array"
+  },
+  "find_elite": {
+    "found": {
+      "bindings_dir": "value",
+      "bindings_found": "value",
+      "install": "value",
+      "install_source": "value",
+      "journal_dir": "value",
+      "journal_found": "value",
+      "ok": "value"
+    },
+    "ok": "value"
+  },
+  "mic_check": {
+    "level": {
+      "device": "value",
+      "noise_dbfs": "value",
+      "peak_dbfs": "value",
+      "verdict": "value"
+    },
+    "ok": "value"
+  },
+  "mic_list": {
+    "calibration": {
+      "device": "value",
+      "min_level_dbfs": "value"
+    },
+    "chosen": "value",
+    "default": "value",
+    "names": "array",
+    "ok": "value",
+    "setting": "value"
+  }
+}

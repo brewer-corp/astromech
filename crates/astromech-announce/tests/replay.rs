@@ -391,6 +391,15 @@ impl astromech_announce::session_summary::SessionHistory for Session {
     }
 }
 
+/// EDSM knows 2 of the 9 bodies of every system, answered at once.
+struct Edsm;
+
+impl astromech_announce::known_bodies::KnownBodies for Edsm {
+    fn known(&self, _: &str) -> Option<astromech_announce::known_bodies::Known> {
+        Some(astromech_announce::known_bodies::Known { bodies: 2, total: Some(9) })
+    }
+}
+
 /// A route follower whose route has the next waypoint "A"; any arrival elsewhere is not news.
 struct Follower;
 
@@ -407,8 +416,9 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let shared = Shared::default();
     shared.sessions.set(std::sync::Arc::new(Session));
     shared.follower.set(std::sync::Arc::new(Follower));
+    shared.known_bodies.set(std::sync::Arc::new(Edsm));
     let rules = builtin(shared);
-    assert_eq!(rules.len(), 18, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 19, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -447,6 +457,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Undiscovered system.",
             "Docking denied. No free pad.",
             "Zachary Hudson fortified, 40 percent.",
+            "2 of 9 bodies known.",
             "Next scoopable star in 2 jumps.",
             "Fuel too low to reach a scoopable star.",
             "Next waypoint. B.",

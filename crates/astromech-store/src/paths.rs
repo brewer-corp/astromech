@@ -8,6 +8,9 @@ use std::path::{Path, PathBuf};
 /// The config file's name, in the app dir or (portable mode) next to the exe.
 pub const CONFIG_FILE: &str = "astromech.toml";
 
+/// Where the core says which config file it uses (in the app dir); see [`Paths::publish_config`].
+const CONFIG_IN_USE: &str = "config.path";
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Paths {
     exe_dir: PathBuf,
@@ -63,6 +66,27 @@ impl Paths {
         } else {
             self.app_dir.join(CONFIG_FILE)
         }
+    }
+
+    /// Tell the app window which config file the core uses (the core's `--config`, or the
+    /// default), in `config.path` in the app dir. Written at every core start, so a later start
+    /// without `--config` replaces an earlier one's.
+    pub fn publish_config(&self, path: &Path) -> std::io::Result<()> {
+        std::fs::create_dir_all(&self.app_dir)?;
+        // Absolute, since the window's working folder isn't the core's.
+        let path = std::path::absolute(path)?;
+        std::fs::write(self.app_dir.join(CONFIG_IN_USE), path.to_string_lossy().as_bytes())
+    }
+
+    /// The config file the running core reads: the one it published, else [`Paths::config_file`].
+    /// The window reads its settings (Bindings folder, data folder) from here.
+    pub fn config_in_use(&self) -> PathBuf {
+        std::fs::read_to_string(self.app_dir.join(CONFIG_IN_USE))
+            .ok()
+            .map(|t| t.trim().to_string())
+            .filter(|t| !t.is_empty())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| self.config_file())
     }
 
     /// The folder holding `astromech.sqlite` and the other data files (`galaxy.db`,
@@ -206,6 +230,37 @@ mod tests {
         assert_eq!(p.journal_dir(" /j "), Some(PathBuf::from("/j")));
         assert_eq!(p.journal_dir(""), Some(PathBuf::from("/u/Saved Games/Frontier Developments/Elite Dangerous")));
         assert_eq!(Paths::new(exe.path().into(), env(&[])).journal_dir(""), None);
+    }
+
+    #[test]
+    fn the_window_reads_the_config_the_core_published() {
+        let (exe, app, other) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let local = app.path().to_str().unwrap().to_string();
+        let mk = || Paths::new(exe.path().into(), env(&[("XDG_DATA_HOME", &local)]));
+        let p = mk();
+        // Nothing published: the default.
+        assert_eq!(p.config_in_use(), p.config_file());
+        // The core run with --config: the window follows it, in a fresh process too.
+        let custom = other.path().join("mine.toml");
+        std::fs::write(&custom, "[game]\nbindings_dir = \"/pasted\"\n").unwrap();
+        p.publish_config(&custom).unwrap();
+        assert_eq!(mk().config_in_use(), custom);
+        assert!(std::fs::read_to_string(mk().config_in_use()).unwrap().contains("/pasted"));
+        // A relative --config is published as an absolute path (the window's folder differs).
+        p.publish_config(Path::new("rel.toml")).unwrap();
+        assert!(mk().config_in_use().is_absolute() && mk().config_in_use().ends_with("rel.toml"));
+        // A later start without --config takes the file back.
+        p.publish_config(&p.config_file()).unwrap();
+        assert_eq!(mk().config_in_use(), p.config_file());
+        // Portable layout: the default is next to the exe, and a publish is followed the same way.
+        std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
+        let portable = mk();
+        assert!(portable.portable());
+        portable.publish_config(&portable.config_file()).unwrap();
+        assert_eq!(portable.config_in_use(), exe.path().join("astromech.toml"));
+        portable.publish_config(&custom).unwrap();
+        assert_eq!(mk().config_in_use(), custom);
     }
 
     #[test]

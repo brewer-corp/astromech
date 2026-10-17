@@ -1,0 +1,204 @@
+# Synthetic voice-recognition test set (ARCHITECTURE.md §14 MVP criterion 2: >= 95% on 200 phrases).
+# Built from the astromech-intent grammar (MVP table) and the slot values the lookups add.
+# Rendered with Kokoro and scored by `scripts/voice-eval.sh`; see docs/V1-DESIGN.md §6.3.
+# Columns: family, expected command id (or "nomatch"), phrase as spoken. Tabs separate them.
+ship	landing_gear.down	gear down
+ship	landing_gear.down	landing gear down
+ship	landing_gear.down	deploy landing gear
+ship	landing_gear.up	gear up
+ship	landing_gear.up	landing gear up
+ship	landing_gear.up	retract landing gear
+ship	landing_gear.up	raise gear
+ship	landing_gear.toggle	toggle landing gear
+ship	landing_gear.toggle	toggle gear
+ship	lights.on	lights on
+ship	lights.on	turn on lights
+ship	lights.on	headlights on
+ship	lights.off	lights off
+ship	lights.off	turn off lights
+ship	hardpoints.deploy	deploy hardpoints
+ship	hardpoints.deploy	hardpoints out
+ship	hardpoints.deploy	weapons out
+ship	hardpoints.retract	retract hardpoints
+ship	hardpoints.retract	stow hardpoints
+ship	hardpoints.retract	weapons in
+ship	cargo_scoop.open	open cargo scoop
+ship	cargo_scoop.open	deploy cargo scoop
+ship	cargo_scoop.close	close cargo scoop
+ship	cargo_scoop.close	retract cargo scoop
+ship	cargo_scoop.close	cargo scoop in
+ship	night_vision.on	night vision on
+ship	night_vision.on	turn on night vision
+ship	night_vision.off	night vision off
+ship	night_vision.off	disable night vision
+flight	flight_assist.on	flight assist on
+flight	flight_assist.on	enable flight assist
+flight	flight_assist.off	flight assist off
+flight	flight_assist.off	turn off flight assist
+flight	silent_running.on	silent running on
+flight	silent_running.on	go silent
+flight	silent_running.off	silent running off
+flight	silent_running.off	disable silent running
+flight	throttle.zero	throttle to zero
+flight	throttle.zero	all stop
+ui	hud.analysis	analysis mode
+ui	hud.analysis	switch to analysis
+ui	hud.combat	combat mode
+ui	hud.combat	switch to combat
+ui	galaxy_map.open	open galaxy map
+ui	galaxy_map.open	show galaxy map
+ui	system_map.open	open system map
+ui	system_map.open	show system map
+ui	panel.close	close panel
+ui	panel.close	go back
+ui	panel.left	left panel
+ui	panel.left	navigation panel
+ui	panel.right	right panel
+ui	panel.right	ship panel
+ui	panel.comms	comms panel
+ui	panel.comms	open comms
+ui	panel.role	role panel
+ui	panel.role	open role panel
+srv	srv_handbrake.on	handbrake on
+srv	srv_handbrake.off	handbrake off
+srv	srv_drive_assist.on	drive assist on
+srv	srv_drive_assist.off	drive assist off
+status	status.fuel	how much fuel
+status	status.fuel	fuel status
+status	status.cargo	how much cargo
+status	status.cargo	cargo status
+status	status.jump_range	jump range
+status	status.jump_range	what's my jump range
+status	status.location	where am i
+status	status.location	current system
+status	status.jumps	jumps left
+status	status.jumps	how many jumps
+status	status.hull	hull health
+status	status.hull	how much hull
+status	status.shields	shields
+status	status.shields	shield status
+status	status.credits	how many credits
+status	status.credits	rebuy
+status	status.ship	what's my ship
+status	status.ship	current ship
+status	status.legal	legal status
+status	status.legal	notoriety
+status	session.summary	session summary
+status	session.summary	how much did i make this session
+status	session.summary	how's the session going
+route	route.next	next waypoint
+route	route.next	copy next waypoint
+route	route.next	what's the next waypoint
+route	route.next	where's the next waypoint
+route	route.skip	skip waypoint
+route	route.skip	skip this waypoint
+route	route.skip	skip to the next waypoint
+route	route.back	previous waypoint
+route	route.back	back one waypoint
+route	route.back	go back a waypoint
+route	route.clear	clear route
+route	route.clear	end route
+route	route.clear	stop following the route
+route	galaxy_map.paste	paste
+route	galaxy_map.paste	paste waypoint
+route	galaxy_map.paste	paste system name
+trade	trade.sell	where to sell painite
+trade	trade.sell	where can i sell tritium
+trade	trade.sell	best price for gold
+trade	trade.sell	sell low temperature diamonds
+trade	trade.buy	where to buy tritium
+trade	trade.buy	where can i buy silver
+trade	trade.buy	cheapest steel
+trade	trade.sell_cargo	where to sell my cargo
+trade	trade.sell_cargo	best place to sell my cargo
+trade	trade.sell_cargo	sell my cargo
+colonisation	colonisation.progress	how's the build going
+colonisation	colonisation.progress	how is the construction going
+colonisation	colonisation.progress	build progress
+colonisation	colonisation.progress	colonisation progress
+colonisation	colonisation.progress	how far along is the build
+colonisation	colonisation.remaining	what's left to deliver
+colonisation	colonisation.remaining	how much is left to deliver
+colonisation	colonisation.remaining	what does the build need
+colonisation	colonisation.remaining	construction shopping list
+colonisation	colonisation.buy	where can i buy steel for the depot
+colonisation	colonisation.buy	where can i buy aluminium for the build
+colonisation	colonisation.buy	where can i buy cmm composite for the construction
+colonisation	colonisation.buy	where to buy liquid oxygen for the build
+colonisation	colonisation.buy	buy titanium for the depot
+powerplay	status.system_power	who controls this system
+powerplay	status.system_power	system power
+powerplay	status.system_power	powerplay here
+powerplay	status.powerplay	what's my powerplay rank
+powerplay	status.powerplay	how many merits do i have
+powerplay	status.powerplay	powerplay status
+powerplay	status.merits_here	what earns merits here
+powerplay	status.merits_here	how do i earn merits here
+powerplay	status.merits_here	powerplay activities
+powerplay	powerplay.acquire	where can i acquire near me
+powerplay	powerplay.acquire	nearest acquisition target
+powerplay	powerplay.acquire	nearest system to acquire
+powerplay	powerplay.reinforce	where can i reinforce near me
+powerplay	powerplay.reinforce	nearest reinforcement target
+powerplay	powerplay.reinforce	nearest system to fortify
+powerplay	powerplay.undermine	where can i undermine near me
+powerplay	powerplay.undermine	nearest undermining target
+powerplay	powerplay.undermine	nearest system to undermine
+faction	faction.famine	nearest famine system
+faction	faction.famine	where is there a famine near me
+faction	faction.proto	nearest boom system
+faction	faction.proto	where is there a boom near me
+faction	faction.military	nearest war system
+faction	faction.military	nearest civil war
+faction	faction.improvised	nearest civil unrest system
+faction	faction.improvised	where is there civil unrest near me
+faction	faction.pharma	nearest outbreak system
+faction	faction.pharma	where is there an outbreak near me
+faction	faction.fed_composites	nearest federation system
+faction	faction.fed_composites	nearest federal faction
+faction	faction.empire_shielding	nearest empire system
+faction	faction.empire_shielding	nearest imperial system
+sites	sites.crystalline_shards	nearest crystalline shards
+sites	sites.crystalline_shards	nearest shard site
+sites	sites.brain_trees	nearest brain trees
+sites	sites.brain_trees	find brain trees
+sites	sites.crashed_ships	nearest crashed ship
+sites	sites.crashed_ships	nearest wreck site
+sites	sites.geological	nearest geological sites
+sites	sites.geological	find geological sites
+sites	sites.raw_farms	nearest raw material farm
+sites	sites.raw_farms	where can i farm raw materials
+stations	find.service	nearest interstellar factors
+stations	find.service	where's the nearest material trader
+stations	find.service	find the nearest guardian tech broker
+stations	find.service	nearest universal cartographics
+stations	find.service	where is the nearest black market
+stations	find.service	find vista genomics
+stations	find.module	nearest fuel scoop
+stations	find.module	where can i buy a 5a frame shift drive
+stations	find.module	where can i get a guardian fsd booster
+stations	find.module	find shield cell bank
+stations	find.module	buy a detailed surface scanner
+stations	find.ship	where can i buy a python
+stations	find.ship	where can i get an anaconda
+stations	find.ship	nearest krait phantom
+stations	find.ship	who sells the type-10 defender
+stations	find.ship	buy a mandalay
+unavailable	request_docking	request docking
+unavailable	request_docking	request docking permission
+unavailable	supercruise	engage supercruise
+unavailable	supercruise	drop out of supercruise
+unavailable	hyperspace_jump	engage frameshift drive
+unavailable	hyperspace_jump	jump to next system
+unavailable	plot_route	plot route to sol
+unavailable	plot_route	set course for sol
+confirm	confirm	yes
+confirm	confirm	confirm
+confirm	confirm	affirmative
+confirm	cancel	no
+confirm	cancel	cancel
+confirm	cancel	never mind
+nomatch	nomatch	what a beautiful nebula
+nomatch	nomatch	tell me a joke
+nomatch	nomatch	i think the coffee is getting cold
+nomatch	nomatch	play some music

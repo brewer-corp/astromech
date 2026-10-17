@@ -43,6 +43,10 @@ The local voice worker is behind a feature, because it downloads prebuilt sherpa
 and makes the binary GPL-3.0 (see NOTICE.md):
 `cargo build -p astromech-voice --features sherpa --release`.
 
+`scripts/voice-eval.sh` scores voice recognition on a synthetic 200-phrase set (Kokoro renders it,
+Parakeet transcribes it; it downloads the models, about 830 MB, on first run). The report is
+`results/voice-eval/report.md`; never commit the audio or the models.
+
 Windows binaries can be cross-built from Linux with `cargo xwin build --target x86_64-pc-windows-msvc`.
 They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 

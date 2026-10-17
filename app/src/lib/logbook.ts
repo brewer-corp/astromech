@@ -4,6 +4,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/logbook.json";
 import sampleSession from "./fixtures/session.json";
 
@@ -62,8 +63,19 @@ export function searchSample(query: string): Logbook {
   return { ...book, query: query.trim(), places, matches: places.length, timeline: book.timeline.filter(matches(q)), source: "Sample journal history" };
 }
 
+/** A history with no commander yet (the preview's `?core=empty`). */
+const NO_HISTORY = (query: string): Logbook => ({
+  commander: null,
+  commanders: [],
+  totals: { systems: 0, stations: 0, system_visits: 0, station_visits: 0 },
+  query: query.trim(),
+  places: [],
+  matches: 0,
+  timeline: [],
+});
+
 export async function loadLogbook(query: string, cmdr?: string): Promise<Logbook> {
-  if (!inTauri) return searchSample(query);
+  if (!inTauri) return previewData("logbook", () => searchSample(query), () => NO_HISTORY(query));
   return await invoke<Logbook>("logbook", { query, cmdr: cmdr ?? null });
 }
 
@@ -95,7 +107,7 @@ export interface Session {
 
 /** The latest session (the sample's first session outside the app). */
 export async function loadSession(): Promise<Session | null> {
-  if (!inTauri) return { ...(sampleSession as Session), source: "Sample journal history" };
+  if (!inTauri) return previewData("session_summary", () => ({ ...(sampleSession as Session), source: "Sample journal history" }), () => null);
   return await invoke<Session | null>("session_summary");
 }
 
