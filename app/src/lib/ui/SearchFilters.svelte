@@ -7,8 +7,16 @@
     filters,
     offers,
     hints = {},
+    shipPad,
     onchange,
-  }: { filters: Filters; offers: FilterKey[]; hints?: FilterHints; onchange: (f: Filters) => void } = $props();
+  }: {
+    filters: Filters;
+    offers: FilterKey[];
+    hints?: FilterHints;
+    /** The current ship's pad as of the latest search; `undefined`: as the filters loaded. */
+    shipPad?: Pad | null;
+    onchange: (f: Filters) => void;
+  } = $props();
 
   const AGES = [1, 3, 7, 30, 90, 365];
   const ARRIVALS = [1000, 5000, 25000];
@@ -57,7 +65,7 @@
     <label>
       <span>Pad</span>
       <select value={padValue} onchange={(e) => setPad(e.currentTarget.value)}>
-        <option value="ship">Ship's{!filters.pad_set ? ` (${filters.pad ?? "any"})` : ""}</option>
+        <option value="ship">Ship's{!filters.pad_set ? ` (${(shipPad === undefined ? filters.pad : shipPad) ?? "any"})` : ""}</option>
         <option value="S">S or larger</option>
         <option value="M">M or larger</option>
         <option value="L">L</option>

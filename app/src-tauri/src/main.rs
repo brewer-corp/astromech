@@ -657,8 +657,8 @@ fn search_origin(
         None => st.as_ref().map_err(|e| e.clone())?.here.clone().ok_or("no position in the journal yet")?,
     };
     let current = st.as_ref().ok().and_then(|s| s.fleet.ships.iter().find(|s| s.current));
-    let pad = current.and_then(|s| astromech_galaxy::Pad::for_ship(&s.ship_type));
-    Ok((here, range_of(current), filters.unwrap_or_default().for_ship(pad)))
+    let filters = filters.unwrap_or_default().for_ship_type(current.map(|s| s.ship_type.as_str()));
+    Ok((here, range_of(current), filters))
 }
 
 /// Systems matching a lookup (`famine`, or an HGE pool id) near `origin` (a typed system name)

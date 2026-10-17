@@ -107,6 +107,12 @@ impl Filters {
         self
     }
 
+    /// With the pad taken from the ship of journal type `ship_type` (the current ship, or none
+    /// when unknown), unless the commander set it. Every search resolves this afresh.
+    pub fn for_ship_type(self, ship_type: Option<&str>) -> Self {
+        self.for_ship(ship_type.and_then(Pad::for_ship))
+    }
+
     /// The oldest `updated_at` the data-age filter allows (RFC 3339, to the hour), to send to
     /// Spansh so its nearest matches are already fresh. `None` without an age filter.
     pub fn updated_since(&self, now_s: i64) -> Option<String> {
@@ -184,6 +190,19 @@ mod tests {
         assert_eq!(famine.max_age_days, Some(7));
         assert!(famine.exclude_carriers);
         assert_eq!(load(&st, "faction.proto", None).unwrap(), Filters::default(), "other lookups are untouched");
+    }
+
+    /// What the shell does for every search: the page sends the filters it loaded (with the pad
+    /// of the ship it knew), and a ship change since must still change the pad searched with.
+    #[test]
+    fn a_search_resolves_the_pad_from_the_current_ship_not_the_filters_sent() {
+        let sent = Filters { pad: Some(Pad::M), pad_set: false, ..Filters::default() }; // loaded in a Krait
+        assert_eq!(sent.clone().for_ship_type(Some("krait_mkii")).pad, Some(Pad::M));
+        assert_eq!(sent.clone().for_ship_type(Some("anaconda")).pad, Some(Pad::L), "now in an Anaconda");
+        assert_eq!(sent.clone().for_ship_type(Some("sidewinder")).pad, Some(Pad::S));
+        assert_eq!(sent.for_ship_type(None).pad, None, "no known ship: any pad");
+        let chosen = Filters { pad: Some(Pad::S), pad_set: true, ..Filters::default() };
+        assert_eq!(chosen.for_ship_type(Some("anaconda")).pad, Some(Pad::S), "the commander's pick stays");
     }
 
     #[test]
