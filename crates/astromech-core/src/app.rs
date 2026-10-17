@@ -783,6 +783,13 @@ impl Core {
                 let last = TESTER.last().map(|(seq, r)| json!({"seq": seq, "result": r}));
                 json!({"ok": true, "listening": self.active(), "last": last})
             }
+            "learned_phrases" => crate::learned::list(&self.cfg().data_dir()),
+            "learned_forget" => {
+                let assistant = self.session.lock().unwrap().as_ref().map(|s| s.assistant.clone());
+                let heard = r.text.clone().unwrap_or_default();
+                log(&format!("learned phrase forgotten: {heard:?}"));
+                crate::learned::forget(&self.cfg().data_dir(), assistant.as_deref(), &heard)
+            }
             "voice_test_stop" => {
                 if TESTER.armed(Instant::now()) {
                     log("voice tester closed: push-to-talk acts again");

@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "docs-found"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-znvi
 priority: "P3"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Learned voice phrases cannot be reviewed or removed"
-updated_at: "2026-10-17T17:41:22.048084213+00:00"
+updated_at: "2026-10-17T19:15:24.998590896+00:00"
 ---
 
 ## Goal

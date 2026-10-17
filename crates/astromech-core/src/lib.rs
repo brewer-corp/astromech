@@ -46,6 +46,7 @@ pub mod health;
 pub mod history;
 pub mod hub;
 pub mod instance;
+pub mod learned;
 pub mod logging;
 pub mod lookups;
 pub mod pipeline;

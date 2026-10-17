@@ -199,6 +199,30 @@ fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     assert_eq!(r.exec.sent.lock().unwrap().len(), 2, "one press, down and up");
 }
 
+/// A wrong yes teaches a phrase for good; forgetting it makes astromech ask again, and the
+/// saved list no longer has it.
+#[test]
+fn a_learned_phrase_can_be_forgotten() {
+    let r = rig();
+    let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));
+    let a = Assistant::new(r.runner.clone()).with_store(store.clone());
+    assert!(matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Asked { .. }));
+    assert!(matches!(a.handle("yes", astromech_proto::Origin::Voice), Handled::Ran { .. }));
+    assert_eq!(store.lock().unwrap().aliases().unwrap().len(), 1);
+    assert!(
+        matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Ran { .. }),
+        "learned: runs without asking"
+    );
+
+    assert!(a.forget("You're down."));
+    assert!(store.lock().unwrap().aliases().unwrap().is_empty());
+    assert!(
+        matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Asked { .. }),
+        "forgotten: asks again"
+    );
+    assert!(!a.forget("You're down."), "nothing left to forget");
+}
+
 #[test]
 fn typed_phrase_without_elite_running_still_shows_keys() {
     let dir = tempfile::tempdir().unwrap();

@@ -144,6 +144,14 @@ impl Assistant {
         }
     }
 
+    /// Forget a learned phrase: it asks again next time (and is dropped from the saved list).
+    /// True if it was one.
+    pub fn forget(&self, heard: &str) -> bool {
+        let in_grammar = self.grammar.lock().unwrap().remove_alias(heard);
+        let in_store = self.store.as_ref().is_some_and(|st| st.lock().unwrap().forget_alias(heard).unwrap_or(false));
+        in_grammar || in_store
+    }
+
     /// Look `want` up near the commander and say the answer when it arrives (off this thread:
     /// Spansh can take seconds).
     fn look_up(&self, command: &'static str, want: Want) -> Handled {

@@ -1061,6 +1061,8 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "voice_test_poll",
         "voice_test_stop",
         "voice_test_live",
+        "learned_phrases",
+        "learned_forget",
         "prospector_thresholds",
         "prospector_set",
         "shopping_set",

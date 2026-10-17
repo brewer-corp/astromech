@@ -33,6 +33,15 @@ switch to Elite within five seconds: astromech presses keys only while Elite is 
 window. It skips the "Did you mean" or "Confirm" question that a spoken command would ask.
 It needs Elite running.
 
+## Learned phrases
+
+![The Voice tester's list of learned phrases](img/learned-phrases.png)
+
+When you answer **yes** to "Did you mean ...?", astromech remembers what it heard and runs that
+command next time without asking. The list at the bottom of the page shows each phrase and the
+command it runs, the most used first. **Remove** forgets one at once, here and on disk, so a
+wrong yes does not stay: astromech asks again the next time you say it.
+
 ## What it needs
 
 - The speech models and a push-to-talk button, to test by voice. Typing works without them.
