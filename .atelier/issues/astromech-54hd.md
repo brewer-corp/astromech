@@ -4,6 +4,9 @@ id: "astromech-54hd"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-54hd
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Merged controller page: the other stick and per-action detail"
-updated_at: "2026-10-17T17:01:42.304580751+00:00"
+updated_at: "2026-10-17T19:21:06.480631143+00:00"
 ---
 
 ## Goal

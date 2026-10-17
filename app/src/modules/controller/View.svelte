@@ -1,7 +1,9 @@
 <script lang="ts">
   // My controller (docs/V1-DESIGN.md §3.1-3.3), the default screen: one stick on VKB's sheet.
   // "All" shows every binding on it; choosing an activity lights that activity's actions and
-  // lists what is still unbound (Bind this) and what lives off the sticks. Button numbers come
+  // lists what is still unbound (Bind this), what is on the other stick and what lives off the
+  // sticks. Clicking an action shows its slots and issues, with Bind another control. The chosen
+  // activity is remembered. Button numbers come
   // from VKB's factory profile. If a press lands somewhere the map doesn't expect (a remapped
   // stick), astromech asks about that one control and remembers the answer.
   import catalog from "../../../../data/catalog/activities.json";
@@ -27,9 +29,12 @@
   let asking = $state<Press | null>(null);
   let w = $state(1600);
   /** "all" or an activity id. */
-  let actId = $state(new URLSearchParams(location.search).get("activity") ?? "all");
+  const ACTIVITY_KEY = "astromech.activity";
+  let actId = $state(new URLSearchParams(location.search).get("activity") ?? localStorage.getItem(ACTIVITY_KEY) ?? "all");
   const act = $derived(acts.find((a) => a.id === actId));
   let bind = $state<{ row: Row; slot: string } | null>(null);
+  /** The action whose detail is open. */
+  let selId = $state<string | null>(null);
 
   const byId = $derived(new Map(binds.rows.map((r) => [r.id, r])));
   const ids = $derived(new Set(act?.actions.flatMap((a) => [a.id, ...a.alternatives])));
@@ -40,6 +45,13 @@
   const notBound = $derived(
     (act?.actions ?? []).filter((a) => !isBound(byId.get(a.id)) && !a.alternatives.some((x) => isBound(byId.get(x)))).map((a) => ({ ...a, row: byId.get(a.id) })),
   );
+  const otherSticks = $derived(maps.filter((x) => x.device_id !== m.device_id));
+  const onOther = (r: Row) => r.slots.find((s) => bound(s) && otherSticks.some((x) => x.device_id === s.device));
+  /** The activity's actions bound only on the other stick: not on this one, and not "elsewhere". */
+  const otherStick = $derived(
+    (act?.actions ?? []).map((a) => byId.get(a.id)).filter((r): r is Row => !!r && !slotHere(r) && !!onOther(r)),
+  );
+  const sel = $derived(selId ? byId.get(selId) : undefined);
   const elsewhere = $derived(
     (act?.actions ?? []).map((a) => byId.get(a.id)).filter((r): r is Row => !!r && isBound(r) && !r.slots.some((s) => bound(s) && maps.some((x) => x.device_id === s.device))),
   );
@@ -49,9 +61,13 @@
   }
   function choose(id: string) {
     actId = id;
+    localStorage.setItem(ACTIVITY_KEY, id);
     picked = null;
+    selId = null;
   }
+  /** Open an action's detail, and light its control when it is on this stick. */
   function showRow(r: Row) {
+    selId = r.id;
     const s = slotHere(r);
     picked = (s && controls.find((c) => c.joy === s.key)) || null;
   }
@@ -63,7 +79,9 @@
       const rows = binds.rowsFor(m.device_id, c.joy);
       if (!rows.length) continue;
       const mine = rows.filter((r) => ids.has(r.id));
-      const first = mine[0] ?? rows[0]!;
+      // The box shows the activity's action, else the ship's or general one (the same control can
+      // also be an SRV or on-foot action).
+      const first = mine[0] ?? rows.find((r) => r.context === "Ship" || r.context === "General") ?? rows[0]!;
       const n = act ? mine.length : rows.length;
       const here = picked?.sheet_field === c.sheet_field;
       out[c.sheet_field] = {
@@ -105,6 +123,7 @@
       return;
     }
     picked = c;
+    selId = null;
     unknown = null;
   }
   async function reset(c: MapControl) {
@@ -140,7 +159,7 @@
       <section>
         <h3>{act ? `${act.title} on this stick` : "Everything on this stick"}</h3>
         {#each listed as r (r.id)}
-          <button class="row" class:sel={picked?.joy === slotHere(r)?.key} onclick={() => showRow(r)}>
+          <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
             <span class="n">{r.name}</span><span class="v">{slotText(slotHere(r))}</span>
           </button>
         {:else}
@@ -151,8 +170,8 @@
         <section>
           <h3>Not bound yet</h3>
           {#each notBound.filter((a) => a.important) as a (a.id)}
-            <div class="row">
-              <span class="n">{a.row?.name ?? a.id}</span>
+            <div class="row" class:sel={selId === a.id}>
+              {#if a.row}<button class="n" onclick={() => a.row && showRow(a.row)}>{a.row.name}</button>{:else}<span class="n">{a.id}</span>{/if}
               {#if a.row}<button class="bind" onclick={() => a.row && (bind = { row: a.row, slot: firstFree(a.row) })}>Bind this</button>{/if}
             </div>
           {:else}
@@ -161,9 +180,21 @@
           {#if notBound.some((a) => !a.important)}
             <p class="lo more">Also unbound: {notBound.filter((a) => !a.important).map((a) => a.row?.name ?? a.id).join(", ")}</p>
           {/if}
+          {#if otherStick.length}
+            <h3 class="gap">On the other stick</h3>
+            {#each otherStick as r (r.id)}
+              <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
+                <span class="n">{r.name}</span><span class="v">{slotText(onOther(r))}</span>
+              </button>
+            {/each}
+          {/if}
           {#if elsewhere.length}
             <h3 class="gap">Elsewhere (keyboard, mouse)</h3>
-            {#each elsewhere as r (r.id)}<div class="row"><span class="n">{r.name}</span><span class="v">{slotText(r.slots.find(bound))}</span></div>{/each}
+            {#each elsewhere as r (r.id)}
+              <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
+                <span class="n">{r.name}</span><span class="v">{slotText(r.slots.find(bound))}</span>
+              </button>
+            {/each}
           {/if}
         </section>
       {/if}
@@ -174,6 +205,13 @@
       <p>VKB's factory profile has no control that sends {keyName(unknown.key)}. If you changed the stick's profile in VKBDevCfg, tell astromech which control it was and it remembers.</p>
       <p>Bound to: {binds.rowsFor(unknown.device, unknown.key).map((r) => r.name).join(", ") || "nothing"}</p>
       <button class="act" onclick={() => (asking = unknown)}>Show me which control</button>
+    </About>
+  {:else if sel}
+    <About label="Action" title={sel.name}>
+      <p class="lo">{sel.context}</p>
+      {#each sel.slots as s (s.slot)}<p>{sel.analogue ? "Axis" : s.slot}: {slotText(s) || "nothing"}</p>{/each}
+      {#each sel.issues as i (i.text)}<p class="warn">! {i.text}</p>{/each}
+      <button class="act" onclick={() => (bind = { row: sel, slot: firstFree(sel) })}>{isBound(sel) ? "Bind another control" : "Bind this"}</button>
     </About>
   {:else if picked}
     {@const rows = rowsFor(picked.joy)}
@@ -217,6 +255,8 @@
   .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 30px; margin-bottom: 4px; padding: 0 12px; background: var(--cell-empty); }
   .row.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .row.sel .n { color: var(--accent); }
+  .row .n { color: var(--text); }
+  .warn { color: var(--accent); }
   .bind { color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .bind:hover { color: var(--text-hi); }
   .more { margin-top: 10px; font-size: var(--fs-s); line-height: 1.5; }
