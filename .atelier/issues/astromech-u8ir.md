@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-u8ir
 priority: "P2"
 relationships:
   blocks: []
@@ -16,9 +19,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Callout loose ends: repeat prospects, threshold storage on a fresh machine, help-line copy"
-updated_at: "2026-10-17T17:01:41.665525400+00:00"
+updated_at: "2026-10-17T18:51:45.408702178+00:00"
 ---
 
 ## Goal

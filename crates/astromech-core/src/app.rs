@@ -642,12 +642,7 @@ impl Core {
                 open_config(&self.config_path);
                 json!({"ok": true})
             }
-            "prospector_thresholds" => {
-                match astromech_store::Store::open(&self.cfg().data_dir().join("astromech.sqlite")) {
-                    Ok(st) => crate::callouts::thresholds_json(&crate::callouts::load_thresholds(&st)),
-                    Err(e) => json!({"ok": false, "error": format!("opening the database: {e}")}),
-                }
-            }
+            "prospector_thresholds" => crate::callouts::thresholds_view(&self.cfg().data_dir()),
             "prospector_set" => {
                 let text = r.text.clone().unwrap_or_default();
                 let res = std::fs::create_dir_all(self.cfg().data_dir())

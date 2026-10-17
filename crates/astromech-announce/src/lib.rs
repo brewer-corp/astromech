@@ -186,7 +186,7 @@ pub struct Shared {
 /// The rules that ship.
 pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
-        Box::new(prospector::Prospector { thresholds: shared.prospector }),
+        Box::new(prospector::Prospector::new(shared.prospector)),
         Box::new(scan::Scan),
         Box::new(arrival::Arrival {
             shopping: shared.shopping.clone(),
