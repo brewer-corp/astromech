@@ -58,9 +58,31 @@ fn recall_on_held_out_bodies() {
     assert!(per_body <= CANDIDATES, "{per_body:.1} candidates per body, more than {CANDIDATES}");
 }
 
+/// The star gate is checked on most held-out bodies: their nearest star is known (the script
+/// works it out for moons too, as the game does from `Parents`).
+#[test]
+fn most_held_out_bodies_have_their_nearest_star() {
+    let all: Value = serde_json::from_str(HELD_OUT).unwrap();
+    let bodies = all["bodies"].as_array().unwrap();
+    let with_star = bodies.iter().filter(|b| b["star"].is_string()).count();
+    assert!(with_star * 4 >= bodies.len() * 3, "{with_star} of {} bodies have a star", bodies.len());
+}
+
+/// No condition rests on a single sighting (one is as likely a data slip as a habitat).
+#[test]
+fn every_condition_has_at_least_two_sightings() {
+    for g in catalog::genera() {
+        for s in &g.species {
+            for c in &s.rules {
+                assert!(c.seen >= 2, "{}: {:?} on {:?} seen {}", s.name, c.atmosphere, c.body_types, c.seen);
+            }
+        }
+    }
+}
+
 /// What the held-out bodies must reach (measured by the script and this test, then rounded down).
 const RECALL: f64 = 0.98;
-const CANDIDATES: f64 = 12.5;
+const CANDIDATES: f64 = 11.0;
 
 /// A condition measured from enough bodies to gate on star and volcanism, and a body in the
 /// middle of it.

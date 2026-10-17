@@ -23,9 +23,16 @@ Sources (see NOTICE.md):
   species the script asks for the bodies with that species nearest four points across the
   galaxy (`landmark_subtype` filter, 100 bodies each; answers are kept in the cache directory and
   reused). A quarter of the bodies (by a hash of the id64) is held out and never used for the conditions;
-  the rest give, per species and per (atmosphere type, body class), the observed temperature,
-  gravity and pressure range, and, from enough sightings, the parent star classes and volcanism
-  seen. No other tool's condition tables are read.
+  the rest give, per species and per (atmosphere type, body class) seen at least twice, the
+  observed temperature, gravity and pressure range, and, from enough sightings, the nearest star
+  classes and volcanism seen. No other tool's condition tables are read.
+- The nearest star: the search gives only a body's immediate parent, so a moon or a body around
+  a pair of stars would have none. The script asks Spansh's bodies search for the stars of every
+  system with a sighting (cached in the cache directory) and reads the nearest star from the
+  body's name, as the game names bodies: the longest star name the body's name starts with
+  ("Sys A 4 a": star A; "Sys 4 d": the brown dwarf "Sys 4" it orbits); "Sys 4 a" in a system
+  with one star (or a star named as the system) is that star's; "Sys AB 1" orbits a pair of stars
+  and, like the journal's `Parents` with no star before the barycentre, has none.
 """
 import hashlib, json, os, re, sys, time, urllib.parse, urllib.request
 
@@ -43,6 +50,13 @@ HELD_OUT = lambda id64: hashlib.sha256(str(id64).encode()).digest()[0] % 4 == 0
 FIXTURE_BODIES = 400
 # Star classes and volcanism become conditions only from this many sightings of a group.
 GATE_MIN = 10
+# A group (atmosphere type, body class) becomes a condition only from this many sightings: one
+# sighting is as likely a data slip as a habitat.
+MIN_SEEN = 2
+# The system's id64 is the low 55 bits of a body's.
+SYSTEM_MASK = (1 << 55) - 1
+# Systems per stars search (a system has one to a few stars; a page holds 500).
+STAR_BATCH = 200
 
 # Journal genus symbol (without `$Codex_Ent_`, `_Genus`, `_Name;`) for each genus.
 CODEX = {
@@ -192,6 +206,54 @@ def volcanism_kind(text):
     return " ".join(words) or "none"
 
 
+def system_stars(cache, systems):
+    """{system id64: [system name, {star name: class}]} for `systems`, from Spansh's bodies search
+    (the stars only), kept in the cache directory and extended with the systems it lacks."""
+    path = os.path.join(cache, "system-stars.json")
+    known = json.load(open(path)) if os.path.exists(path) else {}
+    missing = sorted(s for s in systems if str(s) not in known)
+    for i in range(0, len(missing), STAR_BATCH):
+        batch = missing[i:i + STAR_BATCH]
+        found = {s: [None, {}] for s in batch}
+        page = 0
+        while True:
+            q = {"filters": {"system_id64": {"value": batch}, "type": {"value": ["Star"]}},
+                 "sort": [{"id64": {"direction": "asc"}}], "size": 500, "page": page}
+            d = get_json(SPANSH, q)
+            for r in d.get("results", []):
+                f = found[r["system_id64"]]
+                f[0] = r["system_name"]
+                f[1][r["name"]] = star_class(r.get("subtype"))
+            time.sleep(1.5)
+            page += 1
+            if page * 500 >= d.get("count", 0):
+                break
+        known.update({str(k): v for k, v in found.items()})
+        with open(path, "w") as f:
+            json.dump(known, f)
+        print(f"stars: {min(i + STAR_BATCH, len(missing))}/{len(missing)} systems", file=sys.stderr)
+    return {int(k): v for k, v in known.items()}
+
+
+def star_by_name(o, systems):
+    """The class of the body's nearest star, from its name and its system's stars (see the module
+    doc). A body not named after its system keeps its immediate parent's class, if a star."""
+    name, stars = systems.get(o["id64"] & SYSTEM_MASK, (None, {}))
+    if not name or not o["name"].startswith(name + " "):
+        return o["star"]
+    rest = o["name"][len(name) + 1:].split()
+    # The longest star name it starts with: "Sys 4 d" is a moon of the brown dwarf "Sys 4".
+    for k in range(len(rest) - 1, 0, -1):
+        if stars.get(f"{name} {' '.join(rest[:k])}"):
+            return stars[f"{name} {' '.join(rest[:k])}"]
+    first = rest[0]
+    if first.isdigit():
+        return stars.get(name) or (next(iter(stars.values())) if len(stars) == 1 else None)
+    if first.isalpha() and first.isupper():
+        return stars.get(f"{name} {first}") if len(first) == 1 else None
+    return o["star"]
+
+
 def nearest_star(b):
     for p in b.get("parents") or []:
         if p.get("type") == "Star":
@@ -249,6 +311,8 @@ def derive(name, sightings):
             groups.setdefault((o["atmosphere_type"], o["planet_class"]), []).append(o)
     rules = []
     for (atmosphere, body), obs in sorted(groups.items()):
+        if len(obs) < MIN_SEEN:
+            continue
         r = {"atmosphere": [atmosphere], "body_types": [body], "seen": len(obs)}
         for key, field in [("temp_k", "temperature_k"), ("gravity_g", "gravity_g"), ("pressure_atm", "pressure_atm")]:
             lo, hi = span(o[field] for o in obs)
@@ -313,6 +377,15 @@ def main():
         for id64, o in fetch(cache, n).items():
             bodies.setdefault(id64, o)
     known = set(odyssey)
+    # The nearest star from the system's stars; the search's immediate parent kept to check it.
+    systems = system_stars(cache, {o["id64"] & SYSTEM_MASK for o in bodies.values()})
+    agree = differ = 0
+    for o in bodies.values():
+        parent = o["star"]
+        o["star"] = star_by_name(o, systems)
+        if parent and o["star"]:
+            agree += parent == o["star"]
+            differ += parent != o["star"]
     train = [o for o in bodies.values() if not HELD_OUT(o["id64"])]
     held = sorted((o for o in bodies.values() if HELD_OUT(o["id64"])), key=lambda o: o["id64"])
     by_species = {}
@@ -378,13 +451,19 @@ def main():
 
     # The recall on the held-out bodies, and the fixture for the Rust test.
     hits = total = cands = 0
+    star_hits = star_total = star_cands = star_bodies = 0
     for o in held:
         found = {n for n, rs in rules.items() if any(fits(r, o) > 0 for r in rs)}
         cands += len(found)
+        star_bodies += o["star"] is not None
+        star_cands += len(found) if o["star"] else 0
         for s in o["species"]:
             if s in known:
                 total += 1
                 hits += s in found
+                if o["star"]:
+                    star_total += 1
+                    star_hits += s in found
     step = max(1, len(held) // FIXTURE_BODIES)
     fixture = [{k: v for k, v in o.items()} for o in held[::step][:FIXTURE_BODIES]]
     path = os.path.join(root, "crates", "astromech-exobiology", "tests", "fixtures", "spansh-held-out.json")
@@ -395,6 +474,12 @@ def main():
     print(f"{len(genera)} genera; conditions from {len(train)} bodies; held out {len(held)}: recall "
           f"{hits}/{total} = {hits / max(total, 1):.3f}, {cands / max(len(held), 1):.1f} candidates per body; "
           f"fixture {len(fixture)} bodies")
+    print(f"nearest star known for {star_bodies}/{len(held)} held-out bodies: recall "
+          f"{star_hits}/{star_total} = {star_hits / max(star_total, 1):.3f}, "
+          f"{star_cands / max(star_bodies, 1):.1f} candidates per body; "
+          f"the name and the immediate parent agree on {agree} of {agree + differ} bodies")
+    single = sum(r["seen"] < MIN_SEEN for rs in rules.values() for r in rs)
+    print(f"{sum(len(rs) for rs in rules.values())} conditions, {single} from fewer than {MIN_SEEN} sightings")
     print("uncertain:", *uncertain, sep="\n  ")
 
 

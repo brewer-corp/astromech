@@ -57,27 +57,19 @@
        "min_pressure_atm": 0.016712,
        "max_pressure_atm": 0.09621,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "K",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "Methane"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 92.853035,
-       "max_temp_k": 92.853035,
-       "min_gravity_g": 0.035906,
-       "max_gravity_g": 0.035906,
-       "min_pressure_atm": 0.061548,
-       "max_pressure_atm": 0.061548
       }
      ]
     },
@@ -86,21 +78,6 @@
      "value": 6284600,
      "symbol": "$codex_ent_aleoids_02_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 85.760895,
-       "max_temp_k": 85.760895,
-       "min_gravity_g": 0.292758,
-       "max_gravity_g": 0.292758,
-       "min_pressure_atm": 0.038994,
-       "max_pressure_atm": 0.038994
-      },
       {
        "atmosphere": [
         "CarbonDioxide"
@@ -138,7 +115,16 @@
        "min_pressure_atm": 0.026571,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -167,6 +153,7 @@
        "min_pressure_atm": 0.054957,
        "max_pressure_atm": 0.098206,
        "star_types": [
+        "A",
         "F",
         "K",
         "L",
@@ -192,7 +179,15 @@
        "min_pressure_atm": 0.055223,
        "max_pressure_atm": 0.098315,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -242,7 +237,13 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013312,
        "star_types": [
+        "A",
+        "F",
+        "K",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -251,21 +252,6 @@
         "silicate",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 183.753159,
-       "max_temp_k": 183.753159,
-       "min_gravity_g": 0.183689,
-       "max_gravity_g": 0.183689,
-       "min_pressure_atm": 0.047923,
-       "max_pressure_atm": 0.047923
       }
      ]
     },
@@ -315,6 +301,12 @@
        "min_pressure_atm": 0.000995,
        "max_pressure_atm": 0.012627,
        "star_types": [
+        "A",
+        "F",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -409,6 +401,7 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.00496,
        "star_types": [
+        "AeBe",
         "G",
         "K",
         "L",
@@ -492,6 +485,14 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -525,36 +526,6 @@
      "value": 1000000,
      "symbol": "$codex_ent_bacterial_01_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 158.672729,
-       "max_temp_k": 158.672729,
-       "min_gravity_g": 0.140599,
-       "max_gravity_g": 0.140599,
-       "min_pressure_atm": 0.001216,
-       "max_pressure_atm": 0.001216
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 85.760895,
-       "max_temp_k": 85.760895,
-       "min_gravity_g": 0.292758,
-       "max_gravity_g": 0.292758,
-       "min_pressure_atm": 0.038994,
-       "max_pressure_atm": 0.038994
-      },
       {
        "atmosphere": [
         "CarbonDioxide"
@@ -600,7 +571,16 @@
        "min_pressure_atm": 0.001195,
        "max_pressure_atm": 0.098617,
        "star_types": [
+        "A",
+        "AeBe",
+        "B",
+        "D",
+        "F",
+        "G",
+        "K",
         "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -608,21 +588,6 @@
        "volcanism": [
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "Methane"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 92.853035,
-       "max_temp_k": 92.853035,
-       "min_gravity_g": 0.035906,
-       "max_gravity_g": 0.035906,
-       "min_pressure_atm": 0.061548,
-       "max_pressure_atm": 0.061548
       }
      ]
     },
@@ -631,21 +596,6 @@
      "value": 1152500,
      "symbol": "$codex_ent_bacterial_10_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 66.262047,
-       "max_temp_k": 66.262047,
-       "min_gravity_g": 0.216286,
-       "max_gravity_g": 0.216286,
-       "min_pressure_atm": 0.049554,
-       "max_pressure_atm": 0.049554
-      },
       {
        "atmosphere": [
         "Methane"
@@ -660,6 +610,16 @@
        "max_gravity_g": 0.045798,
        "min_pressure_atm": 0.035428,
        "max_pressure_atm": 0.098494,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "T",
+        "TTS"
+       ],
        "volcanism": [
         "methane",
         "nitrogen",
@@ -681,6 +641,10 @@
        "min_pressure_atm": 0.001009,
        "max_pressure_atm": 0.094872,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -770,9 +734,16 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.084832,
        "star_types": [
+        "A",
+        "AeBe",
+        "B",
         "D",
+        "F",
+        "G",
+        "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -800,9 +771,13 @@
        "min_pressure_atm": 0.001185,
        "max_pressure_atm": 0.087579,
        "star_types": [
+        "A",
+        "AeBe",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "TTS",
         "Y"
        ],
@@ -849,6 +824,18 @@
        "max_gravity_g": 0.054923,
        "min_pressure_atm": 0.065902,
        "max_pressure_atm": 0.09867,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -860,21 +847,6 @@
      "value": 8418000,
      "symbol": "$codex_ent_bacterial_08_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 105.857651,
-       "max_temp_k": 105.857651,
-       "min_gravity_g": 0.23326,
-       "max_gravity_g": 0.23326,
-       "min_pressure_atm": 0.023541,
-       "max_pressure_atm": 0.023541
-      },
       {
        "atmosphere": [
         "Nitrogen"
@@ -890,6 +862,7 @@
        "min_pressure_atm": 0.001713,
        "max_pressure_atm": 0.094187,
        "star_types": [
+        "F",
         "G",
         "K",
         "M"
@@ -914,10 +887,13 @@
        "max_pressure_atm": 0.087616,
        "star_types": [
         "D",
+        "F",
         "G",
+        "H",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -942,6 +918,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.028513,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -990,7 +971,9 @@
        "min_pressure_atm": 0.067387,
        "max_pressure_atm": 0.098496,
        "star_types": [
+        "AeBe",
         "D",
+        "H",
         "K",
         "L",
         "M",
@@ -1027,25 +1010,19 @@
        "max_gravity_g": 0.267195,
        "min_pressure_atm": 0.001029,
        "max_pressure_atm": 0.036362,
+       "star_types": [
+        "D",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "ammonia",
         "nitrogen"
        ]
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 86.048904,
-       "max_temp_k": 86.048904,
-       "min_gravity_g": 0.292112,
-       "max_gravity_g": 0.292112,
-       "min_pressure_atm": 0.039835,
-       "max_pressure_atm": 0.039835
       },
       {
        "atmosphere": [
@@ -1076,6 +1053,11 @@
        "max_gravity_g": 0.049059,
        "min_pressure_atm": 0.034612,
        "max_pressure_atm": 0.098682,
+       "star_types": [
+        "K",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "nitrogen"
        ]
@@ -1134,36 +1116,6 @@
         "ammonia",
         "nitrogen"
        ]
-      },
-      {
-       "atmosphere": [
-        "Nitrogen"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 79.590584,
-       "max_temp_k": 79.590584,
-       "min_gravity_g": 0.253322,
-       "max_gravity_g": 0.253322,
-       "min_pressure_atm": 0.018175,
-       "max_pressure_atm": 0.018175
-      },
-      {
-       "atmosphere": [
-        "WaterRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 301.950439,
-       "max_temp_k": 301.950439,
-       "min_gravity_g": 0.389458,
-       "max_gravity_g": 0.389458,
-       "min_pressure_atm": 0.085732,
-       "max_pressure_atm": 0.085732
       }
      ]
     },
@@ -1186,6 +1138,15 @@
        "max_gravity_g": 0.244158,
        "min_pressure_atm": 0.001075,
        "max_pressure_atm": 0.089727,
+       "star_types": [
+        "D",
+        "F",
+        "H",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "carbon dioxide",
         "methane"
@@ -1220,6 +1181,14 @@
        "max_gravity_g": 0.045156,
        "min_pressure_atm": 0.031593,
        "max_pressure_atm": 0.097498,
+       "star_types": [
+        "D",
+        "G",
+        "K",
+        "L",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "methane"
        ]
@@ -1239,6 +1208,8 @@
        "min_pressure_atm": 0.001269,
        "max_pressure_atm": 0.006257,
        "star_types": [
+        "D",
+        "H",
         "K",
         "L",
         "M",
@@ -1250,21 +1221,6 @@
         "carbon dioxide",
         "methane"
        ]
-      },
-      {
-       "atmosphere": [
-        "Neon"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 46.939148,
-       "max_temp_k": 46.939148,
-       "min_gravity_g": 0.595248,
-       "max_gravity_g": 0.595248,
-       "min_pressure_atm": 0.00289,
-       "max_pressure_atm": 0.00289
       },
       {
        "atmosphere": [
@@ -1294,21 +1250,6 @@
       },
       {
        "atmosphere": [
-        "NeonRich"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 28.87396,
-       "max_temp_k": 28.87396,
-       "min_gravity_g": 0.570331,
-       "max_gravity_g": 0.570331,
-       "min_pressure_atm": 0.005321,
-       "max_pressure_atm": 0.005321
-      },
-      {
-       "atmosphere": [
         "Oxygen"
        ],
        "body_types": [
@@ -1334,21 +1275,6 @@
         "Ammonia"
        ],
        "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 175.280426,
-       "max_temp_k": 175.280426,
-       "min_gravity_g": 0.049993,
-       "max_gravity_g": 0.049993,
-       "min_pressure_atm": 0.011367,
-       "max_pressure_atm": 0.011367
-      },
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
         "Rocky body"
        ],
        "seen": 11,
@@ -1358,6 +1284,11 @@
        "max_gravity_g": 0.045015,
        "min_pressure_atm": 0.009899,
        "max_pressure_atm": 0.013255,
+       "star_types": [
+        "B",
+        "F",
+        "K"
+       ],
        "volcanism": [
         "metallic",
         "silicate"
@@ -1392,42 +1323,20 @@
        "max_gravity_g": 0.266722,
        "min_pressure_atm": 0.001003,
        "max_pressure_atm": 0.098038,
+       "star_types": [
+        "D",
+        "H",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "ammonia",
         "carbon dioxide",
         "nitrogen",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 112.852936,
-       "max_temp_k": 112.852936,
-       "min_gravity_g": 0.255377,
-       "max_gravity_g": 0.255377,
-       "min_pressure_atm": 0.001379,
-       "max_pressure_atm": 0.001379
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 82.050301,
-       "max_temp_k": 82.050301,
-       "min_gravity_g": 0.241153,
-       "max_gravity_g": 0.241153,
-       "min_pressure_atm": 0.042122,
-       "max_pressure_atm": 0.042122
       },
       {
        "atmosphere": [
@@ -1448,21 +1357,6 @@
         "K",
         "M"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 167.601227,
-       "max_temp_k": 167.601227,
-       "min_gravity_g": 0.26096,
-       "max_gravity_g": 0.26096,
-       "min_pressure_atm": 0.013866,
-       "max_pressure_atm": 0.013866
       },
       {
        "atmosphere": [
@@ -1508,6 +1402,13 @@
        "max_gravity_g": 0.045417,
        "min_pressure_atm": 0.040238,
        "max_pressure_atm": 0.097586,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M"
+       ],
        "volcanism": [
         "methane",
         "nitrogen"
@@ -1528,6 +1429,11 @@
        "min_pressure_atm": 0.013105,
        "max_pressure_atm": 0.098668,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
+        "T",
         "Y"
        ],
        "volcanism": [
@@ -1597,36 +1503,6 @@
       },
       {
        "atmosphere": [
-        "Nitrogen"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 57.460861,
-       "max_temp_k": 57.460861,
-       "min_gravity_g": 0.221505,
-       "max_gravity_g": 0.221505,
-       "min_pressure_atm": 0.04173,
-       "max_pressure_atm": 0.04173
-      },
-      {
-       "atmosphere": [
-        "Oxygen"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 190.889694,
-       "max_temp_k": 190.889694,
-       "min_gravity_g": 0.463874,
-       "max_gravity_g": 0.463874,
-       "min_pressure_atm": 0.032813,
-       "max_pressure_atm": 0.032813
-      },
-      {
-       "atmosphere": [
         "Oxygen"
        ],
        "body_types": [
@@ -1659,6 +1535,7 @@
         "F",
         "G",
         "K",
+        "L",
         "M",
         "Y"
        ],
@@ -1683,6 +1560,16 @@
        "max_gravity_g": 0.266661,
        "min_pressure_atm": 0.001211,
        "max_pressure_atm": 0.067974,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "T",
+        "TTS"
+       ],
        "volcanism": [
         "ammonia",
         "carbon dioxide",
@@ -1705,8 +1592,13 @@
        "min_pressure_atm": 0.001004,
        "max_pressure_atm": 0.097583,
        "star_types": [
+        "A",
+        "B",
+        "F",
+        "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -1774,6 +1666,15 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.056618,
        "max_pressure_atm": 0.098621,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N"
+       ],
        "volcanism": [
         "none"
        ]
@@ -1829,39 +1730,20 @@
        "max_gravity_g": 0.255347,
        "min_pressure_atm": 0.001044,
        "max_pressure_atm": 0.083026,
+       "star_types": [
+        "AeBe",
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N"
+       ],
        "volcanism": [
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 74.848503,
-       "max_temp_k": 74.848503,
-       "min_gravity_g": 0.226019,
-       "max_gravity_g": 0.226019,
-       "min_pressure_atm": 0.015083,
-       "max_pressure_atm": 0.015083
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 86.753418,
-       "max_temp_k": 86.753418,
-       "min_gravity_g": 0.242103,
-       "max_gravity_g": 0.242103,
-       "min_pressure_atm": 0.064556,
-       "max_pressure_atm": 0.064556
       },
       {
        "atmosphere": [
@@ -1877,6 +1759,13 @@
        "max_gravity_g": 0.503499,
        "min_pressure_atm": 0.067758,
        "max_pressure_atm": 0.094365,
+       "star_types": [
+        "L",
+        "M",
+        "T",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "water"
        ]
@@ -1897,7 +1786,9 @@
        "max_pressure_atm": 0.007803,
        "star_types": [
         "A",
+        "D",
         "G",
+        "H",
         "K",
         "L",
         "M",
@@ -2018,21 +1909,6 @@
      "rules": [
       {
        "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 164.549271,
-       "max_temp_k": 164.549271,
-       "min_gravity_g": 0.168907,
-       "max_gravity_g": 0.168907,
-       "min_pressure_atm": 0.001258,
-       "max_pressure_atm": 0.001258
-      },
-      {
-       "atmosphere": [
         "Argon"
        ],
        "body_types": [
@@ -2062,9 +1938,11 @@
        "max_pressure_atm": 0.087231,
        "star_types": [
         "A",
+        "AeBe",
         "D",
         "F",
         "G",
+        "H",
         "K",
         "L",
         "M",
@@ -2087,21 +1965,6 @@
         "Argon"
        ],
        "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 88.443428,
-       "max_temp_k": 88.443428,
-       "min_gravity_g": 0.273996,
-       "max_gravity_g": 0.273996,
-       "min_pressure_atm": 0.005851,
-       "max_pressure_atm": 0.005851
-      },
-      {
-       "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
         "Rocky ice body"
        ],
        "seen": 245,
@@ -2112,6 +1975,7 @@
        "min_pressure_atm": 0.000993,
        "max_pressure_atm": 0.082566,
        "star_types": [
+        "D",
         "F",
         "G",
         "K",
@@ -2124,21 +1988,6 @@
         "none",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "SulphurDioxide"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 164.936111,
-       "max_temp_k": 164.936111,
-       "min_gravity_g": 0.212043,
-       "max_gravity_g": 0.212043,
-       "min_pressure_atm": 0.050169,
-       "max_pressure_atm": 0.050169
       }
      ]
     },
@@ -2162,6 +2011,8 @@
        "min_pressure_atm": 0.030848,
        "max_pressure_atm": 0.097444,
        "star_types": [
+        "G",
+        "K",
         "L",
         "M"
        ]
@@ -2181,6 +2032,10 @@
        "min_pressure_atm": 0.013647,
        "max_pressure_atm": 0.097231,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
         "K",
         "L",
         "M",
@@ -2225,6 +2080,7 @@
        "min_pressure_atm": 0.01897,
        "max_pressure_atm": 0.098235,
        "star_types": [
+        "A",
         "G",
         "K",
         "L",
@@ -2307,21 +2163,6 @@
      "rules": [
       {
        "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 158.672729,
-       "max_temp_k": 158.672729,
-       "min_gravity_g": 0.140599,
-       "max_gravity_g": 0.140599,
-       "min_pressure_atm": 0.001216,
-       "max_pressure_atm": 0.001216
-      },
-      {
-       "atmosphere": [
         "CarbonDioxide"
        ],
        "body_types": [
@@ -2335,6 +2176,7 @@
        "min_pressure_atm": 0.035714,
        "max_pressure_atm": 0.097583,
        "star_types": [
+        "A",
         "F",
         "G",
         "L",
@@ -2360,7 +2202,13 @@
        "min_pressure_atm": 0.026799,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "H",
         "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -2394,6 +2242,7 @@
         "G",
         "L",
         "M",
+        "N",
         "T"
        ],
        "volcanism": [
@@ -2415,6 +2264,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013255,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -2424,21 +2278,6 @@
         "silicate",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 195.192078,
-       "max_temp_k": 195.192078,
-       "min_gravity_g": 0.239863,
-       "max_gravity_g": 0.239863,
-       "min_pressure_atm": 0.078404,
-       "max_pressure_atm": 0.078404
       }
      ]
     },
@@ -2488,6 +2327,11 @@
        "min_pressure_atm": 0.000989,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -2547,6 +2391,13 @@
        "min_pressure_atm": 0.026304,
        "max_pressure_atm": 0.098323,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -2647,6 +2498,15 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.061389,
        "max_pressure_atm": 0.098621,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "M",
+        "N",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -2684,7 +2544,13 @@
        "min_pressure_atm": 0.054469,
        "max_pressure_atm": 0.098617,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
         "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -2706,6 +2572,17 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.061389,
        "max_pressure_atm": 0.098621,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -2733,6 +2610,7 @@
        "min_pressure_atm": 0.056735,
        "max_pressure_atm": 0.098648,
        "star_types": [
+        "A",
         "F",
         "G",
         "K",
@@ -2792,6 +2670,13 @@
        "max_gravity_g": 0.229466,
        "min_pressure_atm": 0.055474,
        "max_pressure_atm": 0.098188,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "N"
+       ],
        "volcanism": [
         "none"
        ]
@@ -2810,6 +2695,15 @@
        "max_gravity_g": 0.053448,
        "min_pressure_atm": 0.052855,
        "max_pressure_atm": 0.09867,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -2860,6 +2754,15 @@
        "max_gravity_g": 0.273242,
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013387,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N"
+       ],
        "volcanism": [
         "metallic",
         "none",
@@ -2904,6 +2807,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.004647,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -2933,6 +2841,7 @@
        "min_pressure_atm": 0.003932,
        "max_pressure_atm": 0.089352,
        "star_types": [
+        "F",
         "K",
         "L",
         "T"
@@ -2952,6 +2861,19 @@
        "max_gravity_g": 0.235126,
        "min_pressure_atm": 0.003238,
        "max_pressure_atm": 0.098553,
+       "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -3015,7 +2937,15 @@
        "min_pressure_atm": 0.026086,
        "max_pressure_atm": 0.098671,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -3036,6 +2966,12 @@
        "max_gravity_g": 0.080934,
        "min_pressure_atm": 0.012535,
        "max_pressure_atm": 0.042826,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "Y"
+       ],
        "volcanism": [
         "silicate"
        ]
@@ -3081,6 +3017,18 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.052855,
        "max_pressure_atm": 0.09867,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -3131,7 +3079,9 @@
        "max_pressure_atm": 0.098635,
        "star_types": [
         "A",
+        "AeBe",
         "D",
+        "H",
         "K",
         "L",
         "M",
@@ -3160,7 +3110,16 @@
        "min_gravity_g": 0.217126,
        "max_gravity_g": 0.272781,
        "min_pressure_atm": 0.020961,
-       "max_pressure_atm": 0.097168
+       "max_pressure_atm": 0.097168,
+       "star_types": [
+        "A",
+        "AeBe",
+        "D",
+        "H",
+        "M",
+        "N",
+        "Y"
+       ]
       },
       {
        "atmosphere": [
@@ -3190,7 +3149,15 @@
        "min_gravity_g": 0.262056,
        "max_gravity_g": 0.273266,
        "min_pressure_atm": 0.002011,
-       "max_pressure_atm": 0.004578
+       "max_pressure_atm": 0.004578,
+       "star_types": [
+        "AeBe",
+        "D",
+        "H",
+        "L",
+        "M",
+        "Y"
+       ]
       }
      ]
     },
@@ -3214,11 +3181,16 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.059009,
        "star_types": [
+        "AeBe",
+        "D",
+        "F",
         "G",
+        "H",
         "K",
         "L",
         "M",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -3243,9 +3215,11 @@
        "min_pressure_atm": 0.022207,
        "max_pressure_atm": 0.097682,
        "star_types": [
+        "G",
         "K",
         "L",
-        "M"
+        "M",
+        "TTS"
        ],
        "volcanism": [
         "none"
@@ -3264,7 +3238,13 @@
        "min_gravity_g": 0.265128,
        "max_gravity_g": 0.274312,
        "min_pressure_atm": 0.001765,
-       "max_pressure_atm": 0.005596
+       "max_pressure_atm": 0.005596,
+       "star_types": [
+        "G",
+        "K",
+        "M",
+        "Y"
+       ]
       }
      ]
     }
@@ -3298,9 +3278,11 @@
        "max_pressure_atm": 0.098038,
        "star_types": [
         "A",
+        "AeBe",
         "D",
         "F",
         "G",
+        "H",
         "K",
         "L",
         "M",
@@ -3333,6 +3315,7 @@
        "min_pressure_atm": 0.000993,
        "max_pressure_atm": 0.083373,
        "star_types": [
+        "D",
         "F",
         "G",
         "K",
@@ -3345,21 +3328,6 @@
         "none",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "SulphurDioxide"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 164.936111,
-       "max_temp_k": 164.936111,
-       "min_gravity_g": 0.212043,
-       "max_gravity_g": 0.212043,
-       "min_pressure_atm": 0.050169,
-       "max_pressure_atm": 0.050169
       }
      ]
     },
@@ -3382,26 +3350,21 @@
        "max_gravity_g": 0.045798,
        "min_pressure_atm": 0.031593,
        "max_pressure_atm": 0.098311,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "T",
+        "TTS"
+       ],
        "volcanism": [
         "methane",
         "nitrogen",
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "Methane"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 105.351982,
-       "max_temp_k": 105.351982,
-       "min_gravity_g": 0.050493,
-       "max_gravity_g": 0.050493,
-       "min_pressure_atm": 0.071645,
-       "max_pressure_atm": 0.071645
       }
      ]
     },
@@ -3425,9 +3388,14 @@
        "min_pressure_atm": 0.012234,
        "max_pressure_atm": 0.07813,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -3448,21 +3416,6 @@
      "rules": [
       {
        "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 105.857651,
-       "max_temp_k": 105.857651,
-       "min_gravity_g": 0.23326,
-       "max_gravity_g": 0.23326,
-       "min_pressure_atm": 0.023541,
-       "max_pressure_atm": 0.023541
-      },
-      {
-       "atmosphere": [
         "Nitrogen"
        ],
        "body_types": [
@@ -3476,9 +3429,14 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.087616,
        "star_types": [
+        "AeBe",
+        "D",
+        "F",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -3542,6 +3500,14 @@
        "min_pressure_atm": 0.001333,
        "max_pressure_atm": 0.027075,
        "star_types": [
+        "AeBe",
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
         "T",
         "TTS",
         "Y"
@@ -3572,9 +3538,15 @@
        "min_pressure_atm": 0.020359,
        "max_pressure_atm": 0.098602,
        "star_types": [
+        "A",
+        "AeBe",
+        "D",
+        "F",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -3618,21 +3590,6 @@
      "rules": [
       {
        "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 158.672729,
-       "max_temp_k": 158.672729,
-       "min_gravity_g": 0.140599,
-       "max_gravity_g": 0.140599,
-       "min_pressure_atm": 0.001216,
-       "max_pressure_atm": 0.001216
-      },
-      {
-       "atmosphere": [
         "CarbonDioxide"
        ],
        "body_types": [
@@ -3646,8 +3603,15 @@
        "min_pressure_atm": 0.002974,
        "max_pressure_atm": 0.098521,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "H",
         "L",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -3676,6 +3640,7 @@
        "min_pressure_atm": 0.00099,
        "max_pressure_atm": 0.001402,
        "star_types": [
+        "G",
         "L",
         "M"
        ]
@@ -3695,8 +3660,13 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.006513,
        "star_types": [
+        "F",
+        "G",
         "L",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -3728,6 +3698,12 @@
        "min_pressure_atm": 0.00376,
        "max_pressure_atm": 0.098671,
        "star_types": [
+        "B",
+        "F",
+        "G",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -3758,6 +3734,12 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.013109,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -3768,21 +3750,6 @@
         "silicate",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 180.492538,
-       "max_temp_k": 180.492538,
-       "min_gravity_g": 0.143526,
-       "max_gravity_g": 0.143526,
-       "min_pressure_atm": 0.038442,
-       "max_pressure_atm": 0.038442
       }
      ]
     },
@@ -3806,6 +3773,12 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "B",
+        "F",
+        "G",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -3839,6 +3812,7 @@
        "star_types": [
         "F",
         "G",
+        "K",
         "L",
         "M",
         "N",
@@ -3913,6 +3887,16 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.052855,
        "max_pressure_atm": 0.09867,
+       "star_types": [
+        "B",
+        "F",
+        "G",
+        "M",
+        "N",
+        "T",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -3966,21 +3950,6 @@
       },
       {
        "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 168.656372,
-       "max_temp_k": 168.656372,
-       "min_gravity_g": 0.051961,
-       "max_gravity_g": 0.051961,
-       "min_pressure_atm": 0.004945,
-       "max_pressure_atm": 0.004945
-      },
-      {
-       "atmosphere": [
         "Argon"
        ],
        "body_types": [
@@ -3993,6 +3962,18 @@
        "max_gravity_g": 0.266722,
        "min_pressure_atm": 0.001044,
        "max_pressure_atm": 0.098635,
+       "star_types": [
+        "AeBe",
+        "D",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "water"
        ]
@@ -4011,51 +3992,6 @@
        "max_gravity_g": 0.258005,
        "min_pressure_atm": 0.001379,
        "max_pressure_atm": 0.015083
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 86.753418,
-       "max_temp_k": 86.753418,
-       "min_gravity_g": 0.242103,
-       "max_gravity_g": 0.242103,
-       "min_pressure_atm": 0.064556,
-       "max_pressure_atm": 0.064556
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 167.601227,
-       "max_temp_k": 167.601227,
-       "min_gravity_g": 0.26096,
-       "max_gravity_g": 0.26096,
-       "min_pressure_atm": 0.013866,
-       "max_pressure_atm": 0.013866
-      },
-      {
-       "atmosphere": [
-        "Methane"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 89.453156,
-       "max_temp_k": 89.453156,
-       "min_gravity_g": 0.053179,
-       "max_gravity_g": 0.053179,
-       "min_pressure_atm": 0.017377,
-       "max_pressure_atm": 0.017377
       },
       {
        "atmosphere": [
@@ -4116,6 +4052,15 @@
        "max_gravity_g": 0.266661,
        "min_pressure_atm": 0.001211,
        "max_pressure_atm": 0.064171,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "water"
        ]
@@ -4171,25 +4116,21 @@
        "max_gravity_g": 0.256042,
        "min_pressure_atm": 0.001157,
        "max_pressure_atm": 0.094877,
+       "star_types": [
+        "AeBe",
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "carbon dioxide",
         "methane"
        ]
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 82.050301,
-       "max_temp_k": 82.050301,
-       "min_gravity_g": 0.241153,
-       "max_gravity_g": 0.241153,
-       "min_pressure_atm": 0.042122,
-       "max_pressure_atm": 0.042122
       },
       {
        "atmosphere": [
@@ -4205,6 +4146,15 @@
        "max_gravity_g": 0.045417,
        "min_pressure_atm": 0.031593,
        "max_pressure_atm": 0.097586,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "methane"
        ]
@@ -4253,6 +4203,12 @@
        "max_gravity_g": 0.246071,
        "min_pressure_atm": 0.003266,
        "max_pressure_atm": 0.057341,
+       "star_types": [
+        "F",
+        "L",
+        "M",
+        "TTS"
+       ],
        "volcanism": [
         "carbon dioxide",
         "methane"
@@ -4270,21 +4226,6 @@
         "Ammonia"
        ],
        "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 175.280426,
-       "max_temp_k": 175.280426,
-       "min_gravity_g": 0.049993,
-       "max_gravity_g": 0.049993,
-       "min_pressure_atm": 0.011367,
-       "max_pressure_atm": 0.011367
-      },
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
         "Rocky body"
        ],
        "seen": 24,
@@ -4294,6 +4235,13 @@
        "max_gravity_g": 0.046673,
        "min_pressure_atm": 0.009899,
        "max_pressure_atm": 0.013387,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K"
+       ],
        "volcanism": [
         "metallic",
         "rocky",
@@ -4345,6 +4293,13 @@
        "min_pressure_atm": 0.012353,
        "max_pressure_atm": 0.098668,
        "star_types": [
+        "F",
+        "G",
+        "H",
+        "K",
+        "M",
+        "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -4367,26 +4322,18 @@
        "max_gravity_g": 0.273706,
        "min_pressure_atm": 0.001286,
        "max_pressure_atm": 0.005861,
+       "star_types": [
+        "F",
+        "K",
+        "L",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "metallic",
         "rocky",
         "silicate"
        ]
-      },
-      {
-       "atmosphere": [
-        "SulphurDioxide"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 172.895035,
-       "max_temp_k": 172.895035,
-       "min_gravity_g": 0.264332,
-       "max_gravity_g": 0.264332,
-       "min_pressure_atm": 0.017514,
-       "max_pressure_atm": 0.017514
       }
      ]
     },
@@ -4409,6 +4356,15 @@
        "max_gravity_g": 0.267195,
        "min_pressure_atm": 0.001003,
        "max_pressure_atm": 0.036362,
+       "star_types": [
+        "D",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "T"
+       ],
        "volcanism": [
         "ammonia",
         "nitrogen"
@@ -4428,24 +4384,17 @@
        "max_gravity_g": 0.049059,
        "min_pressure_atm": 0.034612,
        "max_pressure_atm": 0.098682,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "nitrogen"
        ]
-      },
-      {
-       "atmosphere": [
-        "Nitrogen"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 79.590584,
-       "max_temp_k": 79.590584,
-       "min_gravity_g": 0.253322,
-       "max_gravity_g": 0.253322,
-       "min_pressure_atm": 0.018175,
-       "max_pressure_atm": 0.018175
       },
       {
        "atmosphere": [
@@ -4538,6 +4487,7 @@
        "min_pressure_atm": 0.000995,
        "max_pressure_atm": 0.079386,
        "star_types": [
+        "D",
         "F",
         "G",
         "K",
@@ -4641,6 +4591,14 @@
        "min_pressure_atm": 0.026086,
        "max_pressure_atm": 0.098671,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -4663,6 +4621,13 @@
        "max_gravity_g": 0.12055,
        "min_pressure_atm": 0.014074,
        "max_pressure_atm": 0.094999,
+       "star_types": [
+        "F",
+        "K",
+        "M",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "silicate"
        ]
@@ -4704,6 +4669,17 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.057551,
        "max_pressure_atm": 0.09867,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T",
+        "TTS"
+       ],
        "volcanism": [
         "none"
        ]
@@ -4759,6 +4735,13 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.010056,
        "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -4812,6 +4795,10 @@
        "min_pressure_atm": 0.001009,
        "max_pressure_atm": 0.098668,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -4865,51 +4852,6 @@
       },
       {
        "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 175.374466,
-       "max_temp_k": 175.374466,
-       "min_gravity_g": 0.042522,
-       "max_gravity_g": 0.042522,
-       "min_pressure_atm": 0.006338,
-       "max_pressure_atm": 0.006338
-      },
-      {
-       "atmosphere": [
-        "Argon"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 109.743851,
-       "max_temp_k": 109.743851,
-       "min_gravity_g": 0.271996,
-       "max_gravity_g": 0.271996,
-       "min_pressure_atm": 0.034862,
-       "max_pressure_atm": 0.034862
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 85.760895,
-       "max_temp_k": 85.760895,
-       "min_gravity_g": 0.292758,
-       "max_gravity_g": 0.292758,
-       "min_pressure_atm": 0.038994,
-       "max_pressure_atm": 0.038994
-      },
-      {
-       "atmosphere": [
         "CarbonDioxide"
        ],
        "body_types": [
@@ -4923,6 +4865,7 @@
        "min_pressure_atm": 0.033757,
        "max_pressure_atm": 0.094673,
        "star_types": [
+        "F",
         "K",
         "L",
         "M",
@@ -4947,6 +4890,14 @@
        "min_pressure_atm": 0.026304,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -4968,6 +4919,13 @@
        "max_gravity_g": 0.113506,
        "min_pressure_atm": 0.012353,
        "max_pressure_atm": 0.079141,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
+        "Y"
+       ],
        "volcanism": [
         "silicate"
        ]
@@ -4987,6 +4945,7 @@
        "min_pressure_atm": 0.060967,
        "max_pressure_atm": 0.096728,
        "star_types": [
+        "F",
         "G",
         "K",
         "L",
@@ -5011,6 +4970,17 @@
        "max_gravity_g": 0.05451,
        "min_pressure_atm": 0.052855,
        "max_pressure_atm": 0.098262,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "TTS",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -5072,6 +5042,11 @@
        "min_pressure_atm": 0.026304,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "TTS",
         "Y"
@@ -5092,21 +5067,6 @@
         "Ammonia"
        ],
        "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 175.280426,
-       "max_temp_k": 175.280426,
-       "min_gravity_g": 0.049993,
-       "max_gravity_g": 0.049993,
-       "min_pressure_atm": 0.011367,
-       "max_pressure_atm": 0.011367
-      },
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
         "Rocky body"
        ],
        "seen": 17,
@@ -5116,6 +5076,12 @@
        "max_gravity_g": 0.057075,
        "min_pressure_atm": 0.007508,
        "max_pressure_atm": 0.013115,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "K"
+       ],
        "volcanism": [
         "metallic",
         "silicate",
@@ -5167,6 +5133,10 @@
        "min_pressure_atm": 0.013079,
        "max_pressure_atm": 0.09818,
        "star_types": [
+        "G",
+        "K",
+        "M",
+        "T",
         "Y"
        ],
        "volcanism": [
@@ -5190,6 +5160,7 @@
        "min_pressure_atm": 0.062547,
        "max_pressure_atm": 0.097774,
        "star_types": [
+        "A",
         "K",
         "L",
         "M",
@@ -5213,6 +5184,16 @@
        "max_gravity_g": 0.053598,
        "min_pressure_atm": 0.057551,
        "max_pressure_atm": 0.098621,
+       "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -5225,21 +5206,6 @@
      "value": 4027800,
      "symbol": "$codex_ent_osseus_01_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 158.672729,
-       "max_temp_k": 158.672729,
-       "min_gravity_g": 0.140599,
-       "max_gravity_g": 0.140599,
-       "min_pressure_atm": 0.001216,
-       "max_pressure_atm": 0.001216
-      },
       {
        "atmosphere": [
         "CarbonDioxide"
@@ -5278,7 +5244,12 @@
        "min_pressure_atm": 0.026086,
        "max_pressure_atm": 0.098458,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -5333,6 +5304,10 @@
        "min_pressure_atm": 0.058447,
        "max_pressure_atm": 0.098617,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
         "Y"
        ],
        "volcanism": [
@@ -5391,6 +5366,7 @@
        "min_pressure_atm": 0.000995,
        "max_pressure_atm": 0.083373,
        "star_types": [
+        "D",
         "F",
         "G",
         "K",
@@ -5435,6 +5411,10 @@
        "min_pressure_atm": 0.001009,
        "max_pressure_atm": 0.098668,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -5459,7 +5439,12 @@
        "min_gravity_g": 0.036289,
        "max_gravity_g": 0.062155,
        "min_pressure_atm": 0.034852,
-       "max_pressure_atm": 0.091925
+       "max_pressure_atm": 0.091925,
+       "star_types": [
+        "K",
+        "L",
+        "M"
+       ]
       },
       {
        "atmosphere": [
@@ -5491,6 +5476,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.004647,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -5511,7 +5501,12 @@
        "min_gravity_g": 0.236576,
        "max_gravity_g": 0.273314,
        "min_pressure_atm": 0.001024,
-       "max_pressure_atm": 0.070025
+       "max_pressure_atm": 0.070025,
+       "star_types": [
+        "G",
+        "M",
+        "Y"
+       ]
       }
      ]
     },
@@ -5561,6 +5556,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.011136,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "TTS",
         "Y"
@@ -5570,21 +5570,6 @@
         "none",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 191.886078,
-       "max_temp_k": 191.886078,
-       "min_gravity_g": 0.226742,
-       "max_gravity_g": 0.226742,
-       "min_pressure_atm": 0.069401,
-       "max_pressure_atm": 0.069401
       }
      ]
     }
@@ -5691,10 +5676,13 @@
        "min_pressure_atm": 0.001002,
        "max_pressure_atm": 0.097582,
        "star_types": [
+        "A",
         "F",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -5721,6 +5709,12 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.004522,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
         "T",
         "Y"
        ],
@@ -5743,9 +5737,11 @@
        "min_pressure_atm": 0.001497,
        "max_pressure_atm": 0.073027,
        "star_types": [
+        "A",
         "G",
         "K",
         "M",
+        "N",
         "T",
         "TTS"
        ]
@@ -5762,21 +5758,6 @@
         "CarbonDioxide"
        ],
        "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 167.601227,
-       "max_temp_k": 167.601227,
-       "min_gravity_g": 0.26096,
-       "max_gravity_g": 0.26096,
-       "min_pressure_atm": 0.013866,
-       "max_pressure_atm": 0.013866
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
         "Rocky body"
        ],
        "seen": 79,
@@ -5786,6 +5767,17 @@
        "max_gravity_g": 0.222797,
        "min_pressure_atm": 0.005513,
        "max_pressure_atm": 0.098671,
+       "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -5805,6 +5797,7 @@
        "min_pressure_atm": 0.000991,
        "max_pressure_atm": 0.001402,
        "star_types": [
+        "G",
         "K",
         "L",
         "M"
@@ -5824,6 +5817,15 @@
        "max_gravity_g": 0.255148,
        "min_pressure_atm": 0.001274,
        "max_pressure_atm": 0.093141,
+       "star_types": [
+        "A",
+        "F",
+        "K",
+        "L",
+        "M",
+        "T",
+        "TTS"
+       ],
        "volcanism": [
         "carbon dioxide",
         "methane",
@@ -5845,7 +5847,12 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.0063,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
         "L",
+        "M",
         "T",
         "Y"
        ],
@@ -5882,21 +5889,6 @@
         "CarbonDioxide"
        ],
        "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 163.286285,
-       "max_temp_k": 163.286285,
-       "min_gravity_g": 0.121728,
-       "max_gravity_g": 0.121728,
-       "min_pressure_atm": 0.020588,
-       "max_pressure_atm": 0.020588
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
         "Rocky body"
        ],
        "seen": 38,
@@ -5905,7 +5897,15 @@
        "min_gravity_g": 0.045105,
        "max_gravity_g": 0.20387,
        "min_pressure_atm": 0.004928,
-       "max_pressure_atm": 0.08553
+       "max_pressure_atm": 0.08553,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N"
+       ]
       },
       {
        "atmosphere": [
@@ -5920,7 +5920,12 @@
        "min_gravity_g": 0.239834,
        "max_gravity_g": 0.273899,
        "min_pressure_atm": 0.022993,
-       "max_pressure_atm": 0.061714
+       "max_pressure_atm": 0.061714,
+       "star_types": [
+        "F",
+        "K",
+        "M"
+       ]
       },
       {
        "atmosphere": [
@@ -5952,9 +5957,14 @@
        "min_pressure_atm": 0.001149,
        "max_pressure_atm": 0.080372,
        "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -5981,6 +5991,14 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.006513,
        "star_types": [
+        "A",
+        "AeBe",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -6006,6 +6024,10 @@
        "min_pressure_atm": 0.001185,
        "max_pressure_atm": 0.087579,
        "star_types": [
+        "A",
+        "AeBe",
+        "F",
+        "G",
         "K",
         "L",
         "M",
@@ -6090,7 +6112,12 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.090119,
        "star_types": [
+        "A",
+        "B",
+        "K",
         "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -6125,28 +6152,18 @@
        "min_pressure_atm": 0.002119,
        "max_pressure_atm": 0.097896,
        "star_types": [
+        "AeBe",
+        "F",
+        "K",
         "L",
+        "M",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxideRich"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 220.256256,
-       "max_temp_k": 220.256256,
-       "min_gravity_g": 0.457344,
-       "max_gravity_g": 0.457344,
-       "min_pressure_atm": 0.069267,
-       "max_pressure_atm": 0.069267
       },
       {
        "atmosphere": [
@@ -6179,6 +6196,8 @@
        "max_pressure_atm": 0.074243,
        "star_types": [
         "D",
+        "F",
+        "K",
         "L",
         "M",
         "T",
@@ -6200,21 +6219,6 @@
      "rules": [
       {
        "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 85.760895,
-       "max_temp_k": 85.760895,
-       "min_gravity_g": 0.292758,
-       "max_gravity_g": 0.292758,
-       "min_pressure_atm": 0.038994,
-       "max_pressure_atm": 0.038994
-      },
-      {
-       "atmosphere": [
         "CarbonDioxide"
        ],
        "body_types": [
@@ -6228,6 +6232,10 @@
        "min_pressure_atm": 0.005189,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "D",
+        "F",
+        "K",
+        "M",
         "T",
         "TTS",
         "Y"
@@ -6235,21 +6243,6 @@
        "volcanism": [
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "Oxygen"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 176.87149,
-       "max_temp_k": 176.87149,
-       "min_gravity_g": 0.456925,
-       "max_gravity_g": 0.456925,
-       "min_pressure_atm": 0.03925,
-       "max_pressure_atm": 0.03925
       },
       {
        "atmosphere": [
@@ -6264,7 +6257,13 @@
        "min_gravity_g": 0.273973,
        "max_gravity_g": 0.367008,
        "min_pressure_atm": 0.001229,
-       "max_pressure_atm": 0.082023
+       "max_pressure_atm": 0.082023,
+       "star_types": [
+        "F",
+        "K",
+        "M",
+        "Y"
+       ]
       }
      ]
     },
@@ -6288,8 +6287,14 @@
        "min_pressure_atm": 0.001195,
        "max_pressure_atm": 0.098323,
        "star_types": [
+        "AeBe",
+        "D",
+        "F",
+        "K",
         "L",
+        "M",
         "T",
+        "TTS",
         "Y"
        ]
       },
@@ -6338,9 +6343,13 @@
        "min_pressure_atm": 0.001,
        "max_pressure_atm": 0.097583,
        "star_types": [
+        "AeBe",
+        "F",
         "K",
         "L",
+        "M",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -6372,6 +6381,9 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013312,
        "star_types": [
+        "F",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -6404,6 +6416,10 @@
        "min_pressure_atm": 0.006559,
        "max_pressure_atm": 0.097581,
        "star_types": [
+        "D",
+        "F",
+        "K",
+        "M",
         "Y"
        ],
        "volcanism": [
@@ -6423,7 +6439,15 @@
        "min_gravity_g": 0.274867,
        "max_gravity_g": 0.374304,
        "min_pressure_atm": 0.001097,
-       "max_pressure_atm": 0.084832
+       "max_pressure_atm": 0.084832,
+       "star_types": [
+        "F",
+        "K",
+        "M",
+        "T",
+        "TTS",
+        "Y"
+       ]
       }
      ]
     },
@@ -6447,6 +6471,10 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "F",
+        "K",
+        "L",
+        "M",
         "T",
         "Y"
        ],
@@ -6472,43 +6500,18 @@
        "min_pressure_atm": 0.005798,
        "max_pressure_atm": 0.098617,
        "star_types": [
+        "F",
+        "H",
+        "K",
         "L",
+        "M",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
         "none"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxideRich"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 222.038376,
-       "max_temp_k": 222.038376,
-       "min_gravity_g": 0.533469,
-       "max_gravity_g": 0.533469,
-       "min_pressure_atm": 0.083121,
-       "max_pressure_atm": 0.083121
-      },
-      {
-       "atmosphere": [
-        "Methane"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 92.853035,
-       "max_temp_k": 92.853035,
-       "min_gravity_g": 0.035906,
-       "max_gravity_g": 0.035906,
-       "min_pressure_atm": 0.061548,
-       "max_pressure_atm": 0.061548
       },
       {
        "atmosphere": [
@@ -6524,6 +6527,12 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.064102,
        "max_pressure_atm": 0.098607,
+       "star_types": [
+        "F",
+        "K",
+        "M",
+        "TTS"
+       ],
        "volcanism": [
         "none"
        ]
@@ -6637,7 +6646,8 @@
         "F",
         "K",
         "L",
-        "M"
+        "M",
+        "Y"
        ],
        "volcanism": [
         "metallic",
@@ -6702,6 +6712,13 @@
        "min_pressure_atm": 0.004407,
        "max_pressure_atm": 0.09579,
        "star_types": [
+        "A",
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -6730,7 +6747,16 @@
        "min_pressure_atm": 0.003832,
        "max_pressure_atm": 0.097581,
        "star_types": [
+        "A",
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -6758,6 +6784,17 @@
        "max_gravity_g": 0.150714,
        "min_pressure_atm": 0.003807,
        "max_pressure_atm": 0.097882,
+       "star_types": [
+        "A",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -6784,6 +6821,15 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "A",
+        "B",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
+        "TTS",
         "Y"
        ],
        "volcanism": [
@@ -6814,7 +6860,12 @@
        "min_gravity_g": 0.049993,
        "max_gravity_g": 0.151733,
        "min_pressure_atm": 0.001009,
-       "max_pressure_atm": 0.011367
+       "max_pressure_atm": 0.011367,
+       "star_types": [
+        "F",
+        "L",
+        "T"
+       ]
       },
       {
        "atmosphere": [
@@ -6837,6 +6888,7 @@
         "K",
         "L",
         "M",
+        "N",
         "T",
         "TTS"
        ],
@@ -6875,6 +6927,7 @@
        "min_pressure_atm": 0.017732,
        "max_pressure_atm": 0.090255,
        "star_types": [
+        "F",
         "G",
         "K",
         "L",
@@ -6901,6 +6954,12 @@
        "min_pressure_atm": 0.01667,
        "max_pressure_atm": 0.094533,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "Y"
        ],
        "volcanism": [
@@ -6929,6 +6988,7 @@
        "min_pressure_atm": 0.000993,
        "max_pressure_atm": 0.083373,
        "star_types": [
+        "D",
         "F",
         "G",
         "K",
@@ -6957,6 +7017,10 @@
        "min_pressure_atm": 0.002191,
        "max_pressure_atm": 0.094872,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
         "T",
         "Y"
        ],
@@ -6980,22 +7044,12 @@
        "min_gravity_g": 0.036289,
        "max_gravity_g": 0.062155,
        "min_pressure_atm": 0.034852,
-       "max_pressure_atm": 0.091925
-      },
-      {
-       "atmosphere": [
-        "Nitrogen"
-       ],
-       "body_types": [
-        "Rocky ice body"
-       ],
-       "seen": 1,
-       "min_temp_k": 80.98465,
-       "max_temp_k": 80.98465,
-       "min_gravity_g": 0.273314,
-       "max_gravity_g": 0.273314,
-       "min_pressure_atm": 0.016216,
-       "max_pressure_atm": 0.016216
+       "max_pressure_atm": 0.091925,
+       "star_types": [
+        "K",
+        "L",
+        "M"
+       ]
       }
      ]
     },
@@ -7004,36 +7058,6 @@
      "value": 3472400,
      "symbol": "$codex_ent_tussocks_11_name;",
      "rules": [
-      {
-       "atmosphere": [
-        "Ammonia"
-       ],
-       "body_types": [
-        "Rocky body"
-       ],
-       "seen": 1,
-       "min_temp_k": 158.672729,
-       "max_temp_k": 158.672729,
-       "min_gravity_g": 0.140599,
-       "max_gravity_g": 0.140599,
-       "min_pressure_atm": 0.001216,
-       "max_pressure_atm": 0.001216
-      },
-      {
-       "atmosphere": [
-        "ArgonRich"
-       ],
-       "body_types": [
-        "Icy body"
-       ],
-       "seen": 1,
-       "min_temp_k": 85.760895,
-       "max_temp_k": 85.760895,
-       "min_gravity_g": 0.292758,
-       "max_gravity_g": 0.292758,
-       "min_pressure_atm": 0.038994,
-       "max_pressure_atm": 0.038994
-      },
       {
        "atmosphere": [
         "CarbonDioxide"
@@ -7075,6 +7099,13 @@
        "min_pressure_atm": 0.029881,
        "max_pressure_atm": 0.09742,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -7130,6 +7161,11 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013387,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -7166,6 +7202,7 @@
         "K",
         "L",
         "M",
+        "N",
         "T"
        ],
        "volcanism": [
@@ -7188,6 +7225,12 @@
        "min_pressure_atm": 0.000988,
        "max_pressure_atm": 0.013312,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -7198,21 +7241,6 @@
         "silicate",
         "water"
        ]
-      },
-      {
-       "atmosphere": [
-        "CarbonDioxide"
-       ],
-       "body_types": [
-        "High metal content body"
-       ],
-       "seen": 1,
-       "min_temp_k": 183.753159,
-       "max_temp_k": 183.753159,
-       "min_gravity_g": 0.183689,
-       "max_gravity_g": 0.183689,
-       "min_pressure_atm": 0.047923,
-       "max_pressure_atm": 0.047923
       }
      ]
     },
@@ -7261,6 +7289,16 @@
        "max_gravity_g": 0.271379,
        "min_pressure_atm": 0.000992,
        "max_pressure_atm": 0.009414,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "none",
         "water"
@@ -7289,6 +7327,7 @@
        "max_pressure_atm": 0.043148,
        "star_types": [
         "F",
+        "G",
         "K",
         "L",
         "M",
@@ -7312,6 +7351,14 @@
        "max_gravity_g": 0.156331,
        "min_pressure_atm": 0.00352,
        "max_pressure_atm": 0.04556,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -7352,6 +7399,17 @@
        "max_gravity_g": 0.174975,
        "min_pressure_atm": 0.002974,
        "max_pressure_atm": 0.010152,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
+        "T",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
@@ -7404,6 +7462,12 @@
        "min_pressure_atm": 0.003848,
        "max_pressure_atm": 0.098617,
        "star_types": [
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -7438,6 +7502,7 @@
         "K",
         "L",
         "M",
+        "N",
         "T"
        ],
        "volcanism": [
@@ -7459,6 +7524,13 @@
        "min_pressure_atm": 0.003982,
        "max_pressure_atm": 0.098534,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
         "T",
         "TTS",
         "Y"
@@ -7513,6 +7585,14 @@
        "min_pressure_atm": 0.011083,
        "max_pressure_atm": 0.066483,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "H",
+        "K",
+        "L",
+        "M",
+        "N",
         "Y"
        ],
        "volcanism": [
@@ -7541,6 +7621,7 @@
        "min_pressure_atm": 0.000991,
        "max_pressure_atm": 0.001402,
        "star_types": [
+        "G",
         "K",
         "L",
         "M",
@@ -7562,7 +7643,13 @@
        "min_pressure_atm": 0.000987,
        "max_pressure_atm": 0.006513,
        "star_types": [
+        "AeBe",
+        "F",
+        "G",
+        "K",
         "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -7620,7 +7707,13 @@
        "min_pressure_atm": 0.058447,
        "max_pressure_atm": 0.098521,
        "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
         "L",
+        "M",
+        "N",
         "T",
         "Y"
        ],
@@ -7664,6 +7757,16 @@
        "max_gravity_g": 0.102376,
        "min_pressure_atm": 0.003297,
        "max_pressure_atm": 0.019513,
+       "star_types": [
+        "D",
+        "F",
+        "G",
+        "K",
+        "L",
+        "M",
+        "N",
+        "T"
+       ],
        "volcanism": [
         "none"
        ]
@@ -7715,6 +7818,14 @@
        "max_gravity_g": 0.055051,
        "min_pressure_atm": 0.064102,
        "max_pressure_atm": 0.098621,
+       "star_types": [
+        "F",
+        "G",
+        "K",
+        "M",
+        "N",
+        "Y"
+       ],
        "volcanism": [
         "none"
        ]
