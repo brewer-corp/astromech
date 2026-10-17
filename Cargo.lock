@@ -454,6 +454,7 @@ dependencies = [
 name = "astromech-tools"
 version = "0.1.5"
 dependencies = [
+ "astromech-announce",
  "astromech-data",
  "astromech-galaxy",
  "astromech-gamestate",

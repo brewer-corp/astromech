@@ -327,13 +327,34 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:48Z","event":"MaterialCollected","Category":"Raw","Name":"arsenic","Count":250}}"#
         ),
+        // The session ends; the summary waits for a tick.
+        format!(r#"{{"timestamp":"2026-10-16T{hm}:49Z","event":"Shutdown"}}"#),
     ]
+}
+
+/// A history with one session that earned 4.2 million and covered nothing else.
+struct Session;
+
+impl astromech_announce::session_summary::SessionHistory for Session {
+    fn session(&self, _: Option<&str>, _: Option<&str>) -> Option<astromech_announce::session_summary::Totals> {
+        Some(astromech_announce::session_summary::Totals {
+            end: "2026-10-17T00:00:00Z".into(),
+            total: 4_200_000,
+            per_hour: Some(1_900_000),
+            jumps: 0,
+            distance_ly: 0.0,
+            bounties: 0,
+        })
+    }
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
-    let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 13, "a callout rule was added or removed: give it a line in this catch-up test");
+    // The history holds a session up to the end of the journal.
+    let shared = Shared::default();
+    shared.sessions.set(std::sync::Arc::new(Session));
+    let rules = builtin(shared);
+    assert_eq!(rules.len(), 14, "a callout rule was added or removed: give it a line in this catch-up test");
     // The Powerplay arrival is off by default: turn it on so the catch-up covers it too.
     let on: Settings = toml::from_str("[powerplay_arrival]\nenabled = true\n").unwrap();
     let mut r = Replay::new(rules, &on);
@@ -372,6 +393,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
             "Arsenic at 250/250.",
             "Route: 3 jumps, 60 ly.",
             "Mission expires within an hour.",
+            "Earned 4.2 million credits, 1.9 million an hour.",
         ]
     );
 }

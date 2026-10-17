@@ -138,6 +138,19 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("status.hull", &["hull", "hull health", "how much hull"]),
     ("status.shields", &["shields", "shield status"]),
     ("status.credits", &["credits", "how many credits", "rebuy"]),
+    // The session summary from the journal history (astromech-oo8y): spoken, nothing pressed.
+    (
+        "session.summary",
+        &[
+            "session summary",
+            "how much did i make this session",
+            "how much did i earn this session",
+            "how much have i earned",
+            "what did i earn this session",
+            "session earnings",
+            "how's the session going",
+        ],
+    ),
     ("status.ship", &["what's my ship", "what ship", "current ship", "ship name"]),
     ("status.legal", &["legal state", "wanted", "notoriety", "legal status"]),
     // Raw-material site lookups (astromech-galaxy `SITE_KINDS`): spoken answer, nothing pressed.
