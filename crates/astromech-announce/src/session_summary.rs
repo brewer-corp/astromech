@@ -38,13 +38,18 @@ pub struct Totals {
     pub bounties: i64,
 }
 
+/// The history could not be read (lock lost, database busy, read error): not the same as
+/// holding no session, so the voice query says so instead of "no history yet".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Unreadable;
+
 /// The commander's session history, as the summary needs it. Called from the pipeline thread,
-/// which must never block: answer from an indexed read with a short timeout, `None` when it
-/// can't (no history yet, database busy).
+/// which must never block: answer from an indexed read with a short timeout, `Err` when it
+/// can't (database busy or unreadable), `Ok(None)` when it holds no such session.
 pub trait SessionHistory: Send + Sync {
     /// The session of `commander` (the latest commander if `None`) that was going on at `at`
     /// (journal timestamp; the latest session if `None`).
-    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Option<Totals>;
+    fn session(&self, commander: Option<&str>, at: Option<&str>) -> Result<Option<Totals>, Unreadable>;
 }
 
 /// The history the core plugs in once it has one.
@@ -170,7 +175,7 @@ impl Rule for SessionSummary {
                 let found = self
                     .sessions
                     .get()
-                    .and_then(|h| h.session(commander.as_deref(), Some(ts)))
+                    .and_then(|h| h.session(commander.as_deref(), Some(ts)).ok().flatten())
                     .filter(|t| t.end.as_str() >= ts.as_str());
                 match found {
                     Some(t) => {

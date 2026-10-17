@@ -338,15 +338,20 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
 struct Session;
 
 impl astromech_announce::session_summary::SessionHistory for Session {
-    fn session(&self, _: Option<&str>, _: Option<&str>) -> Option<astromech_announce::session_summary::Totals> {
-        Some(astromech_announce::session_summary::Totals {
+    fn session(
+        &self,
+        _: Option<&str>,
+        _: Option<&str>,
+    ) -> Result<Option<astromech_announce::session_summary::Totals>, astromech_announce::session_summary::Unreadable>
+    {
+        Ok(Some(astromech_announce::session_summary::Totals {
             end: "2026-10-17T00:00:00Z".into(),
             total: 4_200_000,
             per_hour: Some(1_900_000),
             jumps: 0,
             distance_ly: 0.0,
             bounties: 0,
-        })
+        }))
     }
 }
 
