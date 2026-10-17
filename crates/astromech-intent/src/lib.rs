@@ -1278,6 +1278,7 @@ mod tests {
                 ("galaxy_map.paste", "paste", Decision::Ask),
                 "{t:?}"
             );
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
         }
         assert_eq!(g.best("Paste.").decision, Decision::Execute);
         // Everyday sentences with "pays" press nothing.
