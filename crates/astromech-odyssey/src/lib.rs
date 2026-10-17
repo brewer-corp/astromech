@@ -328,6 +328,8 @@ mod tests {
         let mut o = Owned::default();
         let line = |s: &str| serde_json::from_str::<serde_json::Value>(s).unwrap();
         o.apply(&line(r#"{"event":"BuySuit","Name":"UtilitySuit_Class2","Name_Localised":"$UtilitySuit_Class1_Name;","Price":1,"SuitID":7,"SuitMods":["suit_nightvision"]}"#));
+        // The purchase alone sets the grade, from the Name suffix.
+        assert_eq!((o.gear()[0].gear.as_str(), o.gear()[0].grade), ("maverick", 2));
         o.apply(&line(r#"{"event":"UpgradeSuit","Name":"utilitysuit_class3","SuitID":7,"Class":3,"Cost":1}"#));
         o.apply(&line(r#"{"event":"BuyWeapon","Name":"Wpn_S_Pistol_Laser_SAuto","Name_Localised":"Zenith en francais","Class":2,"Price":1,"SuitModuleID":8,"WeaponMods":["weapon_suppression_unpressurised"]}"#));
         let g = o.gear();

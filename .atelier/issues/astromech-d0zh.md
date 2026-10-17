@@ -29,7 +29,7 @@ Check the On foot page's owned gear (astromech-f1us) against a real journal from
 
 ## Done when
 
-A real journal with suit and weapon purchases, upgrades and a loadout with fitted mods gives the right grades and mods on the On foot page, and no `odyssey: unknown ...` line appears on stderr for a mod the game logs (the app reports a journal mod name missing from `data/catalog/odyssey.json` once). A wrong symbol or mod name is corrected in `JOURNAL_GEAR` / `JOURNAL_MODS` in `scripts/gen-odyssey.py` and the catalogue.
+A real journal with suit and weapon purchases, upgrades and a loadout with fitted mods gives the right grades and mods on the On foot page, and no `odyssey: unknown ...` line appears on stderr for a mod the game logs (the app reports a journal mod name missing from `data/catalog/odyssey.json` once, on stderr only: the release Windows app has no console, so check with a debug build or `cargo tauri dev`). A wrong symbol or mod name is corrected in `JOURNAL_GEAR` / `JOURNAL_MODS` in `scripts/gen-odyssey.py` and the catalogue.
 
 ## Context
 
