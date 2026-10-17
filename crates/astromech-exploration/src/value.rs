@@ -8,7 +8,8 @@
 //!
 //! - A star is worth `k + m·k / 66.25` (`m` in solar masses): `k` is 1200, 14057 for a white
 //!   dwarf, 22628 for a neutron star or black hole, 33.5678 for the galactic centre's black hole.
-//! - A planet is worth `max(500, k + k·q·m^0.2)` with `q = 0.56591828` (`m` in Earth masses).
+//! - A planet is worth `k + k·q·m^0.2` with `q = 0.56591828` (`m` in Earth masses), at least
+//!   500 credits once any mapping bonus is applied (below).
 //!   `k` by class: metal-rich 21790 (+65631 terraformable), high metal content and class II gas
 //!   giant 9654 (+100677), water world 64831 (+116295), Earth-like world 64831 + 116295 (always),
 //!   ammonia world 96932, class I gas giant 1656, everything else 300 (+93328). Terraformable
@@ -131,8 +132,7 @@ pub fn planet_k(planet_class: &str, terraformable: bool) -> f64 {
 /// A planet's value (`MassEM` in Earth masses; 1 if the scan didn't say).
 pub fn planet_value(planet_class: &str, terraformable: bool, mass_em: Option<f64>, terms: Terms) -> i64 {
     let k = planet_k(planet_class, terraformable);
-    let base = (k + k * PLANET_Q * mass_em.unwrap_or(1.0).powf(PLANET_POWER)).max(MIN_PLANET);
-    let mut v = base;
+    let mut v = k + k * PLANET_Q * mass_em.unwrap_or(1.0).powf(PLANET_POWER);
     let bubble = terms.pre_odyssey_bubble();
     if let Some(m) = terms.mapping {
         let mult = if terms.first_discovery && terms.first_mapped {
@@ -150,6 +150,9 @@ pub fn planet_value(planet_class: &str, terraformable: bool, mass_em: Option<f64
             v *= EFFICIENT;
         }
     }
+    // After mapping, as EDDI's `Body.cs` does (EDDiscovery floors first): EDSM's mapped system
+    // totals match only this way (`tests/values.rs`).
+    v = v.max(MIN_PLANET);
     if terms.first_discovery && !bubble {
         v *= FIRST_DISCOVERY;
     }
@@ -204,7 +207,7 @@ mod tests {
     fn tiny_bodies_are_worth_at_least_500() {
         let t = Terms { first_discovery: false, first_mapped: false, mapping: None, odyssey: true };
         assert_eq!(planet_value("Icy body", false, Some(0.000_01), t), 500);
-        // The floor applies before mapping: 500 × 10/3, plus the Odyssey 555.
-        assert_eq!(planet_value("Icy body", false, Some(0.000_01), t.mapped(false)), 1667 + 555);
+        // The floor applies after mapping: 317 (300 + 300·q·0.1) × 10/3, plus the Odyssey 555.
+        assert_eq!(planet_value("Icy body", false, Some(0.000_01), t.mapped(false)), 1057 + 555);
     }
 }

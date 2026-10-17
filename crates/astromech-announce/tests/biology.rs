@@ -264,3 +264,21 @@ fn a_late_answer_awaited_in_one_system_is_not_said_in_the_next() {
     recorded.ready.store(true, Ordering::SeqCst);
     assert!(tick(&mut r, "2026-10-17T10:00:10Z").is_empty());
 }
+
+#[test]
+fn a_relog_into_a_system_already_scanned_says_nothing() {
+    let (mut r, _) = run(true);
+    // astromech started after the jump: the jump and the FSS are in the silent catch-up, and the
+    // Biology page has the known answer ready.
+    r.engine.set_live(false);
+    r.spoken(&jump("2026-10-17T10:00:00Z", "Luhman 16", LUHMAN));
+    r.spoken(
+        &FSS_B3
+            .replace("Synthetic Sector AB-C d1", "Luhman 16")
+            .replace("\"SystemAddress\":99", &format!("\"SystemAddress\":{LUHMAN}")),
+    );
+    r.engine.set_live(true);
+    assert!(!astromech_exploration::biology::ranked(&r.state.system_bodies).is_empty());
+    // The relog: the system's own results stand, so the known biology isn't said.
+    assert!(r.spoken(&location("2026-10-17T10:30:00Z", "Luhman 16", LUHMAN)).is_empty());
+}

@@ -1,10 +1,11 @@
 {
- "source": "Body classes, masses and terraform states from Spansh's system dumps (spansh.co.uk/api/dump/<id64>); published values from EDSM's estimated-value API (www.edsm.net/api-system-v1/estimated-value): estimatedValue is the system's bodies at their scan value, valueMax a valuable body's mapped value (not first discovered or mapped, no efficiency or Odyssey bonus). Fetched 17 Oct 2026.",
+ "source": "Body classes, masses and terraform states from Spansh's system dumps (spansh.co.uk/api/dump/<id64>); published values from EDSM's estimated-value API (www.edsm.net/api-system-v1/estimated-value): estimatedValue is the system's bodies at their scan value, estimatedValueMapped the same with every planet mapped, valueMax a valuable body's mapped value (not first discovered or mapped, no efficiency or Odyssey bonus). Fetched 17 Oct 2026.",
  "systems": [
   {
    "system": "Sol",
    "address": 10477373803,
    "edsm_total": null,
+   "edsm_total_mapped": null,
    "edsm_mapped": [
     [
      "Earth",
@@ -301,6 +302,7 @@
    "system": "Ross 154",
    "address": 7268024264105,
    "edsm_total": 262811,
+   "edsm_total_mapped": 871509,
    "edsm_mapped": [
     [
      "Merlin",
@@ -376,6 +378,7 @@
    "system": "Kruger 60",
    "address": 22660918617513,
    "edsm_total": 173607,
+   "edsm_total_mapped": 571543,
    "edsm_mapped": [
     [
      "Kruger 60 A 1",
@@ -464,6 +467,7 @@
    "system": "Barnard's Star",
    "address": 18263140541865,
    "edsm_total": 160699,
+   "edsm_total_mapped": 527929,
    "edsm_mapped": [
     [
      "Barnard's Star 2",
@@ -588,6 +592,7 @@
    "system": "Alpha Centauri",
    "address": 1178708478315,
    "edsm_total": 60401,
+   "edsm_total_mapped": 191797,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -656,6 +661,7 @@
    "system": "Sirius",
    "address": 121569805492,
    "edsm_total": 28956,
+   "edsm_total_mapped": 60464,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -690,6 +696,7 @@
    "system": "Jackson's Lighthouse",
    "address": 5532807773,
    "edsm_total": 34185,
+   "edsm_total_mapped": 36380,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -741,6 +748,7 @@
    "system": "HIP 34707",
    "address": 3385328213,
    "edsm_total": 32808,
+   "edsm_total_mapped": 42968,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -851,6 +859,7 @@
    "system": "LAWD 26",
    "address": 2587474528619,
    "edsm_total": 54753,
+   "edsm_total_mapped": 143410,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -927,6 +936,7 @@
    "system": "Duamta",
    "address": 4339804408171,
    "edsm_total": 527652,
+   "edsm_total_mapped": 1754919,
    "edsm_mapped": [
     [
      "Duamta 4",
@@ -1027,6 +1037,7 @@
    "system": "Togher",
    "address": 3932143227610,
    "edsm_total": 435703,
+   "edsm_total_mapped": 1430035,
    "edsm_mapped": [
     [
      "Togher B 1",
@@ -1349,6 +1360,7 @@
    "system": "Ross 780",
    "address": 11665802274217,
    "edsm_total": 100693,
+   "edsm_total_mapped": 327624,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -1489,6 +1501,7 @@
    "system": "61 Cygni",
    "address": 5856288576210,
    "edsm_total": 62607,
+   "edsm_total_mapped": 203024,
    "edsm_mapped": [],
    "bodies": [
     {
@@ -1537,6 +1550,7 @@
    "system": "Fulastobo",
    "address": 4545962838387,
    "edsm_total": 1660903,
+   "edsm_total_mapped": 5525879,
    "edsm_mapped": [
     [
      "Fulastobo A 1",
@@ -1823,6 +1837,7 @@
    "system": "Agastani",
    "address": 4820857522539,
    "edsm_total": 867839,
+   "edsm_total_mapped": 2880570,
    "edsm_mapped": [
     [
      "Agastani A 3",

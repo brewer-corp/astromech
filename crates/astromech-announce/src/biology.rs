@@ -9,6 +9,7 @@
 //!   what it has and looks the system up in the background; an answer that arrives later is
 //!   said on the clock tick, until the first FSS or DSS biology result in the system or a minute
 //!   after the arrival, whichever is first. A failed lookup is tried again within that minute.
+//!   A login into a system whose own FSS or DSS results are already in says nothing.
 //!   Part of the arrival briefing: it follows `arrival`'s lines.
 //! - **After the FSS**: leaving the FSS scanner (Status.json's `GuiFocus` leaves 9), "Biology on
 //!   3 bodies." and the most valuable body's best genus: "A 2: Stratum, up to 19 M." (the top
@@ -178,7 +179,8 @@ impl Rule for Biology {
             *said = Said { system: sys.system_address(), ..Default::default() };
         }
         // Journal results in the system replace the remote ones.
-        if !biology::ranked(sys).is_empty() {
+        let scanned = !biology::ranked(sys).is_empty();
+        if scanned {
             said.waiting_until = None;
         }
         match input {
@@ -187,6 +189,10 @@ impl Rule for Biology {
                 // system.
                 JournalEvent::FsdJump { .. } | JournalEvent::Location { .. } if !said.arrived => {
                     said.arrived = true;
+                    // A relog into a system already scanned (the scans in the startup catch-up).
+                    if scanned {
+                        return vec![];
+                    }
                     match self.ask(state) {
                         Some(bodies) => say(known_lines(bodies, sys.system())),
                         None => {
