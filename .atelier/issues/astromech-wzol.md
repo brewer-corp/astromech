@@ -3,6 +3,9 @@ created_at: "2026-10-17T05:13:31.406734979+00:00"
 id: "astromech-wzol"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-wzol
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Session summary voice query: say when the history couldn't be read"
-updated_at: "2026-10-17T05:13:31.406734979+00:00"
+updated_at: "2026-10-17T05:20:57.834029592+00:00"
 ---
 
 ## Goal
