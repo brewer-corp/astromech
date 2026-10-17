@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T02:53:22.509487586+00:00"
+status: "done"
 title: "Material cap alerts and trade-down suggestions"
-updated_at: "2026-10-17T02:48:20.126034793+00:00"
+updated_at: "2026-10-17T02:53:22.509487586+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Replaying a fixture that fills a material raises one alert; docking at a trader 
 ## Context
 
 A reaction rule over the materials ledger.
+
+## Close Reason
+
+Rule materials_cap: cap alert once per fill, trader suggestion on Docked; replay tests pass and fail under mutation
