@@ -3,6 +3,9 @@ created_at: "2026-10-16T22:14:30.743942060+00:00"
 id: "astromech-ha4m"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ha4m
 priority: "P2"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "On foot: bartender trade plan for the shopping list"
-updated_at: "2026-10-16T22:14:30.743942060+00:00"
+updated_at: "2026-10-17T05:09:52.536747126+00:00"
 ---
 
 ## Goal
