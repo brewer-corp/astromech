@@ -72,7 +72,8 @@ has gone.
 
 - Left-click the icon to open the window.
 - Right-click for the menu. The first line says what astromech is doing: "Waiting for Elite",
-  "Elite running", "Starting voice", and so on.
+  "Elite running", "Starting voice", and so on. While the [Voice tester](voice-tester.md) is
+  open it reads "Voice tester open · push-to-talk testing only".
   - **Open astromech** opens the window.
   - **Pause voice** stops it listening to push-to-talk. Spoken [callouts](callouts.md) carry on.
   - **Kill switch (stop all actions)** appears while Elite is running. When the kill switch is

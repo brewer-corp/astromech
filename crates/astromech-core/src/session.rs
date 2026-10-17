@@ -376,6 +376,9 @@ struct ClipJob {
     meta: serde_json::Value,
     /// Holds callouts until this clip is handled (dropped).
     _turn: callouts::TurnJob<'static>,
+    /// Whether the voice tester's test mode was on when push-to-talk was released: the phrase is
+    /// tested or run by this, whatever the page does while the clip is transcribed.
+    testing: bool,
 }
 
 #[cfg(windows)]
@@ -444,10 +447,8 @@ fn start_voice(
             while let Ok(job) = jrx.recv() {
                 let t0 = std::time::Instant::now();
                 match stt.transcribe(&job.samples, job.rate) {
-                    Ok(t) if t.is_empty() && !TESTER.armed(std::time::Instant::now()) => {
-                        a.runner.speaker.say("Say again.")
-                    }
-                    Ok(t) => match tester::on_heard(&TESTER, &a, &t, std::time::Instant::now()) {
+                    Ok(t) if t.is_empty() && !job.testing => a.runner.speaker.say("Say again."),
+                    Ok(t) => match tester::on_heard(&TESTER, &a, &t, job.testing) {
                         // The voice tester page is open: it shows what this would do. Nothing pressed.
                         tester::Heard::Tested(r) => {
                             log(&format!(
@@ -455,6 +456,7 @@ fn start_voice(
                                 t0.elapsed().as_millis(),
                                 r.would
                             ));
+                            a.runner.speaker.say(tester::TEST_ONLY);
                             if let Some(p) = job.sidecar {
                                 write_sidecar(&p, &job.meta, &t, r.intent.as_ref().map(|i| i.command.as_str()));
                             }
@@ -571,6 +573,8 @@ fn start_voice(
                         // real release and keep the post-roll measured from there too.
                         let up_at = std::time::Instant::now().checked_sub(debounce).unwrap_or(down_at).max(down_at);
                         let held = up_at.duration_since(down_at).as_millis() as u64;
+                        // Test mode as it is at release; the clip may take seconds to transcribe.
+                        let testing = TESTER.armed(std::time::Instant::now());
                         std::thread::sleep(post.saturating_sub(debounce));
                         m.wait_after(std::time::Instant::now(), Duration::from_millis(100));
                         let samples = m.take(f, m.position());
@@ -612,6 +616,7 @@ fn start_voice(
                                     sidecar,
                                     meta,
                                     _turn: callouts::VOICE_TURN.job_queued(std::time::Instant::now()),
+                                    testing,
                                 });
                             }
                             Gate::TooShort => log(&format!("{head}; shorter than {min_hold} ms, ignored")),

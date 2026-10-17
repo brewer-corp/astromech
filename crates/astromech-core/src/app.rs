@@ -94,8 +94,15 @@ impl Core {
 
     /// The tray's one status line (also its tooltip, under "astromech").
     pub fn status_line(&self) -> String {
+        self.status_line_for(TESTER.armed(Instant::now()))
+    }
+
+    /// The tray status. While the voice tester's test mode is on, push-to-talk does nothing in the
+    /// game and the HUD cannot say so, so the line does.
+    fn status_line_for(&self, testing: bool) -> String {
         let game = *self.game.lock().unwrap();
         let mut s = match (game, self.active(), self.starting.load(Ordering::SeqCst)) {
+            _ if testing => "Voice tester open · push-to-talk testing only".to_string(),
             (_, _, true) => "Starting voice…".to_string(),
             (Game::Running, true, _) => format!("Elite running · {}", self.voice.lock().unwrap()),
             (Game::Launcher, true, _) => format!("Launcher open · {}", self.voice.lock().unwrap()),
@@ -1326,6 +1333,18 @@ mod tests {
         assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
         assert_eq!(call("route_clear", None)["view"]["route"], Value::Null);
         assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
+    }
+
+    /// Test mode is on the tray status line, over whatever the game is doing.
+    #[test]
+    fn the_status_line_says_when_push_to_talk_is_only_testing() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        assert_eq!(core.status_line_for(false), "Waiting for Elite");
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
+        *core.game.lock().unwrap() = Game::Running;
+        assert!(core.status_line_for(false).starts_with("Elite running"));
+        assert_eq!(core.status_line_for(true), "Voice tester open · push-to-talk testing only");
     }
 
     /// First run with no journal folder found: onboarding sets one (`set_folders`) and the

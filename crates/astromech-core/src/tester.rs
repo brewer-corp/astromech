@@ -318,6 +318,10 @@ impl Tester {
 /// The process's tester (the control API arms it, the push-to-talk thread reads it).
 pub static TESTER: Tester = Tester::new();
 
+/// Said after a push-to-talk phrase that was only tested: the game HUD cannot show test mode, and
+/// without this a phrase that does nothing looks like a failure.
+pub const TEST_ONLY: &str = "Test only. Nothing pressed.";
+
 /// What a push-to-talk transcript did.
 #[derive(Debug)]
 pub enum Heard {
@@ -327,9 +331,12 @@ pub enum Heard {
     Handled(Handled),
 }
 
-/// Route a push-to-talk transcript: to the tester while its page is open, else to the assistant.
-pub fn on_heard(tester: &Tester, assistant: &Assistant, transcript: &str, now: Instant) -> Heard {
-    if tester.armed(now) {
+/// Route a push-to-talk transcript: to the tester if test mode was on when push-to-talk was
+/// released (`testing`, read then, not when transcription ends: the page may have been left
+/// meanwhile, and a phrase is tested or run according to the mode it was said in), else to the
+/// assistant.
+pub fn on_heard(tester: &Tester, assistant: &Assistant, transcript: &str, testing: bool) -> Heard {
+    if testing {
         let r = assistant.dry_run(transcript, Source::Voice);
         tester.record(r.clone());
         Heard::Tested(r)

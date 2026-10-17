@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-12uv
 priority: "P2"
 relationships:
   blocks: []
@@ -19,9 +22,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Make voice tester test mode visible and fix it at push-to-talk release"
-updated_at: "2026-10-17T17:01:41.986395518+00:00"
+updated_at: "2026-10-17T19:03:21.752311264+00:00"
 ---
 
 ## Goal
