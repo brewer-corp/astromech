@@ -14,9 +14,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Docking: pad position and denial reason"
-updated_at: "2026-10-15T20:36:13.658661252+00:00"
+updated_at: "2026-10-17T01:45:38.847854634+00:00"
 ---
 
 ## Goal

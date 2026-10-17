@@ -2,7 +2,7 @@
 //! on its own or in reply to a command: word budgets (spoken words, after the reading rules),
 //! no contractions, no "I".
 
-use astromech_announce::{arrival, builtin, prospector, scan};
+use astromech_announce::{arrival, builtin, docking, prospector, scan};
 use astromech_core::assistant::unavailable_reason;
 use astromech_core::speech::fixed_phrases;
 use astromech_gamestate::GameState;
@@ -25,7 +25,7 @@ fn callout_lines() -> Vec<String> {
     ids.sort();
     assert_eq!(
         ids,
-        ["arrival", "prospector", "scan"],
+        ["arrival", "docking", "prospector", "scan"],
         "a callout rule was added or removed: list its lines here (callout_lines) so the copy guide checks them"
     );
     let mut v = vec![];
@@ -47,6 +47,24 @@ fn callout_lines() -> Vec<String> {
         }
     }
     v.extend(arrival_lines());
+    for pad in 0..=46 {
+        v.extend(docking::pad_line(pad, "Coriolis"));
+    }
+    for reason in [
+        "NoSpace",
+        "TooLarge",
+        "Hostile",
+        "Offences",
+        "Distance",
+        "ActiveFighter",
+        "NoReason",
+        "RestrictedAccess",
+        "DockOffline",
+        "JumpImminent",
+        "Unknown",
+    ] {
+        v.push(docking::denied_line(Some(reason)));
+    }
     v.sort();
     v.dedup();
     v
@@ -198,6 +216,8 @@ fn every_line_keeps_to_the_copy_guide() {
     assert!(callouts.iter().any(|l| l == "Motherlode. Void Opals."), "{callouts:?}");
     assert!(callouts.iter().any(|l| l == "Cargo scan. Stolen goods aboard."));
     assert!(callouts.iter().any(|l| l == "Boom here. Proto Heat Radiators. Undermining target."), "{callouts:?}");
+    assert!(callouts.iter().any(|l| l == "Pad at eleven, middle."));
+    assert!(callouts.iter().any(|l| l == "Docking denied. Carrier about to jump."));
     assert!(callouts.iter().any(|l| l == "Famine here. Datamined Wake Exceptions. Acquisition target."));
     assert!(replies.iter().any(|l| l == "Landing gear deployed."), "{replies:?}");
     assert!(replies.iter().any(|l| l.contains("already")));

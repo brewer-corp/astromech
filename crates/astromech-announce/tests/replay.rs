@@ -301,17 +301,28 @@ fn one_line_per_rule(hm: &str) -> Vec<String> {
         format!(
             r#"{{"timestamp":"2026-10-16T{hm}:20Z","event":"Scan","ScanType":"AutoScan","BodyName":"Sys A","DistanceFromArrivalLS":0.0,"StarType":"K","WasDiscovered":false}}"#
         ),
+        format!(
+            r#"{{"timestamp":"2026-10-16T{hm}:30Z","event":"DockingDenied","Reason":"NoSpace","StationType":"Coriolis"}}"#
+        ),
     ]
 }
 
 #[test]
 fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rules = builtin(Default::default());
-    assert_eq!(rules.len(), 3, "a callout rule was added or removed: give it a line in this catch-up test");
+    assert_eq!(rules.len(), 4, "a callout rule was added or removed: give it a line in this catch-up test");
     let mut r = Replay::new(rules, &Settings::default());
     r.journal(&one_line_per_rule("19:59").join("\n"));
     assert!(r.out.is_empty(), "{:?}", r.out);
     r.engine.set_live(true);
     r.journal(&one_line_per_rule("20:00").join("\n"));
-    assert_eq!(r.spoken(), ["Motherlode. Void Opals. Platinum 40%.", "Cargo scan.", "Undiscovered system."]);
+    assert_eq!(
+        r.spoken(),
+        [
+            "Motherlode. Void Opals. Platinum 40%.",
+            "Cargo scan.",
+            "Undiscovered system.",
+            "Docking denied. No free pad."
+        ]
+    );
 }
