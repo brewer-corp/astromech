@@ -3,6 +3,9 @@ created_at: "2026-10-17T06:37:15.759516983+00:00"
 id: "astromech-7w5d"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-7w5d
 priority: "P2"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Carry device-overrides.json over when the data folder isn't the app dir"
-updated_at: "2026-10-17T06:37:15.759516983+00:00"
+updated_at: "2026-10-17T07:33:09.845272150+00:00"
 ---
 
 ## Goal
