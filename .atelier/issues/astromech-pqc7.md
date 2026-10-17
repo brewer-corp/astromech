@@ -6,19 +6,7 @@ labels: []
 priority: "P1"
 relationships:
   blocks: []
-  children:
-  - kind: "issue"
-    id: "astromech-12uv"
-  - kind: "issue"
-    id: "astromech-54hd"
-  - kind: "issue"
-    id: "astromech-8sx3"
-  - kind: "issue"
-    id: "astromech-c9em"
-  - kind: "issue"
-    id: "astromech-s0gz"
-  - kind: "issue"
-    id: "astromech-u8ir"
+  children: []
   attachments: []
   relates:
   - kind: "issue"
@@ -29,9 +17,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:01:44.401269518+00:00"
+status: "superseded"
 title: "Alpha: finish the game-free features"
-updated_at: "2026-10-17T16:54:22.675634529+00:00"
+updated_at: "2026-10-17T17:01:44.401269518+00:00"
 ---
 
 ## Goal
@@ -45,3 +34,7 @@ Every child issue is done, and the Spansh plotters (astromech-94j4) are done.
 ## Scope
 
 Out: the plotting macro (needs spike S4 in the game), VR overlay, tier-2 voice, cloud voice, Inara sync (waits on whitelisting), System and Station pages (astromech-qdjp, after the alpha), signing.
+
+## Close Reason
+
+Its issues merge independently on their own branches (a parent owns one shared branch); the alpha is tracked by the label alpha and astromech-5ggk's blockers

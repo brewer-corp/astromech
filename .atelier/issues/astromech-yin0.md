@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.622988405+00:00"
 id: "astromech-yin0"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-m"
 priority: "P2"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Replay real journals through every module"
-updated_at: "2026-10-17T16:54:23.622988405+00:00"
+updated_at: "2026-10-17T17:01:43.101183343+00:00"
 ---
 
 ## Goal

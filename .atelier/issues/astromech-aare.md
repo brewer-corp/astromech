@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.347920874+00:00"
 id: "astromech-aare"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Merge task/astromech-3cxd (per-PR CI trim)"
-updated_at: "2026-10-17T16:54:23.347920874+00:00"
+updated_at: "2026-10-17T17:01:43.577137961+00:00"
 ---
 
 ## Goal

@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.417308764+00:00"
 id: "astromech-yil0"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-m"
 priority: "P1"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice recognition eval on a synthetic 200-phrase set"
-updated_at: "2026-10-17T16:54:23.417308764+00:00"
+updated_at: "2026-10-17T17:01:42.623174776+00:00"
 ---
 
 ## Goal

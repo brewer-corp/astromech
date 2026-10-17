@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.485268262+00:00"
 id: "astromech-flru"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-m"
 priority: "P1"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Onboarding smoke test to a mock gear-down on Windows CI"
-updated_at: "2026-10-17T16:54:23.485268262+00:00"
+updated_at: "2026-10-17T17:01:42.783455392+00:00"
 ---
 
 ## Goal

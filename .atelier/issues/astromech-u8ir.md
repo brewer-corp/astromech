@@ -3,6 +3,7 @@ created_at: "2026-10-16T20:30:43.805407809+00:00"
 id: "astromech-u8ir"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -17,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Callout loose ends: repeat prospects, threshold storage on a fresh machine, help-line copy"
-updated_at: "2026-10-17T16:54:22.360496787+00:00"
+updated_at: "2026-10-17T17:01:41.665525400+00:00"
 ---
 
 ## Goal

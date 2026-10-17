@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:23:46.898089328+00:00"
 id: "astromech-5llf"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P3"
 relationships:
@@ -17,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDSM: split a failing batch to isolate the bad event"
-updated_at: "2026-10-17T16:54:22.202225967+00:00"
+updated_at: "2026-10-17T17:01:41.347815333+00:00"
 ---
 
 ## Goal

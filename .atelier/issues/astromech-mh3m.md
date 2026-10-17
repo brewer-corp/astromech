@@ -3,6 +3,7 @@ created_at: "2026-10-16T18:38:18.719728124+00:00"
 id: "astromech-mh3m"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -20,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Core reads the journal only on file notifications"
-updated_at: "2026-10-17T16:54:21.521587234+00:00"
+updated_at: "2026-10-17T17:01:40.199942527+00:00"
 ---
 
 ## Goal

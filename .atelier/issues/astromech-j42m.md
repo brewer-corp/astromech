@@ -6,19 +6,7 @@ labels: []
 priority: "P1"
 relationships:
   blocks: []
-  children:
-  - kind: "issue"
-    id: "astromech-08w8"
-  - kind: "issue"
-    id: "astromech-5qh0"
-  - kind: "issue"
-    id: "astromech-flru"
-  - kind: "issue"
-    id: "astromech-y5mz"
-  - kind: "issue"
-    id: "astromech-yil0"
-  - kind: "issue"
-    id: "astromech-yin0"
+  children: []
   attachments: []
   relates:
   - kind: "issue"
@@ -29,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:01:44.473214545+00:00"
+status: "superseded"
 title: "Alpha: test everything that runs without the game"
-updated_at: "2026-10-17T16:54:23.691956442+00:00"
+updated_at: "2026-10-17T17:01:44.473214545+00:00"
 ---
 
 ## Goal
@@ -45,3 +34,7 @@ Every child issue is done, and one evidence receipt per measured criterion is at
 ## Context
 
 The mock game (`crates/astromech-core/examples/mockgame.rs`) is Windows-only; Windows CI already runs an installer smoke test (`.github/workflows/release.yml`). Screens can be walked with `scripts/app-shots.sh` and `scripts/ui` against the example fixture.
+
+## Close Reason
+
+Its issues merge independently on their own branches (a parent owns one shared branch); the alpha is tracked by the label alpha and astromech-5ggk's blockers

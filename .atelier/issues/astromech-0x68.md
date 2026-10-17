@@ -3,6 +3,7 @@ created_at: "2026-10-16T19:41:46.292368742+00:00"
 id: "astromech-0x68"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -17,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Colonisation tracker: wire into the live journal (per-commander keys, load fallback, records table)"
-updated_at: "2026-10-17T16:54:22.045016937+00:00"
+updated_at: "2026-10-17T17:01:41.025758373+00:00"
 ---
 
 ## Goal

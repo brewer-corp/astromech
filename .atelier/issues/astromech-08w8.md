@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.691494692+00:00"
 id: "astromech-08w8"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-m"
 priority: "P1"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "MVP criteria harness: mock-game trials, soak, kill switch, action latency"
-updated_at: "2026-10-17T16:54:23.691494692+00:00"
+updated_at: "2026-10-17T17:01:43.260265575+00:00"
 ---
 
 ## Goal

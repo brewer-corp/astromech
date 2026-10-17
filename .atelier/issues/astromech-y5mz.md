@@ -3,6 +3,7 @@ created_at: "2026-10-15T20:36:13.657732240+00:00"
 id: "astromech-y5mz"
 issue_type: "spike"
 labels:
+- "alpha"
 - "size-s"
 priority: "P1"
 relationships:
@@ -19,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Build the WebView2 cost harness"
-updated_at: "2026-10-17T16:54:23.278438076+00:00"
+updated_at: "2026-10-17T17:01:42.462559106+00:00"
 ---
 
 ## Goal

@@ -2,7 +2,8 @@
 created_at: "2026-10-17T16:53:48.322291671+00:00"
 id: "astromech-mf5e"
 issue_type: "feature"
-labels: []
+labels:
+- "alpha"
 priority: "P1"
 relationships:
   blocks: []
@@ -28,7 +29,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Alpha: a user guide for every feature, and a current README"
-updated_at: "2026-10-17T16:54:24.109294027+00:00"
+updated_at: "2026-10-17T17:01:43.796194086+00:00"
 ---
 
 ## Goal

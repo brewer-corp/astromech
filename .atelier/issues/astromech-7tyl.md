@@ -6,25 +6,7 @@ labels: []
 priority: "P1"
 relationships:
   blocks: []
-  children:
-  - kind: "issue"
-    id: "astromech-0x68"
-  - kind: "issue"
-    id: "astromech-5llf"
-  - kind: "issue"
-    id: "astromech-hnar"
-  - kind: "issue"
-    id: "astromech-mh3m"
-  - kind: "issue"
-    id: "astromech-nw2d"
-  - kind: "issue"
-    id: "astromech-ogq4"
-  - kind: "issue"
-    id: "astromech-tgar"
-  - kind: "issue"
-    id: "astromech-xtq1"
-  - kind: "issue"
-    id: "astromech-ztrb"
+  children: []
   attachments: []
   relates:
   - kind: "issue"
@@ -32,9 +14,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T17:01:44.327930583+00:00"
+status: "superseded"
 title: "Alpha: fix the bugs a tester would hit"
-updated_at: "2026-10-17T16:54:22.202512221+00:00"
+updated_at: "2026-10-17T17:01:44.327930583+00:00"
 ---
 
 ## Goal
@@ -44,3 +27,7 @@ The live-update and state bugs that make the app look wrong without anyone notic
 ## Done when
 
 Every child issue is done.
+
+## Close Reason
+
+Its issues merge independently on their own branches (a parent owns one shared branch); the alpha is tracked by the label alpha and astromech-5ggk's blockers

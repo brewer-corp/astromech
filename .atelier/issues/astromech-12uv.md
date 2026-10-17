@@ -3,6 +3,7 @@ created_at: "2026-10-16T19:05:32.762403539+00:00"
 id: "astromech-12uv"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-s"
 priority: "P2"
 relationships:
@@ -20,7 +21,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Make voice tester test mode visible and fix it at push-to-talk release"
-updated_at: "2026-10-17T16:54:22.518342123+00:00"
+updated_at: "2026-10-17T17:01:41.986395518+00:00"
 ---
 
 ## Goal

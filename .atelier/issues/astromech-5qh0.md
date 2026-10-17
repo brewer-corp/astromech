@@ -3,6 +3,7 @@ created_at: "2026-10-17T16:54:23.553683589+00:00"
 id: "astromech-5qh0"
 issue_type: "task"
 labels:
+- "alpha"
 - "size-m"
 priority: "P2"
 relationships:
@@ -14,7 +15,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Agent walk of every app screen"
-updated_at: "2026-10-17T16:54:23.553683589+00:00"
+updated_at: "2026-10-17T17:01:42.942710798+00:00"
 ---
 
 ## Goal
