@@ -144,7 +144,7 @@
           {/each}
         {/if}
       {:else}
-        <p class="lo pad">{binds.view ? "Nothing matches." : binds.error ? binds.error : binds.state ? "No keybindings found. Run Elite once, or set the Bindings folder in Settings." : "Loading…"}</p>
+        <p class="lo pad">{binds.view ? "Nothing matches." : binds.state && !binds.state.presets.length ? "No keybindings found. Run Elite once, or set the Bindings folder in Settings." : binds.error ? "" : "Loading…"}</p>
       {/each}
     </div>
   </section>

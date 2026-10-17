@@ -39,7 +39,7 @@
         <span class="mark">{x.problems.length ? `! ${x.problems.length} issue${x.problems.length > 1 ? "s" : ""}` : ""}</span>
       </div>
     {:else}
-      <p class="lo">{binds.state ? "No presets found. Run Elite once, or set the Bindings folder in Settings." : "Loading…"}</p>
+      <p class="lo">{binds.state ? "No presets found. Run Elite once, or set the Bindings folder in Settings." : binds.error ?? "Loading…"}</p>
     {/each}
     <p class="lo">Click a cell to use that preset there (this writes StartPreset, like picking it in the game's Controls menu). Restart Elite, or pick the preset in Options → Controls, for it to take effect.</p>
     {#if msg}<p class="msg">{msg}</p>{/if}
