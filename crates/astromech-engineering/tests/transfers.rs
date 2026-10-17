@@ -5,7 +5,7 @@
 use astromech_data::Clock;
 use astromech_engineering::{from_journal_dir_at, Settled, FLEET_EVENTS};
 use astromech_journal::JournalCache;
-use std::sync::atomic::{AtomicI64, Ordering};
+use std::sync::atomic::{AtomicI64, AtomicUsize, Ordering};
 
 struct Fake(AtomicI64);
 impl Clock for Fake {
@@ -34,11 +34,15 @@ fn a_ship_and_a_module_arrive_as_the_clock_passes_their_transfer_time() {
     let clock = Fake(AtomicI64::new(ORDERED + 60));
     // The page's cache: rebuilt when the journals change or the settled fleet goes out of date.
     let cache = JournalCache::<Settled>::new(FLEET_EVENTS);
+    let builds = AtomicUsize::new(0);
     let read = || {
         cache.get_fresh(
             d.path(),
             |s| Settled::current(s.next_arrival, &clock),
-            || from_journal_dir_at(d.path(), &clock),
+            || {
+                builds.fetch_add(1, Ordering::SeqCst);
+                from_journal_dir_at(d.path(), &clock)
+            },
         )
     };
     let laser = |s: &Settled| {
@@ -50,6 +54,8 @@ fn a_ship_and_a_module_arrive_as_the_clock_passes_their_transfer_time() {
     assert!(anaconda(&s), "ordered a minute ago");
     assert_eq!(laser(&s), None, "the module is on its way");
     assert_eq!(s.next_arrival, Some(ORDERED + 300));
+    read();
+    assert_eq!(builds.load(Ordering::SeqCst), 1, "nothing changed: no rebuild");
 
     // Nothing is written; the clock moves past the module's TransferTime.
     clock.0.store(ORDERED + 301, Ordering::SeqCst);
@@ -62,4 +68,6 @@ fn a_ship_and_a_module_arrive_as_the_clock_passes_their_transfer_time() {
     let s = read();
     assert!(!anaconda(&s), "the ship has arrived");
     assert_eq!(s.next_arrival, None);
+    read();
+    assert_eq!(builds.load(Ordering::SeqCst), 3, "one rebuild per arrival, none once nothing is pending");
 }
