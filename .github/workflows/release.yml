@@ -11,22 +11,40 @@ name: Release build
 on:
   push:
     tags: ["v*"]
-  # Everything else a PR can break here (core, app shell, frontend) is built by CI's Windows
-  # job; this adds only the release packaging, so PRs run it when packaging changes.
+  # Everything else a PR can break here (frontend sources, tests) is built by CI's Windows
+  # job; this adds the release packaging, so PRs run it when anything that ships in, builds,
+  # or starts the installed app changes. `paths` and `paths-ignore` cannot be combined, so
+  # the test and fixture exclusions are `!` patterns; .md files that the installer bundles
+  # are listed explicitly so they still trigger.
   pull_request:
     paths:
       - .github/workflows/release.yml
+      # Workspace build configuration
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - .cargo/config.toml
+      - deny.toml
+      # Core, voice worker and every linked crate (including include_str! files and sample config)
+      - crates/**
+      - "!crates/**/tests/**"
+      - "!crates/**/examples/**"
+      - crates/astromech-core/examples/sign-update.rs
+      - data/catalog/**
+      # App shell and frontend build configuration (app/src/** is built by CI)
       - app/src-tauri/**
       - app/package.json
       - app/pnpm-lock.yaml
-      - Cargo.lock
-      - crates/astromech-voice/**
-      - crates/astromech-core/src/main.rs
-      - crates/astromech-core/src/autostart.rs
-      - crates/astromech-core/src/control.rs
-      - crates/astromech-core/src/instance.rs
-      - crates/astromech-core/src/update.rs
-      - crates/astromech-core/examples/sign-update.rs
+      - app/vite.config.ts
+      - app/svelte.config.js
+      - app/tsconfig*.json
+      - app/index.html
+      - app/public/**
+      # Files bundled into the NSIS installer
+      - NOTICE.md
+      - THIRD_PARTY.md
+      - LICENSE
+      - COPYING-GPL-3.0.txt
       - scripts/stage-sidecars.sh
       - scripts/pack-update.py
       - scripts/gen-starmap.py
