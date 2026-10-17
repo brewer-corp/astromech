@@ -17,9 +17,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T07:46:29.884385494+00:00"
+status: "done"
 title: "Exploration values: no discovery bonuses for bodies already mapped in the bubble"
-updated_at: "2026-10-17T07:33:04.026280930+00:00"
+updated_at: "2026-10-17T07:46:29.884385494+00:00"
 ---
 
 ## Goal
@@ -29,3 +30,7 @@ Bodies with WasDiscovered false but WasMapped true (the old populated bubble) st
 ## Done when
 
 A value test for a WasDiscovered=false, WasMapped=true body matches EDDI's estimate.
+
+## Close Reason
+
+Pre-Odyssey bubble rule per EDDI Body.cs; ring doc comments (astromech-99ki) fixed
