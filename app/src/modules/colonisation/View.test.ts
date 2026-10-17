@@ -175,6 +175,9 @@ describe("Colonisation", () => {
     load.mockResolvedValue([]);
     const { unmount } = render(View);
     expect(await screen.findByText(/No construction sites in your journals yet/)).toBeTruthy();
+    // Systems open to claim show without a project.
+    expect(screen.getByRole("heading", { name: /Colonisation candidates/ })).toBeTruthy();
+    expect(await screen.findByText("Greae Phoea VS-M b39-29")).toBeTruthy();
     unmount();
 
     load.mockRejectedValue("journal folder not found: C:\\nowhere");
