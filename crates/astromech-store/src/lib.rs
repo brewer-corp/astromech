@@ -28,6 +28,23 @@ const MIGRATIONS: &[&str] = &[
      );",
 ];
 
+/// Switching a file to WAL while another connection is opening it fails at once with "database
+/// is locked" (SQLite doesn't call the busy handler for it), so retry for a few seconds.
+fn enable_wal(conn: &Connection) -> Result<()> {
+    let start = std::time::Instant::now();
+    loop {
+        match conn.pragma_update(None, "journal_mode", "WAL") {
+            Err(rusqlite::Error::SqliteFailure(e, _))
+                if e.code == rusqlite::ErrorCode::DatabaseBusy
+                    && start.elapsed() < std::time::Duration::from_secs(5) =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
+            r => return r,
+        }
+    }
+}
+
 /// Put `conn` in WAL mode and apply the `migrations` it hasn't seen yet (`PRAGMA user_version`
 /// counts the applied ones). Other SQLite files (the journal history) use the same pattern.
 ///
@@ -36,7 +53,7 @@ const MIGRATIONS: &[&str] = &[
 /// version, never half-migrated; the version is re-read inside the transaction, so two
 /// processes opening a new file at once don't both apply it. Migrations must not use PRAGMAs.
 pub fn migrate(mut conn: Connection, migrations: &[&str]) -> Result<Connection> {
-    conn.pragma_update(None, "journal_mode", "WAL")?;
+    enable_wal(&conn)?;
     let v: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
     for (i, m) in migrations.iter().enumerate().skip(v as usize) {
         let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
@@ -49,6 +66,26 @@ pub fn migrate(mut conn: Connection, migrations: &[&str]) -> Result<Connection> 
         tx.commit()?;
     }
     Ok(conn)
+}
+
+/// The folder holding `astromech.sqlite` and the other data files: the config's `data_dir` if
+/// set, else `exe_dir/astromech-data` in portable mode (an `astromech.toml` next to the exe),
+/// else `app_dir`. One rule for the core (`Config::data_dir`) and the app shell, so both open
+/// the same files.
+pub fn data_dir(
+    configured: &str,
+    portable: bool,
+    exe_dir: &std::path::Path,
+    app_dir: &std::path::Path,
+) -> std::path::PathBuf {
+    let c = configured.trim();
+    if !c.is_empty() {
+        c.into()
+    } else if portable {
+        exe_dir.join("astromech-data")
+    } else {
+        app_dir.to_path_buf()
+    }
 }
 
 pub struct Store {
@@ -187,6 +224,39 @@ mod tests {
         let c = migrate(Connection::open(&db).unwrap(), &[v1, fixed]).unwrap();
         assert_eq!(c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
         c.prepare("SELECT y FROM a").unwrap();
+    }
+
+    #[test]
+    fn data_dir_knows_portable_mode_and_the_override() {
+        use std::path::Path;
+        let (exe, app) = (Path::new("/x/exe"), Path::new("/x/app"));
+        assert_eq!(data_dir("", false, exe, app), app);
+        assert_eq!(data_dir("  ", true, exe, app), Path::new("/x/exe/astromech-data"));
+        assert_eq!(data_dir(" /d ", true, exe, app), Path::new("/d"));
+        assert_eq!(data_dir("/d", false, exe, app), Path::new("/d"));
+    }
+
+    /// Two processes opening a brand-new file at once: both succeed, the schema is applied once.
+    #[test]
+    fn concurrent_first_open_succeeds() {
+        let dir = tempfile::tempdir().unwrap();
+        let db = dir.path().join("new.sqlite");
+        let gate = std::sync::Arc::new(std::sync::Barrier::new(8));
+        let hs: Vec<_> = (0..8)
+            .map(|_| {
+                let (db, gate) = (db.clone(), gate.clone());
+                std::thread::spawn(move || {
+                    let c = Connection::open(&db).unwrap();
+                    c.busy_timeout(std::time::Duration::from_secs(10)).unwrap();
+                    gate.wait();
+                    migrate(c, MIGRATIONS).map(|_| ()).map_err(|e| e.to_string())
+                })
+            })
+            .collect();
+        for h in hs {
+            h.join().unwrap().unwrap();
+        }
+        assert_eq!(Store::open(&db).unwrap().schema_version().unwrap(), MIGRATIONS.len() as i64);
     }
 
     #[test]

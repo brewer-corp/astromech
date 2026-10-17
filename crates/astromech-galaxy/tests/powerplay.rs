@@ -152,6 +152,10 @@ fn the_age_filter_applies_and_the_answer_is_cached() {
     let t = g.powerplay_targets(Target::Reinforce, LYR, &here(), 20.0, 40.0, 10, &fresh).unwrap();
     assert!(t.hits.is_empty(), "every recorded report is older than today");
     assert!(t.warning.is_none(), "filtered by the commander, not a Spansh change");
-    let _ = targets(&g, Target::Reinforce);
+    {
+        let sent = rec.sent.lock().unwrap();
+        assert!(sent[0]["filters"]["updated_at"]["value"][0].is_string(), "the age goes to Spansh: {:?}", sent[0]);
+    }
+    let _ = g.powerplay_targets(Target::Reinforce, LYR, &here(), 20.0, 40.0, 10, &fresh).unwrap();
     assert_eq!(rec.sent.lock().unwrap().len(), 1, "the second search is served from the cache");
 }
