@@ -281,10 +281,10 @@ def percentile(values: list[float], p: float) -> float | None:
     return v[k]
 
 
-def ptt_stage(events: list[KeyEvent], core_lines: list[tuple[float, str]]) -> list[float]:
-    """PTT release (the mock saw the PTT key go up) -> the core handled the release (its `PTT up`
+def ptt_stage(releases: list[float], core_lines: list[tuple[float, str]]) -> list[float]:
+    """PTT release (the harness sent the key-up) -> the core handled the release (its `PTT up`
     log line arrived), in ms, for each release the core answered."""
-    ups = [e.t for e in events if not e.down and e.scan == SCAN[PTT_KEY]]
+    ups = sorted(releases)
     handled = [t for t, l in core_lines if "PTT up" in l]
     out = []
     for u in ups:
@@ -299,6 +299,7 @@ def ptt_stage(events: list[KeyEvent], core_lines: list[tuple[float, str]]) -> li
 @dataclass
 class KillTrial:
     trial: Trial
+    t_inject: float | None = None  # when the harness sent the kill-switch key-down
     t_kill: float | None = None  # kill-switch key-down at the mock
     t_released: float | None = None  # last held key's key-up at the mock
     held_at_kill: bool = False
@@ -306,8 +307,10 @@ class KillTrial:
 
 
 def kill_latencies(kills: list[KillTrial], events: list[KeyEvent]) -> None:
-    """For each kill trial: when the kill key went down, and when the last of the trial's keys
-    came up after it (all from the mock's log)."""
+    """For each kill trial: when the mock saw the kill key go down, and when the last of the
+    trial's keys came up after it (from the mock's log). The latency is measured from
+    `t_inject`, when the harness sent the kill key: the mock stamps keys when it gets to them,
+    so its own kill-key time can be late."""
     kdowns = [e.t for e in events if e.down and not e.repeat and e.scan == SCAN[KILL_KEY]]
     for k in kills:
         t0 = k.trial.t_issue
@@ -431,8 +434,8 @@ def summarise(trials, soak_events, kills, kill_events, core_lines, soak_info, a)
     kill_trials = [k.trial for k in kills]
     k_unintended, _ = match_keys(kill_trials, kill_events, window_ms=5000)
     kill_latencies(kills, kill_events)
-    lat_kill = [k.t_released - k.t_kill for k in kills if k.t_released is not None and k.t_kill is not None]
-    ptt = ptt_stage(soak_events, core_lines)
+    lat_kill = [k.t_released - k.t_inject for k in kills if k.t_released is not None and k.t_inject is not None]
+    ptt = ptt_stage(soak_info.get("ptt_releases", []), core_lines)
     cmd = [t.keydown_ms for t in soak_trials if t.keydown_ms is not None]
     clip_tail = max(a.post_roll_ms - a.debounce_ms, 0)
     p_ptt, p_cmd = percentile(ptt, 95), percentile(cmd, 95)
@@ -520,13 +523,13 @@ def markdown(report: dict) -> str:
         "## Kill switch",
         "",
         f"- {k['measured']} of {k['trials']} kills measured: p50 {fmt_ms(k['p50_ms'])}, p95 {fmt_ms(k['p95_ms'])}, "
-        f"max {fmt_ms(k['max_ms'])} from the kill key's key-down to the last held key's key-up.",
+        f"max {fmt_ms(k['max_ms'])} from sending the kill key (SendInput) to the mock receiving the last held key's key-up.",
         f"- Verifications cancelled: {k['cancelled']}/{k['trials']}; keys not held at the kill: {k['not_held']}; "
         f"presses while killed: {k['pressed_while_killed']} (answers: {', '.join(k['after_kill_answers'])}).",
         "",
         "## Action start after push-to-talk release",
         "",
-        f"- Measured, PTT release to the core handling it: p50 {fmt_ms(lat['ptt_p50_ms'])}, p95 "
+        f"- Measured, PTT release (sending the key-up) to the core handling it: p50 {fmt_ms(lat['ptt_p50_ms'])}, p95 "
         f"{fmt_ms(lat['ptt_p95_ms'])} ({lat['ptt_samples']} presses). Includes the debounce.",
         f"- Measured, command to the first key-down at the mock: p50 {fmt_ms(lat['command_p50_ms'])}, p95 "
         f"{fmt_ms(lat['command_p95_ms'])}, max {fmt_ms(lat['command_max_ms'])} ({lat['command_samples']} presses).",
@@ -593,10 +596,14 @@ def send_key(name: str, up: bool) -> None:
         raise OSError(f"SendInput failed for {name}")
 
 
-def tap(name: str, hold_s: float) -> None:
+def tap(name: str, hold_s: float) -> tuple[float, float]:
+    """Press and release a key; returns when each was sent."""
+    t_down = now_ms()
     send_key(name, False)
     time.sleep(hold_s)
+    t_up = now_ms()
     send_key(name, True)
+    return t_down, t_up
 
 
 def memory_mb(proc: subprocess.Popen) -> dict | None:
@@ -703,7 +710,8 @@ class Core:
 
     def stop(self):
         try:
-            self.send("quit")
+            self.p.stdin.write("quit\n")
+            self.p.stdin.flush()
             self.p.wait(timeout=15)
         except Exception:
             self.p.kill()
@@ -813,6 +821,7 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
     core = Core(a.core, cfg, work / "core.out")
     problems = []
     memory = {}
+    ptt_releases: list[float] = []
     try:
         if not core.wait_for("game state:", 60):
             raise RuntimeError("the core didn't start; see core.out")
@@ -853,7 +862,7 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
                     # Push-to-talk press and release in the slot's spare time.
                     if a.ptt_every and len(trials) % a.ptt_every == 0:
                         time.sleep(0.3)
-                        tap(PTT_KEY, 0.4)
+                        ptt_releases.append(tap(PTT_KEY, 0.4)[1])
                     time.sleep(max(0.0, pace - (time.time() - slot)))
                 rounds += 1
             else:
@@ -879,7 +888,8 @@ def run_soak(a, work: Path, trials: list[Trial]) -> tuple[list[KeyEvent], list[t
         mock.stop()
     problems += assign_core_results([t for t in trials if t.phase == "soak"], core.typed, core.lines)
     events = parse_keys_log(mock.keys_text())
-    info = {"seconds": seconds, "journal_lines": replay.lines, "memory": memory, "problems": problems}
+    info = {"seconds": seconds, "journal_lines": replay.lines, "memory": memory, "problems": problems,
+            "ptt_releases": ptt_releases}
     return events, core.lines, info
 
 
@@ -910,7 +920,7 @@ def run_kill(a, work: Path) -> tuple[list[KillTrial], list[KeyEvent], list[tuple
             ):
                 time.sleep(0.01)
             time.sleep(random.uniform(0.1, 0.8))
-            tap(KILL_KEY, 0.05)
+            k.t_inject = tap(KILL_KEY, 0.05)[0]
             time.sleep(0.5)
             # While killed, the same command must press nothing.
             core.send(lines[0])

@@ -99,6 +99,13 @@ class Keys(unittest.TestCase):
         self.assertIsNone(hp.keydown_ms)
 
 
+class Ptt(unittest.TestCase):
+    def test_each_release_pairs_with_the_next_handled_line(self):
+        lines = [(1000.0, "x  PTT down (t=1.0 s)"), (1210.0, "x  PTT up — no speech-to-text"),
+                 (5230.0, "x  PTT up — no speech-to-text")]
+        self.assertEqual(m.ptt_stage([1000.0, 5000.0, 9000.0], lines), [210.0, 230.0])
+
+
 class Kill(unittest.TestCase):
     def kill(self, t_kill, ups):
         t = trial("lights", "lights on", "set_lights", [0x2A, 0x24], 1000, phase="kill")
