@@ -13,12 +13,16 @@ relationships:
     id: "astromech-tzc2"
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-0n4h"
+    type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T04:57:48.927472607+00:00"
+status: "done"
 title: "Live system view with body values"
-updated_at: "2026-10-17T04:39:42.891207228+00:00"
+updated_at: "2026-10-17T04:57:48.927472607+00:00"
 ---
 
 ## Goal
@@ -32,3 +36,7 @@ Value tests against published examples for each body class, and a replayed syste
 ## Context
 
 Value formulas are community-derived; cite them and unit-test them.
+
+## Close Reason
+
+System view with body values built: astromech-exploration values tested against EDSM's published estimates for every body class; a replayed system shows every body; Exploration > System page.

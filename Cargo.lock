@@ -163,6 +163,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 name = "astromech-announce"
 version = "0.1.5"
 dependencies = [
+ "astromech-exploration",
  "astromech-gamestate",
  "astromech-journal",
  "astromech-materials",
@@ -265,6 +266,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-exploration"
+version = "0.1.5"
+dependencies = [
+ "astromech-journal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "astromech-galaxy"
 version = "0.1.5"
 dependencies = [
@@ -298,6 +308,7 @@ dependencies = [
 name = "astromech-history"
 version = "0.1.5"
 dependencies = [
+ "astromech-exploration",
  "astromech-journal",
  "astromech-store",
  "serde",
