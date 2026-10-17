@@ -3,6 +3,9 @@ created_at: "2026-10-17T07:00:35.383545345+00:00"
 id: "astromech-arra"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-arra
 priority: "P3"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "astromech-odyssey: take an injected log callback instead of the global sink"
-updated_at: "2026-10-17T07:00:35.383545345+00:00"
+updated_at: "2026-10-17T07:33:10.920777452+00:00"
 ---
 
 ## Goal
