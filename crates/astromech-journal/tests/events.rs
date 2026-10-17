@@ -367,6 +367,7 @@ fn fuel_chat_and_surface_events() {
     let E::Touchdown(t) = ex("Touchdown") else { panic!() };
     assert!(t.player_controlled && t.on_planet == Some(true));
     assert_eq!((t.latitude, t.longitude), (Some(10.5), Some(-20.25)));
+    assert_eq!((t.system_address, t.body.as_deref(), t.body_id), (Some(2), Some("Test Two A 1"), Some(5)));
     let E::Disembark(d) = ex("Disembark") else { panic!() };
     assert!(!d.srv && d.on_planet && !d.on_station);
     assert_eq!((d.body.as_deref(), d.body_id), (Some("Test Two A 1"), Some(5)));

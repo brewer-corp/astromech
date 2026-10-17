@@ -352,6 +352,11 @@ pub struct Touchdown {
     pub longitude: Option<f64>,
     pub on_station: Option<bool>,
     pub on_planet: Option<bool>,
+    /// Where (missing on journals before 3.3).
+    pub star_system: Option<String>,
+    pub system_address: Option<i64>,
+    pub body: Option<String>,
+    pub body_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -1022,6 +1027,10 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             longitude: opt_f(v, "Longitude"),
             on_station: opt_b(v, "OnStation"),
             on_planet: opt_b(v, "OnPlanet"),
+            star_system: opt_s(v, "StarSystem"),
+            system_address: opt_i(v, "SystemAddress"),
+            body: opt_s(v, "Body"),
+            body_id: opt_i(v, "BodyID"),
         }),
         "Disembark" => E::Disembark(Box::new(Disembark {
             srv: flag(v, "SRV"),

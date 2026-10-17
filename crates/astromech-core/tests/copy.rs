@@ -236,6 +236,14 @@ fn arrival_lines() -> Vec<String> {
             v.extend(arrival::visits_line(&past, &now));
         }
     }
+    // Landed here before: one body (short, procedural and too long a name) and several.
+    for body in ["Sys A 2", "Sys AB 1 c a", "Proxima Centauri b c d"] {
+        for count in [1, 2, 999] {
+            v.extend(arrival::landings_line("Sys", &[arrival::Landed { body: body.into(), count }]));
+        }
+    }
+    let many: Vec<_> = (0..120).map(|i| arrival::Landed { body: format!("Sys {i}"), count: 1 }).collect();
+    v.extend(arrival::landings_line("Sys", &many));
     for spec in astromech_materials::catalog::catalog() {
         let wanted = vec![spec.id.to_string()];
         for f in &states {

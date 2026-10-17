@@ -16,6 +16,7 @@ describe("Exploration system view", () => {
     expect(screen.getByText("Mapped, efficiently")).toBeTruthy();
     expect(screen.getByText("First footfall likely")).toBeTruthy();
     expect(screen.getByText("Bio 2")).toBeTruthy();
+    expect(screen.getByText("Landed 2 times")).toBeTruthy();
   });
 
   it("shows the unsold data with a reminder when it is a lot", async () => {
