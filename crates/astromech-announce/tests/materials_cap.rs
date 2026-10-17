@@ -37,6 +37,16 @@ fn filling_a_material_says_so_once() {
 }
 
 #[test]
+fn a_material_full_since_the_catch_up_says_nothing_on_a_live_collect() {
+    let mut r = Run::new();
+    r.engine.set_live(false);
+    assert!(r.spoken(&materials(249)).is_empty());
+    assert!(r.spoken(&collected("arsenic")).is_empty()); // 250, in the catch-up
+    r.engine.set_live(true);
+    assert!(r.spoken(&collected("arsenic")).is_empty(), "already full before this collect");
+}
+
+#[test]
 fn catch_up_is_silent_even_when_full() {
     let mut r = Run::new();
     r.engine.set_live(false);
