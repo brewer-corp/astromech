@@ -168,6 +168,7 @@ dependencies = [
  "astromech-materials",
  "astromech-powerplay",
  "astromech-status",
+ "chrono",
  "serde",
  "toml 0.9.12+spec-1.1.0",
 ]

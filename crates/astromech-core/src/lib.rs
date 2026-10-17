@@ -51,3 +51,4 @@ pub mod trade;
 #[cfg(windows)]
 pub mod tray;
 pub mod update;
+pub mod visits;

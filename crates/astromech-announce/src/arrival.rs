@@ -15,8 +15,12 @@
 //! - **Undiscovered**: the arrival star's automatic scan (`Scan`, `AutoScan`, 0 ls) with
 //!   `WasDiscovered` false gives "Undiscovered system." as its own line just after the jump.
 //!
-//! A system with none of these gets nothing. Bodies known to EDSM, times visited and known
-//! biology are not part of the briefing yet.
+//! - **Been here before**: "Visited 2 times. Last here 3 days ago." from the history ledgers,
+//!   as its own line after the others. The arrival being announced is not counted, and a
+//!   system the commander has never been to says nothing.
+//!
+//! A system with none of these gets nothing. Bodies known to EDSM and known biology are not
+//! part of the briefing yet.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -58,10 +62,74 @@ impl ShoppingList {
 /// Shared with the core, which replaces it when a plan changes.
 pub type SharedShoppingList = Arc<RwLock<ShoppingList>>;
 
+/// What the history holds about a system from before an arrival.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Past {
+    /// Earlier arrivals in the system.
+    pub visits: u32,
+    /// When the latest of them was (journal timestamp).
+    pub last: String,
+}
+
+/// The commander's visit history, as the rules need it. The pipeline thread calls it on every
+/// jump and must never block, so it answers from an index or a query with a short timeout, and
+/// `None` when it can't (no history yet, database busy).
+pub trait VisitHistory: Send + Sync {
+    /// The arrivals of commander `commander` in `system_address` strictly before `before` (the
+    /// journal timestamp of the arrival being announced, which is therefore not counted).
+    fn before(&self, commander: &str, system_address: i64, before: &str) -> Option<Past>;
+}
+
+/// The history the core plugs in once it has one. Shared like the shopping list.
+#[derive(Clone, Default)]
+pub struct SharedVisits(Arc<RwLock<Option<Arc<dyn VisitHistory>>>>);
+
+impl SharedVisits {
+    pub fn set(&self, history: Arc<dyn VisitHistory>) {
+        *self.0.write().unwrap() = Some(history);
+    }
+
+    fn get(&self) -> Option<Arc<dyn VisitHistory>> {
+        self.0.read().unwrap().clone()
+    }
+}
+
+impl std::fmt::Debug for SharedVisits {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SharedVisits({})", if self.get().is_some() { "set" } else { "none" })
+    }
+}
+
 pub struct Arrival {
     pub shopping: SharedShoppingList,
+    pub visits: SharedVisits,
     /// `powerplay_arrival` is on and says the Powerplay line itself.
     pub powerplay_spoken: crate::powerplay_arrival::SharedFlag,
+}
+
+/// "Visited 2 times. Last here 3 days ago." for an arrival at `now` after `past`. The gap is
+/// between journal timestamps, so a replay says what a live run would. None if the history
+/// holds no earlier arrival or a timestamp doesn't parse.
+pub fn visits_line(past: &Past, now: &str) -> Option<String> {
+    if past.visits == 0 {
+        return None;
+    }
+    let times = match past.visits {
+        1 => "once".to_string(),
+        n => format!("{n} times"),
+    };
+    let secs = |t: &str| chrono::DateTime::parse_from_rfc3339(t).ok().map(|d| d.timestamp());
+    let gap = (secs(now)? - secs(&past.last)?).max(0);
+    let (n, unit) = match gap {
+        0..=59 => return Some(format!("Visited {times}. Last here moments ago.")),
+        60..=3599 => (gap / 60, "minute"),
+        3600..=86_399 => (gap / 3600, "hour"),
+        86_400..=2_591_999 => (gap / 86_400, "day"),
+        2_592_000..=31_103_999 => (gap / 2_592_000, "month"),
+        _ => (gap / 31_104_000, "year"),
+    };
+    let s = if n == 1 { "" } else { "s" };
+    Some(format!("Visited {times}. Last here {n} {unit}{s} ago."))
 }
 
 /// High Grade Emissions from the allegiance pools spawn reliably only in systems this big.
@@ -146,12 +214,26 @@ impl Rule for Arrival {
         Duration::ZERO
     }
     fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
-        let Input::Journal(l) = input else { return None };
+        self.react_all(input, state).into_iter().next()
+    }
+    fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
+        let Input::Journal(l) = input else { return vec![] };
+        let say = |text| Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST };
         let text = match &l.event {
-            JournalEvent::FsdJump { factions, population, .. } => {
+            JournalEvent::FsdJump { factions, population, system_address, from_carrier, .. } => {
                 let wanted = self.shopping.read().unwrap().needed(state);
                 let system = state.system_power.as_ref().filter(|_| !self.powerplay_spoken.load(Ordering::Relaxed));
-                line(factions, *population, &wanted, system, state.powerplay.power.as_deref())?
+                let briefing = line(factions, *population, &wanted, system, state.powerplay.power.as_deref());
+                let been = (|| {
+                    // Home again by carrier is not news.
+                    if *from_carrier {
+                        return None;
+                    }
+                    let past =
+                        self.visits.get()?.before(state.commander.as_deref()?, (*system_address)?, &l.timestamp)?;
+                    visits_line(&past, &l.timestamp)
+                })();
+                return briefing.into_iter().chain(been).map(say).collect();
             }
             JournalEvent::Extra(ExtraEvent::Scan(b))
                 if b.scan_type.eq_ignore_ascii_case("AutoScan")
@@ -160,8 +242,8 @@ impl Rule for Arrival {
             {
                 UNDISCOVERED.to_string()
             }
-            _ => return None,
+            _ => return vec![],
         };
-        Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
+        vec![say(text)]
     }
 }

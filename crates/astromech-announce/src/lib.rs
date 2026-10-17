@@ -149,6 +149,8 @@ pub struct Shared {
     /// Whether the `powerplay_arrival` rule is on (the engine sets it), so `arrival` leaves out
     /// the Powerplay line it would repeat.
     pub powerplay_spoken: powerplay_arrival::SharedFlag,
+    /// The commander's visit history, for the arrival briefing (the core plugs it in).
+    pub visits: arrival::SharedVisits,
 }
 
 /// The rules that ship.
@@ -158,6 +160,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(scan::Scan),
         Box::new(arrival::Arrival {
             shopping: shared.shopping.clone(),
+            visits: shared.visits.clone(),
             powerplay_spoken: shared.powerplay_spoken.clone(),
         }),
         Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
