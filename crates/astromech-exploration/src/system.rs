@@ -270,9 +270,9 @@ impl SystemFold {
             if b.genuses.is_empty() {
                 b.genuses = old.genuses;
             }
-            for (genus, species) in old.sampled {
-                if !b.sampled.iter().any(|(g, _)| g.eq_ignore_ascii_case(&genus)) {
-                    b.sampled.push((genus, species));
+            for s in old.sampled {
+                if !b.sampled.iter().any(|t| t.genus.eq_ignore_ascii_case(&s.genus)) {
+                    b.sampled.push(s);
                 }
             }
         }
