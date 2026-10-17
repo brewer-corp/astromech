@@ -5,7 +5,7 @@ issue_type: "task"
 labels:
 - "alpha"
 workflow_branch:
-  branch_base: wt-base-hnar
+  branch_base: main
   work_branch: task/astromech-hnar
 priority: "P2"
 relationships:

@@ -527,6 +527,24 @@ mod tests {
     }
 
     #[test]
+    fn a_shipyard_listing_a_ship_at_a_station_ends_its_transfer() {
+        let transfer = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"ShipyardTransfer","ShipType":"anaconda","ShipID":12,"System":"LHS 3447","TransferPrice":1200,"TransferTime":600}"#;
+        // Reopened at Sol, which lists the ship there: it never made the trip.
+        let listed = r#"{"timestamp":"2026-10-10T11:05:00Z","event":"StoredShips","StarSystem":"Sol","MarketID":1,"ShipsHere":[{"ShipID":12,"ShipType":"anaconda"}],"ShipsRemote":[]}"#;
+        let mut b = fold(&[DOCK_LHS, transfer, listed]);
+        let ship = |b: &FleetBuilder| b.build("t").ships.into_iter().find(|s| s.id == 12).unwrap();
+        let s = ship(&b);
+        assert_eq!((s.in_transit, s.system.as_deref(), s.market_id), (false, Some("Sol"), Some(1)));
+        b.settle(i64::MAX);
+        let s = ship(&b);
+        assert_eq!(
+            (s.in_transit, s.system.as_deref(), s.market_id),
+            (false, Some("Sol"), Some(1)),
+            "settling moved it"
+        );
+    }
+
+    #[test]
     fn a_refreshed_module_list_keeps_a_transfer_under_way() {
         let fetch = r#"{"timestamp":"2026-10-10T11:01:00Z","event":"FetchRemoteModule","StorageSlot":2,"StoredItem":"$int_shieldgenerator_size5_class5_name;","TransferCost":500,"TransferTime":300}"#;
         let refresh = r#"{"timestamp":"2026-10-10T11:02:00Z","event":"StoredModules","MarketID":2,"StarSystem":"LHS 3447","Items":[{"Name":"$hpt_pulselaser_fixed_small_name;","StorageSlot":1,"StarSystem":"Sol"},{"Name":"$int_shieldgenerator_size5_class5_name;","StorageSlot":2,"InTransit":true}]}"#;
@@ -588,7 +606,9 @@ mod tests {
         let f = from_journal_dir(&dir);
         let mods: Vec<_> = f.stored_modules.iter().map(|m| (m.item.as_str(), m.system.as_deref(), m.grade)).collect();
         // Slot 1 laser retrieved, slot 2 laser sold, the engineered power plant and the cargo
-        // rack stored, the old shield generator put away, the size 5 shield fetched to Sol.
+        // rack stored, the old shield generator put away, the size 5 shield fetched to Sol, then a bought-over
+        // power plant and a module bought straight into storage. The last Docked is after every
+        // transfer is due, so nothing here depends on the clock.
         assert_eq!(
             mods,
             [
@@ -596,6 +616,8 @@ mod tests {
                 ("int_powerplant_size4_class5", Some("Sol"), Some(2)),
                 ("int_shieldgenerator_size4_class3", Some("Sol"), None),
                 ("int_cargorack_size2_class1", Some("Sol"), None),
+                ("int_powerplant_size4_class4", Some("Sol"), None),
+                ("hpt_beamlaser_fixed_small", Some("Sol"), None),
             ]
         );
         let anaconda = f.ships.iter().find(|s| s.id == 12).unwrap();
