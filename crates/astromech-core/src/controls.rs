@@ -337,9 +337,6 @@ mod tests {
         (m, logs)
     }
 
-    /// The bug from Sumeet's PC: the stick is idle (Windows joysticks report only on change),
-    /// so the very first report the listener sees is the PTT press. It used to become the
-    /// baseline, the release then came as an "up" with no down, and nothing happened.
     /// Sleep as the controls thread does (`wait_ms`), tick on waking, and return when `PttUp`
     /// comes out, or None by `until_ms`. A fake clock: `now_ms` is the only time there is.
     fn run_idle(m: &mut Mapper, mut now_ms: f64, until_ms: f64) -> Option<f64> {
@@ -394,6 +391,9 @@ mod tests {
         assert_eq!(run_idle(&mut m, 5701.0, 7000.0), None);
     }
 
+    /// The bug from Sumeet's PC: the stick is idle (Windows joysticks report only on change),
+    /// so the very first report the listener sees is the PTT press. It used to become the
+    /// baseline, the release then came as an "up" with no down, and nothing happened.
     #[test]
     fn first_report_is_the_ptt_press() {
         let (mut m, _) = mapper(false);
