@@ -1,0 +1,29 @@
+---
+created_at: "2026-10-17T05:13:31.406734979+00:00"
+id: "astromech-wzol"
+issue_type: "task"
+labels: []
+priority: "P3"
+relationships:
+  blocks: []
+  children: []
+  attachments: []
+  relates: []
+schema: "atelier.issue"
+schema_version: 2
+status: "todo"
+title: "Session summary voice query: say when the history couldn't be read"
+updated_at: "2026-10-17T05:13:31.406734979+00:00"
+---
+
+## Goal
+
+The session summary voice query (astromech-oo8y) says "No session history yet." whenever the read fails, including a lost lock or a busy database, which is wrong when the history exists but was briefly busy. Say the history couldn't be read, or retry briefly on the voice path.
+
+## Done when
+
+A test with a locked history database gets a can't-read answer (or the retried answer), not "No session history yet."
+
+## Context
+
+Review finding astromech-no3f on astromech-oo8y.
