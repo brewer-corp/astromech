@@ -23,9 +23,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T05:20:53.175582196+00:00"
+status: "done"
 title: "On foot: bartender trade plan for the shopping list"
-updated_at: "2026-10-17T05:09:52.536747126+00:00"
+updated_at: "2026-10-17T05:20:53.175582196+00:00"
 ---
 
 ## Goal
@@ -43,3 +44,7 @@ Follow-up of astromech-j4c9, which shows each item's barter value and the barter
 ## Unknowns
 
 The wiki gives barter values for assets only; check in game whether goods and data can be bartered (values in data/catalog/odyssey.json).
+
+## Close Reason
+
+Trade plan from surplus assets by barter value, limited to assets; in-game rules filed as astromech-t71i. Proof at 3045c92; review outstanding (orchestrator arranges).
