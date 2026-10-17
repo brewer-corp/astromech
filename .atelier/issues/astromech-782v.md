@@ -9,7 +9,10 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-yin0"
+    type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
