@@ -440,6 +440,20 @@ impl crate::History {
         Ok(rows.collect::<Result<_>>()?)
     }
 
+    /// How often the commander called `name` arrived in the system `address` before `before`
+    /// (a journal timestamp, not included), and when last; Legacy-mode journals are ignored.
+    /// One indexed lookup (`visits_address`), cheap enough for the reaction engine.
+    pub fn visits_before(&self, name: &str, address: i64, before: &str) -> crate::Result<Option<(i64, String)>> {
+        let mut row = self.conn.prepare_cached(
+            "SELECT count(*), max(ts) FROM visits
+             WHERE system_address = ?1 AND kind = 'system' AND ts < ?2
+               AND cmdr IN (SELECT cmdr FROM commanders WHERE name = ?3 AND legacy = 0)",
+        )?;
+        let (n, last): (i64, Option<String>) =
+            row.query_row(params![address, before, name], |r| Ok((r.get(0)?, r.get(1)?)))?;
+        Ok(last.map(|l| (n, l)))
+    }
+
     pub fn visits(&self, cmdr: &str) -> crate::Result<Vec<Visit>> {
         let mut st = self.conn.prepare(
             "SELECT ts, kind, star_system, system_address, station_name, market_id, jump_dist, via FROM visits

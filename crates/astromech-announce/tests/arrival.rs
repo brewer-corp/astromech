@@ -2,7 +2,7 @@
 
 mod common;
 
-use astromech_announce::arrival::ShoppingList;
+use astromech_announce::arrival::{self, ShoppingList};
 use astromech_announce::*;
 use common::Run;
 
@@ -186,4 +186,87 @@ fn a_material_collected_up_to_its_count_drops_off_the_list() {
     // Collected in game, with the app closed: the list needs no update.
     r.spoken(&held(5));
     assert!(r.spoken(&boom).is_empty());
+}
+
+/// Arrivals recorded in a fixture history: (commander, system address, journal timestamp). It
+/// answers as the ledger does: only arrivals strictly before the one being announced.
+struct Ledger(Vec<(&'static str, i64, &'static str)>);
+
+impl arrival::VisitHistory for Ledger {
+    fn before(&self, commander: &str, address: i64, before: &str) -> Option<arrival::Past> {
+        let mine: Vec<&str> =
+            self.0.iter().filter(|(c, a, t)| *c == commander && *a == address && *t < before).map(|v| v.2).collect();
+        Some(arrival::Past { visits: mine.len() as u32, last: mine.iter().max()?.to_string() })
+    }
+}
+
+const LOAD_GAME: &str =
+    r#"{"timestamp":"2026-10-16T19:00:00Z","event":"LoadGame","Commander":"Test","Ship":"krait_mkii","Credits":1}"#;
+
+fn with_ledger(rows: Vec<(&'static str, i64, &'static str)>) -> Run {
+    let r = Run::new();
+    r.shared.visits.set(std::sync::Arc::new(Ledger(rows)));
+    r
+}
+
+#[test]
+fn a_system_visited_twice_before_says_so_and_when_last() {
+    // The history already holds the arrival being announced (the follower imports it at once).
+    let mut r = with_ledger(vec![
+        ("Test", 1, "2026-10-01T10:00:00Z"),
+        ("Test", 1, "2026-10-13T20:00:00Z"),
+        ("Test", 1, "2026-10-16T20:00:00Z"),
+    ]);
+    r.spoken(LOAD_GAME);
+    assert_eq!(r.spoken(&jump("Sys", 0, &[], "")), ["Visited 2 times. Last here 3 days ago."]);
+}
+
+#[test]
+fn a_new_system_says_nothing_about_visits() {
+    // Only this arrival is in the history; another commander's and another system's don't count.
+    let mut r = with_ledger(vec![
+        ("Test", 1, "2026-10-16T20:00:00Z"),
+        ("Other", 1, "2026-10-01T10:00:00Z"),
+        ("Test", 2, "2026-10-01T10:00:00Z"),
+    ]);
+    r.spoken(LOAD_GAME);
+    assert!(r.spoken(&jump("Sys", 0, &[], "")).is_empty());
+}
+
+#[test]
+fn the_visits_line_follows_the_state_line_within_the_word_budget() {
+    let mut r = shopping(&["protoheatradiators"]);
+    r.shared.visits.set(std::sync::Arc::new(Ledger(vec![("Test", 1, "2026-10-16T19:30:00Z")])));
+    r.spoken(LOAD_GAME);
+    let boom = jump("Sys", 3_000_000, &[("Independent", "Boom", 0.5)], "");
+    assert_eq!(r.spoken(&boom), ["Boom here. Proto Heat Radiators.", "Visited once. Last here 30 minutes ago."]);
+}
+
+#[test]
+fn the_visits_line_is_silent_in_the_catch_up_and_without_a_history() {
+    let mut r = with_ledger(vec![("Test", 1, "2026-10-01T10:00:00Z")]);
+    r.spoken(LOAD_GAME);
+    r.engine.set_live(false);
+    assert!(r.spoken(&jump("Sys", 0, &[], "")).is_empty());
+    // No history plugged in (no journal folder, database not there yet): nothing, no error.
+    let mut r = Run::new();
+    r.spoken(LOAD_GAME);
+    assert!(r.spoken(&jump("Sys", 0, &[], "")).is_empty());
+}
+
+#[test]
+fn how_long_ago_reads_in_the_nearest_unit() {
+    let past = |last: &str| arrival::Past { visits: 3, last: last.into() };
+    let now = "2026-10-16T20:00:00Z";
+    for (last, said) in [
+        ("2026-10-16T19:59:40Z", "Visited 3 times. Last here moments ago."),
+        ("2026-10-16T19:59:00Z", "Visited 3 times. Last here 1 minute ago."),
+        ("2026-10-16T17:00:00Z", "Visited 3 times. Last here 3 hours ago."),
+        ("2026-10-15T20:00:00Z", "Visited 3 times. Last here 1 day ago."),
+        ("2026-06-16T20:00:00Z", "Visited 3 times. Last here 4 months ago."),
+        ("2024-10-16T20:00:00Z", "Visited 3 times. Last here 2 years ago."),
+    ] {
+        assert_eq!(arrival::visits_line(&past(last), now).as_deref(), Some(said));
+    }
+    assert_eq!(arrival::visits_line(&arrival::Past { visits: 0, last: now.into() }, now), None);
 }

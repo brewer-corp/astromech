@@ -141,6 +141,8 @@ pub struct Shared {
     pub prospector: prospector::SharedThresholds,
     /// What the Engineering plans still have to collect (the app sends it).
     pub shopping: arrival::SharedShoppingList,
+    /// The commander's visit history, for the arrival briefing (the core plugs it in).
+    pub visits: arrival::SharedVisits,
 }
 
 /// The rules that ship.
@@ -148,7 +150,7 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
         Box::new(prospector::Prospector { thresholds: shared.prospector }),
         Box::new(scan::Scan),
-        Box::new(arrival::Arrival { shopping: shared.shopping.clone() }),
+        Box::new(arrival::Arrival { shopping: shared.shopping.clone(), visits: shared.visits.clone() }),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
