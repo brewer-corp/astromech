@@ -1,10 +1,10 @@
-//! Where to sell or buy commodities near a system. One Ardent nearby search per commodity
-//! (imports to sell, exports to buy), then every market is checked against the lookup's
-//! [`Filters`] here as well, because a cached or recorded answer may have been asked with other
-//! filters, and ranked: selling by the price paid, highest first; buying by the price asked,
-//! lowest first; nearer first on a tie.
+//! Where to sell or buy commodities near a system, or anywhere in the galaxy ([`anywhere`]).
+//! One Ardent search per commodity (imports to sell, exports to buy), then every market is
+//! checked against the lookup's [`Filters`] here as well, because a cached or recorded answer
+//! may have been asked with other filters, and ranked: selling by the price paid, highest
+//! first; buying by the price asked, lowest first; nearer first on a tie.
 
-use astromech_data::ardent::{Listing, MarketFilter, Trade, NEARBY_LIMIT};
+use astromech_data::ardent::{Listing, MarketFilter, Trade, GALAXY_LIMIT, NEARBY_LIMIT};
 use astromech_data::{Client, Error};
 use astromech_galaxy::{dist, estimate, Facts, Filters, Galaxy, Here, Hop, Pad};
 use serde::{Deserialize, Serialize};
@@ -188,7 +188,11 @@ pub fn rank(
 
 /// The `offers` that pass `filters`, best first.
 pub fn rank_offers(side: Side, offers: Vec<Offer>, filters: &Filters, now_s: i64) -> Vec<Offer> {
-    let filters = with_defaults(filters);
+    best_first(side, offers, &with_defaults(filters), now_s)
+}
+
+/// The `offers` that pass `filters` exactly as given (no defaults), best first.
+fn best_first(side: Side, offers: Vec<Offer>, filters: &Filters, now_s: i64) -> Vec<Offer> {
     let mut out: Vec<Offer> = offers
         .into_iter()
         .filter(|o| {
@@ -280,4 +284,39 @@ pub fn count_jumps(galaxy: &Galaxy, here: &Here, range: f64, offers: &mut [Offer
             o.hop = map.hop(here.pos, o.system_pos, range);
         }
     }
+}
+
+/// `filters` for a galaxy-wide lookup: the trade lookups' default data age, and no search radius.
+pub fn anywhere_filters(filters: &Filters) -> Filters {
+    Filters { max_distance_ly: None, ..with_defaults(filters) }
+}
+
+/// The best markets for `commodity` (a symbol) anywhere in the galaxy, best first: Ardent's
+/// [`GALAXY_LIMIT`] best, those that pass `filters` kept (there is no search radius; the pad and
+/// Odyssey filters are applied here only, so they can shorten the list). Distances are measured
+/// from `here` and jumps are straight-line estimates at `range`: most markets are far beyond the
+/// star map.
+pub fn anywhere(
+    client: &Client,
+    here: &Here,
+    range: f64,
+    side: Side,
+    commodity: &str,
+    filters: &Filters,
+    now_s: i64,
+) -> Result<Search, Error> {
+    let filters = anywhere_filters(filters);
+    let mf = MarketFilter { max_distance: None, min_landing_pad: None, ..market_filter(&filters) };
+    let symbol = commodity.trim().to_lowercase();
+    let got = client.ardent_galaxy(&symbol, side.trade(), &mf)?;
+    let origin = Origin::from(here);
+    let offers = got.value.iter().filter_map(|l| offer(side, l, &origin, range)).collect();
+    let prices = Prices {
+        commodity: symbol,
+        side,
+        fetched_at: got.fetched_at,
+        truncated: got.value.len() >= GALAXY_LIMIT,
+        offers: best_first(side, offers, &filters, now_s),
+    };
+    Ok(Search { side, here: here.clone(), range, results: vec![prices] })
 }
