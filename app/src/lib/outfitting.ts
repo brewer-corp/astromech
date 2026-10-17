@@ -65,8 +65,14 @@ export function settle(w: ModuleWant): ModuleWant {
 
 const BY_SYMBOL = new Map(MODULES.flatMap((m) => m.sizes.flatMap((s) => (s.symbols ?? []).map((sym) => [sym.toLowerCase(), { m, s }] as const))));
 
-/** What to buy to get a fitted module again, from its journal `Item` symbol; null when the catalogue doesn't sell it (armour). */
+/**
+ * What to buy to get a fitted module again, from its journal `Item` symbol; null when the
+ * catalogue doesn't know the symbol, and for armour, which is sold per ship while the search
+ * finds a grade for any ship. A pre-engineered module has no symbols of its own, so its symbol
+ * gives the base module.
+ */
 export function wantFor(symbol: string): ModuleWant | null {
+  if (/_armour_/i.test(symbol)) return null;
   const hit = BY_SYMBOL.get(symbol.toLowerCase());
   return hit ? { name: hit.m.name, class: hit.s.class, rating: hit.s.rating, mount: hit.s.mount ?? null } : null;
 }
