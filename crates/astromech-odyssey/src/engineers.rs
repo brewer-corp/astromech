@@ -6,7 +6,6 @@ use crate::catalog::{catalog, Engineer};
 use astromech_journal::JournalEvent;
 use serde::Serialize;
 use std::collections::BTreeMap;
-use std::path::Path;
 
 /// Engineer id → `Known`, `Invited`, `Acquainted` or `Unlocked`, as last logged.
 pub type Progress = BTreeMap<i64, String>;
@@ -19,20 +18,6 @@ pub fn apply(progress: &mut Progress, ev: &JournalEvent) {
             progress.insert(id, e.progress.clone());
         }
     }
-}
-
-/// Read every journal for `EngineerProgress` (only those lines are parsed).
-pub fn progress_from_journal_dir(dir: &Path) -> Progress {
-    let mut p = Progress::new();
-    for path in astromech_journal::journal_logs(dir) {
-        let Ok(text) = std::fs::read_to_string(&path) else { continue };
-        for line in text.lines().filter(|l| l.contains("\"EngineerProgress\"")) {
-            if let Ok(l) = astromech_journal::parse_line(line.trim()) {
-                apply(&mut p, &l.event);
-            }
-        }
-    }
-    p
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

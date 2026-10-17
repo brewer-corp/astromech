@@ -33,6 +33,9 @@ pub enum JournalEvent {
         game_version: String,
         build: String,
         odyssey: bool,
+        /// Which file of one game run this is (`part`): 1, or absent, for the first; 2 and up
+        /// when the game rolled over to a new file mid-session.
+        part: Option<i64>,
     },
     LoadGame {
         commander: String,
@@ -364,6 +367,7 @@ pub fn parse_line(line: &str) -> Result<JournalLine, JournalError> {
             game_version: s(&raw, "gameversion"),
             build: s(&raw, "build"),
             odyssey: raw.get("Odyssey").and_then(|x| x.as_bool()).unwrap_or(false),
+            part: opt_i(&raw, "part"),
         },
         "LoadGame" => JournalEvent::LoadGame {
             commander: s(&raw, "Commander"),

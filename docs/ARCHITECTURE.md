@@ -241,8 +241,9 @@ astromech/
                          shopping list, trader swaps; recipes from data/catalog/engineering.json;
                          engineer access (EngineerProgress), crafts applied to the fleet, trip planning
     astromech-odyssey/   Odyssey on-foot micro-resources: ShipLocker.json + Backpack.json inventory,
-                         suit/weapon grade upgrades and modifications with what's missing, a shopping
-                         list with a bartender trade plan from surplus assets, on-foot engineers (EngineerProgress 4000xx, referral chain), bartender
+                         owned suits/weapons (grade, mods, from the journal), grade upgrades and
+                         modifications with what's missing, a shopping list with a bartender trade
+                         plan from surplus assets, on-foot engineers (EngineerProgress 4000xx, referral chain), bartender
                          values; game data from data/catalog/odyssey.json
     astromech-powerplay/ Powerplay 2.0 from the journal: standing (rank, merits per session and weekly
                          cycle, next rank and reward), the system's state on arrival and its spoken

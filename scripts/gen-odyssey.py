@@ -41,6 +41,36 @@ WEAPON_MODS = [
     "Audio Masking", "Faster Handling", "Greater Range", "Headshot Damage", "Improved Hip Fire Accuracy",
     "Magazine Size", "Noise Suppressor", "Reload Speed", "Scope", "Stability", "Stowed Reloading",
 ]
+# The names the journal logs (SuitLoadout, BuySuit, BuyWeapon, ...), lowercase, for the owned gear
+# on the On foot page. Suits are `<symbol>_class<grade>`; mods are `suit_*` / `weapon_*`. Sources:
+# EDCD/EDDI DataDefinitions (Suit.cs, HandWeapon.cs, SuitMod.cs, HandWeaponMod.cs), cross-checked
+# with rster2002/ed-journals (suit_mod.rs, weapon_mod.rs) and the example lines in
+# jixxed/ed-journal-schemas (schemas/BuySuit, BuyWeapon, SuitLoadout, SwitchSuitLoadout).
+JOURNAL_GEAR = {
+    "Maverick Suit": "utilitysuit", "Dominator Suit": "tacticalsuit", "Artemis Suit": "explorationsuit",
+    "Karma AR-50": "wpn_m_assaultrifle_kinetic_fauto", "Karma C-44": "wpn_m_submachinegun_kinetic_fauto",
+    "Karma L-6": "wpn_m_launcher_rocket_sauto", "Karma P-15": "wpn_s_pistol_kinetic_sauto",
+    "Manticore Executioner": "wpn_m_sniper_plasma_charged",
+    "Manticore Intimidator": "wpn_m_shotgun_plasma_doublebarrel",
+    "Manticore Oppressor": "wpn_m_assaultrifle_plasma_fauto", "Manticore Tormentor": "wpn_s_pistol_plasma_charged",
+    "TK Aphelion": "wpn_m_assaultrifle_laser_fauto", "TK Eclipse": "wpn_m_submachinegun_laser_fauto",
+    "TK Zenith": "wpn_s_pistol_laser_sauto",
+}
+JOURNAL_MODS = {
+    "Added Melee Damage": "suit_increasedmeleedamage", "Combat Movement Speed": "suit_adsmovementspeed",
+    "Damage Resistance": "suit_improvedarmourrating", "Enhanced Tracking": "suit_improvedradar",
+    "Extra Ammo Capacity": "suit_increasedammoreserves", "Extra Backpack Capacity": "suit_backpackcapacity",
+    "Faster Shield Regen": "suit_increasedshieldregen", "Improved Battery Capacity": "suit_increasedbatterycapacity",
+    "Improved Jump Assist": "suit_improvedjumpassist", "Increased Air Reserves": "suit_increasedo2capacity",
+    "Increased Sprint Duration": "suit_increasedsprintduration", "Night Vision": "suit_nightvision",
+    "Quieter Footsteps": "suit_quieterfootsteps",
+    "Reduced Tool Battery Consumption": "suit_reducedtoolbatteryconsumption",
+    "Audio Masking": "weapon_suppression_unpressurised", "Faster Handling": "weapon_handling",
+    "Greater Range": "weapon_range", "Headshot Damage": "weapon_headshotdamage",
+    "Improved Hip Fire Accuracy": "weapon_accuracy", "Magazine Size": "weapon_clipsize",
+    "Noise Suppressor": "weapon_suppression_pressurised", "Reload Speed": "weapon_reloadspeed",
+    "Scope": "weapon_scope", "Stability": "weapon_stability", "Stowed Reloading": "weapon_backpackreloading",
+}
 # Wiki page titles that differ from the in-game name.
 PAGE = {"Night Vision": "Night Vision (Modification)"}
 # Engineers-page names for mods that differ from the mod's in-game name.
@@ -206,13 +236,13 @@ def main(cache, out):
     suits = []
     for s in SUITS:
         text = wikitext(cache, s)
-        suits.append({"id": key(s.replace(" Suit", "")), "name": s, "upgrades": upgrades(text, item_key, uncertain, s)})
+        suits.append({"id": key(s.replace(" Suit", "")), "name": s, "journal": JOURNAL_GEAR[s], "upgrades": upgrades(text, item_key, uncertain, s)})
 
     weapons = []
     for w in WEAPONS:
         text = wikitext(cache, w)
         maker = MAKERS[w.split()[0]]
-        weapons.append({"id": key(w), "name": w, "maker": maker, "upgrades": upgrades(text, item_key, uncertain, w)})
+        weapons.append({"id": key(w), "name": w, "journal": JOURNAL_GEAR[w], "maker": maker, "upgrades": upgrades(text, item_key, uncertain, w)})
 
     mod_engineers = {}
     mods = []
@@ -241,7 +271,7 @@ def main(cache, out):
             elif kind == "weapon" and sorted(c["maker"] for c in costs) != ["kinematic", "manticore", "takada"]:
                 uncertain.append(f"{m}: costs only for {sorted(str(c['maker']) for c in costs)}")
             mod_engineers[m] = set(wiki_engineers(section(text, "Availability")))
-            mods.append({"id": key(m), "name": m, "kind": kind, "costs": costs})
+            mods.append({"id": key(m), "name": m, "kind": kind, "journal": JOURNAL_MODS[m], "costs": costs})
 
     # Engineers page: the overview table (system, mods) and the summary table (how to find, invite,
     # referral). The two tables and the mod pages do not always agree on who fits what.

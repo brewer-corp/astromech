@@ -10,7 +10,7 @@ fn main() {
         Pick::Mod { id: "nightvision".into(), maker: None },
         Pick::Upgrade { gear: "karmap15".into(), from: 1, to: 2 },
     ];
-    let list = shopping(&picks, &h, &p);
+    let list = shopping(&picks, &h, &p.progress);
     let out = serde_json::json!({
         "view": view(&h, &p, "Sample ShipLocker"),
         "picks": picks,
