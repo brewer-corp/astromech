@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Guide: ships, engineering, materials, trade and mining"
-updated_at: "2026-10-17T16:54:23.968291516+00:00"
+updated_at: "2026-10-17T17:18:28.884953257+00:00"
 ---
 
 ## Goal
