@@ -20,9 +20,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T02:43:00.365098051+00:00"
+status: "done"
 title: "Visit history in the arrival briefing"
-updated_at: "2026-10-17T02:38:02.970935950+00:00"
+updated_at: "2026-10-17T02:43:00.365098051+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ Add "times visited" and "last here …" to the arrival briefing from the history
 ## Done when
 
 Replay with a fixture history: a system visited twice before gets the line; a new system doesn't.
+
+## Close Reason
+
+Arrival briefing says 'Visited N times. Last here X ago.' from the visits ledger; first visits and catch-up are silent.
