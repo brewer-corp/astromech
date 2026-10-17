@@ -356,22 +356,86 @@ pub fn class_name(class: &str, subclass: Option<i64>) -> String {
     fixed.to_string()
 }
 
-/// The current system from the newest journal and the one before it (a continuation part may
-/// start mid-system).
-pub fn from_journal_dir(dir: &Path) -> SystemView {
+/// The two newest journals, which the system view is folded from (a continuation part may start
+/// mid-system).
+fn view_logs(dir: &Path) -> Vec<std::path::PathBuf> {
     let logs = astromech_journal::journal_logs(dir);
+    let skip = logs.len().saturating_sub(2);
+    logs.into_iter().skip(skip).collect()
+}
+
+/// The current system from the newest journal and the one before it.
+pub fn from_journal_dir(dir: &Path) -> SystemView {
     let mut f = SystemFold::default();
-    for p in logs.iter().skip(logs.len().saturating_sub(2)) {
-        for l in astromech_journal::parse_file(p) {
+    for p in view_logs(dir) {
+        for l in astromech_journal::parse_file(&p) {
             f.apply(&l);
         }
     }
     f.view()
 }
 
+/// [`from_journal_dir`] remembered between calls (astromech-dt5h): the Exploration page polls
+/// every few seconds, and the journals only change while the game writes. The answer is reused
+/// until one of the two journals is added, removed or grows. Lengths are read through an open
+/// handle because on Windows a directory listing can lag appends to a file the game holds open
+/// (astromech-txzq).
+#[derive(Debug, Default)]
+pub struct SystemViewCache {
+    last: Option<(Vec<(std::path::PathBuf, u64)>, SystemView)>,
+    parses: usize,
+}
+
+impl SystemViewCache {
+    pub fn view(&mut self, dir: &Path) -> SystemView {
+        let sig: Vec<(std::path::PathBuf, u64)> = view_logs(dir)
+            .into_iter()
+            .map(|p| {
+                let len = std::fs::File::open(&p).and_then(|f| f.metadata()).map_or(0, |m| m.len());
+                (p, len)
+            })
+            .collect();
+        match &self.last {
+            Some((s, v)) if *s == sig => v.clone(),
+            _ => {
+                self.parses += 1;
+                let v = from_journal_dir(dir);
+                self.last = Some((sig, v.clone()));
+                v
+            }
+        }
+    }
+
+    /// How many times the journals were parsed (for tests).
+    pub fn parses(&self) -> usize {
+        self.parses
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn an_unchanged_journal_is_not_parsed_again() {
+        let d = std::env::temp_dir().join(format!("astromech-viewcache-{}", std::process::id()));
+        std::fs::create_dir_all(&d).unwrap();
+        let log = d.join("Journal.2026-10-01T090000.01.log");
+        let jump = r#"{"timestamp":"2026-10-01T09:00:00Z","event":"FSDJump","StarSystem":"Alpha","SystemAddress":1,"StarPos":[0,0,0],"JumpDist":9.5}"#;
+        std::fs::write(&log, format!("{jump}\n")).unwrap();
+        let mut c = SystemViewCache::default();
+        let first = c.view(&d);
+        assert_eq!(first.system.as_deref(), Some("Alpha"));
+        assert_eq!(c.view(&d), first);
+        assert_eq!(c.view(&d), first);
+        assert_eq!(c.parses(), 1, "polling an unchanged journal re-parsed it");
+        // Growth, or a newer file, is parsed.
+        let jump2 = jump.replace("Alpha", "Beta").replace("09:00:00", "09:05:00");
+        std::fs::write(&log, format!("{jump}\n{jump2}\n")).unwrap();
+        assert_eq!(c.view(&d).system.as_deref(), Some("Beta"));
+        assert_eq!(c.parses(), 2);
+        std::fs::remove_dir_all(&d).unwrap();
+    }
 
     #[test]
     fn class_names() {
