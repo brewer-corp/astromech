@@ -389,7 +389,9 @@ impl Tailer {
     /// with another offset (header and name disagree), is [`Class::Foreign`]: a replay only.
     fn classify(&mut self, path: &Path) -> Class {
         let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) else { return Class::Foreign };
-        let latest = astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
+        // The game's own journal is in `game_sessions` after its first batch: no directory listing.
+        let latest = !self.game_sessions.contains(&stamp)
+            && astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
         if latest || self.game_sessions.contains(&stamp) {
             self.game_sessions.insert(stamp);
             Class::Game
@@ -416,7 +418,8 @@ impl Tailer {
                 chrono::LocalResult::Ambiguous(a, b) => {
                     [a, b].iter().any(|t| (t.timestamp() - header).abs() <= HEADER_SLACK_SECS)
                 }
-                chrono::LocalResult::None => (naive.and_utc().timestamp() - header).abs() <= 2 * 3600,
+                // A time that doesn't exist here (the spring-forward gap) is not one the game wrote.
+                chrono::LocalResult::None => false,
             }
         });
         self.header_agrees.insert(path.to_path_buf(), agrees);
@@ -437,20 +440,20 @@ impl Tailer {
                 self.apply_lines(lines);
             }
             Class::Gated if self.caught_up && may_be_live => {
-                // Lines are in time order: the stale ones come first.
-                let first_fresh = lines.partition_point(|l| !line_is_fresh(l));
-                let fresh = lines[first_fresh..].to_vec();
-                let mut stale = lines;
-                stale.truncate(first_fresh);
-                self.live = false;
-                self.apply_lines(stale);
-                if !fresh.is_empty() {
-                    // The game is writing it: a later part of this session is too.
-                    if let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) {
-                        self.game_sessions.insert(stamp);
+                // Each line by its own time, in order: the stale ones are the replay, the fresh
+                // ones live. Runs of equal freshness are applied together.
+                let mut run: Vec<String> = vec![];
+                let mut run_fresh = false;
+                for line in lines {
+                    let fresh = line_is_fresh(&line);
+                    if fresh != run_fresh && !run.is_empty() {
+                        self.apply_gated_run(path, std::mem::take(&mut run), run_fresh);
                     }
-                    self.live = true;
-                    self.apply_lines(fresh);
+                    run_fresh = fresh;
+                    run.push(line);
+                }
+                if !run.is_empty() {
+                    self.apply_gated_run(path, run, run_fresh);
                 }
             }
             Class::Gated => {
@@ -458,6 +461,17 @@ impl Tailer {
                 self.apply_lines(lines);
             }
         }
+    }
+
+    fn apply_gated_run(&mut self, path: &Path, lines: Vec<String>, fresh: bool) {
+        if fresh {
+            // The game is writing it: a later part of this session is too.
+            if let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) {
+                self.game_sessions.insert(stamp);
+            }
+        }
+        self.live = fresh;
+        self.apply_lines(lines);
     }
 
     /// Log once when the journal we follow isn't the folder's latest by name: whether it is live
@@ -1707,5 +1721,48 @@ mod tests {
         append(&part2, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, sent + 2, "the next part's header Location and Docked are live");
+    }
+
+    /// The game's journal followed while still empty (no header yet), then written: judged on its
+    /// first batch, whose fresh lines are live.
+    #[test]
+    fn the_games_journal_followed_while_empty_is_live_once_written() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, "").unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        append(&own, &format!("{}{}", session(&ts(1800), "r1 "), docked(&ts(0))));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// Timestamps that don't parse or run out of order are judged line by line: a stale line after
+    /// a fresh one, or garbage, is never live.
+    #[test]
+    fn gated_lines_are_judged_one_by_one() {
+        let d = tempfile::tempdir().unwrap();
+        let foreign = d.path().join(game_name(180));
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        let own = d.path().join(game_name(-30));
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        touch(&own, 10);
+        t.on_journal_activity();
+        let base = eddn_state(&db).0;
+        append(&own, &docked(&ts(0)));
+        append(&own, &docked(&ts(200)));
+        append(
+            &own,
+            r#"{"timestamp":"garbage","event":"Docked","StationName":"S","MarketID":9,"StarSystem":"Sys","SystemAddress":5}"#,
+        );
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, base + 1, "only the fresh line is live");
     }
 }
