@@ -14,7 +14,7 @@ pub struct Api {
     pub bindings_dir: PathBuf,
     pub builtin_dirs: Vec<PathBuf>,
     pub inventory: Inventory,
-    /// Where per-user overrides live (`%LOCALAPPDATA%\astromech\data`).
+    /// Where per-user overrides live: the core's data folder (`%LOCALAPPDATA%\astromech\data` by default).
     pub data_dir: PathBuf,
 }
 

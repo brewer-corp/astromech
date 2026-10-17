@@ -11,6 +11,7 @@ use crate::session::{self, Session, VOICE_PAUSED};
 use crate::tester::{self, Source, TESTER};
 use crate::update::{self, ApplyWhen, Status as UpStatus};
 use anyhow::Result;
+use astromech_store::Paths;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -146,7 +147,7 @@ impl Core {
             "crash_pending": self.crash.lock().unwrap().is_some(),
             "status_line": self.status_line(),
             "app_dir": self.app_dir.display().to_string(),
-            "log_dir": self.app_dir.join("logs").display().to_string(),
+            "log_dir": crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir()).display().to_string(),
             "config": self.config_path.display().to_string(),
             "config_note": self.config_note,
             "setup_needed": self.setup_needed(),
@@ -165,7 +166,7 @@ impl Core {
     }
 
     pub fn save_diagnostics(&self) -> Result<PathBuf> {
-        let log_dir = crate::logging::dir().unwrap_or_else(|| self.app_dir.join("logs"));
+        let log_dir = crate::logging::dir().unwrap_or_else(|| Paths::current().log_dir());
         let data = self.cfg().data_dir();
         let p = crate::diagnostics::save(&crate::diagnostics::Inputs {
             app_dir: &self.app_dir,
@@ -360,7 +361,7 @@ impl Core {
             h.snap.status = UpStatus::Applying;
             (p, before)
         };
-        let install_dir = Config::exe_dir();
+        let install_dir = Paths::current().exe_dir().to_path_buf();
         // Bring the window back afterwards if it is open now (the helper closes it to replace it).
         let window_open = gamewatch::process_names().iter().any(|n| n.eq_ignore_ascii_case(SHELL_EXE));
         let after = if window_open { update::After::RelaunchWithWindow } else { update::After::Relaunch };
@@ -399,7 +400,7 @@ impl Core {
         }
         let Some(payload) = h.payload.clone() else { return };
         drop(h);
-        match update::spawn_apply(&payload, &Config::exe_dir(), update::After::Exit) {
+        match update::spawn_apply(&payload, Paths::current().exe_dir(), update::After::Exit) {
             Ok(()) => log("update: applying on quit"),
             Err(e) => log(&format!("update: apply on quit failed: {e:#}")),
         }
@@ -407,8 +408,9 @@ impl Core {
 
     /// Launch (or focus) the app window at `route`.
     pub fn open_window(&self, route: Option<&str>) -> Result<(), String> {
-        let exe =
-            std::env::var_os("ASTROMECH_SHELL").map(PathBuf::from).unwrap_or_else(|| Config::exe_dir().join(SHELL_EXE));
+        let exe = std::env::var_os("ASTROMECH_SHELL")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| Paths::current().exe_dir().join(SHELL_EXE));
         if !exe.is_file() {
             let m = format!("the app window ({}) isn't installed next to the core", exe.display());
             log(&m);
@@ -1025,11 +1027,10 @@ fn watch_game(core: Arc<Core>) {
 
 /// Run the core until "Quit". Returns the exit code.
 pub fn run(opts: Opts) -> i32 {
-    let app_dir = Config::app_dir();
+    let paths = Paths::current();
+    let app_dir = paths.app_dir().to_path_buf();
     let _ = std::fs::create_dir_all(&app_dir);
-    let log_dir =
-        if Config::portable() { Config::exe_dir().join("astromech-data").join("logs") } else { app_dir.join("logs") };
-    crate::logging::init(&log_dir, false);
+    crate::logging::init(&paths.log_dir(), false);
     crate::crash::install(&app_dir);
 
     // Single instance: a second start opens the window of the first, then exits.
@@ -1049,7 +1050,7 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    let config_path = opts.config.clone().unwrap_or_else(Config::default_path);
+    let config_path = opts.config.clone().unwrap_or_else(|| paths.config_file());
     let config_exists = config_path.is_file();
     let (mut cfg, config_note) = if config_exists {
         match Config::load(&config_path) {
@@ -1070,7 +1071,7 @@ pub fn run(opts: Opts) -> i32 {
         cfg.actions.dry_run = true;
     }
 
-    if !Config::portable() {
+    if !paths.portable() {
         if let Ok(exe) = std::env::current_exe() {
             if let Some(m) = crate::autostart::apply_default(&app_dir, &exe) {
                 log(&m);
@@ -1183,7 +1184,7 @@ pub fn run(opts: Opts) -> i32 {
             .expect("spawn update checker");
     }
 
-    if !opts.background && !Config::portable() {
+    if !opts.background && !paths.portable() {
         let _ = core.open_window(opts.route.as_deref());
     }
 

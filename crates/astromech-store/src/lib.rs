@@ -3,7 +3,10 @@
 //! Local persistence (ARCHITECTURE.md §5.19): one SQLite file with versioned migrations
 //! (`PRAGMA user_version`). Secrets go to the OS keyring ([`secrets`]), never into SQLite.
 
+pub mod paths;
 pub mod secrets;
+
+pub use paths::Paths;
 
 pub use rusqlite;
 pub use rusqlite::Error as StoreError;
@@ -68,26 +71,6 @@ pub fn migrate(mut conn: Connection, migrations: &[&str]) -> Result<Connection> 
         tx.commit()?;
     }
     Ok(conn)
-}
-
-/// The folder holding `astromech.sqlite` and the other data files: the config's `data_dir` if
-/// set, else `exe_dir/astromech-data` in portable mode (an `astromech.toml` next to the exe),
-/// else `app_dir`. One rule for the core (`Config::data_dir`) and the app shell, so both open
-/// the same files.
-pub fn data_dir(
-    configured: &str,
-    portable: bool,
-    exe_dir: &std::path::Path,
-    app_dir: &std::path::Path,
-) -> std::path::PathBuf {
-    let c = configured.trim();
-    if !c.is_empty() {
-        c.into()
-    } else if portable {
-        exe_dir.join("astromech-data")
-    } else {
-        app_dir.to_path_buf()
-    }
 }
 
 pub struct Store {
@@ -226,16 +209,6 @@ mod tests {
         let c = migrate(Connection::open(&db).unwrap(), &[v1, fixed]).unwrap();
         assert_eq!(c.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0)).unwrap(), 2);
         c.prepare("SELECT y FROM a").unwrap();
-    }
-
-    #[test]
-    fn data_dir_knows_portable_mode_and_the_override() {
-        use std::path::Path;
-        let (exe, app) = (Path::new("/x/exe"), Path::new("/x/app"));
-        assert_eq!(data_dir("", false, exe, app), app);
-        assert_eq!(data_dir("  ", true, exe, app), Path::new("/x/exe/astromech-data"));
-        assert_eq!(data_dir(" /d ", true, exe, app), Path::new("/d"));
-        assert_eq!(data_dir("/d", false, exe, app), Path::new("/d"));
     }
 
     /// Two processes opening a brand-new file at once: both succeed, the schema is applied once.
