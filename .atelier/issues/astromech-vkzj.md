@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-18T13:42:12.120954651+00:00"
+status: "done"
 title: "Voice: a phonetic-key match alone executes one-word key presses ('boost' -> paste, 'page' -> back)"
-updated_at: "2026-10-18T13:28:32.972205498+00:00"
+updated_at: "2026-10-18T13:42:12.120954651+00:00"
 ---
 
 ## Goal
@@ -40,3 +41,7 @@ Review finding R1 of astromech-8997 (pre-existing on main). The reviewer counted
 - 2026-10-18 [note] Change of direction (Sumeet, via the coordinator): the one-word, lone-sound-alike and backed rules are removed. One rule: if any phrase word matched only through the phonetic key (spelling alone under 0.85), the phrase score is capped at SOUND_CAP 0.80, so it can ask but never execute. Applied to every command, not only key presses: the eval shows no regression either way (all-commands: 81 clips execute -> ask; key-press commands alone would be 47), and one rule is simpler than a per-command predicate. Re-scored cached transcripts, clips execute -> ask per family: ui 34, status 16, route 15, ship 5, srv 4, faction 2, powerplay 2, trade 2, confirm 1; no new miss, wrong ask or wrong execute; rejects 64/64. Fresh voice-eval at 8e2ceaea: 3115/3136, 0 wrong executes, 64/64 rejects, misses 13. Word lists (key-press executes before -> after): 59k words 237 -> 70 (single words 104 -> 0; all executes 1019 -> 257); 'X it'/'go X' pairs 147 -> 32; reviewer's all-sound-alike 276 -> 0; one-sound-alike 709 -> 1; round-3 dictionary-swap probe 2024 -> 1. The two left ('fall stop' -> all stop at 0.875) are close spellings, not key matches. Nothing newly executes. astromech-8f5g superseded (nothing backs a sound-alike any more; 'car down' asks).
 - 2026-10-18 [note] Switch to a pure veto (decided by the orchestrator after round 6; 73d4e007). This supersedes the SOUND_CAP 0.80 note above: scoring, ranking, margins, slots, aliases and the mishearing path are main's unchanged; best() only turns a winner's Execute into Ask when its phrase matched some word solely through the phonetic key, keeping the command, slot and score. Line by line against main (docs/evidence/astromech-vkzj/main-vs-head.txt, 987,531 lines over 12 sets: 59k words, 'X it'/'go X' pairs, round-2 all/one-sound-alike, round-3 probe, eval transcripts, round-4 one-edit and corpora, round-5 slot probe and two-edit, round-6 adversarial and aliases), the only difference is Execute -> Ask with the same command, slot and score; 0 other differences. Execute -> Ask counts: words 762, pairs 115, round-2 all-sound-alike 276, one-sound-alike 709, round-3 probe 2,024 (including 'fall stop', which the veto build asks), eval transcripts 35, round-4 one-edit 12,530, round-4 corpora 15,387, slot probe 29,466, two-edit 17,817, adversarial 2,976, aliases 41. Eval clips: 81 Execute -> Ask, 0 wrong executes, 64/64 rejects, misses 13. word-list-changes.tsv regenerated from the veto build (3,885 rows).
 - 2026-10-18 [note] Goal and Done when restated to match what was decided (round 7 R2): the rule covers all commands, it is a veto rather than a score floor, and 'no command drops below its current score' is replaced by 'nothing newly executes compared with main; only Execute -> Ask with the same command, slot and score; eval 0 wrong executes and 64/64 rejects'. The round-7 R3 follow-up (an Ask-level sound-alike of 'yes' confirms a pending question; pre-existing on main) is filed as astromech-m2bl.
+
+## Close Reason
+
+Pure veto: a winning match that used a sound-only word asks instead of executing. Nothing newly executes vs main (987k probe lines, only Execute->Ask same command/slot/score); eval 0 wrong executes, 64/64 rejects. Follow-ups: astromech-clju (recogniser uses grammar), astromech-m2bl (yes sound-alike).
