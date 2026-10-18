@@ -7,7 +7,7 @@
 //!
 //! Decision thresholds:
 //! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute
-//!   (but a key press whose only content word is a sound-alike asks, see
+//!   (but a key press that leans on the phonetic key alone asks, see
 //!   [`Grammar::asks_on_sound_alike`]);
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Say again".
@@ -48,8 +48,9 @@ pub struct Match {
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
     /// A phrase word was matched only through the crude phonetic key (the spelling alone was not
-    /// close) and the phrase has no other content word (longer than two letters) to back it up:
-    /// "boost" for "paste", "post it" for "paste it", "go page" for "go back".
+    /// close) and no content word (longer than two letters) was heard on its spelling to back it
+    /// up: "boost" for "paste", "post it" for "paste it", "go page" for "go back", "rice care" for
+    /// "raise gear".
     pub lone_sound_alike: bool,
     pub score: f32,
     pub decision: Decision,
@@ -642,42 +643,45 @@ fn slot_name(w: &str) -> Option<&str> {
     w.strip_prefix('{')?.strip_suffix('}')
 }
 
-/// One cell of [`phrase_score`]'s table: cost so far, the slot fill, and whether a phrase word
-/// was matched only through the phonetic key.
-type Cell = (f32, Option<Fill>, bool);
+/// One cell of [`phrase_score`]'s table: cost so far, the slot fill, whether a phrase word was
+/// matched only through the phonetic key, and whether a content word (longer than two letters)
+/// or a slot was heard on its spelling.
+type Cell = (f32, Option<Fill>, bool, bool);
 
-/// Keep the cheaper of `cell` and (`cost`, `fill`, `sound`). On a tie, a sound-alike on either
-/// path counts, so the flag errs towards asking.
-fn relax(cell: &mut Cell, cost: f32, fill: Option<Fill>, sound: bool) {
-    if cost < cell.0 {
-        *cell = (cost, fill, sound);
-    } else if cost == cell.0 {
-        cell.2 |= sound;
+/// Keep the cheaper of `cell` and `new`. On a tie, a sound-alike on either path counts and
+/// backing must be on both, so the flags err towards asking.
+fn relax(cell: &mut Cell, new: Cell) {
+    if new.0 < cell.0 {
+        *cell = new;
+    } else if new.0 == cell.0 {
+        cell.2 |= new.2;
+        cell.3 &= new.3;
     }
 }
 
 /// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
 /// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
-/// scores the words `u[i..i + k]` for a slot. Returns the score, the slot's fill, and whether a
-/// (non-slot) phrase word was matched only through the phonetic key.
+/// scores the words `u[i..i + k]` for a slot. Returns the score, the slot's fill, and whether
+/// the match leans on the phonetic key alone: a (non-slot) phrase word matched only through the
+/// key, and no content word (longer than two letters) or exact slot heard on its spelling.
 fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>, bool) {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
         return (0.0, None, false);
     }
-    let mut dp: Vec<Vec<Cell>> = vec![vec![(f32::MAX, None, false); m + 1]; n + 1];
-    dp[0][0] = (0.0, None, false);
+    let mut dp: Vec<Vec<Cell>> = vec![vec![(f32::MAX, None, false, false); m + 1]; n + 1];
+    dp[0][0] = (0.0, None, false, false);
     for i in 0..=n {
         for j in 0..=m {
-            let (c, f, snd) = dp[i][j].clone();
+            let (c, f, snd, backed) = dp[i][j].clone();
             if c == f32::MAX {
                 continue;
             }
             if i < n {
-                relax(&mut dp[i + 1][j], c + 1.0, f.clone(), snd);
+                relax(&mut dp[i + 1][j], (c + 1.0, f.clone(), snd, backed));
             }
             if j < m {
-                relax(&mut dp[i][j + 1], c + 1.0, f.clone(), snd);
+                relax(&mut dp[i][j + 1], (c + 1.0, f.clone(), snd, backed));
             }
             if i == n || j == m {
                 continue;
@@ -687,18 +691,20 @@ fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) ->
                     for k in 1..=MAX_SLOT_WORDS.min(n - i) {
                         let got = fill(name, i, k);
                         let nc = c + k as f32 * (1.0 - got.sim);
-                        relax(&mut dp[i + k][j + 1], nc, Some(got), snd);
+                        let b = backed || got.exact;
+                        relax(&mut dp[i + k][j + 1], (nc, Some(got), snd, b));
                     }
                 }
                 None => {
                     let (sim, sound) = word_match(&u[i], &p[j]);
-                    relax(&mut dp[i + 1][j + 1], c + (1.0 - sim), f.clone(), snd || sound);
+                    let spelled = !sound && sim >= 0.85 && p[j].chars().count() > 2;
+                    relax(&mut dp[i + 1][j + 1], (c + (1.0 - sim), f.clone(), snd || sound, backed || spelled));
                 }
             }
         }
     }
-    let (cost, f, snd) = dp[n][m].clone();
-    ((1.0 - cost / n.max(m) as f32).max(0.0), f, snd)
+    let (cost, f, snd, backed) = dp[n][m].clone();
+    ((1.0 - cost / n.max(m) as f32).max(0.0), f, snd && !backed)
 }
 
 impl Grammar {
@@ -738,10 +744,10 @@ impl Grammar {
 
     /// The commands `strict` accepts (the ones that press a key) never execute on a
     /// [lone sound-alike](Match::lone_sound_alike): "boost" for "paste", "post it" for "paste
-    /// it", "go page" for "go back" ask "Did you mean …?" instead. The phonetic key alone scores
-    /// a word 0.85, the execute threshold, and a phrase with one content word has nothing else
-    /// to contradict it. A phrase with two content words still executes on one sound-alike
-    /// ("Coms panel", "Open cargo skeep."): the other word backs it up.
+    /// it", "go page" for "go back", "rice care" for "raise gear" ask "Did you mean …?" instead.
+    /// The phonetic key alone scores a word 0.85, the execute threshold. A sound-alike backed up
+    /// by another content word heard on its spelling still executes ("Coms panel", "Open cargo
+    /// skeep.").
     pub fn asks_on_sound_alike(mut self, strict: fn(&str) -> bool) -> Self {
         self.strict = Some(strict);
         self
@@ -870,7 +876,7 @@ impl Grammar {
                     phrase,
                     slot: filled.as_ref().map(|f| f.value.clone()),
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
-                    lone_sound_alike: sound_alike && toks.iter().filter(|w| w.chars().count() > 2).count() <= 1,
+                    lone_sound_alike: sound_alike,
                     slot_text: filled.map(|f| f.text),
                     score,
                     decision: Decision::NoMatch,
@@ -912,7 +918,7 @@ impl Grammar {
         if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
             best.decision = Decision::Ask;
         }
-        // A key press whose only content word was matched through the phonetic key asks.
+        // A key press that leans on the phonetic key alone asks.
         if best.decision == Decision::Execute && best.lone_sound_alike && self.strict.is_some_and(|f| f(best.command)) {
             best.decision = Decision::Ask;
         }

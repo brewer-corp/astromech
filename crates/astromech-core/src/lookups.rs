@@ -131,8 +131,9 @@ mod tests {
         }
     }
 
-    /// astromech-vkzj: a word that only shares the phonetic key with a key press's only content
-    /// word asks, alone or with "it" or "go"; exact words and backed-up sound-alikes execute.
+    /// astromech-vkzj: a key press heard only through the phonetic key asks (alone, with "it" or
+    /// "go", or with every content word a sound-alike); exact words and sound-alikes backed up by
+    /// a word heard on its spelling execute.
     #[test]
     fn key_presses_ask_on_sound_alikes() {
         let g = grammar(&["Sol"]);
@@ -147,6 +148,9 @@ mod tests {
             ("post it", "galaxy_map.paste"),
             ("go page", "panel.close"),
             ("Go peek.", "panel.close"),
+            ("rice care", "landing_gear.up"),
+            ("drape care", "landing_gear.down"),
+            ("chalk maeby", "galaxy_map.open"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");

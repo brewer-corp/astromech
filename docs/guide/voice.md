@@ -43,9 +43,9 @@ it, or close to it: "gear down", "lights on", "deploy hardpoints". Filler words 
 astromech matches what it heard against a fixed list of commands. It does not guess at
 anything outside the list. Each match gets a score:
 
-- **Clear match:** it does it. A short command that presses a key ("back", "go back",
-  "paste", "paste it") never runs on a word that only sounds a bit like its own ("page",
-  "boost"): it asks.
+- **Clear match:** it does it. A command that presses a key never runs on words that only
+  sound a bit like its own ("page" for "back", "boost" for "paste"): it asks. At least one of
+  its longer words must be heard as spelled.
 - **Close, but not sure:** it asks "Did you mean gear down?" Answer **yes** or **no** with
   your next push-to-talk, within five seconds. "Yes" runs it. "No" cancels ("Cancelled."). You
   can also say "confirm", "do it" or "affirmative" for yes, and "cancel", "never mind",
