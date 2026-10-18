@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "review"
 title: "Voice: a phonetic-key match alone executes one-word key presses ('boost' -> paste, 'page' -> back)"
-updated_at: "2026-10-18T02:44:15.661157995+00:00"
+updated_at: "2026-10-18T03:35:06.092125816+00:00"
 ---
 
 ## Goal
@@ -36,3 +36,4 @@ Review finding R1 of astromech-8997 (pre-existing on main). The reviewer counted
 ## Notes
 
 - 2026-10-17 [note] Method and proof (review R2). Option chosen: route a sound-alike-only match to 'Did you mean' for key-pressing commands whose phrase has a single content word (longer than two letters), rather than requiring an exact match for one-word phrases only (missed 'post it', 'go page') or asking on every sound-alike (turned 18 correctly executing eval transcripts, 47 clips, into questions: 'Coms panel', 'Roll panel', 'Open cargo skeep.', 'Hand break off.'). Word list: 59,332 lines = zxcvbn english_wikipedia + us_tv_and_film + surnames (alphabetic) + the 200 eval phrases + phonetic variants (the astromech-8997 reviewer's gen.py), plus 116,734 'X it' / 'go X' pairs from its single words; each line through astromech_core::assistant::grammar().best() by a scratch probe example (not committed). Single-word inputs executing a key press: 104 -> 0 (57 back, 47 paste). Multi-word lines: 132 -> 131. 'X it'/'go X': 147 -> 32; the 32 left are close spellings, not key matches ('go black', 'haste it', 'pasted it'). Every change is Execute -> Ask; nothing newly executes. List: docs/evidence/astromech-vkzj/word-list-changes.tsv. Voice eval: 3115/3136 before and after, 0 wrong executes, 64/64 rejects; lost correct executes: 'Pazed.' (bm_george clean and cockpit, paste) now asks.
+- 2026-10-17 [note] Round-2 fix: a sound-alike counts as backed up only by a content word (longer than two letters) or exact slot heard on its spelling. Reviewer's 276 all-sound-alike inputs ('rice care', 'chalk maeby'): Execute 276 -> 0; 709 one-sound-alike-plus-real-word inputs: still execute. 59k list, 'X it'/'go X' pairs and the 592 eval transcripts: identical to the previous round. Voice eval at 66f4cced: 3115/3136, 0 wrong executes, 64/64 rejects, misses 13; only 'Pazed.' (2 clips) lost its execute. Known limit (astromech-8f5g): particles longer than two letters ('down', 'off') count as backing words.
