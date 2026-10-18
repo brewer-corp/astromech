@@ -47,6 +47,8 @@ def main():
         if n != 1:
             problems.append(f"{i} appears {n} times (want 1)")
     known = {f.stem for f in (ROOT / ".atelier" / "issues").glob("*.md")}
+    for i in sorted(set(ids) - known - {"astromech-core"}):
+        problems.append(f"{i} is not an issue")
     for i in sorted((set(ids) & known) - wanted):
         problems.append(f"{i} is in the notes but is not an open needs-human issue")
     for page, anchor in GUIDE_URL.findall(text):
