@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-18T01:41:26.207449336+00:00"
+status: "done"
 title: "Voice: 'Pace.' executes panel.close through a phonetic-key collision with 'back'"
-updated_at: "2026-10-18T01:00:53.477247015+00:00"
+updated_at: "2026-10-18T01:41:26.207449336+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ Found by the independent reviewer of astromech-8fey (pre-existing on main, not c
 ## Notes
 
 - 2026-10-17 [note] Handoff: soft c (before e/i/y) keys as 's' in the phonetic key; 'Pace.' now asks 'Did you mean paste?' instead of executing back. Eval unchanged (0 wrong executes, 64/64 rejects). Review: no FIX NOW; the wider phonetic-floor problem ('boost' -> paste, 'page' -> back) filed as astromech-vkzj (alpha, high). Approval outstanding.
+
+## Close Reason
+
+'Pace.' asks 'Did you mean paste?' instead of executing panel.close; negative test; on 59k words the change removes more false executes than it adds (44 lost, 18 gained); eval unchanged. Reviewed.
