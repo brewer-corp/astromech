@@ -617,6 +617,9 @@ mod tests {
         assert!(newer("1.0.0-alpha.2", "1.0.0-alpha.1"));
         assert!(newer("1.0.0-alpha.10", "1.0.0-alpha.2"));
         assert!(newer("1.0.0-beta.1", "1.0.0-alpha.9"));
+        assert!(newer("1.0.0-alpha.beta", "1.0.0-alpha.1"));
+        assert!(!newer("1.0.0-alpha.1", "1.0.0-alpha.beta"));
+        assert!(newer("1.0.0-alpha.1", "1.0.0-alpha"));
         assert!(newer("1.0.0", "1.0.0-alpha.1"));
         assert!(newer("1.0.1-alpha.1", "1.0.0"));
         assert!(!newer("1.0.0-alpha.1", "1.0.0-alpha.1"));
