@@ -2,7 +2,8 @@
   // Diagnostics (docs/V1-DESIGN.md §2.2): what astromech sees right now, and Save diagnostics for
   // a bug report. Settings live in Settings; the key tester is under Controls.
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
@@ -17,7 +18,7 @@
       eddn = await eddnLog();
       eddnErr = null;
     } catch (e) {
-      eddnErr = failure("read the EDDN log", e);
+      eddnErr = pollFailure("read the EDDN log", e, eddn !== null);
     }
   }
   $effect(() => {
@@ -79,6 +80,7 @@
   {#if note}<p class="note">{note}</p>{/if}
 
   <h2>EDDN</h2>
+  <Stale error={eddn ? eddnErr : null} />
   {#if eddnErr && !eddn}
     <p class="note">{eddnErr}</p>
   {:else if !eddn}

@@ -7,6 +7,9 @@ row is a category and each column a grade.
 **What it needs:** the journal, for what you hold. The farming searches need a network
 (Spansh and EDSM). It is updated as the game writes your materials.
 
+If the journal folder cannot be read (it is not where astromech looks, or it cannot be opened),
+the page says "Could not read the materials" and gives the reason. It never shows made-up counts.
+
 ## The grids
 
 Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.

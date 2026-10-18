@@ -198,9 +198,12 @@ struct Tailer {
     last_scan: Instant,
     /// When the journal tail was last read, for any reason.
     last_read: Instant,
-    /// Name stamps of the journals judged to be the game's own sessions (see `classify`),
-    /// so a later part of the same session is too.
-    game_sessions: std::collections::HashSet<i64>,
+    /// Name stamp of the session the game is writing now (see `classify`); a later part of it
+    /// (same stamp) is the game's too.
+    game_session: Option<i64>,
+    /// Name stamps of sessions the game has left for a newer one: never the game's again, so a
+    /// tool appending to an earlier journal can't make its lines live (astromech-r3s7).
+    retired: std::collections::HashSet<i64>,
     /// Journals already logged as followed without being the folder's latest.
     noted: std::collections::HashSet<PathBuf>,
     /// Whether a journal's Fileheader time agrees with its name's local time, once it could be read.
@@ -394,9 +397,10 @@ impl Tailer {
 
     /// Whether `path` is a journal the game itself writes, as opposed to one a backup or sync tool
     /// restored, touched or copied. The game's are:
-    /// - [`Class::Game`], whose appended lines are all live: the folder's latest by name stamp
-    ///   (the common case, and all there is at startup), or a later part of a session already
-    ///   judged the game's (same stamp);
+    /// - [`Class::Game`], whose appended lines are all live: the session the game is writing, which
+    ///   is the folder's latest by name stamp the first time we see it (the common case, and all
+    ///   there is at startup), and a later part of it (same stamp). Starting a newer session leaves
+    ///   the earlier one for good (`retired`): it is then judged like any other journal;
     /// - [`Class::Gated`], whose fresh lines are live: any other journal whose Fileheader agrees
     ///   with its name. The game names a journal with its local start time (checked against real
     ///   journals: the stamp is the header's UTC time shifted by the machine's offset), so a
@@ -411,17 +415,29 @@ impl Tailer {
     /// with another offset (header and name disagree), is [`Class::Foreign`]: a replay only.
     fn classify(&mut self, path: &Path) -> Class {
         let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) else { return Class::Foreign };
-        // The game's own journal is in `game_sessions` after its first batch: no directory listing.
-        let latest = !self.game_sessions.contains(&stamp)
+        // The session the game is writing: no directory listing.
+        if self.game_session == Some(stamp) {
+            return Class::Game;
+        }
+        let latest = !self.retired.contains(&stamp)
             && astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name());
-        if latest || self.game_sessions.contains(&stamp) {
-            self.game_sessions.insert(stamp);
+        if latest {
+            self.set_game_session(stamp);
             Class::Game
         } else if self.header_agrees_with_name(path, stamp) {
             Class::Gated
         } else {
             Class::Foreign
         }
+    }
+
+    /// The game is writing the session stamped `stamp`: the one before it is left for good.
+    fn set_game_session(&mut self, stamp: i64) {
+        if let Some(old) = self.game_session.filter(|old| *old != stamp) {
+            self.retired.insert(old);
+        }
+        self.retired.remove(&stamp);
+        self.game_session = Some(stamp);
     }
 
     /// Whether the Fileheader's UTC time is the name's local time. Remembered once the header
@@ -477,7 +493,7 @@ impl Tailer {
         if fresh {
             // The game is writing it: a later part of this session is too.
             if let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) {
-                self.game_sessions.insert(stamp);
+                self.set_game_session(stamp);
             }
         }
         self.live = fresh;
@@ -816,7 +832,8 @@ pub fn start_with_eddn(
         opened: Default::default(),
         last_scan: Instant::now(),
         last_read: Instant::now(),
-        game_sessions: Default::default(),
+        game_session: None,
+        retired: Default::default(),
         noted: Default::default(),
         header_agrees: Default::default(),
         header_check: local_header_check(),
@@ -853,7 +870,8 @@ mod tests {
             opened: Default::default(),
             last_scan: Instant::now(),
             last_read: Instant::now(),
-            game_sessions: Default::default(),
+            game_session: None,
+            retired: Default::default(),
             noted: Default::default(),
             header_agrees: Default::default(),
             header_check: local_header_check(),
@@ -1971,5 +1989,113 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
         assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
+    }
+
+    /// astromech-r3s7: once the game has started a newer session, the earlier journal is no longer
+    /// the game's, though it was and though nothing changed in the folder's names: a tool that
+    /// appends to it and touches it is a replay (EDDN's own 300 s age guard is why the line is
+    /// 200 s old: only our rule keeps it out).
+    #[test]
+    fn an_earlier_session_is_not_live_once_a_newer_one_has_started() {
+        let d = tempfile::tempdir().unwrap();
+        let (a, b) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&a, session(&ts(60), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        append(&a, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "the game's own line is live");
+
+        // The game starts its next session.
+        std::fs::write(&b, session(&ts(5), "r2 ")).unwrap();
+        touch(&b, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, b);
+        let sent = eddn_state(&db).0;
+
+        // A tool appends an older line to the first session's journal and touches it.
+        append(&a, &docked(&ts(200)));
+        touch(&a, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, a);
+        assert_eq!(eddn_state(&db).0, sent, "nothing live from a session the game has left");
+
+        // The game's current journal is live again when it is written.
+        append(&b, &docked(&ts(0)));
+        touch(&b, 30);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, sent + 1);
+    }
+
+    /// astromech-r3s7, the repeated hour after a fall-back: the game's second session (01:10) sorts
+    /// before the first (01:30), which is therefore still the latest by name. Once the second is
+    /// the game's, a tool appending to the first is a replay, though it is the latest by name.
+    #[test]
+    fn a_touched_first_journal_of_the_repeated_hour_is_not_live_once_the_second_is() {
+        let d = tempfile::tempdir().unwrap();
+        let first = d.path().join("Journal.2026-11-01T013000.01.log");
+        let second = d.path().join("Journal.2026-11-01T011000.01.log");
+        std::fs::write(&first, session("2026-11-01T05:30:00Z", "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.header_check = Box::new(|name, header| header_agrees_with_name(&chrono_tz::America::New_York, name, header));
+        touch(&first, 5);
+        t.catch_up();
+
+        std::fs::write(&second, "").unwrap();
+        touch(&second, 10);
+        t.on_journal_activity();
+        append(&second, &format!("{}{}", session("2026-11-01T06:10:00Z", "r2 "), docked(&ts(0))));
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(sent, 1, "the second session is live");
+
+        append(&first, &docked(&ts(200)));
+        touch(&first, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, first);
+        assert_eq!(eddn_state(&db).0, sent, "the first journal is the latest by name but not the game's now");
+
+        append(&second, &docked(&ts(0)));
+        touch(&second, 30);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, sent + 1, "the game's journal is still live");
+    }
+
+    /// A foreign journal stamped later and touched takes the session while the game is quiet, but
+    /// the game's own next fresh line takes it back, and the foreign one is then a replay however
+    /// often it is touched again.
+    #[test]
+    fn the_games_journal_takes_the_session_back_from_a_touched_foreign_one() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(0)), d.path().join(game_name(180)));
+        std::fs::write(&own, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        let sent = eddn_state(&db).0;
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert!(sent >= 1, "the game's fresh line is live");
+
+        for n in 1..=2u64 {
+            let before = eddn_state(&db).0;
+            append(&foreign, &docked(&ts(200)));
+            touch(&foreign, 20 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+            assert_eq!(eddn_state(&db).0, before, "touch {n}: the foreign journal is a replay now");
+            append(&own, &docked(&ts(0)));
+            touch(&own, 25 + 10 * n);
+            t.on_journal_activity();
+            assert_eq!(eddn_state(&db).0, before + 1, "the game's journal is live again");
+        }
     }
 }

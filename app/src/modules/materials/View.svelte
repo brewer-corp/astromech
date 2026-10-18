@@ -1,7 +1,8 @@
 <script lang="ts">
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
   import { tick } from "svelte";
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import Sites from "../../lib/ui/Sites.svelte";
@@ -55,7 +56,7 @@
           inv = v;
           failed = null;
         })
-        .catch((e: unknown) => (failed = failure("read the materials", e)));
+        .catch((e: unknown) => (failed = pollFailure("read the materials", e, inv !== null)));
     void load();
     // 1 s poll + recompute keeps journal changes on screen within 2 s (astromech-txzq).
     const t = setInterval(() => void load(), 1000);
@@ -100,6 +101,7 @@
       {failed ?? "Reading the journal…"}
     {/if}
   </p>
+  <Stale error={inv ? failed : null} />
   {#if kindId === "manufactured" && inv?.here}
     <p class="sub here">
       <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />

@@ -50,7 +50,7 @@ const PAGES: Page[] = [
   { name: "Engineers", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },
   { name: "Logbook", view: Logbook as unknown as Component, empty: /No commander in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the journal history: / },
   { name: "Session", view: Session as unknown as Component, empty: /No game session in the journal history yet/, loading: /Reading the journal history…/, failed: /Could not read the session: / },
-  { name: "Mining", view: Mining as unknown as Component, empty: /The core isn't running/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
+  { name: "Mining", view: Mining as unknown as Component, empty: /No mining run yet/, loading: /Reading the run…/, failed: /Could not read the mining run: / },
   { name: "Trade", view: Trade as unknown as Component, empty: /None found/, loading: /Asking Ardent Insight…/, failed: /trade_search failed on purpose/ },
   { name: "Station", view: Station as unknown as Component, empty: /Not docked/, loading: /Reading the journal…/, failed: /Could not read the docked station: / },
   { name: "Colonisation", view: Colonisation as unknown as Component, empty: /No construction sites in your journals yet/, loading: /Reading the journals…/, failed: /Could not read the construction sites: / },

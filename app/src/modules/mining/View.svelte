@@ -1,7 +1,8 @@
 <script lang="ts">
   // The current mining run: what the refinery has made since the last dock, by ore, and the rate.
   // A run starts at the first limpet, prospect or refine after docking or loading the game.
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { loadMining, oreName, type MiningRun } from "../../lib/mining";
 
   let run = $state<MiningRun | null>(null);
@@ -17,7 +18,7 @@
           loaded = true;
         })
         .catch((e: unknown) => {
-          failed = failure("read the mining run", e);
+          failed = pollFailure("read the mining run", e, run !== null);
           loaded = true;
         });
     void tick();
@@ -29,12 +30,13 @@
 </script>
 
 <section>
+  <Stale error={run ? failed : null} />
   {#if !loaded}
     <p class="sub">Reading the run…</p>
   {:else if failed && !run}
     <p class="sub">{failed}</p>
   {:else if !run}
-    <p class="sub">The core isn't running, so there is no mining run to show.</p>
+    <p class="sub">No mining run yet.</p>
   {:else if !run.started}
     <p class="sub">No mining yet. The run starts at your first limpet, prospect or refined ton after docking.</p>
   {:else}

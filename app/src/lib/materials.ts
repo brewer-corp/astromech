@@ -85,9 +85,5 @@ function nothingHeld(): Inventory {
 
 export async function loadMaterials(): Promise<Inventory> {
   if (!inTauri) return previewData("materials_inventory", () => sample as Inventory, nothingHeld);
-  try {
-    return await invoke<Inventory>("materials_inventory");
-  } catch {
-    return { ...(sample as Inventory), source: "Sample journal (no live journal folder)" };
-  }
+  return await invoke<Inventory>("materials_inventory");
 }
