@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+closed_at: "2026-10-18T04:16:06.965264750+00:00"
+status: "superseded"
 title: "Voice: which words may back up a sound-alike key press ('car down')"
-updated_at: "2026-10-18T03:21:28.466964762+00:00"
+updated_at: "2026-10-18T04:16:06.965264750+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ A product decision on whether particles count as backing words, implemented with
 ## Context
 
 Review finding R2 (round 2) of astromech-vkzj. Asking on every sound-alike would turn 18 correctly executing eval transcripts into questions, so "a second word backs it up" stays; the question is only which words count.
+
+## Close Reason
+
+Subsumed by the astromech-vkzj change of direction: a phonetic-key match now caps the phrase below execute, and nothing backs a sound-alike up, so 'car down' asks (no particle question left).
