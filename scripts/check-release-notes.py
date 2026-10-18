@@ -24,17 +24,23 @@ def open_needs_human():
         m = re.match(r"---\n(.*?)\n---\n", f.read_text(encoding="utf-8"), re.S)
         fm = m.group(1)
         status = re.search(r'^status: "?(\w+)"?', fm, re.M).group(1)
-        labels = re.findall(r'^- "([^"]+)"', fm.split("labels:")[1].split("priority:")[0], re.M)
+        labels = re.findall(r'^- "([^"]+)"', (fm.split("labels:")[1:] or [""])[0].split("priority:")[0], re.M)
         if "needs-human" in labels and status not in ("done", "superseded"):
             out.add(f.stem)
     return out
 
 
 def main():
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else sorted((ROOT / "docs" / "releases").glob("v*.md"))[-1]
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else max((ROOT / "docs" / "releases").glob("v*.md"), key=lambda f: f.stat().st_mtime)
     text = path.read_text(encoding="utf-8")
     problems = []
-    ids = ID.findall(re.sub(r"<!--.*?-->", "", text))
+    start = text.find("## What has not been checked")
+    end = text.find("## Known limits")
+    if start < 0 or end < start:
+        print("missing the '## What has not been checked' or '## Known limits' heading")
+        return 1
+    ids = ID.findall(text[start:end])
+    outside = ID.findall(text[:start] + text[end:])
     wanted = open_needs_human()
     for i in sorted(wanted):
         n = ids.count(i)
@@ -49,6 +55,8 @@ def main():
             problems.append(f"guide page {page} does not exist")
         elif anchor and anchor not in guide.anchors(f):
             problems.append(f"guide page {page} has no heading #{anchor}")
+    for i in sorted({i for i in outside if i in wanted}):
+        problems.append(f"{i} is mentioned outside the test script")
     for p in problems:
         print(p)
     print(f"{path.name}: {len(wanted)} open needs-human issues, {len(problems)} problems")

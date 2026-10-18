@@ -245,13 +245,14 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Before the download: checkout empties a workspace that is not a git clone.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/releases
       - uses: actions/download-artifact@v4
         with:
           name: astromech-installer-windows-x64
           path: dist-release
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: docs/releases
       - name: create release
         env:
           GH_TOKEN: ${{ github.token }}
