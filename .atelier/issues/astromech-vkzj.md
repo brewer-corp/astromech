@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Voice: a phonetic-key match alone executes one-word key presses ('boost' -> paste, 'page' -> back)"
-updated_at: "2026-10-18T02:43:43.803144868+00:00"
+updated_at: "2026-10-18T02:44:15.661157995+00:00"
 ---
 
 ## Goal
