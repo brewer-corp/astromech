@@ -48,8 +48,9 @@ pub struct Match {
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
     pub score: f32,
-    /// The score before the [`SOUND_CAP`]: what this phrase counts for as the runner-up in
-    /// another match's margin, so capping a right answer does not hand a neighbour a "clear" win.
+    /// The score before the [`SOUND_CAP`] (still including any [`MISHEARD_CAP`]): what this
+    /// phrase counts for as the runner-up in another match's margin, so capping a right answer
+    /// does not hand a neighbour a "clear" win.
     pub uncapped: f32,
     pub decision: Decision,
 }
@@ -442,6 +443,8 @@ pub const MISHEARD_CAP: f32 = 0.80;
 /// alone lifts a word to 0.85, the execute threshold, so "boost" executed "paste" and "show
 /// chalk maeby" opened the galaxy map (astromech-vkzj).
 pub const SOUND_CAP: f32 = 0.80;
+// The misheard alternative's fill choice in `Grammar::rank` relies on the two caps being equal.
+const _: () = assert!(SOUND_CAP == MISHEARD_CAP);
 
 /// Words dropped wherever they appear. "sir" is politeness, like "please" ("Yes, sir.").
 const FILLER: &[&str] = &["please", "sir", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
@@ -839,6 +842,9 @@ impl Grammar {
                     uncapped = uncapped.min(MISHEARD_CAP);
                 }
                 if let Some(alt) = &misheard {
+                    // The fill taken from the misheard alternative (`s2 > score`) is the one main
+                    // took only because SOUND_CAP == MISHEARD_CAP (both 0.80): a sound-capped
+                    // score never beats the alternative's cap differently than before.
                     let (s2, f2, u2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
@@ -887,7 +893,14 @@ impl Grammar {
         };
         // When the best heard its slot exactly, another command whose slot is only a near match
         // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
-        let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
+        // A phrase capped for a sound-alike that would have outranked or tied the best without
+        // the cap stays a rival even then: "where can i cell cobra" must not execute find.ship
+        // past trade.sell (Copper) just because the latter was capped.
+        let rival = |m: &&Match| {
+            m.command != best.command
+                && ((m.score < m.uncapped && m.uncapped >= best.score)
+                    || !(best.slot_exact && m.slot.is_some() && !m.slot_exact))
+        };
         // A rival counts with its uncapped score: a right answer capped for a sound-alike still
         // keeps a spelling-only neighbour from a "clear" win ("how much full": fuel vs hull).
         let runner = ranked.iter().filter(rival).map(|m| m.uncapped).fold(0.0, f32::max);
@@ -1502,6 +1515,40 @@ mod tests {
             let m = g.best(t);
             assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
         }
+    }
+
+    /// The runner-up is the highest uncapped score of any rival, not the first rival in capped
+    /// order: here an uncapped rival (~0.83) ranks above a capped one (0.80, uncapped 0.95) and
+    /// the best is ~0.94 (astromech-vkzj round-5 review R2).
+    #[test]
+    fn the_runner_up_is_the_highest_uncapped_rival() {
+        let table: &[(&str, &[&str])] =
+            &[("a", &["alpha bravo kitter"]), ("b", &["alpha bravo kitxyz"]), ("c", &["alpha bravo cotton"])];
+        let g = Grammar::new(table, &[]);
+        let r = g.rank("alpha bravo kitten");
+        let s = |c: &str| r.iter().find(|m| m.command == c).unwrap().clone();
+        let (a, b, c) = (s("a"), s("b"), s("c"));
+        assert!(a.score > b.score && b.score > c.score, "{r:?}");
+        assert!(c.score <= SOUND_CAP && c.uncapped > a.score && b.uncapped == b.score, "{r:?}");
+        assert!(
+            a.score >= EXECUTE && a.score - b.uncapped >= MARGIN,
+            "the first rival alone would let it execute: {r:?}"
+        );
+        let m = g.best("alpha bravo kitten");
+        assert_eq!((m.command, m.decision), ("a", Decision::Ask), "{m:?}");
+    }
+
+    /// A capped phrase that would have been the best keeps a slot match from a "clear" win
+    /// (astromech-vkzj round-5 review R1).
+    #[test]
+    fn a_capped_rival_counts_against_an_exact_slot() {
+        let g = Grammar::mvp(&["Sol"]).with_slot("commodity", [("Copper", "Copper")], None).with_slot(
+            "ship",
+            [("Cobra MkIII", "Cobra MkIII"), ("Cobra", "Cobra MkIII")],
+            None,
+        );
+        let m = g.best("where can i cell cobra");
+        assert_ne!(m.decision, Decision::Execute, "{m:?}");
     }
 
     /// A fixed sample of the astromech-vkzj round-3 reviewer's probe: key-press phrases with
