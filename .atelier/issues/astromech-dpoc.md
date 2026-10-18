@@ -22,7 +22,7 @@ schema_version: 2
 closed_at: "2026-10-17T19:28:58.666256002+00:00"
 status: "done"
 title: "Guide: the route follower, paste and plotters"
-updated_at: "2026-10-17T19:28:58.666256002+00:00"
+updated_at: "2026-10-18T01:50:41.991890212+00:00"
 ---
 
 ## Goal
@@ -32,6 +32,10 @@ Replace the placeholder `docs/guide/routes.md` with a real page now that the rou
 ## Done when
 
 The page matches the code on main (checked by someone other than the writer), `scripts/check-guide.py` passes, and voice-commands.md and callouts.md list the route phrases and the route_follow callout.
+
+## Notes
+
+- 2026-10-17 [note] 17 Oct 2026, Sumeet: the short route-follower arrival line ('Next waypoint. Deciat.') stays; the engineer and waypoint count come only with 'next waypoint'.
 
 ## Close Reason
 

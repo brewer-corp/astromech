@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-18T01:50:32.654539869+00:00"
+status: "done"
 title: "S11 idle CPU budget: share of the machine or of one core?"
-updated_at: "2026-10-17T20:11:56.524818714+00:00"
+updated_at: "2026-10-18T01:50:32.654539869+00:00"
 ---
 
 ## Context
@@ -29,3 +30,11 @@ ARCHITECTURE §18.1 sets the app window's idle CPU budget at <= 1%. Is that 1% o
 
 - Machine share (current): matches Task Manager; lenient on many-core PCs.
 - One core: host-independent; stricter.
+
+## Decision
+
+The whole machine (Task Manager's reading), Sumeet, 17 Oct 2026: what matters is the effect on the game. The app window passes at 0.33% of the machine idle (1.32% of one core).
+
+## Close Reason
+
+Whole machine (Sumeet, 17 Oct)
