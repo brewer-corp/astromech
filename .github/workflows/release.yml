@@ -186,7 +186,7 @@ jobs:
           }
           $v = (& "$inst\astromech-core.exe" --version | Out-String).Trim()
           Write-Host "core: $v"
-          if ($v -notmatch "0\.\d+\.\d+") { throw "no version from the core" }
+          if ($v -notmatch "^astromech-core \d+\.\d+\.\d+") { throw "no version from the core" }
           Start-Process "$inst\astromech-core.exe" -ArgumentList "--background"
           $ep = "$env:LOCALAPPDATA\astromech\data\core.json"
           for ($i = 0; $i -lt 40 -and -not (Test-Path $ep); $i++) { Start-Sleep -Milliseconds 250 }

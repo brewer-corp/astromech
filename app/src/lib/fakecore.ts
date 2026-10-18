@@ -237,7 +237,7 @@ export function fakeStatus(): CoreStatus {
   const setup = [...(st.ptt ? [] : ["push-to-talk not set"]), ...(st.models ? [] : ["speech models not downloaded"])];
   return {
     ok: true,
-    version: "0.1.5",
+    version: "1.0.0-alpha.1",
     pid: 4242,
     game: "not_running",
     active: false,

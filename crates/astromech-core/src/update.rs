@@ -140,13 +140,47 @@ pub fn newer(latest: &str, installed: &str) -> bool {
     }
 }
 
-fn parse_ver(s: &str) -> Option<(u64, u64, u64)> {
+/// A version in semver order: a pre-release (`1.0.0-alpha.1`) sorts below its release, and
+/// pre-release identifiers compare numerically when both are numbers, else as text, with
+/// numbers first. Build metadata (`+...`) is ignored.
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+struct Ver {
+    core: (u64, u64, u64),
+    release: bool,
+    pre: Vec<PreId>,
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+enum PreId {
+    Num(u64),
+    Text(String),
+}
+
+fn parse_ver(s: &str) -> Option<Ver> {
     let s = s.trim().trim_start_matches('v');
-    let mut p = s.split('.');
+    let s = s.split('+').next()?;
+    let (core, pre) = match s.split_once('-') {
+        Some((c, p)) => (c, Some(p)),
+        None => (s, None),
+    };
+    let mut p = core.split('.');
     let a = p.next()?.parse().ok()?;
     let b = p.next()?.parse().ok()?;
     let c = p.next().unwrap_or("0").parse().ok()?;
-    Some((a, b, c))
+    if p.next().is_some() {
+        return None;
+    }
+    let pre = match pre {
+        None => Vec::new(),
+        Some(p) => p
+            .split('.')
+            .map(|id| match id {
+                "" => None,
+                _ => Some(id.parse().map_or_else(|_| PreId::Text(id.to_string()), PreId::Num)),
+            })
+            .collect::<Option<Vec<_>>>()?,
+    };
+    Some(Ver { core: (a, b, c), release: pre.is_empty(), pre })
 }
 
 pub fn hex(bytes: &[u8]) -> String {
@@ -576,13 +610,21 @@ mod tests {
         assert!(newer("v0.2.0", "0.1.9"));
         assert!(!newer("0.1.1", "0.1.1"));
         assert!(!newer("0.1.0", "0.1.1"));
-        // Pre-release tags (v1.0.0-alpha.1): an installed 0.1.5 is offered the alpha, later
-        // alphas and the final release are offered over it, and the same version is not.
+        // Pre-release tags (v1.0.0-alpha.1) sort below their release, in semver order: 0.1.5 is
+        // offered the alpha, the alpha is offered later alphas and 1.0.0, and nothing older or equal
+        // is ever offered (the updater installs whatever this says is newer).
         assert!(newer("v1.0.0-alpha.1", "0.1.5"));
         assert!(newer("1.0.0-alpha.2", "1.0.0-alpha.1"));
+        assert!(newer("1.0.0-alpha.10", "1.0.0-alpha.2"));
+        assert!(newer("1.0.0-beta.1", "1.0.0-alpha.9"));
         assert!(newer("1.0.0", "1.0.0-alpha.1"));
+        assert!(newer("1.0.1-alpha.1", "1.0.0"));
         assert!(!newer("1.0.0-alpha.1", "1.0.0-alpha.1"));
         assert!(!newer("v1.0.0-alpha.1", "1.0.0-alpha.1"));
+        assert!(!newer("0.1.5", "1.0.0-alpha.1"));
+        assert!(!newer("1.0.0-alpha.1", "1.0.0-alpha.2"));
+        assert!(!newer("1.0.0-alpha.1", "1.0.0"));
+        assert!(!newer("1.0.0+build.2", "1.0.0"));
     }
 
     #[test]
