@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-18T01:40:39.842181117+00:00"
+status: "done"
 title: "Voice: single-word 'paste' scores 94% on the synthetic eval (galaxy_map.paste, T1)"
-updated_at: "2026-10-18T00:17:06.076150857+00:00"
+updated_at: "2026-10-18T01:40:39.842181117+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ The single word "paste" is heard as "Pays." (am_michael, noise), "Based on" (bm_
 ## Notes
 
 - 2026-10-17 [note] Handoff: 'pays' is MISHEARD for 'paste' (capped 0.80, asks). voice-eval paste 45/48 -> 46/48 (95.8%, one-clip margin), wrong execute 0, rejects 64/64. Review round 1: no FIX NOW. Reviewer found pre-existing 'Pace.' -> panel.close execute; filed astromech-8997. Approval outstanding (not recorded by the author by instruction).
+
+## Close Reason
+
+'Pays.' asks 'Did you mean paste?'; galaxy_map.paste 45/48 -> 46/48, 0 wrong executes. Landed through #162 with the astromech-1c66 learning guard. Reviewed.
