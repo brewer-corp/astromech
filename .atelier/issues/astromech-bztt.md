@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-18T00:31:41.916928001+00:00"
+status: "done"
 title: "Voice: 'Yes, sir.' is rejected (confirm scores 94% on the synthetic eval)"
-updated_at: "2026-10-18T00:11:44.916356670+00:00"
+updated_at: "2026-10-18T00:31:41.916928001+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ The rendered text was "yes.": the "sir" is Parakeet adding a word on that voice,
 ## Notes
 
 - 2026-10-17 [note] Handoff: 'sir' added to FILLER. voice-eval confirm 45/48 -> 48/48, wrong execute 0, rejects 64/64, no other command changed. Review round 1: no FIX NOW; R3 deferred to astromech-kdca. Approval outstanding (not recorded by the author by instruction).
+
+## Close Reason
+
+'sir' is ignored like 'please', so 'Yes, sir.' confirms; confirm 45/48 -> 48/48 on the synthetic eval, 0 wrong executes, 64/64 rejects; negative tests for 'sir' in ordinary sentences. Reviewed; 'Okay, sir' follow-up astromech-kdca.
