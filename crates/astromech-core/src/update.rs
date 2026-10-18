@@ -576,6 +576,13 @@ mod tests {
         assert!(newer("v0.2.0", "0.1.9"));
         assert!(!newer("0.1.1", "0.1.1"));
         assert!(!newer("0.1.0", "0.1.1"));
+        // Pre-release tags (v1.0.0-alpha.1): an installed 0.1.5 is offered the alpha, later
+        // alphas and the final release are offered over it, and the same version is not.
+        assert!(newer("v1.0.0-alpha.1", "0.1.5"));
+        assert!(newer("1.0.0-alpha.2", "1.0.0-alpha.1"));
+        assert!(newer("1.0.0", "1.0.0-alpha.1"));
+        assert!(!newer("1.0.0-alpha.1", "1.0.0-alpha.1"));
+        assert!(!newer("v1.0.0-alpha.1", "1.0.0-alpha.1"));
     }
 
     #[test]
