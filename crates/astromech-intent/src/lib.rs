@@ -48,6 +48,9 @@ pub struct Match {
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
     pub score: f32,
+    /// The score before the [`SOUND_CAP`]: what this phrase counts for as the runner-up in
+    /// another match's margin, so capping a right answer does not hand a neighbour a "clear" win.
+    pub uncapped: f32,
     pub decision: Decision,
 }
 
@@ -644,11 +647,12 @@ fn slot_name(w: &str) -> Option<&str> {
 /// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
 /// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
 /// scores the words `u[i..i + k]` for a slot. Returns the score and the slot's fill. If a phrase
-/// word was matched only through the phonetic key, the score is capped at [`SOUND_CAP`].
-fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>) {
+/// word was matched only through the phonetic key, the score is capped at [`SOUND_CAP`]; the
+/// third value is the score without that cap.
+fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>, f32) {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
-        return (0.0, None);
+        return (0.0, None, 0.0);
     }
     // (cost, slot fill, a word matched only through the phonetic key)
     let mut dp = vec![vec![(f32::MAX, None::<Fill>, false); m + 1]; n + 1];
@@ -693,7 +697,7 @@ fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) ->
     }
     let (cost, f, snd) = dp[n][m].clone();
     let score = (1.0 - cost / n.max(m) as f32).max(0.0);
-    (if snd { score.min(SOUND_CAP) } else { score }, f)
+    (if snd { score.min(SOUND_CAP) } else { score }, f, score)
 }
 
 impl Grammar {
@@ -827,19 +831,21 @@ impl Grammar {
             .iter()
             .enumerate()
             .map(|(i, (p, toks))| {
-                let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
+                let (mut score, mut filled, mut uncapped) = phrase_score(&u, toks, &fill_u);
                 // An ask-only transcript stays ask-only against a personal phrase too: a learned
                 // "Ill stop" must not make "I'll stop" run (astromech-1c66).
                 if misheard.is_some() && i >= self.builtin {
                     score = score.min(MISHEARD_CAP);
+                    uncapped = uncapped.min(MISHEARD_CAP);
                 }
                 if let Some(alt) = &misheard {
-                    let (s2, f2) = phrase_score(alt, toks, &fill_alt);
+                    let (s2, f2, u2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
                         score = s2;
                         filled = f2;
                     }
+                    uncapped = uncapped.max(u2.min(MISHEARD_CAP));
                 }
                 let phrase = match &filled {
                     Some(f) => match toks.iter().find_map(|t| slot_name(t)) {
@@ -855,6 +861,7 @@ impl Grammar {
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
                     slot_text: filled.map(|f| f.text),
                     score,
+                    uncapped,
                     decision: Decision::NoMatch,
                 }
             })
@@ -874,13 +881,16 @@ impl Grammar {
                 slot_text: None,
                 slot_exact: false,
                 score: 0.0,
+                uncapped: 0.0,
                 decision: Decision::NoMatch,
             };
         };
         // When the best heard its slot exactly, another command whose slot is only a near match
         // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
         let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
-        let runner = ranked.iter().find(rival).map(|m| m.score).unwrap_or(0.0);
+        // A rival counts with its uncapped score: a right answer capped for a sound-alike still
+        // keeps a spelling-only neighbour from a "clear" win ("how much full": fuel vs hull).
+        let runner = ranked.iter().filter(rival).map(|m| m.uncapped).fold(0.0, f32::max);
         let clear = best.score - runner >= MARGIN;
         best.decision = if best.score >= EXECUTE && clear {
             Decision::Execute
@@ -1478,6 +1488,19 @@ mod tests {
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+    }
+
+    /// A capped sound-alike still counts at its uncapped score as the runner-up, so a spelling
+    /// neighbour does not win by a "clear" margin (astromech-vkzj round-4 review R1).
+    #[test]
+    fn a_capped_rival_still_blocks_a_clear_win() {
+        let g = g();
+        let m = g.best("how much full");
+        assert_eq!(m.decision, Decision::Ask, "{m:?}");
+        for t in ["how much huel", "cmose panel", "cnose panel", "degloy landing gear", "dekloy landing gear"] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
         }
     }
 
