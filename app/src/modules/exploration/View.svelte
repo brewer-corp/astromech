@@ -2,7 +2,8 @@
   // The live system view (OD Explorer's system page): the bodies of the system you are in as you
   // scan them, with what each is worth now and mapped, which are worth mapping, and the facts
   // that decide where to fly (terraformable, landable, rings, gravity, signals).
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
   import { when } from "../../lib/logbook";
   import type { Filters, Origin } from "../../lib/search";
@@ -21,7 +22,7 @@
           view = v;
           failed = null;
         })
-        .catch((e: unknown) => (failed = failure("read the system", e)));
+        .catch((e: unknown) => (failed = pollFailure("read the system", e, view !== null)));
     void tick();
     const t = setInterval(() => void tick(), 3000);
     return () => clearInterval(t);
@@ -39,7 +40,7 @@
           unsoldLoaded = true;
           unsoldFailed = null;
         })
-        .catch((e: unknown) => (unsoldFailed = failure("read the unsold data", e)));
+        .catch((e: unknown) => (unsoldFailed = pollFailure("read the unsold data", e, unsold !== null)));
     void tick();
     const t = setInterval(() => void tick(), 15000);
     return () => clearInterval(t);
@@ -69,7 +70,8 @@
 </script>
 
 <section>
-  {#if failed}
+  <Stale error={view ? failed : null} />
+  {#if failed && !view}
     <p class="err">{failed}</p>
   {:else if !view}
     <p class="lo">Reading the journal…</p>
@@ -124,7 +126,8 @@
   {/if}
 
   <h3>Unsold data</h3>
-  {#if unsoldFailed}
+  <Stale error={unsold ? unsoldFailed : null} />
+  {#if unsoldFailed && !unsold}
     <p class="err">{unsoldFailed}</p>
   {:else if unsold}
     <div class="tiles">

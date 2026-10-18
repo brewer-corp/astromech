@@ -3,6 +3,8 @@
   // from its scan before the DSS) with the species they could be and what they are worth; what
   // other players reported here (Spansh); and the sampling in progress with how far the last
   // samples are against the genus's colony range. Live while Elite runs.
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { loadBiology, millions, shortName, valueRange, type BiologyView } from "../../lib/exobiology";
 
   let v = $state<BiologyView | null>(null);
@@ -17,7 +19,7 @@
           v = r;
           failed = null;
         })
-        .catch((e: unknown) => (failed = e instanceof Error ? e.message : String(e)));
+        .catch((e: unknown) => (failed = pollFailure("read the biology", e, v !== null)));
     void tick();
     const t = setInterval(() => void tick(), 2000);
     return () => clearInterval(t);
@@ -32,7 +34,8 @@
 </script>
 
 <section>
-  {#if failed}
+  <Stale error={v ? failed : null} />
+  {#if failed && !v}
     <p class="sub">{failed} Biology follows the game while it runs.</p>
   {:else if !v}
     <p class="sub">Reading the journal…</p>

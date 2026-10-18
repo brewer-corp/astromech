@@ -15,10 +15,12 @@ export interface MiningRun {
   per_hour: number | null;
 }
 
-/** The run (outside the app: the sample); null while the core isn't running or no session is. */
+/** The run (outside the app: the sample); null while no session has one. Rejects when the core did not answer. */
 export async function loadMining(): Promise<MiningRun | null> {
   if (!inTauri) return previewData("core_status", () => sample as MiningRun, () => null);
-  return (await coreStatus())?.mining ?? null;
+  const status = await coreStatus();
+  if (!status) throw new Error("the core did not answer");
+  return status.mining ?? null;
 }
 
 /** `low_temperature_diamond` as "Low Temperature Diamond". */

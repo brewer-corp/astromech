@@ -47,10 +47,12 @@ export const sampleStatus: EdsmStatus = {
   skipped: [],
 };
 
-export async function edsmStatus(): Promise<EdsmStatus | null> {
+/** The EDSM status; rejects (with the core's reason) when the core did not answer. */
+export async function edsmStatus(): Promise<EdsmStatus> {
   if (!inTauri && !fakeScenario()) return sampleStatus;
   const r = await coreCall("edsm_status");
-  return r.ok ? (r as unknown as EdsmStatus) : null;
+  if (!r.ok) throw new Error(r.error ?? "the core did not answer");
+  return r as unknown as EdsmStatus;
 }
 
 /** Any of: the switch, the commander name, the API key ("" forgets it). */

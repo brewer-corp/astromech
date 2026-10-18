@@ -29,4 +29,4 @@ in [Settings](settings.md#prospector-callouts).
 ## Limits
 
 - Only what the refinery has made is counted.
-- If the core is not running the page says there is no run to show.
+- If the core is not running the page says "Could not read the mining run" and why. Before any mining, it says "No mining run yet."

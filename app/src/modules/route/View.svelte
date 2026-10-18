@@ -5,25 +5,32 @@
   // (a Spansh CSV, or a list of systems).
   import { backWaypoint, clearRoute, copyNext, getRoute, importRoute, skipWaypoint, type RouteView } from "../../lib/route";
   import Plot from "./Plot.svelte";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
 
   let view = $state<RouteView | null>(null);
   let err = $state<string | null>(null);
+  /** The last poll failed while a route is shown: the route stays, with a line saying so. */
+  let stale = $state<string | null>(null);
   let name = $state("");
   let text = $state("");
 
-  async function run(f: () => Promise<RouteView>) {
+  async function run(f: () => Promise<RouteView>, polled = false) {
     try {
       view = await f();
       err = null;
+      stale = null;
     } catch (e) {
-      err = String(e instanceof Error ? e.message : e);
+      if (!polled) err = String(e instanceof Error ? e.message : e);
+      else if (view) stale = pollFailure("read the route", e, true);
+      else err = pollFailure("read the route", e, false);
     }
   }
 
   // The core moves the route on as you jump, so keep looking.
   $effect(() => {
-    void run(getRoute);
-    const t = setInterval(() => void run(getRoute), 2000);
+    void run(getRoute, true);
+    const t = setInterval(() => void run(getRoute, true), 2000);
     return () => clearInterval(t);
   });
 
@@ -38,6 +45,7 @@
 
 <section>
   {#if err}<p class="err">{err}</p>{/if}
+  <Stale error={stale} />
 
   {#if route}
     <div class="head">

@@ -32,13 +32,15 @@ export interface EddnLog {
 
 export const sampleLog = sample as EddnLog;
 
-export async function eddnLog(): Promise<EddnLog | null> {
+/** The sharing log; rejects (with the core's reason) when the core did not answer. */
+export async function eddnLog(): Promise<EddnLog> {
   if (!inTauri && !fakeScenario()) {
     await previewGate("eddn_log");
     return sampleLog;
   }
   const r = await coreCall("eddn_log");
-  return r.ok ? (r as unknown as EddnLog) : null;
+  if (!r.ok) throw new Error(r.error ?? "the core did not answer");
+  return r as unknown as EddnLog;
 }
 
 export async function setEddn(enabled: boolean): Promise<Reply> {
