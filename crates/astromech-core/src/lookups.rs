@@ -21,7 +21,6 @@ pub fn grammar(systems: &[&str]) -> Grammar {
         .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
         .with_slot("module", lookup::module_values(), Some(modifier))
         .with_slot("ship", lookup::ship_values(), None)
-        .asks_on_sound_alike(crate::assistant::presses_keys)
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for `lookup` (`search.filters.
@@ -129,54 +128,6 @@ mod tests {
             let all: serde_json::Value = serde_json::from_str(SERVICES).unwrap();
             Ok(Response { status: 200, body: all[self.page].to_string() })
         }
-    }
-
-    /// astromech-vkzj: a key press heard only through the phonetic key asks (alone, with "it" or
-    /// "go", or with every content word a sound-alike); exact words and sound-alikes backed up by
-    /// a word heard on its spelling execute.
-    #[test]
-    fn key_presses_ask_on_sound_alikes() {
-        let g = grammar(&["Sol"]);
-        for (t, c) in [
-            ("boost", "galaxy_map.paste"),
-            ("Best.", "galaxy_map.paste"),
-            ("past", "galaxy_map.paste"),
-            ("page", "panel.close"),
-            ("Peek.", "panel.close"),
-            ("pack", "panel.close"),
-            ("Boost it.", "galaxy_map.paste"),
-            ("post it", "galaxy_map.paste"),
-            ("go page", "panel.close"),
-            ("Go peek.", "panel.close"),
-            ("rice care", "landing_gear.up"),
-            ("drape care", "landing_gear.down"),
-            ("chalk maeby", "galaxy_map.open"),
-        ] {
-            let m = g.best(t);
-            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
-        }
-        for (t, c) in [
-            ("Paste.", "galaxy_map.paste"),
-            ("paste please", "galaxy_map.paste"),
-            ("Paste it.", "galaxy_map.paste"),
-            ("Back.", "panel.close"),
-            ("Go back.", "panel.close"),
-            ("close panel", "panel.close"),
-            ("Throttle to zero.", "throttle.zero"),
-            ("Gear down.", "landing_gear.down"),
-            ("Bunding gear down.", "landing_gear.down"),
-            // Real recogniser output: a second content word backs up the sound-alike.
-            ("Coms panel.", "panel.comms"),
-            ("Roll panel.", "panel.role"),
-            ("Open cargo skeep.", "cargo_scoop.open"),
-            ("Landing gear dawn.", "landing_gear.down"),
-        ] {
-            let m = g.best(t);
-            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
-        }
-        // Questions are not key presses: a sound-alike still answers.
-        let m = g.best("Fool.");
-        assert_eq!((m.command, m.decision), ("status.fuel", Decision::Execute), "{m:?}");
     }
 
     fn heard(g: &Grammar, phrase: &str) -> (Option<Want>, Decision) {

@@ -7,8 +7,8 @@
 //!
 //! Decision thresholds:
 //! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute
-//!   (but a key press that leans on the phonetic key alone asks, see
-//!   [`Grammar::asks_on_sound_alike`]);
+//!   (a phrase that needed the phonetic key for any word is capped at [`SOUND_CAP`], so it can
+//!   only ask);
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Say again".
 //!
@@ -47,11 +47,6 @@ pub struct Match {
     pub slot_text: Option<String>,
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
-    /// A phrase word was matched only through the crude phonetic key (the spelling alone was not
-    /// close) and no content word (longer than two letters) was heard on its spelling to back it
-    /// up: "boost" for "paste", "post it" for "paste it", "go page" for "go back", "rice care" for
-    /// "raise gear".
-    pub lone_sound_alike: bool,
     pub score: f32,
     pub decision: Decision,
 }
@@ -79,8 +74,6 @@ pub struct Grammar {
     personal: Vec<(String, &'static str)>,
     /// How many of `phrases` are the grammar's own; personal phrases follow them.
     builtin: usize,
-    /// Commands that never execute on a sound-alike (see [`Grammar::asks_on_sound_alike`]).
-    strict: Option<fn(&str) -> bool>,
 }
 
 /// Most transcript words one slot can take.
@@ -441,6 +434,11 @@ pub fn is_ask_only(heard: &str) -> bool {
 
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
+/// Score cap for a match where some phrase word was matched only through the [`phonetic`] key
+/// (its spelling alone was not close): it can ask "Did you mean …?" but never execute. The key
+/// alone lifts a word to 0.85, the execute threshold, so "boost" executed "paste" and "show
+/// chalk maeby" opened the galaxy map (astromech-vkzj).
+pub const SOUND_CAP: f32 = 0.80;
 
 /// Words dropped wherever they appear. "sir" is politeness, like "please" ("Yes, sir.").
 const FILLER: &[&str] = &["please", "sir", "the", "uh", "um", "my", "now", "a", "an", "okay", "ok", "hey"];
@@ -595,8 +593,8 @@ pub fn word_sim(a: &str, b: &str) -> f32 {
     word_match(a, b).0
 }
 
-/// [`word_sim`], and whether it came only from the phonetic key: the spelling alone would score
-/// under 0.85, and the shared key lifted it to 0.85 ("boost" and "paste").
+/// [`word_sim`], and whether it came only from the phonetic key: the spelling alone scores under
+/// 0.85 and the shared key lifted it to 0.85 ("boost" and "paste").
 fn word_match(a: &str, b: &str) -> (f32, bool) {
     if a == b {
         return (1.0, false);
@@ -643,45 +641,37 @@ fn slot_name(w: &str) -> Option<&str> {
     w.strip_prefix('{')?.strip_suffix('}')
 }
 
-/// One cell of [`phrase_score`]'s table: cost so far, the slot fill, whether a phrase word was
-/// matched only through the phonetic key, and whether a content word (longer than two letters)
-/// or a slot was heard on its spelling.
-type Cell = (f32, Option<Fill>, bool, bool);
-
-/// Keep the cheaper of `cell` and `new`. On a tie, a sound-alike on either path counts and
-/// backing must be on both, so the flags err towards asking.
-fn relax(cell: &mut Cell, new: Cell) {
-    if new.0 < cell.0 {
-        *cell = new;
-    } else if new.0 == cell.0 {
-        cell.2 |= new.2;
-        cell.3 &= new.3;
-    }
-}
-
 /// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
 /// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
-/// scores the words `u[i..i + k]` for a slot. Returns the score, the slot's fill, and whether
-/// the match leans on the phonetic key alone: a (non-slot) phrase word matched only through the
-/// key, and no content word (longer than two letters) or exact slot heard on its spelling.
-fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>, bool) {
+/// scores the words `u[i..i + k]` for a slot. Returns the score and the slot's fill. If a phrase
+/// word was matched only through the phonetic key, the score is capped at [`SOUND_CAP`].
+fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>) {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
-        return (0.0, None, false);
+        return (0.0, None);
     }
-    let mut dp: Vec<Vec<Cell>> = vec![vec![(f32::MAX, None, false, false); m + 1]; n + 1];
-    dp[0][0] = (0.0, None, false, false);
+    // (cost, slot fill, a word matched only through the phonetic key)
+    let mut dp = vec![vec![(f32::MAX, None::<Fill>, false); m + 1]; n + 1];
+    dp[0][0] = (0.0, None, false);
+    // Keep the cheaper path; on a tie the sound-alike flag of either path counts.
+    let relax = |cell: &mut (f32, Option<Fill>, bool), cost: f32, fill: Option<Fill>, sound: bool| {
+        if cost < cell.0 {
+            *cell = (cost, fill, sound);
+        } else if cost == cell.0 {
+            cell.2 |= sound;
+        }
+    };
     for i in 0..=n {
         for j in 0..=m {
-            let (c, f, snd, backed) = dp[i][j].clone();
+            let (c, f, snd) = dp[i][j].clone();
             if c == f32::MAX {
                 continue;
             }
             if i < n {
-                relax(&mut dp[i + 1][j], (c + 1.0, f.clone(), snd, backed));
+                relax(&mut dp[i + 1][j], c + 1.0, f.clone(), snd);
             }
             if j < m {
-                relax(&mut dp[i][j + 1], (c + 1.0, f.clone(), snd, backed));
+                relax(&mut dp[i][j + 1], c + 1.0, f.clone(), snd);
             }
             if i == n || j == m {
                 continue;
@@ -691,20 +681,19 @@ fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) ->
                     for k in 1..=MAX_SLOT_WORDS.min(n - i) {
                         let got = fill(name, i, k);
                         let nc = c + k as f32 * (1.0 - got.sim);
-                        let b = backed || got.exact;
-                        relax(&mut dp[i + k][j + 1], (nc, Some(got), snd, b));
+                        relax(&mut dp[i + k][j + 1], nc, Some(got), snd);
                     }
                 }
                 None => {
-                    let (sim, sound) = word_match(&u[i], &p[j]);
-                    let spelled = !sound && sim >= 0.85 && p[j].chars().count() > 2;
-                    relax(&mut dp[i + 1][j + 1], (c + (1.0 - sim), f.clone(), snd || sound, backed || spelled));
+                    let (sim, by_key) = word_match(&u[i], &p[j]);
+                    relax(&mut dp[i + 1][j + 1], c + (1.0 - sim), f.clone(), snd || by_key);
                 }
             }
         }
     }
-    let (cost, f, snd, backed) = dp[n][m].clone();
-    ((1.0 - cost / n.max(m) as f32).max(0.0), f, snd && !backed)
+    let (cost, f, snd) = dp[n][m].clone();
+    let score = (1.0 - cost / n.max(m) as f32).max(0.0);
+    (if snd { score.min(SOUND_CAP) } else { score }, f)
 }
 
 impl Grammar {
@@ -716,7 +705,7 @@ impl Grammar {
             }
         }
         let builtin = phrases.len();
-        Self { phrases, slots: vec![], personal: vec![], builtin, strict: None }.with_slot(
+        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
             "system",
             systems.iter().map(|s| (*s, *s)),
             None,
@@ -739,17 +728,6 @@ impl Grammar {
             }
             None => self.slots.push(Slot { name: name.to_string(), values: values.collect(), free }),
         }
-        self
-    }
-
-    /// The commands `strict` accepts (the ones that press a key) never execute on a
-    /// [lone sound-alike](Match::lone_sound_alike): "boost" for "paste", "post it" for "paste
-    /// it", "go page" for "go back", "rice care" for "raise gear" ask "Did you mean …?" instead.
-    /// The phonetic key alone scores a word 0.85, the execute threshold. A sound-alike backed up
-    /// by another content word heard on its spelling still executes ("Coms panel", "Open cargo
-    /// skeep.").
-    pub fn asks_on_sound_alike(mut self, strict: fn(&str) -> bool) -> Self {
-        self.strict = Some(strict);
         self
     }
 
@@ -849,19 +827,18 @@ impl Grammar {
             .iter()
             .enumerate()
             .map(|(i, (p, toks))| {
-                let (mut score, mut filled, mut sound_alike) = phrase_score(&u, toks, &fill_u);
+                let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
                 // An ask-only transcript stays ask-only against a personal phrase too: a learned
                 // "Ill stop" must not make "I'll stop" run (astromech-1c66).
                 if misheard.is_some() && i >= self.builtin {
                     score = score.min(MISHEARD_CAP);
                 }
                 if let Some(alt) = &misheard {
-                    let (s2, f2, snd2) = phrase_score(alt, toks, &fill_alt);
+                    let (s2, f2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
                         score = s2;
                         filled = f2;
-                        sound_alike = snd2;
                     }
                 }
                 let phrase = match &filled {
@@ -876,7 +853,6 @@ impl Grammar {
                     phrase,
                     slot: filled.as_ref().map(|f| f.value.clone()),
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
-                    lone_sound_alike: sound_alike,
                     slot_text: filled.map(|f| f.text),
                     score,
                     decision: Decision::NoMatch,
@@ -897,7 +873,6 @@ impl Grammar {
                 slot: None,
                 slot_text: None,
                 slot_exact: false,
-                lone_sound_alike: false,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
@@ -916,10 +891,6 @@ impl Grammar {
         };
         // A slot filled by anything but one of its exact phrasings always asks.
         if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
-            best.decision = Decision::Ask;
-        }
-        // A key press that leans on the phonetic key alone asks.
-        if best.decision == Decision::Execute && best.lone_sound_alike && self.strict.is_some_and(|f| f(best.command)) {
             best.decision = Decision::Ask;
         }
         best
@@ -1468,33 +1439,140 @@ mod tests {
         assert_eq!(g.best("It pays well").decision, Decision::NoMatch);
     }
 
-    /// Strict commands never execute on a match that needed the phonetic key (astromech-vkzj).
+    /// A word matched only through the phonetic key caps the phrase at SOUND_CAP: it can ask,
+    /// never execute (astromech-vkzj).
     #[test]
-    fn strict_commands_ask_on_sound_alikes() {
-        let strict = |c: &str| c == "galaxy_map.paste" || c == "panel.close";
-        let loose = g();
-        let g = g().asks_on_sound_alike(strict);
+    fn sound_alikes_ask_and_never_execute() {
+        let g = g();
         for (t, c) in [
             ("boost", "galaxy_map.paste"),
+            ("Best.", "galaxy_map.paste"),
+            ("past", "galaxy_map.paste"),
             ("page", "panel.close"),
+            ("Peek.", "panel.close"),
             ("pack", "panel.close"),
-            ("post it", "galaxy_map.paste"),
+            ("Boost it.", "galaxy_map.paste"),
             ("go page", "panel.close"),
+            ("show chalk maeby", "galaxy_map.open"),
+            ("open racket banal", "panel.right"),
+            ("rice care", "landing_gear.up"),
+            // Real recogniser output that executed before: now it asks.
+            ("Landing gear dawn.", "landing_gear.down"),
+            ("Open cargo skeep.", "cargo_scoop.open"),
+            ("Roll panel.", "panel.role"),
         ] {
-            assert_eq!(loose.best(t).decision, Decision::Execute, "{t:?} executes without the rule");
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
-            assert!(m.lone_sound_alike);
+            assert!(m.score <= SOUND_CAP, "{t:?} -> {m:?}");
         }
-        for t in ["paste", "Back.", "back please", "go back", "paste it"] {
+        for (t, c) in [
+            ("Paste.", "galaxy_map.paste"),
+            ("Paste it.", "galaxy_map.paste"),
+            ("Back.", "panel.close"),
+            ("Go back.", "panel.close"),
+            ("open galaxy map", "galaxy_map.open"),
+            ("Gear down.", "landing_gear.down"),
+            // A close spelling is not a sound-alike.
+            ("Bunding gear down.", "landing_gear.down"),
+            ("Year down.", "landing_gear.down"),
+        ] {
             let m = g.best(t);
-            assert_eq!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
-            assert!(!m.lone_sound_alike);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
-        // Other commands are untouched; a second content word backs up a sound-alike.
-        assert_eq!(g.best("Fool.").decision, Decision::Execute);
-        let m = g.best("Landing gear dawn.");
-        assert!(!m.lone_sound_alike, "{m:?}");
+    }
+
+    /// A fixed sample of the astromech-vkzj round-3 reviewer's probe: key-press phrases with
+    /// their words swapped for dictionary words that share only the phonetic key. All of them
+    /// executed before; none may execute.
+    #[test]
+    fn dictionary_sound_alikes_never_execute() {
+        let g = g();
+        for t in [
+            "aiello stop",
+            "carriageway scape close",
+            "carrick scoop callis",
+            "carriageway scoop in",
+            "cargo schwab open",
+            "carriageway scoop out",
+            "carriageway scoop oath",
+            "carex scoop ottawa",
+            "callous carriageway scoop",
+            "close cargo schaub",
+            "close mapuhe",
+            "communications banal",
+            "deeply carrick scoop",
+            "diplo cargo schaub",
+            "diplo hardpoints",
+            "dibble landing caraway",
+            "disciple flaked assist",
+            "disable flexed associate",
+            "disable night faison",
+            "disable machado fashion",
+            "disable salinity running",
+            "disable salient ramming",
+            "drive assessed off",
+            "employee flight assist",
+            "enable flexed assessed",
+            "employ machete vision",
+            "enable machado fashion",
+            "enable sealant running",
+            "enable salient renewing",
+            "falgout assist on",
+            "gear dahomey",
+            "hamdi bark off",
+            "hadda combat",
+            "landing caraway dahomey",
+            "lafayette panel",
+            "lahiri limiting gear",
+            "lahr landing care",
+            "machete fashion off",
+            "open carrick scoop",
+            "obama cargo schwab",
+            "opium chilliwack map",
+            "open calyx mapuhe",
+            "open left benally",
+            "opium racked panel",
+            "obama right biannual",
+            "obama railey panel",
+            "opium role biennale",
+            "open sistine mabe",
+            "bassett system",
+            "based sistine name",
+            "basidia system mahayana",
+            "raise caraway",
+            "raceway landing caraway",
+            "retract cargo scape",
+            "retract limiting gear",
+            "railey panel",
+            "ceiba locates off",
+            "ciao calyx map",
+            "show chalk mabe",
+            "sawai galaxy mapuhe",
+            "ciao sistine map",
+            "saw system mapp",
+            "cellmate ramming off",
+            "cyathea hardpoints",
+            "tortilla to zero",
+            "degaulle landing cairo",
+            "turn lactose off",
+            "turn lighthouse on",
+            "darwen off flexed assist",
+            "darwen off flexed assessed",
+            "darwen off flexed associate",
+            "dereham off locates",
+            "turn off night faison",
+            "turn off night fasano",
+            "turn off night fashion",
+            "turn off night fission",
+            "darn on flight assist",
+            "darn on flight assessed",
+            "darn on night vision",
+            "darn on night faison",
+            "turn on machete fashion",
+        ] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
     }
 
     #[test]

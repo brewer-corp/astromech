@@ -244,7 +244,7 @@ fn no_keyboard_binding_refuses_clearly() {
 fn voice_path_with_fake_stt() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
     let a = Assistant::new(r.runner.clone());
-    let mut stt = FakeStt::new(&["Definitely hard points.", "no", "Landing gear dawn.", "banana bread"]);
+    let mut stt = FakeStt::new(&["Definitely hard points.", "no", "Landing gear down.", "banana bread"]);
     let mut next = || stt.transcribe(&[0.0; 160], 16000).unwrap();
     assert!(matches!(a.handle(&next(), Origin::Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
     assert!(matches!(a.handle(&next(), Origin::Voice), Handled::Cancelled));
