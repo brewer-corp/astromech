@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Voice: 'Pace.' executes panel.close through a phonetic-key collision with 'back'"
-updated_at: "2026-10-18T00:20:46.449443818+00:00"
+updated_at: "2026-10-18T01:00:53.477247015+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ Stop "Pace." from executing panel.close ("back"). "pace" and "back" share the cr
 ## Context
 
 Found by the independent reviewer of astromech-8fey (pre-existing on main, not caused by that change). Single-word phrases ("back", "paste", "fuel", "hull") get no margin help from other words, so one phonetic-key collision is enough to execute.
+
+## Notes
+
+- 2026-10-17 [note] Handoff: soft c (before e/i/y) keys as 's' in the phonetic key; 'Pace.' now asks 'Did you mean paste?' instead of executing back. Eval unchanged (0 wrong executes, 64/64 rejects). Review: no FIX NOW; the wider phonetic-floor problem ('boost' -> paste, 'page' -> back) filed as astromech-vkzj (alpha, high). Approval outstanding.
