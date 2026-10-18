@@ -11,7 +11,9 @@ fn open(data: &Path) -> Result<astromech_store::Store, String> {
 }
 
 /// `{"ok": true, "phrases": [{"heard", "command", "does"}]}`: what was heard, the command it now
-/// runs and that command's usual phrase. The most used first.
+/// runs and that command's usual phrase. The most used first. Only phrases that run without
+/// asking are listed (`assistant::alias_runs`): not one confirmed once for a key-pressing
+/// command, nor an ask-only one.
 pub fn list(data: &Path) -> Value {
     let rows = open(data).and_then(|st| st.aliases().map_err(|e| format!("reading the learned phrases: {e}")));
     match rows {
@@ -19,7 +21,8 @@ pub fn list(data: &Path) -> Value {
             let g = astromech_intent::Grammar::mvp(&[]);
             let phrases: Vec<Value> = rows
                 .iter()
-                .map(|(heard, command)| {
+                .filter(|(heard, command, count)| crate::assistant::alias_runs(heard, command, *count))
+                .map(|(heard, command, _)| {
                     json!({"heard": heard, "command": command, "does": g.canonical(command).unwrap_or(command)})
                 })
                 .collect();
@@ -52,19 +55,23 @@ mod tests {
         // A fresh machine: nothing learned, and no error about the missing folder.
         assert_eq!(list(&data), json!({"ok": true, "phrases": []}));
         let st = open(&data).unwrap();
-        st.learn_alias("You're down.", "landing_gear.down").unwrap();
-        st.learn_alias("You're down.", "landing_gear.down").unwrap();
+        st.learn_alias("Definitely hard points.", "hardpoints.deploy").unwrap();
+        st.learn_alias("Definitely hard points.", "hardpoints.deploy").unwrap();
+        st.learn_alias("fuel stats", "status.fuel").unwrap();
+        // Not listed: a key-pressing command confirmed once, and ask-only phrases.
         st.learn_alias("lamps", "lights.on").unwrap();
+        st.learn_alias("You're down.", "landing_gear.down").unwrap();
+        st.learn_alias("You're down.", "landing_gear.down").unwrap();
         drop(st);
         let v = list(&data);
         assert_eq!(
             v["phrases"][0],
-            json!({"heard": "You're down.", "command": "landing_gear.down", "does": "gear down"})
+            json!({"heard": "Definitely hard points.", "command": "hardpoints.deploy", "does": "deploy hardpoints"})
         );
         assert_eq!(v["phrases"].as_array().unwrap().len(), 2);
-        let v = forget(&data, None, "You're down.");
+        let v = forget(&data, None, "Definitely hard points.");
         let heard: Vec<&str> = v["phrases"].as_array().unwrap().iter().map(|p| p["heard"].as_str().unwrap()).collect();
-        assert_eq!(heard, ["lamps"]);
+        assert_eq!(heard, ["fuel stats"]);
         assert_eq!(forget(&data, None, "never learned")["phrases"].as_array().unwrap().len(), 1);
     }
 }

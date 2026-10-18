@@ -422,6 +422,12 @@ const MISHEARD: &[(&str, &str)] = &[
     ("old", "all"),
     ("pays", "paste"),
 ];
+/// True when `heard` has a word from the [`MISHEARD`] table ("I'll stop", "Pays", "You're
+/// down"). Such a phrase only ever asks, so it is never learned as a personal phrase.
+pub fn is_ask_only(heard: &str) -> bool {
+    normalise(heard).iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w))
+}
+
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
@@ -707,13 +713,15 @@ impl Grammar {
     }
 
     /// Personal alias: this transcript should map to `command` next time (still policy-capped).
-    pub fn add_alias(&mut self, heard: &str, command: &'static str) {
+    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking. True if added.
+    pub fn add_alias(&mut self, heard: &str, command: &'static str) -> bool {
         let toks = normalise(heard);
-        if toks.is_empty() {
-            return;
+        if toks.is_empty() || is_ask_only(heard) {
+            return false;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
         self.personal.push((heard.trim().to_string(), command));
+        true
     }
 
     /// Forget a personal alias added by [`Grammar::add_alias`] (every copy of it). The grammar's own
@@ -1373,25 +1381,59 @@ mod tests {
     #[test]
     fn personal_alias_executes_next_time() {
         let mut g = g();
-        let m = g.best("You're down.");
-        assert_eq!(m.command, "landing_gear.down");
-        assert_eq!(m.decision, Decision::Ask);
-        g.add_alias("You're down.", "landing_gear.down");
-        let m = g.best("You're down.");
-        assert_eq!((m.command, m.decision), ("landing_gear.down", Decision::Execute));
+        let m = g.best("Definitely hard points.");
+        assert_eq!((m.command, m.decision), ("hardpoints.deploy", Decision::Ask));
+        assert!(g.add_alias("Definitely hard points.", "hardpoints.deploy"));
+        let m = g.best("Definitely hard points.");
+        assert_eq!((m.command, m.decision), ("hardpoints.deploy", Decision::Execute));
+    }
+
+    /// A phrase with a word from the mishearing table only ever asks: it is never added as a
+    /// personal phrase (astromech-1c66).
+    #[test]
+    fn ask_only_phrases_are_never_aliases() {
+        let mut g = g();
+        for (t, c) in [
+            ("I'll stop.", "throttle.zero"),
+            ("I’ll stop", "throttle.zero"),
+            ("Old stopper.", "throttle.zero"),
+            ("Pays.", "galaxy_map.paste"),
+            ("You're down.", "landing_gear.down"),
+        ] {
+            assert!(is_ask_only(t), "{t:?}");
+            assert!(!g.add_alias(t, c), "{t:?}");
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+        }
+        for t in ["Definitely hard points.", "all stop", "paste", "Ill stop", "gear down"] {
+            assert!(!is_ask_only(t), "{t:?}");
+        }
+    }
+
+    /// Fuzzy near-misses of "all stop" that are not in the mishearing table stay under EXECUTE
+    /// (astromech-rcbi): "ill" and "al" are one letter from "all".
+    #[test]
+    fn all_stop_fuzzy_near_misses_never_execute() {
+        let g = g();
+        for t in ["ill stop", "Ill stop.", "Al stop.", "al stop"] {
+            let m = g.best(t);
+            assert_eq!(m.command, "throttle.zero", "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+            assert!(m.score < EXECUTE, "{t:?} -> {m:?}");
+        }
     }
 
     #[test]
     fn a_personal_alias_can_be_removed_and_a_builtin_phrase_cannot() {
         let mut g = g();
-        g.add_alias("You're down.", "landing_gear.down");
-        g.add_alias("You're down.", "landing_gear.down");
+        g.add_alias("Definitely hard points.", "hardpoints.deploy");
+        g.add_alias("Definitely hard points.", "hardpoints.deploy");
         g.add_alias("Gear down.", "landing_gear.down");
-        assert_eq!(g.best("You're down.").decision, Decision::Execute);
-        assert!(g.remove_alias(" You're down. "));
-        let m = g.best("You're down.");
+        assert_eq!(g.best("Definitely hard points.").decision, Decision::Execute);
+        assert!(g.remove_alias(" Definitely hard points. "));
+        let m = g.best("Definitely hard points.");
         assert_eq!(m.decision, Decision::Ask, "back to asking: both copies are gone");
-        assert!(!g.remove_alias("You're down."));
+        assert!(!g.remove_alias("Definitely hard points."));
         // An alias spelled like a grammar phrase leaves the grammar's phrase alone.
         assert!(g.remove_alias("Gear down."));
         let m = g.best("Gear down.");

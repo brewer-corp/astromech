@@ -141,9 +141,10 @@ impl Store {
         rows.collect()
     }
 
-    pub fn aliases(&self) -> Result<Vec<(String, String)>> {
-        let mut st = self.conn.prepare("SELECT transcript, command FROM aliases ORDER BY count DESC")?;
-        let rows = st.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?;
+    /// Every learned phrase as (transcript, command, confirmations), the most confirmed first.
+    pub fn aliases(&self) -> Result<Vec<(String, String, u32)>> {
+        let mut st = self.conn.prepare("SELECT transcript, command, count FROM aliases ORDER BY count DESC")?;
+        let rows = st.query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?;
         rows.collect()
     }
 
@@ -152,11 +153,13 @@ impl Store {
         Ok(self.conn.execute("DELETE FROM aliases WHERE transcript = ?1", [transcript.trim()])? > 0)
     }
 
-    /// Remember `transcript` → `command`. Capped at [`MAX_ALIASES`]; oldest (lowest count) drop first.
-    pub fn learn_alias(&self, transcript: &str, command: &str) -> Result<bool> {
+    /// Count one confirmation of `transcript` → `command` and return how many it now has (0 for
+    /// an empty transcript). Confirming it for a different command starts again at 1. Capped at
+    /// [`MAX_ALIASES`]; oldest (lowest count) drop first.
+    pub fn learn_alias(&self, transcript: &str, command: &str) -> Result<u32> {
         let t = transcript.trim();
         if t.is_empty() {
-            return Ok(false);
+            return Ok(0);
         }
         let n: i64 = self.conn.query_row("SELECT COUNT(*) FROM aliases", [], |r| r.get(0))?;
         if n >= MAX_ALIASES as i64 {
@@ -173,10 +176,11 @@ impl Store {
         }
         self.conn.execute(
             "INSERT INTO aliases(transcript, command, count) VALUES (?1, ?2, 1)
-             ON CONFLICT(transcript) DO UPDATE SET command = ?2, count = count + 1",
+             ON CONFLICT(transcript) DO UPDATE SET
+                count = CASE WHEN command = ?2 THEN count + 1 ELSE 1 END, command = ?2",
             (t, command),
         )?;
-        Ok(true)
+        self.conn.query_row("SELECT count FROM aliases WHERE transcript = ?1", [t], |r| r.get(0))
     }
 }
 
@@ -254,10 +258,13 @@ mod tests {
     #[test]
     fn learns_aliases_and_caps() {
         let s = Store::in_memory().unwrap();
-        assert!(s.learn_alias("you're down", "landing_gear.down").unwrap());
-        assert!(s.learn_alias("you're down", "landing_gear.down").unwrap());
+        assert_eq!(s.learn_alias("you're down", "landing_gear.down").unwrap(), 1);
+        assert_eq!(s.learn_alias("you're down", "landing_gear.down").unwrap(), 2);
         let a = s.aliases().unwrap();
-        assert_eq!(a, vec![("you're down".into(), "landing_gear.down".into())]);
+        assert_eq!(a, vec![("you're down".into(), "landing_gear.down".into(), 2)]);
+        // Confirmed for another command: counting starts again.
+        assert_eq!(s.learn_alias("you're down", "landing_gear.up").unwrap(), 1);
+        assert_eq!(s.learn_alias(" ", "landing_gear.up").unwrap(), 0);
         for i in 0..MAX_ALIASES {
             s.learn_alias(&format!("t{i}"), "lights.on").unwrap();
         }

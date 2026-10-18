@@ -4,6 +4,9 @@ id: "astromech-1c66"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-1c66
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "A phrase confirmed once after a near-miss question must not become a personal phrase for a key-pressing command"
-updated_at: "2026-10-18T00:18:06.352011755+00:00"
+updated_at: "2026-10-18T00:33:42.934543319+00:00"
 ---
 
 ## Goal

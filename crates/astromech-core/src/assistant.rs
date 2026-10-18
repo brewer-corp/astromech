@@ -56,12 +56,43 @@ pub fn grammar() -> Grammar {
     crate::lookups::grammar(&["Sol"])
 }
 
-/// Add the personal aliases learned from "Did you mean …?" answers.
+/// Yes answers a phrase needs before it runs a key-pressing command without asking.
+pub const KEY_CONFIRMATIONS: u32 = 2;
+
+/// Commands that press a key in the game (the T1 tools and paste), as opposed to questions and
+/// lookups that only speak.
+pub fn presses_keys(command: &str) -> bool {
+    use astromech_tools::ToolCall;
+    command == "galaxy_map.paste"
+        || matches!(
+            astromech_tools::from_command(command),
+            Some(ToolCall::Toggle { .. } | ToolCall::Screen(_) | ToolCall::ThrottleZero)
+        )
+}
+
+/// Whether a phrase confirmed `count` times for `command` runs it without asking: never for an
+/// ask-only phrase (a word from the mishearing table, "I'll stop", "Pays"); after
+/// [`KEY_CONFIRMATIONS`] yes answers for a command that presses a key; after one otherwise.
+pub fn alias_runs(heard: &str, command: &str, count: u32) -> bool {
+    !astromech_intent::is_ask_only(heard) && count >= confirmations_needed(command)
+}
+
+fn confirmations_needed(command: &str) -> u32 {
+    if presses_keys(command) {
+        KEY_CONFIRMATIONS
+    } else {
+        1
+    }
+}
+
+/// Add the personal aliases learned from "Did you mean …?" answers that [run](alias_runs).
 pub fn add_aliases(g: &mut Grammar, store: &Store) {
     if let Ok(list) = store.aliases() {
-        for (heard, cmd) in list {
+        for (heard, cmd, count) in list {
             if let Some(cmd) = Grammar::intern(&cmd) {
-                g.add_alias(&heard, cmd);
+                if alias_runs(&heard, cmd, count) {
+                    g.add_alias(&heard, cmd);
+                }
             }
         }
     }
@@ -72,6 +103,8 @@ pub struct Assistant {
     pub runner: Arc<Runner>,
     pending: Mutex<Option<Pending>>,
     store: Option<Arc<Mutex<Store>>>,
+    /// Yes answers per heard phrase when there is no store (heard → command, count).
+    confirmations: Mutex<std::collections::HashMap<String, (&'static str, u32)>>,
     /// Judges the age of market and station data.
     clock: Arc<dyn astromech_data::Clock>,
     /// The journal history, for the session summary.
@@ -89,6 +122,7 @@ impl Assistant {
             runner,
             pending: Mutex::new(None),
             store: None,
+            confirmations: Default::default(),
             clock: Arc::new(astromech_data::SystemClock),
             sessions: Default::default(),
             projects: Default::default(),
@@ -134,13 +168,28 @@ impl Assistant {
         self.runner.speaker.say(s);
     }
 
+    /// Count a yes to "Did you mean `command`?" after `heard`; the phrase runs without asking
+    /// once [`alias_runs`] says so. Ask-only phrases are not even counted.
     fn learn(&self, heard: &str, command: &'static str) {
-        if heard.trim().is_empty() || command == "confirm" || command == "cancel" {
+        let heard = heard.trim();
+        if heard.is_empty() || command == "confirm" || command == "cancel" || astromech_intent::is_ask_only(heard) {
             return;
         }
-        self.grammar.lock().unwrap().add_alias(heard, command);
-        if let Some(st) = &self.store {
-            let _ = st.lock().unwrap().learn_alias(heard, command);
+        let count = match &self.store {
+            Some(st) => st.lock().unwrap().learn_alias(heard, command).unwrap_or(0),
+            None => {
+                let mut c = self.confirmations.lock().unwrap();
+                let e = c.entry(heard.to_string()).or_insert((command, 0));
+                if e.0 != command {
+                    *e = (command, 0);
+                }
+                e.1 += 1;
+                e.1
+            }
+        };
+        // Added once, on the yes that makes it run (after that it no longer asks).
+        if count == confirmations_needed(command) {
+            self.grammar.lock().unwrap().add_alias(heard, command);
         }
     }
 
@@ -148,6 +197,7 @@ impl Assistant {
     /// True if it was one.
     pub fn forget(&self, heard: &str) -> bool {
         let in_grammar = self.grammar.lock().unwrap().remove_alias(heard);
+        self.confirmations.lock().unwrap().remove(heard.trim());
         let in_store = self.store.as_ref().is_some_and(|st| st.lock().unwrap().forget_alias(heard).unwrap_or(false));
         in_grammar || in_store
     }
