@@ -1,6 +1,7 @@
 <script lang="ts">
   // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
   import { tick } from "svelte";
+  import { failure } from "../../lib/ui/errors";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import Nearby from "../../lib/ui/Nearby.svelte";
   import Sites from "../../lib/ui/Sites.svelte";
@@ -8,6 +9,7 @@
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let inv = $state<Inventory | null>(null);
+  let failed = $state<string | null>(null);
   let kindId = $state("raw");
   // A material opens at #/materials/<id> (the command palette links there), so back and reload keep it.
   const readSel = () => {
@@ -47,9 +49,16 @@
   });
 
   $effect(() => {
-    void loadMaterials().then((v) => (inv = v));
+    const load = () =>
+      loadMaterials()
+        .then((v) => {
+          inv = v;
+          failed = null;
+        })
+        .catch((e: unknown) => (failed = failure("read the materials", e)));
+    void load();
     // 1 s poll + recompute keeps journal changes on screen within 2 s (astromech-txzq).
-    const t = setInterval(() => void loadMaterials().then((v) => (inv = v)), 1000);
+    const t = setInterval(() => void load(), 1000);
     return () => clearInterval(t);
   });
 
@@ -88,7 +97,7 @@
       {/if}
       · {inv.source}
     {:else}
-      Reading the journal…
+      {failed ?? "Reading the journal…"}
     {/if}
   </p>
   {#if kindId === "manufactured" && inv?.here}

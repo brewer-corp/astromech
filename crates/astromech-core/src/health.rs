@@ -48,16 +48,16 @@ impl BindsState {
         let ui = elite_ui_name(action);
         match &self.index {
             None => format!(
-                "I can't switch {}: I couldn't read your Elite keybindings. Check the health report.",
+                "Cannot switch {}: your Elite keybindings could not be read. Check the health report.",
                 noun.to_lowercase()
             ),
             Some(ix) if ix.slots(action).is_empty() => format!(
-                "I can't switch {}: it isn't bound to anything in your controls. In Elite, open Options, Controls, \
+                "Cannot switch {}: it is not bound to anything in your controls. In Elite, open Options, Controls, \
                  and give {ui} a keyboard key.",
                 noun.to_lowercase()
             ),
             Some(_) => format!(
-                "I can't switch {}: it's only bound to your controller, and I can only press keyboard keys. \
+                "Cannot switch {}: it is only bound to your controller, and astromech presses keyboard keys only. \
                  In Elite, open Options, Controls, and give {ui} a keyboard key as its secondary binding.",
                 noun.to_lowercase()
             ),
@@ -228,7 +228,7 @@ pub fn elite_ui_name(action: &str) -> &str {
         "FocusCommsPanel" => "Comms Panel",
         "FocusRadarPanel" => "Role Panel",
         "SetSpeedZero" => "Throttle to Zero",
-        "Handbrake" => "Handbrake",
+        "AutoBreakBuggyButton" => "Handbrake",
         "ToggleDriveAssist" => "Drive Assist",
         a => a,
     }
@@ -260,7 +260,7 @@ mod tests {
             .iter()
             .any(|i| i.level == "error" && i.text.starts_with("LandingGearToggle has no keyboard binding")));
         assert!(st.missing_reason("LandingGearToggle", "Landing gear").contains("only bound to your controller"));
-        assert!(st.missing_reason("NightVisionToggle", "Night vision").contains("isn't bound"));
+        assert!(st.missing_reason("NightVisionToggle", "Night vision").contains("is not bound"));
         assert!(st.summary().contains("no keyboard binding"));
     }
 }

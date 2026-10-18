@@ -11,6 +11,7 @@
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
 use crate::{data, links};
+use astromech_data::Clock;
 use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredModule, StoredShip};
 use serde::Serialize;
 use serde_json::Value;
@@ -430,6 +431,14 @@ impl FleetBuilder {
         }
     }
 
+    /// When the next transfer still under way lands (epoch seconds), if any: after that moment a
+    /// fleet built before it is out of date even though the journal didn't change.
+    pub fn next_arrival(&self) -> Option<i64> {
+        let ships = self.ship_arrivals.values().map(|a| a.at);
+        let modules = self.stored_modules.iter().filter_map(|(_, a)| a.as_ref().map(|a| a.at));
+        ships.chain(modules).min()
+    }
+
     /// Keep the raw `Loadout` line that was just applied (`ts` and `ship_id` must match it).
     pub fn keep_raw(&mut self, ts: &str, raw: Value) {
         let Some(id) = raw.get("ShipID").and_then(Value::as_i64) else { return };
@@ -653,6 +662,12 @@ pub const FLEET_EVENTS: &[&str] = &[
 /// Replay every journal in `dir`, oldest first. Lines are pre-filtered by event name, so years
 /// of journals cost one read each.
 pub fn from_journal_dir(dir: &Path) -> Fleet {
+    from_journal_dir_at(dir, &astromech_data::SystemClock).fleet
+}
+
+/// [`from_journal_dir`], settling transfers against `clock` and saying when the result next goes
+/// out of date (see [`Settled::current`]).
+pub fn from_journal_dir_at(dir: &Path, clock: &dyn Clock) -> Settled {
     let mut b = FleetBuilder::default();
     let logs = astromech_journal::journal_logs(dir);
     for p in &logs {
@@ -674,6 +689,22 @@ pub fn from_journal_dir(dir: &Path) -> Fleet {
         format!("{} journal files", logs.len())
     };
     // Anything ordered to a station while the journals were being kept may have landed since.
-    b.settle(chrono::Utc::now().timestamp());
-    b.build(source)
+    b.settle(clock.now_s());
+    Settled { next_arrival: b.next_arrival(), fleet: b.build(source) }
+}
+
+/// A fleet settled against a clock, and when it next goes out of date.
+#[derive(Debug, Clone)]
+pub struct Settled {
+    pub fleet: Fleet,
+    /// The epoch second the next transfer under way lands; `None` when none is.
+    pub next_arrival: Option<i64>,
+}
+
+impl Settled {
+    /// Whether a fleet with this `next_arrival` is still right at `clock`'s time. Journal writes
+    /// aren't the only thing that changes it: a transfer lands when its `TransferTime` passes.
+    pub fn current(next_arrival: Option<i64>, clock: &dyn Clock) -> bool {
+        next_arrival.is_none_or(|t| clock.now_s() < t)
+    }
 }

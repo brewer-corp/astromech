@@ -7,7 +7,8 @@ problem this solves. astromech does it in two layers:
 
 1. **Clipboard (built).** astromech follows a route. The next waypoint is always on the
    clipboard, and "paste" (spoken, or a HOTAS button) puts it into the search box. You still
-   select the search box and plot the route yourself.
+   select the search box and plot the route yourself. The route can come from Spansh's neutron
+   or exact plotter, plotted in the app for the current ship.
 2. **Plotting macro (designed, not built; off by default when it is).** astromech opens the map,
    searches, plots, and checks `NavRoute.json` to see whether it worked.
 
@@ -22,7 +23,7 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 |---|---|
 | Route model, Spansh CSV / plain-list import, the one active route saved to `<data>/route.json` | `crates/astromech-core/src/route.rs` |
 | Clipboard write (CF_UNICODETEXT) | `crates/astromech-core/src/clipboard.rs` |
-| Follower: the callout rule `route_follow`, on live `FSDJump`, `CarrierJump` and `Location` only, so a replayed journal (the startup catch-up, an old journal a backup tool touched) never moves the route or writes the clipboard; it only updates where the commander is. Its line is spoken through the callout queue (after push-to-talk, quiet in combat and docking) and shown as a toast; `[callouts.route_follow] enabled = false` turns following off | `astromech_announce::route_follow`; the core's `Desk` is its `Follower` |
+| Follower: the callout rule `route_follow`, on live `FSDJump`, `CarrierJump` and `Location` only, so a replayed journal (the startup catch-up, an old journal a backup tool touched) never moves the route or writes the clipboard; it only updates where the commander is. Its line is spoken through the callout queue (after push-to-talk, quiet in combat and docking) and shown as a toast; `[callouts.route_follow] enabled = false` turns following off (the route then doesn't move, but where the commander is still updates, through the engine's `while_off`) | `astromech_announce::route_follow`; the core's `Desk` is its `Follower` |
 | Paste: Ctrl+V, 500 ms, Enter. **Only while `GuiFocus == 6`** (galaxy map), checked before Ctrl+V and again before Enter (if the map closed, Enter is not sent), through the policy layer | `Runner::paste` |
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
@@ -48,6 +49,34 @@ Behaviour:
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for
   the clipboard.
 
+### Spansh plotters
+
+**Galaxy → Route → Plot with Spansh** plots a neutron or exact route for the current ship and
+hands it to the follower (`route_set`), so it is followed the same way as any other route.
+
+| Piece | Where |
+|---|---|
+| The ship: the FSD (optimal mass and max fuel per jump with engineering, base fuel multiplier and power), base mass (hull and modules plus the reservoir, no main-tank fuel), tank, reservoir and Guardian booster from the latest `Loadout`; range with a full tank and the cargo aboard | `astromech_ship::Fsd` (`ShipStats::fsd`), `astromech_galaxy::plot::Ship::current` |
+| Requests and results: neutron `/api/route` (range, efficiency), exact `/api/generic/route` (the FSD numbers as a form, see below); both are jobs polled at `/api/results/{job}` | `astromech_data::spansh` (`NeutronRoute`, `ExactRoute`, `spansh_*_wait`) |
+| Plotting: one call that submits, polls until done and returns the stops with labels (`neutron boost`, `fuel`) and totals | `astromech_galaxy::plot::plot` |
+| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core) | `app/src-tauri/src/main.rs`, `app/src/modules/route/Plot.svelte` |
+
+The core's pipeline thread is not involved: the shell plots and only the finished route reaches
+the core, through the control API. A route plotted while the window is left still gets followed.
+
+**The exact plotter's input** (read from spansh.co.uk's exact-plotter page and checked against
+the live API on 17 Oct 2026): Spansh's site doesn't send the ship build for the plotter to read.
+It works out the numbers in the browser from a journal `Loadout` (its "SLEF" import) or a
+Coriolis build and posts them as a form: `fuel_power`, `fuel_multiplier`, `optimal_mass`,
+`max_fuel_per_jump`, `base_mass`, `tank_size`, `internal_tank_size`, `range_boost`, `cargo`,
+`source`, `destination` (names work as well as id64s) and option flags. `ship_build` is
+optional. `base_mass` is `UnladenMass` plus the reservoir: Spansh adds the main-tank fuel jump by
+jump. The recorded job (`crates/astromech-data/tests/fixtures/spansh-exact-*.json`) confirms
+the fuel maths: 38.29 ly from Sol used 4.52 t, as the formula gives for that mass. astromech
+leaves FSD injections, already-supercharged drives, skipping secondary stars and a fuel reserve
+at the site's defaults (off), and uses Spansh's default supercharge multiplier (4), so a drive
+with a different multiplier (Spansh's site sets 6 for the size 8 overcharge Mk II drive) is plotted as an ordinary one.
+
 Ctrl+V in the search box works: it's how players enter long procedural names on a flat screen
 (confirmed by the maintainer, 15 Oct 2026). VR uses the same search box, so we assume it works
 there too.
@@ -58,8 +87,9 @@ there too.
 - Whether Enter after the paste runs the search and leaves the box. `PASTE_SETTLE` is 500 ms.
   d47 waits 1.5 s and then steps into the results.
 - What V or Enter do if the search box is *not* selected while the galaxy map is open (any
-  galaxy-map binding on those keys fires). The health check could warn about galaxy-map binds
-  on `Key_V` or `Key_Enter`.
+  galaxy-map binding on those keys fires). The health check warns about galaxy-map binds on
+  `Key_V` or `Key_Enter` ("Clashes with route paste"); it does not look at the Interface (`UI_*`)
+  actions, and whether the map reacts to those with the box unfocused is not known.
 - The second `GuiFocus` check before Enter sees the map close only once Status.json says so;
   the game writes it up to about a second after a change (S5), longer than `PASTE_SETTLE`.
 - On foot, Status.json has no `GuiFocus` (EliteIntel), so paste is refused on foot. The journal's

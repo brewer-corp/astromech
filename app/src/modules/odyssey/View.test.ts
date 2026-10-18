@@ -107,7 +107,7 @@ it("keeps every saved pick removable when the list can't be worked out", async (
   };
   render(View);
   await fireEvent.click(await screen.findByRole("button", { name: "Blueprints" }));
-  expect(await screen.findByText(/Couldn't work out the list: Error: journal folder not found/)).toBeTruthy();
+  expect(await screen.findByText(/Could not work out the shopping list: journal folder not found\./)).toBeTruthy();
   expect(screen.getByText("Maverick Suit grade 1 → 3")).toBeTruthy();
   await fireEvent.click(screen.getByRole("button", { name: "Remove renamedmod" }));
   expect(saved()).toEqual([{ kind: "upgrade", gear: "maverick", from: 1, to: 3 }]);

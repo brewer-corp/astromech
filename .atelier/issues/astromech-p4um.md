@@ -4,6 +4,9 @@ id: "astromech-p4um"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-p4um
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T18:39:59.752306433+00:00"
+status: "done"
 title: "Share JournalTail between the core pipeline and astromech-journal"
-updated_at: "2026-10-17T17:23:49.179329542+00:00"
+updated_at: "2026-10-17T18:39:59.752306433+00:00"
 ---
 
 ## Goal
@@ -28,3 +32,7 @@ Move `JournalTail` (crates/astromech-core/src/pipeline.rs, read_new) into astrom
 ## Context
 
 Found in review of the astromech-ztrb PR. astromech-mh3m and astromech-ogq4 also change the Tailer in pipeline.rs, so do this after they merge.
+
+## Close Reason
+
+JournalTail lives in astromech-journal and JournalWatch is built on it; journal_version only reads a length so it is unchanged. Tests: tail.rs and live_watch.rs plus the existing pipeline tests. Refactor, so no fail-before test; review recorded. Windows unverified.

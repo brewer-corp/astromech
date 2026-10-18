@@ -14,10 +14,12 @@ pub mod commander;
 pub mod companion;
 mod detail;
 pub mod ore;
+mod tail;
 
 use detail::system_powerplay;
 pub use detail::*;
 use std::path::{Path, PathBuf};
+pub use tail::JournalTail;
 
 #[derive(Debug, thiserror::Error)]
 pub enum JournalError {
@@ -910,6 +912,13 @@ fn journal_stamp(name: &str) -> Option<(i64, u32)> {
     Some((dt.and_utc().timestamp(), part))
 }
 
+/// The start stamp in a journal's file name (seconds, read as if the name's time were UTC) and its
+/// part number. `None` for a name that isn't a journal stamp (a sync tool's conflict copy).
+/// The game writes the name in the machine's local time, so compare it with local wall-clock time.
+pub fn journal_name_stamp(path: &Path) -> Option<(i64, u32)> {
+    journal_stamp(&path.file_name()?.to_string_lossy())
+}
+
 /// Journal logs in `dir`, oldest first by the date in the file name (both naming schemes).
 pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
     let mut v: Vec<(i64, u32, std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
@@ -928,6 +937,17 @@ pub fn journal_logs(dir: &Path) -> Vec<PathBuf> {
         .collect();
     v.sort();
     v.into_iter().map(|x| x.3).collect()
+}
+
+/// The game's latest journal in `dir`: the one whose name carries the latest start time (both
+/// naming schemes). Names that aren't a journal stamp (a sync tool's conflict copy) are never it.
+pub fn latest_journal(dir: &Path) -> Option<PathBuf> {
+    std::fs::read_dir(dir)
+        .ok()?
+        .flatten()
+        .filter_map(|e| Some((journal_stamp(&e.file_name().to_string_lossy())?, e.path())))
+        .max()
+        .map(|x| x.1)
 }
 
 /// Changes whenever something read from the journals could give a different answer: a journal file
@@ -962,9 +982,9 @@ pub fn journal_version(dir: &Path) -> JournalVersion {
 pub struct JournalWatch {
     events: Vec<String>,
     files: usize,
-    newest: Option<PathBuf>,
-    /// Bytes of `newest` already seen, always at a line start.
-    offset: u64,
+    /// Follows the newest journal from where it ended when we switched to it.
+    tail: Option<JournalTail>,
+    restarts: u32,
     started: bool,
     generation: u64,
 }
@@ -974,8 +994,8 @@ impl JournalWatch {
         Self {
             events: events.iter().map(|e| e.to_string()).collect(),
             files: 0,
-            newest: None,
-            offset: 0,
+            tail: None,
+            restarts: 0,
             started: false,
             generation: 0,
         }
@@ -985,51 +1005,37 @@ impl JournalWatch {
     /// was appended.
     pub fn poll(&mut self, dir: &Path) -> u64 {
         let logs = journal_logs(dir);
-        let newest = logs.last().cloned();
-        let same_file = self.started && self.files == logs.len() && self.newest == newest;
-        let opened = newest.as_deref().map(|p| std::fs::File::open(p).and_then(|f| f.metadata().map(|m| (f, m.len()))));
-        let (mut f, len) = match opened {
-            None => {
-                self.generation += u64::from(self.started && !same_file);
-                (self.files, self.newest, self.offset, self.started) = (0, None, 0, true);
+        let newest = logs.last();
+        let same_file = self.started && self.files == logs.len() && self.tail.as_ref().map(|t| &t.path) == newest;
+        if !same_file {
+            let switched = u64::from(self.started);
+            let Some(path) = newest else {
+                (self.started, self.files, self.tail, self.restarts) = (true, 0, None, 0);
+                self.generation += switched;
                 return self.generation;
-            }
-            // Not recorded: the switch is counted on the first poll that can read the new file.
-            // If even the first poll fails, that counts as a change too, so a build made
-            // before the file could be read isn't kept.
-            Some(Err(_)) => {
+            };
+            // Where the new journal ends now, read through an open handle. If it can't be opened
+            // yet nothing is recorded, so the switch is counted by the first poll that can. If
+            // even the first poll fails, the next successful one counts as a change too, so a
+            // build made before the file could be read isn't kept.
+            let Ok(len) = std::fs::File::open(path).and_then(|f| f.metadata()).map(|m| m.len()) else {
                 if !self.started {
-                    self.started = true;
-                    self.files = usize::MAX;
+                    (self.started, self.files) = (true, usize::MAX);
                 }
                 return self.generation;
-            }
-            Some(Ok(x)) => x,
-        };
-        (self.files, self.newest) = (logs.len(), newest);
-        if !self.started {
-            self.started = true;
-            self.offset = len;
-        } else if !same_file || len < self.offset {
+            };
+            (self.started, self.files, self.restarts) = (true, logs.len(), 0);
+            self.tail = Some(JournalTail::new(path.clone(), len));
+            self.generation += switched;
+            return self.generation;
+        }
+        let Some(tail) = &mut self.tail else { return self.generation };
+        let lines = tail.read_new();
+        if tail.restarts() != self.restarts {
+            self.restarts = tail.restarts();
             self.generation += 1;
-            self.offset = len;
-        } else if len > self.offset {
-            use std::io::{Read, Seek, SeekFrom};
-            let mut buf = Vec::new();
-            if f.seek(SeekFrom::Start(self.offset))
-                .and_then(|_| f.take(len - self.offset).read_to_end(&mut buf))
-                .is_ok()
-            {
-                // A line the game is still writing waits for its newline.
-                let complete = buf.iter().rposition(|b| *b == b'\n').map_or(0, |i| i + 1);
-                self.offset += complete as u64;
-                let watched = String::from_utf8_lossy(&buf[..complete])
-                    .lines()
-                    .any(|l| self.events.iter().any(|e| l.contains(e.as_str())));
-                if watched {
-                    self.generation += 1;
-                }
-            }
+        } else if lines.iter().any(|l| self.events.iter().any(|e| l.contains(e.as_str()))) {
+            self.generation += 1;
         }
         self.generation
     }
@@ -1047,11 +1053,17 @@ impl<T> JournalCache<T> {
 
     /// The cached value, or `build()`'s if the journals changed since it was built.
     pub fn get(&self, dir: &Path, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
+        self.get_fresh(dir, |_| true, build)
+    }
+
+    /// Like [`JournalCache::get`], and also rebuilds when `fresh` says the cached value has gone
+    /// stale without any journal change (it was settled against a clock that has moved on).
+    pub fn get_fresh(&self, dir: &Path, fresh: impl Fn(&T) -> bool, build: impl FnOnce() -> T) -> std::sync::Arc<T> {
         // A build that panicked left no value behind; the next call builds again.
         let mut g = self.0.lock().unwrap_or_else(|e| e.into_inner());
         let generation = g.0.poll(dir);
         if let Some((built_at, v)) = &g.1 {
-            if *built_at == generation {
+            if *built_at == generation && fresh(v) {
                 return v.clone();
             }
         }
@@ -1083,6 +1095,28 @@ pub fn parse_file(path: &Path) -> Vec<JournalLine> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_latest_journal_is_by_the_stamp_in_its_name_and_never_a_conflict_copy() {
+        let d = tempfile::tempdir().unwrap();
+        for n in [
+            "Journal.221014080000.01.log",
+            "Journal.2026-10-16T120000.01.log",
+            "Journal.2026-10-16T120000.02.log",
+            "Journal.2026-10-16T120000.02-DESKTOP-ABC.log",
+            "Journal.2026-10-16T120000.02 (conflicted copy).log",
+        ] {
+            std::fs::write(d.path().join(n), "").unwrap();
+        }
+        let t = std::time::SystemTime::now() + std::time::Duration::from_secs(60);
+        std::fs::File::options()
+            .write(true)
+            .open(d.path().join("Journal.221014080000.01.log"))
+            .unwrap()
+            .set_modified(t)
+            .unwrap();
+        assert_eq!(latest_journal(d.path()), Some(d.path().join("Journal.2026-10-16T120000.02.log")));
+    }
     #[test]
     fn known_and_unknown_events() {
         let l = parse_line(

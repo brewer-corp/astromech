@@ -132,6 +132,10 @@ pub trait Rule: Send {
     /// with the state after it, for rules that must know where the catch-up left things. It
     /// must not speak.
     fn replayed(&self, _input: &Input, _state: &GameState) {}
+    /// Told of each input, live or replayed, while the rule is turned off in the settings,
+    /// with the state after it, for rules that keep track of something even then. It must not
+    /// speak.
+    fn while_off(&self, _input: &Input, _state: &GameState) {}
     /// Several lines for one event (each its own sentence within the word budget). They share
     /// the rule's cooldown. By default, [`react`](Rule::react)'s one line.
     fn react_all(&self, input: &Input, state: &GameState) -> Vec<Callout> {
@@ -150,6 +154,7 @@ pub mod discovery;
 pub mod docking;
 pub mod fuel;
 pub mod hge;
+pub mod known_bodies;
 pub mod materials_cap;
 pub mod missions;
 pub mod powerplay_arrival;
@@ -177,6 +182,8 @@ pub struct Shared {
     /// Biology other players reported (Spansh), for the arrival's biology line (the core
     /// plugs it in).
     pub known_bio: biology::SharedKnownBio,
+    /// Bodies known to EDSM, for the arrival's bodies line (the core plugs it in).
+    pub known_bodies: known_bodies::SharedKnownBodies,
     /// The commander's session history, for the session summary (the core plugs it in).
     pub sessions: session_summary::SharedSessions,
     /// The route the core follows (the core plugs it in).
@@ -186,7 +193,7 @@ pub struct Shared {
 /// The rules that ship.
 pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
     vec![
-        Box::new(prospector::Prospector { thresholds: shared.prospector }),
+        Box::new(prospector::Prospector::new(shared.prospector)),
         Box::new(scan::Scan),
         Box::new(arrival::Arrival {
             shopping: shared.shopping.clone(),
@@ -195,13 +202,14 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         }),
         Box::new(powerplay_arrival::PowerplayArrival { spoken: shared.powerplay_spoken.clone() }),
         Box::new(biology::Biology::new(shared.known_bio.clone())),
+        Box::new(known_bodies::KnownBodiesRule::new(shared.known_bodies.clone())),
         Box::new(docking::Docking),
         Box::new(fuel::Scoopable),
         Box::new(fuel::FuelRange),
         Box::new(route::Route),
         Box::new(route_follow::RouteFollow { follower: shared.follower.clone() }),
         Box::new(hge::Hge { shopping: shared.shopping.clone() }),
-        Box::new(materials_cap::MaterialsCap),
+        Box::new(materials_cap::MaterialsCap::default()),
         Box::new(missions::Missions::default()),
         Box::new(project_market::ProjectMarket),
         Box::new(signals::Signals::default()),
@@ -209,6 +217,51 @@ pub fn builtin(shared: Shared) -> Vec<Box<dyn Rule>> {
         Box::new(discovery::Discovery::default()),
         Box::new(session_summary::SessionSummary::new(shared.sessions.clone())),
     ]
+}
+
+/// How Settings names each rule (the guide page's headings). Every built-in rule has one.
+const TITLES: &[(&str, &str)] = &[
+    ("prospector", "Prospector"),
+    ("scan", "Scans"),
+    ("arrival", "Arrival briefing"),
+    ("powerplay_arrival", "Powerplay arrival"),
+    ("biology", "Known biology"),
+    ("known_bodies", "Bodies known to EDSM"),
+    ("docking", "Docking"),
+    ("scoopable", "Next scoopable star"),
+    ("fuel_range", "Fuel range"),
+    ("route", "Route summary"),
+    ("route_follow", "Route follower"),
+    ("hge", "High Grade Emissions"),
+    ("materials_cap", "Materials at the cap"),
+    ("missions", "Mission reminders"),
+    ("project_market", "Colonisation shopping"),
+    ("signals", "Signals"),
+    ("sampling", "Exobiology sampling"),
+    ("discovery", "Discoveries"),
+    ("session_summary", "Session summary"),
+];
+
+/// A rule as Settings lists it.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct Info {
+    pub id: &'static str,
+    pub title: &'static str,
+    pub default_enabled: bool,
+    pub default_cooldown_s: f64,
+}
+
+/// Every rule that ships, for Settings.
+pub fn catalog() -> Vec<Info> {
+    builtin(Shared::default())
+        .iter()
+        .map(|r| Info {
+            id: r.id(),
+            title: TITLES.iter().find(|(id, _)| *id == r.id()).map_or(r.id(), |(_, t)| t),
+            default_enabled: r.default_enabled(),
+            default_cooldown_s: r.cooldown().as_secs_f64(),
+        })
+        .collect()
 }
 
 /// Per-rule settings, `[callouts.<rule id>]` in `astromech.toml`. Missing means the default.
@@ -411,6 +464,9 @@ impl Engine {
     }
 
     fn fire(&mut self, input: &Input, state: &GameState, now: Instant, quiet: Option<Quiet>) -> Vec<Reaction> {
+        for s in self.slots.iter().filter(|s| !s.enabled) {
+            s.rule.while_off(input, state);
+        }
         if !self.live {
             for s in self.slots.iter().filter(|s| s.enabled) {
                 s.rule.replayed(input, state);
@@ -532,5 +588,23 @@ mod tests {
         assert_eq!(s.0["prospector"].enabled, Some(false));
         assert_eq!(s.0["scan"].cooldown_s, Some(2.5));
         assert_eq!(toml::to_string(&s).unwrap(), "[prospector]\nenabled = false\n\n[scan]\ncooldown_s = 2.5\n");
+    }
+}
+
+#[cfg(test)]
+mod catalog_tests {
+    use super::*;
+
+    #[test]
+    fn every_built_in_rule_has_a_title_and_a_default() {
+        let c = catalog();
+        assert_eq!(c.len(), TITLES.len());
+        for (id, t) in TITLES {
+            let i = c.iter().find(|i| i.id == *id).unwrap_or_else(|| panic!("{id} has a title but no rule"));
+            assert_eq!(i.title, *t);
+        }
+        let off: Vec<_> = c.iter().filter(|i| !i.default_enabled).map(|i| i.id).collect();
+        assert_eq!(off, ["powerplay_arrival"]);
+        assert_eq!(c.iter().find(|i| i.id == "scan").unwrap().default_cooldown_s, 30.0);
     }
 }

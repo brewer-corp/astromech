@@ -103,30 +103,10 @@ fn watchdog(app: tauri::AppHandle) {
 
 struct Binds(std::sync::Mutex<Option<astromech_keybinds::api::Api>>);
 
-#[derive(Deserialize, Default)]
-struct GameCfg {
-    #[serde(default)]
-    bindings_dir: String,
-    #[serde(default)]
-    game_dir: String,
-    #[serde(default)]
-    journal_dir: String,
-}
-/// The parts of the core's `astromech.toml` the window reads.
-#[derive(Deserialize, Default)]
-struct Cfg {
-    #[serde(default)]
-    game: GameCfg,
-    #[serde(default)]
-    data_dir: String,
-}
-
-/// The core's config, from where the core reads it (`Paths::config_file`); defaults if missing.
-fn config() -> Cfg {
-    std::fs::read_to_string(Paths::current().config_file())
-        .ok()
-        .and_then(|t| toml::from_str(&t).ok())
-        .unwrap_or_default()
+/// The parts of the core's `astromech.toml` the window reads, from the file the core uses
+/// (`Paths::config_in_use`: its `--config`, or the default); defaults if missing.
+fn config() -> astromech_store::window::WindowConfig {
+    astromech_store::window::WindowConfig::load(&Paths::current())
 }
 
 /// The core's data folder (`Config::data_dir()` in the core): every file the window shares with
@@ -346,6 +326,9 @@ async fn powerplay_targets(
 /// Everything the Engineering screen reads from the journals, re-read when the journals change.
 struct JournalState {
     fleet: astromech_engineering::Fleet,
+    /// When the next ship or module transfer under way lands: after that the fleet above is stale
+    /// though no journal line was written (astromech-4irh).
+    fleet_next_arrival: Option<i64>,
     ledger: astromech_materials::Ledger,
     engineers: Vec<astromech_engineering::EngineerView>,
     /// Every ship and suit engineer with the commander's progress and what is left to unlock.
@@ -360,16 +343,10 @@ struct JournalState {
 struct EngineeringCache(astromech_journal::JournalCache<JournalState>);
 
 impl Default for EngineeringCache {
-    /// Watches exactly the lines the replays in `build_journal_state` read.
+    /// Watches exactly the lines the replays in `build_journal_state` read. A reader added to
+    /// `build_journal_state` must add its pattern to `engineering_journal_events` (astromech-ldiz).
     fn default() -> Self {
-        let events: Vec<&str> = [
-            astromech_engineering::FLEET_EVENTS,
-            astromech_engineering::engineers::EVENTS,
-            astromech_materials::LEDGER_EVENTS,
-            astromech_galaxy::POSITION_EVENTS,
-        ]
-        .concat();
-        Self(astromech_journal::JournalCache::new(&events))
+        Self(astromech_journal::JournalCache::new(&astromech_galaxy::engineering_journal_events()))
     }
 }
 
@@ -378,13 +355,21 @@ fn engineering_state(cache: &EngineeringCache) -> Result<std::sync::Arc<JournalS
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    Ok(cache.0.get(&dir, || build_journal_state(&dir)))
+    // Rebuilt on a journal change, and also when a transfer lands on the clock.
+    let clock = astromech_data::SystemClock;
+    Ok(cache.0.get_fresh(
+        &dir,
+        |st| astromech_engineering::Settled::current(st.fleet_next_arrival, &clock),
+        || build_journal_state(&dir),
+    ))
 }
 
 fn build_journal_state(dir: &std::path::Path) -> JournalState {
     let progress = astromech_engineering::engineers::builder_from_journal_dir(dir);
+    let fleet = astromech_engineering::from_journal_dir_at(dir, &astromech_data::SystemClock);
     JournalState {
-        fleet: astromech_engineering::from_journal_dir(dir),
+        fleet: fleet.fleet,
+        fleet_next_arrival: fleet.next_arrival,
         ledger: astromech_materials::replay_journal_dir(dir),
         engineers: progress.build(),
         unlocks: astromech_engineering::unlocks::tree(&progress),
@@ -891,13 +876,22 @@ async fn colonisation_projects(app: tauri::AppHandle) -> Result<Value, String> {
 /// A trade route search is running (one Spansh job at a time, even if the page is left and
 /// opened again while the first still polls).
 static ROUTE_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+/// A route is being plotted for the follower (one at a time, the same way).
+static PLOT_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
-/// Clears [`ROUTE_BUSY`] when the search ends, however it ends.
-struct RouteSearching;
+/// Holds one of the flags above while its job runs and clears it when the job ends, however it
+/// ends. `None` when it is already held.
+struct Busy(&'static std::sync::atomic::AtomicBool);
 
-impl Drop for RouteSearching {
+impl Busy {
+    fn take(flag: &'static std::sync::atomic::AtomicBool) -> Option<Busy> {
+        (!flag.swap(true, std::sync::atomic::Ordering::SeqCst)).then_some(Busy(flag))
+    }
+}
+
+impl Drop for Busy {
     fn drop(&mut self) {
-        ROUTE_BUSY.store(false, std::sync::atomic::Ordering::SeqCst);
+        self.0.store(false, std::sync::atomic::Ordering::SeqCst);
     }
 }
 
@@ -912,10 +906,9 @@ async fn trade_route(
     filters: Option<astromech_galaxy::Filters>,
 ) -> Result<Value, String> {
     blocking(move || {
-        if ROUTE_BUSY.swap(true, std::sync::atomic::Ordering::SeqCst) {
+        let Some(_searching) = Busy::take(&ROUTE_BUSY) else {
             return Err("A route search is already running. Wait for it to finish.".into());
-        }
-        let _searching = RouteSearching;
+        };
         let g = galaxy(&app)?;
         let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64);
@@ -923,6 +916,61 @@ async fn trade_route(
         let r = astromech_market::route::plan(g.remote(), &here.system, range, &ask, &filters, polling, now)
             .map_err(|e| e.to_string())?;
         Ok(serde_json::json!({ "here": here, "route": r }))
+    })
+    .await
+}
+
+/// The current ship as the route plotters see it (its range with a full tank and the cargo
+/// aboard now, from the latest `Loadout`), or why there is none, and the system the commander
+/// is in.
+#[tauri::command]
+async fn route_plot_ship(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || {
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = plot_ship(&st);
+        Ok(serde_json::json!({
+            "here": st.here.as_ref().map(|h| h.system.clone()),
+            "ship": ship.as_ref().ok(),
+            "ship_error": ship.err(),
+        }))
+    })
+    .await
+}
+
+fn plot_ship(st: &JournalState) -> Result<astromech_galaxy::plot::Ship, String> {
+    let cargo = astromech_station::state_from_journal_dir(&journal_dir()).cargo_tonnes.unwrap_or(0.0);
+    astromech_galaxy::plot::Ship::current(&st.fleet, cargo)
+}
+
+/// Plot `ask` with Spansh's neutron or exact plotter for the current ship (from the
+/// commander's system when `from` is blank), polled off the UI thread until done, and hand the
+/// route to the core's follower. The route is set even if the page is left meanwhile. A second
+/// plot while one runs is turned down.
+#[tauri::command]
+async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> Result<Value, String> {
+    blocking(move || {
+        let Some(_plotting) = Busy::take(&PLOT_BUSY) else {
+            return Err("A route is already being plotted. Wait for it to finish.".into());
+        };
+        let st = engineering_state(&app.state::<EngineeringCache>())?;
+        let ship = plot_ship(&st)?;
+        let mut ask = ask;
+        if ask.from.trim().is_empty() {
+            ask.from = st.here.as_ref().map(|h| h.system.clone()).ok_or("Enter where the route starts.")?;
+        }
+        let remote = app.state::<Remote>().0.clone();
+        let polling = astromech_data::spansh::Polling::default();
+        let plotted = astromech_galaxy::plot::plot(&remote, &ask, &ship, polling)?;
+        let args = serde_json::to_value(&plotted).map_err(|e| e.to_string())?;
+        let r = call_with("route_set", None, Some(args))
+            .map_err(|e| format!("Plotted, but the route could not be followed: {e}."))?;
+        if r["ok"] != true {
+            return Err(format!(
+                "Plotted, but the route could not be followed: {}.",
+                r["error"].as_str().unwrap_or("no answer")
+            ));
+        }
+        Ok(serde_json::json!({ "plotted": plotted, "view": r["view"] }))
     })
     .await
 }
@@ -1061,6 +1109,10 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "voice_test_poll",
         "voice_test_stop",
         "voice_test_live",
+        "callouts",
+        "set_callout",
+        "learned_phrases",
+        "learned_forget",
         "prospector_thresholds",
         "prospector_set",
         "shopping_set",
@@ -1138,7 +1190,11 @@ fn debug_port_arg(args: &[String]) -> Option<u16> {
     args.get(i + 1)?.parse().ok()
 }
 
+/// When this process started, for the cold-start line (the WebView2 cost harness reads it).
+static STARTED: std::sync::OnceLock<std::time::Instant> = std::sync::OnceLock::new();
+
 fn main() {
+    STARTED.get_or_init(std::time::Instant::now);
     // Release builds have no console, so the window's problems go to its own log in the core's
     // log folder (`astromech-shell.log`).
     let red = astromech_keybinds::report::Redactor::from_env();
@@ -1159,7 +1215,10 @@ fn main() {
                 let _ = w.set_focus();
             }
             if let Some(r) = route_arg(&argv) {
-                let _ = app.emit("route", r);
+                match app.emit("route", &r) {
+                    Ok(()) => astromech_log::log(&format!("window: page {r} asked for")),
+                    Err(e) => astromech_log::log(&format!("window: couldn't switch to page {r}: {e}")),
+                }
             }
         }))
         .manage(Binds(std::sync::Mutex::new(None)))
@@ -1206,6 +1265,8 @@ fn main() {
             market_compare,
             trade_route_defaults,
             trade_route,
+            route_plot_ship,
+            route_plot,
             colonisation_projects,
             colonisation_buy,
             search_filters,
@@ -1224,7 +1285,17 @@ fn main() {
             let mut window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App(hash.into()))
                 .title("astromech")
                 .inner_size(1200.0, 800.0)
-                .min_inner_size(800.0, 500.0);
+                .min_inner_size(800.0, 500.0)
+                .on_page_load(|_, p| {
+                    // The first page load is the end of a cold start (scripts/webview_cost.py).
+                    static LOGGED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+                    if p.event() == tauri::webview::PageLoadEvent::Finished
+                        && !LOGGED.swap(true, std::sync::atomic::Ordering::SeqCst)
+                    {
+                        let ms = STARTED.get().map_or(0, |t| t.elapsed().as_millis());
+                        astromech_log::log(&format!("window: page loaded {ms} ms after start"));
+                    }
+                });
             // CI's onboarding smoke test drives the page over the DevTools protocol. WebView2
             // ignores WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS when the app passes its own
             // arguments, so the port is asked for here; wry's defaults are kept.

@@ -255,7 +255,7 @@ jobs:
         run: |
           {
             echo "Unsigned build: Windows SmartScreen will say \"Windows protected your PC\" (More info → Run anyway)."
-            echo "Per-user install, no admin. First install: run the setup.exe. Later versions: tray → Check for updates, then Install (signed zip, no SmartScreen on each setup.exe)."
+            echo "Per-user install, no admin. First install: run the setup.exe. Later versions: tray → Check for updates, then Restart to update (signed zip, no SmartScreen on each setup.exe)."
             echo
             echo '```'; cat dist-release/SHA256SUMS.txt; echo '```'
           } > notes.md

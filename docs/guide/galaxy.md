@@ -82,4 +82,4 @@ route to follow.
 
 - Only what Spansh knows. A system or station nobody has reported is not found.
 - Jump counts are for your ship at its last loadout, not for a different build.
-- The pages do not plot or follow a route: see [Routes](routes.md).
+- The pages do not plot a route. **Go** on a result makes its system a one-stop route to follow: see [Routes](routes.md).

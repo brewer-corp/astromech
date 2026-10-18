@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dpoc
 priority: "P1"
 relationships:
   blocks: []
@@ -16,9 +19,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T19:28:58.666256002+00:00"
+status: "done"
 title: "Guide: the route follower, paste and plotters"
-updated_at: "2026-10-17T18:19:56.459972261+00:00"
+updated_at: "2026-10-17T19:28:58.666256002+00:00"
 ---
 
 ## Goal
@@ -28,3 +32,7 @@ Replace the placeholder `docs/guide/routes.md` with a real page now that the rou
 ## Done when
 
 The page matches the code on main (checked by someone other than the writer), `scripts/check-guide.py` passes, and voice-commands.md and callouts.md list the route phrases and the route_follow callout.
+
+## Close Reason
+
+routes.md is the real page (follower, paste, Go/Follow, voice commands, route_follow, startup and replays, plotters); voice-commands.md and callouts.md list the route phrases and the route_follow callout; check-guide passes; checked against the code by an independent reviewer (2 rounds). Stacked on #122: merge after it.

@@ -43,6 +43,10 @@ The local voice worker is behind a feature, because it downloads prebuilt sherpa
 and makes the binary GPL-3.0 (see NOTICE.md):
 `cargo build -p astromech-voice --features sherpa --release`.
 
+`scripts/voice-eval.sh` scores voice recognition on a synthetic 200-phrase set (Kokoro renders it,
+Parakeet transcribes it; it downloads the models, about 830 MB, on first run). The report is
+`results/voice-eval/report.md`; never commit the audio or the models.
+
 Windows binaries can be cross-built from Linux with `cargo xwin build --target x86_64-pc-windows-msvc`.
 They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 
@@ -84,5 +88,11 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   from the voice tester against the mock game, with each step's time. It opens the window with
   `astromech-shell --webview-debug-port <port>`, which turns on WebView2's DevTools port on
   127.0.0.1 so the page can be driven; nothing else uses that flag.
+- The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
+  `scripts/mvp_criteria.py`: the release core against the mock game window
+  (`crates/astromech-core/examples/mockgame.rs`), with a report against each threshold. The
+  **MVP criteria** workflow runs a 5-minute soak on PRs that change the core; the full 4 h run is
+  manual (Actions → MVP criteria → Run workflow). Its analysis tests run anywhere:
+  `python3 scripts/test_mvp_criteria.py`.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.

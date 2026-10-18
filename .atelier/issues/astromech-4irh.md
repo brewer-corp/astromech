@@ -4,6 +4,9 @@ id: "astromech-4irh"
 issue_type: "task"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-4irh
 priority: "P3"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T22:26:10.932391543+00:00"
+status: "done"
 title: "Settle fleet transfers against the Clock, not once per journal write"
-updated_at: "2026-10-17T17:29:34.219383374+00:00"
+updated_at: "2026-10-17T22:26:10.932391543+00:00"
 ---
 
 ## Goal
@@ -32,3 +36,7 @@ Done when was not specified.
 ## Notes
 
 - 2026-10-17 [note] Also from the hnar review (no action there): a stored module in transit with no recorded arrival (a StoredModules refresh that reports it InTransit with no earlier fetch, or a fetch without TransferTime) never settles until the next refresh; and StorageSlot numbers are kept as the game wrote them and are not renumbered after removals, so a slot match is checked against the item name.
+
+## Close Reason
+
+The fleet settles against the injected Clock on every read: from_journal_dir_at returns the fleet and the next arrival, and the Engineering state is rebuilt when a transfer lands (JournalCache::get_fresh). Test crates/astromech-engineering/tests/transfers.rs advances a fake clock past a module's and a ship's TransferTime (fails when freshness is ignored; counts rebuilds). Shell glue unbuilt here. Review recorded.

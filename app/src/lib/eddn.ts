@@ -4,7 +4,7 @@
  * dev) it shows a synthetic sample, or the fake core with `?core=<scenario>`.
  */
 import { coreCall, inTauri, type Reply } from "./core";
-import { fakeScenario } from "./fakecore";
+import { fakeScenario, previewGate } from "./fakecore";
 import sample from "./fixtures/eddn-log.json";
 
 export interface EddnLogEntry {
@@ -33,7 +33,10 @@ export interface EddnLog {
 export const sampleLog = sample as EddnLog;
 
 export async function eddnLog(): Promise<EddnLog | null> {
-  if (!inTauri && !fakeScenario()) return sampleLog;
+  if (!inTauri && !fakeScenario()) {
+    await previewGate("eddn_log");
+    return sampleLog;
+  }
   const r = await coreCall("eddn_log");
   return r.ok ? (r as unknown as EddnLog) : null;
 }

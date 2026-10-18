@@ -6,6 +6,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewGate } from "./fakecore";
 import sample from "./fixtures/colonies.json";
 import type { Filters, Origin, Results } from "./search";
 
@@ -67,6 +68,7 @@ const samples = sample as unknown as Record<Interest, Candidates>;
 /** Candidates with a body of `interest` near `origin` (a typed system name), or near the commander. */
 export async function candidates(interest: Interest, origin: Origin = null, filters: Filters | null = null): Promise<Candidates> {
   if (!inTauri) {
+    await previewGate("colony_candidates");
     const s = samples[interest];
     return origin ? { ...s, here: { ...s.here, system: origin } } : s;
   }

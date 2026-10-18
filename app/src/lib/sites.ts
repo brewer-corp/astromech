@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewGate } from "./fakecore";
 import sample from "./fixtures/sites.json";
 import type { Filters, Origin, Results } from "./search";
 
@@ -60,6 +61,7 @@ export function siteKind(id: string): SiteKind {
 /** Sites of `kind` matching `filters` near `origin` (a typed system name), or near the commander. */
 export async function sites(kind: string, origin: Origin = null, filters: Filters | null = null): Promise<Sites> {
   if (!inTauri) {
+    await previewGate("galaxy_sites");
     const s = sampleFor(kind);
     const max = filters?.max_arrival_ls;
     const hits = max == null ? s.hits : s.hits.filter((h) => h.arrival_ls == null || h.arrival_ls <= max);

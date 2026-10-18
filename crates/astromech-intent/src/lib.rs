@@ -68,6 +68,8 @@ struct Slot {
 pub struct Grammar {
     phrases: Vec<(Phrase, Vec<String>)>,
     slots: Vec<Slot>,
+    /// The phrases added by [`Grammar::add_alias`], as (text, command), so they can be removed.
+    personal: Vec<(String, &'static str)>,
 }
 
 /// Most transcript words one slot can take.
@@ -653,7 +655,7 @@ impl Grammar {
                 phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
-        Self { phrases, slots: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
+        Self { phrases, slots: vec![], personal: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
     }
 
     /// Values for the `{name}` slot: (a way to say it, the value it stands for). Words `free`
@@ -696,6 +698,23 @@ impl Grammar {
             return;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
+        self.personal.push((heard.trim().to_string(), command));
+    }
+
+    /// Forget a personal alias added by [`Grammar::add_alias`] (every copy of it). The grammar's own
+    /// phrases are untouched, even one with the same words. True if there was one.
+    pub fn remove_alias(&mut self, heard: &str) -> bool {
+        let heard = heard.trim();
+        let mut removed = false;
+        while let Some(i) = self.personal.iter().position(|(t, _)| t == heard) {
+            let (text, command) = self.personal.remove(i);
+            // Aliases are appended after the grammar's own phrases.
+            if let Some(j) = self.phrases.iter().rposition(|(p, _)| p.text == text && p.command == command) {
+                self.phrases.remove(j);
+            }
+            removed = true;
+        }
+        removed
     }
 
     /// How well the words `words` fill the slot `name`.
@@ -1255,6 +1274,24 @@ mod tests {
         g.add_alias("You're down.", "landing_gear.down");
         let m = g.best("You're down.");
         assert_eq!((m.command, m.decision), ("landing_gear.down", Decision::Execute));
+    }
+
+    #[test]
+    fn a_personal_alias_can_be_removed_and_a_builtin_phrase_cannot() {
+        let mut g = g();
+        g.add_alias("You're down.", "landing_gear.down");
+        g.add_alias("You're down.", "landing_gear.down");
+        g.add_alias("Gear down.", "landing_gear.down");
+        assert_eq!(g.best("You're down.").decision, Decision::Execute);
+        assert!(g.remove_alias(" You're down. "));
+        let m = g.best("You're down.");
+        assert_eq!(m.decision, Decision::Ask, "back to asking: both copies are gone");
+        assert!(!g.remove_alias("You're down."));
+        // An alias spelled like a grammar phrase leaves the grammar's phrase alone.
+        assert!(g.remove_alias("Gear down."));
+        let m = g.best("Gear down.");
+        assert_eq!((m.command, m.decision), ("landing_gear.down", Decision::Execute));
+        assert!(!g.remove_alias("lights on"), "not an alias");
     }
 
     #[test]

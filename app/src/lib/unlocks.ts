@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/unlocks.json";
 
 export type Status = "unlocked" | "invited" | "known" | "locked" | "barred";
@@ -30,7 +31,11 @@ export interface UnlockTree {
 }
 
 export async function loadUnlocks(): Promise<UnlockTree> {
-  if (!inTauri) return sample as UnlockTree;
+  if (!inTauri) {
+    // Nothing unlocked yet: every engineer locked, none known.
+    const locked = (): UnlockTree => ({ nodes: (sample as UnlockTree).nodes.map((n) => ({ ...n, status: "locked", rank: null, next: false })) });
+    return previewData("engineering_unlocks", () => sample as UnlockTree, locked);
+  }
   return await invoke<UnlockTree>("engineering_unlocks");
 }
 

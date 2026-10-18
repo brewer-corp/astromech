@@ -5,6 +5,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
+import { previewData } from "./fakecore";
 import sample from "./fixtures/exploration.json";
 
 /** One scanned body (astromech_exploration::system::BodyView). */
@@ -58,7 +59,10 @@ export interface SystemView {
 }
 
 export async function loadSystem(): Promise<SystemView> {
-  if (!inTauri) return { ...(sample.system as SystemView), source: "Sample system" };
+  if (!inTauri) {
+    const none: SystemView = { system: null, system_address: null, population: 0, body_count: null, all_found: false, bodies: [], value: 0, value_if_mapped: 0 };
+    return previewData("exploration_system", () => ({ ...(sample.system as SystemView), source: "Sample system" }), () => none);
+  }
   return await invoke<SystemView>("exploration_system");
 }
 
@@ -89,6 +93,6 @@ export interface Unsold {
 
 /** `null`: no commander in the history yet. */
 export async function loadUnsold(): Promise<Unsold | null> {
-  if (!inTauri) return { ...(sample.unsold as Unsold), source: "Sample history" };
+  if (!inTauri) return previewData("exploration_unsold", () => ({ ...(sample.unsold as Unsold), source: "Sample history" }), () => null);
   return await invoke<Unsold | null>("exploration_unsold");
 }
