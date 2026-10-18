@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Voice: single-word 'paste' scores 94% on the synthetic eval (galaxy_map.paste, T1)"
-updated_at: "2026-10-17T23:19:55.816541401+00:00"
+updated_at: "2026-10-18T00:17:06.076150857+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ galaxy_map.paste scores at least 95% on `scripts/voice-eval.sh` and no wrong exe
 ## Context
 
 The single word "paste" is heard as "Pays." (am_michael, noise), "Based on" (bm_george, cockpit+noise; asks srv_handbrake.on) and "Mays the" (bm_george, noise). "paste waypoint" and "paste system name" score 100%. Synthetic voices only: check against real clips (astromech-cgrw) before tuning.
+
+## Notes
+
+- 2026-10-17 [note] Handoff: 'pays' is MISHEARD for 'paste' (capped 0.80, asks). voice-eval paste 45/48 -> 46/48 (95.8%, one-clip margin), wrong execute 0, rejects 64/64. Review round 1: no FIX NOW. Reviewer found pre-existing 'Pace.' -> panel.close execute; filed astromech-8997. Approval outstanding (not recorded by the author by instruction).
