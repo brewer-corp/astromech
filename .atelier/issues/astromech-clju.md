@@ -10,7 +10,10 @@ relationships:
   blocks: []
   children: []
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-vkzj"
+    type: "related"
 schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
