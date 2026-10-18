@@ -21,7 +21,7 @@ pub fn grammar(systems: &[&str]) -> Grammar {
         .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
         .with_slot("module", lookup::module_values(), Some(modifier))
         .with_slot("ship", lookup::ship_values(), None)
-        .one_word_exact(crate::assistant::presses_keys)
+        .asks_on_sound_alike(crate::assistant::presses_keys)
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for `lookup` (`search.filters.
@@ -131,10 +131,10 @@ mod tests {
         }
     }
 
-    /// astromech-vkzj: a word that only shares the phonetic key with a one-word key press asks;
-    /// the exact word and the longer phrasings still execute.
+    /// astromech-vkzj: a word that only shares the phonetic key with a key press's only content
+    /// word asks, alone or with "it" or "go"; exact words and backed-up sound-alikes execute.
     #[test]
-    fn one_word_key_presses_need_the_exact_word() {
+    fn key_presses_ask_on_sound_alikes() {
         let g = grammar(&["Sol"]);
         for (t, c) in [
             ("boost", "galaxy_map.paste"),
@@ -143,6 +143,10 @@ mod tests {
             ("page", "panel.close"),
             ("Peek.", "panel.close"),
             ("pack", "panel.close"),
+            ("Boost it.", "galaxy_map.paste"),
+            ("post it", "galaxy_map.paste"),
+            ("go page", "panel.close"),
+            ("Go peek.", "panel.close"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
@@ -155,11 +159,18 @@ mod tests {
             ("Go back.", "panel.close"),
             ("close panel", "panel.close"),
             ("Throttle to zero.", "throttle.zero"),
+            ("Gear down.", "landing_gear.down"),
+            ("Bunding gear down.", "landing_gear.down"),
+            // Real recogniser output: a second content word backs up the sound-alike.
+            ("Coms panel.", "panel.comms"),
+            ("Roll panel.", "panel.role"),
+            ("Open cargo skeep.", "cargo_scoop.open"),
+            ("Landing gear dawn.", "landing_gear.down"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
-        // One-word questions are not key presses: a close spelling still answers.
+        // Questions are not key presses: a sound-alike still answers.
         let m = g.best("Fool.");
         assert_eq!((m.command, m.decision), ("status.fuel", Decision::Execute), "{m:?}");
     }
