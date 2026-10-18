@@ -41,7 +41,7 @@ fn call(cmd: &str) -> Result<Value, String> {
 /// One request to the core; `text` is the voice tester's phrase or command id, `args` a setup
 /// command's arguments (e.g. `set_ptt` with `{device, key}`).
 fn call_with(cmd: &str, text: Option<&str>, args: Option<Value>) -> Result<Value, String> {
-    let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core isn't running".to_string())?;
+    let t = std::fs::read_to_string(endpoint_file()).map_err(|_| "the core is not running".to_string())?;
     let ep: Endpoint = serde_json::from_str(&t).map_err(|e| e.to_string())?;
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], ep.port));
     let mut s = TcpStream::connect_timeout(&addr, Duration::from_secs(2)).map_err(|e| e.to_string())?;

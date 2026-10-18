@@ -1,7 +1,8 @@
 <script lang="ts">
   // The logbook: every system and station visited, how often and when, and the timeline of
   // arrivals and dockings, from the journal history the core keeps. Search narrows both.
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { coreStatus, type HistoryProgress } from "../../lib/core";
   import { loadLogbook, when, type Logbook } from "../../lib/logbook";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -21,7 +22,7 @@
       failed = null;
     } catch (e) {
       if (mine !== seq) return;
-      failed = failure("read the journal history", e);
+      failed = pollFailure("read the journal history", e, book !== null);
     }
   }
 
@@ -71,7 +72,8 @@
     <input type="search" bind:value={query} placeholder="System or station" spellcheck="false" autocomplete="off" />
   </label>
 
-  {#if failed}
+  <Stale error={book ? failed : null} />
+  {#if failed && !book}
     <p class="err">{failed}</p>
   {:else if book}
     <h3>Places{book.query ? ` matching “${book.query}”` : ""}</h3>

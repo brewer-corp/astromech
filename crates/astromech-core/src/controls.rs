@@ -26,6 +26,10 @@ pub const UNMATCHED_REPORTS: u32 = 5;
 /// Default PTT debounce: a release followed by a press within this window is contact bounce
 /// (or a double report) and is ignored, so one push gives one clip.
 pub const DEBOUNCE_MS: f64 = 150.0;
+/// The controls thread's idle tick (ms): axis movements are debounced on it.
+const IDLE_TICK_MS: f64 = 100.0;
+/// The shortest sleep when a deadline is due (ms), so an early wake-up can't spin.
+const MIN_WAIT_MS: f64 = 1.0;
 
 pub struct Mapper {
     p: Processor,
@@ -95,6 +99,16 @@ impl Mapper {
         let evs = self.p.tick(now_ms);
         out.extend(self.handle(evs));
         out
+    }
+
+    /// How long the controls thread may sleep before it must call [`Mapper::tick`] (ms): the idle
+    /// tick the axis debounce needs, but never past the end of a pending release's debounce
+    /// window, so the release is reported when the window ends and not at the tick after it.
+    pub fn wait_ms(&self, now_ms: f64) -> f64 {
+        match self.pending_up {
+            Some(t) => (t + self.debounce_ms - now_ms).clamp(MIN_WAIT_MS, IDLE_TICK_MS),
+            None => IDLE_TICK_MS,
+        }
     }
 
     fn flush(&mut self, now_ms: f64) -> Vec<Control> {
@@ -238,7 +252,8 @@ pub fn start(
         .name("controls".into())
         .spawn(move || {
             let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| loop {
-                let cs = match mrx.recv_timeout(Duration::from_millis(100)) {
+                let wait = Duration::from_secs_f64(m.wait_ms(start.elapsed().as_secs_f64() * 1000.0) / 1000.0);
+                let cs = match mrx.recv_timeout(wait) {
                     Ok(Msg::Device(d)) => {
                         m.add_device(d);
                         continue;
@@ -320,6 +335,60 @@ mod tests {
         let mut m = Mapper::new(Some(ptt), Some(kill), debug, move |s: &str| l2.lock().unwrap().push(s.to_string()));
         m.add_device(vkb_l());
         (m, logs)
+    }
+
+    /// Sleep as the controls thread does (`wait_ms`), tick on waking, and return when `PttUp`
+    /// comes out, or None by `until_ms`. A fake clock: `now_ms` is the only time there is.
+    fn run_idle(m: &mut Mapper, mut now_ms: f64, until_ms: f64) -> Option<f64> {
+        while now_ms < until_ms {
+            now_ms += m.wait_ms(now_ms);
+            if m.tick(now_ms).contains(&Control::PttUp) {
+                return Some(now_ms);
+            }
+        }
+        None
+    }
+
+    /// astromech-e0zz: with no further input, a released PTT is reported when its debounce window
+    /// ends, not at the first idle tick after it (up to 100 ms late: about 200 ms after the release).
+    #[test]
+    fn release_is_reported_when_the_debounce_window_ends() {
+        let (mut m, _) = mapper(false);
+        assert_eq!(m.sample(&hid(5000.0, &[15], 0.3)), vec![Control::PttDown]);
+        assert!(m.sample(&hid(5600.0, &[], 0.3)).is_empty());
+        let at = run_idle(&mut m, 5600.0, 6000.0).expect("the release is reported");
+        assert!(at >= 5600.0 + DEBOUNCE_MS, "never before the window ends: {at}");
+        assert!(at <= 5600.0 + DEBOUNCE_MS + 2.0, "within a few ms of the deadline: {at}");
+
+        // For contrast, the old loop's fixed 100 ms tick (the idle tick landed 50 ms past the
+        // deadline, and the thread's own wake-up and queueing added the rest).
+        let (mut old, _) = mapper(false);
+        old.sample(&hid(5000.0, &[15], 0.3));
+        old.sample(&hid(5600.0, &[], 0.3));
+        let (mut now, mut found) = (5600.0, None);
+        while found.is_none() && now < 6000.0 {
+            now += 100.0;
+            found = old.tick(now).contains(&Control::PttUp).then_some(now);
+        }
+        assert_eq!(found, Some(5800.0), "a 100 ms tick reports it 50 ms late at best");
+    }
+
+    /// The debounce still ignores chatter: a press inside the window cancels the release, and the
+    /// wait never runs past the idle tick.
+    #[test]
+    fn the_wait_is_the_idle_tick_except_to_end_a_debounce_window() {
+        let (mut m, _) = mapper(false);
+        assert_eq!(m.wait_ms(1000.0), IDLE_TICK_MS);
+        m.sample(&hid(5000.0, &[15], 0.3));
+        assert_eq!(m.wait_ms(5001.0), IDLE_TICK_MS, "pressed, nothing pending");
+        m.sample(&hid(5600.0, &[], 0.3));
+        assert_eq!(m.wait_ms(5600.0), IDLE_TICK_MS, "150 ms to go: the idle tick comes first");
+        assert!((m.wait_ms(5700.0) - 50.0).abs() < 1e-9, "50 ms to go");
+        assert_eq!(m.wait_ms(5900.0), MIN_WAIT_MS, "overdue: wake at once, but never spin");
+        // A press inside the window is bounce: no release, and nothing pending.
+        m.sample(&hid(5700.0, &[15], 0.3));
+        assert_eq!(m.wait_ms(5701.0), IDLE_TICK_MS);
+        assert_eq!(run_idle(&mut m, 5701.0, 7000.0), None);
     }
 
     /// The bug from Sumeet's PC: the stick is idle (Windows joysticks report only on change),

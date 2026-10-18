@@ -1,7 +1,8 @@
 <script lang="ts">
   // Powerplay for daily use: my standing and the current system's state from the journal, and
   // where my power wants work nearby (Spansh).
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { loadOverview, num, pct, pledged, until, WORK_LABEL, type Overview } from "../../lib/powerplay";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
@@ -18,7 +19,7 @@
           ov = v;
           err = null;
         })
-        .catch((e: unknown) => (err = failure("read your Powerplay standing", e)));
+        .catch((e: unknown) => (err = pollFailure("read your Powerplay standing", e, ov !== null)));
     void load();
     const t = setInterval(() => void load(), 2000);
     return () => clearInterval(t);
@@ -33,6 +34,7 @@
 <section>
   <div class="panel">
     <h3>My standing</h3>
+    <Stale error={ov ? err : null} />
     {#if err && !ov}
       <p class="lo">{err}</p>
     {:else if !st}

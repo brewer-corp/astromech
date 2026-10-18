@@ -3,7 +3,8 @@
   // and the hold against nearby prices, and what its outfitting sells that the ship flown would
   // be better for), and a search over every outfitting the core has seen: "where did I see a 5A
   // drive?" works offline.
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { when } from "../../lib/logbook";
   import { loadHere, searchOutfitting, serviceName, type DockedHere, type OutfittingSearch } from "../../lib/station";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
@@ -25,7 +26,7 @@
           here = v;
           failed = null;
         })
-        .catch((e: unknown) => (failed = failure("read the docked station", e)));
+        .catch((e: unknown) => (failed = pollFailure("read the docked station", e, here !== null)));
     void tick();
     const t = setInterval(() => void tick(), 5000);
     return () => clearInterval(t);
@@ -56,7 +57,8 @@
 
 <section>
   <h3>Docked here</h3>
-  {#if failed}
+  <Stale error={here ? failed : null} />
+  {#if failed && !here}
     <p class="err">{failed}</p>
   {:else if !here}
     <p class="lo">Reading the journal…</p>

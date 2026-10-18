@@ -1,7 +1,8 @@
 <script lang="ts">
   // The session summary: what the latest game session earned and covered (EDMC's hourly
   // income), from the journal history the core keeps.
-  import { failure } from "../../lib/ui/errors";
+  import { pollFailure } from "../../lib/ui/errors";
+  import Stale from "../../lib/ui/Stale.svelte";
   import { duration, EARNING_NAMES, loadSession, when, type Session } from "../../lib/logbook";
 
   let s = $state<Session | null>(null);
@@ -16,7 +17,7 @@
           loaded = true;
           failed = null;
         })
-        .catch((e: unknown) => (failed = failure("read the session", e)));
+        .catch((e: unknown) => (failed = pollFailure("read the session", e, s !== null)));
     void tick();
     const t = setInterval(() => void tick(), 5000);
     return () => clearInterval(t);
@@ -26,7 +27,8 @@
 </script>
 
 <section>
-  {#if failed}
+  <Stale error={s ? failed : null} />
+  {#if failed && !s}
     <p class="err">{failed}</p>
   {:else if s}
     <p class="sub">
