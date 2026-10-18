@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Release notes and the in-game test script for the alpha"
-updated_at: "2026-10-17T16:54:24.179378366+00:00"
+updated_at: "2026-10-18T01:52:30.493239466+00:00"
 ---
 
 ## Goal

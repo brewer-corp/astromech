@@ -4,6 +4,9 @@ id: "astromech-5ggk"
 issue_type: "feature"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-5ggk
 priority: "P1"
 relationships:
   blocks: []
@@ -99,7 +102,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Alpha: release v1.0.0-alpha.1"
-updated_at: "2026-10-17T17:01:43.935961174+00:00"
+updated_at: "2026-10-18T01:52:30.493238234+00:00"
 ---
 
 ## Goal
