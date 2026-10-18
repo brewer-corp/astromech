@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "voice"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8997
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice: 'Pace.' executes panel.close through a phonetic-key collision with 'back'"
-updated_at: "2026-10-18T00:20:46.314950329+00:00"
+updated_at: "2026-10-18T00:20:46.449443818+00:00"
 ---
 
 ## Goal

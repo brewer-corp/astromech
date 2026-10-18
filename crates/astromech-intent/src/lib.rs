@@ -517,10 +517,16 @@ fn lev(a: &str, b: &str) -> usize {
 }
 
 /// Crude phonetic key: first letter, then consonant classes with vowels dropped and repeats
-/// collapsed ("seoul" and "sol" → "sl").
+/// collapsed ("seoul" and "sol" → "sl"). A "c" before e, i or y is soft and counts as "s"
+/// ("pace" → "ps", not "back"'s "pk").
 pub fn phonetic(w: &str) -> String {
-    let class = |c: char| -> Option<char> {
-        Some(match c {
+    let chars: Vec<char> = w.chars().collect();
+    let soft = |i: usize| chars[i] == 'c' && matches!(chars.get(i + 1), Some('e' | 'i' | 'y'));
+    let class = |i: usize| -> Option<char> {
+        if soft(i) {
+            return Some('s');
+        }
+        Some(match chars[i] {
             'b' | 'p' => 'p',
             'c' | 'k' | 'q' | 'g' | 'x' => 'k',
             'd' | 't' => 't',
@@ -535,8 +541,8 @@ pub fn phonetic(w: &str) -> String {
     };
     let mut out = String::new();
     let mut last = None;
-    for (i, c) in w.chars().enumerate() {
-        let k = class(c);
+    for (i, &c) in chars.iter().enumerate() {
+        let k = class(i);
         if i == 0 {
             out.push(k.unwrap_or(c));
             last = k;
@@ -1263,6 +1269,28 @@ mod tests {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
+    }
+
+    /// "Pace." (a likely mishearing of "paste") shared "back"'s phonetic key and closed the panel
+    /// (astromech-8997). A soft "c" sounds like "s", so it no longer matches "back".
+    #[test]
+    fn pace_does_not_execute_back() {
+        let g = g();
+        for t in ["Pace.", "pace", "Pace it."] {
+            let m = g.best(t);
+            assert!(!(m.command == "panel.close" && m.decision == Decision::Execute), "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        let m = g.best("Pace.");
+        assert_eq!((m.command, m.decision), ("galaxy_map.paste", Decision::Ask), "{m:?}");
+        for t in ["Back.", "Go back", "close panel"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("panel.close", Decision::Execute), "{t:?} -> {m:?}");
+        }
+        assert_eq!(phonetic("pace"), "ps");
+        assert_eq!(phonetic("back"), "pk");
+        assert_eq!(phonetic("cancel"), "knsl");
+        assert_eq!(phonetic("cargo"), "krk");
     }
 
     #[test]
