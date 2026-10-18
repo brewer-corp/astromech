@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-y296
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-18T01:40:39.560396325+00:00"
+status: "done"
 title: "Voice: 'all stop' scores 81% on the synthetic eval (throttle.zero, T1)"
-updated_at: "2026-10-17T21:41:11.650963891+00:00"
+updated_at: "2026-10-18T01:40:39.560396325+00:00"
 ---
 
 ## Goal
@@ -29,3 +33,11 @@ throttle.zero scores at least 95% on `scripts/voice-eval.sh` without lowering an
 ## Context
 
 Parakeet hears "all stop" as "I'll stop." (af_heart, all four conditions) and "Old stopper." / "Old starper." (bm_george); the grammar gives NoMatch. "throttle to zero" scores 100%. Synthetic voices only: check against real clips (astromech-cgrw) before tuning. Options: a MISHEARD entry or an alias, or drop the phrase from the advertised set.
+
+## Notes
+
+- 2026-10-17 [note] Handoff: fix is grammar-level, Ask not Execute. 'I'll' (joined to 'iwill') and 'old' are MISHEARD for 'all', capped at 0.80. voice-eval: throttle.zero 26/32 -> 32/32, wrong execute 0, rejects 64/64, no other command changed. STT biasing re-measured and rejected (docs/evidence/astromech-y296/). Round-1 review findings recorded; R1 and R3 fixed. Approval outstanding (not recorded by the author by instruction).
+
+## Close Reason
+
+'I'll stop.' and 'Old stopper.' ask 'Did you mean all stop?' (never execute); throttle.zero 26/32 -> 32/32 on the synthetic eval, 0 wrong executes, 64/64 rejects. Landed through #162 with the astromech-1c66 learning guard. Reviewed twice.

@@ -199,28 +199,84 @@ fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     assert_eq!(r.exec.sent.lock().unwrap().len(), 2, "one press, down and up");
 }
 
-/// A wrong yes teaches a phrase for good; forgetting it makes astromech ask again, and the
-/// saved list no longer has it.
+/// Two wrong yes answers teach a key-pressing phrase for good; forgetting it makes astromech ask
+/// again, and the saved list no longer has it.
 #[test]
 fn a_learned_phrase_can_be_forgotten() {
+    use astromech_proto::Origin::Voice;
     let r = rig();
     let store = Arc::new(Mutex::new(astromech_store::Store::in_memory().unwrap()));
     let a = Assistant::new(r.runner.clone()).with_store(store.clone());
-    assert!(matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Asked { .. }));
-    assert!(matches!(a.handle("yes", astromech_proto::Origin::Voice), Handled::Ran { .. }));
+    let heard = "Definitely hard points.";
+    for _ in 0..2 {
+        assert!(matches!(a.handle(heard, Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
+        assert!(matches!(a.handle("yes", Voice), Handled::Ran { .. }));
+    }
     assert_eq!(store.lock().unwrap().aliases().unwrap().len(), 1);
     assert!(
-        matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Ran { .. }),
+        matches!(a.handle(heard, Voice), Handled::Ran { command: "hardpoints.deploy", .. }),
         "learned: runs without asking"
     );
 
-    assert!(a.forget("You're down."));
+    assert!(a.forget(heard));
     assert!(store.lock().unwrap().aliases().unwrap().is_empty());
-    assert!(
-        matches!(a.handle("You're down.", astromech_proto::Origin::Voice), Handled::Asked { .. }),
-        "forgotten: asks again"
-    );
-    assert!(!a.forget("You're down."), "nothing left to forget");
+    assert!(matches!(a.handle(heard, Voice), Handled::Asked { .. }), "forgotten: asks again");
+    assert!(!a.forget(heard), "nothing left to forget");
+}
+
+/// astromech-1c66: a near-miss from the mishearing table ("I'll stop", "Pays") asks every time,
+/// however often it is answered yes, and never shows in the learned-phrases list.
+#[test]
+fn ask_only_near_misses_are_never_learned() {
+    use astromech_proto::Origin::Voice;
+    let r = rig();
+    let data = tempfile::tempdir().unwrap();
+    let store = astromech_store::Store::open(&data.path().join("astromech.sqlite")).unwrap();
+    let a = Assistant::new(r.runner.clone()).with_store(Arc::new(Mutex::new(store)));
+    for (heard, command) in [("I'll stop.", "throttle.zero"), ("Pays.", "galaxy_map.paste")] {
+        for _ in 0..3 {
+            let h = a.handle(heard, Voice);
+            assert!(matches!(h, Handled::Asked { command: c, .. } if c == command), "{heard}: {h:?}");
+            let h = a.handle("yes", Voice);
+            assert!(matches!(h, Handled::Ran { command: c, .. } if c == command), "{heard}: yes runs it once, {h:?}");
+        }
+        let h = a.handle(heard, Voice);
+        assert!(matches!(h, Handled::Asked { .. }), "{heard}: still asks, {h:?}");
+    }
+    assert_eq!(astromech_core::learned::list(data.path())["phrases"], serde_json::json!([]));
+}
+
+/// A genuine near-miss is still learned: after one yes for a spoken answer, after two for a
+/// command that presses a key (astromech-1c66).
+#[test]
+fn genuine_phrases_are_learned_key_presses_after_two_yes() {
+    use astromech_proto::Origin::Voice;
+    let r = rig();
+    let data = tempfile::tempdir().unwrap();
+    let store = astromech_store::Store::open(&data.path().join("astromech.sqlite")).unwrap();
+    let a = Assistant::new(r.runner.clone()).with_store(Arc::new(Mutex::new(store)));
+    // A status question: one yes.
+    assert!(matches!(a.handle("hull help", Voice), Handled::Asked { command: "status.hull", .. }));
+    assert!(matches!(a.handle("yes", Voice), Handled::Ran { command: "status.hull", .. }));
+    assert!(matches!(a.handle("hull help", Voice), Handled::Ran { command: "status.hull", .. }));
+    // A key press: the first yes runs it but still asks next time; the second teaches it.
+    let heard = "Definitely hard points.";
+    assert!(matches!(a.handle(heard, Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
+    assert!(matches!(a.handle("yes", Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
+    assert!(matches!(a.handle(heard, Voice), Handled::Asked { command: "hardpoints.deploy", .. }));
+    let listed = astromech_core::learned::list(data.path());
+    assert_eq!(listed["phrases"].as_array().unwrap().len(), 1, "only the status phrase so far: {listed}");
+    assert!(matches!(a.handle("yes", Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
+    assert!(matches!(a.handle(heard, Voice), Handled::Ran { command: "hardpoints.deploy", .. }));
+    assert_eq!(astromech_core::learned::list(data.path())["phrases"].as_array().unwrap().len(), 2);
+
+    // A restart loads the same rule from the saved counts.
+    let mut g = astromech_core::assistant::grammar();
+    let st = astromech_store::Store::open(&data.path().join("astromech.sqlite")).unwrap();
+    st.learn_alias("lamps on", "lights.on").unwrap();
+    astromech_core::assistant::add_aliases(&mut g, &st);
+    assert_eq!(g.best(heard).decision, astromech_intent::Decision::Execute);
+    assert_ne!(g.best("lamps on").decision, astromech_intent::Decision::Execute, "one yes is not enough");
 }
 
 /// A phrase is tested or run according to the mode when push-to-talk was released: leaving the

@@ -52,6 +52,12 @@ anything outside the list. Each match gets a score:
 
 When you answer **yes** to a "Did you mean", astromech remembers what you said as a personal
 phrase for that command, so next time the same mishearing works at once. It is stored on your PC.
+For a command that presses a key, it takes **two** yes answers to the same phrase: after the
+first, it still asks. Some mishearings are made of everyday words ("I'll stop" for "all stop",
+"Pays" for "paste", "You're down" for "gear down"). A phrase with any of those words ("I'll",
+"old", "pays", "you", "your", "yours", "you're") always asks and is never remembered, for any command, so
+a yes does not make ordinary speech press a key. Phrases remembered by an older version follow
+the same rule: one with those words, or a key press confirmed only once, asks again.
 The [Voice tester](voice-tester.md#learned-phrases) lists them, and **Remove** forgets one that
 was taught wrongly, so astromech asks again. Phrases that carry a name (a commodity, a station
 service, a module, a ship) are not remembered.

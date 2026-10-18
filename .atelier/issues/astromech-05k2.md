@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Measure the MVP criteria as a set"
-updated_at: "2026-10-17T17:01:44.006018563+00:00"
+updated_at: "2026-10-18T00:41:36.599067839+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,7 @@ One report with each criterion's result, attached as evidence receipts.
 ## Context
 
 [ARCHITECTURE §14](docs/ARCHITECTURE.md) Phase 1. Some are covered by tests already; none are reported together.
+
+## Notes
+
+- 2026-10-17 [note] 17 Oct: no longer blocks the alpha release (astromech-5ggk). The game-free criteria are measured on the Windows runner by the MVP harness (astromech-08w8, merged): 200/200 per T1 tool, 0 unintended keypresses in 240 min, kill switch max 1.2 ms, action start ~396 ms p95 before astromech-e0zz. The device-class and real-game parts stay for v1.0 (in the alpha's test script).

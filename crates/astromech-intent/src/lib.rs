@@ -70,6 +70,8 @@ pub struct Grammar {
     slots: Vec<Slot>,
     /// The phrases added by [`Grammar::add_alias`], as (text, command), so they can be removed.
     personal: Vec<(String, &'static str)>,
+    /// How many of `phrases` are the grammar's own; personal phrases follow them.
+    builtin: usize,
 }
 
 /// Most transcript words one slot can take.
@@ -408,9 +410,26 @@ pub fn is_noise_only(t: &str) -> bool {
     !w.is_empty() && w.iter().all(|w| NOISE_WORDS.contains(w) || *w == "hmm" || *w == "mm")
 }
 
-/// Mishearings of game words seen in real transcripts that are too ambiguous to execute on:
-/// the replacement is scored, but capped below EXECUTE so it becomes "Did you mean …?".
-const MISHEARD: &[(&str, &str)] = &[("you", "gear"), ("youre", "gear"), ("your", "gear"), ("yours", "gear")];
+/// Mishearings of game words, too ambiguous to execute on: the replacement is scored, but capped
+/// below EXECUTE so it becomes "Did you mean …?". "you" for "gear" is from real transcripts;
+/// "I'll" (normalised to "iwill") and "old" for "all" ("all stop") and "pays" for "paste" (the
+/// final "st" lost) from the voice eval. They are everyday words, so a match through them must
+/// never press a key.
+const MISHEARD: &[(&str, &str)] = &[
+    ("you", "gear"),
+    ("youre", "gear"),
+    ("your", "gear"),
+    ("yours", "gear"),
+    ("iwill", "all"),
+    ("old", "all"),
+    ("pays", "paste"),
+];
+/// True when `heard` has a word from the [`MISHEARD`] table ("I'll stop", "Pays", "You're
+/// down"). Such a phrase only ever asks, so it is never learned as a personal phrase.
+pub fn is_ask_only(heard: &str) -> bool {
+    normalise(heard).iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w))
+}
+
 /// Score cap for a match that needed a [`MISHEARD`] replacement.
 pub const MISHEARD_CAP: f32 = 0.80;
 
@@ -446,6 +465,9 @@ pub fn normalise(s: &str) -> Vec<String> {
             ("mk" | "mark", Some("iv" | "four" | "4")) => Some("mkiv"),
             ("mk" | "mark", Some("v" | "five" | "5")) => Some("mkv"),
             ("power", Some("play" | "plays")) => Some("powerplay"),
+            // "I'll" loses its apostrophe above. Keep it one word so it can stand for "all", but
+            // not one close to "all" ("ill"), or fuzzy matching would score it past the cap.
+            ("i", Some("ll")) => Some("iwill"),
             _ => None,
         };
         if let Some(j) = joined {
@@ -518,10 +540,16 @@ fn lev(a: &str, b: &str) -> usize {
 }
 
 /// Crude phonetic key: first letter, then consonant classes with vowels dropped and repeats
-/// collapsed ("seoul" and "sol" → "sl").
+/// collapsed ("seoul" and "sol" → "sl"). A "c" before e, i or y is soft and counts as "s"
+/// ("pace" → "ps", not "back"'s "pk").
 pub fn phonetic(w: &str) -> String {
-    let class = |c: char| -> Option<char> {
-        Some(match c {
+    let chars: Vec<char> = w.chars().collect();
+    let soft = |i: usize| chars[i] == 'c' && matches!(chars.get(i + 1), Some('e' | 'i' | 'y'));
+    let class = |i: usize| -> Option<char> {
+        if soft(i) {
+            return Some('s');
+        }
+        Some(match chars[i] {
             'b' | 'p' => 'p',
             'c' | 'k' | 'q' | 'g' | 'x' => 'k',
             'd' | 't' => 't',
@@ -536,8 +564,8 @@ pub fn phonetic(w: &str) -> String {
     };
     let mut out = String::new();
     let mut last = None;
-    for (i, c) in w.chars().enumerate() {
-        let k = class(c);
+    for (i, &c) in chars.iter().enumerate() {
+        let k = class(i);
         if i == 0 {
             out.push(k.unwrap_or(c));
             last = k;
@@ -656,7 +684,12 @@ impl Grammar {
                 phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
-        Self { phrases, slots: vec![], personal: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
+        let builtin = phrases.len();
+        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
+            "system",
+            systems.iter().map(|s| (*s, *s)),
+            None,
+        )
     }
 
     /// Values for the `{name}` slot: (a way to say it, the value it stands for). Words `free`
@@ -693,13 +726,15 @@ impl Grammar {
     }
 
     /// Personal alias: this transcript should map to `command` next time (still policy-capped).
-    pub fn add_alias(&mut self, heard: &str, command: &'static str) {
+    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking. True if added.
+    pub fn add_alias(&mut self, heard: &str, command: &'static str) -> bool {
         let toks = normalise(heard);
-        if toks.is_empty() {
-            return;
+        if toks.is_empty() || is_ask_only(heard) {
+            return false;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
         self.personal.push((heard.trim().to_string(), command));
+        true
     }
 
     /// Forget a personal alias added by [`Grammar::add_alias`] (every copy of it). The grammar's own
@@ -770,8 +805,14 @@ impl Grammar {
         let mut v: Vec<Match> = self
             .phrases
             .iter()
-            .map(|(p, toks)| {
+            .enumerate()
+            .map(|(i, (p, toks))| {
                 let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
+                // An ask-only transcript stays ask-only against a personal phrase too: a learned
+                // "Ill stop" must not make "I'll stop" run (astromech-1c66).
+                if misheard.is_some() && i >= self.builtin {
+                    score = score.min(MISHEARD_CAP);
+                }
                 if let Some(alt) = &misheard {
                     let (s2, f2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
@@ -1273,6 +1314,46 @@ mod tests {
         assert_eq!(normalise("Sirius"), ["sirius"]);
     }
 
+    /// "all stop" heard as "I'll stop." or "Old stopper." (voice eval, astromech-y296): close
+    /// enough to ask, never to press the throttle on an everyday phrase.
+    #[test]
+    fn all_stop_mishearings_ask_and_never_execute() {
+        let g = g();
+        for t in ["I'll stop.", "I’ll stop.", "Old stopper.", "Old starper."] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
+            assert_eq!(m.phrase, "all stop", "{t:?}");
+            // Held by the cap, not by luck of the edit distance.
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
+        for t in ["All stop.", "Full stop.", "Zero throttle."] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // Everyday sentences with "I'll" or "old" press nothing.
+        for t in [
+            "I'll stop here.",
+            "I'll stop for fuel later",
+            "I'll be right back",
+            "That's an old station",
+            "old stop",
+            "I'll",
+            "Old.",
+            "I'll take it",
+            "I'll go",
+        ] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        // One extra word still asks, as "all stop here" does; a question presses nothing.
+        for t in ["I'll stop here.", "I'll stop now", "I'll stop please"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
+        assert_eq!(g.best("I'll be right back").decision, Decision::NoMatch);
+    }
+
     #[test]
     fn route_phrases_execute_and_stay_apart() {
         let g = g();
@@ -1293,28 +1374,124 @@ mod tests {
         }
     }
 
+    /// "Pace." (a likely mishearing of "paste") shared "back"'s phonetic key and closed the panel
+    /// (astromech-8997). A soft "c" sounds like "s", so it no longer matches "back".
+    #[test]
+    fn pace_does_not_execute_back() {
+        let g = g();
+        for t in ["Pace.", "pace", "Pace it."] {
+            let m = g.best(t);
+            assert!(!(m.command == "panel.close" && m.decision == Decision::Execute), "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        let m = g.best("Pace.");
+        assert_eq!((m.command, m.decision), ("galaxy_map.paste", Decision::Ask), "{m:?}");
+        for t in ["Back.", "Go back", "close panel"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("panel.close", Decision::Execute), "{t:?} -> {m:?}");
+        }
+        assert_eq!(phonetic("pace"), "ps");
+        assert_eq!(phonetic("back"), "pk");
+        assert_eq!(phonetic("cancel"), "knsl");
+        assert_eq!(phonetic("cargo"), "krk");
+    }
+
+    /// "paste" heard as "Pays." (voice eval, astromech-8fey): asks, never sends Ctrl+V on its own.
+    #[test]
+    fn pays_asks_for_paste() {
+        let g = g();
+        for t in ["Pays.", "pays"] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.phrase.as_str(), m.decision),
+                ("galaxy_map.paste", "paste", Decision::Ask),
+                "{t:?}"
+            );
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
+        assert_eq!(g.best("Paste.").decision, Decision::Execute);
+        // Everyday sentences with "pays" press nothing.
+        for t in ["Crime pays.", "It pays well", "Who pays the most for gold", "That pays off", "pays it"] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        assert_eq!(g.best("Crime pays.").decision, Decision::NoMatch);
+        assert_eq!(g.best("It pays well").decision, Decision::NoMatch);
+    }
+
     #[test]
     fn personal_alias_executes_next_time() {
         let mut g = g();
-        let m = g.best("You're down.");
-        assert_eq!(m.command, "landing_gear.down");
-        assert_eq!(m.decision, Decision::Ask);
-        g.add_alias("You're down.", "landing_gear.down");
-        let m = g.best("You're down.");
-        assert_eq!((m.command, m.decision), ("landing_gear.down", Decision::Execute));
+        let m = g.best("Definitely hard points.");
+        assert_eq!((m.command, m.decision), ("hardpoints.deploy", Decision::Ask));
+        assert!(g.add_alias("Definitely hard points.", "hardpoints.deploy"));
+        let m = g.best("Definitely hard points.");
+        assert_eq!((m.command, m.decision), ("hardpoints.deploy", Decision::Execute));
+    }
+
+    /// A phrase with a word from the mishearing table only ever asks: it is never added as a
+    /// personal phrase (astromech-1c66).
+    #[test]
+    fn ask_only_phrases_are_never_aliases() {
+        let mut g = g();
+        for (t, c) in [
+            ("I'll stop.", "throttle.zero"),
+            ("I’ll stop", "throttle.zero"),
+            ("Old stopper.", "throttle.zero"),
+            ("Pays.", "galaxy_map.paste"),
+            ("You're down.", "landing_gear.down"),
+        ] {
+            assert!(is_ask_only(t), "{t:?}");
+            assert!(!g.add_alias(t, c), "{t:?}");
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+        }
+        for t in ["Definitely hard points.", "all stop", "paste", "Ill stop", "gear down"] {
+            assert!(!is_ask_only(t), "{t:?}");
+        }
+    }
+
+    /// A learned neighbour of an ask-only phrase does not make the ask-only phrase run: "Ill stop"
+    /// learned, "I'll stop" still asks (astromech-1c66 review R1).
+    #[test]
+    fn a_learned_neighbour_does_not_unlock_an_ask_only_phrase() {
+        let mut g = g();
+        assert!(g.add_alias("Ill stop", "throttle.zero"));
+        assert!(g.add_alias("Hold stop", "throttle.zero"));
+        assert_eq!(g.best("Ill stop").decision, Decision::Execute, "the learned phrase itself runs");
+        for t in ["I'll stop", "I'll stop.", "I’ll stop.", "I'll stop now", "Old stop"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
+        assert!(g.add_alias("Pace it", "galaxy_map.paste"));
+        assert_eq!(g.best("Pays it").decision, Decision::Ask);
+    }
+
+    /// Fuzzy near-misses of "all stop" that are not in the mishearing table stay under EXECUTE
+    /// (astromech-rcbi): "ill" and "al" are one letter from "all".
+    #[test]
+    fn all_stop_fuzzy_near_misses_never_execute() {
+        let g = g();
+        for t in ["ill stop", "Ill stop.", "Al stop.", "al stop"] {
+            let m = g.best(t);
+            assert_eq!(m.command, "throttle.zero", "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+            assert!(m.score < EXECUTE, "{t:?} -> {m:?}");
+        }
     }
 
     #[test]
     fn a_personal_alias_can_be_removed_and_a_builtin_phrase_cannot() {
         let mut g = g();
-        g.add_alias("You're down.", "landing_gear.down");
-        g.add_alias("You're down.", "landing_gear.down");
+        g.add_alias("Definitely hard points.", "hardpoints.deploy");
+        g.add_alias("Definitely hard points.", "hardpoints.deploy");
         g.add_alias("Gear down.", "landing_gear.down");
-        assert_eq!(g.best("You're down.").decision, Decision::Execute);
-        assert!(g.remove_alias(" You're down. "));
-        let m = g.best("You're down.");
+        assert_eq!(g.best("Definitely hard points.").decision, Decision::Execute);
+        assert!(g.remove_alias(" Definitely hard points. "));
+        let m = g.best("Definitely hard points.");
         assert_eq!(m.decision, Decision::Ask, "back to asking: both copies are gone");
-        assert!(!g.remove_alias("You're down."));
+        assert!(!g.remove_alias("Definitely hard points."));
         // An alias spelled like a grammar phrase leaves the grammar's phrase alone.
         assert!(g.remove_alias("Gear down."));
         let m = g.best("Gear down.");

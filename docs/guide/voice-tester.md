@@ -44,7 +44,8 @@ It needs Elite running.
 ![The Voice tester's list of learned phrases](img/learned-phrases.png)
 
 When you answer **yes** to "Did you mean ...?", astromech remembers what it heard and runs that
-command next time without asking. The list at the bottom of the page shows each phrase and the
+command next time without asking. A command that presses a key needs two yes answers first, and
+everyday-word mishearings such as "I'll stop" are never remembered ([Voice](voice.md#how-it-decides)). The list at the bottom of the page shows each phrase and the
 command it runs, the most used first. **Remove** forgets one at once, here and on disk, so a
 wrong yes does not stay: astromech asks again the next time you say it.
 
