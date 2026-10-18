@@ -6,7 +6,8 @@
 //! plus a crude phonetic key, after normalisation ("hard points" → "hardpoints").
 //!
 //! Decision thresholds:
-//! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute;
+//! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute
+//!   (but a one-word phrase of a [strict](Grammar::one_word_exact) command needs the exact word);
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Say again".
 //!
@@ -45,6 +46,9 @@ pub struct Match {
     pub slot_text: Option<String>,
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
+    /// A one-word phrase matched by other words ("boost" for "paste"): the score can only come
+    /// from the crude phonetic key or a close spelling, with no other words to back it up.
+    pub near_one_word: bool,
     pub score: f32,
     pub decision: Decision,
 }
@@ -72,6 +76,9 @@ pub struct Grammar {
     personal: Vec<(String, &'static str)>,
     /// How many of `phrases` are the grammar's own; personal phrases follow them.
     builtin: usize,
+    /// Commands whose one-word phrases execute only when heard exactly (see
+    /// [`Grammar::one_word_exact`]).
+    one_word_exact: Option<fn(&str) -> bool>,
 }
 
 /// Most transcript words one slot can take.
@@ -685,7 +692,7 @@ impl Grammar {
             }
         }
         let builtin = phrases.len();
-        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
+        Self { phrases, slots: vec![], personal: vec![], builtin, one_word_exact: None }.with_slot(
             "system",
             systems.iter().map(|s| (*s, *s)),
             None,
@@ -708,6 +715,15 @@ impl Grammar {
             }
             None => self.slots.push(Slot { name: name.to_string(), values: values.collect(), free }),
         }
+        self
+    }
+
+    /// One-word phrases of the commands `strict` accepts ("back", "paste") execute only when the
+    /// transcript is exactly that word; anything else that matches them asks "Did you mean …?".
+    /// A single word has no other words to confirm a near match, so "boost" (same phonetic key
+    /// as "paste") must not press a key on its own.
+    pub fn one_word_exact(mut self, strict: fn(&str) -> bool) -> Self {
+        self.one_word_exact = Some(strict);
         self
     }
 
@@ -833,6 +849,7 @@ impl Grammar {
                     phrase,
                     slot: filled.as_ref().map(|f| f.value.clone()),
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
+                    near_one_word: toks.len() == 1 && u != *toks,
                     slot_text: filled.map(|f| f.text),
                     score,
                     decision: Decision::NoMatch,
@@ -853,6 +870,7 @@ impl Grammar {
                 slot: None,
                 slot_text: None,
                 slot_exact: false,
+                near_one_word: false,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
@@ -871,6 +889,13 @@ impl Grammar {
         };
         // A slot filled by anything but one of its exact phrasings always asks.
         if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
+            best.decision = Decision::Ask;
+        }
+        // A one-word key press heard as some other word always asks.
+        if best.decision == Decision::Execute
+            && best.near_one_word
+            && self.one_word_exact.is_some_and(|f| f(best.command))
+        {
             best.decision = Decision::Ask;
         }
         best
@@ -1417,6 +1442,26 @@ mod tests {
         }
         assert_eq!(g.best("Crime pays.").decision, Decision::NoMatch);
         assert_eq!(g.best("It pays well").decision, Decision::NoMatch);
+    }
+
+    /// One-word phrases of the strict commands execute only on the exact word (astromech-vkzj).
+    #[test]
+    fn one_word_exact_asks_on_near_words() {
+        let strict = |c: &str| c == "galaxy_map.paste" || c == "panel.close";
+        let loose = g();
+        let g = g().one_word_exact(strict);
+        for (t, c) in [("boost", "galaxy_map.paste"), ("page", "panel.close"), ("pack", "panel.close")] {
+            assert_eq!(loose.best(t).decision, Decision::Execute, "{t:?} executes without the rule");
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.near_one_word);
+        }
+        for t in ["paste", "Back.", "back please", "go back", "paste it"] {
+            let m = g.best(t);
+            assert_eq!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        // Other commands are untouched.
+        assert_eq!(g.best("Fool.").decision, Decision::Execute);
     }
 
     #[test]

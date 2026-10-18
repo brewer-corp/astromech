@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "voice"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-vkzj
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice: a phonetic-key match alone executes one-word key presses ('boost' -> paste, 'page' -> back)"
-updated_at: "2026-10-18T01:00:41.224826830+00:00"
+updated_at: "2026-10-18T01:43:05.869679296+00:00"
 ---
 
 ## Goal

@@ -21,6 +21,7 @@ pub fn grammar(systems: &[&str]) -> Grammar {
         .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
         .with_slot("module", lookup::module_values(), Some(modifier))
         .with_slot("ship", lookup::ship_values(), None)
+        .one_word_exact(crate::assistant::presses_keys)
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for `lookup` (`search.filters.
@@ -128,6 +129,39 @@ mod tests {
             let all: serde_json::Value = serde_json::from_str(SERVICES).unwrap();
             Ok(Response { status: 200, body: all[self.page].to_string() })
         }
+    }
+
+    /// astromech-vkzj: a word that only shares the phonetic key with a one-word key press asks;
+    /// the exact word and the longer phrasings still execute.
+    #[test]
+    fn one_word_key_presses_need_the_exact_word() {
+        let g = grammar(&["Sol"]);
+        for (t, c) in [
+            ("boost", "galaxy_map.paste"),
+            ("Best.", "galaxy_map.paste"),
+            ("past", "galaxy_map.paste"),
+            ("page", "panel.close"),
+            ("Peek.", "panel.close"),
+            ("pack", "panel.close"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+        }
+        for (t, c) in [
+            ("Paste.", "galaxy_map.paste"),
+            ("paste please", "galaxy_map.paste"),
+            ("Paste it.", "galaxy_map.paste"),
+            ("Back.", "panel.close"),
+            ("Go back.", "panel.close"),
+            ("close panel", "panel.close"),
+            ("Throttle to zero.", "throttle.zero"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // One-word questions are not key presses: a close spelling still answers.
+        let m = g.best("Fool.");
+        assert_eq!((m.command, m.decision), ("status.fuel", Decision::Execute), "{m:?}");
     }
 
     fn heard(g: &Grammar, phrase: &str) -> (Option<Want>, Decision) {
