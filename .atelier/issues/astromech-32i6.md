@@ -15,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-17T23:34:19.247297333+00:00"
+status: "done"
 title: "Engineering and Materials show the sample fleet and inventory when the journal cannot be read"
-updated_at: "2026-10-17T23:18:27.394011727+00:00"
+updated_at: "2026-10-17T23:34:19.247297333+00:00"
 ---
 
 ## Goal
@@ -35,3 +36,7 @@ Found walking astromech-x81p. In Tauri, a rejected call returns the fixture with
 ## Notes
 
 - 2026-10-17 [note] Cause: lib/engineering.ts loadFleet and lib/materials.ts loadMaterials caught every rejected call in the app and returned the fixture labelled 'Sample journal (no live journal folder)'. The shell already rejects with 'journal folder not found: <path>'. Fix: let the rejection through so the pages show their error state. Audit of other pages: no other in-app fallback to sample data (all sample/fixture paths are gated on !inTauri).
+
+## Close Reason
+
+loadFleet and loadMaterials no longer fall back to the sample in the real app; Ships and Materials say the journal could not be read and why. Test fails before the fix. Reviewed; no other page has the fallback (audited twice).

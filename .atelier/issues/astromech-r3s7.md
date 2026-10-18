@@ -4,6 +4,9 @@ id: "astromech-r3s7"
 issue_type: "bug"
 labels:
 - "alpha"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-r3s7
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-17T23:21:11.711081544+00:00"
+status: "done"
 title: "A journal once judged the game's stays live after a newer session starts"
-updated_at: "2026-10-17T22:51:24.585382919+00:00"
+updated_at: "2026-10-17T23:21:11.711081544+00:00"
 ---
 
 ## Goal
@@ -32,3 +36,8 @@ Review finding on the astromech-782v PR (reproduced: the EDDN queue went from 1 
 ## Notes
 
 - 2026-10-17 [note] 17 Oct, re-review of #149: reproduced with no clock change. The app follows A live; the game starts B (later name); a tool appends an old-stamped line to A and touches it; EDDN queue 1 -> 2. Cause: game_sessions (pipeline.rs ~203, 414-419) is never cleared, and a reopen applies the part past the read point as live. Fix: stop treating an older session as the game's once a newer one is, or check line freshness for any journal that isn't the current one. Same class as 0d7l; not an alpha blocker (needs a tool appending different content to an earlier journal while the app spans two sessions).
+- 2026-10-17 [note] Chosen: one current session. game_session is the stamp of the session the game is writing; starting a newer one (a journal that is the latest by name the first time we see it, or a header-matching journal's first fresh line) retires the previous for good, so it is judged like any other journal (header agrees: only lines stamped now are live; otherwise a replay). Rejected: gating every non-current journal on line freshness without retiring, because the latest-by-name rule still made a touched first journal of the repeated hour live. Limits found in review: (1) a foreign later-named journal touched while the game is quiet still becomes the session and its stale lines are live until the game's next fresh line takes it back (pre-existing 0d7l behaviour, now bounded; test the_games_journal_takes_the_session_back_from_a_touched_foreign_one); (2) a retired game journal whose header disagrees with its name (a machine whose offset changed mid-session) stays Foreign: rare, not changed; (3) after a pause over 120 s the game's catch-up lines of a retired-then-recovered journal count as replay (the 36g1/t16r trade-off).
+
+## Close Reason
+
+One current session: starting a newer one retires the earlier for good, so a touched earlier journal, including the repeated hour's latest-by-name first journal, is judged like any other (stale lines replay). Tests: an_earlier_session_is_not_live_once_a_newer_one_has_started failed before (queue 2 to 3); the repeated-hour test fails without retirement; a flip-flop test. 0d7l, 36g1, t16r and 782v tests unchanged; 50 of 50 under load. Review recorded.

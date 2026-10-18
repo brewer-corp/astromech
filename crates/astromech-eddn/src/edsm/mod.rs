@@ -48,6 +48,8 @@ pub const ERRORS_CLEARED: &str = "errors_cleared_at";
 pub const JOURNAL: &str = "journal";
 
 const MIN_RETRY: Duration = Duration::from_secs(MIN_RETRY_SECS as u64);
+/// This many events failing alone in a row, with none stored between, stop the pass.
+const OUTAGE_AFTER: u32 = 3;
 const IDLE: Duration = Duration::from_secs(300);
 
 type Log = Arc<dyn Fn(&str) + Send + Sync>;
@@ -407,8 +409,8 @@ impl Courier {
 
     fn deliver(&mut self, creds: &Credentials, wall: i64, mono: Instant, d: &mut Delivery) -> rusqlite::Result<()> {
         let retries = mono >= self.hold_until;
-        // An event that failed alone in this pass.
-        let mut failed_alone = false;
+        // Events that failed alone in a row in this pass, with nothing stored in between.
+        let mut failed_alone = 0;
         loop {
             if self.stop.load(Ordering::SeqCst) || self.switch.get().as_ref() != Some(creds) {
                 return Ok(());
@@ -425,12 +427,23 @@ impl Courier {
             let session = |b: &Value| (b["gameversion"].clone(), b["gamebuild"].clone());
             let first = session(&rows[0].1);
             let n = rows.iter().take_while(|(_, b)| session(b) == first).count();
+            // An event that already failed alone is known to be refused: it goes by itself, never
+            // back through 50, 25, 13, ... with the good events beside it.
+            let n = match rows[..n].iter().position(|(q, _)| q.refusals > 0) {
+                Some(0) => 1,
+                Some(i) => i,
+                None => n,
+            };
             rows.truncate(n);
             let body = serde_json::to_vec(&self.request(creds, &rows)).expect("JSON");
             match answer(self.api.post_json(api::JOURNAL_URL, &body), n) {
                 Answer::Each(codes) => {
+                    let stored_before = d.sent;
                     self.each(&rows, codes, wall, d)?;
                     self.cap = (self.cap * 2).min(BATCH);
+                    if d.sent > stored_before {
+                        failed_alone = 0;
+                    }
                 }
                 Answer::Reject(why) => {
                     for (q, _) in &rows {
@@ -470,9 +483,13 @@ impl Courier {
                     self.outbox.refuse_at(q.id, q.attempts + 1, q.refusals + 1, wall + w)?;
                     self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; retry in {w} s"))?;
                     d.retrying += 1;
-                    // The queue behind it moves on, unless a second event fails too: that
-                    // looks like an outage, not one bad event.
-                    if std::mem::replace(&mut failed_alone, true) {
+                    // The queue behind it moves on. Several events failing alone in a row, with
+                    // nothing stored in between, look like an outage, not a few bad events: wait,
+                    // as long as the last one's back-off. Two poisoned events side by side are
+                    // not an outage, and the good ones behind them are tried. (Three or more
+                    // that are all due in the same pass still stop it: best effort.)
+                    failed_alone += 1;
+                    if failed_alone >= OUTAGE_AFTER {
                         self.outbox.hold_due(wall, wall + w)?;
                         d.stopped = true;
                         self.hold_until = mono + MIN_RETRY;
