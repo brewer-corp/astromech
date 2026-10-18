@@ -13,8 +13,6 @@ relationships:
   children:
   - kind: "issue"
     id: "astromech-5vjx"
-  - kind: "issue"
-    id: "astromech-8rth"
   attachments: []
   relates:
   - kind: "issue"
@@ -102,7 +100,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Alpha: release v1.0.0-alpha.1"
-updated_at: "2026-10-18T01:52:30.493238234+00:00"
+updated_at: "2026-10-18T13:42:56.692597522+00:00"
 ---
 
 ## Goal

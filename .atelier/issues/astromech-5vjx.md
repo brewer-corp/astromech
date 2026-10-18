@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-18T13:42:56.572754914+00:00"
+status: "done"
 title: "Release notes and the in-game test script for the alpha"
-updated_at: "2026-10-18T01:52:30.493239466+00:00"
+updated_at: "2026-10-18T13:42:56.572754914+00:00"
 ---
 
 ## Goal
@@ -24,3 +25,7 @@ Write the v1.0.0-alpha.1 notes: what's new since v0.1.5, and what has not been c
 ## Done when
 
 The notes are in the release, and every open needs-human validation issue under both missions appears in one session.
+
+## Close Reason
+
+Release notes docs/releases/v1.0.0-alpha.1.md (what's new, 4 in-game test sessions covering the 37 needs-human issues, known limits), check-release-notes.py, release.yml builds the body from the notes and fails on pending markers; no pending markers remain.
