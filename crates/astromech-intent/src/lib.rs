@@ -70,6 +70,8 @@ pub struct Grammar {
     slots: Vec<Slot>,
     /// The phrases added by [`Grammar::add_alias`], as (text, command), so they can be removed.
     personal: Vec<(String, &'static str)>,
+    /// How many of `phrases` are the grammar's own; personal phrases follow them.
+    builtin: usize,
 }
 
 /// Most transcript words one slot can take.
@@ -676,7 +678,12 @@ impl Grammar {
                 phrases.push((Phrase { command: cmd, text: (*p).to_string() }, normalise(p)));
             }
         }
-        Self { phrases, slots: vec![], personal: vec![] }.with_slot("system", systems.iter().map(|s| (*s, *s)), None)
+        let builtin = phrases.len();
+        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
+            "system",
+            systems.iter().map(|s| (*s, *s)),
+            None,
+        )
     }
 
     /// Values for the `{name}` slot: (a way to say it, the value it stands for). Words `free`
@@ -792,8 +799,14 @@ impl Grammar {
         let mut v: Vec<Match> = self
             .phrases
             .iter()
-            .map(|(p, toks)| {
+            .enumerate()
+            .map(|(i, (p, toks))| {
                 let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
+                // An ask-only transcript stays ask-only against a personal phrase too: a learned
+                // "Ill stop" must not make "I'll stop" run (astromech-1c66).
+                if misheard.is_some() && i >= self.builtin {
+                    score = score.min(MISHEARD_CAP);
+                }
                 if let Some(alt) = &misheard {
                     let (s2, f2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
@@ -1408,6 +1421,23 @@ mod tests {
         for t in ["Definitely hard points.", "all stop", "paste", "Ill stop", "gear down"] {
             assert!(!is_ask_only(t), "{t:?}");
         }
+    }
+
+    /// A learned neighbour of an ask-only phrase does not make the ask-only phrase run: "Ill stop"
+    /// learned, "I'll stop" still asks (astromech-1c66 review R1).
+    #[test]
+    fn a_learned_neighbour_does_not_unlock_an_ask_only_phrase() {
+        let mut g = g();
+        assert!(g.add_alias("Ill stop", "throttle.zero"));
+        assert!(g.add_alias("Hold stop", "throttle.zero"));
+        assert_eq!(g.best("Ill stop").decision, Decision::Execute, "the learned phrase itself runs");
+        for t in ["I'll stop", "I'll stop.", "I’ll stop.", "I'll stop now", "Old stop"] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), ("throttle.zero", Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.score <= MISHEARD_CAP, "{t:?} -> {m:?}");
+        }
+        assert!(g.add_alias("Pace it", "galaxy_map.paste"));
+        assert_eq!(g.best("Pays it").decision, Decision::Ask);
     }
 
     /// Fuzzy near-misses of "all stop" that are not in the mishearing table stay under EXECUTE

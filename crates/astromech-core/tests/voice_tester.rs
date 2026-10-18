@@ -199,8 +199,8 @@ fn push_to_talk_in_test_mode_presses_nothing_until_the_page_closes() {
     assert_eq!(r.exec.sent.lock().unwrap().len(), 2, "one press, down and up");
 }
 
-/// A wrong yes teaches a phrase for good; forgetting it makes astromech ask again, and the
-/// saved list no longer has it. A phrase for a key-pressing command needs two yes answers.
+/// Two wrong yes answers teach a key-pressing phrase for good; forgetting it makes astromech ask
+/// again, and the saved list no longer has it.
 #[test]
 fn a_learned_phrase_can_be_forgotten() {
     use astromech_proto::Origin::Voice;
