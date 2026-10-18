@@ -43,7 +43,9 @@ it, or close to it: "gear down", "lights on", "deploy hardpoints". Filler words 
 astromech matches what it heard against a fixed list of commands. It does not guess at
 anything outside the list. Each match gets a score:
 
-- **Clear match:** it does it.
+- **Clear match:** it does it. A word that only sounds a bit like the command's word, rather
+  than being spelled close to it ("page" for "back", "roll" for "role"), is never a clear
+  match: astromech asks.
 - **Close, but not sure:** it asks "Did you mean gear down?" Answer **yes** or **no** with
   your next push-to-talk, within five seconds. "Yes" runs it. "No" cancels ("Cancelled."). You
   can also say "confirm", "do it" or "affirmative" for yes, and "cancel", "never mind",

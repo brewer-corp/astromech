@@ -6,7 +6,9 @@
 //! plus a crude phonetic key, after normalisation ("hard points" → "hardpoints").
 //!
 //! Decision thresholds:
-//! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute;
+//! - score ≥ [`EXECUTE`] (0.85) with a clear margin over the next *different* command: execute
+//!   (unless the winning phrase needed the phonetic key for a word: then it asks, see
+//!   [`Match::sound_alike`]);
 //! - [`ASK`] (0.60) ≤ score, or close candidates: ask "Did you mean …?";
 //! - below 0.60: "Say again".
 //!
@@ -45,6 +47,10 @@ pub struct Match {
     pub slot_text: Option<String>,
     /// The slot was heard exactly (one of its phrasings, free words aside), not a near match.
     pub slot_exact: bool,
+    /// Some phrase word was matched only through the crude [`phonetic`] key: the spelling alone
+    /// was not close, and the shared key lifted it to 0.85, the execute threshold ("boost" for
+    /// "paste"). Such a match never executes; [`Grammar::best`] turns its Execute into Ask.
+    pub sound_alike: bool,
     pub score: f32,
     pub decision: Decision,
 }
@@ -583,15 +589,21 @@ pub fn phonetic(w: &str) -> String {
 
 /// Similarity of two words in 0..=1.
 pub fn word_sim(a: &str, b: &str) -> f32 {
+    word_match(a, b).0
+}
+
+/// [`word_sim`], and whether it came only from the phonetic key: the spelling alone scores under
+/// 0.85 and the shared key lifted it to 0.85 ("boost" and "paste").
+fn word_match(a: &str, b: &str) -> (f32, bool) {
     if a == b {
-        return 1.0;
+        return (1.0, false);
     }
     let n = a.chars().count().max(b.chars().count()) as f32;
     let s = 1.0 - lev(a, b) as f32 / n;
     if a.len() >= 3 && b.len() >= 3 && phonetic(a) == phonetic(b) {
-        s.max(0.85)
+        (s.max(0.85), s < 0.85)
     } else {
-        s.max(0.0)
+        (s.max(0.0), false)
     }
 }
 
@@ -630,25 +642,37 @@ fn slot_name(w: &str) -> Option<&str> {
 
 /// Score of transcript `u` against phrase `p` in 0..=1. A slot word in `p` takes 1 to
 /// [`MAX_SLOT_WORDS`] transcript words at a cost of (words × (1 − fill similarity)); `fill`
-/// scores the words `u[i..i + k]` for a slot. Returns the score and the slot's fill.
-fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>) {
+/// scores the words `u[i..i + k]` for a slot. Returns the score, the slot's fill, and whether a
+/// phrase word was matched only through the phonetic key ([`Match::sound_alike`]). The score and
+/// fill are exactly what they were before that flag existed.
+fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) -> Fill) -> (f32, Option<Fill>, bool) {
     let (n, m) = (u.len(), p.len());
     if n == 0 || m == 0 {
-        return (0.0, None);
+        return (0.0, None, false);
     }
-    let mut dp = vec![vec![(f32::MAX, None::<Fill>); m + 1]; n + 1];
-    dp[0][0] = (0.0, None);
+    // (cost, slot fill, a word matched only through the phonetic key). A cheaper path replaces
+    // the cell as before; on an equal cost the sound flag of either path counts.
+    let mut dp = vec![vec![(f32::MAX, None::<Fill>, false); m + 1]; n + 1];
+    dp[0][0] = (0.0, None, false);
     for i in 0..=n {
         for j in 0..=m {
-            let (c, f) = dp[i][j].clone();
+            let (c, f, snd) = dp[i][j].clone();
             if c == f32::MAX {
                 continue;
             }
-            if i < n && dp[i + 1][j].0 > c + 1.0 {
-                dp[i + 1][j] = (c + 1.0, f.clone());
+            if i < n {
+                if dp[i + 1][j].0 > c + 1.0 {
+                    dp[i + 1][j] = (c + 1.0, f.clone(), snd);
+                } else if dp[i + 1][j].0 == c + 1.0 {
+                    dp[i + 1][j].2 |= snd;
+                }
             }
-            if j < m && dp[i][j + 1].0 > c + 1.0 {
-                dp[i][j + 1] = (c + 1.0, f.clone());
+            if j < m {
+                if dp[i][j + 1].0 > c + 1.0 {
+                    dp[i][j + 1] = (c + 1.0, f.clone(), snd);
+                } else if dp[i][j + 1].0 == c + 1.0 {
+                    dp[i][j + 1].2 |= snd;
+                }
             }
             if i == n || j == m {
                 continue;
@@ -659,21 +683,26 @@ fn phrase_score(u: &[String], p: &[String], fill: &dyn Fn(&str, usize, usize) ->
                         let got = fill(name, i, k);
                         let nc = c + k as f32 * (1.0 - got.sim);
                         if dp[i + k][j + 1].0 > nc {
-                            dp[i + k][j + 1] = (nc, Some(got));
+                            dp[i + k][j + 1] = (nc, Some(got), snd);
+                        } else if dp[i + k][j + 1].0 == nc {
+                            dp[i + k][j + 1].2 |= snd;
                         }
                     }
                 }
                 None => {
-                    let nc = c + (1.0 - word_sim(&u[i], &p[j]));
+                    let (sim, by_key) = word_match(&u[i], &p[j]);
+                    let nc = c + (1.0 - sim);
                     if dp[i + 1][j + 1].0 > nc {
-                        dp[i + 1][j + 1] = (nc, f.clone());
+                        dp[i + 1][j + 1] = (nc, f.clone(), snd || by_key);
+                    } else if dp[i + 1][j + 1].0 == nc {
+                        dp[i + 1][j + 1].2 |= snd || by_key;
                     }
                 }
             }
         }
     }
-    let (cost, f) = dp[n][m].clone();
-    ((1.0 - cost / n.max(m) as f32).max(0.0), f)
+    let (cost, f, snd) = dp[n][m].clone();
+    ((1.0 - cost / n.max(m) as f32).max(0.0), f, snd)
 }
 
 impl Grammar {
@@ -807,18 +836,19 @@ impl Grammar {
             .iter()
             .enumerate()
             .map(|(i, (p, toks))| {
-                let (mut score, mut filled) = phrase_score(&u, toks, &fill_u);
+                let (mut score, mut filled, mut sound_alike) = phrase_score(&u, toks, &fill_u);
                 // An ask-only transcript stays ask-only against a personal phrase too: a learned
                 // "Ill stop" must not make "I'll stop" run (astromech-1c66).
                 if misheard.is_some() && i >= self.builtin {
                     score = score.min(MISHEARD_CAP);
                 }
                 if let Some(alt) = &misheard {
-                    let (s2, f2) = phrase_score(alt, toks, &fill_alt);
+                    let (s2, f2, snd2) = phrase_score(alt, toks, &fill_alt);
                     let s2 = s2.min(MISHEARD_CAP);
                     if s2 > score {
                         score = s2;
                         filled = f2;
+                        sound_alike = snd2;
                     }
                 }
                 let phrase = match &filled {
@@ -834,6 +864,7 @@ impl Grammar {
                     slot: filled.as_ref().map(|f| f.value.clone()),
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
                     slot_text: filled.map(|f| f.text),
+                    sound_alike,
                     score,
                     decision: Decision::NoMatch,
                 }
@@ -853,6 +884,7 @@ impl Grammar {
                 slot: None,
                 slot_text: None,
                 slot_exact: false,
+                sound_alike: false,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
@@ -871,6 +903,12 @@ impl Grammar {
         };
         // A slot filled by anything but one of its exact phrasings always asks.
         if best.decision == Decision::Execute && best.slot.is_some() && !best.slot_exact {
+            best.decision = Decision::Ask;
+        }
+        // The phonetic key never presses a key or answers on its own: a winner that needed it
+        // for a word asks instead, same command and slot (astromech-vkzj). A veto only, so the
+        // ranking and margins above are untouched.
+        if best.decision == Decision::Execute && best.sound_alike {
             best.decision = Decision::Ask;
         }
         best
@@ -1417,6 +1455,181 @@ mod tests {
         }
         assert_eq!(g.best("Crime pays.").decision, Decision::NoMatch);
         assert_eq!(g.best("It pays well").decision, Decision::NoMatch);
+    }
+
+    /// A word matched only through the phonetic key makes the winner ask, never
+    /// execute (astromech-vkzj).
+    #[test]
+    fn sound_alikes_ask_and_never_execute() {
+        let g = g();
+        for (t, c) in [
+            ("boost", "galaxy_map.paste"),
+            ("Best.", "galaxy_map.paste"),
+            ("past", "galaxy_map.paste"),
+            ("page", "panel.close"),
+            ("Peek.", "panel.close"),
+            ("pack", "panel.close"),
+            ("Boost it.", "galaxy_map.paste"),
+            ("go page", "panel.close"),
+            ("show chalk maeby", "galaxy_map.open"),
+            ("open racket banal", "panel.right"),
+            ("rice care", "landing_gear.up"),
+            // Real recogniser output that executed before: now it asks.
+            ("Landing gear dawn.", "landing_gear.down"),
+            ("Open cargo skeep.", "cargo_scoop.open"),
+            ("Roll panel.", "panel.role"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+            assert!(m.sound_alike, "{t:?} -> {m:?}");
+        }
+        for (t, c) in [
+            ("Paste.", "galaxy_map.paste"),
+            ("Paste it.", "galaxy_map.paste"),
+            ("Back.", "panel.close"),
+            ("Go back.", "panel.close"),
+            ("open galaxy map", "galaxy_map.open"),
+            ("Gear down.", "landing_gear.down"),
+            // A close spelling is not a sound-alike.
+            ("Bunding gear down.", "landing_gear.down"),
+            ("Year down.", "landing_gear.down"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+    }
+
+    /// Inputs where earlier capping rules let a spelling neighbour win "clearly" (astromech-vkzj
+    /// reviews, rounds 4 to 6). With the veto, ranking is main's, so they ask as on main.
+    #[test]
+    fn round_four_neighbours_do_not_execute() {
+        let g = g();
+        let m = g.best("how much full");
+        assert_eq!(m.decision, Decision::Ask, "{m:?}");
+        for t in ["how much huel", "cmose panel", "cnose panel", "degloy landing gear", "dekloy landing gear"] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+    }
+
+    /// Round 5 and 6: an exact slot of the same or another command must not win past a phrase
+    /// that won on main ("where can i cell cobra", "where can i cut buy sc assist").
+    #[test]
+    fn slot_neighbours_do_not_execute() {
+        let g = Grammar::mvp(&["Sol"])
+            .with_slot("commodity", [("Copper", "Copper")], None)
+            .with_slot("ship", [("Cobra MkIII", "Cobra MkIII"), ("Cobra", "Cobra MkIII")], None)
+            .with_slot("module", [("SC Assist", "Supercruise Assist")], None);
+        for t in ["where can i cell cobra", "where can i cut buy sc assist"] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+    }
+
+    /// A personal alias is matched like any phrase: heard exactly it executes; a sound-alike of
+    /// it asks (astromech-vkzj round 6).
+    #[test]
+    fn a_sound_alike_of_a_personal_alias_asks() {
+        let mut g = g();
+        assert!(g.add_alias("belt route", "route.clear"));
+        assert_eq!(g.best("belt route").decision, Decision::Execute);
+        let m = g.best("bolt route");
+        assert_eq!(m.command, "route.clear", "{m:?}");
+        assert_ne!(m.decision, Decision::Execute, "{m:?}");
+    }
+
+    /// A fixed sample of the astromech-vkzj round-3 reviewer's probe: key-press phrases with
+    /// their words swapped for dictionary words that share only the phonetic key. All of them
+    /// executed before; none may execute.
+    #[test]
+    fn dictionary_sound_alikes_never_execute() {
+        let g = g();
+        for t in [
+            "aiello stop",
+            "carriageway scape close",
+            "carrick scoop callis",
+            "carriageway scoop in",
+            "cargo schwab open",
+            "carriageway scoop out",
+            "carriageway scoop oath",
+            "carex scoop ottawa",
+            "callous carriageway scoop",
+            "close cargo schaub",
+            "close mapuhe",
+            "communications banal",
+            "deeply carrick scoop",
+            "diplo cargo schaub",
+            "diplo hardpoints",
+            "dibble landing caraway",
+            "disciple flaked assist",
+            "disable flexed associate",
+            "disable night faison",
+            "disable machado fashion",
+            "disable salinity running",
+            "disable salient ramming",
+            "drive assessed off",
+            "employee flight assist",
+            "enable flexed assessed",
+            "employ machete vision",
+            "enable machado fashion",
+            "enable sealant running",
+            "enable salient renewing",
+            "falgout assist on",
+            "gear dahomey",
+            "hamdi bark off",
+            "hadda combat",
+            "landing caraway dahomey",
+            "lafayette panel",
+            "lahiri limiting gear",
+            "lahr landing care",
+            "machete fashion off",
+            "open carrick scoop",
+            "obama cargo schwab",
+            "opium chilliwack map",
+            "open calyx mapuhe",
+            "open left benally",
+            "opium racked panel",
+            "obama right biannual",
+            "obama railey panel",
+            "opium role biennale",
+            "open sistine mabe",
+            "bassett system",
+            "based sistine name",
+            "basidia system mahayana",
+            "raise caraway",
+            "raceway landing caraway",
+            "retract cargo scape",
+            "retract limiting gear",
+            "railey panel",
+            "ceiba locates off",
+            "ciao calyx map",
+            "show chalk mabe",
+            "sawai galaxy mapuhe",
+            "ciao sistine map",
+            "saw system mapp",
+            "cellmate ramming off",
+            "cyathea hardpoints",
+            "tortilla to zero",
+            "degaulle landing cairo",
+            "turn lactose off",
+            "turn lighthouse on",
+            "darwen off flexed assist",
+            "darwen off flexed assessed",
+            "darwen off flexed associate",
+            "dereham off locates",
+            "turn off night faison",
+            "turn off night fasano",
+            "turn off night fashion",
+            "turn off night fission",
+            "darn on flight assist",
+            "darn on flight assessed",
+            "darn on night vision",
+            "darn on night faison",
+            "turn on machete fashion",
+        ] {
+            let m = g.best(t);
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
     }
 
     #[test]

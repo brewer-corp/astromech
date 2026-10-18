@@ -1,0 +1,22 @@
+astromech-vkzj, veto version (73d4e007): app grammar best() on origin/main 132be096 vs the branch, line by line.
+Allowed difference: main Execute -> branch Ask with the same command, slot and score. "other" counts every other difference.
+
+set                                                    lines    same  Exec->Ask same cmd/slot  other
+59k words + eval phrases + phonetic variants           59332   58570                      762      0
+'X it' / 'go X' pairs                                 116734  116619                      115      0
+round-2 all-sound-alike                                  276       0                      276      0
+round-2 one-sound-alike                                  709       0                      709      0
+round-3 dictionary-swap probe                           2024       0                     2024      0
+eval transcripts (distinct)                              592     557                       35      0
+round-4 one-edit variants (r4 mut.txt)                121805  109275                    12530      0
+round-4 corpora (r5 all.txt)                          299614  284227                    15387      0
+round-5 slot probe (slotgen.txt)                      111752   82286                    29466      0
+round-5 two-edit set (mut2.txt)                       120727  102910                    17817      0
+round-6 adversarial (adv.txt)                         150966  147990                     2976      0
+round-6 personal aliases (advs.txt + aliases.tsv)       3000    2959                       41      0
+
+Sources: lines/pairs/round-2/round-3/eval transcripts/round-4 mut.txt as before (main outputs from a main build of the same probe).
+round-4 corpora = /home/supadava/.cache/astromech-review/r5/all.txt; slot probe = r5/slotgen.txt; two-edit = r5/mut2.txt;
+adversarial = r6/adv.txt; aliases = r6/advs.txt with ALIASES=r6/aliases.tsv. Main outputs for these five are the round-6 reviewer's r6/*-main.tsv.
+Eval clips (3200 cached): 81 go Execute -> Ask (ui 34, status 16, route 15, ship 5, srv 4, faction 2, powerplay 2, trade 2, confirm 1); 0 wrong executes; 64/64 rejects; misses 13.
+Per-input rows for the first five sets (every Execute -> Ask, same command, slot and score): word-list-changes.tsv (regenerated from the veto build).
