@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-18T00:05:48.696009857+00:00"
+status: "done"
 title: "Onboarding smoke test to a mock gear-down on Windows CI"
-updated_at: "2026-10-17T20:36:22.894954354+00:00"
+updated_at: "2026-10-18T00:05:48.696009857+00:00"
 ---
 
 ## Goal
@@ -36,3 +37,7 @@ A CI job (or script run on the Windows runner) reports install-to-gear-down time
 ## Notes
 
 - 2026-10-17 [note] Handoff (Claude): PR #124 ready for review. The onboarding smoke test runs in the Release build after the installer smoke test: fresh silent install, real wizard over DevTools (shell flag --webview-debug-port), PTT and kill switch bound by pressing keys, mock game as EliteDangerous64.exe, gear down run live from the voice tester and confirmed in Status.json. Green: 14.93 s, 10.35 s and 9.12 s install to verified gear-down (budget 300 s). Fault run (mock drops the press) fails as designed. Independent review done, FIX NOW items fixed and re-reviewed; awaiting Sumeet's approval. Deferred: astromech-c9i7 (tag gating), astromech-0sls, astromech-nmn1. Not covered: speech, mic and calibration steps, the timed human run (astromech-we0f).
+
+## Close Reason
+
+Onboarding smoke test on the Windows runner: silent install, wizard driven in the real window, gear down run live against the mock game; 9-15 s against the 5-minute budget; fails when the mock drops the press. Reviewed; the release-gate question is astromech-c9i7.
