@@ -3,8 +3,8 @@ name: Release build
 # docs/V1-DESIGN.md §7.8. Builds the per-user NSIS installer (unsigned, §7.4) on Windows,
 # installs it silently on the runner and smoke-tests it. PRs that touch packaging (the paths
 # below) and manual runs upload the
-# installer as a workflow artifact; a `v*` tag also publishes a GitHub Release with SHA-256s
-# and a signed zip (`latest.json` + `.sig`) for in-app updates (§7.3).
+# installer as a workflow artifact; a `v*` tag also publishes a GitHub Release (body: docs/releases/<tag>.md; SHA-256s as
+# an asset) and a signed zip (`latest.json` + `.sig`) for in-app updates (§7.3).
 # Signing key: repo secret ASTROMECH_UPDATE_KEY (32-byte ed25519 seed hex). Public key is
 # crates/astromech-core/src/update.rs PUBLIC_KEY_HEX.
 
@@ -245,6 +245,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Before the download: checkout empties a workspace that is not a git clone.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/releases
       - uses: actions/download-artifact@v4
         with:
           name: astromech-installer-windows-x64
@@ -253,10 +257,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "Unsigned build: Windows SmartScreen will say \"Windows protected your PC\" (More info → Run anyway)."
-            echo "Per-user install, no admin. First install: run the setup.exe. Later versions: tray → Check for updates, then Restart to update (signed zip, no SmartScreen on each setup.exe)."
-            echo
-            echo '```'; cat dist-release/SHA256SUMS.txt; echo '```'
-          } > notes.md
-          gh release create "$GITHUB_REF_NAME" dist-release/* --repo "$GITHUB_REPOSITORY" --title "astromech $GITHUB_REF_NAME" --notes-file notes.md
+          # The release body is docs/releases/<tag>.md, as written. A tag with no notes file fails here.
+          notes="docs/releases/$GITHUB_REF_NAME.md"
+          [ -f "$notes" ] || { echo "::error::missing $notes: write the release notes before tagging"; exit 1; }
+          if grep -q '<!-- pending' "$notes"; then echo "::error::$notes still has pending markers"; exit 1; fi
+          gh release create "$GITHUB_REF_NAME" dist-release/* --repo "$GITHUB_REPOSITORY" --title "astromech $GITHUB_REF_NAME" --notes-file "$notes"

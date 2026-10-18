@@ -57,6 +57,10 @@ The [guide](docs/guide/index.md) covers every page and feature:
 - Galaxy and trade: [Galaxy](docs/guide/galaxy.md), [Routes](docs/guide/routes.md), [Trade](docs/guide/trade.md), [Mining](docs/guide/mining.md), [Colonisation](docs/guide/colonisation.md), [Powerplay](docs/guide/powerplay.md)
 - Exploring and history: [Exploration](docs/guide/exploration.md), [Logbook](docs/guide/logbook.md), [Data sharing](docs/guide/data-sharing.md) (exactly what is sent where)
 
+## Release notes
+
+What changed, what has not been checked in the game yet, and the known limits: [Release notes](docs/releases/v1.0.0-alpha.1.md).
+
 ## Help and feedback
 
 Something wrong? Open Settings, then Diagnostics, and **Save diagnostics**, then
