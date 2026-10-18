@@ -98,9 +98,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-18T13:43:06.272810524+00:00"
+status: "done"
 title: "Alpha: release v1.0.0-alpha.1"
-updated_at: "2026-10-18T13:42:56.692597522+00:00"
+updated_at: "2026-10-18T13:43:06.272810524+00:00"
 ---
 
 ## Goal
@@ -110,3 +111,7 @@ v1.0.0-alpha.1 goes out through the normal release and the in-app updater (no pr
 ## Done when
 
 Every child issue is done and the release is on GitHub Releases, offered by the in-app updater to v0.1.5.
+
+## Close Reason
+
+Alpha prepared: version 1.0.0-alpha.1, updater pre-release ordering, release notes and in-game test script, release workflow fixes. Tag and publish tracked in astromech-8rth.
