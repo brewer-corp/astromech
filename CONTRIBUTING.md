@@ -83,6 +83,11 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Refresh it only when it's worth it. Local shell builds bundle an empty file (the app fills in
   from EDSM as you travel); for the real one, `gh release download starmap` and gunzip it into
   `app/src-tauri/resources/starmap.db`.
+- The **Release build** also runs `scripts/onboarding_smoke.py` after the installer smoke test: a
+  fresh silent install, the onboarding wizard driven in the real window, then "gear down" run live
+  from the voice tester against the mock game, with each step's time. It opens the window with
+  `astromech-shell --webview-debug-port <port>`, which turns on WebView2's DevTools port on
+  127.0.0.1 so the page can be driven; nothing else uses that flag.
 - The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
   `scripts/mvp_criteria.py`: the release core against the mock game window
   (`crates/astromech-core/examples/mockgame.rs`), with a report against each threshold. The

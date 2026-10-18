@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-bztt
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-18T00:31:41.916928001+00:00"
+status: "done"
 title: "Voice: 'Yes, sir.' is rejected (confirm scores 94% on the synthetic eval)"
-updated_at: "2026-10-17T21:44:43.348840947+00:00"
+updated_at: "2026-10-18T00:31:41.916928001+00:00"
 ---
 
 ## Goal
@@ -29,3 +33,11 @@ Accept a confirmation with a polite extra word. On the synthetic eval (astromech
 ## Context
 
 The rendered text was "yes.": the "sir" is Parakeet adding a word on that voice, not a word the speaker said. Either way the grammar rejects a one-word phrase plus one extra word, and a commander may well say "yes sir". Check against real clips (astromech-cgrw) first. Confirm answers the silent-running and did-you-mean prompts, so it is part of ship control.
+
+## Notes
+
+- 2026-10-17 [note] Handoff: 'sir' added to FILLER. voice-eval confirm 45/48 -> 48/48, wrong execute 0, rejects 64/64, no other command changed. Review round 1: no FIX NOW; R3 deferred to astromech-kdca. Approval outstanding (not recorded by the author by instruction).
+
+## Close Reason
+
+'sir' is ignored like 'please', so 'Yes, sir.' confirms; confirm 45/48 -> 48/48 on the synthetic eval, 0 wrong executes, 64/64 rejects; negative tests for 'sir' in ordinary sentences. Reviewed; 'Okay, sir' follow-up astromech-kdca.

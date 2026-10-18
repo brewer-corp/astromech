@@ -372,8 +372,9 @@ fn silent_running_asks_then_runs() {
     assert!(matches!(h, Handled::Ran { command: "silent_running.on", outcome: Outcome::NoBinding(_) }), "{h:?}");
 }
 
+/// "You're down." is in the mishearing table: yes runs it, but it keeps asking (astromech-1c66).
 #[test]
-fn did_you_mean_yes_learns_alias() {
+fn did_you_mean_yes_runs_but_an_ask_only_phrase_keeps_asking() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
     let a = Assistant::new(r.runner.clone());
     assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
@@ -383,7 +384,19 @@ fn did_you_mean_yes_learns_alias() {
         }
         h => panic!("{h:?}"),
     }
-    match a.handle("You're down.", Origin::Voice) {
+    assert!(matches!(a.handle("You're down.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+}
+
+/// Without a store the same rule holds: a key-pressing phrase is learned on the second yes.
+#[test]
+fn did_you_mean_learns_a_key_press_on_the_second_yes() {
+    let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
+    let a = Assistant::new(r.runner.clone());
+    for _ in 0..2 {
+        assert!(matches!(a.handle("Dear dawn.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+        assert!(matches!(a.handle("yes", Origin::Voice), Handled::Ran { command: "landing_gear.down", .. }));
+    }
+    match a.handle("Dear dawn.", Origin::Voice) {
         Handled::Ran { command: "landing_gear.down", outcome: Outcome::Already(_) } => {}
         h => panic!("alias should execute, {h:?}"),
     }
