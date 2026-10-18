@@ -16,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Voice: 'Yes, sir.' is rejected (confirm scores 94% on the synthetic eval)"
-updated_at: "2026-10-17T23:19:09.839264767+00:00"
+updated_at: "2026-10-18T00:11:44.916356670+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ Accept a confirmation with a polite extra word. On the synthetic eval (astromech
 ## Context
 
 The rendered text was "yes.": the "sir" is Parakeet adding a word on that voice, not a word the speaker said. Either way the grammar rejects a one-word phrase plus one extra word, and a commander may well say "yes sir". Check against real clips (astromech-cgrw) first. Confirm answers the silent-running and did-you-mean prompts, so it is part of ship control.
+
+## Notes
+
+- 2026-10-17 [note] Handoff: 'sir' added to FILLER. voice-eval confirm 45/48 -> 48/48, wrong execute 0, rejects 64/64, no other command changed. Review round 1: no FIX NOW; R3 deferred to astromech-kdca. Approval outstanding (not recorded by the author by instruction).
