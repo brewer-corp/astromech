@@ -110,14 +110,14 @@
 <div class="stats">
   {#if unknownHull}
     <p class="warn" title="Hull: {unknownHull}">
-      <span class="mark">!</span> Incomplete: this hull isn't in the ship data, so there are no stats for it.
+      <span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.
     </p>
   {:else if !stats}
     <p class="lo">{note ?? "Working out the stats…"}</p>
   {:else}
     {#if unresolved.length}
       <p class="warn" title={unresolved.join("\n")}>
-        <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item isn't" : "items aren't"} in the ship data
+        <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
         and {unresolved.length === 1 ? "is" : "are"} left out of these numbers.
       </p>
     {/if}
@@ -151,12 +151,12 @@
   .warn { margin: 0 0 8px; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
   table { border-collapse: collapse; width: 100%; }
-  th, td { padding: 1px 0; }
-  thead th { color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); text-align: right; padding-left: 8px; }
-  th[scope="row"] { text-align: left; font-weight: 400; color: var(--text); white-space: nowrap; padding-right: 8px; }
-  .group th { text-align: left; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); padding: 10px 0 2px; }
-  tbody:first-of-type .group th { padding-top: 2px; }
-  td { font-family: var(--mono); text-align: right; color: var(--text-lo); white-space: nowrap; padding-left: 10px; }
+  th, td { padding: 5px 0; }
+  thead th { color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); text-align: right; padding-left: 12px; }
+  th[scope="row"] { text-align: left; font-weight: 400; color: var(--text); white-space: nowrap; padding-right: 12px; }
+  .group th { text-align: left; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); padding: 16px 0 6px; }
+  tbody:first-of-type .group th { padding-top: 4px; }
+  td { font-family: var(--mono); text-align: right; color: var(--text-lo); white-space: nowrap; padding-left: 12px; }
   td.changed { color: var(--text-hi); }
   td.d { color: var(--text); }
   td.better { color: var(--accent); }

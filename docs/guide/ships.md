@@ -17,32 +17,38 @@ the page says "Could not read the fleet" and gives the reason. It never shows ma
 
 ## The fleet
 
-Opens on a card for each ship:
+The page opens on the ship you are flying (or the first ship in the journal). Two tabs:
 
-- **Name and ID**, the ship type, and where it is: **Flying now**, the system it is stored in
-  (with a copy button), "In transit to" a system, or "Stored".
-- **Value** and **Rebuy.**
-- **Jump** (the maximum range: one jump's fuel, no cargo), **Shield** (MJ) and **DPS** (burst, while firing): worked out from the modules, see
-  [Ship stats](#ship-stats). "Incomplete" with a tooltip lists items that are not in astromech's ship
-  data and were left out. If the stats cannot be worked out, Jump falls back to the journal's own maximum range.
-- **Engineered**: how many of the ship's engineerable modules have an engineering blueprint, as
-  a bar.
+- **Info** — name and ID, type, where it is (**Flying now**, stored at a system with a copy
+  button, "In transit to" a system, or "Stored"), **Value** and **Rebuy**, and **Engineered**
+  (how many of the ship's engineerable modules have a blueprint). The rest of the pane is ship
+  specs: **Speed** (top | boost), **Approximate pitch / roll / yaw**, **Jump** min / current / max (laden,
+  unladen, and one-jump fuel), and **Power** (retracted, deployed, and the plant's total), then
+  shields, weapons and hull, distributor and mass. Speed, jump, power, shields and the rest
+  come from the same Coriolis-based calculations as [Ship stats](#ship-stats). Pitch / roll / yaw
+  are a stand-in by hull until those calculations include handling. "Incomplete" with a tooltip
+  lists items that are not in astromech's ship data and were left out.
+- **Engineering** — the build planner for that ship.
 
-Below the cards, **Stored modules** lists every module in storage with its blueprint and grade
-if engineered, where it is and its value.
+A rail at the bottom of the page lists every ship you own, with a cartoon of the hull. Click
+one to switch. Ship drawings are CMDR Qohen Leth's cartoon vectors, credited in NOTICE.md.
 
-Click a card to open that ship.
+## Stored modules
+
+**Engineering, Stored modules** lists every module in storage with its blueprint and grade if
+engineered, where it is and its value.
 
 ## A ship's page
 
-The ship's page shows modules as of the last time the game saved a loadout for it ("modules as of ...").
-It can open the loadout in **Coriolis** or **EDSY** in your browser. If you engineered a module
+Modules are as of the last time the game saved a loadout for it ("modules as of ...").
+The page can open the loadout in **Coriolis** or **EDSY** in your browser. If you engineered a module
 since the game last saved the loadout, the link would show the old build, so astromech says to
 re-dock or relog to refresh it.
 
 ### Build planner
 
-For each module that can be engineered:
+Modules that can be engineered are grouped by type (hardpoints, utility, core internals, military,
+optional internals) as a grid of cards. For each:
 
 - Choose a **blueprint**, a **grade** and an **experimental**. "No change" leaves the module alone.
 - A different blueprint starts again at grade 1. A grade must be finished before the next one

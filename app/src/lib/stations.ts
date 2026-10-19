@@ -63,6 +63,9 @@ export interface StationHit {
   updated_at: string | null;
   price: number | null;
   detail: string | null;
+  allegiance: string | null;
+  faction: string | null;
+  state: string | null;
 }
 
 export interface StationsNearby {
@@ -101,12 +104,6 @@ export async function stations(want: Want, origin: Origin, filters: Filters): Pr
   return await invoke<StationsNearby>("stations_nearby", { want, origin, filters });
 }
 
-/** "Coriolis Starport", plus the price when something is sold there. */
-function detail(h: StationHit): string {
-  const price = h.price != null ? `${h.price.toLocaleString("en")} cr` : "";
-  return [h.station_type ?? "", h.detail ?? "", price].filter(Boolean).join(" · ");
-}
-
 /** The search kit's rows for a station lookup's answer. */
 export function toResults(r: StationsNearby): Results {
   return {
@@ -125,7 +122,12 @@ export function toResults(r: StationsNearby): Results {
       pad: h.pad,
       arrival_ls: h.arrival_ls,
       updated_at: h.updated_at,
-      detail: detail(h),
+      station_type: h.station_type,
+      lead: h.price != null ? `${h.price.toLocaleString("en")} cr` : undefined,
+      detail: h.detail || undefined,
+      allegiance: h.allegiance,
+      faction: h.faction,
+      state: h.state,
     })),
   };
 }

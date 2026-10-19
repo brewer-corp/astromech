@@ -28,6 +28,33 @@ export interface Fitted {
   engineering?: Applied;
 }
 
+/** Outfitting groups, in the game's own order. Optional internals is the remainder. */
+export const MODULE_KINDS: { title: string; test: (slot: string) => boolean }[] = [
+  { title: "Hardpoints", test: (s) => /Hardpoint/.test(s) && !/Tiny/.test(s) },
+  { title: "Utility", test: (s) => /TinyHardpoint/.test(s) },
+  { title: "Core internals", test: (s) => /^(Armour|PowerPlant|MainEngines|FrameShiftDrive|LifeSupport|PowerDistributor|Radar|FuelTank)$/.test(s) },
+  { title: "Military", test: (s) => /Military/.test(s) },
+  { title: "Optional internals", test: () => true },
+];
+
+export function groupFitted(mods: Fitted[], engineerable = false): { title: string; mods: Fitted[] }[] {
+  const src = engineerable ? mods.filter((m) => m.group) : mods;
+  const taken = new Set<string>();
+  return MODULE_KINDS.map((k) => {
+    const mine = src.filter((m) => !taken.has(m.slot) && k.test(m.slot));
+    for (const m of mine) taken.add(m.slot);
+    return { title: k.title, mods: mine };
+  }).filter((k) => k.mods.length);
+}
+
+export function fittedLine(m: Fitted): string {
+  const e = m.engineering;
+  if (!m.group) return "";
+  if (!e) return "Not engineered";
+  const pct = e.quality >= 1 ? "" : ` ${Math.round(e.quality * 100)}%`;
+  return `G${e.grade}${pct} ${e.blueprint_name}${e.experimental_name ? ` · ${e.experimental_name}` : ""}`;
+}
+
 export interface Ship {
   id: number;
   ship_type: string;
@@ -248,7 +275,7 @@ export interface UnknownHull {
 
 export type Compared = StatsComparison | UnknownHull;
 
-/** What a ship card shows, from the current modules. */
+/** What a ship row shows, from the current modules. */
 export interface Headline {
   /** Maximum jump range, ly */
   jump: number | null;

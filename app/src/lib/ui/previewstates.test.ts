@@ -3,6 +3,7 @@ import { cleanup, render, screen } from "@testing-library/svelte";
 import type { Component } from "svelte";
 import { resetFakeCore } from "../fakecore";
 import Ships from "../../modules/engineering/View.svelte";
+import Stored from "../../modules/stored/View.svelte";
 import Materials from "../../modules/materials/View.svelte";
 import OnFoot from "../../modules/odyssey/View.svelte";
 import Engineers from "../../modules/unlocks/View.svelte";
@@ -45,6 +46,7 @@ interface Page {
 
 const PAGES: Page[] = [
   { name: "Ships", view: Ships as unknown as Component, empty: /No ships in the journal yet/, loading: /Reading the journal…/, failed: /Could not read the fleet: / },
+  { name: "Stored modules", view: Stored as unknown as Component, empty: /No modules in storage/, loading: /Reading the journal…/, failed: /Could not read the stored modules: / },
   { name: "Materials", view: Materials as unknown as Component, empty: /0 \/ 6,300 · No journal yet/, loading: /Reading the journal…/, failed: /Could not read the materials: / },
   { name: "On foot", view: OnFoot as unknown as Component, empty: /Nothing held here/, loading: /Reading the ShipLocker…/, failed: /Could not read the inventory: / },
   { name: "Engineers", view: Engineers as unknown as Component, empty: /^0 of \d+ unlocked/, loading: /Reading the journal…/, failed: /Could not read the engineer list: / },

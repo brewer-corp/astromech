@@ -48,7 +48,12 @@
   const totalIssues = $derived(binds.rows.reduce((n, r) => n + issues(r).length, 0));
   // A panel you toggled stays as you left it. Otherwise panels open only when a search or state
   // filter asks to show their rows (a pressed control opens its own group); how many groups remain never decides.
-  const isOpen = (name: string) => open[name] ?? (!!q || only !== "All");
+  const isOpen = (name: string) => {
+    if (open[name] !== undefined) return open[name]!;
+    if (q || only !== "All") return true;
+    const g = groups.find((x) => x.name === name);
+    return !!g?.all.some((r) => issues(r).length);
+  };
   const sel = $derived(binds.rows.find((r) => r.id === selId) ?? null);
 
   // Press a control: jump to everything bound to it.
@@ -125,7 +130,7 @@
             <div class="row item" id="row-{r.id}" class:sel={selId === r.id} class:hit={hits.includes(r.id)}>
               <button class="name" onclick={() => (selId = r.id)}>{r.name}</button>
               {#if r.analogue}
-                <button class="cell wide" class:empty={!bound(r.slots[0])} onclick={() => (selId = r.id)} ondblclick={() => (bind = { row: r, slot: "Binding" })}>{slotText(r.slots[0])}</button>
+                <button class="cell wide" class:empty={!bound(r.slots[0])} title={bound(r.slots[0]) ? "Click to select, click again to rebind" : "Set this axis"} onclick={() => { const again = selId === r.id; selId = r.id; if (!bound(r.slots[0]) || again) bind = { row: r, slot: "Binding" }; }}>{slotText(r.slots[0]) || "Set"}</button>
               {:else}
                 {#each ["Primary", "Secondary"] as s (s)}
                   {@const sl = r.slots.find((x) => x.slot === s)}
@@ -133,9 +138,12 @@
                     class="cell"
                     class:empty={!bound(sl)}
                     class:bad={sl && /^Joy_(3[3-9]|[4-9]\d|\d{3})$/.test(sl.key)}
-                    title="Double-click to bind"
-                    onclick={() => (selId = r.id)}
-                    ondblclick={() => (bind = { row: r, slot: s })}>{slotText(sl)}</button>
+                    title={bound(sl) ? "Click to select, click again to rebind" : "Set this slot"}
+                    onclick={() => {
+                      const again = selId === r.id;
+                      selId = r.id;
+                      if (!bound(sl) || again) bind = { row: r, slot: s };
+                    }}>{slotText(sl) || "Set"}</button>
                 {/each}
               {/if}
               <span class="mark">{iss[0] ? `! ${mark(iss[0])}` : ""}</span>
@@ -169,7 +177,7 @@
   {:else}
     <About label="All keybinds" title="Press any control">
       <p>Press a button, hat or key and the list jumps to what it does. Or search by name or key.</p>
-      <p>Double-click a slot, or pick an action and choose Set, to bind it by pressing the control.</p>
+      <p>Click an empty slot to bind it. Click a filled slot to select it, then again to rebind.</p>
       {#if binds.view}<div class="k">This preset</div><p>{binds.view.issue_count} issue{binds.view.issue_count === 1 ? "" : "s"} · {binds.view.devices.map((d) => control(d, "").replace(" · ", "") || d).join(", ") || "keyboard and mouse only"}</p>{/if}
       {#each binds.view?.problems ?? [] as p (p)}<p class="warn">! {p}</p>{/each}
     </About>

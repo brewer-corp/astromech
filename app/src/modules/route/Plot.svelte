@@ -109,8 +109,8 @@
   .plot :global(.origin .lbl) { min-width: 5.5em; }
   input::placeholder { color: var(--text-lo); }
   .check { color: var(--text); }
-  .go { align-self: flex-start; margin: 6px 0 4px; padding: 6px 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  .go:disabled { color: var(--text-lo); cursor: default; }
+  .go { align-self: flex-start; margin: 6px 0 4px; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; }
+  .go:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
   .lo { color: var(--text-lo); }
   .ok { color: var(--accent); }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }

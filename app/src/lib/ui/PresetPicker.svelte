@@ -1,10 +1,11 @@
 <script lang="ts">
   // Which preset the keybinds screens show. Defaults to the one the game uses for the ship.
   import { binds } from "../store.svelte";
+  let { compact = false }: { compact?: boolean } = $props();
   const active = (ctx: string[]) => (ctx.length === 4 ? "active everywhere" : ctx.length ? `active: ${ctx.join(", ").toLowerCase()}` : "not active");
 </script>
 
-<label class="row">
+<label class="row" class:compact>
   <span class="lbl">Preset</span>
   <select value={binds.view?.path ?? ""} onchange={(e) => void binds.show(e.currentTarget.value)}>
     {#if binds.state && !binds.state.presets.length}<option value="">No presets found</option>{/if}
@@ -21,4 +22,7 @@
   .lbl { padding-left: 34px; color: var(--text-lo); }
   select { all: unset; height: var(--row); padding: 0 12px; background: var(--cell); color: var(--accent); cursor: pointer; }
   option { background: var(--bg); color: var(--text); }
+  .compact { grid-template-columns: auto 1fr; gap: 12px; margin: 0; min-width: 16rem; }
+  .compact .lbl { padding-left: 0; }
+  .compact select { background: var(--cell-opt); color: var(--text); }
 </style>

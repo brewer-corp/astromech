@@ -465,6 +465,15 @@ pub struct Station {
     pub small_pads: Option<u32>,
     #[serde(default)]
     pub is_planetary: Option<bool>,
+    /// Superpower the station answers to ("Federation", "Empire", "Alliance", "Independent").
+    #[serde(default)]
+    pub allegiance: Option<String>,
+    /// Controlling minor faction.
+    #[serde(default)]
+    pub controlling_minor_faction: Option<String>,
+    /// Station state ("UnderRepairs"), not the faction's BGS state. "None" when idle.
+    #[serde(default)]
+    pub state: Option<String>,
     /// "Raw", "Manufactured" or "Encoded".
     #[serde(default)]
     pub material_trader: Option<String>,

@@ -9,27 +9,33 @@ const header = (name: string) => screen.getByText(name, { selector: ".gname" }).
 const isOpen = (name: string) => header(name).classList.contains("open");
 
 describe("All keybinds group panels", () => {
-  it("opens one group without opening the others", async () => {
+  it("opens groups that have issues, and opening another leaves them open", async () => {
     render(KeybindsView);
     await screen.findByText("Flight", { selector: ".gname" });
     expect(isOpen("Flight")).toBe(false);
+    expect(isOpen("General")).toBe(true);
+    expect(isOpen("Interface")).toBe(true);
 
     await fireEvent.click(header("Flight"));
 
     expect(isOpen("Flight")).toBe(true);
     expect(isOpen("Ship systems")).toBe(false);
-    expect(isOpen("General")).toBe(false);
+    expect(isOpen("General")).toBe(true);
   });
 
   it("closes a group on its own", async () => {
     render(KeybindsView);
     await screen.findByText("Flight", { selector: ".gname" });
     await fireEvent.click(header("Flight"));
-    await fireEvent.click(header("General"));
-    await fireEvent.click(header("Flight"));
+    expect(isOpen("Flight")).toBe(true);
+    expect(isOpen("General")).toBe(true);
 
+    await fireEvent.click(header("Flight"));
     expect(isOpen("Flight")).toBe(false);
     expect(isOpen("General")).toBe(true);
+
+    await fireEvent.click(header("General"));
+    expect(isOpen("General")).toBe(false);
   });
 
   it.each(["SRV", "On foot"])("keeps panels independent when the %s filter leaves three groups", async (filter) => {
@@ -56,7 +62,7 @@ describe("All keybinds group panels", () => {
     await new Promise((r) => setTimeout(r, 10));
 
     const names = [...container.querySelectorAll(".grp .gname")].map((e) => e.textContent!);
-    expect(names.filter(isOpen)).toEqual(["Flight"]);
+    expect(names.filter(isOpen)).toEqual(["General", "Interface", "Flight"]);
   });
 
   it("still finds a side mouse button (Mouse_4) bound in the game", async () => {

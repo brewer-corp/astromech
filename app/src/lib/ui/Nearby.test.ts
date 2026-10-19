@@ -39,7 +39,7 @@ describe("Nearby", () => {
     resetFakeCore();
     render(Nearby, { query: "famine" });
     await fireEvent.click(await screen.findByRole("button", { name: "Go to Ross 154" }));
-    expect(await screen.findByText("Following. Ross 154 is on your clipboard (Galaxy → Route).")).toBeTruthy();
+    expect(await screen.findByText("Following. Ross 154 is on your clipboard.")).toBeTruthy();
     const { view } = await fakeCall("route");
     expect(view.route).toMatchObject({ name: "Ross 154", source: "search", next: 0 });
     expect(view.route.waypoints).toEqual([{ system: "Ross 154", label: "Famine (distribution centres)" }]);

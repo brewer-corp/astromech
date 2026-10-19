@@ -74,8 +74,8 @@
     <dt>Process</dt><dd class="mono">{status ? `pid ${status.pid}` : "—"}</dd>
   </dl>
   <div class="actions">
-    <button onclick={save} disabled={!status}>Save diagnostics</button>
-    <button onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</button>
+    <button class="cell" onclick={save} disabled={!status}>Save diagnostics</button>
+    <button class="quiet" onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</button>
   </div>
   {#if note}<p class="note">{note}</p>{/if}
 
@@ -109,8 +109,11 @@
   dt { color: var(--text-lo); }
   dd { background: var(--cell-opt); color: var(--text); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .actions { display: flex; gap: 28px; }
+  .actions { display: flex; gap: 16px; align-items: center; }
   button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  button.cell { height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); }
+  button.cell:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
+  button.quiet { color: var(--text-lo); }
   button:disabled { color: var(--text-lo); cursor: default; }
   button:not(:disabled):hover { color: var(--text-hi); }
   .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }

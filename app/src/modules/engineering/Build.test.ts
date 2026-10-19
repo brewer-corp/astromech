@@ -114,7 +114,7 @@ describe("ship detail stats", () => {
     c.planned.unresolved = ["MainEngines: int_engine_size9_class9"];
     override = c;
     render(Build, { fleet, shipId: krait, onback: () => {} });
-    const warn = await screen.findByText(/Incomplete: 1 item isn't in the ship data/);
+    const warn = await screen.findByText(/Incomplete: 1 item is not in the ship data/);
     expect(warn.getAttribute("title")).toBe("MainEngines: int_engine_size9_class9");
   });
 });
@@ -176,7 +176,7 @@ describe("ship detail with an unknown hull", () => {
   it("shows the ship as incomplete instead of an error", async () => {
     override = { unknown_hull: "mediumtransport01" };
     render(Build, { fleet, shipId: krait, onback: () => {} });
-    const warn = await screen.findByText(/Incomplete: this hull isn't in the ship data/);
+    const warn = await screen.findByText(/Incomplete: this hull is not in the ship data/);
     expect(warn.getAttribute("title")).toBe("Hull: mediumtransport01");
     expect(screen.queryByRole("rowgroup", { name: "Shields" })).toBeNull();
   });
@@ -213,7 +213,7 @@ describe("ship detail panels", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Follow" }));
     const trip = (await planTrip(savedPlan(7)))!;
     const first = trip.stops[0]!;
-    expect(await screen.findByText(`Following. ${first.system} is on your clipboard (Galaxy → Route).`)).toBeTruthy();
+    expect(await screen.findByText(`Following. ${first.system} is on your clipboard.`)).toBeTruthy();
     const { view } = await fakeCall("route");
     expect(view.route.source).toBe("engineer trip");
     expect(view.route.waypoints[0]).toEqual({ system: first.system, label: first.engineer });

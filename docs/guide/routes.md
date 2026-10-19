@@ -5,18 +5,20 @@ map in VR. astromech fills the gap with a **route follower**: it keeps one route
 waypoint on your clipboard, and pastes it into the galaxy map's search box when you ask. You still
 plot each leg in the galaxy map yourself.
 
-## The Route page
+## The route rail
 
-**Galaxy → Route** shows the route astromech follows:
+Galaxy keeps the route you are following on the **right** while you search. The same view is
+the **Route** page in the command palette:
 
 - its name, where it came from, and how many waypoints are left;
 - the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
   it is **on your clipboard**. If the clipboard could not be written, it says why;
 - every stop, with the ones behind you struck out and **you are here** next to the first stop
   when you are in it;
-- **Copy again** (something else took the clipboard), **Skip**, **Back** and **Clear route**.
+- **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**.
 
-The page also has [Plot with Spansh](#plot-a-route-with-spansh) and [Import](#import-a-route).
+[Plot with Spansh](#plot-a-route-with-spansh) and [Import](#import-a-route) sit under the live
+route, folded closed when a route is already following.
 
 A route comes from:
 
@@ -100,7 +102,7 @@ Route page, then paste."*
 
 ## Plot a route with Spansh
 
-On **Galaxy → Route**, **Plot with Spansh** plots a route for the ship you are flying, and
+On the Galaxy route rail, **Plot with Spansh** plots a route for the ship you are flying, and
 astromech follows it straight away. If you are in the start system, the first jump is next and
 on your clipboard.
 

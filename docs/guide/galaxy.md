@@ -1,8 +1,9 @@
 # Galaxy
 
-**Galaxy** has three pages that find the nearest station with what you need: **Services**,
-**Outfitting** and **Shipyard**. They sit on the same search that every "nearest" list in
-astromech uses, described [below](#how-searches-work).
+**Galaxy** is one place to ask *where is X?* — a **service**, a **module**, or a **ship** — and
+to follow a route there. The three lookups sit on the same search every "nearest" list in
+astromech uses, described [below](#how-searches-work). The **route** you are following stays
+on the right while you search (and also as its own page from the command palette).
 
 **What they need:** a network connection (Spansh for stations, EDSM to fill in the star map) and a
 position. The position is your current system from the journal, or a system you type. By
@@ -10,22 +11,23 @@ voice, the same searches are [lookups](lookups.md#stations-services-modules-ship
 
 ## Services
 
-Pick a service from the menu and the nearest stations with it are listed:
+Type a **service** in **Find** (or pick one from the suggestions). The nearest stations with it
+are listed:
 
 Interstellar Factors, Raw / Manufactured / Encoded material trader, Material trader (any type),
 Human / Guardian technology broker, Technology broker (any type), Universal Cartographics,
 Vista Genomics, Pioneer Supplies, Bartender, Frontline Solutions, Apex Interstellar, Refuel,
 Repair, Rearm, Black market, Search and rescue.
 
-Filters: pad size, no fleet carriers, no Odyssey settlements, data age, arrival distance.
-Each row shows the station and system, jumps and light years, the pad size, how far it is from
-the arrival star, and when it was reported.
+Filters: pad size, carriers, Odyssey settlements, data age, arrival distance. Each row shows the
+station (with its type mark and distance from the star), the system with jumps and light years,
+allegiance, controlling faction and state.
 
 ## Outfitting
 
-Pick a **module** by name, then its **class**, **rating** and, for weapons, **mount** (fixed,
-gimballed or turreted). Only the sizes and ratings the module comes in are offered. The nearest
-stations selling it are listed with the price.
+Type a **module** in **Find**, then pick its **class**, **rating** and, for weapons, **mount**
+(fixed, gimballed or turreted). Only the sizes and ratings the module comes in are offered. The
+nearest stations selling it are listed with the price.
 
 - It opens on a Frame Shift Drive class 5, rating A.
 - **Ctrl+K** finds a module by name and opens it here. So do the modules fitted on your ships.
@@ -34,9 +36,9 @@ stations selling it are listed with the price.
 
 ## Shipyard
 
-Pick a **ship**. The nearest shipyards selling it are listed with the price. Stations whose
-landing pads are too small for that ship are left out, whatever pad you pick. It opens on a
-Krait Mk II.
+Type a **ship** in **Find**. The nearest shipyards selling it are listed with the price. Stations
+whose landing pads are too small for that ship are left out, whatever pad you pick. It opens on
+a Krait Mk II.
 
 ## How searches work
 
@@ -48,15 +50,17 @@ Trade, Colonisation, Powerplay and Exploration.
   current system.
 - **Filters.** Only those that make sense for the list are shown, and they are **remembered**
   for each kind of search. Voice lookups use the same remembered filters, so set them here once.
-  - **Pad:** your ship's by default, following the ship you fly until you pick one. Or **S or
-    larger**, **M or larger**, **L**, or **Any**.
-  - **Fleet carriers** and **Odyssey settlements** can be hidden.
+  - **Pad:** **S**, **M** or **L** (S is any pad). Your ship's size is marked with a ship glyph
+    and is selected until you pick another.
+  - **Carriers** and **Odyssey** are on (orange) when those stations are included, off (grey
+    **No carriers** / **No Odyssey**) when they are hidden.
   - **Data age:** hide reports older than this (up to 1, 3, 7, 30, 90 or 365 days).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
-- **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. Each row has the place with a **Copy** button, the jumps and
-  light years, and facts such as pad, arrival distance and when it was reported. The line under the list says which
-  jump range was used, who the source is and how old the answer is.
+- **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. A station row has the type mark and name with arrival distance,
+  the system with a copy mark plus light years and jumps, then allegiance, controlling faction
+  and state. **Go** puts that system on the route (the right-hand rail). The line under the list
+  says which jump range was used, who the source is and how old the answer is.
 - Searches are cached for a while, so asking twice is quick. Change a filter or the "From" to search again.
 
 ### Jumps and distance

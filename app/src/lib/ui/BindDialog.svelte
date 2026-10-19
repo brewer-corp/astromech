@@ -21,7 +21,14 @@
 
   $effect(() => {
     binds.capturing = true;
-    return () => (binds.capturing = false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onclose();
+    };
+    window.addEventListener("keydown", esc);
+    return () => {
+      binds.capturing = false;
+      window.removeEventListener("keydown", esc);
+    };
   });
   $effect(() => {
     const p = binds.last;
@@ -69,7 +76,7 @@
         {#if got}
           {control(got.device, got.key)}{#if ctl}<span class="lo"> · {ctl.control}</span>{/if}
         {:else}
-          {row.analogue ? "Move an axis on a stick…" : "Press a button, hat or key…"}
+          {row.analogue ? "Move an axis… Esc to cancel" : "Press a button, hat or key… Esc to cancel"}
         {/if}
       </div>
       {#if others.length}
@@ -86,10 +93,10 @@
       {/if}
       {#if error}<p class="warn">{error}</p>{/if}
       <div class="acts">
-        <button disabled={!got || busy} onclick={() => save()}>Save</button>
+        <button class="cell" disabled={!got || busy} onclick={() => save()}>Save</button>
         {#if got}<button onclick={() => (got = null)}>Press again</button>{/if}
-        {#if current?.device}<button disabled={busy} onclick={() => save(true)}>Clear this slot</button>{/if}
-        <button onclick={onclose}>Cancel</button>
+        {#if current?.device}<button class="quiet" disabled={busy} onclick={() => save(true)}>Clear</button>{/if}
+        <button class="quiet" onclick={onclose}>Cancel</button>
       </div>
     {/if}
   </div>
@@ -103,12 +110,17 @@
   p { margin: 8px 0; line-height: 1.45; }
   .lo { color: var(--text-lo); }
   .warn { color: var(--accent); }
-  .press { margin: 16px 0; height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--cell-empty); color: var(--text-lo); font-size: var(--fs-l); }
-  .press.got { background: var(--cell); color: var(--text-hi); }
+  .press { margin: 16px 0; height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-l); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); }
+  .press.got { background: var(--cell); color: var(--text-hi); text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .press.got .lo { color: var(--text-lo); }
   .copy { display: grid; gap: 6px; margin: 12px 0; }
   input { all: unset; height: var(--row); padding: 0 12px; background: var(--cell-opt); color: var(--text-hi); border-bottom: 2px solid var(--accent); }
   .acts { display: flex; gap: 28px; margin-top: 18px; }
   button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  button.cell { height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); }
+  button.cell:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
+  button.quiet { color: var(--text-lo); }
   button:disabled { color: var(--text-lo); cursor: default; }
   button:not(:disabled):hover, button:focus-visible { color: var(--text-hi); }
+  button.cell:not(:disabled):hover { color: var(--text-hi); }
 </style>

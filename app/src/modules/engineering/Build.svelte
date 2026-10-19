@@ -4,7 +4,7 @@
   // inventory, trades, what to farm and the engineer trip.
   import { untrack } from "svelte";
   import {
-    DEFAULT_ROLLS, dropShoppingList, evaluatePlan, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
+    DEFAULT_ROLLS, dropShoppingList, evaluatePlan, fittedLine, groupFitted, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
   import Stats from "./Stats.svelte";
@@ -15,7 +15,7 @@
   import { followedNote, followRoute } from "../../lib/route";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
-  let { fleet, shipId, onback }: { fleet: Fleet; shipId: number; onback: () => void } = $props();
+  let { fleet, shipId, onback, embedded = false }: { fleet: Fleet; shipId: number; onback: () => void; embedded?: boolean } = $props();
   let plan = $state<Plan | null>(null);
   let result = $state<PlanResult | null>(null);
   let failed = $state<string | null>(null);
@@ -36,7 +36,7 @@
     try {
       followNote = followedNote(await followRoute("Engineer trip", "engineer trip", trip.stops.map((s) => ({ system: s.system, label: s.engineer }))));
     } catch (e) {
-      followNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
+      followNote = `Could not follow it: ${e instanceof Error ? e.message : String(e)}`;
     }
   }
   let stats = $state<StatsComparison | null>(null);
@@ -45,7 +45,7 @@
   let statsSeq = 0;
 
   const ship = $derived(fleet.ships.find((s) => s.id === shipId));
-  const mods = $derived(ship?.modules.filter((m) => m.group && fleet.groups[m.group]) ?? []);
+  const grouped = $derived(groupFitted(ship?.modules ?? [], true));
   const sel = $derived(result?.materials.find((m) => m.id === selMat));
   const selFarm = $derived(result?.farm.find((f) => f.id === selMat));
   const usedBy = $derived(result?.targets.filter((t) => t.materials.some(([id]) => id === selMat)) ?? []);
@@ -192,10 +192,7 @@
   }
 
   function current(m: Fitted): string {
-    const e = m.engineering;
-    if (!e) return "Not engineered";
-    const pct = e.quality >= 1 ? "" : ` ${Math.round(e.quality * 100)}%`;
-    return `G${e.grade}${pct} ${e.blueprint_name}${e.experimental_name ? ` · ${e.experimental_name}` : ""}`;
+    return fittedLine(m);
   }
 
   function cost(slot: string): string {
@@ -224,72 +221,87 @@
     try {
       await openUrl(url);
     } catch (e) {
-      linkErr = `Couldn't open the link: ${String(e)}`;
+      linkErr = `Could not open the link: ${String(e)}`;
     }
   }
 </script>
 
-<section>
-  <div class="acts">
-    <button onclick={onback}>← Ships</button>
-    {#if ship?.links}
-      <span class="open">
-        Open in
-        <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
-        <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
-      </span>
-    {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
-      <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
-    {/if}
+<section class:embedded>
+  {#if !embedded}
+  <div class="query">
+    <div class="acts">
+      <button onclick={onback}>← Ships</button>
+      {#if ship?.links}
+        <span class="open">
+          Open in
+          <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
+          <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
+        </span>
+      {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
+        <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
+      {/if}
+    </div>
+    {#if linkErr}<p class="lo">{linkErr}</p>{/if}
+    <p class="sub">
+      {#if !ship}
+        That ship is no longer in the journal · {fleet.source}
+      {:else}
+        {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
+        · {#if ship.current}flying now{:else if ship.system}{ship.in_transit ? "in transit to" : "stored at"} <SystemChip name={ship.system} />
+          <ExtLinks system={ship.system} />
+          {#if ship.market_id != null && !ship.in_transit}<span class="lo">station</span> <ExtLinks system={ship.system} marketId={ship.market_id} />{/if}{:else}stored{/if}
+        · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
+        · {fleet.source}
+      {/if}
+    </p>
   </div>
-  {#if linkErr}<p class="lo wide">{linkErr}</p>{/if}
-  <p class="sub">
-    {#if !ship}
-      That ship is no longer in the journal · {fleet.source}
-    {:else}
-      {shipTitle(ship)}{ship.ident ? ` (${ship.ident})` : ""}
-      · {#if ship.current}flying now{:else if ship.system}{ship.in_transit ? "in transit to" : "stored at"} <SystemChip name={ship.system} />
-        <ExtLinks system={ship.system} />
-        {#if ship.market_id != null && !ship.in_transit}<span class="lo">station</span> <ExtLinks system={ship.system} marketId={ship.market_id} />{/if}{:else}stored{/if}
-      · {ship.loadout_ts ? `modules as of ${when(ship.loadout_ts)}` : "modules unknown"}
-      · {fleet.source}
-    {/if}
-  </p>
+  {/if}
 
   {#if ship && !ship.loadout_ts}
-    <p class="lo wide">The journal has no loadout for this ship: it hasn't been flown since your oldest journal file. Fly it once and its modules show up here.</p>
+    <p class="lo note">The journal has no loadout for this ship: it has not been flown since your oldest journal file. Fly it once and its modules show up here.</p>
   {:else if ship && plan}
     <div class="main">
       <div class="mods">
-        <div class="h">Slot</div><div class="h">Module · now</div><div class="h">Blueprint</div><div class="h">Grade</div><div class="h">Experimental</div>
-        {#each mods as m (m.slot)}
-          {@const t = target(m.slot)}
-          {@const g = fleet.groups[m.group ?? ""]}
-          <div class="slot">{m.slot_name}</div>
-          <div class="mod">{m.name}<span class="lo">{current(m)}</span></div>
-          <select aria-label="{m.slot_name} blueprint" class:idle={!t} value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
-            <option value="">No change</option>
-            {#each g?.blueprints ?? [] as b (b.id)}
-              <option value={b.id}>{b.name}</option>
+        {#each grouped as kind (kind.title)}
+          <h4 class="kind">{kind.title}</h4>
+          <div class="cards">
+            {#each kind.mods as m (m.slot)}
+              {@const t = target(m.slot)}
+              {@const g = fleet.groups[m.group ?? ""]}
+              <article class="mod" class:on={!!t} class:done={!!m.engineering}>
+                <div class="head">
+                  <div class="slot">{m.slot_name}</div>
+                  <div class="mn">{m.name}</div>
+                  {#if current(m)}<div class="now lo">{current(m)}</div>{/if}
+                </div>
+                <div class="picks">
+                  <select aria-label="{m.slot_name} blueprint" class:idle={!t} value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
+                    <option value="">No change</option>
+                    {#each g?.blueprints ?? [] as b (b.id)}
+                      <option value={b.id}>{b.name}</option>
+                    {/each}
+                  </select>
+                  <select aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
+                    {#if !t}<option value="">–</option>{/if}
+                    {#each Array.from({ length: maxGrade(m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
+                      <option value={n}>G{n}</option>
+                    {/each}
+                  </select>
+                  <select aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
+                    <option value="">{g?.experimentals.length ? "None" : "–"}</option>
+                    {#each g?.experimentals ?? [] as x (x.id)}
+                      <option value={x.id}>{x.name}</option>
+                    {/each}
+                  </select>
+                </div>
+                {#if t}
+                  <div class="cost">{cost(m.slot)}</div>
+                {/if}
+              </article>
             {/each}
-          </select>
-          <select aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
-            {#if !t}<option value="">–</option>{/if}
-            {#each Array.from({ length: maxGrade(m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
-              <option value={n}>G{n}</option>
-            {/each}
-          </select>
-          <select aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
-            <option value="">{g?.experimentals.length ? "None" : "–"}</option>
-            {#each g?.experimentals ?? [] as x (x.id)}
-              <option value={x.id}>{x.name}</option>
-            {/each}
-          </select>
-          {#if t}
-            <div class="cost">{cost(m.slot)}</div>
-          {/if}
+          </div>
         {:else}
-          <p class="lo span">Nothing on this ship can be engineered.</p>
+          <p class="lo">Nothing on this ship can be engineered.</p>
         {/each}
       </div>
 
@@ -298,7 +310,9 @@
       {:else if result && result.materials.length}
         <h4>Shopping list</h4>
         <div class="mats">
-          <div class="h">Material</div><div class="h r">Need</div><div class="h r">Have</div><div class="h r">Short</div><div class="h r">Trade</div>
+          <div class="mhead">
+            <span class="h">Material</span><span class="h r">Need</span><span class="h r">Have</span><span class="h r">Short</span><span class="h r">Trade</span>
+          </div>
           {#each result.materials as m (m.id)}
             <button class="mrow" class:sel={selMat === m.id} onclick={() => (selMat = m.id)}>
               <span class="mn" style:background={fill(m)}>G{m.grade} {m.name}{m.over_cap ? " ⚠" : ""}</span>
@@ -444,58 +458,75 @@
 </section>
 
 <style>
-  section { padding: 8px 0 28px; display: grid; grid-template-columns: minmax(0, 1fr) 21rem; grid-template-rows: auto auto 1fr; gap: 0 32px; min-height: 0; }
+  section { padding: 0 0 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem); grid-template-rows: auto 1fr; gap: 0; min-height: 0; }
+  section.embedded { padding: 0; grid-template-rows: minmax(0, 1fr); height: 100%; min-height: 0; overflow: hidden; }
+  section.embedded .main { padding-top: 20px; overflow: auto; min-height: 0; }
+  section.embedded .side { position: static; max-height: none; height: auto; align-self: stretch; overflow: auto; }
   section.panel { display: block; padding: 0 0 18px; }
-  .acts, .sub, .wide { grid-column: 1 / -1; }
+  .query { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .open { color: var(--text-lo); }
   .open button { color: var(--accent); margin-left: 6px; }
   .open button:hover { color: var(--text-hi); }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
-  .main { min-width: 0; }
-  .mods { display: grid; grid-template-columns: 8.5rem minmax(9rem, 1fr) 10.5rem 4rem 9.5rem; gap: var(--gap) 10px; align-items: center; }
-  .mod { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
-  .mod .lo { font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .h { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-bottom: 4px; }
+  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .note { grid-column: 1 / -1; padding: 24px 8px 0; }
+  .main { min-width: 0; padding: 24px 16px 8px 4px; }
+  .mods { display: flex; flex-direction: column; }
+  .kind { margin: 8px 8px 12px; }
+  .kind:first-child { margin-top: 0; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 8px; margin: 0 0 22px; }
+  .mod { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px 14px; background: var(--cell-empty); }
+  .mod.on { background: var(--cell); }
+  .head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .mod .mn { color: var(--text-hi); font-weight: 500; line-height: 1.3; }
+  .now { font-size: var(--fs-s); }
+  .picks { display: grid; grid-template-columns: minmax(0, 1.5fr) 4.2rem minmax(0, 1fr); gap: 6px; }
+  .h { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .r { text-align: right; }
-  .slot { color: var(--text-lo); font-size: var(--fs-s); }
-  .cost { grid-column: 3 / -1; color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); margin: -2px 0 6px; }
-  .span { grid-column: 1 / -1; }
-  select { all: unset; height: 30px; line-height: 30px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .cost { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  select { all: unset; height: 32px; line-height: 32px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   select.idle { background: var(--cell-empty); color: var(--text); }
   select:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
   option { background: var(--bg); color: var(--text); }
   .triphead { display: flex; align-items: baseline; gap: 20px; }
-  .follow { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  .follow { all: unset; cursor: pointer; height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
   .follow:hover, .follow:focus-visible { color: var(--text-hi); }
-  h4 { margin: 26px 0 8px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  .mats { display: grid; grid-template-columns: minmax(14rem, 22rem) 4rem 4rem 4rem 4rem; gap: var(--gap) 10px; }
-  .mrow { display: contents; }
-  .mn { padding: 6px 10px; font-size: var(--fs-s); }
-  .mrow:hover .mn { outline: 1px solid var(--accent-dim); outline-offset: -1px; }
-  .mrow.sel .mn { outline: 1px solid var(--accent); outline-offset: -1px; }
-  .q { font-family: var(--mono); font-size: var(--fs-s); align-self: center; }
+  h4 { margin: 32px 8px 12px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  .mats { display: flex; flex-direction: column; }
+  .mhead, .mrow { display: grid; grid-template-columns: minmax(14rem, 1fr) 4.5rem 4.5rem 4.5rem 4.5rem; gap: 10px 18px; align-items: center; width: 100%; text-align: inherit; }
+  .mhead { padding: 0 8px 8px; }
+  .mrow { padding: 12px 8px; border-bottom: 1px solid #1a1c1e; }
+  .mrow:hover { background: var(--row-hover); }
+  .mrow.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
+  .mrow .mn { padding: 8px 10px; font-size: var(--fs-s); }
+  .q { font-family: var(--mono); font-size: var(--fs); }
   .bad { color: var(--accent); }
-  .ok { color: var(--accent); margin-top: 18px; }
-  .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
+  .ok { color: var(--accent); margin: 18px 8px 0; }
+  .plain { list-style: none; margin: 0; padding: 0 8px; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-s); }
   .link { color: var(--text); }
   .small { font-size: var(--fs-s); }
-  .stops { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: 8px; font-size: var(--fs-s); }
+  .stops { margin: 0; padding: 0 8px 0 1.8rem; display: flex; flex-direction: column; gap: 12px; font-size: var(--fs-s); }
   .stop { color: var(--text-hi); }
-  .sublabel { margin: 16px 0 6px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-
-  .then { display: block; margin: 2px 0 4px 1.6rem; color: var(--text-lo); }
+  .sublabel { margin: 20px 8px 8px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .then { display: block; margin: 4px 0 4px 0; color: var(--text-lo); }
   .link:hover { color: var(--accent); }
-  .side { grid-row: 3; grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 2px solid var(--accent); padding-left: 16px; }
+  .side { grid-column: 2; position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent-dim); background: var(--bg-list); padding: 20px 8px 28px 24px; }
   .back { display: block; margin-bottom: 10px; color: var(--text-lo); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .about p { margin: 0 0 8px; line-height: 1.45; }
+  .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }
   .lo { color: var(--text-lo); }
-  .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 4px 0 10px; }
-  .rolls label { display: flex; flex-direction: column; gap: 2px; color: var(--text-lo); font-size: var(--fs-s); }
-  .rolls input { all: unset; box-sizing: border-box; width: 100%; height: 28px; padding: 0 6px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
+  .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0 12px; }
+  .rolls label { display: flex; flex-direction: column; gap: 4px; color: var(--text-lo); font-size: var(--fs-s); }
+  .rolls input { all: unset; box-sizing: border-box; width: 100%; height: 32px; padding: 0 8px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
+  @media (max-width: 1100px) {
+    section { display: flex; flex-direction: column; }
+    .main { padding: 20px 0 8px; }
+    .side { border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; max-height: none; position: static; }
+    .cards { grid-template-columns: minmax(0, 1fr); }
+  }
 </style>

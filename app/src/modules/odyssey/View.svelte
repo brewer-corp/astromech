@@ -159,53 +159,60 @@
 </script>
 
 <section>
-  <div class="acts">
-    {#each TABS as t (t.id)}
-      <button class:on={tab === t.id} onclick={() => (tab = t.id)}>{t.title}</button>
-    {/each}
-  </div>
-  <p class="sub">
-    {#if error && !view}
-      {error}
-    {:else if view}
-      {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
-    {:else}
-      Reading the ShipLocker…
+  <div class="query">
+    <div class="acts">
+      {#each TABS as t (t.id)}
+        <button class:on={tab === t.id} onclick={() => (tab = t.id)}>{t.title}</button>
+      {/each}
+    </div>
+    <p class="sub">
+      {#if error && !view}
+        {error}
+      {:else if view}
+        {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
+      {:else}
+        Reading the ShipLocker…
+      {/if}
+    </p>
+    <Stale error={view ? error : null} />
+    {#if view && tab === "inventory"}
+      <div class="acts small">
+        {#each CATS as c (c.id)}
+          <button class:on={cat === c.id} onclick={() => (cat = c.id)}>{c.title}</button>
+        {/each}
+        <button type="button" class="tog" class:on={heldOnly} aria-pressed={heldOnly} aria-label="Held only" onclick={() => (heldOnly = !heldOnly)}>{heldOnly ? "Held only" : "All items"}</button>
+      </div>
+      <p class="sub">{held.toLocaleString()} held{cat === "consumables" ? "" : ` · a bartender pays ${worth.toLocaleString()} CR for them`}</p>
     {/if}
-  </p>
-  <Stale error={view ? error : null} />
+  </div>
 
   {#if view && tab === "inventory"}
-    <div class="acts small">
-      {#each CATS as c (c.id)}
-        <button class:on={cat === c.id} onclick={() => (cat = c.id)}>{c.title}</button>
-      {/each}
-      <label class="held"><input type="checkbox" bind:checked={heldOnly} /> Held only</label>
+    <div class="out">
+      <table class="inv">
+        <thead>
+          <tr><th>Item</th><th>Ship locker</th><th>Backpack</th><th>Mission</th><th>Barter</th><th>Sells for</th></tr>
+        </thead>
+        <tbody>
+          {#each items as i (i.id)}
+            <tr>
+              <td>{i.name}</td>
+              <td class="q">{i.locker || ""}</td>
+              <td class="q">{i.backpack || ""}</td>
+              <td class="q lo">{i.mission || ""}</td>
+              <td class="q lo">{i.barter ?? ""}</td>
+              <td class="q lo">{i.value != null ? `${i.value.toLocaleString()} CR` : cat === "consumables" ? "" : "?"}</td>
+            </tr>
+          {:else}
+            <tr><td colspan="6" class="lo">Nothing held here.</td></tr>
+          {/each}
+        </tbody>
+      </table>
+      <p class="lo note">Barter is what one is worth trading at a bartender (assets); "Sells for" is what a bartender pays. Mission items go back when the mission ends and do not count towards blueprints.</p>
     </div>
-    <p class="sub">{held.toLocaleString()} held{cat === "consumables" ? "" : ` · a bartender pays ${worth.toLocaleString()} CR for them`}</p>
-    <table class="inv">
-      <thead>
-        <tr><th>Item</th><th>Ship locker</th><th>Backpack</th><th>Mission</th><th>Barter</th><th>Sells for</th></tr>
-      </thead>
-      <tbody>
-        {#each items as i (i.id)}
-          <tr>
-            <td>{i.name}</td>
-            <td class="q">{i.locker || ""}</td>
-            <td class="q">{i.backpack || ""}</td>
-            <td class="q lo">{i.mission || ""}</td>
-            <td class="q lo">{i.barter ?? ""}</td>
-            <td class="q lo">{i.value != null ? `${i.value.toLocaleString()} CR` : cat === "consumables" ? "" : "?"}</td>
-          </tr>
-        {:else}
-          <tr><td colspan="6" class="lo">Nothing held here.</td></tr>
-        {/each}
-      </tbody>
-    </table>
-    <p class="lo note">Barter is what one is worth trading at a bartender (assets); "Sells for" is what a bartender pays. Mission items go back when the mission ends and don't count towards blueprints.</p>
   {/if}
 
   {#if view && tab === "blueprints"}
+    <div class="out">
     {#if owned.length}
       <p class="sub owned">
         Owned (from the journal):
@@ -327,10 +334,11 @@
         <p class="lo">The shopping list is worked out in the app (the preview only has the sample picks).</p>
       {/if}
     {/if}
+    </div>
   {/if}
 
   {#if view && tab === "engineers"}
-    <div class="engs">
+    <div class="out engs">
       {#each view.engineers as e (e.id)}
         <article class="eng" class:unlocked={e.progress === "Unlocked"}>
           <header>
@@ -344,57 +352,66 @@
           {#if e.refers.length}<p class="lo">Refers {e.refers.join(", ")}{e.referral_task ? `: ${e.referral_task}` : ""}</p>{/if}
         </article>
       {/each}
+      <p class="lo note">(?) the wiki disagrees with itself on whether this engineer fits that mod.</p>
     </div>
-    <p class="lo note">(?) the wiki disagrees with itself on whether this engineer fits that mod.</p>
   {/if}
 
   {#if view}
-    <p class="lo note">Game data: {view.data_source}, {view.data_date}. {view.data_uncertain.length} values are unsure or blank on the wiki.</p>
+    <p class="lo note foot">Game data: {view.data_source}, {view.data_date}. {view.data_uncertain.length} values are unsure or blank on the wiki.</p>
   {/if}
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
+  section { padding: 0 0 28px; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); align-items: baseline; }
-  .acts.small { gap: 18px; padding-top: 0; font-size: var(--fs-s); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; text-transform: uppercase; letter-spacing: var(--caps); align-items: baseline; }
+  .acts.small { gap: 18px; font-size: var(--fs-s); }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
-  .held { color: var(--text-lo); text-transform: none; letter-spacing: normal; margin-left: auto; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
+  .tog { all: unset; cursor: pointer; box-sizing: border-box; margin-left: auto; height: 30px; padding: 0 12px; background: var(--cell-opt); color: var(--text); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
+  .tog:hover { color: var(--text-hi); }
+  .tog.on { background: var(--cell); color: var(--accent); }
+  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .out { padding: 24px 4px 8px; min-width: 0; }
   .lo { color: var(--text-lo); }
-  .note { font-size: var(--fs-s); margin-top: 14px; }
-  table.inv { border-collapse: collapse; width: 100%; max-width: 60rem; font-size: var(--fs-s); }
-  .inv th { text-align: left; color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 4px 10px 6px 0; }
-  .inv td { padding: 4px 10px 4px 0; border-top: 1px solid var(--cell); }
-  .q { text-align: right; font-variant-numeric: tabular-nums; }
+  .note { font-size: var(--fs-s); margin-top: 16px; }
+  .foot { padding: 0 8px; }
+  table.inv { border-collapse: collapse; width: 100%; font-size: var(--fs); }
+  .inv th { text-align: left; color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); padding: 0 12px 10px 8px; }
+  .inv td { padding: 14px 12px 14px 8px; border-top: 1px solid #1a1c1e; }
+  .inv tbody tr:hover { background: var(--row-hover); }
+  .q { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
   .inv th:not(:first-child) { text-align: right; }
   .inv tr.done td { color: var(--text-lo); }
   .short { color: var(--accent); }
-  .picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 4px 0 16px; }
-  .picker select { background: var(--cell); color: var(--text); border: 1px solid var(--accent-dim); padding: 4px 6px; font: inherit; }
+  .picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 20px; }
+  .picker select { all: unset; min-width: 8rem; height: 32px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font: inherit; }
+  .picker option { background: var(--bg); color: var(--text); }
   .picker label { color: var(--text-lo); display: inline-flex; gap: 6px; align-items: center; }
-  .add { border: 1px solid var(--accent); color: var(--accent); padding: 4px 14px; text-transform: uppercase; letter-spacing: var(--caps); }
+  .add { height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  .add:hover { color: var(--text-hi); }
   .add:disabled { opacity: 0.4; cursor: default; }
-  .picks { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: var(--gap); }
-  .pick, .eng { background: var(--cell); padding: 10px 12px; }
-  .pick header, .eng header { display: flex; gap: 10px; align-items: baseline; }
-  .pick h3, .eng h3 { margin: 0; font-size: var(--fs-m, 1rem); flex: 1; }
+  .picks { display: flex; flex-direction: column; }
+  .pick, .eng { padding: 16px 8px; border-bottom: 1px solid #1a1c1e; }
+  .pick header, .eng header { display: flex; gap: 16px; align-items: baseline; }
+  .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; color: var(--text-hi); flex: 1; }
   .pick.ready h3 { color: var(--accent); }
   .x { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .x:hover { color: var(--text-hi); }
-  .missing { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-s); }
-  .missing li { display: grid; grid-template-columns: 1fr 4rem 3rem; gap: 8px; }
+  .missing { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
+  .missing li { display: grid; grid-template-columns: 1fr 4.5rem 3.5rem; gap: 12px; }
   .ok { color: var(--accent); font-size: var(--fs-s); }
   .err { color: var(--text); }
   .pick.bad h3 { color: var(--text-lo); }
-  .pick p, .eng p { margin: 6px 0 0; font-size: var(--fs-s); }
+  .pick p, .eng p { margin: 8px 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
-  .swaps { margin: 4px 0 8px; padding-left: 1.2rem; font-size: var(--fs-s); }
-  h3.list { margin: 22px 0 4px; }
-  .engs { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: var(--gap); }
+  .swaps { margin: 8px 0 12px; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-s); }
+  h3.list { margin: 32px 8px 8px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  .engs { display: flex; flex-direction: column; }
   .eng .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .eng.unlocked .state { color: var(--accent); }
   .next { color: var(--text); }
+  .owned { margin-bottom: 16px; }
 </style>
