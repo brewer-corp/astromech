@@ -169,7 +169,7 @@
         </p>
       {/if}
     {:else}
-      <p class="lo">Press Find route to see the hop. Spansh can take a minute.</p>
+      <p class="lo">Press Find route to see the {kind === "loop" ? "loop" : "hop"}. Spansh can take a minute.</p>
     {/if}
   </div>
 </div>

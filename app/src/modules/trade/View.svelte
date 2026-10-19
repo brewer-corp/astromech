@@ -61,11 +61,13 @@
 <section>
   {#if mode === "route"}
     <div class="query route-head">
-      <div class="acts" role="tablist" aria-label="Trade">
-        <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "sell")}>Sell</button>
-        <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "buy")}>Buy</button>
-        <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "cargo")}>My cargo</button>
-        <button type="button" role="tab" aria-selected={true} class="on" onclick={() => (mode = "route")}>Route</button>
+      <div class="acts">
+        <div class="tabs" role="tablist" aria-label="Trade">
+          <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "sell")}>Sell</button>
+          <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "buy")}>Buy</button>
+          <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "cargo")}>My cargo</button>
+          <button type="button" role="tab" aria-selected={true} class="on" onclick={() => (mode = "route")}>Route</button>
+        </div>
       </div>
       <p class="sub">{sub}</p>
     </div>
@@ -85,15 +87,17 @@
       busyText="Asking Ardent Insight…"
     >
       {#snippet header()}
-        <div class="acts" role="tablist" aria-label="Trade">
-          <button type="button" role="tab" aria-selected={mode === "sell"} class:on={mode === "sell"} onclick={() => (mode = "sell")}>Sell</button>
-          <button type="button" role="tab" aria-selected={mode === "buy"} class:on={mode === "buy"} onclick={() => (mode = "buy")}>Buy</button>
-          <button type="button" role="tab" aria-selected={mode === "cargo"} class:on={mode === "cargo"} onclick={() => (mode = "cargo")}>My cargo</button>
-          <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "route")}>Route</button>
+        <div class="acts">
+          <div class="tabs" role="tablist" aria-label="Trade">
+            <button type="button" role="tab" aria-selected={mode === "sell"} class:on={mode === "sell"} onclick={() => (mode = "sell")}>Sell</button>
+            <button type="button" role="tab" aria-selected={mode === "buy"} class:on={mode === "buy"} onclick={() => (mode = "buy")}>Buy</button>
+            <button type="button" role="tab" aria-selected={mode === "cargo"} class:on={mode === "cargo"} onclick={() => (mode = "cargo")}>My cargo</button>
+            <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "route")}>Route</button>
+          </div>
           {#if mode === "sell" || mode === "buy"}
-            <span class="scope">
-              <button type="button" class:on={!anywhere} onclick={() => (anywhere = false)}>Near</button>
-              <button type="button" class:on={anywhere} onclick={() => (anywhere = true)}>Anywhere</button>
+            <span class="scope" role="group" aria-label="Search range">
+              <button type="button" class:on={!anywhere} aria-pressed={!anywhere} onclick={() => (anywhere = false)}>Near</button>
+              <button type="button" class:on={anywhere} aria-pressed={anywhere} onclick={() => (anywhere = true)}>Anywhere</button>
             </span>
           {/if}
         </div>
@@ -102,7 +106,7 @@
       {#snippet lead()}
         {#if mode === "cargo"}
           {#if plan}
-            <div class="hold" aria-label="Hold">
+            <div class="hold" role="group" aria-label="Hold">
               {#if plan.load.length}
                 {#each plan.load as l (l.symbol)}
                   <span class="pair"><span class="k">{l.name}</span> <span class="q">{credits(l.tonnes)} t</span></span>
@@ -110,7 +114,7 @@
               {:else}
                 <span class="lo">Nothing in the hold to sell.</span>
               {/if}
-              {#each plan.kept as k (`${k.name}:${k.reason}`)}
+              {#each plan.kept as k, i (`${k.name}:${k.reason}:${i}`)}
                 <span class="pair left"><span class="k">{k.name}</span> <span class="q">{credits(k.tonnes)} t</span> <span class="lo">{k.reason}</span></span>
               {/each}
             </div>
@@ -163,6 +167,7 @@
   .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 12px; background: var(--bg-list); }
   .route-head { padding-bottom: 0; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; text-transform: uppercase; letter-spacing: var(--caps); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }

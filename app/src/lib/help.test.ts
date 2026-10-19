@@ -45,7 +45,7 @@ describe("the Help link in the window", () => {
     const open = vi.spyOn(window, "open").mockImplementation(() => null);
     location.hash = "#/trade";
     render(App);
-    await screen.findByRole("button", { name: "Sell" });
+    await screen.findByRole("tab", { name: "Sell" });
     await fireEvent.click(screen.getByRole("button", { name: "Help" }));
     expect(open).toHaveBeenCalledWith(helpUrl("trade.md"), "_blank");
   });

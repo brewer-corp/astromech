@@ -19,7 +19,7 @@
   let { name, label }: { name: GlyphName; label?: string } = $props();
 </script>
 
-<svg class="glyph" viewBox="0 0 16 16" width="16" height="16" aria-hidden={label ? undefined : true} aria-label={label}>
+<svg class="glyph" viewBox="0 0 16 16" width="16" height="16" role={label ? "img" : undefined} aria-hidden={label ? undefined : true} aria-label={label}>
   {#if name === "copy"}
     <rect x="5.5" y="2.5" width="7" height="9" />
     <path d="M3.5 5.5h6v8h-6z" />

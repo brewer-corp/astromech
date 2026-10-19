@@ -55,6 +55,7 @@ describe("Trade route", () => {
     expect(screen.getByText(/644 cr\/t · ~1 jump · 23\.8 ly/)).toBeTruthy();
     // Per hour counts the flight back empty, so it compares with a loop.
     expect(screen.getAllByText("128,800 cr").length).toBeGreaterThan(0);
+    expect(screen.getByText("A trip")).toBeTruthy();
     expect(screen.getByText("1,065,123 cr/h")).toBeTruthy();
     expect(screen.getByText(/Estimated: 7 min a round trip \(flying back empty\)/)).toBeTruthy();
     expect(screen.getByText("L pad · 6 ls · Spansh")).toBeTruthy();

@@ -16,9 +16,9 @@ filters, and voice questions use the same ones (see [Voice lookups](lookups.md#t
 3. Read the list: best price first for Sell (stations buying), cheapest first for Buy (stations
    selling).
 
-Each row has the station and system, jumps and distance, the price, the **demand** (Sell) or
-**stock** (Buy), the pad, the distance from the arrival star and when it was reported. Voice
-questions use the same filters (see [Voice lookups](lookups.md#trade)).
+Each row has the station (type mark and arrival distance), the system with jumps and light years,
+the price, and the **demand** (Sell) or **stock** (Buy) with when it was reported. Pad is a
+filter, not a column. Voice questions use the same filters (see [Voice lookups](lookups.md#trade)).
 
 - **Near** searches around you or a system you type, within a distance (100 light years by
   default) and data age (30 days by default).

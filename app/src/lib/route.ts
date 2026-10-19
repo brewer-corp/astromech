@@ -35,40 +35,32 @@ export interface RouteView {
   clipboard_error: string | null;
 }
 
-const watchers = new Set<() => void>();
-/** The Galaxy rail refreshes as soon as a route mutates, not on the next poll. */
-export function watchRoute(fn: () => void): () => void {
-  watchers.add(fn);
-  return () => watchers.delete(fn);
-}
-
-async function call(cmd: CoreCmd, args?: Record<string, unknown>, mutate = false): Promise<RouteView> {
+async function call(cmd: CoreCmd, args?: Record<string, unknown>): Promise<RouteView> {
   const r = await coreCall(cmd, args ?? null);
   if (!r.ok || !r.view) throw new Error(r.error ?? "the core didn't answer");
-  if (mutate) for (const f of watchers) f();
   return r.view as RouteView;
 }
 
 export const getRoute = () => call("route");
-export const skipWaypoint = () => call("route_skip", undefined, true);
-export const backWaypoint = () => call("route_back", undefined, true);
-export const clearRoute = () => call("route_clear", undefined, true);
-export const copyNext = () => call("route_copy", undefined, true);
+export const skipWaypoint = () => call("route_skip");
+export const backWaypoint = () => call("route_back");
+export const clearRoute = () => call("route_clear");
+export const copyNext = () => call("route_copy");
 
 /** Follow these stops. The first is copied straight away. */
 export function followRoute(name: string, source: string, waypoints: Waypoint[]): Promise<RouteView> {
-  return call("route_set", { name, source, waypoints }, true);
+  return call("route_set", { name, source, waypoints });
 }
 
 /** Follow pasted text: a Spansh CSV export, or one system name per line (parsed by the core). */
 export function importRoute(name: string, text: string): Promise<RouteView> {
-  return call("route_set", { name, source: "import", text }, true);
+  return call("route_set", { name, source: "import", text });
 }
 
 /** "Deciat is on your clipboard." after following a route, or why it isn't. */
 export function followedNote(v: RouteView): string {
   if (!v.next) return "Following.";
-  return v.clipboard_error ? `Following. ${v.next.system} is not on the clipboard: ${v.clipboard_error}` : `Following. ${v.next.system} is on your clipboard.`;
+  return v.clipboard_error ? `Following. ${v.next.system} is not on the clipboard: ${v.clipboard_error}` : `Following. ${v.next.system} is on your clipboard (Galaxy → Route).`;
 }
 
 /** Spansh's plotters (astromech_galaxy::plot). */

@@ -94,6 +94,7 @@ describe("SearchKit", () => {
           jumps: 1,
           exact: true,
           arrival_ls: 2202,
+          pad: "L",
           station_type: "Settlement",
           allegiance: "Independent",
           faction: "Sol Mining Syndicate",
@@ -131,7 +132,7 @@ describe("SearchKit", () => {
     resetFakeCore();
     render(SearchKit, { lookup: "stations.service", offers: [], run });
     await fireEvent.click(await screen.findByRole("button", { name: "Go to Deciat" }));
-    expect(await screen.findByText("Following. Deciat is on your clipboard.")).toBeTruthy();
+    expect(await screen.findByText("Following. Deciat is on your clipboard (Galaxy → Route).")).toBeTruthy();
     expect((await fakeCall("route")).view.route.waypoints).toEqual([{ system: "Deciat", label: "Garay Terminal" }]);
     history.replaceState(null, "", "/");
   });

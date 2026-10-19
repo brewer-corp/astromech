@@ -6,6 +6,7 @@ import View from "./View.svelte";
 
 const near = vi.fn<(side: Side, symbols: string[], origin: Origin, filters: Filters | null) => void>();
 let cut: Side | "all" | null = null;
+let extraMission = false;
 const anywhere = vi.fn<(side: Side, symbol: string, origin: Origin, filters: Filters | null) => void>();
 vi.mock("../../lib/trade", async (orig) => {
   const real = await orig<typeof import("../../lib/trade")>();
@@ -21,6 +22,11 @@ vi.mock("../../lib/trade", async (orig) => {
       const r = await real.tradeAnywhere(side, symbol, origin, filters);
       return cut === "all" || cut === side ? { ...r, results: r.results.map((p) => ({ ...p, truncated: true })) } : r;
     },
+    tradeCargo: async (origin: Origin = null, filters: Filters | null = null) => {
+      const r = await real.tradeCargo(origin, filters);
+      if (!extraMission) return r;
+      return { ...r, plan: { ...r.plan, kept: [...r.plan.kept, { name: "Gold", reason: "mission cargo", tonnes: 4 }] } };
+    },
   };
 });
 
@@ -28,6 +34,7 @@ beforeEach(() => {
   near.mockReset();
   anywhere.mockReset();
   cut = null;
+  extraMission = false;
   localStorage.clear();
 });
 
@@ -82,6 +89,17 @@ describe("Trade", () => {
     expect(screen.queryByText(/narrow the radius/)).toBeNull();
     await fireEvent.click(screen.getByRole("tab", { name: "Buy" }));
     expect(await screen.findByText(hint)).toBeTruthy();
+  });
+
+  it("lists the hold, and two mission lots of the same commodity do not crash the page", async () => {
+    extraMission = true;
+    render(View);
+    await fireEvent.click(screen.getByRole("tab", { name: "My cargo" }));
+    expect(await screen.findByText("Low Temperature Diamonds")).toBeTruthy();
+    expect(screen.getByText("300 t")).toBeTruthy();
+    expect(screen.getByText("stolen")).toBeTruthy();
+    expect(screen.getAllByText("mission cargo")).toHaveLength(2);
+    expect(screen.getByText("4 t")).toBeTruthy();
   });
 
   it("an Anywhere answer, always cut at 100, shows no hint", async () => {
