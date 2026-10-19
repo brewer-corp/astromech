@@ -93,78 +93,140 @@
 </script>
 
 <div class="route">
-  <div class="kinds" role="group" aria-label="Route kind">
-    <button class:on={kind === "single"} aria-pressed={kind === "single"} onclick={() => (kind = "single")}>Single hop</button>
-    <button class:on={kind === "loop"} aria-pressed={kind === "loop"} onclick={() => (kind = "loop")}>Loop</button>
+  <div class="query">
+    <div class="form-grid">
+      <OriginInput {origin} onchange={(o) => (origin = o)} />
+      <div class="kinds" role="group" aria-label="Route kind">
+        <button type="button" class:on={kind === "single"} aria-pressed={kind === "single"} onclick={() => (kind = "single")}>Single hop</button>
+        <button type="button" class:on={kind === "loop"} aria-pressed={kind === "loop"} onclick={() => (kind = "loop")}>Loop</button>
+      </div>
+      <div class="pick">
+        <span class="lbl">Station</span>
+        <div class="box">
+          <input aria-label="Start station" placeholder={origin == null && docked ? docked : "Nearest the star"} bind:value={station} />
+        </div>
+      </div>
+      <div class="fields">
+      <label><span>Cargo</span><input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))} /><em>t</em></label>
+      <label><span>Credits</span><input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))} /><em>cr</em></label>
+      <label><span>Max hop</span><input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))} /><em>ly</em></label>
+      </div>
+    </div>
+    <div class="tools">
+      {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
+      <button type="button" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</button>
+    </div>
+    {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   </div>
-  <OriginInput {origin} onchange={(o) => (origin = o)} />
-  <div class="fields">
-    <label><span>Station</span><input aria-label="Start station" placeholder={origin == null && docked ? docked : "Nearest the star"} bind:value={station} /></label>
-    <label><span>Cargo</span><input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))} /><em>t</em></label>
-    <label><span>Credits</span><input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))} /><em>cr</em></label>
-    <label><span>Max hop</span><input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))} /><em>ly</em></label>
-  </div>
-  {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
-  {#if filterErr}<p class="lo">{filterErr}</p>{/if}
-  <button class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</button>
 
-  {#if busy}
-    <p class="lo">Asking Spansh… a route can take a minute.</p>
-  {:else if err}
-    <p class="lo err">{err}</p>
-  {:else if res}
-    <h4>{res.route.kind === "loop" ? "Loop" : "Single hop"} from&nbsp;<SystemChip name={res.here.system} /></h4>
-    {#if res.route.warning}<p class="warn" role="alert">{res.route.warning}</p>{/if}
-    {#if res.route.legs.length === 0}
-      <p class="lo">No profitable route within these limits. Try a longer hop, more credits or older market data.</p>
+  <div class="out">
+    {#if busy}
+      <p class="lo">Asking Spansh… a route can take a minute.</p>
+    {:else if err}
+      <p class="lo err">{err}</p>
+    {:else if res}
+      <h4>{res.route.kind === "loop" ? "Loop" : "Single hop"} from&nbsp;<SystemChip name={res.here.system} /></h4>
+      {#if res.route.warning}<p class="warn" role="alert">{res.route.warning}</p>{/if}
+      {#if res.route.legs.length === 0}
+        <p class="lo">No profitable route within these limits. Try a longer hop, more credits or older market data.</p>
+      {:else}
+        <ol>
+          {#each res.route.legs as l, i (i)}
+            <li>
+              <span class="place">
+                <span class="leg">
+                  <span class="st">{l.from.station}</span>
+                  <span class="to" aria-hidden="true">→</span>
+                  <span class="st">{l.to.station}</span>
+                </span>
+                <span class="via">
+                  <SystemChip name={l.from.system} />
+                  <span class="to" aria-hidden="true">→</span>
+                  <SystemChip name={l.to.system} />
+                </span>
+              </span>
+              <span class="cargo">
+                {#each l.cargo as c (c.name)}
+                  <span class="who">{credits(c.tonnes)} t {c.name}: buy {credits(c.buy)} cr, sell {credits(c.sell)} cr</span>
+                {:else}
+                  <span class="lo">Nothing worth carrying back: fly back empty.</span>
+                {/each}
+              </span>
+              <span class="facts">
+                {#if l.cargo.length}<span class="q">{credits(l.profit)} cr</span>{/if}
+                <span class="dist">{l.cargo.length ? `${credits(l.profit_per_t)} cr/t · ` : ""}{jumps(l.jumps, false)} · {l.ly.toFixed(1)} ly</span>
+              </span>
+              <span class="meta">{[padLabel(l.to.pad), arrivalLabel(l.to.arrival_ls), l.source].filter(Boolean).join(" · ")}</span>
+            </li>
+          {/each}
+        </ol>
+        <div class="total">
+          <span class="pair"><span class="k">{res.route.kind === "loop" ? "A round" : "A trip"}</span> <span class="q">{credits(res.route.profit)} cr</span></span>
+          <span class="pair"><span class="k">About</span> <span class="q">{credits(res.route.per_hour)} cr/h</span></span>
+        </div>
+        <p class="lo small" title={`Spansh gives no profit per hour. Estimate: ${ROUTE_ESTIMATE}.`}>
+          Estimated: {minutes(res.route.minutes)} a round trip{res.route.kind === "single" ? " (flying back empty)" : ""} at {res.route.range.toFixed(1)} ly per jump · Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
+        </p>
+      {/if}
     {:else}
-      <ol>
-        {#each res.route.legs as l, i (i)}
-          <li>
-            <span class="sys">{l.from.station} · <SystemChip name={l.from.system} /> → {l.to.station} · <SystemChip name={l.to.system} /></span>
-            {#each l.cargo as c (c.name)}
-              <span>{credits(c.tonnes)} t {c.name}: buy {credits(c.buy)} cr, sell {credits(c.sell)} cr</span>
-            {:else}
-              <span class="lo">Nothing worth carrying back: fly back empty.</span>
-            {/each}
-            <span class="q">{l.cargo.length ? `${credits(l.profit_per_t)} cr/t · ${credits(l.profit)} cr · ` : ""}{jumps(l.jumps, false)} · {l.ly.toFixed(1)} ly</span>
-            <span class="lo">{[padLabel(l.to.pad), arrivalLabel(l.to.arrival_ls), l.source].filter(Boolean).join(" · ")}</span>
-          </li>
-        {/each}
-      </ol>
-      <p class="total">
-        {credits(res.route.profit)} cr a {res.route.kind === "loop" ? "round" : "trip"} · about {credits(res.route.per_hour)} cr/h <span class="lo">(estimate)</span>
-      </p>
-      <p class="lo small">
-        Spansh gives no profit per hour, so it's estimated: {minutes(res.route.minutes)} a round trip{res.route.kind === "single" ? " (flying back empty)" : ""} at {res.route.range.toFixed(1)} ly per jump, {ROUTE_ESTIMATE}. Spansh, {ago(new Date(res.route.fetched_at * 1000).toISOString())}.
-      </p>
+      <p class="lo">Press Find route to see the hop. Spansh can take a minute.</p>
     {/if}
-  {/if}
+  </div>
 </div>
 
 <style>
-  .route { margin-top: 6px; }
+  .route { display: flex; flex-direction: column; min-width: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .kinds { display: flex; gap: 18px; margin: 0 0 10px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 12px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .query :global(.origin) { margin: 0; min-width: 0; grid-column: 1; }
+  .form-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: center; }
+  .kinds { display: flex; gap: 16px; grid-column: 2; grid-row: 1; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .kinds button { color: var(--text-lo); }
   .kinds button:hover { color: var(--text); }
   .kinds .on { color: var(--accent); }
-  .fields { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 4px; font-size: var(--fs-s); }
-  label { display: flex; align-items: center; gap: 8px; }
-  label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
-  label em { font-style: normal; color: var(--text-lo); min-width: 1.5em; }
-  input { all: unset; flex: 1; height: 26px; padding: 0 8px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
-  input::placeholder { color: var(--text-lo); }
-  .go { margin: 4px 0 12px; padding: 6px 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  .go:disabled { color: var(--text-lo); cursor: default; }
-  h4 { margin: 6px 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  li { display: flex; flex-direction: column; gap: 1px; font-size: var(--fs-s); line-height: 1.35; }
-  .sys { color: var(--text); }
+  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); grid-column: 1; min-width: 0; }
+  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; font-size: var(--fs-s); }
+  .box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
+  .box input { all: unset; flex: 1; min-width: 0; width: 100%; height: 32px; padding: 0 10px; color: var(--text-hi); }
+  .box input::placeholder { color: var(--text-lo); }
+  .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; grid-column: 1; min-width: 0; }
+  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
+  label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); }
+  label em { font-style: normal; color: var(--text-lo); min-width: 1.4em; }
+  label input { all: unset; min-width: 0; height: 26px; padding: 0 8px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
+  label input::placeholder { color: var(--text-lo); }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .tools :global(.filters) { flex: 1 1 auto; }
+  .go { margin-left: auto; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; }
+  .go:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
+  .go:not(:disabled):hover { color: var(--text-hi); }
+  .out { padding: 24px 8px 28px; }
+  h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  li { display: grid; grid-template-columns: minmax(14rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs); line-height: 1.3; }
+  .place, .cargo, .facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; min-width: 0; }
+  .st { color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .to { color: var(--text-lo); }
+  .who { color: var(--text); }
   .q { color: var(--accent); font-family: var(--mono); }
-  .total { margin: 12px 0 4px; color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
+  .total { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 16px 8px 8px; padding: 14px 16px; background: var(--cell-empty); }
+  .pair { display: inline-flex; align-items: baseline; gap: 8px; }
+  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .total .q { font-size: var(--fs-l); }
   .lo { color: var(--text-lo); }
-  .warn { color: var(--accent); margin: 0 0 8px; }
-  .small { font-size: var(--fs-s); }
-  p { margin: 0 0 6px; }
+  .warn { color: var(--accent); margin: 0 0 12px; }
+  .small { font-size: var(--fs-s); margin: 0 8px; }
+  p { margin: 0 0 8px; }
+  @media (max-width: 1100px) {
+    .fields { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .form-grid { grid-template-columns: minmax(0, 1fr); }
+    .kinds { grid-column: 1; grid-row: auto; }
+    li { grid-template-columns: minmax(0, 1fr); }
+    .meta { white-space: normal; }
+  }
 </style>

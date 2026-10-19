@@ -62,14 +62,13 @@ describe("Colonisation", () => {
     );
 
     // Efremov Plant sells three of the four and comes first; the carrier at Barnard's Star is
-    // nearer but sells only steel, so it comes last. Each row shows the stock and pad.
+    // nearer but sells only steel, so it comes last. Each row shows the stock.
     const efremov = await screen.findByText("Efremov Plant", { exact: false });
     const carrier = screen.getByText("FCX-801", { exact: false });
     expect(efremov.compareDocumentPosition(carrier) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const rows = screen.getAllByRole("listitem").map((li) => li.textContent ?? "").filter((t) => / of 4 · /.test(t));
+    const rows = screen.getAllByRole("listitem").map((li) => li.textContent ?? "").filter((t) => /\d of 4/.test(t));
     expect(rows[0]).toContain("3 of 4");
     expect(rows[0]).toContain("Steel 25,553 t, CMM Composite 10,061 t, Ceramic Composites 2,120 t");
-    expect(rows[0]).toContain("L pad");
     expect(rows.at(-1)).toContain("1 of 4");
     expect(rows.at(-1)).toContain("fleet carrier");
   });

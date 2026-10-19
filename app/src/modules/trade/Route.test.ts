@@ -52,10 +52,11 @@ describe("Trade route", () => {
       null,
       expect.objectContaining({ pad: "M" }),
     );
-    expect(screen.getByText(/644 cr\/t · 128,800 cr · ~1 jump · 23\.8 ly/)).toBeTruthy();
+    expect(screen.getByText(/644 cr\/t · ~1 jump · 23\.8 ly/)).toBeTruthy();
     // Per hour counts the flight back empty, so it compares with a loop.
-    expect(screen.getByText(/128,800 cr a trip · about 1,065,123 cr\/h/)).toBeTruthy();
-    expect(screen.getByText(/Spansh gives no profit per hour, so it's estimated: 7 min a round trip \(flying back empty\)/)).toBeTruthy();
+    expect(screen.getAllByText("128,800 cr").length).toBeGreaterThan(0);
+    expect(screen.getByText("1,065,123 cr/h")).toBeTruthy();
+    expect(screen.getByText(/Estimated: 7 min a round trip \(flying back empty\)/)).toBeTruthy();
     expect(screen.getByText("L pad · 6 ls · Spansh")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
   });
@@ -72,7 +73,8 @@ describe("Trade route", () => {
 
     expect(await screen.findByText("200 t Reactive Armour: buy 1,581 cr, sell 2,674 cr")).toBeTruthy();
     expect(route).toHaveBeenLastCalledWith({ kind: "loop", station: "Daedalus", capacity: 96, credits: 2_500_000, max_hop_ly: 18 }, null, expect.anything());
-    expect(screen.getByText(/347,400 cr a round · about 2,872,855 cr\/h/)).toBeTruthy();
+    expect(screen.getAllByText("347,400 cr").length).toBeGreaterThan(0);
+    expect(screen.getByText("2,872,855 cr/h")).toBeTruthy();
     expect(screen.getAllByText(/Ardent Insight/)).toHaveLength(1); // the way back's source
   });
 
@@ -122,9 +124,9 @@ describe("Trade route", () => {
   it("labels the ship's pad with the ship flown at the last search", async () => {
     render(Route);
     await vi.waitFor(() => expect(field("Cargo capacity").value).toBe("200"));
-    expect(await screen.findByText("Ship's (M)")).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Pad M, current ship" })).toBeTruthy();
     shipPad = "L"; // swapped to an Anaconda
     await fireEvent.click(screen.getByRole("button", { name: "Find route" }));
-    expect(await screen.findByText("Ship's (L)")).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Pad L, current ship" })).toBeTruthy();
   });
 });

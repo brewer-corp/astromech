@@ -7,10 +7,13 @@
   import { ago, jumps } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
   import { followedNote, followRoute } from "../route";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
+  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, saveFilters, stateLabel, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
+  import Allegiance from "./Allegiance.svelte";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
+  import StationKind from "./StationKind.svelte";
   import SystemChip from "./SystemChip.svelte";
+  import type { Snippet } from "svelte";
 
   let {
     lookup,
@@ -21,6 +24,8 @@
     joiner = "to",
     busyText = "Searching…",
     start = null,
+    header,
+    lead,
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
@@ -35,6 +40,10 @@
     busyText?: string;
     /** Where to search from until the commander picks another system; a new one resets the box. */
     start?: Origin;
+    /** Mode tabs or other chrome at the top of the query band. */
+    header?: Snippet;
+    /** What to find, rendered in the query band (service, module, commodity…). */
+    lead?: Snippet;
   } = $props();
 
   // Follows `start`; the commander's pick (or ×) overrides it until `start` changes.
@@ -114,50 +123,90 @@
       goNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
     }
   }
-
-  function facts(r: Results["rows"][number]): string {
-    return [padLabel(r.pad), arrivalLabel(r.arrival_ls), r.detail ?? "", `reported ${ago(r.updated_at)}`].filter(Boolean).join(" · ");
-  }
 </script>
 
 <div class="kit">
-  <h4>{title}{#if res}&nbsp;{joiner}&nbsp;<SystemChip name={res.origin} />{/if}</h4>
-  <OriginInput {origin} onchange={(o) => (origin = o)} />
-  {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
-  {#if filterErr}<p class="lo">{filterErr}</p>{/if}
-  {#if busy && !res}
-    <p class="lo">{busyText}</p>
-  {:else if err}
-    <p class="lo">{err}</p>
-  {:else if res}
-    {#if res.warning}<p class="lo">{res.warning}</p>{/if}
-    <ul class:stale={busy}>
-      {#each res.rows as r (r.key)}
-        <li>
-          <span class="sys">{r.station ? `${r.station} · ` : ""}<SystemChip name={r.system} /><button type="button" class="go" aria-label={`Go to ${r.system}`} title="Follow it: the system goes on the clipboard for the galaxy map" onclick={() => void go(r)}>Go</button></span>
-          <span class="q">{r.lead ? `${r.lead} · ` : ""}{jumps(r.jumps, r.exact)} · {r.ly.toFixed(1)} ly</span>
-          <span class="lo">{facts(r)}</span>
-        </li>
-      {:else}
-        <li class="lo">None found.</li>
-      {/each}
-    </ul>
-    {#if goNote}<p class="lo small">{goNote}</p>{/if}
-    <p class="lo small">At {res.range.toFixed(1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
-  {/if}
+  <div class="query">
+    {#if header}{@render header()}{/if}
+    {#if lead}{@render lead()}{/if}
+    <OriginInput {origin} onchange={(o) => (origin = o)} />
+    {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
+    {#if filterErr}<p class="lo">{filterErr}</p>{/if}
+  </div>
+
+  <div class="out">
+    {#if busy && !res}
+      <p class="lo">{busyText}</p>
+    {:else if err}
+      <p class="lo">{err}</p>
+    {:else if res}
+      <h4>{title} {joiner} <SystemChip name={res.origin} /></h4>
+      {#if res.warning}<p class="lo">{res.warning}</p>{/if}
+      <ul class:stale={busy}>
+        {#each res.rows as r (r.key)}
+          <li>
+            <span class="place">
+              <span class="name">
+                {#if r.station}<StationKind type={r.station_type} />{/if}
+                <span class="who">{r.station ?? r.system}{#if r.station && r.arrival_ls != null}<span class="ls"> ({arrivalLabel(r.arrival_ls)})</span>{/if}</span>
+              </span>
+              {#if r.lead}<span class="lead">{r.lead}</span>{/if}
+            </span>
+            <span class="sys">
+              <SystemChip name={r.system} icon={!r.station} />
+              <span class="dist">{r.ly.toFixed(1)} ly · {jumps(r.jumps, r.exact)}</span>
+            </span>
+            <span class="facts">
+              {#if r.allegiance || r.faction || stateLabel(r.state)}
+                <span class="pol">
+                  {#if r.allegiance && r.allegiance !== "None"}<Allegiance name={r.allegiance} />{/if}
+                  {#if r.faction && r.faction !== "None"}<span class="meta">{r.faction}</span>{/if}
+                  {#if stateLabel(r.state)}<span class="meta">{stateLabel(r.state)}</span>{/if}
+                </span>
+              {/if}
+              {#if r.updated_at}<span class="meta">{ago(r.updated_at)}</span>{/if}
+              {#if r.detail}<span class="extra">{r.detail}</span>{/if}
+            </span>
+            <button type="button" class="go" aria-label={`Go to ${r.system}`} title="Follow it: the system goes on the clipboard for the galaxy map" onclick={() => void go(r)}>Go</button>
+          </li>
+        {:else}
+          <li class="none">None found.</li>
+        {/each}
+      </ul>
+      {#if goNote}<p class="lo small">{goNote}</p>{/if}
+      <p class="lo small">At {res.range.toFixed(1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
+    {/if}
+  </div>
 </div>
 
 <style>
-  .kit { margin-top: 14px; }
-  h4 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .query :global(.origin) { margin: 0; }
+  .out { padding: 24px 4px 8px; min-width: 0; }
+  h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   ul.stale { opacity: 0.5; }
-  li { display: flex; flex-direction: column; gap: 1px; font-size: var(--fs-s); line-height: 1.35; }
-  .sys { color: var(--text); }
-  .go { all: unset; cursor: pointer; margin-left: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
+  li { display: grid; grid-template-columns: minmax(12rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1.4fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs); line-height: 1.3; }
+  li.none { display: block; color: var(--text-lo); border: 0; }
+  .place { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .name { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ls { color: var(--text-lo); font-family: var(--mono); font-weight: 400; font-size: var(--fs); }
+  .lead { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  .sys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; overflow: hidden; font-size: var(--fs-l); }
+  .facts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-width: 0; }
+  .pol { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; }
+  .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs); white-space: nowrap; }
+  .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
+  .extra { color: var(--text-lo); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; }
+  .go { all: unset; cursor: pointer; height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); justify-self: end; }
   .go:hover, .go:focus-visible { color: var(--text-hi); }
-  .q { color: var(--accent); font-family: var(--mono); }
   .lo { color: var(--text-lo); }
-  .small { font-size: var(--fs-s); margin-top: 8px; }
-  p { margin: 0 0 6px; }
+  .small { font-size: var(--fs-s); margin-top: 14px; }
+  p { margin: 0 0 8px; }
+  @media (max-width: 900px) {
+    li { grid-template-columns: minmax(0, 1fr) auto; }
+    .sys, .facts { grid-column: 1 / -1; }
+  }
 </style>

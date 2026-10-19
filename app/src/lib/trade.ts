@@ -161,7 +161,8 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
       arrival_ls: o.arrival_ls,
       updated_at: o.updated_at,
       lead: `${credits(o.price)} cr`,
-      detail: [`${volume} ${credits(o.volume)}`, o.fleet_carrier ? "fleet carrier" : "", o.odyssey ? "Odyssey settlement" : ""].filter(Boolean).join(" · "),
+      station_type: o.fleet_carrier ? "Drake-Class Carrier" : o.odyssey ? "Settlement" : null,
+      detail: `${volume} ${credits(o.volume)}`,
     })),
   };
 }
@@ -252,9 +253,8 @@ export function cargoResults(s: CargoSearch): Results {
       arrival_ls: x.arrival_ls,
       updated_at: x.updated_at,
       lead: `${credits(x.total)} cr`,
-      detail: [x.sold === carried ? `takes all ${credits(carried)} t` : `takes ${credits(x.sold)} of ${credits(carried)} t`, x.fleet_carrier ? "fleet carrier" : "", x.odyssey ? "Odyssey settlement" : ""]
-        .filter(Boolean)
-        .join(" · "),
+      station_type: x.fleet_carrier ? "Drake-Class Carrier" : x.odyssey ? "Settlement" : null,
+      detail: x.sold === carried ? `takes all ${credits(carried)} t` : `takes ${credits(x.sold)} of ${credits(carried)} t`,
     })),
   };
 }

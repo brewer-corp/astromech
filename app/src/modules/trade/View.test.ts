@@ -42,14 +42,15 @@ describe("Trade", () => {
     expect(anywhere).toHaveBeenLastCalledWith("sell", "painite", null, expect.anything());
     expect(screen.getByText(/Best prices anywhere/)).toBeTruthy();
     expect(screen.getByText(/anywhere in the galaxy, highest price first/)).toBeTruthy();
+    expect(screen.queryByText(/Ask by voice/)).toBeNull();
     expect(screen.queryByText("Within")).toBeNull();
 
-    const prices = screen.getAllByText(/^[\d,]+ cr · /).map((e) => Number((e.textContent ?? "").split(" cr")[0]?.replace(/,/g, "")));
+    const prices = screen.getAllByText(/^[\d,]+ cr$/).map((e) => Number((e.textContent ?? "").split(" cr")[0]?.replace(/,/g, "")));
     expect(prices[0]).toBe(390780);
     expect(prices.every((p, i) => i === 0 || p <= (prices[i - 1] ?? 0))).toBe(true);
-    expect(screen.getAllByText(/reported /).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/d ago/).length).toBeGreaterThan(0);
 
-    await fireEvent.click(screen.getByRole("button", { name: "Buy" }));
+    await fireEvent.click(screen.getByRole("tab", { name: "Buy" }));
     expect(await screen.findByText(/Cheapest anywhere/)).toBeTruthy();
     expect(anywhere).toHaveBeenLastCalledWith("buy", "painite", null, expect.anything());
 
@@ -79,7 +80,7 @@ describe("Trade", () => {
     render(View);
     expect(await screen.findByText("Good Landing", { exact: false })).toBeTruthy();
     expect(screen.queryByText(/narrow the radius/)).toBeNull();
-    await fireEvent.click(screen.getByRole("button", { name: "Buy" }));
+    await fireEvent.click(screen.getByRole("tab", { name: "Buy" }));
     expect(await screen.findByText(hint)).toBeTruthy();
   });
 

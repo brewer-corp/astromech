@@ -1,7 +1,9 @@
 <script lang="ts">
-  // A system name with a one-click copy button, for pasting into the galaxy map.
+  // A system name with a one-click copy mark, for pasting into the galaxy map.
   // Uses the webview clipboard API; the core writes the clipboard only for the route follower.
-  let { name }: { name: string } = $props();
+  import Glyph from "./Glyph.svelte";
+
+  let { name, icon = false }: { name: string; /** Copy mark only; the name is already shown beside it. */ icon?: boolean } = $props();
   let copied = $state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -17,17 +19,17 @@
   }
 </script>
 
-<span class="chip">
-  <span class="name">{name}</span>
-  <button type="button" class:done={copied} aria-label={`Copy ${name}`} title="Copy system name" onclick={() => void copy()}>
-    {copied ? "Copied" : "Copy"}
+<span class="chip" class:icon>
+  {#if !icon}<span class="name">{name}</span>{/if}
+  <button type="button" class:done={copied} aria-label={copied ? `Copied ${name}` : `Copy ${name}`} title={copied ? "Copied" : "Copy system name"} onclick={() => void copy()}>
+    <Glyph name={copied ? "copied" : "copy"} />
   </button>
 </span>
 
 <style>
-  .chip { display: inline-flex; align-items: stretch; vertical-align: baseline; border: 1px solid var(--accent-dim); color: var(--text); text-transform: none; letter-spacing: normal; font-weight: 400; }
-  .name { padding: 0 6px; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; padding: 0 6px; background: var(--cell); color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  button:hover, button:focus-visible { color: var(--text-hi); outline: 1px solid var(--accent); outline-offset: -1px; }
+  .chip { display: inline-flex; align-items: stretch; vertical-align: baseline; max-width: 100%; min-width: 0; }
+  .name { padding: 0 2px 0 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  button { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; color: var(--text-lo); flex: none; }
+  button:hover, button:focus-visible { color: var(--accent); }
   .done { color: var(--accent); }
 </style>

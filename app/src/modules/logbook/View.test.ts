@@ -15,7 +15,7 @@ describe("Logbook", () => {
     const rows = within(screen.getByRole("table")).getAllByRole("row").slice(1);
     expect(rows).toHaveLength(1);
     const cells = within(rows[0]!).getAllByRole("cell").map((c) => c.textContent?.replace(/\s+/g, " ").trim());
-    expect(cells).toEqual(["Hutton Orbital Alpha Centauri Copy", "2", "2026-09-03 10:10", "2026-09-03 10:25"]);
+    expect(cells).toEqual(["Hutton Orbital Alpha Centauri", "2", "2026-09-03 10:10", "2026-09-03 10:25"]);
     // The timeline narrows to those two dockings.
     expect(screen.getAllByText(/Docked at/)).toHaveLength(2);
   });
