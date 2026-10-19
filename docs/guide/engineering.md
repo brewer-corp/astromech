@@ -10,15 +10,17 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
 **What it needs:** the journal (your engineer progress). No network.
 
 - Choose **Ship engineers** or **Suit engineers**. The line under the tabs counts how many you
-  have unlocked and how many you can work on now, and says how the next ones open: a ship
-  engineer introduces the next ones once your rank with them passes grade 3; each suit engineer
-  refers the next after a task.
-- Columns run from **Common knowledge** (engineers anyone can find), through **Introduced** and **Introduced again**, to
-  **Further**. An arrow points back to who introduces each engineer.
-- Each engineer shows its status: **Unlocked** (with your rank, for ship engineers), **Invited**
-  (the workshop still needs its unlock task), **Known**, **Locked**, or **Barred** (you have been
-  barred from the workshop). The ones you can work on now stand out and say "Next:" with what is
-  left to do. A permit-locked system says "permit".
+  have unlocked, and how the marks work: orange for rank, grey for no access yet, dimmer cards
+  for engineers who have not been introduced. A ship engineer introduces the next ones once
+  your rank with them passes grade 3; each suit engineer refers the next after a task.
+- Each card shows the engineer, what they specialise in, and your **access** as engineer marks:
+  one orange mark per rank once you have unlocked them (so rank 5 is five marks), a grey mark
+  when they are **Known** but you have no access yet, a dimmer grey mark when they have **Not
+  been introduced**, an envelope when you are **Invited**, and a struck mark if you are
+  **Barred**. Unlocked engineers are full colour; known ones stay readable with "Known · no
+  access yet"; cards that still need an introduction are dimmer. What is left to do stays on
+  the card. Hover a card to light who introduces them. A permit-locked system says "permit".
+  An arrow points back to who introduces each engineer.
 - The system name has a copy button for the galaxy map.
 
 The same unlocks decide which jobs the **engineer trip** in [Ships](ships.md) can use. Source:
@@ -36,8 +38,8 @@ Three tabs:
 
 Your ship locker and backpack by the game's own categories: **Goods**, **Assets**, **Data** and
 **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
-what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only**
-hides what you do not have. The line above says how much is held and what a bartender would pay
+what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** (orange) hides what you do not have; **All items** (grey) shows the rest of the
+catalogue. The line above says how much is held and what a bartender would pay
 for it. Mission items go back when the mission ends and do not count for blueprints.
 
 ### Blueprints
@@ -51,7 +53,7 @@ Plan the micro-resources you need.
    which engineers fit it. Upgrades are bought at Pioneer Supplies. Gear and mods you already have
    are marked and not offered again.
 
-Below the cards, one **shopping list** adds them all up, with the credits. A **Bartender trade**
+Below the picks, one **shopping list** adds them all up, with the credits. A **Bartender trade**
 suggests swaps: which of your surplus assets to trade for the ones you are short of. It assumes a
 bartender swaps equal barter value and only assets are traded, because the wiki gives barter values
 for assets only.

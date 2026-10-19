@@ -10,7 +10,7 @@ The header has plain text tabs for the areas, with the area's pages as sub-tabs 
 | Area | Pages |
 |---|---|
 | **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
-| **Engineering** | Ships, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
+| **Engineering** | Ships, Stored modules, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
 | **Galaxy** | Services, Outfitting, Shipyard: [Galaxy](galaxy.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |

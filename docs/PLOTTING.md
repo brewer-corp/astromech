@@ -28,7 +28,7 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Control API: `route`, `route_set`, `route_skip`, `route_back`, `route_clear`, `route_copy` | `Core::route_cmd`; the shell's `core_call` allows them |
-| UI: Galaxy → Route page; **Follow** on the engineer trip; **Go** on every search-kit result | `app/src/modules/route`, `lib/route.ts`, `lib/ui/SearchKit.svelte` |
+| UI: Galaxy route rail (and the Route page); **Follow** on the engineer trip; **Go** on every search-kit result | `app/src/modules/route`, `lib/route.ts`, `lib/ui/SearchKit.svelte` |
 
 Behaviour:
 
@@ -51,7 +51,7 @@ Behaviour:
 
 ### Spansh plotters
 
-**Galaxy → Route → Plot with Spansh** plots a neutron or exact route for the current ship and
+**Galaxy route rail → Plot with Spansh** plots a neutron or exact route for the current ship and
 hands it to the follower (`route_set`), so it is followed the same way as any other route.
 
 | Piece | Where |

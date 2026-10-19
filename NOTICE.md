@@ -28,6 +28,13 @@ docs/ARCHITECTURE.md §17). Consequences:
 
 Third-party Rust and npm dependency licences: see `THIRD_PARTY.md`.
 
+## Cartoon ship icons and engineer access mark
+The ship silhouettes on **Engineering, Ships** are CMDR Qohen Leth's cartoon ship vectors, from
+[EDAssets](https://edassets.org/#/shipschematics/cartoonshipvectors)
+(`app/public/ships/`). Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.
+The engineer access badge (`app/public/engineers/access.svg`) is CMDR Robert Phillips' engineer
+icon from [EDAssets](https://edassets.org/#/engineers). Credit EDAssets and the designers.
+
 ## Fonts (app UI)
 Bundled from the `@fontsource` packages, all under the SIL Open Font License 1.1:
 Michroma (Vernon Adams), Saira Semi Condensed (Omnibus-Type), Share Tech Mono (Carrois Apostrophe).

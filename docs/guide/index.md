@@ -33,7 +33,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 
 | Page | What is in it |
 |---|---|
-| [Ships](ships.md) | Your fleet, ship stats, the build planner |
+| [Ships](ships.md) | Your fleet, ship stats, the build planner, stored modules |
 | [Materials](materials.md) | The material grids, High Grade Emissions, raw material sites |
 | [Engineers and on foot](engineering.md) | The engineer unlock tree, Odyssey inventory and blueprints |
 
