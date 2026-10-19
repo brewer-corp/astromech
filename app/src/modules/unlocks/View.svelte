@@ -59,6 +59,7 @@
               {@const specs = specialties(n.name, n.kind)}
               <article
                 class="eng {n.status}"
+                class:next={n.next}
                 class:pred={preds.includes(n.name)}
                 class:hot={hover === n.name}
                 aria-label={n.name}
@@ -70,7 +71,7 @@
               >
                 <div class="top">
                   <span class="name">{n.name}</span>
-                  <span class="access" title={a.label} aria-label={a.label}>
+                  <span class="access" role="img" title={a.label} aria-label={a.label}>
                     {#if a.mark === "unlocked"}
                       {#each Array.from({ length: a.count }, (_, i) => i) as i (i)}
                         <span class="badge" aria-hidden="true"></span>
@@ -117,6 +118,7 @@
   .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(16rem, 1fr)); gap: 8px 20px; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .eng { padding: 16px; display: flex; flex-direction: column; gap: 6px; background: var(--cell-empty); outline: 1px solid transparent; outline-offset: -1px; }
+  .eng.next { box-shadow: inset 4px 0 0 var(--accent); }
   .eng.unlocked { background: var(--cell); color: var(--text); }
   .eng.known, .eng.invited { color: var(--text); }
   .eng.locked, .eng.barred { opacity: 0.55; color: var(--text-lo); }

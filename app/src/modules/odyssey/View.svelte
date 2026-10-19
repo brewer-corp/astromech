@@ -207,7 +207,7 @@
           {/each}
         </tbody>
       </table>
-      <p class="lo note">Barter is what one is worth trading at a bartender (assets); "Sells for" is what a bartender pays. Mission items go back when the mission ends and don't count towards blueprints.</p>
+      <p class="lo note">Barter is what one is worth trading at a bartender (assets); "Sells for" is what a bartender pays. Mission items go back when the mission ends and do not count towards blueprints.</p>
     </div>
   {/if}
 

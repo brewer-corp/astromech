@@ -44,7 +44,30 @@ it("shows speed, jump and power on the Info tab", async () => {
   expect((await screen.findByLabelText("Speed")).textContent).toMatch(/376/);
   expect(screen.getByLabelText("Jump").textContent).toMatch(/24\.87/);
   expect(screen.getByLabelText("Power").textContent).toMatch(/44\.10/);
-  expect(screen.getByLabelText("Pitch / roll / yaw").textContent).toMatch(/36\.00/);
+  expect(screen.getByLabelText("Pitch / roll / yaw").textContent).toMatch(/36/);
+  expect(screen.getByLabelText("Shields").textContent).toMatch(/MJ/);
+  expect(screen.getByLabelText("Weapons and hull").textContent).toMatch(/DPS/);
+});
+
+it("shows the build planner on the Engineering tab", async () => {
+  location.hash = "#/engineering/1/plan";
+  render(View);
+  expect(await screen.findByRole("heading", { name: "Core internals" })).toBeTruthy();
+  expect(screen.queryByLabelText("Speed")).toBeNull();
+});
+
+it("switches from Info to Engineering", async () => {
+  render(View);
+  expect(await screen.findByLabelText("Speed")).toBeTruthy();
+  await fireEvent.click(screen.getByRole("tab", { name: "Engineering" }));
+  expect(await screen.findByRole("heading", { name: "Core internals" })).toBeTruthy();
+});
+
+it("says when the hull is not in the ship data", async () => {
+  compared = { unknown_hull: "mediumtransport01" };
+  render(View);
+  const warn = await screen.findByText(/Incomplete: this hull is not in the ship data/);
+  expect(warn.getAttribute("title")).toBe("Hull: mediumtransport01");
 });
 
 it("marks a ship incomplete when the calculations leave something out or don't know the hull", async () => {

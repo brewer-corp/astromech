@@ -36,7 +36,7 @@
     try {
       followNote = followedNote(await followRoute("Engineer trip", "engineer trip", trip.stops.map((s) => ({ system: s.system, label: s.engineer }))));
     } catch (e) {
-      followNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
+      followNote = `Could not follow it: ${e instanceof Error ? e.message : String(e)}`;
     }
   }
   let stats = $state<StatsComparison | null>(null);
@@ -221,7 +221,7 @@
     try {
       await openUrl(url);
     } catch (e) {
-      linkErr = `Couldn't open the link: ${String(e)}`;
+      linkErr = `Could not open the link: ${String(e)}`;
     }
   }
 </script>
@@ -258,7 +258,7 @@
   {/if}
 
   {#if ship && !ship.loadout_ts}
-    <p class="lo note">The journal has no loadout for this ship: it hasn't been flown since your oldest journal file. Fly it once and its modules show up here.</p>
+    <p class="lo note">The journal has no loadout for this ship: it has not been flown since your oldest journal file. Fly it once and its modules show up here.</p>
   {:else if ship && plan}
     <div class="main">
       <div class="mods">

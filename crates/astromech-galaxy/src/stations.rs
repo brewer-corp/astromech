@@ -349,7 +349,7 @@ pub struct StationHit {
     pub allegiance: Option<String>,
     /// Controlling minor faction.
     pub faction: Option<String>,
-    /// Station state ("UnderRepairs"); "None" when idle.
+    /// Station state ("UnderRepairs"); None when idle.
     pub state: Option<String>,
 }
 

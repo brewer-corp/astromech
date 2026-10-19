@@ -122,7 +122,7 @@
     try {
       await openUrl(url);
     } catch (e) {
-      linkErr = `Couldn't open the link: ${String(e)}`;
+      linkErr = `Could not open the link: ${String(e)}`;
     }
   }
 </script>
@@ -197,7 +197,7 @@
       {#if ship.loadout_ts}
         <Specs type={ship.ship_type} {stats} headline={h} note={statsNote} {unknownHull} />
       {:else}
-        <p class="none">The journal has no loadout for this ship: it hasn't been flown since your oldest journal file.</p>
+        <p class="none">The journal has no loadout for this ship: it has not been flown since your oldest journal file.</p>
       {/if}
     {:else if fleet}
       <p class="none">No ships in the journal yet.</p>

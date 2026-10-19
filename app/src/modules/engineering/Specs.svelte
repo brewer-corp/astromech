@@ -38,10 +38,10 @@
 
 <div class="specs">
   {#if unknownHull}
-    <p class="warn" title="Hull: {unknownHull}"><span class="mark">!</span> Incomplete: this hull isn't in the ship data, so there are no stats for it.</p>
+    <p class="warn" title="Hull: {unknownHull}"><span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.</p>
   {:else if unresolved.length}
     <p class="warn" title={unresolved.join("\n")}>
-      <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item isn't" : "items aren't"} in the ship data
+      <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
       and {unresolved.length === 1 ? "is" : "are"} left out of these numbers.
     </p>
   {:else if !stats && note}
@@ -53,12 +53,12 @@
       <div class="k">Speed (top | boost)</div>
       <div class="v"><span class="q">{n(speed, 0)}</span> <span class="sep">|</span> <span class="q">{n(boost, 0)}</span> <span class="u">m/s</span></div>
     </div>
-    <div class="stat" aria-label="Pitch / roll / yaw" title="Placeholder until the ship calculations include handling">
-      <div class="k">Pitch / roll / yaw</div>
+    <div class="stat" aria-label="Pitch / roll / yaw" title="Hull stand-in at four pips to engines, until the ship calculations include handling">
+      <div class="k">Approximate pitch / roll / yaw</div>
       <div class="v">
-        <span class="q">{n(turn?.pitch, 2)}</span> <span class="sep">|</span>
-        <span class="q">{n(turn?.roll, 2)}</span> <span class="sep">|</span>
-        <span class="q">{n(turn?.yaw, 2)}</span> <span class="u">°/s</span>
+        <span class="q">{n(turn?.pitch, 0)}</span> <span class="sep">|</span>
+        <span class="q">{n(turn?.roll, 0)}</span> <span class="sep">|</span>
+        <span class="q">{n(turn?.yaw, 0)}</span> <span class="u">°/s</span>
       </div>
     </div>
     <div class="stat" aria-label="Jump">

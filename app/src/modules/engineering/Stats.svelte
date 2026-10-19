@@ -110,14 +110,14 @@
 <div class="stats">
   {#if unknownHull}
     <p class="warn" title="Hull: {unknownHull}">
-      <span class="mark">!</span> Incomplete: this hull isn't in the ship data, so there are no stats for it.
+      <span class="mark">!</span> Incomplete: this hull is not in the ship data, so there are no stats for it.
     </p>
   {:else if !stats}
     <p class="lo">{note ?? "Working out the stats…"}</p>
   {:else}
     {#if unresolved.length}
       <p class="warn" title={unresolved.join("\n")}>
-        <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item isn't" : "items aren't"} in the ship data
+        <span class="mark">!</span> Incomplete: {unresolved.length} {unresolved.length === 1 ? "item is not" : "items are not"} in the ship data
         and {unresolved.length === 1 ? "is" : "are"} left out of these numbers.
       </p>
     {/if}
