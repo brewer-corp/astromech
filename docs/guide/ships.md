@@ -22,7 +22,7 @@ The page opens on the ship you are flying (or the first ship in the journal). Tw
 - **Info** — name and ID, type, where it is (**Flying now**, stored at a system with a copy
   button, "In transit to" a system, or "Stored"), **Value** and **Rebuy**, and **Engineered**
   (how many of the ship's engineerable modules have a blueprint). The rest of the pane is ship
-  specs: **Speed** (top | boost), **Pitch / roll / yaw**, **Jump** min / current / max (laden,
+  specs: **Speed** (top | boost), **Approximate pitch / roll / yaw**, **Jump** min / current / max (laden,
   unladen, and one-jump fuel), and **Power** (retracted, deployed, and the plant's total), then
   shields, weapons and hull, distributor and mass. Speed, jump, power, shields and the rest
   come from the same Coriolis-based calculations as [Ship stats](#ship-stats). Pitch / roll / yaw

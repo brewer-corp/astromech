@@ -32,8 +32,11 @@ Third-party Rust and npm dependency licences: see `THIRD_PARTY.md`.
 The ship silhouettes on **Engineering, Ships** are CMDR Qohen Leth's cartoon ship vectors, from
 [EDAssets](https://edassets.org/#/shipschematics/cartoonshipvectors)
 (`app/public/ships/`). Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International.
+Rasterised to 200 px PNGs for the window.
 The engineer access badge (`app/public/engineers/access.svg`) is CMDR Robert Phillips' engineer
-icon from [EDAssets](https://edassets.org/#/engineers). Credit EDAssets and the designers.
+icon from [EDAssets](https://edassets.org/#/engineers), same CC BY-NC-SA 4.0 licence. Recoloured
+to follow the window's text colour. Credit EDAssets and the designers.
+These files keep that licence; they are not MIT.
 
 ## Fonts (app UI)
 Bundled from the `@fontsource` packages, all under the SIL Open Font License 1.1:
