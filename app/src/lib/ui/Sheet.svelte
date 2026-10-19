@@ -57,7 +57,7 @@
   .num, .txt { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--font); }
   .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--text-lo); pointer-events: none; }
   .txt { all: unset; position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--text); cursor: pointer; }
-  .txt.dim { color: var(--text-lo); }
+  .txt.dim { color: var(--text-lo); opacity: 0.4; }
   .txt b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
   .txt i { font-style: normal; margin-left: auto; color: var(--text-lo); }
   .txt.hi { background: var(--accent); color: var(--on-accent); }

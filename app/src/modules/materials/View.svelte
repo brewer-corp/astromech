@@ -65,7 +65,9 @@
 
   function fill(c: Cell) {
     const p = c.capacity > 0 ? Math.min(1, c.count / c.capacity) : 0;
-    return `linear-gradient(90deg, var(--cell) ${p * 100}%, var(--cell-empty) ${p * 100}%)`;
+    // A few units of a 300-cap is otherwise a 1px sliver; keep a readable min fill while held.
+    const vis = c.count > 0 ? Math.max(p, 0.12) : 0;
+    return `linear-gradient(90deg, var(--cell) ${vis * 100}%, var(--cell-empty) ${vis * 100}%)`;
   }
 
   let about: HTMLElement | undefined = $state();
@@ -85,71 +87,75 @@
 </script>
 
 <section>
-  <div class="acts">
-    {#each tabs as k (k.id)}
-      <button class:on={kindId === k.id} onclick={() => { kindId = k.id; pick(null); }}>{k.title}</button>
-    {/each}
-  </div>
-  <p class="sub">
-    {#if inv}
-      {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
-      {#if kindId !== "other" && kind}
-        · {kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}
+  <div class="find">
+    <div class="query">
+      <div class="acts">
+        {#each tabs as k (k.id)}
+          <button class:on={kindId === k.id} onclick={() => { kindId = k.id; pick(null); }}>{k.title}</button>
+        {/each}
+      </div>
+      <p class="sub">
+        {#if inv}
+          {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
+          {#if kindId !== "other" && kind}
+            · {kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}
+          {/if}
+          · {inv.source}
+        {:else}
+          {failed ?? "Reading the journal…"}
+        {/if}
+      </p>
+      <Stale error={inv ? failed : null} />
+      {#if kindId === "manufactured" && inv?.here}
+        <p class="sub here">
+          <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />
+        </p>
       {/if}
-      · {inv.source}
-    {:else}
-      {failed ?? "Reading the journal…"}
-    {/if}
-  </p>
-  <Stale error={inv ? failed : null} />
-  {#if kindId === "manufactured" && inv?.here}
-    <p class="sub here">
-      <SystemChip name={inv.here.system} />{inv.here.line.startsWith(inv.here.system) ? inv.here.line.slice(inv.here.system.length) : ` · ${inv.here.line}`} <ExtLinks system={inv.here.system} />
-    </p>
-  {/if}
+    </div>
 
-  {#if kindId === "other" && inv}
-    <div class="other">
-      {#each inv.other as c (c.id)}
-        <button class="cell" class:sel={selId === c.id} style:background={fill(c)} onclick={() => pick(c.id)}>
-          <span class="n">{c.name}</span>
-          <span class="q">{c.count} / {c.capacity}</span>
-        </button>
-      {:else}
-        <p class="lo">No off-trader materials in the journal.</p>
-      {/each}
+    <div class="out">
+      {#if kindId === "other" && inv}
+        <div class="other">
+          {#each inv.other as c (c.id)}
+            <button class="cell" class:sel={selId === c.id} style:background={fill(c)} onclick={() => pick(c.id)}>
+              <span class="n">{c.name}</span>
+              <span class="q">{c.count} / {c.capacity}</span>
+            </button>
+          {:else}
+            <p class="lo">No off-trader materials in the journal.</p>
+          {/each}
+        </div>
+      {:else if kind}
+        <div class="grid" style:--cols={kind.grades.length}>
+          <div class="corner"></div>
+          {#each kind.grades as g (g)}
+            <div class="gh">G{g}</div>
+          {/each}
+          {#each kind.groups as g (g.name)}
+            <div class="rh">{g.name}</div>
+            {#each g.cells as c (c.id)}
+              <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:background={fill(c)} onclick={() => pick(c.id)}>
+                <span class="n">{c.name}</span>
+                <span class="q">{c.count} / {c.capacity}</span>
+              </button>
+            {/each}
+          {/each}
+        </div>
+        {#if kindId === "manufactured" && inv?.farm && inv.farm.length}
+          <ul class="farm">
+            {#each inv.farm as f (f.id)}
+              <li>
+                <button class:on={selId === f.id} onclick={() => pick(f.id)}>{f.name}</button>
+                <span class="q">{f.count}/{f.capacity}</span>
+                <span class="lo">{f.summary}</span>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+        {#if kindId === "raw"}<Sites />{/if}
+      {/if}
     </div>
-  {:else if kind}
-    <div class="main">
-    <div class="grid" style:--cols={kind.grades.length}>
-      <div class="corner"></div>
-      {#each kind.grades as g (g)}
-        <div class="gh">G{g}</div>
-      {/each}
-      {#each kind.groups as g (g.name)}
-        <div class="rh">{g.name}</div>
-        {#each g.cells as c (c.id)}
-          <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:background={fill(c)} onclick={() => pick(c.id)}>
-            <span class="n">{c.name}</span>
-            <span class="q">{c.count} / {c.capacity}</span>
-          </button>
-        {/each}
-      {/each}
-    </div>
-    {#if kindId === "manufactured" && inv?.farm && inv.farm.length}
-      <ul class="farm">
-        {#each inv.farm as f (f.id)}
-          <li>
-            <button class:on={selId === f.id} onclick={() => pick(f.id)}>{f.name}</button>
-            <span class="q">{f.count}/{f.capacity}</span>
-            <span class="lo">{f.summary}</span>
-          </li>
-        {/each}
-      </ul>
-    {/if}
-    {#if kindId === "raw"}<Sites />{/if}
-    </div>
-  {/if}
+  </div>
 
   <aside class="about" bind:this={about}>
     {#if sel}
@@ -168,40 +174,51 @@
       {#if lookup}<Nearby query={lookup} />{/if}
     {:else}
       <h3>{kind?.title ?? "Materials"}</h3>
-      <p>Same layout as the in-game material trader: each row is a category, each column a grade. The fill is how close that material is to its storage cap.</p>
-      <p class="lo">The game’s own inventory is a flat list. This screen is the trader view without flying to one.</p>
+      {#if kindId === "other"}
+        <p class="lo">Guardian, Thargoid and anything the journal named that is not on a trader.</p>
+      {:else if kind}
+        <p class="qty">{kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}</p>
+        {#if kind.trader}<p class="lo">{kind.trader}</p>{/if}
+      {/if}
     {/if}
   </aside>
 </section>
 
 <style>
-  section { padding: 8px 0 28px; min-height: 0; }
+  section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem); gap: 0; min-height: 0; padding: 0 0 28px; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
+  .find { min-width: 0; }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 14px; }
-  .here { margin-top: -8px; color: var(--text); }
-  .main { min-width: 0; }
-  .farm { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-  .farm li { display: grid; grid-template-columns: 12rem 5rem 1fr; gap: 10px; align-items: baseline; font-size: var(--fs-s); }
-  .farm button { color: var(--text); }
+  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .here { color: var(--text); }
+  .out { padding: 24px 8px 8px 4px; min-width: 0; }
+  .farm { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; }
+  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem 1fr; gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs-s); }
+  .farm button { color: var(--text-hi); }
   .farm button:hover, .farm .on { color: var(--accent); }
-  .grid { display: grid; grid-template-columns: 11rem repeat(var(--cols), minmax(7.5rem, 1fr)); gap: var(--gap); align-content: start; }
-  .gh, .rh, .corner { min-height: var(--row); display: flex; align-items: center; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .grid { display: grid; grid-template-columns: 10rem repeat(var(--cols), minmax(7.5rem, 1fr)); gap: 8px; align-content: start; }
+  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .gh { justify-content: center; }
   .rh { padding: 0 10px; }
-  .cell { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 52px; padding: 6px 10px; color: var(--text); text-align: left; }
+  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; color: var(--text); text-align: left; }
   .cell:hover { outline: 1px solid var(--accent-dim); outline-offset: -1px; }
   .cell.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .cell.empty .n, .cell.empty .q { color: var(--text-lo); }
-  .n { font-size: var(--fs-s); line-height: 1.2; }
+  .n { font-size: var(--fs-s); line-height: 1.25; }
   .q { font-family: var(--mono); font-size: var(--fs-s); }
-  .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--gap); align-content: start; }
-  .about { margin-top: 24px; border-top: 2px solid var(--accent); padding-top: 16px; }
+  .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }
+  .about { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent-dim); background: var(--bg-list); padding: 20px 8px 28px 24px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .about p { margin: 0 0 8px; line-height: 1.45; }
+  .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }
   .lo { color: var(--text-lo); }
+  @media (max-width: 1100px) {
+    section { display: flex; flex-direction: column; }
+    .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; }
+    .out { padding: 20px 0 8px; }
+  }
 </style>

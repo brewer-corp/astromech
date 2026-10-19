@@ -38,7 +38,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Mother Gaia",
+      "state": null
     },
     {
       "name": "Stronghold Carrier",
@@ -58,7 +61,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Hutton Orbital Truckers Co-operative",
+      "state": null
     },
     {
       "name": "K3K-N8W",
@@ -78,7 +84,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Barnard's Star Alliance",
+      "state": "Boom"
     },
     {
       "name": "G6G-8KJ",
@@ -98,7 +107,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Barnard's Star Alliance",
+      "state": "Boom"
     },
     {
       "name": "J6B-6TK",
@@ -118,7 +130,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Barnard's Star Alliance",
+      "state": "Boom"
     },
     {
       "name": "Jenner Orbital",
@@ -138,7 +153,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": null,
+      "state": null
     },
     {
       "name": "Yamazaki Landing",
@@ -158,7 +176,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": null,
+      "state": null
     },
     {
       "name": "Stronghold Carrier",
@@ -178,7 +199,10 @@
       "price": 5103950,
       "detail": "5A Frame Shift Drive",
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Hutton Orbital Truckers Co-operative",
+      "state": null
     }
   ]
 }

@@ -44,6 +44,9 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 var(--fs) var(--font); }
 input[type="checkbox"] { accent-color: var(--accent); }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent); color: var(--on-accent); }
+input::placeholder, textarea::placeholder { color: var(--text-lo); opacity: 1; }
 
 /* Scrollbars: a thin dark thumb on no track, like the game's lists; orange while dragged. */
 * { scrollbar-width: thin; scrollbar-color: #3a3c3e transparent; }

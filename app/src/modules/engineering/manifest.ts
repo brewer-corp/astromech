@@ -5,7 +5,7 @@ const manifest: ModuleManifest = {
   id: "engineering",
   group: "engineering",
   title: "Ships",
-  summary: "Your fleet at a glance, the modules in storage, and a build plan for any ship: materials, trades, farming and engineer trips",
+  summary: "Your fleet, ship stats, and a build plan for any ship: materials, trades, farming and engineer trips",
   help: "ships.md",
   order: 0,
   api: ["engineering"],

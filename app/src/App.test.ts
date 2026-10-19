@@ -49,6 +49,19 @@ describe("command palette in the window", () => {
     expect(screen.getByRole("button", { name: /Encoded/i }).className).toContain("on");
   });
 
+  it("finds a ship from the Galaxy find box", async () => {
+    location.hash = "#/services";
+    render(App);
+    const find = await screen.findByRole("combobox", { name: "Find" });
+    await fireEvent.input(find, { target: { value: "anaconda" } });
+    await screen.findByText("Anaconda");
+    await fireEvent.keyDown(find, { key: "Enter" });
+    expect(location.hash).toBe("#/shipyard/Anaconda");
+    await waitFor(() =>
+      expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "ship", ship: "Anaconda" }, null, expect.anything()),
+    );
+  });
+
   it("opens a module's nearby outfitting search", async () => {
     location.hash = "#/powerplay";
     render(App);
@@ -92,7 +105,7 @@ describe("command palette in the window", () => {
     render(App);
     await screen.findByText(/Abraham Lincoln/);
 
-    await fireEvent.change(screen.getByRole("combobox", { name: "Class" }), { target: { value: "6" } });
+    await fireEvent.click(screen.getByRole("button", { name: "Class 6" }));
     await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive?class=6&rating=A"));
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 6, rating: "A" }), null, expect.anything()));
 
@@ -111,10 +124,10 @@ describe("command palette in the window", () => {
     render(App);
     await screen.findByText(/Abraham Lincoln/);
 
-    await fireEvent.change(screen.getByRole("combobox", { name: "Rating" }), { target: { value: "" } });
+    await fireEvent.click(screen.getByRole("button", { name: "Rating Any" }));
     await waitFor(() => expect(location.hash).toBe("#/outfitting/Frame%20Shift%20Drive?class=5"));
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith(expect.objectContaining({ class: 5, rating: null }), null, expect.anything()));
-    expect((screen.getByRole("combobox", { name: "Class" }) as HTMLSelectElement).value).toBe("5");
+    expect(screen.getByRole("button", { name: "Class 5" }).getAttribute("aria-pressed")).toBe("true");
   });
 
   it("keeps the selected material through back and reload", async () => {

@@ -345,6 +345,12 @@ pub struct StationHit {
     /// Price in credits, for what is sold.
     pub price: Option<i64>,
     pub detail: Option<String>,
+    /// Superpower the station answers to.
+    pub allegiance: Option<String>,
+    /// Controlling minor faction.
+    pub faction: Option<String>,
+    /// Station state ("UnderRepairs"); "None" when idle.
+    pub state: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -398,6 +404,9 @@ pub fn find(
             updated_at: want.updated_at(s).map(str::to_string),
             price: o.price,
             detail: o.detail,
+            allegiance: s.allegiance.clone(),
+            faction: s.controlling_minor_faction.clone(),
+            state: s.state.clone(),
         })
         .collect();
     hits.sort_by(|a, b| a.ly.total_cmp(&b.ly));

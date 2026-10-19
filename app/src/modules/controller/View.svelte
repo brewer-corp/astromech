@@ -143,12 +143,14 @@
 
 <div class="cols">
   <section>
-    <div class="devices">
-      {#each maps as x (x.device_id)}
-        <button class:on={x.device_id === m.device_id} onclick={() => { dev = x.device_id; picked = null; selId = null; }}>{x.title} · {x.device_id}</button>
-      {/each}
+    <div class="top">
+      <div class="devices">
+        {#each maps as x (x.device_id)}
+          <button class:on={x.device_id === m.device_id} onclick={() => { dev = x.device_id; picked = null; selId = null; }}>{x.title} · {x.device_id}</button>
+        {/each}
+      </div>
+      <PresetPicker compact />
     </div>
-    <PresetPicker />
     <div class="acts">
       <button class:on={!act} onclick={() => choose("all")}>All</button>
       {#each acts as a (a.id)}<button class:on={a.id === act?.id} onclick={() => choose(a.id)}>{a.title}</button>{/each}
@@ -231,12 +233,10 @@
   {:else}
     <About label="My controller" title={act?.title ?? m.product}>
       {#if act}
-        <p>{act.actions.length} actions, {act.actions.filter((a) => a.important).length} of them important. Lit boxes are this activity's actions.</p>
-        <p class="lo">Bind this: press a free control and it's written to your preset (backed up first), or to a copy if the preset is built in.</p>
+        <p>{act.actions.length} actions, {act.actions.filter((a) => a.important).length} of them important. Lit boxes are this activity.</p>
       {:else}
-        <p>Every binding on this stick, in all contexts. Press a control or click a box to see everything on it. Pick an activity above to light just its actions and see what is still unbound.</p>
+        <p>Press a control, or pick an activity to light its actions and see what is still unbound.</p>
       {/if}
-      <p class="lo">A box with "+2" has more actions on the same control (often in different modes: ship, SRV, FSS).</p>
     </About>
   {/if}
 </div>
@@ -245,9 +245,10 @@
 <style>
   button { all: unset; cursor: pointer; }
   .cols { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding-top: 14px; }
-  .devices { display: flex; gap: 32px; text-transform: uppercase; letter-spacing: var(--caps); margin-bottom: 10px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .devices { display: flex; gap: 32px; text-transform: uppercase; letter-spacing: var(--caps); }
   .devices button { color: var(--text-lo); }
-  .devices .on { color: var(--accent); }
+  .devices .on { color: var(--text-hi); }
   .acts { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 22px; margin-bottom: 8px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }

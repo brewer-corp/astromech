@@ -213,7 +213,7 @@ describe("ship detail panels", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Follow" }));
     const trip = (await planTrip(savedPlan(7)))!;
     const first = trip.stops[0]!;
-    expect(await screen.findByText(`Following. ${first.system} is on your clipboard (Galaxy → Route).`)).toBeTruthy();
+    expect(await screen.findByText(`Following. ${first.system} is on your clipboard.`)).toBeTruthy();
     const { view } = await fakeCall("route");
     expect(view.route.source).toBe("engineer trip");
     expect(view.route.waypoints[0]).toEqual({ system: first.system, label: first.engineer });

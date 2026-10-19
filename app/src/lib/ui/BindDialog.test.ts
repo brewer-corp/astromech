@@ -24,7 +24,7 @@ describe("Bind dialog capture", () => {
     press("Mouse_1");
     await tick();
 
-    expect(screen.getByText("Press a button, hat or key…")).toBeTruthy();
+    expect(screen.getByText(/Press a button, hat or key/)).toBeTruthy();
     expect((screen.getByText("Save") as HTMLButtonElement).disabled).toBe(true);
   });
 

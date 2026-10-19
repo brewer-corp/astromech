@@ -1,0 +1,46 @@
+/** Qohen Leth cartoon ship vectors (EDAssets, CC BY-NC-SA 4.0) keyed by journal ship type. */
+const FILES: Record<string, string> = {
+  adder: "adder",
+  anaconda: "anaconda",
+  asp: "asp-explorer",
+  asp_scout: "asp-scout",
+  belugaliner: "beluga-liner",
+  cobramkiii: "cobra-mk-iii",
+  cobramkiv: "cobra-mk-iv",
+  cutter: "imperial-cutter",
+  diamondback: "diamondback-scout",
+  diamondbackxl: "diamondback-explorer",
+  dolphin: "dolphin",
+  eagle: "eagle-mk-ii",
+  empire_courier: "imperial-courier",
+  empire_eagle: "imperial-eagle",
+  empire_trader: "imperial-clipper",
+  federation_corvette: "federal-corvette",
+  federation_dropship: "federal-dropship",
+  federation_dropship_mkii: "federal-assault-ship",
+  federation_gunship: "federal-gunship",
+  ferdelance: "fer-de-lance",
+  hauler: "hauler",
+  independant_trader: "keelback",
+  krait_light: "krait-phantom",
+  krait_mkii: "krait-mk-ii",
+  mamba: "mamba",
+  orca: "orca",
+  python: "python",
+  sidewinder: "sidewinder",
+  type6: "type-6-transporter",
+  type7: "type-7",
+  type9: "type-9-heavy",
+  type9_military: "type-10-defender",
+  typex: "alliance-chieftain",
+  typex_2: "alliance-crusader",
+  typex_3: "alliance-challenger",
+  viper: "viper-mk-iii",
+  viper_mkiv: "viper-mk-iv",
+  vulture: "vulture",
+};
+
+export function shipIcon(shipType: string): string | null {
+  const file = FILES[shipType];
+  return file ? `/ships/${file}.png` : null;
+}

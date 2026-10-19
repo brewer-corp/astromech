@@ -1,23 +1,37 @@
-import { describe, expect, it } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/svelte";
+import { afterEach, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
 import View from "./View.svelte";
 
-describe("Engineer unlock tree", () => {
-  it("marks progress and names what is left for each engineer", async () => {
-    render(View);
-    const card = async (name: string) => within(await screen.findByRole("article", { name }));
-    expect((await card("Felicity Farseer")).getByText("Unlocked · rank 5")).toBeTruthy();
-    expect((await card("Marco Qwent")).getByText("Known")).toBeTruthy();
-    expect((await card("Marco Qwent")).getByText("Next: Invitation: Ally reputation with Sirius Corporation.")).toBeTruthy();
-    expect((await card("Lori Jameson")).getByText("Locked")).toBeTruthy();
-    expect((await card("Lori Jameson")).getByText("Unlock Marco Qwent first.")).toBeTruthy();
-    expect((await card("Lori Jameson")).getByText("← Marco Qwent")).toBeTruthy();
-    expect((await card("Hera Tani")).getByText(/^Next: Introduction from Liz Ryder/)).toBeTruthy();
-    expect(screen.getByText(/4 of 25 unlocked/)).toBeTruthy();
+afterEach(cleanup);
 
-    await fireEvent.click(screen.getByRole("tab", { name: "Suit engineers" }));
-    expect((await card("Kit Fowler")).getByText("Invited")).toBeTruthy();
-    expect((await card("Terra Velasquez")).getByText("Next: Referral from Jude Navarro: Provide 5 Genetic Repair Meds.")).toBeTruthy();
-    expect(screen.getByText(/2 of 13 unlocked/)).toBeTruthy();
-  });
+it("shows engineer cards with specialties and access, without column titles", async () => {
+  render(View);
+  expect(await screen.findByText('Tod "The Blaster" McQuinn')).toBeTruthy();
+  expect(screen.queryByText("Introduced again")).toBeNull();
+  expect(screen.queryByText("Common knowledge")).toBeNull();
+  expect(screen.queryByText(/unlocked · rank/i)).toBeNull();
+  expect(screen.getAllByText(/Multi-Cannon/).length).toBeGreaterThan(0);
+  const tod = screen.getByLabelText('Tod "The Blaster" McQuinn');
+  expect(tod.className).toMatch(/known/);
+  expect(tod.className).not.toMatch(/unlocked/);
+  expect(tod.className).not.toMatch(/locked/);
+  expect(tod.textContent).toMatch(/Known · no access yet/);
+  const felicity = screen.getByLabelText("Felicity Farseer");
+  expect(felicity.className).toMatch(/unlocked/);
+  expect(felicity.querySelectorAll(".badge").length).toBe(5);
+  const liz = screen.getByLabelText("Liz Ryder");
+  expect(liz.querySelectorAll(".badge").length).toBe(1);
+  const lei = screen.getByLabelText("Lei Cheung");
+  expect(lei.className).toMatch(/locked/);
+  expect(lei.textContent).toMatch(/Not introduced/);
+});
+
+it("lights the introducing engineer on hover", async () => {
+  render(View);
+  const lei = await screen.findByLabelText("Lei Cheung");
+  await fireEvent.mouseOver(lei);
+  expect(lei.className).toMatch(/hot/);
+  expect(screen.getByLabelText("The Dweller").className).toMatch(/pred/);
+  await fireEvent.mouseLeave(lei);
+  expect(screen.getByLabelText("The Dweller").className).not.toMatch(/pred/);
 });

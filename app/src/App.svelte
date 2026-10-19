@@ -10,6 +10,7 @@
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
   import { openHelp } from "./lib/help";
+  import Rail from "./modules/route/Rail.svelte";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links.
@@ -21,7 +22,8 @@
   if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
   const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
-  const pages = $derived(current ? groupModules(current.group) : []);
+  const pages = $derived(current && current.group !== "galaxy" ? groupModules(current.group) : []);
+  const galaxyFind = $derived(current?.group === "galaxy" && current.id !== "route");
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
   const onboarding = $derived(route === "setup" || route.startsWith("setup/") || status?.onboarded === false);
@@ -72,7 +74,7 @@
       <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
     {/if}
     <span class="right">
-      <span class="state">{headerState(status)}</span>
+      <span class="state" class:warn={!status || status.game === "not_running"}>{headerState(status)}</span>
       {#if current}
         <button class="help" title="Open this page's guide in your browser" onclick={() => void openHelp(current.help)}>Help</button>
       {/if}
@@ -85,11 +87,22 @@
       {/each}
     </nav>
   {/if}
-  <main>
+  <main class:split={galaxyFind}>
     {#if current}
-      {#await current.load() then view}
-        <view.default />
-      {/await}
+      {#if galaxyFind}
+        <div class="find">
+          {#await current.load() then view}
+            <view.default />
+          {/await}
+        </div>
+        <aside class="rail" aria-label="Route">
+          <Rail />
+        </aside>
+      {:else}
+        {#await current.load() then view}
+          <view.default />
+        {/await}
+      {/if}
     {/if}
   </main>
   <Toasts {status} />
@@ -99,13 +112,14 @@
 
 <style>
   .frame { height: 100vh; display: grid; grid-template-rows: auto auto 1fr; }
-  header { display: flex; align-items: baseline; gap: 40px; margin: 0 40px; padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
+  header { display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); margin: 0 clamp(16px, 3vw, 40px); padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
-  nav { display: flex; gap: 28px; flex: 1; flex-wrap: wrap; }
+  nav { display: flex; gap: clamp(16px, 2.5vw, 28px); flex: 1; flex-wrap: wrap; }
+  header nav { flex-wrap: nowrap; }
   button { all: unset; cursor: pointer; color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
   button:hover { color: var(--text); }
-  button.on { color: var(--accent); }
-  nav.sub { flex: none; gap: 24px; margin: 0 40px; padding: 12px 0 0; }
+  button.on { color: var(--text-hi); }
+  nav.sub { flex: none; gap: 24px; margin: 0 clamp(16px, 3vw, 40px); padding: 12px 0 0; }
   nav.sub button { font-size: var(--fs-s); font-weight: 600; padding-bottom: 4px; border-bottom: 2px solid transparent; }
   nav.sub button.on { color: var(--text-hi); border-bottom-color: var(--accent); }
   .setup { color: var(--accent); font-size: var(--fs-s); font-weight: 600; }
@@ -113,11 +127,17 @@
   .help { font-size: var(--fs-s); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .right { display: flex; align-items: baseline; gap: 16px; }
   .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
-  main { min-height: 0; overflow: auto; padding: 0 40px; scrollbar-gutter: stable; }
+  .state.warn { color: var(--accent); font-weight: 600; }
+  main { min-height: 0; overflow: auto; padding: 0 clamp(16px, 3vw, 40px); scrollbar-gutter: stable; }
+  main.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); gap: 0; overflow: hidden; padding-right: 0; }
+  .find { min-width: 0; overflow: auto; padding: 20px 24px 40px 0; scrollbar-gutter: stable; }
+  .rail { min-width: 0; overflow: auto; padding: 20px clamp(16px, 3vw, 28px) 40px 24px; border-left: 1px solid var(--accent-dim); background: var(--bg-list); }
   @media (max-width: 1100px) {
-    header { gap: 24px; margin: 0 24px; }
-    nav { gap: 18px; }
-    nav.sub { margin: 0 24px; }
-    main { padding: 0 24px; }
+    header { gap: 16px; }
+    nav { gap: 14px; }
+    nav.sub { gap: 16px; }
+    main.split { display: flex; flex-direction: column; overflow: auto; padding-right: clamp(16px, 3vw, 40px); }
+    .find { padding: 20px 0 24px; overflow: visible; flex: none; }
+    .rail { border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; max-height: 38vh; overflow: auto; position: sticky; bottom: 0; z-index: 2; }
   }
 </style>

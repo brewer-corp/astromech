@@ -38,7 +38,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Mother Gaia",
+      "state": "Boom"
     },
     {
       "name": "Furukawa Enterprise",
@@ -58,7 +61,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Sol Workers' Party",
+      "state": "Election"
     },
     {
       "name": "Grebby Prospecting",
@@ -78,7 +84,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Sol Mining Syndicate",
+      "state": null
     },
     {
       "name": "Ikeda Tourist Zone",
@@ -98,7 +107,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Mother Gaia",
+      "state": null
     },
     {
       "name": "Kvitka's Origin",
@@ -118,7 +130,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Alliance",
+      "faction": "Hutton Orbital Truckers Co-operative",
+      "state": "Expansion"
     },
     {
       "name": "Rescue Ship - Li Qing Jao",
@@ -138,7 +153,10 @@
       "price": null,
       "detail": null,
       "jumps": 0,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Pilots' Federation Local Branch",
+      "state": "UnderRepairs"
     },
     {
       "name": "Markus Extraction Exchange",
@@ -158,7 +176,10 @@
       "price": null,
       "detail": null,
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Hutton Orbital Truckers Co-operative",
+      "state": "CivilUnrest"
     },
     {
       "name": "T8J-N7L",
@@ -178,7 +199,10 @@
       "price": null,
       "detail": null,
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Private",
+      "state": null
     },
     {
       "name": "V7T-33H",
@@ -198,7 +222,10 @@
       "price": null,
       "detail": null,
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Independent",
+      "faction": "Private",
+      "state": null
     },
     {
       "name": "Kawle Genetics Complex",
@@ -218,7 +245,10 @@
       "price": null,
       "detail": null,
       "jumps": 1,
-      "exact": true
+      "exact": true,
+      "allegiance": "Federation",
+      "faction": "Alpha Centauri for Equality",
+      "state": "Outbreak"
     }
   ]
 }

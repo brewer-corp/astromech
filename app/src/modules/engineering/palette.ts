@@ -25,7 +25,7 @@ export default async function entries(): Promise<PaletteItem[]> {
   }
   for (const [key, g] of Object.entries(fleet.groups)) {
     const ship = ships.find((s) => s.modules.some((m) => m.group === key));
-    const route = ship ? `engineering/${ship.id}` : "engineering";
+    const route = ship ? `engineering/${ship.id}/plan` : "engineering";
     for (const b of g.blueprints) items.push({ label: b.name, detail: `Blueprint · ${g.name}`, route, keywords: key });
     for (const x of g.experimentals) items.push({ label: x.name, detail: `Experimental · ${g.name}`, route, keywords: key });
   }

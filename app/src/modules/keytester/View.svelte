@@ -49,6 +49,8 @@
   .row > span { background: var(--cell-empty); padding: 0 12px; display: flex; align-items: center; }
   .row.new > span { background: var(--cell); color: var(--text-hi); }
   .row.empty { grid-template-columns: 1fr; }
+  .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
+  .row.empty .lo { color: var(--on-accent); }
   .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--cell-opt); margin-bottom: var(--gap); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .lo { color: var(--text-lo); }
