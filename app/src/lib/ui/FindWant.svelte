@@ -7,15 +7,11 @@
 
   let { current }: { current: string } = $props();
 
-  let text = $state("");
+  let text = $derived(current);
   let hits = $state<PaletteItem[]>([]);
   let sel = $state(0);
   let open = $state(false);
   let blurTimer: ReturnType<typeof setTimeout> | null = null;
-
-  $effect(() => {
-    text = current;
-  });
 
   function typed(v: string) {
     text = v;

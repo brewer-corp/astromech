@@ -44,7 +44,7 @@ it("shows speed, jump and power on the Info tab", async () => {
   expect((await screen.findByLabelText("Speed")).textContent).toMatch(/376/);
   expect(screen.getByLabelText("Jump").textContent).toMatch(/24\.87/);
   expect(screen.getByLabelText("Power").textContent).toMatch(/44\.10/);
-  expect(screen.getByLabelText("Pitch / roll / yaw").textContent).toMatch(/36/);
+  expect(screen.getByLabelText("Pitch / roll / yaw").textContent).toMatch(/\b36\s*\|\s*90\s*\|\s*16\b/);
   expect(screen.getByLabelText("Shields").textContent).toMatch(/MJ/);
   expect(screen.getByLabelText("Weapons and hull").textContent).toMatch(/DPS/);
 });
