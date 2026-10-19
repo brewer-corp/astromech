@@ -96,10 +96,10 @@
 </div>
 
 <style>
-  .origin { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: var(--fs-s); }
-  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); }
+  .origin { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs); }
+  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); min-width: 5.5em; }
   .box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
-  input { all: unset; flex: 1; min-width: 0; width: 100%; height: 28px; padding: 0 8px; color: var(--text-hi); }
+  input { all: unset; flex: 1; min-width: 0; width: 100%; height: 32px; padding: 0 10px; color: var(--text-hi); }
   input::placeholder { color: var(--text-lo); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .clear { padding: 0 8px; color: var(--text-lo); font-size: var(--fs); }

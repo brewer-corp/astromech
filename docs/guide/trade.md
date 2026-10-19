@@ -16,8 +16,9 @@ filters, and voice questions use the same ones (see [Voice lookups](lookups.md#t
 3. Read the list: best price first for Sell (stations buying), cheapest first for Buy (stations
    selling).
 
-Each row has the station and system, jumps and distance, the price, the **demand** (Sell) or
-**stock** (Buy), the pad, the distance from the arrival star and when it was reported.
+Each row has the station (type mark and arrival distance), the system with jumps and light years,
+the price, and the **demand** (Sell) or **stock** (Buy) with when it was reported. Pad is a
+filter, not a column. Voice questions use the same filters (see [Voice lookups](lookups.md#trade)).
 
 - **Near** searches around you or a system you type, within a distance (100 light years by
   default) and data age (30 days by default).
@@ -28,13 +29,12 @@ Each row has the station and system, jumps and distance, the price, the **demand
 
 ## My cargo
 
-Where to sell **everything in your hold**. It reads your hold, and lists the stations that pay the
-most for the whole load, each commodity capped by what the station will take. Under it, **Best for
-each on its own** shows the best station for each commodity separately. When no market takes all
-of one commodity, it shows the market that takes the most.
-
-Mission cargo, stolen goods and limpets are left out ("Left out: ..."). Ask the same by voice:
-"where should I sell my cargo".
+Where to sell **everything in your hold**. The query band lists what is in the hold, and what was
+left out (mission cargo, stolen goods, limpets). It then lists the stations that pay the most for
+the whole load, each commodity capped by what the station will take. Under it, **Best for each on
+its own** shows the best station for each commodity separately. When no market takes all of one
+commodity, it shows the market that takes the most. Voice: "where should I sell my cargo"
+(see [Voice lookups](lookups.md#trade)).
 
 ## Route
 
@@ -50,8 +50,8 @@ worked out by Spansh's trade router.
 
 The result lists each leg: from and to station, what to carry, buy and sell prices, profit per ton and
 in all, jumps and distance. At the end: the profit per round trip and an **estimated** profit per hour.
-Spansh does not give profit per hour, so astromech estimates it from 50 seconds a jump, 2 minutes to
-dock and trade, and supercruise time by distance from the star; the estimate is labelled.
+Spansh does not give profit per hour. The line is labelled Estimated; hover it for the time model
+(50 seconds a jump, 2 minutes to dock and trade, supercruise by distance from the star).
 
 "No profitable route within these limits" suggests a longer hop, more credits or older market data.
 

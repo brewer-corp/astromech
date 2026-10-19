@@ -69,8 +69,8 @@
 </div>
 
 <style>
-  .pick { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: var(--fs-s); }
-  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); }
+  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); }
+  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; font-size: var(--fs-s); }
   .box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
   input { all: unset; flex: 1; min-width: 0; width: 100%; height: 28px; padding: 0 8px; color: var(--text-hi); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }

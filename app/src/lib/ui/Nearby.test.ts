@@ -31,7 +31,7 @@ describe("Nearby", () => {
     expect(await screen.findByText("Ross 154")).toBeTruthy();
     const visited = screen.getAllByText(/seen on your visit/);
     expect(visited).toHaveLength(1);
-    expect(visited[0]?.textContent).toMatch(/^Ross 154 Boys \(Independent, Famine\) · seen on your visit · reported /);
+    expect(visited[0]?.textContent).toMatch(/Ross 154 Boys \(Independent, Famine\) · seen on your visit/);
   });
 
   it("Go puts a faction-state system on the route follower", async () => {

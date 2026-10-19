@@ -26,9 +26,10 @@ describe("Sites", () => {
     render(Sites);
     // the body without its system, then the system chip; jumps are an estimate off the map
     expect(await screen.findByText("Oochorrs SB-J d10-5")).toBeTruthy();
-    expect(screen.getAllByText(/^B 6 a ·/).length).toBe(1);
-    expect(screen.getAllByText("~44 jumps · 1426.2 ly").length).toBe(1);
-    expect(screen.getByText(/26k ls · Crystalline Shards · first at -4\.0, -141\.0/)).toBeTruthy();
+    expect(screen.getByText("B 6 a")).toBeTruthy();
+    expect(screen.getAllByText("1426.2 ly · ~44 jumps").length).toBe(1);
+    expect(screen.getByText("(26k ls)")).toBeTruthy();
+    expect(screen.getByText(/Crystalline Shards · first at -4\.0, -141\.0/)).toBeTruthy();
     expect(asked).toHaveBeenLastCalledWith("crystalline_shards", null, DEFAULT_FILTERS);
 
     await fireEvent.click(screen.getByRole("tab", { name: "Known raw farms" }));

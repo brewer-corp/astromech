@@ -35,7 +35,7 @@ describe("trade lookups", () => {
 
   it("lists the best prices anywhere with no search radius, cheapest first when buying", async () => {
     const sell = toResults(await tradeAnywhere("sell", "painite", null, { ...DEFAULT_FILTERS, max_distance_ly: 10 }));
-    expect(sell.rows[0]).toMatchObject({ station: "FCX-800", system: "Chamaeleon Sector HR-W d1-42", lead: "390,780 cr", detail: "demand 1,632 · fleet carrier", updated_at: "2026-09-18T09:39:20.000Z" });
+    expect(sell.rows[0]).toMatchObject({ station: "FCX-800", system: "Chamaeleon Sector HR-W d1-42", lead: "390,780 cr", detail: "demand 1,632", station_type: "Drake-Class Carrier", updated_at: "2026-09-18T09:39:20.000Z" });
     expect(sell.rows[0]?.ly).toBeGreaterThan(500);
     expect(sell.rows).toHaveLength(12);
     const buy = toResults(await tradeAnywhere("buy", "tritium", "Colonia", { ...DEFAULT_FILTERS, exclude_carriers: true }));

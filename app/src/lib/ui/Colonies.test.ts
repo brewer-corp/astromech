@@ -30,7 +30,7 @@ describe("Colonies", () => {
     expect(await screen.findByText("Greae Phoea VS-M b39-29")).toBeTruthy();
     expect(asked).toHaveBeenLastCalledWith("any", null, DEFAULT_FILTERS);
     expect(rows()).toHaveLength(10);
-    expect(rows()[0]).toContain("1 jump · 9.5 ly");
+    expect(rows()[0]).toContain("9.5 ly · 1 jump");
     expect(rows()[0]).toContain("M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675");
     // Measured from the colony that puts it in range; no bodies scanned yet.
     expect(screen.getByText(/bodies not on Spansh · 6\.2 ly from Greae Phoea EM-K d9-373/)).toBeTruthy();

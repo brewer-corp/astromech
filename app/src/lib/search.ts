@@ -30,6 +30,14 @@ export interface Row {
   detail?: string;
   /** Shown first on the distance line, e.g. a market's price. */
   lead?: string;
+  /** Spansh station type, shown as a HUD mark. */
+  station_type?: string | null;
+  /** Superpower the station answers to. */
+  allegiance?: string | null;
+  /** Controlling minor faction. */
+  faction?: string | null;
+  /** Station state ("Under repairs"); "None" is omitted in the row. */
+  state?: string | null;
 }
 
 export interface Results {
@@ -146,4 +154,10 @@ export function padLabel(p: Pad | null | undefined): string {
 export function arrivalLabel(ls: number | null | undefined): string {
   if (ls == null) return "";
   return ls >= 10000 ? `${Math.round(ls / 1000)}k ls` : `${Math.round(ls)} ls`;
+}
+
+/** "Under repairs" from Spansh's "UnderRepairs"; empty when missing or "None". */
+export function stateLabel(s: string | null | undefined): string {
+  if (!s || /^none$/i.test(s)) return "";
+  return s.replace(/([a-z])([A-Z])/g, "$1 $2");
 }

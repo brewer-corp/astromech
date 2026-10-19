@@ -1,7 +1,8 @@
 <script lang="ts">
-  // A lookup's filters, shown only where they apply (`offers`). The pad follows the current
-  // ship until the commander picks one.
+  // A lookup's filters, shown only where they apply (`offers`). Pad is S/M/L (S is any pad);
+  // the ship you are flying is marked on its size. Carriers and Odyssey are include/exclude cells.
   import type { FilterHints, FilterKey, Filters, Pad } from "../search";
+  import Seg from "./Seg.svelte";
 
   let {
     filters,
@@ -23,11 +24,13 @@
   const DISTANCES = [20, 50, 100, 200, 500];
   const VOLUMES = [100, 500, 1000, 5000];
 
-  const padValue = $derived(!filters.pad_set ? "ship" : (filters.pad ?? "any"));
+  const shipSize = $derived<Pad>((shipPad === undefined ? filters.pad : shipPad) ?? "S");
+  const padValue = $derived(!filters.pad_set ? shipSize : (filters.pad ?? "S"));
 
   function setPad(v: string) {
-    if (v === "ship") onchange({ ...filters, pad_set: false });
-    else onchange({ ...filters, pad_set: true, pad: v === "any" ? null : (v as Pad) });
+    const pad = v as Pad;
+    if (pad === shipSize) onchange({ ...filters, pad_set: false });
+    else onchange({ ...filters, pad_set: true, pad });
   }
 
   const num = (v: string): number | null => (v ? Number(v) : null);
@@ -71,16 +74,16 @@
     </label>
   {/if}
   {#if offers.includes("pad")}
-    <label>
-      <span>Pad</span>
-      <select value={padValue} onchange={(e) => setPad(e.currentTarget.value)}>
-        <option value="ship">Ship's{!filters.pad_set ? ` (${(shipPad === undefined ? filters.pad : shipPad) ?? "any"})` : ""}</option>
-        <option value="S">S or larger</option>
-        <option value="M">M or larger</option>
-        <option value="L">L</option>
-        <option value="any">Any</option>
-      </select>
-    </label>
+    <Seg
+      label="Pad"
+      value={padValue}
+      options={[
+        { value: "S", label: "S", title: shipSize === "S" ? "Your ship · S or larger" : "S or larger", mark: shipSize === "S" ? "ship" : undefined },
+        { value: "M", label: "M", title: shipSize === "M" ? "Your ship · M or larger" : "M or larger", mark: shipSize === "M" ? "ship" : undefined },
+        { value: "L", label: "L", title: shipSize === "L" ? "Your ship · L" : "L", mark: shipSize === "L" ? "ship" : undefined },
+      ]}
+      onchange={setPad}
+    />
   {/if}
   {#if offers.includes("arrival")}
     <label>
@@ -91,25 +94,25 @@
       </select>
     </label>
   {/if}
-  {#if offers.includes("carriers")}
-    <label class="check">
-      <input type="checkbox" checked={filters.exclude_carriers} onchange={(e) => onchange({ ...filters, exclude_carriers: e.currentTarget.checked })} />
-      <span>No fleet carriers</span>
-    </label>
-  {/if}
-  {#if offers.includes("odyssey")}
-    <label class="check">
-      <input type="checkbox" checked={filters.exclude_odyssey} onchange={(e) => onchange({ ...filters, exclude_odyssey: e.currentTarget.checked })} />
-      <span>No Odyssey settlements</span>
-    </label>
+  {#if offers.includes("carriers") || offers.includes("odyssey")}
+    <div class="togs">
+      {#if offers.includes("carriers")}
+        <button type="button" class="tog" class:on={!filters.exclude_carriers} aria-pressed={!filters.exclude_carriers} onclick={() => onchange({ ...filters, exclude_carriers: !filters.exclude_carriers })}>{filters.exclude_carriers ? "No carriers" : "Carriers"}</button>
+      {/if}
+      {#if offers.includes("odyssey")}
+        <button type="button" class="tog" class:on={!filters.exclude_odyssey} aria-pressed={!filters.exclude_odyssey} onclick={() => onchange({ ...filters, exclude_odyssey: !filters.exclude_odyssey })}>{filters.exclude_odyssey ? "No Odyssey" : "Odyssey"}</button>
+      {/if}
+    </div>
   {/if}
 </div>
 
 <style>
-  .filters { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; font-size: var(--fs-s); }
-  label { display: flex; align-items: center; gap: 8px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: var(--fs-s); }
+  label { display: flex; align-items: center; gap: 8px; min-width: 0; }
   label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
-  label.check > span { text-transform: none; letter-spacing: normal; color: var(--text); min-width: 0; }
-  select { all: unset; flex: 1; height: 26px; padding: 0 8px; background: var(--cell); color: var(--accent); cursor: pointer; }
-  input[type="checkbox"] { accent-color: var(--accent); margin: 0; }
+  select { all: unset; min-width: 8rem; height: 30px; padding: 0 8px; background: var(--cell); color: var(--accent); cursor: pointer; }
+  .togs { display: flex; flex-wrap: wrap; gap: var(--gap); }
+  .tog { all: unset; cursor: pointer; box-sizing: border-box; height: 30px; padding: 0 12px; background: var(--cell-opt); color: var(--text); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
+  .tog:hover { color: var(--text-hi); }
+  .tog.on { background: var(--cell); color: var(--accent); }
 </style>

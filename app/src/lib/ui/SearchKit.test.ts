@@ -66,16 +66,52 @@ describe("SearchKit", () => {
     let pad: Filters["pad"] = "M";
     loadFilters.mockImplementation(async () => ({ ...DEFAULT_FILTERS, pad }));
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(results);
-    render(SearchKit, { lookup: "stations.service", offers: ["pad"], run });
-    expect(await screen.findByText("Ship's (M)")).toBeTruthy();
+    render(SearchKit, { lookup: "stations.service", offers: ["pad", "carriers", "odyssey"], run });
+    expect(await screen.findByRole("button", { name: "Pad M, current ship" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Carriers" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Odyssey" }).getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByRole("button", { name: "Pad M, current ship" }).getAttribute("aria-pressed")).toBe("true");
 
     pad = "L"; // the commander swaps to an Anaconda, then searches from another system
     const box = screen.getByLabelText("Search from system");
     await fireEvent.input(box, { target: { value: "Deciat" } });
     await fireEvent.keyDown(box, { key: "Enter" });
     await waitFor(() => expect(run).toHaveBeenLastCalledWith("Deciat", expect.anything()));
-    expect(await screen.findByText("Ship's (L)")).toBeTruthy();
-    expect(screen.queryByText("Ship's (M)")).toBeNull();
+    expect(await screen.findByRole("button", { name: "Pad L, current ship" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Pad M, current ship" })).toBeNull();
+  });
+
+  it("puts arrival on the station name, distance with the system, and allegiance in the row", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const station: Results = {
+      ...results,
+      rows: [
+        {
+          key: 2,
+          system: "Sol",
+          station: "Grebby Prospecting",
+          ly: 4.4,
+          jumps: 1,
+          exact: true,
+          arrival_ls: 2202,
+          pad: "L",
+          station_type: "Settlement",
+          allegiance: "Independent",
+          faction: "Sol Mining Syndicate",
+          state: "Boom",
+          updated_at: null,
+        },
+      ],
+    };
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(station);
+    render(SearchKit, { lookup: "stations.service", offers: [], run });
+    expect(await screen.findByText(/Grebby Prospecting/)).toBeTruthy();
+    expect(screen.getByText("(2202 ls)")).toBeTruthy();
+    expect(screen.getByText("4.4 ly · 1 jump")).toBeTruthy();
+    expect(screen.getByText("Independent")).toBeTruthy();
+    expect(screen.getByText("Sol Mining Syndicate")).toBeTruthy();
+    expect(screen.getByText("Boom")).toBeTruthy();
+    expect(screen.queryByText(/^[SML]$/)).toBeNull();
   });
 
   it("Go follows a station result, labelled with the station, and says when the core can't", async () => {

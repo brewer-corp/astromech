@@ -13,6 +13,6 @@ describe("SystemChip", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Copy Col 285 Sector AB-C d12-3" }));
 
     expect(writeText).toHaveBeenCalledExactlyOnceWith("Col 285 Sector AB-C d12-3");
-    expect(await screen.findByText("Copied")).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Copied Col 285 Sector AB-C d12-3" })).toBeTruthy();
   });
 });

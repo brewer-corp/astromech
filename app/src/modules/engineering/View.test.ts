@@ -79,7 +79,7 @@ it("says where a ship in transit is going, as a chip", async () => {
   render(View);
   const c = (await screen.findByText("Synthetic_Krait")).closest(".card") as HTMLElement;
   const where = c.querySelector(".where")!;
-  expect(where.textContent!.replace(/\s+/g, " ").trim()).toBe("In transit to Sol Copy");
+  expect(where.textContent!.replace(/\s+/g, " ").trim()).toBe("In transit to Sol");
   // The location wraps and its name may be cut short on a narrow card: the full name is on hover.
   expect(where.getAttribute("title")).toBe("Sol");
   expect(within(c).getByRole("button", { name: "Copy Sol" })).toBeTruthy();
