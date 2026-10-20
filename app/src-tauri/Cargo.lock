@@ -49,7 +49,7 @@ checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
 
 [[package]]
 name = "astromech-colonisation"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-journal",
  "astromech-store",
@@ -59,7 +59,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-data"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "rusqlite",
  "serde",
@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-engineering"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-data",
  "astromech-journal",
@@ -84,7 +84,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-exobiology"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-journal",
  "astromech-status",
@@ -94,7 +94,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-exploration"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-exobiology",
  "astromech-journal",
@@ -104,7 +104,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-galaxy"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "anyhow",
  "astromech-data",
@@ -122,7 +122,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-gamestate"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-exobiology",
  "astromech-exploration",
@@ -136,7 +136,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-history"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-exploration",
  "astromech-journal",
@@ -148,7 +148,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-input"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "anyhow",
  "astromech-keybinds",
@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-journal"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "chrono",
  "serde",
@@ -170,7 +170,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-keybinds"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "anyhow",
  "chrono",
@@ -182,14 +182,14 @@ dependencies = [
 
 [[package]]
 name = "astromech-log"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "chrono",
 ]
 
 [[package]]
 name = "astromech-market"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-data",
  "astromech-galaxy",
@@ -201,7 +201,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-materials"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-journal",
  "serde",
@@ -210,7 +210,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-odyssey"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-journal",
  "serde",
@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-powerplay"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-journal",
  "chrono",
@@ -229,7 +229,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-shell"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "anyhow",
  "astromech-colonisation",
@@ -258,7 +258,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-ship"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-engineering",
  "astromech-journal",
@@ -269,7 +269,7 @@ dependencies = [
 
 [[package]]
 name = "astromech-station"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "astromech-engineering",
  "astromech-gamestate",
@@ -280,14 +280,14 @@ dependencies = [
 
 [[package]]
 name = "astromech-status"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "serde_json",
 ]
 
 [[package]]
 name = "astromech-store"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "keyring-core",
  "rusqlite",

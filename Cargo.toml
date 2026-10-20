@@ -6,7 +6,7 @@ members = ["crates/*"]
 exclude = ["app/src-tauri", "spikes"]
 
 [workspace.package]
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT"

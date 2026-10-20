@@ -59,7 +59,7 @@ The [guide](docs/guide/index.md) covers every page and feature:
 
 ## Release notes
 
-What changed, what has not been checked in the game yet, and the known limits: [Release notes](docs/releases/v1.0.0-alpha.1.md).
+What changed, what has not been checked in the game yet, and the known limits: [Release notes](docs/releases/v1.0.0-alpha.2.md).
 
 ## Help and feedback
 
