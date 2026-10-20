@@ -27,7 +27,7 @@ The repo moved from spadaval/astromech to brewer-corp/astromech on 2026-10-20. G
 
 ## Done when
 
-- `grep -rI spadaval/astromech` finds matches only in `.atelier/evidence`, `.atelier/issues` (this record), past release notes, and the release-notes check, which accepts both owners so those notes still pass.
+- `grep -rI spadaval/astromech` finds matches only in `.atelier/evidence`, `.atelier/issues` and `.atelier/reviews` (this work's records), past release notes, and the release-notes check, which accepts both owners so those notes still pass.
 - The bundle identifier `io.github.spadaval.astromech` stays as it is. Changing it would give the app a new identity and data folder, which would break existing installs.
 - An alpha ships with the new feed URL.
 
