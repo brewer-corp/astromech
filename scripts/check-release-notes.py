@@ -15,6 +15,7 @@ guide = util.module_from_spec(spec)
 spec.loader.exec_module(guide)
 
 GUIDE_URL = re.compile(r"https://github\.com/(?:brewer-corp|spadaval)/astromech/blob/main/docs/guide/([a-z0-9-]+\.md)(?:#([\w-]+))?")
+ANY_GUIDE_OWNER = re.compile(r"https://github\.com/([\w.-]+)/astromech/blob/main/docs/guide/")
 ID = re.compile(r"astromech-[0-9a-z]{4}\b")
 
 
@@ -57,6 +58,8 @@ def main():
             problems.append(f"guide page {page} does not exist")
         elif anchor and anchor not in guide.anchors(f):
             problems.append(f"guide page {page} has no heading #{anchor}")
+    for owner in sorted(set(ANY_GUIDE_OWNER.findall(text)) - {"brewer-corp", "spadaval"}):
+        problems.append(f"guide link points at {owner}/astromech, not brewer-corp/astromech")
     for i in sorted({i for i in outside if i in wanted}):
         problems.append(f"{i} is mentioned outside the test script")
     for p in problems:
