@@ -15,7 +15,7 @@ This page takes you from download to "gear down" by voice, and says how updates 
 ## Install
 
 1. Download `astromech_<version>_x64-setup.exe` from the
-   [latest release](https://github.com/spadaval/astromech/releases/latest).
+   [latest release](https://github.com/brewer-corp/astromech/releases/latest).
 2. Run it. It installs for your account only, with no administrator prompt, into
    `%LOCALAPPDATA%\astromech`.
 3. The installer is not signed. Windows SmartScreen will say "Windows protected your PC".

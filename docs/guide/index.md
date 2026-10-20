@@ -59,7 +59,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 ## About this guide
 
 The guide follows the app on the `main` branch. If a page and the app disagree, the app is
-right: please [open an issue](https://github.com/spadaval/astromech/issues). Each page in the
+right: please [open an issue](https://github.com/brewer-corp/astromech/issues). Each page in the
 app has a small Help link that opens its page here.
 
 astromech is an unofficial fan project and is not affiliated with Frontier Developments.

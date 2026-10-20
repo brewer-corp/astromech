@@ -2,7 +2,7 @@
 
 *Revised 11 Oct 2026 (America/New_York). Builds on [REPORT.md](REPORT.md). Spike results are in §17.*
 
-**Project name.** **astromech** (v0.10; it replaces the earlier `helm` placeholder). Crates are `astromech-*`. Repo: https://github.com/spadaval/astromech.
+**Project name.** **astromech** (v0.10; it replaces the earlier `helm` placeholder). Crates are `astromech-*`. Repo: https://github.com/brewer-corp/astromech.
 
 **Diagrams.** Mermaid sources and rendered PNGs are in [`diagrams/`](diagrams/).
 

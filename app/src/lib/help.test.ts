@@ -20,8 +20,8 @@ describe("help links", () => {
   });
 
   it("uses only the project's GitHub pages, which the shell allows to open", () => {
-    expect(GUIDE_URL.startsWith("https://github.com/spadaval/astromech/")).toBe(true);
-    expect(helpUrl("trade.md")).toBe("https://github.com/spadaval/astromech/blob/main/docs/guide/trade.md");
+    expect(GUIDE_URL.startsWith("https://github.com/brewer-corp/astromech/")).toBe(true);
+    expect(helpUrl("trade.md")).toBe("https://github.com/brewer-corp/astromech/blob/main/docs/guide/trade.md");
   });
 });
 

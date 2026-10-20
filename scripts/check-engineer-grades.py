@@ -50,7 +50,7 @@ def main():
     if len(sys.argv) > 1:
         page = json.load(open(sys.argv[1]))
     else:
-        req = urllib.request.Request(URL, headers={"User-Agent": "astromech (+https://github.com/spadaval/astromech)"})
+        req = urllib.request.Request(URL, headers={"User-Agent": "astromech (+https://github.com/brewer-corp/astromech)"})
         page = json.load(urllib.request.urlopen(req))
     wiki = wiki_grades(page["parse"]["wikitext"]["*"])
     eng = json.load(open(os.path.join(os.path.dirname(__file__), "..", "data", "catalog", "engineering.json")))

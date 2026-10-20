@@ -19,7 +19,7 @@ import csv, datetime, io, json, os, re, sys, urllib.parse, urllib.request
 
 WIKI = "https://elite-dangerous.fandom.com/api.php"
 FDEV = "https://raw.githubusercontent.com/EDCD/FDevIDs/master/"
-UA = "astromech gen-odyssey (github.com/spadaval/astromech)"
+UA = "astromech gen-odyssey (github.com/brewer-corp/astromech)"
 
 SUITS = ["Maverick Suit", "Dominator Suit", "Artemis Suit"]
 WEAPONS = [

@@ -34,7 +34,7 @@ ships, materials, trade and logbook.
 You need Windows and Elite Dangerous on the same PC.
 
 1. Download `astromech_<version>_x64-setup.exe` from the
-   [latest release](https://github.com/spadaval/astromech/releases/latest).
+   [latest release](https://github.com/brewer-corp/astromech/releases/latest).
 2. Run it. It installs for your account, with no administrator prompt. The build is unsigned, so
    Windows SmartScreen says "Windows protected your PC": choose **More info**, then **Run
    anyway**.
@@ -64,7 +64,7 @@ What changed, what has not been checked in the game yet, and the known limits: [
 ## Help and feedback
 
 Something wrong? Open Settings, then Diagnostics, and **Save diagnostics**, then
-[open an issue](https://github.com/spadaval/astromech/issues) and attach the zip. Do not post
+[open an issue](https://github.com/brewer-corp/astromech/issues) and attach the zip. Do not post
 journals or logs you would not want public.
 
 ## Contributing

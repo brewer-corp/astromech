@@ -45,7 +45,7 @@ def main():
     if len(sys.argv) > 1:
         page = json.load(open(sys.argv[1]))
     else:
-        req = urllib.request.Request(URL, headers={"User-Agent": "astromech (+https://github.com/spadaval/astromech)"})
+        req = urllib.request.Request(URL, headers={"User-Agent": "astromech (+https://github.com/brewer-corp/astromech)"})
         page = json.load(urllib.request.urlopen(req))
     text = page["parse"]["wikitext"]["*"]
     summary = text.split("== Engineer Summary ==")[1]

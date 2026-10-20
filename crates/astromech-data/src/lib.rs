@@ -34,7 +34,7 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 pub const USER_AGENT: &str =
-    concat!("astromech/", env!("CARGO_PKG_VERSION"), " (+https://github.com/spadaval/astromech)");
+    concat!("astromech/", env!("CARGO_PKG_VERSION"), " (+https://github.com/brewer-corp/astromech)");
 
 /// How long each kind of answer is reused, in seconds (ARCHITECTURE §5.8).
 pub mod ttl {

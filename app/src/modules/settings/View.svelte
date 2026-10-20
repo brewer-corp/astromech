@@ -206,7 +206,7 @@
       <dt>Version</dt>
       <dd>
         <span>{status.version}</span>
-        <button onclick={() => openUrl("https://github.com/spadaval/astromech/releases")}>Release notes</button>
+        <button onclick={() => openUrl("https://github.com/brewer-corp/astromech/releases")}>Release notes</button>
       </dd>
       <dt>Updates</dt>
       <dd class:warn={u?.status === "error"}>

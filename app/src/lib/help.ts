@@ -6,7 +6,7 @@
 import { openUrl } from "./core";
 
 /** Where the guide is served: the pages on `main`, rendered by GitHub. */
-export const GUIDE_URL = "https://github.com/spadaval/astromech/blob/main/docs/guide/";
+export const GUIDE_URL = "https://github.com/brewer-corp/astromech/blob/main/docs/guide/";
 
 /** The guide page of first-run setup (it is not a module). */
 export const SETUP_HELP = "getting-started.md#first-run";

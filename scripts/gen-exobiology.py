@@ -46,7 +46,7 @@ WIKI_PAGE = "Exobiology Sample Values and Details"
 WIKI_API = "https://elite-dangerous.fandom.com/api.php"
 SPANSH = "https://spansh.co.uk/api/bodies/search"
 CANONN_CODEX = "https://us-central1-canonn-api-236217.cloudfunctions.net/query/codex/ref"
-AGENT = "astromech gen-exobiology.py (+https://github.com/spadaval/astromech)"
+AGENT = "astromech gen-exobiology.py (+https://github.com/brewer-corp/astromech)"
 # Where the species are looked for: Sol, Colonia, the galactic centre, the far side of the core.
 REFS = [(0.0, 0.0, 0.0), (-9530.5, -910.28, 19808.13), (25.2, -20.9, 25899.97), (1500.0, 0.0, 40000.0)]
 PER_REF = 100

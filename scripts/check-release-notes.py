@@ -14,7 +14,7 @@ spec = util.spec_from_file_location("check_guide", ROOT / "scripts" / "check-gui
 guide = util.module_from_spec(spec)
 spec.loader.exec_module(guide)
 
-GUIDE_URL = re.compile(r"https://github\.com/spadaval/astromech/blob/main/docs/guide/([a-z0-9-]+\.md)(?:#([\w-]+))?")
+GUIDE_URL = re.compile(r"https://github\.com/(?:brewer-corp|spadaval)/astromech/blob/main/docs/guide/([a-z0-9-]+\.md)(?:#([\w-]+))?")
 ID = re.compile(r"astromech-[0-9a-z]{4}\b")
 
 

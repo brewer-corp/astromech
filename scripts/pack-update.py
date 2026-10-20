@@ -63,7 +63,7 @@ def main() -> int:
             with p.open("rb") as f:
                 z.writestr(info, f.read())
     digest = sha256(zip_path)
-    url = f"https://github.com/spadaval/astromech/releases/download/v{version}/{zip_name}"
+    url = f"https://github.com/brewer-corp/astromech/releases/download/v{version}/{zip_name}"
     manifest = {
         "version": version,
         "notes": args.notes,

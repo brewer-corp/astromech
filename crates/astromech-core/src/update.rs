@@ -20,7 +20,7 @@ use std::time::Duration;
 /// Private seed is repo secret `ASTROMECH_UPDATE_KEY`.
 pub const PUBLIC_KEY_HEX: &str = "a3d477d762b6c7b2b87a2b092310e3150cc6eafc12ce02c52d8dcf53bd3827ac";
 
-pub const DEFAULT_FEED: &str = "https://github.com/spadaval/astromech/releases/latest/download/latest.json";
+pub const DEFAULT_FEED: &str = "https://github.com/brewer-corp/astromech/releases/latest/download/latest.json";
 pub const CHECK_EVERY: Duration = Duration::from_secs(24 * 60 * 60);
 pub const STARTUP_DELAY: Duration = Duration::from_secs(20);
 
@@ -224,7 +224,11 @@ pub fn zip_url(m: &Manifest) -> String {
     if !m.url.trim().is_empty() {
         return m.url.clone();
     }
-    format!("https://github.com/spadaval/astromech/releases/download/v{}/{}", m.version.trim_start_matches('v'), m.zip)
+    format!(
+        "https://github.com/brewer-corp/astromech/releases/download/v{}/{}",
+        m.version.trim_start_matches('v'),
+        m.zip
+    )
 }
 
 pub fn sha256_file(path: &Path) -> Result<String> {
