@@ -16,9 +16,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-20T18:48:41.411251168+00:00"
+status: "done"
 title: "Point hardcoded GitHub URLs at brewer-corp/astromech"
-updated_at: "2026-10-20T14:26:54.421934089+00:00"
+updated_at: "2026-10-20T18:48:41.411251168+00:00"
 ---
 
 ## Goal
@@ -29,7 +30,7 @@ The repo moved from spadaval/astromech to brewer-corp/astromech on 2026-10-20. G
 
 - `grep -rI spadaval/astromech` finds matches only in `.atelier/evidence`, `.atelier/issues` and `.atelier/reviews` (this work's records), past release notes, and the release-notes check, which accepts both owners so those notes still pass.
 - The bundle identifier `io.github.spadaval.astromech` stays as it is. Changing it would give the app a new identity and data folder, which would break existing installs.
-- An alpha ships with the new feed URL.
+- Shipping an alpha with the new feed URL is astromech-rcui.
 
 ## Scope
 
@@ -38,3 +39,7 @@ The repo moved from spadaval/astromech to brewer-corp/astromech on 2026-10-20. G
 - The User-Agent in `crates/astromech-data/src/lib.rs`, the `Cargo.toml` repository fields, README, `docs/`, `app/src/lib/help.ts` and its test, settings View.svelte, and `scripts/*`.
 - Leave `.atelier/evidence` alone. It is historical record.
 - Never recreate `spadaval/astromech`. alpha.1 and alpha.2 have the old feed compiled in, and alpha.2's `latest.json` has a spadaval download URL, so they update only through GitHub's redirect. A recreated repo would stop their updates. It could not install code, because the manifest is ed25519-signed.
+
+## Close Reason
+
+Repo URLs point at brewer-corp/astromech (PR 169, CI green, independently reviewed). The remaining old-owner matches are the deliberate ones listed in Done when. Shipping an alpha with the new feed is astromech-rcui.
