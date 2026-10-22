@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Neutron plotter over the local file"
-updated_at: "2026-10-22T21:31:10.594608049+00:00"
+updated_at: "2026-10-22T23:05:41.476605784+00:00"
 ---
 
 ## Goal
