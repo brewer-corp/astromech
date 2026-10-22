@@ -638,7 +638,10 @@ impl Tailer {
     /// newest by modified time, which a sync tool can make an older journal, so the game's current
     /// one may only be followed once the game next writes it (astromech-nrhv). The game's latest
     /// journal is measured through an open handle: on Windows a directory listing lags appends to
-    /// a file the game holds open (astromech-txzq). The others are closed, so the listing is right.
+    /// a file the game holds open (astromech-txzq). If it can't be opened just now (a scanner or
+    /// backup tool holds it) the listing's length will do (astromech-ek06): left out, it would be
+    /// taken for new and live from its first line. The others are closed, so the listing is
+    /// right, and opening each of a folder of years of journals would slow every start.
     fn note_startup_lengths(&mut self) {
         let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
         let latest = astromech_journal::latest_journal(&self.dir);
@@ -648,7 +651,7 @@ impl Tailer {
                 continue;
             }
             let len = if latest.as_ref() == Some(&path) {
-                std::fs::File::open(&path).and_then(|f| f.metadata())
+                std::fs::File::open(&path).and_then(|f| f.metadata()).or_else(|_| e.metadata())
             } else {
                 e.metadata()
             };
@@ -1487,6 +1490,35 @@ mod tests {
         assert_eq!(t.tail.as_ref().unwrap().path, current);
         assert_eq!(eddn_state(&db).0, 1, "only the appended Docked, not the history written before startup");
         assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the appended scan");
+    }
+
+    /// astromech-ek06: at startup the game's journal can't be opened for a moment (an antivirus
+    /// scan, a backup tool holding it). Its length then comes from the folder listing, so it is
+    /// still history when the game next writes it, not new and live from its first line.
+    #[cfg(unix)]
+    #[test]
+    fn a_journal_that_cannot_be_opened_at_startup_is_still_a_replay_up_to_its_length() {
+        use std::os::unix::fs::PermissionsExt;
+        let d = tempfile::tempdir().unwrap();
+        let (older, current) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&older, format!("{}{}\n", session(&ts(600), "r1 "), docked(&ts(500)))).unwrap();
+        std::fs::write(&current, format!("{}{}\n", session(&ts(60), "r2 "), docked(&ts(40)))).unwrap();
+        touch(&older, 5);
+        std::fs::set_permissions(&current, std::fs::Permissions::from_mode(0o000)).unwrap();
+        if std::fs::File::open(&current).is_ok() {
+            return; // root reads anything: nothing to test
+        }
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        std::fs::set_permissions(&current, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert_eq!(t.tail.as_ref().unwrap().path, older);
+
+        append(&current, &docked(&ts(0)));
+        touch(&current, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, current);
+        assert_eq!(eddn_state(&db).0, 1, "only the appended Docked");
     }
 
     /// astromech-5gxp: a returning player's newest journal is old-scheme (`Journal.YYMMDDHHMMSS`),
