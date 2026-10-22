@@ -10,17 +10,18 @@ others; the jet-cone boost comes from the arrival star). --built sets the build 
 header (default: today, UTC); the tests pass it so the output is reproducible. A dump whose name
 doesn't end in .gz is read as plain JSON (the test sample).
 
-File format, version 1 (all integers little-endian). crates/astromech-galaxy/src/neutron.rs
+File format, version 2 (all integers little-endian). crates/astromech-galaxy/src/neutron.rs
 reads it and must change with it; scripts/test_gen_neutron.py and the reader's tests share the
 fixture in crates/astromech-galaxy/tests/fixtures/.
 
-  header, 32 bytes
+  header, 36 bytes
     0  8 bytes  magic b"ASTRNEUT"
     8  u32      format version (1)
    12  u32      cell edge, ly (128)
    16  u32      star count N
    20  u32      cell count C
    24  i64      build time, Unix seconds UTC
+   32  u32      name group G (256): names per name index entry
   cells, C x 10 bytes, sorted by (cx, cy, cz)
        i16 cx, i16 cy, i16 cz, u32 first star
        Only non-empty cells. Cell (cx, cy, cz) holds the stars with floor(q / (edge * 32)) ==
@@ -29,19 +30,19 @@ fixture in crates/astromech-galaxy/tests/fixtures/.
   positions, N x 12 bytes
        i32 x, i32 y, i32 z in 1/32 ly (the game's grid), in cell order, and within a cell
        sorted by (x, y, z, name).
-  name index, ceil(N / 256) x u32
-       byte offset into the name text of the name of star 256 * i.
+  name index, ceil(N / G) x u32
+       byte offset into the name text of the name of star G * i.
   name text, to the end of the file
        the names in star order, UTF-8, each followed by b"\\n".
 
 A plotter loads the header, cells and positions (about 60 MB for 5 M stars) and finds the stars
 within r ly of a point by scanning the cells that overlap the sphere. Names stay on disk: the
-name of star i is read by seeking to its group of 256 and counting newlines.
+name of star i is read by seeking to its group of G and counting newlines.
 """
 import argparse, datetime, gzip, json, os, struct, sys
 
 MAGIC = b"ASTRNEUT"
-VERSION = 1
+VERSION = 2
 CELL_LY = 128
 NAME_GROUP = 256
 
@@ -83,7 +84,7 @@ def build(stars, built):
         b = name.encode("utf-8") + b"\n"
         names.append(b)
         text_len += len(b)
-    out = [MAGIC, struct.pack("<IIIIq", VERSION, CELL_LY, len(keyed), len(cells), built)]
+    out = [MAGIC, struct.pack("<IIIIqI", VERSION, CELL_LY, len(keyed), len(cells), built, NAME_GROUP)]
     out += [struct.pack("<hhhI", *cell, first) for cell, first in cells]
     out += positions
     out += [struct.pack("<I", o) for o in index]

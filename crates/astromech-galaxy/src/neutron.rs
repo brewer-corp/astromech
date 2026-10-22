@@ -3,14 +3,14 @@
 //! `scripts/gen-neutron.py` builds it from Spansh's neutron dump; the app downloads it as
 //! `neutron.bin` into the data folder.
 //!
-//! Format, version 1 (all integers little-endian; the script's docstring is the same spec):
+//! Format, version 2 (all integers little-endian; the script's docstring is the same spec):
 //!
 //! | Part | Size | Contents |
 //! | --- | --- | --- |
-//! | header | 32 bytes | magic `ASTRNEUT`, u32 version, u32 cell edge in ly (128), u32 star count N, u32 cell count C, i64 build time (Unix seconds, UTC) |
+//! | header | 36 bytes | magic `ASTRNEUT`, u32 version, u32 cell edge in ly (128), u32 star count N, u32 cell count C, i64 build time (Unix seconds, UTC), u32 name group G (256) |
 //! | cells | C × 10 bytes | i16 cx, i16 cy, i16 cz, u32 first star; non-empty cells only, sorted by (cx, cy, cz) |
 //! | positions | N × 12 bytes | i32 x, y, z in 1/32 ly, in cell order, and within a cell by (x, y, z, name) |
-//! | name index | ⌈N / 256⌉ × u32 | byte offset in the name text of star 256·i's name |
+//! | name index | ⌈N / G⌉ × u32 | byte offset in the name text of star G·i's name |
 //! | name text | to the end | the names in star order, UTF-8, each followed by `\n` |
 //!
 //! A star at (x, y, z) in 1/32 ly is in cell `floor(q / (edge · 32))` per axis, and a cell's
@@ -36,11 +36,10 @@ use std::path::{Path, PathBuf};
 pub const FILE_NAME: &str = "neutron.bin";
 
 const MAGIC: &[u8; 8] = b"ASTRNEUT";
-const VERSION: u32 = 1;
-const HEADER_LEN: u64 = 32;
+const VERSION: u32 = 2;
+const HEADER_LEN: u64 = 36;
 const CELL_LEN: usize = 10;
 const POS_LEN: usize = 12;
-const NAME_GROUP: usize = 256;
 
 /// What the header says.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
@@ -51,6 +50,8 @@ pub struct Header {
     pub cells: u32,
     /// Build time, Unix seconds UTC.
     pub built: i64,
+    /// Names per entry in the name index.
+    pub name_group: u32,
 }
 
 impl Header {
@@ -63,13 +64,14 @@ impl Header {
             stars: u32_at(b, 16),
             cells: u32_at(b, 20),
             built: i64::from_le_bytes(b[24..32].try_into().expect("8 bytes")),
+            name_group: u32_at(b, 32),
         };
-        ensure!(h.cell_ly > 0, "neutron star file has a zero cell edge");
+        ensure!(h.cell_ly > 0 && h.name_group > 0, "neutron star file has a zero cell edge or name group");
         Ok(h)
     }
 
     fn name_groups(&self) -> usize {
-        (self.stars as usize).div_ceil(NAME_GROUP)
+        (self.stars as usize).div_ceil(self.name_group as usize)
     }
 
     /// Where the name index starts.
@@ -105,7 +107,7 @@ pub struct NeutronStars {
     cells: Vec<([i16; 3], u32)>,
     /// Positions in 1/32 ly.
     pos: Vec<[i32; 3]>,
-    /// Byte offsets of each group of 256 names in the name text.
+    /// Byte offsets of each group of names in the name text.
     groups: Vec<u32>,
     file_len: u64,
 }
@@ -191,7 +193,8 @@ impl NeutronStars {
     /// Star `i`'s name, read from disk.
     pub fn name(&self, i: usize) -> Result<String> {
         ensure!(i < self.len(), "no neutron star {i}");
-        let (g, k) = (i / NAME_GROUP, i % NAME_GROUP);
+        let group = self.header.name_group as usize;
+        let (g, k) = (i / group, i % group);
         let text_at = self.header.names_at() + 4 * self.groups.len() as u64;
         let start = text_at + u64::from(self.groups[g]);
         let end = self.groups.get(g + 1).map_or(self.file_len, |o| text_at + u64::from(*o));

@@ -10,9 +10,9 @@ fn fixture(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures").join(name)
 }
 
-/// Cell, position in 1/32 ly and name of each neutron star in the sample, in file order.
-fn expected() -> Vec<([i32; 3], [i32; 3], String)> {
-    let text = std::fs::read_to_string(fixture("neutron-sample.json")).unwrap();
+/// Cell, position in 1/32 ly and name of each neutron star in a sample dump, in file order.
+fn expected(dump: &str) -> Vec<([i32; 3], [i32; 3], String)> {
+    let text = std::fs::read_to_string(fixture(dump)).unwrap();
     let rows: Vec<serde_json::Value> = serde_json::from_str(&text).unwrap();
     let mut stars: Vec<_> = rows
         .iter()
@@ -29,7 +29,7 @@ fn expected() -> Vec<([i32; 3], [i32; 3], String)> {
 #[test]
 fn reads_every_neutron_star_in_cell_order() {
     let file = NeutronStars::open(&fixture("neutron-sample.bin")).unwrap();
-    let want = expected();
+    let want = expected("neutron-sample.json");
     assert_eq!(want.len(), 35);
     assert_eq!(file.len(), want.len());
 
@@ -37,6 +37,7 @@ fn reads_every_neutron_star_in_cell_order() {
     assert_eq!(h, read_header(&fixture("neutron-sample.bin")).unwrap());
     assert_eq!(h.cell_ly, 128);
     assert_eq!(h.stars, 35);
+    assert_eq!(h.name_group, 256);
     let built = chrono::DateTime::from_timestamp(h.built, 0).unwrap();
     assert_eq!(built.format("%Y-%m-%d %H:%M:%S").to_string(), "2026-10-22 00:00:00");
 
@@ -51,6 +52,21 @@ fn reads_every_neutron_star_in_cell_order() {
         assert_eq!(range.len(), want.iter().filter(|w| w.0 == *cell).count(), "cell {cell:?}");
     }
     assert!(file.name(want.len()).is_err());
+}
+
+/// 600 synthetic stars: three groups of names, so a group size that changes on one side only
+/// gives every name after star 255 wrong.
+#[test]
+fn reads_names_across_name_groups() {
+    let file = NeutronStars::open(&fixture("neutron-synthetic.bin")).unwrap();
+    let want = expected("neutron-synthetic.json");
+    assert_eq!(want.len(), 600);
+    assert_eq!((file.len(), file.header().name_group), (600, 256));
+    for (i, (cell, q, name)) in want.iter().enumerate() {
+        assert_eq!(file.pos32(i), *q, "star {i}");
+        assert_eq!(file.name(i).unwrap(), *name, "star {i}");
+        assert!(file.cell(*cell).contains(&i), "star {i}");
+    }
 }
 
 #[test]
@@ -86,7 +102,8 @@ fn refuses_other_files() {
 
     let newer = dir.path().join("v2.bin");
     std::fs::write(&newer, [&good[..8], &2u32.to_le_bytes(), &good[12..]].concat()).unwrap();
-    assert!(NeutronStars::open(&newer).err().unwrap().to_string().contains("version 2"));
+    std::fs::write(&newer, [&good[..8], &3u32.to_le_bytes(), &good[12..]].concat()).unwrap();
+    assert!(NeutronStars::open(&newer).err().unwrap().to_string().contains("version 3"));
 
     let short = dir.path().join("short.bin");
     std::fs::write(&short, &good[..100]).unwrap();
