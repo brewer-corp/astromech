@@ -4,6 +4,9 @@ id: "astromech-e8ux"
 issue_type: "validation"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: validation/astromech-e8ux
 priority: "P1"
 relationships:
   blocks:
@@ -26,9 +29,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Validate the toolbox criteria S1–S8"
-updated_at: "2026-10-16T04:38:23.054314296+00:00"
+updated_at: "2026-10-22T23:33:58.132950714+00:00"
 ---
 
 ## Goal
