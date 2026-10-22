@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:44:44.292410773+00:00"
+status: "done"
 title: "Narrow window polish: header wraps to two rows at 900 px, Powerplay leaves a gap"
-updated_at: "2026-10-22T21:25:56.393101191+00:00"
+updated_at: "2026-10-22T21:44:44.292410773+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ Found in the astromech-5qh0 walk. Screenshots: docs/evidence/astromech-5qh0/afte
 ## Notes
 
 - 2026-10-22 [note] 2026-10-22: The window's minimum width is 800 px (main.rs min_inner_size), and the brand, the eight tabs and the status need about 1000 px on one row, more with Finish setup or a long status ('Waiting for Elite · Voice paused · Kill switch on'). So the header wraps on purpose: when one row would not fit (measured with a ResizeObserver in App.svelte, not a fixed breakpoint), the tabs take their own row under the name, and the name, Finish setup and status stay on the first. The .frame column is minmax(0, 1fr) so the header can no longer push the page wider than the window (before: 1056 px scroll width at 900). Powerplay: in the three-column range (container query on the section) What earns merits spans both rows and Where to work fills the two columns beside it. Screenshots in docs/evidence/astromech-ak62/.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

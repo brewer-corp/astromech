@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:44:43.861125217+00:00"
+status: "done"
 title: "Browser preview: lookup sections still answer sample results under ?core=empty"
-updated_at: "2026-10-22T21:25:56.274959270+00:00"
+updated_at: "2026-10-22T21:44:43.861125217+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ Under ?core=empty the network-lookup sections (Nearby, Sites, Colonies, stations
 Found walking astromech-x81p. These are Spansh and Ardent lookups, not journal data, so the sample answer is defensible; the clutter is the only cost.
 
 Decision (2026-10-22): mirror the shell rather than answer empty hits, since an empty answer would still say "Nearest to Sol", which a PC with no journal never shows. Trade's own lookups (trade.ts) keep their empty answers; they were not part of this record.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

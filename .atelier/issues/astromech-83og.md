@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:44:45.546087636+00:00"
+status: "done"
 title: "Route plotter: refresh the ship and range line after a swap or cargo change"
-updated_at: "2026-10-22T21:25:56.660349874+00:00"
+updated_at: "2026-10-22T21:44:45.546087636+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ The page refetches `route_plot_ship` when Plot and follow is pressed (or periodi
 ## Context
 
 Review finding R4 on PR #122 (astromech-94j4). `route_plot` recomputes the ship and cargo when plotting, so the plotted route is right; only the line shown before plotting can be stale.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

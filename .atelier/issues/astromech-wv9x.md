@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:44:43.624465420+00:00"
+status: "done"
 title: "Mining says the core is not running when it runs but no session has a run"
-updated_at: "2026-10-22T21:25:56.027746020+00:00"
+updated_at: "2026-10-22T21:44:43.624465420+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ The Mining page tells a running core with no session apart from a core that is n
 Found walking astromech-x81p; reviewer confirmed against crates/astromech-core/src/app.rs: the core sends mining only when a session exists, so with the core up and no session the page said 'The core isn't running, so there is no mining run to show.'
 
 The earlier Done when (loadMining null only when coreStatus is null) was overtaken by astromech-spxx, which made loadMining reject when the core does not answer and changed the empty text (5be1fd9d). This record now asks for the page-level proof of both cases.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

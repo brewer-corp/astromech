@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:44:45.098188006+00:00"
+status: "done"
 title: "Stale-line tests: assert the EDSM line alone and first-read failures on the production path"
-updated_at: "2026-10-22T21:25:56.146436665+00:00"
+updated_at: "2026-10-22T21:44:45.098188006+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ The data-sharing tests prove the EDSM stale line and the first-read failures thr
 Review of astromech-spxx.
 
 On Data sharing a failed first EDDN read shows its error for the whole page (the EDSM section renders only once the EDDN log has been read), so EDSM's own first-read failure is tested with only its call failing.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).
