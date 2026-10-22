@@ -12,6 +12,8 @@
   import StepHealth from "./StepHealth.svelte";
   import { openHelp, SETUP_HELP } from "../help";
   import "./onboarding.css";
+  import Stale from "../ui/Stale.svelte";
+  import { pollFailure } from "../ui/errors";
 
   let { start = "elite", onfinish }: { start?: string; onfinish: () => void } = $props();
 
@@ -19,8 +21,15 @@
   let status = $state<CoreStatus | null>(null);
   const step = $derived(STEPS[i] ?? STEPS[0]);
 
+  /** A status read failed after a good one: the last status stays, with a line saying so. A failed
+   * read is null (coreStatus), so the window can't tell a stopped core from one that didn't answer. */
+  let statusErr = $state<string | null>(null);
   async function refresh() {
-    status = await coreStatus();
+    const s = await coreStatus();
+    if (s) {
+      status = s;
+      statusErr = null;
+    } else if (status) statusErr = pollFailure("read the status", "the core did not answer", true);
   }
   $effect(() => {
     void refresh();
@@ -54,6 +63,7 @@
     <main>
       <h1>{step.title}</h1>
       <p class="lead">{step.lead}</p>
+      <Stale error={statusErr} />
       {#key step.id}
         {#if step.id === "elite"}
           <StepElite />

@@ -131,3 +131,13 @@ describe("Trade route", () => {
     expect(await screen.findByRole("button", { name: "Pad L, current ship" })).toBeTruthy();
   });
 });
+
+describe("Trade route defaults (astromech-cvxf)", () => {
+  it("says when the ship's numbers could not be read, and starts the hop at the default", async () => {
+    defaults.mockRejectedValue("journal folder not found");
+    render(Route);
+    expect(await screen.findByText("Could not read your ship and credits: journal folder not found. Enter cargo, credits and max hop yourself.")).toBeTruthy();
+    expect(field("Max hop distance").value).toBe("20");
+    expect(field("Cargo capacity").value).toBe("");
+  });
+});

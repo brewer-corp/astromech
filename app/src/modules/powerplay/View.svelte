@@ -103,7 +103,7 @@
     {/if}
   </div>
 
-  <div class="panel">
+  <div class="panel merits">
     <h3>What earns merits here</h3>
     {#if !ov}
       <p class="lo">{err ? "Not shown until the journal can be read." : "Reading the journal…"}</p>
@@ -118,7 +118,7 @@
     {/if}
   </div>
 
-  <div class="panel">
+  <div class="panel work">
     <h3>Where to work</h3>
     {#if st && !st.power}
       <p class="lo">Pledge to a power to see where it wants work.</p>
@@ -129,8 +129,16 @@
 </section>
 
 <style>
-  section { padding: 22px 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 40px; align-items: start; }
+  section { padding: 22px 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 40px; align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
   .panel { min-width: 0; }
+  /* Exactly three columns (auto-fit 22rem tracks, 40 px apart: from 3 × 22rem + 2 × 40 px, and
+     four from 4 × 22rem + 3 × 40 px; rem is the root font, 15 px): the long merits list takes the
+     third column down both rows and Where to work fills the two beside it, so no band is left
+     under the short panels. */
+  @container (min-width: calc(66rem + 80px)) and (max-width: calc(88rem + 119.98px)) {
+    .merits { grid-row: span 2; }
+    .work { grid-column: span 2; }
+  }
   h3 { margin: 0 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); }
   .sys { display: flex; align-items: baseline; gap: 10px; }
   .power { margin: 0 0 10px; color: var(--accent); font-size: var(--fs-l); }
