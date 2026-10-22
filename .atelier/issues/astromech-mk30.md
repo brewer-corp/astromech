@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Run atelier doctor in CI"
-updated_at: "2026-10-22T19:44:28.676083239+00:00"
+updated_at: "2026-10-22T23:18:21.367094703+00:00"
 ---
 
 ## Goal
@@ -39,3 +39,7 @@ Discussed with Sumeet on 22 Oct 2026. Atelier already splits the checks (atelier
 ## Unknowns
 
 How long a cached `cargo install` of the pinned Atelier takes on the hosted runner; if it is slow, build the binary once per pin and cache it by the pin.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: the pinned Atelier build (spadaval/atelier 1f5fd1c2, includes as7i) failed doctor on astromech-y296: its round-2 review was recorded as a review, not an approval, so two fix_now resolutions had no covering approval. A fresh reviewer verified them and recorded astromech-t73f, pinned to y296's closing commit 004ec10b (an approval pinned earlier, astromech-6kk4, can't count: code changed between it and the close). Atelier counts a historical approval only once it is in HEAD^ on main, so a commit must follow it. CI needs a local main branch (git branch main origin/main) on pull requests.
