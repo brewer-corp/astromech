@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Stale-line tests: assert the EDSM line alone and first-read failures on the production path"
-updated_at: "2026-10-22T20:41:35.554680220+00:00"
+updated_at: "2026-10-22T21:01:37.808655351+00:00"
 ---
 
 ## Goal
@@ -23,9 +23,11 @@ The data-sharing tests prove the EDSM stale line and the first-read failures thr
 
 ## Done when
 
-- staleTauri.test.ts asserts the EDSM section's own Could not refresh line, not any one on the page.
-- First-read failures (rejected, and core_call ok false) have production-path tests for Ships, Materials, Data sharing, EDSM and Mining.
+- staleTauri.test.ts asserts the EDSM section's own Could not refresh line (the one under the EDSM heading), with the EDDN section's line empty when only EDSM's call fails.
+- First-read failures (rejected, and core_call ok false or core_status null) have production-path tests for Ships, Materials, Data sharing, EDSM and Mining. Ships and Materials are direct shell commands, so only a rejection applies to them.
 
 ## Context
 
 Review of astromech-spxx.
+
+On Data sharing a failed first EDDN read shows its error for the whole page (the EDSM section renders only once the EDDN log has been read), so EDSM's own first-read failure is tested with only its call failing.
