@@ -130,12 +130,6 @@ fn is_journal(p: &Path) -> bool {
         .unwrap_or(false)
 }
 
-/// Is journal `a` later than `b`? Names carry the start time (`Journal.2026-10-16T120000.01.log`,
-/// or `Journal.161016120000.01.log` before 2021), so they sort in time order.
-fn later(a: &Path, b: &Path) -> bool {
-    a.file_name() > b.file_name()
-}
-
 /// The journal event and text of a companion file EDDN has a schema for.
 fn eddn_file(f: &CompanionFile) -> Option<(&'static str, &str)> {
     Some(match f {
@@ -584,9 +578,9 @@ impl Tailer {
                 }
                 // Newest by mtime isn't always the game's new journal: a backup or sync tool can
                 // touch an old one, or another client can write the same folder. Only a journal
-                // not opened yet this run and later by name than the current one is live.
-                let live = !self.opened.contains_key(&n)
-                    && (self.tail.as_ref().is_none_or(|t| later(&n, &t.path)) || self.classify(&n) == Class::Game);
+                // that is new this run (not opened, not in the folder at startup) and the game's
+                // by its name stamp (`classify`, both naming schemes) is live from its first line.
+                let live = !self.opened.contains_key(&n) && (self.tail.is_none() || self.classify(&n) == Class::Game);
                 self.open(n, !live);
             }
         }
@@ -1475,6 +1469,27 @@ mod tests {
         assert_eq!(t.tail.as_ref().unwrap().path, current);
         assert_eq!(eddn_state(&db).0, 1, "only the appended Docked, not the history written before startup");
         assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the appended scan");
+    }
+
+    /// astromech-5gxp: a returning player's newest journal is old-scheme (`Journal.YYMMDDHHMMSS`),
+    /// whose name sorts after the new scheme's byte by byte. The journal the game starts is still
+    /// the later one by its stamp, so it is live from its Fileheader.
+    #[test]
+    fn a_new_scheme_journal_started_after_an_old_scheme_one_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let old = d.path().join("Journal.221014080000.01.log");
+        std::fs::write(&old, session(&ts(3600), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, old);
+
+        let new = d.path().join(game_name(0));
+        std::fs::write(&new, format!("{}{}\n", session(&ts(1), "r2 "), docked(&ts(0)))).unwrap();
+        touch(&new, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, new);
+        // The new header's Location and the Docked.
+        assert_eq!(eddn_state(&db).0, 2, "the opening lines of the game's new journal are live");
     }
 
     /// A `Scanned` line stamped `ts` (full RFC 3339).
