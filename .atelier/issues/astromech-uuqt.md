@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.754884800+00:00"
 id: "astromech-uuqt"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-uuqt
 priority: "P2"
 relationships:
   blocks: []
@@ -22,9 +25,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice and callout copy fixes"
-updated_at: "2026-10-22T20:41:37.135006643+00:00"
+updated_at: "2026-10-22T21:17:46.203810475+00:00"
 ---
 
 ## Goal
