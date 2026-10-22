@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Logbook: Unicode search, busy timeout and data folder"
-updated_at: "2026-10-22T21:15:46.747817622+00:00"
+updated_at: "2026-10-22T21:30:11.582129378+00:00"
 ---
 
 ## Goal
@@ -30,3 +30,7 @@ Search folds both sides the same way (test with a non-ASCII name); the read-only
 ## Context
 
 `crates/astromech-history/src/logbook.rs`, `lib.rs` (open_read_only), `app/src-tauri/src/main.rs`. Found in review of astromech-fxp0 (R1–R3); the data-folder part is the same fix as the one filed for the shell settings database (astromech-n1ij on main).
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: The data-folder part was already fixed on main by 4df831fe (the window opens history.sqlite via Paths::data_dir(config), the same rule as Config::data_dir()), and the page already keeps its last good result on a failed poll (astromech-spxx, app/src/lib/ui/stale.test.ts). rusqlite already defaulted to a 5 s busy timeout; open_read_only now sets 2 s explicitly. No shell change was needed.

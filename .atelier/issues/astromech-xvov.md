@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Powerplay: incremental replay and state edge cases"
-updated_at: "2026-10-22T21:20:25.277060911+00:00"
+updated_at: "2026-10-22T21:30:11.436697047+00:00"
 ---
 
 ## Goal
@@ -30,3 +30,7 @@ Incremental replay (from the last offset, or files since last week plus the newe
 ## Context
 
 Found in review of astromech-7ni2 (R1, R2, R4, R5). R3 (rank/merits reset on defection) and community-sourced field semantics belong to the game check astromech-w1q2.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: 'Login without Powerplay clears the pledge' narrowed to a game run's first login (Fileheader part 1, then LoadGame, then Missions with no Powerplay between). Real journals (Oct 2026) show a pledged commander's relog from the main menu in the same run writes LoadGame/Location/Missions with no Powerplay, so clearing on every login would drop a live pledge. The page now uses powerplay::Follower (reads only appended lines); the shell change is CI-verified only (the shell doesn't build on this Linux host).
