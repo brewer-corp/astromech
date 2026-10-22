@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { tradeRouteDefaults } from "./trade";
+import { candidates } from "./colonies";
+import { nearby } from "./galaxy";
+import { sites } from "./sites";
+import { stations } from "./stations";
+import { DEFAULT_FILTERS, type Origin } from "./search";
 import { fakeCall, previewData, previewGate, resetFakeCore } from "./fakecore";
 
 // The preview's switches for seeing a page empty, loading or failing (top of fakecore.ts).
@@ -30,6 +35,36 @@ describe("sample-backed calls under ?core=empty", () => {
     expect((await tradeRouteDefaults()).station).toBe("Abraham Lincoln");
     at("?core=empty");
     expect(await tradeRouteDefaults()).toEqual({ capacity: null, credits: null, range: null, station: null, system: null });
+  });
+});
+
+// The network lookups (Nearby, Sites, Colonies, the station lookups behind Where to sell).
+const LOOKUPS: [string, (o: Origin) => Promise<{ here: { system: string }; hits: unknown[] }>][] = [
+  ["Nearby", (o) => nearby("famine", o)],
+  ["Sites", (o) => sites("crystalline_shards", o)],
+  ["Colonies", (o) => candidates("any", o)],
+  ["Stations", (o) => stations({ kind: "service", service: "universal_cartographics" }, o, DEFAULT_FILTERS)],
+];
+
+describe.each(LOOKUPS)("%s lookup in the preview", (_n, lookup) => {
+  it("answers the sample near the commander, and fails for want of a position under ?core=empty", async () => {
+    at("?core=ready");
+    expect((await lookup(null)).hits.length).toBeGreaterThan(0);
+    at("?core=empty");
+    await expect(lookup(null)).rejects.toBe("no position in the journal yet");
+    await expect(lookup("  ")).rejects.toBe("no position in the journal yet");
+  });
+
+  it("still searches from a typed system under ?core=empty, as the network lookup does with no journal", async () => {
+    at("?core=empty");
+    const r = await lookup("Colonia");
+    expect(r.here.system).toBe("Colonia");
+    expect(r.hits.length).toBeGreaterThan(0);
+  });
+
+  it("fails on ?fail= like every sample-backed call", async () => {
+    at("?fail=all");
+    await expect(lookup("Colonia")).rejects.toMatch(/failed on purpose/);
   });
 });
 

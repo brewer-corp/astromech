@@ -12,7 +12,10 @@
   let { compact = false }: { compact?: boolean } = $props();
 
   let view = $state<RouteView | null>(null);
+  /** The last action (Copy, Skip, Back, Clear, import) failed; it stays until the next action. */
   let err = $state<string | null>(null);
+  /** The first read failed: nothing to show yet. */
+  let readErr = $state<string | null>(null);
   /** The last poll failed while a route is shown: the route stays, with a line saying so. */
   let stale = $state<string | null>(null);
   let name = $state("");
@@ -21,12 +24,13 @@
   async function run(f: () => Promise<RouteView>, polled = false) {
     try {
       view = await f();
-      err = null;
+      if (!polled) err = null;
+      readErr = null;
       stale = null;
     } catch (e) {
       if (!polled) err = String(e instanceof Error ? e.message : e);
       else if (view) stale = pollFailure("read the route", e, true);
-      else err = pollFailure("read the route", e, false);
+      else readErr = pollFailure("read the route", e, false);
     }
   }
 
@@ -41,6 +45,12 @@
     };
   });
 
+  /** A route plotted and followed: an action that worked. */
+  function follow(v: RouteView) {
+    view = v;
+    err = null;
+  }
+
   async function start() {
     await run(() => importRoute(name.trim() || "Imported route", text));
     if (!err) text = "";
@@ -52,6 +62,7 @@
 
 <section class:compact>
   {#if err}<p class="err">{err}</p>{/if}
+  {#if readErr}<p class="err">{readErr}</p>{/if}
   <Stale error={stale} />
 
   {#if route}
@@ -106,7 +117,7 @@
     </details>
     <details class="block" open={!route}>
       <summary>Plot</summary>
-      <Plot onfollow={(v) => (view = v)} />
+      <Plot onfollow={follow} />
     </details>
     <details class="block">
       <summary>Import</summary>
@@ -125,7 +136,7 @@
       <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
     </div>
 
-    <Plot onfollow={(v) => (view = v)} />
+    <Plot onfollow={follow} />
 
     <div class="import">
       <h4>Import</h4>

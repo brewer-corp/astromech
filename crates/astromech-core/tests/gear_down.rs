@@ -392,14 +392,24 @@ fn did_you_mean_yes_runs_but_an_ask_only_phrase_keeps_asking() {
 fn did_you_mean_learns_a_key_press_on_the_second_yes() {
     let r = rig(FLAG_IN_MAIN_SHIP, &[100]);
     let a = Assistant::new(r.runner.clone());
-    for _ in 0..2 {
-        assert!(matches!(a.handle("Dear dawn.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
-        assert!(matches!(a.handle("yes", Origin::Voice), Handled::Ran { command: "landing_gear.down", .. }));
+    assert!(matches!(a.handle("Dear dawn.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+    match a.handle("yes", Origin::Voice) {
+        // Wait for the gear to land before going on. Until Status.json shows it, a repeat is
+        // refused as a duplicate ("Already on it.") rather than answered from the game state,
+        // so the outcomes below would depend on the file watcher's timing (astromech-gp9x).
+        Handled::Ran { command: "landing_gear.down", outcome } => {
+            assert!(matches!(sent(outcome), Verified::Confirmed { .. }))
+        }
+        h => panic!("{h:?}"),
     }
+    assert!(matches!(a.handle("Dear dawn.", Origin::Voice), Handled::Asked { command: "landing_gear.down", .. }));
+    let h = a.handle("yes", Origin::Voice);
+    assert!(matches!(h, Handled::Ran { command: "landing_gear.down", outcome: Outcome::Already(_) }), "{h:?}");
     match a.handle("Dear dawn.", Origin::Voice) {
         Handled::Ran { command: "landing_gear.down", outcome: Outcome::Already(_) } => {}
         h => panic!("alias should execute, {h:?}"),
     }
+    assert_eq!(r.game.presses.load(Ordering::SeqCst), 1);
 }
 
 fn wait(f: impl Fn() -> bool) {

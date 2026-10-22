@@ -13,7 +13,7 @@ workspace = true
 
 [dependencies]
 astromech-journal.workspace = true
-astromech-data.workspace = true
+astromech-proto.workspace = true
 astromech-materials.workspace = true
 chrono.workspace = true
 serde.workspace = true

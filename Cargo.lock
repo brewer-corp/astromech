@@ -244,6 +244,7 @@ dependencies = [
 name = "astromech-data"
 version = "1.0.0-alpha.2"
 dependencies = [
+ "astromech-proto",
  "rusqlite",
  "serde",
  "serde_json",
@@ -269,9 +270,9 @@ dependencies = [
 name = "astromech-engineering"
 version = "1.0.0-alpha.2"
 dependencies = [
- "astromech-data",
  "astromech-journal",
  "astromech-materials",
+ "astromech-proto",
  "base64",
  "chrono",
  "flate2",

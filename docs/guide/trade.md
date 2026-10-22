@@ -45,6 +45,7 @@ worked out by Spansh's trade router.
 2. Set **From** (or leave your current system), the **Station** to start from (empty: the station
    you are docked at, or else the one nearest the star), **Cargo** (tons), **Credits** and
    **Max hop** (light years). They start from your ship and the journal, and you can change them.
+   If the journal can't be read, the page says so and the fields start empty, with Max hop at 20 ly.
 3. Filters: pad, data age, arrival distance, fleet carriers.
 4. **Find route.** Spansh works on it as a job and can take up to a minute.
 

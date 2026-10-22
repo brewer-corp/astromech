@@ -147,18 +147,8 @@ pub struct Fetched<T> {
     pub cached: bool,
 }
 
-/// Unix time in seconds; a trait so tests can move time.
-pub trait Clock: Send + Sync {
-    fn now_s(&self) -> i64;
-}
-
-pub struct SystemClock;
-
-impl Clock for SystemClock {
-    fn now_s(&self) -> i64 {
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0)
-    }
-}
+/// The client's clock lives in `astromech-proto` (ARCHITECTURE §5.1), re-exported for its callers.
+pub use astromech_proto::{Clock, SystemClock};
 
 /// The file in the data folder (`astromech_store::Paths::data_dir`) holding the remote-data cache
 /// both processes share.

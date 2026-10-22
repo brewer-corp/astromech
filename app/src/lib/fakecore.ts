@@ -12,7 +12,8 @@
  *   `?slow=never:<name>,<name>` limits it to the named calls.
  * A name is the shell command or core command: `logbook`, `session_summary`, `engineering_fleet`,
  * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `invoke` name in lib/*.ts).
- * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData).
+ * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData),
+ * and the network lookups fail for want of a position unless a system is typed (previewLookup).
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
 import type { Route, RouteView, Waypoint } from "./route";
@@ -119,6 +120,17 @@ export async function previewGate(cmd: string): Promise<void> {
 export async function previewData<T>(cmd: string, sample: () => T, empty: () => T): Promise<T> {
   await previewGate(cmd);
   return fakeScenario() === "empty" ? empty() : sample();
+}
+
+/**
+ * What a network lookup (Spansh, Ardent) answers in the browser: the sample. Under `?core=empty`
+ * with no typed system it fails the way the shell does without a position in the journal
+ * (`search_origin`); a typed system still searches, as it does on a PC with no journal.
+ */
+export async function previewLookup<T>(cmd: string, origin: string | null, sample: () => T): Promise<T> {
+  await previewGate(cmd);
+  if (fakeScenario() === "empty" && !origin?.trim()) throw "no position in the journal yet";
+  return sample();
 }
 
 export function fakeScenario(): Scenario | null {

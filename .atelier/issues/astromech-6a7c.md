@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:50:52.506053248+00:00"
+status: "done"
 title: "The window can follow a stale config.path after a --config run"
-updated_at: "2026-10-22T20:41:39.645621543+00:00"
+updated_at: "2026-10-22T21:50:52.506053248+00:00"
 ---
 
 ## Goal
@@ -22,4 +23,12 @@ Paths::publish_config (astromech-c9em) tells the window which config file the tr
 
 ## Done when
 
-The window falls back to the default file when the published path does not exist, console runs publish or clear it, and a test covers each.
+The window falls back to the default file when the published path does not exist, with a test (astromech-store paths::tests::the_window_reads_the_config_the_core_published). Console runs leave config.path alone, as Paths::publish_config documents: they serve no window, so the window's own tray core is the one to publish.
+
+## Context
+
+Revised 22 Oct 2026 while implementing (claude-implementer-0k88). The first Done when asked console runs to publish or clear config.path. From the code, neither is right: run_console serves no core.json and takes no single-instance lock, so the window never talks to a console core. If no tray core runs, the window starts one (--background, no --config), which publishes. Publishing from a console run would point the window away from the tray core it does use, and clearing would do the same when that tray core runs with --config. Two tray cores can't both publish: app::run takes the instance lock before choose_config, so a second start exits first. The window's startup reads (the remote cache's data_dir, before its own tray core has published) can still see an earlier --config run's file while it exists; that's the remaining gap if one matters.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-0k88 (approval astromech-5ib2).

@@ -53,7 +53,7 @@ describe("Galaxy → Route", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
     await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Maia" } });
     await fireEvent.click(plot);
-    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops.")).toBeTruthy();
+    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 39.87 ly a jump.")).toBeTruthy();
     // The commander is in Sol, the start: the first jump is next, with what to do there.
     expect(document.querySelector(".next .sys")?.textContent).toBe("Tascheter Sector MN-T b3-6");
     expect(document.querySelector(".next .lo")?.textContent).toBe("fuel");

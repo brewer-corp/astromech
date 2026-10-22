@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.580037529+00:00"
 id: "astromech-jo3l"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-jo3l
 priority: "P2"
 relationships:
   blocks: []
@@ -30,9 +33,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:44:45.708742920+00:00"
+status: "done"
 title: "App polish from the alpha reviews"
-updated_at: "2026-10-22T20:41:36.093636239+00:00"
+updated_at: "2026-10-22T21:44:45.708742920+00:00"
 ---
 
 ## Goal
@@ -46,3 +50,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Eight app polish fixes from the alpha reviews, independently reviewed (approval astromech-15yv); follow-ups astromech-w0if (decision), astromech-9kp2, astromech-aznm.
