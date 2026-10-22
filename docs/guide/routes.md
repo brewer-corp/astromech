@@ -116,10 +116,11 @@ on your clipboard.
 **From** blank means your current system. **To** is a system name as Spansh knows it. Above the
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
 worked out from its last loadout in the journal, engineering and a Guardian FSD booster
-included. If some modules are not known, it says the range may be off.
+included. It updates within a few seconds when you swap ships or your cargo changes. If some
+modules are not known, it says the range may be off.
 
-When it is done, the page says how many jumps, how far, and how many neutron boosts and refuel
-stops. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
+When it is done, the page says how many jumps, how far, how many neutron boosts and refuel
+stops, and the jump range the route was plotted at. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
 b2-6, for fuel."*
 
 It needs:
