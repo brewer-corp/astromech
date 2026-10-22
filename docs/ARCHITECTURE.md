@@ -270,8 +270,10 @@ astromech/
     astromech-galaxy/    star map (SQLite galaxy.db: 500 ly preload + EDSM fill-in), A* jump counts,
                          Spansh faction-state lookups (Famine, HGE pools) and Powerplay targets
                          (acquire / reinforce / undermine for the pledged power), position from the journal,
-                         neutron and exact routes for the route follower (Spansh's plotters, the drive
-                         from astromech-ship); its network calls go through astromech-data
+                         routes for the route follower: neutron routes plotted locally from the
+                         neutron star file (neutron.bin, downloaded once), with Spansh's neutron plotter
+                         as the fallback, and exact routes from Spansh (the drive from astromech-ship);
+                         its network calls go through astromech-data
     astromech-market/    trade lookups: where to sell or buy commodities near a system (Ardent nearby
                          imports/exports, re-checked against the lookup's filters, best price first,
                          jumps from astromech-galaxy) or anywhere (Ardent's best 100), the commodity catalogue (data/catalog/commodities.json),
