@@ -1,0 +1,60 @@
+name: Atelier
+
+# Runs `atelier doctor`, the check of every done claim and the whole review history, on every
+# PR and every push to main. No paths filter: record-only commits are what it checks.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: atelier-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # spadaval/atelier master; publishes no releases. Move the pin to pick up fixes.
+  ATELIER_REV: 1f5fd1c25a84740a637366832f2bdeb9233b46bb
+  # Atelier's own rust-toolchain.toml pin, named explicitly because `cargo install` takes the
+  # toolchain from the working directory, not from the crate it builds.
+  ATELIER_TOOLCHAIN: 1.95.0
+  CARGO_TERM_COLOR: always
+
+jobs:
+  doctor:
+    name: atelier doctor
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The commit main becomes: the pushed tip, or the PR head, since `atelier merge`
+      # fast-forwards main to the reviewed branch (the GitHub merge commit never lands).
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: ~/.cargo/bin/atelier
+          key: atelier-${{ runner.os }}-${{ env.ATELIER_REV }}-${{ env.ATELIER_TOOLCHAIN }}
+      - name: Install Atelier
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: ${{ runner.temp }}
+        run: |
+          rustup toolchain install "$ATELIER_TOOLCHAIN" --profile minimal
+          cargo "+$ATELIER_TOOLCHAIN" install --locked \
+            --git https://github.com/spadaval/atelier --rev "$ATELIER_REV" atelier-cli
+      # Doctor judges the tip as main: local main at the tip and HEAD detached one empty commit
+      # above it, so every claim is checked against the history it would have on main. Without
+      # the empty commit, an approval added by the tip itself is not yet in HEAD^ and does not
+      # count, the way it does once anything lands on top.
+      - name: atelier doctor
+        run: |
+          git branch -f main HEAD
+          git checkout --detach
+          git -c user.name=ci -c user.email=ci@localhost commit --quiet --allow-empty -m "atelier doctor"
+          atelier doctor
