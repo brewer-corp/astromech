@@ -100,8 +100,11 @@ fn refuses_other_files() {
     assert!(NeutronStars::open(&bad).is_err());
     assert!(read_header(&bad).is_err());
 
-    let newer = dir.path().join("v2.bin");
-    std::fs::write(&newer, [&good[..8], &2u32.to_le_bytes(), &good[12..]].concat()).unwrap();
+    let older = dir.path().join("v1.bin");
+    std::fs::write(&older, [&good[..8], &1u32.to_le_bytes(), &good[12..]].concat()).unwrap();
+    assert!(NeutronStars::open(&older).is_err());
+
+    let newer = dir.path().join("v3.bin");
     std::fs::write(&newer, [&good[..8], &3u32.to_le_bytes(), &good[12..]].concat()).unwrap();
     assert!(NeutronStars::open(&newer).err().unwrap().to_string().contains("version 3"));
 

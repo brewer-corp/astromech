@@ -16,7 +16,7 @@ fixture in crates/astromech-galaxy/tests/fixtures/.
 
   header, 36 bytes
     0  8 bytes  magic b"ASTRNEUT"
-    8  u32      format version (1)
+    8  u32      format version (2)
    12  u32      cell edge, ly (128)
    16  u32      star count N
    20  u32      cell count C
@@ -35,7 +35,7 @@ fixture in crates/astromech-galaxy/tests/fixtures/.
   name text, to the end of the file
        the names in star order, UTF-8, each followed by b"\\n".
 
-A plotter loads the header, cells and positions (about 60 MB for 5 M stars) and finds the stars
+A plotter loads the header, cells and positions (about 75 MB for 5 M stars) and finds the stars
 within r ly of a point by scanning the cells that overlap the sphere. Names stay on disk: the
 name of star i is read by seeking to its group of G and counting newlines.
 """
