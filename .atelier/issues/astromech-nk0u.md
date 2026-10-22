@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:29:57.694530008+00:00"
+status: "done"
 title: "Build and publish the neutron star file"
-updated_at: "2026-10-22T20:53:26.539076845+00:00"
+updated_at: "2026-10-22T21:29:57.694530008+00:00"
 ---
 
 ## Goal
@@ -35,3 +36,7 @@ New script, workflow and reader module. No app or plotter change.
 ## Context
 
 `scripts/gen-starmap.py` and `.github/workflows/starmap.yml` are the pattern to follow (user agent string, pre-release handling). Measured on 22 Oct 2026: 5,045,154 neutron stars, 96 MB of positions with id64s (60 MB gzipped), 102 MB of names (23 MB gzipped). The id64 is not needed to plot; leave it out unless a consumer needs it.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-1842 (approval astromech-alp5).
