@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Harden the TTS name reading rules"
-updated_at: "2026-10-22T21:18:34.117333936+00:00"
+updated_at: "2026-10-22T22:12:21.672812259+00:00"
 ---
 
 ## Goal

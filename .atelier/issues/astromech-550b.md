@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Stop the speech thread promptly when the speaker closes"
-updated_at: "2026-10-22T21:25:15.000512424+00:00"
+updated_at: "2026-10-22T22:12:21.926188564+00:00"
 ---
 
 ## Goal
