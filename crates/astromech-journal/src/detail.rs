@@ -539,6 +539,11 @@ pub enum ExtraEvent {
     MiningRefined {
         commodity: String,
     },
+    /// A limpet launched: `Prospector`, `Collection`, `Repair`, `FuelTransfer`, `Hatchbreaker`,
+    /// `Recon`, `Research` or `Decontamination`.
+    LaunchDrone {
+        kind: String,
+    },
     Powerplay(PowerplayEvent),
     ColonisationConstructionDepot(Box<ConstructionDepot>),
     ColonisationContribution {
@@ -942,6 +947,7 @@ pub fn parse_extra(event: &str, v: &Value) -> Option<ExtraEvent> {
             remaining: opt_f(v, "Remaining"),
         },
         "MiningRefined" => E::MiningRefined { commodity: s(v, "Type") },
+        "LaunchDrone" => E::LaunchDrone { kind: s(v, "Type") },
         e if e.starts_with("Powerplay") => E::Powerplay(powerplay(e, v)),
         "ColonisationConstructionDepot" => E::ColonisationConstructionDepot(Box::new(ConstructionDepot {
             market_id: opt_i(v, "MarketID"),

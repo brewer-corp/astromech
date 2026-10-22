@@ -1,8 +1,8 @@
 //! The current mining run: tons refined (one per `MiningRefined`) and tons per hour.
 //!
-//! A run starts at the first `LaunchDrone`, `ProspectedAsteroid` or `MiningRefined` after the
-//! last `Docked` or `LoadGame` (docking is where the haul is sold), and its rate is measured
-//! from then. Kept apart from [`crate::GameState`] because it needs the journal timestamps.
+//! A run starts at the first prospector or collector `LaunchDrone`, `ProspectedAsteroid` or
+//! `MiningRefined` after the last `Docked` or `LoadGame` (docking is where the haul is sold),
+//! and its rate is measured from then to the latest journal line. Kept apart from [`crate::GameState`] because it needs the journal timestamps.
 
 use astromech_journal::{ExtraEvent, JournalEvent, JournalLine};
 use chrono::{DateTime, FixedOffset};
@@ -28,18 +28,23 @@ impl MiningRun {
         if self.started.is_some() {
             self.last = DateTime::parse_from_rfc3339(&line.timestamp).ok().or(self.last);
         }
-        match line.name.as_str() {
-            "LaunchDrone" | "ProspectedAsteroid" | "MiningRefined" => {
-                if self.started.is_none() {
-                    self.started = DateTime::parse_from_rfc3339(&line.timestamp).ok();
-                    self.last = self.started;
-                }
-                if let JournalEvent::Extra(ExtraEvent::MiningRefined { commodity }) = &line.event {
-                    let sym = commodity.trim_start_matches('$').trim_end_matches(';').trim_end_matches("_name");
-                    *self.refined.entry(sym.to_ascii_lowercase()).or_default() += 1;
-                }
-            }
-            _ => {}
+        let JournalEvent::Extra(event) = &line.event else { return };
+        let mining = match event {
+            // Repair, fuel, hatchbreaker and the other limpets aren't mining.
+            ExtraEvent::LaunchDrone { kind } => matches!(kind.as_str(), "Prospector" | "Collection"),
+            ExtraEvent::ProspectedAsteroid { .. } | ExtraEvent::MiningRefined { .. } => true,
+            _ => false,
+        };
+        if !mining {
+            return;
+        }
+        if self.started.is_none() {
+            self.started = DateTime::parse_from_rfc3339(&line.timestamp).ok();
+            self.last = self.started;
+        }
+        if let ExtraEvent::MiningRefined { commodity } = event {
+            let sym = commodity.trim_start_matches('$').trim_end_matches(';').trim_end_matches("_name");
+            *self.refined.entry(sym.to_ascii_lowercase()).or_default() += 1;
         }
     }
 

@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Mining run: start only on prospector or collector limpets; test the rate to the latest line"
-updated_at: "2026-10-22T20:41:39.156051717+00:00"
+updated_at: "2026-10-22T21:04:52.855225207+00:00"
 ---
 
 ## Goal
