@@ -170,7 +170,7 @@ fn run(
             }
         }
         // Taken before the import: lines written while it runs make the next recheck import.
-        let mut version = journal_version(dir);
+        let version = journal_version(dir);
         if let Some(h) = history.as_mut() {
             let r = h.import_with(dir, &ImportOptions::default(), |r| {
                 let mut g = p.lock().unwrap();
@@ -214,11 +214,9 @@ fn run(
                     break;
                 }
                 Err(RecvTimeoutError::Timeout) => {
-                    let now = journal_version(dir);
-                    if now != version {
+                    if journal_version(dir) != version {
                         break;
                     }
-                    version = now;
                 }
                 Err(RecvTimeoutError::Disconnected) => return,
             }

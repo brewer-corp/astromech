@@ -357,12 +357,13 @@ impl Outbox {
         Ok(())
     }
 
-    /// Up to `limit` messages due at `now`, oldest first; with `retries` false only those never
-    /// tried. For a sender with its own delivery rules (EDSM); [`Outbox::deliver_due`] is EDDN's.
+    /// Up to `limit` messages due at `now`, oldest first, except that those the service has
+    /// refused before come after all the others; with `retries` false only those never tried.
+    /// For a sender with its own delivery rules (EDSM); [`Outbox::deliver_due`] is EDDN's.
     pub fn due(&self, now: i64, retries: bool, limit: usize) -> Result<Vec<Queued>> {
         let mut st = self.conn.prepare(
             "SELECT id, schema_ref, body, attempts, refusals FROM outbox
-             WHERE next_try <= ?1 AND (?2 OR attempts = 0) ORDER BY id LIMIT ?3",
+             WHERE next_try <= ?1 AND (?2 OR attempts = 0) ORDER BY refusals > 0, id LIMIT ?3",
         )?;
         let rows = st.query_map((now, retries, limit as i64), |r| {
             Ok(Queued {

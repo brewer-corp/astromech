@@ -46,6 +46,9 @@ pub mod ttl {
     pub const MARKET: i64 = 15 * 60;
     /// Traffic counts.
     pub const TRAFFIC: i64 = 3600;
+    /// What other players have scanned in a system (EDSM's bodies): it grows as they scan, so
+    /// an answer from earlier in a long session can be out of date.
+    pub const SCANNED: i64 = 3600;
 }
 
 /// A remote data service.

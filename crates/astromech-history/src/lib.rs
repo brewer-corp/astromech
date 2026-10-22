@@ -379,8 +379,11 @@ impl History {
         let mut previous: Option<i64> = None;
         for path in astromech_journal::journal_logs(dir) {
             // Through an open handle: on Windows the folder listing lags appends to an open file.
+            // A file that can't be opened just now (another program holds it) has its listed
+            // length: one already imported in full is then skipped rather than failing the import.
             let len = std::fs::File::open(&path)
                 .and_then(|f| f.metadata())
+                .or_else(|_| std::fs::metadata(&path))
                 .map_err(|source| HistoryError::Io { path: path.clone(), source })?
                 .len();
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();

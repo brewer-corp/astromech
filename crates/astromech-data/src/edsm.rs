@@ -109,7 +109,7 @@ impl Client {
 
     pub fn edsm_bodies(&self, system: &str) -> Result<Fetched<Bodies>> {
         let req = Request::get("/api-system-v1/bodies").query("systemName", system);
-        self.fetch_with(Service::Edsm, &req, Some(ttl::SYSTEM), |b| parse_known(b, system))
+        self.fetch_with(Service::Edsm, &req, Some(ttl::SCANNED), |b| parse_known(b, system))
     }
 
     pub fn edsm_traffic(&self, system: &str) -> Result<Fetched<Traffic>> {
