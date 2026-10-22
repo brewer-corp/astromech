@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:50:52.347475543+00:00"
+status: "done"
 title: "Apply the URL character filter to every open_external target"
-updated_at: "2026-10-22T21:44:39.228436842+00:00"
+updated_at: "2026-10-22T21:50:52.347475543+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Every URL `open_external` accepts goes through one shared predicate that refuses
 ## Context
 
 Found in review of astromech-9mb9 (round 3, R1). The only caller today is the hard-coded release-notes button.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-0k88 (approval astromech-5ib2).
