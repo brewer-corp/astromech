@@ -26,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal pipeline and replay fixes"
-updated_at: "2026-10-22T20:41:33.845826974+00:00"
+updated_at: "2026-10-22T20:57:48.172453847+00:00"
 ---
 
 ## Goal
