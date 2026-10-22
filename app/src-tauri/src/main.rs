@@ -978,13 +978,11 @@ async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> 
 // ---- The neutron star file (astromech_galaxy::neutron) in the data folder, downloaded only
 // when the commander presses Download on the Route page.
 
-static NEUTRON_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
-
 /// What the Route page shows: the file's header if it is there, and why it can't be read if not.
 fn neutron_status() -> Value {
     match astromech_galaxy::neutron::installed(&data_dir()) {
         Ok(file) => serde_json::json!({ "file": file, "error": null }),
-        Err(e) => serde_json::json!({ "file": null, "error": e.to_string() }),
+        Err(e) => serde_json::json!({ "file": null, "error": format!("{e:#}") }),
     }
 }
 
@@ -1001,12 +999,10 @@ struct NeutronProgress {
 
 /// Downloads the latest file from the `neutron` pre-release (about 70 MB), reporting progress
 /// about once a megabyte. The old file, if any, stays until the new one is complete and checked.
+/// A second download while one runs is turned down (by `neutron::download`).
 #[tauri::command]
 async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> Result<Value, String> {
     blocking(move || {
-        let Some(_downloading) = Busy::take(&NEUTRON_BUSY) else {
-            return Err("The neutron star file is already downloading.".into());
-        };
         let mut sent = 0u64;
         let progress = |done: u64, total: Option<u64>| {
             if done - sent >= 1 << 20 || total == Some(done) {
@@ -1017,7 +1013,7 @@ async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> 
         let url = astromech_galaxy::neutron::RELEASE_URL;
         if let Err(e) = astromech_galaxy::neutron::download(&data_dir(), url, progress) {
             astromech_log::log(&format!("neutron star file: download failed: {e:#}"));
-            return Err(e.to_string());
+            return Err(format!("{e:#}"));
         }
         Ok(neutron_status())
     })
@@ -1029,7 +1025,7 @@ async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> 
 async fn neutron_check() -> Result<Value, String> {
     blocking(|| {
         let newer = astromech_galaxy::neutron::newer_available(&data_dir(), astromech_galaxy::neutron::RELEASE_URL)
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| format!("{e:#}"))?;
         Ok(serde_json::json!({ "newer": newer }))
     })
     .await

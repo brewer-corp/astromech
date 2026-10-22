@@ -26,7 +26,7 @@
 //! is renamed over `neutron.bin` only once the checksum and header are right, so a failed or
 //! interrupted download leaves the old file (or none) in place.
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
 use std::ops::Range;
@@ -83,7 +83,9 @@ impl Header {
 /// Reads only the header (for the build date and star count without loading the stars).
 pub fn read_header(path: &Path) -> Result<Header> {
     let mut b = [0u8; HEADER_LEN as usize];
-    File::open(path).and_then(|mut f| f.read_exact(&mut b)).with_context(|| format!("reading {}", path.display()))?;
+    File::open(path)
+        .and_then(|mut f| f.read_exact(&mut b))
+        .map_err(|e| anyhow!("Couldn't read {}: {e}.", path.display()))?;
     Header::parse(&b)
 }
 
@@ -114,7 +116,7 @@ pub struct NeutronStars {
 
 impl NeutronStars {
     pub fn open(path: &Path) -> Result<Self> {
-        let ctx = || format!("reading {}", path.display());
+        let ctx = || format!("Couldn't read {}", path.display());
         let f = File::open(path).with_context(ctx)?;
         let file_len = f.metadata().with_context(ctx)?.len();
         let mut f = BufReader::new(f);
@@ -199,7 +201,7 @@ impl NeutronStars {
         let start = text_at + u64::from(self.groups[g]);
         let end = self.groups.get(g + 1).map_or(self.file_len, |o| text_at + u64::from(*o));
         ensure!(start <= end && end <= self.file_len, "neutron star file name index is corrupt");
-        let mut f = File::open(&self.path).with_context(|| format!("reading {}", self.path.display()))?;
+        let mut f = File::open(&self.path).with_context(|| format!("Couldn't read {}", self.path.display()))?;
         f.seek(SeekFrom::Start(start))?;
         let mut b = vec![0u8; (end - start) as usize];
         f.read_exact(&mut b)?;
@@ -220,7 +222,11 @@ const SUM_NAME: &str = "neutron.bin.sha256";
 const PART_NAME: &str = "neutron.bin.part";
 
 /// The file in `dir` (the data folder): `None` if there is none, an error if it can't be read.
+/// A partial file left by a download that was cut off (the app closed mid-download) is removed.
 pub fn installed(dir: &Path) -> Result<Option<Header>> {
+    if !Downloading::running(dir) {
+        let _ = std::fs::remove_file(dir.join(PART_NAME));
+    }
     let path = dir.join(FILE_NAME);
     if !path.exists() {
         return Ok(None);
@@ -243,7 +249,33 @@ pub fn newer_available(dir: &Path, base: &str) -> Result<bool> {
     Ok(!dir.join(FILE_NAME).exists() || have.trim() != latest)
 }
 
-/// Removes the partial file unless the download got as far as the rename.
+/// The data folders a download is running into in this process: one at a time per folder, and
+/// [`installed`] leaves its partial file alone.
+static DOWNLOADS: std::sync::Mutex<Vec<PathBuf>> = std::sync::Mutex::new(Vec::new());
+
+struct Downloading(PathBuf);
+
+impl Downloading {
+    fn start(dir: &Path) -> Result<Self> {
+        let mut d = DOWNLOADS.lock().unwrap_or_else(|e| e.into_inner());
+        ensure!(!d.iter().any(|x| x == dir), "The neutron star file is already downloading.");
+        d.push(dir.to_path_buf());
+        Ok(Downloading(dir.to_path_buf()))
+    }
+
+    fn running(dir: &Path) -> bool {
+        DOWNLOADS.lock().unwrap_or_else(|e| e.into_inner()).iter().any(|x| x == dir)
+    }
+}
+
+impl Drop for Downloading {
+    fn drop(&mut self) {
+        DOWNLOADS.lock().unwrap_or_else(|e| e.into_inner()).retain(|x| *x != self.0);
+    }
+}
+
+/// Removes the partial file (a stale one from a download that was cut off, or this one) unless
+/// the download got as far as the rename.
 struct Part<'a>(&'a Path);
 
 impl Drop for Part<'_> {
@@ -272,34 +304,46 @@ impl std::io::Write for Unpack {
 
 /// Downloads the file published at `base` into `dir` as `neutron.bin`, calling
 /// `progress(bytes, total)` as the gzip comes in. The old file stays until the new one is
-/// complete and its checksum matches.
+/// complete and its checksum matches. Errors are sentences for the Route page, with the cause
+/// and what to do.
 pub fn download(dir: &Path, base: &str, progress: impl FnMut(u64, Option<u64>)) -> Result<Header> {
     use std::io::Write;
-    let sum = latest_sha256(base)?;
-    std::fs::create_dir_all(dir).with_context(|| format!("creating {}", dir.display()))?;
+    let _running = Downloading::start(dir)?;
     let part = dir.join(PART_NAME);
     let _cleanup = Part(&part);
-    let file = File::create(&part).with_context(|| format!("writing {}", part.display()))?;
+    let sum = latest_sha256(base)?;
+    const SPACE: &str = "Check there is about 200 MB free in the data folder, then press Download again.";
+    std::fs::create_dir_all(dir)
+        .map_err(|e| anyhow!("Couldn't create the data folder {}: {e}. {SPACE}", dir.display()))?;
+    let file = File::create(&part).map_err(|e| anyhow!("Couldn't write {}: {e}. {SPACE}", part.display()))?;
     let mut w = Unpack { sha: sha2::Digest::new(), gz: flate2::write::GzDecoder::new(std::io::BufWriter::new(file)) };
     match astromech_data::download::stream(&format!("{base}/{GZ_NAME}"), &mut w, progress) {
         Ok(_) => {}
         Err(astromech_data::download::DownloadError::Write(e)) => {
-            bail!("The download couldn't be written or unpacked ({e}). Try again.")
+            bail!("The download couldn't be written or unpacked: {e}. {SPACE}")
         }
         Err(e) => return Err(e.into()),
     }
     let got = hex(&sha2::Digest::finalize(w.sha));
-    ensure!(got == sum, "The download was damaged (its checksum doesn't match). Try again.");
+    ensure!(got == sum, "The download was damaged (its checksum doesn't match). Press Download again.");
     let unpacked = (|| {
         let mut out = w.gz.finish()?;
         out.flush()?;
         out.into_inner().map_err(|e| e.into_error())?.sync_all()
     })();
-    unpacked.context("The download couldn't be unpacked. Try again.")?;
-    let header = read_header(&part).context("The downloaded file isn't a neutron star file this version reads.")?;
-    std::fs::rename(&part, dir.join(FILE_NAME))
-        .with_context(|| format!("replacing {}", dir.join(FILE_NAME).display()))?;
-    std::fs::write(dir.join(SUM_NAME), &sum).with_context(|| format!("writing {}", dir.join(SUM_NAME).display()))?;
+    unpacked.map_err(|e| anyhow!("The download couldn't be unpacked: {e}. {SPACE}"))?;
+    let header = read_header(&part).map_err(|e| {
+        anyhow!("The downloaded file isn't one this version of astromech reads ({e:#}). Update astromech, then press Download again.")
+    })?;
+    let path = dir.join(FILE_NAME);
+    std::fs::rename(&part, &path).map_err(|e| {
+        anyhow!(
+            "Couldn't replace {}: {e}. Another program (an antivirus scan, or a route being plotted) may have it open. Wait a minute, then press Download again.",
+            path.display()
+        )
+    })?;
+    // Without it, Check for a newer file only says there is one; the file itself is in place.
+    let _ = std::fs::write(dir.join(SUM_NAME), &sum);
     Ok(header)
 }
 

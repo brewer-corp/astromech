@@ -112,3 +112,56 @@ fn a_failed_download_keeps_the_old_file() {
     assert!(err.contains("HTTP 404"), "{err}");
     assert_eq!(files_in(dir.path()), ["neutron.bin"]);
 }
+
+fn published() -> String {
+    let gz = gzip(&fixture());
+    serve(vec![("/neutron.bin.gz.sha256", format!("{}\n", sha(&gz)).into_bytes()), ("/neutron.bin.gz", gz)])
+}
+
+#[test]
+fn a_failed_rename_says_why_and_what_to_do() {
+    let dir = tempfile::tempdir().unwrap();
+    // Something holds neutron.bin's place: here a folder with a file in it, which no rename replaces.
+    let held = dir.path().join(FILE_NAME);
+    std::fs::create_dir(&held).unwrap();
+    std::fs::write(held.join("x"), b"x").unwrap();
+    let err = format!("{:#}", download(dir.path(), &published(), |_, _| {}).unwrap_err());
+    assert!(err.starts_with(&format!("Couldn't replace {}: ", held.display())), "{err}");
+    assert!(err.contains("(os error"), "the reason is missing: {err}");
+    assert!(err.ends_with("Wait a minute, then press Download again."), "{err}");
+    assert_eq!(files_in(dir.path()), ["neutron.bin"], "the partial file is left");
+}
+
+#[test]
+fn a_partial_file_left_by_a_cut_off_download_is_removed() {
+    // Seen when the file's state is read...
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("neutron.bin.part"), b"half a file").unwrap();
+    assert_eq!(installed(dir.path()).unwrap(), None);
+    assert!(files_in(dir.path()).is_empty(), "left {:?}", files_in(dir.path()));
+
+    // ...and when a download starts, even one that fails straight away.
+    std::fs::write(dir.path().join("neutron.bin.part"), b"half a file").unwrap();
+    assert!(download(dir.path(), &serve(vec![]), |_, _| {}).is_err());
+    assert!(files_in(dir.path()).is_empty(), "left {:?}", files_in(dir.path()));
+}
+
+#[test]
+fn a_running_download_keeps_its_partial_file_and_turns_down_a_second() {
+    let dir = tempfile::tempdir().unwrap();
+    let base = published();
+    let mut checked = false;
+    download(dir.path(), &base, |_, _| {
+        if checked {
+            return;
+        }
+        checked = true;
+        assert_eq!(installed(dir.path()).unwrap(), None);
+        assert!(dir.path().join("neutron.bin.part").exists(), "the running download's file was removed");
+        let err = download(dir.path(), &base, |_, _| {}).unwrap_err().to_string();
+        assert_eq!(err, "The neutron star file is already downloading.");
+    })
+    .unwrap();
+    assert!(checked);
+    assert_eq!(files_in(dir.path()), ["neutron.bin", "neutron.bin.sha256"]);
+}
