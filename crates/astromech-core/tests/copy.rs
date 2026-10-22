@@ -719,9 +719,20 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 
+/// `check`, except that a sentence that is only one of `names` is not counted against the budget
+/// (V1-DESIGN §6.5): the name is the whole message and cannot be shortened.
+fn check_with_names(kind: &str, lines: &[String], budget: usize, names: &[&str]) -> Vec<String> {
+    let (name_only, rest): (Vec<String>, Vec<String>) =
+        lines.iter().cloned().partition(|l| names.iter().any(|n| l.strip_suffix('.') == Some(n)));
+    let mut bad = check(kind, &rest, budget);
+    bad.extend(check(kind, &name_only, usize::MAX));
+    bad
+}
+
 /// The route follower (docs/PLOTTING.md): the arrival callout, the replies to the route
-/// commands and the answer to "next waypoint", on a procedural system name, an engineer and a plotter's labels, a
-/// sentence at a time (the name is a sentence of its own).
+/// commands and the answer to "next waypoint", on procedural system names up to a long sector
+/// name, an engineer and a plotter's labels, a sentence at a time (the name is a sentence of its
+/// own, which the budget does not count).
 #[test]
 fn the_route_lines_keep_to_the_copy_guide() {
     use astromech_core::route::{answer_line, next_line, Moved, Waypoint, FIXED_LINES};
@@ -731,12 +742,20 @@ fn the_route_lines_keep_to_the_copy_guide() {
     // Plotted routes label their stops (astromech_galaxy::plot): the longest label on a long name.
     use astromech_galaxy::plot::{FUEL, NEUTRON};
     let both = format!("{NEUTRON} and {FUEL}");
+    // Long sector names: 9 and 10 words as spoken, over the callout budget on their own.
+    let (hyades, col) = ("Hyades Sector DB-W b2-6", "Col 285 Sector AB-C d14-123");
+    assert_eq!((spoken_words(hyades), spoken_words(col)), (9, 10));
+    let names = ["Deciat", "Synuefe BY-F d12-39", "Kuk", "PSR J1752-2806", hyades, col];
     for next in [
         w("Deciat", None),
         w("Synuefe BY-F d12-39", Some("Felicity Farseer")),
         w("Kuk", Some("Ram Tah")),
         w("Synuefe BY-F d12-39", Some(&both)),
         w("PSR J1752-2806", Some(NEUTRON)),
+        w(hyades, None),
+        w(hyades, Some(&both)),
+        w(col, None),
+        w(col, Some(&both)),
     ] {
         for copied in [true, false] {
             let m = Moved::Arrived { at: w("Sol", None), next: next.clone(), left: 99, copied };
@@ -757,8 +776,9 @@ fn the_route_lines_keep_to_the_copy_guide() {
     };
     let (callouts, replies, answers) = (sentences(&callouts), sentences(&replies), sentences(&answers));
     assert!(callouts.iter().any(|l| l == "Synuefe BY-F d12-39."), "{callouts:?}");
-    let mut bad = check("route callout", &callouts, CALLOUT_WORDS);
-    bad.extend(check("route reply", &replies, REPLY_WORDS));
+    assert!(answers.iter().any(|l| *l == format!("{col}, for {both}.")), "{answers:?}");
+    let mut bad = check_with_names("route callout", &callouts, CALLOUT_WORDS, &names);
+    bad.extend(check_with_names("route reply", &replies, REPLY_WORDS, &names));
     bad.extend(check("route answer", &answers, ANSWER_WORDS));
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }

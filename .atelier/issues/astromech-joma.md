@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Route follower callout: long procedural names break the 8-word callout budget"
-updated_at: "2026-10-22T20:41:36.887039775+00:00"
+updated_at: "2026-10-22T21:29:46.532799361+00:00"
 ---
 
 ## Goal

@@ -43,7 +43,8 @@ Behaviour:
   the journal replayed at start is silent. "Next waypoint" by voice copies it again and adds what
   is there and how many are left: *"Next waypoint. Deciat, for Felicity Farseer. 3 waypoints
   left."* The lines follow the callout copy guide (V1-DESIGN §6.5); the system name is a sentence
-  of its own because a procedural name alone fills a callout's word budget.
+  of its own, which the word budget does not count, because a procedural name alone can outrun
+  a callout's budget.
 - Consecutive stops in the same system are merged, which covers two engineers in one system and
   road-to-riches rows (one per body).
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for

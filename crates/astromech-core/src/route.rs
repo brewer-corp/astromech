@@ -180,8 +180,9 @@ fn named(w: &Waypoint) -> String {
 }
 
 /// The callout on arrival and the reply to "skip" or "back": "Next waypoint. Deciat." The
-/// clipboard holds it; "Not copied." says when it does not. The name is a sentence of its own:
-/// a procedural name alone ("Synuefe BY-F d12-39") is a callout's whole word budget.
+/// clipboard holds it; "Not copied." says when it does not. The name is a sentence of its own,
+/// which the word budget does not count (V1-DESIGN §6.5): a procedural name alone ("Col 285
+/// Sector AB-C d14-123") can outrun a callout's budget.
 pub fn next_line(next: &Waypoint, copied: bool) -> String {
     let mut s = format!("Next waypoint. {}.", next.system);
     if !copied {
