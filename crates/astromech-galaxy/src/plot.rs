@@ -104,7 +104,7 @@ pub struct Stop {
     pub label: Option<String>,
 }
 
-/// Labels: what to do at a stop besides plotting on. "Next waypoint. X, for fuel."
+/// Labels: what to do at a stop besides plotting on. "Next waypoint. X. For fuel."
 pub const NEUTRON: &str = "neutron boost";
 pub const FUEL: &str = "fuel";
 

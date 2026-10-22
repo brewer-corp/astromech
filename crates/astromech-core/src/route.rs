@@ -171,14 +171,6 @@ pub const PASTE_STOPPED: &str = "Galaxy map closed. Search not sent.";
 pub const FIXED_LINES: &[&str] =
     &[NO_ROUTE, CLEARED, NOTHING_TO_CLEAR, COMPLETE, FINISHED, PASTE_REFUSED, PASTED, PASTE_STOPPED];
 
-/// "Deciat, for Felicity Farseer" (the label is what is there, e.g. the engineer).
-fn named(w: &Waypoint) -> String {
-    match &w.label {
-        Some(l) => format!("{}, for {l}", w.system),
-        None => w.system.clone(),
-    }
-}
-
 /// The callout on arrival and the reply to "skip" or "back": "Next waypoint. Deciat." The
 /// clipboard holds it; "Not copied." says when it does not. The name is a sentence of its own,
 /// which the word budget does not count (V1-DESIGN §6.5): a procedural name alone ("Col 285
@@ -191,10 +183,15 @@ pub fn next_line(next: &Waypoint, copied: bool) -> String {
     s
 }
 
-/// The answer to "next waypoint": "Next waypoint. Deciat, for Felicity Farseer. 3 waypoints
-/// left." (`left` counts the next one.)
+/// The answer to "next waypoint": "Next waypoint. Deciat. For Felicity Farseer. 3 waypoints
+/// left." (`left` counts the next one.) The label says what is there (an engineer, "neutron
+/// boost"); it follows the name in a sentence of its own, so the name stays a sentence the word
+/// budget does not count (V1-DESIGN §6.5), however long.
 pub fn answer_line(next: &Waypoint, left: usize, copied: bool) -> String {
-    let mut s = format!("Next waypoint. {}.", named(next));
+    let mut s = format!("Next waypoint. {}.", next.system);
+    if let Some(l) = &next.label {
+        s += &format!(" For {l}.");
+    }
     if !copied {
         s += " Not copied.";
     }
@@ -597,7 +594,7 @@ mod tests {
         );
         assert_eq!(r.waypoints.len(), 2);
         assert_eq!(r.waypoints[0].label.as_deref(), Some("Felicity Farseer, Someone Else"));
-        assert_eq!(answer_line(&r.waypoints[1], 2, true), "Next waypoint. Kuk, for Ram Tah. 2 waypoints left.");
+        assert_eq!(answer_line(&r.waypoints[1], 2, true), "Next waypoint. Kuk. For Ram Tah. 2 waypoints left.");
     }
 
     #[test]

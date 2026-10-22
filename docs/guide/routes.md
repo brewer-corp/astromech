@@ -88,7 +88,7 @@ row for it in Settings yet; restart astromech after editing the file.
 
 | You say | You hear |
 |---|---|
-| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies it again. *"Next waypoint. Deciat, for Felicity Farseer. 3 waypoints left."* |
+| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies it again. *"Next waypoint. Deciat. For Felicity Farseer. 3 waypoints left."* |
 | "skip waypoint", "skip this waypoint", "skip to the next waypoint" | Skips one and copies the one after. *"Next waypoint. Kuk."* |
 | "previous waypoint", "back one waypoint", "go back a waypoint" | Goes back one and copies it. |
 | "clear route", "clear the route", "end route", "stop following the route" | *"Route cleared."* |
@@ -123,7 +123,7 @@ other.
 
 When it is done, the page says how many jumps, how far, how many neutron boosts and refuel
 stops, and the jump range the route was plotted at. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
-b2-6, for fuel."*
+b2-6. For fuel."*
 
 It needs:
 

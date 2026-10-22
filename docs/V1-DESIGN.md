@@ -695,11 +695,10 @@ reporting, not a crewmate chatting.
 
   Each sentence keeps to its budget; more is said as several short sentences. A sentence that
   is only a name, as the game writes it, is not counted: the name is the whole message and
-  cannot be shortened, and a procedural name alone can outrun a callout ("Col 285 Sector AB-C
-  d14-123" reads as 10 words). So a line that may carry a long name says it as a sentence of its
-  own, "Next waypoint. Col 285 Sector AB-C d14-123.", or leaves room for it: a name inside a
-  sentence counts as spoken, and "Col 285 Sector AB-C d14-123, for neutron boost and fuel." is
-  15 words of a 16-word answer.
+  cannot be shortened, and a procedural name alone can outrun a callout ("NGC 7822 Sector AB-C
+  d14-123" reads as 12 words). A name inside a longer sentence counts as spoken, so a line that
+  may carry a long name says it as a sentence of its own and anything about it in the next:
+  "Next waypoint. NGC 7822 Sector AB-C d14-123. For neutron boost and fuel."
 - **Present tense, full sentences.** Each line ends with a full stop or a question mark.
 - **No contractions.** "did not respond", "is not". Radio words are fine: "Say again."
 - **No jokes, little "I".** The ship reports; it doesn't have opinions. "Nothing pressed.", not

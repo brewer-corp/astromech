@@ -121,7 +121,7 @@ your clipboard; "paste" puts it into the galaxy map's search box.
 
 | You say | What it does |
 |---|---|
-| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies the next waypoint again and says it: "Next waypoint. Deciat, for Felicity Farseer. 3 waypoints left." |
+| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies the next waypoint again and says it: "Next waypoint. Deciat. For Felicity Farseer. 3 waypoints left." |
 | "skip waypoint", "skip this waypoint", "skip to the next waypoint" | Skips one and copies the one after: "Next waypoint. Kuk." |
 | "previous waypoint", "back one waypoint", "go back a waypoint" | Goes back one and copies it |
 | "clear route", "clear the route", "end route", "stop following the route" | "Route cleared." |
