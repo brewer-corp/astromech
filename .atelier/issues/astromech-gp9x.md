@@ -4,6 +4,9 @@ id: "astromech-gp9x"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-gp9x
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Flaky on Windows CI: gear_down did_you_mean_learns_a_key_press_on_the_second_yes gets Denied(Duplicate)"
-updated_at: "2026-10-22T22:02:52.474534576+00:00"
+updated_at: "2026-10-22T22:03:00.428930489+00:00"
 ---
 
 ## Goal
