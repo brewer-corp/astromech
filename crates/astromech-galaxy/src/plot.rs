@@ -156,7 +156,13 @@ fn spansh(
     let name = format!("{from} to {to}");
     match plotter {
         Plotter::Neutron => {
-            let r = NeutronRoute { from, to, range: round2(ship.range), efficiency: ask.efficiency.clamp(1, 100) };
+            let r = NeutronRoute {
+                from,
+                to,
+                range: round2(ship.range),
+                efficiency: ask.efficiency.clamp(1, 100),
+                supercharge_multiplier: ship.fsd.supercharge_multiplier,
+            };
             let plan = client.spansh_route_wait(&r, polling)?;
             let waypoints: Vec<Stop> =
                 plan.system_jumps.iter().map(|j| stop(&j.system, j.neutron_star, false)).collect();
@@ -184,6 +190,7 @@ fn spansh(
                 tank_size: f.tank_size,
                 internal_tank_size: f.reserve_size,
                 range_boost: f.range_boost,
+                supercharge_multiplier: f.supercharge_multiplier,
                 cargo: ship.cargo.round(),
                 refuel_every_scoopable: ask.refuel_every_scoopable,
             };

@@ -60,7 +60,9 @@ impl Out {
             self.problem(what);
         }
     }
-    /// A problem filed as `issue`: shown, but it doesn't fail the run.
+    /// A problem filed as `issue`: shown, but it doesn't fail the run. Unused while no filed
+    /// problem is open.
+    #[allow(dead_code)]
     fn known(&mut self, issue: &str, what: impl Into<String>) {
         self.known.push(format!("{} ({issue})", what.into()));
     }
@@ -381,19 +383,11 @@ fn history_section(h: &Harness, o: &mut Out) {
     // Every ship the fleet has now is in the ledger, under its type, and not sold.
     let fleet = astromech_engineering::fleet::from_journal_dir(&h.dir);
     for f in &fleet.ships {
-        match ships.iter().find(|s| s.ship_id == f.id) {
-            None => o.problem(format!("fleet ship #{} {} is not in the ships ledger", f.id, f.ship_type)),
-            // The game reuses a traded-in ship's id for the new one.
-            Some(s) if s.sold.is_some() || s.ship_type != f.ship_type => o.known(
-                "astromech-vett",
-                format!(
-                    "fleet ship #{} {} is in the ships ledger as {}{}",
-                    f.id,
-                    f.ship_type,
-                    s.ship_type,
-                    if s.sold.is_some() { ", sold" } else { "" }
-                ),
-            ),
+        match ships.iter().find(|s| s.ship_id == f.id && s.sold.is_none()) {
+            None => o.problem(format!("fleet ship #{} {} has no unsold row in the ships ledger", f.id, f.ship_type)),
+            Some(s) if s.ship_type != f.ship_type => {
+                o.problem(format!("fleet ship #{} {} is in the ships ledger as {}", f.id, f.ship_type, s.ship_type))
+            }
             Some(_) => {}
         }
     }
@@ -408,9 +402,7 @@ fn history_section(h: &Harness, o: &mut Out) {
         .collect();
     let have: BTreeSet<String> = ships.iter().map(|s| s.ship_type.clone()).collect();
     let lost: Vec<_> = flown.difference(&have).cloned().collect();
-    if !lost.is_empty() {
-        o.known("astromech-vett", format!("ship types flown but not in the ships ledger: {}", lost.join(", ")));
-    }
+    o.check(lost.is_empty(), format!("ship types flown but not in the ships ledger: {}", lost.join(", ")));
 
     let t = Instant::now();
     let s = hist.session(None, None).unwrap();

@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:50:52.188095383+00:00"
+status: "done"
 title: "Move the Clock trait into astromech-proto, as ARCHITECTURE 5.1 says"
-updated_at: "2026-10-22T20:41:40.181319299+00:00"
+updated_at: "2026-10-22T21:50:52.188095383+00:00"
 ---
 
 ## Goal
@@ -23,3 +24,7 @@ ARCHITECTURE section 5.1 puts the Clock trait in astromech-proto (no I/O), but t
 ## Done when
 
 Clock lives in astromech-proto, astromech-data re-exports or uses it, astromech-engineering no longer depends on astromech-data, and check-deps passes.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-0k88 (approval astromech-5ib2).

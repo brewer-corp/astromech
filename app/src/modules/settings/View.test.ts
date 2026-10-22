@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/svelte";
+import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import View from "./View.svelte";
 import App from "../../App.svelte";
 import { fakeCall, fakePreviews, resetFakeCore, type Scenario } from "../../lib/fakecore";
@@ -93,5 +93,20 @@ describe("first launch", () => {
     expect(screen.queryByRole("heading", { name: "Find Elite" })).toBeNull();
     location.hash = "#/setup/mic";
     expect(await screen.findByRole("heading", { name: "Microphone" })).toBeTruthy();
+  });
+});
+
+// The poll reads the core's status every second; a failed read is null (lib/core.ts coreStatus).
+describe("Settings, a status read failing after a good one (astromech-cvxf)", () => {
+  it("keeps the settings shown, says the refresh failed, and clears the line on the next good read", async () => {
+    on("ready");
+    render(View);
+    await screen.findByText("Start with Windows");
+    history.replaceState(null, "", "/?core=ready&fail=core_status");
+    expect(await screen.findByText("Could not refresh: the core did not answer.", {}, { timeout: 2500 })).toBeTruthy();
+    expect(screen.getByText("Start with Windows")).toBeTruthy();
+    expect(screen.queryByText(/isn't running/)).toBeNull();
+    history.replaceState(null, "", "/?core=ready");
+    await waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull(), { timeout: 2500 });
   });
 });

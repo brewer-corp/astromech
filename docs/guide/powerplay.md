@@ -19,7 +19,8 @@ award twice but counts it once; the count drops back by that award at your next 
 
 For the system of your last jump or login: who controls it, its state and a **control** bar
 showing progress through the band, this cycle's **reinforcement** and **undermining**, and any
-other powers active there. For an unoccupied system it shows who is acquiring it and how far.
+other powers active there. For a system no power controls it shows its state (unoccupied, or
+contested) and who is acquiring it and how far.
 
 When the system is one your power could work, a line says what: reinforce, undermine or acquire.
 The game shows this only in the system and galaxy maps, not on the HUD. The values are as of
@@ -57,6 +58,7 @@ jumps and distance and its Powerplay state. The only filter is the age of the da
 
 ## Limits
 
-- Not pledged: no standing, no activities, no targets.
+- Not pledged: no standing, no activities, no targets. The game says you are pledged when you
+  start it, so a login with no pledge clears one you left in a journal you have since deleted.
 - The system view is from the last jump; the game updates it every cycle.
 - The merit rules are guides, not Frontier's tables.

@@ -11,8 +11,8 @@
 //! the plan and trip follow engineering without waiting for the next `Loadout`.
 
 use crate::{data, links};
-use astromech_data::Clock;
 use astromech_journal::{JournalEvent, ModEngineering, ModuleSnap, StoredModule, StoredShip};
+use astromech_proto::Clock;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap};
@@ -662,7 +662,7 @@ pub const FLEET_EVENTS: &[&str] = &[
 /// Replay every journal in `dir`, oldest first. Lines are pre-filtered by event name, so years
 /// of journals cost one read each.
 pub fn from_journal_dir(dir: &Path) -> Fleet {
-    from_journal_dir_at(dir, &astromech_data::SystemClock).fleet
+    from_journal_dir_at(dir, &astromech_proto::SystemClock).fleet
 }
 
 /// [`from_journal_dir`], settling transfers against `clock` and saying when the result next goes

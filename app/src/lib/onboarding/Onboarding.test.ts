@@ -182,3 +182,17 @@ describe("onboarding flow", () => {
     expect(fakeStatus().onboarded).toBe(true);
   });
 });
+
+describe("onboarding: a status read failing after a good one (astromech-cvxf)", () => {
+  it("keeps the buttons it read, not 'Not set', and says the refresh failed", async () => {
+    on("ready");
+    step("buttons");
+    await screen.findAllByRole("button", { name: "Change" }, { timeout: 2500 });
+    expect(screen.queryByText("Not set")).toBeNull();
+    history.replaceState(null, "", "/?core=ready&fail=core_status");
+    expect(await screen.findByText("Could not refresh: the core did not answer.", {}, { timeout: 2500 })).toBeTruthy();
+    expect(screen.queryByText("Not set")).toBeNull();
+    history.replaceState(null, "", "/?core=ready");
+    await vi.waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull(), { timeout: 2500 });
+  });
+});

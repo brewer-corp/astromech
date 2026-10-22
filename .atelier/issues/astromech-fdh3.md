@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:32.204829665+00:00"
 id: "astromech-fdh3"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-fdh3
 priority: "P2"
 relationships:
   blocks: []
@@ -26,9 +29,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:53:39.598229499+00:00"
+status: "done"
 title: "Ships, history, Powerplay and mining fixes"
-updated_at: "2026-10-22T20:41:39.390457901+00:00"
+updated_at: "2026-10-22T21:53:39.598229499+00:00"
 ---
 
 ## Goal
@@ -42,3 +46,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Six ships, history, Powerplay and mining fixes, independently reviewed twice (approval astromech-o2y7); decision astromech-yc7h for Sumeet.

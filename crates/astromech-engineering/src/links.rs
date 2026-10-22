@@ -44,12 +44,19 @@ pub fn edsy_url(loadout: &Value) -> String {
     format!("https://edsy.org/#/I={}", URL_SAFE_NO_PAD.encode(z))
 }
 
-/// URL prefixes the app may open in the browser for the builder and lookup links. The trailing
-/// separator in each keeps look-alike hosts (`https://spansh.co.uk.evil/`) out.
-const OPENABLE: &[&str] =
-    &["https://coriolis.io/import?", "https://edsy.org/#/I=", "https://spansh.co.uk/", "https://inara.cz/elite/"];
+/// URL prefixes the app may open in the browser: the builder and lookup links, and the project's
+/// GitHub pages (the guide's help links, release notes). The trailing separator in each keeps
+/// look-alike hosts (`https://spansh.co.uk.evil/`) out.
+const OPENABLE: &[&str] = &[
+    "https://coriolis.io/import?",
+    "https://edsy.org/#/I=",
+    "https://spansh.co.uk/",
+    "https://inara.cz/elite/",
+    "https://github.com/brewer-corp/astromech/",
+];
 
-/// Whether `url` is one of the links built here (the shell checks this before launching a browser).
+/// Whether the app may open `url` in the browser. The shell's `open_external` checks every URL
+/// with this alone before launching a browser.
 pub fn is_openable_url(url: &str) -> bool {
     // explorer.exe parses its own command line: quotes and commas could turn a URL into switches.
     OPENABLE.iter().any(|p| url.starts_with(p)) && !url.chars().any(|c| c.is_control() || matches!(c, ' ' | '"' | ','))
@@ -95,6 +102,8 @@ mod tests {
             "https://spansh.co.uk/search/Col%2070%20Sector".to_string(),
             "https://inara.cz/elite/starsystem/?search=Sol".to_string(),
             "https://inara.cz/elite/stations/?search=Daedalus".to_string(),
+            "https://github.com/brewer-corp/astromech/releases".to_string(),
+            "https://github.com/brewer-corp/astromech/blob/main/docs/guide/getting-started.md#first-run".to_string(),
         ] {
             assert!(is_openable_url(&ok), "{ok}");
         }
@@ -114,6 +123,13 @@ mod tests {
             "https://spansh.co.uk/\nx",
             "https://spansh.co.uk/\",/root,C:\\Windows",
             "https://inara.cz/elite/,/select,C:\\Windows",
+            "https://github.com/brewer-corp/astromech/ --evil",
+            "https://github.com/brewer-corp/astromech/\",/root,C:\\Windows",
+            "https://github.com/brewer-corp/astromech/,/select,C:\\Windows",
+            "https://github.com/brewer-corp/astromech/\tx",
+            "https://github.com/brewer-corp/astromech.evil/",
+            "https://github.com/brewer-corp/astromech-evil/",
+            "https://github.com/spadaval/astromech/",
             "",
         ] {
             assert!(!is_openable_url(bad), "{bad}");

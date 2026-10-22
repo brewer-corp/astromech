@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:53:39.254213189+00:00"
+status: "done"
 title: "Mining run: start only on prospector or collector limpets; test the rate to the latest line"
-updated_at: "2026-10-22T20:41:39.156051717+00:00"
+updated_at: "2026-10-22T21:53:39.254213189+00:00"
 ---
 
 ## Goal
@@ -23,3 +24,7 @@ A repair, fuel or hatchbreaker limpet launch starts a mining run, so the Mining 
 ## Done when
 
 A repair limpet alone leaves no run; the rate test with a later non-mining line passes.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-fdh3 (approval astromech-o2y7).

@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:44:43.861125217+00:00"
+status: "done"
 title: "Browser preview: lookup sections still answer sample results under ?core=empty"
-updated_at: "2026-10-22T20:41:34.362689918+00:00"
+updated_at: "2026-10-22T21:44:43.861125217+00:00"
 ---
 
 ## Goal
@@ -23,8 +24,15 @@ Under ?core=empty the network-lookup sections (Nearby, Sites, Colonies, stations
 
 ## Done when
 
-galaxy.ts, sites.ts, stations.ts and colonies.ts use previewData with an empty answer under ?core=empty (or the preview documents why they do not), so empty-state screenshots of Exploration, Trade, Colonisation and Materials are not cluttered with Sol results. ?fail= and ?slow= already cover them (previewGate).
+- galaxy.ts, sites.ts, stations.ts and colonies.ts answer through previewLookup (fakecore.ts): under ?core=empty with no typed system they reject with the shell's own "no position in the journal yet" (search_origin in app/src-tauri/src/main.rs); with a typed system they still answer the sample from it, as the network lookup does on a PC with no journal. ?fail= and ?slow= still apply (previewGate).
+- lib/fakecore.preview.test.ts covers all four lookups; before and after screenshots of Exploration, Colonisation and Materials under ?core=empty are in docs/evidence/astromech-95f6/.
 
 ## Context
 
 Found walking astromech-x81p. These are Spansh and Ardent lookups, not journal data, so the sample answer is defensible; the clutter is the only cost.
+
+Decision (2026-10-22): mirror the shell rather than answer empty hits, since an empty answer would still say "Nearest to Sol", which a PC with no journal never shows. Trade's own lookups (trade.ts) keep their empty answers; they were not part of this record.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

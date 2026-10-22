@@ -7,6 +7,8 @@
   import Calibration from "../../lib/ui/Calibration.svelte";
   import ProspectorThresholds from "./ProspectorThresholds.svelte";
   import Callouts from "./Callouts.svelte";
+  import Stale from "../../lib/ui/Stale.svelte";
+  import { pollFailure } from "../../lib/ui/errors";
 
   let status = $state<CoreStatus | null>(null);
   let note = $state("");
@@ -64,8 +66,15 @@
   };
   const gate = $derived(mics?.calibration.min_level_dbfs);
 
+  /** A status read failed after a good one: the last status stays, with a line saying so. A failed
+   * read is null (coreStatus), so the window can't tell a stopped core from one that didn't answer. */
+  let statusErr = $state<string | null>(null);
   async function refresh() {
-    status = await coreStatus();
+    const s = await coreStatus();
+    if (s) {
+      status = s;
+      statusErr = null;
+    } else if (status) statusErr = pollFailure("read the status", "the core did not answer", true);
   }
   $effect(() => {
     void refresh();
@@ -99,6 +108,7 @@
   {#if !status}
     <p class="lo">astromech's background process isn't running, so settings can't be shown. It starts with this window; if this stays, see Diagnostics.</p>
   {:else}
+    <Stale error={statusErr} />
     <h3>Startup</h3>
     <dl>
       <dt>Start with Windows</dt>

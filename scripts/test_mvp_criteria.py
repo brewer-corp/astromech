@@ -264,5 +264,16 @@ class Planning(unittest.TestCase):
         self.assertEqual(md.count("**FAIL**"), 0)
 
 
+class GuiFocus(unittest.TestCase):
+    def test_the_harness_uses_the_crates_values(self):
+        # The mock game writes what the harness asks for, so a wrong value here would pass
+        # unnoticed; astromech-status tests its values against Frontier's manual (astromech-lnzj).
+        import re
+        rs = (Path(__file__).resolve().parent.parent / "crates/astromech-status/src/status_file.rs").read_text()
+        crate = {k: int(v) for k, v in re.findall(r"pub const (GUI_[A-Z]+): u64 = (\d+);", rs)}
+        for name in ("GUI_NONE", "GUI_LEFT", "GUI_RIGHT", "GUI_COMMS", "GUI_ROLE", "GUI_GALAXY", "GUI_SYSTEM"):
+            self.assertEqual(getattr(m, name), crate[name], name)
+
+
 if __name__ == "__main__":
     unittest.main()

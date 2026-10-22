@@ -64,7 +64,7 @@ IN_SRV = 1 << 26
 GEAR, HARDPOINTS, LIGHTS, CARGO_SCOOP = 1 << 2, 1 << 6, 1 << 8, 1 << 9
 FA_OFF, SILENT, HANDBRAKE, DRIVE_ASSIST = 1 << 5, 1 << 10, 1 << 12, 1 << 15
 HUD_ANALYSIS, NIGHT_VISION = 1 << 27, 1 << 28
-GUI_NONE, GUI_LEFT, GUI_RIGHT, GUI_COMMS, GUI_ROLE, GUI_GALAXY, GUI_SYSTEM = 0, 1, 2, 3, 4, 6, 7
+GUI_NONE, GUI_LEFT, GUI_RIGHT, GUI_COMMS, GUI_ROLE, GUI_GALAXY, GUI_SYSTEM = 0, 2, 1, 3, 4, 6, 7
 
 # Elite key names -> PS/2 set-1 scan codes (crates/astromech-input/src/exec/keys.rs).
 SCAN = {

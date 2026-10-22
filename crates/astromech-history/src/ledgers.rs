@@ -25,8 +25,12 @@
 //!   Not earnings: selling ships or modules (`ShipyardSell`, `SellShipOnRebuy`, `ModuleSell`),
 //!   drones (`SellDrones`) and carrier transfers (`CarrierBankTransfer`, trade orders) turn
 //!   assets into credits; costs (purchases, fines, crew wages, rebuys) aren't recorded.
-//! - `ships`: every ship id seen (`Loadout`, `StoredShips`, `ShipyardNew`), with its latest type,
-//!   name and ident, when it was bought (`acquired`), last flown and sold.
+//! - `ships`: one row per ship owned (`Loadout`, `StoredShips`, `ShipyardNew`, `ShipRedeemed`),
+//!   with its type, latest name and ident, when it was bought (`acquired`), last flown and sold
+//!   (`ShipyardSell`, `SellShipOnRebuy`, a trade-in). The game gives a ship bought with a
+//!   trade-in the id of the ship traded in, so one id can have several rows, at most one unsold.
+//!   A ship id seen on another type closes the unsold row as sold by then (the journal with the
+//!   sale is gone).
 //! - `scans`: `body` (`Scan`), `mapped` (`SAAScanComplete`) and `organic` (`ScanOrganic` with
 //!   `ScanType: Analyse`, a completed sample), one row per event.
 
@@ -73,7 +77,7 @@ pub struct Earning {
     pub detail: Option<String>,
 }
 
-/// A row of `ships`.
+/// A row of `ships`: one ship owned. A ship bought with a trade-in reuses the old ship's id.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Ship {
     pub ship_id: i64,
@@ -164,26 +168,15 @@ pub(crate) fn derive(c: &Connection, event_id: i64, cmdr: &str, line: &JournalLi
             e.visit("station", star_system, *system_address, Some(station_name), *market_id, None)?;
         }
         J::Loadout { ship_id: Some(id), ship: Some(ship), ship_name, ship_ident, .. } => {
-            c.prepare_cached(
-                "INSERT INTO ships(cmdr, ship_id, ship_type, name, ident, first_seen, last_flown, updated)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?6, ?6)
-                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET
-                    first_seen = min(first_seen, excluded.first_seen),
-                    last_flown = max(coalesce(last_flown, ''), excluded.last_flown),
-                    ship_type = iif(excluded.updated >= updated, excluded.ship_type, ship_type),
-                    name = iif(excluded.updated >= updated, coalesce(excluded.name, name), name),
-                    ident = iif(excluded.updated >= updated, coalesce(excluded.ident, ident), ident),
-                    updated = max(updated, excluded.updated)",
-            )?
-            .execute(params![cmdr, id, ship.to_lowercase(), ship_name, ship_ident, e.ts])?;
+            e.owned_ship(*id, ship, ship_name.as_deref(), ship_ident.as_deref(), true)?;
         }
         J::StoredShips { ships } => {
             for s in ships {
-                e.seen_ship(s.ship_id, &s.ship_type, s.name.as_deref())?;
+                e.owned_ship(s.ship_id, &s.ship_type, s.name.as_deref(), None, false)?;
             }
         }
         J::ShipSold { ship_id } => {
-            c.prepare_cached("UPDATE ships SET sold = ?3 WHERE cmdr = ?1 AND ship_id = ?2")?
+            c.prepare_cached("UPDATE ships SET sold = ?3 WHERE cmdr = ?1 AND ship_id = ?2 AND sold IS NULL")?
                 .execute(params![cmdr, ship_id, e.ts])?;
         }
         J::Extra(x) => e.extra(x)?,
@@ -314,11 +307,13 @@ impl Ev<'_> {
                     self.earn("micro_resources", p, None, None)?;
                 }
             }
-            "ShipyardNew" => {
+            "ShipyardNew" | "ShipRedeemed" => {
                 if let (Some(id), Some(t)) = (int("NewShipID"), text("ShipType")) {
-                    self.seen_ship(id, t, None)?;
+                    self.owned_ship(id, t, None, None, false)?;
                     self.c
-                        .prepare_cached("UPDATE ships SET acquired = ?3 WHERE cmdr = ?1 AND ship_id = ?2")?
+                        .prepare_cached(
+                            "UPDATE ships SET acquired = ?3 WHERE cmdr = ?1 AND ship_id = ?2 AND sold IS NULL",
+                        )?
                         .execute(params![self.cmdr, id, self.ts])?;
                 }
             }
@@ -327,7 +322,7 @@ impl Ev<'_> {
                     self.c
                         .prepare_cached(
                             "UPDATE ships SET name = coalesce(?3, name), ident = coalesce(?4, ident), updated = ?5
-                             WHERE cmdr = ?1 AND ship_id = ?2 AND updated <= ?5",
+                             WHERE cmdr = ?1 AND ship_id = ?2 AND sold IS NULL AND updated <= ?5",
                         )?
                         .execute(params![self.cmdr, id, text("UserShipName"), text("UserShipId"), self.ts])?;
                 }
@@ -394,17 +389,37 @@ impl Ev<'_> {
         Ok(())
     }
 
-    fn seen_ship(&self, ship_id: i64, ship_type: &str, name: Option<&str>) -> Result<()> {
+    /// The commander owns ship `ship_id`, a `ship_type`, at this event (`flown`: it is the ship
+    /// they are in). An unsold row for that id of another type is a ship gone by now, whose sale
+    /// isn't in the journals; an older event doesn't close it (rows take values only from newer
+    /// events, and an import of older events rebuilds the ledgers in game-time order).
+    fn owned_ship(
+        &self,
+        ship_id: i64,
+        ship_type: &str,
+        name: Option<&str>,
+        ident: Option<&str>,
+        flown: bool,
+    ) -> Result<()> {
+        let ship_type = ship_type.to_lowercase();
         self.c
             .prepare_cached(
-                "INSERT INTO ships(cmdr, ship_id, ship_type, name, first_seen, updated) VALUES (?1, ?2, ?3, ?4, ?5, ?5)
-                 ON CONFLICT(cmdr, ship_id) DO UPDATE SET
+                "UPDATE ships SET sold = ?4
+                 WHERE cmdr = ?1 AND ship_id = ?2 AND sold IS NULL AND ship_type <> ?3 AND updated <= ?4",
+            )?
+            .execute(params![self.cmdr, ship_id, ship_type, self.ts])?;
+        self.c
+            .prepare_cached(
+                "INSERT INTO ships(cmdr, ship_id, ship_type, name, ident, first_seen, last_flown, updated)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, iif(?7, ?6, NULL), ?6)
+                 ON CONFLICT(cmdr, ship_id) WHERE sold IS NULL DO UPDATE SET
                     first_seen = min(first_seen, excluded.first_seen),
-                    ship_type = iif(excluded.updated >= updated, excluded.ship_type, ship_type),
+                    last_flown = coalesce(max(last_flown, excluded.last_flown), last_flown, excluded.last_flown),
                     name = iif(excluded.updated >= updated, coalesce(excluded.name, name), name),
+                    ident = iif(excluded.updated >= updated, coalesce(excluded.ident, ident), ident),
                     updated = max(updated, excluded.updated)",
             )?
-            .execute(params![self.cmdr, ship_id, ship_type.to_lowercase(), name, self.ts])?;
+            .execute(params![self.cmdr, ship_id, ship_type, name, ident, self.ts, flown])?;
         Ok(())
     }
 
@@ -487,7 +502,7 @@ impl crate::History {
     pub fn ships(&self, cmdr: &str) -> crate::Result<Vec<Ship>> {
         let mut st = self.conn.prepare(
             "SELECT ship_id, ship_type, name, ident, first_seen, last_flown, acquired, sold FROM ships
-             WHERE cmdr = ?1 ORDER BY ship_id",
+             WHERE cmdr = ?1 ORDER BY ship_id, id",
         )?;
         let rows = st.query_map([cmdr], |r| {
             Ok(Ship {

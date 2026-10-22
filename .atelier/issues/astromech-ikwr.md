@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:53:38.667989332+00:00"
+status: "done"
 title: "Ship stats: same-grade plan rounding and unknown modifier labels"
-updated_at: "2026-10-22T20:41:38.378251652+00:00"
+updated_at: "2026-10-22T21:53:38.667989332+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,11 @@ Journal values kept when level, Quality 1 and experimental match; labels for sta
 ## Context
 
 `crates/astromech-engineering/src/plan.rs`, `crates/astromech-ship/src/module.rs`. Found in review of astromech-fdyn (R1, R2). Needs real Loadout lines (legacy module at Quality 0, V1 pre-engineered SCO OriginalValue) — see the note on astromech-fgv5.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: Done via the 'table completed from a real Loadout' branch: every Modifier label in the real journals here (39 labels, all events with Modifiers) now maps; DSS_PatchRadius -> proberadius was the only one missing. An unknown label still marks the ship incomplete. The legacy Quality 0 / V1 pre-engineered SCO OriginalValue questions from the fgv5 note were not checked.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-fdh3 (approval astromech-o2y7).

@@ -249,6 +249,8 @@ fn mining() {
     assert_eq!((motherlode_material.as_deref(), remaining), (Some("painite"), Some(100.0)));
     let E::MiningRefined { commodity } = ex("MiningRefined") else { panic!() };
     assert_eq!(commodity, "$platinum_name;");
+    let E::LaunchDrone { kind } = ex("LaunchDrone") else { panic!() };
+    assert_eq!(kind, "Prospector");
 }
 
 #[test]

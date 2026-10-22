@@ -76,3 +76,20 @@ fn the_page_shows_the_current_system() {
     }
     assert_eq!((j.here.as_deref(), j.system.is_none()), (Some("Test Empty"), true));
 }
+
+/// A Powerplay state with no controller (a contested system) is said and shown as that state,
+/// not as Unoccupied (astromech-xvov).
+#[test]
+fn a_state_without_a_controller_is_named() {
+    let jump = parse_line(
+        r#"{"timestamp":"2026-10-16T20:00:00Z","event":"FSDJump","StarSystem":"Contest","SystemAddress":5,"StarPos":[0,0,0],"JumpDist":5.0,"Powers":["Li Yong-Rui","Pranav Antal"],"PowerplayState":"Contested","PowerplayConflictProgress":[{"Power":"Li Yong-Rui","ConflictProgress":0.6},{"Power":"Pranav Antal","ConflictProgress":0.5}]}"#,
+    )
+    .unwrap();
+    assert_eq!(
+        arrival_line(&jump.event, Some("Li Yong-Rui")).as_deref(),
+        Some("Contested. Acquisition: Li Yong-Rui 60 percent, Pranav Antal 50 percent. Acquisition target.")
+    );
+    let mut j = Journal::default();
+    j.apply(&jump);
+    assert_eq!(j.overview().system.unwrap().summary, "Contested · acquisition: Li Yong-Rui 60%, Pranav Antal 50%");
+}

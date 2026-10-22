@@ -17,7 +17,7 @@ describe("Settings → Callouts", () => {
     expect((await screen.findByLabelText("Powerplay arrival on or off")).getAttribute("aria-pressed")).toBe("false");
 
     await fireEvent.click(toggle);
-    await screen.findByText(/applies the next time Elite starts/);
+    expect((await screen.findByText(/applies the next time Elite starts/)).getAttribute("aria-live"), "Saved is announced").toBe("polite");
     expect(find(await fakeCall("callouts"), "scan").enabled).toBe(false);
 
     const cd = screen.getByLabelText("Scans cooldown, seconds") as HTMLInputElement;
@@ -27,8 +27,10 @@ describe("Settings → Callouts", () => {
     expect(find(await fakeCall("callouts"), "scan").cooldown_s).toBe(90);
 
     await fireEvent.change(cd, { target: { value: "soon" } });
-    expect(await screen.findByText(/enter a number of seconds from 0 to 86400/)).toBeTruthy();
+    const refused = await screen.findByText(/enter a number of seconds from 0 to 86400/);
+    expect(refused.getAttribute("aria-live"), "the error is announced").toBe("polite");
     expect(find(await fakeCall("callouts"), "scan").cooldown_s).toBe(90);
+    expect(cd.value, "the box shows the saved value, not the refused text").toBe("90");
 
     await fireEvent.click(screen.getByRole("button", { name: "Reset to 30 s" }));
     await screen.findByText(/applies the next time/);

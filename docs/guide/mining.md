@@ -14,8 +14,9 @@ It follows your journal live while you mine.
 
 ## When a run starts and ends
 
-A run starts at your first limpet, prospected rock or refined ton after docking or loading
-the game. **Docking ends the run.** Until then the page says "No mining yet".
+A run starts at your first prospector or collector limpet, prospected rock or refined ton after
+docking or loading the game. Other limpets, such as repair or fuel, don't start one. **Docking ends
+the run.** Until then the page says "No mining yet".
 
 It counts what the refinery has made, not what is in the hold or what you sold. For earnings from
 selling, see [Session](logbook.md#session). To sell, [Trade](trade.md) finds the best price.

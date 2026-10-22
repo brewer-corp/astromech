@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:32.451119558+00:00"
 id: "astromech-0k88"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-0k88
 priority: "P2"
 relationships:
   blocks: []
@@ -24,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T22:16:31.071673074+00:00"
+status: "done"
 title: "Shell and core hygiene"
-updated_at: "2026-10-22T20:41:40.755364837+00:00"
+updated_at: "2026-10-22T22:16:31.071673074+00:00"
 ---
 
 ## Goal
@@ -40,3 +44,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Five shell and core hygiene fixes, independently reviewed (astromech-5ib2); k8yk measured on Windows CI; follow-ups astromech-fyvh, astromech-f2k1.

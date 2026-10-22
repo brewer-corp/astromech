@@ -1,0 +1,14 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-ob3c
+title: 'Reviewed c9848180 (gear_down.rs test change) against astromech-gp9x. Checked: Runner::execute (actions.rs:146-160 plan_with Already before policy; 187-193 authorize), Policy::authorize in_flight + 3 s recent window (policy lib.rs:184-192) and Ticket drop (326), Assistant::learn/resolve_yes (learning counts yes per command type, independent of outcome). Root cause confirmed: old test dropped the first Sent handle, so the second yes and the alias raced the fake 100 ms Status.json write; until the hub sees FLAG_GEAR, plan_with plans a Press and the policy returns Denied(Duplicate). Reproduced in a scratch worktree: main''s test at 1000 ms delay panics with the exact CI message; branch test passes at 1000 ms (S5 ceiling). Fix is causal (joins Confirmed), not a timeout change; later steps hit Plan::Already deterministically. Test still proves learning: third ''Dear dawn.'' returns Ran not Asked, and presses==1. Product behaviour (Already on it, no second toggle press) is correct and already pinned by duplicate_is_suppressed_while_in_flight. Sibling tests checked: all join/wait_flag before dependent steps; did_you_mean_then_yes_executes drops a handle but issues no dependent gear command. Ran: cargo test -p astromech-core --test gear_down 21 pass; cargo fmt --check. Not run: Windows CI, clippy (author ran).'
+target: astromech-gp9x
+identity: review-agent-gp9x-1
+commit: 24875a78d16a7ff0f3ba5528a9ff78a453142162
+created_at: 2026-10-22T22:08:33.631887816Z
+event:
+  event: review
+---
+
+Reviewed c9848180 (gear_down.rs test change) against astromech-gp9x. Checked: Runner::execute (actions.rs:146-160 plan_with Already before policy; 187-193 authorize), Policy::authorize in_flight + 3 s recent window (policy lib.rs:184-192) and Ticket drop (326), Assistant::learn/resolve_yes (learning counts yes per command type, independent of outcome). Root cause confirmed: old test dropped the first Sent handle, so the second yes and the alias raced the fake 100 ms Status.json write; until the hub sees FLAG_GEAR, plan_with plans a Press and the policy returns Denied(Duplicate). Reproduced in a scratch worktree: main's test at 1000 ms delay panics with the exact CI message; branch test passes at 1000 ms (S5 ceiling). Fix is causal (joins Confirmed), not a timeout change; later steps hit Plan::Already deterministically. Test still proves learning: third 'Dear dawn.' returns Ran not Asked, and presses==1. Product behaviour (Already on it, no second toggle press) is correct and already pinned by duplicate_is_suppressed_while_in_flight. Sibling tests checked: all join/wait_flag before dependent steps; did_you_mean_then_yes_executes drops a handle but issues no dependent gear command. Ran: cargo test -p astromech-core --test gear_down 21 pass; cargo fmt --check. Not run: Windows CI, clippy (author ran).

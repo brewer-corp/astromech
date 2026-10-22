@@ -28,7 +28,7 @@ Each page has a small **Help** link that opens its page in this guide in your br
 
 Pages that follow the game (ships, materials, on foot, station, session, exploration, biology,
 mining, colonisation, Powerplay, the logbook, the route, data sharing and diagnostics) read your journal again
-every few seconds. If a later read fails, the page keeps what it last showed and adds a line,
+every few seconds, and so do Settings, setup and the engineer trip. If a later read fails, the page keeps what it last showed and adds a line,
 "Could not refresh:" and the reason. The line goes away on the next read that works. If the first
 read fails, the page says "Could not read" and the reason instead.
 
