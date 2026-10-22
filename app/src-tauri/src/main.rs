@@ -1305,13 +1305,17 @@ fn main() {
                 ));
             }
             window.build()?;
-            if !core_alive() {
-                if let Err(e) = start_core() {
-                    astromech_log::log(&format!("couldn't start the core: {e}"));
-                }
-            }
+            // Off the setup path, which holds up the first page: a crashed core leaves core.json
+            // behind, and connecting to its dead port takes about 2 s on Windows (astromech-k8yk).
             let h = app.handle().clone();
-            std::thread::spawn(move || watchdog(h));
+            std::thread::spawn(move || {
+                if !core_alive() {
+                    if let Err(e) = start_core() {
+                        astromech_log::log(&format!("couldn't start the core: {e}"));
+                    }
+                }
+                watchdog(h)
+            });
             #[cfg(windows)]
             start_input(app.handle().clone());
             Ok(())
