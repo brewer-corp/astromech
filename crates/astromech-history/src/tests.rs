@@ -662,3 +662,38 @@ fn continuation_part_of_another_session_has_no_commander() {
     let unowned: i64 = h.conn().query_row("SELECT COUNT(*) FROM events WHERE cmdr IS NULL", [], |r| r.get(0)).unwrap();
     assert_eq!(unowned, 3, "both Fileheaders and the other session's jump");
 }
+
+/// SQLite's lower() folds ASCII only; the search folds names and query alike (astromech-hloh).
+#[test]
+fn logbook_search_folds_non_ascii_capitals() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(
+        dir.path().join("Journal.2026-09-09T100000.01.log"),
+        r#"{"timestamp":"2026-09-09T10:00:00Z","event":"Commander","FID":"F9","Name":"Unicode"}
+{"timestamp":"2026-09-09T10:01:00Z","event":"FSDJump","StarSystem":"Ölberg","SystemAddress":9,"StarPos":[0,0,0],"JumpDist":3.0}
+{"timestamp":"2026-09-09T10:02:00Z","event":"Docked","StationName":"ÉCOLE DES ÉTOILES","StationType":"FleetCarrier","StarSystem":"Ölberg","SystemAddress":9,"MarketID":3700000001}
+"#,
+    )
+    .unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let found = |q: &str| -> (Vec<String>, usize) {
+        let b = h.logbook(None, q, 10).unwrap();
+        (b.places.into_iter().map(|p| p.station_name.unwrap_or(p.star_system)).collect(), b.timeline.len())
+    };
+    assert_eq!(found("école"), (vec!["ÉCOLE DES ÉTOILES".to_string()], 1));
+    assert_eq!(found("ölb"), (vec!["ÉCOLE DES ÉTOILES".to_string(), "Ölberg".to_string()], 2));
+    assert_eq!(found("ÖLBERG").1, 2);
+    assert_eq!(found("zzz"), (vec![], 0));
+}
+
+/// The window's read-only connection waits out a writer's brief lock instead of failing.
+#[test]
+fn read_only_open_waits_when_busy() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("history.sqlite");
+    History::open(&db).unwrap();
+    let r = History::open_read_only(&db).unwrap();
+    let ms: i64 = r.conn().query_row("PRAGMA busy_timeout", [], |row| row.get(0)).unwrap();
+    assert_eq!(ms, 2000);
+}
