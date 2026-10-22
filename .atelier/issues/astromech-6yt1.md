@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Apply the URL character filter to every open_external target"
-updated_at: "2026-10-22T21:29:41.135376058+00:00"
+updated_at: "2026-10-22T21:44:39.228436842+00:00"
 ---
 
 ## Goal

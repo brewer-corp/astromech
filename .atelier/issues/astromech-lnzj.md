@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Check GuiFocus values for the left and right panels"
-updated_at: "2026-10-22T21:37:09.236651127+00:00"
+updated_at: "2026-10-22T21:44:39.498745481+00:00"
 ---
 
 ## Goal

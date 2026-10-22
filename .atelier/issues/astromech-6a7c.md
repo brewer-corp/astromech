@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "The window can follow a stale config.path after a --config run"
-updated_at: "2026-10-22T21:33:35.041834939+00:00"
+updated_at: "2026-10-22T21:44:39.370036213+00:00"
 ---
 
 ## Goal

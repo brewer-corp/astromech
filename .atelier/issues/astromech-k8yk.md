@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "App window takes about 2 s longer to open after a core crash"
-updated_at: "2026-10-22T21:38:36.187805698+00:00"
+updated_at: "2026-10-22T21:44:39.631938015+00:00"
 ---
 
 ## Goal
