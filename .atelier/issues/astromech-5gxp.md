@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:17:26.115383636+00:00"
+status: "done"
 title: "A new-scheme journal the game starts after an old-scheme one opens as a replay"
-updated_at: "2026-10-22T20:57:07.796620331+00:00"
+updated_at: "2026-10-22T21:17:26.115383636+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ A pipeline test that follows an old-scheme journal (Journal.YYMMDDHHMMSS.01.log)
 ## Context
 
 Found in review of astromech-0d7l (finding F2); predates 0d7l. later() compares raw names, and by bytes "Journal.22..." sorts after "Journal.2026-...". So for a returning player whose newest file is old-scheme, or after a backup touched one, the game's new journal opens as a replay, and the lines already in it at open (LoadGame, Location) are not live.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-g3qt (approval astromech-yewr).

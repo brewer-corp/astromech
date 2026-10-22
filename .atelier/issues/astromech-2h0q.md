@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:17:26.427390868+00:00"
+status: "done"
 title: "Share one journal-growth check; history import length fallback"
-updated_at: "2026-10-22T20:57:08.011218168+00:00"
+updated_at: "2026-10-22T21:17:26.427390868+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ One `journal_version` in astromech-journal used by both; import falls back to me
 ## Context
 
 Found in review of the astromech-ipb5 Windows fix (R1–R3).
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-g3qt (approval astromech-yewr).

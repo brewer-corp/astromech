@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:17:25.936818583+00:00"
+status: "done"
 title: "The game's journal is fully live after a startup catch-up on a touched older journal"
-updated_at: "2026-10-22T20:57:15.602415984+00:00"
+updated_at: "2026-10-22T21:17:25.936818583+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ Found in review of astromech-0d7l (finding R3); predates 0d7l. catch_up opens th
 
 - 2026-10-17 [note] Replaying the real journals (astromech-yin0) with the files' modification times scrambled (as a copy without preserved times, a restore or a sync tool leaves them) shows the other half of this: the catch-up replays whichever journal is newest by mtime, so until the game next writes, the core's state is that old journal's: wrong ship, ship id, system, station, credits and materials (all five differed from a full replay). If the game isn't running, that lasts the whole session. A fix should start from the game's journal, but note journal names carry the PC's local time (the lines inside are UTC), so ordering by name alone breaks at a DST fall-back (astromech-782v).
 - 2026-10-22 [note] 2026-10-22: Fixed the Goal and Done-when (nothing the folder held at startup is live; pipeline test the_games_journal_is_a_replay_up_to_startup_after_a_catch_up_on_a_touched_older_one). Not fixed: the 2026-10-17 note's other half. The catch-up still follows the newest journal by modified time, so until the game next writes, state (ship, system, credits, materials) is the touched older journal's. Opening the latest by name at startup doesn't help alone: follow_newest switches straight back to the newest by mtime. It needs following to stop being by mtime; a candidate for its own issue.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-g3qt (approval astromech-yewr).

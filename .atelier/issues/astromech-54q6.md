@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:17:26.595736693+00:00"
+status: "done"
 title: "Background lookups (known biology, bodies known): retry cadence and session-long answers"
-updated_at: "2026-10-22T20:57:08.455597249+00:00"
+updated_at: "2026-10-22T21:17:26.595736693+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ The remote arrival callouts retry and refresh deliberately: a known number of re
 ## Context
 
 Review findings on PR #129 (astromech-8sx3), both LATER. (1) The rule asks on every tick (about once a second), so with EDSM offline the 15 s back-off lets a new lookup start about every 15 s in the minute window: up to about 3 retries and 3 log lines per arrival, bounded by the client rate limit and untested. (3) Background keeps a Done answer for the whole session, on top of the client cache (EDSM a week), so a system scanned by others later in a long session keeps its old count. Known biology behaves the same way.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-g3qt (approval astromech-yewr).

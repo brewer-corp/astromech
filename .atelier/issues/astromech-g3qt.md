@@ -27,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-22T21:17:26.716415503+00:00"
+status: "done"
 title: "Journal pipeline and replay fixes"
-updated_at: "2026-10-22T20:57:48.172453847+00:00"
+updated_at: "2026-10-22T21:17:26.716415503+00:00"
 ---
 
 ## Goal
@@ -43,3 +44,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Five journal pipeline hand-over fixes, independently reviewed twice (approval astromech-yewr); follow-ups astromech-ki3j and astromech-zftk.
