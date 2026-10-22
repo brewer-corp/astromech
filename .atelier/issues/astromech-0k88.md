@@ -27,9 +27,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-22T22:16:31.071673074+00:00"
+status: "done"
 title: "Shell and core hygiene"
-updated_at: "2026-10-22T21:26:31.832929736+00:00"
+updated_at: "2026-10-22T22:16:31.071673074+00:00"
 ---
 
 ## Goal
@@ -43,3 +44,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Five shell and core hygiene fixes, independently reviewed (astromech-5ib2); k8yk measured on Windows CI; follow-ups astromech-fyvh, astromech-f2k1.

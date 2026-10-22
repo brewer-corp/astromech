@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T22:16:30.924154269+00:00"
+status: "done"
 title: "App window takes about 2 s longer to open after a core crash"
-updated_at: "2026-10-22T21:44:39.631938015+00:00"
+updated_at: "2026-10-22T22:16:30.924154269+00:00"
 ---
 
 ## Goal
@@ -32,3 +33,7 @@ Measured by the WebView cost harness (astromech-y5mz) on the Windows runner. The
 ## Notes
 
 - 2026-10-22 [note] Diagnosed from the code (claude-implementer-0k88, 22 Oct 2026): the shell's setup ran on the main thread before the event loop and called core_alive(), which reads core.json and connects with TcpStream::connect_timeout(2 s). A crashed core leaves core.json behind, so on Windows the refused loopback connect retries until that 2 s cap, which matches the measured 2.44 s vs 0.42 s. A clean quit removes core.json, so the read fails at once. Every frontend call to the core is an async command, so setup was the only blocking caller. Fix: the liveness check and start_core moved onto the thread the watchdog already runs on, so setup returns straight after building the window. scripts/webview_cost.py now gates the after-crash start on the 2 s cold-start budget (it was only reported), so the Windows runner's App window cost job checks it on the PR. Inferred from the code, not yet measured: the Windows number comes from CI.
+
+## Close Reason
+
+After-crash start measured on Windows CI at 0.692 s versus 0.70 s normal (was 2.44 s); reviewed (astromech-5ib2).
