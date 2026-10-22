@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.971311485+00:00"
 id: "astromech-ux0h"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-ux0h
 priority: "P2"
 relationships:
   blocks: []
@@ -20,9 +23,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Data sharing hardening"
-updated_at: "2026-10-22T20:41:37.879976702+00:00"
+updated_at: "2026-10-22T20:49:18.195059617+00:00"
 ---
 
 ## Goal
