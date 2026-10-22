@@ -326,6 +326,9 @@ struct Queue {
     /// Each reply carries its [`Line`], so it counts as busy until played (or dropped).
     speak: VecDeque<(String, VoiceParams, Line)>,
     warm: VecDeque<(String, VoiceParams)>,
+    /// The speaker was dropped, or the render thread ended (a panic): nothing more is rendered
+    /// and new replies are dropped, so a closed session doesn't keep Kokoro loaded and a dead
+    /// renderer can't leave a reply counted as busy.
     closed: bool,
 }
 
@@ -428,14 +431,14 @@ impl TtsSpeaker {
                     let (m, cv) = &*q;
                     let mut g = m.lock().unwrap();
                     loop {
+                        if g.closed {
+                            break None;
+                        }
                         if let Some((t, v, line)) = g.speak.pop_front() {
                             break Some((Some(line), (t, v)));
                         }
                         if let Some(j) = g.warm.pop_front() {
                             break Some((None, j));
-                        }
-                        if g.closed {
-                            break None;
                         }
                         g = cv.wait(g).unwrap();
                     }
@@ -486,6 +489,17 @@ impl TtsSpeaker {
         cv.notify_one();
     }
 
+    /// Queue a reply for the render thread; once the queue is closed it is dropped (and `line`
+    /// with it), even if the thread died after `line` began.
+    fn queue_reply(&self, text: &str, line: Line) {
+        let v = self.voice.lock().unwrap().clone();
+        self.push(|q| {
+            if !q.closed {
+                q.speak.push_back((text.to_string(), v, line));
+            }
+        });
+    }
+
     /// Render the fixed phrases in the current voice, in the background.
     fn warm_up(&self) {
         let v = self.voice.lock().unwrap().clone();
@@ -493,12 +507,16 @@ impl TtsSpeaker {
     }
 }
 
-/// Drops the replies still queued when the render thread ends (their [`Line`]s end with them).
+/// When the render thread ends (closed, or a panic): closes the queue and drops what is still
+/// in it (the replies' [`Line`]s end with them).
 struct DrainOnExit(Arc<(Mutex<Queue>, Condvar)>);
 
 impl Drop for DrainOnExit {
     fn drop(&mut self) {
-        self.0 .0.lock().unwrap_or_else(|e| e.into_inner()).speak.clear();
+        let mut q = self.0 .0.lock().unwrap_or_else(|e| e.into_inner());
+        q.closed = true;
+        q.speak.clear();
+        q.warm.clear();
     }
 }
 
@@ -517,8 +535,7 @@ impl Speaker for TtsSpeaker {
             }
             return;
         };
-        let v = self.voice.lock().unwrap().clone();
-        self.push(|q| q.speak.push_back((text.to_string(), v, line)));
+        self.queue_reply(text, line);
     }
     fn busy(&self) -> bool {
         self.activity.busy(Instant::now(), self.mixer.queued())
@@ -713,12 +730,21 @@ mod tests {
         drop(tx);
     }
 
-    /// A synth that panics on its first line (a crashed renderer).
-    struct PanicSynth;
+    /// A synth that panics on its first line (a crashed renderer), once the test lets it go.
+    struct PanicSynth(std::sync::mpsc::Receiver<()>);
     impl Synth for PanicSynth {
         fn tts(&mut self, _: &str, _: &VoiceParams, _: &Path) -> Result<()> {
+            let _ = self.0.recv();
             panic!("renderer crashed");
         }
+    }
+
+    fn wait_until(what: impl Fn() -> bool) -> bool {
+        let t = std::time::Instant::now();
+        while !what() && t.elapsed() < Duration::from_secs(5) {
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        what()
     }
 
     /// Busy while a reply renders, and not stuck busy when the render thread panics with
@@ -743,16 +769,67 @@ mod tests {
         }
         assert!(!slow.busy());
 
-        let crash = TtsSpeaker::with_synth(PanicSynth, "kokoro-test", d.path(), emma(), mixer(), vec![]).unwrap();
+        let (go, gate) = std::sync::mpsc::channel();
+        let crash = TtsSpeaker::with_synth(PanicSynth(gate), "kokoro-test", d.path(), emma(), mixer(), vec![]).unwrap();
         crash.say("First.");
         crash.say("Second.");
-        let t = std::time::Instant::now();
-        while crash.busy() && t.elapsed() < Duration::from_secs(5) {
-            std::thread::sleep(Duration::from_millis(5));
-        }
+        // A say() that began before the thread died and queues its line after the drain.
+        let late = crash.activity.begin().unwrap();
+        go.send(()).unwrap();
+        assert!(wait_until(|| crash.activity.stopped.load(Ordering::SeqCst)));
+        crash.queue_reply("Late.", late);
         assert!(!crash.busy(), "a dead renderer must not leave the speaker busy");
         crash.say("Third.");
         assert!(!crash.busy());
+    }
+
+    /// Renders like SlowSynth, waiting on the test before its first line; tells the test when
+    /// it is dropped (the Kokoro worker is released).
+    struct Gated {
+        log: Arc<Mutex<Vec<(String, String)>>>,
+        gate: std::sync::mpsc::Receiver<()>,
+        dropped: Arc<AtomicBool>,
+    }
+    impl Synth for Gated {
+        fn tts(&mut self, text: &str, voice: &VoiceParams, out_wav: &Path) -> Result<()> {
+            let _ = self.gate.recv();
+            SlowSynth(self.log.clone()).tts(text, voice, out_wav)
+        }
+    }
+    impl Drop for Gated {
+        fn drop(&mut self) {
+            self.dropped.store(true, Ordering::SeqCst);
+        }
+    }
+
+    /// astromech-550b: closing the speaker stops the render thread after the line in progress;
+    /// the warm-ups and replies still queued are not rendered, and the synth is released.
+    #[test]
+    fn closing_the_speaker_stops_rendering() {
+        use astromech_voice::colour::Colour;
+        let d = tempfile::tempdir().unwrap();
+        let log = Arc::new(Mutex::new(vec![]));
+        let dropped = Arc::new(AtomicBool::new(false));
+        let (go, gate) = std::sync::mpsc::channel();
+        let phrases: Vec<String> = (0..20).map(|i| format!("Phrase {i}.")).collect();
+        let s = TtsSpeaker::with_synth(
+            Gated { log: log.clone(), gate, dropped: dropped.clone() },
+            "kokoro-test",
+            d.path(),
+            VoiceParams::new("bf_emma", 1.0, Colour::Cockpit).unwrap(),
+            astromech_voice::mixer::Mixer::silent(24000),
+            phrases,
+        )
+        .unwrap();
+        s.say("Cargo scan.");
+        drop(s);
+        // Let every render through: only the one already started may finish.
+        for _ in 0..30 {
+            let _ = go.send(());
+        }
+        assert!(wait_until(|| dropped.load(Ordering::SeqCst)), "the render thread did not exit");
+        let got = log.lock().unwrap().clone();
+        assert!(got.len() <= 1, "rendered after close: {got:?}");
     }
 
     /// Records which voice rendered each line and writes a short tone.

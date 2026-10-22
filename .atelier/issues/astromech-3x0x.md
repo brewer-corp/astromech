@@ -18,9 +18,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T23:38:16.509971901+00:00"
+status: "done"
 title: "Route page plots neutron routes locally, with Spansh as the fallback"
-updated_at: "2026-10-22T23:33:16.588145634+00:00"
+updated_at: "2026-10-22T23:38:16.509971901+00:00"
 ---
 
 ## Goal
@@ -46,3 +47,7 @@ The plotter and the download are sibling children. UI checks follow CONTRIBUTING
 ## Notes
 
 - 2026-10-22 [note] 2026-10-22, from review finding astromech-f5zt on 6bjl: the shell must load the new neutron file after a download finishes (or when names() reports the file changed), with a test; plot() should keep Route::fewest so the page can say a long route is near the fewest jumps; list that among the limits in routes.md and PLOTTING.md.
+
+## Close Reason
+
+Route page plots neutron routes on this PC with Spansh as the fallback; reviewed (astromech-jsmf).

@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T23:08:28.602257247+00:00"
+status: "done"
 title: "Route follower callout: long procedural names break the 8-word callout budget"
-updated_at: "2026-10-22T20:41:36.887039775+00:00"
+updated_at: "2026-10-22T23:08:28.602257247+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ The arrival callout "Next waypoint. <system>." stays within the copy guide for a
 ## Context
 
 Found while adding the Spansh plotters (astromech-94j4): plotted routes are mostly procedural names, so the follower will often speak a name sentence longer than the 8-word callout budget. The name is the whole content and cannot be shortened; this is a copy-policy question (exempt or count names differently), not a plotter bug. The copy test currently uses "Synuefe BY-F d12-39" (8 words).
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-uuqt (approval astromech-5asu).

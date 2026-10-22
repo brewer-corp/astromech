@@ -88,7 +88,7 @@ row for it in Settings yet; restart astromech after editing the file.
 
 | You say | You hear |
 |---|---|
-| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies it again. *"Next waypoint. Deciat, for Felicity Farseer. 3 waypoints left."* |
+| "next waypoint", "copy next waypoint", "copy waypoint", "what's the next waypoint", "where's the next waypoint" | Copies it again. *"Next waypoint. Deciat. For Felicity Farseer. 3 waypoints left."* |
 | "skip waypoint", "skip this waypoint", "skip to the next waypoint" | Skips one and copies the one after. *"Next waypoint. Kuk."* |
 | "previous waypoint", "back one waypoint", "go back a waypoint" | Goes back one and copies it. |
 | "clear route", "clear the route", "end route", "stop following the route" | *"Route cleared."* |
@@ -129,7 +129,7 @@ stops, the jump range the route was plotted at, and where it was plotted: **on t
 Spansh**. A long route plotted on this PC may say **near the fewest jumps**: see the limits
 below. If the neutron star file is there but can't be read, Spansh plots the route instead and
 the page says why; press Download to replace the file. "Next waypoint" by voice adds what to do
-there: *"Next waypoint. Hyades Sector DB-W b2-6, for fuel."*
+there: *"Next waypoint. Hyades Sector DB-W b2-6. For fuel."*
 
 It needs:
 

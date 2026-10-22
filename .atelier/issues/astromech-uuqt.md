@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.754884800+00:00"
 id: "astromech-uuqt"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-uuqt
 priority: "P2"
 relationships:
   blocks: []
@@ -13,8 +16,6 @@ relationships:
     id: "astromech-joma"
   - kind: "issue"
     id: "astromech-sdg7"
-  - kind: "issue"
-    id: "astromech-xi2i"
   attachments: []
   relates:
   - kind: "issue"
@@ -22,9 +23,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T23:08:28.729714254+00:00"
+status: "done"
 title: "Voice and callout copy fixes"
-updated_at: "2026-10-22T20:41:37.135006643+00:00"
+updated_at: "2026-10-22T23:08:28.729714254+00:00"
 ---
 
 ## Goal
@@ -38,3 +40,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Speech reading rules, speaker shutdown and the callout word budget, independently reviewed twice (astromech-5asu); eval fixes landed, astromech-xi2i stays open for real clips.
