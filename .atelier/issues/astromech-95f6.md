@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Browser preview: lookup sections still answer sample results under ?core=empty"
-updated_at: "2026-10-22T21:05:44.518253822+00:00"
+updated_at: "2026-10-22T21:25:56.274959270+00:00"
 ---
 
 ## Goal

@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Stale-line tests: assert the EDSM line alone and first-read failures on the production path"
-updated_at: "2026-10-22T21:01:37.808655351+00:00"
+updated_at: "2026-10-22T21:25:56.146436665+00:00"
 ---
 
 ## Goal

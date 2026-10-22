@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Mining says the core is not running when it runs but no session has a run"
-updated_at: "2026-10-22T20:59:25.540020393+00:00"
+updated_at: "2026-10-22T21:25:56.027746020+00:00"
 ---
 
 ## Goal

@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Route plotter: refresh the ship and range line after a swap or cargo change"
-updated_at: "2026-10-22T21:15:56.060268710+00:00"
+updated_at: "2026-10-22T21:25:56.660349874+00:00"
 ---
 
 ## Goal

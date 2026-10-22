@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Two polls still fail silently: the trip planner's engineer list and the header status"
-updated_at: "2026-10-22T21:23:37.883111223+00:00"
+updated_at: "2026-10-22T21:25:56.996057901+00:00"
 ---
 
 ## Goal

@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Settings controls: keyboard focus ring and announced errors"
-updated_at: "2026-10-22T21:17:27.951432768+00:00"
+updated_at: "2026-10-22T21:25:56.859345126+00:00"
 ---
 
 ## Goal

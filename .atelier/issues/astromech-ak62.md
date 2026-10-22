@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Narrow window polish: header wraps to two rows at 900 px, Powerplay leaves a gap"
-updated_at: "2026-10-22T21:14:09.473444291+00:00"
+updated_at: "2026-10-22T21:25:56.393101191+00:00"
 ---
 
 ## Goal
