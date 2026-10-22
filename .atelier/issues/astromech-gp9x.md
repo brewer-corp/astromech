@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T22:09:17.680087997+00:00"
+status: "done"
 title: "Flaky on Windows CI: gear_down did_you_mean_learns_a_key_press_on_the_second_yes gets Denied(Duplicate)"
-updated_at: "2026-10-22T22:06:39.961446317+00:00"
+updated_at: "2026-10-22T22:09:17.680087997+00:00"
 ---
 
 ## Goal
@@ -38,3 +39,7 @@ Failed on main (run 39858023625) and on PR #176 (run 39860833207, job 1201107892
 ## Notes
 
 - 2026-10-22 [note] Root cause: the test dropped the first press's verification handle, so the second yes and the alias run raced the fake game's 100 ms Status.json write; until the hub sees gear down, plan_with presses and the policy's in-flight guard refuses (Denied(Duplicate)). Linux margin ~10 ms (gear lands ~138 ms, third plan snapshot ~145 ms after grammar matching); reproduced the CI failure on Linux by raising the fake delay to 200 ms. Fix in the test (join the first verification); product behaviour ("Already on it." while the press is in flight, no second toggle press) is correct. Siblings in gear_down.rs already join or wait_flag. Windows confirmation pending on PR CI.
+
+## Close Reason
+
+Test race removed (it discarded the first press's result); reproduced and fixed on Linux, 100-run loop; reviewed (astromech-m7p4). Merged only after the PR's Windows CI job is green.
