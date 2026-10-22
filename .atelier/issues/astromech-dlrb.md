@@ -3,6 +3,9 @@ created_at: "2026-10-22T23:48:20.205009100+00:00"
 id: "astromech-dlrb"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dlrb
 priority: "P0"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Send outfitting/2 to EDDN"
-updated_at: "2026-10-22T23:48:20.205009100+00:00"
+updated_at: "2026-10-22T23:50:57.174223240+00:00"
 ---
 
 ## Goal
