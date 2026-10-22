@@ -29,7 +29,7 @@ updated_at: "2026-10-22T22:06:39.961446317+00:00"
 
 ## Done when
 
-The cause is established (diagnose first) and fixed in the test or the code; the test passes in 20 consecutive runs on Windows CI (or a loop on the Windows job), and the fix explains why it failed.
+The cause is established (diagnose first) and fixed in the test or the code, the fix explains why it failed, the old test fails deterministically and the fixed one passes when the fake status delay is raised well above the CI margin, a 100-run local loop passes, and the PR's Windows CI job is green. (Revised 22 Oct 2026 from "20 consecutive runs on Windows CI": the fix removes the race rather than widening a timing margin, so repeated Windows runs add little; review finding astromech-lbz8.)
 
 ## Context
 
