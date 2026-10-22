@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:32.204829665+00:00"
 id: "astromech-fdh3"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-fdh3
 priority: "P2"
 relationships:
   blocks: []
@@ -26,9 +29,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ships, history, Powerplay and mining fixes"
-updated_at: "2026-10-22T20:41:39.390457901+00:00"
+updated_at: "2026-10-22T21:03:40.512178912+00:00"
 ---
 
 ## Goal
