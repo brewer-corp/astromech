@@ -56,7 +56,10 @@ impl Target {
                     && s.power.iter().any(|p| p == power)
             }
             Target::Reinforce => controller == Some(power),
-            Target::Undermine => controller.is_some_and(|c| c != power),
+            Target::Undermine => {
+                controller.is_some_and(|c| c != power)
+                    && s.power_state.as_deref().is_some_and(|st| CONTROLLED.contains(&st))
+            }
         }
     }
 }
@@ -318,5 +321,29 @@ impl Galaxy {
             deliver_data,
             warnings: logistics::warnings().to_vec(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The undermine re-check checks the state as the search asks it (astromech-xvov): a
+    /// controller in a state the search excludes isn't a target.
+    #[test]
+    fn undermine_recheck_checks_the_state() {
+        let sys = |state: Option<&str>| -> System {
+            serde_json::from_value(serde_json::json!({
+                "id64": 1, "name": "X", "x": 0.0, "y": 0.0, "z": 0.0,
+                "controlling_power": "Aisling Duval", "power_state": state, "power": ["Aisling Duval"]
+            }))
+            .unwrap()
+        };
+        for s in CONTROLLED {
+            assert!(Target::Undermine.matches("Li Yong-Rui", &sys(Some(s))), "{s}");
+        }
+        assert!(!Target::Undermine.matches("Li Yong-Rui", &sys(Some("Unoccupied"))));
+        assert!(!Target::Undermine.matches("Li Yong-Rui", &sys(None)));
+        assert!(!Target::Undermine.matches("Aisling Duval", &sys(Some("Stronghold"))));
     }
 }

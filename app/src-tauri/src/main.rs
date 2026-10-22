@@ -265,23 +265,20 @@ async fn odyssey_shopping(app: tauri::AppHandle, picks: Vec<astromech_odyssey::P
     .await
 }
 
-#[allow(clippy::type_complexity)]
-struct PowerplayCache(std::sync::Mutex<Option<(astromech_materials::JournalVersion, std::sync::Arc<astromech_powerplay::Journal>)>>);
+/// The Powerplay journal, followed: each read takes only the lines added since the last one
+/// (the page polls every 2 s while the game appends).
+struct PowerplayCache(std::sync::Mutex<Option<astromech_powerplay::Follower>>);
 
-fn powerplay_journal(cache: &PowerplayCache) -> Result<std::sync::Arc<astromech_powerplay::Journal>, String> {
+fn powerplay_journal(cache: &PowerplayCache) -> Result<astromech_powerplay::Journal, String> {
     let dir = journal_dir();
     if !dir.is_dir() {
         return Err(format!("journal folder not found: {}", dir.display()));
     }
-    let version = astromech_materials::journal_version(&dir);
-    if let Some((s, v)) = &*cache.0.lock().map_err(|_| "busy".to_string())? {
-        if *s == version {
-            return Ok(v.clone());
-        }
+    let mut f = cache.0.lock().map_err(|_| "busy".to_string())?;
+    if f.as_ref().is_some_and(|x| x.dir() != dir.as_path()) {
+        *f = None; // the journal folder setting changed
     }
-    let v = std::sync::Arc::new(astromech_powerplay::from_journal_dir(&dir));
-    *cache.0.lock().map_err(|_| "busy".to_string())? = Some((version, v.clone()));
-    Ok(v)
+    Ok(f.get_or_insert_with(|| astromech_powerplay::Follower::new(&dir)).refresh().clone())
 }
 
 /// Powerplay standing from the journals.

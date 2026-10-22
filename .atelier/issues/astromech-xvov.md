@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Powerplay: incremental replay and state edge cases"
-updated_at: "2026-10-22T20:41:38.920213503+00:00"
+updated_at: "2026-10-22T21:20:25.277060911+00:00"
 ---
 
 ## Goal

@@ -100,7 +100,8 @@ impl SystemPower {
         match (&self.controlling_power, &self.state) {
             (Some(c), Some(s)) => parts.push(format!("{c} {}", s.to_lowercase())),
             (Some(c), None) => parts.push(c.clone()),
-            (None, _) => parts.push("Unoccupied".into()),
+            (None, Some(s)) => parts.push(s.clone()),
+            (None, None) => parts.push("Unoccupied".into()),
         }
         if self.controlling_power.is_some() {
             if let Some(p) = self.control_progress {
@@ -126,7 +127,9 @@ impl SystemPower {
         let mut s = match (&self.controlling_power, &self.state) {
             (Some(c), Some(st)) => format!("{c} {}", st.to_lowercase()),
             (Some(c), None) => format!("Controlled by {c}"),
-            (None, _) => "Unoccupied".to_string(),
+            // No controller: the state as the journal names it (`Unoccupied`, `Contested`).
+            (None, Some(st)) => st.clone(),
+            (None, None) => "Unoccupied".to_string(),
         };
         if self.controlling_power.is_some() {
             if let Some(p) = self.control_progress {

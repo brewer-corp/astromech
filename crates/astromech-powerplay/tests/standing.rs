@@ -117,3 +117,120 @@ fn an_award_the_game_wrote_twice_counts_once() {
     let s = fold(&[LOGIN, &a, &b, &dup, &award("07:00:00", 17, 1330)]);
     assert_eq!((s.merits, s.merits_this_week(now)), (Some(1330), 130));
 }
+
+/// The game writes `Powerplay` at the first login of a game run when pledged, before
+/// `Missions`; a relog from the main menu in the same run doesn't write it (seen in real
+/// journals). So a run's first login with no `Powerplay` before `Missions` means not pledged,
+/// even when the `PowerplayLeave` is in a journal since deleted (astromech-xvov).
+#[test]
+fn first_login_without_powerplay_clears_the_pledge() {
+    let header = r#"{"timestamp":"2026-10-17T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.4.1.1"}"#;
+    let load = r#"{"timestamp":"2026-10-17T10:00:05Z","event":"LoadGame","FID":"F1","Commander":"T"}"#;
+    let pp = r#"{"timestamp":"2026-10-17T10:00:06Z","event":"Powerplay","Power":"Li Yong-Rui","Rank":8,"Merits":45000,"TimePledged":100}"#;
+    let missions = r#"{"timestamp":"2026-10-17T10:00:07Z","event":"Missions","Active":[],"Failed":[],"Complete":[]}"#;
+    let relog = r#"{"timestamp":"2026-10-17T11:00:05Z","event":"LoadGame","FID":"F1","Commander":"T"}"#;
+    let relog_missions =
+        r#"{"timestamp":"2026-10-17T11:00:07Z","event":"Missions","Active":[],"Failed":[],"Complete":[]}"#;
+    let next_run = r#"{"timestamp":"2026-10-18T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.4.1.1"}"#;
+    let next_load = r#"{"timestamp":"2026-10-18T10:00:05Z","event":"LoadGame","FID":"F1","Commander":"T"}"#;
+    let next_missions =
+        r#"{"timestamp":"2026-10-18T10:00:07Z","event":"Missions","Active":[],"Failed":[],"Complete":[]}"#;
+
+    let pledged = [header, load, pp, missions];
+    assert_eq!(fold(&pledged).power.as_deref(), Some("Li Yong-Rui"));
+    // A relog in the same run: still pledged.
+    assert_eq!(fold(&[header, load, pp, missions, relog, relog_missions]).power.as_deref(), Some("Li Yong-Rui"));
+    // The next run's login has no Powerplay: not pledged.
+    let s = fold(&[header, load, pp, missions, next_run, next_load, next_missions]);
+    assert_eq!((s.power, s.rank, s.merits), (None, None, None));
+    // A run cut short before Missions decides nothing.
+    assert_eq!(fold(&[header, load, pp, missions, next_run, next_load]).power.as_deref(), Some("Li Yong-Rui"));
+}
+
+/// The same, read from the journal folder.
+#[test]
+fn first_login_without_powerplay_clears_the_pledge_from_the_folder() {
+    let d = tempfile::tempdir().unwrap();
+    for f in std::fs::read_dir(dir()).unwrap() {
+        let f = f.unwrap().path();
+        std::fs::copy(&f, d.path().join(f.file_name().unwrap())).unwrap();
+    }
+    std::fs::write(
+        d.path().join("Journal.2026-10-18T100000.01.log"),
+        r#"{"timestamp":"2026-10-18T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.4.1.1"}
+{"timestamp":"2026-10-18T10:00:05Z","event":"LoadGame","FID":"F0000000","Commander":"Test"}
+{"timestamp":"2026-10-18T10:00:07Z","event":"Missions","Active":[],"Failed":[],"Complete":[]}
+"#,
+    )
+    .unwrap();
+    assert_eq!(standing_from_journal_dir(d.path()).power, None);
+}
+
+/// The page's follower reads only what the game appended (astromech-xvov), and gives what a
+/// full replay gives.
+#[test]
+fn follower_reads_only_new_lines() {
+    use astromech_powerplay::{from_journal_dir, Follower};
+    use std::io::Write;
+    let d = tempfile::tempdir().unwrap();
+    let mut logs: Vec<PathBuf> = vec![];
+    for f in std::fs::read_dir(dir()).unwrap() {
+        let f = f.unwrap().path();
+        let to = d.path().join(f.file_name().unwrap());
+        std::fs::copy(&f, &to).unwrap();
+        logs.push(to);
+    }
+    logs.sort();
+    let append = |p: &PathBuf, text: &str| {
+        std::fs::OpenOptions::new().append(true).open(p).unwrap().write_all(text.as_bytes()).unwrap();
+    };
+    let merits = |ts: &str, total: i64| {
+        format!(
+            r#"{{"timestamp":"{ts}","event":"PowerplayMerits","Power":"Li Yong-Rui","MeritsGained":10,"TotalMerits":{total}}}"#
+        )
+    };
+    let mut f = Follower::new(d.path());
+    assert_eq!(*f.refresh(), from_journal_dir(d.path()));
+    let session = f.refresh().standing.session_merits;
+
+    // The newest journal grows, a line at a time and half a line at a time.
+    let newest = logs.last().unwrap();
+    append(newest, &format!("{}\n", merits("2026-10-16T21:00:00Z", 47_139)));
+    assert_eq!(f.refresh().standing.session_merits, session + 10);
+    let line = merits("2026-10-16T21:01:00Z", 47_149);
+    let (a, b) = line.split_at(30);
+    append(newest, a);
+    assert_eq!(f.refresh().standing.session_merits, session + 10, "half a line waits");
+    append(newest, &format!("{b}\n"));
+    assert_eq!(f.refresh().standing.session_merits, session + 20);
+    assert_eq!(*f.refresh(), from_journal_dir(d.path()));
+
+    // A new journal starts.
+    std::fs::write(
+        d.path().join("Journal.2026-10-17T100000.01.log"),
+        format!(
+            "{}\n{}\n{}\n",
+            r#"{"timestamp":"2026-10-17T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.4.1.1"}"#,
+            r#"{"timestamp":"2026-10-17T10:00:05Z","event":"LoadGame","FID":"F0000000","Commander":"Test"}"#,
+            r#"{"timestamp":"2026-10-17T10:00:06Z","event":"Powerplay","Power":"Li Yong-Rui","Rank":9,"Merits":47149,"TimePledged":22700000}"#,
+        ),
+    )
+    .unwrap();
+    assert_eq!(f.refresh().standing.time_pledged_secs, Some(22_700_000));
+    assert_eq!(*f.refresh(), from_journal_dir(d.path()));
+
+    // Finished journals aren't read again: a jump added to the oldest one isn't seen...
+    append(
+        &logs[0],
+        &format!(
+            "{}\n",
+            r#"{"timestamp":"2026-10-14T23:00:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":1,"StarPos":[0,0,0],"JumpDist":1.0}"#
+        ),
+    );
+    assert_eq!(f.refresh().here, None);
+    assert_eq!(from_journal_dir(d.path()).here.as_deref(), Some("Sol"));
+    // ...until the folder no longer starts with the files read: then it replays them all.
+    std::fs::remove_file(&logs[1]).unwrap();
+    assert_eq!(f.refresh().here.as_deref(), Some("Sol"));
+    assert_eq!(*f.refresh(), from_journal_dir(d.path()));
+}
