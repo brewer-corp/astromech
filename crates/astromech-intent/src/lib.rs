@@ -461,6 +461,8 @@ pub fn normalise(s: &str) -> Vec<String> {
             ) => Some("supercruise"),
             // "Engage frames of drive" (voice eval, astromech-xi2i).
             ("frame", Some("shift" | "ship")) | ("frames", Some("of")) => Some("frameshift"),
+            // "And gauge frames of drive." for "engage" (voice eval, astromech-xi2i).
+            ("and", Some("gauge")) => Some("engage"),
             // "No toriety." for "notoriety" (voice eval, astromech-xi2i).
             ("no", Some("toriety")) => Some("notoriety"),
             ("hyper", Some("space")) => Some("hyperspace"),
@@ -1128,6 +1130,8 @@ mod tests {
         assert_eq!(d("No toriety."), ("status.legal", Decision::Execute));
         assert_eq!(d("No."), ("cancel", Decision::Execute));
         assert_eq!(d("Engage frames of drive"), ("hyperspace_jump", Decision::Execute));
+        assert_eq!(d("and gauge frames of drive."), ("hyperspace_jump", Decision::Execute));
+        assert_eq!(g.best("and gauge frames of drop.").command, "hyperspace_jump");
         // "fuel state" is a phrase of its own; the eval heard "fuel status" as it, with noise.
         assert_eq!(d("Fuel state."), ("status.fuel", Decision::Execute));
         assert_eq!(g.best("Fuel state Ursa.").command, "status.fuel");
