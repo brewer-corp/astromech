@@ -16,7 +16,8 @@
 //!   nothing is sent (EDSM keeps no log there, answer 104).
 //! - Events wait in an [`Outbox`] (`edsm.sqlite`) without the API key, which is added when the
 //!   request is built; they go in batches (the docs allow "a list of message line"), oldest
-//!   first, one game session (commander, version, build) per request.
+//!   first, one game session (commander, version, build) per request. An event EDSM has refused
+//!   before goes alone, after all the others that are due.
 
 pub mod api;
 pub mod transient;
@@ -485,9 +486,12 @@ impl Courier {
                     d.retrying += 1;
                     // The queue behind it moves on. Several events failing alone in a row, with
                     // nothing stored in between, look like an outage, not a few bad events: wait,
-                    // as long as the last one's back-off. Two poisoned events side by side are
-                    // not an outage, and the good ones behind them are tried. (Three or more
-                    // that are all due in the same pass still stop it: best effort.)
+                    // as long as the last one's back-off. Events refused before come after every
+                    // other due event (`Outbox::due`), so however many poisoned events stop a
+                    // pass, the good ones due with them have been tried first; only other
+                    // refused events wait. In an outage the never-refused events fail first and
+                    // stop the pass, so refused ones are tried (and use up refusals) only once
+                    // every other queued event has failed too.
                     failed_alone += 1;
                     if failed_alone >= OUTAGE_AFTER {
                         self.outbox.hold_due(wall, wall + w)?;

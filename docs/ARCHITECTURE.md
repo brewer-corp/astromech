@@ -330,7 +330,7 @@ astromech/
                          cover every event) is split in halves on the next tries, down to single
                          events, so only the event EDSM chokes on is lost: alone, it is retried with
                          backoff and given up after 8 refusals (a transport error, 408, 429 and
-                         wrong keys are outages and don't count), so it can't block later events. The flight log (get-logs,
+                         wrong keys are outages and don't count), so it can't block later events: a refused event is retried after every other due event, so however many refused events fail in a row (three stop the pass as a likely outage), the rest have gone first. The flight log (get-logs,
                          last week) is read on demand from the same page (it gives up after 10 s, before the app window's 15 s wait on the core, so the page shows EDSM's message or "EDSM didn't answer within 10 s")
     astromech-exploration/ exploration from the journal: body values (the community's formulae, checked
                          against EDSM's published estimates), the live system view (the current system's

@@ -565,6 +565,48 @@ fn a_known_poisoned_event_is_not_sent_back_through_the_halving() {
     assert!(sizes.iter().all(|n| *n == 1 || *n == 40), "no batch holds the poisoned event with others: {sizes:?}");
 }
 
+/// Mark every queued event as refused once already (failed alone in an earlier pass) and due.
+fn refused_once(r: &Rig) {
+    for q in r.courier.outbox().due(NOW, true, 100).unwrap() {
+        r.courier.outbox().refuse_at(q.id, 1, 1, NOW).unwrap();
+    }
+}
+
+/// The good events stored so far, by their `n`.
+fn stored(api: &Choosy) -> Vec<i64> {
+    api.stored.lock().unwrap().iter().filter(|n| *n != "null").map(|n| n.parse().unwrap()).collect()
+}
+
+/// astromech-dxv1: an event stored resets the outage guard. Three poisoned events with good ones
+/// between them, all known to be refused (a good one can be, after a one-off failure) and all due:
+/// each goes alone, and the pass gets through every good one.
+#[test]
+fn an_event_stored_between_poisoned_ones_resets_the_outage_guard() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig_with(api.clone(), 6, &[0, 2, 4]);
+    refused_once(&r);
+    let d = r.courier.pass(NOW + 4000, r.t0 + Duration::from_secs(4000)).unwrap();
+    assert_eq!(stored(&api), [1, 3, 5], "{d:?}");
+    assert!(!d.stopped, "{d:?}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), 3, "only the poisoned events are left");
+}
+
+/// astromech-dxv1: three or more poisoned events side by side, all due in one pass, do not hold
+/// the good events behind them: known-refused events go after the rest, so their failures in a
+/// row only hold other known-refused events.
+#[test]
+fn three_poisoned_events_side_by_side_do_not_hold_the_good_ones_behind() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig_with(api.clone(), 4, &[0, 1, 2, 3]);
+    refused_once(&r);
+    for n in 10..20 {
+        r.up.journal(&json!({"event": "Scan", "n": n}), true, NOW);
+    }
+    r.courier.pass(NOW + 4000, r.t0 + Duration::from_secs(4000)).unwrap();
+    assert_eq!(stored(&api), (10..20).collect::<Vec<_>>());
+    assert_eq!(r.courier.outbox().pending().unwrap(), 4, "only the poisoned events are left");
+}
+
 #[test]
 fn a_413_batch_is_split_the_same_way() {
     let api = Choosy::new(413, 3);
@@ -610,9 +652,11 @@ fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
     for i in 1..=20u64 {
         gave_up += r.courier.pass(NOW + 4000 * i as i64, r.t0 + Duration::from_secs(4000 * i)).unwrap().gave_up;
     }
-    // Without the outage guard every one of the 21 goes; with it only the few that fail alone
-    // first (OUTAGE_AFTER of them a pass, so that two poisoned events side by side don't look like one).
-    assert!((2..=6).contains(&gave_up), "gave up {gave_up} of {queued}");
+    // Without the outage guard every one of the 21 goes. With it, OUTAGE_AFTER events fail alone
+    // a pass (so that two poisoned events side by side don't look like one), never-refused ones
+    // first: every event takes one refusal before the oldest start using up the rest, and only
+    // those few are given up.
+    assert!((1..=OUTAGE_AFTER as usize).contains(&gave_up), "gave up {gave_up} of {queued}");
     assert_eq!(r.courier.outbox().pending().unwrap(), queued - gave_up);
 }
 
