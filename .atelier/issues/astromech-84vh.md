@@ -4,6 +4,9 @@ id: "astromech-84vh"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-84vh
 priority: "P1"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Bump rustls-webpki and webpki-roots for RUSTSEC-2026-0381 and 0382"
-updated_at: "2026-10-22T20:55:34.472353984+00:00"
+updated_at: "2026-10-22T20:55:36.091958454+00:00"
 ---
 
 ## Goal
