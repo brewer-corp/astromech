@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Route: a poll erases an action's error within two seconds"
-updated_at: "2026-10-22T20:41:35.272146187+00:00"
+updated_at: "2026-10-22T21:14:36.314374631+00:00"
 ---
 
 ## Goal
