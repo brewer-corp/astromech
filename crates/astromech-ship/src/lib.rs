@@ -187,6 +187,9 @@ pub struct Fsd {
     pub reserve_size: f64,
     /// Guardian FSD booster, ly.
     pub range_boost: f64,
+    /// How many times its range a jump from a neutron star reaches: 6 for the size 8 Mk II
+    /// supercharge-optimised drive, 4 for every other (Spansh's module table, 22 Oct 2026).
+    pub supercharge_multiplier: u8,
 }
 
 impl Fsd {
@@ -196,6 +199,15 @@ impl Fsd {
         let mass = self.base_mass + self.tank_size + cargo.max(0.0);
         (self.max_fuel_per_jump / self.fuel_multiplier).powf(1.0 / self.fuel_power) * self.optimal_mass / mass
             + self.range_boost
+    }
+}
+
+/// The neutron boost of the drive with journal symbol `item` (see [`Fsd::supercharge_multiplier`]).
+fn supercharge_multiplier(item: &str) -> u8 {
+    if item.eq_ignore_ascii_case("int_hyperdrive_overcharge_size8_class5_overchargebooster_mkii") {
+        6
+    } else {
+        4
     }
 }
 
@@ -299,6 +311,8 @@ enum Standard {
 #[derive(Debug, Clone)]
 struct Slot {
     kind: Kind,
+    /// The journal's module symbol.
+    item: String,
     module: Module,
     enabled: bool,
     priority: usize,
@@ -496,6 +510,7 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
                 let fuel_tank = kind == Kind::Standard(Standard::FuelTank);
                 slots.push(Slot {
                     kind,
+                    item: m.item.clone(),
                     module,
                     enabled: fuel_tank || m.on,
                     priority: if fuel_tank { 0 } else { (m.priority as usize).min(4) },
@@ -556,6 +571,7 @@ pub fn stats(ship: &str, modules: &[ModuleSnap]) -> Result<ShipStats, Error> {
         tank_size: fuel,
         reserve_size: def.reserve_fuel,
         range_boost: ship.jump_boost(),
+        supercharge_multiplier: supercharge_multiplier(&s.item),
     });
 
     let power = Power { generation: ship.power_available, retracted: r, deployed: d };
