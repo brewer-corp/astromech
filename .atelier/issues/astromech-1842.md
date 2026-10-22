@@ -4,6 +4,9 @@ id: "astromech-1842"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-1842
 priority: "P1"
 relationships:
   blocks: []
@@ -25,9 +28,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Plot neutron routes on this PC"
-updated_at: "2026-10-22T19:30:25.163070428+00:00"
+updated_at: "2026-10-22T20:42:08.174497721+00:00"
 ---
 
 ## Goal
