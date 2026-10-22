@@ -15,7 +15,8 @@
 //!   once (no waiting: that would stall the journal). A file that is missing or older than its
 //!   event is logged and not used; it is tried again when the game next writes that file, and
 //!   also after every journal read that follows a Status.json write and once a second when idle,
-//!   in case the notification never comes, until the event is older than five minutes.
+//!   in case the notification never comes, until the event is older than five minutes. A retry
+//!   is as live as the event's line was, however live the journal is by then.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
 //!   when the game wrote it while we run: not the startup replay of the current journal, not what
 //!   any other journal held at startup, not an already-read journal that becomes newest (re-read
@@ -169,6 +170,14 @@ impl Drop for Pipeline {
     }
 }
 
+/// A companion event waiting for its file, and whether its journal line was live: a retry after
+/// the live half has begun must not make a replayed dock's Market.json live (astromech-01c0).
+#[derive(Debug, Clone)]
+struct Pending {
+    trigger: Trigger,
+    live: bool,
+}
+
 struct Tailer {
     dir: PathBuf,
     hub: Arc<StateHub>,
@@ -179,7 +188,7 @@ struct Tailer {
     stats: Arc<std::sync::Mutex<Stats>>,
     log: Box<dyn Fn(&str) + Send>,
     /// Companion events whose file was not usable yet; tried again when the game touches the file.
-    pending: Vec<Trigger>,
+    pending: Vec<Pending>,
     callouts: Option<Callouts>,
     eddn: Option<astromech_eddn::Feed>,
     edsm: Option<astromech_eddn::edsm::Uploader>,
@@ -250,8 +259,8 @@ impl Tailer {
         // Events first, files after: a slow file never delays the journal state.
         let found = triggers(&parsed);
         if !found.is_empty() {
-            self.pending.retain(|p| !found.iter().any(|t| t.kind == p.kind));
-            self.load_companions(found, true);
+            self.pending.retain(|p| !found.iter().any(|t| t.kind == p.trigger.kind));
+            self.load_companions(found, true, self.caught_up && self.live);
         }
         self.eddn_nav_route();
     }
@@ -278,8 +287,9 @@ impl Tailer {
     }
 
     /// `report`: log and count the files that couldn't be used. A retry that fails again stays
-    /// quiet (it would repeat on every Status.json write); the event stays pending.
-    fn load_companions(&mut self, found: Vec<Trigger>, report: bool) {
+    /// quiet (it would repeat on every Status.json write); the event stays pending. `live`: the
+    /// events' journal lines were live (only then may a Market.json fire a callout).
+    fn load_companions(&mut self, found: Vec<Trigger>, report: bool, live: bool) {
         let (files, reports) = load(&self.dir, &found);
         {
             let mut st = self.stats.lock().unwrap();
@@ -305,7 +315,7 @@ impl Tailer {
             self.hub.update(|g| g.apply_companion(f));
             // A fresh Market.json is an event for the callouts (once per dock; the engine decides).
             if let (true, Some(c)) = (is_market, &mut self.callouts) {
-                c.engine.set_live(self.caught_up && self.live);
+                c.engine.set_live(live);
                 let fired = self.hub.read(|g| {
                     let m = g.companions.market.clone()?;
                     Some(c.engine.market(&m, g, Instant::now()))
@@ -319,18 +329,26 @@ impl Tailer {
             if report {
                 (self.log)(&format!("companion file {r}"));
             }
-            self.pending.push(Trigger { kind: r.kind, event_ts: r.event_ts });
+            self.pending.push(Pending { trigger: Trigger { kind: r.kind, event_ts: r.event_ts }, live });
+        }
+    }
+
+    /// Try `waiting` again, each as live as the line that announced it.
+    fn reload(&mut self, waiting: Vec<Pending>, report: bool) {
+        let (live, replayed): (Vec<Pending>, Vec<Pending>) = waiting.into_iter().partition(|p| p.live);
+        for (batch, live) in [(replayed, false), (live, true)] {
+            if !batch.is_empty() {
+                self.load_companions(batch.into_iter().map(|p| p.trigger).collect(), report, live);
+            }
         }
     }
 
     /// The game wrote one of these files: try the events that were waiting for it.
     fn on_companion_files(&mut self, kinds: &[CompanionKind]) {
-        let waiting: Vec<Trigger> = self.pending.iter().filter(|p| kinds.contains(&p.kind)).cloned().collect();
-        if waiting.is_empty() {
-            return;
-        }
-        self.pending.retain(|p| !kinds.contains(&p.kind));
-        self.load_companions(waiting, true);
+        let (waiting, rest): (Vec<Pending>, Vec<Pending>) =
+            std::mem::take(&mut self.pending).into_iter().partition(|p| kinds.contains(&p.trigger.kind));
+        self.pending = rest;
+        self.reload(waiting, true);
     }
 
     /// Try every waiting event again, whether or not the watcher reported its file: Windows can
@@ -342,15 +360,15 @@ impl Tailer {
             return;
         }
         let now = chrono::Utc::now();
-        let (waiting, stale): (Vec<Trigger>, Vec<Trigger>) =
+        let (waiting, stale): (Vec<Pending>, Vec<Pending>) =
             std::mem::take(&mut self.pending).into_iter().partition(|p| {
-                chrono::DateTime::parse_from_rfc3339(&p.event_ts)
+                chrono::DateTime::parse_from_rfc3339(&p.trigger.event_ts)
                     .map_or(true, |t| (now - t.to_utc()).num_seconds() <= astromech_eddn::feed::MAX_EVENT_AGE_SECS)
             });
-        for p in stale {
+        for Pending { trigger: p, .. } in stale {
             (self.log)(&format!("companion file {}: gave up waiting for the {} event", p.kind.file_name(), p.event_ts));
         }
-        self.load_companions(waiting, false);
+        self.reload(waiting, false);
     }
 
     fn save(&self) {
@@ -2072,6 +2090,45 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
         assert_eq!(*fired.lock().unwrap(), ["Market."], "the live dock's market callout");
+    }
+
+    /// astromech-01c0: a Market event whose file wasn't there yet stays pending, and is retried
+    /// as it was read. One from the startup replay is retried after the live half has begun and
+    /// must stay silent (an old dock); one from a live line still speaks.
+    #[test]
+    fn a_pending_market_event_is_retried_as_live_only_if_its_line_was() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join(game_name(0));
+        std::fs::write(&j, format!("{}{}\n{}\n", session(&ts(60), "r1 "), docked(&ts(30)), market_event(&ts(30), 7)))
+            .unwrap();
+        let (mut t, _, _) = tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(MarketRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert_eq!(t.pending.len(), 1, "no Market.json yet for the replayed dock");
+
+        // The live half begins, then the replayed dock's file turns up.
+        append(&j, &format!(r#"{{"timestamp":"{}","event":"Music","MusicTrack":"Docking"}}"#, ts(0)));
+        t.on_journal_activity();
+        assert!(t.live);
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(30), 7)).unwrap();
+        t.on_companion_files(&[CompanionKind::Market]);
+        assert_eq!(t.hub.snapshot().companions.market.unwrap().market_id, Some(7), "the file is used");
+        assert!(fired.lock().unwrap().is_empty(), "the replayed dock stays silent: {:?}", fired.lock().unwrap());
+
+        // A live dock whose file comes late still gets its callout, from the idle retry.
+        std::fs::remove_file(d.path().join("Market.json")).unwrap();
+        append(&j, &docked(&ts(0)).replace("\"MarketID\":7", "\"MarketID\":8"));
+        append(&j, &market_event(&ts(0), 8));
+        t.on_journal_activity();
+        assert_eq!(t.pending.len(), 1);
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 8)).unwrap();
+        t.retry_pending();
+        assert_eq!(*fired.lock().unwrap(), ["Market."]);
     }
 
     /// astromech-r3s7: once the game has started a newer session, the earlier journal is no longer

@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Pending Market retry uses the current live flag, so it can fire a stale callout for a replayed dock"
-updated_at: "2026-10-22T20:41:33.551169476+00:00"
+updated_at: "2026-10-22T20:49:55.251942728+00:00"
 ---
 
 ## Goal
