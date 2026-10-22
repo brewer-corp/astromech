@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Route page plots neutron routes locally, with Spansh as the fallback"
-updated_at: "2026-10-22T23:21:55.776025530+00:00"
+updated_at: "2026-10-22T23:33:16.588145634+00:00"
 ---
 
 ## Goal
