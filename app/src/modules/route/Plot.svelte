@@ -1,8 +1,9 @@
 <script lang="ts">
-  // Plot a route with Spansh for the current ship and follow it (docs/PLOTTING.md): neutron
-  // (boosts from neutron stars; its stops are the neutron stars) or exact (every jump, with
-  // refuel stops). The range and drive come from the ship's latest Loadout; Spansh works the
-  // route out as a job, so it runs only on "Plot and follow" and can take a minute.
+  // Plot a route for the current ship and follow it (docs/PLOTTING.md): neutron (boosts from
+  // neutron stars; its stops are the neutron stars) or exact (every jump, with refuel stops).
+  // The range and drive come from the ship's latest Loadout. A neutron route is worked out on
+  // this PC in seconds when the neutron star file is downloaded (NeutronFile), else by Spansh;
+  // an exact route always by Spansh, as a job that can take a minute.
   import { plotRoute, plotSetup, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import NeutronFile from "./NeutronFile.svelte";
@@ -19,6 +20,11 @@
   let busy = $state(false);
   let err = $state<string | null>(null);
   let done = $state<Plotted | null>(null);
+  // The neutron star file is there, so neutron routes are plotted on this PC.
+  let local = $state(false);
+  // Bumped after a plot: the file's status may have changed (it failed to load).
+  let plots = $state(0);
+  const onThisPC = $derived(plotter === "neutron" && local);
 
   // The ship and cargo change as you play (a swap, cargo bought or sold): keep the line current.
   const readSetup = () =>
@@ -47,6 +53,7 @@
       err = String(e instanceof Error ? e.message : e);
     } finally {
       busy = false;
+      plots += 1;
       void readSetup();
     }
   }
@@ -59,10 +66,14 @@
     if (p.refuels) parts.push(count(p.refuels, "refuel stop", "refuel stops"));
     return `${parts.join(" · ")}, at ${p.range.toFixed(2)} ly a jump`;
   }
+  function where(p: Plotted): string {
+    if (!p.local) return "Plotted by Spansh.";
+    return p.fewest === false ? "Plotted on this PC, near the fewest jumps." : "Plotted on this PC.";
+  }
 </script>
 
 <div class="plot">
-  <h4>Plot with Spansh</h4>
+  <h4>Plot a route</h4>
   <div class="kinds" role="group" aria-label="Plotter">
     <button class:on={plotter === "neutron"} aria-pressed={plotter === "neutron"} onclick={() => (plotter = "neutron")}>Neutron</button>
     <button class:on={plotter === "exact"} aria-pressed={plotter === "exact"} onclick={() => (plotter = "exact")}>Exact</button>
@@ -70,13 +81,13 @@
   <OriginInput {origin} onchange={(o) => (origin = o)} />
   <div class="fields">
     <label><span>To</span><input aria-label="Destination system" placeholder="System name" spellcheck="false" bind:value={to} /></label>
-    {#if plotter === "neutron"}
+    {#if plotter === "neutron" && !local}
       <label><span>Efficiency</span><input aria-label="Efficiency" type="number" min="1" max="100" bind:value={efficiency} /><em>%</em></label>
-    {:else}
+    {:else if plotter === "exact"}
       <label class="check"><input type="checkbox" bind:checked={refuel} /> Refuel at every scoopable star</label>
     {/if}
   </div>
-  {#if plotter === "neutron"}<NeutronFile />{/if}
+  {#if plotter === "neutron"}<NeutronFile onlocal={(l) => (local = l)} refresh={plots} />{/if}
   {#if ship}
     <p class="lo">
       {ship.name}: {ship.range.toFixed(2)} ly a jump with a full tank{ship.cargo ? ` and ${Math.round(ship.cargo)} t of cargo` : ""}, from its last loadout.
@@ -92,11 +103,12 @@
   </p>
   <button class="go" disabled={!ready} onclick={() => void go()}>{busy ? "Plotting…" : "Plot and follow"}</button>
   {#if busy}
-    <p class="lo">Asking Spansh. A route can take a minute.</p>
+    <p class="lo">{onThisPC ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
   {:else if err}
     <p class="err">{err}</p>
   {:else if done}
-    <p class="ok">Following {done.name}: {summary(done)}.</p>
+    <p class="ok">Following {done.name}: {summary(done)}. {where(done)}</p>
+    {#if done.fallback}<p class="lo">The neutron star file can't be read, so Spansh plotted this route: {done.fallback}</p>{/if}
   {/if}
 </div>
 

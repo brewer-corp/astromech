@@ -939,10 +939,11 @@ fn plot_ship(st: &JournalState) -> Result<astromech_galaxy::plot::Ship, String> 
     astromech_galaxy::plot::Ship::current(&st.fleet, cargo)
 }
 
-/// Plot `ask` with Spansh's neutron or exact plotter for the current ship (from the
-/// commander's system when `from` is blank), polled off the UI thread until done, and hand the
-/// route to the core's follower. The route is set even if the page is left meanwhile. A second
-/// plot while one runs is turned down.
+/// Plot `ask` for the current ship (from the commander's system when `from` is blank) off the
+/// UI thread, and hand the route to the core's follower. A neutron route is plotted on this PC
+/// from the kept neutron star file when it is there and readable, else by Spansh
+/// (`astromech_galaxy::plot::plot_route`); exact routes come from Spansh. The route is set even
+/// if the page is left meanwhile. A second plot while one runs is turned down.
 #[tauri::command]
 async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> Result<Value, String> {
     blocking(move || {
@@ -951,13 +952,17 @@ async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> 
         };
         let st = engineering_state(&app.state::<EngineeringCache>())?;
         let ship = plot_ship(&st)?;
-        let mut ask = ask;
-        if ask.from.trim().is_empty() {
-            ask.from = st.here.as_ref().map(|h| h.system.clone()).ok_or("Enter where the route starts.")?;
-        }
         let remote = app.state::<Remote>().0.clone();
         let polling = astromech_data::spansh::Polling::default();
-        let plotted = astromech_galaxy::plot::plot(&remote, &ask, &ship, polling)?;
+        let locate = |name: &str| -> anyhow::Result<astromech_galaxy::Here> {
+            galaxy(&app).map_err(anyhow::Error::msg)?.locate(name)
+        };
+        let neutron = app.state::<NeutronKept>();
+        let plotted =
+            astromech_galaxy::plot::plot_route(&remote, &neutron.0, locate, &ask, st.here.as_ref(), &ship, polling)?;
+        if let Some(why) = &plotted.fallback {
+            astromech_log::log(&format!("neutron star file: can't be read, Spansh plotted the route: {why}"));
+        }
         let args = serde_json::to_value(&plotted).map_err(|e| e.to_string())?;
         let r = call_with("route_set", None, Some(args))
             .map_err(|e| format!("Plotted, but the route could not be followed: {e}."))?;
@@ -975,17 +980,22 @@ async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> 
 // ---- The neutron star file (astromech_galaxy::neutron) in the data folder, downloaded only
 // when the commander presses Download on the Route page.
 
-/// What the Route page shows: the file's header if it is there, and why it can't be read if not.
-fn neutron_status() -> Value {
-    match astromech_galaxy::neutron::installed(&data_dir()) {
+/// The neutron star file in the data folder, loaded on the first local neutron plot and kept
+/// (about 80 MB), and loaded again when a download replaces it.
+struct NeutronKept(astromech_galaxy::neutron::Kept);
+
+/// What the Route page shows: the file's header if it is there, and why it can't be read if not
+/// (also when it failed to load for a plot).
+fn neutron_status(app: &tauri::AppHandle) -> Value {
+    match app.state::<NeutronKept>().0.installed() {
         Ok(file) => serde_json::json!({ "file": file, "error": null }),
         Err(e) => serde_json::json!({ "file": null, "error": format!("{e:#}") }),
     }
 }
 
 #[tauri::command]
-async fn neutron_file() -> Result<Value, String> {
-    blocking(|| Ok(neutron_status())).await
+async fn neutron_file(app: tauri::AppHandle) -> Result<Value, String> {
+    blocking(move || Ok(neutron_status(&app))).await
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -996,9 +1006,13 @@ struct NeutronProgress {
 
 /// Downloads the latest file from the `neutron` pre-release (about 70 MB), reporting progress
 /// about once a megabyte. The old file, if any, stays until the new one is complete and checked.
-/// A second download while one runs is turned down (by `neutron::download`).
+/// A second download while one runs is turned down (by `neutron::download`). The new file is
+/// loaded straight away, so the next plot uses it and a file that won't load says why.
 #[tauri::command]
-async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> Result<Value, String> {
+async fn neutron_download(
+    app: tauri::AppHandle,
+    on_progress: tauri::ipc::Channel<NeutronProgress>,
+) -> Result<Value, String> {
     blocking(move || {
         let mut sent = 0u64;
         let progress = |done: u64, total: Option<u64>| {
@@ -1012,7 +1026,10 @@ async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> 
             astromech_log::log(&format!("neutron star file: download failed: {e:#}"));
             return Err(format!("{e:#}"));
         }
-        Ok(neutron_status())
+        if let Err(e) = app.state::<NeutronKept>().0.get() {
+            astromech_log::log(&format!("neutron star file: the download won't load: {e:#}"));
+        }
+        Ok(neutron_status(&app))
     })
     .await
 }
@@ -1279,6 +1296,7 @@ fn main() {
         .manage(ExplorationCache::default())
         .manage(OdysseyCache(std::sync::Mutex::new(None)))
         .manage(GalaxyState(std::sync::Mutex::new(None)))
+        .manage(NeutronKept(astromech_galaxy::neutron::Kept::new(&data_dir())))
         .manage(Remote(astromech_data::Client::shared(&data_dir(), std::sync::Arc::new(astromech_log::log))))
         .manage(PowerplayCache(std::sync::Mutex::new(None)))
         .manage(ColonisationCache(std::sync::Mutex::new(None)))

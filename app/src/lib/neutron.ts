@@ -36,6 +36,11 @@ export const DISK_MB = 184;
 const PREVIEW_FILE: NeutronHeader = { cell_ly: 128, stars: 5045154, cells: 1645100, built: 1792627200 };
 let preview: NeutronFile = { file: null, error: null };
 
+/** The browser preview has "downloaded" the file: its neutron routes are plotted "on this PC". */
+export function previewHasNeutronFile(): boolean {
+  return preview.file != null;
+}
+
 /** Back to "not downloaded" (tests). */
 export function resetPreviewNeutron(): void {
   preview = { file: null, error: null };

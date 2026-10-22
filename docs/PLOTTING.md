@@ -7,8 +7,9 @@ problem this solves. astromech does it in two layers:
 
 1. **Clipboard (built).** astromech follows a route. The next waypoint is always on the
    clipboard, and "paste" (spoken, or a HOTAS button) puts it into the search box. You still
-   select the search box and plot the route yourself. The route can come from Spansh's neutron
-   or exact plotter, plotted in the app for the current ship.
+   select the search box and plot the route yourself. The route can be plotted in the app for
+   the current ship: neutron routes on this PC from the neutron star file (Spansh's neutron
+   plotter until it is downloaded), exact routes by Spansh.
 2. **Plotting macro (designed, not built; off by default when it is).** astromech opens the map,
    searches, plots, and checks `NavRoute.json` to see whether it worked.
 
@@ -49,20 +50,45 @@ Behaviour:
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for
   the clipboard.
 
-### Spansh plotters
+### Plotters
 
-**Galaxy route rail → Plot with Spansh** plots a neutron or exact route for the current ship and
+**Galaxy route rail → Plot a route** plots a neutron or exact route for the current ship and
 hands it to the follower (`route_set`), so it is followed the same way as any other route.
+`astromech_galaxy::plot::plot_route` picks the plotter: a neutron route is plotted on this PC
+when the neutron star file is in the data folder and loads, else by Spansh's `/api/route`; a
+file that won't load falls back to Spansh and the result's `fallback` says why. Exact routes
+always come from Spansh.
 
 | Piece | Where |
 |---|---|
 | The ship: the FSD (optimal mass and max fuel per jump with engineering, base fuel multiplier and power), base mass (hull and modules plus the reservoir, no main-tank fuel), tank, reservoir, Guardian booster and neutron boost (×6 for the size 8 Mk II drive, ×4 for any other, as on Spansh's site) from the latest `Loadout`; range with a full tank and the cargo aboard | `astromech_ship::Fsd` (`ShipStats::fsd`), `astromech_galaxy::plot::Ship::current` |
 | Requests and results: neutron `/api/route` (range, efficiency, `supercharge_multiplier`), exact `/api/generic/route` (the FSD numbers as a form, see below); both are jobs polled at `/api/results/{job}` | `astromech_data::spansh` (`NeutronRoute`, `ExactRoute`, `spansh_*_wait`) |
 | Plotting: one call that submits, polls until done and returns the stops with labels (`neutron boost`, `fuel`) and totals | `astromech_galaxy::plot::plot` |
-| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core) | `app/src-tauri/src/main.rs`, `app/src/modules/route/Plot.svelte` |
+| Local neutron routes: the search over the neutron star file (A*, then a guided A* for long routes), the stops' names from disk; `local`, `fewest` on the result | `astromech_galaxy::neutron_plot` (`route`, `plot`) |
+| The neutron star file: reader, download from the `neutron` pre-release, and `Kept`, which the shell holds: loaded on the first local plot or after a download (0.1–0.2 s, about 80 MB), kept, and loaded again when the file on disk is no longer the one loaded | `astromech_galaxy::neutron` |
+| Start and destination for a local route: the commander's journal position for a blank From, else `Galaxy::locate` (the local star map, then Spansh's system-name autocomplete, the only network a local route needs) | `astromech_galaxy::plot::plot_route` |
+| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/Plot.svelte`, `NeutronFile.svelte` |
 
 The core's pipeline thread is not involved: the shell plots and only the finished route reaches
 the core, through the control API. A route plotted while the window is left still gets followed.
+
+**The local neutron plotter** (astromech-1842) models a route as neutron stars plus the
+destination; a jump from a neutron star reaches k·R (k 4, or 6 for the Mk II drive; R the
+full-tank range with the cargo aboard), then normal jumps of R cover the rest of the leg. It
+minimises jumps, then stops, so it has no efficiency setting; the page shows Efficiency only
+when Spansh will plot. The result line says "Plotted on this PC" or "Plotted by Spansh". Its
+limits:
+
+- No fuel planning, and the normal jumps between neutron stars are counted from the distance:
+  sparse gaps aren't checked against real stars (estimated, not verified).
+- No via systems, white-dwarf boosts or FSD injections.
+- Short routes are proven fewest in the model; long ones come from the guided search and are
+  near the fewest (measured 2–4 jumps over on Sol to Colonia), and the page says "near the fewest
+  jumps" (`Plotted::fewest` false). Timings and the comparison with Spansh are in the
+  `neutron_plot` module docs.
+- Spansh counts the normal jumps after a boost more cautiously, so its own totals for the same
+  route are higher. (The page currently shows a Spansh neutron route's legs as its jumps,
+  astromech-6h7t, so a Spansh route there looks shorter than it is.)
 
 **The exact plotter's input** (read from spansh.co.uk's exact-plotter page and checked against
 the live API on 17 Oct 2026): Spansh's site doesn't send the ship build for the plotter to read.

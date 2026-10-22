@@ -572,6 +572,9 @@ pub fn plot(file: &NeutronStars, from: &Here, to: &Here, ship: &Ship) -> Result<
         refuels: 0,
         waypoints,
         range: ship.range,
+        local: true,
+        fewest: Some(r.fewest),
+        fallback: None,
     })
 }
 

@@ -1,8 +1,12 @@
 <script lang="ts">
-  // The neutron star file under Plot with Spansh → Neutron (docs/guide/routes.md): whether it is
+  // The neutron star file under Plot a route → Neutron (docs/guide/routes.md): whether it is
   // in the data folder and its build date, Download with progress, and Check for a newer file.
-  // Nothing downloads until the commander presses Download.
+  // Nothing downloads until the commander presses Download. With the file there, neutron routes
+  // are plotted on this PC (`onlocal`); `refresh` changes after a plot, which may have found the
+  // file can't be read.
   import { DISK_MB, DOWNLOAD_MB, checkNeutron, downloadNeutron, neutronFile, watchDownload, type NeutronFile, type NeutronProgress, type Watch } from "../../lib/neutron";
+
+  let { onlocal, refresh = 0 }: { onlocal?: (local: boolean) => void; refresh?: number } = $props();
 
   let status = $state<NeutronFile | null>(null);
   let downloading = $state(false);
@@ -32,9 +36,17 @@
   }
 
   $effect(() => {
+    void refresh;
     neutronFile()
       .then((s) => (status = s))
       .catch((e) => (err = message(e)));
+  });
+
+  $effect(() => {
+    if (status) onlocal?.(!!status.file);
+  });
+
+  $effect(() => {
     // A download started before this page was opened is still running in the shell.
     const w = watchDownload((p) => (progress = p));
     if (w) void follow(w);
@@ -87,7 +99,11 @@
     {#if status.error}<p class="lo">The file there can't be read: {status.error}</p>{/if}
     <button onclick={download}>Download</button>
   {/if}
-  {#if status || downloading}<p class="lo">Neutron routes still come from Spansh for now.</p>{/if}
+  {#if file}
+    <p class="lo">Neutron routes are plotted on this PC with it, in seconds.</p>
+  {:else if status || downloading}
+    <p class="lo">Until it is downloaded, Spansh plots neutron routes.</p>
+  {/if}
   {#if err}<p class="err">{err}</p>{/if}
 </div>
 

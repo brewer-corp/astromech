@@ -1,7 +1,9 @@
-//! Plotting a route with Spansh's neutron and exact plotters for the route follower
-//! (docs/PLOTTING.md): the jump range and drive come from the current ship's loadout
-//! (astromech-ship), the route from Spansh (astromech-data, a job polled until done), and the
-//! result is a list of stops the core's route follower takes as it is (`route_set`).
+//! Plotting a route for the route follower (docs/PLOTTING.md). [`plot_route`] plots a neutron
+//! route on this PC (`crate::neutron_plot`) when the neutron star file is there; otherwise, and
+//! for exact routes, Spansh's neutron and exact plotters do it ([`plot`], a job polled until done
+//! through astromech-data). The jump range and drive come from the current ship's loadout
+//! (astromech-ship), and the result is a list of stops the core's route follower takes as it is
+//! (`route_set`).
 //!
 //! A neutron route's stops are the neutron stars to boost from and the destination; the jumps
 //! between them are left to the galaxy map. An exact route has every jump as a stop, and says
@@ -132,9 +134,63 @@ pub struct Plotted {
     pub refuels: usize,
     /// The range it was plotted with, ly.
     pub range: f64,
+    /// Worked out on this PC by the local neutron plotter (`crate::neutron_plot`), not by Spansh.
+    pub local: bool,
+    /// Local routes: whether the search proved no route has fewer jumps; false for a long route
+    /// it found near the fewest ([`crate::neutron_plot::Route::fewest`]). `None` from Spansh.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fewest: Option<bool>,
+    /// Why Spansh plotted a neutron route although the neutron star file is there: it can't be
+    /// read.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fallback: Option<String>,
 }
 
-/// Plot `ask` for `ship` and wait for Spansh (blocks: run it off the UI thread; gives up after
+/// Plots `ask` for `ship` (blocks: run it off the UI thread). A neutron route is plotted on this
+/// PC when the neutron star file in `neutron` is there and readable, else by Spansh, and a file
+/// that can't be read is said in [`Plotted::fallback`]. Exact routes always come from Spansh.
+/// A blank `from` is `here`, the commander's system. The local plotter finds the ends with
+/// `locate` ([`crate::Galaxy::locate`]: the local star map, then Spansh's system names), so it
+/// needs the network only for a system the star map lacks. Errors are sentences for the page.
+pub fn plot_route(
+    client: &Client,
+    neutron: &crate::neutron::Kept,
+    locate: impl Fn(&str) -> anyhow::Result<crate::Here>,
+    ask: &Ask,
+    here: Option<&crate::Here>,
+    ship: &Ship,
+    polling: Polling,
+) -> Result<Plotted, String> {
+    let mut ask = ask.clone();
+    let from_here = ask.from.trim().is_empty();
+    if from_here {
+        ask.from = here.map(|h| h.system.clone()).ok_or("Enter where the route starts.")?;
+    }
+    if ask.to.trim().is_empty() {
+        return Err("Enter where the route ends.".into());
+    }
+    if ask.plotter == Plotter::Exact {
+        return plot(client, &ask, ship, polling);
+    }
+    let file = match neutron.get() {
+        Ok(Some(file)) => file,
+        Ok(None) => return plot(client, &ask, ship, polling),
+        Err(e) => {
+            let mut p = plot(client, &ask, ship, polling)?;
+            p.fallback = Some(format!("{e:#}"));
+            return Ok(p);
+        }
+    };
+    let find = |name: &str| locate(name.trim()).map_err(|e| format!("{e:#}"));
+    let from = match here {
+        Some(h) if from_here || h.system.eq_ignore_ascii_case(ask.from.trim()) => h.clone(),
+        _ => find(&ask.from)?,
+    };
+    let to = find(&ask.to)?;
+    crate::neutron_plot::plot(&file, &from, &to, ship)
+}
+
+/// Plot `ask` for `ship` with Spansh and wait for it (blocks: run it off the UI thread; gives up after
 /// `polling.timeout`). Errors are sentences for the page.
 pub fn plot(client: &Client, ask: &Ask, ship: &Ship, polling: Polling) -> Result<Plotted, String> {
     let (from, to) = (ask.from.trim().to_string(), ask.to.trim().to_string());
@@ -175,6 +231,9 @@ fn spansh(
                 jumps: plan.total_jumps,
                 ly: plan.distance,
                 range: r.range,
+                local: false,
+                fewest: None,
+                fallback: None,
             })
         }
         Plotter::Exact => {
@@ -204,6 +263,9 @@ fn spansh(
                 neutrons: plan.jumps.iter().filter(|j| j.has_neutron).count(),
                 refuels: plan.jumps.iter().filter(|j| j.must_refuel).count(),
                 range: ship.range,
+                local: false,
+                fewest: None,
+                fallback: None,
             })
         }
     }

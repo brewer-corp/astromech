@@ -19,6 +19,7 @@
 //! ([`Stars::cell_of`], [`Stars::cell`]). Opening the file loads the header, cells and positions
 //! (about 80 MB for 5 M stars) and closes it; [`NeutronStars::names`] reads a route's names from
 //! disk, after checking the file is still the one loaded. `crate::neutron_plot` searches it.
+//! The app keeps it loaded in a [`Kept`], which loads it again when a download replaces it.
 //!
 //! The `neutron` pre-release publishes the file gzipped, with its SHA-256
 //! (`.github/workflows/neutron.yml`). [`download`] fetches it into the data folder only when the
@@ -276,6 +277,19 @@ impl NeutronStars {
         &self.stars
     }
 
+    /// Whether the file on disk is still the one loaded (false if it is gone or can't be read).
+    pub fn is_current(&self) -> bool {
+        File::open(&self.path).and_then(|mut f| self.same_file(&mut f)).unwrap_or(false)
+    }
+
+    /// The same header and length as the file loaded: a newer download has a newer build time or
+    /// other counts. Reads the header from the start of `f`.
+    fn same_file(&self, f: &mut File) -> std::io::Result<bool> {
+        let mut hb = [0u8; HEADER_LEN as usize];
+        f.read_exact(&mut hb)?;
+        Ok(Header::parse(&hb).is_ok_and(|h| h == self.header) && f.metadata()?.len() == self.file_len)
+    }
+
     /// Star `i`'s name, read from disk ([`NeutronStars::names`]).
     pub fn name(&self, i: usize) -> Result<String> {
         Ok(self.names(&[i])?.remove(0))
@@ -288,11 +302,10 @@ impl NeutronStars {
     pub fn names(&self, ids: &[usize]) -> Result<Vec<String>> {
         let ctx = || format!("Couldn't read {}", self.path.display());
         let mut f = File::open(&self.path).with_context(ctx)?;
-        let mut hb = [0u8; HEADER_LEN as usize];
-        f.read_exact(&mut hb).with_context(ctx)?;
-        let same = Header::parse(&hb).is_ok_and(|h| h == self.header)
-            && f.metadata().with_context(ctx)?.len() == self.file_len;
-        ensure!(same, "The neutron star file changed while it was loaded (a new download). Plot the route again.");
+        ensure!(
+            self.same_file(&mut f).with_context(ctx)?,
+            "The neutron star file changed while it was loaded (a new download). Plot the route again."
+        );
         let group = self.header.name_group as usize;
         let text_at = self.header.names_at() + 4 * self.groups.len() as u64;
         ids.iter()
@@ -311,6 +324,83 @@ impl NeutronStars {
                 String::from_utf8(name.to_vec()).context("neutron star name isn't UTF-8")
             })
             .collect()
+    }
+}
+
+/// The neutron star file in a data folder as the app keeps it: loaded on first use (0.1–0.2 s)
+/// and held (about 80 MB), and loaded again when the file on disk is no longer the one loaded,
+/// so a download that replaced it is picked up by the next [`Kept::get`]. A file that fails to
+/// load is not tried again until it changes.
+pub struct Kept {
+    dir: PathBuf,
+    state: std::sync::Mutex<KeptState>,
+}
+
+#[derive(Default)]
+struct KeptState {
+    file: Option<std::sync::Arc<NeutronStars>>,
+    /// The last load failed, for the file with this length and modified time.
+    failed: Option<((u64, std::time::SystemTime), String)>,
+}
+
+/// A file's length and modified time, to tell whether a file that failed to load has changed.
+fn stamp(path: &Path) -> Option<(u64, std::time::SystemTime)> {
+    let m = std::fs::metadata(path).ok()?;
+    Some((m.len(), m.modified().ok()?))
+}
+
+impl Kept {
+    /// The file `neutron.bin` in `dir` (the data folder). Nothing is read until [`Kept::get`].
+    pub fn new(dir: &Path) -> Self {
+        Kept { dir: dir.to_path_buf(), state: Default::default() }
+    }
+
+    fn lock(&self) -> std::sync::MutexGuard<'_, KeptState> {
+        self.state.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// The loaded file, loading it first if it isn't loaded or has changed on disk. `None` if
+    /// there is no file; an error (a sentence) if it can't be read.
+    pub fn get(&self) -> Result<Option<std::sync::Arc<NeutronStars>>> {
+        let mut s = self.lock();
+        if let Some(f) = s.file.as_ref().filter(|f| f.is_current()) {
+            return Ok(Some(f.clone()));
+        }
+        s.file = None; // free the old one before loading the new
+        let path = self.dir.join(FILE_NAME);
+        if !path.exists() {
+            s.failed = None;
+            return Ok(None);
+        }
+        let now = stamp(&path);
+        if let Some((_, e)) = s.failed.as_ref().filter(|(at, _)| Some(*at) == now) {
+            bail!("{e}");
+        }
+        match NeutronStars::open(&path) {
+            Ok(f) => {
+                s.failed = None;
+                let f = std::sync::Arc::new(f);
+                s.file = Some(f.clone());
+                Ok(Some(f))
+            }
+            Err(e) => {
+                let e = format!("{e:#}");
+                s.failed = now.map(|at| (at, e.clone()));
+                bail!("{e}")
+            }
+        }
+    }
+
+    /// [`installed`], unless the file failed to load since it last changed: then why.
+    pub fn installed(&self) -> Result<Option<Header>> {
+        let found = installed(&self.dir)?;
+        let s = self.lock();
+        if let Some((at, e)) = &s.failed {
+            if found.is_some() && stamp(&self.dir.join(FILE_NAME)) == Some(*at) {
+                bail!("{e}");
+            }
+        }
+        Ok(found)
     }
 }
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { fakeCall, resetFakeCore } from "../../lib/fakecore";
+import { resetPreviewNeutron } from "../../lib/neutron";
 import { followRoute } from "../../lib/route";
 import View from "./View.svelte";
 
@@ -53,10 +54,34 @@ describe("Galaxy → Route", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
     await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Maia" } });
     await fireEvent.click(plot);
-    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 39.87 ly a jump.")).toBeTruthy();
+    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 39.87 ly a jump. Plotted by Spansh.")).toBeTruthy();
     // The commander is in Sol, the start: the first jump is next, with what to do there.
     expect(document.querySelector(".next .sys")?.textContent).toBe("Tascheter Sector MN-T b3-6");
     expect(document.querySelector(".next .lo")?.textContent).toBe("fuel");
     expect(screen.getByText("exact plotter · 9 of 10 waypoints left")).toBeTruthy();
+  });
+
+  it("plots a neutron route with Spansh until the neutron star file is downloaded, then on this PC", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    resetPreviewNeutron();
+    render(View);
+    expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
+    expect(screen.getByText("Until it is downloaded, Spansh plots neutron routes.")).toBeTruthy();
+    expect(screen.getByLabelText("Efficiency"), "Spansh's setting").toBeTruthy();
+    await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Colonia" } });
+    await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
+    expect(await screen.findByText("Following Sol to Colonia: 128 jumps · 22,000 ly · 1 neutron boost, at 39.87 ly a jump. Plotted by Spansh.")).toBeTruthy();
+
+    await fireEvent.click(screen.getByRole("button", { name: "Download" }));
+    expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();
+    expect(screen.getByText("Neutron routes are plotted on this PC with it, in seconds.")).toBeTruthy();
+    expect(screen.queryByLabelText("Efficiency"), "local routes have no setting").toBeNull();
+    await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
+    expect(
+      await screen.findByText("Following Sol to Colonia: 180 jumps · 22,000 ly · 149 neutron boosts, at 39.87 ly a jump. Plotted on this PC, near the fewest jumps."),
+    ).toBeTruthy();
+    expect(screen.getByText("neutron plotter (this PC) · 150 of 151 waypoints left", { exact: false })).toBeTruthy();
+    resetPreviewNeutron();
   });
 });
