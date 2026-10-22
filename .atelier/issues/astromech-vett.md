@@ -15,9 +15,9 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ships ledger merges a traded-in ship with the new ship that reuses its id"
-updated_at: "2026-10-22T20:41:38.111816974+00:00"
+updated_at: "2026-10-22T21:06:32.723491583+00:00"
 ---
 
 ## Goal

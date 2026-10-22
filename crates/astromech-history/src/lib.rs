@@ -199,13 +199,32 @@ const MIGRATIONS: &[&str] = &[
     // FSSDiscoveryScan and FSSAllBodiesFound rows through this.
     "CREATE INDEX events_honk_system ON events(json_extract(json, '$.SystemAddress'), ts)
         WHERE event IN ('FSSDiscoveryScan', 'FSSAllBodiesFound');",
+    // v8 — a row per ship owned (astromech-vett): the game gives a ship bought with a trade-in
+    // the id of the ship traded in, so `(cmdr, ship_id)` is unique only among unsold ships.
+    "DROP TABLE ships;
+     CREATE TABLE ships (
+        id INTEGER PRIMARY KEY,
+        cmdr TEXT NOT NULL,
+        ship_id INTEGER NOT NULL,
+        ship_type TEXT NOT NULL,
+        name TEXT,
+        ident TEXT,
+        first_seen TEXT NOT NULL,
+        last_flown TEXT,
+        acquired TEXT,
+        sold TEXT,
+        updated TEXT NOT NULL
+     );
+     CREATE INDEX ships_cmdr_ship ON ships(cmdr, ship_id);
+     CREATE UNIQUE INDEX ships_owned ON ships(cmdr, ship_id) WHERE sold IS NULL;
+     INSERT OR IGNORE INTO pending VALUES ('rebuild');",
 ];
 
 /// Work a migration leaves for Rust code, in the `pending` table so a crash before it is done
 /// redoes it on the next open: fill `events.cmdr` and `journal_files.cmdr` from the stored
 /// lines, then rebuild the ledgers.
 const PENDING_COMMANDERS: &str = "commanders";
-/// Rebuild every ledger (migrations v3, v4).
+/// Rebuild every ledger (migrations v3, v4, v8).
 const PENDING_REBUILD: &str = "rebuild";
 /// Prefix of a task to rebuild one commander's ledgers, left by an import that stored events
 /// older than ones that commander's ledgers already had.

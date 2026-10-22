@@ -516,3 +516,50 @@ fn continuation_part_keeps_the_commander() {
     let h = History::open(&db).unwrap();
     assert_eq!(systems(&h), ["Sol", "Alpha Centauri"]);
 }
+
+/// The game gives a ship bought with a trade-in the id of the ship traded in (astromech-vett):
+/// each ownership is its own row, and the new ship isn't marked sold.
+#[test]
+fn traded_in_ship_id_reused_by_the_new_ship() {
+    let dir = tempfile::tempdir().unwrap();
+    let lines = [
+        r#"{"timestamp":"2026-09-05T10:00:00Z","event":"Commander","FID":"F5","Name":"Trader"}"#,
+        r#"{"timestamp":"2026-09-05T10:00:01Z","event":"Loadout","Ship":"CobraMkIII","ShipID":5,"Modules":[]}"#,
+        r#"{"timestamp":"2026-09-05T10:05:00Z","event":"ShipyardBuy","ShipType":"python","ShipPrice":100,"SellOldShip":"cobramkiii","SellShipID":5,"SellPrice":10,"MarketID":1}"#,
+        r#"{"timestamp":"2026-09-05T10:05:00Z","event":"ShipyardNew","ShipType":"python","NewShipID":5}"#,
+        r#"{"timestamp":"2026-09-05T10:05:02Z","event":"Loadout","Ship":"python","ShipID":5,"Modules":[]}"#,
+        r#"{"timestamp":"2026-09-05T10:06:00Z","event":"SetUserShipName","Ship":"python","ShipID":5,"UserShipName":"Snake","UserShipId":"SN-05"}"#,
+        r#"{"timestamp":"2026-09-05T10:07:00Z","event":"ShipRedeemed","ShipType":"sidewinder","NewShipID":6}"#,
+    ];
+    std::fs::write(dir.path().join("Journal.2026-09-05T100000.01.log"), lines.join("\r\n") + "\r\n").unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let rows = |h: &History| -> Vec<(i64, String, Option<String>, Option<String>, Option<String>)> {
+        h.ships("F5").unwrap().into_iter().map(|s| (s.ship_id, s.ship_type, s.name, s.acquired, s.sold)).collect()
+    };
+    let t = |s: &str| Some(format!("2026-09-05T{s}Z"));
+    let want = vec![
+        (5, "cobramkiii".into(), None, None, t("10:05:00")),
+        (5, "python".into(), Some("Snake".into()), t("10:05:00"), None),
+        (6, "sidewinder".into(), None, t("10:07:00"), None),
+    ];
+    assert_eq!(rows(&h), want);
+    h.rebuild_ledgers().unwrap();
+    assert_eq!(rows(&h), want);
+}
+
+/// A ship id seen on another type without its sale (the journal with the sale is gone):
+/// the old ship was gone by then, so its row closes and the new ship gets its own.
+#[test]
+fn ship_id_on_another_type_without_a_sale_is_a_new_ship() {
+    let h = History::in_memory().unwrap();
+    let loadout = |ts: &str, ship: &str| {
+        parse_line(&format!(r#"{{"timestamp":"{ts}","event":"Loadout","Ship":"{ship}","ShipID":7,"Modules":[]}}"#))
+            .unwrap()
+    };
+    ledgers::derive(h.conn(), 1, "F1", &loadout("2026-09-01T00:00:00Z", "cobramkiii")).unwrap();
+    ledgers::derive(h.conn(), 2, "F1", &loadout("2026-09-02T00:00:00Z", "python")).unwrap();
+    let rows: Vec<(String, Option<String>)> =
+        h.ships("F1").unwrap().into_iter().map(|s| (s.ship_type, s.sold)).collect();
+    assert_eq!(rows, vec![("cobramkiii".into(), Some("2026-09-02T00:00:00Z".into())), ("python".into(), None)]);
+}
