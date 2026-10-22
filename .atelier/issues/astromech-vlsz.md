@@ -4,6 +4,9 @@ id: "astromech-vlsz"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-vlsz
 priority: "P1"
 relationships:
   blocks: []
@@ -12,9 +15,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T20:51:24.565422903+00:00"
+status: "done"
 title: "Spansh plotters: send the drive's own supercharge multiplier"
-updated_at: "2026-10-22T19:30:44.464541217+00:00"
+updated_at: "2026-10-22T20:51:24.565422903+00:00"
 ---
 
 ## Goal
@@ -35,3 +39,7 @@ Neutron and exact routes plotted with Spansh use the neutron boost the ship's dr
 ## Context
 
 Spansh's site bundle (read 22 Oct 2026) sets `superchargeMultiplier: 6` on that one drive and posts `supercharge_multiplier` (4 or 6) from both the neutron plotter form (`/api/route`, radio buttons "regular" and "overcharge") and the exact plotter. `ExactRoute::form` hard-codes 4 (`spansh.rs`); `NeutronRoute` sends no multiplier, so Spansh assumes 4. Review finding R2 on PR #122 (astromech-94j4).
+
+## Close Reason
+
+Both Spansh plotters send the drive's own supercharge multiplier (6 for the Mk II drive); reviewed and approved (astromech-6jt9).

@@ -1523,6 +1523,7 @@ mod tests {
             tank_size: 32.0,
             reserve_size: 0.63,
             range_boost: 0.0,
+            supercharge_multiplier: 4,
         };
         let ship = Ship { name: "Asp".into(), range: fsd.range(0.0), fsd, cargo: 0.0, unresolved: vec![] };
         let no_wait = astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(5) };
