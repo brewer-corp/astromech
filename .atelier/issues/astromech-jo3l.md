@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.580037529+00:00"
 id: "astromech-jo3l"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-jo3l
 priority: "P2"
 relationships:
   blocks: []
@@ -30,9 +33,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "App polish from the alpha reviews"
-updated_at: "2026-10-22T20:41:36.093636239+00:00"
+updated_at: "2026-10-22T20:57:49.767769698+00:00"
 ---
 
 ## Goal
