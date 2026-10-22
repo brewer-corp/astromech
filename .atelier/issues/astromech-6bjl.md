@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Neutron plotter over the local file"
-updated_at: "2026-10-22T19:30:24.928589104+00:00"
+updated_at: "2026-10-22T21:11:35.787044259+00:00"
 ---
 
 ## Goal
@@ -46,3 +46,7 @@ updated_at: "2026-10-22T19:30:24.928589104+00:00"
 ## Unknowns
 
 Neighbour counts at k·R up to about 500 ly near the galactic core. If plain A* misses the 2 s target, record the measurement and try a tighter heuristic (straight-line distance over k·R) or a coarser grid before anything cleverer.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: from review finding R3 (astromech-4h9h) on the neutron file: a loaded file must not read names from a file replaced underneath it (keep the handle opened at load, or re-check the header before reading names); on Windows a held handle also blocks the download's rename, so the download must cope.
