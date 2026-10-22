@@ -15,7 +15,9 @@
 //!   `(file_id, offset)` is unique, so no line is stored twice.
 //! - A line without its newline yet (the game is still writing it) waits for the next import.
 //! - Every event carries its commander (see `commander`), and every ledger is per commander:
-//!   the same journal folder can hold several commanders, and Legacy-mode play.
+//!   the same journal folder can hold several commanders, and Legacy-mode play. Journals from
+//!   before the Frontier id (`name:<Commander>`) join the one FID commander with that name.
+//!   A continuation part carries on from the part before it only within one session.
 
 mod exploration;
 mod ledgers;
@@ -343,19 +345,24 @@ impl History {
         let tx = self.conn.transaction()?;
         {
             // Oldest first, so a continuation part can start from the part before it.
-            let mut files = tx.prepare("SELECT id FROM journal_files ORDER BY name")?;
-            let ids: Vec<i64> = files.query_map([], |r| r.get(0))?.collect::<rusqlite::Result<_>>()?;
-            let mut previous = FileCommander::default();
+            let mut files = tx.prepare("SELECT id, name FROM journal_files ORDER BY name")?;
+            let files: Vec<(i64, String)> =
+                files.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?.collect::<rusqlite::Result<_>>()?;
+            let mut previous = (FileCommander::default(), None::<String>);
             let mut events = tx.prepare("SELECT id, json FROM events WHERE file_id = ?1 ORDER BY offset")?;
             let mut set = tx.prepare("UPDATE events SET cmdr = ?2 WHERE id = ?1")?;
-            for file_id in ids {
+            for (file_id, name) in files {
+                let session = session_of(&name).map(str::to_string);
                 let mut state = FileCommander::default();
                 let mut rows = events.query([file_id])?;
                 while let Some(r) = rows.next()? {
                     let json: String = r.get(1)?;
                     if let Ok(line) = parse_line(&json) {
                         if commander::continues(&line) {
-                            state = previous.clone();
+                            state = match &previous {
+                                (before, Some(s)) if session.as_ref() == Some(s) => before.clone(),
+                                _ => FileCommander::default(),
+                            };
                         }
                         state.observe(&line);
                     }
@@ -365,10 +372,13 @@ impl History {
                     "UPDATE journal_files SET cmdr = ?2, legacy = ?3 WHERE id = ?1",
                     params![file_id, state.cmdr, state.legacy],
                 )?;
-                previous = state;
+                previous = (state, session);
             }
         }
         rebuild(&tx)?;
+        for cmdr in join_name_keys(&tx)? {
+            rebuild_commander(&tx, &cmdr)?;
+        }
         tx.execute("DELETE FROM pending WHERE task IN (?1, ?2)", [PENDING_COMMANDERS, PENDING_REBUILD])?;
         tx.commit()?;
         Ok(())
@@ -395,7 +405,8 @@ impl History {
         self.run_pending()?;
         let mut report = ImportReport::default();
         let mut todo = vec![];
-        let mut previous: Option<i64> = None;
+        // The file before, and its session (the name without the part number).
+        let mut previous: Option<(i64, String)> = None;
         for path in astromech_journal::journal_logs(dir) {
             // Through an open handle: on Windows the folder listing lags appends to an open file.
             let len = std::fs::File::open(&path)
@@ -404,13 +415,16 @@ impl History {
                 .len();
             let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
             let (file_id, start, state) = self.file_state(&name)?;
+            let session = session_of(&name).map(str::to_string);
             if len < start {
                 report.shrunk.push(name);
             } else if len > start {
                 report.bytes_total += len - start;
-                todo.push((path, file_id, start, state, previous));
+                // A continuation part carries on from the part before it, not from another session.
+                let before = previous.as_ref().filter(|(_, s)| Some(s) == session.as_ref()).map(|(id, _)| *id);
+                todo.push((path, file_id, start, state, before));
             }
-            previous = Some(file_id);
+            previous = session.map(|s| (file_id, s));
         }
         progress(&report);
         let mut seen = 0u64;
@@ -494,6 +508,11 @@ impl History {
             }
             progress(&report);
         }
+        let tx = self.conn.transaction()?;
+        for cmdr in join_name_keys(&tx)? {
+            tx.execute("INSERT OR IGNORE INTO pending VALUES (?1)", [format!("{PENDING_COMMANDER_REBUILD}{cmdr}")])?;
+        }
+        tx.commit()?;
         self.run_pending()?;
         Ok(report)
     }
@@ -565,9 +584,45 @@ fn newest_event(c: &Connection, cmdr: &str, id: i64) -> Result<String> {
         .query_row(params![cmdr, id], |r| r.get(0))?)
 }
 
+/// The tables derived from `events`, every row with its commander.
+const LEDGERS: [&str; 5] = ["commanders", "visits", "earnings", "ships", "scans"];
+
+/// The session a journal file belongs to: its name without the part number.
+fn session_of(name: &str) -> Option<&str> {
+    Some(name.strip_suffix(".log")?.rsplit_once('.')?.0)
+}
+
+/// Give the events of each `name:<Commander>` key (journals from before the Frontier id) to
+/// the commander with an FID and that name, when exactly one has it (Legacy apart from live),
+/// and drop the name key's ledgers. Returns the commanders whose ledgers must be rebuilt. Two
+/// FIDs with one name leave the name key alone; a join made before the second FID appeared
+/// stays.
+fn join_name_keys(c: &Connection) -> Result<Vec<String>> {
+    const NAME_KEY: &str = "cmdr >= 'name:' AND cmdr < 'name;'";
+    let keys: Vec<(String, String, bool)> = c
+        .prepare(&format!("SELECT cmdr, name, legacy FROM commanders WHERE {NAME_KEY}"))?
+        .query_map([], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?)))?
+        .collect::<rusqlite::Result<_>>()?;
+    let mut joined = vec![];
+    for (key, name, legacy) in keys {
+        let fids: Vec<String> = c
+            .prepare(&format!("SELECT cmdr FROM commanders WHERE name = ?1 AND legacy = ?2 AND NOT ({NAME_KEY})"))?
+            .query_map(params![name, legacy], |r| r.get(0))?
+            .collect::<rusqlite::Result<_>>()?;
+        let [fid] = fids.as_slice() else { continue };
+        c.execute("UPDATE events SET cmdr = ?2 WHERE cmdr = ?1", [&key, fid])?;
+        c.execute("UPDATE journal_files SET cmdr = ?2 WHERE cmdr = ?1", [&key, fid])?;
+        for table in LEDGERS {
+            c.execute(&format!("DELETE FROM {table} WHERE cmdr = ?1"), [&key])?;
+        }
+        joined.push(fid.clone());
+    }
+    Ok(joined)
+}
+
 /// Clear one commander's ledgers and derive them again from their events, in game-time order.
 fn rebuild_commander(c: &Connection, cmdr: &str) -> Result<()> {
-    for table in ["commanders", "visits", "earnings", "ships", "scans"] {
+    for table in LEDGERS {
         c.execute(&format!("DELETE FROM {table} WHERE cmdr = ?1"), [cmdr])?;
     }
     let mut st = c.prepare("SELECT id, json FROM events WHERE cmdr = ?1 ORDER BY ts, id")?;
@@ -583,9 +638,9 @@ fn rebuild_commander(c: &Connection, cmdr: &str) -> Result<()> {
 
 /// Clear the ledgers and derive them again from every stored event, in game-time order.
 fn rebuild(c: &Connection) -> Result<()> {
-    c.execute_batch(
-        "DELETE FROM commanders; DELETE FROM visits; DELETE FROM earnings; DELETE FROM ships; DELETE FROM scans;",
-    )?;
+    for table in LEDGERS {
+        c.execute(&format!("DELETE FROM {table}"), [])?;
+    }
     let mut st = c.prepare("SELECT id, cmdr, json FROM events WHERE cmdr IS NOT NULL ORDER BY ts, id")?;
     let mut rows = st.query([])?;
     while let Some(r) = rows.next()? {

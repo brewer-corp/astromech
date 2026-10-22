@@ -563,3 +563,102 @@ fn ship_id_on_another_type_without_a_sale_is_a_new_ship() {
         h.ships("F1").unwrap().into_iter().map(|s| (s.ship_type, s.sold)).collect();
     assert_eq!(rows, vec![("cobramkiii".into(), Some("2026-09-02T00:00:00Z".into())), ("python".into(), None)]);
 }
+
+const OLD_JOURNAL: (&str, &str) = (
+    "Journal.160610140000.01.log",
+    r#"{"timestamp":"2016-06-10T14:00:00Z","event":"Fileheader","part":1,"gameversion":"2.1"}
+{"timestamp":"2016-06-10T14:00:01Z","event":"LoadGame","Commander":"Old Timer","Ship":"SideWinder","ShipID":1,"Credits":1000,"Loan":0}
+{"timestamp":"2016-06-10T14:05:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":5.0}
+"#,
+);
+
+fn new_journal(fid: &str, name: &str, day: u32) -> (String, String) {
+    (
+        format!("Journal.2026-09-{day:02}T100000.01.log"),
+        format!(
+            r#"{{"timestamp":"2026-09-{day:02}T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.0.0.1900"}}
+{{"timestamp":"2026-09-{day:02}T10:00:01Z","event":"Commander","FID":"{fid}","Name":"{name}"}}
+{{"timestamp":"2026-09-{day:02}T10:00:02Z","event":"LoadGame","FID":"{fid}","Commander":"{name}","Ship":"Python","ShipID":4,"Credits":1000,"Loan":0}}
+{{"timestamp":"2026-09-{day:02}T10:05:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":5.0}}
+"#
+        ),
+    )
+}
+
+fn commander_keys(h: &History) -> Vec<String> {
+    let mut keys: Vec<String> = h.commanders().unwrap().into_iter().map(|c| c.cmdr).collect();
+    keys.sort();
+    keys
+}
+
+/// Journals from before the Frontier id give the commander `name:<Commander>`; once one FID
+/// has that name they are that commander's history (astromech-yrfv), whichever is imported
+/// first, after a rebuild, and when commanders are recomputed from the stored lines.
+#[test]
+fn journals_from_before_fid_join_the_commander_with_that_name() {
+    let dir = tempfile::tempdir().unwrap();
+    let (new_name, new_text) = new_journal("F7", "Old Timer", 7);
+    for in_order in [true, false] {
+        let jdir = tempfile::tempdir().unwrap();
+        let db = dir.path().join(format!("history-{in_order}.sqlite"));
+        let write = |(n, t): (&str, &str)| std::fs::write(jdir.path().join(n), t).unwrap();
+        let mut h = History::open(&db).unwrap();
+        if in_order {
+            write(OLD_JOURNAL);
+            write((&new_name, &new_text));
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+        } else {
+            write((&new_name, &new_text));
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+            write(OLD_JOURNAL);
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+        }
+        assert_eq!(commander_keys(&h), ["F7"], "in order: {in_order}");
+        let jumps: Vec<String> = h.visits("F7").unwrap().into_iter().map(|v| v.ts).collect();
+        assert_eq!(jumps, ["2016-06-10T14:05:00Z", "2026-09-07T10:05:00Z"]);
+        assert_eq!(h.logbook(None, "", 10).unwrap().totals.system_visits, 2);
+        let want = snapshot(&h);
+        h.rebuild_ledgers().unwrap();
+        assert_eq!(snapshot(&h), want);
+        h.conn().execute("INSERT INTO pending VALUES ('commanders')", []).unwrap();
+        drop(h);
+        assert_eq!(snapshot(&History::open(&db).unwrap()), want);
+    }
+}
+
+/// Two FIDs with the same name stay apart, and the journals from before FID belong to neither.
+#[test]
+fn two_fids_with_one_name_stay_apart() {
+    let dir = tempfile::tempdir().unwrap();
+    let write = |(n, t): (&str, &str)| std::fs::write(dir.path().join(n), t).unwrap();
+    write(OLD_JOURNAL);
+    for (fid, day) in [("F7", 7), ("F8", 8)] {
+        let (n, t) = new_journal(fid, "Old Timer", day);
+        write((&n, &t));
+    }
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    assert_eq!(commander_keys(&h), ["F7", "F8", "name:Old Timer"]);
+    assert_eq!(h.visits("F7").unwrap().len(), 1);
+}
+
+/// A continuation part whose first part is missing doesn't take the commander of whatever
+/// file sorts before it.
+#[test]
+fn continuation_part_of_another_session_has_no_commander() {
+    let dir = tempfile::tempdir().unwrap();
+    let (n, t) = new_journal("F7", "Old Timer", 7);
+    std::fs::write(dir.path().join(n), t).unwrap();
+    std::fs::write(
+        dir.path().join("Journal.2026-09-08T100000.02.log"),
+        r#"{"timestamp":"2026-09-08T12:00:00Z","event":"Fileheader","part":2,"gameversion":"4.0.0.1900"}
+{"timestamp":"2026-09-08T12:05:00Z","event":"FSDJump","StarSystem":"Alpha Centauri","SystemAddress":1,"StarPos":[3,0,0],"JumpDist":4.4}
+"#,
+    )
+    .unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    assert_eq!(h.visits("F7").unwrap().len(), 1);
+    let unowned: i64 = h.conn().query_row("SELECT COUNT(*) FROM events WHERE cmdr IS NULL", [], |r| r.get(0)).unwrap();
+    assert_eq!(unowned, 3, "both Fileheaders and the other session's jump");
+}
