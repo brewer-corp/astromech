@@ -15,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Spansh plotters: send the drive's own supercharge multiplier"
-updated_at: "2026-10-22T20:42:04.642114181+00:00"
+updated_at: "2026-10-22T20:47:34.948202745+00:00"
 ---
 
 ## Goal
