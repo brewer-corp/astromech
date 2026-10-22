@@ -3,6 +3,9 @@ created_at: "2026-10-22T20:41:31.444458042+00:00"
 id: "astromech-g3qt"
 issue_type: "feature"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-g3qt
 priority: "P2"
 relationships:
   blocks: []
@@ -24,9 +27,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journal pipeline and replay fixes"
-updated_at: "2026-10-22T20:41:33.845826974+00:00"
+updated_at: "2026-10-22T20:42:11.763511196+00:00"
 ---
 
 ## Goal
