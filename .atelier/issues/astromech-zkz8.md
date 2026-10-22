@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Stale-line tests: assert the EDSM line alone and first-read failures on the production path"
-updated_at: "2026-10-17T23:32:41.837436940+00:00"
+updated_at: "2026-10-22T20:41:35.554680220+00:00"
 ---
 
 ## Goal

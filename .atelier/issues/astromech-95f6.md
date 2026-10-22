@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Browser preview: lookup sections still answer sample results under ?core=empty"
-updated_at: "2026-10-17T22:43:25.171840361+00:00"
+updated_at: "2026-10-22T20:41:34.362689918+00:00"
 ---
 
 ## Goal

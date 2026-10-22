@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "A new-scheme journal the game starts after an old-scheme one opens as a replay"
-updated_at: "2026-10-17T20:17:47.040811672+00:00"
+updated_at: "2026-10-22T20:41:32.997463947+00:00"
 ---
 
 ## Goal

@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ship stats: same-grade plan rounding and unknown modifier labels"
-updated_at: "2026-10-16T21:54:33.351831742+00:00"
+updated_at: "2026-10-22T20:41:38.378251652+00:00"
 ---
 
 ## Goal

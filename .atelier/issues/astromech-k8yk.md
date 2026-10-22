@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "App window takes about 2 s longer to open after a core crash"
-updated_at: "2026-10-17T19:59:11.181360982+00:00"
+updated_at: "2026-10-22T20:41:40.754486890+00:00"
 ---
 
 ## Goal

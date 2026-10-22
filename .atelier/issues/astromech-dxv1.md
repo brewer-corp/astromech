@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDSM: three or more poisoned events due in one pass still stop it; test the reset on stored"
-updated_at: "2026-10-17T22:52:51.528292386+00:00"
+updated_at: "2026-10-22T20:41:37.408800036+00:00"
 ---
 
 ## Goal

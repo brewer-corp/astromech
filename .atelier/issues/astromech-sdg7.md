@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Harden the TTS name reading rules"
-updated_at: "2026-10-16T19:40:10.082487639+00:00"
+updated_at: "2026-10-22T20:41:36.350650900+00:00"
 ---
 
 ## Goal

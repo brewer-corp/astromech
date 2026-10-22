@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Apply the URL character filter to every open_external target"
-updated_at: "2026-10-16T19:20:28.657350702+00:00"
+updated_at: "2026-10-22T20:41:39.919410557+00:00"
 ---
 
 ## Goal

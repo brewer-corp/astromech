@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "EDSM uploader has no timestamp-age guard on live events"
-updated_at: "2026-10-17T19:37:35.948104079+00:00"
+updated_at: "2026-10-22T20:41:37.641477068+00:00"
 ---
 
 ## Goal

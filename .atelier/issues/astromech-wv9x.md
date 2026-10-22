@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Mining says the core is not running when it runs but no session has a run"
-updated_at: "2026-10-17T22:48:57.973108968+00:00"
+updated_at: "2026-10-22T20:41:34.088555770+00:00"
 ---
 
 ## Goal

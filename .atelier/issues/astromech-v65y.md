@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Route: a poll erases an action's error within two seconds"
-updated_at: "2026-10-17T23:30:24.566875711+00:00"
+updated_at: "2026-10-22T20:41:35.272146187+00:00"
 ---
 
 ## Goal

@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Powerplay: incremental replay and state edge cases"
-updated_at: "2026-10-16T21:01:46.443277199+00:00"
+updated_at: "2026-10-22T20:41:38.920213503+00:00"
 ---
 
 ## Goal

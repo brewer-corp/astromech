@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Move the Clock trait into astromech-proto, as ARCHITECTURE 5.1 says"
-updated_at: "2026-10-17T22:50:33.370721486+00:00"
+updated_at: "2026-10-22T20:41:40.181319299+00:00"
 ---
 
 ## Goal

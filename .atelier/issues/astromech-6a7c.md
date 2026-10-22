@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "The window can follow a stale config.path after a --config run"
-updated_at: "2026-10-17T19:45:12.253105436+00:00"
+updated_at: "2026-10-22T20:41:39.645621543+00:00"
 ---
 
 ## Goal

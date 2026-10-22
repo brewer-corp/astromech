@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Stop the speech thread promptly when the speaker closes"
-updated_at: "2026-10-16T20:47:21.617193272+00:00"
+updated_at: "2026-10-22T20:41:36.607056797+00:00"
 ---
 
 ## Goal

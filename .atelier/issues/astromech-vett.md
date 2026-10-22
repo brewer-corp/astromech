@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Ships ledger merges a traded-in ship with the new ship that reuses its id"
-updated_at: "2026-10-17T21:31:30.460335641+00:00"
+updated_at: "2026-10-22T20:41:38.111816974+00:00"
 ---
 
 ## Goal

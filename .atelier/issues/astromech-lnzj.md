@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Check GuiFocus values for the left and right panels"
-updated_at: "2026-10-17T19:22:54.264627539+00:00"
+updated_at: "2026-10-22T20:41:40.461987485+00:00"
 ---
 
 ## Goal

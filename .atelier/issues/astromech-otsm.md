@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Tighten the data-sharing limits test to whole sentences"
-updated_at: "2026-10-17T19:45:31.519135676+00:00"
+updated_at: "2026-10-22T20:41:37.879230731+00:00"
 ---
 
 ## Goal

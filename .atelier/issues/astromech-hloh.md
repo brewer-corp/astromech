@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Logbook: Unicode search, busy timeout and data folder"
-updated_at: "2026-10-16T20:25:32.396940512+00:00"
+updated_at: "2026-10-22T20:41:39.389745824+00:00"
 ---
 
 ## Goal

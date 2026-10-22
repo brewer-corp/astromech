@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Route plotter: refresh the ship and range line after a swap or cargo change"
-updated_at: "2026-10-17T19:07:41.448444054+00:00"
+updated_at: "2026-10-22T20:41:36.092917981+00:00"
 ---
 
 ## Goal

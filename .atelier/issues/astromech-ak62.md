@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Narrow window polish: header wraps to two rows at 900 px, Powerplay leaves a gap"
-updated_at: "2026-10-17T21:26:01.769924649+00:00"
+updated_at: "2026-10-22T20:41:34.641573797+00:00"
 ---
 
 ## Goal

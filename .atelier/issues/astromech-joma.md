@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Route follower callout: long procedural names break the 8-word callout budget"
-updated_at: "2026-10-17T18:47:50.693699371+00:00"
+updated_at: "2026-10-22T20:41:36.887039775+00:00"
 ---
 
 ## Goal

@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "History: one commander for journals from before FID"
-updated_at: "2026-10-16T20:33:07.373831218+00:00"
+updated_at: "2026-10-22T20:41:38.628845987+00:00"
 ---
 
 ## Goal

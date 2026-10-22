@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "The game's journal is fully live after a startup catch-up on a touched older journal"
-updated_at: "2026-10-17T21:31:45.613589882+00:00"
+updated_at: "2026-10-22T20:41:32.721773109+00:00"
 ---
 
 ## Goal

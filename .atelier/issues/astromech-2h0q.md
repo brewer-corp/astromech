@@ -16,7 +16,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Share one journal-growth check; history import length fallback"
-updated_at: "2026-10-16T20:58:31.495419709+00:00"
+updated_at: "2026-10-22T20:41:33.275363062+00:00"
 ---
 
 ## Goal

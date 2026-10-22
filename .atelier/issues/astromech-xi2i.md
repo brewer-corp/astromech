@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice: T0, lookup and unavailable phrases below 95% on the synthetic eval"
-updated_at: "2026-10-17T21:44:37.073380679+00:00"
+updated_at: "2026-10-22T20:41:37.134145639+00:00"
 ---
 
 ## Goal

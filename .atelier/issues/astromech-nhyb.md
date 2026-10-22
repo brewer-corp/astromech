@@ -13,7 +13,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Settings controls: keyboard focus ring and announced errors"
-updated_at: "2026-10-17T19:34:52.254784417+00:00"
+updated_at: "2026-10-22T20:41:35.836381330+00:00"
 ---
 
 ## Goal

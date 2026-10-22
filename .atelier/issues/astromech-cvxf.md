@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Two polls still fail silently: the trip planner's engineer list and the header status"
-updated_at: "2026-10-17T23:30:24.661394485+00:00"
+updated_at: "2026-10-22T20:41:34.987226287+00:00"
 ---
 
 ## Goal
