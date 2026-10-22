@@ -220,3 +220,28 @@ describe("ship detail panels", () => {
     history.replaceState(null, "", "/");
   });
 });
+
+describe("engineer progress poll (astromech-cvxf)", () => {
+  it("says beside the trip when engineer progress could not be refreshed, and clears it on the next good read", async () => {
+    history.replaceState(null, "", "/");
+    const { loadFleet } = await import("../../lib/engineering");
+    const sample = await loadFleet();
+    render(Build, { fleet: sample, shipId: 7, onback: () => {} });
+    await screen.findByRole("heading", { name: "Engineer trip" });
+    history.replaceState(null, "", "/?fail=engineering_engineers");
+    expect(await screen.findByText("Could not refresh: preview: engineering_engineers failed on purpose (?fail=).", {}, { timeout: 2500 })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Engineer trip" })).toBeTruthy();
+    history.replaceState(null, "", "/");
+    await waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull(), { timeout: 2500 });
+  });
+
+  it("says so when it could not read engineer progress at all", async () => {
+    history.replaceState(null, "", "/?fail=engineering_engineers");
+    const { loadFleet } = await import("../../lib/engineering");
+    const sample = await loadFleet();
+    render(Build, { fleet: sample, shipId: 7, onback: () => {} });
+    await screen.findByRole("heading", { name: "Engineer trip" });
+    expect(await screen.findByText("Could not read engineer progress: preview: engineering_engineers failed on purpose (?fail=).")).toBeTruthy();
+    history.replaceState(null, "", "/");
+  });
+});

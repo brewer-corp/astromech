@@ -18,8 +18,11 @@ describe("Settings → Prospector callouts", () => {
     await fireEvent.change(plat, { target: { value: "" } });
     saved = await fakeCall("prospector_thresholds");
     expect(saved.ores.find((o: { ore: string }) => o.ore === "platinum").threshold).toBeNull();
-    await fireEvent.change(screen.getByLabelText("Painite threshold, percent"), { target: { value: "150" } });
-    expect(await screen.findByText(/enter a percentage from 0 to 100/)).toBeTruthy();
+    const painite = screen.getByLabelText("Painite threshold, percent") as HTMLInputElement;
+    await fireEvent.change(painite, { target: { value: "150" } });
+    const refused = await screen.findByText(/enter a percentage from 0 to 100/);
+    expect(refused.getAttribute("aria-live"), "the error is announced").toBe("polite");
+    expect(painite.value, "the box shows the saved value, not the refused text").toBe("25");
     await fireEvent.click(screen.getByRole("button", { name: "Reset to 20%" }));
     saved = await fakeCall("prospector_thresholds");
     expect(saved.ores.find((o: { ore: string }) => o.ore === "platinum").threshold).toBe(20);

@@ -37,6 +37,7 @@
 { "timestamp":"2026-10-10T20:00:36Z", "event":"Bounty", "Rewards":[ { "Faction":"Test Faction", "Reward":4000 } ], "Target":"viper", "TotalReward":4000, "VictimFaction":"Pirates" }
 { "timestamp":"2026-10-10T20:00:37Z", "event":"RedeemVoucher", "Type":"bounty", "Amount":4000, "Factions":[ { "Faction":"Test Faction", "Amount":4000 } ] }
 { "timestamp":"2026-10-10T20:00:38Z", "event":"ProspectedAsteroid", "Materials":[ { "Name":"platinum", "Proportion":22.5 }, { "Name":"gold", "Name_Localised":"Gold", "Proportion":5.0 } ], "Content":"$AsteroidMaterialContent_High;", "MotherlodeMaterial":"painite", "Remaining":100.0 }
+{ "timestamp":"2026-10-10T20:00:38Z", "event":"LaunchDrone", "Type":"Prospector" }
 { "timestamp":"2026-10-10T20:00:39Z", "event":"MiningRefined", "Type":"$platinum_name;", "Type_Localised":"Platinum" }
 { "timestamp":"2026-10-10T20:00:40Z", "event":"Powerplay", "Power":"Test Power", "Rank":3, "Merits":1200, "Votes":0, "TimePledged":86400 }
 { "timestamp":"2026-10-10T20:00:41Z", "event":"PowerplayMerits", "Power":"Test Power", "MeritsGained":50, "TotalMerits":1250 }

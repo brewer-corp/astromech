@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:44:44.881481897+00:00"
+status: "done"
 title: "Route: a poll erases an action's error within two seconds"
-updated_at: "2026-10-22T20:41:35.272146187+00:00"
+updated_at: "2026-10-22T21:44:44.881481897+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ modules/route/View.svelte no longer clears an action's error when the next 2 s p
 ## Context
 
 Found in the independent review of astromech-spxx; predates it.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

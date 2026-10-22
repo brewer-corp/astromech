@@ -15,9 +15,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:53:38.480783773+00:00"
+status: "done"
 title: "Ships ledger merges a traded-in ship with the new ship that reuses its id"
-updated_at: "2026-10-22T20:41:38.111816974+00:00"
+updated_at: "2026-10-22T21:53:38.480783773+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ A ledger test with a `ShipyardBuy` that trades in ship 5 (`SellShipID: 5`), then
 ## Context
 
 Found replaying real journals (astromech-yin0, harness `crates/astromech-core/tests/real_journals.rs`). The game reuses the traded-in ship's id: in the real logs it happened twice in two weeks (a ship traded in for a new one of another type, which got the same id). The ledger is keyed by `(cmdr, ship_id)` (`crates/astromech-history/src/ledgers.rs`), so the traded-in ships' rows became the new ships and kept the trade-in's `sold`: two ships still in the fleet read as sold, and two types the commander flew have no row. Nothing reads `History::ships` yet, so nobody sees it; fix it before a fleet history page uses it. Likely needs a schema change (a row per ownership, not per id) and a rebuild.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-fdh3 (approval astromech-o2y7).

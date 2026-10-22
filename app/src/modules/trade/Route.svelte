@@ -10,6 +10,7 @@
   import OriginInput from "../../lib/ui/OriginInput.svelte";
   import SearchFilters from "../../lib/ui/SearchFilters.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import { failure } from "../../lib/ui/errors";
 
   const LOOKUP = "trade.route";
   /** Used when the journal has no Loadout yet. */
@@ -26,6 +27,8 @@
   /** The current ship's pad as of the last search (the shell resolves it on every search). */
   let shipPad = $state<Pad | null | undefined>(undefined);
   let filterErr = $state<string | null>(null);
+  /** The ship's cargo, credits and range could not be read: the fields start empty and the hop at the default. */
+  let defaultsErr = $state<string | null>(null);
   let res = $state<RouteSearch | null>(null);
   let err = $state<string | null>(null);
   let busy = $state(false);
@@ -40,8 +43,9 @@
         hop ??= d.range != null ? Math.round(d.range * 10) / 10 : FALLBACK_HOP_LY;
         docked = d.station;
       })
-      .catch(() => {
+      .catch((e: unknown) => {
         hop ??= FALLBACK_HOP_LY;
+        defaultsErr = `${failure("read your ship and credits", e)} Enter cargo, credits and max hop yourself.`;
       });
     void openFilters(store, LOOKUP, DEFAULT_FILTERS).then((st) => (filters = st.filters));
   });
@@ -116,6 +120,7 @@
       {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
       <button type="button" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</button>
     </div>
+    {#if defaultsErr}<p class="lo">{defaultsErr}</p>{/if}
     {#if filterErr}<p class="lo">{filterErr}</p>{/if}
   </div>
 

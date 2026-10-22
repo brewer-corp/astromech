@@ -17,8 +17,9 @@ const RESISTANCES: [&str; 4] = ["explres", "kinres", "thermres", "causres"];
 /// The stat each journal `Modifiers` label sets, by label in lowercase without
 /// `OutfittingFieldType_` or `PerSecond` (how Coriolis matches them). From coriolis-data
 /// `modifications/modifierActions.json`, whose `OutfittingFieldType_*` entries each set one stat
-/// to the modifier's change, plus two labels the game writes that Coriolis doesn't match:
-/// `MaxFuelPerJump` and `CausticResistance`.
+/// to the modifier's change, plus three labels the game writes that Coriolis doesn't match:
+/// `MaxFuelPerJump`, `CausticResistance` and `DSS_PatchRadius`. Every label in the real
+/// Loadouts checked so far is here; any other marks the ship incomplete.
 const LABELS: &[(&str, &str)] = &[
     ("ammoclipsize", "clip"),
     ("ammomaximum", "ammo"),
@@ -33,6 +34,7 @@ const LABELS: &[(&str, &str)] = &[
     ("defencemodifierhealthmultiplier", "hullboost"),
     ("defencemodifiershieldmultiplier", "shieldboost"),
     ("distributordraw", "distdraw"),
+    ("dss_patchradius", "proberadius"),
     ("dss_ratemult", "scanrate"),
     ("energyperregen", "distdraw"),
     ("engineheatrate", "thermload"),
@@ -636,5 +638,15 @@ mod tests {
         assert!((m.get("kinres").unwrap() - 0.125).abs() < 1e-9);
         assert!((m.get("causres").unwrap() - 0.01).abs() < 1e-9);
         assert_eq!(m.get("damage"), None);
+        // Every label in the real Loadouts seen so far is known (astromech-ikwr): a surface
+        // scanner's probe radius, from a real line.
+        let (m, missing) = journal(
+            "int_detailedsurfacescanner_tiny",
+            "Sensor_Expanded",
+            None,
+            &[("DSS_PatchRadius", 20.799999, 20.0), ("Mass", 1.3, 1.3)],
+        );
+        assert!(missing.is_empty(), "{missing:?}");
+        assert!((m.mods["proberadius"] - 400.0).abs() < 0.1, "{:?}", m.mods);
     }
 }

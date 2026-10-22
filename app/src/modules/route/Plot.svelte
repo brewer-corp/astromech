@@ -20,10 +20,15 @@
   let err = $state<string | null>(null);
   let done = $state<Plotted | null>(null);
 
-  $effect(() => {
+  // The ship and cargo change as you play (a swap, cargo bought or sold): keep the line current.
+  const readSetup = () =>
     plotSetup()
       .then((s) => (setup = s))
       .catch((e) => (setup = { here: null, ship: null, ship_error: String(e instanceof Error ? e.message : e) }));
+  $effect(() => {
+    void readSetup();
+    const t = setInterval(() => void readSetup(), 5000);
+    return () => clearInterval(t);
   });
 
   const ship = $derived(setup?.ship ?? null);
@@ -42,6 +47,7 @@
       err = String(e instanceof Error ? e.message : e);
     } finally {
       busy = false;
+      void readSetup();
     }
   }
 
@@ -51,7 +57,7 @@
     const parts = [count(p.jumps, "jump", "jumps"), `${ly(p.ly)} ly`];
     if (p.neutrons) parts.push(count(p.neutrons, "neutron boost", "neutron boosts"));
     if (p.refuels) parts.push(count(p.refuels, "refuel stop", "refuel stops"));
-    return parts.join(" · ");
+    return `${parts.join(" · ")}, at ${p.range.toFixed(2)} ly a jump`;
   }
 </script>
 

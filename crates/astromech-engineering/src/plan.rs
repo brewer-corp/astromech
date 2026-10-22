@@ -224,8 +224,8 @@ pub fn cost_target(ship: &Ship, t: &Target, rolls: &Rolls) -> TargetCost {
 
 /// The modules once the plan is done: each target's blueprint at its grade, fully rolled (the
 /// rolls [`cost_target`] counts finish every grade), with the target's experimental. As in the
-/// game, a module already above the target grade on the same blueprint keeps its grade and
-/// roll, and its experimental stays unless the target names another. A targeted module's
+/// game, a module already above the target grade on the same blueprint (or at it, fully rolled)
+/// keeps its grade and roll, and its experimental stays unless the target names another. A targeted module's
 /// journal `Modifiers` are dropped, so its stats follow the planned blueprint and roll, unless
 /// the plan leaves it exactly as it is. Targets `cost_target` rejects (no module in the slot, an
 /// unknown blueprint, or one the module can't take) change nothing.
@@ -241,8 +241,9 @@ pub fn planned_modules(modules: &[ModuleSnap], targets: &[Target]) -> Vec<Module
         let lowest = bp.grades.iter().map(|g| g.grade).min().unwrap_or(1);
         let grade = t.grade.clamp(lowest, bp.max_grade());
         let same = m.engineering.take().filter(|e| e.blueprint.eq_ignore_ascii_case(bp_id));
+        // Above the target grade, or at it and fully rolled, the module keeps its grade and roll.
         let (level, quality, kept) = match &same {
-            Some(e) if e.level > grade => (e.level, e.quality, true),
+            Some(e) if e.level > grade || (e.level == grade && e.quality >= 1.0) => (e.level, e.quality, true),
             _ => (grade, 1.0, false),
         };
         let named = t

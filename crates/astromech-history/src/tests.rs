@@ -516,3 +516,207 @@ fn continuation_part_keeps_the_commander() {
     let h = History::open(&db).unwrap();
     assert_eq!(systems(&h), ["Sol", "Alpha Centauri"]);
 }
+
+/// The game gives a ship bought with a trade-in the id of the ship traded in (astromech-vett):
+/// each ownership is its own row, and the new ship isn't marked sold.
+#[test]
+fn traded_in_ship_id_reused_by_the_new_ship() {
+    let dir = tempfile::tempdir().unwrap();
+    let lines = [
+        r#"{"timestamp":"2026-09-05T10:00:00Z","event":"Commander","FID":"F5","Name":"Trader"}"#,
+        r#"{"timestamp":"2026-09-05T10:00:01Z","event":"Loadout","Ship":"CobraMkIII","ShipID":5,"Modules":[]}"#,
+        r#"{"timestamp":"2026-09-05T10:05:00Z","event":"ShipyardBuy","ShipType":"python","ShipPrice":100,"SellOldShip":"cobramkiii","SellShipID":5,"SellPrice":10,"MarketID":1}"#,
+        r#"{"timestamp":"2026-09-05T10:05:00Z","event":"ShipyardNew","ShipType":"python","NewShipID":5}"#,
+        r#"{"timestamp":"2026-09-05T10:05:02Z","event":"Loadout","Ship":"python","ShipID":5,"Modules":[]}"#,
+        r#"{"timestamp":"2026-09-05T10:06:00Z","event":"SetUserShipName","Ship":"python","ShipID":5,"UserShipName":"Snake","UserShipId":"SN-05"}"#,
+        r#"{"timestamp":"2026-09-05T10:07:00Z","event":"ShipRedeemed","ShipType":"sidewinder","NewShipID":6}"#,
+    ];
+    std::fs::write(dir.path().join("Journal.2026-09-05T100000.01.log"), lines.join("\r\n") + "\r\n").unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let rows = |h: &History| -> Vec<(i64, String, Option<String>, Option<String>, Option<String>)> {
+        h.ships("F5").unwrap().into_iter().map(|s| (s.ship_id, s.ship_type, s.name, s.acquired, s.sold)).collect()
+    };
+    let t = |s: &str| Some(format!("2026-09-05T{s}Z"));
+    let want = vec![
+        (5, "cobramkiii".into(), None, None, t("10:05:00")),
+        (5, "python".into(), Some("Snake".into()), t("10:05:00"), None),
+        (6, "sidewinder".into(), None, t("10:07:00"), None),
+    ];
+    assert_eq!(rows(&h), want);
+    h.rebuild_ledgers().unwrap();
+    assert_eq!(rows(&h), want);
+}
+
+/// A ship id seen on another type without its sale (the journal with the sale is gone):
+/// the old ship was gone by then, so its row closes and the new ship gets its own.
+#[test]
+fn ship_id_on_another_type_without_a_sale_is_a_new_ship() {
+    let h = History::in_memory().unwrap();
+    let loadout = |ts: &str, ship: &str| {
+        parse_line(&format!(r#"{{"timestamp":"{ts}","event":"Loadout","Ship":"{ship}","ShipID":7,"Modules":[]}}"#))
+            .unwrap()
+    };
+    ledgers::derive(h.conn(), 1, "F1", &loadout("2026-09-01T00:00:00Z", "cobramkiii")).unwrap();
+    ledgers::derive(h.conn(), 2, "F1", &loadout("2026-09-02T00:00:00Z", "python")).unwrap();
+    let rows: Vec<(String, Option<String>)> =
+        h.ships("F1").unwrap().into_iter().map(|s| (s.ship_type, s.sold)).collect();
+    assert_eq!(rows, vec![("cobramkiii".into(), Some("2026-09-02T00:00:00Z".into())), ("python".into(), None)]);
+}
+
+const OLD_JOURNAL: (&str, &str) = (
+    "Journal.160610140000.01.log",
+    r#"{"timestamp":"2016-06-10T14:00:00Z","event":"Fileheader","part":1,"gameversion":"2.1"}
+{"timestamp":"2016-06-10T14:00:01Z","event":"LoadGame","Commander":"Old Timer","Ship":"SideWinder","ShipID":1,"Credits":1000,"Loan":0}
+{"timestamp":"2016-06-10T14:05:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":5.0}
+"#,
+);
+
+fn new_journal(fid: &str, name: &str, day: u32) -> (String, String) {
+    (
+        format!("Journal.2026-09-{day:02}T100000.01.log"),
+        format!(
+            r#"{{"timestamp":"2026-09-{day:02}T10:00:00Z","event":"Fileheader","part":1,"gameversion":"4.0.0.1900"}}
+{{"timestamp":"2026-09-{day:02}T10:00:01Z","event":"Commander","FID":"{fid}","Name":"{name}"}}
+{{"timestamp":"2026-09-{day:02}T10:00:02Z","event":"LoadGame","FID":"{fid}","Commander":"{name}","Ship":"Python","ShipID":4,"Credits":1000,"Loan":0}}
+{{"timestamp":"2026-09-{day:02}T10:05:00Z","event":"FSDJump","StarSystem":"Sol","SystemAddress":10477373803,"StarPos":[0,0,0],"JumpDist":5.0}}
+"#
+        ),
+    )
+}
+
+fn commander_keys(h: &History) -> Vec<String> {
+    let mut keys: Vec<String> = h.commanders().unwrap().into_iter().map(|c| c.cmdr).collect();
+    keys.sort();
+    keys
+}
+
+/// Journals from before the Frontier id give the commander `name:<Commander>`; once one FID
+/// has that name they are that commander's history (astromech-yrfv), whichever is imported
+/// first, after a rebuild, and when commanders are recomputed from the stored lines.
+#[test]
+fn journals_from_before_fid_join_the_commander_with_that_name() {
+    let dir = tempfile::tempdir().unwrap();
+    let (new_name, new_text) = new_journal("F7", "Old Timer", 7);
+    for in_order in [true, false] {
+        let jdir = tempfile::tempdir().unwrap();
+        let db = dir.path().join(format!("history-{in_order}.sqlite"));
+        let write = |(n, t): (&str, &str)| std::fs::write(jdir.path().join(n), t).unwrap();
+        let mut h = History::open(&db).unwrap();
+        if in_order {
+            write(OLD_JOURNAL);
+            write((&new_name, &new_text));
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+        } else {
+            write((&new_name, &new_text));
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+            write(OLD_JOURNAL);
+            h.import(jdir.path(), &ImportOptions::default()).unwrap();
+        }
+        assert_eq!(commander_keys(&h), ["F7"], "in order: {in_order}");
+        let jumps: Vec<String> = h.visits("F7").unwrap().into_iter().map(|v| v.ts).collect();
+        assert_eq!(jumps, ["2016-06-10T14:05:00Z", "2026-09-07T10:05:00Z"]);
+        assert_eq!(h.logbook(None, "", 10).unwrap().totals.system_visits, 2);
+        let want = snapshot(&h);
+        h.rebuild_ledgers().unwrap();
+        assert_eq!(snapshot(&h), want);
+        h.conn().execute("INSERT INTO pending VALUES ('commanders')", []).unwrap();
+        drop(h);
+        assert_eq!(snapshot(&History::open(&db).unwrap()), want);
+    }
+}
+
+/// Two FIDs with the same name stay apart, and the journals from before FID belong to neither.
+#[test]
+fn two_fids_with_one_name_stay_apart() {
+    let dir = tempfile::tempdir().unwrap();
+    let write = |(n, t): (&str, &str)| std::fs::write(dir.path().join(n), t).unwrap();
+    write(OLD_JOURNAL);
+    for (fid, day) in [("F7", 7), ("F8", 8)] {
+        let (n, t) = new_journal(fid, "Old Timer", day);
+        write((&n, &t));
+    }
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    assert_eq!(commander_keys(&h), ["F7", "F8", "name:Old Timer"]);
+    assert_eq!(h.visits("F7").unwrap().len(), 1);
+}
+
+/// A continuation part whose first part is missing doesn't take the commander of whatever
+/// file sorts before it.
+#[test]
+fn continuation_part_of_another_session_has_no_commander() {
+    let dir = tempfile::tempdir().unwrap();
+    let (n, t) = new_journal("F7", "Old Timer", 7);
+    std::fs::write(dir.path().join(n), t).unwrap();
+    std::fs::write(
+        dir.path().join("Journal.2026-09-08T100000.02.log"),
+        r#"{"timestamp":"2026-09-08T12:00:00Z","event":"Fileheader","part":2,"gameversion":"4.0.0.1900"}
+{"timestamp":"2026-09-08T12:05:00Z","event":"FSDJump","StarSystem":"Alpha Centauri","SystemAddress":1,"StarPos":[3,0,0],"JumpDist":4.4}
+"#,
+    )
+    .unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    assert_eq!(h.visits("F7").unwrap().len(), 1);
+    let unowned: i64 = h.conn().query_row("SELECT COUNT(*) FROM events WHERE cmdr IS NULL", [], |r| r.get(0)).unwrap();
+    assert_eq!(unowned, 3, "both Fileheaders and the other session's jump");
+}
+
+/// SQLite's lower() folds ASCII only; the search folds names and query alike (astromech-hloh).
+#[test]
+fn logbook_search_folds_non_ascii_capitals() {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(
+        dir.path().join("Journal.2026-09-09T100000.01.log"),
+        r#"{"timestamp":"2026-09-09T10:00:00Z","event":"Commander","FID":"F9","Name":"Unicode"}
+{"timestamp":"2026-09-09T10:01:00Z","event":"FSDJump","StarSystem":"Ölberg","SystemAddress":9,"StarPos":[0,0,0],"JumpDist":3.0}
+{"timestamp":"2026-09-09T10:02:00Z","event":"Docked","StationName":"ÉCOLE DES ÉTOILES","StationType":"FleetCarrier","StarSystem":"Ölberg","SystemAddress":9,"MarketID":3700000001}
+"#,
+    )
+    .unwrap();
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let found = |q: &str| -> (Vec<String>, usize) {
+        let b = h.logbook(None, q, 10).unwrap();
+        (b.places.into_iter().map(|p| p.station_name.unwrap_or(p.star_system)).collect(), b.timeline.len())
+    };
+    assert_eq!(found("école"), (vec!["ÉCOLE DES ÉTOILES".to_string()], 1));
+    assert_eq!(found("ölb"), (vec!["ÉCOLE DES ÉTOILES".to_string(), "Ölberg".to_string()], 2));
+    assert_eq!(found("ÖLBERG").1, 2);
+    assert_eq!(found("zzz"), (vec![], 0));
+}
+
+/// The window's read-only connection waits out a writer's brief lock instead of failing.
+#[test]
+fn read_only_open_waits_when_busy() {
+    let dir = tempfile::tempdir().unwrap();
+    let db = dir.path().join("history.sqlite");
+    History::open(&db).unwrap();
+    let r = History::open_read_only(&db).unwrap();
+    let ms: i64 = r.conn().query_row("PRAGMA busy_timeout", [], |row| row.get(0)).unwrap();
+    assert_eq!(ms, 5000);
+}
+
+/// astromech-2h0q: the length is read through an open handle, but a journal that can't be opened
+/// just now (another program holds it) falls back to the folder's metadata. A journal already
+/// imported in full then doesn't fail the whole import.
+#[cfg(unix)]
+#[test]
+fn a_journal_that_cannot_be_opened_falls_back_to_its_metadata_length() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    for p in astromech_journal::journal_logs(&fixtures()) {
+        std::fs::copy(&p, dir.path().join(p.file_name().unwrap())).unwrap();
+    }
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let first = astromech_journal::journal_logs(dir.path()).remove(0);
+    std::fs::set_permissions(&first, std::fs::Permissions::from_mode(0o000)).unwrap();
+    if std::fs::File::open(&first).is_ok() {
+        return; // root reads anything: nothing to test
+    }
+    let again = h.import(dir.path(), &ImportOptions::default());
+    std::fs::set_permissions(&first, std::fs::Permissions::from_mode(0o644)).unwrap();
+    assert_eq!(again.unwrap(), ImportReport::default());
+}

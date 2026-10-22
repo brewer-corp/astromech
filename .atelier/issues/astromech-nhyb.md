@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:44:45.282959088+00:00"
+status: "done"
 title: "Settings controls: keyboard focus ring and announced errors"
-updated_at: "2026-10-22T20:41:35.836381330+00:00"
+updated_at: "2026-10-22T21:44:45.282959088+00:00"
 ---
 
 ## Goal
@@ -23,3 +24,7 @@ The Settings page controls built with `button { all: unset }` (callout switch an
 ## Done when
 
 Focus-visible outlines on those buttons (as SystemChip.svelte), aria-live="polite" on the note and error lines, and the cooldown box reset to the saved value on a rejected entry; a vitest covers the reset.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-jo3l (approval astromech-15yv).

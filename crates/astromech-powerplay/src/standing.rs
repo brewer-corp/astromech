@@ -12,6 +12,11 @@
 //! the commander is rarely logged in at the tick. Weekly assignment rewards are not in the
 //! journal, so the week total can be short of the game's.
 //!
+//! When pledged, the game writes `Powerplay` at the first login of a game run, before
+//! `Missions`; a relog from the main menu in the same run doesn't write it again (seen in real
+//! journals, Oct 2026). So a run's first login that reaches `Missions` without `Powerplay` means
+//! not pledged, even when the `PowerplayLeave` was in a journal since deleted.
+//!
 //! The game sometimes writes one `PowerplayMerits` twice (same second and gain, `TotalMerits`
 //! counting both) but counts it once. The total before an award (`TotalMerits - MeritsGained`)
 //! and the login `Merits` give the game's count, so when either is below the running total the
@@ -37,6 +42,20 @@ pub struct Standing {
     /// The weekly cycle `cycle_merits` belong to (its start, Unix seconds).
     pub cycle_start: Option<i64>,
     pub cycle_merits: i64,
+    /// Where the login sequence is.
+    #[serde(skip)]
+    login: Login,
+}
+
+/// Where the commander is in the game's login sequence.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+enum Login {
+    #[default]
+    Playing,
+    /// A new game run (`Fileheader` part 1) before its first `LoadGame`.
+    NewRun,
+    /// The run's first `LoadGame`, before `Powerplay` or `Missions`.
+    First,
 }
 
 /// The rank after the current one and what it takes.
@@ -75,14 +94,40 @@ impl Standing {
     /// still count for the session and the total, but not for the week.
     pub fn apply(&mut self, ts: &str, ev: &JournalEvent) {
         match ev {
-            JournalEvent::LoadGame { .. } => self.session_merits = 0,
-            JournalEvent::Extra(ExtraEvent::Powerplay(p)) => self.apply_powerplay(ts, p),
+            JournalEvent::FileHeader { part, .. } if part.unwrap_or(1) <= 1 => self.login = Login::NewRun,
+            JournalEvent::LoadGame { .. } => {
+                self.session_merits = 0;
+                self.login = if self.login == Login::NewRun { Login::First } else { Login::Playing };
+            }
+            JournalEvent::Extra(ExtraEvent::Missions { .. }) => {
+                if self.login == Login::First {
+                    self.leave();
+                }
+                self.login = Login::Playing;
+            }
+            JournalEvent::Extra(ExtraEvent::Powerplay(p)) => {
+                if p.kind == "Powerplay" {
+                    self.login = Login::Playing;
+                }
+                self.apply_powerplay(ts, p)
+            }
             _ => {}
         }
     }
 
     fn reset_progress(&mut self, power: Option<String>) {
-        *self = Standing { power, merits: Some(0), session_merits: self.session_merits, ..Standing::default() };
+        *self = Standing {
+            power,
+            merits: Some(0),
+            session_merits: self.session_merits,
+            login: self.login,
+            ..Standing::default()
+        };
+    }
+
+    /// Not pledged any more.
+    fn leave(&mut self) {
+        *self = Standing { session_merits: self.session_merits, login: self.login, ..Standing::default() };
     }
 
     /// The game's total is `total`, below the running one: awards it wrote but didn't count.
@@ -136,7 +181,7 @@ impl Standing {
             }
             "PowerplayJoin" => self.reset_progress(p.power.clone()),
             "PowerplayDefect" => self.reset_progress(p.to_power.clone()),
-            "PowerplayLeave" => *self = Standing { session_merits: self.session_merits, ..Standing::default() },
+            "PowerplayLeave" => self.leave(),
             _ => {}
         }
     }

@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:17:26.279415350+00:00"
+status: "done"
 title: "Pending Market retry uses the current live flag, so it can fire a stale callout for a replayed dock"
-updated_at: "2026-10-22T20:41:33.551169476+00:00"
+updated_at: "2026-10-22T21:17:26.279415350+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ A trigger remembers whether it came from a live batch and is retried with that; 
 ## Context
 
 Review finding on the astromech-bh0c PR.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-g3qt (approval astromech-yewr).
