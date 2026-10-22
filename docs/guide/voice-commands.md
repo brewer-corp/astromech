@@ -68,7 +68,7 @@ has not said yet, you hear "No fuel data yet." and the like.
 
 | You say | You hear (examples) |
 |---|---|
-| "fuel", "how much fuel", "fuel status", "fuel remaining" | "Fuel: 24.5 tonnes main, 0.63 tonnes reservoir. Tank 76 percent." |
+| "fuel", "how much fuel", "fuel status", "fuel state", "fuel remaining" | "Fuel: 24.5 tonnes main, 0.63 tonnes reservoir. Tank 76 percent." |
 | "cargo", "how much cargo", "cargo status" | "Cargo: 12 of 64 tonnes. 8 Painite, 4 Gold." (the top three) |
 | "jump range", "what's my jump range", "max jump" | "Jump range: 42.1 light years." This is the game's own figure for your last loadout. |
 | "where am I", "where are we", "current system", "what system" | "System Sol. Body Earth. Docked at Abraham Lincoln." |

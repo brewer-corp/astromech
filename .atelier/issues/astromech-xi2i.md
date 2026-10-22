@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice: T0, lookup and unavailable phrases below 95% on the synthetic eval"
-updated_at: "2026-10-22T20:41:37.134145639+00:00"
+updated_at: "2026-10-22T21:31:35.786649865+00:00"
 ---
 
 ## Goal

@@ -140,7 +140,7 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("srv_handbrake.off", &["handbrake off", "hand brake off"]),
     ("srv_drive_assist.on", &["drive assist on"]),
     ("srv_drive_assist.off", &["drive assist off"]),
-    ("status.fuel", &["fuel", "how much fuel", "fuel status", "fuel remaining"]),
+    ("status.fuel", &["fuel", "how much fuel", "fuel status", "fuel state", "fuel remaining"]),
     ("status.cargo", &["cargo", "how much cargo", "cargo status"]),
     ("status.jump_range", &["jump range", "what's my jump range", "max jump"]),
     ("status.location", &["where am i", "where are we", "current system", "what system"]),
@@ -459,7 +459,10 @@ pub fn normalise(s: &str) -> Vec<String> {
                 "super",
                 Some("cruise" | "crews" | "cruz" | "cruise's" | "cruises" | "cruiser" | "cruse" | "crew" | "screws"),
             ) => Some("supercruise"),
-            ("frame", Some("shift" | "ship")) => Some("frameshift"),
+            // "Engage frames of drive" (voice eval, astromech-xi2i).
+            ("frame", Some("shift" | "ship")) | ("frames", Some("of")) => Some("frameshift"),
+            // "No toriety." for "notoriety" (voice eval, astromech-xi2i).
+            ("no", Some("toriety")) => Some("notoriety"),
             ("hyper", Some("space")) => Some("hyperspace"),
             ("cargo", Some("scoops")) => Some("cargo scoop"),
             ("hard", Some("points" | "point")) => Some("hardpoints"),
@@ -1112,6 +1115,23 @@ mod tests {
         }
         assert_eq!(d("Hyperspace jump."), ("hyperspace_jump", Decision::Execute));
         assert_eq!(d("Engage frame shift drive"), ("hyperspace_jump", Decision::Execute));
+    }
+
+    /// What the synthetic voice eval heard for status and jump phrases (astromech-xi2i).
+    #[test]
+    fn eval_mishearings() {
+        let g = g();
+        let d = |t: &str| {
+            let m = g.best(t);
+            (m.command, m.decision)
+        };
+        assert_eq!(d("No toriety."), ("status.legal", Decision::Execute));
+        assert_eq!(d("No."), ("cancel", Decision::Execute));
+        assert_eq!(d("Engage frames of drive"), ("hyperspace_jump", Decision::Execute));
+        // "fuel state" is a phrase of its own; the eval heard "fuel status" as it, with noise.
+        assert_eq!(d("Fuel state."), ("status.fuel", Decision::Execute));
+        assert_eq!(g.best("Fuel state Ursa.").command, "status.fuel");
+        assert_ne!(g.best("Fuel state Ursa.").decision, Decision::NoMatch);
     }
 
     #[test]
