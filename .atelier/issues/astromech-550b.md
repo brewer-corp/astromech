@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T23:08:28.348254150+00:00"
+status: "done"
 title: "Stop the speech thread promptly when the speaker closes"
-updated_at: "2026-10-22T22:12:21.926188564+00:00"
+updated_at: "2026-10-22T23:08:28.348254150+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ On close the thread clears its warm-up queue and exits; a test with a slow fake 
 ## Notes
 
 - 2026-10-16 [note] Also (review of the cmhv main merge): R1 after a renderer panic, a say() that began before the drain can push a Line into a queue nobody reads, leaving busy() true and SpeechOut waiting forever (callouts stop being printed); set a dead flag in Queue under the lock when DrainOnExit clears and drop new lines. R2 make tts_speaker_busy_through_render_and_after_a_panic deterministic (barrier until both lines are queued).
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-uuqt (approval astromech-5asu).

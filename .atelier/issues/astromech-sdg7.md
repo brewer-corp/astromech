@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T23:08:28.125622560+00:00"
+status: "done"
 title: "Harden the TTS name reading rules"
-updated_at: "2026-10-22T22:12:21.672812259+00:00"
+updated_at: "2026-10-22T23:08:28.125622560+00:00"
 ---
 
 ## Goal
@@ -30,3 +31,7 @@ Spaced units limited to unambiguous ones (ly, ls, %, Cr, MJ, km); short prefixes
 ## Context
 
 Found in review of astromech-w8ai (R1, R3, R6, R10).
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-uuqt (approval astromech-5asu).
