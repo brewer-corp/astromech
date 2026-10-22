@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "todo"
 title: "Voice: T0, lookup and unavailable phrases below 95% on the synthetic eval"
-updated_at: "2026-10-22T21:31:35.786649865+00:00"
+updated_at: "2026-10-22T22:48:44.369012883+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ Each is fixed (alias, MISHEARD entry or a better phrase) or judged acceptable ag
 - status.ship 93.8%: "current ship" heard "Current Scheber", asks status.location.
 - hyperspace_jump 90.6%: "engage frameshift drive" heard "Engage frames of drive", asks find.module twice. Not alpha: the command is in UNAVAILABLE and only answers "I can't do that yet", so nothing is pressed.
 - Family / condition: status / noise 94.6%, unavailable / cockpit+noise 93.8%.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: Fixed from the synthetic eval on feature/astromech-uuqt (awaiting review): normalise folds 'no toriety' -> notoriety, 'frames of' -> frameshift, 'and gauge' -> engage, and status.fuel gains the phrase 'fuel state'. scripts/voice-eval.sh rerun (docs/evidence/astromech-xi2i/report.md): 3123/3136, 0 wrong executes; status.legal, status.fuel, hyperspace_jump and unavailable/cockpit+noise now 100%, status/noise 96.7%, status.shields and status.ship 96.9%. Left: status.credits 93.8% - 'rebuy' heard 'Raban' and 'Goodbye.' only with noise (am_michael, bm_george); a MISHEARD 'goodbye' would make an everyday word ask, so judge it on real clips (astromech-cgrw), or pick a longer phrase ('rebuy cost') if real clips miss it too. Also seen, outside this issue: srv_handbrake.off 87.5% ('Handbrake often/Austin' -> handbrake on) and srv_drive_assist.on 93.8% in noise.
