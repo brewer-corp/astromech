@@ -13,8 +13,9 @@
 //!
 //! An answer is kept for [`KEEP_FOR`]; the next ask after that looks the key up again (and
 //! answers None until it is in), so a long session doesn't keep an answer from its start. The
-//! lookup goes through the client's cache, so how fresh the new answer is depends on that cache's
-//! lifetime for the request (`astromech_data::ttl`).
+//! lookup goes through the client's cache, whose lifetime for these requests is no longer
+//! (`astromech_data::ttl::SCANNED` for EDSM's bodies, `ttl::SEARCH` for Spansh's), so the new
+//! answer is the service's.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -37,7 +38,7 @@ enum Lookup<V> {
     Failed(Instant),
 }
 
-type Clock = Arc<dyn Fn() -> Instant + Send + Sync>;
+pub(crate) type Clock = Arc<dyn Fn() -> Instant + Send + Sync>;
 
 /// Background lookups by key, each on its own named thread.
 pub struct Background<V> {
@@ -100,6 +101,22 @@ impl<V: Clone + Send + 'static> Background<V> {
     pub(crate) fn failed(&self, key: &str) -> bool {
         matches!(self.entries.lock().unwrap().get(key), Some(Lookup::Failed(_)))
     }
+
+    /// Use `clock` for now (tests).
+    #[cfg(test)]
+    pub(crate) fn set_clock(&mut self, clock: Clock) {
+        self.clock = clock;
+    }
+
+    /// Wait for the lookup that is out for `key` to finish (tests).
+    #[cfg(test)]
+    pub(crate) fn settle(&self, key: &str) {
+        let deadline = Instant::now() + Duration::from_secs(10);
+        while matches!(self.entries.lock().unwrap().get(key), Some(Lookup::Pending)) {
+            assert!(Instant::now() < deadline, "the lookup never finished");
+            std::thread::sleep(Duration::from_millis(1));
+        }
+    }
 }
 
 #[cfg(test)]
@@ -112,17 +129,8 @@ mod tests {
         let now = Arc::new(Mutex::new(start));
         let mut b = Background::new("test-lookup");
         let n2 = now.clone();
-        b.clock = Arc::new(move || *n2.lock().unwrap());
+        b.set_clock(Arc::new(move || *n2.lock().unwrap()));
         (b, now)
-    }
-
-    /// Waits for the lookup that is out for `key` to finish.
-    fn settle(b: &Background<u32>, key: &str) {
-        let deadline = Instant::now() + Duration::from_secs(10);
-        while matches!(b.entries.lock().unwrap().get(key), Some(Lookup::Pending)) {
-            assert!(Instant::now() < deadline, "the lookup never finished");
-            std::thread::sleep(Duration::from_millis(1));
-        }
     }
 
     /// Asked once a second for as long as an arrival callout waits for a late answer, with the
@@ -144,7 +152,7 @@ mod tests {
                 }),
                 None
             );
-            settle(&b, "Sol");
+            b.settle("Sol");
         }
         // At 0, 15, 30, 45 and 60 s.
         let expected = 1 + window as usize / RETRY_AFTER.as_secs() as usize;
@@ -163,7 +171,7 @@ mod tests {
             b.get("Sol", move || Ok::<u32, ()>(t.fetch_add(1, Ordering::SeqCst) as u32 + 7))
         };
         assert_eq!(ask(&b), None);
-        settle(&b, "Sol");
+        b.settle("Sol");
         assert_eq!(ask(&b), Some(7));
         *now.lock().unwrap() = start + KEEP_FOR - Duration::from_secs(1);
         assert_eq!(ask(&b), Some(7), "still fresh");
@@ -171,7 +179,7 @@ mod tests {
 
         *now.lock().unwrap() = start + KEEP_FOR;
         assert_eq!(ask(&b), None, "expired: looked up again");
-        settle(&b, "Sol");
+        b.settle("Sol");
         assert_eq!(ask(&b), Some(8), "the new answer");
         assert_eq!(tries.load(Ordering::SeqCst), 2);
     }
