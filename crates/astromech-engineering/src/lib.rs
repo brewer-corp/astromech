@@ -853,10 +853,19 @@ mod tests {
             p.iter().find(|m| m.slot == "MainEngines").unwrap().engineering.as_ref().unwrap().modifiers.len()
         };
         assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 2, None)])), 1);
-        let same_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_overloaded"));
-        assert_eq!(mods(&planned_modules(&fitted, &[same_x])), 1);
+        let same_x_at = |g| t("MainEngines", "Engine_Dirty", g, Some("special_engine_overloaded"));
+        assert_eq!(mods(&planned_modules(&fitted, &[same_x_at(2)])), 1);
         let other_x = t("MainEngines", "Engine_Dirty", 2, Some("special_engine_lightweight"));
         assert_eq!(mods(&planned_modules(&fitted, &[other_x])), 0);
         assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 5, None)])), 0);
+        // At the target grade and fully rolled, with the same experimental: nothing changes, so
+        // the journal's stats stay (astromech-ikwr). Not fully rolled: the plan rolls it.
+        let e = fitted.iter_mut().find(|m| m.slot == "MainEngines").unwrap().engineering.as_mut().unwrap();
+        e.quality = 1.0;
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 3, None)])), 1);
+        assert_eq!(mods(&planned_modules(&fitted, &[same_x_at(3)])), 1);
+        let e = fitted.iter_mut().find(|m| m.slot == "MainEngines").unwrap().engineering.as_mut().unwrap();
+        e.quality = 0.5;
+        assert_eq!(mods(&planned_modules(&fitted, &[t("MainEngines", "Engine_Dirty", 3, None)])), 0);
     }
 }

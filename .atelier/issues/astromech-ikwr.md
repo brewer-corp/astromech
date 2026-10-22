@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ship stats: same-grade plan rounding and unknown modifier labels"
-updated_at: "2026-10-22T20:41:38.378251652+00:00"
+updated_at: "2026-10-22T21:17:51.807287907+00:00"
 ---
 
 ## Goal
