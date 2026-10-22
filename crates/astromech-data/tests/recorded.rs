@@ -496,13 +496,21 @@ fn spansh_system_names_autocomplete() {
 fn spansh_route_job_round_trip() {
     let (c, rec, _) = client();
     rec.on("/api/route", 202, fixture!("spansh-route-queued.json"));
-    let job = c
-        .spansh_route(&NeutronRoute { from: "Sol".into(), to: "Colonia".into(), range: 50.0, efficiency: 60 })
-        .unwrap();
+    let r = NeutronRoute {
+        from: "Sol".into(),
+        to: "Colonia".into(),
+        range: 50.0,
+        efficiency: 60,
+        supercharge_multiplier: 6,
+    };
+    let job = c.spansh_route(&r).unwrap();
     assert_eq!(job.job, "00000000-0000-0000-0000-000000000001");
     let (url, req) = rec.last();
     assert_eq!(url, "https://spansh.co.uk/api/route");
-    assert!(matches!(&req.body, astromech_data::Body::Form(f) if f.contains(&("to".into(), "Colonia".into()))));
+    let astromech_data::Body::Form(form) = &req.body else { panic!("a form post") };
+    assert!(form.contains(&("to".into(), "Colonia".into())), "{form:?}");
+    // The drive's neutron boost, as the site's neutron form posts it (a Mk II drive here).
+    assert!(form.contains(&("supercharge_multiplier".into(), "6".into())), "{form:?}");
 
     rec.on("/api/results/", 200, fixture!("spansh-route-result.json"));
     let RouteStatus::Done(plan) = c.spansh_route_result(&job.job).unwrap() else { panic!("route should be done") };
@@ -704,6 +712,7 @@ fn exact_request() -> ExactRoute {
         tank_size: 32.0,
         internal_tank_size: 0.63,
         range_boost: 0.0,
+        supercharge_multiplier: 4,
         cargo: 0.0,
         refuel_every_scoopable: true,
     }
@@ -742,6 +751,7 @@ fn spansh_exact_route_posts_the_drive_and_polls_until_done() {
         ("use_supercharge", "1"),
         ("use_injections", "0"),
         ("algorithm", "optimistic"),
+        ("supercharge_multiplier", "4"),
     ] {
         assert!(form.contains(&(k.into(), v.into())), "form has {k}={v}: {form:?}");
         let param = match k {
@@ -763,6 +773,14 @@ fn spansh_exact_route_posts_the_drive_and_polls_until_done() {
     assert_eq!(refuels, ["Tascheter Sector MN-T b3-6", "Hyades Sector DB-W b2-6", "98 k Tauri"]);
     assert!(plan.jumps[8].has_neutron, "98 k Tauri is a neutron star");
     assert!((plan.jumps[1].fuel_used - 4.517).abs() < 0.001);
+
+    // A Mk II drive's boost goes in the form instead of the usual 4.
+    let mk_ii = ExactRoute { supercharge_multiplier: 6, ..exact_request() };
+    c.spansh_exact_route(&mk_ii).unwrap();
+    let (_, req) = rec.last();
+    let astromech_data::Body::Form(form) = &req.body else { panic!("a form post") };
+    assert!(form.contains(&("supercharge_multiplier".into(), "6".into())), "{form:?}");
+    assert!(!form.contains(&("supercharge_multiplier".into(), "4".into())), "sent once: {form:?}");
 }
 
 #[test]
@@ -793,7 +811,13 @@ fn spansh_neutron_route_polls_until_done() {
         "/api/results/",
         &[(202, fixture!("spansh-route-pending.json")), (200, fixture!("spansh-route-result.json"))],
     );
-    let r = NeutronRoute { from: "Sol".into(), to: "Colonia".into(), range: 50.0, efficiency: 60 };
+    let r = NeutronRoute {
+        from: "Sol".into(),
+        to: "Colonia".into(),
+        range: 50.0,
+        efficiency: 60,
+        supercharge_multiplier: 4,
+    };
     let plan = c.spansh_route_wait(&r, NO_WAIT).unwrap();
     assert_eq!(rec.requests(), 3, "one submit and two polls");
     assert_eq!(plan.system_jumps.len(), 3);

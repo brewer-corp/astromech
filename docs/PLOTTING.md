@@ -56,8 +56,8 @@ hands it to the follower (`route_set`), so it is followed the same way as any ot
 
 | Piece | Where |
 |---|---|
-| The ship: the FSD (optimal mass and max fuel per jump with engineering, base fuel multiplier and power), base mass (hull and modules plus the reservoir, no main-tank fuel), tank, reservoir and Guardian booster from the latest `Loadout`; range with a full tank and the cargo aboard | `astromech_ship::Fsd` (`ShipStats::fsd`), `astromech_galaxy::plot::Ship::current` |
-| Requests and results: neutron `/api/route` (range, efficiency), exact `/api/generic/route` (the FSD numbers as a form, see below); both are jobs polled at `/api/results/{job}` | `astromech_data::spansh` (`NeutronRoute`, `ExactRoute`, `spansh_*_wait`) |
+| The ship: the FSD (optimal mass and max fuel per jump with engineering, base fuel multiplier and power), base mass (hull and modules plus the reservoir, no main-tank fuel), tank, reservoir, Guardian booster and neutron boost (×6 for the size 8 Mk II drive, ×4 for any other, as on Spansh's site) from the latest `Loadout`; range with a full tank and the cargo aboard | `astromech_ship::Fsd` (`ShipStats::fsd`), `astromech_galaxy::plot::Ship::current` |
+| Requests and results: neutron `/api/route` (range, efficiency, `supercharge_multiplier`), exact `/api/generic/route` (the FSD numbers as a form, see below); both are jobs polled at `/api/results/{job}` | `astromech_data::spansh` (`NeutronRoute`, `ExactRoute`, `spansh_*_wait`) |
 | Plotting: one call that submits, polls until done and returns the stops with labels (`neutron boost`, `fuel`) and totals | `astromech_galaxy::plot::plot` |
 | The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core) | `app/src-tauri/src/main.rs`, `app/src/modules/route/Plot.svelte` |
 
@@ -74,8 +74,7 @@ optional. `base_mass` is `UnladenMass` plus the reservoir: Spansh adds the main-
 jump. The recorded job (`crates/astromech-data/tests/fixtures/spansh-exact-*.json`) confirms
 the fuel maths: 38.29 ly from Sol used 4.52 t, as the formula gives for that mass. astromech
 leaves FSD injections, already-supercharged drives, skipping secondary stars and a fuel reserve
-at the site's defaults (off), and uses Spansh's default supercharge multiplier (4), so a drive
-with a different multiplier (Spansh's site sets 6 for the size 8 overcharge Mk II drive) is plotted as an ordinary one.
+at the site's defaults (off).
 
 Ctrl+V in the search box works: it's how players enter long procedural names on a flat screen
 (confirmed by the maintainer, 15 Oct 2026). VR uses the same search box, so we assume it works

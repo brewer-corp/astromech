@@ -826,7 +826,28 @@ fn fsd_for_route_plotters() {
     assert!((f.range(s.cargo_capacity) - j.laden).abs() < 1e-9);
     assert!(f.range(100.0) < f.range(0.0));
 
+    assert_eq!(f.supercharge_multiplier, 4, "an ordinary drive");
+
     // No drive, no profile.
     let no_fsd: Vec<_> = modules.into_iter().filter(|m| m.slot != "FrameShiftDrive").collect();
     assert_eq!(stats(&ship, &no_fsd).unwrap().fsd, None);
+}
+
+/// The neutron boost goes with the drive, as on Spansh's site: only the size 8 Mk II
+/// supercharge-optimised drive (the Caspian Explorer's) gets 6; the plain size 8 SCO drive gets 4.
+#[test]
+fn the_mk_ii_drive_boosts_six_times() {
+    let (ship, modules) = loadout("anaconda_explorer");
+    let with_drive = |item: &str| {
+        let mut modules = modules.clone();
+        let fsd = modules.iter_mut().find(|m| m.slot == "FrameShiftDrive").unwrap();
+        (fsd.item, fsd.engineering) = (item.into(), None);
+        let s = stats(&ship, &modules).unwrap();
+        assert!(s.unresolved.is_empty(), "{item}: {:?}", s.unresolved);
+        s.fsd.expect("a powered drive").supercharge_multiplier
+    };
+    assert_eq!(with_drive("int_hyperdrive_overcharge_size8_class5_overchargebooster_mkii"), 6);
+    assert_eq!(with_drive("Int_Hyperdrive_Overcharge_Size8_Class5_OverchargeBooster_MkII"), 6, "any case");
+    assert_eq!(with_drive("int_hyperdrive_overcharge_size8_class5"), 4);
+    assert_eq!(with_drive("Int_Hyperdrive_Size6_Class5"), 4);
 }

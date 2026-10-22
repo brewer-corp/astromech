@@ -116,7 +116,9 @@ on your clipboard.
 **From** blank means your current system. **To** is a system name as Spansh knows it. Above the
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
 worked out from its last loadout in the journal, engineering and a Guardian FSD booster
-included. If some modules are not known, it says the range may be off.
+included. If some modules are not known, it says the range may be off. Both plotters use your
+drive's own neutron boost: six times the range with the size 8 Mk II supercharge-optimised drive,
+four times with any other.
 
 When it is done, the page says how many jumps, how far, and how many neutron boosts and refuel
 stops. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
@@ -133,8 +135,6 @@ It needs:
 Limits:
 
 - No FSD injections, via systems or fuel reserve. Exact routes always use neutron boosts.
-- Exact routes assume the usual neutron boost, four times the range. A drive with a stronger
-  boost is planned as an ordinary one, so the route may have more jumps than it needs.
 - Neutron routes do not plan fuel.
 - A misspelled system gives "Spansh turned the request down" with Spansh's reason, such as
   "Unable to find route" or "Could not find finishing system".
