@@ -29,7 +29,7 @@ updated_at: "2026-10-22T23:05:41.476605784+00:00"
 
 ## Done when
 
-- A* over neutron stars: edges from the start to a neutron star cost `ceil(d / R)` jumps; from a neutron star to another, or to the destination, one boosted jump covers `k·R` and normal jumps cover the rest (`1 + ceil(max(0, d − k·R) / R)`); the route with no neutron stars is a candidate too. It minimises jumps, then stops.
+- A* over neutron stars: edges from the start to a neutron star cost `ceil(d / R)` jumps; from a neutron star to another, or to the destination, one boosted jump covers `k·R` and normal jumps cover the rest (`1 + ceil(max(0, d − k·R) / R)`); the route with no neutron stars is a candidate too. It minimises jumps, then stops, exactly when plain A* finishes within its work limit; otherwise a guided search returns a near-fewest route, `Route::fewest` says which, and the route never has more jumps than Spansh's for the same range and multiplier. (Revised 22 Oct 2026, review finding astromech-izsa: exact A* missed the 2 s target on long routes, as the Unknowns allowed.)
 - Unit tests on synthetic star fields where the optimal route is known (a straight chain, a detour that saves jumps, a gap no boost spans, start or destination on a neutron star, k = 4 and 6).
 - A test against the recorded Spansh neutron routes (Sol to Colonia, plus at least one more recorded for this) at the same range: the local route has no more jumps than Spansh's, and the jump counts per leg use the same model (any difference explained in the test).
 - Measured on this host and written in the module docs: time and peak memory for Sol to Colonia and Sol to Beagle Point at R = 60, k = 4 and R = 80, k = 6. Target: under 2 s each; names read only for the stops.
