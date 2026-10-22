@@ -4,6 +4,9 @@ id: "astromech-vlsz"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-vlsz
 priority: "P1"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spansh plotters: send the drive's own supercharge multiplier"
-updated_at: "2026-10-22T19:30:44.464541217+00:00"
+updated_at: "2026-10-22T20:42:04.642114181+00:00"
 ---
 
 ## Goal
