@@ -4,6 +4,9 @@ id: "astromech-mk30"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-mk30
 priority: "P2"
 relationships:
   blocks: []
@@ -12,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Run atelier doctor in CI"
-updated_at: "2026-10-22T19:44:28.676083239+00:00"
+updated_at: "2026-10-22T23:05:41.552135298+00:00"
 ---
 
 ## Goal
