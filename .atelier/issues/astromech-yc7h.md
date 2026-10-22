@@ -35,3 +35,7 @@ Two edge cases only matter when one journal folder holds more than one commander
 - Accept both as they are (rare: two commanders in one folder, same name or same-run switching).
 - Make the join reversible, or the recompute keep it, so both paths agree.
 - For the pledge, keep the pledge per commander and clear it only for the commander whose first login lacked `Powerplay`.
+
+## Decision
+
+Keep it simple: accept both behaviours as they are and do no further multi-commander work. Several commander profiles in one journal folder are out of scope (Sumeet, 22 Oct 2026: "a massive can of worms").
