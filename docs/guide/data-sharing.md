@@ -18,7 +18,8 @@ app](using-the-app.md#what-needs-the-network).
 - **Live play only.** Nothing is sent from the game's beta. Nothing is sent from a journal being
   re-read when astromech starts, and astromech starting mid-session does not send the session so
   far. For EDDN, an event more than **5 minutes** old by its timestamp is
-  treated as a replay and not sent (EDSM has no timestamp check: it sends what arrives live). A journal
+  treated as a replay and not sent. EDSM has no such check: it keeps your own history, so an old
+  event is still true there, and EDSM ignores one it already has. A journal
   file Elite starts while astromech runs is live from its first line.
 - **Elite must be running** and astromech watching its journal.
 - **You can turn them off at any time** with the same button (**Turn off**). Off, nothing new is queued

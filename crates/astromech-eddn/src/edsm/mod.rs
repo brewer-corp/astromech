@@ -10,7 +10,8 @@
 //!   every request it builds.
 //! - Only the live game: the docs accept only the live version (`fromGameVersion` and
 //!   `fromGameBuild` are required; legacy is answered 208), so beta and unknown versions stay
-//!   here. Like EDDN, nothing from the startup replay is sent.
+//!   here. Like EDDN, nothing from the startup replay is sent. Unlike EDDN, a live event isn't
+//!   checked against its timestamp (see [`Uploader::journal`]).
 //! - Only for the commander set in Settings, whose API key is in the OS keyring: the switch
 //!   ([`Switch`]) holds the credentials while sharing is on. In another commander's crew
 //!   nothing is sent (EDSM keeps no log there, answer 104).
@@ -213,6 +214,14 @@ impl Uploader {
 
     /// One journal event (raw JSON), in order. `live` is false while replaying a journal that
     /// was written before astromech started; `now` is Unix seconds.
+    ///
+    /// No age guard on live events, unlike EDDN's feed (`feed::MAX_EVENT_AGE_SECS`, astromech-st8o).
+    /// EDDN's consumers take a message as what the game shows now, so an old line re-read as live
+    /// would publish stale prices and positions. EDSM keeps the commander's own history: an old
+    /// event is still true, EDSM takes past events by design (it imports old journal files), and
+    /// one it already has is answered 101-103 and counted as sent. A re-read journal costs
+    /// requests, not wrong data. The core already reads a journal written before it started (or
+    /// an older one touched later) as a replay, which is never sent.
     pub fn journal(&mut self, ev: &Value, live: bool, now: i64) {
         let entry = self.state.apply(ev);
         let Some(creds) = self.switch.get().filter(|_| live) else { return };

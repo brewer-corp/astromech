@@ -190,7 +190,8 @@ fn the_startup_replay_is_not_sent() {
     let mut r = rig(true);
     feed(&mut r, &session(), false);
     assert_eq!(r.up.outbox().pending().unwrap(), 0);
-    // But it set the state: a live event after it carries the system.
+    // But it set the state: a live event after it carries the system. That event is months
+    // older than NOW and still goes: EDSM has no age check (astromech-st8o).
     r.up.journal(
         &json!({"timestamp":"2026-10-16T12:08:00Z","event":"Undocked","StationName":"Abraham Lincoln"}),
         true,

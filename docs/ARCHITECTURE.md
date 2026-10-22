@@ -314,7 +314,7 @@ astromech/
                          and the core discards the queue then and there. Discards aren't shown as
                          the last error there; only rejected, retried and given-up sends are.
                          EDSM (`edsm`, written from EDSM's Journal API v1 and Logs API v1 docs, not
-                         EDMC): live journal events, unmodified plus the documented transient fields
+                         EDMC): live journal events (with no timestamp-age check, unlike EDDN: EDSM keeps the commander's history and answers 101-103 for an event it already has), unmodified plus the documented transient fields
                          (_systemAddress, _systemName, _systemCoordinates, _marketId, _stationName,
                          _shipId), to api-journal-v1 in batches of up to 50, one game session each;
                          the same outbox shape (edsm.sqlite, no API key stored) and worker. EDSM's
