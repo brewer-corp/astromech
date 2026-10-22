@@ -19,6 +19,12 @@
 //! ([`NeutronStars::cell_of`], [`NeutronStars::cell`]). Opening the file loads the header,
 //! cells and positions (about 75 MB for 5 M stars); [`NeutronStars::name`] reads one name
 //! from disk.
+//!
+//! The `neutron` pre-release publishes the file gzipped, with its SHA-256
+//! (`.github/workflows/neutron.yml`). [`download`] fetches it into the data folder only when the
+//! commander asks: the gzip is checked and unpacked into a temporary file on the way in, which
+//! is renamed over `neutron.bin` only once the checksum and header are right, so a failed or
+//! interrupted download leaves the old file (or none) in place.
 
 use anyhow::{bail, ensure, Context, Result};
 use std::fs::File;
@@ -37,7 +43,7 @@ const POS_LEN: usize = 12;
 const NAME_GROUP: usize = 256;
 
 /// What the header says.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub struct Header {
     /// Grid cell edge, light years.
     pub cell_ly: u32,
@@ -199,4 +205,101 @@ impl NeutronStars {
         };
         String::from_utf8(name.to_vec()).context("neutron star name isn't UTF-8")
     }
+}
+
+/// Where the `neutron` pre-release's files are.
+pub const RELEASE_URL: &str = "https://github.com/brewer-corp/astromech/releases/download/neutron";
+/// The published gzip and its checksum file (`sha256sum` output).
+const GZ_NAME: &str = "neutron.bin.gz";
+/// Next to `neutron.bin`: the SHA-256 of the gzip it was unpacked from, to tell a newer one.
+const SUM_NAME: &str = "neutron.bin.sha256";
+/// The download unpacks here, then is renamed to `neutron.bin`.
+const PART_NAME: &str = "neutron.bin.part";
+
+/// The file in `dir` (the data folder): `None` if there is none, an error if it can't be read.
+pub fn installed(dir: &Path) -> Result<Option<Header>> {
+    let path = dir.join(FILE_NAME);
+    if !path.exists() {
+        return Ok(None);
+    }
+    read_header(&path).map(Some)
+}
+
+/// The SHA-256 (lowercase hex) of the gzip published at `base`.
+pub fn latest_sha256(base: &str) -> Result<String> {
+    let text = astromech_data::download::text(&format!("{base}/{GZ_NAME}.sha256"))?;
+    let sum = text.split_whitespace().next().unwrap_or_default().to_ascii_lowercase();
+    ensure!(sum.len() == 64 && sum.bytes().all(|b| b.is_ascii_hexdigit()), "The published checksum isn't readable.");
+    Ok(sum)
+}
+
+/// Whether the file published at `base` differs from the one in `dir` (true if there is none).
+pub fn newer_available(dir: &Path, base: &str) -> Result<bool> {
+    let latest = latest_sha256(base)?;
+    let have = std::fs::read_to_string(dir.join(SUM_NAME)).unwrap_or_default();
+    Ok(!dir.join(FILE_NAME).exists() || have.trim() != latest)
+}
+
+/// Removes the partial file unless the download got as far as the rename.
+struct Part<'a>(&'a Path);
+
+impl Drop for Part<'_> {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(self.0);
+    }
+}
+
+/// Hashes the gzip as it arrives and unpacks it into the partial file.
+struct Unpack {
+    sha: sha2::Sha256,
+    gz: flate2::write::GzDecoder<std::io::BufWriter<File>>,
+}
+
+impl std::io::Write for Unpack {
+    fn write(&mut self, b: &[u8]) -> std::io::Result<usize> {
+        let n = self.gz.write(b)?;
+        sha2::Digest::update(&mut self.sha, &b[..n]);
+        Ok(n)
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.gz.flush()
+    }
+}
+
+/// Downloads the file published at `base` into `dir` as `neutron.bin`, calling
+/// `progress(bytes, total)` as the gzip comes in. The old file stays until the new one is
+/// complete and its checksum matches.
+pub fn download(dir: &Path, base: &str, progress: impl FnMut(u64, Option<u64>)) -> Result<Header> {
+    use std::io::Write;
+    let sum = latest_sha256(base)?;
+    std::fs::create_dir_all(dir).with_context(|| format!("creating {}", dir.display()))?;
+    let part = dir.join(PART_NAME);
+    let _cleanup = Part(&part);
+    let file = File::create(&part).with_context(|| format!("writing {}", part.display()))?;
+    let mut w = Unpack { sha: sha2::Digest::new(), gz: flate2::write::GzDecoder::new(std::io::BufWriter::new(file)) };
+    match astromech_data::download::stream(&format!("{base}/{GZ_NAME}"), &mut w, progress) {
+        Ok(_) => {}
+        Err(astromech_data::download::DownloadError::Write(e)) => {
+            bail!("The download couldn't be written or unpacked ({e}). Try again.")
+        }
+        Err(e) => return Err(e.into()),
+    }
+    let got = hex(&sha2::Digest::finalize(w.sha));
+    ensure!(got == sum, "The download was damaged (its checksum doesn't match). Try again.");
+    let unpacked = (|| {
+        let mut out = w.gz.finish()?;
+        out.flush()?;
+        out.into_inner().map_err(|e| e.into_error())?.sync_all()
+    })();
+    unpacked.context("The download couldn't be unpacked. Try again.")?;
+    let header = read_header(&part).context("The downloaded file isn't a neutron star file this version reads.")?;
+    std::fs::rename(&part, dir.join(FILE_NAME))
+        .with_context(|| format!("replacing {}", dir.join(FILE_NAME).display()))?;
+    std::fs::write(dir.join(SUM_NAME), &sum).with_context(|| format!("writing {}", dir.join(SUM_NAME).display()))?;
+    Ok(header)
+}
+
+fn hex(b: &[u8]) -> String {
+    b.iter().map(|x| format!("{x:02x}")).collect()
 }

@@ -115,9 +115,11 @@ dependencies = [
  "astromech-ship",
  "astromech-store",
  "chrono",
+ "flate2",
  "rusqlite",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

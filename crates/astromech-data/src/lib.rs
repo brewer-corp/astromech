@@ -14,11 +14,13 @@
 //! A process makes one [`Client`] ([`Client::shared`]) and hands the `Arc` to everything that
 //! looks something up, so the rate limit and the cache hold for the whole process.
 //!
-//! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Tests swap the [`Transport`] for
+//! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Large published files (the neutron star
+//! file) are streamed to disk by [`download`] instead. Tests swap the [`Transport`] for
 //! recorded bodies.
 
 pub mod ardent;
 mod cache;
+pub mod download;
 pub mod edsm;
 mod limit;
 pub mod spansh;

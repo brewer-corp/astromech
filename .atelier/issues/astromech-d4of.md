@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Download the neutron star file in the app"
-updated_at: "2026-10-22T19:30:24.767724623+00:00"
+updated_at: "2026-10-22T20:53:32.011815197+00:00"
 ---
 
 ## Goal

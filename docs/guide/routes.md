@@ -139,6 +139,24 @@ Limits:
 - A misspelled system gives "Spansh turned the request down" with Spansh's reason, such as
   "Unable to find route" or "Could not find finishing system".
 
+### The neutron star file
+
+Under **Neutron**, the page also shows the **neutron star file**: a list of every known neutron
+star (about 5 million), built from Spansh's neutron star data, for plotting neutron routes on
+this PC instead of on Spansh. astromech doesn't plot with it yet: neutron routes still come from
+Spansh.
+
+- **Download** fetches it once: about 71 MB, unpacked to about 184 MB as `neutron.bin` in
+  astromech's data folder (the folder that holds `galaxy.db`; `data_dir` in `astromech.toml`
+  moves it). The page shows how much has come in. Nothing is downloaded until you press it.
+- The download is checked against the published checksum before it is used. If it fails, is
+  damaged or is interrupted, the file you had (or none) stays as it was. Press Download again.
+- Once it is there, the page shows how many neutron stars it lists and the date it was built.
+  **Check for a newer file** asks whether a different file has been published since. If one
+  has, **Download the newer file** replaces yours.
+- It needs internet only for the download and the check. The file is rebuilt by hand now and
+  then, not with every astromech update.
+
 ## Import a route
 
 **Import** takes a pasted list. Paste a Spansh CSV export (neutron, road to riches, fleet

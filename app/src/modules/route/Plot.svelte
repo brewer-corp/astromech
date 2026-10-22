@@ -5,6 +5,7 @@
   // route out as a job, so it runs only on "Plot and follow" and can take a minute.
   import { plotRoute, plotSetup, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
   import OriginInput from "../../lib/ui/OriginInput.svelte";
+  import NeutronFile from "./NeutronFile.svelte";
   import type { Origin } from "../../lib/search";
 
   let { onfollow }: { onfollow: (v: RouteView) => void } = $props();
@@ -69,6 +70,7 @@
       <label class="check"><input type="checkbox" bind:checked={refuel} /> Refuel at every scoopable star</label>
     {/if}
   </div>
+  {#if plotter === "neutron"}<NeutronFile />{/if}
   {#if ship}
     <p class="lo">
       {ship.name}: {ship.range.toFixed(2)} ly a jump with a full tank{ship.cargo ? ` and ${Math.round(ship.cargo)} t of cargo` : ""}, from its last loadout.

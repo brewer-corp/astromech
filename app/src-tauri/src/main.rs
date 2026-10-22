@@ -975,6 +975,66 @@ async fn route_plot(app: tauri::AppHandle, ask: astromech_galaxy::plot::Ask) -> 
     .await
 }
 
+// ---- The neutron star file (astromech_galaxy::neutron) in the data folder, downloaded only
+// when the commander presses Download on the Route page.
+
+static NEUTRON_BUSY: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// What the Route page shows: the file's header if it is there, and why it can't be read if not.
+fn neutron_status() -> Value {
+    match astromech_galaxy::neutron::installed(&data_dir()) {
+        Ok(file) => serde_json::json!({ "file": file, "error": null }),
+        Err(e) => serde_json::json!({ "file": null, "error": e.to_string() }),
+    }
+}
+
+#[tauri::command]
+async fn neutron_file() -> Result<Value, String> {
+    blocking(|| Ok(neutron_status())).await
+}
+
+#[derive(Clone, serde::Serialize)]
+struct NeutronProgress {
+    done: u64,
+    total: Option<u64>,
+}
+
+/// Downloads the latest file from the `neutron` pre-release (about 70 MB), reporting progress
+/// about once a megabyte. The old file, if any, stays until the new one is complete and checked.
+#[tauri::command]
+async fn neutron_download(on_progress: tauri::ipc::Channel<NeutronProgress>) -> Result<Value, String> {
+    blocking(move || {
+        let Some(_downloading) = Busy::take(&NEUTRON_BUSY) else {
+            return Err("The neutron star file is already downloading.".into());
+        };
+        let mut sent = 0u64;
+        let progress = |done: u64, total: Option<u64>| {
+            if done - sent >= 1 << 20 || total == Some(done) {
+                sent = done;
+                let _ = on_progress.send(NeutronProgress { done, total });
+            }
+        };
+        let url = astromech_galaxy::neutron::RELEASE_URL;
+        if let Err(e) = astromech_galaxy::neutron::download(&data_dir(), url, progress) {
+            astromech_log::log(&format!("neutron star file: download failed: {e:#}"));
+            return Err(e.to_string());
+        }
+        Ok(neutron_status())
+    })
+    .await
+}
+
+/// Whether the published file differs from the one downloaded (a small checksum file, no download).
+#[tauri::command]
+async fn neutron_check() -> Result<Value, String> {
+    blocking(|| {
+        let newer = astromech_galaxy::neutron::newer_available(&data_dir(), astromech_galaxy::neutron::RELEASE_URL)
+            .map_err(|e| e.to_string())?;
+        Ok(serde_json::json!({ "newer": newer }))
+    })
+    .await
+}
+
 /// Where to buy `needs` (a project's shopping list) near `origin` (the construction site's
 /// system, a typed one) or the commander: stations stocking most of the list first (Ardent).
 #[tauri::command]
@@ -1267,6 +1327,9 @@ fn main() {
             trade_route,
             route_plot_ship,
             route_plot,
+            neutron_file,
+            neutron_download,
+            neutron_check,
             colonisation_projects,
             colonisation_buy,
             search_filters,
