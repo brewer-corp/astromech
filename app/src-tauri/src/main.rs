@@ -1157,8 +1157,7 @@ fn shell_info() -> Value {
 /// folder under the core's app, data or log folder.
 #[tauri::command]
 fn open_external(target: String) -> Result<(), String> {
-    let ok_url = target.starts_with("https://github.com/brewer-corp/astromech/")
-        || astromech_engineering::links::is_openable_url(&target);
+    let ok_url = astromech_engineering::links::is_openable_url(&target);
     let ok_dir = {
         let paths = Paths::current();
         let roots = [paths.app_dir().to_path_buf(), paths.log_dir(), data_dir()];
