@@ -103,6 +103,7 @@ fn an_exact_route_has_every_jump_and_its_refuel_stops() {
         ("1470".into(), "5".into(), "32".into())
     );
     assert_eq!((field("fuel_multiplier"), field("fuel_power")), ("0.012".into(), "2.45".into()));
+    assert_eq!(field("supercharge_multiplier"), "4", "the Asp's ordinary drive");
     assert_eq!(
         (field("internal_tank_size"), field("cargo"), field("refuel_every_scoopable")),
         ("0.63".into(), "0".into(), "1".into())
@@ -134,12 +135,15 @@ fn a_neutron_route_stops_at_the_neutron_stars() {
         (202, fixture!("spansh-route-queued.json")),
         &[(202, fixture!("spansh-route-pending.json")), (200, fixture!("spansh-route-result.json"))],
     );
-    let ship = Ship::current(&asp_fleet(), 0.0).unwrap();
+    let mut ship = Ship::current(&asp_fleet(), 0.0).unwrap();
+    assert_eq!(ship.fsd.supercharge_multiplier, 4);
+    ship.fsd.supercharge_multiplier = 6; // as with a Mk II drive
     let p = plot(&client(&rec), &ask(Plotter::Neutron, "Colonia"), &ship, NO_WAIT).unwrap();
 
     let form = rec.form();
     assert!(form.contains(&("range".into(), format!("{}", (ship.range * 100.0).round() / 100.0))), "{form:?}");
     assert!(form.contains(&("efficiency".into(), "60".into())));
+    assert!(form.contains(&("supercharge_multiplier".into(), "6".into())), "the drive's boost: {form:?}");
     assert_eq!(p.source, "neutron plotter");
     assert_eq!(p.jumps, 128, "Spansh's total, not the stops");
     let stops: Vec<(&str, Option<&str>)> =

@@ -97,6 +97,10 @@
 //! which is `fuel_multiplier * (d * (base_mass + 32) / optimal_mass) ^ fuel_power`), and the
 //! Guardian booster's jump boost as `range_boost`. Each jump of the result says whether to
 //! refuel there (`must_refuel`) and whether it is a neutron star (`has_neutron`).
+//!
+//! Both plotters take the drive's neutron boost as `supercharge_multiplier` (read from the
+//! site's bundle on 22 Oct 2026: its module table gives 6 only to the size 8 Mk II
+//! supercharge-optimised drive, and both forms post 4 or 6).
 
 use crate::{
     encode_segment, error_message, parse_json, status_result, ttl, Client, Error, Fetched, Request, Result, Service,
@@ -667,6 +671,9 @@ pub struct NeutronRoute {
     pub range: f64,
     /// 1–100: how far Spansh may deviate to use neutron stars.
     pub efficiency: u8,
+    /// How many times its range a jump from a neutron star reaches: 4, or 6 for the size 8
+    /// Mk II drive (`astromech_ship::Fsd::supercharge_multiplier`).
+    pub supercharge_multiplier: u8,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -856,6 +863,8 @@ pub struct ExactRoute {
     pub internal_tank_size: f64,
     /// Guardian FSD booster, ly (0 without one).
     pub range_boost: f64,
+    /// The drive's neutron boost, as in [`NeutronRoute`].
+    pub supercharge_multiplier: u8,
     /// Cargo carried, t.
     pub cargo: f64,
     /// Fill up at every scoopable star, not only when the tank needs it (the site's default).
@@ -889,7 +898,7 @@ impl ExactRoute {
             ("max_time".into(), "60".into()),
             ("cargo".into(), self.cargo.to_string()),
             ("algorithm".into(), "optimistic".into()),
-            ("supercharge_multiplier".into(), "4".into()),
+            ("supercharge_multiplier".into(), self.supercharge_multiplier.to_string()),
             ("injection_multiplier".into(), "2".into()),
         ]
     }
@@ -969,6 +978,7 @@ impl Client {
             ("to".into(), r.to.clone()),
             ("range".into(), r.range.to_string()),
             ("efficiency".into(), r.efficiency.clamp(1, 100).to_string()),
+            ("supercharge_multiplier".into(), r.supercharge_multiplier.to_string()),
         ];
         Ok(self.fetch(Service::Spansh, &Request::post_form("/api/route", form), None)?.value)
     }
