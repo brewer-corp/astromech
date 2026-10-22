@@ -20,9 +20,13 @@ pub const FLAG_IN_SRV: u64 = 1 << 26;
 pub const FLAG_HUD_ANALYSIS: u64 = 1 << 27;
 pub const FLAG_NIGHT_VISION: u64 = 1 << 28;
 
+// GuiFocus values, from Frontier's Player Journal Manual (v38, p. 97, "GuiFocus values"; the same
+// table since v30): 1 is InternalPanel (right hand side), 2 is ExternalPanel (left hand side).
 pub const GUI_NONE: u64 = 0;
-pub const GUI_LEFT: u64 = 1;
-pub const GUI_RIGHT: u64 = 2;
+/// The left panel (navigation, contacts): the manual's ExternalPanel.
+pub const GUI_LEFT: u64 = 2;
+/// The right panel (ship systems): the manual's InternalPanel.
+pub const GUI_RIGHT: u64 = 1;
 pub const GUI_COMMS: u64 = 3;
 pub const GUI_ROLE: u64 = 4;
 pub const GUI_GALAXY: u64 = 6;

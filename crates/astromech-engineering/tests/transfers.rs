@@ -2,9 +2,9 @@
 //! on the Clock, whenever the page reads the fleet: the journal says nothing at that moment, so
 //! nothing is written to prompt a rebuild.
 
-use astromech_data::Clock;
 use astromech_engineering::{from_journal_dir_at, Settled, FLEET_EVENTS};
 use astromech_journal::JournalCache;
+use astromech_proto::Clock;
 use std::sync::atomic::{AtomicI64, AtomicUsize, Ordering};
 
 struct Fake(AtomicI64);

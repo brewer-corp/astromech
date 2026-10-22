@@ -1157,8 +1157,7 @@ fn shell_info() -> Value {
 /// folder under the core's app, data or log folder.
 #[tauri::command]
 fn open_external(target: String) -> Result<(), String> {
-    let ok_url = target.starts_with("https://github.com/brewer-corp/astromech/")
-        || astromech_engineering::links::is_openable_url(&target);
+    let ok_url = astromech_engineering::links::is_openable_url(&target);
     let ok_dir = {
         let paths = Paths::current();
         let roots = [paths.app_dir().to_path_buf(), paths.log_dir(), data_dir()];
@@ -1306,13 +1305,17 @@ fn main() {
                 ));
             }
             window.build()?;
-            if !core_alive() {
-                if let Err(e) = start_core() {
-                    astromech_log::log(&format!("couldn't start the core: {e}"));
-                }
-            }
+            // Off the setup path, which holds up the first page: a crashed core leaves core.json
+            // behind, and connecting to its dead port takes about 2 s on Windows (astromech-k8yk).
             let h = app.handle().clone();
-            std::thread::spawn(move || watchdog(h));
+            std::thread::spawn(move || {
+                if !core_alive() {
+                    if let Err(e) = start_core() {
+                        astromech_log::log(&format!("couldn't start the core: {e}"));
+                    }
+                }
+                watchdog(h)
+            });
             #[cfg(windows)]
             start_input(app.handle().clone());
             Ok(())

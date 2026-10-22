@@ -8,8 +8,8 @@ Runs the app window (WebView2 on Windows, WebKitGTK on Linux) in a scratch profi
 - cold start: from starting the process to the window's first page load (the shell logs
   `window: page loaded`). The first start makes the WebView's profile and starts the core; the
   later ones reuse the profile and find the core running (in the tray), as a player's usually
-  do. The budget is judged on the later ones' median. A start after a core crash (its endpoint
-  file left behind) is reported too.
+  do. The budget is judged on the later ones' median, and on a start with the core not running
+  and one after a core crash (its endpoint file left behind).
 - memory: the private working set (USS) summed over the window process and its WebView
   processes (the core and its workers excluded), idle on a list-heavy page, and its peak while
   moving between pages.
@@ -47,6 +47,7 @@ def judge(r: dict) -> list[dict]:
     later = cs["later_s"]
     med = statistics.median(later) if later else None
     no_core = cs.get("core_not_running_s")
+    crashed = cs.get("after_core_crash_s")
     idle, use = r["idle"], r["in_use"]
     # The idle numbers count only if the window and its WebView were there to measure.
     measured = idle.get("window_alive", False) and idle.get("webview_seen", False) and idle["uss_mb_max"] > 20
@@ -60,8 +61,10 @@ def judge(r: dict) -> list[dict]:
          "pass": measured and idle["cpu_machine_pct"] <= IDLE_CPU_MAX},
         {"id": "cold_start", "budget": f"< {COLD_START_MAX_S:g} s cold start",
          "value": f"median {med if med is None else round(med, 2)} s over {len(later)} starts with the core "
-                  f"running; {no_core} s with the core not running (first start, new profile: {cs['first_s']} s)",
-         "pass": med is not None and med < COLD_START_MAX_S and no_core is not None and no_core < COLD_START_MAX_S},
+                  f"running; {no_core} s with the core not running, {crashed} s after a core crash "
+                  f"(first start, new profile: {cs['first_s']} s)",
+         "pass": med is not None and med < COLD_START_MAX_S and all(
+             s is not None and s < COLD_START_MAX_S for s in (no_core, crashed))},
         # The harness's own check: the page changes reached the running window.
         {"id": "page_changes", "budget": "harness check: every page change reached the running window",
          "value": f"{use.get('switches', 0)} asked, {use.get('pages_received', 0)} received, "

@@ -69,8 +69,10 @@ impl Paths {
     }
 
     /// Tell the app window which config file the core uses (the core's `--config`, or the
-    /// default), in `config.path` in the app dir. Written at every core start, so a later start
-    /// without `--config` replaces an earlier one's.
+    /// default), in `config.path` in the app dir. Written at every tray core start, so a later
+    /// start without `--config` replaces an earlier one's. Console runs (`--console`, `--health`
+    /// and the like) don't publish: they serve no window, and a window opened beside one starts
+    /// its own tray core, which publishes.
     pub fn publish_config(&self, path: &Path) -> std::io::Result<()> {
         std::fs::create_dir_all(&self.app_dir)?;
         // Absolute, since the window's working folder isn't the core's.
@@ -79,13 +81,15 @@ impl Paths {
     }
 
     /// The config file the running core reads: the one it published, else [`Paths::config_file`].
-    /// The window reads its settings (Bindings folder, data folder) from here.
+    /// The window reads its settings (Bindings folder, data folder) from here. A published file
+    /// that no longer exists (a deleted `--config` target) falls back to the default too.
     pub fn config_in_use(&self) -> PathBuf {
         std::fs::read_to_string(self.app_dir.join(CONFIG_IN_USE))
             .ok()
             .map(|t| t.trim().to_string())
             .filter(|t| !t.is_empty())
             .map(PathBuf::from)
+            .filter(|p| p.is_file())
             .unwrap_or_else(|| self.config_file())
     }
 
@@ -247,9 +251,17 @@ mod tests {
         p.publish_config(&custom).unwrap();
         assert_eq!(mk().config_in_use(), custom);
         assert!(std::fs::read_to_string(mk().config_in_use()).unwrap().contains("/pasted"));
+        // A --config target deleted since: the default, not a file nobody reads.
+        let gone = other.path().join("gone.toml");
+        std::fs::write(&gone, "").unwrap();
+        p.publish_config(&gone).unwrap();
+        assert_eq!(mk().config_in_use(), gone);
+        std::fs::remove_file(&gone).unwrap();
+        assert_eq!(mk().config_in_use(), p.config_file());
         // A relative --config is published as an absolute path (the window's folder differs).
-        p.publish_config(Path::new("rel.toml")).unwrap();
-        assert!(mk().config_in_use().is_absolute() && mk().config_in_use().ends_with("rel.toml"));
+        let cwd_file = std::env::current_dir().unwrap().join("Cargo.toml");
+        p.publish_config(Path::new("Cargo.toml")).unwrap();
+        assert_eq!(mk().config_in_use(), cwd_file);
         // A later start without --config takes the file back.
         p.publish_config(&p.config_file()).unwrap();
         assert_eq!(mk().config_in_use(), p.config_file());
