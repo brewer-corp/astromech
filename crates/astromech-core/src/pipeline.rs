@@ -17,9 +17,10 @@
 //!   also after every journal read that follows a Status.json write and once a second when idle,
 //!   in case the notification never comes, until the event is older than five minutes.
 //! - Live or replay: one notion for EDDN and callouts (`Tailer::live`). A journal line is live
-//!   when the game wrote it while we run: not the startup replay of the current journal, not an
-//!   already-read journal that becomes newest (re-read as a replay, but only up to where we had
-//!   read it: what the game wrote since is live), never a line of a journal the game doesn't
+//!   when the game wrote it while we run: not the startup replay of the current journal, not what
+//!   any other journal held at startup, not an already-read journal that becomes newest (re-read
+//!   as a replay, but only up to where we had read it, or its length at startup: what the game
+//!   wrote since is live), never a line of a journal the game doesn't
 //!   write (`Tailer::classify`: the folder's latest by name stamp, or one whose Fileheader time
 //!   agrees with its name's local time, whose lines stamped now are live, so a clock that went
 //!   back, a foreign journal stamped later or a late start can't silence it; never a conflict
@@ -33,8 +34,10 @@
 //! - EDDN (when switched on): every journal line goes to the [`astromech_eddn::Feed`] in order,
 //!   and the companion files to it after their event. Lines replayed at startup are fed as not
 //!   live, so they rebuild its header, commander and location but nothing from them is sent; a
-//!   journal the game starts while we run (later by name, not opened before) is live from its
-//!   `Fileheader`. Any other journal that becomes newest is re-read as a replay (up to where it had been read, if it had). Delivery runs on the
+//!   journal the game starts while we run (the game's by `Tailer::classify`, not in the folder at
+//!   startup nor opened before) is live from its `Fileheader`. Any other journal that becomes
+//!   newest is re-read as a replay (up to where it had been read, or its length at startup, if
+//!   either). Delivery runs on the
 //!   feed's own thread, so the network never holds up this one.
 //! - EDSM (when switched on): every journal line also goes to the [`astromech_eddn::edsm::Uploader`],
 //!   with the same notion of live; it sends to the commander's EDSM account from its own thread.
@@ -191,8 +194,9 @@ struct Tailer {
     live: bool,
     /// The startup catch-up is done (until then nothing is live, Status.json included).
     caught_up: bool,
-    /// Journals opened this run, with how far we had read when we left each (`None` while
-    /// followed). Opening one again replays up to that point; what the game wrote since is live.
+    /// Journals opened this run or already in the folder at startup, with how far we had read
+    /// when we left each, or its length at startup (`None` while followed). Opening one again
+    /// replays up to that point; what the game wrote since is live.
     opened: std::collections::HashMap<PathBuf, Option<u64>>,
     /// When `on_idle` last looked for a new journal.
     last_scan: Instant,
@@ -612,8 +616,35 @@ impl Tailer {
         } else {
             (self.log)("no journal file yet; waiting for the game to create one");
         }
+        self.note_startup_lengths();
         self.on_status();
         self.caught_up = true;
+    }
+
+    /// Everything in the folder at startup is history: a journal followed later is a replay up to
+    /// its length now, and only what the game appends afterwards is live. The catch-up follows the
+    /// newest by modified time, which a sync tool can make an older journal, so the game's current
+    /// one may only be followed once the game next writes it (astromech-nrhv). The game's latest
+    /// journal is measured through an open handle: on Windows a directory listing lags appends to
+    /// a file the game holds open (astromech-txzq). The others are closed, so the listing is right.
+    fn note_startup_lengths(&mut self) {
+        let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
+        let latest = astromech_journal::latest_journal(&self.dir);
+        for e in entries.flatten() {
+            let path = e.path();
+            if !is_journal(&path) {
+                continue;
+            }
+            let len = if latest.as_ref() == Some(&path) {
+                std::fs::File::open(&path).and_then(|f| f.metadata())
+            } else {
+                e.metadata()
+            };
+            if let Ok(m) = len {
+                // The one the catch-up follows is in already (`None`: followed).
+                self.opened.entry(path).or_insert(Some(m.len()));
+            }
+        }
     }
 
     fn on_companions(&mut self) {
@@ -1412,6 +1443,43 @@ mod tests {
         append(&j2, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-nrhv: a sync tool touched an older journal just before we started, so the
+    /// startup catch-up follows it. The game's current journal (later by name) was already there:
+    /// what it held at startup is history, and only what the game appends afterwards is live.
+    #[test]
+    fn the_games_journal_is_a_replay_up_to_startup_after_a_catch_up_on_a_touched_older_one() {
+        let d = tempfile::tempdir().unwrap();
+        let (older, current) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        // Recent timestamps, so only the replay rule keeps them from being sent or spoken.
+        std::fs::write(&older, format!("{}{}\n", session(&ts(600), "r1 "), docked(&ts(500)))).unwrap();
+        std::fs::write(&current, format!("{}{}\n{}", session(&ts(60), "r2 "), docked(&ts(40)), scanned_at(&ts(30))))
+            .unwrap();
+        touch(&older, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, older, "startup follows the newest by modified time");
+
+        // The game writes its current journal.
+        append(&current, &format!("{}\n{}", docked(&ts(0)), scanned_at(&ts(0)).trim_end()));
+        touch(&current, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, current);
+        assert_eq!(eddn_state(&db).0, 1, "only the appended Docked, not the history written before startup");
+        assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the appended scan");
+    }
+
+    /// A `Scanned` line stamped `ts` (full RFC 3339).
+    fn scanned_at(ts: &str) -> String {
+        format!("{{\"timestamp\":\"{ts}\",\"event\":\"Scanned\",\"ScanType\":\"Cargo\"}}\n")
     }
 
     /// astromech-0d7l: a sync tool restoring an older journal creates it, then writes it. We may

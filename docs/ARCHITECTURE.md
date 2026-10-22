@@ -302,7 +302,7 @@ astromech/
                          journal/1 and the event schemas (fsssignaldiscovered batched per run,
                          codexentry body cross-check); all tested against the live schema files.
                          Feed: what the core drives; only live-tailed lines and their companion files
-                         are queued (the startup replay, an older or already-read journal, and lines
+                         are queued (the startup replay, what any journal held at startup, an older or already-read journal, and lines
                          over 5 min old only rebuild the header and location);
                          outfitting/2 is off until commander-specific modules are filtered.
                          Worker: delivery on its own thread and SQLite connection, so no lock is held

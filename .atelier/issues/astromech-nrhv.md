@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "The game's journal is fully live after a startup catch-up on a touched older journal"
-updated_at: "2026-10-22T20:41:32.721773109+00:00"
+updated_at: "2026-10-22T20:45:37.959280222+00:00"
 ---
 
 ## Goal
