@@ -18,9 +18,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T23:19:49.909031431+00:00"
+status: "done"
 title: "Neutron plotter over the local file"
-updated_at: "2026-10-22T23:05:41.476605784+00:00"
+updated_at: "2026-10-22T23:19:49.909031431+00:00"
 ---
 
 ## Goal
@@ -50,3 +51,7 @@ Neighbour counts at k·R up to about 500 ly near the galactic core. If plain A* 
 ## Notes
 
 - 2026-10-22 [note] 2026-10-22: from review finding R3 (astromech-4h9h) on the neutron file: a loaded file must not read names from a file replaced underneath it (keep the handle opened at load, or re-check the header before reading names); on Windows a held handle also blocks the download's rename, so the download must cope.
+
+## Close Reason
+
+Local neutron plotter: exact fewest within the work limit, near-fewest beyond with Route::fewest; beats Spansh on three recorded routes; 0.6-1.9 s and ~100 MB on the real file; reviewed (astromech-0vq5).
