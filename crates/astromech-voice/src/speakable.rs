@@ -19,8 +19,9 @@
 //! - Numbers: `43.5%` becomes `43.5 percent`; `19 M` becomes `19 million`; `Cr` is credits;
 //!   `ly`, `ls`, `MJ` and friends become words, singular for exactly 1; ranges (`40-60%`) read
 //!   `40 to 60 percent`. Thousands separators are dropped. A unit or scale written after a space
-//!   is read only when it cannot mean anything else (`5 m` and `Deck 2 K` are left alone); glued
-//!   to the number (`12t`, `5k`) any of them is.
+//!   is read only when it cannot mean anything else (`5 m`, `Deck 2 K` and `LHS 3447 B` are left
+//!   alone; `19 M` only where its clause ends); glued to the number (`12t`, `5k`, `1.2B`) any of
+//!   them is.
 //! - Words are matched without surrounding quotes, brackets, sentence punctuation or a
 //!   possessive `'s` ("Taaffeite's").
 
@@ -66,10 +67,13 @@ const NAMES: &[(&str, &str)] = &[
     ("uraninite", "You-ranni-nite"),
 ];
 
-/// Words after a number that scale it: (written, word, read after a space). Only `M` and `B` are
-/// read after a space ("19 M", as the biology callouts write it); "Deck 2 K" is not a thousand.
+/// Words after a number that scale it: (written, word, read after a space). Only `M` is read after
+/// a space, as the biology callouts write it ("up to 19 M."), and only where a clause ends or a
+/// unit follows (see [`spaced_scale_ends`]). Star and body letters follow numbers too: "LHS 3447
+/// B", "HIP 36601 B 1 a", "Deck 2 K" are not billions or thousands. A thirteenth star, "HIP 1234
+/// M", at the end of a clause would still be read as a million; no callout says one.
 const SCALES: &[(&str, &str, bool)] =
-    &[("M", "million", true), ("B", "billion", true), ("K", "thousand", false), ("k", "thousand", false)];
+    &[("M", "million", true), ("B", "billion", false), ("K", "thousand", false), ("k", "thousand", false)];
 
 /// Units and currency after a number: (written, singular, plural, read after a space). Units that
 /// are also ordinary letters or words (`m`, `t`, `CR`) are read only when glued to the number.
@@ -107,7 +111,9 @@ pub fn normalise(text: &str) -> String {
                     let (npre, ncore, npost) = split_punct(toks[i]);
                     let ok = npre.is_empty()
                         && match suffix.len() {
-                            0 => spaced_scale(ncore) || spaced_unit(ncore),
+                            0 => {
+                                spaced_unit(ncore) || (spaced_scale(ncore) && spaced_scale_ends(npost, toks.get(i + 1)))
+                            }
                             _ => spaced_unit(ncore) && scale(suffix[0]).is_some(),
                         };
                     if !ok {
@@ -169,6 +175,12 @@ fn unit(s: &str) -> Option<(&'static str, &'static str)> {
 /// A scale read even after a space.
 fn spaced_scale(s: &str) -> bool {
     SCALES.iter().any(|(k, _, spaced)| *k == s && *spaced)
+}
+
+/// A spaced scale counts only where its clause ends (punctuation after it, or the end of the
+/// line) or a unit follows ("19 M Cr"); "HIP 1234 M 1" is a body.
+fn spaced_scale_ends(post: &str, next: Option<&&str>) -> bool {
+    !post.is_empty() || next.is_none_or(|n| spaced_unit(split_punct(n).1))
 }
 
 /// A unit read even after a space.
@@ -317,7 +329,9 @@ mod tests {
         // Large numbers and credits.
         ("worth 19 M", "worth 19 million"),
         ("worth 19M.", "worth 19 million."),
-        ("1.2 B", "1.2 billion"),
+        ("1.2B", "1.2 billion"),
+        ("A 2: Stratum, up to 19 M.", "A 2: Stratum, up to 19 million."),
+        ("B 3: Fungoida Bullarum, 3.7 M.", "B 3: Fungoida Bullarum, 3.7 million."),
         ("19 M Cr", "19 million credits"),
         ("1,234,567 Cr", "1234567 credits"),
         ("1 Cr", "1 credit"),
@@ -347,6 +361,11 @@ mod tests {
         ("in 5 m", "in 5 m"),
         ("carrying 1 t", "carrying 1 t"),
         ("Deck 2 K", "Deck 2 K"),
+        ("HIP 36601 B 1 a", "Hip 36601 B 1 a"),
+        ("LHS 3447 B", "L H S 3447 B"),
+        ("Wolf 359 B", "Wolf 359 B"),
+        ("Pad 5 B", "Pad 5 B"),
+        ("Nearest site: HIP 1234 M 1 a, 3.2 light years.", "Nearest site: Hip 1234 M 1 a, 3.2 light years."),
         ("Col. Smith", "Col. Smith"),
         ("HD video", "HD video"),
         ("Prua Phoe XX-Y e1-2345", "Prua Phoe X X Y E 1 dash 2345"),
