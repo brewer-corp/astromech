@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "History: one commander for journals from before FID"
-updated_at: "2026-10-22T21:11:44.441689991+00:00"
+updated_at: "2026-10-22T21:31:08.012887313+00:00"
 ---
 
 ## Goal

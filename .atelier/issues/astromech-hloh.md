@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Logbook: Unicode search, busy timeout and data folder"
-updated_at: "2026-10-22T21:30:11.582129378+00:00"
+updated_at: "2026-10-22T21:31:08.204900398+00:00"
 ---
 
 ## Goal
