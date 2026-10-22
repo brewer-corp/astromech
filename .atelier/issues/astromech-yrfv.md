@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:53:38.865198875+00:00"
+status: "done"
 title: "History: one commander for journals from before FID"
-updated_at: "2026-10-22T21:31:08.012887313+00:00"
+updated_at: "2026-10-22T21:53:38.865198875+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ A fixture with an old `LoadGame` without `FID` and a later one with it, same nam
 ## Notes
 
 - 2026-10-16 [note] Also (review of ipb5 round 4, N1): a continuation part inherits the commander from whichever file sorts before it; only inherit when the previous file has the same timestamp stem, else start with no commander.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-fdh3 (approval astromech-o2y7).

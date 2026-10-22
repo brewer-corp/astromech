@@ -29,9 +29,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-22T21:53:39.598229499+00:00"
+status: "done"
 title: "Ships, history, Powerplay and mining fixes"
-updated_at: "2026-10-22T21:03:40.512178912+00:00"
+updated_at: "2026-10-22T21:53:39.598229499+00:00"
 ---
 
 ## Goal
@@ -45,3 +46,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+Six ships, history, Powerplay and mining fixes, independently reviewed twice (approval astromech-o2y7); decision astromech-yc7h for Sumeet.

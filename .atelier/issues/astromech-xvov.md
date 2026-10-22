@@ -14,9 +14,10 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:53:39.056561602+00:00"
+status: "done"
 title: "Powerplay: incremental replay and state edge cases"
-updated_at: "2026-10-22T21:31:08.599508728+00:00"
+updated_at: "2026-10-22T21:53:39.056561602+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ Found in review of astromech-7ni2 (R1, R2, R4, R5). R3 (rank/merits reset on def
 ## Notes
 
 - 2026-10-22 [note] 2026-10-22: 'Login without Powerplay clears the pledge' narrowed to a game run's first login (Fileheader part 1, then LoadGame, then Missions with no Powerplay between). Real journals (Oct 2026) show a pledged commander's relog from the main menu in the same run writes LoadGame/Location/Missions with no Powerplay, so clearing on every login would drop a live pledge. The page now uses powerplay::Follower (reads only appended lines); the shell change is CI-verified only (the shell doesn't build on this Linux host).
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-fdh3 (approval astromech-o2y7).
