@@ -3,6 +3,9 @@ created_at: "2026-10-22T23:48:29.163774792+00:00"
 id: "astromech-m3xd"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-m3xd
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice queries for the exploration system view and biology"
-updated_at: "2026-10-22T23:48:29.163774792+00:00"
+updated_at: "2026-10-22T23:50:58.821511555+00:00"
 ---
 
 ## Goal
