@@ -16,9 +16,9 @@
 //! A star at (x, y, z) in 1/32 ly is in cell `floor(q / (edge · 32))` per axis, and a cell's
 //! stars are the contiguous range from its first star to the next cell's (N for the last).
 //! Neighbours within r ly of a point are found by scanning the cells that overlap the sphere
-//! ([`NeutronStars::cell_of`], [`NeutronStars::cell`]). Opening the file loads the header,
-//! cells and positions (about 75 MB for 5 M stars); [`NeutronStars::name`] reads one name
-//! from disk.
+//! ([`Stars::cell_of`], [`Stars::cell`]). Opening the file loads the header, cells and positions
+//! (about 80 MB for 5 M stars) and closes it; [`NeutronStars::names`] reads a route's names from
+//! disk, after checking the file is still the one loaded. `crate::neutron_plot` searches it.
 //!
 //! The `neutron` pre-release publishes the file gzipped, with its SHA-256
 //! (`.github/workflows/neutron.yml`). [`download`] fetches it into the data folder only when the
@@ -101,14 +101,131 @@ fn i16_at(b: &[u8], at: usize) -> i16 {
     i16::from_le_bytes(b[at..at + 2].try_into().expect("2 bytes"))
 }
 
-/// The neutron star file, loaded except for the names.
+/// Neutron star positions grouped by grid cell: what the plotter searches.
+pub struct Stars {
+    /// Grid cell edge, light years.
+    cell_ly: u32,
+    /// Cell keys and first stars, sorted by key.
+    cells: Vec<([i16; 3], u32)>,
+    /// Positions in 1/32 ly, in cell order.
+    pos: Vec<[i32; 3]>,
+    /// The non-empty (x, y) columns of cells, sorted, each with its first cell; the next
+    /// column's first (or the cell count) ends it.
+    columns: Vec<([i16; 2], u32)>,
+}
+
+impl Stars {
+    /// An index over positions in 1/32 ly, ordered as the file orders them (so star `i` here is
+    /// not the `i`-th position given). For stars that don't come from a file.
+    pub fn new(cell_ly: u32, mut pos: Vec<[i32; 3]>) -> Result<Self> {
+        ensure!(cell_ly > 0, "zero cell edge");
+        let span = cell_ly as i32 * 32;
+        let key = |q: &[i32; 3]| q.map(|v| v.div_euclid(span));
+        pos.sort_by_key(|q| (key(q), *q));
+        let mut cells: Vec<([i16; 3], u32)> = Vec::new();
+        for (i, q) in pos.iter().enumerate() {
+            let fits = |v: i32| i16::try_from(v).map_err(|_| anyhow!("star at {q:?} (1/32 ly) is outside the grid"));
+            let [x, y, z] = key(q);
+            let k = [fits(x)?, fits(y)?, fits(z)?];
+            if cells.last().is_none_or(|c| c.0 != k) {
+                cells.push((k, i as u32));
+            }
+        }
+        Ok(Stars::index(cell_ly, cells, pos))
+    }
+
+    /// Adds the column index to sorted cells.
+    fn index(cell_ly: u32, cells: Vec<([i16; 3], u32)>, pos: Vec<[i32; 3]>) -> Self {
+        let mut columns: Vec<([i16; 2], u32)> = Vec::new();
+        for (i, c) in cells.iter().enumerate() {
+            let xy = [c.0[0], c.0[1]];
+            if columns.last().is_none_or(|l| l.0 != xy) {
+                columns.push((xy, i as u32));
+            }
+        }
+        Stars { cell_ly, cells, pos, columns }
+    }
+
+    pub fn len(&self) -> usize {
+        self.pos.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.pos.is_empty()
+    }
+
+    /// Grid cell edge, light years.
+    pub fn cell_ly(&self) -> u32 {
+        self.cell_ly
+    }
+
+    /// Star `i`'s position in ly.
+    pub fn pos(&self, i: usize) -> [f64; 3] {
+        self.pos[i].map(|q| f64::from(q) / 32.0)
+    }
+
+    /// Star `i`'s position in 1/32 ly, as stored.
+    pub fn pos32(&self, i: usize) -> [i32; 3] {
+        self.pos[i]
+    }
+
+    /// The cell holding a point in ly.
+    pub fn cell_of(&self, p: [f64; 3]) -> [i32; 3] {
+        let edge = f64::from(self.cell_ly);
+        p.map(|v| (v / edge).floor() as i32)
+    }
+
+    /// The non-empty cells from `lo` to `hi` inclusive (cell keys), with their stars: per row
+    /// of x, a binary search for the columns that exist, then per column one for the cells.
+    pub fn cells_in(&self, lo: [i32; 3], hi: [i32; 3]) -> impl Iterator<Item = ([i32; 3], Range<usize>)> + '_ {
+        let fit = |v: i32| v.clamp(i16::MIN.into(), i16::MAX.into()) as i16;
+        let (lo16, hi16) = (lo.map(fit), hi.map(fit));
+        (lo16[0]..=hi16[0])
+            .flat_map(move |x| {
+                let first = self.columns.partition_point(|c| c.0 < [x, lo16[1]]);
+                self.columns[first..]
+                    .iter()
+                    .enumerate()
+                    .map_while(move |(k, c)| (c.0 <= [x, hi16[1]]).then_some(first + k))
+            })
+            .flat_map(move |k| {
+                let end = self.columns.get(k + 1).map_or(self.cells.len(), |c| c.1 as usize);
+                let column = &self.cells[self.columns[k].1 as usize..end];
+                let start = self.columns[k].1 as usize + column.partition_point(|e| e.0[2] < lo16[2]);
+                (start..end).map_while(move |i| {
+                    let key = self.cells[i].0;
+                    (key[2] <= hi16[2]).then(|| {
+                        let stop = self.cells.get(i + 1).map_or(self.len(), |e| e.1 as usize);
+                        (key.map(i32::from), self.cells[i].1 as usize..stop)
+                    })
+                })
+            })
+    }
+
+    /// The stars in a cell (empty if it has none).
+    pub fn cell(&self, key: [i32; 3]) -> Range<usize> {
+        let (Ok(x), Ok(y), Ok(z)) = (i16::try_from(key[0]), i16::try_from(key[1]), i16::try_from(key[2])) else {
+            return 0..0;
+        };
+        let key = [x, y, z];
+        match self.cells.binary_search_by(|e| e.0.cmp(&key)) {
+            Ok(i) => {
+                let end = self.cells.get(i + 1).map_or(self.len(), |e| e.1 as usize);
+                self.cells[i].1 as usize..end
+            }
+            Err(_) => 0..0,
+        }
+    }
+}
+
+/// The neutron star file, loaded except for the names. It holds no handle on the file between
+/// calls: the download can replace the file while it is loaded (on Windows an open handle would
+/// block that), and [`NeutronStars::names`] refuses to read names from a file that is no longer
+/// the one loaded.
 pub struct NeutronStars {
     path: PathBuf,
     header: Header,
-    /// Cell keys and first stars, sorted by key.
-    cells: Vec<([i16; 3], u32)>,
-    /// Positions in 1/32 ly.
-    pos: Vec<[i32; 3]>,
+    stars: Stars,
     /// Byte offsets of each group of names in the name text.
     groups: Vec<u32>,
     file_len: u64,
@@ -146,69 +263,54 @@ impl NeutronStars {
         let mut b = vec![0u8; 4 * header.name_groups()];
         f.read_exact(&mut b).with_context(ctx)?;
         let groups = b.as_chunks::<4>().0.iter().map(|e| u32::from_le_bytes(*e)).collect();
-        Ok(NeutronStars { path: path.to_path_buf(), header, cells, pos, groups, file_len })
+        let stars = Stars::index(header.cell_ly, cells, pos);
+        Ok(NeutronStars { path: path.to_path_buf(), header, stars, groups, file_len })
     }
 
     pub fn header(&self) -> Header {
         self.header
     }
 
-    pub fn len(&self) -> usize {
-        self.pos.len()
+    /// The positions, to search.
+    pub fn stars(&self) -> &Stars {
+        &self.stars
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.pos.is_empty()
-    }
-
-    /// Star `i`'s position in ly.
-    pub fn pos(&self, i: usize) -> [f64; 3] {
-        self.pos[i].map(|q| f64::from(q) / 32.0)
-    }
-
-    /// Star `i`'s position in 1/32 ly, as stored.
-    pub fn pos32(&self, i: usize) -> [i32; 3] {
-        self.pos[i]
-    }
-
-    /// The cell holding a point in ly.
-    pub fn cell_of(&self, p: [f64; 3]) -> [i32; 3] {
-        let edge = f64::from(self.header.cell_ly);
-        p.map(|v| (v / edge).floor() as i32)
-    }
-
-    /// The stars in a cell (empty if it has none).
-    pub fn cell(&self, key: [i32; 3]) -> Range<usize> {
-        let (Ok(x), Ok(y), Ok(z)) = (i16::try_from(key[0]), i16::try_from(key[1]), i16::try_from(key[2])) else {
-            return 0..0;
-        };
-        let key = [x, y, z];
-        match self.cells.binary_search_by(|e| e.0.cmp(&key)) {
-            Ok(i) => {
-                let end = self.cells.get(i + 1).map_or(self.len(), |e| e.1 as usize);
-                self.cells[i].1 as usize..end
-            }
-            Err(_) => 0..0,
-        }
-    }
-
-    /// Star `i`'s name, read from disk.
+    /// Star `i`'s name, read from disk ([`NeutronStars::names`]).
     pub fn name(&self, i: usize) -> Result<String> {
-        ensure!(i < self.len(), "no neutron star {i}");
+        Ok(self.names(&[i])?.remove(0))
+    }
+
+    /// The names of stars `ids`, read from disk through one handle. The file must still be the
+    /// one loaded: the same header and length (a newer download gives a newer build time or
+    /// other counts). If it has been replaced, the error says to plot again, which loads the new
+    /// file.
+    pub fn names(&self, ids: &[usize]) -> Result<Vec<String>> {
+        let ctx = || format!("Couldn't read {}", self.path.display());
+        let mut f = File::open(&self.path).with_context(ctx)?;
+        let mut hb = [0u8; HEADER_LEN as usize];
+        f.read_exact(&mut hb).with_context(ctx)?;
+        let same = Header::parse(&hb).is_ok_and(|h| h == self.header)
+            && f.metadata().with_context(ctx)?.len() == self.file_len;
+        ensure!(same, "The neutron star file changed while it was loaded (a new download). Plot the route again.");
         let group = self.header.name_group as usize;
-        let (g, k) = (i / group, i % group);
         let text_at = self.header.names_at() + 4 * self.groups.len() as u64;
-        let start = text_at + u64::from(self.groups[g]);
-        let end = self.groups.get(g + 1).map_or(self.file_len, |o| text_at + u64::from(*o));
-        ensure!(start <= end && end <= self.file_len, "neutron star file name index is corrupt");
-        let mut f = File::open(&self.path).with_context(|| format!("Couldn't read {}", self.path.display()))?;
-        f.seek(SeekFrom::Start(start))?;
-        let mut b = vec![0u8; (end - start) as usize];
-        f.read_exact(&mut b)?;
-        let Some(name) = b.split_inclusive(|c| *c == b'\n').nth(k).and_then(|s| s.strip_suffix(b"\n")) else {
-            bail!("neutron star file has no name for star {i}");
-        };
-        String::from_utf8(name.to_vec()).context("neutron star name isn't UTF-8")
+        ids.iter()
+            .map(|&i| {
+                ensure!(i < self.stars.len(), "no neutron star {i}");
+                let (g, k) = (i / group, i % group);
+                let start = text_at + u64::from(self.groups[g]);
+                let end = self.groups.get(g + 1).map_or(self.file_len, |o| text_at + u64::from(*o));
+                ensure!(start <= end && end <= self.file_len, "neutron star file name index is corrupt");
+                f.seek(SeekFrom::Start(start)).with_context(ctx)?;
+                let mut b = vec![0u8; (end - start) as usize];
+                f.read_exact(&mut b).with_context(ctx)?;
+                let Some(name) = b.split_inclusive(|c| *c == b'\n').nth(k).and_then(|s| s.strip_suffix(b"\n")) else {
+                    bail!("neutron star file has no name for star {i}");
+                };
+                String::from_utf8(name.to_vec()).context("neutron star name isn't UTF-8")
+            })
+            .collect()
     }
 }
 
