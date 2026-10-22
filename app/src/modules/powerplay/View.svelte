@@ -131,9 +131,11 @@
 <style>
   section { padding: 22px 0 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr)); gap: 40px; align-items: start; container-type: inline-size; grid-template-rows: auto 1fr; }
   .panel { min-width: 0; }
-  /* Three columns (22rem each, 40 px apart): the long merits list takes the third column down both
-     rows and Where to work fills the two beside it, so no band is left under the short panels. */
-  @container (min-width: 1136px) and (max-width: 1527px) {
+  /* Exactly three columns (auto-fit 22rem tracks, 40 px apart: from 3 × 22rem + 2 × 40 px, and
+     four from 4 × 22rem + 3 × 40 px; rem is the root font, 15 px): the long merits list takes the
+     third column down both rows and Where to work fills the two beside it, so no band is left
+     under the short panels. */
+  @container (min-width: calc(66rem + 80px)) and (max-width: calc(88rem + 119.98px)) {
     .merits { grid-row: span 2; }
     .work { grid-column: span 2; }
   }
