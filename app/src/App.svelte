@@ -162,9 +162,9 @@
   header.stacked { flex-wrap: wrap; row-gap: 14px; }
   header.stacked .app { margin-right: auto; }
   header.stacked nav { order: 1; flex-basis: 100%; }
+  /* The header's gaps scale with the window only (no breakpoint), so the width one row needs grows
+     steadily with it: the header stacks once as the window narrows and stays stacked below that. */
   @media (max-width: 1100px) {
-    header { gap: 16px; }
-    nav { gap: 14px; }
     nav.sub { gap: 16px; }
     main.split { display: flex; flex-direction: column; overflow: auto; padding-right: clamp(16px, 3vw, 40px); }
     .find { padding: 20px 0 24px; overflow: visible; flex: none; }
