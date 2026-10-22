@@ -15,9 +15,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Run atelier doctor in CI"
-updated_at: "2026-10-22T23:18:21.367094703+00:00"
+updated_at: "2026-10-22T23:43:15.204558995+00:00"
 ---
 
 ## Goal
