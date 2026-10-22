@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "A new-scheme journal the game starts after an old-scheme one opens as a replay"
-updated_at: "2026-10-22T20:48:56.145583514+00:00"
+updated_at: "2026-10-22T20:57:07.796620331+00:00"
 ---
 
 ## Goal

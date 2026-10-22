@@ -14,9 +14,9 @@ relationships:
     type: "related"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Share one journal-growth check; history import length fallback"
-updated_at: "2026-10-22T20:51:35.026477373+00:00"
+updated_at: "2026-10-22T20:57:08.011218168+00:00"
 ---
 
 ## Goal

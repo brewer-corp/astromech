@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Background lookups (known biology, bodies known): retry cadence and session-long answers"
-updated_at: "2026-10-22T20:52:29.587633993+00:00"
+updated_at: "2026-10-22T20:57:08.455597249+00:00"
 ---
 
 ## Goal
