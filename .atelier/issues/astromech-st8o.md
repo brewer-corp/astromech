@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "EDSM uploader has no timestamp-age guard on live events"
-updated_at: "2026-10-22T20:59:22.909638300+00:00"
+updated_at: "2026-10-22T21:03:18.515316210+00:00"
 ---
 
 ## Goal

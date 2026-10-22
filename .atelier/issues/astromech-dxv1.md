@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "EDSM: three or more poisoned events due in one pass still stop it; test the reset on stored"
-updated_at: "2026-10-22T20:58:06.713982705+00:00"
+updated_at: "2026-10-22T21:03:18.394401389+00:00"
 ---
 
 ## Goal

@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Tighten the data-sharing limits test to whole sentences"
-updated_at: "2026-10-22T20:59:45.480290359+00:00"
+updated_at: "2026-10-22T21:03:18.636003867+00:00"
 ---
 
 ## Goal
