@@ -11,9 +11,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Move the Clock trait into astromech-proto, as ARCHITECTURE 5.1 says"
-updated_at: "2026-10-22T20:41:40.181319299+00:00"
+updated_at: "2026-10-22T21:27:31.431075542+00:00"
 ---
 
 ## Goal
