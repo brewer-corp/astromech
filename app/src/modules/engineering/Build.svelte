@@ -14,6 +14,8 @@
   import Nearby from "../../lib/ui/Nearby.svelte";
   import { followedNote, followRoute } from "../../lib/route";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import Stale from "../../lib/ui/Stale.svelte";
+  import { pollFailure } from "../../lib/ui/errors";
 
   let { fleet, shipId, onback, embedded = false }: { fleet: Fleet; shipId: number; onback: () => void; embedded?: boolean } = $props();
   let plan = $state<Plan | null>(null);
@@ -26,6 +28,8 @@
   let engineersKey = "";
   let lastTripKey = "";
   let engineers = $state<Engineers | null>(null);
+  /** The engineer progress poll failed: the trip was planned from the last progress read, if any. */
+  let engineersErr = $state<string | null>(null);
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
   let followNote = $state<string | null>(null);
@@ -66,8 +70,9 @@
             engineersKey = k;
             engineers = e;
           }
+          engineersErr = null;
         })
-        .catch(() => {});
+        .catch((e: unknown) => (engineersErr = pollFailure("read engineer progress", e, engineers !== null)));
     };
     tick();
     const t = setInterval(tick, 1000);
@@ -361,6 +366,7 @@
           <h4>Engineer trip</h4>
           {#if trip.stops.length}<button class="follow" onclick={() => void followTrip()}>Follow</button>{/if}
         </div>
+        <Stale error={engineersErr} />
         {#if followNote}<p class="lo small">{followNote}</p>{/if}
         <p class="lo small">
           {#if trip.start}From <SystemChip name={trip.start} />{:else}Start unknown{/if} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
