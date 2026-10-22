@@ -695,5 +695,5 @@ fn read_only_open_waits_when_busy() {
     History::open(&db).unwrap();
     let r = History::open_read_only(&db).unwrap();
     let ms: i64 = r.conn().query_row("PRAGMA busy_timeout", [], |row| row.get(0)).unwrap();
-    assert_eq!(ms, 2000);
+    assert_eq!(ms, 5000);
 }

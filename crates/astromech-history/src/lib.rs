@@ -294,8 +294,9 @@ impl History {
     /// create, migrate or rebuild anything.
     pub fn open_read_only(path: &Path) -> Result<Self> {
         let conn = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
-        // Wait out the core's brief locks (a checkpoint, a migration) rather than fail the read.
-        conn.busy_timeout(std::time::Duration::from_secs(2))?;
+        // Wait out the core's brief locks (a checkpoint, a migration) rather than fail the read:
+        // rusqlite's own default, 5 s, set here so it can't silently change.
+        conn.busy_timeout(std::time::Duration::from_secs(5))?;
         let found: i64 = conn.query_row("PRAGMA user_version", [], |r| r.get(0))?;
         let want = MIGRATIONS.len() as i64;
         if found != want {
