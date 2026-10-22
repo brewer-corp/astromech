@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "System page"
-updated_at: "2026-10-15T20:36:13.652415868+00:00"
+updated_at: "2026-10-22T20:39:31.880028222+00:00"
 ---
 
 ## Goal

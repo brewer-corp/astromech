@@ -28,26 +28,26 @@ Every lookup works from the current system or a typed one, in the app and as a v
 A module isn't done until its `voice_exposed` queries have phrase templates (ARCHITECTURE
 §18.7).
 
-- S1 **Outfitting:** nearest station selling a given module, ship or service, filtered by the
+- S1: **Outfitting:** nearest station selling a given module, ship or service, filtered by the
   current ship's pad size. Shown by lookups against known stations.
-- S2 **Trade:** where to sell or buy a commodity near me, and the best station for the cargo
+- S2: **Trade:** where to sell or buy a commodity near me, and the best station for the cargo
   I'm carrying. Shown by lookups against known markets.
-- S3 **Engineering materials:** High Grade Emissions signals called out with the likely
+- S3: **Engineering materials:** High Grade Emissions signals called out with the likely
   material pool, Boom/Famine/War systems for the shopping list, and the nearest raw-material
   sites (crystalline shards and the like). Shown by journal replay and lookups.
-- S4 **Powerplay:** my standing and merits, the system's Powerplay state on arrival, and nearby
+- S4: **Powerplay:** my standing and merits, the system's Powerplay state on arrival, and nearby
   systems for my power to work in. Shown by journal replay and lookups.
-- S5 **Colonisation:** depot progress, what's left to deliver (in loads for the current ship),
+- S5: **Colonisation:** depot progress, what's left to deliver (in loads for the current ship),
   and where to buy each commodity. Shown by journal replay and lookups.
-- S6 **Data sharing replaces EDMC:** commodity, outfitting, shipyard, journal and the other live
+- S6: **Data sharing replaces EDMC:** commodity, outfitting, shipyard, journal and the other live
   EDDN schemas are sent from the live game and accepted (test schemas first, then a play session
   with no rejections). EDSM journal upload works.
-- S7 **Reactions:** prospector results, being scanned, arrival briefing, docking pad position
+- S7: **Reactions:** prospector results, being scanned, arrival briefing, docking pad position
   and fuel along the route are spoken. Nothing already prominent on the HUD is spoken. Shown by
   journal replay tests and a play session.
-- S8 **Exploration and exobiology:** a live system view with body values, a system biology
+- S8: **Exploration and exobiology:** a live system view with body values, a system biology
   summary, and the exobiology sampling helper. Shown by journal replay.
-- S9 **Acceptance:** Sumeet plays for a week without opening the replaced tools for the jobs in
+- S9: **Acceptance:** Sumeet plays for a week without opening the replaced tools for the jobs in
   S1–S8. Checked by an independent validation item.
 
 # Shape
