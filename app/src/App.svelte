@@ -26,6 +26,33 @@
   const galaxyFind = $derived(current?.group === "galaxy" && current.id !== "route");
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
+  const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
+
+  // The tabs share a row with the name and status while all of it fits (the status runs from "Not
+  // running" to "Waiting for Elite · Voice paused · Kill switch on"); in a narrower window they
+  // take a row of their own under the name.
+  let header = $state<HTMLElement>();
+  let stacked = $state(false);
+  /** The header's width on one row: each part at its own width (the tabs at their buttons'). */
+  function oneRow(h: HTMLElement): number {
+    const gap = (el: Element) => parseFloat(getComputedStyle(el).columnGap) || 0;
+    const parts = [...h.children] as HTMLElement[];
+    const width = (el: HTMLElement) => {
+      if (el.tagName !== "NAV") return el.offsetWidth;
+      const tabs = [...el.children] as HTMLElement[];
+      return tabs.reduce((w, t) => w + t.offsetWidth, 0) + gap(el) * Math.max(0, tabs.length - 1);
+    };
+    return parts.reduce((w, p) => w + width(p), 0) + gap(h) * Math.max(0, parts.length - 1);
+  }
+  $effect(() => {
+    const h = header;
+    void showSetup; // the Finish setup button comes and goes: observe the parts there are now
+    if (!h || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => (stacked = oneRow(h) > h.clientWidth));
+    ro.observe(h);
+    for (const p of h.children) ro.observe(p);
+    return () => ro.disconnect();
+  });
   const onboarding = $derived(route === "setup" || route.startsWith("setup/") || status?.onboarded === false);
 
   function go(id: string) {
@@ -60,7 +87,7 @@
   <Onboarding start={route.split("/")[1]} onfinish={finishSetup} />
 {:else}
 <div class="frame">
-  <header>
+  <header bind:this={header} class:stacked>
     <span class="app">ASTROMECH</span>
     <nav>
       {#each groups as g (g.id)}
@@ -70,7 +97,7 @@
         {/if}
       {/each}
     </nav>
-    {#if setup.length && current?.id !== "settings"}
+    {#if showSetup}
       <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
     {/if}
     <span class="right">
@@ -111,7 +138,7 @@
 {/if}
 
 <style>
-  .frame { height: 100vh; display: grid; grid-template-rows: auto auto 1fr; }
+  .frame { height: 100vh; display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); }
   header { display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); margin: 0 clamp(16px, 3vw, 40px); padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: clamp(16px, 2.5vw, 28px); flex: 1; flex-wrap: wrap; }
@@ -122,7 +149,7 @@
   nav.sub { flex: none; gap: 24px; margin: 0 clamp(16px, 3vw, 40px); padding: 12px 0 0; }
   nav.sub button { font-size: var(--fs-s); font-weight: 600; padding-bottom: 4px; border-bottom: 2px solid transparent; }
   nav.sub button.on { color: var(--text-hi); border-bottom-color: var(--accent); }
-  .setup { color: var(--accent); font-size: var(--fs-s); font-weight: 600; }
+  .setup { color: var(--accent); font-size: var(--fs-s); font-weight: 600; white-space: nowrap; }
   .setup:hover { color: var(--text-hi); }
   .help { font-size: var(--fs-s); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
   .right { display: flex; align-items: baseline; gap: 16px; }
@@ -132,6 +159,9 @@
   main.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); gap: 0; overflow: hidden; padding-right: 0; }
   .find { min-width: 0; overflow: auto; padding: 20px 24px 40px 0; scrollbar-gutter: stable; }
   .rail { min-width: 0; overflow: auto; padding: 20px clamp(16px, 3vw, 28px) 40px 24px; border-left: 1px solid var(--accent-dim); background: var(--bg-list); }
+  header.stacked { flex-wrap: wrap; row-gap: 14px; }
+  header.stacked .app { margin-right: auto; }
+  header.stacked nav { order: 1; flex-basis: 100%; }
   @media (max-width: 1100px) {
     header { gap: 16px; }
     nav { gap: 14px; }
