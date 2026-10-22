@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:08:22.170976169+00:00"
+status: "done"
 title: "EDSM uploader has no timestamp-age guard on live events"
-updated_at: "2026-10-22T21:03:18.515316210+00:00"
+updated_at: "2026-10-22T21:08:22.170976169+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ Either the EDSM uploader applies the same age guard with a test, or the guide an
 ## Notes
 
 - 2026-10-22 [note] 22 Oct 2026: decided against the guard, recorded why. EDDN's consumers read each message as what the game shows now; EDSM keeps the commander's own history, takes past events by design (it imports old journal files), and answers 101-103 for an event it already has, which the courier counts as sent; so a journal re-read as live costs requests, not wrong data. The tailer already reads an older journal touched later as a replay (core test an_older_journal_touched_later_is_read_as_a_replay). Comment on edsm::Uploader::journal and the module doc; guide (What both have in common) and ARCHITECTURE say why. Existing tests pin it: pipeline::tests::edsm_gets_live_lines_with_their_state_and_nothing_from_the_replay and edsm::tests::the_startup_replay_is_not_sent (a months-old live line is queued). Sumeet can overrule: applying feed::MAX_EVENT_AGE_SECS in Uploader::journal is a few lines.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-ux0h (approval astromech-35u9).

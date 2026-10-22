@@ -11,9 +11,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-22T21:08:22.335140630+00:00"
+status: "done"
 title: "Tighten the data-sharing limits test to whole sentences"
-updated_at: "2026-10-22T21:03:18.636003867+00:00"
+updated_at: "2026-10-22T21:08:22.335140630+00:00"
 ---
 
 ## Goal
@@ -23,3 +24,7 @@ crates/astromech-eddn/tests/documented_limits.rs matches a bare "30 minutes" and
 ## Done when
 
 The test asserts the full sentences for both limits in the page and guide and builds 8 and 2,000 from MAX_ATTEMPTS and MAX_QUEUED.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-ux0h (approval astromech-35u9).

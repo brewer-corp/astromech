@@ -23,9 +23,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-10-22T21:08:27.901114290+00:00"
+status: "done"
 title: "Data sharing hardening"
-updated_at: "2026-10-22T20:49:18.195059617+00:00"
+updated_at: "2026-10-22T21:08:27.901114290+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ Every child is done, independently reviewed and merged on this branch, with CONT
 ## Background
 
 Grouped on 22 Oct 2026 so related review leftovers share one branch, one review and one CI run.
+
+## Close Reason
+
+EDSM poisoned events no longer hold up good ones, the no-age-limit choice for EDSM is documented, and the limits test checks whole sentences; independently reviewed (astromech-35u9).
