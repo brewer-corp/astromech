@@ -49,6 +49,8 @@ jobs:
         run: python3 scripts/check-deps.py
       - name: MVP criteria harness (analysis tests)
         run: python3 scripts/test_mvp_criteria.py
+      - name: neutron star file builder
+        run: python3 scripts/test_gen_neutron.py
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-deny

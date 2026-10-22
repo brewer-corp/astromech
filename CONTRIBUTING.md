@@ -83,6 +83,11 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   Refresh it only when it's worth it. Local shell builds bundle an empty file (the app fills in
   from EDSM as you travel); for the real one, `gh release download starmap` and gunzip it into
   `app/src-tauri/resources/starmap.db`.
+- The neutron star file for the local neutron plotter is built the same way: the manual
+  **Neutron star file** workflow (`.github/workflows/neutron.yml`) runs `scripts/gen-neutron.py`
+  on Spansh's neutron dump and publishes `neutron.bin.gz` and its SHA-256 on the `neutron`
+  pre-release. The app downloads it only when the user asks. The format is in the script's
+  docstring; `python3 scripts/test_gen_neutron.py` checks the script against the reader's fixture.
 - The **Release build** also runs `scripts/onboarding_smoke.py` after the installer smoke test: a
   fresh silent install, the onboarding wizard driven in the real window, then "gear down" run live
   from the voice tester against the mock game, with each step's time. It opens the window with
