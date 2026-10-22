@@ -697,3 +697,26 @@ fn read_only_open_waits_when_busy() {
     let ms: i64 = r.conn().query_row("PRAGMA busy_timeout", [], |row| row.get(0)).unwrap();
     assert_eq!(ms, 5000);
 }
+
+/// astromech-2h0q: the length is read through an open handle, but a journal that can't be opened
+/// just now (another program holds it) falls back to the folder's metadata. A journal already
+/// imported in full then doesn't fail the whole import.
+#[cfg(unix)]
+#[test]
+fn a_journal_that_cannot_be_opened_falls_back_to_its_metadata_length() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    for p in astromech_journal::journal_logs(&fixtures()) {
+        std::fs::copy(&p, dir.path().join(p.file_name().unwrap())).unwrap();
+    }
+    let mut h = History::in_memory().unwrap();
+    h.import(dir.path(), &ImportOptions::default()).unwrap();
+    let first = astromech_journal::journal_logs(dir.path()).remove(0);
+    std::fs::set_permissions(&first, std::fs::Permissions::from_mode(0o000)).unwrap();
+    if std::fs::File::open(&first).is_ok() {
+        return; // root reads anything: nothing to test
+    }
+    let again = h.import(dir.path(), &ImportOptions::default());
+    std::fs::set_permissions(&first, std::fs::Permissions::from_mode(0o644)).unwrap();
+    assert_eq!(again.unwrap(), ImportReport::default());
+}

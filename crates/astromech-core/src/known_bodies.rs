@@ -1,8 +1,8 @@
 //! Bodies known to EDSM for the arrival briefing ("12 of 30 bodies known.",
 //! `astromech_announce::known_bodies`): EDSM's bodies of the system against its body count,
 //! looked up in the background ([`crate::background`]) so the pipeline thread never waits on the
-//! network. Through the process's one remote-data client, so EDSM's answer is cached (a week,
-//! `ttl::SYSTEM`) and rate limited with everything else. A system EDSM doesn't know is "no
+//! network. Through the process's one remote-data client, so EDSM's answer is cached (an hour,
+//! `ttl::SCANNED`, as long as [`crate::background::KEEP_FOR`] keeps it) and rate limited with everything else. A system EDSM doesn't know is "no
 //! bodies known"; a failed lookup (offline, EDSM down or slow) is logged and stays unknown, so
 //! nothing is said.
 
@@ -60,6 +60,54 @@ mod tests {
 
     fn client(status: u16, body: &'static str) -> Client {
         Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Answer(status, body)))
+    }
+
+    /// EDSM's bodies of a system: `n` on the `n`th request.
+    struct Growing(std::sync::atomic::AtomicU32);
+    impl Transport for Growing {
+        fn send(&self, _url: &str, _req: &Request) -> Result<Response, TransportError> {
+            let n = self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
+            let bodies: Vec<String> = (0..n)
+                .map(|i| format!(r#"{{"bodyId":{i},"name":"B {i}","type":"Planet","distanceToArrival":10}}"#))
+                .collect();
+            Ok(Response {
+                status: 200,
+                body: format!(r#"{{"id64":5,"name":"Sys","bodyCount":9,"bodies":[{}]}}"#, bodies.join(",")),
+            })
+        }
+    }
+
+    struct At(Arc<std::sync::atomic::AtomicI64>);
+    impl astromech_data::Clock for At {
+        fn now_s(&self) -> i64 {
+            self.0.load(std::sync::atomic::Ordering::SeqCst)
+        }
+    }
+
+    /// astromech-yfje: an answer kept for `background::KEEP_FOR` is looked up again, and that
+    /// lookup reaches EDSM: others may have scanned the system since, during a long session.
+    #[test]
+    fn a_count_refreshed_after_an_hour_is_edsms_new_one() {
+        use std::time::Instant;
+        let wall = Arc::new(std::sync::atomic::AtomicI64::new(1_800_000_000));
+        let client = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(Growing(0.into())))
+            .clock(Arc::new(At(wall.clone())));
+        let mut k = EdsmBodies::new(Arc::new(client), Arc::new(|_: &str| {}));
+        let start = Instant::now();
+        let now = Arc::new(std::sync::Mutex::new(start));
+        let n2 = now.clone();
+        k.systems.set_clock(Arc::new(move || *n2.lock().unwrap()));
+        assert_eq!(k.known("Sys"), None);
+        k.systems.settle("Sys");
+        assert_eq!(k.known("Sys"), Some(Known { bodies: 1, total: Some(9) }));
+
+        // Others scan the system; an hour on, the answer is looked up again.
+        let keep = crate::background::KEEP_FOR;
+        *now.lock().unwrap() = start + keep;
+        wall.fetch_add(keep.as_secs() as i64, std::sync::atomic::Ordering::SeqCst);
+        assert_eq!(k.known("Sys"), None);
+        k.systems.settle("Sys");
+        assert_eq!(k.known("Sys"), Some(Known { bodies: 2, total: Some(9) }), "EDSM's count now");
     }
 
     #[test]
