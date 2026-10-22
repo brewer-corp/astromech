@@ -16,8 +16,6 @@ relationships:
     id: "astromech-joma"
   - kind: "issue"
     id: "astromech-sdg7"
-  - kind: "issue"
-    id: "astromech-xi2i"
   attachments: []
   relates:
   - kind: "issue"
@@ -27,7 +25,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Voice and callout copy fixes"
-updated_at: "2026-10-22T21:17:46.203810475+00:00"
+updated_at: "2026-10-22T22:50:00.408465434+00:00"
 ---
 
 ## Goal
