@@ -20,9 +20,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-23T00:08:43.775401923+00:00"
+status: "done"
 title: "Send outfitting/2 to EDDN"
-updated_at: "2026-10-23T00:01:15.685422480+00:00"
+updated_at: "2026-10-23T00:08:43.775401923+00:00"
 ---
 
 ## Goal
@@ -50,3 +51,7 @@ S6 says outfitting is sent to EDDN from the live game, but the sender never send
 ## Notes
 
 - 2026-10-22 [note] Filter (7dcf8372): the README's sku rule, with each journal module's sku taken from EDCD/FDevIDs outfitting.csv entitlement (c356129) via data/catalog/eddn-outfitting.json (scripts/gen-eddn-outfitting.py): 1033 station symbols, 178 commander (PowerPlay ELITE_SPECIFIC_V_POWER_*, Guardian/human tech-broker unlocks, paid-ship armour such as Cobra Mk V/Type-8/Mandalay, FDevIDs '?' and 'removed'; a symbol any row marks commander-only is, e.g. the Enzyme Missile Rack whose pre-engineered row is blank). Cross-checked against the wiki's Powerplay modules table (all 12) and Technology Broker unlock tables (tests POWERPLAY/TECH_BROKER). A module in neither list sends nothing for that visit (Unusable::UnknownModule, logged): a list without it would also be wrong; a game update adding a module stops outfitting sends until the data file is regenerated. EDMC's journal path (plugins/eddn.py export_journal_outfitting, dc90353) drops only int_planetapproachsuite and applies no sku filter, so astromech is stricter than EDMC here; EDMC's CAPI path uses the same sku rule. The real Jameson Memorial file (1084 items) has 0 unknown symbols and 51 commander-only ones.
+
+## Close Reason
+
+outfitting/2 sent with commander-specific modules filtered by FDevIDs skus per EDDN's README; reviewed (astromech-ml1f).
