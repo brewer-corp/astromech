@@ -1,10 +1,10 @@
 <script lang="ts">
   // Route (docs/PLOTTING.md, layer 1): the route the core follows. Its next waypoint is on the
   // clipboard for the galaxy map's search box; jumping into it copies the one after. Routes come
-  // from Spansh's plotters (Plot.svelte), the engineer trip, Go on a search result or an import
-  // (a Spansh CSV, or a list of systems).
-  import { backWaypoint, clearRoute, copyNext, getRoute, importRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
-  import Plot from "./Plot.svelte";
+  // from the top bar's plotter (PlotBar), the engineer trip, Go on a search result, an import (a
+  // Spansh CSV, or a list of systems) or the galaxy map itself: a route plotted there is followed
+  // quietly, and the route it replaced is parked to resume.
+  import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -45,12 +45,6 @@
     };
   });
 
-  /** A route plotted and followed: an action that worked. */
-  function follow(v: RouteView) {
-    view = v;
-    err = null;
-  }
-
   async function start() {
     await run(() => importRoute(name.trim() || "Imported route", text));
     if (!err) text = "";
@@ -58,12 +52,21 @@
 
   const route = $derived(view?.route ?? null);
   const done = $derived(route ? route.next >= route.waypoints.length : false);
+  const fromGame = $derived(route?.source === GAME_SOURCE);
+  const parked = $derived(view?.parked ?? null);
 </script>
 
 <section class:compact>
   {#if err}<p class="err">{err}</p>{/if}
   {#if readErr}<p class="err">{readErr}</p>{/if}
   <Stale error={stale} />
+
+  {#if parked}
+    <div class="parked">
+      <span><span class="sublabel">Paused</span> {parked.name} · {parked.waypoints.length - parked.next} waypoints left</span>
+      <button class="cell" onclick={() => run(resumeRoute)}>Resume</button>
+    </div>
+  {/if}
 
   {#if route}
     <div class="head">
@@ -72,7 +75,11 @@
     </div>
 
     <div class="next">
-      {#if view?.next}
+      {#if view?.next && fromGame}
+        <span class="sublabel">Next jump</span>
+        <span class="sys">{view.next.system}</span>
+        <span class="lo">Plotted in the galaxy map, so astromech follows it quietly and leaves your clipboard alone.</span>
+      {:else if view?.next}
         <span class="sublabel">Next waypoint</span>
         <span class="sys">{view.next.system}</span>
         {#if view.next.label}<span class="lo">{view.next.label}</span>{/if}
@@ -104,7 +111,7 @@
       {/each}
     </ol>
   {:else if view}
-    <p class="lo empty">{compact ? "No route. Plot one here, press Go on a result, or follow the engineer trip." : "No route. Plot one below, follow the engineer trip, press Go on a search result, or import one."}</p>
+    <p class="lo empty">{compact ? "No route. Search a system in the top bar to plot one, plot in the galaxy map, or press Go on a result." : "No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, press Go on a search result, or import one."}</p>
   {/if}
 
   {#if compact}
@@ -114,10 +121,6 @@
         <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button. astromech sends Ctrl+V and Enter while the galaxy map is open.</p>
         <p>Jumping into the waypoint copies the next. Say <span class="q">“next waypoint”</span>, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
       </div>
-    </details>
-    <details class="block" open={!route}>
-      <summary>Plot</summary>
-      <Plot onfollow={follow} />
     </details>
     <details class="block">
       <summary>Import</summary>
@@ -135,8 +138,6 @@
       <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
       <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
     </div>
-
-    <Plot onfollow={follow} />
 
     <div class="import">
       <h4>Import</h4>
@@ -181,6 +182,7 @@
   input, textarea { background: var(--cell-opt); color: var(--text); border: 0; padding: 8px 10px; font: inherit; font-size: var(--fs-s); }
   textarea { font-family: var(--mono); resize: vertical; }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
+  .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--accent-dim); color: var(--text); font-size: var(--fs-s); }
   details.block { border-top: 1px solid var(--accent-dim); padding-top: 12px; }
   details.block summary { cursor: pointer; color: var(--text-hi); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; margin-bottom: 10px; }
   details.block[open] summary { color: var(--accent); }

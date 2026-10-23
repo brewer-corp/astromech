@@ -4,6 +4,9 @@ id: "astromech-g0hm"
 issue_type: "feature"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-g0hm
 priority: "P1"
 relationships:
   blocks: []
@@ -13,12 +16,15 @@ relationships:
   - kind: "issue"
     id: "astromech-ayw1"
   attachments: []
-  relates: []
+  relates:
+  - kind: "issue"
+    id: "astromech-7q0z"
+    type: "advances"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Plot from the top bar, and follow routes plotted in the game"
-updated_at: "2026-10-23T01:00:07.557251943+00:00"
+updated_at: "2026-10-23T01:00:11.115136800+00:00"
 ---
 
 ## Goal

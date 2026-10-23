@@ -401,13 +401,19 @@ impl astromech_announce::known_bodies::KnownBodies for Edsm {
 }
 
 /// A route follower whose route has the next waypoint "A"; any arrival elsewhere is not news.
-struct Follower;
+/// It counts the galaxy-map plots handed to it.
+#[derive(Default)]
+struct Follower(std::sync::atomic::AtomicUsize);
 
 impl astromech_announce::route_follow::Follower for Follower {
     fn arrived(&self, system: &str) -> Option<String> {
         (system == "A").then(|| "Next waypoint. B.".to_string())
     }
     fn here(&self, _: &str) {}
+    fn plotted(&self, _: &[String]) {
+        self.0.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    }
+    fn cleared(&self) {}
 }
 
 #[test]
@@ -415,7 +421,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     // The history holds a session up to the end of the journal.
     let shared = Shared::default();
     shared.sessions.set(std::sync::Arc::new(Session));
-    shared.follower.set(std::sync::Arc::new(Follower));
+    let follower = std::sync::Arc::new(Follower::default());
+    shared.follower.set(follower.clone());
     shared.known_bodies.set(std::sync::Arc::new(Edsm));
     let rules = builtin(shared);
     assert_eq!(rules.len(), 19, "a callout rule was added or removed: give it a line in this catch-up test");
@@ -436,6 +443,8 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let rs = r.engine.tick(epoch("2026-10-16T19:59:55Z"), &r.state, r.at("2026-10-16T19:59:55Z"));
     r.record(rs);
     assert!(r.out.is_empty(), "{:?}", r.out);
+    let plots = || follower.0.load(std::sync::atomic::Ordering::SeqCst);
+    assert_eq!(plots(), 0, "the route file read at startup is not a galaxy-map plot to follow");
     r.engine.set_live(true);
     r.on_foot("2026-10-16T20:00:00Z", 0.0);
     r.journal(&one_line_per_rule("20:00").join("\n"));
@@ -447,6 +456,7 @@ fn every_builtin_rule_is_silent_during_the_catch_up() {
     let replot = astromech_journal::parse_nav_route(replot).unwrap();
     let rs = r.engine.route(&replot, &r.state, r.at("2026-10-16T20:00:50Z"));
     r.record(rs);
+    assert_eq!(plots(), 1, "a new route once live is handed to the follower");
     let rs = r.engine.tick(epoch("2026-10-16T20:01:00Z"), &r.state, r.at("2026-10-16T20:01:00Z"));
     r.record(rs);
     assert_eq!(

@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { fakeCall, resetFakeCore } from "../../lib/fakecore";
-import { resetPreviewNeutron } from "../../lib/neutron";
+import { fakeCall, fakePlotInGame, resetFakeCore } from "../../lib/fakecore";
 import { followRoute } from "../../lib/route";
 import View from "./View.svelte";
 
@@ -44,44 +43,27 @@ describe("Galaxy → Route", () => {
     expect(screen.getByText("engineer trip · 2 of 2 waypoints left")).toBeTruthy();
   });
 
-  it("plots a route with Spansh and follows it", async () => {
+  it("follows a galaxy-map route quietly, parks the route it replaced and resumes it", async () => {
     history.replaceState(null, "", "/?core=ready");
     resetFakeCore();
+    await followRoute("Sol to Colonia", "neutron plotter", [{ system: "Sol" }, { system: "N1" }, { system: "Colonia" }]);
+    // A leg to the next neutron star is part of the route.
+    fakePlotInGame(["Sol", "A", "N1"]);
     render(View);
-    expect(await screen.findByText(/Asp Explorer: 39\.87 ly a jump with a full tank/)).toBeTruthy();
-    const plot = screen.getByRole("button", { name: "Plot and follow" }) as HTMLButtonElement;
-    expect(plot.disabled, "nothing to plot without a destination").toBe(true);
-    await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
-    await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Maia" } });
-    await fireEvent.click(plot);
-    expect(await screen.findByText("Following Sol to Maia: 9 jumps · 452 ly · 1 neutron boost · 3 refuel stops, at 39.87 ly a jump. Plotted by Spansh.")).toBeTruthy();
-    // The commander is in Sol, the start: the first jump is next, with what to do there.
-    expect(document.querySelector(".next .sys")?.textContent).toBe("Tascheter Sector MN-T b3-6");
-    expect(document.querySelector(".next .lo")?.textContent).toBe("fuel");
-    expect(screen.getByText("exact plotter · 9 of 10 waypoints left")).toBeTruthy();
-  });
+    expect(await screen.findByText("Sol to Colonia")).toBeTruthy();
+    expect(screen.queryByText("Paused")).toBeNull();
 
-  it("plots a neutron route with Spansh until the neutron star file is downloaded, then on this PC", async () => {
-    history.replaceState(null, "", "/?core=ready");
-    resetFakeCore();
-    resetPreviewNeutron();
-    render(View);
-    expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
-    expect(screen.getByText("Until it is downloaded, Spansh plots neutron routes.")).toBeTruthy();
-    expect(screen.getByLabelText("Efficiency"), "Spansh's setting").toBeTruthy();
-    await fireEvent.input(screen.getByLabelText("Destination system"), { target: { value: "Colonia" } });
-    await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
-    expect(await screen.findByText("Following Sol to Colonia: 128 jumps · 22,000 ly · 1 neutron boost, at 39.87 ly a jump. Plotted by Spansh.")).toBeTruthy();
+    fakePlotInGame(["Sol", "Wolf 359", "Ross 128"]);
+    // The page sees it on its next read of the route.
+    expect(await screen.findByText("Route to Ross 128", {}, { timeout: 3000 })).toBeTruthy();
+    expect(screen.getByText("Next jump")).toBeTruthy();
+    expect(screen.queryByText("On your clipboard"), "the game has the route plotted").toBeNull();
+    expect(screen.getByText("Paused")).toBeTruthy();
+    expect(screen.getByText("Sol to Colonia · 2 waypoints left", { exact: false })).toBeTruthy();
 
-    await fireEvent.click(screen.getByRole("button", { name: "Download" }));
-    expect(await screen.findByText(/Neutron star file: 5,045,154 neutron stars/)).toBeTruthy();
-    expect(screen.getByText("Neutron routes are plotted on this PC with it, in seconds.")).toBeTruthy();
-    expect(screen.queryByLabelText("Efficiency"), "local routes have no setting").toBeNull();
-    await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
-    expect(
-      await screen.findByText("Following Sol to Colonia: 180 jumps · 22,000 ly · 149 neutron boosts, at 39.87 ly a jump. Plotted on this PC, near the fewest jumps."),
-    ).toBeTruthy();
-    expect(screen.getByText("neutron plotter (this PC) · 150 of 151 waypoints left", { exact: false })).toBeTruthy();
-    resetPreviewNeutron();
+    await fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+    expect(await screen.findByText("Sol to Colonia")).toBeTruthy();
+    expect(screen.queryByText("Paused")).toBeNull();
+    expect(screen.getByText("On your clipboard")).toBeTruthy();
   });
 });

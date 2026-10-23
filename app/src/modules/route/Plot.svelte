@@ -1,19 +1,16 @@
 <script lang="ts">
-  // Plot a route for the current ship and follow it (docs/PLOTTING.md): neutron (boosts from
-  // neutron stars; its stops are the neutron stars) or exact (every jump, with refuel stops).
+  // Plot a route to `to` from the current system for the current ship and follow it, in the top
+  // bar's search (PlotBar, docs/PLOTTING.md): neutron (boosts from neutron stars; its stops are
+  // the neutron stars) or exact (every jump, with refuel stops).
   // The range and drive come from the ship's latest Loadout. A neutron route is worked out on
   // this PC in seconds when the neutron star file is downloaded (NeutronFile), else by Spansh;
   // an exact route always by Spansh, as a job that can take a minute.
   import { plotRoute, plotSetup, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
-  import OriginInput from "../../lib/ui/OriginInput.svelte";
   import NeutronFile from "./NeutronFile.svelte";
-  import type { Origin } from "../../lib/search";
 
-  let { onfollow }: { onfollow: (v: RouteView) => void } = $props();
+  let { to, onfollow }: { to: string; onfollow?: (v: RouteView) => void } = $props();
 
   let plotter = $state<Plotter>("neutron");
-  let origin = $state<Origin>(null);
-  let to = $state("");
   let efficiency = $state(60);
   let refuel = $state(true);
   let setup = $state<PlotSetup | null>(null);
@@ -38,17 +35,27 @@
   });
 
   const ship = $derived(setup?.ship ?? null);
-  const ready = $derived(!!ship && !!to.trim() && (origin != null || !!setup?.here) && !busy);
+  const here = $derived(setup?.here ?? null);
+  const ready = $derived(!!ship && !!to.trim() && !!here && !busy);
 
-  async function go() {
+  // A new destination: the last one's result no longer applies.
+  $effect(() => {
+    void to;
+    done = null;
+    err = null;
+  });
+
+  /** Plot and follow (the top bar's Enter, or the button). */
+  export async function go() {
+    if (!ready) return;
     busy = true;
     err = null;
     done = null;
     try {
       const eff = Math.min(100, Math.max(1, Math.round(Number(efficiency) || 60)));
-      const r = await plotRoute({ plotter, from: origin ?? "", to: to.trim(), efficiency: eff, refuel_every_scoopable: refuel });
+      const r = await plotRoute({ plotter, to: to.trim(), efficiency: eff, refuel_every_scoopable: refuel });
       done = r.plotted;
-      onfollow(r.view);
+      onfollow?.(r.view);
     } catch (e) {
       err = String(e instanceof Error ? e.message : e);
     } finally {
@@ -73,14 +80,12 @@
 </script>
 
 <div class="plot">
-  <h4>Plot a route</h4>
+  <h4><span class="lo">{here ?? "Your system"} to</span> {to}</h4>
   <div class="kinds" role="group" aria-label="Plotter">
     <button class:on={plotter === "neutron"} aria-pressed={plotter === "neutron"} onclick={() => (plotter = "neutron")}>Neutron</button>
     <button class:on={plotter === "exact"} aria-pressed={plotter === "exact"} onclick={() => (plotter = "exact")}>Exact</button>
   </div>
-  <OriginInput {origin} onchange={(o) => (origin = o)} />
   <div class="fields">
-    <label><span>To</span><input aria-label="Destination system" placeholder="System name" spellcheck="false" bind:value={to} /></label>
     {#if plotter === "neutron" && !local}
       <label><span>Efficiency</span><input aria-label="Efficiency" type="number" min="1" max="100" bind:value={efficiency} /><em>%</em></label>
     {:else if plotter === "exact"}
@@ -96,6 +101,7 @@
   {:else if setup?.ship_error}
     <p class="lo">{setup.ship_error}</p>
   {/if}
+  {#if setup && !here}<p class="lo">astromech doesn't know your current system yet. Log in to Elite, then plot.</p>{/if}
   <p class="lo">
     {plotter === "neutron"
       ? "Stops at the neutron stars to boost from. Plot each leg in the galaxy map."
@@ -107,14 +113,16 @@
   {:else if err}
     <p class="err">{err}</p>
   {:else if done}
-    <p class="ok">Following {done.name}: {summary(done)}. {where(done)}</p>
+    <p class="ok">Following {done.name}: {summary(done)}. {where(done)} <a href="#/route">Show the route</a></p>
     {#if done.fallback}<p class="lo">The neutron star file can't be read, so Spansh plotted this route: {done.fallback}</p>{/if}
   {/if}
 </div>
 
 <style>
   .plot { display: flex; flex-direction: column; gap: 4px; }
-  h4 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  h4 { margin: 0 0 8px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); line-height: 1.2; overflow-wrap: anywhere; }
+  h4 .lo { display: block; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  a { color: var(--text-hi); }
   p { margin: 0; font-size: var(--fs-s); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .kinds { display: flex; gap: 18px; margin: 0 0 8px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
@@ -126,7 +134,6 @@
   label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
   label em { font-style: normal; color: var(--text-lo); min-width: 1.5em; }
   input:not([type="checkbox"]) { all: unset; flex: 1; min-width: 0; height: 28px; padding: 0 8px; background: var(--cell-opt); color: var(--text-hi); font-family: var(--mono); }
-  .plot :global(.origin .lbl) { min-width: 5.5em; }
   input::placeholder { color: var(--text-lo); }
   .check { color: var(--text); }
   .go { align-self: flex-start; margin: 6px 0 4px; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; }

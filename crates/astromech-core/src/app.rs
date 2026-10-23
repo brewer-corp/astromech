@@ -691,6 +691,10 @@ impl Core {
             "route_back" => d.step(false),
             "route_clear" => d.clear(),
             "route_copy" => d.copy_next(),
+            "route_resume" => match d.resume() {
+                Ok(v) => v,
+                Err(e) => return json!({"ok": false, "error": e}),
+            },
             _ => d.view(),
         };
         json!({"ok": true, "view": v})
@@ -698,7 +702,9 @@ impl Core {
 
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
         match r.cmd.as_str() {
-            "route" | "route_set" | "route_skip" | "route_back" | "route_clear" | "route_copy" => self.route_cmd(r),
+            "route" | "route_set" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume" => {
+                self.route_cmd(r)
+            }
             "status" => self.status_json(),
             "open_window" => match self.open_window(r.route.as_deref()) {
                 Ok(()) => json!({"ok": true}),
@@ -1451,7 +1457,7 @@ mod tests {
     }
 
     /// The Route page's commands, through the control API: set from waypoints or pasted text,
-    /// skip, go back, clear; a route with no systems is an error.
+    /// skip, go back, clear, resume; a route with no systems is an error.
     #[test]
     fn route_commands_over_the_control_api() {
         let d = tempfile::tempdir().unwrap();
@@ -1474,6 +1480,14 @@ mod tests {
         assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
         assert_eq!(call("route_clear", None)["view"]["route"], Value::Null);
         assert_eq!(call("route_set", Some(json!({"text": " "})))["ok"], false);
+        // Resume: the route a galaxy-map plot parked.
+        assert_eq!(call("route_resume", None)["ok"], false);
+        call("route_set", Some(json!({"text": "Sol\nColonia"})));
+        core.route.plotted(&["Sol".into(), "Wolf 359".into()]);
+        assert_eq!(call("route", None)["view"]["parked"]["waypoints"][1]["system"], "Colonia");
+        let v = call("route_resume", None);
+        assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
+        assert_eq!(v["view"]["parked"], Value::Null);
     }
 
     /// Test mode is on the tray status line, over whatever the game is doing.
@@ -1533,8 +1547,8 @@ mod tests {
                 Arc::new(RecordedJob(Mutex::new(answers))),
             )
             .limiter(astromech_data::Limiter::none());
-            let ask = Ask { plotter, from: "Sol".into(), to: to.into(), efficiency: 60, refuel_every_scoopable: true };
-            serde_json::to_value(plot(&client, &ask, &ship, no_wait).unwrap()).unwrap()
+            let ask = Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true };
+            serde_json::to_value(plot(&client, "Sol", &ask, &ship, no_wait).unwrap()).unwrap()
         };
 
         let d = tempfile::tempdir().unwrap();

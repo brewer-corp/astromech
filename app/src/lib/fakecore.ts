@@ -51,6 +51,8 @@ interface State {
   edsm: { enabled: boolean; commander: string; key: boolean };
   /** The route the core follows (core: route.rs `Desk`); `here` is where the journal says we are. */
   route: Route | null;
+  /** The route a galaxy-map plot replaced. */
+  parked: Route | null;
   here: string | null;
 }
 
@@ -162,6 +164,7 @@ function fresh(scenario: Scenario): State {
     eddn: false,
     edsm: { enabled: false, commander: "", key: false },
     route: null,
+    parked: null,
     here: done ? "Sol" : null,
   };
 }
@@ -200,7 +203,30 @@ function routeView(st: State): RouteView {
     next: r?.waypoints[r.next] ?? null,
     remaining: r ? r.waypoints.length - r.next : 0,
     clipboard_error: null,
+    parked: st.parked ? structuredClone(st.parked) : null,
   };
+}
+
+/** The core's `route::GAME`: the source of a route plotted in the galaxy map. */
+const GAME_SOURCE = "galaxy map";
+const ahead = (r: Route, system: string) => r.waypoints.slice(r.next).some((w) => sameSystem(w.system, system));
+
+/** The commander plotted `systems` in the galaxy map, as the core's `Desk::plotted` takes it
+ * (tests): a leg of the route followed changes nothing, a plot onto the parked route resumes it,
+ * anything else is followed and parks an unfinished route of ours. */
+export function fakePlotInGame(systems: string[]): void {
+  const st = s();
+  const dest = systems.at(-1);
+  if (!dest || systems.length < 2) return;
+  const r = st.route;
+  if (r && r.source !== GAME_SOURCE && ahead(r, dest)) return;
+  if (st.parked && ahead(st.parked, dest)) {
+    st.route = st.parked;
+    st.parked = null;
+    return;
+  }
+  if (r && r.source !== GAME_SOURCE && r.next < r.waypoints.length) st.parked = r;
+  st.route = { name: `Route to ${dest}`, source: GAME_SOURCE, waypoints: cleanStops(systems.slice(1).map((system) => ({ system }))), next: 0 };
 }
 
 function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Reply {
@@ -222,6 +248,12 @@ function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Repl
       break;
     case "route_clear":
       st.route = null;
+      st.parked = null;
+      break;
+    case "route_resume":
+      if (!st.parked) return { ok: false, error: "there is no route to resume" };
+      st.route = st.parked;
+      st.parked = null;
       break;
   }
   return { ok: true, view: routeView(st) };
@@ -319,6 +351,7 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
     case "route_back":
     case "route_clear":
     case "route_copy":
+    case "route_resume":
       return routeCall(st, cmd, (args ?? {}) as Record<string, unknown>);
     case "find_elite":
       return {

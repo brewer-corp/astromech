@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/svelte";
 import { resetFakeCore } from "../../lib/fakecore";
 import { resetPreviewNeutron } from "../../lib/neutron";
 import NeutronFile from "./NeutronFile.svelte";
-import View from "./View.svelte";
+import Plot from "./Plot.svelte";
 
 afterEach(() => {
   history.replaceState(null, "", "/");
@@ -47,10 +47,10 @@ describe("Route → neutron star file", () => {
     expect(screen.getByText(/Neutron star file: not downloaded\./)).toBeTruthy();
   });
 
-  it("shows only under the neutron plotter on the Route page", async () => {
+  it("shows only under the neutron plotter in the plot panel", async () => {
     history.replaceState(null, "", "/?core=ready");
     resetFakeCore();
-    render(View);
+    render(Plot, { to: "Colonia" });
     expect(await screen.findByText(/Neutron star file: not downloaded\./)).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Exact" }));
     expect(screen.queryByText(/Neutron star file/)).toBeNull();

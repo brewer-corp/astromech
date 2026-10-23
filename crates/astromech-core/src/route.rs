@@ -4,9 +4,16 @@
 //! `FSDJump`, `CarrierJump` or `Location`, live only: the callout engine's `route_follow` rule
 //! calls [`Desk`] as a `Follower`) moves the route on and copies the stop after it.
 //!
-//! [`Route`] is the pure part. [`Desk`] owns the one active route: it saves it to
-//! `route.json`, so it survives restarts and can be set from the app window while Elite is not
-//! running, and it does the clipboard writes.
+//! A route plotted in the galaxy map is followed too ([`Desk::plotted`]). If it ends at a
+//! waypoint still ahead on the route being followed, it is a leg of that route (a neutron route's
+//! next neutron star) and nothing changes. Otherwise it becomes the route, silently and without
+//! the clipboard (the game has it plotted and its HUD shows the next jump), and a route it
+//! replaces is parked: Resume brings it back, and so does plotting to one of its waypoints in the
+//! galaxy map.
+//!
+//! [`Route`] is the pure part. [`Desk`] owns the one active route and the parked one: it saves
+//! them to `route.json`, so they survive restarts and can be set from the app window while Elite
+//! is not running, and it does the clipboard writes.
 //!
 //! (Not to be confused with the window's `--route`, which is a page in the app.)
 
@@ -39,6 +46,9 @@ pub struct Route {
     #[serde(default)]
     pub next: usize,
 }
+
+/// The source of a route plotted in the galaxy map.
+pub const GAME: &str = "galaxy map";
 
 fn same_system(a: &str, b: &str) -> bool {
     a.trim().eq_ignore_ascii_case(b.trim())
@@ -78,6 +88,16 @@ impl Route {
 
     pub fn finished(&self) -> bool {
         self.next >= self.waypoints.len()
+    }
+
+    /// Plotted in the galaxy map ([`GAME`]): followed silently, never copied.
+    pub fn from_game(&self) -> bool {
+        self.source == GAME
+    }
+
+    /// `system` is a waypoint still to reach.
+    fn ahead(&self, system: &str) -> bool {
+        self.waypoints.iter().skip(self.next).any(|w| same_system(&w.system, system))
     }
 
     /// Now in `system`: if it is the next waypoint, or a later one (stops skipped), the route
@@ -155,7 +175,7 @@ pub enum Moved {
 // contractions, no "I". `tests/copy.rs` checks them.
 
 /// A voice route command with no route set.
-pub const NO_ROUTE: &str = "No route to follow. Set one on the Route page.";
+pub const NO_ROUTE: &str = "No route to follow. Plot one in the app.";
 pub const CLEARED: &str = "Route cleared.";
 pub const NOTHING_TO_CLEAR: &str = "No route to clear.";
 /// Past the last waypoint (arriving in it, or skipping past it).
@@ -278,6 +298,8 @@ pub struct View {
     pub remaining: usize,
     /// Why the last clipboard write failed, if it did.
     pub clipboard_error: Option<String>,
+    /// The route a galaxy-map plot replaced, to resume.
+    pub parked: Option<Route>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -285,6 +307,8 @@ struct Saved {
     route: Option<Route>,
     #[serde(default)]
     here: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    parked: Option<Route>,
 }
 
 pub type Clip = Box<dyn Fn(&str) -> Result<(), String> + Send + Sync>;
@@ -347,6 +371,7 @@ impl Desk {
             next: r.and_then(|r| r.next_stop().cloned()),
             remaining: r.map(|r| r.remaining()).unwrap_or(0),
             clipboard_error: st.1.clone(),
+            parked: st.0.parked.clone(),
         }
     }
 
@@ -358,8 +383,8 @@ impl Desk {
         self.state.lock().unwrap().0.route.is_some()
     }
 
-    /// Start following `route`. If we are already in one of its systems it starts after it.
-    /// The next waypoint is copied straight away.
+    /// Start following `route` (and forget a parked one). If we are already in its first system
+    /// it starts after it. The next waypoint is copied straight away.
     pub fn set(&self, mut route: Route) -> Result<View, String> {
         if route.waypoints.is_empty() {
             return Err("the route has no systems".into());
@@ -379,14 +404,16 @@ impl Desk {
             if route.source.is_empty() { "?" } else { &route.source }
         ));
         st.0.route = Some(route);
+        st.0.parked = None;
         self.copy(&mut st);
         self.save(&st.0);
         Ok(Self::view_of(&st))
     }
 
+    /// Stop following the route, and forget a parked one.
     pub fn clear(&self) -> View {
         let mut st = self.state.lock().unwrap();
-        if st.0.route.take().is_some() {
+        if st.0.route.take().is_some() | st.0.parked.take().is_some() {
             crate::logging::log("route: cleared");
         }
         st.1 = None;
@@ -412,6 +439,64 @@ impl Desk {
         Self::view_of(&st)
     }
 
+    /// Follow the parked route again and copy its next waypoint.
+    pub fn resume(&self) -> Result<View, String> {
+        let mut st = self.state.lock().unwrap();
+        let r = st.0.parked.take().ok_or("there is no route to resume")?;
+        crate::logging::log(&format!("route: resumed {:?}", r.name));
+        st.0.route = Some(r);
+        self.copy(&mut st);
+        self.save(&st.0);
+        Ok(Self::view_of(&st))
+    }
+
+    /// The commander plotted `systems` in the galaxy map (live; the current system first). A
+    /// plot to a waypoint ahead on the route followed is a leg of it: nothing changes. A plot to
+    /// a waypoint ahead on the parked route resumes that. Anything else is followed as a route
+    /// from the game, and an unfinished route of our own that it replaces is parked.
+    pub fn plotted(&self, systems: &[String]) {
+        let Some(dest) = systems.last().filter(|_| systems.len() > 1) else { return };
+        let mut st = self.state.lock().unwrap();
+        if st.0.route.as_ref().is_some_and(|r| !r.from_game() && r.ahead(dest)) {
+            return;
+        }
+        if st.0.parked.as_ref().is_some_and(|r| r.ahead(dest)) {
+            st.0.route = st.0.parked.take();
+            st.1 = None;
+            crate::logging::log(&format!("route: galaxy map plotted to {dest}, resumed the parked route"));
+            self.save(&st.0);
+            return;
+        }
+        let jumps = systems[1..].iter().map(|s| Waypoint::new(s)).collect();
+        let game = Route::new(&format!("Route to {dest}"), GAME, jumps);
+        if game.waypoints.is_empty() {
+            return;
+        }
+        if let Some(old) = st.0.route.take().filter(|r| !r.from_game() && !r.finished()) {
+            crate::logging::log(&format!("route: parked {:?}", old.name));
+            st.0.parked = Some(old);
+        }
+        crate::logging::log(&format!(
+            "route: following the galaxy map's route to {dest} ({} jumps)",
+            game.waypoints.len()
+        ));
+        st.0.route = Some(game);
+        st.1 = None;
+        self.save(&st.0);
+    }
+
+    /// The galaxy map's route was cleared: stop following it, if that is the route followed. A
+    /// route of our own stays (its leg was cleared, or the commander arrived).
+    pub fn cleared_in_game(&self) {
+        let mut st = self.state.lock().unwrap();
+        if st.0.route.as_ref().is_some_and(Route::from_game) {
+            st.0.route = None;
+            st.1 = None;
+            crate::logging::log("route: the galaxy map's route was cleared");
+            self.save(&st.0);
+        }
+    }
+
     /// A replayed journal put us in `system`: remember where we are, but don't move the route
     /// or write the clipboard (only live arrivals do, [`Desk::on_system`]).
     pub fn set_here(&self, system: &str) {
@@ -422,7 +507,8 @@ impl Desk {
         }
     }
 
-    /// A live arrival in `system`: moves the route on if it is a waypoint (copying the next).
+    /// A live arrival in `system`: moves the route on if it is a waypoint (copying the next). A
+    /// route from the game moves on without a copy or a line.
     pub fn on_system(&self, system: &str) -> Option<Moved> {
         let mut st = self.state.lock().unwrap();
         let changed = st.0.here.as_deref() != Some(system);
@@ -436,6 +522,10 @@ impl Desk {
             return None;
         };
         let next = st.0.route.as_ref().and_then(|r| r.next_stop().cloned());
+        if st.0.route.as_ref().is_some_and(Route::from_game) {
+            self.save(&st.0);
+            return None;
+        }
         let copied = next.is_some() && self.copy(&mut st);
         self.save(&st.0);
         crate::logging::log(&format!(
@@ -458,6 +548,12 @@ impl astromech_announce::route_follow::Follower for Desk {
     }
     fn here(&self, system: &str) {
         self.set_here(system);
+    }
+    fn plotted(&self, systems: &[String]) {
+        Desk::plotted(self, systems);
+    }
+    fn cleared(&self) {
+        self.cleared_in_game();
     }
 }
 
@@ -533,6 +629,105 @@ mod tests {
         assert_eq!(v.clipboard_error.as_deref(), Some("busy"));
         let m = d.on_system("A").unwrap();
         assert_eq!(m.spoken(), "Next waypoint. B. Not copied.");
+    }
+
+    fn plot_in_game(d: &Desk, systems: &[&str]) {
+        d.plotted(&systems.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+    }
+
+    /// A Spansh neutron route's stops are neutron stars; the commander plots each leg in the
+    /// galaxy map. A plot to a stop ahead (the next, or one further on) keeps the route.
+    #[test]
+    fn a_galaxy_map_plot_to_a_waypoint_ahead_is_a_leg() {
+        let (d, got) = desk();
+        d.on_system("Sol");
+        d.set(route(&["Sol", "N1", "N2", "Colonia"])).unwrap();
+        plot_in_game(&d, &["Sol", "A", "B", "N1"]);
+        plot_in_game(&d, &["Sol", "A", "n2"]);
+        let v = d.view();
+        assert_eq!(v.route.as_ref().unwrap().name, "test");
+        assert_eq!(v.next.unwrap().system, "N1");
+        assert!(v.parked.is_none());
+        assert_eq!(got.lock().unwrap().as_slice(), ["N1"], "a leg doesn't touch the clipboard");
+    }
+
+    /// Anything else is a route of its own: followed silently, without the clipboard, and the
+    /// route it replaced is parked until Resume or a plot back onto it.
+    #[test]
+    fn a_detour_in_the_galaxy_map_parks_the_route() {
+        let (d, got) = desk();
+        d.on_system("Sol");
+        d.set(route(&["Sol", "N1", "N2", "Colonia"])).unwrap();
+        plot_in_game(&d, &["Sol", "Wolf 359", "Station Star"]);
+        let v = d.view();
+        let r = v.route.unwrap();
+        assert!(r.from_game());
+        assert_eq!(r.name, "Route to Station Star");
+        assert_eq!(r.waypoints.iter().map(|w| w.system.as_str()).collect::<Vec<_>>(), ["Wolf 359", "Station Star"]);
+        assert_eq!(v.parked.as_ref().unwrap().name, "test");
+        assert_eq!(d.on_system("Wolf 359"), None, "silent");
+        assert_eq!(d.view().next.unwrap().system, "Station Star", "but it moves on");
+        assert_eq!(got.lock().unwrap().as_slice(), ["N1"], "and never copies");
+
+        // A second detour replaces the game's route; the parked route stays ours.
+        plot_in_game(&d, &["Wolf 359", "Ross 128"]);
+        assert_eq!(d.view().route.unwrap().name, "Route to Ross 128");
+        assert_eq!(d.view().parked.unwrap().name, "test");
+
+        // Plotting to a waypoint of the parked route resumes it, without a copy (it is plotted).
+        plot_in_game(&d, &["Wolf 359", "X", "N1"]);
+        let v = d.view();
+        assert_eq!(v.route.unwrap().name, "test");
+        assert!(v.parked.is_none());
+        assert_eq!(got.lock().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn resume_brings_the_parked_route_back_and_copies() {
+        let (d, got) = desk();
+        d.set(route(&["A", "B"])).unwrap();
+        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        let v = d.resume().unwrap();
+        assert_eq!(v.route.unwrap().name, "test");
+        assert!(v.parked.is_none());
+        assert_eq!(got.lock().unwrap().as_slice(), ["A", "A"]);
+        assert!(d.resume().is_err());
+        // A route set from the window or cleared drops a parked one.
+        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        assert!(d.set(route(&["C"])).unwrap().parked.is_none());
+        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        assert!(d.clear().parked.is_none());
+    }
+
+    #[test]
+    fn a_finished_route_is_not_parked_and_a_galaxy_map_clear_drops_only_its_own() {
+        let (d, _) = desk();
+        d.set(route(&["A"])).unwrap();
+        d.on_system("A");
+        plot_in_game(&d, &["A", "B"]);
+        assert!(d.view().parked.is_none());
+        d.cleared_in_game();
+        assert!(d.view().route.is_none());
+
+        d.set(route(&["A", "C"])).unwrap();
+        d.cleared_in_game();
+        assert_eq!(d.view().route.unwrap().name, "test", "a cleared leg keeps our route");
+        // A one-system route (only where we are) is no route.
+        plot_in_game(&d, &["A"]);
+        assert_eq!(d.view().route.unwrap().name, "test");
+    }
+
+    #[test]
+    fn the_parked_route_survives_a_restart() {
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("route.json");
+        let d = Desk::open(Some(p.clone()), Box::new(|_| Ok(())));
+        d.set(route(&["A", "B"])).unwrap();
+        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        drop(d);
+        let v = Desk::open(Some(p), Box::new(|_| Ok(()))).view();
+        assert!(v.route.unwrap().from_game());
+        assert_eq!(v.parked.unwrap().name, "test");
     }
 
     #[test]

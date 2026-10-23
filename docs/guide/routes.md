@@ -3,7 +3,7 @@
 Elite has no way for another program to set your destination, and you cannot type in the galaxy
 map in VR. astromech fills the gap with a **route follower**: it keeps one route, puts its next
 waypoint on your clipboard, and pastes it into the galaxy map's search box when you ask. You still
-plot each leg in the galaxy map yourself.
+plot each leg in the galaxy map yourself. A route you plot in the galaxy map is followed too.
 
 ## The route rail
 
@@ -15,14 +15,16 @@ the **Route** page in the command palette:
   it is **on your clipboard**. If the clipboard could not be written, it says why;
 - every stop, with the ones behind you struck out and **you are here** next to the first stop
   when you are in it;
-- **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**.
+- **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**;
+- **Paused** and **Resume** when a route you plotted in the galaxy map took over from another
+  one ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map)).
 
-[Plot a route](#plot-a-route) and [Import](#import-a-route) sit under the live
-route, folded closed when a route is already following.
+[Import](#import-a-route) sits under the live route.
 
 A route comes from:
 
-- **Plot and follow** under Plot a route on this page;
+- **Plot to a system** in the top bar ([Plot a route](#plot-a-route));
+- the galaxy map, when you plot a route there ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map));
 - **Follow** on the engineer trip ([Engineering](engineering.md));
 - **Go** on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
   Powerplay targets and the material sites). That is a route with one stop: the result's
@@ -30,7 +32,8 @@ A route comes from:
   copied;
 - **Import** on this page.
 
-There is one route at a time: a new one replaces the old. astromech keeps it while Elite or the
+There is one route at a time: a new one replaces the old, and **Clear route** clears a paused
+one too. astromech keeps it while Elite or the
 window is closed, and after a restart. You can set a route with Elite closed.
 
 ## Following a route
@@ -94,17 +97,42 @@ row for it in Settings yet; restart astromech after editing the file.
 | "clear route", "clear the route", "end route", "stop following the route" | *"Route cleared."* |
 | "paste", "paste it", "paste system", "paste waypoint", "paste system name" | See [Paste into the galaxy map](#paste-into-the-galaxy-map). |
 
-With no route set: *"No route to follow. Set one on the Route page."* (*"No route to clear."*
+With no route set: *"No route to follow. Plot one in the app."* (*"No route to clear."*
 for "clear route"). Past the last stop: *"Route complete."*
 
-"Plot route to ..." by voice is not built: astromech says *"Plotting is not available. Use the
-Route page, then paste."*
+"Plot route to ..." by voice is not built: astromech says *"Plotting is not available.
+Plot in the app, then paste."*
+
+## Routes plotted in the galaxy map
+
+When you plot a route in the galaxy map, astromech reads it from the game (`NavRoute.json`):
+
+- **A leg of the route you are following.** If it ends at the next waypoint, or one further on,
+  nothing changes. This is how you fly a neutron route: paste the next neutron star, plot to it,
+  and astromech keeps the neutron route.
+- **Anything else** becomes the route astromech follows, named "Route to" its destination, with
+  every jump as a waypoint. The page says **Next jump** and *Plotted in the galaxy map*. It moves
+  on as you jump, but astromech says nothing and leaves your clipboard alone: the game already
+  has the route plotted and shows the next jump.
+- **A detour.** If you were following a route of your own (a neutron route, say) and it isn't
+  finished, it is **paused**, not lost. The route rail shows it with **Resume**, which follows it
+  again and puts its next waypoint on your clipboard. Plotting in the galaxy map to one of its
+  waypoints ahead resumes it too, with nothing copied (you have just plotted it).
+- **Clearing the route in the galaxy map** stops following a route that came from the galaxy
+  map. A route of your own stays: clearing a leg, or arriving at the end of one, doesn't end it.
+
+Only plots made while astromech is running count: the route already plotted when astromech
+starts is not picked up. With `[callouts.route_follow] enabled = false`, galaxy-map routes are
+not followed either. Plotting a new route in astromech replaces a paused one.
 
 ## Plot a route
 
-On the Galaxy route rail, **Plot a route** plots a route for the ship you are flying, and
-astromech follows it straight away. If you are in the start system, the first jump is next and
-on your clipboard.
+Type a system into **Plot to a system** in the top bar, on any page. Suggestions come from
+Spansh as you type; pick one with the arrow keys and Enter, or a click. A panel opens under the
+box: choose the plotter and press **Plot and follow**, or press Enter again. astromech plots a
+route from your current system for the ship you are flying and follows it straight away: the
+first jump is next and on your clipboard. **Show the route** opens the Route page. The panel
+also has the system's **Spansh** and **Inara** pages. Escape or a click elsewhere closes it.
 
 - **Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
   destination: plot each leg in the galaxy map. With the [neutron star file](#the-neutron-star-file)
@@ -116,7 +144,7 @@ on your clipboard.
   tank and mass. Waypoints marked **fuel** are where to scoop. **Refuel at every scoopable star**
   (on by default) tops up whenever it can; turn it off to stop only where the tank needs it.
 
-**From** blank means your current system. **To** is a system name as Spansh knows it. Above the
+Routes always start from your current system, as the journal last reported it. Above the
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
 worked out from its last loadout in the journal, engineering and a Guardian FSD booster
 included. It updates within a few seconds when you swap ships or your cargo changes. If some
@@ -124,21 +152,22 @@ modules are not known, it says the range may be off. Both plotters use your driv
 boost: six times the range with the size 8 Mk II supercharge-optimised drive, four times with any
 other.
 
-When it is done, the page says how many jumps, how far, how many neutron boosts and refuel
+When it is done, the panel says how many jumps, how far, how many neutron boosts and refuel
 stops, the jump range the route was plotted at, and where it was plotted: **on this PC** or **by
 Spansh**. A long route plotted on this PC may say **near the fewest jumps**: see the limits
 below. If the neutron star file is there but can't be read, Spansh plots the route instead and
-the page says why; press Download to replace the file. "Next waypoint" by voice adds what to do
+the panel says why; press Download to replace the file. "Next waypoint" by voice adds what to do
 there: *"Next waypoint. Hyades Sector DB-W b2-6. For fuel."*
 
 It needs:
 
 - internet, for Spansh: exact routes, and neutron routes until the neutron star file is
-  downloaded. Spansh can take a minute. You can leave the page; the route is still followed when
+  downloaded. Spansh can take a minute. You can close the panel; the route is still followed when
   it is done. One route is plotted at a time.
-- for a neutron route on this PC, internet only to find a start or destination that isn't on
+- your current system, from the game's journal: log in to Elite at least once on this PC.
+- for a neutron route on this PC, internet only to find a destination that isn't on
   astromech's star map ([Galaxy](galaxy.md#jumps-and-distance)) yet: it asks Spansh where the
-  system is. Your current system needs nothing.
+  system is.
 - a ship flown since the journal began, so its loadout is there.
 - a fuel scoop. Exact routes plan their refuel stops by scooping, and astromech does not check
   that the ship has one.
@@ -153,23 +182,23 @@ Limits:
   detour.
 - A short route plotted on this PC has the fewest jumps possible with the known neutron stars.
   On a long route the search stops at a good route instead of trying every one: it is near the
-  fewest jumps (a few more on a route across the galaxy), and the page says so.
+  fewest jumps (a few more on a route across the galaxy), and the panel says so.
 - A misspelled system gives "Spansh does not know a system called ..." for a route plotted on
   this PC, and "Spansh turned the request down" with Spansh's reason, such as "Unable to find
   route" or "Could not find finishing system", for one Spansh plots.
 
 ### The neutron star file
 
-Under **Neutron**, the page also shows the **neutron star file**: a list of every known neutron
+Under **Neutron**, the plot panel also shows the **neutron star file**: a list of every known neutron
 star (about 5 million), built from Spansh's neutron star data, for plotting neutron routes on
 this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron routes.
 
 - **Download** fetches it once: about 71 MB, unpacked to about 184 MB as `neutron.bin` in
   astromech's data folder (the folder that holds `galaxy.db`; `data_dir` in `astromech.toml`
-  moves it). The page shows how much has come in. Nothing is downloaded until you press it.
+  moves it). The panel shows how much has come in. Nothing is downloaded until you press it.
 - The download is checked against the published checksum before it is used. If it fails, is
   damaged or is interrupted, the file you had (or none) stays as it was. Press Download again.
-- Once it is there, the page shows how many neutron stars it lists and the date it was built.
+- Once it is there, the panel shows how many neutron stars it lists and the date it was built.
   **Check for a newer file** asks whether a different file has been published since. If one
   has, **Download the newer file** replaces yours.
 - It needs internet only for the download and the check. The file is rebuilt by hand now and
@@ -186,8 +215,9 @@ give it a name if you like, and press **Follow this route**.
 
 ## Other routes in astromech
 
-- The game's own route (`NavRoute.json`) is read for [callouts](callouts.md#fuel-and-route) when
-  you plot one in the galaxy map: the jump count and distance, white dwarfs and neutron stars on
+- The game's own route (`NavRoute.json`) is followed as described in
+  [Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map), and read for
+  [callouts](callouts.md#fuel-and-route) when you plot one: the jump count and distance, white dwarfs and neutron stars on
   it, fuel gaps and the next scoopable star. "Jumps left" and "next system" are
   [voice commands](voice-commands.md#questions-about-your-ship).
 - [Trade, Route](trade.md#route) finds a profitable trade route with Spansh. It does not plot a

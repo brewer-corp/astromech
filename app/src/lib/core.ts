@@ -168,7 +168,8 @@ export type CoreCmd =
   | "route_skip"
   | "route_back"
   | "route_clear"
-  | "route_copy";
+  | "route_copy"
+  | "route_resume";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Reply = { ok: boolean; error?: string; [k: string]: any };

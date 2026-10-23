@@ -2,7 +2,8 @@
   // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
   // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
   // My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
-  // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page.
+  // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page, and the top
+  // bar's system search (PlotBar) plots a route from any page.
   import { groups, groupModules, findModule, modules } from "./lib/modules";
   import { collect } from "./lib/palette";
   import Palette from "./lib/ui/Palette.svelte";
@@ -11,6 +12,7 @@
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
   import { openHelp } from "./lib/help";
   import Rail from "./modules/route/Rail.svelte";
+  import PlotBar from "./modules/route/PlotBar.svelte";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links.
@@ -97,6 +99,7 @@
         {/if}
       {/each}
     </nav>
+    <PlotBar />
     {#if showSetup}
       <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
     {/if}

@@ -7,9 +7,10 @@ problem this solves. astromech does it in two layers:
 
 1. **Clipboard (built).** astromech follows a route. The next waypoint is always on the
    clipboard, and "paste" (spoken, or a HOTAS button) puts it into the search box. You still
-   select the search box and plot the route yourself. The route can be plotted in the app for
+   select the search box and plot the route yourself. The route can be plotted in the app's top bar for
    the current ship: neutron routes on this PC from the neutron star file (Spansh's neutron
-   plotter until it is downloaded), exact routes by Spansh.
+   plotter until it is downloaded), exact routes by Spansh. A route plotted in the galaxy map is
+   followed too.
 2. **Plotting macro (designed, not built; off by default when it is).** astromech opens the map,
    searches, plots, and checks `NavRoute.json` to see whether it worked.
 
@@ -28,8 +29,9 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Paste: Ctrl+V, 500 ms, Enter. **Only while `GuiFocus == 6`** (galaxy map), checked before Ctrl+V and again before Enter (if the map closed, Enter is not sent), through the policy layer | `Runner::paste` |
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
-| Control API: `route`, `route_set`, `route_skip`, `route_back`, `route_clear`, `route_copy` | `Core::route_cmd`; the shell's `core_call` allows them |
-| UI: Galaxy route rail (and the Route page); **Follow** on the engineer trip; **Go** on every search-kit result | `app/src/modules/route`, `lib/route.ts`, `lib/ui/SearchKit.svelte` |
+| Galaxy-map routes: a live new `NavRoute.json` (the engine's `Input::Route`) and a live `NavRouteClear` go to the same rule, which hands them to the follower (`Follower::plotted`, `cleared`) | `astromech_announce::route_follow`, `Desk::plotted`, `Desk::cleared_in_game` |
+| Control API: `route`, `route_set`, `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; the shell's `core_call` allows them |
+| UI: the top bar's **Plot to a system** (every page); Galaxy route rail (and the Route page) with Resume; **Follow** on the engineer trip; **Go** on every search-kit result | `app/src/modules/route` (`PlotBar.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte` |
 
 Behaviour:
 
@@ -46,6 +48,18 @@ Behaviour:
   left."* The lines follow the callout copy guide (V1-DESIGN §6.5); the system name is a sentence
   of its own, which the word budget does not count, because a procedural name alone can outrun
   a callout's budget; the label follows in a sentence of its own.
+- A route plotted in the galaxy map (live only, so the route file read at startup is never
+  taken up) is a **leg** when it ends at a waypoint ahead on the route followed: nothing changes.
+  That is how a Spansh neutron route is flown, leg by leg to each neutron star. Any other plot
+  becomes the route (source `galaxy map`, its jumps after the current system as waypoints), which
+  moves on silently and never writes the clipboard: the game has it plotted and its HUD shows the
+  next jump. An unfinished route of our own that it replaces is **parked** (saved in
+  `route.json` with the route): `route_resume` brings it back and copies its next waypoint, and a
+  galaxy-map plot to a waypoint ahead on it resumes it without a copy. A second detour replaces
+  the galaxy-map route and keeps the parked one. `NavRouteClear` drops only a galaxy-map route
+  (clearing a leg, or arriving at its end, leaves our route alone). `route_set` and
+  `route_clear` drop a parked route. With `route_follow` off, galaxy-map routes are not followed.
+  The game's route repeated (the engine skips a `NavRoute.json` equal to the last one) is not news.
 - Consecutive stops in the same system are merged, which covers two engineers in one system and
   road-to-riches rows (one per body).
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for
@@ -53,7 +67,8 @@ Behaviour:
 
 ### Plotters
 
-**Galaxy route rail → Plot a route** plots a neutron or exact route for the current ship and
+**Top bar → Plot to a system** plots a neutron or exact route from the commander's system (there
+is no other start: `Ask` has no `from`, and no known system is an error) for the current ship and
 hands it to the follower (`route_set`), so it is followed the same way as any other route.
 `astromech_galaxy::plot::plot_route` picks the plotter: a neutron route is plotted on this PC
 when the neutron star file is in the data folder and loads, else by Spansh's `/api/route`; a
@@ -68,7 +83,7 @@ always come from Spansh.
 | Local neutron routes: the search over the neutron star file (A*, then a guided A* for long routes), the stops' names from disk; `local`, `fewest` on the result | `astromech_galaxy::neutron_plot` (`route`, `plot`) |
 | The neutron star file: reader, download from the `neutron` pre-release, and `Kept`, which the shell holds: loaded on the first local plot or after a download (0.1–0.2 s, about 80 MB), kept, and loaded again when the file on disk is no longer the one loaded | `astromech_galaxy::neutron` |
 | Start and destination for a local route: the commander's journal position for a blank From, else `Galaxy::locate` (the local star map, then Spansh's system-name autocomplete, the only network a local route needs) | `astromech_galaxy::plot::plot_route` |
-| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/Plot.svelte`, `NeutronFile.svelte` |
+| The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/PlotBar.svelte`, `Plot.svelte`, `NeutronFile.svelte` |
 
 The core's pipeline thread is not involved: the shell plots and only the finished route reaches
 the core, through the control API. A route plotted while the window is left still gets followed.

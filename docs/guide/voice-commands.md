@@ -140,7 +140,7 @@ your clipboard; "paste" puts it into the galaxy map's search box.
 | "clear route", "clear the route", "end route", "stop following the route" | "Route cleared." |
 | "paste", "paste it", "paste system", "paste waypoint", "paste system name" | With the galaxy map open and its search box selected, sends Ctrl+V, then Enter: "Pasted." Elsewhere: "Open the galaxy map and select its search box first." If the map closes in between, Enter is not sent: "Galaxy map closed. Search not sent." |
 
-With no route: "No route to follow. Set one on the Route page." Past the last stop: "Route
+With no route: "No route to follow. Plot one in the app." Past the last stop: "Route
 complete."
 
 ## Recognised, but not built yet
@@ -152,7 +152,7 @@ These are understood so you get a clear answer instead of a wrong guess. They do
 | "supercruise", "engage supercruise", "enter supercruise", "drop out of supercruise", "exit supercruise" | "Supercruise is not available yet. Flight commands come later." |
 | "hyperspace jump", "engage hyperspace", "frameshift jump", "engage frameshift drive", "jump to next system" | "Hyperspace jumps are not available yet. Flight commands come later." |
 | "request docking", "request docking permission", "dock" | "Docking requests are not available yet." |
-| "plot route to {system}", "set course for {system}" | "Plotting is not available. Use the Route page, then paste." ([Routes](routes.md)) |
+| "plot route to {system}", "set course for {system}" | "Plotting is not available. Plot in the app, then paste." ([Routes](routes.md)) |
 
 ## What it does not do
 

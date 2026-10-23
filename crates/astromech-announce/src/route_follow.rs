@@ -6,10 +6,13 @@
 //! clipboard unless the event is live (a replayed journal only tells it where the commander
 //! is), `[callouts.route_follow]` turns it off (it still tells the route where the commander
 //! is), and speech waits out combat and docking (the clipboard and the toast don't).
+//!
+//! A route plotted in the galaxy map (a new `NavRoute.json`, live) and `NavRouteClear` are
+//! handed over too: the follower decides whether the plot is a leg of its route or a new one.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
-use astromech_journal::JournalEvent;
+use astromech_journal::{ExtraEvent, JournalEvent};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
@@ -21,6 +24,11 @@ pub trait Follower: Send + Sync {
     /// A replayed event put the commander in `system`: remember it, nothing else (the route
     /// doesn't move and the clipboard isn't written).
     fn here(&self, system: &str);
+    /// The commander plotted a route in the galaxy map (live): `systems` from `NavRoute.json`,
+    /// the current system first.
+    fn plotted(&self, systems: &[String]);
+    /// The commander cleared the galaxy map's route (live `NavRouteClear`).
+    fn cleared(&self);
 }
 
 /// The follower the core plugs in. Shared like the visit history.
@@ -67,7 +75,19 @@ impl Rule for RouteFollow {
         Duration::ZERO
     }
     fn react(&self, input: &Input, _state: &GameState) -> Option<Callout> {
-        let text = self.follower.get()?.arrived(arrival(input)?)?;
+        let f = self.follower.get()?;
+        match input {
+            Input::Route(r) => {
+                f.plotted(&r.systems);
+                return None;
+            }
+            Input::Journal(l) if matches!(l.event, JournalEvent::Extra(ExtraEvent::NavRouteClear)) => {
+                f.cleared();
+                return None;
+            }
+            _ => {}
+        }
+        let text = f.arrived(arrival(input)?)?;
         Some(Callout { text, priority: Priority::Normal, channels: Channels::SPEECH | Channels::TOAST })
     }
     fn replayed(&self, input: &Input, _state: &GameState) {
@@ -97,6 +117,12 @@ mod tests {
         }
         fn here(&self, system: &str) {
             self.0.lock().unwrap().push(format!("here {system}"));
+        }
+        fn plotted(&self, systems: &[String]) {
+            self.0.lock().unwrap().push(format!("plotted {}", systems.join(">")));
+        }
+        fn cleared(&self) {
+            self.0.lock().unwrap().push("cleared".into());
         }
     }
 
@@ -140,5 +166,41 @@ mod tests {
         let jump = line(r#"{"timestamp":"t","event":"FSDJump","StarSystem":"Kuk","JumpDist":9.0}"#);
         assert!(e.journal(&jump, &g, Instant::now()).is_empty());
         assert_eq!(*log.0.lock().unwrap(), ["here Sol", "here Kuk"]);
+    }
+
+    /// Galaxy-map plots and clears reach the follower only live and with following on, and say
+    /// nothing themselves.
+    #[test]
+    fn galaxy_map_plots_and_clears_are_handed_over_live() {
+        use astromech_journal::NavRouteSnap;
+        let log = Arc::new(Log::default());
+        let shared = SharedFollower::default();
+        shared.set(log.clone());
+        let mut e = Engine::new(vec![Box::new(RouteFollow { follower: shared })], &Settings::default());
+        let g = GameState::default();
+        let snap = |s: &[&str]| NavRouteSnap {
+            systems: s.iter().map(|x| x.to_string()).collect(),
+            hops: s
+                .iter()
+                .map(|x| astromech_journal::RouteHop { system: x.to_string(), ..Default::default() })
+                .collect(),
+        };
+        let clear = line(r#"{"timestamp":"t","event":"NavRouteClear","Route":[]}"#);
+        assert!(e.route(&snap(&["Sol", "Kuk"]), &g, Instant::now()).is_empty(), "replayed");
+        e.journal(&clear, &g, Instant::now());
+        e.set_live(true);
+        assert!(e.route(&snap(&["Sol", "Wolf 359", "Kuk"]), &g, Instant::now()).is_empty());
+        assert!(e.journal(&clear, &g, Instant::now()).is_empty());
+        assert_eq!(*log.0.lock().unwrap(), ["plotted Sol>Wolf 359>Kuk", "cleared"]);
+
+        let log = Arc::new(Log::default());
+        let shared = SharedFollower::default();
+        shared.set(log.clone());
+        let off: Settings = toml::from_str("[route_follow]\nenabled = false\n").unwrap();
+        let mut e = Engine::new(vec![Box::new(RouteFollow { follower: shared })], &off);
+        e.set_live(true);
+        e.route(&snap(&["Sol", "Kuk"]), &g, Instant::now());
+        e.journal(&clear, &g, Instant::now());
+        assert!(log.0.lock().unwrap().is_empty(), "following off: the galaxy map's route isn't mirrored");
     }
 }

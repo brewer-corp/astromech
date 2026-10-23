@@ -95,8 +95,8 @@ fn sol() -> Here {
     Here { system: "Sol".into(), id64: Some(10477373803), pos: [0.0; 3] }
 }
 
-fn ask(plotter: Plotter, from: &str, to: &str) -> Ask {
-    Ask { plotter, from: from.into(), to: to.into(), efficiency: 60, refuel_every_scoopable: true }
+fn ask(plotter: Plotter, to: &str) -> Ask {
+    Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true }
 }
 
 /// A data folder holding `file` as `neutron.bin` (none if `None`).
@@ -121,10 +121,9 @@ fn a_neutron_route_is_plotted_on_this_pc_when_the_file_is_there() {
     let locate = |n: &str| g.locate(n);
     let here = sol();
 
-    // From blank is where the commander is; the destination is on the local star map.
-    let p =
-        plot_route(g.remote(), &kept, locate, &ask(Plotter::Neutron, " ", "Somewhere"), Some(&here), &ship(), NO_WAIT)
-            .unwrap();
+    // The route starts where the commander is; the destination is on the local star map.
+    let p = plot_route(g.remote(), &kept, locate, &ask(Plotter::Neutron, "Somewhere"), Some(&here), &ship(), NO_WAIT)
+        .unwrap();
     assert!(p.local);
     assert_eq!(p.fewest, Some(true), "a short route is proven fewest");
     assert_eq!(p.fallback, None);
@@ -132,25 +131,6 @@ fn a_neutron_route_is_plotted_on_this_pc_when_the_file_is_there() {
     assert_eq!(stops(&p), [("Sol", None), ("Jackson's Lighthouse", Some(NEUTRON)), ("Somewhere", None)]);
     assert_eq!(p.jumps, 8);
     assert!(t.urls().is_empty(), "no network: {:?}", t.urls());
-
-    // A start the star map lacks is located through Spansh's system names, and only that.
-    let t = Spansh::new(r#"{"min_max":[{"id64":1,"name":"Far Away","x":-100.0,"y":0.0,"z":0.0}]}"#);
-    let g = galaxy(&t);
-    let p = plot_route(
-        g.remote(),
-        &kept,
-        |n| g.locate(n),
-        &ask(Plotter::Neutron, "far away", "Somewhere"),
-        Some(&here),
-        &ship(),
-        NO_WAIT,
-    )
-    .unwrap();
-    assert!(p.local);
-    assert_eq!(p.waypoints[0].system, "Far Away");
-    assert_eq!(p.name, "Far Away to Somewhere");
-    assert_eq!(t.urls().len(), 1);
-    assert!(t.urls()[0].contains("system_names"), "{:?}", t.urls());
 }
 
 #[test]
@@ -163,7 +143,7 @@ fn an_unknown_system_says_so() {
         g.remote(),
         &kept,
         |n| g.locate(n),
-        &ask(Plotter::Neutron, "", "Nowhere"),
+        &ask(Plotter::Neutron, "Nowhere"),
         Some(&sol()),
         &ship(),
         NO_WAIT,
@@ -172,10 +152,9 @@ fn an_unknown_system_says_so() {
     assert_eq!(e, "Spansh does not know a system called Nowhere.");
     assert!(!t.urls().iter().any(|u| u.contains("/api/route")), "no Spansh route asked for");
 
-    let e =
-        plot_route(g.remote(), &kept, |n| g.locate(n), &ask(Plotter::Neutron, "", "Somewhere"), None, &ship(), NO_WAIT)
-            .unwrap_err();
-    assert_eq!(e, "Enter where the route starts.");
+    let e = plot_route(g.remote(), &kept, |n| g.locate(n), &ask(Plotter::Neutron, "Somewhere"), None, &ship(), NO_WAIT)
+        .unwrap_err();
+    assert_eq!(e, astromech_galaxy::plot::NOT_HERE);
 }
 
 #[test]
@@ -188,7 +167,7 @@ fn spansh_plots_when_there_is_no_file() {
         g.remote(),
         &kept,
         |n| g.locate(n),
-        &ask(Plotter::Neutron, "", "Colonia"),
+        &ask(Plotter::Neutron, "Colonia"),
         Some(&sol()),
         &ship(),
         NO_WAIT,
@@ -217,7 +196,7 @@ fn a_broken_file_falls_back_to_spansh_and_says_why() {
         g.remote(),
         &kept,
         |n| g.locate(n),
-        &ask(Plotter::Neutron, "", "Colonia"),
+        &ask(Plotter::Neutron, "Colonia"),
         Some(&sol()),
         &ship(),
         NO_WAIT,
@@ -236,7 +215,7 @@ fn a_broken_file_falls_back_to_spansh_and_says_why() {
         g.remote(),
         &kept,
         |n| g.locate(n),
-        &ask(Plotter::Neutron, "", "Somewhere"),
+        &ask(Plotter::Neutron, "Somewhere"),
         Some(&sol()),
         &ship(),
         NO_WAIT,
@@ -262,7 +241,7 @@ fn exact_routes_come_from_spansh_with_the_file_there() {
         &client,
         &kept,
         |_| panic!("not located"),
-        &ask(Plotter::Exact, "", "Maia"),
+        &ask(Plotter::Exact, "Maia"),
         Some(&sol()),
         &ship(),
         NO_WAIT,

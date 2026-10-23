@@ -939,7 +939,7 @@ fn plot_ship(st: &JournalState) -> Result<astromech_galaxy::plot::Ship, String> 
     astromech_galaxy::plot::Ship::current(&st.fleet, cargo)
 }
 
-/// Plot `ask` for the current ship (from the commander's system when `from` is blank) off the
+/// Plot `ask` for the current ship from the commander's system off the
 /// UI thread, and hand the route to the core's follower. A neutron route is plotted on this PC
 /// from the kept neutron star file when it is there and readable, else by Spansh
 /// (`astromech_galaxy::plot::plot_route`); exact routes come from Spansh. The route is set even
@@ -1209,6 +1209,7 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         "route_back",
         "route_clear",
         "route_copy",
+        "route_resume",
     ];
     if !ALLOWED.contains(&cmd.as_str()) {
         return serde_json::json!({ "ok": false, "error": "not allowed" });

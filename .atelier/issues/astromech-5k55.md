@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Top-bar system search that plots from the current system"
-updated_at: "2026-10-23T01:00:07.388889336+00:00"
+updated_at: "2026-10-23T01:00:11.115138203+00:00"
 ---
 
 ## Goal

@@ -66,7 +66,7 @@ fn asp_fleet() -> Fleet {
 }
 
 fn ask(plotter: Plotter, to: &str) -> Ask {
-    Ask { plotter, from: "Sol".into(), to: to.into(), efficiency: 60, refuel_every_scoopable: true }
+    Ask { plotter, to: to.into(), efficiency: 60, refuel_every_scoopable: true }
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn an_exact_route_has_every_jump_and_its_refuel_stops() {
         &[(202, fixture!("spansh-exact-pending.json")), (200, fixture!("spansh-exact-result.json"))],
     );
     let ship = Ship::current(&asp_fleet(), 0.0).unwrap();
-    let p = plot(&client(&rec), &ask(Plotter::Exact, "Maia"), &ship, NO_WAIT).unwrap();
+    let p = plot(&client(&rec), "Sol", &ask(Plotter::Exact, "Maia"), &ship, NO_WAIT).unwrap();
 
     // The drive went to Spansh as numbers from the loadout.
     let form = rec.form();
@@ -138,7 +138,7 @@ fn a_neutron_route_stops_at_the_neutron_stars() {
     let mut ship = Ship::current(&asp_fleet(), 0.0).unwrap();
     assert_eq!(ship.fsd.supercharge_multiplier, 4);
     ship.fsd.supercharge_multiplier = 6; // as with a Mk II drive
-    let p = plot(&client(&rec), &ask(Plotter::Neutron, "Colonia"), &ship, NO_WAIT).unwrap();
+    let p = plot(&client(&rec), "Sol", &ask(Plotter::Neutron, "Colonia"), &ship, NO_WAIT).unwrap();
 
     let form = rec.form();
     assert!(form.contains(&("range".into(), format!("{}", (ship.range * 100.0).round() / 100.0))), "{form:?}");
@@ -155,18 +155,18 @@ fn a_neutron_route_stops_at_the_neutron_stars() {
 fn plot_failures_are_sentences() {
     let ship = Ship::current(&asp_fleet(), 0.0).unwrap();
     let rec = Recorded::new((400, r#"{"error":"Could not find finishing system"}"#), &[]);
-    let e = plot(&client(&rec), &ask(Plotter::Neutron, "Nowhere"), &ship, NO_WAIT).unwrap_err();
+    let e = plot(&client(&rec), "Sol", &ask(Plotter::Neutron, "Nowhere"), &ship, NO_WAIT).unwrap_err();
     assert_eq!(e, "Spansh turned the request down: Could not find finishing system.");
 
     let rec =
         Recorded::new((202, fixture!("spansh-exact-submit.json")), &[(500, fixture!("spansh-exact-failed.json"))]);
-    let e = plot(&client(&rec), &ask(Plotter::Exact, "Nowhere"), &ship, NO_WAIT).unwrap_err();
+    let e = plot(&client(&rec), "Sol", &ask(Plotter::Exact, "Nowhere"), &ship, NO_WAIT).unwrap_err();
     assert_eq!(e, "Spansh turned the request down: Unable to find route.");
 
     let rec = Recorded::new((202, "{}"), &[]);
     assert_eq!(
-        plot(&client(&rec), &ask(Plotter::Exact, " "), &ship, NO_WAIT).unwrap_err(),
-        "Enter where the route starts and where it ends."
+        plot(&client(&rec), "Sol", &ask(Plotter::Exact, " "), &ship, NO_WAIT).unwrap_err(),
+        "Enter where the route ends."
     );
     assert!(rec.log.lock().unwrap().is_empty(), "nothing sent without a destination");
 }

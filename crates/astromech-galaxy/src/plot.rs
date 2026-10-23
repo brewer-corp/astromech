@@ -44,11 +44,10 @@ fn yes() -> bool {
     true
 }
 
-/// A route to plot, as the Route page asks for it.
+/// A route to plot from the commander's system, as the window's top bar asks for it.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Ask {
     pub plotter: Plotter,
-    pub from: String,
     pub to: String,
     /// Neutron routes, 1–100.
     #[serde(default = "default_efficiency")]
@@ -149,7 +148,7 @@ pub struct Plotted {
 /// Plots `ask` for `ship` (blocks: run it off the UI thread). A neutron route is plotted on this
 /// PC when the neutron star file in `neutron` is there and readable, else by Spansh, and a file
 /// that can't be read is said in [`Plotted::fallback`]. Exact routes always come from Spansh.
-/// A blank `from` is `here`, the commander's system. The local plotter finds the ends with
+/// The route starts at `here`, the commander's system. The local plotter finds the ends with
 /// `locate` ([`crate::Galaxy::locate`]: the local star map, then Spansh's system names), so it
 /// needs the network only for a system the star map lacks. Errors are sentences for the page.
 pub fn plot_route(
@@ -161,41 +160,38 @@ pub fn plot_route(
     ship: &Ship,
     polling: Polling,
 ) -> Result<Plotted, String> {
-    let mut ask = ask.clone();
-    let from_here = ask.from.trim().is_empty();
-    if from_here {
-        ask.from = here.map(|h| h.system.clone()).ok_or("Enter where the route starts.")?;
-    }
+    let here = here.ok_or(NOT_HERE)?;
     if ask.to.trim().is_empty() {
         return Err("Enter where the route ends.".into());
     }
     if ask.plotter == Plotter::Exact {
-        return plot(client, &ask, ship, polling);
+        return plot(client, &here.system, ask, ship, polling);
     }
     let file = match neutron.get() {
         Ok(Some(file)) => file,
-        Ok(None) => return plot(client, &ask, ship, polling),
+        Ok(None) => return plot(client, &here.system, ask, ship, polling),
         Err(e) => {
-            let mut p = plot(client, &ask, ship, polling)?;
+            let mut p = plot(client, &here.system, ask, ship, polling)?;
             p.fallback = Some(format!("{e:#}"));
             return Ok(p);
         }
     };
-    let find = |name: &str| locate(name.trim()).map_err(|e| format!("{e:#}"));
-    let from = match here {
-        Some(h) if from_here || h.system.eq_ignore_ascii_case(ask.from.trim()) => h.clone(),
-        _ => find(&ask.from)?,
-    };
-    let to = find(&ask.to)?;
-    crate::neutron_plot::plot(&file, &from, &to, ship)
+    let to = locate(ask.to.trim()).map_err(|e| format!("{e:#}"))?;
+    crate::neutron_plot::plot(&file, here, &to, ship)
 }
 
-/// Plot `ask` for `ship` with Spansh and wait for it (blocks: run it off the UI thread; gives up after
-/// `polling.timeout`). Errors are sentences for the page.
-pub fn plot(client: &Client, ask: &Ask, ship: &Ship, polling: Polling) -> Result<Plotted, String> {
-    let (from, to) = (ask.from.trim().to_string(), ask.to.trim().to_string());
-    if from.is_empty() || to.is_empty() {
-        return Err("Enter where the route starts and where it ends.".into());
+/// Routes start where the commander is; before the journal says where that is, there is no start.
+pub const NOT_HERE: &str = "astromech doesn't know your current system yet. Log in to Elite, then plot again.";
+
+/// Plot `ask` from `from` for `ship` with Spansh and wait for it (blocks: run it off the UI
+/// thread; gives up after `polling.timeout`). Errors are sentences for the page.
+pub fn plot(client: &Client, from: &str, ask: &Ask, ship: &Ship, polling: Polling) -> Result<Plotted, String> {
+    let (from, to) = (from.trim().to_string(), ask.to.trim().to_string());
+    if from.is_empty() {
+        return Err(NOT_HERE.into());
+    }
+    if to.is_empty() {
+        return Err("Enter where the route ends.".into());
     }
     spansh(client, ask, from, to, ship, polling).map_err(|e| e.to_string())
 }
