@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-rcui
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ship an alpha with the brewer-corp updater feed"
-updated_at: "2026-10-22T22:15:43.766943949+00:00"
+updated_at: "2026-10-23T00:46:30.625228098+00:00"
 ---
 
 ## Goal
