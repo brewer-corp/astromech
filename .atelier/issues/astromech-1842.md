@@ -4,6 +4,9 @@ id: "astromech-1842"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-1842
 priority: "P1"
 relationships:
   blocks: []
@@ -25,9 +28,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T23:47:19.416773915+00:00"
+status: "done"
 title: "Plot neutron routes on this PC"
-updated_at: "2026-10-22T19:30:25.163070428+00:00"
+updated_at: "2026-10-22T23:47:19.416773915+00:00"
 ---
 
 ## Goal
@@ -55,3 +59,7 @@ Discussed with Sumeet on 22 Oct 2026.
 - **The model:** a route's stops are neutron stars plus the destination; the galaxy map plots each leg. From a neutron star a boosted jump reaches `k·R` (k the drive's multiplier, R the full-tank range with the cargo aboard), then normal jumps cover the rest. Start and destination are ordinary systems located with `Galaxy::locate`. The search minimises total jumps, then the number of stops (each stop is a galaxy-map plot), so the efficiency setting goes away for local routes.
 - **Out of scope here:** fuel planning, checking sparse gaps against real stars, white-dwarf boosts, via systems, FSD injections. Fuel and sparse gaps are the backlog increment that follows this one.
 - The in-game plotter's "use jet-cone boost" only takes neutron stars almost on the straight line (Spansh's author puts it near 99.5% efficiency) and plots at most about 20,000 ly; that is why this tool is worth having.
+
+## Close Reason
+
+Neutron routes are plotted on this PC from a downloaded file of 5,045,154 neutron stars, with Spansh as the fallback; local routes have no more jumps than Spansh's on 12 live comparisons (validation astromech-7z3m); every child independently reviewed.

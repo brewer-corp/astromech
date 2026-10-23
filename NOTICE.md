@@ -56,7 +56,9 @@ The PNGs are recoloured by `scripts/recolour-sheets.py` to match the app; the PD
 ## Star map and live lookups
 The star map preload (`starmap.db`, built by `scripts/gen-starmap.py`, not in the repository) and
 `data/catalog/engineers.json` use Spansh's systems dump (downloads.spansh.co.uk), which is
-community data from EDDN. At run time the app asks Spansh (faction states and stations near you) and EDSM
+community data from EDDN. The neutron star file (`neutron.bin`, built by `scripts/gen-neutron.py`,
+published on the `neutron` pre-release, not in the repository) uses Spansh's neutron dump from the
+same place; `crates/astromech-galaxy/tests/fixtures/neutron-sample.json` is 39 rows of it. At run time the app asks Spansh (faction states and stations near you) and EDSM
 (systems near you, edsm.net) directly. Test fixtures under `crates/*/tests/fixtures` are small,
 trimmed Spansh, Ardent Insight and EDSM answers. Star positions, stations and faction states are
 Elite Dangerous game data, © Frontier Developments plc.

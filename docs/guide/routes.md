@@ -17,12 +17,12 @@ the **Route** page in the command palette:
   when you are in it;
 - **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**.
 
-[Plot with Spansh](#plot-a-route-with-spansh) and [Import](#import-a-route) sit under the live
+[Plot a route](#plot-a-route) and [Import](#import-a-route) sit under the live
 route, folded closed when a route is already following.
 
 A route comes from:
 
-- **Plot and follow** under Plot with Spansh on this page;
+- **Plot and follow** under Plot a route on this page;
 - **Follow** on the engineer trip ([Engineering](engineering.md));
 - **Go** on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
   Powerplay targets and the material sites). That is a route with one stop: the result's
@@ -100,18 +100,21 @@ for "clear route"). Past the last stop: *"Route complete."*
 "Plot route to ..." by voice is not built: astromech says *"Plotting is not available. Use the
 Route page, then paste."*
 
-## Plot a route with Spansh
+## Plot a route
 
-On the Galaxy route rail, **Plot with Spansh** plots a route for the ship you are flying, and
+On the Galaxy route rail, **Plot a route** plots a route for the ship you are flying, and
 astromech follows it straight away. If you are in the start system, the first jump is next and
 on your clipboard.
 
 - **Neutron** boosts from neutron stars on the way. The waypoints are the neutron stars and the
-  destination: plot each leg in the galaxy map. **Efficiency** (1 to 100, 60 by default) is how
-  far Spansh may stray from the straight line to use neutron stars.
-- **Exact** has every jump as a waypoint, worked out for your frame shift drive, fuel tank and
-  mass. Waypoints marked **fuel** are where to scoop. **Refuel at every scoopable star** (on by
-  default) tops up whenever it can; turn it off to stop only where the tank needs it.
+  destination: plot each leg in the galaxy map. With the [neutron star file](#the-neutron-star-file)
+  downloaded, astromech works the route out on this PC in a second or two. Without it, Spansh
+  plots it, and **Efficiency** (1 to 100, 60 by default) is how far Spansh may stray from the
+  straight line to use neutron stars. Routes plotted on this PC have no such setting: they take
+  the fewest jumps astromech can find.
+- **Exact** has every jump as a waypoint, worked out by Spansh for your frame shift drive, fuel
+  tank and mass. Waypoints marked **fuel** are where to scoop. **Refuel at every scoopable star**
+  (on by default) tops up whenever it can; turn it off to stop only where the tank needs it.
 
 **From** blank means your current system. **To** is a system name as Spansh knows it. Above the
 button is the jump range used: your ship's range with a full tank and the cargo aboard now,
@@ -122,13 +125,20 @@ boost: six times the range with the size 8 Mk II supercharge-optimised drive, fo
 other.
 
 When it is done, the page says how many jumps, how far, how many neutron boosts and refuel
-stops, and the jump range the route was plotted at. "Next waypoint" by voice adds what to do there: *"Next waypoint. Hyades Sector DB-W
-b2-6. For fuel."*
+stops, the jump range the route was plotted at, and where it was plotted: **on this PC** or **by
+Spansh**. A long route plotted on this PC may say **near the fewest jumps**: see the limits
+below. If the neutron star file is there but can't be read, Spansh plots the route instead and
+the page says why; press Download to replace the file. "Next waypoint" by voice adds what to do
+there: *"Next waypoint. Hyades Sector DB-W b2-6. For fuel."*
 
 It needs:
 
-- internet: Spansh plots the route. It can take a minute. You can leave the page; the route is
-  still followed when it is done. One route is plotted at a time.
+- internet, for Spansh: exact routes, and neutron routes until the neutron star file is
+  downloaded. Spansh can take a minute. You can leave the page; the route is still followed when
+  it is done. One route is plotted at a time.
+- for a neutron route on this PC, internet only to find a start or destination that isn't on
+  astromech's star map ([Galaxy](galaxy.md#jumps-and-distance)) yet: it asks Spansh where the
+  system is. Your current system needs nothing.
 - a ship flown since the journal began, so its loadout is there.
 - a fuel scoop. Exact routes plan their refuel stops by scooping, and astromech does not check
   that the ship has one.
@@ -137,8 +147,36 @@ Limits:
 
 - No FSD injections, via systems or fuel reserve. Exact routes always use neutron boosts.
 - Neutron routes do not plan fuel.
-- A misspelled system gives "Spansh turned the request down" with Spansh's reason, such as
-  "Unable to find route" or "Could not find finishing system".
+- Neutron routes plotted on this PC count the normal jumps between neutron stars from the
+  distance. They don't check that there are stars to jump to in sparse space, between the arms
+  and at the galaxy's edge, so a leg there may take more jumps than the page says, or need a
+  detour.
+- A short route plotted on this PC has the fewest jumps possible with the known neutron stars.
+  On a long route the search stops at a good route instead of trying every one: it is near the
+  fewest jumps (a few more on a route across the galaxy), and the page says so.
+- A misspelled system gives "Spansh does not know a system called ..." for a route plotted on
+  this PC, and "Spansh turned the request down" with Spansh's reason, such as "Unable to find
+  route" or "Could not find finishing system", for one Spansh plots.
+
+### The neutron star file
+
+Under **Neutron**, the page also shows the **neutron star file**: a list of every known neutron
+star (about 5 million), built from Spansh's neutron star data, for plotting neutron routes on
+this PC instead of on Spansh. Until it is downloaded, Spansh plots neutron routes.
+
+- **Download** fetches it once: about 71 MB, unpacked to about 184 MB as `neutron.bin` in
+  astromech's data folder (the folder that holds `galaxy.db`; `data_dir` in `astromech.toml`
+  moves it). The page shows how much has come in. Nothing is downloaded until you press it.
+- The download is checked against the published checksum before it is used. If it fails, is
+  damaged or is interrupted, the file you had (or none) stays as it was. Press Download again.
+- Once it is there, the page shows how many neutron stars it lists and the date it was built.
+  **Check for a newer file** asks whether a different file has been published since. If one
+  has, **Download the newer file** replaces yours.
+- It needs internet only for the download and the check. The file is rebuilt by hand now and
+  then, not with every astromech update.
+- astromech reads the file when it plots its first neutron route, or when a download finishes,
+  and keeps it in memory (about 80 MB) while the window is open. A newer file you download is
+  used from the next route.
 
 ## Import a route
 

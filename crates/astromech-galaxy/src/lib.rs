@@ -6,11 +6,15 @@
 //! jump counts by A* over the known stars at the ship's range; raw-material sites (crystalline
 //! shards, brain trees, crashed ships, geological sites, the known farms) from Spansh's bodies
 //! search; colonisation candidates (unclaimed systems in claim range of a populated one) from
-//! both; neutron and exact routes for the route follower from Spansh's plotters ([`plot`]).
+//! both; neutron and exact routes for the route follower from Spansh's plotters ([`plot`]); the
+//! neutron star file ([`neutron`]) and the neutron plotter that searches it on this PC
+//! ([`neutron_plot`]).
 
 pub mod colonies;
 pub mod filters;
 pub mod map;
+pub mod neutron;
+pub mod neutron_plot;
 pub mod outfitting;
 pub mod plot;
 pub mod powerplay;
