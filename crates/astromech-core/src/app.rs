@@ -1590,7 +1590,7 @@ mod tests {
         }
         assert_eq!(
             crate::route::command_reply(&core.route, crate::route::Command::Next),
-            "Next waypoint. Hyades Sector DB-W b2-6, for fuel. 4 waypoints left."
+            "Next waypoint. Hyades Sector DB-W b2-6. For fuel. 4 waypoints left."
         );
     }
 

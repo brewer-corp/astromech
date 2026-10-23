@@ -11,14 +11,22 @@
 //!   (`D 12 dash 39`). An upper-case letter is used because espeak says a lone capital by its
 //!   letter name, whereas a lone lower-case `d` can be read as a word fragment. Pilots say the
 //!   dash too, and it keeps the two numbers from running into "twelve thirty-nine".
-//! - Catalogue prefixes (`HIP`, `HD`, `LHS`, `Col`, ...): initialisms are spelled, words that
-//!   people say as words (HIP, Gliese, Collinder) are written as that word.
-//! - Ore and commodity names: `LTD` is expanded; a few names espeak mis-stresses are respelled.
+//! - Catalogue prefixes (`HIP`, `HD`, `LHS`, `Col`, ...), only when a number follows, so
+//!   "Col. Smith" stays a colonel: initialisms are spelled, words that people say as words (HIP,
+//!   Collinder) are written as that word.
+//! - Names respelled wherever they appear: `LTD` is expanded; ores, commodities and catalogues
+//!   (Gliese, 2MASS) that espeak mis-stresses are respelled.
 //! - Numbers: `43.5%` becomes `43.5 percent`; `19 M` becomes `19 million`; `Cr` is credits;
-//!   `ly`, `ls`, `t`, `MJ` and friends become words, singular for exactly 1; ranges (`40-60%`)
-//!   read `40 to 60 percent`. Thousands separators are dropped.
+//!   `ly`, `ls`, `MJ` and friends become words, singular for exactly 1; ranges (`40-60%`) read
+//!   `40 to 60 percent`. Thousands separators are dropped. A unit or scale written after a space
+//!   is read only when it cannot mean anything else (`5 m`, `Deck 2 K` and `LHS 3447 B` are left
+//!   alone; `19 M` only where its clause ends); glued to the number (`12t`, `5k`, `1.2B`) any of
+//!   them is.
+//! - Words are matched without surrounding quotes, brackets, sentence punctuation or a
+//!   possessive `'s` ("Taaffeite's").
 
-/// Catalogue and survey prefixes, matched whole-word and case-sensitively.
+/// Catalogue and survey prefixes, matched whole-word and case-sensitively, and only before a
+/// number ("HD 164595", not "HD video").
 const PREFIXES: &[(&str, &str)] = &[
     ("HIP", "Hip"),
     ("HD", "H D"),
@@ -31,40 +39,56 @@ const PREFIXES: &[(&str, &str)] = &[
     ("IC", "I C"),
     ("TYC", "T Y C"),
     ("PSR", "P S R"),
-    ("2MASS", "two mass"),
     ("Col", "Collinder"),
-    ("Gliese", "Gleeza"),
 ];
 
-/// Ore and commodity names (case-insensitive, whole word). `LTD` is a player abbreviation.
-/// Respellings are for names espeak is likely to stress or split wrongly; they are
-/// best-effort and should be re-checked by ear when the voice changes.
+/// Names respelled wherever they appear (case-insensitive, whole word). `LTD` is a player
+/// abbreviation. Respellings are for names espeak stresses or splits wrongly; they are
+/// best-effort and should be re-checked by ear when the voice changes. A rough check without
+/// ears: render the name with Kokoro and transcribe it with Parakeet (`examples/voice-eval.rs`
+/// with a phrase file of names). On 22 Oct 2026 (bf_emma, bm_george) Alexandrite, Monazite,
+/// Tritium, Osmium, Lepidolite, Cryolite, Moissanite and Painite came back as written or as
+/// pronounced, so they are not respelled; Jadeite ("Jadate"), Taaffeite ("Tough") and
+/// Uraninite ("You're an anite") and Pyrophyllite ("Pyrophyllaita") did not.
 const NAMES: &[(&str, &str)] = &[
     ("ltd", "Low Temperature Diamonds"),
     ("ltds", "Low Temperature Diamonds"),
-    ("grandidierite", "Grandy-deer-ite"),
-    ("serendibite", "Serren-dib-ite"),
-    ("rhodplumsite", "Rodd-plum-site"),
-    ("musgravite", "Musgrave-ite"),
+    ("gliese", "Gleeza"),
+    ("2mass", "two mass"),
+    // Mining ores and minerals.
     ("benitoite", "Ben-ee-toe-ite"),
+    ("grandidierite", "Grandy-deer-ite"),
+    ("jadeite", "Jade-ite"),
+    ("musgravite", "Musgrave-ite"),
+    ("pyrophyllite", "Pyro-fill-ite"),
+    ("rhodplumsite", "Rodd-plum-site"),
+    ("serendibite", "Serren-dib-ite"),
+    ("taaffeite", "Tarf-ite"),
+    ("uraninite", "You-ranni-nite"),
 ];
 
-/// Words after a number that scale it.
-const SCALES: &[(&str, &str)] = &[("M", "million"), ("B", "billion"), ("K", "thousand"), ("k", "thousand")];
+/// Words after a number that scale it: (written, word, read after a space). Only `M` is read after
+/// a space, as the biology callouts write it ("up to 19 M."), and only where a clause ends or a
+/// unit follows (see [`spaced_scale_ends`]). Star and body letters follow numbers too: "LHS 3447
+/// B", "HIP 36601 B 1 a", "Deck 2 K" are not billions or thousands. A thirteenth star, "HIP 1234
+/// M", at the end of a clause would still be read as a million; no callout says one.
+const SCALES: &[(&str, &str, bool)] =
+    &[("M", "million", true), ("B", "billion", false), ("K", "thousand", false), ("k", "thousand", false)];
 
-/// Units and currency after a number: (written, singular, plural).
-const UNITS: &[(&str, &str, &str)] = &[
-    ("%", "percent", "percent"),
-    ("Cr", "credit", "credits"),
-    ("CR", "credit", "credits"),
-    ("ly", "light year", "light years"),
-    ("ls", "light second", "light seconds"),
-    ("t", "tonne", "tonnes"),
-    ("MJ", "megajoule", "megajoules"),
-    ("km", "kilometre", "kilometres"),
-    ("m", "metre", "metres"),
-    ("km/s", "kilometre per second", "kilometres per second"),
-    ("m/s", "metre per second", "metres per second"),
+/// Units and currency after a number: (written, singular, plural, read after a space). Units that
+/// are also ordinary letters or words (`m`, `t`, `CR`) are read only when glued to the number.
+const UNITS: &[(&str, &str, &str, bool)] = &[
+    ("%", "percent", "percent", true),
+    ("Cr", "credit", "credits", true),
+    ("CR", "credit", "credits", false),
+    ("ly", "light year", "light years", true),
+    ("ls", "light second", "light seconds", true),
+    ("t", "tonne", "tonnes", false),
+    ("MJ", "megajoule", "megajoules", true),
+    ("km", "kilometre", "kilometres", true),
+    ("m", "metre", "metres", false),
+    ("km/s", "kilometre per second", "kilometres per second", true),
+    ("m/s", "metre per second", "metres per second", true),
 ];
 
 /// Rewrite `text` for the speech engine. Whitespace is collapsed to single spaces.
@@ -87,8 +111,10 @@ pub fn normalise(text: &str) -> String {
                     let (npre, ncore, npost) = split_punct(toks[i]);
                     let ok = npre.is_empty()
                         && match suffix.len() {
-                            0 => scale(ncore).is_some() || unit(ncore).is_some(),
-                            _ => unit(ncore).is_some() && scale(suffix[0]).is_some(),
+                            0 => {
+                                spaced_unit(ncore) || (spaced_scale(ncore) && spaced_scale_ends(npost, toks.get(i + 1)))
+                            }
+                            _ => spaced_unit(ncore) && scale(suffix[0]).is_some(),
                         };
                     if !ok {
                         break;
@@ -123,7 +149,13 @@ pub fn normalise(text: &str) -> String {
             out.push(format!("{pre}{joined}{tail_post}"));
             continue;
         } else {
-            vec![word(core)]
+            // A catalogue prefix counts only directly before a number ("HD 164595").
+            let before_number = post.is_empty()
+                && toks.get(i).is_some_and(|n| {
+                    let (npre, ncore, _) = split_punct(n);
+                    npre.is_empty() && ncore.starts_with(|c: char| c.is_ascii_digit())
+                });
+            vec![word(core, before_number)]
         };
         let last = words.pop().unwrap_or_default();
         words.push(format!("{pre}{last}{post}"));
@@ -133,28 +165,50 @@ pub fn normalise(text: &str) -> String {
 }
 
 fn scale(s: &str) -> Option<&'static str> {
-    SCALES.iter().find(|(k, _)| *k == s).map(|(_, v)| *v)
+    SCALES.iter().find(|(k, _, _)| *k == s).map(|(_, v, _)| *v)
 }
 
 fn unit(s: &str) -> Option<(&'static str, &'static str)> {
-    UNITS.iter().find(|(k, _, _)| *k == s).map(|(_, a, b)| (*a, *b))
+    UNITS.iter().find(|(k, _, _, _)| *k == s).map(|(_, a, b, _)| (*a, *b))
 }
 
-/// Leading `(`/quotes and trailing sentence punctuation, kept out of the rules.
+/// A scale read even after a space.
+fn spaced_scale(s: &str) -> bool {
+    SCALES.iter().any(|(k, _, spaced)| *k == s && *spaced)
+}
+
+/// A spaced scale counts only where its clause ends (punctuation after it, or the end of the
+/// line) or a unit follows ("19 M Cr"); "HIP 1234 M 1" is a body.
+fn spaced_scale_ends(post: &str, next: Option<&&str>) -> bool {
+    !post.is_empty() || next.is_none_or(|n| spaced_unit(split_punct(n).1))
+}
+
+/// A unit read even after a space.
+fn spaced_unit(s: &str) -> bool {
+    UNITS.iter().any(|(k, _, _, spaced)| *k == s && *spaced)
+}
+
+/// Leading brackets and quotes, and trailing sentence punctuation, quotes and a possessive `'s`,
+/// kept out of the rules.
 fn split_punct(t: &str) -> (&str, &str, &str) {
-    let start = t.len() - t.trim_start_matches(['(', '"', '\'', '[']).len();
-    let rest = &t[start..];
-    let end = rest.trim_end_matches(['.', ',', ';', ':', '!', '?', ')', '"', '\'', ']']).len();
+    const OPEN: &[char] = &['(', '"', '\'', '[', '\u{201c}', '\u{2018}'];
+    const CLOSE: &[char] = &['.', ',', ';', ':', '!', '?', ')', '"', '\'', ']', '\u{201d}', '\u{2019}'];
+    let rest = t.trim_start_matches(OPEN);
+    let start = t.len() - rest.len();
+    let mut end = rest.trim_end_matches(CLOSE).len();
     // Keep a bare "%" or similar whole: only strip when something remains.
     if end == 0 {
         return (&t[..start], "", rest);
     }
+    if let Some(s) = ["'s", "\u{2019}s"].iter().find(|s| end > s.len() && rest[..end].ends_with(**s)) {
+        end -= s.len();
+    }
     (&t[..start], &rest[..end], &rest[end..])
 }
 
-/// Rules for a single non-numeric word.
-fn word(w: &str) -> String {
-    if let Some((_, v)) = PREFIXES.iter().find(|(k, _)| *k == w) {
+/// Rules for a single non-numeric word; `before_number` when a number follows it.
+fn word(w: &str, before_number: bool) -> String {
+    if let Some((_, v)) = PREFIXES.iter().find(|(k, _)| before_number && *k == w) {
         return v.to_string();
     }
     if let Some((_, v)) = NAMES.iter().find(|(k, _)| k.eq_ignore_ascii_case(w)) {
@@ -260,6 +314,13 @@ mod tests {
         ("LTD and LTDs", "Low Temperature Diamonds and Low Temperature Diamonds"),
         ("Void Opals, Painite, Bromellite", "Void Opals, Painite, Bromellite"),
         ("Grandidierite", "Grandy-deer-ite"),
+        ("Jadeite, Taaffeite and Uraninite", "Jade-ite, Tarf-ite and You-ranni-nite"),
+        ("Alexandrite, Monazite, Tritium 1 Cr", "Alexandrite, Monazite, Tritium 1 credit"),
+        // Possessives and quotes.
+        ("Taaffeite's price", "Tarf-ite's price"),
+        ("Grandidierite\u{2019}s", "Grandy-deer-ite\u{2019}s"),
+        ("\"LTD\"", "\"Low Temperature Diamonds\""),
+        ("\u{201c}Synuefe BY-F d12-39\u{201d}", "\u{201c}Synuefe B Y F D 12 dash 39\u{201d}"),
         // Percentages.
         ("Painite 43.5%", "Painite 43.5 percent"),
         ("core 12 %", "core 12 percent"),
@@ -268,24 +329,49 @@ mod tests {
         // Large numbers and credits.
         ("worth 19 M", "worth 19 million"),
         ("worth 19M.", "worth 19 million."),
-        ("1.2 B", "1.2 billion"),
+        ("1.2B", "1.2 billion"),
+        ("A 2: Stratum, up to 19 M.", "A 2: Stratum, up to 19 million."),
+        ("B 3: Fungoida Bullarum, 3.7 M.", "B 3: Fungoida Bullarum, 3.7 million."),
         ("19 M Cr", "19 million credits"),
         ("1,234,567 Cr", "1234567 credits"),
         ("1 Cr", "1 credit"),
-        ("5 K", "5 thousand"),
+        ("5k", "5 thousand"),
         // Units.
         ("12.5 ly", "12.5 light years"),
         ("1 ly away", "1 light year away"),
         ("3-5 ls", "3 to 5 light seconds"),
         ("720 ls,", "720 light seconds,"),
         ("carrying 12t", "carrying 12 tonnes"),
-        ("1 t", "1 tonne"),
+        ("1t", "1 tonne"),
+        ("5 km", "5 kilometres"),
+        ("in 5m", "in 5 metres"),
         ("40 MJ", "40 megajoules"),
         ("250 m/s", "250 metres per second"),
         // Left alone.
         ("3rd of 2 ships", "3rd of 2 ships"),
         ("Fuel 12 remaining", "Fuel 12 remaining"),
         ("The M type star", "The M type star"),
+        // Negative rows: read as written.
+        ("At 2:30.", "At 2:30."),
+        ("Limpets x2.", "Limpets x2."),
+        ("Krait Mk II", "Krait Mk II"),
+        ("T-10 and Type-9", "T-10 and Type-9"),
+        ("FSD charging. OK.", "FSD charging. OK."),
+        ("Cr", "Cr"),
+        ("in 5 m", "in 5 m"),
+        ("carrying 1 t", "carrying 1 t"),
+        ("Deck 2 K", "Deck 2 K"),
+        ("HIP 36601 B 1 a", "Hip 36601 B 1 a"),
+        ("LHS 3447 B", "L H S 3447 B"),
+        ("Wolf 359 B", "Wolf 359 B"),
+        ("Pad 5 B", "Pad 5 B"),
+        ("Nearest site: HIP 1234 M 1 a, 3.2 light years.", "Nearest site: Hip 1234 M 1 a, 3.2 light years."),
+        ("Col. Smith", "Col. Smith"),
+        ("HD video", "HD video"),
+        ("Prua Phoe XX-Y e1-2345", "Prua Phoe X X Y E 1 dash 2345"),
+        ("3310-10-22", "3310-10-22"),
+        ("22/10/3310", "22/10/3310"),
+        ("Côte d\u{2019}Ivoire, Ærøskøbing 5 Cr, 日本", "Côte d\u{2019}Ivoire, Ærøskøbing 5 credits, 日本"),
         ("", ""),
     ];
 
