@@ -41,6 +41,7 @@ astromech writes each message from the journal and the game's files to the schem
 | What | EDDN schema | When it is sent |
 |---|---|---|
 | A station's **commodity market**: prices, demand and stock | commodity/3 | When you open the commodity market (`Market.json`) |
+| A station's **outfitting**: the modules for sale | outfitting/2 | When you open outfitting (`Outfitting.json`) |
 | A station's **shipyard**: the ships for sale | shipyard/2 | When you open the shipyard (`Shipyard.json`) |
 | A **fleet carrier's materials** market | fcmaterials_journal/1 | When you open it (`FCMaterials.json`) |
 | Where you **docked**, jumped to or are, and the bodies you **scan** | journal/1 | On `Docked`, `FSDJump`, `Location`, `CarrierJump`, `Scan` and `SAASignalsFound` |
@@ -52,8 +53,9 @@ astromech writes each message from the journal and the game's files to the schem
 | **Docking** granted or denied | dockinggranted/1, dockingdenied/1 | On those events |
 | A **route** you plot | navroute/1 | When the game writes a non-empty `NavRoute.json` |
 
-Not sent, although the schema exists: **outfitting**. It is switched off in astromech until the modules you
-can buy only through Powerplay or a tech broker can be filtered out.
+Outfitting lists only what the station sells to anyone: modules you can buy because of your Powerplay
+rank, a tech-broker unlock or something else you own are left out, as EDDN asks. If the game lists a module astromech doesn't
+know yet, that visit's outfitting isn't sent (Diagnostics shows it as not sent, with the module's name).
 
 ### What is taken out first
 

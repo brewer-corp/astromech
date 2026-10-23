@@ -70,7 +70,7 @@
         current. With sharing on, astromech sends it as you play:
       </p>
       <ul>
-        <li>station markets, shipyards and carrier materials when you open them;</li>
+        <li>station markets, outfitting, shipyards and carrier materials when you open them;</li>
         <li>stations you dock at, where you are when you log in, and systems you jump to;</li>
         <li>bodies you scan, signals and codex finds;</li>
         <li>routes you plot, and docking granted or denied.</li>
