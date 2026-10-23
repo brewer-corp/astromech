@@ -16,6 +16,7 @@ pub mod session;
 pub mod trade;
 
 pub mod colonisation;
+pub mod exploration;
 
 pub use astromech_policy;
 

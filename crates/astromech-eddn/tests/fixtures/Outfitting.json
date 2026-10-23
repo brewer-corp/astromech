@@ -6,5 +6,10 @@
 { "id":128667655, "Name":"paintjob_cobramkiii_default_52", "BuyPrice":0 },
 { "id":128672319, "Name":"bobble_ship", "BuyPrice":0 },
 { "id":128672320, "Name":"decal_combat_mostly_harmless", "BuyPrice":0 },
-{ "id":128049513, "Name":"hpt_chafflauncher_tiny", "BuyPrice":8500 }
+{ "id":128049513, "Name":"hpt_chafflauncher_tiny", "BuyPrice":8500 },
+{ "id":128671344, "Name":"hpt_drunkmissilerack_fixed_medium", "BuyPrice":768600 },
+{ "id":128671325, "Name":"int_shieldgenerator_size3_class5_strong", "BuyPrice":1197172 },
+{ "id":128833977, "Name":"int_guardianfsdbooster_size3", "BuyPrice":1622200 },
+{ "id":128834002, "Name":"hpt_plasmashockcannon_fixed_medium", "BuyPrice":1015750 },
+{ "id":129019262, "Name":"hpt_causticsinklauncher_turret_tiny", "BuyPrice":50000 }
 ] }

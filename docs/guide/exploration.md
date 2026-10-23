@@ -66,6 +66,22 @@ Spoken help: on a sample, **"Far enough for sample 2."** (the `sampling` callout
 FSS and the DSS (the `biology` callout), and an Earth-like or terraformable find from the `discovery`
 callout. See [Callouts](callouts.md).
 
+## By voice
+
+Ask while you fly; nothing is pressed. The answers come from the same scans as the pages (this
+visit and earlier ones), and the unsold total from the journal history. Values are said because
+the game shows none until you sell; scan progress is added only while the FSS has not found every
+body. Examples:
+
+| You say | You hear (examples) |
+|---|---|
+| "what is this system worth", "what's this system worth", "how much is this system worth", "system value", "value of this system" | "Worth 451 thousand credits now. 5.8 million credits with the best mapped. 6 of 7 bodies scanned." |
+| "is this system worth mapping", "which bodies are worth mapping", "which planets are worth mapping", "what is worth mapping", "what's worth mapping", "anything worth mapping here", "what should I map" | "2 bodies worth mapping, 5.4 million credits more. A 1: Earth-like world, 3.7 million mapped. A 2: High metal content world, 2.1 million mapped." (up to three bodies, best first) or "Nothing scanned is worth mapping." |
+| "which organics haven't I scanned here", "which organics have I not scanned", "which organics are left", "what biology is left to sample", "what's left to sample", "what is left to sample", "what biology is in this system", "what biology is here" | "4 genera left to sample on 2 bodies. A 4: Fonticulua, Stratum. A 5: 2 genera, not mapped." A genus counts as sampled once all three samples are in. Before the DSS only the signal count is known. Or "All biology found here is sampled." |
+| "how much is my unsold data worth", "what is my unsold data worth", "what is my exploration data worth", "how much is my exploration data worth", "how much is my data worth", "unsold data", "unsold exploration data" | "Unsold data worth 34.2 million credits. Cartographic 30.1 million credits. Organic 4.1 million credits." or "No unsold data." |
+
+The [Voice tester](voice-tester.md) shows what each would read without answering.
+
 ## Limits
 
 - The estimate is only as good as the scan. Bodies you have not scanned are unknown (unless

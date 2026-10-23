@@ -3,6 +3,9 @@ created_at: "2026-10-22T23:48:29.163774792+00:00"
 id: "astromech-m3xd"
 issue_type: "task"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-m3xd
 priority: "P1"
 relationships:
   blocks: []
@@ -17,9 +20,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-23T00:29:01.133471825+00:00"
+status: "done"
 title: "Voice queries for the exploration system view and biology"
-updated_at: "2026-10-22T23:48:29.163774792+00:00"
+updated_at: "2026-10-23T00:29:01.133471825+00:00"
 ---
 
 ## Goal
@@ -38,3 +42,11 @@ The strategy says a module is not done until its `voice_exposed` queries have ph
 - Pages: app/src/modules/exploration, app/src/modules/exobiology. Folds: crates/astromech-exploration, crates/astromech-exobiology.
 - Pattern to follow: astromech-3ez9 (colonisation voice queries), astromech-8joi.
 - Found by validation astromech-e8ux.
+
+## Notes
+
+- 2026-10-22 [note] Synthetic voice eval (scripts/voice-eval.sh, 4 Kokoro voices x 4 conditions, 3200 clips, at e6ba5919): execute-or-ask 3120/3136 (99%), wrong execute 0; exploration family 127/128 (one Miss: bm_george noise heard 'which organics of an eye scan here'). Eval set swaps 8 phrases (2 colonisation.progress, 2 colonisation.buy, 1 each find.service/module/ship, route.next) for 2 per exploration command to stay at 200. Audio and report not committed.
+
+## Close Reason
+
+Four ask-only exploration voice questions with answers from the System and Biology pages' data; reviewed (astromech-vweu).

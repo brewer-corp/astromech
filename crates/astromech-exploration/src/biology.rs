@@ -24,6 +24,8 @@ pub struct GenusBio {
     pub value: (i64, i64),
     /// The least distance between samples, metres (None for a genus not in the catalogue).
     pub colony_range_m: Option<u32>,
+    /// All three samples of it taken on this body.
+    pub analysed: bool,
 }
 
 /// A body with biology: what's there, what it's worth.
@@ -84,6 +86,7 @@ fn body_bio(r: &BodyRecord, stars: &BTreeMap<i64, String>) -> Option<BodyBio> {
             (genus_name(&s.genus), found)
         })
         .collect();
+    let analysed: Vec<String> = r.sampled.iter().filter(|s| s.analysed).map(|s| genus_name(&s.genus)).collect();
     if r.bio_signals <= 0 && dss.is_empty() && sampled.is_empty() {
         return None;
     }
@@ -106,7 +109,14 @@ fn body_bio(r: &BodyRecord, stars: &BTreeMap<i64, String>) -> Option<BodyBio> {
         } else {
             predict::value_range(&species)
         };
-        GenusBio { genus: genus.to_string(), known, species, value, colony_range_m: cat.map(|g| g.colony_range_m) }
+        GenusBio {
+            genus: genus.to_string(),
+            known,
+            species,
+            value,
+            colony_range_m: cat.map(|g| g.colony_range_m),
+            analysed: analysed.iter().any(|a| a == genus),
+        }
     };
     let mut known = dss.clone();
     for g in sampled.keys() {

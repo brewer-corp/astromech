@@ -8,7 +8,7 @@
 //! and geological signals), `SAAScanComplete` (mapped, and whether within the efficiency
 //! target) and `FSSAllBodiesFound`. For the biology view ([`crate::biology`]) it also keeps the
 //! DSS genus lists (`SAASignalsFound.Genuses`) and the species sampled on each body
-//! (`ScanOrganic`).
+//! (`ScanOrganic`), and whether all three samples were taken.
 //!
 //! "Worth mapping" is a planet not mapped yet whose value mapped efficiently is at least
 //! [`WORTH_MAPPING`](crate::value::WORTH_MAPPING). "First footfall likely" is a landable body
@@ -102,6 +102,8 @@ pub struct Sampled {
     pub species: String,
     /// `Species_Localised`: the name in the client's language.
     pub name: Option<String>,
+    /// All three samples taken (`ScanType: Analyse`).
+    pub analysed: bool,
 }
 
 /// One body as the fold knows it, for readers beyond the system view (the biology view).
@@ -217,7 +219,9 @@ impl SystemFold {
                     let efficient = *efficiency_target > 0 && probes_used <= efficiency_target;
                     self.bodies.entry(body_name.clone()).or_default().mapped = Some(efficient);
                 }
-                X::ScanOrganic { genus, species, species_localised, body: Some(id), system_address, .. } => {
+                X::ScanOrganic {
+                    scan_type, genus, species, species_localised, body: Some(id), system_address, ..
+                } => {
                     self.here(*system_address);
                     // The line names the body by id only; a body the fold hasn't seen is kept
                     // under its id until a scan or signal names it.
@@ -234,6 +238,7 @@ impl SystemFold {
                         genus: genus.clone(),
                         species: species.clone(),
                         name: species_localised.clone(),
+                        analysed: scan_type == "Analyse",
                     });
                 }
                 _ => {}

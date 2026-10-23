@@ -105,6 +105,19 @@ connection. [Voice lookups](lookups.md) has the details of each.
 | "where can I acquire near me", "where can I reinforce near me", "where can I undermine near me" | A Powerplay target for your power |
 | "how is the build going", "what is left to deliver", "where can I buy steel for the depot" | Your colonisation build |
 
+## Exploration
+
+These only read: the current system from the journal (with earlier visits from the journal
+history) and your unsold data from the history. No network is needed. Every phrase and example
+answer is on the [Exploration](exploration.md#by-voice) page.
+
+| You say | You hear |
+|---|---|
+| "what is this system worth", "system value" | What the scanned bodies are worth now, and with the best ones mapped |
+| "is this system worth mapping", "which bodies are worth mapping", "what should I map" | The planets worth mapping, best first, with what each is worth mapped |
+| "which organics haven't I scanned here", "what biology is left to sample", "what biology is in this system" | The genera left to sample, by body |
+| "how much is my unsold data worth", "unsold data" | Your unsold cartographic and organic data |
+
 ## Answering
 
 | You say | Meaning |

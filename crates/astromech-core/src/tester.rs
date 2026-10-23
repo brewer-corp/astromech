@@ -172,6 +172,13 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         };
         return r;
     }
+    if let Some(ask) = astromech_tools::exploration::from_command(m.command) {
+        (r.would, r.message) = match m.decision {
+            Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            _ => (Would::Speak, astromech_tools::exploration::describe(ask)),
+        };
+        return r;
+    }
     if let Some(cmd) = crate::route::Command::from_id(m.command) {
         use crate::route::{Command, PASTE_REFUSED};
         let in_map = game.gui_focus == Some(astromech_status::GUI_GALAXY);

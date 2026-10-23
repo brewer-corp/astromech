@@ -17,7 +17,7 @@
 //! seconds old; an old one means a journal is being re-read (a backup tool touched it, or
 //! another client writes the same folder).
 
-use crate::companion::{self, game_timestamp, Unusable, SEND_OUTFITTING};
+use crate::companion::{self, game_timestamp, Unusable};
 use crate::events::{self, Built, EventSchemas, Skipped};
 use crate::journal;
 use crate::message::{SchemaSpec, Software};
@@ -150,15 +150,8 @@ impl Feed {
         }
         let mut built = self.events.on_event(ev, &self.sender.ctx);
         built.extend(journal::message(ev));
-        if let Some(spec) = companion_spec(name) {
-            if name == "Outfitting" && !SEND_OUTFITTING {
-                built.push(Err(Skipped {
-                    spec,
-                    reason: "outfitting/2 is off until PowerPlay and tech-broker modules are filtered".into(),
-                }));
-            } else {
-                self.awaiting.insert(name.to_owned(), (ev.clone(), now));
-            }
+        if companion_spec(name).is_some() {
+            self.awaiting.insert(name.to_owned(), (ev.clone(), now));
         }
         self.queue(built, now);
     }
@@ -443,21 +436,28 @@ mod tests {
     }
 
     #[test]
-    fn outfitting_is_not_sent_yet() {
+    fn outfitting_is_sent_live_and_not_during_catch_up() {
         let mut f = feed();
         feed_all(&mut f, &session("r1 ", "Jameson"), false);
-        f.journal(
-            &json!({"timestamp":"2026-10-16T12:00:00Z","event":"Outfitting","MarketID":128666762u64,
-            "StationName":"Jameson Memorial","StarSystem":"Shinrarta Dezhra"}),
-            true,
-            100,
-        );
+        let outfitting = json!({"timestamp":"2026-10-16T12:01:00Z","event":"Outfitting","MarketID":128666762u64,
+            "StationName":"Jameson Memorial","StarSystem":"Shinrarta Dezhra"});
+        f.journal(&outfitting, false, 100);
         assert!(!f.awaiting("Outfitting"));
         f.companion_file("Outfitting", &fixture("Outfitting.json"), 100);
-        assert_eq!(f.sender().outbox().pending().unwrap(), 0);
-        let l = f.sender().outbox().recent(1).unwrap();
-        assert_eq!(l[0].schema_ref, "https://eddn.edcd.io/schemas/outfitting/2");
-        assert!(l[0].detail.contains("outfitting/2 is off"), "{}", l[0].detail);
+        assert_eq!(f.sender().outbox().pending().unwrap(), 0, "nothing from the catch-up is queued");
+        assert!(log(&f).is_empty());
+
+        f.journal(&outfitting, true, 100);
+        assert!(f.awaiting("Outfitting"));
+        f.companion_file("Outfitting", &fixture("Outfitting.json"), 100);
+        let ups = sent(&f);
+        assert_eq!(schemas(&ups), ["outfitting/2"]);
+        assert_eq!(
+            ups[0]["message"]["modules"],
+            json!(["hpt_chafflauncher_tiny", "int_engine_size3_class5_fast", "sidewinder_armour_grade1"]),
+            "the fixture's PowerPlay and tech-broker modules are not sent"
+        );
+        assert!(log(&f).iter().all(|(outcome, _)| outcome == "sent"), "{:?}", log(&f));
     }
 
     #[test]

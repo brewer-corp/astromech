@@ -15,15 +15,14 @@
 //! crate needs nothing from the journal crate.
 
 use crate::message::SchemaSpec;
+use serde::Deserialize;
 use serde_json::{json, Map, Value};
+use std::collections::HashSet;
 use std::fmt;
+use std::sync::OnceLock;
 
 pub const COMMODITY: SchemaSpec = SchemaSpec { name: "commodity", version: 3, elide: &[], augment: &[], flags: true };
 pub const OUTFITTING: SchemaSpec = SchemaSpec { name: "outfitting", version: 2, elide: &[], augment: &[], flags: true };
-/// outfitting/2 is not sent yet. Its README drops commander-specific modules (PowerPlay,
-/// tech-broker) by their `sku`, but the journal's `Outfitting.json` has no `sku`, so they would
-/// pass; it stays off until they're filtered by name (review R1 of astromech-thau).
-pub const SEND_OUTFITTING: bool = false;
 pub const SHIPYARD: SchemaSpec = SchemaSpec { name: "shipyard", version: 2, elide: &[], augment: &[], flags: true };
 
 /// Why a companion file gave no message. "No data is better than bad data": a file that can't
@@ -38,6 +37,9 @@ pub enum Unusable {
     Missing(&'static str),
     /// An item is malformed; a partial list would read as the station's full list.
     BadItem(String),
+    /// A module astromech can't place as the station's or the commander's (see [`modules`]):
+    /// sending the rest would read as the station's full list.
+    UnknownModule(String),
     /// Nothing left to send after the README's filters (the schema needs at least one).
     Empty,
 }
@@ -49,6 +51,9 @@ impl fmt::Display for Unusable {
             Unusable::Mismatch(m) => write!(f, "companion file doesn't match its event: {m}"),
             Unusable::Missing(k) => write!(f, "companion file has no usable {k}"),
             Unusable::BadItem(m) => write!(f, "malformed item: {m}"),
+            Unusable::UnknownModule(m) => {
+                write!(f, "module {m} isn't in astromech's module list, so it may be commander-specific")
+            }
             Unusable::Empty => write!(f, "nothing to send after filtering"),
         }
     }
@@ -193,19 +198,62 @@ fn strip_symbol(name: &str) -> &str {
     }
 }
 
+/// Which module symbols outfitting/2 may carry: `data/catalog/eddn-outfitting.json`, generated
+/// by `scripts/gen-eddn-outfitting.py` from EDCD/FDevIDs `outfitting.csv` (its `entitlement`
+/// column is the Frontier API's `sku`). Lowercased, as the journal writes them.
+struct ModuleList {
+    station: HashSet<String>,
+    commander: HashSet<String>,
+}
+
+fn module_list() -> &'static ModuleList {
+    #[derive(Deserialize)]
+    struct File {
+        station: Vec<String>,
+        commander: Vec<String>,
+    }
+    static L: OnceLock<ModuleList> = OnceLock::new();
+    L.get_or_init(|| {
+        let f: File = serde_json::from_str(include_str!("../../../data/catalog/eddn-outfitting.json"))
+            .expect("eddn-outfitting.json");
+        ModuleList { station: f.station.into_iter().collect(), commander: f.commander.into_iter().collect() }
+    })
+}
+
 /// outfitting/2 `modules` from `Items[].Name`: only weapons and utilities (`Hpt_`), standard and
 /// internal modules (`Int_`) and armour (`_Armour_`), in the cases the schema's pattern allows;
-/// not `Int_PlanetApproachSuite`; not items with a `sku` other than the Horizons one. Duplicates
-/// are dropped (the schema wants unique names).
+/// not `Int_PlanetApproachSuite`; no commander-specific item. Duplicates are dropped (the schema
+/// wants unique names).
+///
+/// The README drops "items that have a non-null `sku` property, unless it's
+/// `ELITE_HORIZONS_V_PLANETARY_LANDINGS` (i.e. PowerPlay and tech broker items)": they're listed
+/// because of the commander's Powerplay rank or tech-broker unlocks, not because the station
+/// sells them. The journal's `Outfitting.json` has no `sku`, so each module's sku comes from
+/// [`module_list`] instead (an item that does carry one, as the Frontier API's do, is judged by
+/// it). A module in neither of its lists can't be shown to be the station's, so the visit sends
+/// nothing ([`Unusable::UnknownModule`]): a list without it would also be wrong.
+///
+/// EDMC (EDCD/EDMarketConnector `plugins/eddn.py`) applies this sku rule only to Frontier API
+/// data (`export_outfitting`); its journal path (`export_journal_outfitting`) drops only
+/// `int_planetapproachsuite` and sends commander-specific modules as station stock.
 fn modules(file: &Value) -> Result<(&'static str, Value), Unusable> {
+    let list = module_list();
     let mut out: Vec<&str> = Vec::new();
     for item in items(file, "Items")? {
         let name = item.get("Name").and_then(Value::as_str).ok_or_else(|| bad(item, "no Name"))?;
         let station_item = ["Hpt_", "hpt_", "Int_", "int_"].iter().any(|p| name.starts_with(p))
             || ["_Armour_", "_armour_"].iter().any(|p| name.contains(p));
-        let cmdr_sku =
-            item.get("sku").is_some_and(|s| !s.is_null() && s.as_str() != Some("ELITE_HORIZONS_V_PLANETARY_LANDINGS"));
-        if station_item && !cmdr_sku && !name.eq_ignore_ascii_case("Int_PlanetApproachSuite") && !out.contains(&name) {
+        if !station_item || name.eq_ignore_ascii_case("Int_PlanetApproachSuite") || out.contains(&name) {
+            continue;
+        }
+        let symbol = name.to_ascii_lowercase();
+        let cmdr_sku = match item.get("sku") {
+            Some(s) if !s.is_null() => s.as_str() != Some("ELITE_HORIZONS_V_PLANETARY_LANDINGS"),
+            _ if list.commander.contains(&symbol) => true,
+            _ if list.station.contains(&symbol) => false,
+            _ => return Err(Unusable::UnknownModule(name.to_owned())),
+        };
+        if !cmdr_sku {
             out.push(name);
         }
     }
@@ -328,7 +376,7 @@ mod tests {
         assert_eq!(
             m["modules"],
             json!(["hpt_chafflauncher_tiny", "int_engine_size3_class5_fast", "sidewinder_armour_grade1"]),
-            "no planet approach suite, paintjob, bobblehead, decal or duplicate"
+            "no planet approach suite, paintjob, bobblehead, decal, duplicate, PowerPlay or tech-broker module"
         );
         assert!(m.get("Horizons").is_none() && m.get("Items").is_none());
         assert_eq!(m["horizons"], true);
@@ -345,6 +393,85 @@ mod tests {
         ]);
         let m = upload(&f)["message"].clone();
         assert_eq!(m["modules"], json!(["int_buggybay_size2_class1", "Hpt_ChaffLauncher_Tiny"]));
+    }
+
+    /// The README's commander-specific items: (the wiki's name, a journal symbol for it), from
+    /// elite-dangerous.fandom.com's Powerplay modules table and Technology Broker "Unlocks"
+    /// tables (read 22 Oct 2026).
+    const POWERPLAY: &[(&str, &str)] = &[
+        ("Advanced Plasma Accelerator", "hpt_plasmaaccelerator_fixed_large_advanced"),
+        ("Concord Cannon", "hpt_cannon_gimbal_medium_burst"),
+        ("Containment Missile", "hpt_dumbfiremissilerack_fixed_medium_lasso"),
+        ("Cytoscrambler", "hpt_pulselaserburst_fixed_small_scatter"),
+        ("Enforcer Cannon", "hpt_multicannon_fixed_small_strong"),
+        ("Imperial Hammer", "hpt_railgun_fixed_medium_burst"),
+        ("Mining Lance", "hpt_mininglaser_fixed_small_advanced"),
+        ("Pacifier Frag-Cannon", "hpt_slugshot_fixed_large_range"),
+        ("Pack-Hound Missile Rack", "hpt_drunkmissilerack_fixed_medium"),
+        ("Prismatic Shield Generator (sizes 1-8)", "int_shieldgenerator_size4_class5_strong"),
+        ("Pulse Disruptor", "hpt_pulselaser_fixed_medium_disruptor"),
+        ("Retributor", "hpt_beamlaser_fixed_small_heat"),
+    ];
+    const TECH_BROKER: &[(&str, &str)] = &[
+        ("Corrosion Resistant Cargo Rack (class 4)", "int_corrosionproofcargorack_size4_class1"),
+        ("Enzyme Missile Rack", "hpt_causticmissile_fixed_medium"),
+        ("Meta Alloy Hull Reinforcement", "int_metaalloyhullreinforcement_size3_class2"),
+        ("Remote Release Flechette Launcher", "hpt_flechettelauncher_fixed_medium"),
+        ("Remote Release Flechette Launcher", "hpt_flechettelauncher_turret_medium"),
+        ("Shock Cannon (9 mounts and classes)", "hpt_plasmashockcannon_gimbal_small"),
+        ("Guardian FSD Booster", "int_guardianfsdbooster_size5"),
+        ("Guardian Gauss Cannon", "hpt_guardian_gausscannon_fixed_small"),
+        ("Guardian Hull Reinforcement Package", "int_guardianhullreinforcement_size2_class1"),
+        ("Guardian Hybrid Power Distributor", "int_guardianpowerdistributor_size6"),
+        ("Guardian Hybrid Power Plant", "int_guardianpowerplant_size4"),
+        ("Guardian Module Reinforcement Package", "int_guardianmodulereinforcement_size5_class2"),
+        ("Guardian Plasma Charger", "hpt_guardian_plasmalauncher_turret_large"),
+        ("Guardian Shard Cannon", "hpt_guardian_shardcannon_fixed_medium"),
+        ("Guardian Shield Reinforcement Package", "int_guardianshieldreinforcement_size1_class1"),
+        ("Caustic Sink Launcher (rescue megaship)", "hpt_causticsinklauncher_turret_tiny"),
+    ];
+
+    fn with_items(names: &[&str]) -> Value {
+        let mut f = fixture("Outfitting.json");
+        f["Items"] = names.iter().enumerate().map(|(i, n)| json!({"id": i, "Name": n, "BuyPrice": 1})).collect();
+        f
+    }
+
+    #[test]
+    fn outfitting_drops_every_powerplay_and_tech_broker_module() {
+        let mut names = vec!["hpt_chafflauncher_tiny"];
+        names.extend(POWERPLAY.iter().chain(TECH_BROKER).map(|(_, symbol)| *symbol));
+        // The journal writes lowercase; the schema allows the capitalised form too.
+        names.extend(["Hpt_DrunkMissileRack_Fixed_Medium", "Int_GuardianFSDBooster_Size1"]);
+        let up = upload(&with_items(&names));
+        assert_eq!(up["message"]["modules"], json!(["hpt_chafflauncher_tiny"]));
+        assert_valid("outfitting-v2.0.json", &up);
+    }
+
+    #[test]
+    fn outfitting_with_only_commander_modules_is_not_sent() {
+        let names: Vec<&str> = POWERPLAY.iter().chain(TECH_BROKER).map(|(_, symbol)| *symbol).collect();
+        let f = with_items(&names);
+        assert_eq!(message(&journal_event(&f), &f).err(), Some(Unusable::Empty));
+    }
+
+    #[test]
+    fn outfitting_keeps_horizons_modules() {
+        // `ELITE_HORIZONS_V_PLANETARY_LANDINGS` items are the station's (the README's exception).
+        let names = ["int_buggybay_size2_class1", "hpt_atmulticannon_fixed_large", "int_planetapproachsuite_advanced"];
+        assert_eq!(upload(&with_items(&names))["message"]["modules"], json!(names));
+    }
+
+    #[test]
+    fn outfitting_with_an_unknown_module_is_not_sent() {
+        let f = with_items(&["hpt_chafflauncher_tiny", "hpt_newweapon_fixed_small"]);
+        assert_eq!(
+            message(&journal_event(&f), &f).err(),
+            Some(Unusable::UnknownModule("hpt_newweapon_fixed_small".into()))
+        );
+        // Cosmetics aren't looked up: the schema's pattern drops them first.
+        let g = with_items(&["hpt_chafflauncher_tiny", "paintjob_new_01"]);
+        assert!(message(&journal_event(&g), &g).is_ok());
     }
 
     #[test]

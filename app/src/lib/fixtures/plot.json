@@ -28,7 +28,8 @@
   "ly": 22000.4740453411,
   "neutrons": 1,
   "refuels": 0,
-  "range": 39.87
+  "range": 39.87,
+  "local": false
  },
  "exact": {
   "name": "Sol to Maia",
@@ -72,6 +73,622 @@
   "ly": 451.551193237305,
   "neutrons": 1,
   "refuels": 3,
-  "range": 39.87
+  "range": 39.87,
+  "local": false
+ },
+ "local": {
+  "name": "Sol to Colonia",
+  "source": "neutron plotter (this PC)",
+  "waypoints": [
+   {
+    "system": "Sol"
+   },
+   {
+    "system": "Col 359 Sector ZZ-P d5-13",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Col 359 Sector CG-O d6-7",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Col 359 Sector LN-K d8-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Col 359 Sector QT-I d9-37",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Swoiwns BM-K d9-25",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Swoiwns KJ-G d11-14",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Swoiwns KE-G d11-6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Swoiwns SA-E d12-6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Swoiwns AX-B d13-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Bleia Eohn VO-A d2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Bleia Eohn CB-X d1-5",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp VH-V d2-4",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp EP-R d4-4",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp MB-O d6-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp PH-M d7-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp XT-I d9-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp FG-F d11-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp KH-D d12-3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Aucopp NN-B d13-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae JF-A d1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae ML-Y d0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae RC-V d2-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae BK-R d4-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae IW-N d6-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae SD-T e3-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae VO-I d9-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae BG-F d11-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae HH-D d12-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Drojeae QT-Z d13-3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye NG-Y d2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye QM-W d1-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye TS-U d2-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye XJ-R d4-6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye GW-N d6-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye JC-M d7-3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye PT-I d9-5",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye WF-F d11-9",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye XQ-D d12-9",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blae Drye HY-Z d13-5",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Gria Drye WO-A d6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Gria Drye FW-W d1-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Gria Drye MI-T d3-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau FP-R d4-9",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau NB-O d6-6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau VN-K d8-7",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau XT-I d9-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau AA-H d10-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau FR-D d12-13",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Pyraleau MD-A d14-4",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae EP-A d13",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae LB-X d1-10",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae SN-T d3-15",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae VT-R d4-15",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae DG-O d6-16",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae KS-K d8-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae OY-I d9-12",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae VK-F d11-2",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae XQ-D d12-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Nyeajaae FD-A d14-9",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedgiae XO-A d3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedgiae EB-X d1-18",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedgiae HH-V d2-20",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedgiae QO-R d4-5",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedgiae WF-O d6-25",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedge TS-K d8-3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedge ZJ-R e4-1",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedge ZE-H d10-3",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedge GR-D d12-35",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Flyiedge OD-A d14-21",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude EP-A d18",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude OW-W d1-23",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude VI-T d3-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude YO-R d4-27",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude DG-O d6-62",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude GM-M d7-37",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude NY-I d9-16",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude VK-F d11-22",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude YQ-D d12-6",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Skaude FD-A d14-22",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Preia Phoe WO-A d35",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Preia Phoe AQ-Y d41",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Preia Phoe GH-V d2-37",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe BZ-R d4-4",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe LG-O d6-91",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe OM-M d7-33",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe VY-I d9-10",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe CL-F d11-34",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe BQ-P e5-5",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Prua Phoe HX-B d13-95",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku DP-A d89",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku KB-X d1-283",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku RN-T d3-194",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku UT-R d4-143",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku BG-O d6-113",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku IS-K d8-22",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku LY-I d9-152",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku SK-F d11-105",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku VQ-D d12-38",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Clooku CD-A d14-80",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou FF-A e181",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou LV-Y d92",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou IL-Y e19",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou MR-W e1-272",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou DA-Q d5-263",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou KM-M d7-28",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou WJ-R e4-0",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou UE-H d10-136",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou ZP-P e5-418",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Stuelou ID-A d14-55",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec BF-A e38",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec MH-V d2-144",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec TT-R d4-41",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec BG-O d6-697",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec FH-M d7-259",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec OT-I d9-183",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec PE-H d10-90",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec XQ-D d12-34",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Blua Eaec ED-A d14-337",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boelts VO-A d153",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boelts CL-Y e969",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph ZN-T d3-684",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph MR-W e1-331",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph IG-O d6-316",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph LM-M d7-91",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph SY-I d9-151",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph AQ-P e5-1433",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph GX-B d13-280",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Boeph FX-B d13-439",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae AP-A d693",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae HB-X d1-223",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae EL-Y e136",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae HR-W e1-852",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae UZ-P d5-471",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae OD-T e3-683",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae IY-I d9-1080",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eoch Flyuae QK-F d11-156",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eol Flyou IR-D d12-1428",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eol Flyou PD-A d14-838",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou EF-A e1423",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou TH-V d2-227",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou BU-R d4-340",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou JG-O d6-755",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou MM-M d7-2131",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou TY-I d9-570",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou WE-H d10-154",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou ER-D d12-815",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Dryooe Flyou MD-A d14-966",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eol Prou IV-Y d477",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Eol Prou GL-Y e619",
+    "label": "neutron boost"
+   },
+   {
+    "system": "Colonia"
+   }
+  ],
+  "jumps": 180,
+  "ly": 22000.47404534108,
+  "neutrons": 149,
+  "refuels": 0,
+  "range": 39.87,
+  "local": true,
+  "fewest": false
  }
 }

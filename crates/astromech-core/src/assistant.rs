@@ -111,6 +111,8 @@ pub struct Assistant {
     sessions: astromech_announce::session_summary::SharedSessions,
     /// The colonisation projects, replayed from the journals.
     projects: Arc<crate::colonisation::Projects>,
+    /// The current system and the unsold data, from the journals and the history.
+    exploration: Arc<crate::exploration::Exploration>,
     /// The route the core follows (none: the route commands say so).
     route: Option<Arc<Desk>>,
 }
@@ -126,6 +128,7 @@ impl Assistant {
             clock: Arc::new(astromech_data::SystemClock),
             sessions: Default::default(),
             projects: Default::default(),
+            exploration: Default::default(),
             route: None,
         }
     }
@@ -135,9 +138,19 @@ impl Assistant {
         Self { route: Some(desk), ..self }
     }
 
-    /// Answer the colonisation questions from the journals in `dir`.
+    /// Answer the colonisation and exploration questions from the journals in `dir`.
     pub fn with_journals(self, dir: std::path::PathBuf) -> Self {
-        Self { projects: Arc::new(crate::colonisation::Projects::new(dir)), ..self }
+        Self {
+            projects: Arc::new(crate::colonisation::Projects::new(dir.clone())),
+            exploration: Arc::new(self.exploration.with_journals(dir)),
+            ..self
+        }
+    }
+
+    /// Answer the exploration questions with the journal history in `db` (`history.sqlite`):
+    /// the unsold data, and what earlier visits scanned in the current system.
+    pub fn with_history(self, db: std::path::PathBuf) -> Self {
+        Self { exploration: Arc::new(self.exploration.with_history(db)), ..self }
     }
 
     /// Judge the age of market and station data by `clock` (tests pass the time their
@@ -336,6 +349,9 @@ impl Assistant {
         if let Some(ask) = astromech_tools::colonisation::from_command(command) {
             return Handled::Ran { command, outcome: self.colonisation(ask, slot) };
         }
+        if let Some(ask) = astromech_tools::exploration::from_command(command) {
+            return Handled::Ran { command, outcome: self.exploration(ask) };
+        }
         match astromech_tools::from_command(command) {
             Some(call) => {
                 let outcome =
@@ -380,6 +396,18 @@ impl Assistant {
         Outcome::LookingUp(std::thread::spawn(move || {
             let lookup = galaxy.as_deref().map(|g| (g, &filters));
             let m = crate::colonisation::answer(ask, &projects.get(), commodity.as_deref(), lookup, &game, now);
+            speaker.say(&m);
+            m
+        }))
+    }
+
+    /// Answer an exploration question off this thread (the journals and the history are read,
+    /// and folded again when they changed); says "Looking that up." first.
+    fn exploration(&self, ask: astromech_tools::exploration::Ask) -> Outcome {
+        self.say("Looking that up.");
+        let (exploration, speaker) = (self.exploration.clone(), self.runner.speaker.clone());
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::exploration::answer(ask, &exploration);
             speaker.say(&m);
             m
         }))

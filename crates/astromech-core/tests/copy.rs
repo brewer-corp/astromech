@@ -506,6 +506,141 @@ fn the_colonisation_answers_keep_to_the_copy_guide() {
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 
+/// The exploration answers by voice (astromech-m3xd): system value, worth mapping, biology left
+/// to sample and unsold data, on a long system name with bodies named apart from it, the longest
+/// class names, the largest values, many bodies and genera with two-word names, a sentence at a
+/// time within the answer budget; and the lines said when there is no answer.
+#[test]
+fn the_exploration_answers_keep_to_the_copy_guide() {
+    use astromech_announce::session_summary::Unreadable;
+    use astromech_exploration::biology::{BodyBio, GenusBio};
+    use astromech_exploration::system::{BodyView, SystemView};
+    use astromech_exploration::Unsold;
+    use astromech_tools::exploration as x;
+    let system = "Col 285 Sector AB-C d14-123";
+    let body = |short: &str, class: &str, value: i64| BodyView {
+        name: format!("{system} {short}"),
+        short_name: short.into(),
+        body_id: None,
+        star: false,
+        class: class.into(),
+        class_name: class.into(),
+        terraformable: true,
+        landable: true,
+        rings: true,
+        belts: false,
+        gravity_g: None,
+        distance_ls: None,
+        was_discovered: Some(false),
+        was_mapped: Some(false),
+        was_footfalled: None,
+        mapped: false,
+        mapped_efficiently: false,
+        bio_signals: 9,
+        geo_signals: 9,
+        value: value / 4,
+        value_mapped: value,
+        first_discovery: true,
+        worth_mapping: true,
+        first_footfall_likely: true,
+        landings: 0,
+    };
+    let bodies = vec![
+        body("ABC 12 a", "Gas giant with ammonia-based life", 99_999_999),
+        body("Col 285 Sector AB-C d14-123 A 3", "Earth-like world", 88_888_888),
+        body("Founders World", "High metal content world", 123_456_789),
+        body("AB 1 c", "Class II gas giant", 12_345_678),
+        body("A 1", "Earth-like world", 4_400_000),
+        body("A 2", "Water world", 999_999),
+    ];
+    let total = |b: &[BodyView]| b.iter().map(|b| b.value).sum::<i64>();
+    let mut views = vec![SystemView::default()];
+    for (count, found) in [(None, false), (Some(999), false), (Some(6), true)] {
+        let v = SystemView {
+            system: Some(system.into()),
+            body_count: count,
+            all_found: found,
+            value: total(&bodies),
+            value_if_mapped: bodies.iter().map(|b| b.value_mapped).sum(),
+            bodies: bodies.clone(),
+            ..SystemView::default()
+        };
+        let mut none_worth = v.clone();
+        none_worth.bodies.iter_mut().for_each(|b| b.worth_mapping = false);
+        none_worth.value_if_mapped = none_worth.value;
+        views.extend([v.clone(), none_worth, SystemView { bodies: vec![], ..v }]);
+    }
+    let genus = |name: &str, known: bool, analysed: bool| GenusBio {
+        genus: name.into(),
+        known,
+        species: vec![],
+        value: (1, 1),
+        colony_range_m: None,
+        analysed,
+    };
+    let two_word = ["Sinuous Tuber", "Crystalline Shard", "Amphora Plant", "Bark Mound", "Brain Tree", "Stratum"];
+    let bio = |name: &str, mapped: bool, analysed: bool| BodyBio {
+        body_id: None,
+        name: format!("{system} {name}"),
+        signals: Some(99),
+        mapped,
+        genera: two_word.iter().map(|g| genus(g, mapped, analysed)).collect(),
+        value: (1, 1),
+    };
+    let many: Vec<BodyBio> =
+        ["ABC 12 a", "Founders World", "AB 1 c", "A 1"].iter().map(|n| bio(n, true, false)).collect();
+    let unmapped: Vec<BodyBio> = ["ABC 12 a", "A 1"].iter().map(|n| bio(n, false, false)).collect();
+    let done: Vec<BodyBio> = ["ABC 12 a"].iter().map(|n| bio(n, true, true)).collect();
+    let mut lines = vec![];
+    let mut split = |s: String| lines.extend(s.split_inclusive(". ").map(|s| s.trim().to_string()));
+    for v in &views {
+        split(x::system_value(v));
+        split(x::worth_mapping(v));
+        for b in [&many[..], &unmapped, &done, &[]] {
+            split(x::biology(b, v));
+        }
+    }
+    for u in [
+        Unsold::default(),
+        Unsold { cartographic: 1, total: 1, bodies: 1, ..Unsold::default() },
+        Unsold { organic: 1_460_000_000, total: 1_460_000_000, samples: 90, ..Unsold::default() },
+        Unsold {
+            cartographic: 9_999_999_999,
+            organic: 9_999_999_999,
+            total: 19_999_999_998,
+            bodies: 99_999,
+            samples: 9_999,
+            unknown_samples: 9_999,
+            ..Unsold::default()
+        },
+    ] {
+        split(x::unsold(Ok(Some(&u))));
+    }
+    split(x::unsold(Ok(None)));
+    split(x::unsold(Err(Unreadable)));
+    // The enumeration reaches every kind of line.
+    for start in
+        ["Worth ", "Nothing left", "6 bodies worth mapping", "ABC 12 a: ", "3 more on the System page", "6 of 999"]
+    {
+        assert!(lines.iter().any(|l| l.starts_with(start)), "{start:?} not in {lines:?}");
+    }
+    for start in ["24 genera left", "Founders World: Sinuous Tuber", "1 more on the Biology page", "A 1: 99 genera"] {
+        assert!(lines.iter().any(|l| l.starts_with(start)), "{start:?} not in {lines:?}");
+    }
+    // A long name is a sentence of its own, which the budget does not count.
+    for start in ["Col 285 Sector AB-C d14-123 A 3.", "Earth-like world, 88.9 million mapped."] {
+        assert!(lines.iter().any(|l| l.starts_with(start)), "{start:?} not in {lines:?}");
+    }
+    for start in ["All biology", "No biology", "Nothing scanned", "Unsold data worth", "Cartographic", "9999 samples"] {
+        assert!(lines.iter().any(|l| l.starts_with(start)), "{start:?} not in {lines:?}");
+    }
+    let names = [system, "Col 285 Sector AB-C d14-123 A 3", "Col 285 Sector AB-C d14-123 ABC 12 a"];
+    let names: Vec<String> = names.iter().map(|n| n.to_string()).chain(["A 1".into()]).collect();
+    let names: Vec<&str> = names.iter().map(String::as_str).collect();
+    let bad = check_with_names("exploration answer", &lines, ANSWER_WORDS, &names);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
 #[test]
 fn every_line_keeps_to_the_copy_guide() {
     let callouts = callout_lines();
