@@ -35,6 +35,7 @@ describe("Settings → Data sharing", () => {
     on();
     render(View);
     expect(await screen.findByText(/Your credits, reputation, cargo, missions/)).toBeTruthy();
+    expect(screen.getByText(/station markets, outfitting, shipyards/)).toBeTruthy();
   });
 
   it("EDSM: the name and key are saved, the key is never shown, and upload needs both", async () => {

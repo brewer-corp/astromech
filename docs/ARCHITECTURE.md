@@ -305,8 +305,10 @@ astromech/
                          codexentry body cross-check); all tested against the live schema files.
                          Feed: what the core drives; only live-tailed lines and their companion files
                          are queued (the startup replay, what any journal held at startup, an older or already-read journal, and lines
-                         over 5 min old only rebuild the header and location);
-                         outfitting/2 is off until commander-specific modules are filtered.
+                         over 5 min old only rebuild the header and location).
+                         outfitting/2 drops PowerPlay and tech-broker modules by their FDevIDs sku
+                         (data/catalog/eddn-outfitting.json; the journal file has none) and sends
+                         nothing for a visit listing a module it doesn't know.
                          Worker: delivery on its own thread and SQLite connection, so no lock is held
                          across HTTP; a pass stops at the first connection error, 408 or 5xx; retries
                          also wait a minute on the monotonic clock; messages over 30 min old are given
