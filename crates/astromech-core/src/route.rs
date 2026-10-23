@@ -465,7 +465,11 @@ impl Desk {
             return;
         }
         if st.0.parked.as_ref().is_some_and(|r| r.ahead(dest)) {
-            st.0.route = st.0.parked.take();
+            let mut r = st.0.parked.take();
+            if let (Some(r), Some(h)) = (r.as_mut(), st.0.here.clone()) {
+                r.arrive(&h);
+            }
+            st.0.route = r;
             st.1 = None;
             crate::logging::log(&format!("route: galaxy map plotted to {dest}, resumed the parked route"));
             self.save(&st.0);
@@ -684,6 +688,12 @@ mod tests {
         assert_eq!(v.route.unwrap().name, "test");
         assert!(v.parked.is_none());
         assert_eq!(got.lock().unwrap().len(), 1);
+
+        // Flown to a waypoint on a detour, then plotting onward: it resumes after that waypoint.
+        plot_in_game(&d, &["Wolf 359", "Ross 128"]);
+        d.on_system("N1");
+        plot_in_game(&d, &["N1", "Y", "Colonia"]);
+        assert_eq!(d.view().next.unwrap().system, "N2");
     }
 
     #[test]

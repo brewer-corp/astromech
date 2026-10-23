@@ -211,6 +211,14 @@ function routeView(st: State): RouteView {
 const GAME_SOURCE = "galaxy map";
 const ahead = (r: Route, system: string) => r.waypoints.slice(r.next).some((w) => sameSystem(w.system, system));
 
+/** As the core on resuming a parked route: already in a waypoint ahead, it carries on after it. */
+function skipReached(st: State): void {
+  const r = st.route;
+  if (!r || !st.here) return;
+  const i = r.waypoints.findIndex((w, j) => j >= r.next && sameSystem(w.system, st.here!));
+  if (i >= 0) r.next = i + 1;
+}
+
 /** The commander plotted `systems` in the galaxy map, as the core's `Desk::plotted` takes it
  * (tests): a leg of the route followed changes nothing, a plot onto the parked route resumes it,
  * anything else is followed and parks an unfinished route of ours. */
@@ -223,6 +231,7 @@ export function fakePlotInGame(systems: string[]): void {
   if (st.parked && ahead(st.parked, dest)) {
     st.route = st.parked;
     st.parked = null;
+    skipReached(st);
     return;
   }
   if (r && r.source !== GAME_SOURCE && r.next < r.waypoints.length) st.parked = r;
@@ -255,11 +264,7 @@ function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Repl
       if (!st.parked) return { ok: false, error: "there is no route to resume" };
       st.route = st.parked;
       st.parked = null;
-      // As the core: already in a waypoint ahead, it resumes after that one.
-      if (st.here) {
-        const i = st.route.waypoints.findIndex((w, j) => j >= st.route!.next && sameSystem(w.system, st.here!));
-        if (i >= 0) st.route.next = i + 1;
-      }
+      skipReached(st);
       break;
   }
   return { ok: true, view: routeView(st) };
