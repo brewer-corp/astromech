@@ -22,9 +22,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-23T01:24:06.298379398+00:00"
+status: "done"
 title: "Plot from the top bar, and follow routes plotted in the game"
-updated_at: "2026-10-23T01:00:11.115136800+00:00"
+updated_at: "2026-10-23T01:24:06.298379398+00:00"
 ---
 
 ## Goal
@@ -38,3 +39,7 @@ Plotting is a first-class action: a system search in the window's top bar plots 
 ## Context
 
 Sumeet, 22 Oct 2026: the Plot sub-panel in the route rail keeps closing (its `<details open={!route}>` is re-set on every 2 s poll), it should be much more prominent, the top bar should search systems directly, and `From` goes: plotting is always from the current system. Decisions taken: an in-game detour off a followed route is followed, and the old route is parked and resumable; routes mirrored from the game are silent and leave the clipboard alone.
+
+## Close Reason
+
+Both children done and approved

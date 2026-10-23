@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-23T01:23:59.868271597+00:00"
+status: "done"
 title: "Follow routes plotted in the galaxy map"
-updated_at: "2026-10-23T01:19:44.674330935+00:00"
+updated_at: "2026-10-23T01:23:59.868271597+00:00"
 ---
 
 ## Goal
@@ -28,3 +29,7 @@ When the commander plots a route in the game, astromech follows it too, without 
 - Routes from the game move on as you jump but say nothing and never write the clipboard.
 - `NavRouteClear` clears only a route from the game. Replayed journals change nothing.
 - Rust tests cover each case; docs/PLOTTING.md describes the rules.
+
+## Close Reason
+
+Galaxy-map routes followed: legs kept, detours park our route, Resume, silent and no clipboard, NavRouteClear drops only its own; reviewed and approved. Ordering race deferred to astromech-k1fw

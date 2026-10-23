@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "review"
+closed_at: "2026-10-23T01:23:59.639209924+00:00"
+status: "done"
 title: "Top-bar system search that plots from the current system"
-updated_at: "2026-10-23T01:19:36.025663157+00:00"
+updated_at: "2026-10-23T01:23:59.639209924+00:00"
 ---
 
 ## Goal
@@ -27,3 +28,7 @@ A system search in the top bar, on every page: type a name (Spansh autocomplete)
 - The Plot sub-panel is gone from the route rail and the Route page, so the closing bug cannot recur; the rail points to the top bar.
 - No `From` field: plotting is from the current system only, and the core's `from` input is removed.
 - Frontend tests cover search, plot and the rail; `npm run check` and the tests pass.
+
+## Close Reason
+
+Top-bar Plot to a system on every page; Plot panel gone from the rail and Route page; no From; reviewed and approved (astromech-x9pk, astromech-0dmb)
