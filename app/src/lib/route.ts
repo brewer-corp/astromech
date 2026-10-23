@@ -2,11 +2,13 @@
  * The route the core follows (docs/PLOTTING.md, layer 1). The next waypoint is kept on the
  * clipboard, ready to paste into the galaxy map's search box; arriving in it copies the one
  * after. The core owns the route, so it is followed with the window shut. The browser preview
- * (`?core=ready`) keeps one in memory (fakecore.ts). Routes can be plotted with Spansh's
- * neutron and exact plotters for the current ship (the shell's `route_plot`).
+ * (`?core=ready`) keeps one in memory (fakecore.ts). Routes can be plotted for the current ship
+ * (the shell's `route_plot`): neutron routes on this PC from the neutron star file when it is
+ * downloaded, else by Spansh, and exact routes by Spansh.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { coreCall, inTauri, type CoreCmd } from "./core";
+import { previewHasNeutronFile } from "./neutron";
 import plotSample from "./fixtures/plot.json";
 
 export interface Waypoint {
@@ -71,7 +73,7 @@ export function followedNote(v: RouteView): string {
   return v.clipboard_error ? `Following. ${v.next.system} is not on the clipboard: ${v.clipboard_error}` : `Following. ${v.next.system} is on your clipboard.`;
 }
 
-/** Spansh's plotters (astromech_galaxy::plot). */
+/** The plotters (astromech_galaxy::plot). */
 export type Plotter = "neutron" | "exact";
 
 export interface PlotAsk {
@@ -79,7 +81,7 @@ export interface PlotAsk {
   /** Blank: the commander's system. */
   from: string;
   to: string;
-  /** Neutron routes, 1–100: how far Spansh may stray to use neutron stars. */
+  /** Neutron routes plotted by Spansh, 1–100: how far it may stray to use neutron stars. */
   efficiency: number;
   /** Exact routes: fill up at every scoopable star, not only when the tank needs it. */
   refuel_every_scoopable: boolean;
@@ -112,20 +114,28 @@ export interface Plotted {
   neutrons: number;
   refuels: number;
   range: number;
+  /** Worked out on this PC (the neutron star file), not by Spansh. */
+  local: boolean;
+  /** Local routes: false when it is near the fewest jumps but not proven the fewest. */
+  fewest?: boolean;
+  /** Why Spansh plotted a neutron route although the neutron star file is there. */
+  fallback?: string;
 }
 
 /** Where the commander is and the ship a route would be plotted for. The browser preview
  * answers from fixtures/plot.json (the routes astromech_galaxy::plot makes from the recorded
- * Spansh jobs). */
+ * Spansh jobs, and a local neutron route from the 22 Oct 2026 neutron star file). */
 export async function plotSetup(): Promise<PlotSetup> {
   if (inTauri) return await invoke<PlotSetup>("route_plot_ship");
   return plotSample.ship as PlotSetup;
 }
 
-/** Plot with Spansh (can take a minute) and follow the route straight away. */
+/** Plot (on this PC in seconds, or by Spansh in up to a minute) and follow the route straight
+ * away. */
 export async function plotRoute(ask: PlotAsk): Promise<{ plotted: Plotted; view: RouteView }> {
   if (inTauri) return await invoke<{ plotted: Plotted; view: RouteView }>("route_plot", { ask });
-  const plotted = (ask.plotter === "neutron" ? plotSample.neutron : plotSample.exact) as Plotted;
+  const neutron = previewHasNeutronFile() ? plotSample.local : plotSample.neutron;
+  const plotted = (ask.plotter === "neutron" ? neutron : plotSample.exact) as Plotted;
   const view = await followRoute(plotted.name, plotted.source, plotted.waypoints);
   return { plotted, view };
 }

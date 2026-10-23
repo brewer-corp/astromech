@@ -1,0 +1,15 @@
+---
+schema: atelier.review
+schema_version: 1
+id: astromech-tjok
+title: '[medium] .github/workflows/atelier.yml:55-60, CONTRIBUTING.md:62-66: CI does not catch a done claim or code commit that bypassed review. Doctor''s claim gates (review_gate evaluate_scope, non-Merge kinds) never require an approval for a done claim, and check_base_commits (land_base_done_claim/land_base_unreviewed) runs only on branch main for commits beyond main@{upstream}, so it is skipped on the detached CI head. Repro: mark leaf issue astromech-1b43 done with a close reason in one commit on top of 1337bcf6; the emulated CI step passes (also without the empty commit, and on main after push); local atelier doctor on main with the commit unpushed fails land_base_done_claim. So a push straight to main that skips the Stop hook (web edit, another machine) lands unreviewed claims or code with CI green, short of the Goal''s ''trusting what is on origin becomes CI-verified''; the claim that a bogus done claim is caught holds only when another gate (e.g. work.terminal, findings.disposed) trips. Not caused by the empty commit; the Done-when (run doctor, fail on failure) is met. Suggested follow-up: on push events check event.before..sha as base commits (point a scratch upstream ref at event.before and run doctor on branch main), or have Atelier doctor check approvals for retained claims; until then CONTRIBUTING should not imply CI guards direct pushes.'
+target: astromech-mk30
+identity: review-agent-mk30-1
+commit: 1337bcf6cbfb52a7cf1ddb7e9715267f422bad5d
+created_at: 2026-10-23T00:00:02.833377858Z
+event:
+  event: finding
+  recommendation: defer
+---
+
+[medium] .github/workflows/atelier.yml:55-60, CONTRIBUTING.md:62-66: CI does not catch a done claim or code commit that bypassed review. Doctor's claim gates (review_gate evaluate_scope, non-Merge kinds) never require an approval for a done claim, and check_base_commits (land_base_done_claim/land_base_unreviewed) runs only on branch main for commits beyond main@{upstream}, so it is skipped on the detached CI head. Repro: mark leaf issue astromech-1b43 done with a close reason in one commit on top of 1337bcf6; the emulated CI step passes (also without the empty commit, and on main after push); local atelier doctor on main with the commit unpushed fails land_base_done_claim. So a push straight to main that skips the Stop hook (web edit, another machine) lands unreviewed claims or code with CI green, short of the Goal's 'trusting what is on origin becomes CI-verified'; the claim that a bogus done claim is caught holds only when another gate (e.g. work.terminal, findings.disposed) trips. Not caused by the empty commit; the Done-when (run doctor, fail on failure) is met. Suggested follow-up: on push events check event.before..sha as base commits (point a scratch upstream ref at event.before and run doctor on branch main), or have Atelier doctor check approvals for retained claims; until then CONTRIBUTING should not imply CI guards direct pushes.

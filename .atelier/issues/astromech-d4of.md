@@ -12,9 +12,10 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T21:29:57.983449574+00:00"
+status: "done"
 title: "Download the neutron star file in the app"
-updated_at: "2026-10-22T19:30:24.767724623+00:00"
+updated_at: "2026-10-22T21:29:57.983449574+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ Data folder rules: docs/ARCHITECTURE.md, **Paths**. Remote calls go through `ast
 ## Unknowns
 
 Whether GitHub release asset downloads need the same user agent and redirect handling the updater uses.
+
+## Close Reason
+
+Done and independently reviewed on feature/astromech-1842 (approval astromech-alp5).

@@ -18,9 +18,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-10-22T23:19:49.909031431+00:00"
+status: "done"
 title: "Neutron plotter over the local file"
-updated_at: "2026-10-22T19:30:24.928589104+00:00"
+updated_at: "2026-10-22T23:19:49.909031431+00:00"
 ---
 
 ## Goal
@@ -29,7 +30,7 @@ updated_at: "2026-10-22T19:30:24.928589104+00:00"
 
 ## Done when
 
-- A* over neutron stars: edges from the start to a neutron star cost `ceil(d / R)` jumps; from a neutron star to another, or to the destination, one boosted jump covers `k·R` and normal jumps cover the rest (`1 + ceil(max(0, d − k·R) / R)`); the route with no neutron stars is a candidate too. It minimises jumps, then stops.
+- A* over neutron stars: edges from the start to a neutron star cost `ceil(d / R)` jumps; from a neutron star to another, or to the destination, one boosted jump covers `k·R` and normal jumps cover the rest (`1 + ceil(max(0, d − k·R) / R)`); the route with no neutron stars is a candidate too. It minimises jumps, then stops, exactly when plain A* finishes within its work limit; otherwise a guided search returns a near-fewest route, `Route::fewest` says which, and the route never has more jumps than Spansh's for the same range and multiplier. (Revised 22 Oct 2026, review finding astromech-izsa: exact A* missed the 2 s target on long routes, as the Unknowns allowed.)
 - Unit tests on synthetic star fields where the optimal route is known (a straight chain, a detour that saves jumps, a gap no boost spans, start or destination on a neutron star, k = 4 and 6).
 - A test against the recorded Spansh neutron routes (Sol to Colonia, plus at least one more recorded for this) at the same range: the local route has no more jumps than Spansh's, and the jump counts per leg use the same model (any difference explained in the test).
 - Measured on this host and written in the module docs: time and peak memory for Sol to Colonia and Sol to Beagle Point at R = 60, k = 4 and R = 80, k = 6. Target: under 2 s each; names read only for the stops.
@@ -46,3 +47,11 @@ updated_at: "2026-10-22T19:30:24.928589104+00:00"
 ## Unknowns
 
 Neighbour counts at k·R up to about 500 ly near the galactic core. If plain A* misses the 2 s target, record the measurement and try a tighter heuristic (straight-line distance over k·R) or a coarser grid before anything cleverer.
+
+## Notes
+
+- 2026-10-22 [note] 2026-10-22: from review finding R3 (astromech-4h9h) on the neutron file: a loaded file must not read names from a file replaced underneath it (keep the handle opened at load, or re-check the header before reading names); on Windows a held handle also blocks the download's rename, so the download must cope.
+
+## Close Reason
+
+Local neutron plotter: exact fewest within the work limit, near-fewest beyond with Route::fewest; beats Spansh on three recorded routes; 0.6-1.9 s and ~100 MB on the real file; reviewed (astromech-0vq5).

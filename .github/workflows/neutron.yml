@@ -1,0 +1,51 @@
+name: Neutron star file
+
+# Builds the neutron star file the local neutron plotter searches (every system whose main star
+# is a neutron star) from Spansh's neutron dump, and publishes it as `neutron.bin.gz` with its
+# SHA-256 (`neutron.bin.gz.sha256`) on the `neutron` pre-release. Run by hand when it is worth
+# refreshing (neutron stars don't move; new discoveries trickle in). The app downloads the
+# latest one when the user asks. It's a pre-release so it never becomes the "latest" release
+# the in-app updater reads.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: neutron
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and publish the neutron star file
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Spansh neutron dump (~180 MB) into neutron.bin.gz
+        run: |
+          set -euo pipefail
+          curl -sSfL -A "astromech-neutron (+https://github.com/${GITHUB_REPOSITORY})" -o "$RUNNER_TEMP/systems_neutron.json.gz" https://downloads.spansh.co.uk/systems_neutron.json.gz
+          python3 scripts/gen-neutron.py --dump "$RUNNER_TEMP/systems_neutron.json.gz" --out "$RUNNER_TEMP/neutron.bin"
+          rm -f "$RUNNER_TEMP/systems_neutron.json.gz"
+          gzip -9 -n -c "$RUNNER_TEMP/neutron.bin" > "$RUNNER_TEMP/neutron.bin.gz"
+          size=$(stat -c %s "$RUNNER_TEMP/neutron.bin.gz")
+          if [ "$size" -ge 100000000 ]; then echo "neutron.bin.gz is $size bytes, over 100 MB"; exit 1; fi
+          (cd "$RUNNER_TEMP" && sha256sum neutron.bin.gz > neutron.bin.gz.sha256)
+          ls -la "$RUNNER_TEMP"/neutron.bin*
+          cat "$RUNNER_TEMP/neutron.bin.gz.sha256"
+      - name: Publish to the neutron pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          notes="Neutron star file for the local neutron plotter: every system whose main star is a neutron star, from Spansh's neutron dump (EDDN community data), built $(date -u +%Y-%m-%d). Not an app release."
+          files=("$RUNNER_TEMP/neutron.bin.gz" "$RUNNER_TEMP/neutron.bin.gz.sha256")
+          if gh release view neutron --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload neutron "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit neutron --notes "$notes" --prerelease --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create neutron "${files[@]}" --prerelease --latest=false --title "Neutron star file" --notes "$notes" --repo "$GITHUB_REPOSITORY"
+          fi
