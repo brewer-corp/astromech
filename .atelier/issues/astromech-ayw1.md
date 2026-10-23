@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "review"
 title: "Follow routes plotted in the galaxy map"
-updated_at: "2026-10-23T01:00:07.556556377+00:00"
+updated_at: "2026-10-23T01:19:44.674330935+00:00"
 ---
 
 ## Goal

@@ -12,14 +12,14 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Top-bar system search that plots from the current system"
-updated_at: "2026-10-23T01:00:11.115138203+00:00"
+updated_at: "2026-10-23T01:19:36.025663157+00:00"
 ---
 
 ## Goal
 
-A system search in the top bar, on every page: type a name (Spansh autocomplete), pick it, and plot a neutron or exact route to it from the current system, or copy the name.
+A system search in the top bar, on every page: type a name (Spansh autocomplete), pick it, and plot a neutron or exact route to it from the current system, or open it on Spansh or Inara.
 
 ## Done when
 
