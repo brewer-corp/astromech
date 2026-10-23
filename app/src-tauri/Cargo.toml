@@ -1,7 +1,7 @@
 [package]
 name = "astromech-shell"
 description = "astromech app window: Tauri v2 shell around the Svelte app (app/)"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT"
