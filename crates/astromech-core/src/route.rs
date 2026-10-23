@@ -439,10 +439,14 @@ impl Desk {
         Self::view_of(&st)
     }
 
-    /// Follow the parked route again and copy its next waypoint.
+    /// Follow the parked route again and copy its next waypoint. Already in a waypoint ahead (flown
+    /// there while it was parked), it resumes after that one.
     pub fn resume(&self) -> Result<View, String> {
         let mut st = self.state.lock().unwrap();
-        let r = st.0.parked.take().ok_or("there is no route to resume")?;
+        let mut r = st.0.parked.take().ok_or("there is no route to resume")?;
+        if let Some(h) = st.0.here.clone() {
+            r.arrive(&h);
+        }
         crate::logging::log(&format!("route: resumed {:?}", r.name));
         st.0.route = Some(r);
         self.copy(&mut st);
@@ -692,6 +696,11 @@ mod tests {
         assert!(v.parked.is_none());
         assert_eq!(got.lock().unwrap().as_slice(), ["A", "A"]);
         assert!(d.resume().is_err());
+        // Flown to a waypoint while it was parked: Resume carries on after it.
+        d.set(route(&["A", "B", "C"])).unwrap();
+        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        d.on_system("B");
+        assert_eq!(d.resume().unwrap().next.unwrap().system, "C");
         // A route set from the window or cleared drops a parked one.
         plot_in_game(&d, &["Sol", "Elsewhere"]);
         assert!(d.set(route(&["C"])).unwrap().parked.is_none());

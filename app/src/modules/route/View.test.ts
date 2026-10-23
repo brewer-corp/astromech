@@ -65,5 +65,11 @@ describe("Galaxy → Route", () => {
     expect(await screen.findByText("Sol to Colonia")).toBeTruthy();
     expect(screen.queryByText("Paused")).toBeNull();
     expect(screen.getByText("On your clipboard")).toBeTruthy();
+
+    // A route set from the window drops a parked one, as in the core.
+    fakePlotInGame(["Sol", "Wolf 359"]);
+    expect((await fakeCall("route")).view.parked?.name).toBe("Sol to Colonia");
+    await followRoute("Trip", "engineer trip", [{ system: "Deciat" }]);
+    expect((await fakeCall("route")).view.parked).toBeNull();
   });
 });

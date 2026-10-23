@@ -78,7 +78,7 @@
       {#if view?.next && fromGame}
         <span class="sublabel">Next jump</span>
         <span class="sys">{view.next.system}</span>
-        <span class="lo">Plotted in the galaxy map, so astromech follows it quietly and leaves your clipboard alone.</span>
+        <span class="lo">Plotted in the galaxy map, so astromech follows it quietly and copies nothing as you jump.</span>
       {:else if view?.next}
         <span class="sublabel">Next waypoint</span>
         <span class="sys">{view.next.system}</span>

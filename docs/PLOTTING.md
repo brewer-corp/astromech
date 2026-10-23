@@ -82,7 +82,7 @@ always come from Spansh.
 | Plotting: one call that submits, polls until done and returns the stops with labels (`neutron boost`, `fuel`) and totals | `astromech_galaxy::plot::plot` |
 | Local neutron routes: the search over the neutron star file (A*, then a guided A* for long routes), the stops' names from disk; `local`, `fewest` on the result | `astromech_galaxy::neutron_plot` (`route`, `plot`) |
 | The neutron star file: reader, download from the `neutron` pre-release, and `Kept`, which the shell holds: loaded on the first local plot or after a download (0.1–0.2 s, about 80 MB), kept, and loaded again when the file on disk is no longer the one loaded | `astromech_galaxy::neutron` |
-| Start and destination for a local route: the commander's journal position for a blank From, else `Galaxy::locate` (the local star map, then Spansh's system-name autocomplete, the only network a local route needs) | `astromech_galaxy::plot::plot_route` |
+| Start and destination for a local route: the start is always the commander's journal position; the destination comes from `Galaxy::locate` (the local star map, then Spansh's system-name autocomplete, the only network a local route needs) | `astromech_galaxy::plot::plot_route` |
 | The window: `route_plot_ship` (range and ship for the page), `route_plot` (plots on a blocking worker in the shell, one at a time, then `route_set` on the core), `neutron_file`, `neutron_download`, `neutron_check` | `app/src-tauri/src/main.rs`, `app/src/modules/route/PlotBar.svelte`, `Plot.svelte`, `NeutronFile.svelte` |
 
 The core's pipeline thread is not involved: the shell plots and only the finished route reaches

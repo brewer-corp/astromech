@@ -17,7 +17,7 @@
   let asked = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let box = $state<HTMLElement>();
-  let plot = $state<{ go: () => Promise<void> }>();
+  let plot = $state<{ go: () => Promise<void>; plotting: () => boolean }>();
 
   function typed(v: string) {
     text = v;
@@ -63,9 +63,10 @@
     return hits.find((h) => h.toLowerCase() === t) ?? hits[sel] ?? text;
   }
 
+  /** Close the panel, unless a plot is running there (its result or error would be lost). */
   function close() {
     open = false;
-    picked = null;
+    if (!plot?.plotting()) picked = null;
   }
 
   function key(e: KeyboardEvent) {
@@ -91,7 +92,7 @@
     }
   }
 
-  // A click outside, or moving to another page, closes the panel.
+  // A click outside, or moving to another page, closes the panel (not mid-plot).
   $effect(() => {
     const down = (e: PointerEvent) => {
       if (box && !box.contains(e.target as Node)) close();

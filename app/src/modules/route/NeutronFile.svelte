@@ -1,5 +1,5 @@
 <script lang="ts">
-  // The neutron star file under Plot a route → Neutron (docs/guide/routes.md): whether it is
+  // The neutron star file in the top bar's plot panel, under Neutron (docs/guide/routes.md): whether it is
   // in the data folder and its build date, Download with progress, and Check for a newer file.
   // Nothing downloads until the commander presses Download. With the file there, neutron routes
   // are plotted on this PC (`onlocal`); `refresh` changes after a plot, which may have found the

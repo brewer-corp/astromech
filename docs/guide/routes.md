@@ -112,8 +112,8 @@ When you plot a route in the galaxy map, astromech reads it from the game (`NavR
   and astromech keeps the neutron route.
 - **Anything else** becomes the route astromech follows, named "Route to" its destination, with
   every jump as a waypoint. The page says **Next jump** and *Plotted in the galaxy map*. It moves
-  on as you jump, but astromech says nothing and leaves your clipboard alone: the game already
-  has the route plotted and shows the next jump.
+  on as you jump, but astromech says nothing and copies nothing: the game already has the route
+  plotted and shows the next jump. Copy, Skip and Back still copy when you press them.
 - **A detour.** If you were following a route of your own (a neutron route, say) and it isn't
   finished, it is **paused**, not lost. The route rail shows it with **Resume**, which follows it
   again and puts its next waypoint on your clipboard. Plotting in the galaxy map to one of its

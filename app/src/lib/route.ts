@@ -139,7 +139,11 @@ export async function plotSetup(): Promise<PlotSetup> {
 /** Plot (on this PC in seconds, or by Spansh in up to a minute) and follow the route straight
  * away. */
 export async function plotRoute(ask: PlotAsk): Promise<{ plotted: Plotted; view: RouteView }> {
-  if (inTauri) return await invoke<{ plotted: Plotted; view: RouteView }>("route_plot", { ask });
+  if (inTauri) {
+    const r = await invoke<{ plotted: Plotted; view: RouteView }>("route_plot", { ask });
+    for (const f of watchers) f();
+    return r;
+  }
   const neutron = previewHasNeutronFile() ? plotSample.local : plotSample.neutron;
   const plotted = (ask.plotter === "neutron" ? neutron : plotSample.exact) as Plotted;
   const view = await followRoute(plotted.name, plotted.source, plotted.waypoints);

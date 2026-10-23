@@ -238,6 +238,7 @@ function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Repl
       const first = waypoints[0];
       const next = st.here && first && sameSystem(first.system, st.here) ? 1 : 0;
       st.route = { name: String(args.name || "Route"), source: String(args.source ?? ""), waypoints, next };
+      st.parked = null;
       break;
     }
     case "route_skip":
@@ -254,6 +255,11 @@ function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Repl
       if (!st.parked) return { ok: false, error: "there is no route to resume" };
       st.route = st.parked;
       st.parked = null;
+      // As the core: already in a waypoint ahead, it resumes after that one.
+      if (st.here) {
+        const i = st.route.waypoints.findIndex((w, j) => j >= st.route!.next && sameSystem(w.system, st.here!));
+        if (i >= 0) st.route.next = i + 1;
+      }
       break;
   }
   return { ok: true, view: routeView(st) };

@@ -45,6 +45,9 @@
     err = null;
   });
 
+  /** A plot is running: the top bar keeps the panel open, so its result or error is seen. */
+  export const plotting = () => busy;
+
   /** Plot and follow (the top bar's Enter, or the button). */
   export async function go() {
     if (!ready) return;
