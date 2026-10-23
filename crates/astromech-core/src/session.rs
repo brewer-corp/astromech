@@ -320,6 +320,7 @@ impl Session {
         let assistant = Assistant::new(runner.clone())
             .with_sessions(shared.sessions.clone())
             .with_journals(jdir.clone())
+            .with_history(data.join(crate::history::DB_FILE))
             .with_route(route);
         let assistant = Arc::new(match alias_store {
             Some(st) => assistant.with_store(st),

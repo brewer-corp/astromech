@@ -43,6 +43,7 @@ pub mod controls;
 pub mod crash;
 pub mod diagnostics;
 pub mod eval;
+pub mod exploration;
 pub mod gamewatch;
 pub mod health;
 pub mod history;

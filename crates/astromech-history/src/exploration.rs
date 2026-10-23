@@ -157,6 +157,16 @@ impl crate::History {
     /// landings (astromech-0n4h, astromech-ce4s). Without a history, or if it can't be read,
     /// just the live view: best effort.
     pub fn system_view(&self, mut live: SystemFold) -> SystemView {
+        self.add_earlier_visits(&mut live);
+        let mut view = live.view();
+        let _ = self.add_landings(&mut view);
+        view
+    }
+
+    /// Take into `live` what the most recently played commander's earlier visits to its system
+    /// scanned, mapped and sampled ([`SystemFold::absorb`]); best effort, like
+    /// [`system_view`](Self::system_view), which shows it.
+    pub fn add_earlier_visits(&self, live: &mut SystemFold) {
         if let (Some(address), Ok(commanders)) = (live.system_address(), self.commanders()) {
             if let Some(c) = commanders.first() {
                 if let Ok(lines) = self.system_lines(&c.name, address) {
@@ -168,9 +178,6 @@ impl crate::History {
                 }
             }
         }
-        let mut view = live.view();
-        let _ = self.add_landings(&mut view);
-        view
     }
 
     /// Fill in the most recently played commander's landings on the view's bodies.

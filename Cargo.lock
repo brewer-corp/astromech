@@ -513,6 +513,7 @@ dependencies = [
  "astromech-announce",
  "astromech-colonisation",
  "astromech-data",
+ "astromech-exploration",
  "astromech-galaxy",
  "astromech-gamestate",
  "astromech-journal",

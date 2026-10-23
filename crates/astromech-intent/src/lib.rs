@@ -361,6 +361,55 @@ pub const MVP: &[(&str, &[&str])] = &[
             "buy {commodity} for the depot",
         ],
     ),
+    // Exploration (the System and Biology pages' folds, the unsold data from the history):
+    // answered by the core, nothing pressed.
+    (
+        "exploration.system_value",
+        &[
+            "what is this system worth",
+            "what's this system worth",
+            "how much is this system worth",
+            "system value",
+            "value of this system",
+        ],
+    ),
+    (
+        "exploration.worth_mapping",
+        &[
+            "is this system worth mapping",
+            "which bodies are worth mapping",
+            "which planets are worth mapping",
+            "what is worth mapping",
+            "what's worth mapping",
+            "anything worth mapping here",
+            "what should i map",
+        ],
+    ),
+    (
+        "exploration.biology",
+        &[
+            "which organics haven't i scanned here",
+            "which organics have i not scanned",
+            "which organics are left",
+            "what biology is left to sample",
+            "what's left to sample",
+            "what is left to sample",
+            "what biology is in this system",
+            "what biology is here",
+        ],
+    ),
+    (
+        "exploration.unsold",
+        &[
+            "how much is my unsold data worth",
+            "what is my unsold data worth",
+            "what is my exploration data worth",
+            "how much is my exploration data worth",
+            "how much is my data worth",
+            "unsold data",
+            "unsold exploration data",
+        ],
+    ),
     // Station lookups (the slots' values come from astromech-galaxy).
     (
         "find.service",
@@ -1433,6 +1482,74 @@ mod tests {
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+    }
+
+    /// The exploration questions (astromech-m3xd), including the five the toolbox validation
+    /// asked on 22 Oct, answer; the phrases they sit near keep their commands; and near misses
+    /// and everyday speech about maps and data never press a key.
+    #[test]
+    fn exploration_phrases_execute_and_steal_nothing() {
+        let g = g();
+        for (t, c) in [
+            ("Is this system worth mapping?", "exploration.worth_mapping"),
+            ("Which bodies are worth mapping?", "exploration.worth_mapping"),
+            ("What should I map?", "exploration.worth_mapping"),
+            ("Anything worth mapping here?", "exploration.worth_mapping"),
+            ("What is this system worth?", "exploration.system_value"),
+            ("What's this system worth?", "exploration.system_value"),
+            ("How much is this system worth?", "exploration.system_value"),
+            ("System value", "exploration.system_value"),
+            ("Which organics haven't I scanned here?", "exploration.biology"),
+            ("What biology is in this system?", "exploration.biology"),
+            ("What biology is left to sample?", "exploration.biology"),
+            ("What's left to sample?", "exploration.biology"),
+            ("Which organics are left?", "exploration.biology"),
+            ("How much is my unsold data worth?", "exploration.unsold"),
+            ("What is my exploration data worth?", "exploration.unsold"),
+            ("Unsold data", "exploration.unsold"),
+            // Their neighbours keep their own commands.
+            ("what system", "status.location"),
+            ("current system", "status.location"),
+            ("system map", "system_map.open"),
+            ("open system map", "system_map.open"),
+            ("galaxy map", "galaxy_map.open"),
+            ("what is left to deliver", "colonisation.remaining"),
+            ("session summary", "session.summary"),
+            ("how much have I earned", "session.summary"),
+            ("who controls this system", "status.system_power"),
+            ("next system", "status.jumps"),
+            ("cargo", "status.cargo"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // Near misses of the new phrases, and everyday speech near them, never run another
+        // command (one that could press a key): at most they ask, or answer a question.
+        for t in [
+            "is this system worth mopping",
+            "what should i nap",
+            "what should i mop",
+            "this system is worth it",
+            "map it",
+            "worth mapping",
+            "what is this worth",
+            "system values",
+            "unsold",
+            "sold data",
+            "which organs have i scanned",
+            "what biology",
+            "how much is it worth",
+            "what is it worth",
+            "is it worth it",
+            "is this worth it",
+            "what is the data",
+            "show me the system",
+            "the system is down",
+            "this system",
+        ] {
+            let m = g.best(t);
+            assert!(m.decision != Decision::Execute || m.command.starts_with("exploration."), "{t:?} -> {m:?}");
         }
     }
 

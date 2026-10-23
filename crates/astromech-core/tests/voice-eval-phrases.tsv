@@ -89,7 +89,6 @@ status	session.summary	how's the session going
 route	route.next	next waypoint
 route	route.next	copy next waypoint
 route	route.next	what's the next waypoint
-route	route.next	where's the next waypoint
 route	route.skip	skip waypoint
 route	route.skip	skip this waypoint
 route	route.skip	skip to the next waypoint
@@ -115,8 +114,6 @@ trade	trade.sell_cargo	sell my cargo
 colonisation	colonisation.progress	how's the build going
 colonisation	colonisation.progress	how is the construction going
 colonisation	colonisation.progress	build progress
-colonisation	colonisation.progress	colonisation progress
-colonisation	colonisation.progress	how far along is the build
 colonisation	colonisation.remaining	what's left to deliver
 colonisation	colonisation.remaining	how much is left to deliver
 colonisation	colonisation.remaining	what does the build need
@@ -124,8 +121,14 @@ colonisation	colonisation.remaining	construction shopping list
 colonisation	colonisation.buy	where can i buy steel for the depot
 colonisation	colonisation.buy	where can i buy aluminium for the build
 colonisation	colonisation.buy	where can i buy cmm composite for the construction
-colonisation	colonisation.buy	where to buy liquid oxygen for the build
-colonisation	colonisation.buy	buy titanium for the depot
+exploration	exploration.system_value	what is this system worth
+exploration	exploration.system_value	how much is this system worth
+exploration	exploration.worth_mapping	is this system worth mapping
+exploration	exploration.worth_mapping	which bodies are worth mapping
+exploration	exploration.biology	which organics haven't i scanned here
+exploration	exploration.biology	what biology is in this system
+exploration	exploration.unsold	how much is my unsold data worth
+exploration	exploration.unsold	unsold data
 powerplay	status.system_power	who controls this system
 powerplay	status.system_power	system power
 powerplay	status.system_power	powerplay here
@@ -173,17 +176,14 @@ stations	find.service	where's the nearest material trader
 stations	find.service	find the nearest guardian tech broker
 stations	find.service	nearest universal cartographics
 stations	find.service	where is the nearest black market
-stations	find.service	find vista genomics
 stations	find.module	nearest fuel scoop
 stations	find.module	where can i buy a 5a frame shift drive
 stations	find.module	where can i get a guardian fsd booster
 stations	find.module	find shield cell bank
-stations	find.module	buy a detailed surface scanner
 stations	find.ship	where can i buy a python
 stations	find.ship	where can i get an anaconda
 stations	find.ship	nearest krait phantom
 stations	find.ship	who sells the type-10 defender
-stations	find.ship	buy a mandalay
 unavailable	request_docking	request docking
 unavailable	request_docking	request docking permission
 unavailable	supercruise	engage supercruise
