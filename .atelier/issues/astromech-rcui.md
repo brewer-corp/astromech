@@ -18,7 +18,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Ship an alpha with the brewer-corp updater feed"
-updated_at: "2026-10-23T00:46:30.625228098+00:00"
+updated_at: "2026-10-23T00:50:43.991784975+00:00"
 ---
 
 ## Goal
@@ -34,3 +34,4 @@ alpha.1 and alpha.2 reach updates only through GitHub's redirect from spadaval/a
 ## Notes
 
 - 2026-10-22 [note] 2026-10-22: Sumeet approved publishing an alpha once the current batch of review-leftover PRs (#176, #177, #178 and the neutron increment #174) has merged.
+- 2026-10-22 [note] 2026-10-22: release commit 9f376ee0 on task/astromech-rcui is ready for review: version 1.0.0-alpha.3 in Cargo.toml, both Cargo.locks, app/package.json, app/src-tauri/Cargo.toml and tauri.conf.json, README's notes link; docs/releases/v1.0.0-alpha.3.md (check-release-notes: 39 open needs-human IDs, 0 problems). Feed and download URLs compiled in point at brewer-corp (update.rs DEFAULT_FEED and download URL, pack-update.py latest.json url); release.yml publishes to $GITHUB_REPOSITORY; ASTROMECH_UPDATE_KEY is listed on brewer-corp/astromech. Not done: tagging and publishing; the done claim waits for the published alpha.
