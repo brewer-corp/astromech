@@ -1,10 +1,14 @@
-/* astromech visual system (docs/V1-DESIGN.md §4). Derived from the game's Options → Controls
-   screen: neutral near-black, one orange accent, light-grey text, filled value cells, very few
-   lines. No other colours. No Frontier assets; fonts are OFL lookalikes. */
+/* astromech visual system. The rules are in DESIGN.md at the repo root; this file holds its
+   tokens. Derived from the game's Options → Controls screen: neutral near-black, one orange
+   accent, light-grey text, filled value cells (a cell means editable), very few lines. No other
+   colours. No Frontier assets; fonts are OFL lookalikes. */
 @import "@fontsource/saira-semi-condensed/400.css";
 @import "@fontsource/saira-semi-condensed/500.css";
 @import "@fontsource/saira-semi-condensed/600.css";
 @import "@fontsource/share-tech-mono/400.css";
+/* The figures face: the same Saira design, variable, with tabular figures (the static Semi
+   Condensed files have none). Use at font-stretch 87.5% via --font-num + --num-stretch. */
+@import "@fontsource-variable/saira/wdth.css";
 
 :root {
   color-scheme: dark;
@@ -16,6 +20,11 @@
   --cell-opt: #2b2d2e; /* option/value cell (game: grey "REGULAR" cells) */
   --cell-empty: #1c1610; /* unbound slot: same shape, dimmer */
   --row-hover: #16171a;
+  --cell-hover: #35383a; /* option cell under the pointer */
+  --cell-on: #45484b; /* the chosen option inside a choice cell (lit, never orange) */
+  --surface: #131417; /* "hull": read-only tiles, the route strip, panel blocks; never a cell */
+  --surface-hi: #1a1b1e; /* popovers and menus, with a 1 px --line border */
+  --line: #26282b; /* "seam": the only line colour (column-head hairline, popover, badge) */
 
   /* The one accent */
   --accent: #fa6e00; /* game #f56b02–#fd6f03 */
@@ -25,20 +34,44 @@
   --text-hi: #ffffff; /* titles (game: "MOUSE X-AXIS") */
   --text: #e8e8e8; /* rows (game #e8e8e8), 16.4:1 on --bg */
   --text-lo: #a0a0a0; /* secondary, 7.6:1 on --bg */
+  --text-dim: #5f6266; /* unavailable, zero, stale, disabled; 3.2:1 on --bg */
   --on-accent: #0c0d0f; /* text on an orange fill */
 
   /* Type */
   --font: "Saira Semi Condensed", "Bahnschrift", "Segoe UI", sans-serif;
-  --mono: "Share Tech Mono", Consolas, monospace;
+  --font-num: "Saira Variable", "Saira Semi Condensed", "Bahnschrift", sans-serif;
+  --num-stretch: 87.5%; /* semi condensed, to match --font */
+  --mono: "Share Tech Mono", Consolas, monospace; /* machine text only: paths, raw tokens, logs */
   --fs-s: 13px;
   --fs: 15px; /* rows: larger than the game's ~11 px at 1080p */
   --fs-l: 18px;
-  --fs-xl: 24px;
-  --caps: 0.06em;
+  --fs-xl: 24px; /* titles */
+  --fs-xs: 12px; /* meta corner marks; nothing smaller */
+  --fs-xxl: 28px; /* the one value of a tile */
+  --caps: 0.06em; /* only with uppercase: top tabs, section heads, action words */
 
   /* Rhythm */
   --row: 34px;
   --gap: 2px; /* between value cells, like the game */
+  --row-result: 44px; /* one lookup result row */
+  --strip: 36px; /* the route strip */
+  --tile: 76px; /* a material tile */
+
+  /* Spacing scale (DESIGN.md Layout): use only these */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+  --gutter: 40px; /* page side margins */
+
+  /* Content widths */
+  --measure: 68ch; /* prose */
+  --form-w: 940px; /* settings and forms: 200 px label + 700 px cell */
+  --list-w: 1200px; /* result lists */
+  --panel: 320px; /* side panel */
 }
 
 * { box-sizing: border-box; }

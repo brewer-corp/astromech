@@ -66,7 +66,7 @@ Name: **astromech**. Voice-first copilot, not a ship personality.
 
 Spoken replies sit in the same register as Elite's COVAS: impersonal present tense, no contractions, no jokes, no "I". Default colour Cockpit. Recreate the register; do not clone Frontier samples or actors.
 
-UI stays in the Elite Controls dialect: the game's own Controls screen as the visual register. That dialect is binding; it is not a licence to invent a new colour world.
+UI stays in the Elite Controls dialect: the game's own Controls screen as the visual register, with the sparse, scannable thinking of its station screens (one main value per element, state by brightness, orange only where it means something). That dialect is binding and is defined in [DESIGN.md](DESIGN.md); it is not a licence to invent a new colour world.
 
 Ship hulls in the window are CMDR Qohen Leth's cartoon vectors from EDAssets (CC BY-NC-SA 4.0), credited in NOTICE.md. They stand in for the hull because Frontier 3D and game screenshots are off limits. Engineer access uses CMDR Robert Phillips' engineer mark from EDAssets, one mark per rank as the game does.
 

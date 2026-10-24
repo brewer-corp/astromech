@@ -4,6 +4,9 @@ id: "astromech-c4i0"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: worktree-agent-adb7e7a56c235ac60
+  work_branch: task/astromech-c4i0
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Write DESIGN.md: the window's design system"
-updated_at: "2026-10-24T23:07:07.397323815+00:00"
+updated_at: "2026-10-24T23:08:01.974490751+00:00"
 ---
 
 ## Goal
