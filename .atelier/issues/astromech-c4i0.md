@@ -5,7 +5,7 @@ issue_type: "task"
 labels:
 - "size-m"
 workflow_branch:
-  branch_base: worktree-agent-adb7e7a56c235ac60
+  branch_base: main
   work_branch: task/astromech-c4i0
 priority: "P1"
 relationships:
