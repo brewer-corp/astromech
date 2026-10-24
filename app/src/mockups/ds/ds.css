@@ -1,0 +1,43 @@
+/* Shared parts for the DESIGN.md mockups (#/mockup/ds-*). Only DESIGN.md tokens. */
+.ds { font: 400 var(--fs) / 1.45 var(--font); color: var(--text); }
+.ds button { all: unset; cursor: pointer; box-sizing: border-box; }
+.ds :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+/* Figures: tabular Saira, right-aligned in columns. */
+.ds .num { font-family: var(--font-num); font-stretch: var(--num-stretch); font-variant-numeric: tabular-nums; }
+.ds .unit { font-size: var(--fs-s); color: var(--text-lo); margin-left: 3px; }
+
+/* Text levels */
+.ds .lit { color: var(--text-hi); }
+.ds .lo { color: var(--text-lo); }
+.ds .dim, .ds .dim * { color: var(--text-dim) !important; }
+
+/* Type roles */
+.ds .title { font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; color: var(--text-hi); margin: 0; }
+.ds .section { font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--text-hi); margin: 0; }
+.ds .label { font-size: var(--fs-s); color: var(--text-lo); }
+
+/* Secondary button: an orange caps verb. Primary: the one orange fill. */
+.ds .act { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-2); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.ds .act.quiet { color: var(--text-lo); }
+.ds .primary { display: inline-flex; align-items: center; height: var(--row); padding: 0 20px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; }
+
+/* Warnings: an orange "!" and plain words. */
+.ds .bang { color: var(--accent); font-weight: 600; margin-right: 4px; }
+
+/* Cells mean editable. */
+.ds .cell { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell-opt); color: var(--text); }
+.ds .cell:hover { background: var(--cell-hover); }
+.ds .cell .ph { color: var(--text-lo); }
+.ds .cell.dropdown { justify-content: space-between; gap: var(--sp-2); padding-right: var(--sp-3); }
+.ds .chev { color: var(--text-lo); flex: none; }
+.ds .choices { display: inline-flex; gap: var(--gap); }
+.ds .choice { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell-opt); color: var(--text-lo); font-size: var(--fs-s); }
+.ds .choice.on { background: var(--cell-on); color: var(--text-hi); }
+
+/* Badge: outlined, never filled. */
+.ds .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--text-lo); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }
+
+/* The copy glyph beside a system name. */
+.ds .copy { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; color: var(--text-lo); vertical-align: middle; }
+.ds .copy svg { fill: none; stroke: currentColor; stroke-width: 1; }
