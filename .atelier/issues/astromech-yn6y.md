@@ -5,7 +5,7 @@ issue_type: "spike"
 labels:
 - "size-s"
 workflow_branch:
-  branch_base: worktree-agent-ab55c7a7829b29021
+  branch_base: main
   work_branch: spike/astromech-yn6y
 priority: "P1"
 relationships:
