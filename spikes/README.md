@@ -14,6 +14,7 @@ the crates as seeds.
 | `s7-s9-input-voice/` | Local STT/TTS latency (Parakeet TDT + Kokoro via sherpa-onnx) | `astromech-voice` |
 | `s8-licence-audit/` | Licence audit of the planned dependency tree; GPL-3.0 in sherpa-onnx 1.x | `deny.toml`, `NOTICE.md` |
 | `k0-binds-doctor/` | Why a .binds file doesn't show up in game; device ID checks | `astromech-keybinds` |
+| `q1-linked-places/` | Can "place A within N ly of place B" queries (HGE system near a trader, hotspot ring near a buyer) run on Spansh and Ardent? Yes: one search per side and a local join. Findings are in the close reason of Atelier issue astromech-yn6y; `replay.sh` reruns them from the gitignored `cache/` | not yet (galaxy rework, astromech-51ue) |
 
 ## Deliberately left out
 

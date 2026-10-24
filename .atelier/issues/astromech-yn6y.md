@@ -4,6 +4,9 @@ id: "astromech-yn6y"
 issue_type: "spike"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: worktree-agent-ab55c7a7829b29021
+  work_branch: spike/astromech-yn6y
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Compound place queries: test two linked-place recipes on real data"
-updated_at: "2026-10-24T23:07:07.622893259+00:00"
+updated_at: "2026-10-24T23:08:16.005330620+00:00"
 ---
 
 ## Goal
