@@ -11,6 +11,7 @@
   import DsMaterials from "./ds/Materials.svelte";
   import DsFinder from "./ds/Finder.svelte";
   import DsPlacesHome from "./ds/PlacesHome.svelte";
+  import DsSettings from "./ds/Settings.svelte";
   const pages = { activities: ActivityView, ship: ShipDiagram, keybinds: KeybindsList, controller: MyController, settings: Settings, tray: TrayMenu };
   const read = () => location.hash.replace("#/mockup/", "");
   let id = $state(read());
@@ -24,6 +25,8 @@
   <DsFinder kind={id === "ds-sell" ? "sell" : "mining"} />
 {:else if id === "ds-places"}
   <DsPlacesHome />
+{:else if id === "ds-settings"}
+  <DsSettings />
 {:else}
   <Page />
 {/if}

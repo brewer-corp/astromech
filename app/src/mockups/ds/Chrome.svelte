@@ -26,35 +26,37 @@
   <div class="strip">
     <span class="label">Next</span>
     <span class="sys lit">{strip.next}</span><Copy />
-    <span class="num lo">{strip.of}</span>
+    <span class="mid">{strip.of}</span>
     {#each strip.flags ?? [] as f (f)}<span class="badge">{f}</span>{/each}
     {#if strip.warn}<span class="warn"><span class="bang">!</span>{strip.warn}</span>{/if}
     <span class="grow"></span>
     <span class="label">To</span><span class="dest">{strip.dest}</span>
-    <span class="num lo">{strip.left}</span>
+    <span class="mid">{strip.left}</span>
   </div>
-  <nav class="page">
-    {#each tabs as t (t)}<span class:on={t === tab}>{t}</span>{/each}
-  </nav>
+  {#if tabs.length}
+    <nav class="page">
+      {#each tabs as t (t)}<span class:on={t === tab}>{t}</span>{/each}
+    </nav>
+  {:else}<span></span>{/if}
   <main>{@render children()}</main>
 </div>
 
 <style>
   .frame { height: 100vh; display: grid; grid-template-rows: 64px var(--strip) 44px 1fr; background: var(--bg); }
-  header { display: flex; align-items: center; gap: var(--sp-8); margin: 0 var(--gutter); border-bottom: 1px solid var(--accent); }
-  .mark { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
-  .top { display: flex; gap: var(--sp-6); flex: 1; }
-  .top span { font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--text-lo); }
-  .top span.on { color: var(--accent); }
-  .find { width: 320px; justify-content: space-between; }
-  .help { color: var(--text); font-size: var(--fs-s); text-decoration: underline; text-decoration-color: var(--text-lo); text-underline-offset: 3px; }
+  header { display: flex; align-items: center; gap: var(--sp-6); margin: 0 var(--gutter); border-bottom: 1px solid var(--accent); }
+  .mark { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); margin-right: var(--sp-2); }
+  .top { display: flex; gap: var(--sp-1); flex: 1; }
+  .top span { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--orange-mid); }
+  .top span.on { background: var(--accent); color: var(--on-accent); }
+  .find { width: 300px; justify-content: space-between; }
+  .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline; text-decoration-color: var(--orange-mid); text-underline-offset: 3px; }
   .strip { display: flex; align-items: center; gap: var(--sp-3); padding: 0 var(--gutter); background: var(--surface); }
-  .strip .sys { font-weight: 500; margin-right: -8px; }
+  .strip .sys { font-weight: 500; margin-right: -10px; }
   .strip .grow { flex: 1; }
-  .strip .warn { font-size: var(--fs-s); color: var(--text); }
-  .strip .dest { color: var(--text); font-size: var(--fs-s); }
+  .strip .warn { font-size: var(--fs-s); color: var(--accent); }
+  .strip .dest { font-size: var(--fs-s); }
   .page { display: flex; gap: var(--sp-6); align-items: stretch; margin: 0 var(--gutter); }
-  .page span { display: flex; align-items: center; font-weight: 500; color: var(--text-lo); border-bottom: 2px solid transparent; }
-  .page span.on { color: var(--text-hi); border-bottom-color: var(--accent); }
+  .page span { display: flex; align-items: center; font-weight: 500; color: var(--orange-mid); border-bottom: 2px solid transparent; }
+  .page span.on { color: var(--orange-lit); border-bottom-color: var(--accent); }
   main { min-height: 0; overflow: hidden; padding: var(--sp-6) var(--gutter) 0; }
 </style>

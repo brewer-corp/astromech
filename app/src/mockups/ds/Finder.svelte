@@ -3,6 +3,7 @@
   // and lead column (the value it ranks by); the row grammar, actions and states are shared.
   import Chrome from "./Chrome.svelte";
   import Copy from "./Copy.svelte";
+  import Icon from "./Icon.svelte";
 
   type Col = { head: string; w: string; key: string; unit?: string };
   type Row = { lead: string; place: string; system: string; warn?: string; stale?: boolean; [col: string]: string | boolean | undefined };
@@ -47,7 +48,7 @@
         { lead: "221,002", place: "Shajn Market", system: "LTT 4487", demand: "6,903", ly: "30.1", jumps: "2", pad: "L", ls: "302", age: "5" },
         { lead: "219,770", place: "Hutton Orbital", system: "Alpha Centauri", demand: "312", ly: "4.4", jumps: "1", pad: "L", ls: "6,784,404", age: "21" },
       ],
-      foot: "12 of 100 · prices from Ardent Insight",
+      foot: "12 of 100 · prices from Ardent Insight · 2 reports older than 30 days, dimmed",
       strip: { next: "Wregoe OI-C b54-6", of: "3 of 41", flags: ["Scoopable"], dest: "Colonia", left: "38 jumps left" },
     },
     mining: {
@@ -78,8 +79,9 @@
     },
   };
   const f = $derived(finders[kind]);
-  const grid = $derived(`112px minmax(240px, 1fr) ${f.cols.map((c) => c.w).join(" ")} 184px`);
-  const hover = 4;
+  const grid = $derived(`112px minmax(240px, 1fr) ${f.cols.map((c) => c.w).join(" ")} 64px`);
+  const selected = 4; // filled, as the game fills the selected row
+  const hover = 6;
 </script>
 
 <Chrome top="Galaxy" tabs={["Places", "Route", "System"]} tab="Places" strip={f.strip}>
@@ -98,7 +100,7 @@
         {#if on.length}
           <span class="choices">{#each opts as o, i (o)}<button class="choice" class:on={on.includes(i)}>{o}</button>{/each}</span>
         {:else}
-          <span class="cell dropdown">{opts[0]}<svg class="chev" viewBox="0 0 16 16" width="16" height="16"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" /></svg></span>
+          <span class="cell dropdown">{opts[0]}<Icon name="chevron" /></span>
         {/if}
       {/each}
     </div>
@@ -111,26 +113,29 @@
         <span></span>
       </div>
       {#each f.rows as r, i (r.place)}
-        <div class="row" class:hover={i === hover} class:dim={r.stale}>
-          <span class="r lead"><span class="num lit v">{r.lead}</span>{#if f.lead.unit}<span class="unit">{f.lead.unit}</span>{/if}</span>
+        <div class="row" class:hover={i === hover} class:sel={i === selected} class:dim={r.stale}>
+          <span class="r lead"><span class="lit v">{r.lead}</span>{#if f.lead.unit}<span class="unit">{f.lead.unit}</span>{/if}</span>
           <span class="place"><span class="pname">{r.place}</span><span class="sys label">{r.system}</span><Copy /></span>
           {#each f.cols as c (c.key)}
             {@const text = c.key === "also" || c.key === "ring" || c.key === "reserve"}
-            <span class:r={!text} class:num={!text} class:lo={text && r[c.key] === "—"}>
+            <span class:r={!text} class:mid={text && r[c.key] === "—"} class:alarm={r.stale && c.key === "age"}>
               {#if r.warn === c.key}<span class="bang">!</span>{/if}{r[c.key]}{#if c.unit && !text}<span class="unit">{c.unit}</span>{/if}
             </span>
           {/each}
-          <span class="acts"><button class="act" class:quiet={i !== hover}>Add stop</button><button class="act" class:quiet={i !== hover}>Replace route</button></span>
+          <span class="acts">
+            <button class="ibtn" title="Add {r.system} as a stop" aria-label="Add {r.system} as a stop"><Icon name="add-stop" /></button>
+            <button class="ibtn" title="Set {r.system} as the destination (replaces the route)" aria-label="Set {r.system} as the destination"><Icon name="destination" /></button>
+          </span>
         </div>
       {/each}
-      <p class="label foot">{f.foot}{kind === "sell" ? " · 2 old reports dimmed" : ""}</p>
+      <p class="label foot">{f.foot}</p>
     </div>
   </div>
 </Chrome>
 
 <style>
   .finder { max-width: var(--list-w); }
-  .crumb { color: var(--text-lo); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  .crumb { color: var(--orange-mid); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
   .head { display: flex; align-items: flex-end; gap: var(--sp-8); margin: var(--sp-1) 0 var(--sp-4); }
   .main { display: flex; align-items: center; gap: var(--sp-3); }
   .input { width: 320px; }
@@ -140,13 +145,16 @@
   .summary { margin: var(--sp-4) 0 var(--sp-4); }
   .row { display: grid; grid-template-columns: var(--cols); align-items: center; column-gap: var(--sp-3); height: var(--row-result); padding: 0 var(--sp-3); white-space: nowrap; }
   .row.heads { height: 28px; border-bottom: 1px solid var(--line); }
-  .row.hover { background: var(--row-hover); }
+  .row.hover { background: var(--hover); }
+  .row.hover .ibtn { color: var(--orange-lit); }
+  .row.sel { background: var(--accent); }
+  .row.sel, .row.sel * { color: var(--on-accent) !important; }
   .r { text-align: right; }
   .lead .v { font-size: var(--fs-l); font-weight: 600; }
   .place { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; overflow: hidden; }
   .pname { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
   .sys { overflow: hidden; text-overflow: ellipsis; }
-  .place :global(.copy) { margin-left: -6px; }
-  .acts { display: flex; justify-content: flex-end; padding-left: var(--sp-3); }
+  .place :global(.ibtn) { margin-left: -6px; }
+  .acts { display: flex; justify-content: flex-end; gap: var(--sp-1); }
   .foot { margin: var(--sp-3) var(--sp-3) 0; }
 </style>

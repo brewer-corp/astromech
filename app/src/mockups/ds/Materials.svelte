@@ -1,6 +1,7 @@
 <script lang="ts">
   // DESIGN.md mockup: Materials, raw grid. Rows are categories, columns are grades (the trader's
-  // own layout). One value per tile (the count), state by brightness, one orange fill.
+  // own layout). One value per tile (the count), state by orange brightness, the selected tile
+  // filled. Its category head turns white, as the trader's current section does.
   // Same sample counts as the current page (docs/design/design-system-materials-before.png).
   import Chrome from "./Chrome.svelte";
 
@@ -33,7 +34,7 @@
         <span></span>
         {#each caps as cap, g (g)}<span class="label colhead">Grade {g + 1} · max <span class="num">{cap}</span></span>{/each}
         {#each grid as row, c (c)}
-          <span class="label rowhead">Category {c + 1}</span>
+          <span class="label rowhead" class:current={c === 3}>Category {c + 1}</span>
           {#each row as [name, n], g (name)}
             {@const cap = caps[g] ?? 1}
             {@const want = need[name]}
@@ -51,14 +52,14 @@
     <aside>
       <h2 class="title">Iron</h2>
       <p class="label">Raw · grade 1 · category 4</p>
-      <p class="held"><span class="num lit big">22</span><span class="unit">of 300</span></p>
+      <p class="held"><span class="white big">22</span><span class="unit">of 300</span></p>
       <dl>
         <dt class="label">Trade up</dt><dd><span class="num">6</span> Iron → <span class="num">1</span> Zinc</dd>
         <dt class="label">Trade down</dt><dd>—</dd>
-        <dt class="label">Wanted by</dt><dd class="lo">No plan</dd>
+        <dt class="label">Wanted by</dt><dd class="mid">No plan</dd>
       </dl>
       <h3 class="section">Where to find</h3>
-      <p class="body">Surface prospecting on most rocky and metal-rich bodies, and mining in metallic rings.</p>
+      <p class="body prose">Surface prospecting on most rocky and metal-rich bodies, and mining in metallic rings.</p>
       <div class="acts"><button class="act">Find raw sites</button><button class="act">Nearest trader</button></div>
     </aside>
   </div>
@@ -70,15 +71,16 @@
   .grid { display: grid; grid-template-columns: 112px repeat(4, 220px); gap: var(--sp-2); align-items: center; }
   .colhead { padding: 0 var(--sp-3); }
   .rowhead { align-self: center; }
+  .rowhead.current { color: var(--text-hi); }
   .tile { position: relative; height: var(--tile); padding: 10px var(--sp-3); background: var(--surface); display: grid; grid-template-rows: auto 1fr; align-content: start; }
-  .count { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--text-hi); }
-  .name { align-self: end; font-size: var(--fs-s); color: var(--text); }
-  .need { position: absolute; top: 10px; right: var(--sp-3); font-size: var(--fs-xs); color: var(--text); }
+  .count { font-size: var(--fs-xxl); font-weight: 500; line-height: 1; color: var(--orange-lit); }
+  .name { align-self: end; font-size: var(--fs-s); color: var(--accent); }
+  .need { position: absolute; top: 10px; right: var(--sp-3); font-size: var(--fs-xs); color: var(--accent); }
   .track { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); }
-  .fill { display: block; height: 100%; background: var(--text-lo); }
-  .fill.full { background: var(--text-hi); }
+  .fill { display: block; height: 100%; background: var(--orange-mid); }
+  .fill.full { background: var(--orange-lit); }
   .tile.none { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
-  .tile.none .count, .tile.none .name { color: var(--text-dim); }
+  .tile.none .count, .tile.none .name { color: var(--orange-dim); }
   .tile.sel { background: var(--accent); }
   .tile.sel .count, .tile.sel .name { color: var(--on-accent); }
 
@@ -88,6 +90,7 @@
   .big { font-size: var(--fs-xxl); font-weight: 500; }
   dl { display: grid; grid-template-columns: 96px 1fr; gap: var(--sp-2) var(--sp-3); margin: 0 0 var(--sp-8); }
   dt, dd { margin: 0; }
+  dt { align-self: center; }
   aside .section { margin-bottom: var(--sp-3); }
   .body { margin: 0 0 var(--sp-3); max-width: var(--measure); }
   .acts { display: flex; margin-left: calc(-1 * var(--sp-2)); }
