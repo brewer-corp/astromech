@@ -1,136 +1,117 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-24T19:30:00Z",
+  "generatedAt": "2026-10-25T15:10:00Z",
   "title": "Design System: astromech",
   "extensions": {
     "colorMeta": {
-      "elite-orange": {
+      "orange": {
         "role": "primary",
-        "displayName": "Elite Orange",
+        "displayName": "Orange",
         "canonical": "#fa6e00",
         "tonalRamp": [
-          "#1c1610",
+          "#1a1310",
           "#3d220f",
-          "#5e2f05",
-          "#8a3d00",
-          "#b44f00",
+          "#4d2b12",
+          "#8a5834",
+          "#c26c32",
           "#fa6e00",
-          "#ff9a4d",
+          "#ffa04a",
           "#ffd2ad"
         ]
       },
-      "orange-ember": {
+      "orange-lit": {
         "role": "primary",
-        "displayName": "Orange Ember",
-        "canonical": "#8a3d00"
+        "displayName": "Orange Lit",
+        "canonical": "#ffa04a"
       },
-      "void": {
-        "role": "neutral",
-        "displayName": "Void",
-        "canonical": "#0c0d0f",
-        "tonalRamp": [
-          "#08090b",
-          "#0c0d0f",
-          "#131417",
-          "#1a1b1e",
-          "#26282b",
-          "#45484b",
-          "#a0a0a0",
-          "#e8e8e8"
-        ]
-      },
-      "void-deep": {
-        "role": "neutral",
-        "displayName": "Void Deep",
-        "canonical": "#08090b"
-      },
-      "hull": {
-        "role": "neutral",
-        "displayName": "Hull",
-        "canonical": "#131417"
-      },
-      "hull-raised": {
-        "role": "neutral",
-        "displayName": "Hull Raised",
-        "canonical": "#1a1b1e"
-      },
-      "seam": {
-        "role": "neutral",
-        "displayName": "Seam",
-        "canonical": "#26282b"
-      },
-      "row-hover": {
-        "role": "neutral",
-        "displayName": "Row Hover",
-        "canonical": "#16171a"
-      },
-      "option-cell": {
-        "role": "neutral",
-        "displayName": "Option Cell",
-        "canonical": "#2b2d2e"
-      },
-      "option-cell-hover": {
-        "role": "neutral",
-        "displayName": "Option Cell Hover",
-        "canonical": "#35383a"
-      },
-      "option-on": {
-        "role": "neutral",
-        "displayName": "Option On",
-        "canonical": "#45484b"
-      },
-      "binding-cell": {
+      "orange-mid": {
         "role": "primary",
-        "displayName": "Binding Cell",
-        "canonical": "#3d220f"
+        "displayName": "Orange Mid",
+        "canonical": "#c26c32"
       },
-      "binding-empty": {
+      "orange-dim": {
         "role": "primary",
-        "displayName": "Binding Empty",
-        "canonical": "#1c1610"
-      },
-      "text-lit": {
-        "role": "neutral",
-        "displayName": "Lit",
-        "canonical": "#ffffff"
-      },
-      "text": {
-        "role": "neutral",
-        "displayName": "Normal",
-        "canonical": "#e8e8e8"
-      },
-      "text-lo": {
-        "role": "neutral",
-        "displayName": "Secondary",
-        "canonical": "#a0a0a0"
-      },
-      "text-dim": {
-        "role": "neutral",
-        "displayName": "Dim",
-        "canonical": "#5f6266"
+        "displayName": "Orange Dim",
+        "canonical": "#8a5834"
       },
       "on-orange": {
         "role": "neutral",
         "displayName": "On Orange",
         "canonical": "#0c0d0f"
+      },
+      "ember-cell": {
+        "role": "primary",
+        "displayName": "Ember Cell",
+        "canonical": "#3d220f"
+      },
+      "ember-cell-hover": {
+        "role": "primary",
+        "displayName": "Ember Cell Hover",
+        "canonical": "#4d2b12"
+      },
+      "ember-empty": {
+        "role": "primary",
+        "displayName": "Ember Empty",
+        "canonical": "#1c1610"
+      },
+      "hull": {
+        "role": "primary",
+        "displayName": "Hull",
+        "canonical": "#1a1310"
+      },
+      "hull-raised": {
+        "role": "primary",
+        "displayName": "Hull Raised",
+        "canonical": "#241811"
+      },
+      "row-hover": {
+        "role": "primary",
+        "displayName": "Row Hover",
+        "canonical": "#21170f"
+      },
+      "seam": {
+        "role": "primary",
+        "displayName": "Seam",
+        "canonical": "#3a2716"
+      },
+      "void": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "#0c0d0f"
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#ffffff"
+      },
+      "options-grey": {
+        "role": "neutral",
+        "displayName": "Options Grey",
+        "canonical": "#e0e0e0"
+      },
+      "prose-grey": {
+        "role": "neutral",
+        "displayName": "Prose Grey",
+        "canonical": "#c4c4c4"
+      },
+      "alarm-red": {
+        "role": "tertiary",
+        "displayName": "Alarm Red",
+        "canonical": "#f0412e"
       }
     },
     "typographyMeta": {
       "value-xl": {
         "displayName": "Value XL",
-        "purpose": "The one value of a tile. Figures face at font-stretch 87.5%."
+        "purpose": "The one value of a tile, in Orange Lit."
       },
       "value-l": {
         "displayName": "Value L",
-        "purpose": "The one value of a result row or strip."
+        "purpose": "The one value of a result row or strip, in Orange Lit."
       },
       "figures": {
         "displayName": "Figures",
         "purpose": "Numbers in columns and cells, tabular, right-aligned."
-      },
-      "machine": {
-        "displayName": "Machine",
-        "purpose": "Paths, raw bind tokens, journal event names and logs only."
       }
     },
     "shadows": [],
@@ -153,49 +134,57 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one orange fill per view, for the step that moves the commander forward.",
+      "description": "The one primary per view: a solid orange fill, as the game fills the item under its cursor.",
       "html": "<button class=\"ds-btn-primary\">Next</button>",
-      "css": ".ds-btn-primary { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 20px; background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); font: 600 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; } .ds-btn-primary:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; } .ds-btn-primary:disabled { background: var(--cell-opt, #2b2d2e); color: var(--text-dim, #5f6266); cursor: default; }"
+      "css": ".ds-btn-primary { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 20px; background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; } .ds-btn-primary:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; } .ds-btn-primary:disabled { background: var(--cell-empty, #1c1610); color: var(--orange-dim, #8a5834); cursor: default; }"
     },
     {
       "name": "Secondary Button (text action)",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "An orange caps verb with no fill: CHANGE, ADD STOP, RUN AGAIN.",
+      "description": "An orange caps verb with no fill: CHANGE, RUN AGAIN, PREVIEW.",
       "html": "<button class=\"ds-btn-text\">Change</button>",
-      "css": ".ds-btn-text { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 8px; color: var(--accent, #fa6e00); font: 600 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; } .ds-btn-text:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; } .ds-btn-text:disabled { color: var(--text-dim, #5f6266); }"
+      "css": ".ds-btn-text { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 8px; color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; } .ds-btn-text:hover { background: var(--hover, #21170f); } .ds-btn-text:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
+    },
+    {
+      "name": "Icon Buttons",
+      "kind": "button",
+      "refersTo": "icon-button",
+      "description": "Repeated actions as one-stroke icons with tooltips: copy, add stop, set destination. Orange Mid at rest, Orange Lit on hover.",
+      "html": "<span class=\"ds-ibtns\"><button class=\"ds-ibtn\" title=\"Copy system name\" aria-label=\"Copy system name\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><rect x=\"5.5\" y=\"2.5\" width=\"7\" height=\"9\"/><path d=\"M3.5 5.5h6v8h-6z\"/></svg></button><button class=\"ds-ibtn\" title=\"Add as a stop\" aria-label=\"Add as a stop\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><circle cx=\"4.5\" cy=\"3.5\" r=\"1.5\"/><circle cx=\"4.5\" cy=\"12.5\" r=\"1.5\"/><path d=\"M4.5 5v6M10.5 8h5M13 5.5v5\"/></svg></button><button class=\"ds-ibtn\" title=\"Set as destination\" aria-label=\"Set as destination\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M3.5 15V1.5\"/><path d=\"M3.5 2h9l-2.5 3 2.5 3h-9\"/></svg></button></span>",
+      "css": ".ds-ibtns { display: inline-flex; gap: 4px; } .ds-ibtn { all: unset; cursor: pointer; display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--orange-mid, #c26c32); } .ds-ibtn svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; } .ds-ibtn:hover { color: var(--orange-lit, #ffa04a); } .ds-ibtn:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
     },
     {
       "name": "Input",
       "kind": "input",
       "refersTo": "input",
-      "description": "Option cell: a filled cell means editable. No underline; focus is a 1 px orange outline.",
+      "description": "Ember cell: a cell means editable. Orange text, no underline; focus is a 1 px orange outline.",
       "html": "<input class=\"ds-input\" placeholder=\"Find or plot\">",
-      "css": ".ds-input { box-sizing: border-box; height: 34px; width: 320px; padding: 0 12px; border: 0; border-radius: 0; background: var(--cell-opt, #2b2d2e); color: var(--text, #e8e8e8); font: 400 15px 'Saira Semi Condensed', Bahnschrift, sans-serif; } .ds-input::placeholder { color: var(--text-lo, #a0a0a0); } .ds-input:hover { background: var(--cell-hover, #35383a); } .ds-input:focus-visible { outline: 1px solid var(--accent, #fa6e00); }"
+      "css": ".ds-input { box-sizing: border-box; height: 34px; width: 320px; padding: 0 12px; border: 0; border-radius: 0; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-input::placeholder { color: var(--accent, #fa6e00); opacity: 0.75; } .ds-input:hover { background: var(--cell-hover, #4d2b12); } .ds-input:focus-visible { outline: 1px solid var(--accent, #fa6e00); }"
     },
     {
       "name": "Dropdown",
       "kind": "input",
       "refersTo": "dropdown",
-      "description": "Option cell with a grey chevron; the value is never orange.",
-      "html": "<button class=\"ds-dropdown\">Here: Sol<svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M4 6l4 4 4-4\" fill=\"none\" stroke=\"currentColor\"/></svg></button>",
-      "css": ".ds-dropdown { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 160px; height: 34px; padding: 0 12px; background: var(--cell-opt, #2b2d2e); color: var(--text, #e8e8e8); font: 400 15px 'Saira Semi Condensed', Bahnschrift, sans-serif; } .ds-dropdown svg { color: var(--text-lo, #a0a0a0); } .ds-dropdown:hover { background: var(--cell-hover, #35383a); } .ds-dropdown:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
+      "description": "Ember cell with an orange value and chevron, like the game's option dropdowns.",
+      "html": "<button class=\"ds-dropdown\">Here: Sol<svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M4 6l4 4 4-4\"/></svg></button>",
+      "css": ".ds-dropdown { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 160px; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-dropdown svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; } .ds-dropdown:hover { background: var(--cell-hover, #4d2b12); } .ds-dropdown:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
     },
     {
       "name": "Choice",
       "kind": "chip",
-      "refersTo": "choice",
-      "description": "Segmented or filter options in cells; the chosen one is lit, never orange.",
-      "html": "<span class=\"ds-choices\"><button class=\"ds-choice\">S</button><button class=\"ds-choice\">M</button><button class=\"ds-choice on\">L</button></span>",
-      "css": ".ds-choices { display: inline-flex; gap: 2px; } .ds-choice { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 12px; background: var(--cell-opt, #2b2d2e); color: var(--text-lo, #a0a0a0); font: 400 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; } .ds-choice:hover { background: var(--cell-hover, #35383a); } .ds-choice.on { background: var(--cell-on, #45484b); color: var(--text-hi, #ffffff); } .ds-choice:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
+      "refersTo": "choice-on",
+      "description": "Options in ember cells; the chosen one is a solid orange fill with dark text, like a selected game option.",
+      "html": "<span class=\"ds-choices\"><button class=\"ds-choice\">Natural</button><button class=\"ds-choice on\">Cockpit</button><button class=\"ds-choice\">Harsh</button></span>",
+      "css": ".ds-choices { display: inline-flex; gap: 2px; } .ds-choice { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; } .ds-choice:hover { background: var(--cell-hover, #4d2b12); } .ds-choice.on { background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); } .ds-choice:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
     },
     {
-      "name": "Page Tabs",
+      "name": "Tabs",
       "kind": "nav",
-      "refersTo": "tab-page-active",
-      "description": "Mixed case; active is lit with a 2 px orange underline. Top tabs are caps with the active one orange. Two tab rows at most.",
-      "html": "<nav class=\"ds-tabs\"><span>Ships</span><span class=\"on\">Materials</span><span>Engineers</span></nav>",
-      "css": ".ds-tabs { display: flex; gap: 24px; height: 44px; font: 500 15px 'Saira Semi Condensed', Bahnschrift, sans-serif; } .ds-tabs span { display: flex; align-items: center; color: var(--text-lo, #a0a0a0); border-bottom: 2px solid transparent; cursor: pointer; } .ds-tabs span:hover { color: var(--text, #e8e8e8); } .ds-tabs span.on { color: var(--text-hi, #ffffff); border-bottom-color: var(--accent, #fa6e00); }"
+      "refersTo": "tab-top-active",
+      "description": "Top tabs caps with the active one filled orange; page tabs mixed case, active Orange Lit with a 2 px underline. Two rows at most.",
+      "html": "<div class=\"ds-tabs\"><nav class=\"top\"><span>Controls</span><span class=\"on\">Engineering</span><span>Galaxy</span></nav><nav class=\"page\"><span>Ships</span><span class=\"on\">Materials</span><span>Engineers</span></nav></div>",
+      "css": ".ds-tabs { font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; } .ds-tabs .top { display: flex; gap: 4px; } .ds-tabs .top span { display: flex; align-items: center; height: 34px; padding: 0 12px; font-size: 15px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange-mid, #c26c32); } .ds-tabs .top span.on { background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); } .ds-tabs .page { display: flex; gap: 24px; height: 44px; } .ds-tabs .page span { display: flex; align-items: center; font-size: 15px; font-weight: 500; color: var(--orange-mid, #c26c32); border-bottom: 2px solid transparent; } .ds-tabs .page span.on { color: var(--orange-lit, #ffa04a); border-bottom-color: var(--accent, #fa6e00); }"
     },
     {
       "name": "Badge",
@@ -203,120 +192,109 @@
       "refersTo": "badge",
       "description": "Outlined, never filled, mixed case, for a fact with no column of its own.",
       "html": "<span class=\"ds-badge\">Scoopable</span>",
-      "css": ".ds-badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line, #26282b); color: var(--text-lo, #a0a0a0); font: 400 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; }"
+      "css": ".ds-badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line, #3a2716); color: var(--orange-mid, #c26c32); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; }"
     },
     {
       "name": "Material Tile",
       "kind": "card",
       "refersTo": "tile",
-      "description": "Hull surface, one big count; dimmed when none, solid orange when selected (one per view).",
+      "description": "The trader's tile: hull surface, one big count in Orange Lit; Orange Dim when none; solid orange when selected.",
       "html": "<div class=\"ds-tiles\"><div class=\"ds-tile\"><b>89</b><span>Carbon</span></div><div class=\"ds-tile none\"><b>0</b><span>Niobium</span></div><div class=\"ds-tile sel\"><b>22</b><span>Iron</span></div></div>",
-      "css": ".ds-tiles { display: flex; gap: 8px; } .ds-tile { display: grid; width: 200px; height: 76px; padding: 10px 12px; box-sizing: border-box; background: var(--surface, #131417); } .ds-tile b { font: 500 28px/1 'Saira Variable', 'Saira Semi Condensed', sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; color: var(--text-hi, #ffffff); } .ds-tile span { align-self: end; font: 400 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; color: var(--text, #e8e8e8); } .ds-tile.none { background: var(--bg, #0c0d0f); outline: 1px solid var(--line, #26282b); outline-offset: -1px; } .ds-tile.none b, .ds-tile.none span { color: var(--text-dim, #5f6266); } .ds-tile.sel { background: var(--accent, #fa6e00); } .ds-tile.sel b, .ds-tile.sel span { color: var(--on-accent, #0c0d0f); }"
+      "css": ".ds-tiles { display: flex; gap: 8px; font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; } .ds-tile { display: grid; width: 200px; height: 76px; padding: 10px 12px; box-sizing: border-box; background: var(--surface, #1a1310); } .ds-tile b { font-size: 28px; line-height: 1; font-weight: 500; color: var(--orange-lit, #ffa04a); } .ds-tile span { align-self: end; font-size: 13px; color: var(--accent, #fa6e00); } .ds-tile.none { background: var(--bg, #0c0d0f); outline: 1px solid var(--line, #3a2716); outline-offset: -1px; } .ds-tile.none b, .ds-tile.none span { color: var(--orange-dim, #8a5834); } .ds-tile.sel { background: var(--accent, #fa6e00); } .ds-tile.sel b, .ds-tile.sel span { color: var(--on-accent, #0c0d0f); }"
     },
     {
       "name": "Lookup Result Row",
       "kind": "custom",
       "refersTo": "result-row",
-      "description": "Main value first and largest, then the place, aligned fact columns, and row actions that turn orange only on hover.",
-      "html": "<div class=\"ds-row\"><span class=\"v\">313,239<small>cr</small></span><span class=\"p\">Parekh Chemical Holdings <small>Diaguandri</small></span><span class=\"f\">7<small>jumps</small></span><span class=\"f\">L</span><span class=\"a\">ADD STOP</span><span class=\"a\">REPLACE ROUTE</span></div>",
-      "css": ".ds-row { display: grid; grid-template-columns: 112px 1fr 80px 40px auto auto; align-items: center; column-gap: 12px; height: 44px; padding: 0 12px; font: 400 15px 'Saira Semi Condensed', Bahnschrift, sans-serif; color: var(--text, #e8e8e8); } .ds-row:hover { background: var(--row-hover, #16171a); } .ds-row small { font-size: 13px; color: var(--text-lo, #a0a0a0); margin-left: 3px; } .ds-row .v { text-align: right; font: 600 18px 'Saira Variable', 'Saira Semi Condensed', sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; color: var(--text-hi, #ffffff); } .ds-row .p { font-weight: 500; } .ds-row .f { text-align: right; font-family: 'Saira Variable', 'Saira Semi Condensed', sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; } .ds-row .a { font: 600 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; letter-spacing: 0.06em; color: var(--text-lo, #a0a0a0); padding: 0 8px; cursor: pointer; } .ds-row:hover .a { color: var(--accent, #fa6e00); }"
+      "description": "Main value first in Orange Lit, place, aligned facts, icon actions; a stale row dims with its age in red.",
+      "html": "<div class=\"ds-rows\"><div class=\"ds-row\"><span class=\"v\">313,239<small>cr</small></span><span>Parekh Chemical Holdings <small>Diaguandri</small></span><span class=\"f\">7</span><span class=\"f\">10<small>d</small></span><span class=\"a\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><circle cx=\"4.5\" cy=\"3.5\" r=\"1.5\"/><circle cx=\"4.5\" cy=\"12.5\" r=\"1.5\"/><path d=\"M4.5 5v6M10.5 8h5M13 5.5v5\"/></svg><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M3.5 15V1.5\"/><path d=\"M3.5 2h9l-2.5 3 2.5 3h-9\"/></svg></span></div><div class=\"ds-row stale\"><span class=\"v\">254,118<small>cr</small></span><span>Mackenzie Relay <small>Col 285 Sector SE-T b18-1</small></span><span class=\"f\">11</span><span class=\"f age\">212<small>d</small></span><span class=\"a\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><circle cx=\"4.5\" cy=\"3.5\" r=\"1.5\"/><circle cx=\"4.5\" cy=\"12.5\" r=\"1.5\"/><path d=\"M4.5 5v6M10.5 8h5M13 5.5v5\"/></svg><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M3.5 15V1.5\"/><path d=\"M3.5 2h9l-2.5 3 2.5 3h-9\"/></svg></span></div></div>",
+      "css": ".ds-rows { font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; color: var(--accent, #fa6e00); } .ds-row { display: grid; grid-template-columns: 112px 1fr 56px 72px 64px; align-items: center; column-gap: 12px; height: 44px; padding: 0 12px; font-size: 15px; } .ds-row:hover { background: var(--hover, #21170f); } .ds-row small { font-size: 13px; color: var(--orange-mid, #c26c32); margin-left: 3px; } .ds-row .v { text-align: right; font-size: 18px; font-weight: 600; color: var(--orange-lit, #ffa04a); } .ds-row .f { text-align: right; } .ds-row .a { display: flex; gap: 12px; justify-content: flex-end; color: var(--orange-mid, #c26c32); } .ds-row .a svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; } .ds-row:hover .a { color: var(--orange-lit, #ffa04a); } .ds-row.stale, .ds-row.stale * { color: var(--orange-dim, #8a5834); } .ds-row.stale .age, .ds-row.stale .age small { color: var(--alarm, #f0412e); }"
     },
     {
       "name": "Route Strip",
       "kind": "custom",
       "refersTo": "route-strip",
-      "description": "36 px hull band on every page: next system and copy, n of N, flags, destination.",
+      "description": "36 px hull band on every page: next system and copy, n of N, flags, destination; an orange ! when the commander should act.",
       "html": "<div class=\"ds-strip\"><small>Next</small><b>Wregoe OI-C b54-6</b><small>3 of 41</small><span class=\"bang\">!</span><span>Refuel before the next jump</span><i></i><small>Colonia · 38 jumps left</small></div>",
-      "css": ".ds-strip { display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 40px; background: var(--surface, #131417); font: 400 13px 'Saira Semi Condensed', Bahnschrift, sans-serif; color: var(--text, #e8e8e8); } .ds-strip b { font-size: 15px; font-weight: 500; color: var(--text-hi, #ffffff); } .ds-strip small { font-size: 13px; color: var(--text-lo, #a0a0a0); } .ds-strip .bang { color: var(--accent, #fa6e00); font-weight: 600; margin-right: -8px; } .ds-strip i { flex: 1; }"
+      "css": ".ds-strip { display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 40px; background: var(--surface, #1a1310); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; color: var(--accent, #fa6e00); } .ds-strip b { font-size: 15px; font-weight: 500; color: var(--orange-lit, #ffa04a); } .ds-strip small { font-size: 13px; color: var(--orange-mid, #c26c32); } .ds-strip .bang { font-weight: 600; margin-right: -8px; } .ds-strip i { flex: 1; }"
     }
   ],
   "narrative": {
     "northStar": "The Station Board",
-    "overview": "The window reads like one of Elite's own station screens: the Encoded Material Trader, the\nControls list, the station services board. Those screens are dark, nearly silent, and lit\nonly where something matters. Each tile has one big value. Names are smaller, ratios are a\ncorner mark. State is shown by brightness, not words: a dimmed tile is unavailable, the one\nsolid orange tile is selected. Layout carries meaning: on the trader, rows are categories and\ncolumns are grades, so nothing needs a label to be understood. Orange means something because\nalmost nothing is orange.\n\nastromech follows that thinking, not its density. The trader screen is too sparse for a\nlookup window. The goal is **hierarchy, not density**: every element has one value that\noutranks everything around it, and everything else steps down in size and brightness. A\ncommander glancing over between jumps should find the answer in under two seconds and never\nhave to read a caps label to find it.\n\nThe register is still the game's **Controls dialect**: near-black, one stock orange, light\ngrey text, filled value cells, very few lines, square corners, no ornament. What is new is\nthat the dialect now has rules a page can be reviewed against. The test for any screen is\nnot \"does it look like Elite\" but \"can a commander find the main value, the thing they can\nchange, and the one thing that needs them, without reading\".",
+    "overview": "Everyone who opens this window plays Elite Dangerous, so they already read its design\nlanguage fluently. astromech borrows it on purpose: the orange of the station screens, the\nbrown tiles and cells, the solid orange fill that means \"this one\", the white screen titles,\nthe dim orange of things you cannot have. A commander should feel they opened another panel\nof their ship, not a web app. Where we depart from the game, we do it for a stated reason;\nthose departures are listed in [Deviations from the game](#deviations-from-the-game).\n\nThe reference is the Encoded Material Trader. Each tile has one big value (the count); the\nname is smaller and the trade ratio is a corner mark. State is shown by brightness: a dim\ntile is unavailable, the one solid orange tile is selected. Layout carries meaning: rows are\ncategories, columns are grades, so nothing needs a label. White appears only in the screen\ntitle and the heading of the section you are in.\n\nWe follow that screen's thinking, not its density. It is too sparse for a lookup window, so\nwe keep its rules and fit more by removing levels, never by shrinking text. The test for any\nscreen: can a commander find the main value, the thing they can change, and the one thing\nthat needs them, without reading?",
     "keyCharacteristics": [
-      "One main value per element: the largest and brightest text in its tile, row or strip.",
-      "State by brightness: lit, normal, secondary, dim. Words only when brightness is not enough.",
-      "One orange per meaning: selected, action, warning, focus. Never decoration.",
-      "A filled cell means you can change it. Read-only things never sit in a cell.",
-      "Caps for navigation and verbs only. Content is mixed case.",
-      "Numbers in tabular figures, right-aligned, in columns that line up.",
-      "Square, flat, silent: no radius, no shadow, no gradient, no glow, no motion."
+      "The game's orange is the base palette; rank and state come from its brightness, not from a second colour.",
+      "One main value per element, in the brightest orange and the largest size.",
+      "Solid orange fill with dark text means selected, as in the game.",
+      "Brown surfaces: dark hull for read-only tiles, brighter ember cells for what you can change.",
+      "White only for titles, the current section and the selected item's key value.",
+      "Red only for stale reports and hard errors.",
+      "One face (variable Saira), tabular figures, square corners, no shadow, no glow, no motion."
     ],
     "rules": [
       {
-        "name": "The One Signal Rule",
-        "body": "Orange is never used for headings, section titles, values, numbers, units, prices, dropdown or input text, badges, chips, icons at rest, card borders, row separators or decoration. If it is orange, it is selected, pressable, urgent or focused.",
+        "name": "The Intensity Rule",
+        "body": "Rank and state are shown by orange brightness and fill, not by switching to another colour. Lit is the main value, base is ordinary, mid is supporting, dim is unavailable, fill is selected. *Why:* that is the game's own system; it replaces the first draft's \"orange vs grey\" signal, which the game never uses on station screens.",
         "section": "colors"
       },
       {
-        "name": "The One Fill Rule",
-        "body": "A view shows at most one solid orange fill. When a primary button and a selected tile would both be filled, the tile uses the 1 px outline instead.",
+        "name": "The One Fill Per Group Rule",
+        "body": "In any group of alternatives (a tab row, a choice, a list, a grid) at most one item is filled, except multiple choices where each chosen option is filled. A view has at most one primary button. *Why:* the game fills the selected tab and the selected row at the same time, but never two rows; a fill means \"this one\".",
         "section": "colors"
       },
       {
-        "name": "The Brightness Ladder Rule",
-        "body": "Inside one element, each step down in importance is a step down the ladder. Two adjacent pieces of text at the same level must differ in size or weight, or one of them should go.",
+        "name": "The Narrow Red Rule",
+        "body": "Red appears only on a stale report's age and on a hard error. Never for warnings, health issues, decoration, numbers going down, or emphasis. *Why:* red earns its meaning by being rare; once it decorates, the next real failure is missed.",
         "section": "colors"
       },
       {
         "name": "The Caps Are Wayfinding Rule",
-        "body": "Uppercase with 0.06em tracking is allowed for exactly four roles: the wordmark, top tabs, section headings, and action words (buttons and text actions). Everything else is mixed or sentence case: page tabs, column heads, field labels, row labels, names, badges, status, empty states, errors, prose. Tracking never appears without caps, and caps never appear without tracking.",
-        "section": "typography"
-      },
-      {
-        "name": "The One Caps Line Rule",
-        "body": "An element (a card, a row, a tile) carries at most one caps line, and it is an action. Status and categories are not caps.",
-        "section": "typography"
-      },
-      {
-        "name": "The Machine Text Rule",
-        "body": "Share Tech Mono is allowed only for text a commander might compare character by character or type somewhere else: file and folder paths, raw bind tokens, journal event names, log lines, version hashes. Never for names, dates, prices, distances, counts or prose; those are Saira figures.",
+        "body": "Uppercase with 0.06em tracking only for the wordmark, top tabs, section headings and action words. Names, column heads, labels, badges, status, errors and prose are mixed or sentence case. *Why:* when everything is caps (the audit counted about 140 caps rules), caps signal nothing; mixed case also reads faster, and procedural system names carry meaning in their case (\"Synuefe GW-Z a54-3\", \"HR-W d1-42\").",
         "section": "typography"
       },
       {
         "name": "The Tabular Rule",
-        "body": "Every number that sits in a column, a tile, a cell or a strip uses the figures face with tabular figures and is right-aligned in its column, so the ones digit sits under the ones digit.",
+        "body": "Every number in a column, tile, cell or strip uses tabular figures and is right-aligned. *Why:* the ones digit sits under the ones digit, so a column can be compared by eye, as the game's market columns can.",
         "section": "typography"
       },
       {
         "name": "The Two Tab Rows Rule",
-        "body": "Navigation is at most two rows deep: top tabs and one row of page tabs. A third level becomes a choice cell inside the page (Raw / Manufactured / Encoded), a section heading, or a finder of its own. Never stack tab rows, never add a band between them.",
+        "body": "Top tabs plus one row of page tabs, never more. A third level becomes a choice, a section or a finder of its own. *Why:* the audit found up to four stacked tab rows; the game never stacks more than two either.",
         "section": "layout"
       },
       {
         "name": "The Aligned Columns Rule",
-        "body": "Facts that repeat down a list are columns with fixed widths and a header row. If a fact would wrap, the column is too narrow or the fact should go.",
+        "body": "Repeated facts are fixed-width columns with a header row. If a fact would wrap, the column is wrong or the fact should go.",
         "section": "layout"
       },
       {
-        "name": "The No Glow Rule",
-        "body": "Nothing casts light. Selection is an outline or a fill, never a halo.",
-        "section": "elevation & depth"
+        "name": "The Icon Or Word Rule",
+        "body": "",
+        "section": "shapes"
       }
     ],
     "dos": [
-      "Do name each element's one main value before styling it, and give it Value L or XL in Lit.",
-      "Do show availability by brightness: Dim for none, unavailable, stale or disabled.",
-      "Do keep orange to selected, action, needs-you and focus, and keep to one solid orange fill per view.",
-      "Do put every editable value in an option cell and every read-only fact outside one.",
-      "Do use mixed case for content and keep caps to the wordmark, top tabs, section heads and action words.",
-      "Do set numbers in the figures face with tabular figures, right-aligned, units after in Label size.",
-      "Do line facts up in fixed columns with a Label header row.",
-      "Do keep the route strip on every page and the copy glyph beside every system name.",
-      "Do state defaults and constraints in words above a result list.",
-      "Do keep the patterns that work: the Settings row, the Controls side panel, mixed-case row text, ship cartoons, the onboarding step list and primary button, plain-word status and errors."
+      "Do start from what the game does and write down why when you depart from it.",
+      "Do give each element one main value in Orange Lit and the largest size.",
+      "Do show rank and state with the orange ramp and the fill: lit, base, mid, dim, filled.",
+      "Do fill the selected tab, row, tile or option with solid orange and dark text.",
+      "Do keep changeable values in ember cells and read-only things on Hull or Void.",
+      "Do use white only for titles, the current section and the selected item's key value.",
+      "Do use icons for repeated row actions, with a tooltip and a label, and words for primary and one-off actions.",
+      "Do set numbers in tabular figures, right-aligned, units in Orange Mid.",
+      "Do keep the route strip on every page and a copy icon beside every system name.",
+      "Do keep the patterns that work: the Settings row, the Controls side panel, ship cartoons, onboarding's step list and primary button, plain-word status and errors."
     ],
     "donts": [
-      "Don't fill read-only tiles, specs, materials, chips or cards with the brown or grey cell colours.",
-      "Don't use orange for headings, values, numbers, dropdown text, chips, badges or decoration, and don't draw the active top tab in white while deeper tabs are orange.",
-      "Don't stack more than two tab rows, or put a band between them.",
-      "Don't use Share Tech Mono for names, dates, numbers or prose.",
-      "Don't add a caps line to a card or row for status or category; Engineers' three caps lines per card become one name, mixed-case facts and brightness.",
-      "Don't make the ranked value the smallest text in a row, or put a loud action far from the thing it acts on.",
-      "Don't draw a warning or error as a solid orange block; use the \"!\" and words.",
-      "Don't draw an off toggle brighter than an on toggle.",
-      "Don't use another hue, a gradient, a shadow, a glow, a radius or an animation.",
-      "Don't put an eyebrow label above a title, or a coloured side border on a card.",
+      "Don't use grey where the game uses orange; neutral greys only for the window, Options labels and prose.",
+      "Don't put read-only tiles, specs, chips or cards in ember cells.",
+      "Don't fill more than one item in a group, or show more than one primary button.",
+      "Don't use red for warnings, health issues, decoration or emphasis.",
+      "Don't stack more than two tab rows.",
+      "Don't put repeated words like ADD STOP on every row, or hide row actions until hover.",
+      "Don't make the ranked value the smallest text in a row.",
+      "Don't draw a warning or error as a solid colour block.",
+      "Don't use a second typeface, a radius, a shadow, a glow or an animation.",
       "Don't use Frontier art, fonts, icons or screenshots, or any language but English."
     ]
   }

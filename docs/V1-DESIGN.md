@@ -478,11 +478,14 @@ the left panel (to request docking). The real version would use the three-quarte
 `app/src/design/tokens.css`. It replaces the first version of this section (11 Oct 2026),
 which copied the game's Options → Controls screen: neutral near-black, one orange accent,
 filled value cells instead of boxes, an "about this setting" panel, two thin orange rules and
-almost nothing else. DESIGN.md keeps that register and adds the rules it lacked: when orange
-is allowed, a filled cell means editable, caps only for navigation and action words, tabular
-Saira for numbers (Share Tech Mono only for machine text), at most two tab rows, one style
-per control, the states, lookup result rows and the route strip. Where this document and
-DESIGN.md disagree on how the window looks, DESIGN.md wins.
+almost nothing else. DESIGN.md (revised 25 Oct) goes further into the game's own language:
+the station screens' orange as the base palette, with rank and state shown by its brightness
+and a solid fill for selection, brown cells only for what can be changed, white for titles,
+one semantic red for stale reports and hard errors, one face (variable Saira with tabular
+figures), an icon set for repeated actions, at most two tab rows, one style per control, the
+states, lookup result rows and the route strip. It lists every deliberate deviation from the
+game with its reason. Where this document and DESIGN.md disagree on how the window looks,
+DESIGN.md wins.
 
 Accessibility: every text level is at or above the game's contrast; state is always carried by
 words, brightness or shape (outline, strike-through, "!") as well as orange, so it works for
@@ -506,6 +509,7 @@ Static Svelte pages (open `#/mockup/<id>`), rendered with `scripts/mockup-shots.
 | DESIGN.md: Materials (raw grid), before and after | `ds/Materials.svelte` (`#/mockup/ds-materials`) | `docs/design/design-system-materials-{before,after}.png` |
 | DESIGN.md: Places finders on one layout, Sell (before and after) and Mining hotspots | `ds/Finder.svelte` (`ds-sell`, `ds-mining`) | `docs/design/design-system-places-sell-{before,after}.png`, `design-system-places-mining-after.png` |
 | DESIGN.md: Places home | `ds/PlacesHome.svelte` (`ds-places`) | `docs/design/design-system-places-home-after.png` |
+| DESIGN.md: Settings, before and after | `ds/Settings.svelte` (`ds-settings`) | `docs/design/design-system-settings-{before,after}.png` |
 
 ### 5.1 Side-by-side critique against the game
 Better than the game:
