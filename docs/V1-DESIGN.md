@@ -474,46 +474,23 @@ the left panel (to request docking). The real version would use the three-quarte
 
 ## 4. Visual system
 
-Derived from the game's Options → Controls screen (colours sampled from Sumeet's screenshot).
-What the game gets right, and we copy: a neutral near-black background, one orange accent,
-light-grey upper-case row labels, filled value cells instead of boxes and borders, an "about
-this setting" panel, two thin orange rules (under the title, above the footer actions) and
-almost nothing else. Tokens: `app/src/design/tokens.css`.
-
-| Token | Value | Use | Game reference |
-|---|---|---|---|
-| `--bg` | `#0c0d0f` | Window background | `#0c0d0f` |
-| `--bg-list` | `#08090b` | (reserved) list column | `#08090b` |
-| `--accent` | `#fa6e00` | The only colour: active tab, group open, selection, markers, rules, text actions | `#f56b02`–`#fd6f03` |
-| `--text-hi` | `#ffffff` | Titles in the about panel | white |
-| `--text` | `#e8e8e8` | Rows and body (16.4:1 on `--bg`) | `#e8e8e8` |
-| `--text-lo` | `#a0a0a0` | Column heads, secondary (7.6:1) | (game uses grey sparingly) |
-| `--cell` | `#3d220f` | Binding value cell | `#42230e` |
-| `--cell-opt` | `#2b2d2e` | Option value cell (on/off, numbers, choices) | `#2c2e2d` ("REGULAR") |
-| `--cell-empty` | `#1c1610` | An empty binding slot | (game: same as filled; we make empty visible) |
-
-States, without adding colours:
-- **Row focus/selection:** label turns orange and its cells get a 1 px orange outline (the game
-  turns the label orange).
-- **Listening / press-to-bind:** the value cell fills solid orange with dark text ("PRESS A
-  BUTTON…  ESC TO CANCEL").
-- **Warning / health issue:** orange "!" + plain words in the marker column; never a new colour.
-- **Ignored binding** (Joy > 32): the cell text struck through and dimmed, plus the marker.
-- **Conflict:** marker "! Also: <other action>"; the about panel lists both.
-- **Unbound:** an empty, dimmer cell.
-- **Disabled:** `--text-lo`.
-- Expand/collapse: the game's orange outlined square with + / −.
-
-Type: **Saira Semi Condensed** (OFL) for everything, **Share Tech Mono** (OFL) only for
-numbers like dBFS. Rows 15 px upper case with slight tracking, about-panel body 15 px sentence
-case (all-caps prose is one of the game's readability problems), titles 24 px. No icons, no
-cards, no shadows, no gradients, no glow, no motion beyond instant state changes; respects
-`prefers-reduced-motion` trivially.
+**The design system is [DESIGN.md](../DESIGN.md) at the repo root**, with its tokens in
+`app/src/design/tokens.css`. It replaces the first version of this section (11 Oct 2026),
+which copied the game's Options → Controls screen: neutral near-black, one orange accent,
+filled value cells instead of boxes, an "about this setting" panel, two thin orange rules and
+almost nothing else. DESIGN.md (revised 25 Oct) goes further into the game's own language:
+the station screens' orange as the base palette, with rank and state shown by its brightness
+and a solid fill for selection, brown cells only for what can be changed, white for titles,
+one semantic red for stale reports and hard errors, one face (variable Saira with tabular
+figures), an icon set for repeated actions, at most two tab rows, one style per control, the
+states, lookup result rows and the route strip. It lists every deliberate deviation from the
+game with its reason. Where this document and DESIGN.md disagree on how the window looks,
+DESIGN.md wins.
 
 Accessibility: every text level is at or above the game's contrast; state is always carried by
-words or shape (outline, strike-through, "!") as well as orange, so it works for colour-blind
-users; keyboard navigation follows the list (↑/↓, ←/→ to collapse/expand, Enter to edit, Esc
-to cancel), and Ctrl+F focuses search.
+words, brightness or shape (outline, strike-through, "!") as well as orange, so it works for
+colour-blind users; keyboard navigation follows the list (↑/↓, ←/→ to collapse/expand, Enter
+to edit, Esc to cancel), and Ctrl+F focuses search.
 
 ---
 
@@ -529,6 +506,10 @@ Static Svelte pages (open `#/mockup/<id>`), rendered with `scripts/mockup-shots.
 | My controller (VKB sheet) | `MyController.svelte`, `Sheet.svelte` | `docs/design/mockup-controller.png` |
 | Settings (one list) | `Settings.svelte` | `docs/design/mockup-settings.png` |
 | Tray menu (native) | `TrayMenu.svelte` | `docs/design/mockup-tray.png` |
+| DESIGN.md: Materials (raw grid), before and after | `ds/Materials.svelte` (`#/mockup/ds-materials`) | `docs/design/design-system-materials-{before,after}.png` |
+| DESIGN.md: Places finders on one layout, Sell (before and after) and Mining hotspots | `ds/Finder.svelte` (`ds-sell`, `ds-mining`) | `docs/design/design-system-places-sell-{before,after}.png`, `design-system-places-mining-after.png` |
+| DESIGN.md: Places home | `ds/PlacesHome.svelte` (`ds-places`) | `docs/design/design-system-places-home-after.png` |
+| DESIGN.md: Settings, before and after | `ds/Settings.svelte` (`ds-settings`) | `docs/design/design-system-settings-{before,after}.png` |
 
 ### 5.1 Side-by-side critique against the game
 Better than the game:
@@ -567,7 +548,7 @@ Still noisier than the game (and what I changed):
 - Rev 3a printed hat directions ("Up") in the number box for the ministick. **Fixed:** `P1`
   (POV 1); axes have no number box.
 - Upper-case row labels are copied from the game for familiarity, though they read slower than
-  mixed case. Open question for Sumeet (§9).
+  mixed case. Decided: mixed case (§9); DESIGN.md keeps caps for navigation and action words.
 
 ---
 

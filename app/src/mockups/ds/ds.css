@@ -1,0 +1,44 @@
+/* Shared parts for the DESIGN.md mockups (#/mockup/ds-*). Only DESIGN.md tokens. */
+.ds { font-family: var(--face); font-stretch: var(--face-stretch); font-size: var(--fs); line-height: 1.45; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ds button { all: unset; cursor: pointer; box-sizing: border-box; font-stretch: var(--face-stretch); }
+.ds :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+/* The orange ramp and the few neutrals */
+.ds .lit { color: var(--orange-lit); }
+.ds .mid { color: var(--orange-mid); }
+.ds .dim, .ds .dim * { color: var(--orange-dim) !important; }
+.ds .white { color: var(--text-hi); }
+.ds .prose { color: var(--prose); }
+.ds .alarm { color: var(--alarm) !important; }
+.ds .unit { font-size: var(--fs-s); color: var(--orange-mid); margin-left: 3px; }
+
+/* Type roles */
+.ds .title { font-size: var(--fs-xl); font-weight: 600; line-height: 1.2; color: var(--text-hi); margin: 0; }
+.ds .label { font-size: var(--fs-s); color: var(--orange-mid); }
+.ds .section { display: flex; align-items: center; gap: var(--sp-3); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); margin: 0; }
+.ds .section::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.ds .section.current { color: var(--text-hi); }
+.ds .section.current::after { background: var(--accent); }
+
+/* Buttons: the primary is the one orange fill; secondary is an orange caps verb. */
+.ds .act { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-2); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); white-space: nowrap; }
+.ds .primary { display: inline-flex; align-items: center; height: var(--row); padding: 0 20px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; }
+.ds .ibtn { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--orange-mid); }
+.ds .ibtn:hover { color: var(--orange-lit); }
+
+/* Warnings orange, hard errors red: a "!" and plain words. */
+.ds .bang { color: var(--accent); font-weight: 600; margin-right: 4px; }
+.ds .bang.alarm { color: var(--alarm); }
+
+/* Ember cells mean editable. Text in a cell is at least base orange. */
+.ds .cell { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell); color: var(--accent); }
+.ds .cell:hover { background: var(--cell-hover); }
+.ds .cell .ph { color: var(--accent); opacity: 0.75; }
+.ds .cell.dropdown { justify-content: space-between; gap: var(--sp-2); }
+.ds .choices { display: inline-flex; gap: var(--gap); }
+.ds .choice { display: inline-flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); background: var(--cell); color: var(--accent); font-size: var(--fs-s); }
+.ds .choice:hover { background: var(--cell-hover); }
+.ds .choice.on { background: var(--accent); color: var(--on-accent); }
+
+/* Badge: outlined, never filled. */
+.ds .badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); line-height: 1; white-space: nowrap; }
