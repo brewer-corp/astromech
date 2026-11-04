@@ -18,9 +18,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journal following after a backwards clock correction and a restart"
-updated_at: "2026-11-04T23:14:09.881647602+00:00"
+updated_at: "2026-11-04T23:14:14.284903460+00:00"
 ---
 
 ## Goal

@@ -4,6 +4,9 @@ id: "astromech-t34c"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-t34c
 priority: "P3"
 relationships:
   blocks: []
@@ -23,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal following: review follow-ups"
-updated_at: "2026-11-04T23:14:10.054419178+00:00"
+updated_at: "2026-11-04T23:14:12.361469919+00:00"
 ---
 
 ## Goal
