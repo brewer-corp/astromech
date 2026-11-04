@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T21:43:11.802753628+00:00"
+status: "done"
 title: "Journal catch-up: lines the game writes during the startup replay count as history"
-updated_at: "2026-11-04T21:42:42.623942814+00:00"
+updated_at: "2026-11-04T21:43:11.802753628+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ Review finding R3 (astromech-dsrp) on feature/astromech-g3qt: catch_up (crates/a
 
 - 2026-11-04 [decision] Measure every journal's startup length before the catch-up reads anything (the followed one through an open handle, like the latest by name), and during the catch-up replay the followed journal only up to that length; what lies past it is left for the first read after caught_up, so it goes through the normal live path (EDDN, EDSM, callouts, companion files).
   Reason: Measuring first closes the window for the game's current journal and for a journal it starts during the replay. Reading the followed journal's remainder inside the catch-up would send it to EDDN (which uses self.live) while callouts are still off (caught_up false), so lines would be sent but not spoken; deferring it to the next read (at most 250 ms) gives one notion of live and needs no new state. The followed journal is measured through a handle because a lagging directory listing would make history live.
+
+## Close Reason
+
+Implementer report. Changed (crates/astromech-core/src/pipeline.rs): catch_up measures every journal's startup length before reading anything (note_startup_lengths now takes the followed journal and measures it through an open handle, like the latest by name, and overwrites rather than or_insert); open() during the catch-up replays a journal with a known length only up to it and leaves the rest for the first read after caught_up, so it takes the normal live path with callouts on. Tests: a_line_the_game_writes_to_its_journal_during_the_catch_up_is_live and a_journal_the_game_starts_during_the_catch_up_is_live (fail before the fix), the_followed_journal_past_its_startup_length_is_live_after_the_catch_up (a guard: the window inside the followed journal's own read can't be hooked from a test, so it passes before the fix too); writes happen from inside catch_up via the log hook. Docs: pipeline module doc, ARCHITECTURE.md 5.2 startup bullet. Deviations: four reopen tests (conflict copy, 7uj3, left twice, left while empty) opened a journal with no catch-up (caught_up false); they now start with catch_up, since the remainder of a known journal is now held back while caught_up is false. Surprises: none in behaviour; the reviewer's EDDN concern is avoided by not reading past the startup length during the catch-up at all. Open items: (1) lines the game writes during the catch-up reach EDDN and callouts up to 250 ms (one idle read) after it ends, and a journal started meanwhile is found by the once-a-second scan or the next notification; (2) if the followed journal can't be opened when measured, the listing length is used, which on Windows can lag, so lines just before startup could be live; (3) independent review outstanding.
