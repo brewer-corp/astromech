@@ -4,6 +4,9 @@ id: "astromech-az6g"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-az6g
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDSM: drain refused events in batches after an outage and honour EDSM's rate-limit headers"
-updated_at: "2026-10-22T21:08:14.143466459+00:00"
+updated_at: "2026-11-04T21:21:26.513116211+00:00"
 ---
 
 ## Goal
@@ -31,3 +34,12 @@ A test simulating a 60-minute 503 outage then recovery empties the queue in far 
 ## Context
 
 Review finding R2 (astromech-amp0) on feature/astromech-ux0h; existed before that branch. The reviewer's simulation: 171 requests to drain 201 events after recovery. crates/astromech-eddn/src/edsm/mod.rs, deliver().
+
+## Notes
+
+- 2026-11-04 [decision] Drain after an outage by batching refused events again once a request in the same pass has stored something (they go in batches of their own, after the never-refused ones); if such a batch fails as a whole, the rest of that pass sends refused events alone again, with no try counted for the batch failure. Chose this over counting 5xx refusals in a pass that stored nothing as outage tries.
+  Reason: Counting 5xx alone-failures as outage tries would let a poisoned event that is the only one queued hold forever, against astromech-sklz (request-level 5xx is given up after the attempt limit). Batching only after a store keeps refusals as they are. Falling back to alone (not halving and stopping) keeps astromech-dxv1: good events between known-poisoned ones still all go in the same pass. Cost: one extra request per pass while poisoned events are due. Simulated 60-min 503 outage, 201 events: 168 recovery requests before, 10 after.
+- 2026-11-04 [decision] X-Rate-Limit-Reset is read as seconds until EDSM's limit renews, capped at 3600 s; a missing or unreadable Reset with Remaining 0 waits 60 s. Only Remaining == 0 stops posting (in the pass and later passes, on the monotonic clock); Retry-After and X-Rate-Limit-Limit are ignored. Applied to journal posts, not to the daily discard-list GET.
+  Reason: EDSM's API docs (api-v1, api-journal-v1, fetched 4 Nov 2026) don't document these headers. Observed EDSM headers (Frontier forum EDSM thread p.149, Jul 2026): x-rate-limit-limit 720, x-rate-limit-remaining 0, x-rate-limit-reset 3600, i.e. seconds in an hour window. The cap stops a bad value stalling delivery for longer than the window. The discard list is one GET a day.
+- 2026-11-04 [decision] transport::Response gains headers: Vec<(String, String)> (lower-case names) with a header() lookup; only EDSM's HttpApi fills it, EDDN's HttpTransport leaves it empty.
+  Reason: The EDSM Api trait returns the shared Response type; one field there is smaller than a second response type. EDDN reads no headers, so filling them would be unused code.
