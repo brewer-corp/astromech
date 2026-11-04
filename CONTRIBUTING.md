@@ -95,6 +95,15 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   on Spansh's neutron dump and publishes `neutron.bin.gz` and its SHA-256 on the `neutron`
   pre-release. The app downloads it only when the user asks. The format is in the script's
   docstring; `python3 scripts/test_gen_neutron.py` checks the script against the reader's fixture.
+- EDDN outfitting needs every module a station lists in `data/catalog/eddn-outfitting.json`: a
+  module in neither of its lists makes astromech send nothing for that station
+  (`crates/astromech-eddn/src/companion.rs`). The **EDDN module list** workflow
+  (`.github/workflows/eddn-outfitting.yml`) runs `scripts/gen-eddn-outfitting.py --check` against
+  EDCD/FDevIDs' latest commit every Monday and by hand, and fails naming each new, moved or gone
+  symbol. When it fails, regenerate the file (`scripts/gen-eddn-outfitting.py <FDevIDs checkout>`),
+  commit it and ship it in the next release. `python3 scripts/test_gen_eddn_outfitting.py` tests the
+  check offline. The real-journal harness (`crates/astromech-core/tests/real_journals.rs`) also
+  reports any module in your `Outfitting.json` the file doesn't know as a problem.
 - The **Release build** also runs `scripts/onboarding_smoke.py` after the installer smoke test: a
   fresh silent install, the onboarding wizard driven in the real window, then "gear down" run live
   from the voice tester against the mock game, with each step's time. It opens the window with

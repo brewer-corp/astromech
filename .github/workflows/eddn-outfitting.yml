@@ -1,0 +1,29 @@
+name: EDDN module list
+
+# Checks data/catalog/eddn-outfitting.json against EDCD/FDevIDs' latest outfitting.csv with
+# scripts/gen-eddn-outfitting.py --check. A module astromech doesn't know makes it send nothing
+# for any station listing it (crates/astromech-eddn/src/companion.rs), so after a game update
+# this run fails, naming the new symbols, until the file is regenerated and released. Weekly,
+# and by hand: Actions → EDDN module list → Run workflow.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Module list vs FDevIDs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: EDCD/FDevIDs
+          path: fdevids
+      - name: check
+        run: python3 scripts/gen-eddn-outfitting.py --check fdevids

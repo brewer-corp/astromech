@@ -4,6 +4,9 @@ id: "astromech-58a7"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-58a7
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Warn when stations list outfitting modules astromech doesn't know"
-updated_at: "2026-10-23T00:08:31.390679291+00:00"
+updated_at: "2026-11-04T22:09:54.326939607+00:00"
 ---
 
 ## Goal
