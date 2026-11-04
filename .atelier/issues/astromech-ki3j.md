@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T20:51:11.302833652+00:00"
+status: "done"
 title: "At startup, follow the game's current journal, not the one a sync tool touched last"
-updated_at: "2026-11-04T20:50:32.031024722+00:00"
+updated_at: "2026-11-04T20:51:11.302833652+00:00"
 ---
 
 ## Goal
@@ -39,3 +40,7 @@ The other half of astromech-nrhv (see its 2026-10-17 note and the implementer's 
 
 - 2026-11-04 [decision] Order journals by their Fileheader's UTC timestamp. While running, switch to the newest-by-mtime journal only once it has a Fileheader and it did not begin before the followed one (ties switch, so a conflict copy is still followed both ways). At startup, follow the newest by mtime unless the latest by name began after it (only those two headers are read).
   Reason: Fileheader time is UTC, so a DST fall-back (astromech-782v) cannot reorder it, and touching or rewriting an old journal does not change it; name order breaks at fall-back and mtime is what sync tools change. Keeping mtime as the change detector and adding one comparison is the smallest rule that fixes both the startup state and the switch back. Waiting for a Fileheader keeps a tool's just-created empty file from being followed before we can tell when it began. Trade-off: a foreign journal whose header is later than the game's (two game instances writing one synced folder) would keep the session; multi-commander folders are out of scope (astromech-yc7h).
+
+## Close Reason
+
+Implementer report. Changed (crates/astromech-core/src/pipeline.rs): journals are ordered by their Fileheader's UTC time (new begins_before). follow_newest switches to the newest-by-mtime journal only once it has a Fileheader and it did not begin before the followed one (ties switch, so a conflict copy still goes both ways); catch_up follows the newest by mtime unless the latest by name began after it. New test the_catch_up_follows_the_games_journal_not_a_touched_older_one (ship, system, credits after catch-up; touched older journal not followed afterwards; both halves fail with the fix reverted). New test the_games_journal_followed_while_empty_at_startup_is_live_once_written. nrhv test unchanged except its startup assertion (now the current journal). Deviations: about 18 existing pipeline tests and gear_down's a_replayed_older_journal_leaves_the_route_and_clipboard_alone encoded following a touched/restored/foreign journal; they now assert it is not followed, the reopen tests (7uj3, left twice, bh0c) leave and return via a conflict copy with the same header, and journals in tests that lacked a Fileheader got one. Docs: module doc, ARCHITECTURE.md 5.2, newest_journal doc; no guide change (routes.md stays true). Surprises: a journal with no Fileheader is now never switched to (only followed at startup); real journals always start with one. Open items: (1) at startup only the newest-by-mtime and latest-by-name headers are read, so a touched journal that is also latest by name (a foreign one stamped later) still shows its state until the game writes (test the_game_running_before_we_start_is_live_beside_a_later_foreign_journal); (2) a foreign journal whose header is later than the game's session (two instances writing one synced folder) would keep the session; out of scope per astromech-yc7h; (3) independent review outstanding.
