@@ -3,6 +3,7 @@
 
 use crate::Paths;
 use serde::Deserialize;
+use std::path::PathBuf;
 
 #[derive(Deserialize, Default, Debug, PartialEq)]
 #[serde(default)]
@@ -24,4 +25,10 @@ impl WindowConfig {
     pub fn load(paths: &Paths) -> Self {
         std::fs::read_to_string(paths.config_in_use()).ok().and_then(|t| toml::from_str(&t).ok()).unwrap_or_default()
     }
+}
+
+/// The core's data folder as the window finds it (the `data_dir` of [`WindowConfig::load`]), where
+/// the window opens every file it shares with the core, the remote-data cache among them.
+pub fn data_dir(paths: &Paths) -> PathBuf {
+    paths.data_dir(&WindowConfig::load(paths).data_dir)
 }

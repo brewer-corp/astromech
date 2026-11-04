@@ -1,11 +1,12 @@
 //! Voice station lookups ("where's the nearest Interstellar Factors?"): the grammar's lookup
-//! slots, and the spoken answer from Spansh near the commander's system, with the same
-//! remembered filters the app's lookup uses (the pad following the current ship).
+//! slots, and the spoken answer from Spansh near the commander's system, or a system they named
+//! ("... near Sol", [`named_origin`]), with the same remembered filters the app's lookup uses
+//! (the pad following the current ship).
 
 use astromech_data::spansh::Reference;
 use astromech_data::Client;
 use astromech_galaxy::stations::{self, Want};
-use astromech_galaxy::{filters, Filters, Pad};
+use astromech_galaxy::{filters, Filters, Here, Pad};
 use astromech_gamestate::GameState;
 use astromech_intent::Grammar;
 use astromech_store::Store;
@@ -31,36 +32,103 @@ pub fn filters_for(store: Option<&Store>, lookup: &str, game: &GameState) -> Fil
     store.and_then(|s| filters::load(s, lookup, pad).ok()).unwrap_or_default().for_ship(pad)
 }
 
+/// Where a voice lookup searches from when the commander named a system (`from`, the
+/// grammar's [`astromech_intent::Match::origin`]): that system, found by `locate` (the star map
+/// or Spansh). `Ok(None)`: none named, or the one they are in, so the lookup searches from the
+/// journal's position as before. `Err` is the spoken answer instead of a search, so an unknown
+/// name never quietly becomes a search from the current system.
+pub fn named_origin(
+    game: &GameState,
+    from: Option<&str>,
+    locate: impl FnOnce(&str) -> anyhow::Result<Here>,
+) -> Result<Option<Here>, String> {
+    let Some(name) = from.map(str::trim).filter(|n| !n.is_empty()) else {
+        return Ok(None);
+    };
+    if game.system.as_deref().is_some_and(|s| s.eq_ignore_ascii_case(name)) {
+        return Ok(None);
+    }
+    match locate(name) {
+        Ok(here) => Ok(Some(here)),
+        // A failed request; anything else is the plain "Spansh does not know a system called …".
+        Err(e) if e.downcast_ref::<astromech_data::Error>().is_some() => Err(lookup::failed(&e.to_string())),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// An answer searched from a named system says which, first: "From Sol. Nearest refuel: …".
+pub(crate) fn from_named(named: Option<&Here>, answer: String) -> String {
+    match named {
+        Some(h) => format!("From {}. {answer}", h.system),
+        None => answer,
+    }
+}
+
+/// Where a position-based lookup (faction states, Powerplay targets, raw sites) searches from:
+/// the [named](named_origin) system, else the journal's position. `Err` is the spoken answer.
+pub fn search_here(game: &GameState, named: Option<Here>) -> Result<Here, String> {
+    if let Some(h) = named {
+        return Ok(h);
+    }
+    match (game.system.clone(), game.star_pos) {
+        (Some(system), Some(pos)) => Ok(Here { system, id64: None, pos }),
+        _ => Err(lookup::NO_POSITION.into()),
+    }
+}
+
 /// The spoken answer to "where can I undermine near me" and the other Powerplay target
 /// questions: the Where to work search (`Galaxy::powerplay_targets`) for the power pledged to in
-/// the journal, within [`targets::WITHIN_LY`] of the journal's position, with jumps at the
-/// ship's range (20 ly when unknown).
+/// the journal, within [`targets::WITHIN_LY`] of the journal's position or of the system named
+/// in `from`, with jumps at the ship's range (20 ly when unknown).
 pub fn targets_answer(
     galaxy: &astromech_galaxy::Galaxy,
     filters: &Filters,
     target: astromech_galaxy::Target,
     game: &GameState,
+    from: Option<&str>,
 ) -> String {
     let Some(power) = game.powerplay.power.as_deref() else {
         return targets::NOT_PLEDGED.into();
     };
-    let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
-        return lookup::NO_POSITION.into();
+    let named = match named_origin(game, from, |n| galaxy.locate(n)) {
+        Ok(n) => n,
+        Err(m) => return m,
+    };
+    let here = match search_here(game, named.clone()) {
+        Ok(h) => h,
+        Err(m) => return m,
     };
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
-    let here = astromech_galaxy::Here { system, id64: None, pos };
-    match galaxy.powerplay_targets(target, power, &here, range, targets::WITHIN_LY, 1, filters) {
-        Ok(t) => targets::spoken(&t),
+    let said = match galaxy.powerplay_targets(target, power, &here, range, targets::WITHIN_LY, 1, filters) {
+        Ok(t) => targets::spoken(&t, named.is_some()),
         Err(e) => astromech_tools::lookup::failed(&e.to_string()),
-    }
+    };
+    from_named(named.as_ref(), said)
 }
 
 /// Said when Spansh does not know the commander's system and there are no coordinates to search from.
 pub const UNKNOWN_SYSTEM: &str = "Spansh does not know this system yet.";
 
 /// The spoken answer to `want` near the commander's current system, searched from its
-/// position (the journal's `StarPos`) when known, so a system Spansh hasn't heard of works too.
-pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState, now_s: i64) -> String {
+/// position (the journal's `StarPos`) when known, so a system Spansh hasn't heard of works too;
+/// or near the system named in `from` ([`named_origin`], located on Spansh).
+pub fn answer(
+    client: &Client,
+    filters: &Filters,
+    want: &Want,
+    game: &GameState,
+    from: Option<&str>,
+    now_s: i64,
+) -> String {
+    let named = match named_origin(game, from, |n| astromech_galaxy::locate_remote(client, n)) {
+        Ok(n) => n,
+        Err(m) => return m,
+    };
+    if let Some(h) = &named {
+        let found =
+            stations::find(client, want, Reference::Coords(h.pos), filters, 1, now_s).map_err(|e| e.to_string());
+        return from_named(named.as_ref(), lookup::spoken(want, &h.system, true, &found, now_s));
+    }
     let Some(system) = game.system.as_deref() else {
         return lookup::NO_POSITION.into();
     };
@@ -74,33 +142,59 @@ pub fn answer(client: &Client, filters: &Filters, want: &Want, game: &GameState,
         astromech_data::Error::Rejected { .. } if by_name => UNKNOWN_SYSTEM.into(),
         e => e.to_string(),
     });
-    lookup::spoken(want, system, &found, now_s)
+    lookup::spoken(want, system, false, &found, now_s)
 }
 
 /// The spoken answer to a faction-state lookup (`q`, from `astromech_galaxy::QUERIES`) near
-/// the commander: the app's Nearby search (`Galaxy::nearby`) from the journal's position, with
-/// jumps at the ship's range (20 ly when unknown).
+/// the commander: the app's Nearby search (`Galaxy::nearby`) from the journal's position, or
+/// from the system named in `from`, with jumps at the ship's range (20 ly when unknown).
 pub fn faction_answer(
     galaxy: &astromech_galaxy::Galaxy,
     filters: &Filters,
     q: &astromech_galaxy::Query,
     game: &GameState,
+    from: Option<&str>,
     journals: Option<&std::path::Path>,
     now_s: i64,
 ) -> String {
-    let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
-        return lookup::NO_POSITION.into();
+    let named = match named_origin(game, from, |n| galaxy.locate(n)) {
+        Ok(n) => n,
+        Err(m) => return m,
+    };
+    let here = match search_here(game, named.clone()) {
+        Ok(h) => h,
+        Err(m) => return m,
     };
     if let Some(dir) = journals {
         // As the app does before a search. Best effort: without them the answer is Spansh's.
         let _ = galaxy.record_journal_visits(dir);
     }
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
-    let here = astromech_galaxy::Here { system, id64: None, pos };
-    match galaxy.nearby(q.id, &here, range, 1, filters) {
-        Ok(n) => astromech_tools::faction::spoken(&n, now_s),
+    let said = match galaxy.nearby(q.id, &here, range, 1, filters) {
+        Ok(n) => astromech_tools::faction::spoken(&n, named.is_some(), now_s),
         Err(e) => astromech_tools::lookup::failed(&e.to_string()),
-    }
+    };
+    from_named(named.as_ref(), said)
+}
+
+/// The spoken answer to a raw-site lookup (`kind`, one of `astromech_galaxy::SITE_KINDS`): the
+/// nearest site to the journal's position or the system named in `from`, with jumps at the
+/// ship's range (20 ly when unknown). The lookup's filters in the app don't apply.
+pub fn sites_answer(galaxy: &astromech_galaxy::Galaxy, kind: &str, game: &GameState, from: Option<&str>) -> String {
+    let named = match named_origin(game, from, |n| galaxy.locate(n)) {
+        Ok(n) => n,
+        Err(m) => return m,
+    };
+    let here = match search_here(game, named.clone()) {
+        Ok(h) => h,
+        Err(m) => return m,
+    };
+    let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
+    let said = match galaxy.sites(kind, &here, range, 1, &Filters::default()) {
+        Ok(s) => astromech_galaxy::sites::spoken(&s, named.is_some()),
+        Err(e) => lookup::failed(&e.to_string()),
+    };
+    from_named(named.as_ref(), said)
 }
 
 #[cfg(test)]
@@ -363,7 +457,7 @@ mod tests {
         let f = filters_for(Some(&store), want.lookup(), &game);
         assert_eq!((f.pad, f.exclude_odyssey), (Some(Pad::L), true));
         assert_eq!(
-            answer(&client, &f, &want, &game, NOW),
+            answer(&client, &f, &want, &game, None, NOW),
             "Nearest refuel: Ehrlich City in Sol, in this system, 228 light seconds from the star."
         );
         let body = rec.bodies.lock().unwrap().last().unwrap().clone();
@@ -371,7 +465,7 @@ mod tests {
         assert_eq!(body["filters"]["has_large_pad"]["value"], true, "an Anaconda needs a large pad");
 
         let lost = GameState::default();
-        assert_eq!(answer(&client, &f, &want, &lost, NOW), lookup::NO_POSITION);
+        assert_eq!(answer(&client, &f, &want, &lost, None, NOW), lookup::NO_POSITION);
     }
 
     /// Spansh's answer to a search from a system it doesn't know (HTTP 400), or the refuel
@@ -404,13 +498,138 @@ mod tests {
             star_pos: Some([0.0, 0.0, 0.0]),
             ..Default::default()
         };
-        let said = answer(&client, &f, &want, &here, NOW);
+        let said = answer(&client, &f, &want, &here, None, NOW);
         assert!(said.starts_with("Nearest refuel: "), "{said}");
         let body = rec.bodies.lock().unwrap().last().unwrap().clone();
         assert_eq!(body["reference_coords"], serde_json::json!({ "x": 0.0, "y": 0.0, "z": 0.0 }));
         // No position yet: a plain answer, not Spansh's "Invalid request".
         let nameless = GameState { star_pos: None, ..here };
-        assert_eq!(answer(&client, &f, &want, &nameless, NOW), UNKNOWN_SYSTEM);
+        assert_eq!(answer(&client, &f, &want, &nameless, None, NOW), UNKNOWN_SYSTEM);
+    }
+
+    /// "... near <system>" (astromech-j75v): the system is where the lookup searches from, not
+    /// part of the commodity or module ("near Sol" used to turn gold into Polymers and the 5A FSD
+    /// into the SCO one). "near me" and the like still mean the current system.
+    #[test]
+    fn a_named_system_is_the_origin_not_part_of_the_slot() {
+        let g = grammar(&["Sol"]);
+        let m = g.best("where can I sell gold near Sol");
+        assert_eq!(
+            (m.command, m.slot.as_deref(), m.origin.as_deref(), m.decision),
+            ("trade.sell", Some("Gold"), Some("Sol"), Decision::Execute),
+            "{m:?}"
+        );
+        for phrase in ["where is the nearest 5A frame shift drive near Sol", "nearest 5A frame shift drive near Sol"] {
+            let m = g.best(phrase);
+            let w = lookup::want(m.command, m.slot.as_deref(), m.slot_text.as_deref()).map(|w| w.label());
+            assert_eq!(
+                (w.as_deref(), m.origin.as_deref(), m.decision),
+                (Some("5A Frame Shift Drive"), Some("Sol"), Decision::Execute),
+                "{phrase:?} -> {m:?}"
+            );
+        }
+        // every lookup that searches from a place, and a system the grammar doesn't know
+        for (phrase, command) in [
+            ("nearest interstellar factors from Shinrarta Dezhra", "find.service"),
+            ("where can I buy a Krait near Shinrarta Dezhra", "find.ship"),
+            ("where to buy tritium near Shinrarta Dezhra", "trade.buy"),
+            ("where should I sell my cargo near Shinrarta Dezhra", "trade.sell_cargo"),
+            ("nearest famine system near Shinrarta Dezhra", "faction.famine"),
+            ("where can I undermine near Shinrarta Dezhra", "powerplay.undermine"),
+            ("nearest crashed ship near Shinrarta Dezhra", "sites.crashed_ships"),
+            // the phrases that end in "near me", long and short (astromech-wlsx)
+            ("where is there a famine near Shinrarta Dezhra", "faction.famine"),
+            ("famine near Shinrarta Dezhra", "faction.famine"),
+            ("where is there a war near Shinrarta Dezhra", "faction.military"),
+            ("nearest war near Shinrarta Dezhra", "faction.military"),
+            ("where is there a boom near Shinrarta Dezhra", "faction.proto"),
+            ("nearest boom near Shinrarta Dezhra", "faction.proto"),
+            ("where is there an outbreak near Shinrarta Dezhra", "faction.pharma"),
+            ("nearest outbreak near Shinrarta Dezhra", "faction.pharma"),
+            ("where is there civil unrest near Shinrarta Dezhra", "faction.improvised"),
+            ("nearest civil unrest near Shinrarta Dezhra", "faction.improvised"),
+            ("where can I acquire near Shinrarta Dezhra", "powerplay.acquire"),
+            ("where can I reinforce from Shinrarta Dezhra", "powerplay.reinforce"),
+        ] {
+            let m = g.best(phrase);
+            assert_eq!(
+                (m.command, m.origin.as_deref(), m.decision),
+                (command, Some("Shinrarta Dezhra"), Decision::Execute),
+                "{phrase:?} -> {m:?}"
+            );
+        }
+        // the current-system phrases resolve as before
+        for (phrase, command) in [
+            ("Where can I undermine near me?", "powerplay.undermine"),
+            ("Where is there a famine near me?", "faction.famine"),
+            ("famine near me", "faction.famine"),
+            ("where can I sell painite", "trade.sell"),
+            ("where can I sell gold near me", "trade.sell"),
+            ("nearest 6A frame shift drive", "find.module"),
+        ] {
+            let m = g.best(phrase);
+            assert_eq!(
+                (m.command, m.origin.as_deref(), m.decision),
+                (command, None, Decision::Execute),
+                "{phrase:?} -> {m:?}"
+            );
+        }
+    }
+
+    /// Spansh's autocomplete (it knows Sol only), and the refuel page for a station search.
+    struct Named {
+        bodies: Mutex<Vec<serde_json::Value>>,
+    }
+
+    impl Transport for Named {
+        fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
+            if url.ends_with("/api/systems/field_values/system_names") {
+                let sol = req.query.iter().any(|(k, v)| k == "q" && v.eq_ignore_ascii_case("sol"));
+                let body = if sol {
+                    r#"{"min_max":[{"id64":10477373803,"name":"Sol","x":0.0,"y":0.0,"z":0.0}],"values":["Sol"]}"#
+                } else {
+                    r#"{"min_max":[],"values":[]}"#
+                };
+                return Ok(Response { status: 200, body: body.into() });
+            }
+            if let astromech_data::Body::Json(b) = &req.body {
+                self.bodies.lock().unwrap().push(b.clone());
+            }
+            let all: serde_json::Value = serde_json::from_str(SERVICES).unwrap();
+            Ok(Response { status: 200, body: all["refuel"].to_string() })
+        }
+    }
+
+    #[test]
+    fn a_station_lookup_from_a_named_system_searches_there_and_says_so() {
+        let rec = Arc::new(Named { bodies: Mutex::new(vec![]) });
+        let client = Client::with_transport(Cache::in_memory().unwrap(), rec.clone()).limiter(Limiter::none());
+        let want = Want::Service { service: Service::Refuel };
+        let f = Filters::default();
+        let away =
+            GameState { system: Some("Achenar".into()), star_pos: Some([67.5, -119.5, 24.8]), ..Default::default() };
+        assert_eq!(
+            answer(&client, &f, &want, &away, Some("Sol"), NOW),
+            "From Sol. Nearest refuel: Ehrlich City in Sol, 228 light seconds from the star."
+        );
+        let body = rec.bodies.lock().unwrap().last().unwrap().clone();
+        assert_eq!(body["reference_coords"], serde_json::json!({ "x": 0.0, "y": 0.0, "z": 0.0 }), "from Sol");
+        // A name Spansh doesn't know is said, not searched from here instead.
+        let n = rec.bodies.lock().unwrap().len();
+        assert_eq!(
+            answer(&client, &f, &want, &away, Some("Nowhere Prime"), NOW),
+            "Spansh does not know a system called Nowhere Prime."
+        );
+        assert_eq!(rec.bodies.lock().unwrap().len(), n, "no station search");
+        // Without a position from the journal, a named system still works.
+        let lost = GameState::default();
+        assert!(answer(&client, &f, &want, &lost, Some("Sol"), NOW).starts_with("From Sol. "));
+        // The system you are in is the usual answer.
+        let home = GameState { system: Some("Sol".into()), ..Default::default() };
+        assert_eq!(
+            answer(&client, &f, &want, &home, Some("sol"), NOW),
+            "Nearest refuel: Ehrlich City in Sol, in this system, 228 light seconds from the star."
+        );
     }
 
     /// One "position not known" line for every position-based lookup (astromech-ps6t).
@@ -424,8 +643,27 @@ mod tests {
         let mut game = GameState::default();
         game.powerplay.power = Some("Archon Delaine".into());
         let q = &astromech_galaxy::QUERIES[0];
-        assert_eq!(faction_answer(&galaxy, &Filters::default(), q, &game, None, NOW), lookup::NO_POSITION);
+        assert_eq!(faction_answer(&galaxy, &Filters::default(), q, &game, None, None, NOW), lookup::NO_POSITION);
         let t = astromech_galaxy::Target::Undermine;
-        assert_eq!(targets_answer(&galaxy, &Filters::default(), t, &game), lookup::NO_POSITION);
+        assert_eq!(targets_answer(&galaxy, &Filters::default(), t, &game, None), lookup::NO_POSITION);
+    }
+
+    /// A system named for a faction, Powerplay or site lookup that Spansh does not know is said
+    /// plainly, not searched from the commander's position (astromech-j75v).
+    #[test]
+    fn the_galaxy_lookups_say_an_unknown_named_system_plainly() {
+        let client = Arc::new(Client::with_transport(
+            Cache::in_memory().unwrap(),
+            Arc::new(Named { bodies: Mutex::new(vec![]) }),
+        ));
+        let galaxy = astromech_galaxy::Galaxy::with_remote(astromech_galaxy::Store::in_memory().unwrap(), client);
+        let mut game = GameState { system: Some("Sol".into()), star_pos: Some([0.0; 3]), ..Default::default() };
+        game.powerplay.power = Some("Archon Delaine".into());
+        let (f, from) = (Filters::default(), Some("Nowhere Prime"));
+        let unknown = "Spansh does not know a system called Nowhere Prime.";
+        let q = &astromech_galaxy::QUERIES[0];
+        assert_eq!(faction_answer(&galaxy, &f, q, &game, from, None, NOW), unknown);
+        assert_eq!(targets_answer(&galaxy, &f, astromech_galaxy::Target::Undermine, &game, from), unknown);
+        assert_eq!(sites_answer(&galaxy, "brain_trees", &game, from), unknown);
     }
 }

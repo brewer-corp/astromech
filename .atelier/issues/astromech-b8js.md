@@ -26,7 +26,9 @@ astromech's outfitting/2 messages include every module a station sells to anyone
 
 ## Done when
 
-EDCD (EDDN maintainers) has answered whether armour for ships first sold through the Arx store (Cobra Mk V, Type-8, Mandalay, Corsair, Python Mk II, Kestrel, Panther Mk II, Type-11, Caspian, Lynx Highliner) and modules with an unknown sku ('?' in FDevIDs: Caustic Sink Launcher, Thargoid Pulse Neutraliser) count as commander-specific; data/catalog/eddn-outfitting.json follows the answer; the test labels the '?' modules as unknown sku, not tech broker; docs/guide/data-sharing.md says the list leaves out modules whose sku is unknown.
+EDCD (EDDN maintainers) has answered whether armour for ships first sold through the Arx store (Cobra Mk V, Type-8, Mandalay, Corsair, Python Mk II, Kestrel, Panther Mk II, Type-11, Caspian, Lynx Highliner, Anaconda Mk II) and modules with an unknown sku ('?' in FDevIDs: Caustic Sink Launcher, Thargoid Pulse Neutraliser) count as commander-specific; data/catalog/eddn-outfitting.json follows the answer; the test labels the '?' modules as unknown sku, not tech broker; docs/guide/data-sharing.md says the list leaves out modules whose sku is unknown.
+
+CONTRIBUTING.md's regenerate step for a failing eddn-outfitting check says to check new station-side symbols and new sku values against the EDDN rule and this answer before committing (review finding astromech-m2np on task/astromech-58a7; Anaconda Mk II added per astromech-aj2w).
 
 ## Context
 

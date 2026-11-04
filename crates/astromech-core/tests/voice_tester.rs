@@ -124,7 +124,7 @@ fn typed_phrase_shows_intent_and_keys_with_nothing_pressed() {
     r.nothing_happened();
     // The dry runs took no policy slot: a live run straight after is not a "duplicate".
     assert_eq!(
-        tester::live(&r.runner, "landing_gear.down", Duration::ZERO).unwrap(),
+        tester::live(&r.runner, "landing_gear.down", None, Duration::ZERO).unwrap(),
         "Pressed, but the game didn't show the change."
     );
     assert_eq!(*r.exec.sent.lock().unwrap(), vec![(key("Key_L"), false), (key("Key_L"), true)]);
@@ -135,7 +135,7 @@ fn live_run_waits_for_elite_in_front_and_never_presses_into_another_window() {
     let r = rig();
     // The user just clicked Run live, so astromech is the active window.
     *r.exec.front.lock().unwrap() = Some("astromech".into());
-    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_millis(300)).unwrap();
+    let m = tester::live(&r.runner, "landing_gear.down", None, Duration::from_millis(300)).unwrap();
     assert_eq!(m, "Elite didn't come to the front in time, so nothing was pressed.");
     assert!(r.exec.sent.lock().unwrap().is_empty());
     // They switch to Elite within the wait: the press goes ahead.
@@ -144,7 +144,7 @@ fn live_run_waits_for_elite_in_front_and_never_presses_into_another_window() {
         std::thread::sleep(Duration::from_millis(150));
         *exec.front.lock().unwrap() = None;
     });
-    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_secs(3)).unwrap();
+    let m = tester::live(&r.runner, "landing_gear.down", None, Duration::from_secs(3)).unwrap();
     h.join().unwrap();
     assert_eq!(m, "Pressed, but the game didn't show the change.");
     assert_eq!(*r.exec.sent.lock().unwrap(), vec![(key("Key_L"), false), (key("Key_L"), true)]);
@@ -162,7 +162,7 @@ fn kill_switch_during_the_live_run_wait_presses_nothing() {
         policy.rearm();
         *exec.front.lock().unwrap() = None;
     });
-    let m = tester::live(&r.runner, "landing_gear.down", Duration::from_secs(3)).unwrap();
+    let m = tester::live(&r.runner, "landing_gear.down", None, Duration::from_secs(3)).unwrap();
     h.join().unwrap();
     assert_eq!(m, "The kill switch was used, so nothing was sent to the game.");
     assert!(r.exec.sent.lock().unwrap().is_empty());
