@@ -23,7 +23,7 @@ schema_version: 2
 closed_at: "2026-11-04T21:07:26.717795613+00:00"
 status: "done"
 title: "Voice lookups: a named system ('near Sol') turns into a different commodity or module"
-updated_at: "2026-11-04T21:07:26.717795613+00:00"
+updated_at: "2026-11-04T21:38:56.281956911+00:00"
 ---
 
 ## Goal
@@ -52,6 +52,7 @@ Voice lookups search only from the current system. Saying a system as well is no
   Reason: The grammar's {system} list is tiny (Sol) and Spansh knows every system, so restricting to known names would refuse most real systems. Copy guide 6.5: a line that may carry a long name says it as its own sentence, which keeps the existing answer sentences within budget. Saying the unknown name plainly meets the brief's rule that it never silently searches from the current system.
 - 2026-11-04 [decision] Voice tester: a lookup with a named system appends 'Searches from <system>.' to what it would do, and the trade description no longer says 'near you' (it could be elsewhere).
   Reason: One place states the origin for every lookup kind instead of a variant in each describe function.
+- 2026-11-04 [resolution] Review fixes in 456d8300. R1 (wlsx): the split now matches the words before 'near/from <system>' alone and with 'near me' appended, keeps the better origin-taking lookup when it scores at least as well as the whole transcript, and strips the phrase's own 'near me' before naming the system; 'where is there a famine/war/boom/outbreak/civil unrest near Sol' and 'famine near Sol' execute from Sol. names_origin keeps name-bearing phrases out of personal aliases (Grammar::add_alias and Assistant::learn). R2 (d50l): DryRun.live_from plus tester::live(.., from, ..), voice_test_live accepts {command, from}, and the app's Run live passes it; a site lookup runs live from the named system. R3 (mx7a): ARCHITECTURE.md 5.12 Search origin bullet. Proof: evidence astromech-1ekx; app lint/check/test pass.
 
 ## Close Reason
 
