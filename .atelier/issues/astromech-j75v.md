@@ -20,9 +20,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T21:07:26.717795613+00:00"
+status: "done"
 title: "Voice lookups: a named system ('near Sol') turns into a different commodity or module"
-updated_at: "2026-11-04T21:06:32.601096501+00:00"
+updated_at: "2026-11-04T21:07:26.717795613+00:00"
 ---
 
 ## Goal
@@ -51,3 +52,7 @@ Voice lookups search only from the current system. Saying a system as well is no
   Reason: The grammar's {system} list is tiny (Sol) and Spansh knows every system, so restricting to known names would refuse most real systems. Copy guide 6.5: a line that may carry a long name says it as its own sentence, which keeps the existing answer sentences within budget. Saying the unknown name plainly meets the brief's rule that it never silently searches from the current system.
 - 2026-11-04 [decision] Voice tester: a lookup with a named system appends 'Searches from <system>.' to what it would do, and the trade description no longer says 'near you' (it could be elsewhere).
   Reason: One place states the origin for every lookup kind instead of a variant in each describe function.
+
+## Close Reason
+
+Implementer report. Changed: voice lookups now search from a named system. astromech-intent splits a trailing 'near <system>' / 'from <system>' off the transcript (Grammar::best, Match::origin, takes_origin, HERE_WORDS) for find.*, trade.*, sites.*, faction.* and powerplay.* commands, when the remaining words match such a command at least as well as the whole transcript. astromech-core locates the system (lookups::named_origin: Galaxy::locate for faction/Powerplay/site lookups, new astromech_galaxy::locate_remote for station/trade) and searches from it; answers start 'From <system>.' and drop 'in this system' for a hit there (spoken() of lookup/faction/targets/sites take a named flag). Unknown name: 'Spansh does not know a system called <name>.' and no search. 'near me', 'near here', naming the current system: as before. Pending 'Did you mean' carries the origin; a phrase with a named system is not learned as an alias. Sites lookups with an origin go to Runner::nearest_site(kind, from) via the assistant. Voice tester appends 'Searches from <system>.'; trade describe no longer says 'near you'. Guide: lookups.md (new 'From another system' section, failure line, limits), voice-commands.md, voice-tester.md. Choice: search from the named system for every lookup kind except colonisation (decision notes); no fallback needed. Deviations: trade describe text changed (tests updated). Surprises: none beyond the ~20 mechanical call-site updates for the spoken() flag. Open items: independent review outstanding (no subagents allowed in this assignment); app/src-tauri not compiled here (Windows-only build; grep shows it uses none of the changed functions); app pnpm checks not run (no frontend code changed; tester message text changed only); speech recognition of procedural system names is unverified (no voice eval run).
