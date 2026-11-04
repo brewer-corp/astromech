@@ -11,6 +11,23 @@ pub const CONFIG_FILE: &str = "astromech.toml";
 /// Where the core says which config file it uses (in the app dir); see [`Paths::publish_config`].
 const CONFIG_IN_USE: &str = "config.path";
 
+/// A core's note of its config file ([`Paths::publish_config`]); dropping it removes the note.
+#[must_use = "dropping it unpublishes the config path"]
+#[derive(Debug)]
+pub struct Published {
+    file: PathBuf,
+    path: String,
+}
+
+impl Drop for Published {
+    fn drop(&mut self) {
+        // Only remove the note if it is still ours.
+        if std::fs::read_to_string(&self.file).is_ok_and(|t| t == self.path) {
+            let _ = std::fs::remove_file(&self.file);
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Paths {
     exe_dir: PathBuf,
@@ -69,27 +86,31 @@ impl Paths {
     }
 
     /// Tell the app window which config file the core uses (the core's `--config`, or the
-    /// default), in `config.path` in the app dir. Written at every tray core start, so a later
-    /// start without `--config` replaces an earlier one's. Console runs (`--console`, `--health`
-    /// and the like) don't publish: they serve no window, and a window opened beside one starts
-    /// its own tray core, which publishes.
-    pub fn publish_config(&self, path: &Path) -> std::io::Result<()> {
+    /// default), in `config.path` in the app dir, until the returned [`Published`] is dropped.
+    /// Written at every tray core start (after it takes the single-instance lock) and removed
+    /// when that core quits, so a window opened later doesn't follow an earlier `--config` run.
+    /// Console runs (`--console`, `--health` and the like) don't publish: they serve no window,
+    /// and a window opened beside one starts its own tray core, which publishes.
+    pub fn publish_config(&self, path: &Path) -> std::io::Result<Published> {
         std::fs::create_dir_all(&self.app_dir)?;
         // Absolute, since the window's working folder isn't the core's.
-        let path = std::path::absolute(path)?;
-        std::fs::write(self.app_dir.join(CONFIG_IN_USE), path.to_string_lossy().as_bytes())
+        let path = std::path::absolute(path)?.to_string_lossy().into_owned();
+        let file = self.app_dir.join(CONFIG_IN_USE);
+        std::fs::write(&file, path.as_bytes())?;
+        Ok(Published { file, path })
     }
 
-    /// The config file the running core reads: the one it published, else [`Paths::config_file`].
-    /// The window reads its settings (Bindings folder, data folder) from here. A published file
-    /// that no longer exists (a deleted `--config` target) falls back to the default too.
+    /// The config file the running core reads: the one it published, else [`Paths::config_file`]
+    /// (no tray core runs, so the one the window starts uses the default). The window reads its
+    /// settings (Bindings folder, data folder) from here. A published file that doesn't exist
+    /// (yet) is still the core's: it runs on defaults until it writes that file, and so does the
+    /// window.
     pub fn config_in_use(&self) -> PathBuf {
         std::fs::read_to_string(self.app_dir.join(CONFIG_IN_USE))
             .ok()
             .map(|t| t.trim().to_string())
             .filter(|t| !t.is_empty())
             .map(PathBuf::from)
-            .filter(|p| p.is_file())
             .unwrap_or_else(|| self.config_file())
     }
 
@@ -248,31 +269,60 @@ mod tests {
         // The core run with --config: the window follows it, in a fresh process too.
         let custom = other.path().join("mine.toml");
         std::fs::write(&custom, "[game]\nbindings_dir = \"/pasted\"\n").unwrap();
-        p.publish_config(&custom).unwrap();
+        let published = p.publish_config(&custom).unwrap();
         assert_eq!(mk().config_in_use(), custom);
         assert!(std::fs::read_to_string(mk().config_in_use()).unwrap().contains("/pasted"));
-        // A --config target deleted since: the default, not a file nobody reads.
-        let gone = other.path().join("gone.toml");
-        std::fs::write(&gone, "").unwrap();
-        p.publish_config(&gone).unwrap();
-        assert_eq!(mk().config_in_use(), gone);
-        std::fs::remove_file(&gone).unwrap();
+        // That core quits: the default again, though its file is still there.
+        drop(published);
+        assert!(custom.is_file());
         assert_eq!(mk().config_in_use(), p.config_file());
         // A relative --config is published as an absolute path (the window's folder differs).
         let cwd_file = std::env::current_dir().unwrap().join("Cargo.toml");
-        p.publish_config(Path::new("Cargo.toml")).unwrap();
+        let relative = p.publish_config(Path::new("Cargo.toml")).unwrap();
         assert_eq!(mk().config_in_use(), cwd_file);
-        // A later start without --config takes the file back.
-        p.publish_config(&p.config_file()).unwrap();
-        assert_eq!(mk().config_in_use(), p.config_file());
+        drop(relative);
         // Portable layout: the default is next to the exe, and a publish is followed the same way.
         std::fs::write(exe.path().join("astromech.toml"), "").unwrap();
         let portable = mk();
         assert!(portable.portable());
-        portable.publish_config(&portable.config_file()).unwrap();
         assert_eq!(portable.config_in_use(), exe.path().join("astromech.toml"));
-        portable.publish_config(&custom).unwrap();
+        let _published = portable.publish_config(&custom).unwrap();
         assert_eq!(mk().config_in_use(), custom);
+    }
+
+    /// A core started with `--config` naming a file it hasn't written yet runs on defaults; the
+    /// window reads that (missing) file too, so it gets the same defaults, not the default
+    /// file's settings, until the core writes it.
+    #[test]
+    fn a_published_config_that_does_not_exist_yet_is_still_the_one_in_use() {
+        use crate::window::{data_dir, WindowConfig};
+        let (exe, app, other) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let local = app.path().to_str().unwrap().to_string();
+        let mk = || Paths::new(exe.path().into(), env(&[("XDG_DATA_HOME", &local)]));
+        let p = mk();
+        std::fs::create_dir_all(p.app_dir()).unwrap();
+        std::fs::write(p.config_file(), "data_dir = \"/default-profile\"\n[game]\nbindings_dir = \"/b\"\n").unwrap();
+        let fresh = other.path().join("fresh.toml");
+        let _published = p.publish_config(&fresh).unwrap();
+        assert_eq!(mk().config_in_use(), fresh);
+        assert_eq!(WindowConfig::load(&mk()), WindowConfig::default());
+        assert_eq!(data_dir(&mk()), p.data_dir(""));
+        // The core writes its file: the window follows.
+        std::fs::write(&fresh, "data_dir = \"/fresh-profile\"\n").unwrap();
+        assert_eq!(data_dir(&mk()), Path::new("/fresh-profile"));
+    }
+
+    /// A later core's note isn't removed when an earlier one's guard drops.
+    #[test]
+    fn dropping_a_publication_leaves_a_newer_one() {
+        let (exe, app) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let local = app.path().to_str().unwrap().to_string();
+        let p = Paths::new(exe.path().into(), env(&[("XDG_DATA_HOME", &local)]));
+        let old = p.publish_config(&app.path().join("old.toml")).unwrap();
+        let _new = p.publish_config(&app.path().join("new.toml")).unwrap();
+        drop(old);
+        assert_eq!(p.config_in_use(), app.path().join("new.toml"));
     }
 
     #[test]

@@ -4,6 +4,9 @@ id: "astromech-f2k1"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-f2k1
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Window's config path at startup: --config runs and a not-yet-written config file"
-updated_at: "2026-10-22T21:50:43.743780411+00:00"
+updated_at: "2026-11-04T21:43:34.885769555+00:00"
 ---
 
 ## Goal

@@ -113,7 +113,7 @@ fn config() -> astromech_store::window::WindowConfig {
 /// the core (`galaxy.db`, `history.sqlite`, `outfitting.sqlite`, `astromech.sqlite`, the
 /// remote-data cache) is opened here.
 fn data_dir() -> PathBuf {
-    Paths::current().data_dir(&config().data_dir)
+    astromech_store::window::data_dir(&Paths::current())
 }
 
 fn make_api() -> Result<astromech_keybinds::api::Api, String> {
