@@ -163,6 +163,9 @@ const START_SLACK_SECS: i64 = 120;
 /// The startup length of a followed journal that couldn't be measured: whatever it holds when it
 /// is first read is history (`Tailer::note_startup_lengths`).
 const UNMEASURED: u64 = u64::MAX;
+/// How recent a journal's name stamp must be for its startup length to be taken through an open
+/// handle (the game may hold it open; see `Tailer::note_startup_lengths`).
+const RECENT_SECS: i64 = 24 * 3600;
 /// How often an idle pipeline looks for a new journal file.
 const SCAN_EVERY: Duration = Duration::from_secs(1);
 
@@ -199,6 +202,8 @@ pub struct Stats {
     /// Journal Fileheaders read to tell when a journal began (each is read once, see
     /// `Tailer::header_time`).
     pub header_reads: u64,
+    /// Journals whose startup length was taken through an open handle.
+    pub lengths_by_handle: u64,
 }
 
 pub struct Pipeline {
@@ -802,27 +807,36 @@ impl Tailer {
     /// runs, to any journal, and a journal it starts meanwhile, are live (astromech-zftk). The
     /// catch-up may not follow the game's current journal (a touched foreign one stamped later,
     /// one that can't be read just now), so it may only be followed once the game next writes it
-    /// (astromech-nrhv). The game's latest journal and `followed` are measured through an open
-    /// handle: on Windows a directory listing lags appends to a file the game holds open
-    /// (astromech-txzq), and a short length would make history live. If the latest can't be
+    /// (astromech-nrhv). Every journal the game may hold open is measured through an open handle:
+    /// on Windows a directory listing lags appends to such a file (astromech-txzq), and a short
+    /// length would make history live. Those are `followed`, the latest by name, and any whose
+    /// name stamp is within [`RECENT_SECS`] of now (the game's own can be neither of the first
+    /// two, beside a foreign journal stamped later, astromech-rjhy). If one of those can't be
     /// opened just now (a scanner or backup tool holds it) the listing's length will do
     /// (astromech-ek06): left out, it would be taken for new and live from its first line. For
     /// `followed` the listing could be short, and the catch-up would stop its replay there, so
     /// its length is [`UNMEASURED`] instead: all of it that is there when it is read is history
-    /// (astromech-6rig). The others are closed, so the listing is right, and opening each of a
+    /// (astromech-6rig). Older ones are closed, so the listing is right, and opening each of a
     /// folder of years of journals would slow every start.
     fn note_startup_lengths(&mut self, followed: Option<&Path>) {
         let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
         let latest = astromech_journal::latest_journal(&self.dir);
+        // Name stamps are the local wall clock read as UTC (see `journal_name_stamp`).
+        let recent_from = chrono::Local::now().naive_local().and_utc().timestamp() - RECENT_SECS;
         for e in entries.flatten() {
             let path = e.path();
             if !is_journal(&path) {
                 continue;
             }
+            let recent = astromech_journal::journal_name_stamp(&path).is_some_and(|(s, _)| s >= recent_from);
+            let by_handle = followed == Some(path.as_path()) || latest.as_ref() == Some(&path) || recent;
+            if by_handle {
+                self.stats.lock().unwrap().lengths_by_handle += 1;
+            }
             let handle = || std::fs::File::open(&path).and_then(|f| f.metadata()).map(|m| m.len());
             let len = if followed == Some(path.as_path()) {
                 Ok(handle().unwrap_or(UNMEASURED))
-            } else if latest.as_ref() == Some(&path) {
+            } else if by_handle {
                 handle().or_else(|_| e.metadata().map(|m| m.len()))
             } else {
                 e.metadata().map(|m| m.len())
@@ -1941,6 +1955,31 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j);
         assert_eq!(eddn_state(&db).0, 1, "only the Docked written after startup");
+    }
+
+    /// astromech-rjhy: the game's journal (started half an hour ago) is neither the latest by name
+    /// nor the one the catch-up follows, beside a foreign journal stamped later. It is measured
+    /// through a handle like them; one from days ago is not.
+    #[test]
+    fn the_games_journal_beside_a_later_foreign_one_is_measured_by_handle() {
+        let d = tempfile::tempdir().unwrap();
+        let (old, own, foreign) =
+            (d.path().join(game_name(-3 * 24 * 60)), d.path().join(game_name(-30)), d.path().join(game_name(180)));
+        std::fs::write(&old, session(&ts(3 * 24 * 3600), "r0 ")).unwrap();
+        std::fs::write(&own, session(&ts(1800), "r1 ")).unwrap();
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+        assert_eq!(t.stats.lock().unwrap().lengths_by_handle, 2, "the game's and the followed (latest) one");
+        assert!(t.opened.contains_key(&old) && t.opened.contains_key(&own));
+
+        append(&own, &docked(&ts(0)));
+        touch(&own, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert_eq!(eddn_state(&db).0, 1, "only the line written after startup");
     }
 
     /// astromech-5gxp: a returning player's newest journal is old-scheme (`Journal.YYMMDDHHMMSS`),
