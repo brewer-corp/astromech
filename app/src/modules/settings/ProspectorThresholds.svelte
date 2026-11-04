@@ -2,14 +2,16 @@
   // Per-ore prospector thresholds: a rock with this much of the ore or more is called out.
   // Empty turns the ore off (a motherlode is always called out).
   import { loadThresholds, parseThreshold, setThreshold, type OreThreshold } from "../../lib/prospector";
+  import { announce } from "../../lib/ui/announce";
 
   let ores = $state<OreThreshold[]>([]);
   let error = $state("");
+  const say = (text: string) => announce((t) => (error = t), text);
 
   $effect(() => {
     loadThresholds()
       .then((o) => (ores = o))
-      .catch((e: unknown) => (error = String(e)));
+      .catch((e: unknown) => say(String(e)));
   });
 
   /** `box`: the threshold box the change came from; it goes back to the saved value if refused. */
@@ -17,16 +19,16 @@
     const saved = String(o.threshold ?? "");
     const t = value === "reset" ? "reset" : parseThreshold(value);
     if (t === "invalid") {
-      error = `${o.name}: enter a percentage from 0 to 100, or leave it empty to turn it off.`;
       if (box) box.value = saved;
+      void say(`${o.name}: enter a percentage from 0 to 100, or leave it empty to turn it off.`);
       return;
     }
     try {
       ores = await setThreshold(o.ore, t);
       error = "";
     } catch (e) {
-      error = String(e);
       if (box) box.value = saved;
+      await say(String(e));
     }
   }
 </script>
@@ -52,7 +54,7 @@
     </dd>
   {/each}
 </dl>
-<!-- Always there, so a screen reader announces each new error. -->
+<!-- Always there, so a screen reader announces each error, repeats included. -->
 <p class="hint warn-text" aria-live="polite">{error}</p>
 
 <style>

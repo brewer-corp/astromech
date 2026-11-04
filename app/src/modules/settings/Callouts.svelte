@@ -3,16 +3,23 @@
   // A change applies from the next session. The cooldown is how long a callout stays quiet after
   // it speaks, so a burst of the same event gives one line.
   import { changeCallout, loadCallouts, parseCooldown, type CalloutSetting } from "../../lib/callouts";
+  import { announce } from "../../lib/ui/announce";
 
   let list = $state<CalloutSetting[]>([]);
-  let note = $state("");
-  let error = $state("");
+  /** The last save's "Saved" or error, for the live region below. */
+  let status = $state("");
+  let warn = $state(false);
+
+  function say(text: string, isError: boolean) {
+    warn = isError;
+    return announce((t) => (status = t), text);
+  }
 
   async function reload() {
     list = await loadCallouts();
   }
   $effect(() => {
-    reload().catch((e: unknown) => (error = String(e)));
+    reload().catch((e: unknown) => say(String(e), true));
   });
 
   /** `box`: the cooldown box the change came from; it goes back to the saved value if refused. */
@@ -20,19 +27,18 @@
     try {
       await changeCallout(c.id, what);
       await reload();
-      error = "";
-      note = "Saved. It applies the next time Elite starts.";
+      await say("Saved. It applies the next time Elite starts.", false);
     } catch (e) {
-      error = `${c.title}: ${String(e)}`;
       if (box) box.value = String(c.cooldown_s);
+      await say(`${c.title}: ${String(e)}`, true);
     }
   }
 
   function setCooldown(c: CalloutSetting, box: HTMLInputElement) {
     const s = parseCooldown(box.value);
     if (s === "invalid") {
-      error = `${c.title}: enter a number of seconds from 0 to 86400.`;
       box.value = String(c.cooldown_s);
+      void say(`${c.title}: enter a number of seconds from 0 to 86400.`, true);
       return;
     }
     void change(c, { cooldown_s: s }, box);
@@ -62,8 +68,8 @@
     </dd>
   {/each}
 </dl>
-<!-- Always there, so a screen reader announces each new error or "Saved". -->
-<p class="hint" class:warn-text={!!error} aria-live="polite">{error || note}</p>
+<!-- Always there, so a screen reader announces each "Saved" or error, repeats included. -->
+<p class="hint" class:warn-text={warn} aria-live="polite">{status}</p>
 
 <style>
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
