@@ -22,9 +22,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-04T23:43:56.130294604+00:00"
+status: "done"
 title: "Toolbox review follow-ups, second November batch"
-updated_at: "2026-11-04T23:37:12.415742746+00:00"
+updated_at: "2026-11-04T23:43:56.130294604+00:00"
 ---
 
 ## Goal
@@ -38,3 +39,7 @@ Land the last two small review follow-ups from 2026-11-04 on one branch with one
 ## Context
 
 Batched per agent-factory orchestrate. Children keep their own Done when.
+
+## Close Reason
+
+Both children done on task/astromech-1o77: astromech-9fwe (9b5943b6: quantity words after 'in' are no system name; unknown-system line capitalises the heard name; guide and ARCHITECTURE updated) and astromech-u6ai (157996b4: tests pin no refusal on a failed refused batch, poisoned drain at 0, 49, 50, 100, 199; no bug). Review of both outstanding.
