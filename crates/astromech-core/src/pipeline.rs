@@ -92,20 +92,13 @@ fn first_line_time(path: &Path) -> Option<i64> {
     chrono::DateTime::parse_from_rfc3339(v.get("timestamp")?.as_str()?).ok().map(|t| t.timestamp())
 }
 
-/// When a journal began: its Fileheader time (UTC), if it has one that isn't in the future. A
-/// header stamped later than now plus [`START_SLACK_SECS`] came from a clock that runs ahead
-/// (another PC's, or this one's before it was corrected back), so it says nothing about order.
-fn start_time(path: &Path) -> Option<i64> {
-    first_line_time(path).filter(|t| *t <= chrono::Utc::now().timestamp() + START_SLACK_SECS)
-}
-
-/// Whether journal `a` began more than [`START_SLACK_SECS`] before `b`, by [`start_time`]. That
-/// is UTC, unlike the names' local time, so a clock going back for daylight saving
-/// (astromech-782v) can't reorder them, and a tool that touches or rewrites an old journal
-/// doesn't change it. The slack lets a clock corrected back by a little not reorder the game's
-/// journals either. False when either has no start time.
-fn begins_before(a: &Path, b: &Path) -> bool {
-    matches!((start_time(a), start_time(b)), (Some(x), Some(y)) if x + START_SLACK_SECS < y)
+/// A journal's Fileheader time as last read (see `Tailer::header_time`), with what identified
+/// the file then: its creation time and its length.
+#[derive(Debug, Clone, Copy)]
+struct Header {
+    time: i64,
+    created: Option<std::time::SystemTime>,
+    len: u64,
 }
 
 /// Whether a journal's Fileheader time (UTC seconds) is its name's time read in `tz`. `name_secs`
@@ -145,7 +138,7 @@ const HEADER_SLACK_SECS: i64 = 120;
 /// How old a line of a [`Class::Gated`] journal may be and still be live.
 const FRESH_LINE_SECS: i64 = 120;
 /// How far apart two journals' start times must be to order them, and how far in the future a
-/// Fileheader may be stamped and still be believed (see [`start_time`]).
+/// Fileheader may be stamped and still be believed (see `Tailer::start_time`).
 const START_SLACK_SECS: i64 = 120;
 /// The startup length of a followed journal that couldn't be measured: whatever it holds when it
 /// is first read is history (`Tailer::note_startup_lengths`).
@@ -183,6 +176,9 @@ pub struct Stats {
     /// Companion files read and kept / reported as missing, half-written or older than their event.
     pub companions_read: u64,
     pub companions_unused: u64,
+    /// Journal Fileheaders read to tell when a journal began (each is read once, see
+    /// `Tailer::header_time`).
+    pub header_reads: u64,
 }
 
 pub struct Pipeline {
@@ -246,6 +242,8 @@ struct Tailer {
     noted: std::collections::HashSet<PathBuf>,
     /// Whether a journal's Fileheader time agrees with its name's local time, once it could be read.
     header_agrees: std::collections::HashMap<PathBuf, bool>,
+    /// Each journal's Fileheader time, once it could be read (`Tailer::header_time`).
+    headers: std::collections::HashMap<PathBuf, Header>,
     /// Whether a Fileheader time (UTC seconds) is a journal name's local time: `(name, header)`.
     /// The machine's own timezone; tests set another.
     header_check: Box<dyn Fn(i64, i64) -> bool + Send>,
@@ -496,13 +494,51 @@ impl Tailer {
         self.game_session = Some(stamp);
     }
 
+    /// A journal's Fileheader time (UTC seconds), if it has one yet. Read once per file and
+    /// remembered by path: choosing which journal to follow asks for it every second while a
+    /// touched older journal stays newest (astromech-73w9). Read again when the file was replaced
+    /// or truncated (another creation time, or shorter than when it was read); the game only
+    /// appends.
+    fn header_time(&mut self, path: &Path) -> Option<i64> {
+        let meta = std::fs::metadata(path).ok()?;
+        let (created, len) = (meta.created().ok(), meta.len());
+        if let Some(h) = self.headers.get_mut(path).filter(|h| h.created == created && len >= h.len) {
+            h.len = len;
+            return Some(h.time);
+        }
+        self.stats.lock().unwrap().header_reads += 1;
+        self.header_agrees.remove(path);
+        let time = first_line_time(path);
+        match time {
+            Some(time) => self.headers.insert(path.to_path_buf(), Header { time, created, len }),
+            None => self.headers.remove(path),
+        };
+        time
+    }
+
+    /// When a journal began: its Fileheader time (UTC), if it has one that isn't in the future. A
+    /// header stamped later than now plus [`START_SLACK_SECS`] came from a clock that runs ahead
+    /// (another PC's, or this one's before it was corrected back), so it says nothing about order.
+    fn start_time(&mut self, path: &Path) -> Option<i64> {
+        self.header_time(path).filter(|t| *t <= chrono::Utc::now().timestamp() + START_SLACK_SECS)
+    }
+
+    /// Whether journal `a` began more than [`START_SLACK_SECS`] before `b`, by `start_time`. That
+    /// is UTC, unlike the names' local time, so a clock going back for daylight saving
+    /// (astromech-782v) can't reorder them, and a tool that touches or rewrites an old journal
+    /// doesn't change it. The slack lets a clock corrected back by a little not reorder the
+    /// game's journals either. False when either has no start time.
+    fn begins_before(&mut self, a: &Path, b: &Path) -> bool {
+        matches!((self.start_time(a), self.start_time(b)), (Some(x), Some(y)) if x + START_SLACK_SECS < y)
+    }
+
     /// Whether the Fileheader's UTC time is the name's local time. Remembered once the header
     /// could be read (a journal may be followed while still empty).
     fn header_agrees_with_name(&mut self, path: &Path, stamp: i64) -> bool {
         if let Some(known) = self.header_agrees.get(path) {
             return *known;
         }
-        let Some(header) = first_line_time(path) else { return false };
+        let Some(header) = self.header_time(path) else { return false };
         let agrees = (self.header_check)(stamp, header);
         self.header_agrees.insert(path.to_path_buf(), agrees);
         agrees
@@ -623,7 +659,7 @@ impl Tailer {
     }
 
     /// Switch to the newest journal by modified time when it isn't the one we follow and didn't
-    /// begin before it (see [`begins_before`]): a backup or sync tool touching an older journal
+    /// begin before it (see `Tailer::begins_before`): a backup or sync tool touching an older journal
     /// leaves the game's followed (astromech-ki3j). One with no believable start time yet (no
     /// Fileheader, or one stamped in the future) is not switched to, so neither a tool's empty
     /// file nor a journal from a clock running ahead is followed; a followed one without one
@@ -631,9 +667,9 @@ impl Tailer {
     fn follow_newest(&mut self) {
         let newest = astromech_journal::newest_journal(&self.dir);
         if let Some(n) = newest {
-            let switch = match &self.tail {
+            let switch = match self.tail.as_ref().map(|t| t.path.clone()) {
                 None => true,
-                Some(t) => t.path != n && start_time(&n).is_some() && !begins_before(&n, &t.path),
+                Some(followed) => followed != n && self.start_time(&n).is_some() && !self.begins_before(&n, &followed),
             };
             if switch {
                 if self.tail.is_some() {
@@ -678,7 +714,7 @@ impl Tailer {
         let newest = astromech_journal::newest_journal(&self.dir);
         let latest = astromech_journal::latest_journal(&self.dir);
         let current = match (newest, latest) {
-            (Some(n), Some(l)) if begins_before(&n, &l) => Some(l),
+            (Some(n), Some(l)) if self.begins_before(&n, &l) => Some(l),
             (n, _) => n,
         };
         // Measured before anything is read, so what the game writes during the replay, to any
@@ -956,6 +992,7 @@ pub fn start_with_eddn(
         retired: Default::default(),
         noted: Default::default(),
         header_agrees: Default::default(),
+        headers: Default::default(),
         header_check: local_header_check(),
     };
     t.catch_up();
@@ -994,6 +1031,7 @@ mod tests {
             retired: Default::default(),
             noted: Default::default(),
             header_agrees: Default::default(),
+            headers: Default::default(),
             header_check: local_header_check(),
         };
         (t, hub, logs)
@@ -1692,6 +1730,38 @@ mod tests {
         append(&current, &docked(&ts(0)));
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-73w9: a touched older journal stays newest by modified time. Each look for a new
+    /// journal refuses it without reading its header (or the followed one's) again.
+    #[test]
+    fn a_refused_touched_journals_header_is_read_once() {
+        let d = tempfile::tempdir().unwrap();
+        let (older, current) =
+            (d.path().join("Journal.2026-10-16T110000.01.log"), d.path().join("Journal.2026-10-16T120000.01.log"));
+        std::fs::write(&older, session(&ts(7200), "r1 ")).unwrap();
+        std::fs::write(&current, session(&ts(600), "r2 ")).unwrap();
+        let (mut t, _) = eddn_tailer(d.path());
+        t.catch_up();
+        touch(&older, 10);
+        let reads = |t: &Tailer| t.stats.lock().unwrap().header_reads;
+        t.on_journal_activity();
+        let after_first = reads(&t);
+        for _ in 0..5 {
+            t.on_journal_activity();
+        }
+        assert_eq!(t.tail.as_ref().unwrap().path, current);
+        assert_eq!(reads(&t), after_first, "no header read again");
+        assert!(t.headers.contains_key(&older) && t.headers.contains_key(&current));
+
+        // Replaced by a file that began later (shorter, so it isn't the one read): read again.
+        let tmp = d.path().join("restore.tmp");
+        std::fs::write(&tmp, format!(r#"{{"timestamp":"{}","event":"Fileheader","part":1}}"#, ts(1)) + "\n").unwrap();
+        std::fs::rename(&tmp, &older).unwrap();
+        touch(&older, 20);
+        t.on_journal_activity();
+        assert_eq!(reads(&t), after_first + 1);
+        assert_eq!(t.tail.as_ref().unwrap().path, older, "it now began last");
     }
 
     /// astromech-ek06: at startup the game's journal can't be opened for a moment (an antivirus
