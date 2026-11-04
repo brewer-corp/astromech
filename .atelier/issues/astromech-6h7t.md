@@ -4,6 +4,9 @@ id: "astromech-6h7t"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-6h7t
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Spansh neutron routes report legs as jumps"
-updated_at: "2026-10-22T23:06:19.774601582+00:00"
+updated_at: "2026-11-04T20:35:19.421094892+00:00"
 ---
 
 ## Goal

@@ -700,6 +700,7 @@ pub struct NeutronPlan {
     pub source_system: String,
     pub destination_system: String,
     pub distance: f64,
+    /// The number of legs (waypoints after the start), not jumps: sum `Jump::jumps` for those.
     pub total_jumps: u32,
     pub system_jumps: Vec<Jump>,
 }
