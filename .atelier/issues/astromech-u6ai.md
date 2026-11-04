@@ -15,9 +15,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "EDSM drain tests: pin no-try-on-failed-batch and poison positions"
-updated_at: "2026-11-04T23:37:09.229208589+00:00"
+updated_at: "2026-11-04T23:37:16.204114055+00:00"
 ---
 
 ## Goal

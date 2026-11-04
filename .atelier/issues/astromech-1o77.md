@@ -4,6 +4,9 @@ id: "astromech-1o77"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-1o77
 priority: "P3"
 relationships:
   blocks: []
@@ -21,7 +24,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Toolbox review follow-ups, second November batch"
-updated_at: "2026-11-04T23:37:09.229986020+00:00"
+updated_at: "2026-11-04T23:37:12.415742746+00:00"
 ---
 
 ## Goal

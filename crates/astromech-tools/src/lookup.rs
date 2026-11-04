@@ -19,8 +19,11 @@ pub fn failed(why: &str) -> String {
 }
 
 /// Said when a voice lookup names a system (`name`, as heard) that Spansh does not know, instead
-/// of a search. The name is a sentence of its own, so a long one keeps the line within budget.
+/// of a search. The name is a sentence of its own, so a long one keeps the line within budget,
+/// and it starts with a capital; the rest is as heard.
 pub fn unknown_system(name: &str) -> String {
+    let mut chars = name.chars();
+    let name: String = chars.next().map(|c| c.to_uppercase().chain(chars).collect()).unwrap_or_default();
     format!("{name}. Spansh does not know that system.")
 }
 
@@ -151,6 +154,18 @@ mod tests {
     }
 
     const NOW: i64 = 1_792_152_000; // 2026-10-16T12:00:00Z
+
+    /// The heard name starts the line, so it starts with a capital; the rest stays as heard
+    /// (astromech-9fwe).
+    #[test]
+    fn an_unknown_system_line_starts_with_a_capital() {
+        assert_eq!(unknown_system("nowhere prime"), "Nowhere prime. Spansh does not know that system.");
+        assert_eq!(unknown_system("Nowhere Prime"), "Nowhere Prime. Spansh does not know that system.");
+        assert_eq!(
+            unknown_system("col 285 Sector AB-C d1-2"),
+            "Col 285 Sector AB-C d1-2. Spansh does not know that system."
+        );
+    }
 
     #[test]
     fn service_slot_values_name_every_service() {
