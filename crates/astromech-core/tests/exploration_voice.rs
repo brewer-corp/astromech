@@ -159,7 +159,7 @@ fn the_system_value_now_and_with_the_best_mapped() {
     );
     // The System page's totals for the same folder.
     let v = page_view(&r);
-    let credits = astromech_announce::session_summary::credits;
+    let credits = astromech_announce::credits::credits;
     assert_eq!(
         (credits(v.value), credits(v.value_if_mapped)),
         ("451 thousand credits".into(), "5.8 million credits".into())

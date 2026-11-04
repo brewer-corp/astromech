@@ -25,6 +25,16 @@ pub fn clip(s: &str, max: usize) -> &str {
 pub struct Response {
     pub status: u16,
     pub body: String,
+    /// Header names (lower case) and values. Only EDSM's [`crate::edsm::api::HttpApi`] fills
+    /// them, for its rate limit; EDDN's transport reads none.
+    pub headers: Vec<(String, String)>,
+}
+
+impl Response {
+    /// The value of header `name` (lower case), if it was sent.
+    pub fn header(&self, name: &str) -> Option<&str> {
+        self.headers.iter().find(|(k, _)| k == name).map(|(_, v)| v.as_str())
+    }
 }
 
 pub trait Transport {
@@ -62,7 +72,7 @@ impl Transport for HttpTransport {
         };
         let status = resp.status();
         let body = resp.into_string().unwrap_or_default();
-        Ok(Response { status, body: clip(&body, MAX_BODY_TEXT).to_owned() })
+        Ok(Response { status, body: clip(&body, MAX_BODY_TEXT).to_owned(), headers: vec![] })
     }
 }
 
@@ -108,7 +118,7 @@ mod tests {
         let (url, h) = serve_once("426 Upgrade Required", "FAIL: Oudated Schema");
         let t = HttpTransport::new(&url, "astromech/0.1.5");
         let r = t.post(b"\x1f\x8bgz").unwrap();
-        assert_eq!(r, Response { status: 426, body: "FAIL: Oudated Schema".into() });
+        assert_eq!(r, Response { status: 426, body: "FAIL: Oudated Schema".into(), headers: vec![] });
         let (head, body) = h.join().unwrap();
         let head = head.to_ascii_lowercase();
         assert!(head.starts_with("post /upload/ http/1.1"), "{head}");

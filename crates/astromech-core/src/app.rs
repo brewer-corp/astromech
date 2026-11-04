@@ -918,13 +918,16 @@ impl Core {
                 json!({"ok": true})
             }
             "voice_test_live" => {
-                let cmd = r.text.clone().unwrap_or_default();
+                // The command id as text, or `{command, from}` for a lookup from a named system.
+                let arg = |k: &str| r.args.as_ref().and_then(|a| a.get(k)).and_then(Value::as_str).map(str::to_string);
+                let cmd = r.text.clone().or_else(|| arg("command")).unwrap_or_default();
+                let from = arg("from");
                 let runner = self.session.lock().unwrap().as_ref().map(|s| s.runner.clone());
                 match runner {
                     None => json!({"ok": false, "error": "Elite isn't running, so there's nothing to send keys to."}),
                     Some(runner) => {
-                        log(&format!("voice tester: live run of {cmd}"));
-                        match tester::live(&runner, &cmd, tester::SWITCH_WAIT) {
+                        log(&format!("voice tester: live run of {cmd} (from {from:?})"));
+                        match tester::live(&runner, &cmd, from.as_deref(), tester::SWITCH_WAIT) {
                             Ok(m) => json!({"ok": true, "message": m}),
                             Err(e) => json!({"ok": false, "error": e}),
                         }

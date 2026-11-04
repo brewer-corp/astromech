@@ -196,3 +196,24 @@ describe("onboarding: a status read failing after a good one (astromech-cvxf)", 
     await vi.waitFor(() => expect(screen.queryByText(/Could not refresh/)).toBeNull(), { timeout: 2500 });
   });
 });
+
+describe("onboarding: no good status read yet (astromech-9kp2)", () => {
+  it("says the buttons are being checked, not 'Not set', before the first read answers", async () => {
+    history.replaceState(null, "", "/?core=ready&slow=never:core_status");
+    resetFakeCore();
+    step("buttons");
+    expect(await screen.findAllByText("Checking…")).toHaveLength(2);
+    expect(screen.queryByText("Not set")).toBeNull();
+  });
+
+  it("says the buttons could not be read when every read so far failed, then shows them", async () => {
+    history.replaceState(null, "", "/?core=ready&fail=core_status");
+    resetFakeCore();
+    step("buttons");
+    expect(await screen.findAllByText("Could not read", {}, { timeout: 2500 })).toHaveLength(2);
+    expect(screen.queryByText("Not set")).toBeNull();
+    history.replaceState(null, "", "/?core=ready");
+    await screen.findAllByRole("button", { name: "Change" }, { timeout: 2500 });
+    expect(screen.queryByText("Could not read")).toBeNull();
+  });
+});

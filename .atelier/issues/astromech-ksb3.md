@@ -15,9 +15,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-04T21:05:29.210846464+00:00"
+status: "done"
 title: "Neutron download: log why the download could not be reached"
-updated_at: "2026-11-04T20:43:40.593525724+00:00"
+updated_at: "2026-11-04T21:05:29.210846464+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ When the neutron star file can't be downloaded (TLS or proxy error, DNS failure,
 ## Context
 
 Review finding R7 (astromech-h7cb) on feature/astromech-1842: crates/astromech-data/src/download.rs:16. A user behind a corporate proxy sees 'Cannot reach the download' with nothing in the log.
+
+## Close Reason
+
+DownloadError::Offline already held the transport error's text; it was never logged because the shell logs the error's Display (the sentence). Added DownloadError::detail() and a shell helper download_detail() that downcasts the anyhow error and appends ' (cause)' to the astromech-shell.log line for neutron_download and neutron_check failures. The page still gets only the sentence. Test: a_refused_connection_keeps_its_reason. Limit: the shell change is verified by Windows CI's build only, not run; the voice-model download (astromech-voice models.rs) has the same gap and was left alone (out of this issue's scope).

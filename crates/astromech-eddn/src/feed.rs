@@ -510,7 +510,7 @@ mod tests {
             self.started.lock().unwrap().send(()).unwrap();
             // Bounded, so a failing test can't hang on the worker's join.
             self.release.lock().unwrap().recv_timeout(Duration::from_secs(10)).map_err(|e| e.to_string())?;
-            Ok(Response { status: 200, body: "OK".into() })
+            Ok(Response { status: 200, body: "OK".into(), headers: vec![] })
         }
     }
 

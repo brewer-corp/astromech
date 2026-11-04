@@ -61,8 +61,9 @@ fn distance(ly: f64) -> String {
 
 /// The spoken answer, a short sentence at a time: the nearest target, how far and how many
 /// jumps, and its Powerplay state ("Pranav Antal exploited, 8 percent."; an acquisition target
-/// gives the pledged power's progress).
-pub fn spoken(t: &Targets) -> String {
+/// gives the pledged power's progress). `named`: the search is from a system the commander
+/// named, not the current one, so a target there is not "in this system".
+pub fn spoken(t: &Targets, named: bool) -> String {
     let verb = verb(t.target);
     let Some(h) = t.hits.first() else {
         return match &t.warning {
@@ -70,12 +71,14 @@ pub fn spoken(t: &Targets) -> String {
             None => format!("No systems to {verb} within {:.0} light years with your filters.", t.within_ly),
         };
     };
-    let mut s = format!("Nearest system to {verb}: {}. {}", h.name, distance(h.hop.ly));
+    let mut s = format!("Nearest system to {verb}: {}.", h.name);
     if h.hop.ly >= 0.05 {
         let about = if h.hop.exact { "" } else { "about " };
-        s += &format!(", {about}{} jump{}", h.hop.jumps, if h.hop.jumps == 1 { "" } else { "s" });
+        let jumps = format!("{about}{} jump{}", h.hop.jumps, if h.hop.jumps == 1 { "" } else { "s" });
+        s += &format!(" {}, {jumps}.", distance(h.hop.ly));
+    } else if !named {
+        s += &format!(" {}.", distance(h.hop.ly));
     }
-    s.push('.');
     let state = match (&h.controlling_power, &h.state) {
         (Some(c), Some(st)) if t.target == Target::Undermine => format!("{c} {}", st.to_lowercase()),
         (Some(_), Some(st)) => st.clone(),
@@ -136,19 +139,24 @@ mod tests {
     fn the_answer_says_where_how_far_and_the_state() {
         let t = targets(Target::Undermine, vec![hit(21.78, 2, true, Some("Pranav Antal"), "Exploited", 0.0765)]);
         assert_eq!(
-            spoken(&t),
+            spoken(&t, false),
             "Nearest system to undermine: Pikum. 22 light years, 2 jumps. Pranav Antal exploited, 8 percent."
         );
         let t = targets(Target::Reinforce, vec![hit(5.16, 1, false, Some("Li Yong-Rui"), "Stronghold", 0.486)]);
         assert_eq!(
-            spoken(&t),
+            spoken(&t, false),
             "Nearest system to reinforce: Pikum. 5.2 light years, about 1 jump. Stronghold, 49 percent."
         );
         let t = targets(Target::Reinforce, vec![hit(0.0, 0, true, Some("Li Yong-Rui"), "Stronghold", 0.25)]);
-        assert_eq!(spoken(&t), "Nearest system to reinforce: Pikum. In this system. Stronghold, 25 percent.");
+        assert_eq!(spoken(&t, false), "Nearest system to reinforce: Pikum. In this system. Stronghold, 25 percent.");
+        assert_eq!(
+            spoken(&t, true),
+            "Nearest system to reinforce: Pikum. Stronghold, 25 percent.",
+            "from a named system"
+        );
         let t = targets(Target::Acquire, vec![hit(10.27, 1, true, None, "Unoccupied", 0.3169)]);
         assert_eq!(
-            spoken(&t),
+            spoken(&t, false),
             "Nearest system to acquire: Pikum. 10 light years, 1 jump. Unoccupied, acquisition 32 percent."
         );
     }
@@ -156,7 +164,7 @@ mod tests {
     #[test]
     fn nothing_found_says_so() {
         assert_eq!(
-            spoken(&targets(Target::Acquire, vec![])),
+            spoken(&targets(Target::Acquire, vec![]), false),
             "No systems to acquire within 40 light years with your filters."
         );
     }

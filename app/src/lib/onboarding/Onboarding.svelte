@@ -24,12 +24,15 @@
   /** A status read failed after a good one: the last status stays, with a line saying so. A failed
    * read is null (coreStatus), so the window can't tell a stopped core from one that didn't answer. */
   let statusErr = $state<string | null>(null);
+  /** No good status read yet: still waiting for the first, or the reads so far failed. */
+  let unread = $state<"checking" | "failed">("checking");
   async function refresh() {
     const s = await coreStatus();
     if (s) {
       status = s;
       statusErr = null;
     } else if (status) statusErr = pollFailure("read the status", "the core did not answer", true);
+    else unread = "failed";
   }
   $effect(() => {
     void refresh();
@@ -70,7 +73,7 @@
         {:else if step.id === "devices"}
           <StepDevices />
         {:else if step.id === "buttons"}
-          <StepButtons {status} {refresh} />
+          <StepButtons {status} {unread} {refresh} />
         {:else if step.id === "mic"}
           <StepMic />
         {:else if step.id === "calibrate"}

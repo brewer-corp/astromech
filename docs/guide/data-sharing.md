@@ -103,7 +103,11 @@ What is sent:
   profile.
 - **Not** the events on EDSM's own **discard list** (chat, music, the game's internal state and
   the like). astromech fetches the list before it first posts and again daily, and never sends a listed event.
-- Events go in batches of up to 50, oldest first. An event EDSM refused before is tried again on its own, after the others.
+- Events go in batches of up to 50, oldest first. An event EDSM refused before is tried again after the others, on its own
+  until EDSM has taken something in the same round; then such events go in batches again, so the queue left by an
+  EDSM outage goes out in a few requests.
+- astromech keeps to EDSM's rate limit: when EDSM says no requests are left, nothing is sent until EDSM says the
+  limit resets (at most an hour).
 - Nothing is sent while you are a **crew member** in another commander's ship (EDSM keeps no log there).
 - Live play only, with the same rules as above.
 

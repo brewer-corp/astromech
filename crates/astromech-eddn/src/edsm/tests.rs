@@ -397,8 +397,11 @@ fn outages_do_not_use_up_a_messages_refusals() {
     assert_eq!(r.courier.outbox().pending().unwrap(), 1);
     let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
     for i in 0..MAX_ATTEMPTS - 1 {
-        let outage =
-            if i % 2 == 0 { Ok(Response { status: 429, body: "slow down".into() }) } else { Err("timed out".into()) };
+        let outage = if i % 2 == 0 {
+            Ok(Response { status: 429, body: "slow down".into(), headers: vec![] })
+        } else {
+            Err("timed out".into())
+        };
         r.api.answer(JOURNAL_URL, outage);
         let (wall, mono) = at(i);
         let d = r.courier.pass(wall, mono).unwrap();
@@ -407,7 +410,8 @@ fn outages_do_not_use_up_a_messages_refusals() {
     // Seven outages have gone by: the event still has all its refusals, so it takes the full
     // MAX_ATTEMPTS of them to give it up.
     for i in 0..MAX_ATTEMPTS {
-        r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+        r.api
+            .answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into(), headers: vec![] }));
         let (wall, mono) = at(MAX_ATTEMPTS + i);
         let d = r.courier.pass(wall, mono).unwrap();
         let last = i == MAX_ATTEMPTS - 1;
@@ -446,17 +450,17 @@ impl Choosy {
 
 impl api::Api for Choosy {
     fn get(&self, _: &str, _: &[(&str, &str)]) -> Result<Response, String> {
-        Ok(Response { status: 200, body: "[]".into() })
+        Ok(Response { status: 200, body: "[]".into(), headers: vec![] })
     }
     fn post_json(&self, _: &str, body: &[u8]) -> Result<Response, String> {
         let req: Value = serde_json::from_slice(body).unwrap();
         let events = req["message"].as_array().unwrap();
         self.sizes.lock().unwrap().push(events.len());
         if events.len() > self.max || events.iter().any(|e| e["event"] == "Poison") {
-            return Ok(Response { status: self.status, body: "no".into() });
+            return Ok(Response { status: self.status, body: "no".into(), headers: vec![] });
         }
         self.stored.lock().unwrap().extend(events.iter().map(|e| e["n"].to_string()));
-        Ok(Response { status: 200, body: all_ok(events.len()).to_string() })
+        Ok(Response { status: 200, body: all_ok(events.len()).to_string(), headers: vec![] })
     }
 }
 
@@ -663,7 +667,7 @@ fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
 
 #[test]
 fn what_counts_as_refused_and_what_is_only_held() {
-    let ok = |status: u16, body: &str| Ok(Response { status, body: body.into() });
+    let ok = |status: u16, body: &str| Ok(Response { status, body: body.into(), headers: vec![] });
     assert!(matches!(answer(ok(413, "big"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(400, ""), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, "<html>"), 2), Answer::Refused(_)));
@@ -676,4 +680,84 @@ fn what_counts_as_refused_and_what_is_only_held() {
     assert!(matches!(answer(ok(500, "x"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(503, "x"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, r#"{"msgnum":500,"msg":"x"}"#), 2), Answer::Refused(_)));
+}
+
+/// Passes as the worker makes them, from `from` (Unix seconds) until `until` or an empty queue:
+/// each after the courier's own wait, on both clocks. Returns where it stopped.
+fn run_as_worker(r: &mut Rig, from: i64, until: i64) -> i64 {
+    let mut wall = from;
+    while wall < until && r.courier.outbox().pending().unwrap() > 0 {
+        let mono = r.t0 + Duration::from_secs((wall - NOW) as u64);
+        r.courier.pass(wall, mono).unwrap();
+        wall += r.courier.wait(wall, mono).as_secs() as i64;
+    }
+    wall
+}
+
+/// astromech-az6g: after an hour of 503s (Cloudflare in front of a down EDSM), the events left
+/// go in batches again once EDSM is back, not one request per event.
+#[test]
+fn after_an_hour_of_503s_the_queue_drains_in_batches() {
+    let mut r = choosy_rig(Choosy::new(503, 0), 200, None);
+    let queued = r.courier.outbox().pending().unwrap();
+    assert_eq!(queued, 201);
+    let back = run_as_worker(&mut r, NOW, NOW + 3600);
+    let gave_up = queued - r.courier.outbox().pending().unwrap();
+    assert!(gave_up <= OUTAGE_AFTER as usize, "the outage gave up {gave_up} events");
+    assert!(
+        r.courier.outbox().due(back + 7200, true, 300).unwrap().iter().any(|q| q.refusals > 0),
+        "the outage left refused events (the case this test is about)"
+    );
+
+    let up = Choosy::new(200, BATCH);
+    r.courier.api = Box::new(up.clone());
+    run_as_worker(&mut r, back, back + 4 * 3600);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0, "drained");
+    let requests = up.sizes.lock().unwrap().len();
+    let events = queued - gave_up;
+    // One request per event before astromech-az6g (168 for these 201); 10 with it.
+    assert!(requests * 5 <= events, "{requests} requests for {events} events");
+}
+
+/// astromech-az6g: when EDSM says no requests are left (`X-Rate-Limit-Remaining: 0`), the courier
+/// posts nothing more, in this pass or the next, until `X-Rate-Limit-Reset` seconds have passed.
+#[test]
+fn no_request_goes_while_edsms_rate_limit_is_used_up() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    // Two game sessions, so two requests are due.
+    feed(&mut r, &session()[..5], true);
+    r.up.journal(&json!({"event":"Fileheader","part":1,"gameversion":"4.0.0.2000","build":"r2"}), true, NOW);
+    r.up.journal(&json!({"event":"LoadGame","Commander":"Jameson"}), true, NOW);
+    let first = r.up.outbox().pending().unwrap() - 1;
+    let limited = |n: usize, remaining: &str| {
+        let headers = vec![
+            ("x-rate-limit-limit".to_owned(), "720".to_owned()),
+            ("x-rate-limit-remaining".to_owned(), remaining.to_owned()),
+            ("x-rate-limit-reset".to_owned(), "600".to_owned()),
+        ];
+        Ok(Response { status: 200, body: all_ok(n).to_string(), headers })
+    };
+    // FakeApi panics on a request it has no answer for: only one is scripted.
+    r.api.answer(JOURNAL_URL, limited(first, "0"));
+    let at = |s: u64| (NOW + s as i64, r.t0 + Duration::from_secs(s));
+    let (wall, mono) = at(0);
+    let d = r.courier.pass(wall, mono).unwrap();
+    assert_eq!((d.sent, d.stopped), (first, true), "{d:?}");
+    assert_eq!(r.api.posts().len(), 1, "the second session's request waits");
+    let log: Vec<String> = r.courier.outbox().recent(2).unwrap().into_iter().map(|l| l.detail).collect();
+    assert!(log.contains(&"EDSM's rate limit reached; next request in 600 s".to_owned()), "{log:?}");
+
+    // A new event wakes the worker; still nothing goes, and it sleeps until the reset.
+    r.up.journal(&json!({"event":"Scan"}), true, NOW + 450);
+    let (wall, mono) = at(450);
+    assert_eq!(r.courier.pass(wall, mono).unwrap(), Delivery::default());
+    assert_eq!(r.api.posts().len(), 1);
+    assert_eq!(r.courier.wait(wall, mono), Duration::from_secs(150));
+
+    // At the reset, the rest goes; requests left, so nothing stops the pass.
+    r.api.answer(JOURNAL_URL, limited(2, "719"));
+    let (wall, mono) = at(600);
+    assert_eq!(r.courier.pass(wall, mono).unwrap().sent, 2);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
 }

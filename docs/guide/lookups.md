@@ -16,6 +16,21 @@ voice uses. Questions about your own ship, such as fuel and cargo, are in
 - **The star map.** It is bundled for 500 light years around Sol and fills in from EDSM as you
   travel. If it cannot be opened: "Lookups are not available: the star map could not be opened."
 
+## From another system
+
+Every lookup on this page except colonisation can search from a system you name. End the
+question with "near" or "from" and the system: "where can I sell painite near Sol", "nearest 5A
+frame shift drive from Shinrarta Dezhra", "where can I undermine near Lembava". The answer says
+which system it searched from first:
+
+> From Sol. Best price for Painite: Good Landing in LHS 1827, 19 light years. 211,587 credits, demand 13,884.
+
+"near me", "near here" and "from here" mean where you are, as does naming the system you are
+in. The system is found by its exact name on Spansh (any case), so it works before the journal
+gives a position too. A name Spansh does not know is said plainly ("Spansh does not know a system
+called Nowhere Prime."), and nothing is searched. A procedural name ("Col 285 Sector AB-C d1-2")
+is hard for speech recognition to get exactly right; the pages let you type one.
+
 Jump counts use your ship's range from the last loadout (20 light years if unknown). Inside the
 known star map a count is worked out along real stars. Outside it, or if the search gives up, it
 is a straight-line estimate and the page marks it with "~". Neutron boosts and fuel are not
@@ -127,17 +142,21 @@ buy. See [Colonisation](colonisation.md). With no project: "No construction proj
 - "No <thing> found near <system> with your search filters." Loosen the filters on the page.
 - "Could not look that up." followed by the reason, such as no network.
 - "Spansh does not know this system yet." for a system too new for Spansh.
+- "Spansh does not know a system called <name>." for a system you named that Spansh does not
+  know, or that was misheard.
 
 ## Limits
 
 - One answer per question: the best one. Use the pages to see more.
 - Data comes from other players and tools, so it is as old as their last visit.
-- Lookups search from where the journal says you are, not from a system you name.
-  The pages let you type another system to search from.
+- Lookups search from where the journal says you are, or from a system you name
+  ([From another system](#from-another-system)). Colonisation questions are about your project.
 
 ## All the phrases
 
 Slots in braces are filled by what you say: `{service}`, `{module}`, `{ship}`, `{commodity}`.
+Any of these except colonisation can end with "near <system>" or "from <system>"
+([From another system](#from-another-system)).
 
 
 ### Stations
