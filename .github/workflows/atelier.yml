@@ -14,8 +14,11 @@ on:
 permissions:
   contents: read
 
+# A PR's newer run replaces its older one. Each push to main gets its own group: the land step
+# checks only that push's commits (event.before..sha), so a cancelled or replaced push run
+# would leave them unchecked.
 concurrency:
-  group: atelier-${{ github.ref }}
+  group: atelier-${{ github.event_name == 'push' && github.sha || github.ref }}
   cancel-in-progress: true
 
 env:
