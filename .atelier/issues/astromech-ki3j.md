@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-11-04T20:51:11.302833652+00:00"
 status: "done"
 title: "At startup, follow the game's current journal, not the one a sync tool touched last"
-updated_at: "2026-11-04T21:12:15.863623408+00:00"
+updated_at: "2026-11-04T21:14:24.022803933+00:00"
 ---
 
 ## Goal
@@ -42,6 +42,7 @@ The other half of astromech-nrhv (see its 2026-10-17 note and the implementer's 
   Reason: Fileheader time is UTC, so a DST fall-back (astromech-782v) cannot reorder it, and touching or rewriting an old journal does not change it; name order breaks at fall-back and mtime is what sync tools change. Keeping mtime as the change detector and adding one comparison is the smallest rule that fixes both the startup state and the switch back. Waiting for a Fileheader keeps a tool's just-created empty file from being followed before we can tell when it began. Trade-off: a foreign journal whose header is later than the game's (two game instances writing one synced folder) would keep the session; multi-commander folders are out of scope (astromech-yc7h).
 - 2026-11-04 [decision] Widened (astromech-xy2g): a Fileheader stamped more than 120 s in the future is not believed as a start time. Such a journal is never switched to, and a followed one (with no believable start, like one with no header) gives way to any journal with a believable header. Two journals are ordered only when their start times differ by more than 120 s; within that the newest by mtime wins as before.
   Reason: With strict header order, a followed journal with a future header (another PC's clock running ahead, or this PC's clock corrected back) pinned the pipeline: the game's journal was never read again. Distrusting future headers removes the pin for corrections and skew beyond 120 s; the 120 s slack covers smaller corrections. Trade-offs: an older journal that began within 120 s of the current one is followed when touched (a replay, nothing live; state wrong until the game writes); after a clock correction larger than 120 s, once real time passes the old journal's future header, a tool touching that old session's journal could again pin until a journal begins after it; and a foreign journal from a clock ahead by less than 120 s, or two game instances writing one synced folder, can still take the session (multi-commander folders are out of scope, astromech-yc7h). All fail closed: nothing is wrongly live.
+- 2026-11-04 [resolution] Review fix (R1, astromech-xy2g) in 74fbb4ba: headers more than 120 s in the future are not trusted, and start times within 120 s are not ordered (newest by mtime wins), so a clock running ahead or corrected back can't pin the pipeline. Remaining limits, all fail closed (nothing becomes live): an older journal begun within 120 s of the current one is followed when touched; after a clock correction larger than 120 s an old future header becomes believable again once real time passes it; a foreign journal from a clock less than 120 s ahead can take the session. R2 deferred to astromech-73w9.
 
 ## Close Reason
 
