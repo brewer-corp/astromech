@@ -1,5 +1,5 @@
 {
- "source": "EDCD/FDevIDs@c356129 outfitting.csv entitlement (scripts/gen-eddn-outfitting.py)",
+ "source": "EDCD/FDevIDs@c7c29f7 outfitting.csv entitlement (scripts/gen-eddn-outfitting.py)",
  "station": [
   "adder_armour_grade1",
   "adder_armour_grade2",
@@ -593,6 +593,7 @@
   "int_largebuggybay_size2_class3",
   "int_largebuggybay_size4_class3",
   "int_largebuggybay_size6_class3",
+  "int_largecargorack_size6_class1",
   "int_largecargorack_size7_class1",
   "int_largecargorack_size8_class1",
   "int_lifesupport_size1_class1",
@@ -1036,6 +1037,12 @@
   "vulture_armour_reactive"
  ],
  "commander": [
+  "anacondamkii_armour_grade1",
+  "anacondamkii_armour_grade1_default",
+  "anacondamkii_armour_grade2",
+  "anacondamkii_armour_grade3",
+  "anacondamkii_armour_mirrored",
+  "anacondamkii_armour_reactive",
   "cobramkv_armour_grade1",
   "cobramkv_armour_grade2",
   "cobramkv_armour_grade3",

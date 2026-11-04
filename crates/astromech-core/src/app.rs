@@ -39,13 +39,14 @@ pub enum Ui {
 }
 
 /// The config file this run uses (`--config`, else the default), told to the app window so it
-/// reads the same one (`Paths::config_in_use`).
-fn choose_config(opts: &Opts, paths: &Paths) -> PathBuf {
+/// reads the same one (`Paths::config_in_use`) until the returned note is dropped at exit.
+fn choose_config(opts: &Opts, paths: &Paths) -> (PathBuf, Option<astromech_store::paths::Published>) {
     let path = opts.config.clone().unwrap_or_else(|| paths.config_file());
-    if let Err(e) = paths.publish_config(&path) {
-        log(&format!("couldn't note the config path for the window: {e}"));
-    }
-    path
+    let published = paths
+        .publish_config(&path)
+        .map_err(|e| log(&format!("couldn't note the config path for the window: {e}")))
+        .ok();
+    (path, published)
 }
 
 /// What Settings → Files says about the values `astromech.toml` had wrong.
@@ -1227,7 +1228,8 @@ pub fn run(opts: Opts) -> i32 {
         std::process::id()
     ));
 
-    let config_path = choose_config(&opts, &paths);
+    // Dropped before `_guard`, so the note goes before another core can start and publish.
+    let (config_path, _published) = choose_config(&opts, &paths);
     let config_exists = config_path.is_file();
     let (mut cfg, config_watch) = if config_exists {
         match Config::load_report(&config_path) {
@@ -1982,7 +1984,7 @@ mod tests {
             if layout == "--config" {
                 opts.config = Some(elsewhere.path().join("mine.toml"));
             }
-            let used = choose_config(&opts, &paths());
+            let (used, _published) = choose_config(&opts, &paths());
             paste(&used, "D:\\Pasted\\Bindings");
             let seen = WindowConfig::load(&paths());
             assert_eq!(seen.game.bindings_dir, "D:\\Pasted\\Bindings", "{layout}");
@@ -1994,9 +1996,78 @@ mod tests {
         let (exe, app) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
         let paths = || astromech_store::Paths::new(exe.path().into(), env(app.path()));
         let custom = app.path().join("other.toml");
-        choose_config(&Opts { config: Some(custom), ..Opts::default() }, &paths());
-        choose_config(&Opts::default(), &paths());
+        let _earlier = choose_config(&Opts { config: Some(custom), ..Opts::default() }, &paths());
+        let _later = choose_config(&Opts::default(), &paths());
         assert_eq!(paths().config_in_use(), paths().config_file());
+    }
+
+    /// The config `run` loads from the file `choose_config` picked: defaults when it is missing.
+    fn loaded(path: &Path) -> Config {
+        if path.is_file() {
+            Config::load_report(path).unwrap().0
+        } else {
+            Config::default()
+        }
+    }
+
+    fn window_env(app: &Path) -> impl Fn(&str) -> Option<std::ffi::OsString> {
+        let app = app.to_path_buf();
+        move |k: &str| (k == "XDG_DATA_HOME").then(|| app.clone().into_os_string())
+    }
+
+    /// Done-when (1) for astromech-f2k1: the window sets up its remote-data cache
+    /// (`astromech_store::window::data_dir`, read before its own tray core starts) in the data
+    /// folder of the core it talks to: the running one's `--config` profile, and once that core
+    /// has quit, the default, which the core the window starts uses, though the earlier
+    /// `--config` file is still there.
+    #[test]
+    fn the_window_opens_its_cache_in_the_running_cores_data_folder() {
+        use astromech_store::window::data_dir;
+        let (exe, app, elsewhere) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let paths = || astromech_store::Paths::new(exe.path().into(), window_env(app.path()));
+        let profile = elsewhere.path().join("profile.toml");
+        std::fs::write(&profile, "data_dir = \"/profile-data\"\n").unwrap();
+
+        let (used, published) = choose_config(&Opts { config: Some(profile.clone()), ..Opts::default() }, &paths());
+        assert_eq!(data_dir(&paths()), paths().data_dir(&loaded(&used).data_dir));
+        assert_eq!(data_dir(&paths()), Path::new("/profile-data"));
+        // That core quits; the window opens next and starts a core without --config.
+        drop(published);
+        assert!(profile.is_file());
+        let window_sees = data_dir(&paths());
+        let (used, _published) = choose_config(&Opts::default(), &paths());
+        assert_eq!(window_sees, paths().data_dir(&loaded(&used).data_dir));
+        assert_eq!(window_sees, paths().app_dir());
+    }
+
+    /// Done-when (2) for astromech-f2k1: a tray core started with `--config` naming a file that
+    /// doesn't exist yet runs on defaults, and the window gets the same data and Bindings folders
+    /// (not the default file's), until the core writes that file.
+    #[test]
+    fn a_config_not_written_yet_gives_the_window_the_cores_folders() {
+        use astromech_store::window::{data_dir, WindowConfig};
+        let (exe, app, elsewhere) =
+            (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+        let paths = || astromech_store::Paths::new(exe.path().into(), window_env(app.path()));
+        std::fs::create_dir_all(paths().app_dir()).unwrap();
+        std::fs::write(
+            paths().config_file(),
+            "data_dir = \"/default-data\"\n[game]\nbindings_dir = \"D:\\\\Default\\\\Bindings\"\n",
+        )
+        .unwrap();
+        let fresh = elsewhere.path().join("fresh.toml");
+
+        let (used, _published) = choose_config(&Opts { config: Some(fresh.clone()), ..Opts::default() }, &paths());
+        assert!(!used.is_file());
+        let core = loaded(&used);
+        assert_eq!(data_dir(&paths()), paths().data_dir(&core.data_dir));
+        assert_eq!(WindowConfig::load(&paths()).game.bindings_dir, core.game.bindings_dir);
+        // The core writes its file (a Bindings folder pasted in onboarding): the window follows.
+        crate::setup::write(&used, &[crate::setup::Edit::BindingsDir("D:\\Pasted\\Bindings".into())]).unwrap();
+        assert_eq!(WindowConfig::load(&paths()).game.bindings_dir, loaded(&used).game.bindings_dir);
+        assert_eq!(loaded(&used).game.bindings_dir, "D:\\Pasted\\Bindings");
+        assert_eq!(data_dir(&paths()), paths().data_dir(&loaded(&used).data_dir));
     }
 
     fn call(core: &Arc<Core>, cmd: &str, args: Option<Value>) -> Value {

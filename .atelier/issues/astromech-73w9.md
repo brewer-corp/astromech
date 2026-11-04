@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal following: cache each journal's header time"
-updated_at: "2026-11-04T20:56:30.688754673+00:00"
+updated_at: "2026-11-04T23:14:09.708716418+00:00"
 ---
 
 ## Goal
