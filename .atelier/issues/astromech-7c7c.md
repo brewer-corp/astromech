@@ -4,6 +4,9 @@ id: "astromech-7c7c"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-7c7c
 priority: "P3"
 relationships:
   blocks: []
@@ -21,9 +24,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-04T21:06:20.798005255+00:00"
+status: "done"
 title: "Toolbox review follow-ups, November batch"
-updated_at: "2026-11-04T20:43:40.593839879+00:00"
+updated_at: "2026-11-04T21:06:20.798005255+00:00"
 ---
 
 ## Goal
@@ -37,3 +41,7 @@ Land the low-priority review follow-ups for the toolbox mission on one branch wi
 ## Context
 
 Batched on 2026-11-04 per agent-factory orchestrate (low-priority follow-ups share a parent). Children keep their own Done when.
+
+## Close Reason
+
+Children ksb3, aznm and 9kp2 done on this branch, each with its own proof; the other low-priority follow-ups (54k4, f2k1, 58a7, b8js, zftk, az6g) were not batched here.

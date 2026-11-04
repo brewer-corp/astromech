@@ -17,6 +17,9 @@
 //! the lookups add `{commodity}`, `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
 //! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
 //! "gimballed").
+//!
+//! A lookup can end in "near <system>" or "from <system>" ([`takes_origin`]): the system is
+//! kept in [`Match::origin`], not matched against the slot ("where can I sell gold near Sol").
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -51,6 +54,11 @@ pub struct Match {
     /// was not close, and the shared key lifted it to 0.85, the execute threshold ("boost" for
     /// "paste"). Such a match never executes; [`Grammar::best`] turns its Execute into Ask.
     pub sound_alike: bool,
+    /// The system a lookup searches from, as said after a trailing "near" or "from" ("where
+    /// can I sell gold near Sol"), or the known system's name when it is one. Only for a
+    /// command that [takes an origin](takes_origin); `None` when no system was named, or for
+    /// "near me" and the other [`HERE_WORDS`], which mean the current system.
+    pub origin: Option<String>,
     pub score: f32,
     pub decision: Decision,
 }
@@ -78,6 +86,8 @@ pub struct Grammar {
     personal: Vec<(String, &'static str)>,
     /// How many of `phrases` are the grammar's own; personal phrases follow them.
     builtin: usize,
+    /// [`EVERYDAY`], normalised: speech that is no command.
+    everyday: Vec<Vec<String>>,
 }
 
 /// Most transcript words one slot can take.
@@ -382,7 +392,6 @@ pub const MVP: &[(&str, &[&str])] = &[
             "what is worth mapping",
             "what's worth mapping",
             "anything worth mapping here",
-            "what should i map",
         ],
     ),
     (
@@ -449,9 +458,61 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
 
+/// Commands that search from a place: the station, trade, raw-site, faction-state and Powerplay
+/// target lookups. Each can end in "near <system>" or "from <system>" ([`Match::origin`]).
+pub fn takes_origin(command: &str) -> bool {
+    ["find.", "trade.", "sites.", "faction.", "powerplay."].iter().any(|p| command.starts_with(p))
+}
+
+/// What can follow "near" or "from" to mean the current system, as without it.
+pub const HERE_WORDS: &[&str] =
+    &["me", "here", "us", "my location", "my position", "my system", "this system", "where i am", "current system"];
+
+/// A transcript ending in "near <place>" or "from <place>", split there: (the words before, the
+/// place as said, or `None` when it is one of the [`HERE_WORDS`]). `None` when it does not end so.
+fn split_origin(t: &str) -> Option<(String, Option<String>)> {
+    let words: Vec<&str> = t.split_whitespace().collect();
+    let bare = |w: &str| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase();
+    let at = (1..words.len().saturating_sub(1)).rev().find(|&i| matches!(bare(words[i]).as_str(), "near" | "from"))?;
+    let place = words[at + 1..].join(" ");
+    let place = place.trim_end_matches(|c: char| !c.is_alphanumeric()).to_string();
+    let plain: Vec<String> = place.split_whitespace().map(bare).collect();
+    let plain = plain.join(" ");
+    let plain = plain.strip_prefix("the ").unwrap_or(&plain);
+    if plain.is_empty() {
+        return None;
+    }
+    let here = HERE_WORDS.contains(&plain);
+    Some((words[..at].join(" "), (!here).then_some(place)))
+}
+
+/// True when `heard` names a system for `command` to search from ("... near Sol"). Such a
+/// phrase is never a personal alias: the alias would stand for the command alone and search
+/// from the current system.
+pub fn names_origin(heard: &str, command: &str) -> bool {
+    takes_origin(command) && matches!(split_origin(heard), Some((_, Some(_))))
+}
+
 /// Commands the grammar recognises but the app can't run (yet). They exist so a request is
 /// answered ("I can't do that yet") instead of "didn't catch that" or a wrong near match.
 pub const UNAVAILABLE: &[&str] = &["request_docking", "plot_route", "supercruise", "hyperspace_jump"];
+
+/// Everyday questions that sit one word away from a command phrase ("what is in this system"
+/// beside "what biology is in this system", "how much is my cargo worth" beside "how much is my
+/// data worth") but ask for no command (astromech-54k4). A transcript that is one of these
+/// (scoring at least [`EXECUTE`] against it, and no better against a command) is no match; one
+/// merely near them ("what is left" beside "what is here") is scored as before. They are
+/// rivals to every command, so they count against its margin.
+pub const EVERYDAY: &[&str] = &[
+    "what is in this system",
+    "what's in this system",
+    "what is here",
+    "how much is my ship worth",
+    "how much is this ship worth",
+    "what is my ship worth",
+    "how much is my cargo worth",
+    "what is my cargo worth",
+];
 
 /// Words a whole transcript can consist of when the mic caught only a noise, breath or
 /// acknowledgement (Parakeet's usual output for a near-empty clip). Ignored silently.
@@ -768,7 +829,7 @@ impl Grammar {
             }
         }
         let builtin = phrases.len();
-        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
+        Self { phrases, slots: vec![], personal: vec![], builtin, everyday: vec![] }.with_slot(
             "system",
             systems.iter().map(|s| (*s, *s)),
             None,
@@ -794,8 +855,9 @@ impl Grammar {
         self
     }
 
+    /// The closed grammar ([`MVP`]), with [`EVERYDAY`] speech kept out of it.
     pub fn mvp(systems: &[&str]) -> Self {
-        Self::new(MVP, systems)
+        Self { everyday: EVERYDAY.iter().map(|p| normalise(p)).collect(), ..Self::new(MVP, systems) }
     }
 
     /// Canonical phrase for a command (for "Did you mean …?").
@@ -809,10 +871,11 @@ impl Grammar {
     }
 
     /// Personal alias: this transcript should map to `command` next time (still policy-capped).
-    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking. True if added.
+    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking, and so is one that
+    /// [names a system](names_origin) to search from. True if added.
     pub fn add_alias(&mut self, heard: &str, command: &'static str) -> bool {
         let toks = normalise(heard);
-        if toks.is_empty() || is_ask_only(heard) {
+        if toks.is_empty() || is_ask_only(heard) || names_origin(heard, command) {
             return false;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
@@ -919,6 +982,7 @@ impl Grammar {
                     slot_exact: filled.as_ref().is_some_and(|f| f.exact),
                     slot_text: filled.map(|f| f.text),
                     sound_alike,
+                    origin: None,
                     score,
                     decision: Decision::NoMatch,
                 }
@@ -928,8 +992,37 @@ impl Grammar {
         v
     }
 
-    /// Best match with its decision.
+    /// Best match with its decision. A lookup that [takes an origin](takes_origin) may end in
+    /// "near <system>" or "from <system>": the words before are matched on their own, and again
+    /// with "near me" after them (for the phrases that end so, "where is there a famine near
+    /// me"); the better of the two that is a lookup taking an origin wins, its system in
+    /// [`Match::origin`], when it scores at least as well as the whole transcript. Otherwise the
+    /// whole transcript's match stands.
     pub fn best(&self, transcript: &str) -> Match {
+        let whole = self.best_whole(transcript);
+        let Some((head, place)) = split_origin(transcript) else {
+            return whole;
+        };
+        let lookup = |m: Match| (m.decision != Decision::NoMatch && takes_origin(m.command)).then_some(m);
+        let bare = lookup(self.best_whole(&head));
+        let near_me = lookup(self.best_whole(&format!("{head} near me")));
+        let best = [bare, near_me].into_iter().flatten().reduce(|b, n| if n.score > b.score { n } else { b });
+        let mut m = match best {
+            Some(m) if m.score >= whole.score => m,
+            _ => return whole,
+        };
+        if let Some(place) = place {
+            let words = normalise(&place);
+            let known = Some(self.fill("system", &words)).filter(|f| f.exact && !words.is_empty());
+            let place = known.map_or(place, |f| f.value);
+            let phrase = m.phrase.strip_suffix(" near me").unwrap_or(&m.phrase);
+            m.phrase = format!("{phrase} near {place}");
+            m.origin = Some(place);
+        }
+        m
+    }
+
+    fn best_whole(&self, transcript: &str) -> Match {
         let ranked = self.rank(transcript);
         let Some(mut best) = ranked.first().cloned() else {
             return Match {
@@ -939,6 +1032,7 @@ impl Grammar {
                 slot_text: None,
                 slot_exact: false,
                 sound_alike: false,
+                origin: None,
                 score: 0.0,
                 decision: Decision::NoMatch,
             };
@@ -947,8 +1041,13 @@ impl Grammar {
         // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
         let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
         let runner = ranked.iter().find(rival).map(|m| m.score).unwrap_or(0.0);
-        let clear = best.score - runner >= MARGIN;
-        best.decision = if best.score >= EXECUTE && clear {
+        let u = normalise(transcript);
+        let everyday =
+            self.everyday.iter().map(|p| phrase_score(&u, p, &|_, _, _| Fill::default()).0).fold(0.0, f32::max);
+        let clear = best.score - runner.max(everyday) >= MARGIN;
+        best.decision = if everyday >= EXECUTE && everyday >= best.score {
+            Decision::NoMatch
+        } else if best.score >= EXECUTE && clear {
             Decision::Execute
         } else if best.score >= ASK {
             Decision::Ask
@@ -1272,6 +1371,66 @@ mod tests {
         assert_eq!(g.best("What's the weather like in Paris tomorrow").decision, Decision::NoMatch);
     }
 
+    /// "near <system>" / "from <system>" names where a lookup searches from (astromech-j75v): it
+    /// is not read as part of the commodity, and "near me" still means here.
+    #[test]
+    fn a_trailing_system_is_the_lookups_origin() {
+        let g = trade().with_slot("system", [("Shinrarta Dezhra", "Shinrarta Dezhra")], None);
+        let heard = |t: &str| {
+            let m = g.best(t);
+            (m.command, m.slot, m.origin, m.decision)
+        };
+        let sell = |origin: Option<&str>| {
+            ("trade.sell", Some("Gold".to_string()), origin.map(String::from), Decision::Execute)
+        };
+        assert_eq!(heard("where can I sell gold near Sol"), sell(Some("Sol")));
+        assert_eq!(heard("Where can I sell gold near Sol?"), sell(Some("Sol")));
+        assert_eq!(heard("where can I sell gold from Sol."), sell(Some("Sol")));
+        // a known system is named as the grammar knows it; any other as it was said
+        assert_eq!(heard("where can I sell gold near shinrarta dezhra"), sell(Some("Shinrarta Dezhra")));
+        assert_eq!(
+            heard("where can I sell gold near Col 285 Sector AB-C d1-2"),
+            sell(Some("Col 285 Sector AB-C d1-2"))
+        );
+        // the current system, as without it
+        for t in ["where can I sell gold near me", "where can I sell gold near here", "where can I sell gold"] {
+            assert_eq!(heard(t), sell(None), "{t:?}");
+        }
+        // "Did you mean …?" repeats the system
+        let m = g.best("where can I sell painit near Sol");
+        assert_eq!((m.slot.as_deref(), m.origin.as_deref(), m.decision), (Some("Painite"), Some("Sol"), Decision::Ask));
+        assert_eq!(m.phrase, "where can i sell Painite near Sol");
+        // phrases with "near" of their own keep their match
+        let m = g.best("Where is there a famine near me?");
+        assert_eq!((m.command, m.origin, m.decision), ("faction.famine", None, Decision::Execute));
+        // phrases that end in "near me" of their own take a system in its place (astromech-wlsx)
+        for (t, command) in [
+            ("where is there a famine near Sol", "faction.famine"),
+            ("famine near Sol", "faction.famine"),
+            ("where is there a war near Sol", "faction.military"),
+            ("where is there a boom from Sol", "faction.proto"),
+            ("where is there an outbreak near Sol", "faction.pharma"),
+            ("where is there civil unrest near Sol", "faction.improvised"),
+            ("where can I undermine near Sol", "powerplay.undermine"),
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.origin.as_deref(), m.decision),
+                (command, Some("Sol"), Decision::Execute),
+                "{t:?}"
+            );
+            assert!(!m.phrase.contains("near me"), "{t:?} -> {:?}", m.phrase);
+        }
+        // and one that names a system is never learned as a personal phrase
+        let mut g2 = trade();
+        assert!(!g2.add_alias("where is there a famine near Sol", "faction.famine"));
+        assert!(g2.add_alias("where is there a famine near here", "faction.famine"));
+        // a command that does not search from a place never takes one
+        let m = g.best("gear down near Sol");
+        assert_eq!(m.origin, None);
+        assert_eq!(g.best("plot route to Sol").origin, None);
+    }
+
     #[test]
     fn multi_word_slots_resolve_to_their_value() {
         let g = Grammar::mvp(&["Sol", "Shinrarta Dezhra"]).with_slot(
@@ -1494,7 +1653,6 @@ mod tests {
         for (t, c) in [
             ("Is this system worth mapping?", "exploration.worth_mapping"),
             ("Which bodies are worth mapping?", "exploration.worth_mapping"),
-            ("What should I map?", "exploration.worth_mapping"),
             ("Anything worth mapping here?", "exploration.worth_mapping"),
             ("What is this system worth?", "exploration.system_value"),
             ("What's this system worth?", "exploration.system_value"),
@@ -1550,6 +1708,44 @@ mod tests {
         ] {
             let m = g.best(t);
             assert!(m.decision != Decision::Execute || m.command.starts_with("exploration."), "{t:?} -> {m:?}");
+        }
+    }
+
+    /// Everyday questions one word away from an exploration phrase get no "Did you mean …?"
+    /// for it (astromech-54k4): "what should I do" was asked as "what should I map", "what is
+    /// in this system" as the biology question, "how much is my cargo worth" as the unsold data.
+    #[test]
+    fn everyday_questions_ask_no_exploration() {
+        let g = g();
+        for t in [
+            "What should I do?",
+            "What should I say?",
+            "What should I buy?",
+            "What should I do here?",
+            "What should I map?",
+            "What is in this system?",
+            "What's in this system?",
+            "What is here?",
+            "How much is my ship worth?",
+            "How much is this ship worth?",
+            "What is my ship worth?",
+            "How much is my cargo worth?",
+            "What is my cargo worth?",
+        ] {
+            let m = g.best(t);
+            assert!(m.decision == Decision::NoMatch || !m.command.starts_with("exploration."), "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        // The exploration phrases they sit beside still execute.
+        for (t, c) in [
+            ("What biology is in this system?", "exploration.biology"),
+            ("What biology is here?", "exploration.biology"),
+            ("How much is my data worth?", "exploration.unsold"),
+            ("How much is this system worth?", "exploration.system_value"),
+            ("What is worth mapping?", "exploration.worth_mapping"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
     }
 

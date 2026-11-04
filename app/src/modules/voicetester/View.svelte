@@ -100,7 +100,7 @@
     countdown = SWITCH_SECONDS;
     const t = setInterval(() => (countdown = Math.max(0, countdown - 1)), 1000);
     try {
-      liveNote = await voiceLive(result.live);
+      liveNote = await voiceLive(result.live, result.live_from);
     } catch (err) {
       liveNote = String(err instanceof Error ? err.message : err);
     }

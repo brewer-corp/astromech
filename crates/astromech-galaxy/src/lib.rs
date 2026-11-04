@@ -212,13 +212,7 @@ impl Galaxy {
         if let Some((id64, system, pos)) = self.store().system(name)? {
             return Ok(Here { system, id64: Some(id64), pos });
         }
-        self.remote
-            .spansh_system_names(name)?
-            .value
-            .into_iter()
-            .find(|s| s.name.eq_ignore_ascii_case(name))
-            .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
-            .ok_or_else(|| anyhow::anyhow!("Spansh does not know a system called {name}."))
+        locate_remote(&self.remote, name)
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -513,6 +507,20 @@ pub fn engineering_journal_events() -> Vec<&'static str> {
         POSITION_EVENTS,
     ]
     .concat()
+}
+
+/// Where a system named `name` is on Spansh (exact name, any case), without the local star map
+/// ([`Galaxy::locate`] looks there first). A name Spansh does not know is an error saying so;
+/// a failed request is the `astromech_data::Error` behind it.
+pub fn locate_remote(remote: &astromech_data::Client, name: &str) -> Result<Here> {
+    let name = name.trim();
+    remote
+        .spansh_system_names(name)?
+        .value
+        .into_iter()
+        .find(|s| s.name.eq_ignore_ascii_case(name))
+        .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
+        .ok_or_else(|| anyhow::anyhow!("Spansh does not know a system called {name}."))
 }
 
 /// Newest `Location` / `FSDJump` / `CarrierJump` with `StarPos`, newest journal first.

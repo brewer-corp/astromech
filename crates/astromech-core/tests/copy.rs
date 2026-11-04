@@ -693,7 +693,7 @@ fn the_powerplay_target_answers_keep_to_the_copy_guide() {
             hits,
             warning: None,
         };
-        lines.push(targets::spoken(&found(vec![])));
+        lines.push(targets::spoken(&found(vec![]), false));
         for (ly, exact) in [(0.0, true), (4.0, true), (199.6, false)] {
             for controller in [None, Some("Jerome Archer"), Some("Archon Delaine")] {
                 for state in ["Unoccupied", "Exploited", "Fortified", "Stronghold"] {
@@ -710,7 +710,7 @@ fn the_powerplay_target_answers_keep_to_the_copy_guide() {
                         others: vec!["Aisling Duval".into(), "Zemina Torval".into()],
                         updated_at: None,
                     };
-                    let said = targets::spoken(&found(vec![hit]));
+                    let said = targets::spoken(&found(vec![hit]), false);
                     lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
                 }
             }
@@ -826,7 +826,7 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
             hits,
             warning: None,
         };
-        lines.push(astromech_tools::faction::spoken(&nearby(vec![]), now));
+        lines.push(astromech_tools::faction::spoken(&nearby(vec![]), false, now));
         for (ly, exact) in [(0.0, true), (4.0, true), (1999.6, false)] {
             for population in [0, 9_000_000_000] {
                 for (updated_at, seen_on_visit) in
@@ -842,7 +842,7 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
                         seen_on_visit,
                         score: None,
                     };
-                    let said = astromech_tools::faction::spoken(&nearby(vec![hit]), now);
+                    let said = astromech_tools::faction::spoken(&nearby(vec![hit]), false, now);
                     lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
                 }
             }
