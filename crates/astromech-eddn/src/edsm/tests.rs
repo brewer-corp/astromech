@@ -694,29 +694,69 @@ fn run_as_worker(r: &mut Rig, from: i64, until: i64) -> i64 {
     wall
 }
 
-/// astromech-az6g: after an hour of 503s (Cloudflare in front of a down EDSM), the events left
-/// go in batches again once EDSM is back, not one request per event.
-#[test]
-fn after_an_hour_of_503s_the_queue_drains_in_batches() {
-    let mut r = choosy_rig(Choosy::new(503, 0), 200, None);
+/// What an hour of 503s (Cloudflare in front of a down EDSM) and then EDSM back up cost.
+struct Drain {
+    /// Requests from EDSM's return until the queue was empty.
+    requests: usize,
+    /// Events left queued when EDSM came back.
+    events: usize,
+    /// Each stored event's `n` ("null" for the Commander event), in the order stored.
+    stored: Vec<String>,
+}
+
+/// 201 events (200 numbered, `Poison` at each index in `poisons`) through an hour of 503s,
+/// then an EDSM that fails any request holding a poisoned event with a 500.
+fn drain_after_an_outage(poisons: &[usize]) -> Drain {
+    let mut r = choosy_rig_with(Choosy::new(503, 0), 200, poisons);
     let queued = r.courier.outbox().pending().unwrap();
     assert_eq!(queued, 201);
     let back = run_as_worker(&mut r, NOW, NOW + 3600);
-    let gave_up = queued - r.courier.outbox().pending().unwrap();
-    assert!(gave_up <= OUTAGE_AFTER as usize, "the outage gave up {gave_up} events");
+    let events = r.courier.outbox().pending().unwrap();
+    assert!(queued - events <= OUTAGE_AFTER as usize, "the outage gave up {} events", queued - events);
     assert!(
         r.courier.outbox().due(back + 7200, true, 300).unwrap().iter().any(|q| q.refusals > 0),
-        "the outage left refused events (the case this test is about)"
+        "the outage left refused events (the case these tests are about)"
     );
 
-    let up = Choosy::new(200, BATCH);
+    let up = Choosy::new(500, BATCH);
     r.courier.api = Box::new(up.clone());
-    run_as_worker(&mut r, back, back + 4 * 3600);
+    // Long enough for a poisoned event to use up its refusals and be given up.
+    run_as_worker(&mut r, back, back + 48 * 3600);
     assert_eq!(r.courier.outbox().pending().unwrap(), 0, "drained");
     let requests = up.sizes.lock().unwrap().len();
-    let events = queued - gave_up;
+    let stored = up.stored.lock().unwrap().clone();
+    Drain { requests, events, stored }
+}
+
+/// No event stored twice; returns how many were stored.
+fn stored_once(stored: &[String]) -> usize {
+    let unique: HashSet<&String> = stored.iter().collect();
+    assert_eq!(unique.len(), stored.len(), "an event was stored twice: {stored:?}");
+    stored.len()
+}
+
+/// astromech-az6g: after an hour of 503s, the events left go in batches again once EDSM is
+/// back, not one request per event, and every one of them is stored once (astromech-kusu).
+#[test]
+fn after_an_hour_of_503s_the_queue_drains_in_batches() {
+    let d = drain_after_an_outage(&[]);
+    assert_eq!(stored_once(&d.stored), d.events, "every event left was stored, none given up");
     // One request per event before astromech-az6g (168 for these 201); 10 with it.
-    assert!(requests * 5 <= events, "{requests} requests for {events} events");
+    assert!(d.requests * 5 <= d.events, "{} requests for {} events", d.requests, d.events);
+}
+
+/// astromech-7ew2: one event EDSM always chokes on in the backlog an outage leaves doesn't turn
+/// the drain into one request per event: the refused batch holding it is split in halves
+/// (astromech-sklz), and only the poisoned event is lost.
+#[test]
+fn a_poisoned_event_in_an_outages_backlog_still_drains_in_batches() {
+    let d = drain_after_an_outage(&[100]);
+    let stored = stored_once(&d.stored);
+    assert!(!d.stored.contains(&"100".to_owned()), "the poisoned event was stored");
+    assert_eq!(stored + 1, d.events, "every event but the poisoned one was stored");
+    // 77 requests before astromech-7ew2 (refused events alone after the failed batch), 29 with it
+    // (6 of them the poisoned event alone in later passes, until it is given up).
+    assert!(d.requests * 5 <= d.events, "{} requests for {} events", d.requests, d.events);
 }
 
 /// astromech-az6g: when EDSM says no requests are left (`X-Rate-Limit-Remaining: 0`), the courier
@@ -760,4 +800,42 @@ fn no_request_goes_while_edsms_rate_limit_is_used_up() {
     let (wall, mono) = at(600);
     assert_eq!(r.courier.pass(wall, mono).unwrap().sent, 2);
     assert_eq!(r.courier.outbox().pending().unwrap(), 0);
+}
+
+/// astromech-ys8x: a bad rate-limit header never stops posting for longer than EDSM's hour.
+#[test]
+fn edsms_rate_limit_headers_wait_at_most_an_hour() {
+    let mut r = rig(true);
+    let cases: &[(Option<&str>, Option<&str>, u64)] = &[
+        // Remaining missing or not a count of requests left: no wait.
+        (None, Some("600"), 0),
+        (Some("lots"), Some("600"), 0),
+        (Some("-1"), Some("600"), 0),
+        (Some("5"), Some("600"), 0),
+        // None left: Reset seconds, a minute if it's missing or unreadable, an hour at most.
+        (Some("0"), Some(" 600 "), 600),
+        (Some("0"), None, 60),
+        (Some("0"), Some("soon"), 60),
+        (Some("0"), Some("-30"), 60),
+        (Some("0"), Some("99999999999999999999999"), 60),
+        (Some("0"), Some("86400"), 3600),
+        (Some("0"), Some("1800000600"), 3600),
+    ];
+    for &(remaining, reset, wait) in cases {
+        let mut headers = vec![];
+        if let Some(v) = remaining {
+            headers.push(("x-rate-limit-remaining".to_owned(), v.to_owned()));
+        }
+        if let Some(v) = reset {
+            headers.push(("x-rate-limit-reset".to_owned(), v.to_owned()));
+        }
+        r.courier.limited_until = r.t0;
+        let answer = Ok(Response { status: 200, body: all_ok(1).to_string(), headers });
+        r.courier.rate_limit(&answer, NOW, r.t0).unwrap();
+        assert_eq!(r.courier.limited_until - r.t0, Duration::from_secs(wait), "{remaining:?} {reset:?}");
+    }
+    // No answer at all: no wait.
+    r.courier.limited_until = r.t0;
+    r.courier.rate_limit(&Err("timed out".into()), NOW, r.t0).unwrap();
+    assert_eq!(r.courier.limited_until, r.t0);
 }
