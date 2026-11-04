@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-11-04T21:43:11.802753628+00:00"
 status: "done"
 title: "Journal catch-up: lines the game writes during the startup replay count as history"
-updated_at: "2026-11-04T21:43:11.802753628+00:00"
+updated_at: "2026-11-04T22:57:03.027515588+00:00"
 ---
 
 ## Goal
@@ -40,6 +40,7 @@ Review finding R3 (astromech-dsrp) on feature/astromech-g3qt: catch_up (crates/a
 
 - 2026-11-04 [decision] Measure every journal's startup length before the catch-up reads anything (the followed one through an open handle, like the latest by name), and during the catch-up replay the followed journal only up to that length; what lies past it is left for the first read after caught_up, so it goes through the normal live path (EDDN, EDSM, callouts, companion files).
   Reason: Measuring first closes the window for the game's current journal and for a journal it starts during the replay. Reading the followed journal's remainder inside the catch-up would send it to EDDN (which uses self.live) while callouts are still off (caught_up false), so lines would be sent but not spoken; deferring it to the next read (at most 250 ms) gives one notion of live and needs no new state. The followed journal is measured through a handle because a lagging directory listing would make history live.
+- 2026-11-04 [note] Resolution of review findings astromech-6rig and astromech-p58u (36f1203f): the followed journal's startup length is taken only through an open handle; if that fails it is UNMEASURED (u64::MAX), so everything the catch-up reads of it is history (fail closed: lines the game writes during that catch-up are lost to history rather than history going live). open() returns without changing tail or opened when the file can't be opened, so a followed journal unreadable during the catch-up leaves tail None and is opened by follow_newest later with its startup length (or UNMEASURED) as the split. Tests: a_followed_journal_that_cannot_be_measured_is_replayed_in_full, a_followed_journal_unreadable_through_the_catch_up_is_history_once_read, a_followed_journal_unreadable_for_the_replay_is_split_at_its_startup_length (the latter two and the first drive catch_up's steps directly, as no hook sits between measuring and opening). Open: with tail None after such a catch-up, follow_newest opens the newest by mtime, which may be a touched older journal until the game's becomes readable.
 
 ## Close Reason
 
