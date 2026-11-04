@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T21:22:23.863838202+00:00"
+status: "done"
 title: "EDSM: drain refused events in batches after an outage and honour EDSM's rate-limit headers"
-updated_at: "2026-11-04T21:21:26.513116211+00:00"
+updated_at: "2026-11-04T21:22:23.863838202+00:00"
 ---
 
 ## Goal
@@ -43,3 +44,7 @@ Review finding R2 (astromech-amp0) on feature/astromech-ux0h; existed before tha
   Reason: EDSM's API docs (api-v1, api-journal-v1, fetched 4 Nov 2026) don't document these headers. Observed EDSM headers (Frontier forum EDSM thread p.149, Jul 2026): x-rate-limit-limit 720, x-rate-limit-remaining 0, x-rate-limit-reset 3600, i.e. seconds in an hour window. The cap stops a bad value stalling delivery for longer than the window. The discard list is one GET a day.
 - 2026-11-04 [decision] transport::Response gains headers: Vec<(String, String)> (lower-case names) with a header() lookup; only EDSM's HttpApi fills it, EDDN's HttpTransport leaves it empty.
   Reason: The EDSM Api trait returns the shared Response type; one field there is smaller than a second response type. EDDN reads no headers, so filling them would be unused code.
+
+## Close Reason
+
+Implementer report (commit 15f6a0bf). Changed: crates/astromech-eddn/src/edsm/mod.rs deliver(): once a request in the pass has stored something, refused events (refusals > 0, due after the others) go in batches of their own instead of one per request; if such a batch fails as a whole (Refused, n > 1), the rest of that pass sends refused events alone, with no try counted for the batch failure. New Courier.limited_until: after a journal post whose answer has X-Rate-Limit-Remaining 0, nothing is posted (this pass or later ones) until X-Rate-Limit-Reset seconds (capped 3600; 60 if missing) have passed; wait() sleeps until then. transport::Response gains headers (filled only by EDSM's HttpApi) and header(). Guide data-sharing.md and the module doc describe both. Proof: simulated 60-min 503 outage then recovery, 201 events, passes timed by the courier's own wait(): 168 recovery requests before, 10 after (test after_an_hour_of_503s_the_queue_drains_in_batches, fails without the fix); no_request_goes_while_edsms_rate_limit_is_used_up (fails without the fix). cargo test -p astromech-eddn 151+2 pass, clippy -D warnings and fmt clean, check-guide.py 0 problems. Choices: see the three decision notes (batch-after-store instead of counting 5xx as outage tries, because the latter would let a lone poisoned event hold forever against astromech-sklz; Reset read as seconds; headers on the shared Response). Deviations: none from the done-when; the drain test uses the option 'refused events batched again after a request in the same pass stored something', within the pass rather than the next pass. Surprises: EDSM's API docs don't document the rate-limit headers (the meaning comes from headers EDSM was observed sending: limit 720, remaining 0, reset 3600). Open items: the outage itself still costs about 168 requests an hour (OUTAGE_AFTER alone-failures per pass) and the rate limit is not read from the daily discard-list GET; Retry-After is ignored. Review outstanding: no independent review of this change yet.
