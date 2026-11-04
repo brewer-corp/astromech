@@ -42,7 +42,8 @@ setup** leaves the rest for later. Until voice can work, the header shows **Fini
    speak. Do the same for the **kill switch**, a button Elite does not use. The kill switch is
    optional but recommended: it stops everything astromech is doing (see
    [Voice](voice.md#the-kill-switch)). astromech only listens to the press. It sends nothing to
-   the game. If the button is already bound in Elite, setup says what it does there.
+   the game. If the button is already bound in Elite, setup says what it does there. Until
+   astromech has read your settings the rows say "Checking…", and "Could not read" if it can't.
 4. **Microphone.** Pick the mic you speak into while flying. This matters in VR, where
    Windows may switch its default to the headset. **Check level** records two seconds and tells you
    whether the level is good, quiet or silent.

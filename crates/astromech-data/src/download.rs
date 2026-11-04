@@ -10,6 +10,8 @@ use std::time::Duration;
 /// Why a download failed. `Display` is a sentence for the commander.
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
+    /// Holds why (a TLS or proxy error, DNS, a refused or cut connection) for the log: see
+    /// [`DownloadError::detail`].
     #[error("Cannot reach the download. Check your internet connection.")]
     Offline(String),
     #[error("The download stopped answering. Try again.")]
@@ -19,6 +21,16 @@ pub enum DownloadError {
     /// Writing what came in failed (disk full, the file was damaged).
     #[error("{0}")]
     Write(std::io::Error),
+}
+
+impl DownloadError {
+    /// What went wrong underneath, for the log, where the sentence alone doesn't say.
+    pub fn detail(&self) -> Option<&str> {
+        match self {
+            DownloadError::Offline(why) => Some(why),
+            _ => None,
+        }
+    }
 }
 
 fn agent() -> ureq::Agent {
@@ -85,4 +97,20 @@ pub fn stream(
         return Err(DownloadError::Offline(format!("got {done} of {total:?} bytes")));
     }
     Ok(done)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A refused connection keeps its reason (for the log), while `Display` stays the plain sentence.
+    #[test]
+    fn a_refused_connection_keeps_its_reason() {
+        // Nothing listens on a port just bound and dropped.
+        let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+        let e = text(&format!("http://127.0.0.1:{port}/x.sha256")).unwrap_err();
+        let why = e.detail().unwrap_or_else(|| panic!("{e:?}"));
+        assert!(why.to_ascii_lowercase().contains("refused"), "{why}");
+        assert_eq!(e.to_string(), "Cannot reach the download. Check your internet connection.");
+    }
 }
