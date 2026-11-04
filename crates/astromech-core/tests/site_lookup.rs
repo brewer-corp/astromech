@@ -34,7 +34,8 @@ impl Platform for NoKeys {
     }
 }
 
-/// Spansh's crystalline shards search from Sol (recorded 16 Oct 2026); EDSM knows no stars.
+/// Spansh's crystalline shards search from Sol (recorded 16 Oct 2026), and its autocomplete
+/// for any name: Sol; EDSM knows no stars.
 /// With a gate, the Spansh answer waits until the test opens it (a slow Spansh).
 #[derive(Default)]
 struct Recorded {
@@ -48,6 +49,8 @@ impl Transport for Recorded {
         }
         let body = if url.ends_with("/api/bodies/search") {
             include_str!("../../astromech-galaxy/tests/fixtures/spansh-sites-crystalline_shards.json")
+        } else if url.ends_with("/api/systems/field_values/system_names") {
+            r#"{"min_max":[{"id64":10477373803,"name":"Sol","x":0.0,"y":0.0,"z":0.0}],"values":["Sol"]}"#
         } else {
             "[]"
         };
@@ -152,4 +155,33 @@ fn voice_site_kinds_are_the_galaxy_lookups() {
     for k in astromech_tools::SITE_KINDS {
         assert!(astromech_intent::Grammar::intern(&format!("sites.{k}")).is_some(), "no phrases for {k}");
     }
+}
+
+/// "... near <system>" searches from that system (astromech-j75v), even before the journal gives
+/// a position, and says which; a name Spansh does not know is said plainly.
+#[test]
+fn a_named_system_is_searched_from_and_named() {
+    let (a, speaker, _) = rig(false);
+    let said = |t: &str| match a.handle(t, astromech_proto::Origin::Voice) {
+        Handled::Ran { outcome: Outcome::LookingUp(h), .. } => h.join().unwrap(),
+        other => panic!("{other:?}"),
+    };
+    // (jumps at 20 light years: no ship range from the journal yet)
+    let s = said("Nearest crystalline shards near Sol.");
+    assert!(
+        s.starts_with("From Sol. Nearest crystalline shards: Oochorrs SB-J d10-5 B 6 a, 1,426 light years, "),
+        "{s}"
+    );
+    assert_eq!(
+        said("nearest crystalline shards from Nowhere Prime"),
+        "Spansh does not know a system called Nowhere Prime."
+    );
+    speaker.take();
+    // without a named system, the position is still needed
+    match a.handle("nearest crystalline shards", astromech_proto::Origin::Voice) {
+        Handled::Ran { outcome: Outcome::Spoken(s), .. } => assert_eq!(s, astromech_tools::lookup::NO_POSITION),
+        other => panic!("{other:?}"),
+    }
+    let d = a.dry_run("nearest crystalline shards near Sol", Source::Typed);
+    assert_eq!(d.message, "Would look up the nearest crystalline shards and say where it is. Searches from Sol.");
 }

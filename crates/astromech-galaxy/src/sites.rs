@@ -277,8 +277,9 @@ fn thousands(n: f64) -> String {
 }
 
 /// The spoken answer: the nearest site, its distance, jumps and how far it is from the arrival
-/// star (long supercruise is worth knowing before setting off).
-pub fn spoken(s: &Sites) -> String {
+/// star (long supercruise is worth knowing before setting off). `named`: the search is from a
+/// system the commander named, not the current one, so a site there is not "in this system".
+pub fn spoken(s: &Sites, named: bool) -> String {
     let Some(h) = s.hits.first() else {
         return format!("No {} found near {}.", s.kind.noun, s.here.system);
     };
@@ -292,7 +293,9 @@ pub fn spoken(s: &Sites) -> String {
         Some(what) => format!("{}, {what}", h.body),
         None => h.body.clone(),
     };
-    let mut line = if h.hop.ly < 0.05 {
+    let mut line = if h.hop.ly < 0.05 && named {
+        format!("Nearest {}: {body}", s.kind.noun)
+    } else if h.hop.ly < 0.05 {
         format!("Nearest {}: {body}, in this system", s.kind.noun)
     } else {
         let ly = if h.hop.ly < 100.0 { format!("{:.1}", h.hop.ly) } else { thousands(h.hop.ly) };

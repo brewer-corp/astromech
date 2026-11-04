@@ -114,6 +114,16 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         return r;
     }
     let m = grammar.best(transcript);
+    let mut r = judge(r, &m, game, binds);
+    // A lookup from a named system says so ("... near Sol").
+    if let (Would::Speak, Some(from)) = (r.would, &m.origin) {
+        r.message = format!("{} Searches from {from}.", r.message);
+    }
+    r
+}
+
+/// The rest of [`dry_run`], for the matched `m`.
+fn judge(mut r: DryRun, m: &astromech_intent::Match, game: &GameState, binds: &BindsState) -> DryRun {
     if !m.command.is_empty() {
         r.intent = Some(Intent {
             command: m.command.to_string(),
