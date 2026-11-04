@@ -18,7 +18,10 @@
 //! - Events wait in an [`Outbox`] (`edsm.sqlite`) without the API key, which is added when the
 //!   request is built; they go in batches (the docs allow "a list of message line"), oldest
 //!   first, one game session (commander, version, build) per request. An event EDSM has refused
-//!   before goes alone, after all the others that are due.
+//!   before goes after all the others that are due, alone until a request in the same pass has
+//!   stored something; then refused events go in batches of their own (an outage leaves many).
+//! - EDSM's rate limit: when an answer says no requests are left (`X-Rate-Limit-Remaining: 0`),
+//!   nothing is posted until `X-Rate-Limit-Reset` seconds have passed.
 
 pub mod api;
 pub mod transient;
@@ -53,6 +56,9 @@ const MIN_RETRY: Duration = Duration::from_secs(MIN_RETRY_SECS as u64);
 /// This many events failing alone in a row, with none stored between, stop the pass.
 const OUTAGE_AFTER: u32 = 3;
 const IDLE: Duration = Duration::from_secs(300);
+/// The longest wait for EDSM's rate limit to reset: its window is an hour (`X-Rate-Limit-Reset`
+/// is 3600 when it has just run out).
+const RATE_LIMIT_MAX_WAIT: u64 = 3600;
 
 type Log = Arc<dyn Fn(&str) + Send + Sync>;
 
@@ -332,6 +338,9 @@ pub struct Courier {
     /// Events per request at most: halved after a failed request, doubled after each pass of
     /// a sent one, back to [`BATCH`].
     cap: usize,
+    /// No request at all before this instant: EDSM said none are left until its rate limit
+    /// resets.
+    limited_until: Instant,
 }
 
 impl Courier {
@@ -354,6 +363,7 @@ impl Courier {
             stop: Arc::default(),
             seen,
             cap: BATCH,
+            limited_until: started,
         }
     }
 
@@ -417,12 +427,37 @@ impl Courier {
         })
     }
 
+    /// Read EDSM's rate limit from an answer's headers. Not in EDSM's API docs; as EDSM sends
+    /// them, `X-Rate-Limit-Remaining` is the requests left and `X-Rate-Limit-Reset` the seconds
+    /// until they are renewed. With none left, no request goes until then.
+    fn rate_limit(
+        &mut self,
+        r: &Result<crate::transport::Response, String>,
+        wall: i64,
+        mono: Instant,
+    ) -> rusqlite::Result<()> {
+        let Ok(r) = r else { return Ok(()) };
+        let number = |name| r.header(name).and_then(|v| v.trim().parse::<u64>().ok());
+        if number("x-rate-limit-remaining") != Some(0) {
+            return Ok(());
+        }
+        let wait = number("x-rate-limit-reset").unwrap_or(MIN_RETRY_SECS as u64).min(RATE_LIMIT_MAX_WAIT);
+        self.limited_until = mono + Duration::from_secs(wait);
+        self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("EDSM's rate limit reached; next request in {wait} s"))
+    }
+
     fn deliver(&mut self, creds: &Credentials, wall: i64, mono: Instant, d: &mut Delivery) -> rusqlite::Result<()> {
         let retries = mono >= self.hold_until;
         // Events that failed alone in a row in this pass, with nothing stored in between.
         let mut failed_alone = 0;
+        // Refused events may go in batches in this pass (until such a batch fails).
+        let mut refused_in_batches = true;
         loop {
             if self.stop.load(Ordering::SeqCst) || self.switch.get().as_ref() != Some(creds) {
+                return Ok(());
+            }
+            if mono < self.limited_until {
+                d.stopped = true;
                 return Ok(());
             }
             let due = self.outbox.due(wall, retries, self.cap)?;
@@ -437,16 +472,25 @@ impl Courier {
             let session = |b: &Value| (b["gameversion"].clone(), b["gamebuild"].clone());
             let first = session(&rows[0].1);
             let n = rows.iter().take_while(|(_, b)| session(b) == first).count();
-            // An event that already failed alone is known to be refused: it goes by itself, never
-            // back through 50, 25, 13, ... with the good events beside it.
-            let n = match rows[..n].iter().position(|(q, _)| q.refusals > 0) {
-                Some(0) => 1,
-                Some(i) => i,
-                None => n,
+            // An event that already failed alone may be refused again: it goes by itself, never
+            // back through 50, 25, 13, ... with the good events beside it. Refused events come
+            // after all the others (`Outbox::due`), so the good ones go first. Once this pass
+            // has stored something, though, EDSM is up, and refused events are most likely an
+            // outage's, not poisoned: they go in batches of their own, so the queue an outage
+            // leaves doesn't drain one request per event. If such a batch fails, the rest of
+            // the pass sends them alone again.
+            let first_refused = rows[..n].iter().position(|(q, _)| q.refusals > 0);
+            let refused_batch = first_refused == Some(0) && d.sent > 0 && refused_in_batches;
+            let n = match first_refused {
+                Some(0) if !refused_batch => 1,
+                Some(i) if i > 0 => i,
+                _ => n,
             };
             rows.truncate(n);
             let body = serde_json::to_vec(&self.request(creds, &rows)).expect("JSON");
-            match answer(self.api.post_json(api::JOURNAL_URL, &body), n) {
+            let r = self.api.post_json(api::JOURNAL_URL, &body);
+            self.rate_limit(&r, wall, mono)?;
+            match answer(r, n) {
                 Answer::Each(codes) => {
                     let stored_before = d.sent;
                     self.each(&rows, codes, wall, d)?;
@@ -461,6 +505,12 @@ impl Courier {
                     }
                     self.outbox.log(wall, JOURNAL, Outcome::Rejected, &format!("{n} events: {why}"))?;
                     d.rejected += n;
+                }
+                Answer::Refused(why) if n > 1 && refused_batch => {
+                    // Events refused before, failing together: no try counts against them, and
+                    // they go alone instead.
+                    self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; {n} refused events, now alone"))?;
+                    refused_in_batches = false;
                 }
                 Answer::Refused(why) if n > 1 => {
                     // Nothing says which event EDSM chokes on: try the halves, and count no try
@@ -598,7 +648,7 @@ impl Pass for Courier {
             self.outbox.set_meta(ERRORS_CLEARED, &self.outbox.last_log_id()?.to_string())?;
             self.hold_until = mono;
         }
-        if self.outbox.pending()? == 0 {
+        if self.outbox.pending()? == 0 || mono < self.limited_until {
             return Ok(d);
         }
         if mono < self.hold_until && self.outbox.due(wall, false, 1)?.is_empty() {
@@ -618,7 +668,10 @@ impl Pass for Courier {
         match self.outbox.next_due() {
             Ok(Some(due)) => {
                 let by_wall = Duration::from_secs(due.saturating_sub(wall).max(0) as u64);
-                by_wall.max(self.hold_until.saturating_duration_since(mono)).clamp(Duration::from_secs(1), IDLE)
+                by_wall
+                    .max(self.hold_until.saturating_duration_since(mono))
+                    .max(self.limited_until.saturating_duration_since(mono))
+                    .clamp(Duration::from_secs(1), IDLE)
             }
             Ok(None) => IDLE,
             Err(_) => MIN_RETRY,

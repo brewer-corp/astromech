@@ -442,7 +442,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
 ### 5.2 `astromech-journal`
 - **Find the journal folder:** `%USERPROFILE%\Saved Games\Frontier Developments\Elite Dangerous` via `SHGetKnownFolderPath(FOLDERID_SavedGames)`. A config override is allowed.
 - **Journal tailer:**
-  - Pick the newest `Journal.*.log` and follow it by byte offset.
+  - Follow the current `Journal.*.log` by byte offset: the newest by modified time once it has a `Fileheader`, unless it began (by that header's UTC time; names carry local time, which a DST fall-back reorders) more than two minutes before the one followed, so a backup or sync tool touching an older journal never takes over. A header stamped more than two minutes in the future (another PC's clock running ahead, or this one's before it was corrected back) is not believed: that journal is not switched to, and a followed one gives way to the next journal with a believable header (astromech-xy2g). At startup, the newest by modified time or the latest by name, whichever began later (astromech-ki3j).
   - Emit only complete lines (buffer partial lines).
   - Switch on a new `Fileheader` or a new file.
   - Handle `Continued`.
