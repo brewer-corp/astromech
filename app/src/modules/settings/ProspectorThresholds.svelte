@@ -2,11 +2,11 @@
   // Per-ore prospector thresholds: a rock with this much of the ore or more is called out.
   // Empty turns the ore off (a motherlode is always called out).
   import { loadThresholds, parseThreshold, setThreshold, type OreThreshold } from "../../lib/prospector";
-  import { announce } from "../../lib/ui/announce";
+  import { announcer } from "../../lib/ui/announce";
 
   let ores = $state<OreThreshold[]>([]);
   let error = $state("");
-  const say = (text: string) => announce((t) => (error = t), text);
+  const say = announcer((t) => (error = t));
 
   $effect(() => {
     loadThresholds()

@@ -3,16 +3,17 @@
   // A change applies from the next session. The cooldown is how long a callout stays quiet after
   // it speaks, so a burst of the same event gives one line.
   import { changeCallout, loadCallouts, parseCooldown, type CalloutSetting } from "../../lib/callouts";
-  import { announce } from "../../lib/ui/announce";
+  import { announcer } from "../../lib/ui/announce";
 
   let list = $state<CalloutSetting[]>([]);
   /** The last save's "Saved" or error, for the live region below. */
   let status = $state("");
   let warn = $state(false);
 
+  const announce = announcer((t) => (status = t));
   function say(text: string, isError: boolean) {
     warn = isError;
-    return announce((t) => (status = t), text);
+    return announce(text);
   }
 
   async function reload() {
