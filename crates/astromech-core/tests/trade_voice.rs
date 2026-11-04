@@ -33,13 +33,21 @@ struct Recorded {
 }
 
 impl Transport for Recorded {
-    fn send(&self, url: &str, _req: &Request) -> Result<Response, TransportError> {
+    fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
         self.log.lock().unwrap().push(url.to_string());
         self.sent.lock().unwrap().push(Instant::now());
         if self.offline {
             return Err(TransportError::Offline("dns error".into()));
         }
-        let body = if url.ends_with("/system/name/Sol/commodity/name/painite/nearby/imports") {
+        let body = if url.ends_with("/api/systems/field_values/system_names") {
+            // Spansh's autocomplete: it knows Sol, and nothing called anything else.
+            let q = req.query.iter().find(|(k, _)| k == "q").map(|(_, v)| v.to_lowercase());
+            if q.as_deref() == Some("sol") {
+                r#"{"min_max":[{"id64":10477373803,"name":"Sol","x":0.0,"y":0.0,"z":0.0}],"values":["Sol"]}"#
+            } else {
+                r#"{"min_max":[],"values":[]}"#
+            }
+        } else if url.ends_with("/system/name/Sol/commodity/name/painite/nearby/imports") {
             fixture!("ardent-sell-painite-sol.json")
         } else if url.ends_with("/system/name/Sol/commodity/name/platinum/nearby/imports") {
             fixture!("ardent-sell-platinum-sol.json")
@@ -180,19 +188,75 @@ fn no_location_or_no_network_are_said_plainly() {
     assert_eq!(s, astromech_tools::lookup::NO_POSITION);
 }
 
+/// "... near <system>" searches from that system (astromech-j75v): found on Spansh, then asked
+/// of Ardent from there, and the answer names it. Before, "near Sol" was heard as part of the
+/// commodity. A name Spansh does not know is said plainly, never searched from here instead.
+#[test]
+fn a_named_system_is_searched_from_and_named() {
+    let r = rig(false);
+    r.hub.update(|g| g.system = Some("Achenar".into()));
+    let s = spoken(r.assistant.handle("Where can I sell painite near Sol?", Origin::Voice));
+    assert_eq!(
+        s,
+        "From Sol. Best price for Painite: Good Landing in LHS 1827, 19 light years. 211,587 credits, demand 13,884."
+    );
+    {
+        let mut log = r.rec.log.lock().unwrap();
+        assert!(log[0].ends_with("/api/systems/field_values/system_names"), "{log:?}");
+        assert!(log[1].ends_with("/system/name/Sol/commodity/name/painite/nearby/imports"), "{log:?}");
+        log.clear();
+    }
+    let s = spoken(r.assistant.handle("where can I sell painite near Nowhere Prime", Origin::Voice));
+    assert_eq!(s, "Spansh does not know a system called Nowhere Prime.");
+    assert_eq!(r.rec.log.lock().unwrap().len(), 1, "no market search from anywhere else");
+    // A named system needs no position from the journal.
+    r.hub.update(|g| g.system = None);
+    let s = spoken(r.assistant.handle("where to buy tritium from Sol", Origin::Voice));
+    assert!(s.starts_with("From Sol. Cheapest Tritium: "), "{s}");
+    // Naming the system you are in is the same as not naming one.
+    r.hub.update(|g| g.system = Some("Sol".into()));
+    let s = spoken(r.assistant.handle("where can I sell painite near sol", Origin::Voice));
+    assert!(s.starts_with("Best price for Painite: "), "{s}");
+    // And the voice tester says where it would search from.
+    let g = astromech_core::assistant::grammar();
+    let game = astromech_gamestate::GameState::default();
+    let d = dry_run(&g, "Where can I sell gold near Sol?", &game, &BindsState::default(), Source::Typed);
+    assert_eq!(
+        (d.would, d.message.as_str()),
+        (Would::Speak, "Looks up where to sell Gold on Ardent Insight. Searches from Sol.")
+    );
+    assert_eq!(d.intent.unwrap().phrase, "where can i sell Gold near Sol");
+}
+
+/// A "Did you mean …?" for a question with a named system keeps the system for the yes, and
+/// the phrase is not learned: an alias would stand for the command alone and search from the
+/// current system (astromech-wlsx).
+#[test]
+fn a_confirmed_question_with_a_named_system_searches_from_it_and_is_not_learned() {
+    let r = rig(false);
+    r.hub.update(|g| g.system = Some("Achenar".into()));
+    match r.assistant.handle("Where can I sell pain night near Sol?", Origin::Voice) {
+        Handled::Asked { command: "trade.sell", phrase } => assert_eq!(phrase, "where can i sell Painite near Sol"),
+        h => panic!("{h:?}"),
+    }
+    let s = spoken(r.assistant.handle("yes", Origin::Voice));
+    assert!(s.starts_with("From Sol. Best price for Painite: "), "{s}");
+    assert_eq!(r.store.lock().unwrap().aliases().unwrap(), vec![], "not learned");
+}
+
 #[test]
 fn the_voice_tester_says_what_it_would_look_up_without_asking_ardent() {
     let g = astromech_core::assistant::grammar();
     let game = astromech_gamestate::GameState { system: Some("Sol".into()), ..Default::default() };
     let d = dry_run(&g, "Where can I sell low temperature diamonds?", &game, &BindsState::default(), Source::Typed);
     assert_eq!(d.would, Would::Speak);
-    assert_eq!(d.message, "Looks up where to sell Low Temperature Diamonds near you on Ardent Insight.");
+    assert_eq!(d.message, "Looks up where to sell Low Temperature Diamonds on Ardent Insight.");
     assert_eq!(d.intent.unwrap().command, "trade.sell");
     assert!(d.live.is_none() && d.keys.is_none(), "nothing to press or run live");
     let d = dry_run(&g, "Where should I sell my cargo?", &game, &BindsState::default(), Source::Typed);
     assert_eq!(
         (d.would, d.message.as_str()),
-        (Would::Speak, "Looks up where to sell the cargo in your hold near you on Ardent Insight.")
+        (Would::Speak, "Looks up where to sell the cargo in your hold on Ardent Insight.")
     );
 }
 

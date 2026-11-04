@@ -48,9 +48,9 @@ pub fn from_command(id: &str) -> Option<Ask> {
 pub fn describe(ask: Ask, commodity: Option<&str>) -> String {
     let what = commodity.unwrap_or("that");
     match ask {
-        Ask::Sell => format!("Looks up where to sell {what} near you on Ardent Insight."),
-        Ask::Buy => format!("Looks up where to buy {what} near you on Ardent Insight."),
-        Ask::SellCargo => "Looks up where to sell the cargo in your hold near you on Ardent Insight.".into(),
+        Ask::Sell => format!("Looks up where to sell {what} on Ardent Insight."),
+        Ask::Buy => format!("Looks up where to buy {what} on Ardent Insight."),
+        Ask::SellCargo => "Looks up where to sell the cargo in your hold on Ardent Insight.".into(),
     }
 }
 

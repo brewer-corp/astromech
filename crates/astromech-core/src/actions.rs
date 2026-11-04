@@ -66,31 +66,27 @@ pub struct Runner {
 }
 
 impl Runner {
-    /// Start the nearest-site lookup for `kind`. Spansh and EDSM can take many seconds, so the
+    /// Start the nearest-site lookup for `kind`, near the commander or the system named in
+    /// `from` ([`crate::lookups::named_origin`]). Spansh and EDSM can take many seconds, so the
     /// lookup runs on its own thread and speaks its answer when it arrives: the speech thread is
     /// free for the next command at once. Jumps are counted at the ship's maximum range (20 ly if
     /// unknown); the lookup's filters in the app don't apply.
-    pub fn nearest_site(&self, kind: &'static str) -> Outcome {
+    pub fn nearest_site(&self, kind: &'static str, from: Option<String>) -> Outcome {
         let g = self.hub.snapshot();
-        let (Some(system), Some(pos)) = (g.system.clone(), g.star_pos) else {
+        if from.is_none() && (g.system.is_none() || g.star_pos.is_none()) {
             let m = astromech_tools::lookup::NO_POSITION.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);
-        };
+        }
         let Some(galaxy) = self.galaxy.clone() else {
             let m = astromech_tools::lookup::NO_STAR_MAP.to_string();
             self.speaker.say(&m);
             return Outcome::Spoken(m);
         };
-        let range = g.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
-        let here = astromech_galaxy::Here { system, id64: None, pos };
         self.speaker.say("Looking that up.");
         let speaker = self.speaker.clone();
         let h = std::thread::spawn(move || {
-            let m = match galaxy.sites(kind, &here, range, 1, &astromech_galaxy::Filters::default()) {
-                Ok(s) => astromech_galaxy::sites::spoken(&s),
-                Err(e) => astromech_tools::lookup::failed(&e.to_string()),
-            };
+            let m = crate::lookups::sites_answer(&galaxy, kind, &g, from.as_deref());
             speaker.say(&m);
             m
         });
@@ -163,7 +159,7 @@ impl Runner {
                 say(&m);
                 return Outcome::Spoken(m);
             }
-            Plan::Lookup(kind) => return self.nearest_site(kind),
+            Plan::Lookup(kind) => return self.nearest_site(kind, None),
             Plan::Confirm { prompt, .. } => {
                 say(&prompt);
                 return Outcome::NeedsConfirm(prompt);

@@ -79,8 +79,9 @@ fn age(updated_at: Option<&str>, visit: bool, now_s: i64) -> String {
 }
 
 /// The spoken answer, a short sentence at a time: the first hit (the nearest, or the best for High Grade Emissions), how
-/// far and how many jumps, and how old its faction states are.
-pub fn spoken(n: &Nearby, now_s: i64) -> String {
+/// far and how many jumps, and how old its faction states are. `named`: the search is from a
+/// system the commander named, not the current one, so a hit there is not "in this system".
+pub fn spoken(n: &Nearby, named: bool, now_s: i64) -> String {
     let noun = noun(&n.query);
     let Some(h) = n.hits.first() else {
         return match &n.warning {
@@ -88,12 +89,14 @@ pub fn spoken(n: &Nearby, now_s: i64) -> String {
             None => format!("No {noun}s near {} with your filters.", n.here.system),
         };
     };
-    let mut s = format!("{} {noun}: {}. {}", lead(&n.query), h.name, capitalise(&distance(h.hop.ly)));
+    let mut s = format!("{} {noun}: {}.", lead(&n.query), h.name);
     if h.hop.ly >= 0.05 {
         let about = if h.hop.exact { "" } else { "about " };
-        s += &format!(", {about}{} jump{}", h.hop.jumps, if h.hop.jumps == 1 { "" } else { "s" });
+        let jumps = format!("{about}{} jump{}", h.hop.jumps, if h.hop.jumps == 1 { "" } else { "s" });
+        s += &format!(" {}, {jumps}.", capitalise(&distance(h.hop.ly)));
+    } else if !named {
+        s += &format!(" {}.", capitalise(&distance(h.hop.ly)));
     }
-    s.push('.');
     if n.query.by_population && h.population >= HGE_POPULATION {
         s += " Over a billion people.";
     }
@@ -144,32 +147,43 @@ mod tests {
     #[test]
     fn the_answer_says_where_how_far_and_how_old() {
         let n = nearby("famine", vec![hit(9.689, 1, true, 2_006_272, "2026-10-13T16:32:04Z")]);
-        assert_eq!(spoken(&n, NOW), "Nearest famine system: Ross 154. 9.7 light years, 1 jump. Reported 2 days ago.");
+        assert_eq!(
+            spoken(&n, false, NOW),
+            "Nearest famine system: Ross 154. 9.7 light years, 1 jump. Reported 2 days ago."
+        );
         let n = nearby("famine", vec![hit(31.4, 3, false, 0, "2026-10-16T01:00:00Z")]);
-        assert_eq!(spoken(&n, NOW), "Nearest famine system: Ross 154. 31 light years, about 3 jumps. Reported today.");
+        assert_eq!(
+            spoken(&n, false, NOW),
+            "Nearest famine system: Ross 154. 31 light years, about 3 jumps. Reported today."
+        );
         let mut visited = hit(0.0, 0, true, 0, "2026-10-15T11:00:00Z");
         visited.seen_on_visit = true;
         let n = nearby("famine", vec![visited]);
-        assert_eq!(spoken(&n, NOW), "Nearest famine system: Ross 154. In this system. Seen on your visit yesterday.");
+        assert_eq!(
+            spoken(&n, false, NOW),
+            "Nearest famine system: Ross 154. In this system. Seen on your visit yesterday."
+        );
+        // searched from a named system: the system is named, not "this system"
+        assert_eq!(spoken(&n, true, NOW), "Nearest famine system: Ross 154. Seen on your visit yesterday.");
     }
 
     #[test]
     fn the_emissions_lookups_say_the_best_system_and_a_billion_people() {
         let n = nearby("military", vec![hit(11.94, 2, true, 5_000_152_143, "2026-10-13T17:55:17Z")]);
         assert_eq!(
-            spoken(&n, NOW),
+            spoken(&n, false, NOW),
             "Best war system: Ross 154. 12 light years, 2 jumps. Over a billion people. Reported 2 days ago."
         );
         let n = nearby("proto", vec![hit(4.0, 1, true, 20_000, "2026-10-16T11:00:00Z")]);
-        assert_eq!(spoken(&n, NOW), "Best boom system: Ross 154. 4.0 light years, 1 jump. Reported today.");
+        assert_eq!(spoken(&n, false, NOW), "Best boom system: Ross 154. 4.0 light years, 1 jump. Reported today.");
     }
 
     #[test]
     fn nothing_found_says_so() {
-        assert_eq!(spoken(&nearby("pharma", vec![]), NOW), "No outbreak systems near Sol with your filters.");
+        assert_eq!(spoken(&nearby("pharma", vec![]), false, NOW), "No outbreak systems near Sol with your filters.");
         let mut n = nearby("pharma", vec![]);
         n.warning = Some("Spansh changed its search.".into());
-        assert_eq!(spoken(&n, NOW), "Spansh changed its search.");
+        assert_eq!(spoken(&n, false, NOW), "Spansh changed its search.");
     }
 
     #[test]

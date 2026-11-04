@@ -85,6 +85,9 @@ pub struct DryRun {
     pub keys: Option<KeyCombo>,
     /// The command a live run would execute (None: nothing to run).
     pub live: Option<String>,
+    /// The system that live run searches from, when the phrase named one ("nearest crystalline
+    /// shards near Sol"); passed back to [`live`].
+    pub live_from: Option<String>,
 }
 
 fn decision(d: Decision) -> &'static str {
@@ -107,6 +110,7 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         action: None,
         keys: None,
         live: None,
+        live_from: None,
     };
     if astromech_intent::is_noise_only(transcript) {
         r.would = Would::Ignored;
@@ -114,6 +118,19 @@ pub fn dry_run(grammar: &Grammar, transcript: &str, game: &GameState, binds: &Bi
         return r;
     }
     let m = grammar.best(transcript);
+    let mut r = judge(r, &m, game, binds);
+    // A lookup from a named system says so ("... near Sol"), and a live run searches from it.
+    if let (Would::Speak, Some(from)) = (r.would, &m.origin) {
+        r.message = format!("{} Searches from {from}.", r.message);
+    }
+    if r.live.is_some() {
+        r.live_from = m.origin.clone();
+    }
+    r
+}
+
+/// The rest of [`dry_run`], for the matched `m`.
+fn judge(mut r: DryRun, m: &astromech_intent::Match, game: &GameState, binds: &BindsState) -> DryRun {
     if !m.command.is_empty() {
         r.intent = Some(Intent {
             command: m.command.to_string(),
@@ -243,15 +260,20 @@ pub const SWITCH_WAIT: Duration = Duration::from_secs(5);
 /// Run a tested command for real, through the policy like any other command. The user clicked
 /// Run live in astromech, so this first waits up to `wait` for Elite to be the active window
 /// (presses are only ever sent to Elite in front). The user asked for it on the tester page, so
-/// a spoken confirmation (silent running) or "Did you mean …?" counts as answered.
-pub fn live(runner: &Runner, command: &str, wait: Duration) -> Result<String, String> {
+/// a spoken confirmation (silent running) or "Did you mean …?" counts as answered. `from` is
+/// the dry run's [`DryRun::live_from`]: a lookup searches from that system.
+pub fn live(runner: &Runner, command: &str, from: Option<&str>, wait: Duration) -> Result<String, String> {
     let call = from_command(command).ok_or_else(|| format!("{command} can't be run"))?;
     match runner.policy.wait_foreground(wait) {
         Wait::Front => {}
         Wait::TimedOut => return Ok("Elite didn't come to the front in time, so nothing was pressed.".into()),
         Wait::Killed => return Ok("The kill switch was used, so nothing was sent to the game.".into()),
     }
-    Ok(match runner.run_confirmed(call, Origin::AppWindow) {
+    let outcome = match call {
+        astromech_tools::ToolCall::Nearest(kind) => runner.nearest_site(kind, from.map(str::to_string)),
+        call => runner.run_confirmed(call, Origin::AppWindow),
+    };
+    Ok(match outcome {
         Outcome::Sent(h) => match h.join() {
             Ok(Verified::Confirmed { ms }) => format!("Pressed; the game confirmed it in {ms} ms."),
             Ok(Verified::NotConfirmed) => "Pressed, but the game didn't show the change.".into(),

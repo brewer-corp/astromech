@@ -66,7 +66,7 @@ fn nearest_crystalline_shards_from_sol() {
     assert_eq!(s.source, "Spansh");
     assert_eq!(s.hits.len(), 3);
     assert_eq!(
-        sites::spoken(&s),
+        sites::spoken(&s, false),
         "Nearest crystalline shards: Oochorrs SB-J d10-5 B 6 a, 1,426 light years, about 48 jumps, \
          26,249 light seconds from the arrival star."
     );
@@ -102,8 +102,14 @@ fn known_farms_from_hip_36601() {
     assert_eq!(s.hits[0].detail, "Polonium · crystalline shards");
     assert_eq!(s.source, "astromech");
     assert_eq!(
-        sites::spoken(&s),
+        sites::spoken(&s, false),
         "Nearest raw material farm: HIP 36601 C 1 a, polonium from crystalline shards, in this system, \
+         153,095 light seconds from the arrival star."
+    );
+    // searched from a named system (astromech-j75v): not "in this system"
+    assert_eq!(
+        sites::spoken(&s, true),
+        "Nearest raw material farm: HIP 36601 C 1 a, polonium from crystalline shards, \
          153,095 light seconds from the arrival star."
     );
     assert!(!rec.log.lock().unwrap().iter().any(|l| l.contains("spansh")), "farms are bundled");
@@ -111,7 +117,11 @@ fn known_farms_from_hip_36601() {
     let d = Here { pos: [337.8125, 562.96875, -1457.84375], ..here.clone() };
     let mut f = g.sites("raw_farms", &d, 30.0, 4, &Filters::default()).unwrap();
     f.hits.remove(0);
-    assert!(sites::spoken(&f).contains("HIP 36601 C 1 d, ruthenium from crystalline shards"), "{}", sites::spoken(&f));
+    assert!(
+        sites::spoken(&f, false).contains("HIP 36601 C 1 d, ruthenium from crystalline shards"),
+        "{}",
+        sites::spoken(&f, false)
+    );
 }
 
 #[test]
@@ -134,7 +144,7 @@ fn jump_count_is_exact_on_the_star_map() {
     let s = g.sites("brain_trees", &sol(), 10.0, 1, &Filters::default()).unwrap();
     assert_eq!(s.hits[0].body, "Ch'i Lingo B 2");
     assert_eq!((s.hits[0].hop.jumps, s.hits[0].hop.exact), (11, true));
-    assert!(sites::spoken(&s).contains("91.9 light years, 11 jumps"), "{}", sites::spoken(&s));
+    assert!(sites::spoken(&s, false).contains("91.9 light years, 11 jumps"), "{}", sites::spoken(&s, false));
 }
 
 #[test]

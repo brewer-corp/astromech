@@ -29,6 +29,8 @@ export interface DryRun {
   keys: { key: string; modifiers: string[]; slot: string } | null;
   /** The command a live run would execute, or null. */
   live: string | null;
+  /** The system that live run searches from, when the phrase named one ("... near Sol"). */
+  live_from?: string | null;
 }
 
 export interface Poll {
@@ -101,9 +103,12 @@ export async function forgetPhrase(heard: string): Promise<LearnedPhrase[]> {
 /** How long a live run waits for Elite to be the active window (the core's `tester::SWITCH_WAIT`). */
 export const SWITCH_SECONDS = 5;
 
-/** Run a command for real: the core presses once Elite is in front. Returns what happened, in words. */
-export async function voiceLive(command: string): Promise<string> {
-  const r = await coreCall("voice_test_live", command);
+/**
+ * Run a command for real: the core presses once Elite is in front. A lookup searches from `from`
+ * when the phrase named a system. Returns what happened, in words.
+ */
+export async function voiceLive(command: string, from?: string | null): Promise<string> {
+  const r = await coreCall("voice_test_live", from ? { command, from } : command);
   if (!r.ok) throw new Error(String(r.error));
   return String(r.message);
 }

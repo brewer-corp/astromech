@@ -86,8 +86,10 @@ fn days_old(updated_at: Option<&str>, now_s: i64) -> Option<i64> {
 const OLD_DAYS: i64 = 7;
 
 /// The spoken answer to a lookup near `origin` (a system name): the nearest station, how far,
-/// how far from the star, and how old the report is when it's more than a week old.
-pub fn spoken(want: &Want, origin: &str, found: &Result<Found, String>, now_s: i64) -> String {
+/// how far from the star, and how old the report is when it's more than a week old. `named`:
+/// `origin` is a system the commander named, not the current one, so a station there is not
+/// "in this system" (the answer already says which system it is in).
+pub fn spoken(want: &Want, origin: &str, named: bool, found: &Result<Found, String>, now_s: i64) -> String {
     let found = match found {
         Ok(f) => f,
         Err(e) => return e.clone(),
@@ -99,7 +101,10 @@ pub fn spoken(want: &Want, origin: &str, found: &Result<Found, String>, now_s: i
             None => format!("No {label} found near {origin} with your search filters."),
         };
     };
-    let mut s = format!("Nearest {label}: {} in {}, {}", h.name, h.system, distance(h.ly));
+    let mut s = format!("Nearest {label}: {} in {}", h.name, h.system);
+    if !(named && h.ly < 0.05) {
+        s += &format!(", {}", distance(h.ly));
+    }
     if let Some(ls) = h.arrival_ls {
         s += &format!(", {}", arrival(ls));
     }
@@ -188,7 +193,7 @@ mod tests {
         let r = astromech_galaxy::stations::find(&c, &w, Reference::System("Sol".into()), &Filters::default(), 1, NOW)
             .map_err(|e| e.to_string());
         assert_eq!(
-            spoken(&w, "Sol", &r, NOW),
+            spoken(&w, "Sol", false, &r, NOW),
             "Nearest Krait MkII: Ehrlich City in Sol, in this system, 228 light seconds from the star. 45.8 million credits."
         );
     }
@@ -208,7 +213,7 @@ mod tests {
         let r = astromech_galaxy::stations::find(&c, &w, Reference::System("Sol".into()), &Filters::default(), 1, NOW)
             .map_err(|e| e.to_string());
         assert_eq!(
-            spoken(&w, "Sol", &r, NOW),
+            spoken(&w, "Sol", false, &r, NOW),
             "Nearest 3C Multi-Cannon (gimballed): Galileo in Sol, in this system, 504 light seconds from the star. 578 thousand credits."
         );
     }
@@ -218,28 +223,28 @@ mod tests {
         let want = Want::Service { service: Service::GuardianBroker };
         let r = find("guardian_broker", &want, &Filters::default());
         assert_eq!(
-            spoken(&want, "Sol", &r, NOW),
+            spoken(&want, "Sol", false, &r, NOW),
             "Nearest Guardian technology broker: Magnus Gateway in EZ Aquarii, 11 light years, 395 light seconds from the star."
         );
         let want = Want::Service { service: Service::Refuel };
         let r = find("refuel", &want, &Filters::default());
         assert_eq!(
-            spoken(&want, "Sol", &r, NOW),
+            spoken(&want, "Sol", false, &r, NOW),
             "Nearest refuel: Ehrlich City in Sol, in this system, 228 light seconds from the star."
         );
         // an old report says how old
         let want = Want::Service { service: Service::BlackMarket };
         let r = find("black_market", &want, &Filters::default());
         assert!(
-            spoken(&want, "Sol", &r, NOW).ends_with("Reported 2037 days ago."),
+            spoken(&want, "Sol", false, &r, NOW).ends_with("Reported 2037 days ago."),
             "{}",
-            spoken(&want, "Sol", &r, NOW)
+            spoken(&want, "Sol", false, &r, NOW)
         );
         // nothing passes the filters
         let strict = Filters { max_arrival_ls: Some(100), exclude_carriers: true, ..Filters::default() };
         let r = find("black_market", &want, &strict);
-        assert_eq!(spoken(&want, "Sol", &r, NOW), "No black market found near Sol with your search filters.");
+        assert_eq!(spoken(&want, "Sol", false, &r, NOW), "No black market found near Sol with your search filters.");
         // errors are already plain sentences
-        assert_eq!(spoken(&want, "Sol", &Err("Cannot reach Spansh.".into()), NOW), "Cannot reach Spansh.");
+        assert_eq!(spoken(&want, "Sol", false, &Err("Cannot reach Spansh.".into()), NOW), "Cannot reach Spansh.");
     }
 }
