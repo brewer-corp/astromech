@@ -6,13 +6,14 @@ import View from "./View.svelte";
 // The real dry run (the browser fallback serves results recorded from the core's tester);
 // polling and the live run are stubbed so the test can see whether a live run was asked for.
 const poll = vi.fn<() => Promise<Poll | null>>();
-const live = vi.fn<(command: string) => Promise<string>>();
+const live = vi.fn<(command: string, from?: string | null) => Promise<string>>();
 const stop = vi.fn<() => Promise<void>>();
 vi.mock("../../lib/voice", async (orig) => ({
   ...(await orig<typeof import("../../lib/voice")>()),
   voicePoll: () => poll(),
   voiceStop: () => stop(),
-  voiceLive: (c: string) => live(c),
+  // A command alone, or with the system a lookup searches from.
+  voiceLive: (c: string, from?: string | null) => (from ? live(c, from) : live(c)),
   learnedPhrases: () => learned(),
   forgetPhrase: (h: string) => forget(h),
 }));
@@ -112,6 +113,24 @@ describe("Voice tester", () => {
     expect(await screen.findByText(/Switch to Elite now/)).toBeTruthy();
     finish("Elite didn't come to the front in time, so nothing was pressed.");
     expect(await screen.findByText("Elite didn't come to the front in time, so nothing was pressed.")).toBeTruthy();
+  });
+
+  it("runs a lookup from a named system live from that system", async () => {
+    const site: DryRun = {
+      ...heard,
+      transcript: "Nearest crystalline shards near Sol.",
+      intent: { command: "sites.crystalline_shards", phrase: "nearest crystalline shards near Sol", score: 1, decision: "execute" },
+      would: "speak",
+      message: "Would look up the nearest crystalline shards and say where it is. Searches from Sol.",
+      action: null,
+      keys: null,
+      live: "sites.crystalline_shards",
+      live_from: "Sol",
+    };
+    poll.mockResolvedValueOnce({ listening: true, last: null }).mockResolvedValue({ listening: true, last: { seq: 9, result: site } });
+    render(View);
+    await fireEvent.click(await screen.findByRole("button", { name: "Run live" }, { timeout: 2500 }));
+    expect(live).toHaveBeenCalledExactlyOnceWith("sites.crystalline_shards", "Sol");
   });
 
   it("says when a live run skips the question a spoken command would ask", async () => {

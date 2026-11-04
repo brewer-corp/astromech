@@ -193,10 +193,16 @@ impl Assistant {
     }
 
     /// Count a yes to "Did you mean `command`?" after `heard`; the phrase runs without asking
-    /// once [`alias_runs`] says so. Ask-only phrases are not even counted.
+    /// once [`alias_runs`] says so. Ask-only phrases, and phrases that name a system to search
+    /// from, are not even counted.
     fn learn(&self, heard: &str, command: &'static str) {
         let heard = heard.trim();
-        if heard.is_empty() || command == "confirm" || command == "cancel" || astromech_intent::is_ask_only(heard) {
+        if heard.is_empty()
+            || command == "confirm"
+            || command == "cancel"
+            || astromech_intent::is_ask_only(heard)
+            || astromech_intent::names_origin(heard, command)
+        {
             return;
         }
         let count = match &self.store {

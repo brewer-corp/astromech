@@ -33,7 +33,8 @@ pub struct Request {
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
-    /// Argument for the voice tester: the phrase ("voice_test") or command id ("voice_test_live").
+    /// Argument for the voice tester: the phrase ("voice_test") or command id ("voice_test_live";
+    /// a lookup from a named system sends `args` `{command, from}` instead).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
     /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`) and `route_set`.

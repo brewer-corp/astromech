@@ -31,7 +31,8 @@ if you open the page then, a phrase you said before it opened still runs for rea
 
 "Nothing was sent to the game" is shown under every result. Lookups say what they would look
 up ("Would look up the nearest Interstellar Factors on Spansh and say it") without asking, and
-where from when you name a system ("... Searches from Sol.").
+where from when you name a system ("... Searches from Sol."). Run live on a site lookup
+searches from that system too.
 
 ## Run live
 

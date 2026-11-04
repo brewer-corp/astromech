@@ -485,6 +485,13 @@ fn split_origin(t: &str) -> Option<(String, Option<String>)> {
     Some((words[..at].join(" "), (!here).then_some(place)))
 }
 
+/// True when `heard` names a system for `command` to search from ("... near Sol"). Such a
+/// phrase is never a personal alias: the alias would stand for the command alone and search
+/// from the current system.
+pub fn names_origin(heard: &str, command: &str) -> bool {
+    takes_origin(command) && matches!(split_origin(heard), Some((_, Some(_))))
+}
+
 /// Commands the grammar recognises but the app can't run (yet). They exist so a request is
 /// answered ("I can't do that yet") instead of "didn't catch that" or a wrong near match.
 pub const UNAVAILABLE: &[&str] = &["request_docking", "plot_route", "supercruise", "hyperspace_jump"];
@@ -845,10 +852,11 @@ impl Grammar {
     }
 
     /// Personal alias: this transcript should map to `command` next time (still policy-capped).
-    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking. True if added.
+    /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking, and so is one that
+    /// [names a system](names_origin) to search from. True if added.
     pub fn add_alias(&mut self, heard: &str, command: &'static str) -> bool {
         let toks = normalise(heard);
-        if toks.is_empty() || is_ask_only(heard) {
+        if toks.is_empty() || is_ask_only(heard) || names_origin(heard, command) {
             return false;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
@@ -966,24 +974,30 @@ impl Grammar {
     }
 
     /// Best match with its decision. A lookup that [takes an origin](takes_origin) may end in
-    /// "near <system>" or "from <system>": the words before are matched on their own and the
-    /// system goes in [`Match::origin`], when that matches at least as well as the whole
-    /// transcript (so a phrase of its own with "near" in it, "where is there a famine near
-    /// me", keeps its match).
+    /// "near <system>" or "from <system>": the words before are matched on their own, and again
+    /// with "near me" after them (for the phrases that end so, "where is there a famine near
+    /// me"); the better of the two that is a lookup taking an origin wins, its system in
+    /// [`Match::origin`], when it scores at least as well as the whole transcript. Otherwise the
+    /// whole transcript's match stands.
     pub fn best(&self, transcript: &str) -> Match {
         let whole = self.best_whole(transcript);
         let Some((head, place)) = split_origin(transcript) else {
             return whole;
         };
-        let mut m = self.best_whole(&head);
-        if m.decision == Decision::NoMatch || !takes_origin(m.command) || m.score < whole.score {
-            return whole;
-        }
+        let lookup = |m: Match| (m.decision != Decision::NoMatch && takes_origin(m.command)).then_some(m);
+        let bare = lookup(self.best_whole(&head));
+        let near_me = lookup(self.best_whole(&format!("{head} near me")));
+        let best = [bare, near_me].into_iter().flatten().reduce(|b, n| if n.score > b.score { n } else { b });
+        let mut m = match best {
+            Some(m) if m.score >= whole.score => m,
+            _ => return whole,
+        };
         if let Some(place) = place {
             let words = normalise(&place);
             let known = Some(self.fill("system", &words)).filter(|f| f.exact && !words.is_empty());
             let place = known.map_or(place, |f| f.value);
-            m.phrase = format!("{} near {place}", m.phrase);
+            let phrase = m.phrase.strip_suffix(" near me").unwrap_or(&m.phrase);
+            m.phrase = format!("{phrase} near {place}");
             m.origin = Some(place);
         }
         m
@@ -1365,6 +1379,28 @@ mod tests {
         // phrases with "near" of their own keep their match
         let m = g.best("Where is there a famine near me?");
         assert_eq!((m.command, m.origin, m.decision), ("faction.famine", None, Decision::Execute));
+        // phrases that end in "near me" of their own take a system in its place (astromech-wlsx)
+        for (t, command) in [
+            ("where is there a famine near Sol", "faction.famine"),
+            ("famine near Sol", "faction.famine"),
+            ("where is there a war near Sol", "faction.military"),
+            ("where is there a boom from Sol", "faction.proto"),
+            ("where is there an outbreak near Sol", "faction.pharma"),
+            ("where is there civil unrest near Sol", "faction.improvised"),
+            ("where can I undermine near Sol", "powerplay.undermine"),
+        ] {
+            let m = g.best(t);
+            assert_eq!(
+                (m.command, m.origin.as_deref(), m.decision),
+                (command, Some("Sol"), Decision::Execute),
+                "{t:?}"
+            );
+            assert!(!m.phrase.contains("near me"), "{t:?} -> {:?}", m.phrase);
+        }
+        // and one that names a system is never learned as a personal phrase
+        let mut g2 = trade();
+        assert!(!g2.add_alias("where is there a famine near Sol", "faction.famine"));
+        assert!(g2.add_alias("where is there a famine near here", "faction.famine"));
         // a command that does not search from a place never takes one
         let m = g.best("gear down near Sol");
         assert_eq!(m.origin, None);

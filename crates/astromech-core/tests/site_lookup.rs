@@ -184,4 +184,10 @@ fn a_named_system_is_searched_from_and_named() {
     }
     let d = a.dry_run("nearest crystalline shards near Sol", Source::Typed);
     assert_eq!(d.message, "Would look up the nearest crystalline shards and say where it is. Searches from Sol.");
+    // Run live searches from the system the tester names, too (astromech-d50l).
+    assert_eq!((d.live.as_deref(), d.live_from.as_deref()), (Some("sites.crystalline_shards"), Some("Sol")));
+    let m = astromech_core::tester::live(&a.runner, "sites.crystalline_shards", d.live_from.as_deref(), Duration::ZERO)
+        .unwrap();
+    assert!(m.starts_with("From Sol. Nearest crystalline shards: "), "{m}");
+    assert_eq!(a.dry_run("nearest crystalline shards", Source::Typed).live_from, None);
 }

@@ -228,6 +228,22 @@ fn a_named_system_is_searched_from_and_named() {
     assert_eq!(d.intent.unwrap().phrase, "where can i sell Gold near Sol");
 }
 
+/// A "Did you mean …?" for a question with a named system keeps the system for the yes, and
+/// the phrase is not learned: an alias would stand for the command alone and search from the
+/// current system (astromech-wlsx).
+#[test]
+fn a_confirmed_question_with_a_named_system_searches_from_it_and_is_not_learned() {
+    let r = rig(false);
+    r.hub.update(|g| g.system = Some("Achenar".into()));
+    match r.assistant.handle("Where can I sell pain night near Sol?", Origin::Voice) {
+        Handled::Asked { command: "trade.sell", phrase } => assert_eq!(phrase, "where can i sell Painite near Sol"),
+        h => panic!("{h:?}"),
+    }
+    let s = spoken(r.assistant.handle("yes", Origin::Voice));
+    assert!(s.starts_with("From Sol. Best price for Painite: "), "{s}");
+    assert_eq!(r.store.lock().unwrap().aliases().unwrap(), vec![], "not learned");
+}
+
 #[test]
 fn the_voice_tester_says_what_it_would_look_up_without_asking_ardent() {
     let g = astromech_core::assistant::grammar();

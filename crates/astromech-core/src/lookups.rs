@@ -537,6 +537,19 @@ mod tests {
             ("nearest famine system near Shinrarta Dezhra", "faction.famine"),
             ("where can I undermine near Shinrarta Dezhra", "powerplay.undermine"),
             ("nearest crashed ship near Shinrarta Dezhra", "sites.crashed_ships"),
+            // the phrases that end in "near me", long and short (astromech-wlsx)
+            ("where is there a famine near Shinrarta Dezhra", "faction.famine"),
+            ("famine near Shinrarta Dezhra", "faction.famine"),
+            ("where is there a war near Shinrarta Dezhra", "faction.military"),
+            ("nearest war near Shinrarta Dezhra", "faction.military"),
+            ("where is there a boom near Shinrarta Dezhra", "faction.proto"),
+            ("nearest boom near Shinrarta Dezhra", "faction.proto"),
+            ("where is there an outbreak near Shinrarta Dezhra", "faction.pharma"),
+            ("nearest outbreak near Shinrarta Dezhra", "faction.pharma"),
+            ("where is there civil unrest near Shinrarta Dezhra", "faction.improvised"),
+            ("nearest civil unrest near Shinrarta Dezhra", "faction.improvised"),
+            ("where can I acquire near Shinrarta Dezhra", "powerplay.acquire"),
+            ("where can I reinforce from Shinrarta Dezhra", "powerplay.reinforce"),
         ] {
             let m = g.best(phrase);
             assert_eq!(
