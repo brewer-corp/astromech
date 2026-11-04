@@ -224,7 +224,8 @@ fn spansh(
                 neutrons: plan.system_jumps.iter().filter(|j| j.neutron_star).count(),
                 refuels: 0,
                 waypoints,
-                jumps: plan.total_jumps,
+                // Spansh's `total_jumps` counts legs; each waypoint carries its leg's jumps.
+                jumps: plan.system_jumps.iter().map(|j| j.jumps).sum(),
                 ly: plan.distance,
                 range: r.range,
                 local: false,

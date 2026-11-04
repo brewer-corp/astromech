@@ -176,7 +176,7 @@ fn spansh_plots_when_there_is_no_file() {
     assert!(!p.local);
     assert_eq!((p.fewest, p.fallback.as_deref()), (None, None));
     assert_eq!(p.source, "neutron plotter");
-    assert_eq!(p.jumps, 128);
+    assert_eq!(p.jumps, 11, "the trimmed recording's two legs: 10 jumps and 1");
     assert_eq!(t.urls()[0], "https://spansh.co.uk/api/route");
 }
 
