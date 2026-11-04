@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Neutron download: log why the download could not be reached"
-updated_at: "2026-10-22T21:22:09.269392549+00:00"
+updated_at: "2026-11-04T20:43:40.593525724+00:00"
 ---
 
 ## Goal

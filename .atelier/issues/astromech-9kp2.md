@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Setup shows 'Not set' before the first good status read"
-updated_at: "2026-10-22T21:34:32.397967654+00:00"
+updated_at: "2026-11-04T20:43:40.424076400+00:00"
 ---
 
 ## Goal
