@@ -15,9 +15,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Setup shows 'Not set' before the first good status read"
-updated_at: "2026-11-04T20:43:40.424076400+00:00"
+updated_at: "2026-11-04T21:05:11.840300941+00:00"
 ---
 
 ## Goal

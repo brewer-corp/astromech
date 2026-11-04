@@ -15,9 +15,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Settings: repeated save and error messages are not re-announced to screen readers"
-updated_at: "2026-11-04T20:43:40.170642949+00:00"
+updated_at: "2026-11-04T21:05:09.155963874+00:00"
 ---
 
 ## Goal
