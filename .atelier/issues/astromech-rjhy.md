@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal startup lengths: measure recent journals through a handle"
-updated_at: "2026-11-04T22:37:46.901442567+00:00"
+updated_at: "2026-11-04T23:14:10.054105402+00:00"
 ---
 
 ## Goal
