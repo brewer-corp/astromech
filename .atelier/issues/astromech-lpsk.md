@@ -21,7 +21,7 @@ schema_version: 2
 closed_at: "2026-11-04T23:32:27.294855405+00:00"
 status: "done"
 title: "Journal following after a backwards clock correction and a restart"
-updated_at: "2026-11-04T23:32:27.294855405+00:00"
+updated_at: "2026-11-04T23:48:48.786938129+00:00"
 ---
 
 ## Goal
@@ -40,6 +40,7 @@ Review finding R4 (astromech-of26) on bug/astromech-ki3j: crates/astromech-core/
 
 - 2026-11-04 [decision] Follow the newest journal when the game is writing it now (being_written: the game's by classify's rules without taking the session, i.e. same session stamp, header agrees with name, or latest by name of a session not left; and its last complete line stamped within FRESH_LINE_SECS), whatever the header order. Otherwise switch by header order only if the followed journal isn't being written. catch_up keeps the newest by mtime when it is being written. A 'not being written at length L' memo avoids re-reading the tail of a refused journal until it grows.
   Reason: Freshness of the last line is what a touched or appended older journal can't have unless something writes lines stamped now; the game's-journal condition excludes conflict copies and copies whose header disagrees with their name, the same boundary classify already uses for live Gated lines. The second condition stops a touched journal that began later (the fast-clock J1) from taking the session from the one the game writes. Trade-offs: a journal of this machine that a tool appends lines stamped now to is followed (and its fresh lines are live, as Gated already allowed); while the game is idle for over 120 s, a touched journal that began later can still take the session until the game's next line; a journal the game starts whose header disagrees with its name and isn't latest by name waits up to 120 s for the old one to go stale.
+- 2026-11-04 [note] Resolution of astromech-52p1 and astromech-puak (5b1bfc68). Rule now: switch to the newest journal if the game is writing it (being_written), or by header order only if the followed journal is neither being written nor the one last seen being written (Tailer::writing, set by being_written and by fresh lines read from a journal not classed Foreign). When a journal is seen being written, its session becomes the game's and the latest-by-name session, if another, is retired, so a fast-clock J1 is not Class::Game. line_is_fresh is one-sided: up to FRESH_LINE_SECS before now, at most AHEAD_SECS (5 s) after; this also narrows Gated live lines to that window (a line stamped further ahead was written by a fast clock, so earlier). Tests: after_a_clock_correction_a_quiet_game_keeps_the_session_from_a_touched_older_journal, a_journal_with_lines_stamped_in_the_future_is_not_being_written. Open: the journal last seen written stays held for the run, so a later journal that is not being written (e.g. synced in from another PC while this game is closed) is not followed; out of scope per astromech-yc7h. A tool appending lines stamped within the last 2 minutes to a journal of this machine still counts as the game writing it.
 
 ## Close Reason
 
