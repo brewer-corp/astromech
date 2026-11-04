@@ -446,7 +446,7 @@ Library versions are the current stable releases on crates.io as of 8 Oct 2026. 
   - Emit only complete lines (buffer partial lines).
   - Switch on a new `Fileheader` or a new file.
   - Handle `Continued`.
-  - On startup, replay the **current** journal from the top to rebuild state; older journals are processed only by an explicit "history import".
+  - On startup, replay the **current** journal from the top to rebuild state, up to the length every journal had before the replay began; what the game writes meanwhile (to any journal, or a journal it starts) is live, read once the catch-up is done (astromech-zftk). Older journals are processed only by an explicit "history import".
 - **Companion files:** Status.json, NavRoute.json, Cargo.json, Market.json, Outfitting.json, Shipyard.json, ModulesInfo.json, ShipLocker.json, Backpack.json, FCMaterials.json.
   - Open with shared read access.
   - Retry parsing up to 3× with 5–10 ms back-off on partial JSON. The game rewrites these files in place, and EliteAPI uses a 200 ms debounce plus `FileShare.ReadWrite`.

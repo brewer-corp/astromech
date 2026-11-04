@@ -6,7 +6,10 @@
 //! - Journal: the current `Journal.*.log` is tailed from a byte offset; only complete lines are
 //!   parsed. When the game starts a new journal file, the old one is drained and the new one
 //!   becomes current. On startup the current file is replayed from the start (to rebuild
-//!   state) and the saved position from the store tells us how much of it is new. The current
+//!   state) up to its length at startup, and the saved position from the store tells us how
+//!   much of it is new. Every journal's length is taken before the replay, so what the game
+//!   writes while it runs (to any journal, or a journal it starts) is live: read after the
+//!   catch-up, with the callouts on (astromech-zftk). The current
 //!   file is the newest by modified time once it has a Fileheader, unless it began (by that
 //!   header's UTC time) more than two minutes before the one followed: a backup or sync tool
 //!   touching an older journal never takes over (`Tailer::follow_newest`). A header stamped in
@@ -408,10 +411,13 @@ impl Tailer {
         // Every journal is read from its first line (the Fileheader). At startup that's a replay
         // of what happened before we started; a file the game starts later is live throughout.
         let mut t = JournalTail::new(path.clone(), 0);
-        // A journal we followed before is a replay only up to where we had read it.
+        // A journal we followed before, or one in the folder at startup, is a replay only up to
+        // where we had read it or its length then. During the catch-up what lies past that is
+        // left for the first read after it, which is live with everything (callouts too).
         let known = self.opened.get(&path).copied().flatten().filter(|_| replay);
         let (replayed, live) = match known {
-            Some(read) => (t.read_to(read), t.read_new()),
+            Some(read) if self.caught_up => (t.read_to(read), t.read_new()),
+            Some(read) => (t.read_to(read), vec![]),
             None => (t.read_new(), vec![]),
         };
         let n = replayed.len() + live.len();
@@ -666,26 +672,32 @@ impl Tailer {
             (Some(n), Some(l)) if begins_before(&n, &l) => Some(l),
             (n, _) => n,
         };
+        // Measured before anything is read, so what the game writes during the replay, to any
+        // journal or a new one, is live (astromech-zftk).
+        self.note_startup_lengths(current.as_deref());
         if let Some(n) = current {
             self.open(n, true);
         } else {
             (self.log)("no journal file yet; waiting for the game to create one");
         }
-        self.note_startup_lengths();
         self.on_status();
         self.caught_up = true;
     }
 
-    /// Everything in the folder at startup is history: a journal followed later is a replay up to
-    /// its length now, and only what the game appends afterwards is live. The catch-up may not
-    /// follow the game's current journal (a touched foreign one stamped later, one that can't be
-    /// read just now), so it may only be followed once the game next writes it (astromech-nrhv). The game's latest
-    /// journal is measured through an open handle: on Windows a directory listing lags appends to
-    /// a file the game holds open (astromech-txzq). If it can't be opened just now (a scanner or
-    /// backup tool holds it) the listing's length will do (astromech-ek06): left out, it would be
-    /// taken for new and live from its first line. The others are closed, so the listing is
-    /// right, and opening each of a folder of years of journals would slow every start.
-    fn note_startup_lengths(&mut self) {
+    /// Everything in the folder at startup is history: each journal, `followed` (the one the
+    /// catch-up replays) included, is a replay up to its length now, and only what the game
+    /// writes afterwards is live. Measured before the replay, so a line the game writes while it
+    /// runs, to any journal, and a journal it starts meanwhile, are live (astromech-zftk). The
+    /// catch-up may not follow the game's current journal (a touched foreign one stamped later,
+    /// one that can't be read just now), so it may only be followed once the game next writes it
+    /// (astromech-nrhv). The game's latest journal and `followed` are measured through an open
+    /// handle: on Windows a directory listing lags appends to a file the game holds open
+    /// (astromech-txzq), and a short length would make history live. If one can't be opened just
+    /// now (a scanner or backup tool holds it) the listing's length will do (astromech-ek06):
+    /// left out, it would be taken for new and live from its first line. The others are closed,
+    /// so the listing is right, and opening each of a folder of years of journals would slow
+    /// every start.
+    fn note_startup_lengths(&mut self, followed: Option<&Path>) {
         let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
         let latest = astromech_journal::latest_journal(&self.dir);
         for e in entries.flatten() {
@@ -693,14 +705,13 @@ impl Tailer {
             if !is_journal(&path) {
                 continue;
             }
-            let len = if latest.as_ref() == Some(&path) {
+            let len = if latest.as_ref() == Some(&path) || followed == Some(path.as_path()) {
                 std::fs::File::open(&path).and_then(|f| f.metadata()).or_else(|_| e.metadata())
             } else {
                 e.metadata()
             };
             if let Ok(m) = len {
-                // The one the catch-up follows is in already (`None`: followed).
-                self.opened.entry(path).or_insert(Some(m.len()));
+                self.opened.insert(path, Some(m.len()));
             }
         }
     }
@@ -1532,6 +1543,90 @@ mod tests {
         assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the appended scan");
     }
 
+    /// Run `during` once, from inside the catch-up: when the replay of the followed journal logs.
+    fn during_catch_up(t: &mut Tailer, during: impl FnOnce() + Send + 'static) {
+        let once = std::sync::Mutex::new(Some(during));
+        t.log = Box::new(move |l| {
+            if l.starts_with("journal ") {
+                if let Some(f) = once.lock().unwrap().take() {
+                    f();
+                }
+            }
+        });
+    }
+
+    /// astromech-zftk: the game appends to its current journal while the catch-up replays another
+    /// (a foreign one stamped later is newest). That line is live once the game's journal is
+    /// followed; what the journal held before startup is not.
+    #[test]
+    fn a_line_the_game_writes_to_its_journal_during_the_catch_up_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let (own, foreign) = (d.path().join(game_name(-30)), d.path().join(game_name(180)));
+        std::fs::write(&own, format!("{}{}\n", session(&ts(1800), "r1 "), docked(&ts(30)))).unwrap();
+        std::fs::write(&foreign, session(&ts(20000), "r9 ")).unwrap();
+        touch(&foreign, 10);
+        let (mut t, db) = eddn_tailer(d.path());
+        let own2 = own.clone();
+        during_catch_up(&mut t, move || append(&own2, &docked(&ts(0))));
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, foreign);
+
+        touch(&own, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, own);
+        assert_eq!(eddn_state(&db).0, 1, "the Docked written during the catch-up, not the one before it");
+    }
+
+    /// astromech-zftk: the game starts a new journal while the catch-up replays the previous one.
+    /// The new journal is live from its first line; the previous one's history is not sent.
+    #[test]
+    fn a_journal_the_game_starts_during_the_catch_up_is_live() {
+        let d = tempfile::tempdir().unwrap();
+        let (before, new) = (d.path().join(game_name(-60)), d.path().join(game_name(0)));
+        std::fs::write(&before, format!("{}{}\n", session(&ts(3600), "r1 "), docked(&ts(30)))).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        let new2 = new.clone();
+        during_catch_up(&mut t, move || {
+            std::fs::write(&new2, format!("{}{}\n", session(&ts(1), "r2 "), docked(&ts(0)))).unwrap();
+            touch(&new2, 10);
+        });
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, before);
+        assert_eq!(eddn_state(&db), (0, vec![]), "nothing from the replay");
+
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, new);
+        assert_eq!(eddn_state(&db).0, 2, "the new header's Location and its Docked");
+    }
+
+    /// astromech-zftk: the followed journal grows while it is replayed at startup. What lies past
+    /// its length at startup is read after the catch-up, as live: sent and spoken once.
+    #[test]
+    fn the_followed_journal_past_its_startup_length_is_live_after_the_catch_up() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join(game_name(0));
+        std::fs::write(&j, format!("{}{}\n{}", session(&ts(60), "r1 "), docked(&ts(40)), scanned_at(&ts(30)))).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        let fired = Arc::new(std::sync::Mutex::new(vec![]));
+        let f2 = fired.clone();
+        t.callouts = Some(Callouts {
+            engine: astromech_announce::Engine::new(vec![Box::new(ScanRule)], &Default::default()),
+            deliver: Box::new(move |rs| f2.lock().unwrap().extend(rs.into_iter().map(|r| r.text))),
+        });
+        let j2 = j.clone();
+        during_catch_up(&mut t, move || append(&j2, &format!("{}\n{}", docked(&ts(0)), scanned_at(&ts(0)).trim_end())));
+        // The replay reads only what was there at startup; the rest waits for the catch-up to end.
+        let len = std::fs::metadata(&j).unwrap().len();
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().committed(), len);
+        assert!(fired.lock().unwrap().is_empty());
+        assert_eq!(eddn_state(&db), (0, vec![]));
+
+        t.on_journal_activity();
+        assert_eq!(*fired.lock().unwrap(), ["Cargo scan."], "only the scan written during the catch-up");
+        assert_eq!(eddn_state(&db).0, 1, "only the Docked written during the catch-up");
+    }
+
     /// astromech-ki3j: a sync tool touched an older journal just before we started, and touches it
     /// again later. The state after the catch-up is the game's current journal's (ship, system,
     /// credits), and stays so: the touched journal began earlier, so it is never followed.
@@ -1674,7 +1769,7 @@ mod tests {
         let header = ts(10);
         std::fs::write(&j, session(&header, "r2 ")).unwrap();
         let (mut t, db) = eddn_tailer(d.path());
-        t.open(j.clone(), true);
+        t.catch_up();
 
         std::fs::write(&copy, "").unwrap();
         touch(&copy, 10);
@@ -1711,7 +1806,7 @@ mod tests {
         std::fs::write(&j2, session(&header, "r2 ")).unwrap();
         touch(&j2, 5);
         let (mut t, db) = eddn_tailer(d.path());
-        t.open(j2.clone(), true);
+        t.catch_up();
 
         // A sync tool touches the copy; we follow it (a replay).
         touch(&j1, 10);
@@ -1738,7 +1833,7 @@ mod tests {
         std::fs::write(&j2, session(&header, "r2 ")).unwrap();
         touch(&j2, 5);
         let (mut t, db) = eddn_tailer(d.path());
-        t.open(j2.clone(), true);
+        t.catch_up();
         let mut clock = 10;
         let mut go = |t: &mut Tailer, to: &PathBuf| {
             clock += 10;
@@ -1772,7 +1867,7 @@ mod tests {
         std::fs::write(&j2, "").unwrap();
         touch(&j2, 5);
         let (mut t, db) = eddn_tailer(d.path());
-        t.open(j2.clone(), true);
+        t.catch_up();
         touch(&j1, 10);
         t.on_journal_activity();
         append(&j2, &format!("{}{}", session(&ts(10), "r2 "), docked(&ts(0))));
