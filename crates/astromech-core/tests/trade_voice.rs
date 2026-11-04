@@ -207,7 +207,7 @@ fn a_named_system_is_searched_from_and_named() {
         log.clear();
     }
     let s = spoken(r.assistant.handle("where can I sell painite near Nowhere Prime", Origin::Voice));
-    assert_eq!(s, "Spansh does not know a system called Nowhere Prime.");
+    assert_eq!(s, "Nowhere Prime. Spansh does not know that system.");
     assert_eq!(r.rec.log.lock().unwrap().len(), 1, "no market search from anywhere else");
     // A named system needs no position from the journal.
     r.hub.update(|g| g.system = None);
@@ -226,6 +226,39 @@ fn a_named_system_is_searched_from_and_named() {
         (Would::Speak, "Looks up where to sell Gold on Ardent Insight. Searches from Sol.")
     );
     assert_eq!(d.intent.unwrap().phrase, "where can i sell Gold near Sol");
+}
+
+/// A command that is no lookup, with "near Sol" or "from Sol" after it, gets "Say again", not
+/// "Did you mean famine near Sol?" (astromech-1n9b): the worst of a sweep of every such phrase
+/// against the whole grammar, which asked about a lookup at 0.60 to 0.79.
+#[test]
+fn a_command_with_a_system_after_it_is_not_heard_as_a_lookup() {
+    let r = rig(false);
+    let g = astromech_core::assistant::grammar();
+    for t in [
+        "paste from Sol",
+        "negative near Sol",
+        "affirmative near Sol",
+        "cancel near Sol",
+        "fuel near Sol",
+        "supercruise near Sol",
+        "raise gear near Sol",
+        "back near Sol",
+        "where am i near Sol",
+        "where are we from Sol",
+    ] {
+        let m = g.best(t);
+        assert!(
+            m.decision == astromech_intent::Decision::NoMatch || !astromech_intent::takes_origin(m.command),
+            "{t:?} -> {} {:?} {:.2}",
+            m.command,
+            m.decision,
+            m.score
+        );
+    }
+    let h = r.assistant.handle("paste from Sol", Origin::Voice);
+    assert!(matches!(h, Handled::NotUnderstood), "{h:?}");
+    assert_eq!(r.speaker.take(), vec!["Say again.".to_string()]);
 }
 
 /// A "Did you mean …?" for a question with a named system keeps the system for the yes, and

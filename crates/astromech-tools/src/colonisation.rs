@@ -40,7 +40,7 @@ pub fn describe(ask: Ask, commodity: Option<&str>) -> String {
         Ask::Progress => "Reads the construction project from your journals and says how far along it is.".into(),
         Ask::Remaining => "Reads the construction project from your journals and says what is left to deliver.".into(),
         Ask::Buy => format!(
-            "Looks up where to buy {} for the construction project near you on Ardent Insight.",
+            "Looks up where to buy {} for the construction project on Ardent Insight.",
             commodity.unwrap_or("that")
         ),
     }

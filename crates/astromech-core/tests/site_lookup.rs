@@ -174,7 +174,7 @@ fn a_named_system_is_searched_from_and_named() {
     );
     assert_eq!(
         said("nearest crystalline shards from Nowhere Prime"),
-        "Spansh does not know a system called Nowhere Prime."
+        "Nowhere Prime. Spansh does not know that system."
     );
     speaker.take();
     // without a named system, the position is still needed

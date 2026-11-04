@@ -18,8 +18,9 @@
 //! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
 //! "gimballed").
 //!
-//! A lookup can end in "near <system>" or "from <system>" ([`takes_origin`]): the system is
-//! kept in [`Match::origin`], not matched against the slot ("where can I sell gold near Sol").
+//! A lookup can end in "near <system>" (or "from", "in", "around"; [`takes_origin`]): the
+//! system is kept in [`Match::origin`], not matched against the slot ("where can I sell gold
+//! near Sol").
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -54,10 +55,10 @@ pub struct Match {
     /// was not close, and the shared key lifted it to 0.85, the execute threshold ("boost" for
     /// "paste"). Such a match never executes; [`Grammar::best`] turns its Execute into Ask.
     pub sound_alike: bool,
-    /// The system a lookup searches from, as said after a trailing "near" or "from" ("where
-    /// can I sell gold near Sol"), or the known system's name when it is one. Only for a
-    /// command that [takes an origin](takes_origin); `None` when no system was named, or for
-    /// "near me" and the other [`HERE_WORDS`], which mean the current system.
+    /// The system a lookup searches from, as said after a trailing "near", "from", "in" or
+    /// "around" ("where can I sell gold near Sol"), or the known system's name when it is one.
+    /// Only for a command that [takes an origin](takes_origin); `None` when no system was
+    /// named, or for "near me" and the other [`HERE_WORDS`], which mean the current system.
     pub origin: Option<String>,
     pub score: f32,
     pub decision: Decision,
@@ -459,31 +460,73 @@ pub const MVP: &[(&str, &[&str])] = &[
 ];
 
 /// Commands that search from a place: the station, trade, raw-site, faction-state and Powerplay
-/// target lookups. Each can end in "near <system>" or "from <system>" ([`Match::origin`]).
+/// target lookups, and where to buy for a construction project. Each can end in "near
+/// <system>" (or "from", "in", "around"; [`Match::origin`]).
 pub fn takes_origin(command: &str) -> bool {
-    ["find.", "trade.", "sites.", "faction.", "powerplay."].iter().any(|p| command.starts_with(p))
+    command == "colonisation.buy"
+        || ["find.", "trade.", "sites.", "faction.", "powerplay."].iter().any(|p| command.starts_with(p))
 }
 
-/// What can follow "near" or "from" to mean the current system, as without it.
-pub const HERE_WORDS: &[&str] =
-    &["me", "here", "us", "my location", "my position", "my system", "this system", "where i am", "current system"];
+/// The words before the system a lookup searches from ("where can I sell gold near Sol").
+const ORIGIN_WORDS: &[&str] = &["near", "from", "in", "around"];
 
-/// A transcript ending in "near <place>" or "from <place>", split there: (the words before, the
-/// place as said, or `None` when it is one of the [`HERE_WORDS`]). `None` when it does not end so.
+/// What can follow "near" or the other [`ORIGIN_WORDS`] to mean the current system, as
+/// without it. A short word that sounds like "me" ("mi") means it too.
+pub const HERE_WORDS: &[&str] = &[
+    "me",
+    "here",
+    "us",
+    "you",
+    "by",
+    "my location",
+    "my position",
+    "my system",
+    "my ship",
+    "my current location",
+    "my current position",
+    "my current system",
+    "this system",
+    "where i am",
+    "current system",
+];
+
+/// First words of a place that is no system's name ("from a station", "near my carrier").
+const NOT_A_NAME: &[&str] =
+    &["a", "an", "any", "some", "another", "my", "your", "our", "their", "that", "those", "these"];
+
+/// A transcript ending in "near <place>" (or another of the [`ORIGIN_WORDS`]), split there:
+/// (the words before, the system as said). The system is `None` when the place is one of the
+/// [`HERE_WORDS`], or no system's name ("from a station", "near my carrier"): the lookup
+/// searches from the current system. A trailing "system" is not part of the name ("near the
+/// Sol system"). `None` when it does not end so.
 fn split_origin(t: &str) -> Option<(String, Option<String>)> {
     let words: Vec<&str> = t.split_whitespace().collect();
     let bare = |w: &str| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase();
-    let at = (1..words.len().saturating_sub(1)).rev().find(|&i| matches!(bare(words[i]).as_str(), "near" | "from"))?;
-    let place = words[at + 1..].join(" ");
-    let place = place.trim_end_matches(|c: char| !c.is_alphanumeric()).to_string();
-    let plain: Vec<String> = place.split_whitespace().map(bare).collect();
-    let plain = plain.join(" ");
-    let plain = plain.strip_prefix("the ").unwrap_or(&plain);
-    if plain.is_empty() {
-        return None;
+    let at = (1..words.len().saturating_sub(1)).rev().find(|&i| ORIGIN_WORDS.contains(&bare(words[i]).as_str()))?;
+    let head = words[..at].join(" ");
+    let mut place: Vec<&str> = words[at + 1..].iter().copied().filter(|w| !bare(w).is_empty()).collect();
+    let mut plain: Vec<String> = place.iter().map(|w| bare(w)).collect();
+    let the = plain.first().is_some_and(|w| w == "the");
+    if the {
+        plain.remove(0);
+        place.remove(0);
     }
-    let here = HERE_WORDS.contains(&plain);
-    Some((words[..at].join(" "), (!here).then_some(place)))
+    let first = plain.first()?.clone();
+    let system = plain.len() > 1 && plain.last().is_some_and(|w| w == "system");
+    let here = HERE_WORDS.contains(&plain.join(" ").as_str())
+        || (plain.len() == 1 && first.len() <= 3 && phonetic(&first) == phonetic("me"))
+        || NOT_A_NAME.contains(&first.as_str())
+        // "the" only before "<name> system": "from the station" names no system.
+        || (the && !system);
+    if here {
+        return Some((head, None));
+    }
+    if system {
+        place.pop();
+    }
+    let place = place.join(" ");
+    let place = place.trim_end_matches(|c: char| !c.is_alphanumeric()).to_string();
+    Some((head, Some(place)))
 }
 
 /// True when `heard` names a system for `command` to search from ("... near Sol"). Such a
@@ -930,6 +973,12 @@ impl Grammar {
 
     /// All phrases scored, best first.
     pub fn rank(&self, transcript: &str) -> Vec<Match> {
+        self.ranked(transcript, false)
+    }
+
+    /// [`Grammar::rank`]; `head` as for [`Grammar::best_whole`].
+    fn ranked(&self, transcript: &str, head: bool) -> Vec<Match> {
+        let near_me = [String::from("near"), String::from("me")];
         let u = normalise(transcript);
         let misheard: Option<Vec<String>> = u.iter().any(|w| MISHEARD.iter().any(|(h, _)| h == w)).then(|| {
             u.iter()
@@ -953,6 +1002,10 @@ impl Grammar {
             .iter()
             .enumerate()
             .map(|(i, (p, toks))| {
+                let toks = match head && takes_origin(p.command) {
+                    true => toks.strip_suffix(&near_me).unwrap_or(toks),
+                    false => toks,
+                };
                 let (mut score, mut filled, mut sound_alike) = phrase_score(&u, toks, &fill_u);
                 // An ask-only transcript stays ask-only against a personal phrase too: a learned
                 // "Ill stop" must not make "I'll stop" run (astromech-1c66).
@@ -993,23 +1046,28 @@ impl Grammar {
     }
 
     /// Best match with its decision. A lookup that [takes an origin](takes_origin) may end in
-    /// "near <system>" or "from <system>": the words before are matched on their own, and again
-    /// with "near me" after them (for the phrases that end so, "where is there a famine near
-    /// me"); the better of the two that is a lookup taking an origin wins, its system in
-    /// [`Match::origin`], when it scores at least as well as the whole transcript. Otherwise the
-    /// whole transcript's match stands.
+    /// "near <system>" (or "from", "in", "around"): the words before are matched on their own,
+    /// against its phrases with any "near me" of their own left off ("where is there a famine
+    /// near me"). That lookup wins, its system in [`Match::origin`], when it scores at least as
+    /// well as the whole transcript, or the whole transcript's best is a lookup too (one that
+    /// read the system's name as its own words). Otherwise the whole transcript's match stands,
+    /// except that a lookup it found after a named system is no match: "paste from Sol" is not
+    /// a lookup with "paste" for its words.
     pub fn best(&self, transcript: &str) -> Match {
-        let whole = self.best_whole(transcript);
+        let mut whole = self.best_whole(transcript, false);
         let Some((head, place)) = split_origin(transcript) else {
             return whole;
         };
-        let lookup = |m: Match| (m.decision != Decision::NoMatch && takes_origin(m.command)).then_some(m);
-        let bare = lookup(self.best_whole(&head));
-        let near_me = lookup(self.best_whole(&format!("{head} near me")));
-        let best = [bare, near_me].into_iter().flatten().reduce(|b, n| if n.score > b.score { n } else { b });
-        let mut m = match best {
-            Some(m) if m.score >= whole.score => m,
-            _ => return whole,
+        let lookup =
+            Some(self.best_whole(&head, true)).filter(|m| m.decision != Decision::NoMatch && takes_origin(m.command));
+        let mut m = match lookup {
+            Some(m) if m.score >= whole.score || takes_origin(whole.command) => m,
+            _ => {
+                if place.is_some() && takes_origin(whole.command) {
+                    whole.decision = Decision::NoMatch;
+                }
+                return whole;
+            }
         };
         if let Some(place) = place {
             let words = normalise(&place);
@@ -1022,8 +1080,10 @@ impl Grammar {
         m
     }
 
-    fn best_whole(&self, transcript: &str) -> Match {
-        let ranked = self.rank(transcript);
+    /// The best match of `transcript` with its decision. `head`: score the phrases of the
+    /// lookups that [take an origin](takes_origin) without a "near me" they end in.
+    fn best_whole(&self, transcript: &str, head: bool) -> Match {
+        let ranked = self.ranked(transcript, head);
         let Some(mut best) = ranked.first().cloned() else {
             return Match {
                 command: "",
@@ -1429,6 +1489,88 @@ mod tests {
         let m = g.best("gear down near Sol");
         assert_eq!(m.origin, None);
         assert_eq!(g.best("plot route to Sol").origin, None);
+    }
+
+    /// "in", "around" and "near <system> system" name the system too, and words after "from"
+    /// or "near" that name no system mean here (astromech-1n9b, R4 and R8).
+    #[test]
+    fn a_system_after_in_or_around_is_the_origin_and_other_places_are_here() {
+        let g = trade();
+        let heard = |t: &str| {
+            let m = g.best(t);
+            (m.command, m.slot, m.origin, m.decision)
+        };
+        let sell = |origin: Option<&str>| {
+            ("trade.sell", Some("Gold".to_string()), origin.map(String::from), Decision::Execute)
+        };
+        for t in [
+            "where can I sell gold in Sol",
+            "where can I sell gold around Sol",
+            "where can I sell gold near Sol system",
+            "where can I sell gold near the Sol system",
+            "where can I sell gold in the Sol system.",
+        ] {
+            assert_eq!(heard(t), sell(Some("Sol")), "{t:?}");
+        }
+        assert_eq!(heard("where can I sell gold in Col 285 Sector AB-C d1-2"), sell(Some("Col 285 Sector AB-C d1-2")));
+        // no system's name: searched from here, never "A station. Spansh does not know that system."
+        for t in [
+            "where can I sell gold from a station",
+            "where can I sell gold from the station",
+            "where can I sell gold near my carrier",
+            "where can I sell gold in a hurry",
+            "where can I sell gold near the current system",
+        ] {
+            assert_eq!(heard(t), sell(None), "{t:?}");
+        }
+        // other ways of saying here, and a short word that sounds like "me"
+        for t in [
+            "where can I sell gold near mi",
+            "where can I sell gold near you",
+            "where can I sell gold near my current location",
+            "where can I sell gold near my ship",
+            "where can I sell gold near by",
+            "where is there a famine near mi",
+            "where is there a famine near you",
+            "where is there a famine near my current location",
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.origin.as_deref(), m.decision), (None, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // a longer name that sounds like "me" is still a name
+        assert_eq!(g.best("where is there a war near Nemi").origin.as_deref(), Some("Nemi"));
+        // "in this system" is still part of the exploration phrase
+        let m = g.best("what biology is in this system");
+        assert_eq!((m.command, m.origin, m.decision), ("exploration.biology", None, Decision::Execute));
+    }
+
+    /// A sentence that is no lookup, with " near <system>" or " from <system>" after it, is not
+    /// heard as a lookup: "Say again", not "Did you mean famine near Sol?" (astromech-1n9b, R7).
+    #[test]
+    fn a_named_system_after_a_non_lookup_is_no_match() {
+        let g = trade();
+        for t in [
+            "paste from Sol",
+            "negative near Sol",
+            "affirmative near Sol",
+            "cancel near Sol",
+            "fuel near Sol",
+            "supercruise near Sol",
+            "raise gear near Sol",
+            "back near Sol",
+            "where am i near Sol",
+            "war near Sol",
+        ] {
+            let m = g.best(t);
+            assert!(
+                m.decision == Decision::NoMatch || !takes_origin(m.command),
+                "{t:?} -> {} {:?} {:.2}",
+                m.command,
+                m.decision,
+                m.score
+            );
+            assert_eq!(m.origin, None, "{t:?}");
+        }
     }
 
     #[test]

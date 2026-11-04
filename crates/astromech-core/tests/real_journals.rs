@@ -1131,6 +1131,20 @@ fn eddn_section(dir: &Path, lines: &[JournalLine], ids: &Identities, o: &mut Out
         o.problem(format!("{n} {schema} messages break the schema, e.g. {}", first_errors[schema]));
     }
     o.check(leaks == 0, format!("{leaks} messages carry the commander name outside the header, or the FID"));
+    // A module astromech's list doesn't know refuses the station's whole outfitting message,
+    // whether or not this run sent it: regenerate data/catalog/eddn-outfitting.json.
+    if let Some(v) = std::fs::read(dir.join("Outfitting.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()) {
+        let unknown = astromech_eddn::companion::unknown_modules(&v);
+        o.check(
+            unknown.is_empty(),
+            format!(
+                "Outfitting.json lists {} modules not in data/catalog/eddn-outfitting.json, so outfitting/2 sends \
+                 nothing there: {}; run scripts/gen-eddn-outfitting.py --check against the latest EDCD/FDevIDs",
+                unknown.len(),
+                unknown.join(", ")
+            ),
+        );
+    }
 }
 
 fn edsm_section(lines: &[JournalLine], o: &mut Out) {

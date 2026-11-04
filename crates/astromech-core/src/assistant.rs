@@ -376,7 +376,7 @@ impl Assistant {
             return Handled::Ran { command, outcome: Outcome::Spoken(s) };
         }
         if let Some(ask) = astromech_tools::colonisation::from_command(command) {
-            return Handled::Ran { command, outcome: self.colonisation(ask, slot) };
+            return Handled::Ran { command, outcome: self.colonisation(ask, slot, from) };
         }
         if let Some(ask) = astromech_tools::exploration::from_command(command) {
             return Handled::Ran { command, outcome: self.exploration(ask) };
@@ -413,8 +413,14 @@ impl Assistant {
     }
 
     /// Answer a colonisation question off this thread (a replay of the journals can take a
-    /// while); says "Looking that up." first.
-    fn colonisation(&self, ask: astromech_tools::colonisation::Ask, commodity: Option<&str>) -> Outcome {
+    /// while); says "Looking that up." first. Where to buy searches from the system named in
+    /// `from`, when one was.
+    fn colonisation(
+        &self,
+        ask: astromech_tools::colonisation::Ask,
+        commodity: Option<&str>,
+        from: Option<&str>,
+    ) -> Outcome {
         let game = self.runner.hub.snapshot();
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
@@ -424,10 +430,11 @@ impl Assistant {
         self.say("Looking that up.");
         let (projects, galaxy, speaker) =
             (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
-        let (commodity, now) = (commodity.map(str::to_string), self.clock.now_s());
+        let (commodity, from, now) = (commodity.map(str::to_string), from.map(str::to_string), self.clock.now_s());
         Outcome::LookingUp(std::thread::spawn(move || {
             let lookup = galaxy.as_deref().map(|g| (g, &filters));
-            let m = crate::colonisation::answer(ask, &projects.get(), commodity.as_deref(), lookup, &game, now);
+            let (commodity, from) = (commodity.as_deref(), from.as_deref());
+            let m = crate::colonisation::answer(ask, &projects.get(), commodity, from, lookup, &game, now);
             speaker.say(&m);
             m
         }))

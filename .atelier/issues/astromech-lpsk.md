@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Journal following after a backwards clock correction and a restart"
-updated_at: "2026-11-04T21:17:40.916015916+00:00"
+updated_at: "2026-11-04T23:14:09.881647602+00:00"
 ---
 
 ## Goal

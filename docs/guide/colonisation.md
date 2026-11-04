@@ -38,7 +38,9 @@ claim made since may not show yet.
 - "How is the build going", "what is left to deliver" and "where can I buy steel for the depot"
   are [voice commands](voice-commands.md). With several projects it picks the one you are docked at,
   else the last you delivered to, else the one the game updated last. "No construction project in
-  progress." when there is none.
+  progress." when there is none. Where to buy searches from where you are, or from a system you
+  name at the end ("... for the depot near Sol"; see
+  [Voice lookups](lookups.md#from-another-system)).
 - When you open a market, the `project_market` [callout](callouts.md#colonisation-shopping) says how many of the
   commodities your projects need are in stock: "Sells 5 project commodities."
 

@@ -50,14 +50,15 @@ pub fn named_origin(
     }
     match locate(name) {
         Ok(here) => Ok(Some(here)),
-        // A failed request; anything else is the plain "Spansh does not know a system called …".
-        Err(e) if e.downcast_ref::<astromech_data::Error>().is_some() => Err(lookup::failed(&e.to_string())),
-        Err(e) => Err(e.to_string()),
+        Err(e) => match e.downcast_ref::<astromech_galaxy::UnknownSystem>() {
+            Some(unknown) => Err(lookup::unknown_system(&unknown.0)),
+            None => Err(lookup::failed(&e.to_string())),
+        },
     }
 }
 
 /// An answer searched from a named system says which, first: "From Sol. Nearest refuel: …".
-pub(crate) fn from_named(named: Option<&Here>, answer: String) -> String {
+pub fn from_named(named: Option<&Here>, answer: String) -> String {
     match named {
         Some(h) => format!("From {}. {answer}", h.system),
         None => answer,
@@ -618,7 +619,7 @@ mod tests {
         let n = rec.bodies.lock().unwrap().len();
         assert_eq!(
             answer(&client, &f, &want, &away, Some("Nowhere Prime"), NOW),
-            "Spansh does not know a system called Nowhere Prime."
+            "Nowhere Prime. Spansh does not know that system."
         );
         assert_eq!(rec.bodies.lock().unwrap().len(), n, "no station search");
         // Without a position from the journal, a named system still works.
@@ -660,7 +661,7 @@ mod tests {
         let mut game = GameState { system: Some("Sol".into()), star_pos: Some([0.0; 3]), ..Default::default() };
         game.powerplay.power = Some("Archon Delaine".into());
         let (f, from) = (Filters::default(), Some("Nowhere Prime"));
-        let unknown = "Spansh does not know a system called Nowhere Prime.";
+        let unknown = "Nowhere Prime. Spansh does not know that system.";
         let q = &astromech_galaxy::QUERIES[0];
         assert_eq!(faction_answer(&galaxy, &f, q, &game, from, None, NOW), unknown);
         assert_eq!(targets_answer(&galaxy, &f, astromech_galaxy::Target::Undermine, &game, from), unknown);
