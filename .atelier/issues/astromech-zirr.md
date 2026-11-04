@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T23:03:48.402921464+00:00"
+status: "done"
 title: "Window config: ignore a config.path left by a core that is gone"
-updated_at: "2026-11-04T23:02:39.876758526+00:00"
+updated_at: "2026-11-04T23:03:48.402921464+00:00"
 ---
 
 ## Goal
@@ -46,3 +47,7 @@ Deferred review findings R1 (astromech-69h9) and R2 (astromech-sb1n) on bug/astr
 - 2026-11-04 [decision] A config.path in the old format (just a path, no pid) is ignored, so the window uses the default file.
   Reason: Only a core from before this change writes it, and an update stops that core before the new one starts and overwrites the note; so an old-format note is always a leftover (the upgrade case in R1).
   Rejected: Trust old-format notes as before: keeps the R1 upgrade leftover bug.
+
+## Close Reason
+
+Implemented on bug/astromech-zirr @a1848909. Paths::publish_config now writes config.path as TOML {config, pid, exe} (exe = the publisher's exe file name). Paths::config_in_use follows a note only while that pid runs and its exe file name matches (case-insensitive): Windows via OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION) + GetExitCodeProcess == STILL_ACTIVE + QueryFullProcessImageNameW; elsewhere /proc/<pid>/exe (dev only). A note from a crashed or killed core, one whose pid now belongs to another program, or one in the old path-only format is ignored, so the window uses the default file, as the core it starts does. astromech-store gains a cfg(windows) windows-sys dependency (Win32_Foundation, Win32_System_Threading); Cargo.lock and app/src-tauri/Cargo.lock each gain that one line (the app lock checked with cargo metadata --locked --offline). No shell code changed. docs/ARCHITECTURE.md §18.5 Paths now describes config.path and its liveness rule instead of 'the window can't see that' (R2). Test: store paths::tests::a_note_left_by_a_core_that_is_gone_is_ignored covers a killed pid, a reused pid under another exe name and an old-format note, each naming a deleted --config file, plus a live note; it failed with the liveness filter removed. Evidence astromech-vwue. Decisions: two decision notes on this issue (liveness check; old-format notes ignored). Not compiled here: the cfg(windows) exe_name (no Windows target on this host); Windows CI builds it. Open items: a live core whose exe was renamed while running would have its note ignored (Windows exe name comes from the running image; unlikely). Independent review outstanding.
