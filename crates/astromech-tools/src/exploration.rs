@@ -9,7 +9,7 @@
 //! biology across bodies, so these say both; scan progress is said only while the FSS has not
 //! found everything.
 
-use astromech_announce::discovery::credits as short_credits;
+use astromech_announce::credits::{amount, credits};
 use astromech_announce::session_summary::Unreadable;
 use astromech_exploration::biology::BodyBio;
 use astromech_exploration::system::{BodyView, SystemView};
@@ -68,23 +68,6 @@ const MAX_BODIES: usize = 3;
 /// The most genera named for one body; the rest are counted.
 const MAX_GENERA: usize = 4;
 
-/// "1.2 billion credits", "34 million credits", "578 thousand credits", "900 credits": an
-/// expedition's unsold data runs into billions.
-pub fn credits(c: i64) -> String {
-    let trim = |v: f64| format!("{v:.1}").trim_end_matches(".0").to_string();
-    if c >= 999_950_000 {
-        format!("{} billion credits", trim(c as f64 / 1e9))
-    } else if c >= 999_500 {
-        format!("{} million credits", trim(c as f64 / 1e6))
-    } else if c >= 10_000 {
-        format!("{:.0} thousand credits", c as f64 / 1e3)
-    } else if c == 1 {
-        "1 credit".into()
-    } else {
-        format!("{c} credits")
-    }
-}
-
 /// A body's line: "A 1: Earth-like world, 4.4 million mapped." A name that is not short (a body
 /// named apart from its system's catalogue name) is a sentence of its own, as the copy guide
 /// asks: "Col 285 Sector AB-C d14-123 A 1. Earth-like world, 4.4 million mapped."
@@ -135,7 +118,7 @@ pub fn system_value(v: &SystemView) -> String {
 
 /// "A 1: Earth-like world, 4.4 million mapped."
 fn body_to_map(b: &BodyView) -> String {
-    body_line(&b.short_name, &format!("{}, {} mapped", b.class_name, short_credits(b.value_mapped)))
+    body_line(&b.short_name, &format!("{}, {} mapped", b.class_name, amount(b.value_mapped)))
 }
 
 /// The planets worth mapping, most valuable first, with what mapping them adds, and the scan
