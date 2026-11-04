@@ -6,6 +6,7 @@
 //! (`astromech_exploration::biology::ranked`), and the unsold data from the history
 //! (`astromech_history::UnsoldCache`, the latest commander). Nothing is pressed.
 
+use crate::logging::log;
 use astromech_announce::session_summary::Unreadable;
 use astromech_exploration::{SystemFold, SystemViewCache};
 use astromech_history::{History, UnsoldCache};
@@ -47,10 +48,15 @@ impl Exploration {
     }
 
     /// The latest commander's unsold data: `Ok(None)` without a history (or a commander in it).
+    /// A history that cannot be read is logged with its cause (a lock, the schema, I/O) before
+    /// the answer says only that it is unreadable.
     fn unsold(&self) -> Result<Option<astromech_exploration::Unsold>, Unreadable> {
         let Some(db) = &self.history else { return Ok(None) };
         let mut cache = self.unsold.lock().unwrap_or_else(|e| e.into_inner());
-        cache.unsold_at(db, None).map(|u| u.map(|u| u.unsold)).map_err(|_| Unreadable)
+        cache.unsold_at(db, None).map(|u| u.map(|u| u.unsold)).map_err(|e| {
+            log(&format!("exploration: unsold data from {}: {e}", db.display()));
+            Unreadable
+        })
     }
 }
 

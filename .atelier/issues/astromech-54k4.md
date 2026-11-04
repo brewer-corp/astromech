@@ -4,6 +4,9 @@ id: "astromech-54k4"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-54k4
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Exploration voice answers: near-miss phrases, one credits formatter, logged history errors"
-updated_at: "2026-10-23T00:28:58.350802420+00:00"
+updated_at: "2026-11-04T21:29:17.915464552+00:00"
 ---
 
 ## Goal
@@ -33,3 +36,10 @@ The exploration voice questions don't pull unrelated speech into did-you-mean pr
 ## Context
 
 Review findings e34o, cg58 and 0vov on task/astromech-m3xd (crates/astromech-intent/src/lib.rs:385, crates/astromech-tools/src/exploration.rs:73, crates/astromech-core/src/exploration.rs:53).
+
+## Notes
+
+- 2026-11-04 [decision] The shared spoken credits formatter is astromech_announce::credits (credits() and amount(), the number without the word), not astromech-tools; session_summary::credits and discovery::credits are removed and the exploration answers, lookups, session summary and discovery callout call it.
+  Reason: astromech-tools depends on astromech-announce (scripts/check-deps.py), so a formatter in tools could not be used by the session summary and discovery callout. Discovery keeps its sentence shape ('4.4 million mapped') through amount().
+- 2026-11-04 [decision] Dropped the 'what should i map' phrase and added astromech_intent::EVERYDAY, a short list of everyday questions ('what is in this system', 'what is here', 'how much is my ship/cargo worth'...) that Grammar::mvp scores as a rival: a transcript scoring at least EXECUTE against one, and no better against a command, is NoMatch; it also counts against every command's margin.
+  Reason: Dropping 'what should i map' fixed 'what should I do/say/buy', but 'what is in this system' and 'how much is my cargo worth' are one word from phrases kept on purpose ('what biology is in this system' was asked in the 22 Oct validation; 'how much is my data worth'), and the edit-distance scorer has no notion of a key word, so no phrase edit could push them under ASK. The EXECUTE floor keeps loose speech near an everyday phrase ('what is left' beside 'what is here') scoring as before.

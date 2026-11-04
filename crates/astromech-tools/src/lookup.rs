@@ -2,7 +2,7 @@
 //! values for its grammar slot, and the short spoken answer. The search itself is
 //! `astromech_galaxy::stations::find`.
 
-use astromech_announce::session_summary::credits;
+use astromech_announce::credits::credits;
 use astromech_galaxy::outfitting::{self, ModuleWant};
 use astromech_galaxy::stations::{Found, Service, Want};
 

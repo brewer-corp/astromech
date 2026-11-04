@@ -78,6 +78,8 @@ pub struct Grammar {
     personal: Vec<(String, &'static str)>,
     /// How many of `phrases` are the grammar's own; personal phrases follow them.
     builtin: usize,
+    /// [`EVERYDAY`], normalised: speech that is no command.
+    everyday: Vec<Vec<String>>,
 }
 
 /// Most transcript words one slot can take.
@@ -382,7 +384,6 @@ pub const MVP: &[(&str, &[&str])] = &[
             "what is worth mapping",
             "what's worth mapping",
             "anything worth mapping here",
-            "what should i map",
         ],
     ),
     (
@@ -452,6 +453,23 @@ pub const MVP: &[(&str, &[&str])] = &[
 /// Commands the grammar recognises but the app can't run (yet). They exist so a request is
 /// answered ("I can't do that yet") instead of "didn't catch that" or a wrong near match.
 pub const UNAVAILABLE: &[&str] = &["request_docking", "plot_route", "supercruise", "hyperspace_jump"];
+
+/// Everyday questions that sit one word away from a command phrase ("what is in this system"
+/// beside "what biology is in this system", "how much is my cargo worth" beside "how much is my
+/// data worth") but ask for no command (astromech-54k4). A transcript that is one of these
+/// (scoring at least [`EXECUTE`] against it, and no better against a command) is no match; one
+/// merely near them ("what is left" beside "what is here") is scored as before. They are
+/// rivals to every command, so they count against its margin.
+pub const EVERYDAY: &[&str] = &[
+    "what is in this system",
+    "what's in this system",
+    "what is here",
+    "how much is my ship worth",
+    "how much is this ship worth",
+    "what is my ship worth",
+    "how much is my cargo worth",
+    "what is my cargo worth",
+];
 
 /// Words a whole transcript can consist of when the mic caught only a noise, breath or
 /// acknowledgement (Parakeet's usual output for a near-empty clip). Ignored silently.
@@ -768,7 +786,7 @@ impl Grammar {
             }
         }
         let builtin = phrases.len();
-        Self { phrases, slots: vec![], personal: vec![], builtin }.with_slot(
+        Self { phrases, slots: vec![], personal: vec![], builtin, everyday: vec![] }.with_slot(
             "system",
             systems.iter().map(|s| (*s, *s)),
             None,
@@ -794,8 +812,9 @@ impl Grammar {
         self
     }
 
+    /// The closed grammar ([`MVP`]), with [`EVERYDAY`] speech kept out of it.
     pub fn mvp(systems: &[&str]) -> Self {
-        Self::new(MVP, systems)
+        Self { everyday: EVERYDAY.iter().map(|p| normalise(p)).collect(), ..Self::new(MVP, systems) }
     }
 
     /// Canonical phrase for a command (for "Did you mean …?").
@@ -947,8 +966,13 @@ impl Grammar {
         // ("Krait" against the commodity list) isn't a rival: it could only ever ask.
         let rival = |m: &&Match| m.command != best.command && !(best.slot_exact && m.slot.is_some() && !m.slot_exact);
         let runner = ranked.iter().find(rival).map(|m| m.score).unwrap_or(0.0);
-        let clear = best.score - runner >= MARGIN;
-        best.decision = if best.score >= EXECUTE && clear {
+        let u = normalise(transcript);
+        let everyday =
+            self.everyday.iter().map(|p| phrase_score(&u, p, &|_, _, _| Fill::default()).0).fold(0.0, f32::max);
+        let clear = best.score - runner.max(everyday) >= MARGIN;
+        best.decision = if everyday >= EXECUTE && everyday >= best.score {
+            Decision::NoMatch
+        } else if best.score >= EXECUTE && clear {
             Decision::Execute
         } else if best.score >= ASK {
             Decision::Ask
@@ -1494,7 +1518,6 @@ mod tests {
         for (t, c) in [
             ("Is this system worth mapping?", "exploration.worth_mapping"),
             ("Which bodies are worth mapping?", "exploration.worth_mapping"),
-            ("What should I map?", "exploration.worth_mapping"),
             ("Anything worth mapping here?", "exploration.worth_mapping"),
             ("What is this system worth?", "exploration.system_value"),
             ("What's this system worth?", "exploration.system_value"),
@@ -1550,6 +1573,44 @@ mod tests {
         ] {
             let m = g.best(t);
             assert!(m.decision != Decision::Execute || m.command.starts_with("exploration."), "{t:?} -> {m:?}");
+        }
+    }
+
+    /// Everyday questions one word away from an exploration phrase get no "Did you mean …?"
+    /// for it (astromech-54k4): "what should I do" was asked as "what should I map", "what is
+    /// in this system" as the biology question, "how much is my cargo worth" as the unsold data.
+    #[test]
+    fn everyday_questions_ask_no_exploration() {
+        let g = g();
+        for t in [
+            "What should I do?",
+            "What should I say?",
+            "What should I buy?",
+            "What should I do here?",
+            "What should I map?",
+            "What is in this system?",
+            "What's in this system?",
+            "What is here?",
+            "How much is my ship worth?",
+            "How much is this ship worth?",
+            "What is my ship worth?",
+            "How much is my cargo worth?",
+            "What is my cargo worth?",
+        ] {
+            let m = g.best(t);
+            assert!(m.decision == Decision::NoMatch || !m.command.starts_with("exploration."), "{t:?} -> {m:?}");
+            assert_ne!(m.decision, Decision::Execute, "{t:?} -> {m:?}");
+        }
+        // The exploration phrases they sit beside still execute.
+        for (t, c) in [
+            ("What biology is in this system?", "exploration.biology"),
+            ("What biology is here?", "exploration.biology"),
+            ("How much is my data worth?", "exploration.unsold"),
+            ("How much is this system worth?", "exploration.system_value"),
+            ("What is worth mapping?", "exploration.worth_mapping"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
     }
 
