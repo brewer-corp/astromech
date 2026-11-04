@@ -18,6 +18,12 @@ pub fn failed(why: &str) -> String {
     format!("Could not look that up. {why}")
 }
 
+/// Said when a voice lookup names a system (`name`, as heard) that Spansh does not know, instead
+/// of a search. The name is a sentence of its own, so a long one keeps the line within budget.
+pub fn unknown_system(name: &str) -> String {
+    format!("{name}. Spansh does not know that system.")
+}
+
 /// Said when the galaxy store could not be opened: the one line every star-map voice lookup uses.
 pub const NO_STAR_MAP: &str = "Lookups are not available: the star map could not be opened.";
 

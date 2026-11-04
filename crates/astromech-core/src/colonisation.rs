@@ -3,7 +3,8 @@
 //! way the app's Colonisation page reads them (`astromech_colonisation::from_journal_dir`, with
 //! the hold from `Cargo.json`); where to buy is the page's Ardent lookup
 //! (`astromech_market::list::plan_search`) for that one commodity, from the commander's
-//! system, with the page's remembered filters (`colonisation.buy`). Nothing is pressed.
+//! system or one they named ("... for the depot near Sol"), with the page's remembered filters
+//! (`colonisation.buy`). Nothing is pressed.
 
 use astromech_colonisation::ProjectView;
 use astromech_galaxy::{Filters, Galaxy};
@@ -52,11 +53,13 @@ impl Projects {
 
 /// The spoken answer to a colonisation question about the project docked at, else the one
 /// last delivered to. `commodity` is the grammar slot's value (a catalogue name) for
-/// [`Ask::Buy`].
+/// [`Ask::Buy`], which searches from the system named in `from`
+/// ([`crate::lookups::named_origin`]) when there is one.
 pub fn answer(
     ask: Ask,
     projects: &[ProjectView],
     commodity: Option<&str>,
+    from: Option<&str>,
     lookup: Option<(&Galaxy, &Filters)>,
     game: &GameState,
     now_s: i64,
@@ -76,13 +79,17 @@ pub fn answer(
             let Some((galaxy, filters)) = lookup else {
                 return astromech_tools::lookup::NO_STAR_MAP.into();
             };
-            let (Some(system), Some(pos)) = (game.system.clone(), game.star_pos) else {
-                return astromech_tools::lookup::NO_POSITION.into();
+            let named = match crate::lookups::named_origin(game, from, |n| galaxy.locate(n)) {
+                Ok(n) => n,
+                Err(m) => return m,
             };
-            let here = astromech_galaxy::Here { system, id64: None, pos };
+            let here = match crate::lookups::search_here(game, named.clone()) {
+                Ok(h) => h,
+                Err(m) => return m,
+            };
             let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
             let max_ly = filters.max_distance_ly.unwrap_or(astromech_market::trade::DEFAULT_DISTANCE_LY);
-            match astromech_market::list::plan_search(
+            let said = match astromech_market::list::plan_search(
                 galaxy,
                 &here,
                 range,
@@ -93,7 +100,8 @@ pub fn answer(
             ) {
                 Ok(plan) => words::buy(&need, &plan, max_ly, now_s),
                 Err(e) => e.to_string(),
-            }
+            };
+            crate::lookups::from_named(named.as_ref(), said)
         }
     }
 }
