@@ -21,9 +21,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T22:53:09.641817495+00:00"
+status: "done"
 title: "Voice lookups from a named system: more phrasings, colonisation, copy checks"
-updated_at: "2026-11-04T22:51:38.127636178+00:00"
+updated_at: "2026-11-04T22:53:09.641817495+00:00"
 ---
 
 ## Goal
@@ -56,3 +57,7 @@ Deferred review findings R4–R6 on task/astromech-j75v: crates/astromech-intent
 - 2026-11-04 [decision] The unknown-system voice line is now '<name>. Spansh does not know that system.' (astromech_tools::lookup::unknown_system), chosen in named_origin by downcasting a new typed error astromech_galaxy::UnknownSystem; other locate errors say 'Could not look that up. <reason>'. The galaxy error text the app shows ('Spansh does not know a system called <name>.') is unchanged.
   Reason: R6's copy check found the j75v line breaks the 16-word answer budget on a long procedural name (19 words for NGC 7822 Sector AB-C d14-123). §6.5: a line that may carry a long name says it as its own sentence. A typed error keeps the app's text and lets voice word its own line without matching strings.
   Rejected: Keep the line and test only short names: the check would not exercise the case it exists for.
+
+## Close Reason
+
+Implementer report. Changed (2882f5ff): astromech-intent split_origin takes near/from/in/around, drops a leading 'the' and trailing 'system'; HERE_WORDS gained you, by, my ship, my current location/position/system; a <=3-letter word with phonetic(me) and a place that names no system (a/my/your... or 'the' without 'system') mean here. Grammar::best scores the head against lookup phrases with their trailing 'near me' left off (replacing the appended-'near me' match) and turns a whole-transcript lookup after a named system into NoMatch when the head is no lookup. takes_origin includes colonisation.buy; colonisation::answer takes from (named_origin + search_here + from_named). New astromech_galaxy::UnknownSystem error; voice says '<name>. Spansh does not know that system.' (lookup::unknown_system), other locate errors 'Could not look that up. <reason>'; app text unchanged. lookups::from_named is pub for copy.rs. copy.rs: named variants of target/faction answers, the 'From X.' lead and the unknown line on NGC 7822 Sector AB-C d14-123. Colonisation tester text drops 'near you'. Docs: ARCHITECTURE 5.12, guide lookups/voice-commands/colonisation. All five done-when bullets met; R5 accepted a named system, strategy not narrowed. Deviations: the j75v unknown-system wording changed, because the new copy check showed it at 19 words on a long name (budget 16). Surprises: unsplit 'where can I buy gold from a station' matched colonisation.buy at 0.86 Execute, so non-name places are treated as here, not left unsplit. Proof: evidence astromech-sy10; new intent tests seen failing on the pre-change grammar; reviewer sweep re-run: non-lookup phrases + near/from Sol answered with another command's lookup: 3 before j75v, 58 at j75v, 0 now. Open items: independent review outstanding (no subagents in this assignment); 'in' widens the split, so 'where can I sell gold in bulk' answers 'Bulk. Spansh does not know that system.'; a 1-3 letter m/n-and-vowel system name would be heard as here; voice recognition of these phrasings not measured (no voice eval run); app not touched so pnpm checks not run.
