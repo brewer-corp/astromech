@@ -145,10 +145,25 @@ fn a_neutron_route_stops_at_the_neutron_stars() {
     assert!(form.contains(&("efficiency".into(), "60".into())));
     assert!(form.contains(&("supercharge_multiplier".into(), "6".into())), "the drive's boost: {form:?}");
     assert_eq!(p.source, "neutron plotter");
-    assert_eq!(p.jumps, 128, "Spansh's total, not the stops");
+    // The fixture is trimmed to two legs (10 jumps and 1) but keeps Spansh's `total_jumps` of 128.
+    assert_eq!(p.jumps, 11, "the legs' jumps summed, not Spansh's `total_jumps`");
     let stops: Vec<(&str, Option<&str>)> =
         p.waypoints.iter().map(|w| (w.system.as_str(), w.label.as_deref())).collect();
     assert_eq!(stops, [("Sol", None), ("PSR J1752-2806", Some("neutron boost")), ("Colonia", None)]);
+}
+
+/// The whole Sol to Colonia neutron route Spansh plotted on 22 Oct 2026 (50 ly, boost 4):
+/// `total_jumps` is 128, the number of legs; its 128 legs take 166 jumps.
+#[test]
+fn a_neutron_route_counts_jumps_not_legs() {
+    let rec = Recorded::new(
+        (202, fixture!("spansh-route-queued.json")),
+        &[(200, include_str!("fixtures/spansh-neutron-sol-colonia-50-4.json"))],
+    );
+    let ship = Ship::current(&asp_fleet(), 0.0).unwrap();
+    let p = plot(&client(&rec), "Sol", &ask(Plotter::Neutron, "Colonia"), &ship, NO_WAIT).unwrap();
+    assert_eq!(p.waypoints.len(), 129, "128 legs");
+    assert_eq!(p.jumps, 166, "jumps, not Spansh's 128 legs");
 }
 
 #[test]

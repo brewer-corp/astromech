@@ -103,8 +103,7 @@ limits:
   jumps" (`Plotted::fewest` false). Timings and the comparison with Spansh are in the
   `neutron_plot` module docs.
 - Spansh counts the normal jumps after a boost more cautiously, so its own totals for the same
-  route are higher. (The page currently shows a Spansh neutron route's legs as its jumps,
-  astromech-6h7t, so a Spansh route there looks shorter than it is.)
+  route are higher.
 
 **The exact plotter's input** (read from spansh.co.uk's exact-plotter page and checked against
 the live API on 17 Oct 2026): Spansh's site doesn't send the ship build for the plotter to read.
