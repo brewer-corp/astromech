@@ -147,6 +147,9 @@ const FRESH_LINE_SECS: i64 = 120;
 /// How far apart two journals' start times must be to order them, and how far in the future a
 /// Fileheader may be stamped and still be believed (see [`start_time`]).
 const START_SLACK_SECS: i64 = 120;
+/// The startup length of a followed journal that couldn't be measured: whatever it holds when it
+/// is first read is history (`Tailer::note_startup_lengths`).
+const UNMEASURED: u64 = u64::MAX;
 /// How often an idle pipeline looks for a new journal file.
 const SCAN_EVERY: Duration = Duration::from_secs(1);
 
@@ -407,6 +410,12 @@ impl Tailer {
     }
 
     fn open(&mut self, path: PathBuf, replay: bool) {
+        // One that can't be opened just now (a scanner or backup tool holds it) is left for the
+        // next look: a reader at its start would take all of it for new (astromech-p58u). What
+        // we know of it in `opened` stays, so it is split as it should be when it is opened.
+        if std::fs::File::open(&path).is_err() {
+            return;
+        }
         let saved = self.store.as_ref().and_then(|s| s.journal_offset(&path.display().to_string()).ok().flatten());
         // Every journal is read from its first line (the Fileheader). At startup that's a replay
         // of what happened before we started; a file the game starts later is live throughout.
@@ -676,7 +685,13 @@ impl Tailer {
         // journal or a new one, is live (astromech-zftk).
         self.note_startup_lengths(current.as_deref());
         if let Some(n) = current {
-            self.open(n, true);
+            self.open(n.clone(), true);
+            if self.tail.is_none() {
+                (self.log)(&format!(
+                    "journal {}: can't be read just now; it is replayed once it can be",
+                    n.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()
+                ));
+            }
         } else {
             (self.log)("no journal file yet; waiting for the game to create one");
         }
@@ -692,11 +707,13 @@ impl Tailer {
     /// one that can't be read just now), so it may only be followed once the game next writes it
     /// (astromech-nrhv). The game's latest journal and `followed` are measured through an open
     /// handle: on Windows a directory listing lags appends to a file the game holds open
-    /// (astromech-txzq), and a short length would make history live. If one can't be opened just
-    /// now (a scanner or backup tool holds it) the listing's length will do (astromech-ek06):
-    /// left out, it would be taken for new and live from its first line. The others are closed,
-    /// so the listing is right, and opening each of a folder of years of journals would slow
-    /// every start.
+    /// (astromech-txzq), and a short length would make history live. If the latest can't be
+    /// opened just now (a scanner or backup tool holds it) the listing's length will do
+    /// (astromech-ek06): left out, it would be taken for new and live from its first line. For
+    /// `followed` the listing could be short, and the catch-up would stop its replay there, so
+    /// its length is [`UNMEASURED`] instead: all of it that is there when it is read is history
+    /// (astromech-6rig). The others are closed, so the listing is right, and opening each of a
+    /// folder of years of journals would slow every start.
     fn note_startup_lengths(&mut self, followed: Option<&Path>) {
         let Ok(entries) = std::fs::read_dir(&self.dir) else { return };
         let latest = astromech_journal::latest_journal(&self.dir);
@@ -705,13 +722,16 @@ impl Tailer {
             if !is_journal(&path) {
                 continue;
             }
-            let len = if latest.as_ref() == Some(&path) || followed == Some(path.as_path()) {
-                std::fs::File::open(&path).and_then(|f| f.metadata()).or_else(|_| e.metadata())
+            let handle = || std::fs::File::open(&path).and_then(|f| f.metadata()).map(|m| m.len());
+            let len = if followed == Some(path.as_path()) {
+                Ok(handle().unwrap_or(UNMEASURED))
+            } else if latest.as_ref() == Some(&path) {
+                handle().or_else(|_| e.metadata().map(|m| m.len()))
             } else {
-                e.metadata()
+                e.metadata().map(|m| m.len())
             };
-            if let Ok(m) = len {
-                self.opened.insert(path, Some(m.len()));
+            if let Ok(len) = len {
+                self.opened.insert(path, Some(len));
             }
         }
     }
@@ -1701,6 +1721,93 @@ mod tests {
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, current);
         assert_eq!(eddn_state(&db).0, 1, "only the appended Docked");
+    }
+
+    /// Make `p` unreadable (`false`) or readable again. False if this user reads it anyway (root).
+    #[cfg(unix)]
+    fn readable(p: &Path, yes: bool) -> bool {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(p, std::fs::Permissions::from_mode(if yes { 0o644 } else { 0o000 })).unwrap();
+        yes || std::fs::File::open(p).is_err()
+    }
+
+    /// astromech-p58u: the journal the catch-up follows can't be read at all while it runs (a
+    /// scanner holds it). It isn't read from its start as new once it can be: all it holds then
+    /// is history, and only what the game writes after that is live.
+    #[cfg(unix)]
+    #[test]
+    fn a_followed_journal_unreadable_through_the_catch_up_is_history_once_read() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join(game_name(0));
+        std::fs::write(&j, format!("{}{}\n", session(&ts(60), "r1 "), docked(&ts(30)))).unwrap();
+        if !readable(&j, false) {
+            return; // root reads anything: nothing to test
+        }
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert!(t.tail.is_none(), "nothing followed while it can't be read");
+        readable(&j, true);
+
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j);
+        assert_eq!(eddn_state(&db), (0, vec![]), "its history is a replay");
+        append(&j, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1, "what the game writes next is live");
+    }
+
+    /// astromech-6rig: the journal the catch-up follows can't be measured (a scanner holds it for
+    /// a moment) but opens a moment later. The listing's length, which on Windows lags a file the
+    /// game holds open (here: a line added after the measurement stands for what it missed), must
+    /// not cut the replay short: all the catch-up reads is history. The steps are `catch_up`'s.
+    #[cfg(unix)]
+    #[test]
+    fn a_followed_journal_that_cannot_be_measured_is_replayed_in_full() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join(game_name(0));
+        std::fs::write(&j, format!("{}{}\n", session(&ts(60), "r1 "), docked(&ts(30)))).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        if !readable(&j, false) {
+            return;
+        }
+        t.note_startup_lengths(Some(&j));
+        readable(&j, true);
+        append(&j, &docked(&ts(20)));
+        t.open(j.clone(), true);
+        t.on_status();
+        t.caught_up = true;
+
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db), (0, vec![]), "nothing the catch-up read is live");
+        append(&j, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-p58u, measured: the followed journal's length was taken, then it can't be opened
+    /// for the replay. Once it can, it is split at that length: what the game wrote since is live,
+    /// what it held at startup is not. The steps are `catch_up`'s.
+    #[cfg(unix)]
+    #[test]
+    fn a_followed_journal_unreadable_for_the_replay_is_split_at_its_startup_length() {
+        let d = tempfile::tempdir().unwrap();
+        let j = d.path().join(game_name(0));
+        std::fs::write(&j, format!("{}{}\n", session(&ts(60), "r1 "), docked(&ts(30)))).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.note_startup_lengths(Some(&j));
+        if !readable(&j, false) {
+            return;
+        }
+        t.open(j.clone(), true);
+        assert!(t.tail.is_none());
+        readable(&j, true);
+        append(&j, &docked(&ts(0)));
+        t.on_status();
+        t.caught_up = true;
+
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j);
+        assert_eq!(eddn_state(&db).0, 1, "only the Docked written after startup");
     }
 
     /// astromech-5gxp: a returning player's newest journal is old-scheme (`Journal.YYMMDDHHMMSS`),
