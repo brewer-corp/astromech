@@ -15,9 +15,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T21:06:02.336912447+00:00"
+status: "done"
 title: "Setup shows 'Not set' before the first good status read"
-updated_at: "2026-11-04T21:05:11.840300941+00:00"
+updated_at: "2026-11-04T21:06:02.336912447+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ Onboarding with a status read that has never succeeded shows a 'Checking...' or 
 ## Context
 
 Review finding R4 (astromech-cbbz) on feature/astromech-jo3l: Onboarding.svelte:32, StepButtons.svelte:65.
+
+## Close Reason
+
+Onboarding.svelte tracks why there is no status yet (checking until a read fails, then failed) and passes it to StepButtons, whose rows say 'Checking…' or 'Could not read' instead of 'Not set' while status is null; the push-to-talk row warns only when known unset or unreadable. Tests in Onboarding.test.ts use the fake core's ?slow=never:core_status and ?fail=core_status; both fail on the old components. StepHealth also receives a null status before the first read and was left as it is (out of scope).
