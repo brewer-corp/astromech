@@ -1023,7 +1023,7 @@ async fn neutron_download(
         };
         let url = astromech_galaxy::neutron::RELEASE_URL;
         if let Err(e) = astromech_galaxy::neutron::download(&data_dir(), url, progress) {
-            astromech_log::log(&format!("neutron star file: download failed: {e:#}"));
+            astromech_log::log(&format!("neutron star file: download failed: {e:#}{}", download_detail(&e)));
             return Err(format!("{e:#}"));
         }
         if let Err(e) = app.state::<NeutronKept>().0.get() {
@@ -1034,12 +1034,24 @@ async fn neutron_download(
     .await
 }
 
+/// Why a download couldn't reach the server, as " (cause)" for the log; the page gets only the
+/// sentence.
+fn download_detail(e: &anyhow::Error) -> String {
+    e.downcast_ref::<astromech_data::download::DownloadError>()
+        .and_then(|d| d.detail())
+        .map(|d| format!(" ({d})"))
+        .unwrap_or_default()
+}
+
 /// Whether the published file differs from the one downloaded (a small checksum file, no download).
 #[tauri::command]
 async fn neutron_check() -> Result<Value, String> {
     blocking(|| {
         let newer = astromech_galaxy::neutron::newer_available(&data_dir(), astromech_galaxy::neutron::RELEASE_URL)
-            .map_err(|e| format!("{e:#}"))?;
+            .map_err(|e| {
+                astromech_log::log(&format!("neutron star file: check failed: {e:#}{}", download_detail(&e)));
+                format!("{e:#}")
+            })?;
         Ok(serde_json::json!({ "newer": newer }))
     })
     .await

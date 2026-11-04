@@ -15,9 +15,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-04T21:06:02.132058098+00:00"
+status: "done"
 title: "Settings: repeated save and error messages are not re-announced to screen readers"
-updated_at: "2026-10-22T21:34:32.593835606+00:00"
+updated_at: "2026-11-04T21:06:02.132058098+00:00"
 ---
 
 ## Goal
@@ -31,3 +32,7 @@ The live region's text changes on every save or error (for example by clearing i
 ## Context
 
 Review finding R5 (astromech-axga) on feature/astromech-jo3l: Callouts.svelte:66, ProspectorThresholds.svelte:56.
+
+## Close Reason
+
+New lib/ui/announce.ts empties a live region, awaits Svelte's tick, then sets the text, so a repeated message is a text change. Callouts.svelte now keeps one status string plus a warn flag (replacing error || note); ProspectorThresholds.svelte announces its errors the same way. Test src/modules/settings/announce.test.ts watches the region with a MutationObserver and expects [text, '', text] for a second save and repeated errors; all three fail on the old components. Not checked with a real screen reader (needs Windows/NVDA).

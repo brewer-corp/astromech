@@ -285,7 +285,7 @@ mod tests {
             fn post(&self, _: &[u8]) -> Result<Response, String> {
                 *self.1.lock().unwrap() += 1;
                 self.0.store(false, Ordering::SeqCst);
-                Ok(Response { status: 200, body: "OK".into() })
+                Ok(Response { status: 200, body: "OK".into(), headers: vec![] })
             }
         }
         let calls = Arc::new(Mutex::new(0));

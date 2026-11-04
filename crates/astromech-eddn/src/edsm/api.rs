@@ -56,9 +56,14 @@ impl HttpApi {
             Err(ureq::Error::Transport(t)) => return Err(transport_error(&t, self.timeout)),
         };
         let status = resp.status();
+        let headers = resp
+            .headers_names()
+            .into_iter()
+            .filter_map(|k| Some((k.to_ascii_lowercase(), resp.header(&k)?.to_owned())))
+            .collect();
         let mut body = String::new();
         resp.into_reader().take(MAX_ANSWER).read_to_string(&mut body).map_err(|e| e.to_string())?;
-        Ok(Response { status, body })
+        Ok(Response { status, body, headers })
     }
 }
 
@@ -174,7 +179,7 @@ pub(crate) mod tests {
             self
         }
         pub fn ok(&self, url: &str, body: Value) -> &Self {
-            self.answer(url, Ok(Response { status: 200, body: body.to_string() }))
+            self.answer(url, Ok(Response { status: 200, body: body.to_string(), headers: vec![] }))
         }
         pub fn posts(&self) -> Vec<Value> {
             let calls = self.calls.lock().unwrap();
@@ -232,7 +237,7 @@ pub(crate) mod tests {
         let api = FakeApi::default();
         api.ok(LOGS_URL, serde_json::json!({"msgnum":203,"msg":"Commander name/API Key not found"}));
         assert_eq!(flight_log(&api, &creds()), Err("EDSM 203: Commander name/API Key not found".into()));
-        api.answer(LOGS_URL, Ok(Response { status: 429, body: "slow down".into() }));
+        api.answer(LOGS_URL, Ok(Response { status: 429, body: "slow down".into(), headers: vec![] }));
         assert_eq!(flight_log(&api, &creds()), Err("HTTP 429: slow down".into()));
         // Anything that quotes the key back has it hidden.
         api.answer(LOGS_URL, Err("https://www.edsm.net/api-logs-v1/get-logs?apiKey=k3y: timed out".into()));
@@ -293,12 +298,17 @@ pub(crate) mod tests {
             let mut got = vec![0; len];
             r.read_exact(&mut got).unwrap();
             let mut s = s;
-            write!(s, "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{answer}", answer.len())
-                .unwrap();
+            write!(
+                s,
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nX-Rate-Limit-Remaining: 359\r\nConnection: close\r\n\r\n{answer}",
+                answer.len()
+            )
+            .unwrap();
             (head, got)
         });
         let r = HttpApi::new("astromech/test").post_json(&format!("{base}/api-journal-v1"), b"{\"a\":1}").unwrap();
         assert_eq!((r.status, r.body.len()), (200, long.len()), "not clipped like EDDN's send log text");
+        assert_eq!(r.header("x-rate-limit-remaining"), Some("359"), "headers kept, by lower-case name");
         let (head, body) = h.join().unwrap();
         let head = head.to_ascii_lowercase();
         assert!(head.starts_with("post /api-journal-v1 http/1.1"), "{head}");

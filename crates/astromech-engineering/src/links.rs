@@ -59,7 +59,19 @@ const OPENABLE: &[&str] = &[
 /// with this alone before launching a browser.
 pub fn is_openable_url(url: &str) -> bool {
     // explorer.exe parses its own command line: quotes and commas could turn a URL into switches.
-    OPENABLE.iter().any(|p| url.starts_with(p)) && !url.chars().any(|c| c.is_control() || matches!(c, ' ' | '"' | ','))
+    // A browser reads `\` as `/`, so no link the app builds has one.
+    OPENABLE.iter().any(|p| url.starts_with(p))
+        && !url.chars().any(|c| c.is_control() || matches!(c, ' ' | '"' | ',' | '\\'))
+        && !climbs(url)
+}
+
+/// Whether `url`'s path has a dot segment (`.` or `..`, percent-encoded or not), which a browser
+/// resolves before loading: `https://github.com/brewer-corp/astromech/../../evil` opens
+/// `https://github.com/evil`, so the prefix check alone would let it out.
+fn climbs(url: &str) -> bool {
+    let rest = url.split_once("://").map_or(url, |(_, r)| r);
+    let path = rest.split(['?', '#']).next().unwrap_or_default();
+    path.split('/').any(|seg| matches!(seg.to_ascii_lowercase().replace("%2e", ".").as_str(), "." | ".."))
 }
 
 #[cfg(test)]
@@ -133,6 +145,43 @@ mod tests {
             "",
         ] {
             assert!(!is_openable_url(bad), "{bad}");
+        }
+    }
+
+    /// A dot segment, plain or percent-encoded, or a backslash (read as `/`) would let a browser
+    /// resolve the path out of an allowed prefix to another page on the same host.
+    #[test]
+    fn paths_that_climb_out_of_a_prefix_are_refused() {
+        let climbs = ["..", "%2e%2e", "%2E%2E", ".%2e", "%2e.", ".", "%2e"];
+        for p in ["https://spansh.co.uk/", "https://inara.cz/elite/", "https://github.com/brewer-corp/astromech/"] {
+            for c in climbs {
+                for bad in
+                    [format!("{p}{c}/evil/x"), format!("{p}x/{c}/{c}/evil"), format!("{p}{c}"), format!("{p}{c}?x=1")]
+                {
+                    assert!(!is_openable_url(&bad), "{bad}");
+                }
+            }
+            for bad in [format!("{p}..\\..\\evil"), format!("{p}%2e%2e\\evil"), format!("{p}x\\y")] {
+                assert!(!is_openable_url(&bad), "{bad}");
+            }
+        }
+        // Coriolis and EDSY: a dot segment after the host, or a backslash in the query or fragment.
+        for bad in [
+            "https://coriolis.io/import/../../evil?data=x",
+            "https://coriolis.io/import?data=..\\x",
+            "https://edsy.org/#/I=..\\x",
+        ] {
+            assert!(!is_openable_url(bad), "{bad}");
+        }
+        // Dots that are not a whole segment, and dot segments past the path, are left alone.
+        for ok in [
+            "https://github.com/brewer-corp/astromech/blob/main/docs/guide/getting-started.md",
+            "https://spansh.co.uk/search/..Sol",
+            "https://spansh.co.uk/search/Sol...",
+            "https://inara.cz/elite/starsystem/?search=../x",
+            "https://edsy.org/#/I=../x",
+        ] {
+            assert!(is_openable_url(ok), "{ok}");
         }
     }
 

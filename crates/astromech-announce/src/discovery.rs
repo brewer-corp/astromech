@@ -10,6 +10,7 @@
 //! from its beacon, not a discovery) and stars stay quiet, and so does `FSSAllBodiesFound`,
 //! which the FSS shows itself.
 
+use crate::credits::amount;
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_exploration::system::class_name;
 use astromech_exploration::value::{estimate, terraformable, WORTH_MAPPING};
@@ -20,17 +21,6 @@ use std::time::Duration;
 
 /// Always worth hearing about, whatever their value.
 const PRIZES: &[&str] = &["Earthlike body", "Water world", "Ammonia world"];
-
-/// "4.4 million", "720 thousand".
-pub fn credits(v: i64) -> String {
-    let tenths = (v as f64 / 100_000.0).round() / 10.0;
-    if tenths >= 1.0 {
-        let m = format!("{tenths:.1}");
-        format!("{} million", m.trim_end_matches(".0"))
-    } else {
-        format!("{} thousand", (v as f64 / 1000.0).round() as i64)
-    }
-}
 
 /// The line for a scanned body, or `None` when it isn't a find worth calling out.
 pub fn line(b: &ScanBody) -> Option<String> {
@@ -47,7 +37,7 @@ pub fn line(b: &ScanBody) -> Option<String> {
     }
     let name = class_name(class, None);
     let name = if tf { format!("Terraformable {}", name.to_lowercase()) } else { name };
-    Some(format!("{name}. {} mapped.", credits(mapped)))
+    Some(format!("{name}. {} mapped.", amount(mapped)))
 }
 
 /// The bodies called out in one system.
