@@ -9,13 +9,15 @@
 //!   state) up to its length at startup, and the saved position from the store tells us how
 //!   much of it is new. Every journal's length is taken before the replay, so what the game
 //!   writes while it runs (to any journal, or a journal it starts) is live: read after the
-//!   catch-up, with the callouts on (astromech-zftk). The current
-//!   file is the newest by modified time once it has a Fileheader, unless it began (by that
-//!   header's UTC time) more than two minutes before the one followed: a backup or sync tool
-//!   touching an older journal never takes over (`Tailer::follow_newest`). A header stamped in
-//!   the future (a clock running ahead) is not believed: that journal is not switched to, and
-//!   when followed it gives way to the next journal that has a believable one. At startup it is the newest by modified time or
-//!   the latest by name, whichever began later (`Tailer::catch_up`).
+//!   catch-up, with the callouts on (astromech-zftk). The current file is the newest by
+//!   modified time once it has a believable Fileheader (not stamped in the future: a clock
+//!   running ahead), if the game is writing it now (the game's by `Tailer::classify` and its
+//!   last line stamped within two minutes), or else if it didn't begin (by that header's UTC
+//!   time) more than two minutes before the one followed and the game isn't writing that one. So
+//!   a backup or sync tool touching an older journal, or appending old lines to it, never takes
+//!   over, and after a clock correction the game's journal does (`Tailer::follow_newest`). At
+//!   startup it is the newest by modified time or the latest by name, whichever began later,
+//!   unless the game is writing the newest (`Tailer::catch_up`).
 //! - Because Windows may not report appends to a file the game keeps open until it flushes
 //!   metadata, the tail is read on every Status.json notification (several per second in game)
 //!   and also whenever 250 ms pass since the last read, however the loop was woken
@@ -131,6 +133,24 @@ fn line_is_fresh(line: &str) -> bool {
     (chrono::Utc::now().timestamp() - t.timestamp()).abs() <= FRESH_LINE_SECS
 }
 
+/// The last complete line of a journal, if it ends within the last [`LAST_LINE_WINDOW`] bytes.
+fn last_line(path: &Path) -> Option<String> {
+    use std::io::{Read, Seek, SeekFrom};
+    let mut f = std::fs::File::open(path).ok()?;
+    let len = f.metadata().ok()?.len();
+    let from = len.saturating_sub(LAST_LINE_WINDOW);
+    f.seek(SeekFrom::Start(from)).ok()?;
+    let mut buf = vec![];
+    f.read_to_end(&mut buf).ok()?;
+    let text = String::from_utf8_lossy(&buf);
+    let complete = &text[..text.rfind('\n')?];
+    let line = complete.rsplit('\n').next()?.trim();
+    // A line cut by the window's start isn't whole.
+    (from == 0 || complete.contains('\n')).then(|| line.to_string()).filter(|l| !l.is_empty())
+}
+
+/// How far from a journal's end its last line is looked for (a `Loadout` line can be tens of KB).
+const LAST_LINE_WINDOW: u64 = 64 * 1024;
 /// How long to wait for a file notification before reading the journal anyway.
 const IDLE: Duration = Duration::from_millis(250);
 /// How far a Fileheader's time may be from its name's local time (names have 1 s resolution).
@@ -244,6 +264,8 @@ struct Tailer {
     header_agrees: std::collections::HashMap<PathBuf, bool>,
     /// Each journal's Fileheader time, once it could be read (`Tailer::header_time`).
     headers: std::collections::HashMap<PathBuf, Header>,
+    /// Journals found not being written by the game, with their length then (`being_written`).
+    not_written: std::collections::HashMap<PathBuf, u64>,
     /// Whether a Fileheader time (UTC seconds) is a journal name's local time: `(name, header)`.
     /// The machine's own timezone; tests set another.
     header_check: Box<dyn Fn(i64, i64) -> bool + Send>,
@@ -532,6 +554,35 @@ impl Tailer {
         matches!((self.start_time(a), self.start_time(b)), (Some(x), Some(y)) if x + START_SLACK_SECS < y)
     }
 
+    /// Whether the game on this machine is writing the journal at `path` now: it is the game's by
+    /// `classify`'s rules (a part of the session the game writes, the latest by name of a session
+    /// not left, or one whose Fileheader agrees with its name), without taking it for the
+    /// session, and its last line is stamped within [`FRESH_LINE_SECS`] of now. A tool that touches an older journal, or appends old lines to it, leaves its last
+    /// line old. Once a journal is found not being written at some length it isn't read again
+    /// until its length changes (lines only get older).
+    fn being_written(&mut self, path: &Path) -> bool {
+        let Some((stamp, _)) = astromech_journal::journal_name_stamp(path) else { return false };
+        let Ok(len) = std::fs::metadata(path).map(|m| m.len()) else { return false };
+        if self.not_written.get(path) == Some(&len) {
+            return false;
+        }
+        let games = self.game_session == Some(stamp)
+            || self.header_agrees_with_name(path, stamp)
+            || (!self.retired.contains(&stamp)
+                && astromech_journal::latest_journal(&self.dir).is_some_and(|l| l.file_name() == path.file_name()));
+        if !games {
+            self.not_written.insert(path.to_path_buf(), len);
+            return false;
+        }
+        let fresh = last_line(path).is_some_and(|l| line_is_fresh(&l));
+        if fresh {
+            self.not_written.remove(path);
+        } else {
+            self.not_written.insert(path.to_path_buf(), len);
+        }
+        fresh
+    }
+
     /// Whether the Fileheader's UTC time is the name's local time. Remembered once the header
     /// could be read (a journal may be followed while still empty).
     fn header_agrees_with_name(&mut self, path: &Path, stamp: i64) -> bool {
@@ -658,9 +709,13 @@ impl Tailer {
         }
     }
 
-    /// Switch to the newest journal by modified time when it isn't the one we follow and didn't
-    /// begin before it (see `Tailer::begins_before`): a backup or sync tool touching an older journal
-    /// leaves the game's followed (astromech-ki3j). One with no believable start time yet (no
+    /// Switch to the newest journal by modified time when it isn't the one we follow and the game
+    /// is writing it now (see `Tailer::being_written`), or when it didn't begin before the one we
+    /// follow (see `Tailer::begins_before`) and the game isn't writing that one. So a backup or
+    /// sync tool touching an older journal, or appending old lines to it, leaves the game's
+    /// followed (astromech-ki3j), and after this PC's clock was corrected back the game's journal,
+    /// which can seem to begin before the older one, still takes the session and keeps it
+    /// (astromech-lpsk). One with no believable start time yet (no
     /// Fileheader, or one stamped in the future) is not switched to, so neither a tool's empty
     /// file nor a journal from a clock running ahead is followed; a followed one without one
     /// gives way to any journal that has one, so it can't keep the game's from being read.
@@ -669,7 +724,12 @@ impl Tailer {
         if let Some(n) = newest {
             let switch = match self.tail.as_ref().map(|t| t.path.clone()) {
                 None => true,
-                Some(followed) => followed != n && self.start_time(&n).is_some() && !self.begins_before(&n, &followed),
+                Some(followed) => {
+                    followed != n
+                        && self.start_time(&n).is_some()
+                        && (self.being_written(&n)
+                            || (!self.begins_before(&n, &followed) && !self.being_written(&followed)))
+                }
             };
             if switch {
                 if self.tail.is_some() {
@@ -708,13 +768,14 @@ impl Tailer {
 
     /// Startup: replay the current journal to rebuild state, read Status.json, then go live. The
     /// current journal is the newest by modified time, unless the latest by name began after it
-    /// (a sync tool touched an older one, astromech-ki3j). Only those two are looked at: reading
+    /// (a sync tool touched an older one, astromech-ki3j) and the game isn't writing the newest
+    /// (after a clock correction the game's can seem to begin first, astromech-lpsk). Only those two are looked at: reading
     /// the header of each of years of journals would slow every start.
     fn catch_up(&mut self) {
         let newest = astromech_journal::newest_journal(&self.dir);
         let latest = astromech_journal::latest_journal(&self.dir);
         let current = match (newest, latest) {
-            (Some(n), Some(l)) if self.begins_before(&n, &l) => Some(l),
+            (Some(n), Some(l)) if self.begins_before(&n, &l) && !self.being_written(&n) => Some(l),
             (n, _) => n,
         };
         // Measured before anything is read, so what the game writes during the replay, to any
@@ -993,6 +1054,7 @@ pub fn start_with_eddn(
         noted: Default::default(),
         header_agrees: Default::default(),
         headers: Default::default(),
+        not_written: Default::default(),
         header_check: local_header_check(),
     };
     t.catch_up();
@@ -1032,6 +1094,7 @@ mod tests {
             noted: Default::default(),
             header_agrees: Default::default(),
             headers: Default::default(),
+            not_written: Default::default(),
             header_check: local_header_check(),
         };
         (t, hub, logs)
@@ -1943,7 +2006,8 @@ mod tests {
         let d = tempfile::tempdir().unwrap();
         let j = d.path().join("Journal.2026-10-16T120000.01.log");
         let copy = d.path().join("Journal.2026-10-16T120000.01-DESKTOP-ABC.log");
-        let header = ts(10);
+        // Not stamped now: the game isn't writing it, so a touched copy may be followed.
+        let header = ts(600);
         std::fs::write(&j, session(&header, "r2 ")).unwrap();
         let (mut t, db) = eddn_tailer(d.path());
         t.catch_up();
@@ -1978,7 +2042,8 @@ mod tests {
     #[test]
     fn a_reopened_journal_replays_only_what_was_read_before() {
         let d = tempfile::tempdir().unwrap();
-        let header = ts(10);
+        // Not stamped now: the game isn't writing it, so a touched copy may be followed.
+        let header = ts(600);
         let (j1, j2) = (conflict_copy(d.path(), &header), d.path().join("Journal.2026-10-16T120000.01.log"));
         std::fs::write(&j2, session(&header, "r2 ")).unwrap();
         touch(&j2, 5);
@@ -2005,7 +2070,8 @@ mod tests {
     #[test]
     fn a_journal_left_twice_is_split_at_the_latest_read_point() {
         let d = tempfile::tempdir().unwrap();
-        let header = ts(10);
+        // Not stamped now: the game isn't writing it, so a touched copy may be followed.
+        let header = ts(600);
         let (j1, j2) = (conflict_copy(d.path(), &header), d.path().join("Journal.2026-10-16T120000.01.log"));
         std::fs::write(&j2, session(&header, "r2 ")).unwrap();
         touch(&j2, 5);
@@ -2018,7 +2084,9 @@ mod tests {
             t.on_journal_activity();
             assert_eq!(&t.tail.as_ref().unwrap().path, to);
         };
-        let dock = |id: i64| docked(&ts(0)).replace("\"MarketID\":7", &format!("\"MarketID\":{id}"));
+        // Stamped minutes ago (within EDDN's own age limit), so the game isn't taken to be writing
+        // j2 now and the copy can still be followed.
+        let dock = |id: i64| docked(&ts(200)).replace("\"MarketID\":7", &format!("\"MarketID\":{id}"));
 
         go(&mut t, &j1);
         append(&j2, &dock(8));
@@ -2191,6 +2259,79 @@ mod tests {
         assert_eq!(eddn_state(&db).0, 2);
     }
 
+    /// astromech-lpsk: this PC's clock ran an hour fast when the game started J1, then was
+    /// corrected back and the game restarted (J2, named and stamped by the corrected clock). We
+    /// start once real time has passed J1's header, while the game writes J2: J1 is the latest by
+    /// name and began later, but J2 is the one being written (its header agrees with its name and
+    /// its last line is stamped now), so it is followed, and J1 isn't, also when it is touched.
+    #[test]
+    fn after_a_clock_correction_and_a_restart_the_journal_being_written_is_followed() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) = (d.path().join(game_name(-5)), d.path().join(game_name(-55)));
+        std::fs::write(&j1, format!("{}{}\n", session(&ts(300), "r1 "), docked(&ts(290)))).unwrap();
+        std::fs::write(&j2, format!("{}{}\n", session(&ts(3300), "r2 "), docked(&ts(5)))).unwrap();
+        touch(&j2, 5);
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2, "the journal the game is writing");
+        assert_eq!(eddn_state(&db), (0, vec![]), "the startup replay is silent");
+
+        append(&j2, &docked(&ts(0)));
+        touch(&j2, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(eddn_state(&db).0, 1, "the game's next line is live");
+
+        // A tool touches J1, and appends an old line to it: not followed.
+        touch(&j1, 20);
+        t.on_journal_activity();
+        append(&j1, &docked(&ts(280)));
+        touch(&j1, 30);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2, "J1 isn't being written");
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-lpsk, while running: the same correction with astromech running since before J1
+    /// (no restart). J1 is followed; the game's J2 (began "before" it) takes the session once it
+    /// has lines stamped now.
+    #[test]
+    fn after_a_clock_correction_the_journal_being_written_takes_the_session() {
+        let d = tempfile::tempdir().unwrap();
+        let (j1, j2) = (d.path().join(game_name(-5)), d.path().join(game_name(-55)));
+        std::fs::write(&j1, session(&ts(300), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        std::fs::write(&j2, format!("{}{}\n", session(&ts(3300), "r2 "), docked(&ts(0)))).unwrap();
+        touch(&j2, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, j2);
+        assert_eq!(eddn_state(&db).0, 1, "its fresh line is live; its stale header is not");
+    }
+
+    /// astromech-lpsk's boundary: a journal of this machine (header agrees with its name) that a
+    /// tool touches and appends to is not followed while its last line is old, however recently it
+    /// was written; the game's own is still read.
+    #[test]
+    fn an_older_journal_appended_with_old_lines_is_not_taken_for_one_being_written() {
+        let d = tempfile::tempdir().unwrap();
+        let (older, current) = (d.path().join(game_name(-60)), d.path().join(game_name(0)));
+        std::fs::write(&older, session(&ts(3600), "r0 ")).unwrap();
+        std::fs::write(&current, session(&ts(10), "r1 ")).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        for n in 1..=3u64 {
+            append(&older, &docked(&ts(3000)));
+            touch(&older, 10 * n);
+            t.on_journal_activity();
+            assert_eq!(t.tail.as_ref().unwrap().path, current);
+        }
+        append(&current, &docked(&ts(0)));
+        touch(&current, 40);
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 1);
+    }
+
     /// The same shapes with a restored or copied journal rather than the game's: an old stamp, a
     /// conflict copy and a later part of a session we don't know are not the game's.
     #[test]
@@ -2218,7 +2359,8 @@ mod tests {
     fn following_a_journal_that_is_not_the_latest_is_logged_once() {
         let d = tempfile::tempdir().unwrap();
         let (current, restored) = (d.path().join(game_name(0)), d.path().join(game_name(-600)));
-        let header = ts(10);
+        // Not stamped now: the game isn't writing it, so a touched copy may be followed.
+        let header = ts(600);
         std::fs::write(&current, session(&header, "r1 ")).unwrap();
         std::fs::write(&restored, session(&header, "r0 ")).unwrap();
         let (mut t, _, logs) = tailer(d.path());
@@ -2569,11 +2711,15 @@ mod tests {
     #[test]
     fn a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout() {
         let d = tempfile::tempdir().unwrap();
-        let header = ts(10);
+        // Not stamped now: the game isn't writing it, so a touched copy may be followed.
+        let header = ts(600);
         let (j1, j2) = (conflict_copy(d.path(), &header), d.path().join("Journal.2026-10-16T120000.01.log"));
-        std::fs::write(&j2, format!("{}{}\n{}\n", session(&header, "r2 "), docked(&ts(5)), market_event(&ts(5), 7)))
-            .unwrap();
-        std::fs::write(d.path().join("Market.json"), market_file(&ts(5), 7)).unwrap();
+        std::fs::write(
+            &j2,
+            format!("{}{}\n{}\n", session(&header, "r2 "), docked(&ts(595)), market_event(&ts(595), 7)),
+        )
+        .unwrap();
+        std::fs::write(d.path().join("Market.json"), market_file(&ts(595), 7)).unwrap();
         touch(&j2, 5);
         let (mut t, _, _) = tailer(d.path());
         let fired = Arc::new(std::sync::Mutex::new(vec![]));
