@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Voice lookups: 'in bulk' is not a system name"
-updated_at: "2026-11-04T23:27:02.851266362+00:00"
+updated_at: "2026-11-04T23:37:08.975758106+00:00"
 ---
 
 ## Goal
