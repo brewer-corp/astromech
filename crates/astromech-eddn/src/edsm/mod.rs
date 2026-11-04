@@ -19,7 +19,8 @@
 //!   request is built; they go in batches (the docs allow "a list of message line"), oldest
 //!   first, one game session (commander, version, build) per request. An event EDSM has refused
 //!   before goes after all the others that are due, alone until a request in the same pass has
-//!   stored something; then refused events go in batches of their own (an outage leaves many).
+//!   stored something; then refused events go in batches of their own (an outage leaves many),
+//!   split in halves in the same pass when such a batch fails as a whole.
 //! - EDSM's rate limit: when an answer says no requests are left (`X-Rate-Limit-Remaining: 0`),
 //!   nothing is posted until `X-Rate-Limit-Reset` seconds have passed.
 
@@ -450,8 +451,9 @@ impl Courier {
         let retries = mono >= self.hold_until;
         // Events that failed alone in a row in this pass, with nothing stored in between.
         let mut failed_alone = 0;
-        // Refused events may go in batches in this pass (until such a batch fails).
-        let mut refused_in_batches = true;
+        // Refused events per batch at most in this pass: halved when such a batch fails,
+        // doubled when a request stores something.
+        let mut refused_cap = BATCH;
         loop {
             if self.stop.load(Ordering::SeqCst) || self.switch.get().as_ref() != Some(creds) {
                 return Ok(());
@@ -477,14 +479,15 @@ impl Courier {
             // after all the others (`Outbox::due`), so the good ones go first. Once this pass
             // has stored something, though, EDSM is up, and refused events are most likely an
             // outage's, not poisoned: they go in batches of their own, so the queue an outage
-            // leaves doesn't drain one request per event. If such a batch fails, the rest of
-            // the pass sends them alone again.
+            // leaves doesn't drain one request per event. If such a batch fails, its halves go
+            // next, in this pass, down to the one event EDSM chokes on (astromech-sklz).
             let first_refused = rows[..n].iter().position(|(q, _)| q.refusals > 0);
-            let refused_batch = first_refused == Some(0) && d.sent > 0 && refused_in_batches;
+            let refused_batch = first_refused == Some(0) && d.sent > 0;
             let n = match first_refused {
-                Some(0) if !refused_batch => 1,
-                Some(i) if i > 0 => i,
-                _ => n,
+                Some(0) if refused_batch => n.min(refused_cap),
+                Some(0) => 1,
+                Some(i) => i,
+                None => n,
             };
             rows.truncate(n);
             let body = serde_json::to_vec(&self.request(creds, &rows)).expect("JSON");
@@ -497,6 +500,7 @@ impl Courier {
                     self.cap = (self.cap * 2).min(BATCH);
                     if d.sent > stored_before {
                         failed_alone = 0;
+                        refused_cap = (refused_cap * 2).min(BATCH);
                     }
                 }
                 Answer::Reject(why) => {
@@ -508,9 +512,15 @@ impl Courier {
                 }
                 Answer::Refused(why) if n > 1 && refused_batch => {
                     // Events refused before, failing together: no try counts against them, and
-                    // they go alone instead.
-                    self.outbox.log(wall, JOURNAL, Outcome::Retry, &format!("{why}; {n} refused events, now alone"))?;
-                    refused_in_batches = false;
+                    // the first half goes next. Each split ends with an event alone, whose
+                    // refusal counts, so the pass doesn't loop.
+                    refused_cap = n.div_ceil(2);
+                    self.outbox.log(
+                        wall,
+                        JOURNAL,
+                        Outcome::Retry,
+                        &format!("{why}; {n} refused events, halves now"),
+                    )?;
                 }
                 Answer::Refused(why) if n > 1 => {
                     // Nothing says which event EDSM chokes on: try the halves, and count no try

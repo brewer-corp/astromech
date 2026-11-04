@@ -92,7 +92,9 @@ Powerplay questions, from the journal (examples again):
 
 These search the galaxy and answer with the nearest or best result. They need a network
 connection. They search from where you are, or from a system you name at the end ("where can I
-sell gold near Sol", "nearest interstellar factors from Shinrarta Dezhra"; colonisation aside).
+sell gold near Sol", "nearest interstellar factors from Shinrarta Dezhra", "where can I buy steel
+for the depot in Sol"). Another command with a system after it is not understood: "paste from
+Sol" gets "Say again."
 [Voice lookups](lookups.md#from-another-system) has the details of each.
 
 | You say | What it finds |

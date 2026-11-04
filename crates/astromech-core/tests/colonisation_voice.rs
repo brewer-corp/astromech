@@ -49,6 +49,12 @@ impl Transport for Recorded {
         self.log.lock().unwrap().push(format!("{url} {:?}", req.query));
         let body = if url.ends_with("/system/name/Sol/commodity/name/cmmcomposite/nearby/exports") {
             include_str!("../../astromech-market/tests/fixtures/ardent-buy-cmmcomposite-sol.json")
+        } else if url.ends_with("/api/systems/field_values/system_names") {
+            // Spansh's system names: it knows Sol, and nothing called anything else.
+            match req.query.iter().any(|(k, v)| k == "q" && v.eq_ignore_ascii_case("sol")) {
+                true => r#"{"min_max":[{"id64":10477373803,"name":"Sol","x":0.0,"y":0.0,"z":0.0}],"values":["Sol"]}"#,
+                false => r#"{"min_max":[],"values":[]}"#,
+            }
         } else {
             panic!("no recorded answer for {url}")
         };
@@ -239,6 +245,41 @@ fn where_to_buy_runs_the_pages_lookup_with_its_remembered_filters() {
     assert!(log[0].contains(r#"("maxDistance", "40")"#), "the remembered radius goes to Ardent: {}", log[0]);
 }
 
+/// "... for the depot near Sol" searches from Sol and says so (astromech-1n9b), like the other
+/// lookups; a name Spansh does not know is said plainly and Ardent is not asked.
+#[test]
+fn where_to_buy_from_a_named_system_searches_there_and_says_so() {
+    let r = rig();
+    r.hub.update(|g| {
+        g.system = Some("Achenar".into());
+        g.star_pos = Some([67.5, -119.5, 24.8]);
+    });
+    let (command, said) =
+        answered(r.assistant.handle("Where can I buy CMM composite for the depot near Sol?", Origin::Voice));
+    assert_eq!(command, "colonisation.buy");
+    assert_eq!(
+        said,
+        "From Sol. 4,900 tonnes of CMM Composite still to buy. Nearest: Efremov Plant in Sirius, 9 light years. \
+         10,061 in stock, 5,801 credits. Reported 4 days ago."
+    );
+    let ardent = |log: &[String]| log.iter().filter(|l| l.contains("/nearby/exports")).count();
+    assert_eq!(ardent(&r.rec.log.lock().unwrap()), 1, "asked of Ardent from Sol");
+
+    let (_, said) =
+        answered(r.assistant.handle("where can I buy CMM composite for the build in Nowhere Prime", Origin::Voice));
+    assert_eq!(said, "Nowhere Prime. Spansh does not know that system.");
+    assert_eq!(ardent(&r.rec.log.lock().unwrap()), 1, "Ardent is not asked");
+
+    let d = r.assistant.dry_run("where can I buy steel for the depot near Sol", Source::Typed);
+    assert_eq!(
+        (d.would, d.message.as_str()),
+        (
+            Would::Speak,
+            "Looks up where to buy Steel for the construction project on Ardent Insight. Searches from Sol."
+        )
+    );
+}
+
 #[test]
 fn where_to_buy_something_the_project_does_not_need_says_so() {
     let r = rig();
@@ -252,7 +293,7 @@ fn the_tester_shows_the_question_without_answering_it() {
     let r = rig();
     let d = r.assistant.dry_run("where can I buy steel for the depot", Source::Typed);
     assert_eq!(d.would, Would::Speak);
-    assert_eq!(d.message, "Looks up where to buy Steel for the construction project near you on Ardent Insight.");
+    assert_eq!(d.message, "Looks up where to buy Steel for the construction project on Ardent Insight.");
     let d = r.assistant.dry_run("how is the build going", Source::Typed);
     assert_eq!(d.message, "Reads the construction project from your journals and says how far along it is.");
 }
