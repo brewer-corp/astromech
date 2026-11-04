@@ -18,9 +18,10 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-04T20:39:01.511252594+00:00"
+status: "done"
 title: "open_external: refuse paths that climb out of an allowed prefix"
-updated_at: "2026-11-04T20:37:49.733556150+00:00"
+updated_at: "2026-11-04T20:39:01.511252594+00:00"
 ---
 
 ## Goal
@@ -34,3 +35,7 @@ The predicate refuses `..` and percent-encoded dot segments and backslashes in t
 ## Context
 
 Review finding R1 (astromech-av5v) on feature/astromech-0k88: crates/astromech-engineering/src/links.rs:62. Browsers normalise these to e.g. https://github.com/evil/x. A compromised webview could open any page on github.com, inara.cz or spansh.co.uk (not another host; no explorer switch injection). Existed for the other hosts before.
+
+## Close Reason
+
+is_openable_url refuses a dot segment in the path (before ? or #; '.', '..' and their %2e forms, any case) and a backslash anywhere in the URL. Comparing the raw path against the prefix is then sound, because a path with no dot segments and no backslashes is already normalised as far as the prefix is concerned. New test paths_that_climb_out_of_a_prefix_are_refused covers each form on Spansh, Inara and GitHub (the path-ended prefixes) and backslashes on Coriolis and EDSY, whose prefixes end in the query or fragment so their path cannot climb. only_our_links_are_openable (every link shape the app builds) still passes. Dot segments in a query or fragment are left alone: a browser does not resolve them.
