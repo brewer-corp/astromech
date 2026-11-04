@@ -51,6 +51,7 @@ describe("Settings live regions", () => {
     const seen = texts(region);
     const err = "Prospector: enter a number of seconds from 0 to 86400.";
     await fireEvent.change(box, { target: { value: "lots" } });
+    await waitFor(() => expect(region.textContent).toBe(err));
     await fireEvent.change(box, { target: { value: "lots" } });
     await waitFor(() => expect(seen).toEqual([err, "", err]));
     expect(region.classList.contains("warn-text")).toBe(true);
@@ -63,6 +64,7 @@ describe("Settings live regions", () => {
     const seen = texts(region);
     const err = "Painite: enter a percentage from 0 to 100, or leave it empty to turn it off.";
     await fireEvent.change(box, { target: { value: "lots" } });
+    await waitFor(() => expect(region.textContent).toBe(err));
     await fireEvent.change(box, { target: { value: "lots" } });
     await waitFor(() => expect(seen).toEqual([err, "", err]));
   });
