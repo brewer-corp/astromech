@@ -1073,7 +1073,8 @@ impl<T> JournalCache<T> {
     }
 }
 
-/// The journal file the game is writing: most recently modified `Journal.*.log`.
+/// The most recently modified `Journal.*.log`: usually the one the game is writing, but a backup
+/// or sync tool can touch an older one.
 pub fn newest_journal(dir: &Path) -> Option<PathBuf> {
     let mut v: Vec<(std::time::SystemTime, PathBuf)> = std::fs::read_dir(dir)
         .ok()?

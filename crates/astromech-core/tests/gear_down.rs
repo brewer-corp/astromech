@@ -492,6 +492,13 @@ struct RouteRig {
 
 const CURRENT_JOURNAL: &str = "Journal.2026-10-15T120000.01.log";
 
+/// A journal's first line: the game starts every journal with one, stamped (UTC) when it began.
+fn header_line(ts: &str) -> String {
+    format!("{{\"timestamp\":\"{ts}\",\"event\":\"Fileheader\",\"part\":1}}\r\n")
+}
+
+const CURRENT_HEADER: &str = "2026-10-15T12:00:00Z";
+
 fn jump_line(sys: &str) -> String {
     format!("{{\"timestamp\":\"t\",\"event\":\"FSDJump\",\"StarSystem\":\"{sys}\",\"JumpDist\":9.0}}\r\n")
 }
@@ -501,7 +508,7 @@ fn jump_line(sys: &str) -> String {
 fn route_rig(start: &str, desk: Arc<astromech_core::route::Desk>) -> RouteRig {
     use astromech_announce::route_follow::{RouteFollow, SharedFollower};
     let dir = tempfile::tempdir().unwrap();
-    std::fs::write(dir.path().join(CURRENT_JOURNAL), jump_line(start)).unwrap();
+    std::fs::write(dir.path().join(CURRENT_JOURNAL), header_line(CURRENT_HEADER) + &jump_line(start)).unwrap();
     mock::write_status(&dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
     let follower = SharedFollower::default();
     follower.set(desk);
@@ -527,15 +534,22 @@ fn route_rig(start: &str, desk: Arc<astromech_core::route::Desk>) -> RouteRig {
     RouteRig { dir, hub, said, _pipe: pipe }
 }
 
-/// Append `lines` to the journal `name` in the rig's folder, and nudge the pipeline (it also
-/// reads the journal on Status.json changes).
-fn append(r: &RouteRig, name: &str, lines: &[&str]) {
+/// Append `lines` (a Fileheader stamped `header` first, if given) to the journal `name` in the
+/// rig's folder, and nudge the pipeline (it also reads the journal on Status.json changes).
+fn append_with(r: &RouteRig, name: &str, header: Option<&str>, lines: &[&str]) {
     let mut f = std::fs::OpenOptions::new().create(true).append(true).open(r.dir.path().join(name)).unwrap();
+    if let Some(h) = header {
+        std::io::Write::write_all(&mut f, header_line(h).as_bytes()).unwrap();
+    }
     for l in lines {
         std::io::Write::write_all(&mut f, jump_line(l).as_bytes()).unwrap();
     }
     drop(f);
     mock::write_status(&r.dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
+}
+
+fn append(r: &RouteRig, name: &str, lines: &[&str]) {
+    append_with(r, name, None, lines);
 }
 
 /// The startup catch-up lands in a waypoint: it only tells the follower where the commander
@@ -560,14 +574,16 @@ fn the_catch_up_is_silent_and_a_live_jump_moves_the_route() {
     assert_eq!(*copied.lock().unwrap(), ["Colonia"]);
 }
 
-/// An older journal re-read (a backup or sync tool touched it) is a replay: the route doesn't
-/// move, the clipboard isn't written and nothing is said, though it passes through waypoints.
-/// The tool creates the file and then writes it, and the pipeline follows it in between: what
-/// lands in it afterwards is a replay too (astromech-0d7l).
+/// An older journal a backup or sync tool restores began before the game's, so it is not
+/// followed: the route doesn't move, the clipboard isn't written and nothing is said, though it
+/// passes through waypoints. That holds whether it appears with its lines in it or is created and
+/// then written (astromech-0d7l, astromech-ki3j). A conflict copy of the game's journal (it began
+/// with it) is followed, as a replay, with the same result.
 #[test]
 fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
     use astromech_core::route::{Route, Waypoint};
     const OLDER: &str = "Journal.2026-10-14T080000.01.log";
+    const COPY: &str = "Journal.2026-10-15T120000.01-DESKTOP-ABC.log";
     let (desk, copied) = recording_desk();
     let r = route_rig("Sol", desk.clone());
     wait(|| desk.view().here.as_deref() == Some("Sol"));
@@ -576,14 +592,18 @@ fn a_replayed_older_journal_leaves_the_route_and_clipboard_alone() {
 
     // One that appears with its lines already in it (written elsewhere, then moved in).
     let tmp = r.dir.path().join("restore.tmp");
-    std::fs::write(&tmp, jump_line("Kuk")).unwrap();
+    std::fs::write(&tmp, header_line("2026-10-13T08:00:00Z") + &jump_line("Kuk")).unwrap();
     std::fs::rename(&tmp, r.dir.path().join("Journal.2026-10-13T080000.01.log")).unwrap();
     mock::write_status(&r.dir.path().join("Status.json"), FLAG_IN_MAIN_SHIP, false);
-    wait(|| r.hub.snapshot().system.as_deref() == Some("Kuk"));
-    // One we follow while it is still empty.
+    // One created empty, then written.
     append(&r, OLDER, &[]);
-    wait(|| r.hub.snapshot().journal_file.as_deref() == Some(OLDER));
-    append(&r, OLDER, &["Kuk", "Wolf 359"]);
+    append_with(&r, OLDER, Some("2026-10-14T08:00:00Z"), &["Kuk", "Wolf 359"]);
+    std::thread::sleep(Duration::from_millis(1500));
+    assert_eq!(r.hub.snapshot().journal_file.as_deref(), Some(CURRENT_JOURNAL), "neither is followed");
+    assert_eq!(r.hub.snapshot().system.as_deref(), Some("Sol"));
+
+    // A conflict copy of the game's journal, followed as a replay.
+    append_with(&r, COPY, Some(CURRENT_HEADER), &["Kuk", "Wolf 359"]);
     wait(|| r.hub.snapshot().system.as_deref() == Some("Wolf 359"));
     std::thread::sleep(Duration::from_millis(300));
     assert_eq!(*copied.lock().unwrap(), ["Deciat"], "no clipboard write from a replay");
