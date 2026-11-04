@@ -4,6 +4,9 @@ id: "astromech-8e8m"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-8e8m
 priority: "P2"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "CI: check that commits pushed to main were reviewed"
-updated_at: "2026-10-23T00:00:38.915965180+00:00"
+updated_at: "2026-11-04T21:49:42.375610926+00:00"
 ---
 
 ## Goal

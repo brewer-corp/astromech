@@ -62,10 +62,14 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
   `atelier doctor` on every PR and every push to `main`, record-only commits included. It
   checks every done claim and the whole review history as they will stand on `main`, with
-  Atelier built at the commit the workflow pins (`ATELIER_REV`). It does not check that a
-  commit pushed straight to `main` was reviewed: only `atelier land` on `main`, before the push,
-  refuses unreviewed code or done claims there. Run `atelier doctor` locally before pushing;
-  the Stop hook's `atelier land` checks only what the session changed.
+  Atelier built at the commit the workflow pins (`ATELIER_REV`). On a push to `main` it also
+  runs `atelier land` on `main` over the pushed commits (from the commit `main` was at before the
+  push), so the job fails when a pushed commit changes code without recorded review
+  (`land_base_unreviewed`) or marks an issue done outside review (`land_base_done_claim`), the
+  same refusals `atelier land` on `main` gives before a push. That check comes after the push:
+  the commits are on `main` by then, and the fix is a revert. Run `atelier land` on `main` and
+  `atelier doctor` locally before pushing; the Stop hook's `atelier land` checks only what the
+  session changed.
 - **A change a player can see updates its guide page in the same PR.** That covers a new or
   changed page, setting, voice command, lookup or callout, and anything removed. The page for
   each app page is in [docs/guide/](docs/guide/index.md); the app's Help links point at them, and
