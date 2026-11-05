@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Move the Trade and Materials finders into Places"
-updated_at: "2026-11-05T08:47:45.129072779+00:00"
+updated_at: "2026-11-05T09:34:00.982492657+00:00"
 ---
 
 ## Goal
