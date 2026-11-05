@@ -37,7 +37,8 @@ Click the destination for the **Route** page, also in [Find or plot](using-the-a
 
 - its name, where it came from, and how many waypoints are left;
 - the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
-  it is **on your clipboard**. If the clipboard could not be written, it says why;
+  it is **on your clipboard**. If the clipboard could not be written, it says "Not on the
+  clipboard" and why, with **Try again**;
 - every stop, with the ones behind you struck out and **you are here** next to the first stop
   when you are in it;
 - **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**;

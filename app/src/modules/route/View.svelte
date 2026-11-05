@@ -91,10 +91,11 @@
         <span class="sublabel">Next waypoint</span>
         <span class="sys">{view.next.system}</span>
         {#if view.next.label}<span class="lo">{view.next.label}</span>{/if}
-        <span class:warn={!!view.clipboard_error} class="clip" title={view.clipboard_error ? `Not on the clipboard: ${view.clipboard_error}` : "On your clipboard"}>
-          <Glyph name={view.clipboard_error ? "copy" : "copied"} />
-          {view.clipboard_error ? view.clipboard_error : "On your clipboard"}
-        </span>
+        {#if view.clipboard_error}
+          <Failure text={`Not on the clipboard: ${view.clipboard_error}`} onaction={() => void run(copyNext)} />
+        {:else}
+          <span class="clip"><Glyph name="copied" /> On your clipboard</span>
+        {/if}
       {:else}
         <span class="sublabel">Route finished</span>
         <span class="lo">You reached the last waypoint.</span>
@@ -142,13 +143,11 @@
   h4 { margin: 0 0 var(--sp-3); }
   p { margin: 0 0 6px; }
   .head { display: flex; flex-direction: column; gap: 4px; }
-  .next { display: flex; flex-direction: column; gap: 4px; background: var(--cell-opt); padding: 14px 16px; }
+  /* The next waypoint is a read-only fact: hull (DESIGN.md Surfaces and cells). */
+  .next { display: flex; flex-direction: column; gap: 4px; background: var(--surface); padding: 14px 16px; }
   .next .sys { font-size: 1.45em; color: var(--orange-lit); line-height: 1.15; }
   .sublabel { color: var(--orange-mid); font-size: var(--fs-s); }
-  /* Text in a cell is at least Orange: Orange Mid is too faint there. */
-  .next :is(.sublabel, .lo) { color: var(--accent); }
   .clip { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: var(--fs-s); }
-  .warn { color: var(--alarm); }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .stops { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs); }
   .stops .sys { color: var(--accent); }

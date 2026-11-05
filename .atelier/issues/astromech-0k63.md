@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Route page: clipboard failure as a red ! line, off the old option cell"
-updated_at: "2026-11-05T16:36:17.207659045+00:00"
+updated_at: "2026-11-05T17:08:32.388768233+00:00"
 ---
 
 ## Goal
@@ -32,3 +32,7 @@ The Route page's clipboard failure reads as DESIGN.md's hard error and is legibl
 ## Context
 
 Deferred finding astromech-fzd8 from the yxtz review (reviewer-sonnet-yxtz).
+
+## Notes
+
+- 2026-11-05 [note] Done on task/astromech-dfvp with dfvp: the clipboard failure is Failure.svelte's red ! line with Try again (re-copies) on the Route page's Hull card (alarm on --surface 4.81:1); test in route/View.test.ts; before/after docs/design/cells-route-clipboard-*.png.

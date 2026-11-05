@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/svelte";
-import { fakeCall, fakePlotInGame, resetFakeCore } from "../../lib/fakecore";
+import { fakeCall, fakeClipboard, fakePlotInGame, resetFakeCore } from "../../lib/fakecore";
 import { followRoute } from "../../lib/route";
 import View from "./View.svelte";
 
@@ -43,6 +43,26 @@ describe("Galaxy → Route", () => {
     expect(screen.getByText("3 of 3 waypoints left", { exact: false })).toBeTruthy();
     await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await screen.findByText("2 of 3 waypoints left", { exact: false });
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("shows a clipboard write that failed as a hard error, and TRY AGAIN copies again", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    fakeClipboard("the clipboard is locked by another app");
+    await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }]);
+    render(View);
+    const alert = await screen.findByRole("alert");
+    // DESIGN.md's hard error: a red "!" and plain words, then the recovery; no copy glyph stands in for the "!".
+    expect(alert.textContent).toMatch(/^! Not on the clipboard: the clipboard is locked by another app\s*Try again$/);
+    expect(alert.classList.contains("failure")).toBe(true);
+    expect(alert.querySelector(".glyph")).toBeNull();
+    expect(alert.closest(".next")).toBeTruthy();
+    expect(screen.queryByText("On your clipboard")).toBeNull();
+
+    fakeClipboard(null);
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("On your clipboard")).toBeTruthy();
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
