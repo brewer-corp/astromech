@@ -38,7 +38,7 @@ Move the pages onto DESIGN.md's palette: the game's orange as the base, rank and
 
 ## Context
 
-Pages use the first grey-based tokens (`--text`, `--text-lo`, `--cell-opt`); about 140 `text-transform: uppercase` rules; the active top tab is white while the deepest tabs are orange; "Could not read the route" is a solid orange block. DESIGN.md (revised 25 Oct) keeps grey only for the window background, Options-style row labels and prose, and adds `--alarm` red for stale report ages and hard errors.
+Pages use the first grey-based tokens (`--text`, `--text-lo`, `--cell-opt`); about 140 `text-transform: uppercase` rules; the active top tab is white while the deepest tabs are orange; "Could not read the route" is a solid orange block. DESIGN.md (revised 25 Oct) keeps grey only for the window background, Options-style row labels and prose, and adds `--alarm` red for hard errors only (decision astromech-5p9c); stale rows use Orange Mid facts with the age in Orange.
 
 ## Notes
 
