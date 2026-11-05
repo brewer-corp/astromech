@@ -1912,6 +1912,31 @@ mod tests {
         }
     }
 
+    /// EVERYDAY counts against every command's margin on purpose (astromech-e0im): speech that
+    /// is closer to a command than to an everyday question, but not clearly, asks rather than
+    /// answers. An extra "yes" costs less than confidently reading out the wrong number in
+    /// flight. Dropping the `runner.max(everyday)` term in `best_whole` would make these execute.
+    #[test]
+    fn everyday_margin_asks_for_near_misses() {
+        let g = g();
+        for (t, c) in [
+            ("How much is my unsold cargo worth?", "exploration.unsold"),
+            ("How much is my dater worth?", "exploration.unsold"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+        }
+        assert_ne!(g.best("what is is in this system").decision, Decision::Execute);
+        // The exploration phrases they sit beside still execute.
+        for (t, c) in [
+            ("How much is my data worth?", "exploration.unsold"),
+            ("What biology is in this system?", "exploration.biology"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+    }
+
     /// "Pace." (a likely mishearing of "paste") shared "back"'s phonetic key and closed the panel
     /// (astromech-8997). A soft "c" sounds like "s", so it no longer matches "back".
     #[test]
