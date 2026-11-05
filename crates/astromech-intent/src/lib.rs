@@ -490,33 +490,21 @@ pub const HERE_WORDS: &[&str] = &[
     "current system",
 ];
 
-/// First words of a place that is no system's name ("from a station", "near my carrier"), and
-/// of a quantity ("in bulk", "in large quantities").
-const NOT_A_NAME: &[&str] = &[
-    "a",
-    "an",
-    "any",
-    "some",
-    "another",
-    "my",
-    "your",
-    "our",
-    "their",
-    "that",
-    "those",
-    "these",
-    "bulk",
-    "large",
-    "quantity",
-    "quantities",
-];
+/// First words of a place that is no system's name ("from a station", "near my carrier", "in
+/// large amounts"). A known system that starts so ("Any Na", "A Bootis") is still a name.
+const NOT_A_NAME: &[&str] =
+    &["a", "an", "any", "some", "another", "my", "your", "our", "their", "that", "those", "these", "large"];
+
+/// Words that make a place a quantity wherever they appear in it ("in small quantities").
+const QUANTITY: &[&str] = &["bulk", "quantity", "quantities"];
 
 /// A transcript ending in "near <place>" (or another of the [`ORIGIN_WORDS`]), split there:
 /// (the words before, the system as said). The system is `None` when the place is one of the
 /// [`HERE_WORDS`], or no system's name ("from a station", "near my carrier", "in bulk"): the lookup
-/// searches from the current system. A trailing "system" is not part of the name ("near the
-/// Sol system"). `None` when it does not end so.
-fn split_origin(t: &str) -> Option<(String, Option<String>)> {
+/// searches from the current system. A place `known` accepts (a known system's name) is a name
+/// even when it starts like none ("near Any Na"). A trailing "system" is not part of the name
+/// ("near the Sol system"). `None` when it does not end so.
+fn split_origin(t: &str, known: impl Fn(&str) -> bool) -> Option<(String, Option<String>)> {
     let words: Vec<&str> = t.split_whitespace().collect();
     let bare = |w: &str| w.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase();
     let at = (1..words.len().saturating_sub(1)).rev().find(|&i| ORIGIN_WORDS.contains(&bare(words[i]).as_str()))?;
@@ -532,7 +520,8 @@ fn split_origin(t: &str) -> Option<(String, Option<String>)> {
     let system = plain.len() > 1 && plain.last().is_some_and(|w| w == "system");
     let here = HERE_WORDS.contains(&plain.join(" ").as_str())
         || (plain.len() == 1 && first.len() <= 3 && phonetic(&first) == phonetic("me"))
-        || NOT_A_NAME.contains(&first.as_str())
+        || ((NOT_A_NAME.contains(&first.as_str()) || plain.iter().any(|w| QUANTITY.contains(&w.as_str())))
+            && !known(&place[..place.len() - usize::from(system)].join(" ")))
         // "the" only before "<name> system": "from the station" names no system.
         || (the && !system);
     if here {
@@ -544,13 +533,6 @@ fn split_origin(t: &str) -> Option<(String, Option<String>)> {
     let place = place.join(" ");
     let place = place.trim_end_matches(|c: char| !c.is_alphanumeric()).to_string();
     Some((head, Some(place)))
-}
-
-/// True when `heard` names a system for `command` to search from ("... near Sol"). Such a
-/// phrase is never a personal alias: the alias would stand for the command alone and search
-/// from the current system.
-pub fn names_origin(heard: &str, command: &str) -> bool {
-    takes_origin(command) && matches!(split_origin(heard), Some((_, Some(_))))
 }
 
 /// Commands the grammar recognises but the app can't run (yet). They exist so a request is
@@ -932,15 +914,28 @@ impl Grammar {
 
     /// Personal alias: this transcript should map to `command` next time (still policy-capped).
     /// An [ask-only](is_ask_only) phrase is refused, so it keeps asking, and so is one that
-    /// [names a system](names_origin) to search from. True if added.
+    /// [names a system](Grammar::names_origin) to search from. True if added.
     pub fn add_alias(&mut self, heard: &str, command: &'static str) -> bool {
         let toks = normalise(heard);
-        if toks.is_empty() || is_ask_only(heard) || names_origin(heard, command) {
+        if toks.is_empty() || is_ask_only(heard) || self.names_origin(heard, command) {
             return false;
         }
         self.phrases.push((Phrase { command, text: heard.trim().to_string() }, toks));
         self.personal.push((heard.trim().to_string(), command));
         true
+    }
+
+    /// True when `heard` names a system for `command` to search from ("... near Sol"). Such a
+    /// phrase is never a personal alias: the alias would stand for the command alone and search
+    /// from the current system.
+    pub fn names_origin(&self, heard: &str, command: &str) -> bool {
+        takes_origin(command) && matches!(split_origin(heard, |p| self.known_system(p).is_some()), Some((_, Some(_))))
+    }
+
+    /// The `{system}` slot's value when `place` is exactly one of its phrasings.
+    fn known_system(&self, place: &str) -> Option<String> {
+        let words = normalise(place);
+        Some(self.fill("system", &words)).filter(|f| f.exact && !words.is_empty()).map(|f| f.value)
     }
 
     /// Forget a personal alias added by [`Grammar::add_alias`] (every copy of it). The grammar's own
@@ -1072,7 +1067,7 @@ impl Grammar {
     /// a lookup with "paste" for its words.
     pub fn best(&self, transcript: &str) -> Match {
         let mut whole = self.best_whole(transcript, false);
-        let Some((head, place)) = split_origin(transcript) else {
+        let Some((head, place)) = split_origin(transcript, |p| self.known_system(p).is_some()) else {
             return whole;
         };
         let lookup =
@@ -1087,9 +1082,7 @@ impl Grammar {
             }
         };
         if let Some(place) = place {
-            let words = normalise(&place);
-            let known = Some(self.fill("system", &words)).filter(|f| f.exact && !words.is_empty());
-            let place = known.map_or(place, |f| f.value);
+            let place = self.known_system(&place).unwrap_or(place);
             let phrase = m.phrase.strip_suffix(" near me").unwrap_or(&m.phrase);
             m.phrase = format!("{phrase} near {place}");
             m.origin = Some(place);
@@ -1541,6 +1534,11 @@ mod tests {
             "where can I sell gold in bulk",
             "where can I sell gold in large quantities",
             "where can I sell gold in quantity",
+            // a quantity word anywhere in the place (astromech-3n7q, R1)
+            "where can I sell gold in small quantities",
+            "where can I sell gold in big quantities",
+            "where can I sell gold in really large bulk",
+            "where can I sell gold in any quantity",
         ] {
             assert_eq!(heard(t), sell(None), "{t:?}");
         }
@@ -1563,6 +1561,38 @@ mod tests {
         // "in this system" is still part of the exploration phrase
         let m = g.best("what biology is in this system");
         assert_eq!((m.command, m.origin, m.decision), ("exploration.biology", None, Decision::Execute));
+    }
+
+    /// A known system whose name starts like no system's name ("Any Na", "A Bootis", "MY
+    /// Apodis") is still the origin; the same words for a system it does not know mean here
+    /// (astromech-3n7q, R2).
+    #[test]
+    fn a_known_system_is_the_origin_even_when_it_starts_like_no_name() {
+        let systems = [("Any Na", "Any Na"), ("A Bootis", "A Bootis"), ("MY Apodis", "MY Apodis")];
+        let g = trade().with_slot("system", systems, None);
+        for (t, origin) in [
+            ("where can I sell gold near Any Na", "Any Na"),
+            // as Parakeet heard Kokoro say it
+            ("Where can I sell gold near any Na?", "Any Na"),
+            ("where can I sell gold near any na", "Any Na"),
+            ("where can I sell gold near A Bootis", "A Bootis"),
+            ("where can I sell gold from a bootis", "A Bootis"),
+            ("where can I sell gold near MY Apodis", "MY Apodis"),
+            ("where is there a famine near my apodis", "MY Apodis"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.origin.as_deref(), m.decision), (Some(origin), Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // other places with those first words still mean here
+        for t in ["where can I sell gold near my carrier", "where can I sell gold from a station"] {
+            assert_eq!(g.best(t).origin, None, "{t:?}");
+        }
+        // and a grammar that does not know them reads them as here, as before
+        assert_eq!(trade().best("where can I sell gold near Any Na").origin, None);
+        // a phrase naming a known system is never learned as a personal phrase
+        let mut g2 = trade().with_slot("system", systems, None);
+        assert!(g.names_origin("where is there a famine near A Bootis", "faction.famine"));
+        assert!(!g2.add_alias("where is there a famine near A Bootis", "faction.famine"));
     }
 
     /// A sentence that is no lookup, with " near <system>" or " from <system>" after it, is not

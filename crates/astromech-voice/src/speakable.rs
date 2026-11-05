@@ -6,13 +6,14 @@
 //! line says, only how it is written; the on-screen/console text stays as authored.
 //!
 //! Rules (each is covered by the table test below):
-//! - Procedural names (`Synuefe BY-F d12-39`): the two-letter and one-letter blocks are spelled
-//!   (`B Y F`); the mass code is the letter, then its numbers, with the dash spoken
-//!   (`D 12 dash 39`). An upper-case letter is used because espeak says a lone capital by its
-//!   letter name, whereas a lone lower-case `d` can be read as a word fragment. Pilots say the
-//!   dash too, and it keeps the two numbers from running into "twelve thirty-nine".
-//! - Catalogue prefixes (`HIP`, `HD`, `LHS`, `Col`, ...), only when a number follows, so
-//!   "Col. Smith" stays a colonel: initialisms are spelled, words that people say as words (HIP,
+//! - Procedural names (`Synuefe BY-F d12-39`, in any case: a heard name may be lower case): the
+//!   two-letter and one-letter blocks are spelled (`B Y F`); the mass code is the letter, then its
+//!   numbers, with the dash spoken (`D 12 dash 39`). An upper-case letter is used because espeak
+//!   says a lone capital by its letter name, whereas a lone lower-case `d` can be read as a word
+//!   fragment. Pilots say the dash too, and it keeps the two numbers from running into "twelve
+//!   thirty-nine".
+//! - Catalogue prefixes (`HIP`, `HD`, `LHS`, `Col`, ..., in any case), only when a number follows,
+//!   so "Col. Smith" stays a colonel: initialisms are spelled, words that people say as words (HIP,
 //!   Collinder) are written as that word.
 //! - Names respelled wherever they appear: `LTD` is expanded; ores, commodities and catalogues
 //!   (Gliese, 2MASS) that espeak mis-stresses are respelled.
@@ -25,8 +26,8 @@
 //! - Words are matched without surrounding quotes, brackets, sentence punctuation or a
 //!   possessive `'s` ("Taaffeite's").
 
-/// Catalogue and survey prefixes, matched whole-word and case-sensitively, and only before a
-/// number ("HD 164595", not "HD video").
+/// Catalogue and survey prefixes, matched whole-word in any case, and only before a number ("HD
+/// 164595", not "HD video"): a heard name can come back as "hip 12345".
 const PREFIXES: &[(&str, &str)] = &[
     ("HIP", "Hip"),
     ("HD", "H D"),
@@ -208,24 +209,25 @@ fn split_punct(t: &str) -> (&str, &str, &str) {
 
 /// Rules for a single non-numeric word; `before_number` when a number follows it.
 fn word(w: &str, before_number: bool) -> String {
-    if let Some((_, v)) = PREFIXES.iter().find(|(k, _)| before_number && *k == w) {
+    if let Some((_, v)) = PREFIXES.iter().find(|(k, _)| before_number && k.eq_ignore_ascii_case(w)) {
         return v.to_string();
     }
     if let Some((_, v)) = NAMES.iter().find(|(k, _)| k.eq_ignore_ascii_case(w)) {
         return v.to_string();
     }
     let b = w.as_bytes();
-    // Procedural block "BY-F".
+    // Procedural block "BY-F" (or "by-f", as heard).
     if b.len() == 4
-        && b[0].is_ascii_uppercase()
-        && b[1].is_ascii_uppercase()
+        && b[0].is_ascii_alphabetic()
+        && b[1].is_ascii_alphabetic()
         && b[2] == b'-'
-        && b[3].is_ascii_uppercase()
+        && b[3].is_ascii_alphabetic()
     {
-        return format!("{} {} {}", b[0] as char, b[1] as char, b[3] as char);
+        let up = |c: u8| c.to_ascii_uppercase() as char;
+        return format!("{} {} {}", up(b[0]), up(b[1]), up(b[3]));
     }
-    // Mass code "d12" or "d12-39": letter a-h, then numbers.
-    if b.len() >= 2 && (b'a'..=b'h').contains(&b[0]) {
+    // Mass code "d12" or "d12-39" (or "D12-39", as heard): letter a-h, then numbers.
+    if b.len() >= 2 && (b'a'..=b'h').contains(&b[0].to_ascii_lowercase()) {
         let digits = &w[1..];
         let mut parts = digits.splitn(2, '-');
         let first = parts.next().unwrap_or("");
@@ -309,6 +311,16 @@ mod tests {
         ("LP 98-132 and 12-39 LTT 1445", "L P 98-132 and 12-39 L T T 1445"),
         ("Gliese 876", "Gleeza 876"),
         ("Col 285", "Collinder 285"),
+        // A heard name, in whatever case speech recognition returned it (astromech-3n7q).
+        ("col 285 sector ab-c d14-123", "Collinder 285 sector A B C D 14 dash 123"),
+        ("Col 285 sector ab-c d14-123.", "Collinder 285 sector A B C D 14 dash 123."),
+        ("hip 12345", "Hip 12345"),
+        ("Hd 1234, lhs 3447", "H D 1234, L H S 3447"),
+        // ... and as Parakeet heard Kokoro say them (4 Nov 2026).
+        ("Col 285 sector a B-C D14-123.", "Collinder 285 sector a B-C D 14 dash 123."),
+        ("Coal 285 sector, ABC D 14-123.", "Coal 285 sector, ABC D 14-123."),
+        ("HIP 12,345.", "Hip 12345."),
+        ("Sinuf XOPC 22-17.", "Sinuf XOPC 22-17."),
         // Ore and commodities.
         ("Low Temperature Diamonds 43.5%", "Low Temperature Diamonds 43.5 percent"),
         ("LTD and LTDs", "Low Temperature Diamonds and Low Temperature Diamonds"),
