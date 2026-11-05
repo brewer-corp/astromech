@@ -135,7 +135,7 @@
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
-  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
+  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .station { font-weight: 500; }

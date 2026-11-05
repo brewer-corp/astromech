@@ -135,14 +135,14 @@
   .err::before { content: "! "; font-weight: 600; }
   h3 { margin: 22px 0 8px; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
+  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
   .tiles div.go { outline: 1px solid var(--accent); }
   .tiles div.go .v { color: var(--accent); }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
-  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
+  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
   .body { font-weight: 500; white-space: nowrap; }
   .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }

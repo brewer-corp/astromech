@@ -248,18 +248,20 @@
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .q { font-family: var(--mono); font-size: var(--fs-l); }
   .eng { align-items: center; }
-  .bar { flex: 1 1 6rem; min-width: 4rem; height: 4px; background: var(--cell-opt); align-self: center; }
+  .bar { flex: 1 1 6rem; min-width: 4rem; height: 4px; background: var(--line); align-self: center; }
   .bar i { display: block; height: 100%; background: var(--accent); }
   .none { color: var(--prose); padding: 28px 20px; }
   .rail { display: flex; gap: 8px; overflow-x: auto; flex: none; padding: 12px 12px 16px; border-top: 1px solid var(--line); }
-  .pick { display: flex; align-items: center; gap: 12px; min-width: 13rem; padding: 10px 12px; background: var(--cell-empty); color: inherit; text-decoration: none; }
-  .pick:hover { background: var(--row-hover); }
-  .pick.on { background: var(--cell); }
+  /* The ship rail is read-only navigation on the hull: the ship shown reads like an active page
+     tab (Orange Lit name, a 2 px orange underline), so the page keeps one fill. */
+  .pick { display: flex; align-items: center; gap: 12px; min-width: 13rem; padding: 10px 12px; background: var(--surface); color: inherit; text-decoration: none; }
+  .pick:hover { background-color: var(--row-hover); }
+  .pick.on { background: linear-gradient(var(--accent), var(--accent)) bottom / 100% 2px no-repeat, var(--surface); }
+  .pick.on:hover { background-color: var(--row-hover); }
   .pick-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .pick-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pick.on .pick-name { color: var(--orange-lit); }
   .pick-type, .pick-now { font-size: var(--fs-s); color: var(--orange-mid); }
-  .pick.on :is(.pick-type, .pick-now) { color: var(--accent); } /* text in a cell is at least Orange */
   .pick.now .pick-now { color: var(--accent); }
   @media (max-width: 900px) {
     .ship { grid-template-columns: minmax(0, 1fr); }

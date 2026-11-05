@@ -95,7 +95,7 @@
   <dl>
     {#each checks as c (c.id)}
       <dt>{c.label}</dt>
-      <dd class:warn={!c.ok && c.required}>
+      <dd class:value={!c.ok && !!c.fix} class:warn={!c.ok && c.required}>
         <span>{c.text}</span>
         {#if !c.ok && c.fix}<Button onclick={c.fix.run}>{c.fix.label}</Button>{/if}
       </dd>
@@ -104,7 +104,7 @@
   {#if ready}
     <p>Ready. Start Elite, hold push-to-talk and say “gear down”.</p>
   {:else}
-    <p class="lo">Fix the highlighted rows; voice needs them. The rest can wait.</p>
+    <p class="lo">Fix the rows marked !; voice needs them. The rest can wait.</p>
   {/if}
 </div>
 

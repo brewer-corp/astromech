@@ -147,7 +147,7 @@
   dd { margin: 0; }
   .q { font-family: var(--mono); color: var(--orange-lit); }
   .work { font-size: var(--fs-s); }
-  .bar { display: inline-block; width: 8rem; height: 6px; background: var(--cell-empty); vertical-align: middle; margin-right: 8px; }
+  .bar { display: inline-block; width: 8rem; height: 6px; background: var(--line); vertical-align: middle; margin-right: 8px; }
   .bar span { display: block; height: 100%; background: var(--accent); }
   .lo { color: var(--orange-mid); }
   .err { color: var(--alarm); }

@@ -84,7 +84,7 @@
         </li>
       {/each}
     </ol>
-    <div class="prompt" class:busy>
+    <div class="prompt">
       {#if busy}
         Recording…
       {:else if next.step === 0}
@@ -107,15 +107,16 @@
   .cal { display: grid; gap: 12px; }
   p { margin: 0; line-height: 1.45; }
   .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); }
-  .steps li { display: flex; justify-content: space-between; min-height: 30px; align-items: center; padding: 0 12px; background: var(--cell-empty); color: var(--orange-mid); }
-  .steps li.past { background: var(--cell-opt); color: var(--accent); }
-  .steps li.now { background: var(--cell); color: var(--orange-lit); }
-  .prompt { min-height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--cell-opt); color: var(--orange-lit); font-size: var(--fs-l); }
-  .prompt.busy { background: var(--cell); }
+  /* Read-only progress and results: the steps and prompt on the hull, state by brightness (done
+     Orange, now Orange Lit, to come Orange Mid); the measured levels are facts, outside a cell. */
+  .steps li { display: flex; justify-content: space-between; min-height: 30px; align-items: center; padding: 0 12px; background: var(--surface); color: var(--orange-mid); }
+  .steps li.past { color: var(--accent); }
+  .steps li.now { color: var(--orange-lit); }
+  .prompt { min-height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--surface); color: var(--orange-lit); font-size: var(--fs-l); }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: 30px; display: flex; align-items: center; }
   dt { color: var(--options-grey); }
-  dd { background: var(--cell-opt); }
+  dd { color: var(--accent); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .err { color: var(--alarm); }
   b { font-weight: 600; }

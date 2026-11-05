@@ -21,7 +21,7 @@ if that stays.
 ### Voice
 
 - **Push-to-talk** and **Kill switch.** The buttons you chose. **Change** opens that setup
-  step. If push-to-talk is not set, voice cannot listen and this row is highlighted.
+  step. If push-to-talk is not set, voice cannot listen and this row is marked with an orange "!".
 - **Speech models.** "Installed", the download progress, or "Not downloaded (about 800 MB)"
   with a **Download** button.
 - **Voice.** "Listening while Elite runs" or "Paused". **Pause** and **Resume** control whether

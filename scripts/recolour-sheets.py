@@ -9,7 +9,7 @@ For each PDF in data/devices/vkb/:
   3. Everything outside the mask is flat artwork. Split each pixel into a local background level
      (grey dilation) and "ink" on top of it, then map:
         white page   -> --bg        light fields (both stripe shades) -> --cell-empty (unbound box)
-        grey header  -> --cell-opt  black ink    -> light grey text/lines
+        grey header  -> #2b2d2e (the retired --cell-opt grey)  black ink -> light grey text/lines
         red leaders  -> muted orange (--accent-dim)  blue link -> grey
   4. Tone-map the photo for a dark background, and draw a 2 px outline round the mask.
 Writes app/public/devices/vkb/<name>.png (the files the app shows). Credit: VKB Gaming,

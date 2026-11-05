@@ -211,7 +211,7 @@
   .q { color: var(--accent); font-family: var(--mono); }
   .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
   .meta { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
-  .total { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 16px 8px 8px; padding: 14px 16px; background: var(--cell-empty); }
+  .total { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 16px 8px 8px; padding: 14px 16px; background: var(--surface); } /* read-only summary: hull */
   .pair { display: inline-flex; align-items: baseline; gap: 8px; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .total .q { font-size: var(--fs-l); }

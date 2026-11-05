@@ -252,8 +252,8 @@ components:
 <!-- Target system (astromech-c4i0), revision 3: revised 25 Oct 2026 after Sumeet's review,
 then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
 Tokens: app/src/design/tokens.css, mapped in Token map below. The pages moved to the orange
-ramp and the caps rule with astromech-yxtz. Still to be brought in line: astromech-dfvp (cells
-mean editable), astromech-sllo (two tab rows), astromech-dzwy (one face). Mockups:
+ramp and the caps rule with astromech-yxtz, and to cells-mean-editable with astromech-dfvp.
+Still to be brought in line: astromech-sllo (two tab rows), astromech-dzwy (one face). Mockups:
 docs/design/design-system-*.png. -->
 
 ## Overview
@@ -562,6 +562,24 @@ problem with the old GO cell. Copy stays visible beside every system name.
 darker Hull or no surface at all. Material tiles, specs, engineer cards, results, chips and
 summaries are never ember cells. *Why:* in the game a brighter brown slot is something you
 set; the audit showed what happens when facts wear the same brown.
+
+A read-only card or tile that holds controls (a ship module card with its blueprint dropdowns)
+is Hull; only the controls inside it are cells. A read-only state on a card is shown by
+brightness (an unlocked engineer's name in Orange Lit, one not yet introduced in Orange Mid),
+never by a cell, a fill or a coloured side border.
+
+### Facts, stats and meters
+
+- **Fact list:** read-only label and value pairs (ship specs, Diagnostics, a test's result, the
+  side panel's facts). The label in Label, Orange Mid (Options Grey on Controls and Settings-style
+  pages), the value in Orange; on the window, or grouped in a Hull block. On a Settings-style page
+  a fact lines up with the cell text beside it but has no cell.
+- **Multi-value stat:** one label naming the values in order ("Jump min / current / max"), then
+  the values in Figures, separated by an Orange Mid "|", with one unit after the last.
+- **Meter:** a Seam track, 2 to 6 px high, filled from the left in Orange; the material tile's
+  track and the shopping list's fill Orange Mid and turn Orange Lit when full. No label inside the
+  track; the figure beside it says how much. *Why:* the trader tile's bar, kept thin so the
+  number stays the main value.
 
 ### Settings row (kept)
 

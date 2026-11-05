@@ -46,14 +46,14 @@
   .head, .row { display: grid; grid-template-columns: 260px 240px 1fr; gap: var(--gap); }
   .head { color: var(--orange-mid); font-size: var(--fs-s); padding-bottom: 6px; }
   .row { min-height: 30px; margin-bottom: var(--gap); }
-  .row > span { background: var(--cell-empty); padding: 0 12px; display: flex; align-items: center; color: var(--options-grey); }
-  .row.new > span { background: var(--cell); color: var(--orange-lit); }
-  .row.new .lo, .dev .lo { color: var(--accent); } /* text in a cell is at least Orange */
+  /* The press log and the device list are read-only: hull, and the newest press is Orange Lit. */
+  .row > span { background: var(--surface); padding: 0 12px; display: flex; align-items: center; color: var(--options-grey); }
+  .row.new > span { color: var(--orange-lit); }
   .row.empty { grid-template-columns: 1fr; }
   /* Listening (DESIGN.md States): the cell filled orange, On Orange caps. */
   .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
   .row.empty .lo { color: var(--on-accent); }
-  .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--cell-opt); margin-bottom: var(--gap); }
+  .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--surface); margin-bottom: var(--gap); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
   p.lo { color: var(--prose); }

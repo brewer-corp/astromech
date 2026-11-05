@@ -136,7 +136,7 @@ describe("onboarding: health check", () => {
     expect(await screen.findByText("No preset found to check")).toBeTruthy();
     expect(screen.getByText("Not downloaded (about 800 MB)")).toBeTruthy();
     expect(screen.getByText("No microphone found")).toBeTruthy();
-    expect(screen.getByText(/Fix the highlighted rows/)).toBeTruthy();
+    expect(screen.getByText(/Fix the rows marked !/)).toBeTruthy();
     const ptt = screen.getByText("Push-to-talk", { selector: "dt" }).nextElementSibling as HTMLElement;
     await fireEvent.click(within(ptt).getByRole("button", { name: "Set" }));
     expect(screen.getByRole("heading", { name: "Push-to-talk" })).toBeTruthy();

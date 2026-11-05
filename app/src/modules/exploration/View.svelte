@@ -100,7 +100,7 @@
               <td>{b.class_name}</td>
               <td class="num">{b.distance_ls === null ? "–" : `${Math.round(b.distance_ls).toLocaleString()} ls`}</td>
               <td class="num">{b.gravity_g === null ? "" : `${b.gravity_g.toFixed(2)} g`}</td>
-              <td><div class="facts">{#each facts(b) as f (f)}<span class="fact">{f}</span>{/each}</div></td>
+              <td><div class="facts">{#each facts(b) as f (f)}<Badge>{f}</Badge>{/each}</div></td>
               <td class="num">{credits(b.value)}</td>
               <td class="num">{b.star ? "" : credits(b.value_mapped)}</td>
               <td><div class="note">
@@ -167,9 +167,8 @@
   .err::before { content: "! "; font-weight: 600; }
   .lo { color: var(--orange-mid); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-bottom: 18px; }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
-  /* Text on an ember cell is at least Orange (until astromech-dfvp moves these tiles to the hull). */
-  .k { font-size: var(--fs-s); }
+  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; }
   th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 14px 6px 0; }
@@ -177,7 +176,6 @@
   .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
   .name { font-weight: 500; white-space: nowrap; }
   .facts { display: flex; flex-wrap: wrap; gap: 4px; }
-  .fact { padding: 0 6px; background: var(--cell-opt); font-size: var(--fs-s); }
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }
   tr.worth .name { color: var(--orange-lit); }
   p.note { margin-top: 18px; font-size: var(--fs-s); max-width: 52rem; }

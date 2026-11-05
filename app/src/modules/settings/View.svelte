@@ -126,7 +126,7 @@
         />
       </dd>
       <dt>Setup</dt>
-      <dd>
+      <dd class="value">
         <span>{status.onboarded === false ? "Not finished" : "Done"}</span>
         <Button onclick={() => (location.hash = "#/setup")}>Run again</Button>
       </dd>
@@ -136,24 +136,24 @@
     <h3 class="section">Voice</h3>
     <dl>
       <dt>Push-to-talk</dt>
-      <dd class:warn={!status.ptt}>
+      <dd class="value" class:warn={!status.ptt}>
         <span>{button(status.ptt) ?? "Not set"}</span>
         <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
       <dt>Kill switch</dt>
-      <dd>
+      <dd class="value">
         <span>{button(status.kill_switch) ?? "Not set"}</span>
         <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
       <dt>Speech models</dt>
-      <dd class:warn={status.models_missing && !status.models_progress}>
+      <dd class:value={status.models_missing && !status.models_progress} class:warn={status.models_missing && !status.models_progress}>
         <span>{status.models_progress ?? (status.models_missing ? "Not downloaded (about 800 MB)" : "Installed")}</span>
         {#if status.models_missing && !status.models_progress}
           <Button onclick={() => run("download_models")}>Download</Button>
         {/if}
       </dd>
       <dt>Voice</dt>
-      <dd>
+      <dd class="value">
         <span>{status.voice_paused ? "Paused" : "Listening while Elite runs"}</span>
         <Button onclick={() => run(status?.voice_paused ? "resume_voice" : "pause_voice")}>{status.voice_paused ? "Resume" : "Pause"}</Button>
       </dd>
@@ -197,12 +197,12 @@
     <h3 class="section">Microphone</h3>
     <dl>
       <dt>Device</dt>
-      <dd class:warn={!!mics && !mics.names.length}>
+      <dd class="value" class:warn={!!mics && !mics.names.length}>
         <span>{mics ? (mics.setting ? (mics.chosen ?? `${mics.setting} (not connected)`) : `Windows default${mics.default ? ` · ${mics.default}` : ""}`) : "—"}</span>
         <Button onclick={() => (location.hash = "#/setup/mic")}>Change</Button>
       </dd>
       <dt>Calibration</dt>
-      <dd class:warn={gate == null}>
+      <dd class="value" class:warn={gate == null}>
         <span>{gate != null ? `Ignores clips quieter than ${gate.toFixed(0)} dBFS` : "Not calibrated"}</span>
         <Button onclick={() => (calibrating = true)}>{gate != null ? "Run again" : "Calibrate"}</Button>
       </dd>
@@ -224,7 +224,7 @@
         <Button onclick={() => openUrl("https://github.com/brewer-corp/astromech/releases")}>Release notes</Button>
       </dd>
       <dt>Updates</dt>
-      <dd class:warn={u?.status === "error"}>
+      <dd class="value" class:warn={u?.status === "error"}>
         <span>{updateLine()}</span>
         {#if u?.ready && u.status !== "applying"}
           <Button onclick={() => run("install_update", "Installing… astromech will close and reopen.")}>Install and restart</Button>
@@ -269,8 +269,10 @@
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
-  dd { background: var(--cell-opt); color: var(--accent); gap: 24px; justify-content: space-between; }
-  dd.warn { background: var(--cell); }
+  /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
+     cell (.value); a status with no such action is a fact, outside a cell. */
+  dd { color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd.value { background: var(--cell); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }

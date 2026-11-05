@@ -14,8 +14,9 @@ the page says "Could not read the materials" and gives the reason. It never show
 
 Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
 
-- Each cell is a material, with how many you hold out of its cap. The fill shows how close it is
-  to the cap, and an empty material is dim. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5.
+- Each tile is a material, with how many you hold out of its cap. The line along its bottom
+  fills towards the cap; a material you have none of is dim, in an outline. The one you click is
+  filled orange. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5.
 - The line under the tabs says which trader trades this kind, and the total held out of the
   total capacity.
 - **Other** lists materials not on a trader: Guardian, Thargoid and anything else the journal

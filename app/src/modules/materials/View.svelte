@@ -67,11 +67,14 @@
     return () => clearInterval(t);
   });
 
-  function fill(c: Cell) {
+  // DESIGN.md's material tile: a 2 px track along the bottom edge fills Orange Mid with
+  // count / cap, Orange Lit at the cap. A tile with none has no track.
+  function track(c: Cell) {
     const p = c.capacity > 0 ? Math.min(1, c.count / c.capacity) : 0;
     // A few units of a 300-cap is otherwise a 1px sliver; keep a readable min fill while held.
-    const vis = c.count > 0 ? Math.max(p, 0.12) : 0;
-    return `linear-gradient(90deg, var(--cell) ${vis * 100}%, var(--cell-empty) ${vis * 100}%)`;
+    const vis = c.count > 0 ? Math.max(p, 0.04) : 0;
+    const ink = p >= 1 ? "var(--orange-lit)" : "var(--orange-mid)";
+    return `${ink} ${vis * 100}%, var(--line) ${vis * 100}%`;
   }
 
   let about: HTMLElement | undefined = $state();
@@ -121,7 +124,7 @@
       {#if kindId === "other" && inv}
         <div class="other">
           {#each inv.other as c (c.id)}
-            <button class="cell" class:sel={selId === c.id} style:background={fill(c)} onclick={() => pick(c.id)}>
+            <button class="cell" class:sel={selId === c.id} style:--track={track(c)} onclick={() => pick(c.id)}>
               <span class="n">{c.name}</span>
               <span class="q">{c.count} / {c.capacity}</span>
             </button>
@@ -138,7 +141,7 @@
           {#each kind.groups as g (g.name)}
             <div class="rh">{g.name}</div>
             {#each g.cells as c (c.id)}
-              <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:background={fill(c)} onclick={() => pick(c.id)}>
+              <button class="cell" class:sel={selId === c.id} class:empty={c.count === 0} style:--track={track(c)} onclick={() => pick(c.id)}>
                 <span class="n">{c.name}</span>
                 <span class="q">{c.count} / {c.capacity}</span>
               </button>
@@ -213,10 +216,15 @@
   .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--orange-mid); font-size: var(--fs-s); }
   .gh { justify-content: center; }
   .rh { padding: 0 10px; }
-  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; text-align: left; }
-  .cell:hover { outline: 1px solid var(--orange-dim); outline-offset: -1px; }
-  .cell.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
+  /* Read-only tiles on the hull (DESIGN.md Material tile); none held is Void inside a Seam
+     outline, all Orange Dim; the selected one, which the side panel explains, is solid orange. */
+  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; text-align: left; background: linear-gradient(90deg, var(--track)) bottom / 100% 2px no-repeat, var(--surface); }
+  .cell:hover { background-color: var(--row-hover); }
+  .cell.empty { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
   .cell.empty .n, .cell.empty .q { color: var(--orange-dim); }
+  .cell.sel, .cell.sel:hover { background: var(--accent); outline: 0; }
+  .cell.sel :is(.n, .q) { color: var(--on-accent); }
+  .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
   .n { font-size: var(--fs-s); line-height: 1.25; }
   .q { font-family: var(--mono); font-size: var(--fs-s); }
   .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }

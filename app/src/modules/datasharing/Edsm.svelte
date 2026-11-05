@@ -76,7 +76,7 @@
   <Stale error={readErr} />
   <dl>
     <dt>Upload to EDSM</dt>
-    <dd>
+    <dd class="value">
       <span>{label(st)}</span>
       <Button onclick={toggle} disabled={busy}>{st.enabled ? "Turn off" : "Turn on"}</Button>
     </dd>
@@ -144,8 +144,10 @@
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--options-grey); }
-  dd { background: var(--cell-opt); color: var(--accent); gap: 24px; justify-content: space-between; }
-  dd.warn { background: var(--cell); }
+  /* DESIGN.md Settings row: a value the commander changes with its action word sits in an ember
+     cell (.value); a status with no such action is a fact, outside a cell. */
+  dd { color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd.value { background: var(--cell); }
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }

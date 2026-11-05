@@ -70,13 +70,13 @@
 <div class="setup-step">
   <dl>
     <dt>Push-to-talk</dt>
-    <dd class:warn={status ? !status.ptt : unread === "failed"}><span>{shown(status?.ptt)}</span><Button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</Button></dd>
+    <dd class="value" class:warn={status ? !status.ptt : unread === "failed"}><span>{shown(status?.ptt)}</span><Button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</Button></dd>
     <dt>Kill switch</dt>
-    <dd><span>{shown(status?.kill_switch)}</span><Button onclick={() => capture("kill_switch")}>{status?.kill_switch ? "Change" : "Set"}</Button></dd>
+    <dd class="value"><span>{shown(status?.kill_switch)}</span><Button onclick={() => capture("kill_switch")}>{status?.kill_switch ? "Change" : "Set"}</Button></dd>
   </dl>
   {#if capturing}
     <p>{capturing === "ptt" ? "Press the button you'll hold to speak." : "Press a button Elite doesn't use, for the kill switch."}</p>
-    <div class="press" class:got={!!got}>{got ? control(got.device, got.key) : "Press a button, hat or key…"}</div>
+    <div class="press slot" class:got={!!got}>{got ? control(got.device, got.key) : "Press a button, hat or key…"}</div>
     {#if clash}
       <p class="warn-text">That's already the {capturing === "ptt" ? "kill switch" : "push-to-talk button"}. Pick another.</p>
     {:else if inGame.length}

@@ -48,13 +48,13 @@
     {#if mics.names.length}
       <dl>
         <dt>Use</dt>
-        <dd class:on={!mics.setting}>
+        <dd class="value" class:on={!mics.setting}>
           <span>Windows default{mics.default ? ` · ${mics.default}` : ""}</span>
           {#if mics.setting}<Button onclick={() => pick("")}>Use</Button>{:else}<span class="lo">Chosen</span>{/if}
         </dd>
         {#each mics.names as n (n)}
           <dt></dt>
-          <dd class:on={mics.chosen === n}>
+          <dd class="value" class:on={mics.chosen === n}>
             <span>{n}</span>
             {#if mics.chosen === n}<span class="lo">Chosen</span>{:else}<Button onclick={() => pick(n)}>Use</Button>{/if}
           </dd>

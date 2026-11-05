@@ -66,7 +66,7 @@
   .err { color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 14px; }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
+  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }

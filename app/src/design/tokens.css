@@ -1,8 +1,9 @@
 /* astromech visual system. The rules are in DESIGN.md at the repo root; this file holds its
    tokens, and DESIGN.md's Token map names the variable for each of its roles. Its palette is
    the game's orange ramp on warm brown surfaces over a neutral near-black, with one semantic
-   red for hard errors. --cell-opt is the last token from the first, grey-based palette; it goes
-   when astromech-dfvp moves each cell to --cell or --surface. No Frontier assets; fonts are OFL. */
+   red for hard errors. The ember cells (--cell, --cell-hover, --cell-empty) are only for values
+   the commander can change; read-only things sit on --surface or --bg. No Frontier assets;
+   fonts are OFL. */
 @import "@fontsource/saira-semi-condensed/400.css";
 @import "@fontsource/saira-semi-condensed/500.css";
 @import "@fontsource/saira-semi-condensed/600.css";
@@ -16,7 +17,6 @@
 
   --bg: #0c0d0f; /* window: DESIGN.md "void", neutral like the game's blurred backdrop */
   --cell: #3d220f; /* binding cell; DESIGN.md "ember cell" for every editable value. Game #42230e */
-  --cell-opt: #2b2d2e; /* grey option cell; replaced by --cell under DESIGN.md */
   --cell-empty: #1c1610; /* unbound slot; DESIGN.md "ember empty" */
   --row-hover: #21170f; /* DESIGN.md "row hover": a read-only row or tile under the pointer */
   --accent: #fa6e00; /* DESIGN.md "orange": base text, headings, actions and the selection fill */

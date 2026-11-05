@@ -218,9 +218,11 @@
     return fleet.groups[m.group ?? ""]?.blueprints.find((b) => b.id === bp)?.max_grade ?? 5;
   }
 
-  function fill(m: MatLine) {
+  /** How much of the need is held, as a 2 px Seam track under the name that fills Orange Mid, Orange Lit when covered. */
+  function track(m: MatLine) {
     const p = m.need > 0 ? Math.min(1, m.have / m.need) : 1;
-    return `linear-gradient(90deg, var(--cell) ${p * 100}%, var(--cell-empty) ${p * 100}%)`;
+    const ink = p >= 1 ? "var(--orange-lit)" : "var(--orange-mid)";
+    return `linear-gradient(90deg, ${ink} ${p * 100}%, var(--line) ${p * 100}%) bottom / 100% 2px no-repeat`;
   }
 
   function when(ts: string | null): string {
@@ -326,7 +328,7 @@
           </div>
           {#each result.materials as m (m.id)}
             <button class="mrow" class:sel={selMat === m.id} onclick={() => (selMat = m.id)}>
-              <span class="mn" style:background={fill(m)}>G{m.grade} {m.name}{m.over_cap ? " ⚠" : ""}</span>
+              <span class="mn" style:background={track(m)}>G{m.grade} {m.name}{m.over_cap ? " ⚠" : ""}</span>
               <span class="r q">{m.need}</span>
               <span class="r q">{m.have}</span>
               <span class="r q" class:bad={m.short > 0} class:lo={m.short === 0}>{m.short}</span>
@@ -488,8 +490,10 @@
   .kind { margin: 8px 8px 12px; }
   .kind:first-child { margin-top: 0; }
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 8px; margin: 0 0 22px; }
-  .mod { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px 14px; background: var(--cell-empty); }
-  .mod.on { background: var(--cell); }
+  /* A read-only card on the hull holding the module's three dropdowns (DESIGN.md Surfaces and
+     cells); a module with a target says so by brightness, its name in Orange Lit. */
+  .mod { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 12px 14px; background: var(--surface); }
+  .mod.on .mn { color: var(--orange-lit); }
   .head { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .mod .mn { font-weight: 500; line-height: 1.3; }
   .now { font-size: var(--fs-s); }
@@ -497,8 +501,6 @@
   .h { color: var(--orange-mid); font-size: var(--fs-s); }
   .r { text-align: right; }
   .slot { color: var(--orange-mid); font-size: var(--fs-s); }
-  /* Text on an ember cell is at least Orange (until astromech-dfvp moves the cards to the hull). */
-  .mod.on :is(.h, .slot, .lo) { color: var(--accent); }
   .cost { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
   .picks > :global(.dropdown) { min-width: 0; }
   .triphead { display: flex; align-items: baseline; gap: 20px; }

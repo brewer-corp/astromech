@@ -120,13 +120,16 @@
   .out { padding: 24px 4px 8px; }
   .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(16rem, 1fr)); gap: 8px 20px; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-  .eng { padding: 16px; display: flex; flex-direction: column; gap: 6px; background: var(--cell-empty); outline: 1px solid transparent; outline-offset: -1px; }
-  .eng.next { box-shadow: inset 4px 0 0 var(--accent); }
-  .eng.unlocked { background: var(--cell); }
-  /* Not introduced or barred: one step down, still readable, since what is left to do is on the card. */
-  .eng.locked, .eng.barred { color: var(--orange-mid); }
-  .eng.pred { outline: 2px solid var(--accent); outline-offset: -2px; background: var(--cell); box-shadow: inset 4px 0 0 var(--accent); }
-  .eng.hot { outline-color: var(--orange-mid); }
+  /* Read-only cards on the hull (DESIGN.md Surfaces and cells), with no side border: state is
+     brightness. An unlocked engineer's name is Orange Lit; one you can work on now (next) stays
+     Orange; one not introduced or barred steps down to Orange Mid. */
+  .eng { padding: 16px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); outline: 1px solid transparent; outline-offset: -1px; }
+  .eng.unlocked .name { color: var(--orange-lit); }
+  /* Still readable one step down, since what is left to do is on the card. */
+  .eng:is(.locked, .barred):not(.next) { color: var(--orange-mid); }
+  .eng.hot { background: var(--row-hover); }
+  /* The engineers who introduce the hovered one. */
+  .eng.pred { outline-color: var(--accent); }
   .top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
   .name { font-size: var(--fs-l); font-weight: 500; }
   .access { display: inline-flex; align-items: center; gap: 3px; flex: none; }
@@ -136,11 +139,9 @@
   .badge { background: currentColor; color: var(--accent); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
   .outline { color: var(--orange-dim); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
   .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
-  .barred { background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%), var(--cell-opt); }
+  .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }
   .spec { font-size: var(--fs-s); }
   .where, .from { font-size: var(--fs-s); color: var(--orange-mid); }
-  /* Text on an ember cell is at least Orange (until astromech-dfvp moves cards to the hull). */
-  .eng.unlocked :is(.where, .from) { color: var(--accent); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
   @media (max-width: 900px) {
     .tree { grid-template-columns: 1fr; }

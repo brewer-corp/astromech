@@ -104,7 +104,8 @@
   .body { display: grid; grid-template-columns: 15rem 1fr; gap: 40px; padding: 28px 40px; min-height: 0; overflow: auto; }
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
   .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--accent); font-weight: 500; font-size: var(--fs); }
-  .nav button.on { background: var(--cell); color: var(--orange-lit); }
+  /* The step you are on: hull and Orange Lit, a place marker rather than a value (no cell). */
+  .nav button.on { background: var(--surface); color: var(--orange-lit); }
   .nav .n { font-family: var(--mono); color: var(--orange-mid); }
   .nav button.on .n { color: inherit; }
   main { max-width: 52rem; }

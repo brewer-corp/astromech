@@ -17,9 +17,10 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
   one orange mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
   when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
   they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
-  **Barred**. Unlocked engineers are full colour; known ones stay readable with "Known · no
-  access yet"; cards that still need an introduction are dimmer. What is left to do stays on
-  the card. Engineers you can work on now sit at the top of their column, with an orange edge.
+  **Barred**. Unlocked engineers have the brightest names; known ones stay readable with "Known ·
+  no access yet"; cards that still need an introduction are dimmer, unless you can work on them
+  now. What is left to do stays on the card. Engineers you can work on now sit at the top of
+  their column.
   Hover a card to light who introduces them. A permit-locked system says "permit".
   An arrow points back to who introduces each engineer.
 - The system name has a copy button for the galaxy map.

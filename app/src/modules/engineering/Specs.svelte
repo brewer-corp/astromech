@@ -137,11 +137,12 @@
 </div>
 
 <style>
+  /* Read-only facts: the bands and blocks are hull, never cells (DESIGN.md Surfaces and cells). */
   .specs { padding: 8px 8px 28px; display: flex; flex-direction: column; gap: 28px; }
   .lo { color: var(--orange-mid); margin: 0; }
   .warn { margin: 0; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
-  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 20px 28px; padding: 8px 12px 4px; background: var(--cell-empty); }
+  .band { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 20px 28px; padding: 8px 12px 4px; background: var(--surface); }
   .stat { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
@@ -155,10 +156,10 @@
   .prow { display: grid; grid-template-columns: 7rem minmax(6rem, 1fr) auto; gap: 10px; align-items: center; font-size: var(--fs-s); color: var(--orange-mid); }
   .prow.tot { margin-top: 4px; }
   .prow .q { font-size: var(--fs); }
-  .pbar { height: 6px; background: var(--cell-opt); }
+  .pbar { height: 6px; background: var(--line); }
   .pbar i { display: block; height: 100%; background: var(--accent); }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 8px 28px; }
-  .block { padding: 14px 16px; background: var(--cell-empty); display: flex; flex-direction: column; gap: 6px; }
+  .block { padding: 14px 16px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; }
   h4 { margin: 0 0 6px; color: var(--orange-mid); font-weight: 500; font-size: var(--fs-s); }
   .row { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-s); }
   .row .q { font-size: var(--fs); }

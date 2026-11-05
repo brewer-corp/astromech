@@ -3,6 +3,7 @@
   // and the hold against nearby prices, and what its outfitting sells that the ship flown would
   // be better for), and a search over every outfitting the core has seen: "where did I see a 5A
   // drive?" works offline.
+  import Badge from "../../lib/ui/Badge.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -103,7 +104,7 @@
       {/if}
       {#if here.services.length}
         <dt>Services</dt>
-        <dd class="services">{#each here.services as s (s)}<span class="svc">{serviceName(s)}</span>{/each}</dd>
+        <dd class="services">{#each here.services as s (s)}<Badge>{serviceName(s)}</Badge>{/each}</dd>
       {/if}
     </dl>
 
@@ -185,11 +186,10 @@
   dt { color: var(--orange-mid); font-size: var(--fs-s); padding-top: 2px; }
   dd { margin: 0; }
   .services { display: flex; flex-wrap: wrap; gap: 4px; }
-  .svc { background: var(--cell); padding: 1px 8px; font-size: var(--fs-s); }
   .search { display: flex; align-items: center; gap: 12px; margin: 10px 0 6px; color: var(--orange-mid); font-size: var(--fs-s); }
   .search > :global(.q) { flex: 0 1 30rem; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
-  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
+  td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); }
 </style>

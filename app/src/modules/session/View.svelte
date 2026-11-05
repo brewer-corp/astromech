@@ -78,12 +78,12 @@
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
   .err { color: var(--accent); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
-  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
+  .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; max-width: 48rem; width: 100%; }
-  td { padding: 5px 16px 5px 0; border-top: 1px solid var(--cell); }
+  td { padding: 5px 16px 5px 0; border-top: 1px solid var(--line); }
   .num { text-align: right; font-family: var(--mono); }
   .lo { color: var(--orange-mid); }
   .also { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
