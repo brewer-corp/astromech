@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Lookup result row: main value first, aligned columns, DESIGN.md states"
-updated_at: "2026-11-05T07:57:02.554581883+00:00"
+updated_at: "2026-11-05T07:57:21.920928889+00:00"
 ---
 
 ## Goal
