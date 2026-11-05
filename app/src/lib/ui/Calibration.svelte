@@ -8,7 +8,9 @@
   interface Next { step: number; steps: number; phrase: string | null; ms: number }
   interface Result { device: string; noise_dbfs: number; speech_peak_dbfs: number; min_level_dbfs: number; gain_db: number }
 
-  let { ondone }: { ondone?: (r: Result) => void } = $props();
+  // `primary`: Record takes the view's one fill only where nothing else has it (Settings' dialog);
+  // in onboarding the footer's Next is the primary (DESIGN.md, one fill per view).
+  let { ondone, primary = false }: { ondone?: (r: Result) => void; primary?: boolean } = $props();
 
   let next = $state<Next | null>(null);
   let levels = $state<Level[]>([]);
@@ -92,7 +94,7 @@
       {/if}
     </div>
     <div class="acts">
-      <Button kind="primary" disabled={busy} onclick={record}>{next.step === 0 ? "Record silence" : "Record"}</Button>
+      <Button kind={primary ? "primary" : "secondary"} disabled={busy} onclick={record}>{next.step === 0 ? "Record silence" : "Record"}</Button>
     </div>
   {/if}
   {#if error}

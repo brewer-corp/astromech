@@ -256,7 +256,7 @@
     <div class="dlg" role="dialog" aria-modal="true" aria-label="Calibrate the microphone">
       <div class="lbl">Microphone · Calibration</div>
       <h2>{mics?.calibration.device ?? "Microphone"}</h2>
-      <Calibration ondone={() => void loadMics()} />
+      <Calibration primary ondone={() => void loadMics()} />
       <div class="close"><Button onclick={() => (calibrating = false)}>Close</Button></div>
     </div>
   </div>

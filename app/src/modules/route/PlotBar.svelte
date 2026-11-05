@@ -140,6 +140,6 @@
 <style>
   /* DESIGN.md's header box is 320 px; it gives way first when the header is short of room. */
   .plotbar { position: relative; flex: 0 1 320px; min-width: 12rem; font-size: var(--fs); }
-  .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: 2px 0 0; border: 1px solid var(--accent-dim); width: min(28rem, calc(100vw - 32px)); padding: 16px; background: var(--bg); border-top: 2px solid var(--accent); box-shadow: 0 12px 40px rgb(0 0 0 / 0.6); max-height: calc(100vh - 120px); overflow: auto; }
+  .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: 2px 0 0; border: 1px solid var(--line); width: min(28rem, calc(100vw - 32px)); padding: 16px; background: var(--surface-hi); max-height: calc(100vh - 120px); overflow: auto; }
   .links { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--accent-dim); }
 </style>

@@ -253,7 +253,7 @@ components:
 then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
 Tokens: app/src/design/tokens.css, mapped in Token map below. Pages still to be brought in
 line: astromech-yxtz (orange palette, caps), astromech-dfvp (cells mean editable),
-astromech-pey5 (shared controls and icons), astromech-sllo (two tab rows), astromech-dzwy (one
+astromech-sllo (two tab rows), astromech-dzwy (one
 face). The route strip and Places finders arrive with astromech-51ue. Mockups:
 docs/design/design-system-*.png. -->
 
@@ -479,12 +479,13 @@ wide separations let grouping be seen without boxes.
 
 | Part | Height | Notes |
 |---|---|---|
-| Header | 64 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it |
+| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1600 px; remeasure when Find or plot lands) the top tabs sit on a 44 px second row under the wordmark |
 | Route strip | 36 px | on every page |
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |
 
-Side margins 40 px; minimum window width 1100 px, and nothing in the frame wraps above it.
+Side margins 40 px; minimum window width 1100 px. The only width-dependent change in the frame is
+the header's second tab row (decision astromech-ghyo, 5 Nov 2026).
 
 ### Content widths and rows
 
@@ -525,7 +526,8 @@ One set of one-stroke icons drawn for astromech: 16 px on a 16 px grid, 1 px str
 `currentColor`, no fill, square ends. They live with the existing glyphs in
 `app/src/lib/ui/Glyph.svelte` (copy, station kinds, ship, factions) and add **add stop**
 (a route with a plus), **set destination** (a flag; replaces the route), **open external**
-(a box with an arrow out) and **chevron** (dropdowns). *Why:* own-drawn keeps Frontier's
+(a box with an arrow out), **chevron** (dropdowns) and **clear** (an ×, the end action that empties
+an input). *Why:* own-drawn keeps Frontier's
 icons out and needs no licence; one stroke matches the game's thin line icons.
 
 **The Icon Or Word Rule.**
