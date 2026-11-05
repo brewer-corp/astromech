@@ -21,7 +21,8 @@ vi.mock("../colonies", async (orig) => {
   };
 });
 
-const rows = () => screen.getAllByRole("listitem").map((li) => li.textContent ?? "");
+const rows = () => screen.queryAllByRole("row").slice(1).map((r) => r.textContent ?? "");
+const heads = () => screen.getAllByRole("columnheader").map((h) => h.textContent);
 
 describe("Colonies", () => {
   it("lists unclaimed systems in claim range with their bodies, then narrows to rings and Earth-like worlds", async () => {
@@ -30,7 +31,9 @@ describe("Colonies", () => {
     expect(await screen.findByText("Greae Phoea VS-M b39-29")).toBeTruthy();
     expect(asked).toHaveBeenLastCalledWith("any", null, DEFAULT_FILTERS);
     expect(rows()).toHaveLength(10);
-    expect(rows()[0]).toContain("9.5 ly · 1 jump");
+    expect(heads()).toEqual(["Jumps", "System", "Bodies", "Distance", "Updated", ""]);
+    expect(rows()[0]).toMatch(/^\s*1\s+Greae Phoea VS-M b39-29/);
+    expect(rows()[0]).toContain("9.5ly");
     expect(rows()[0]).toContain("M (Red dwarf) star · 4 landable · 9.5 ly from Greae Phoea EM-K d9-675");
     // Measured from the colony that puts it in range; no bodies scanned yet.
     expect(screen.getByText(/bodies not on Spansh · 6\.2 ly from Greae Phoea EM-K d9-373/)).toBeTruthy();
@@ -45,6 +48,8 @@ describe("Colonies", () => {
     expect(screen.getByRole("tab", { name: "Rings" }).getAttribute("aria-selected")).toBe("true");
 
     await fireEvent.click(screen.getByRole("tab", { name: "Earth-like world" }));
-    expect(await screen.findByText("None found.")).toBeTruthy();
+    // Nothing within the default 30 ly: say so, and offer the next radius.
+    expect(await screen.findByText(/No candidates within 30 ly\./)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Widen to 50 ly" })).toBeTruthy();
   });
 });

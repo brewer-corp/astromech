@@ -52,17 +52,19 @@ describe("Trade", () => {
     expect(screen.queryByText(/Ask by voice/)).toBeNull();
     expect(screen.queryByText("Within")).toBeNull();
 
-    const prices = screen.getAllByText(/^[\d,]+ cr$/).map((e) => Number((e.textContent ?? "").split(" cr")[0]?.replace(/,/g, "")));
+    // The price leads each row, highest first, and every row says how old its report is.
+    expect(screen.getAllByRole("columnheader")[0]?.textContent).toBe("Price");
+    const prices = [...document.querySelectorAll(".main .v")].map((e) => Number((e.textContent ?? "").replace(/,/g, "")));
     expect(prices[0]).toBe(390780);
     expect(prices.every((p, i) => i === 0 || p <= (prices[i - 1] ?? 0))).toBe(true);
-    expect(screen.getAllByText(/d ago/).length).toBeGreaterThan(0);
+    expect([...document.querySelectorAll(".fact.age")].every((e) => /^[\d,]+(d|h|min)$/.test(e.textContent ?? ""))).toBe(true);
 
     await fireEvent.click(screen.getByRole("tab", { name: "Buy" }));
     expect(await screen.findByText(/Cheapest anywhere/)).toBeTruthy();
     expect(anywhere).toHaveBeenLastCalledWith("buy", "painite", null, expect.anything());
 
     await fireEvent.click(screen.getByRole("button", { name: "Near" }));
-    expect(await screen.findByText(/^Cheapest/)).toBeTruthy();
+    expect(await screen.findByText(/^Within 100 ly of Sol/)).toBeTruthy();
     expect(near).toHaveBeenLastCalledWith("buy", ["painite"], null, expect.anything());
   });
 

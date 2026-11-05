@@ -84,6 +84,8 @@ export function siteResults(r: Sites): Results {
     source: r.source === "astromech" ? "known farms list" : r.source,
     fetched: r.fetched,
     warning: r.warning,
+    place: "body",
+    columns: [{ key: "detail", head: "Site", text: true }],
     rows: r.hits.map((h) => ({
       key: h.body,
       system: h.system,
@@ -93,7 +95,7 @@ export function siteResults(r: Sites): Results {
       exact: h.exact,
       arrival_ls: h.arrival_ls,
       updated_at: h.updated_at,
-      detail: h.detail,
+      facts: { detail: h.detail },
     })),
   };
 }

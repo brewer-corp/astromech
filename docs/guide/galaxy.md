@@ -19,15 +19,15 @@ Human / Guardian technology broker, Technology broker (any type), Universal Cart
 Vista Genomics, Pioneer Supplies, Bartender, Frontline Solutions, Apex Interstellar, Refuel,
 Repair, Rearm, Black market, Search and rescue.
 
-Filters: pad size, carriers, Odyssey settlements, data age, arrival distance. Each row shows the
-station (with its type mark and distance from the star), the system with jumps and light years,
-allegiance, controlling faction and state.
+Filters: pad size, carriers, Odyssey settlements, data age, arrival distance. The list is ranked
+by jumps. Each row shows the station (with its type mark) and its system, the allegiance,
+controlling faction and state, then distance, pad, arrival distance and how old the report is.
 
 ## Outfitting
 
 Type a **module** in **Find**, then pick its **class**, **rating** and, for weapons, **mount**
 (fixed, gimballed or turreted). Only the sizes and ratings the module comes in are offered. The
-nearest stations selling it are listed with the price.
+nearest stations selling it are listed with the modules that matched and the price.
 
 - It opens on a Frame Shift Drive class 5, rating A.
 - **Ctrl+K** finds a module by name and opens it here. So do the modules fitted on your ships.
@@ -57,12 +57,29 @@ Trade, Colonisation, Powerplay and Exploration.
   - **Data age:** hide reports older than this (up to 1, 3, 7, 30, 90 or 365 days).
   - **Arrival:** hide stations or bodies further than 1,000, 5,000 or 25,000 light seconds from the star.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
-- **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. A station row has the type mark and name with arrival distance,
-  the system with a copy mark plus light years and jumps, then allegiance, controlling faction
-  and state. Two buttons end the row: **Add stop** makes that system the next stop of the route
+- **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay).
+  A line above the list sums up the search ("Within 100 ly of Sol · large pad · reports up to 30
+  days old"). Each result is one row under column heads. It starts with what the list is ranked
+  by, in the largest figures: the price (trade), the High Grade Emissions score, or the jumps
+  (everything else, nearest first; "~" marks a straight-line estimate). Then the station or body
+  and its system with a copy mark, the facts that list has (demand, faction, bodies, ...), and the
+  distance, jumps, pad, arrival distance and how old the report is ("10 d"). Two buttons end the
+  row: **Add stop** makes that system the next stop of the route
   (the [route strip](routes.md#the-route-strip) under the header), and **Set destination** makes it the whole route, pausing the old one
   ([Routes](routes.md#from-a-search-result)). The line under the list
   says which jump range was used, who the source is and how old the answer is.
+- **Narrow panels.** Where a list sits in a narrow side panel (a material's sources, Powerplay's
+  "Where to work", Exploration's "Sell"), each row keeps only what it is ranked by, the place and
+  the two buttons.
+- **Old reports.** With a data age set, older reports are left out. With no data age set
+  ("Any"), reports older than 30 days are shown dimmer, with their age brighter than the rest of
+  the row.
+- **Nothing found.** The list says what is empty and offers one way to widen it, such as
+  **Widen to 200 ly** or **Allow 90 days**. It never relaxes the pad, since a ship can't land on
+  a smaller one.
+- **Waiting and errors.** While a search runs, a line names who is asked ("Asking Spansh…") and
+  the old results stay, dimmed. If a search, a filter change or a route button fails, a red "!"
+  says why, with **Try again**.
 - Searches are cached for a while, so asking twice is quick. Change a filter or the "From" to search again.
 
 ### Jumps and distance

@@ -113,6 +113,7 @@
             start={project.system_name}
             title="Where to buy"
             joiner="near"
+            noun="stations"
             busyText="Asking Ardent Insight…"
           />
         {:else}
@@ -131,7 +132,9 @@
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
-  .main { max-width: 40rem; }
+  /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
+  .main { max-width: var(--list-w); }
+  .main > p, .main > .list { max-width: var(--measure); }
   h3 { margin: 14px 0 2px; color: var(--text-hi); font-weight: 500; }
   h4 { margin: 14px 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 10px; }

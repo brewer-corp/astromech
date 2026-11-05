@@ -21,15 +21,26 @@ vi.mock("../sites", async (orig) => {
   };
 });
 
+
+/** Each result row's cells, as text. */
+const cells = () =>
+  screen
+    .getAllByRole("row")
+    .slice(1)
+    .map((r) => [...r.querySelectorAll('[role="cell"]')].map((c) => c.textContent?.replace(/\s+/g, " ").trim()));
+const heads = () => screen.getAllByRole("columnheader").map((h) => h.textContent);
+
 describe("Sites", () => {
   it("lists the nearest crystalline shards with jumps, then switches kind", async () => {
     render(Sites);
-    // the body without its system, then the system chip; jumps are an estimate off the map
+    // Ranked by jumps (an estimate off the map); the body without its system, then the system;
+    // what the site is; distance and arrival, but no pad.
     expect(await screen.findByText("Oochorrs SB-J d10-5")).toBeTruthy();
-    expect(screen.getByText("B 6 a")).toBeTruthy();
-    expect(screen.getAllByText("1426.2 ly · ~44 jumps").length).toBe(1);
-    expect(screen.getByText("(26k ls)")).toBeTruthy();
-    expect(screen.getByText(/Crystalline Shards · first at -4\.0, -141\.0/)).toBeTruthy();
+    expect(heads()).toEqual(["Jumps", "Body", "Site", "Distance", "Arrival", "Updated", ""]);
+    const [first] = cells();
+    expect(first?.slice(0, 2)).toEqual(["~44", "B 6 a Oochorrs SB-J d10-5"]);
+    expect(first?.[2]).toMatch(/^Crystalline Shards · first at -4\.0, -141\.0/);
+    expect(first?.slice(3, 5)).toEqual(["1,426.2ly", "26,249ls"]);
     expect(asked).toHaveBeenLastCalledWith("crystalline_shards", null, DEFAULT_FILTERS);
 
     await fireEvent.click(screen.getByRole("tab", { name: "Known raw farms" }));

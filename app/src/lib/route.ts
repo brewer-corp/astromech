@@ -97,6 +97,8 @@ export interface FollowNote {
   text: string;
   /** The parked route's name: it was replaced and RESUME brings it back. */
   replaced: string | null;
+  /** The action failed: `text` says why (a hard error), and this tries it again. */
+  retry?: () => void;
 }
 
 const clip = (v: RouteView, w: Waypoint) => (v.clipboard_error ? `${w.system} is not on the clipboard: ${v.clipboard_error}` : `${w.system} is on your clipboard.`);
@@ -119,9 +121,9 @@ export function replacedNote(v: RouteView): FollowNote {
   return { text: "", replaced: v.parked?.name ?? null };
 }
 
-/** The action failed: "Couldn't follow it: …". */
-export function failedNote(what: string, e: unknown): FollowNote {
-  return { text: `${what}: ${e instanceof Error ? e.message : String(e)}`, replaced: null };
+/** The action failed: "Couldn't follow it: …", with `retry` to try it again. */
+export function failedNote(what: string, e: unknown, retry: () => void): FollowNote {
+  return { text: `${what}: ${e instanceof Error ? e.message : String(e)}`, replaced: null, retry };
 }
 
 /** The plotters (astromech_galaxy::plot). */

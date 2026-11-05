@@ -1,15 +1,39 @@
 <script lang="ts">
   // The "search near me" kit every lookup uses: pick where to search from (current or typed
-  // system) and the lookup's remembered filters, run the lookup, and list the nearest results
-  // with jumps at the current range, distance, pad size, arrival distance and data age. Each
-  // result has two actions for the core's route follower (docs/PLOTTING.md): Add stop makes it the
-  // next stop of the route followed, and Set destination follows it on its own, parking the route
-  // it replaces for Resume. Either way its system goes on the clipboard for the galaxy map.
-  import { ago, jumps } from "../galaxy";
+  // system) and the lookup's remembered filters, run the lookup, and list the results as
+  // DESIGN.md's Lookup result row: the value the list is ranked by first and largest (price,
+  // score, or jumps at the current range), the place with its copy icon, the lookup's own fact
+  // columns, then distance, jumps, pad, arrival and report age, each under a column head. A
+  // one-line summary of the constraints sits above the heads, and the list shows DESIGN.md's
+  // states: stale reports stepped down, loading, empty with one way to widen, and a failure
+  // with TRY AGAIN. Each result has two actions for the core's route follower
+  // (docs/PLOTTING.md): Add stop makes it the next stop of the route followed, and Set
+  // destination follows it on its own, parking the route it replaces for Resume. Either way its
+  // system goes on the clipboard for the galaxy map.
+  import { ago } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
   import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../route";
-  import { arrivalLabel, DEFAULT_FILTERS, loadFilters, saveFilters, stateLabel, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
-  import Allegiance from "./Allegiance.svelte";
+  import {
+    ageLimit,
+    DEFAULT_FILTERS,
+    factColumns,
+    figure,
+    isStale,
+    jumpsFigure,
+    loadFilters,
+    saveFilters,
+    STALE_DAYS,
+    summary,
+    widening,
+    type FilterHints,
+    type FilterKey,
+    type Filters,
+    type Origin,
+    type Pad,
+    type Results,
+  } from "../search";
+  import Button from "./Button.svelte";
+  import Failure from "./Failure.svelte";
   import FollowNoteLine from "./FollowNote.svelte";
   import IconButton from "./IconButton.svelte";
   import OriginInput from "./OriginInput.svelte";
@@ -25,6 +49,7 @@
     run,
     title = "Nearest",
     joiner = "to",
+    noun = "results",
     busyText = "Searching…",
     start = null,
     header,
@@ -37,9 +62,13 @@
     hints?: FilterHints;
     /** A new function (e.g. another commodity) re-runs the search. */
     run: (origin: Origin, filters: Filters) => Promise<Results>;
+    /** How the summary says where it searched when there is no radius: "Nearest", "Best prices anywhere". */
     title?: string;
-    /** Between the title and the origin: "Nearest to Sol", "Best prices near Sol". */
+    /** Between the title and the origin: "Nearest to Sol", "Best prices anywhere · distances from Sol". */
     joiner?: string;
+    /** What the results are, for the empty line: "No buyers within 100 ly." */
+    noun?: string;
+    /** The loading line, naming who is asked: "Asking Spansh…". */
     busyText?: string;
     /** Where to search from until the commander picks another system; a new one resets the box. */
     start?: Origin;
@@ -58,6 +87,10 @@
   let res = $state<Results | null>(null);
   let err = $state<string | null>(null);
   let filterErr = $state<string | null>(null);
+  /** The filter change that couldn't be saved, for TRY AGAIN. */
+  let unsaved = $state<Filters | null>(null);
+  /** Bumped by TRY AGAIN after a failed search, to run it again. */
+  let attempt = $state(0);
   const store: FilterStore = { load: loadFilters, save: saveFilters };
   let busy = $state(false);
   /** What Add stop or Set destination did, or why it failed. */
@@ -81,12 +114,14 @@
     const st = await changeFilters(store, l, prev, next);
     if (l !== lookup || n !== changed) return;
     filterErr = st.error;
+    unsaved = st.error ? next : null;
     if (JSON.stringify(st.filters) !== JSON.stringify(next)) saved = { lookup: l, filters: st.filters };
   }
 
   $effect(() => {
     const o = origin;
     const s = saved;
+    void attempt;
     if (!s || s.lookup !== lookup) return;
     const n = ++asked;
     busy = true;
@@ -128,7 +163,7 @@
     try {
       goNote = addedNote(await addStop(stop(r), "search"));
     } catch (e) {
-      goNote = failedNote("Couldn't add it", e);
+      goNote = failedNote("Couldn't add it", e, () => void add(r));
     }
   }
 
@@ -137,8 +172,60 @@
     try {
       goNote = followedNote(await followRoute(r.system, "search", [stop(r)]));
     } catch (e) {
-      goNote = failedNote("Couldn't follow it", e);
+      goNote = failedNote("Couldn't follow it", e, () => void destination(r));
     }
+  }
+
+  const filters = $derived(saved?.filters ?? DEFAULT_FILTERS);
+  /** The age filter in force; with none, reports older than STALE_DAYS are shown stepped down. */
+  const limit = $derived(offers.includes("age") ? ageLimit(filters, hints) : null);
+  /** Ages are measured when the answer arrives, so a list doesn't age while it is read. */
+  const now = $derived(res ? Date.now() : 0);
+  /** Staleness is judged as of the answer, as the source's own age filter was (a cached answer included). */
+  const asOf = $derived(res ? Date.parse(res.fetched) || now : 0);
+  /** With an age filter, reports older than it are hidden and counted; the source may have counted more. */
+  const rows = $derived(res ? (limit == null ? res.rows : res.rows.filter((r) => !isStale(r, limit, asOf))) : []);
+  const hidden = $derived(res ? res.rows.length - rows.length + (res.hidden_stale ?? 0) : 0);
+  const columns = $derived(res ? factColumns(res) : []);
+
+  /** The list's width, to fall back to the compact row where the columns don't fit. */
+  let out = $state<HTMLElement | null>(null);
+  let width = $state(0);
+  $effect(() => {
+    const el = out;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => (width = el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  });
+  /**
+   * The narrowest the full row fits in. Text columns share what the place leaves (the place
+   * first) and give way to nothing; below this, the facts go.
+   */
+  const fits = $derived(112 + 240 + 64 + columns.reduce((n, c) => n + (c.width ?? 0), 0) + 12 * (columns.length + 2));
+  /**
+   * Too narrow for the facts (a side panel): the ranked value, the place and the actions only,
+   * by The Aligned Columns Rule (a fact that would wrap goes).
+   */
+  const compact = $derived(width > 0 && width < fits);
+  const template = $derived(
+    compact
+      ? "max-content minmax(0, 1fr) 64px"
+      : ["112px", "minmax(240px, 1.5fr)", ...columns.map((c) => (c.text ? "minmax(0, 1fr)" : `${c.width ?? 0}px`)), "64px"].join(" "),
+  );
+  const shown = $derived(compact ? [] : columns);
+  const PLACE_HEADS = { station: "Station", body: "Body", system: "System" } as const;
+  /** The one constraint an empty answer can relax, and how. */
+  const widen = $derived(widening(filters, offers, hints));
+
+  /** TRY AGAIN after a filter change couldn't be saved. */
+  function retrySave() {
+    if (unsaved) void change(unsaved);
+  }
+
+  /** The empty line's action: relax the one constraint it names. */
+  function relax() {
+    if (widen) void change(widen.filters);
   }
 </script>
 
@@ -148,53 +235,67 @@
     {#if lead}{@render lead()}{/if}
     <OriginInput {origin} onchange={(o) => (origin = o)} />
     {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
-    {#if filterErr}<p class="lo">{filterErr}</p>{/if}
+    {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
   </div>
 
-  <div class="out">
-    {#if busy && !res}
-      <p class="lo">{busyText}</p>
-    {:else if err}
-      <p class="lo">{err}</p>
+  <div class="out" bind:this={out}>
+    {#if err}
+      <Failure text={err} onaction={() => attempt++} />
+    {:else if busy}
+      <p class="line">{busyText}</p>
     {:else if res}
-      <h4>{title} {joiner} <SystemChip name={res.origin} /></h4>
-      {#if res.warning}<p class="lo">{res.warning}</p>{/if}
-      <ul class:stale={busy}>
-        {#each res.rows as r (r.key)}
-          <li>
-            <span class="place">
-              <span class="name">
-                {#if r.station}<StationKind type={r.station_type} />{/if}
-                <span class="who">{r.station ?? r.system}{#if r.station && r.arrival_ls != null}<span class="ls"> ({arrivalLabel(r.arrival_ls)})</span>{/if}</span>
+      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden)}</p>
+    {/if}
+    {#if res && !err}
+      {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}
+      {#if rows.length}
+        <div class="list" class:busy role="table" aria-label="Results" aria-busy={busy} style:--cols={template}>
+          <div class="row heads" role="row">
+            <span class="r" role="columnheader">{res.main?.head ?? "Jumps"}</span>
+            <span role="columnheader">{PLACE_HEADS[res.place]}</span>
+            {#each shown as c (c.key)}<span class:r={!c.text} role="columnheader">{c.head}</span>{/each}
+            <span role="columnheader" aria-label="Actions"></span>
+          </div>
+          {#each rows as r (r.key)}
+            <div class="row result" class:stale={limit == null && isStale(r, STALE_DAYS, asOf)} role="row">
+              <span class="r main" role="cell"><span class="v">{r.main ?? jumpsFigure(r)}</span>{#if res.main?.unit}<span class="unit">{res.main.unit}</span>{/if}</span>
+              <span class="place" role="cell">
+                {#if r.station}
+                  <StationKind type={r.station_type} />
+                  <span class="name" title={r.station}>{r.station}</span>
+                  <span class="sys" title={r.system}>{r.system}</span>
+                {:else}
+                  <span class="name" title={r.system}>{r.system}</span>
+                {/if}
+                <SystemChip name={r.system} icon />
               </span>
-              {#if r.lead}<span class="lead">{r.lead}</span>{/if}
-            </span>
-            <span class="sys">
-              <SystemChip name={r.system} icon={!r.station} />
-              <span class="dist">{r.ly.toFixed(1)} ly · {jumps(r.jumps, r.exact)}</span>
-            </span>
-            <span class="facts">
-              {#if r.allegiance || r.faction || stateLabel(r.state)}
-                <span class="pol">
-                  {#if r.allegiance && r.allegiance !== "None"}<Allegiance name={r.allegiance} />{/if}
-                  {#if r.faction && r.faction !== "None"}<span class="meta">{r.faction}</span>{/if}
-                  {#if stateLabel(r.state)}<span class="meta">{stateLabel(r.state)}</span>{/if}
-                </span>
-              {/if}
-              {#if r.updated_at}<span class="meta">{ago(r.updated_at)}</span>{/if}
-              {#if r.detail}<span class="extra">{r.detail}</span>{/if}
-            </span>
-            <span class="acts">
-              <IconButton icon="add-stop" label={`Add ${r.system} as a stop`} tip={`Add ${r.system} as the next stop`} onclick={() => void add(r)} />
-              <IconButton icon="destination" label={`Set ${r.system} as the destination`} tip={`Set ${r.system} as the destination (replaces the route, which Resume brings back)`} onclick={() => void destination(r)} />
-            </span>
-          </li>
-        {:else}
-          <li class="none">None found.</li>
-        {/each}
-      </ul>
+              {#each shown as c (c.key)}
+                {@const cell = c.cell(r, now)}
+                {#if cell.text}
+                  <span class="fact text" class:age={c.key === "age"} role="cell" title={cell.value}>{cell.value}</span>
+                {:else}
+                  <span class="fact r" class:age={c.key === "age"} class:none={cell.value === "—"} role="cell">{cell.value}{#if cell.unit}<span class="unit">{cell.unit}</span>{/if}</span>
+                {/if}
+              {/each}
+              <span class="acts" role="cell">
+                <IconButton icon="add-stop" label={`Add ${r.system} as a stop`} tip={`Add ${r.system} as the next stop`} onclick={() => void add(r)} />
+                <IconButton icon="destination" label={`Set ${r.system} as the destination`} tip={`Set ${r.system} as the destination (replaces the route, which Resume brings back)`} onclick={() => void destination(r)} />
+              </span>
+            </div>
+          {/each}
+        </div>
+      {:else if !busy}
+        <p class="empty">
+          {#if widen}
+            No {noun} {widen.phrase}.
+            <Button onclick={relax}>{widen.label}</Button>
+          {:else}
+            No {noun} found.
+          {/if}
+        </p>
+      {/if}
       <FollowNoteLine bind:note={goNote} />
-      <p class="lo small">At {res.range.toFixed(1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
+      <p class="line foot">At {figure(res.range, 1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
     {/if}
   </div>
 </div>
@@ -203,30 +304,41 @@
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; }
   .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
   .query :global(.origin) { margin: 0; }
-  .out { padding: 24px 4px 8px; min-width: 0; }
-  h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
-  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  ul.stale { opacity: 0.5; }
-  li { display: grid; grid-template-columns: minmax(12rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1.4fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs); line-height: 1.3; }
-  li.none { display: block; color: var(--text-lo); border: 0; }
-  .place { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .name { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .ls { color: var(--text-lo); font-family: var(--mono); font-weight: 400; font-size: var(--fs); }
-  .lead { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
-  .sys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; overflow: hidden; font-size: var(--fs-l); }
-  .facts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-width: 0; }
-  .pol { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; }
-  .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs); white-space: nowrap; }
-  .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
-  .extra { color: var(--text-lo); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; }
-  .acts { justify-self: end; display: flex; }
-  li:hover .acts :global(.ibtn) { color: var(--orange-lit); }
-  .lo { color: var(--text-lo); }
-  .small { font-size: var(--fs-s); margin-top: 14px; }
-  p { margin: 0 0 8px; }
-  @media (max-width: 900px) {
-    li { grid-template-columns: minmax(0, 1fr) auto; }
-    .sys, .facts { grid-column: 1 / -1; }
-  }
+  /* Mixed case whatever the host panel sets (The Caps Are Wayfinding Rule): system names carry meaning in their case. */
+  .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; max-width: var(--list-w); text-transform: none; letter-spacing: normal; }
+  p { margin: 0; }
+
+  /* Label lines: the summary above the heads, loading, a warning and the source line below. */
+  .line { margin: 0 0 var(--sp-3); font-size: var(--fs-s); color: var(--orange-mid); }
+  .warn { color: var(--accent); }
+  .warn b { font-weight: 600; }
+  .foot { margin: var(--sp-3) 0 0; }
+  .empty { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); color: var(--prose); }
+
+  /* DESIGN.md Lookup result row: one 44 px line per result, every row on the list's columns. */
+  .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); font-variant-numeric: tabular-nums; }
+  .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--accent); font-size: var(--fs); }
+  .row > * { min-width: 0; }
+  .heads { height: 28px; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }
+  .result:hover { background: var(--row-hover); }
+  .result:hover .acts :global(.ibtn) { color: var(--orange-lit); }
+  .r { text-align: right; }
+  .main .v { color: var(--orange-lit); font-size: var(--fs-l); font-weight: 600; }
+  .unit { margin-left: 3px; color: var(--orange-mid); font-size: var(--fs-s); }
+  .place { display: flex; align-items: center; gap: var(--sp-2); overflow: hidden; }
+  .place :global(.kind) { color: var(--orange-mid); flex: none; }
+  .name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; flex: 0 1 auto; }
+  .sys { color: var(--orange-mid); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
+  .place :global(.chip) { flex: none; margin-left: calc(-1 * var(--sp-1)); }
+  .fact { overflow: hidden; text-overflow: ellipsis; }
+  .text { font-size: var(--fs-s); }
+  .none { color: var(--orange-mid); }
+  .acts { display: flex; justify-content: flex-end; gap: var(--sp-1); }
+
+  /* Stale: the name stays Orange, the value and facts step down to Mid, and the age, now the
+     brightest fact, stays Orange. */
+  .stale .main .v, .stale .fact { color: var(--orange-mid); }
+  .stale .fact.age { color: var(--accent); }
+  /* Loading: the old rows stay, Dim, until the answer replaces them. */
+  .busy .result, .busy .result .main .v, .busy .result .fact, .busy .result .sys, .busy .result .unit { color: var(--orange-dim); }
 </style>

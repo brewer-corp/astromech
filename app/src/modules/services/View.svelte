@@ -32,7 +32,7 @@
 </script>
 
 <section>
-  <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" busyText="Asking Spansh…">
+  <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" noun="stations" busyText="Asking Spansh…">
     {#snippet lead()}
       <FindWant current={label} />
     {/snippet}

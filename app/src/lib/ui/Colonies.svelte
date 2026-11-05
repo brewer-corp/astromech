@@ -22,7 +22,7 @@
     {/each}
   </div>
   <p class="lo">Unclaimed systems within 15 ly of a populated one: claim them at that system's Colonisation Contact. Spansh's data, so a claim made since may not show yet.</p>
-  <SearchKit lookup={LOOKUP} offers={["distance", "age"]} hints={{ distance: DEFAULT_RADIUS_LY }} {run} title="Nearest" busyText="Asking Spansh…" />
+  <SearchKit lookup={LOOKUP} offers={["distance", "age"]} hints={{ distance: DEFAULT_RADIUS_LY }} {run} title="Nearest" noun="candidates" busyText="Asking Spansh…" />
 </div>
 
 <style>

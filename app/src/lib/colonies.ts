@@ -84,6 +84,8 @@ export function candidateResults(r: Candidates): Results {
     source: "Spansh",
     fetched: r.fetched,
     warning: r.warning,
+    place: "system",
+    columns: [{ key: "detail", head: "Bodies", text: true }],
     rows: r.hits.map((h) => ({
       key: h.id64,
       system: h.name,
@@ -91,7 +93,7 @@ export function candidateResults(r: Candidates): Results {
       jumps: h.jumps,
       exact: h.exact,
       updated_at: h.updated_at,
-      detail: h.detail,
+      facts: { detail: h.detail },
     })),
   };
 }

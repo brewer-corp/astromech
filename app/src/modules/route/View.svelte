@@ -4,10 +4,12 @@
   // from the top bar's plotter (PlotBar), the engineer trip, a search result's Add stop or Set
   // destination, an import (a Spansh CSV, or a list of systems) or the galaxy map itself: a route
   // plotted there is followed quietly. A route replaced by any of them is parked to resume. The
-  // route strip (Strip.svelte) shows the next stop on every page and links here.
+  // route strip (Strip.svelte) shows the next stop on every page and links here. A failed action
+  // or first read is DESIGN.md's hard error: a red "!", the words, and TRY AGAIN.
   import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
+  import Failure from "../../lib/ui/Failure.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -15,6 +17,8 @@
   let view = $state<RouteView | null>(null);
   /** The last action (Copy, Skip, Back, Clear, import) failed; it stays until the next action. */
   let err = $state<string | null>(null);
+  /** That action again, for TRY AGAIN. */
+  let again = $state<(() => void) | null>(null);
   /** The first read failed: nothing to show yet. */
   let readErr = $state<string | null>(null);
   /** The last poll failed while a route is shown: the route stays, with a line saying so. */
@@ -29,7 +33,10 @@
       readErr = null;
       stale = null;
     } catch (e) {
-      if (!polled) err = String(e instanceof Error ? e.message : e);
+      if (!polled) {
+        err = String(e instanceof Error ? e.message : e);
+        again = () => void run(f);
+      }
       else if (view) stale = pollFailure("read the route", e, true);
       else readErr = pollFailure("read the route", e, false);
     }
@@ -58,8 +65,8 @@
 </script>
 
 <section>
-  {#if err}<p class="err">{err}</p>{/if}
-  {#if readErr}<p class="err">{readErr}</p>{/if}
+  {#if err}<Failure text={err} onaction={() => again?.()} />{/if}
+  {#if readErr}<Failure text={readErr} onaction={() => void run(getRoute, true)} />{/if}
   <Stale error={stale} />
 
   {#if parked}
@@ -151,6 +158,5 @@
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .how p { color: var(--text); font-size: var(--fs-s); line-height: 1.45; }
   .import { display: flex; flex-direction: column; gap: 8px; }
-  .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
   .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--accent-dim); color: var(--text); font-size: var(--fs-s); }
 </style>

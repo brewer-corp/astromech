@@ -85,6 +85,7 @@
       {run}
       title={mode === "cargo" ? "Best for the whole load" : `${mode === "sell" ? "Best prices" : "Cheapest"}${anywhere ? " anywhere" : ""}`}
       joiner={mode === "cargo" ? "near" : anywhere ? "· distances from" : "near"}
+      noun={mode === "buy" ? "sellers" : "buyers"}
       busyText="Asking Ardent Insight…"
     >
       {#snippet header()}

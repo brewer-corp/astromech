@@ -30,7 +30,7 @@ describe("command palette in the window", () => {
 
     expect(location.hash).toBe("#/materials/protoheatradiators");
     expect(await screen.findByRole("heading", { name: "Proto Heat Radiators" })).toBeTruthy();
-    expect(await screen.findByRole("heading", { name: /^Nearest/ })).toBeTruthy();
+    expect(await screen.findByText(/^Nearest to Sol/)).toBeTruthy();
     expect(await screen.findByText("Ross 154")).toBeTruthy();
   });
 

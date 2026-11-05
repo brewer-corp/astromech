@@ -5,26 +5,29 @@
   // them (plotted routes and the galaxy map's), else stops (decision astromech-g8d5). One orange
   // "!" with plain words when the commander should act. With no route, "No route" and the
   // header box's Find or plot shortcut. The destination opens the Route page, which has the whole
-  // list, import and Resume.
+  // list, import and Resume. A read or action that failed is DESIGN.md's hard error: a red "!",
+  // the words, and TRY AGAIN, which repeats it.
   import { copyNext, getRoute, resumeRoute, stopFlags, watchRoute, type RouteView } from "../../lib/route";
   import { failure, pollFailure } from "../../lib/ui/errors";
   import Badge from "../../lib/ui/Badge.svelte";
   import Button from "../../lib/ui/Button.svelte";
+  import Failure from "../../lib/ui/Failure.svelte";
   import IconButton from "../../lib/ui/IconButton.svelte";
   import { focusFindOrPlot } from "./PlotBar.svelte";
 
   let view = $state<RouteView | null>(null);
   /** The last read or action failed: a route on screen is kept, and this says so. */
   let err = $state<string | null>(null);
-  /** It failed outright (an action, or the first read), rather than a refresh of what is shown. */
-  let failed = $state(false);
+  /** It failed outright (an action, or the first read), rather than a refresh of what is shown: TRY AGAIN repeats it. */
+  let retry = $state<(() => void) | null>(null);
 
   async function run(f: () => Promise<RouteView>, what: string | null) {
     try {
       view = await f();
       err = null;
+      retry = null;
     } catch (e) {
-      failed = !!what || !view;
+      retry = what || !view ? () => void run(f, what) : null;
       err = what ? failure(what, e) : pollFailure("read the route", e, !!view);
     }
   }
@@ -81,8 +84,10 @@
     <Button onclick={focusFindOrPlot}>Find or plot</Button>
   {/if}
 
-  {#if err}
-    <span class="warn" class:failed title={err}><b>!</b>{err}</span>
+  {#if err && retry}
+    <Failure inline text={err} onaction={retry} />
+  {:else if err}
+    <span class="warn" title={err}><b>!</b>{err}</span>
   {:else if warning}
     <span class="warn" title={warning}><b>!</b>{warning}</span>
   {/if}
@@ -111,7 +116,7 @@
   .none { color: var(--orange-mid); font-size: var(--fs); flex: none; }
   .warn { color: var(--accent); font-size: var(--fs-s); min-width: 3em; overflow: hidden; text-overflow: ellipsis; flex: 0 1000 auto; }
   .warn b { font-weight: 600; margin-right: var(--sp-1); }
-  .warn.failed { color: var(--alarm); }
+  .strip > :global(.failure) { flex: 0 1000 auto; }
   .grow { flex: 1 1 0; min-width: 0; }
   .to { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; flex: 0 1 auto; color: inherit; text-decoration: none; }
   .to:hover .dest { color: var(--orange-lit); }

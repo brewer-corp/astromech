@@ -46,7 +46,7 @@
     try {
       followNote = followedNote(await followRoute("Engineer trip", "engineer trip", trip.stops.map((s) => ({ system: s.system, label: s.engineer }))));
     } catch (e) {
-      followNote = failedNote("Could not follow it", e);
+      followNote = failedNote("Could not follow it", e, () => void followTrip());
     }
   }
   let stats = $state<StatsComparison | null>(null);

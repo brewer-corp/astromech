@@ -28,6 +28,24 @@ describe("Galaxy → Route", () => {
     expect((await fakeCall("route")).view.route).toBeNull();
   });
 
+  it("shows a failed action as a hard error, never a filled block, and TRY AGAIN repeats it", async () => {
+    history.replaceState(null, "", "/?core=ready&fail=route_skip");
+    resetFakeCore();
+    await followRoute("Trip", "test", [{ system: "Deciat" }, { system: "Kuk" }, { system: "Colonia" }]);
+    render(View);
+    expect(await screen.findByText("Trip")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Skip" }));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toMatch(/^! preview: route_skip failed on purpose \(\?fail=\)\s*Try again$/);
+    expect(alert.classList.contains("failure")).toBe(true);
+
+    history.replaceState(null, "", "/?core=ready"); // the core takes it this time
+    expect(screen.getByText("3 of 3 waypoints left", { exact: false })).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await screen.findByText("2 of 3 waypoints left", { exact: false });
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
   it("shows a route followed from elsewhere, with its labels", async () => {
     history.replaceState(null, "", "/?core=ready");
     resetFakeCore();

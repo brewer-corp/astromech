@@ -164,7 +164,7 @@
         <option value="vista_genomics">Organic data: Vista Genomics</option>
       </Dropdown>
     </label>
-    <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" busyText="Asking Spansh…" />
+    <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" noun="stations" busyText="Asking Spansh…" />
   </div>
 </section>
 

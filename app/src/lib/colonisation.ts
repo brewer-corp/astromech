@@ -147,6 +147,9 @@ export function buyResults(s: BuySearch, listed: number): Results {
     source: "Ardent Insight",
     fetched: new Date(s.plan.fetched_at * 1000).toISOString(),
     warning: notes.length ? notes.join(" ") : undefined,
+    place: "station",
+    main: { head: "Sells" },
+    columns: [{ key: "stock", head: "Stock", text: true }],
     rows: s.plan.stations.map((x) => ({
       key: x.market_id,
       system: x.system,
@@ -157,14 +160,12 @@ export function buyResults(s: BuySearch, listed: number): Results {
       pad: x.pad,
       arrival_ls: x.arrival_ls,
       updated_at: x.updated_at,
-      lead: `${x.stocked} of ${listed}`,
-      detail: [
-        x.lines.map((l) => `${l.name} ${credits(l.stock)} t`).join(", "),
-        x.fleet_carrier ? "fleet carrier" : "",
-        x.odyssey ? "Odyssey settlement" : "",
-      ]
-        .filter(Boolean)
-        .join(" · "),
+      main: `${x.stocked} of ${listed}`,
+      facts: {
+        stock: [x.lines.map((l) => `${l.name} ${credits(l.stock)} t`).join(", "), x.fleet_carrier ? "fleet carrier" : "", x.odyssey ? "Odyssey settlement" : ""]
+          .filter(Boolean)
+          .join(" · "),
+      },
     })),
   };
 }

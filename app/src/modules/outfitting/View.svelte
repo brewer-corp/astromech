@@ -39,7 +39,7 @@
 </script>
 
 <section>
-  <SearchKit lookup="stations.module" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" busyText="Asking Spansh…">
+  <SearchKit lookup="stations.module" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" noun="stations" busyText="Asking Spansh…">
     {#snippet lead()}
       <FindWant current={want.name} />
       <div class="want">

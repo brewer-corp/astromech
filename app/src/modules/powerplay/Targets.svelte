@@ -20,7 +20,9 @@
       source: "Spansh",
       fetched: r.fetched,
       warning: r.warning,
-      rows: r.hits.map((h) => ({ key: h.id64, system: h.name, ly: h.ly, jumps: h.jumps, exact: h.exact, updated_at: h.updated_at, detail: targetDetail(h, r.power) })),
+      place: "system",
+      columns: [{ key: "power", head: "Powerplay", text: true }],
+      rows: r.hits.map((h) => ({ key: h.id64, system: h.name, ly: h.ly, jumps: h.jumps, exact: h.exact, updated_at: h.updated_at, facts: { power: targetDetail(h, r.power) } })),
     };
   }
 </script>
@@ -36,7 +38,7 @@
   </label>
 </div>
 <!-- The kit re-runs when the lookup changes, and when `within` does: `run` reads it before awaiting. -->
-<SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title="Nearest" busyText={kind?.busy ?? "Searching…"} />
+<SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title="Nearest" noun="systems" busyText={kind?.busy ?? "Searching…"} />
 
 <style>
   .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; text-transform: uppercase; letter-spacing: var(--caps); }

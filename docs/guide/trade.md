@@ -16,9 +16,9 @@ filters, and voice questions use the same ones (see [Voice lookups](lookups.md#t
 3. Read the list: best price first for Sell (stations buying), cheapest first for Buy (stations
    selling).
 
-Each row has the station (type mark and arrival distance), the system with jumps and light years,
-the price, and the **demand** (Sell) or **stock** (Buy) with when it was reported. Pad is a
-filter, not a column. Voice questions use the same filters (see [Voice lookups](lookups.md#trade)).
+Each row starts with the price, then the station (type mark) and its system, the **demand** (Sell)
+or **stock** (Buy) in tonnes, distance, jumps, pad, arrival distance and how old the report is.
+Voice questions use the same filters (see [Voice lookups](lookups.md#trade)).
 
 - **Near** searches around you or a system you type, within a distance (100 light years by
   default) and data age (30 days by default).
@@ -31,7 +31,8 @@ filter, not a column. Voice questions use the same filters (see [Voice lookups](
 
 Where to sell **everything in your hold**. The query band lists what is in the hold, and what was
 left out (mission cargo, stolen goods, limpets). It then lists the stations that pay the most for
-the whole load, each commodity capped by what the station will take. Under it, **Best for each on
+the whole load, each commodity capped by what the station will take: each row starts with the total
+and says how many tonnes the station **takes**. Under it, **Best for each on
 its own** shows the best station for each commodity separately. When no market takes all of one
 commodity, it shows the market that takes the most. Voice: "where should I sell my cargo"
 (see [Voice lookups](lookups.md#trade)).

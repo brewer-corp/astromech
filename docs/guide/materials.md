@@ -49,8 +49,9 @@ callout](callouts.md#high-grade-emissions) names the pool from the faction that 
 which. Biotech Conductors and Exquisite Focus Crystals are not at High Grade Emissions at all
 (missions or a manufactured trader).
 
-The nearby search for these finds the systems where the state is, ranked by population then
-distance, with how old Spansh's report is. By voice, see
+The nearby search for these finds the systems where the state is, ranked by a score of
+population then distance (the first column), with the population, the faction and its states,
+and how old Spansh's report is. By voice, see
 [Voice lookups](lookups.md#faction-states-famine-boom-war-and-more).
 
 ## Raw material sites
@@ -65,8 +66,8 @@ On the **Raw** tab, below the grid, pick a kind of site and the nearest bodies a
 | Geological sites | Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents. |
 | Known raw farms | The well-known grade 4 farms: one body for each element. |
 
-Each row is a body with jumps, distance, how far it is from the arrival star and how old the data
-is. The search starts from your current system, or one you type. You can limit the age of the data and the
+Each row is a body, nearest in jumps first, with what is there, the distance, how far it is from
+the arrival star and how old the data is. The search starts from your current system, or one you type. You can limit the age of the data and the
 arrival distance. See [Galaxy](galaxy.md#how-searches-work). By voice:
 "nearest crystalline shards" and the like ([lookups](lookups.md#raw-material-sites)).
 

@@ -2,7 +2,7 @@
   // A lookup's filters, shown only where they apply (`offers`). Pad is S/M/L (S is any pad);
   // the ship you are flying is marked on its size. Carriers and Odyssey are a multiple choice of
   // what to include: filled is included.
-  import type { FilterHints, FilterKey, Filters, Pad } from "../search";
+  import { AGES, ARRIVALS, DISTANCES, VOLUMES, type FilterHints, type FilterKey, type Filters, type Pad } from "../search";
   import Choice from "./Choice.svelte";
   import Dropdown from "./Dropdown.svelte";
 
@@ -20,11 +20,6 @@
     shipPad?: Pad | null;
     onchange: (f: Filters) => void;
   } = $props();
-
-  const AGES = [1, 3, 7, 30, 90, 365];
-  const ARRIVALS = [1000, 5000, 25000];
-  const DISTANCES = [20, 50, 100, 200, 500];
-  const VOLUMES = [100, 500, 1000, 5000];
 
   const shipSize = $derived<Pad>((shipPad === undefined ? filters.pad : shipPad) ?? "S");
   const padValue = $derived(!filters.pad_set ? shipSize : (filters.pad ?? "S"));

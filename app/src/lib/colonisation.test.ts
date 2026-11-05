@@ -20,9 +20,10 @@ describe("colonisation", () => {
     const needs = needsOf(await site());
     const all = buyResults(await buyList(needs, "Wolf 359", null), 4);
     expect(all.origin).toBe("Wolf 359");
-    expect(all.rows[0]).toMatchObject({ station: "Efremov Plant", lead: "3 of 4", pad: "L" });
+    expect(all.main?.head).toBe("Sells");
+    expect(all.rows[0]).toMatchObject({ station: "Efremov Plant", main: "3 of 4", pad: "L" });
     const strict = buyResults(await buyList(needs, null, { ...DEFAULT_FILTERS, pad: "L", exclude_carriers: true, max_distance_ly: 20 }), 4);
-    expect(strict.rows.some((r) => r.detail?.includes("fleet carrier") || r.pad === "M")).toBe(false);
+    expect(strict.rows.some((r) => r.facts?.stock?.includes("fleet carrier") || r.pad === "M")).toBe(false);
     expect(strict.rows.length).toBeLessThan(all.rows.length);
   });
 });

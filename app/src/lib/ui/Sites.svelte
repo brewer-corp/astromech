@@ -21,7 +21,7 @@
     {/each}
   </div>
   <p class="lo">{current.yields}</p>
-  <SearchKit lookup={`sites.${current.id}`} offers={["age", "arrival"]} {run} title={`Nearest ${current.noun}`} busyText="Looking up sites…" />
+  <SearchKit lookup={`sites.${current.id}`} offers={["age", "arrival"]} {run} title={`Nearest ${current.noun}`} noun="sites" busyText="Looking up sites…" />
 </div>
 
 <style>

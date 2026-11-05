@@ -135,9 +135,16 @@ describe("Route strip", () => {
     expect(line()).toBe("Next Arietis Sector LD-H a11-1 4 of 10 To Maia 7 jumps left");
   });
 
-  it("says plainly when the route can't be read", async () => {
+  it("says plainly when the route can't be read, as a hard error with TRY AGAIN", async () => {
     start("/?core=ready&fail=route");
     render(Strip);
     await strip().findByText(/Could not read the route/);
+    expect(strip().getByRole("alert").textContent).toMatch(/^! Could not read the route: .*Try again$/);
+    expect(line()).toMatch(/^! Could not read the route: preview: route failed on purpose \(\?fail=\)\. Try again$/);
+
+    start("/?core=ready&route=exact"); // the core answers again
+    await fireEvent.click(strip().getByRole("button", { name: "Try again" }));
+    await strip().findByText("Arietis Sector LD-H a11-1");
+    expect(strip().queryByRole("alert")).toBeNull();
   });
 });

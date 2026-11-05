@@ -142,7 +142,6 @@ export async function tradeAnywhere(side: Side, symbol: string, origin: Origin =
  * narrow, and its list is always cut to the best 100 (the sub-heading says so).
  */
 export function toResults(s: TradeSearch, anywhere = false): Results {
-  const volume = s.side === "sell" ? "demand" : "stock";
   const p = s.results[0];
   return {
     origin: s.here.system,
@@ -150,6 +149,9 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
     source: "Ardent Insight",
     fetched: new Date((p?.fetched_at ?? 0) * 1000).toISOString(),
     warning: p?.truncated && !anywhere ? `Too many markets for ${findCommodity(p.commodity)?.name ?? p.commodity}: narrow the radius to see them all.` : undefined,
+    place: "station",
+    main: { head: "Price", unit: "cr" },
+    columns: [{ key: "volume", head: s.side === "sell" ? "Demand" : "Stock", unit: "t", width: 88 }],
     rows: (p?.offers ?? []).map((o) => ({
       key: o.market_id,
       system: o.system,
@@ -160,9 +162,9 @@ export function toResults(s: TradeSearch, anywhere = false): Results {
       pad: o.pad,
       arrival_ls: o.arrival_ls,
       updated_at: o.updated_at,
-      lead: `${credits(o.price)} cr`,
+      main: credits(o.price),
+      facts: { volume: credits(o.volume) },
       station_type: o.fleet_carrier ? "Drake-Class Carrier" : o.odyssey ? "Settlement" : null,
-      detail: `${volume} ${credits(o.volume)}`,
     })),
   };
 }
@@ -234,7 +236,7 @@ export async function tradeCargo(origin: Origin = null, filters: Filters | null 
   return previewData("trade_cargo", found, emptyHold);
 }
 
-/** The whole-load stations as the search kit's rows. */
+/** The whole-load stations as the search kit's rows: what each pays for the load, and how much of it it takes. */
 export function cargoResults(s: CargoSearch): Results {
   const carried = s.plan.load.reduce((n, l) => n + l.tonnes, 0);
   return {
@@ -242,6 +244,9 @@ export function cargoResults(s: CargoSearch): Results {
     range: s.range,
     source: "Ardent Insight",
     fetched: new Date(s.plan.fetched_at * 1000).toISOString(),
+    place: "station",
+    main: { head: "Total", unit: "cr" },
+    columns: [{ key: "takes", head: "Takes", unit: "t", width: 112 }],
     rows: s.plan.stations.map((x) => ({
       key: x.market_id,
       system: x.system,
@@ -252,9 +257,9 @@ export function cargoResults(s: CargoSearch): Results {
       pad: x.pad,
       arrival_ls: x.arrival_ls,
       updated_at: x.updated_at,
-      lead: `${credits(x.total)} cr`,
+      main: credits(x.total),
+      facts: { takes: x.sold === carried ? `all ${credits(carried)}` : `${credits(x.sold)} of ${credits(carried)}` },
       station_type: x.fleet_carrier ? "Drake-Class Carrier" : x.odyssey ? "Settlement" : null,
-      detail: x.sold === carried ? `takes all ${credits(carried)} t` : `takes ${credits(x.sold)} of ${credits(carried)} t`,
     })),
   };
 }

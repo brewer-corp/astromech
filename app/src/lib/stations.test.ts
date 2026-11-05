@@ -6,9 +6,22 @@ describe("station lookups (browser preview)", () => {
   it("adapts the answer into the kit's rows, nearest first", async () => {
     const r = toResults(await stations({ kind: "service", service: "black_market" }, null, DEFAULT_FILTERS));
     expect(r.origin).toBe("Sol");
-    expect(r.rows[0]).toMatchObject({ station: "Ehrlich City", system: "Sol", pad: "L", jumps: 0, allegiance: "Federation", faction: "Mother Gaia" });
+    // Ranked by jumps (no main value), with who runs the station as the lookup's one column.
+    expect(r.main).toBeUndefined();
+    expect(r.columns?.map((c) => c.head)).toEqual(["Faction"]);
+    expect(r.rows[0]).toMatchObject({ station: "Ehrlich City", system: "Sol", pad: "L", jumps: 0, facts: { faction: "Federation · Mother Gaia · Boom" } });
     expect(r.rows[0]?.station_type).toBe("Planetary Port");
     expect(r.rows.every((row, i) => i === 0 || (r.rows[i - 1]?.ly ?? 0) <= row.ly)).toBe(true);
+  });
+
+  it("adds the matched module and the price as columns for Outfitting, and the price for Shipyard", async () => {
+    const want = { kind: "module", name: "Frame Shift Drive", class: 5, rating: "A", mount: null } as const;
+    const modules = toResults(await stations(want, null, DEFAULT_FILTERS));
+    expect(modules.columns?.map((c) => [c.head, c.unit ?? null, !!c.text])).toEqual([["Module", null, true], ["Price", "cr", false], ["Faction", null, true]]);
+    expect(modules.rows[0]?.facts).toMatchObject({ detail: "5A Frame Shift Drive", price: "5,103,950" });
+    const ships = toResults(await stations({ kind: "ship", ship: "krait_mkii" }, null, DEFAULT_FILTERS));
+    expect(ships.columns?.map((c) => c.head)).toEqual(["Price", "Faction"]);
+    expect(ships.rows[0]?.facts?.price).toBe("45,814,205");
   });
 
   it("applies the filters the way the shell does", async () => {

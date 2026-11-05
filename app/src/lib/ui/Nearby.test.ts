@@ -10,20 +10,30 @@ vi.mock("../search", async (orig) => ({
   saveFilters: () => Promise.resolve(),
 }));
 
+
+/** Each result row's cells, as text. */
+const cells = () =>
+  screen
+    .getAllByRole("row")
+    .slice(1)
+    .map((r) => [...r.querySelectorAll('[role="cell"]')].map((c) => c.textContent?.replace(/\s+/g, " ").trim()));
+const heads = () => screen.getAllByRole("columnheader").map((h) => h.textContent);
+
 describe("Nearby", () => {
-  it("shows the score and population an HGE lookup is ranked by", async () => {
+  it("leads an HGE lookup with the score it is ranked by, then the population it weighs", async () => {
     render(Nearby, { query: "fed_composites" });
     expect(await screen.findByText("Tau Ceti")).toBeTruthy();
-    const lines = screen.getAllByText(/^score \d+ · pop /).map((e) => e.textContent ?? "");
-    expect(lines[0]).toMatch(/^score 109 · pop 5\.0B · /);
-    expect(lines[1]).toMatch(/^score 0 · pop 2M · /);
+    expect(heads()).toEqual(["Score", "System", "Population", "Faction", "Distance", "Jumps", "Updated", ""]);
+    expect(cells()[0]?.slice(0, 3)).toEqual(["109", "Tau Ceti", "5.0B"]);
+    expect(cells()[1]?.[0]).toBe("0");
+    expect(cells()[1]?.[2]).toBe("2M");
     expect(screen.getByText(/ranked by population and distance/)).toBeTruthy();
   });
 
-  it("keeps faction-state lookups without a score", async () => {
+  it("ranks faction-state lookups by jumps, with no score", async () => {
     render(Nearby, { query: "famine" });
     expect(await screen.findByText("WISE 0855-0714")).toBeTruthy();
-    expect(screen.queryByText(/^score /)).toBeNull();
+    expect(heads()).toEqual(["Jumps", "System", "Faction", "Distance", "Updated", ""]);
   });
 
   it("says when a system's states come from the commander's own visit", async () => {

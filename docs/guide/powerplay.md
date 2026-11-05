@@ -44,8 +44,8 @@ Nearby systems where your power wants work, on the usual search ([Galaxy](galaxy
 - **Reinforce.** Your power's systems.
 - **Undermine.** Other powers' systems.
 
-Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the system,
-jumps and distance and its Powerplay state. The only filter is the age of the data. Source: Spansh.
+Choose how far to look: 20, 40 or 80 light years (40 by default). Each row has the jumps,
+the system, its Powerplay state and the distance. The only filter is the age of the data. Source: Spansh.
 
 ## By voice and as callouts
 

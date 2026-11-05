@@ -20,8 +20,22 @@ const results: Results = {
   range: 20,
   source: "Spansh",
   fetched: "2026-10-16T12:00:00Z",
-  rows: [{ key: 1, system: "Ross 154", ly: 9.7, jumps: 1, exact: true, updated_at: "2026-10-16T11:00:00Z", detail: "Ross 154 Boys" }],
+  place: "system",
+  columns: [{ key: "faction", head: "Faction", text: true }],
+  rows: [{ key: 1, system: "Ross 154", ly: 9.7, jumps: 1, exact: true, updated_at: "2026-10-16T11:00:00Z", facts: { faction: "Ross 154 Boys" } }],
 };
+
+const DAY = 86400000;
+const daysAgo = (d: number) => new Date(Date.now() - d * DAY).toISOString();
+/** Each result row's cells, as text. */
+const cells = () =>
+  screen
+    .getAllByRole("row")
+    .slice(1)
+    .map((r) => [...r.querySelectorAll('[role="cell"]')].map((c) => c.textContent?.replace(/\s+/g, " ").trim()));
+const heads = () => screen.getAllByRole("columnheader").map((h) => h.textContent);
+const kit = (run: (o: Origin, f: Filters) => Promise<Results>, props: Record<string, unknown> = {}) =>
+  render(SearchKit, { lookup: "test.lookup", offers: [], run, ...props });
 
 describe("SearchKit", () => {
   it("searches with the default filters when the saved ones can't be read", async () => {
@@ -82,37 +96,154 @@ describe("SearchKit", () => {
     expect(screen.queryByRole("button", { name: "Pad M, current ship" })).toBeNull();
   });
 
-  it("puts arrival on the station name, distance with the system, and allegiance in the row", async () => {
-    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
-    const station: Results = {
+  it("lays out a result as DESIGN.md's row: the ranked value first, the place, the facts under heads, the actions", async () => {
+    loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, pad: "L" });
+    const sell: Results = {
       ...results,
+      place: "station",
+      main: { head: "Price", unit: "cr" },
+      columns: [{ key: "volume", head: "Demand", unit: "t", width: 88 }],
       rows: [
-        {
-          key: 2,
-          system: "Sol",
-          station: "Grebby Prospecting",
-          ly: 4.4,
-          jumps: 1,
-          exact: true,
-          arrival_ls: 2202,
-          pad: "L",
-          station_type: "Settlement",
-          allegiance: "Independent",
-          faction: "Sol Mining Syndicate",
-          state: "Boom",
-          updated_at: null,
-        },
+        { key: 2, system: "Diaguandri", station: "Parekh Chemical Holdings", ly: 127.3, jumps: 7, exact: true, pad: "L", arrival_ls: 775, station_type: "Coriolis Starport", updated_at: daysAgo(10), main: "313,239", facts: { volume: "15" } },
       ],
     };
-    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(station);
-    render(SearchKit, { lookup: "stations.service", offers: [], run });
-    expect(await screen.findByText(/Grebby Prospecting/)).toBeTruthy();
-    expect(screen.getByText("(2202 ls)")).toBeTruthy();
-    expect(screen.getByText("4.4 ly · 1 jump")).toBeTruthy();
-    expect(screen.getByText("Independent")).toBeTruthy();
-    expect(screen.getByText("Sol Mining Syndicate")).toBeTruthy();
-    expect(screen.getByText("Boom")).toBeTruthy();
-    expect(screen.queryByText(/^[SML]$/)).toBeNull();
+    kit(vi.fn().mockResolvedValue(sell), { offers: ["distance", "pad", "age"], hints: { distance: 100, age: 30 } });
+    expect(await screen.findByText("Parekh Chemical Holdings")).toBeTruthy();
+    expect(heads()).toEqual(["Price", "Station", "Demand", "Distance", "Jumps", "Pad", "Arrival", "Updated", ""]);
+    expect(cells()).toEqual([["313,239cr", "Parekh Chemical Holdings Diaguandri", "15t", "127.3ly", "7", "L", "775ls", "10d", ""]]);
+    // The ranked value is the row's one Value L figure, in Orange Lit.
+    expect(screen.getByText("313,239").closest(".main")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Copy Diaguandri" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Add Diaguandri as a stop" })).toBeTruthy();
+    expect(screen.getByText("Within 100 ly of Sol · large pad · reports up to 30 days old")).toBeTruthy();
+  });
+
+  it("keeps the ranked value, the place and the actions in a panel too narrow for the facts", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    // A 320 px side panel: the row needs 112 + 240 + 64 px plus its fact columns.
+    const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(297);
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(private cb: () => void) {}
+        observe() {
+          this.cb();
+        }
+        disconnect() {}
+      },
+    );
+    try {
+      kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
+      expect(await screen.findByText("Ross 154")).toBeTruthy();
+      await waitFor(() => expect(heads()).toEqual(["Jumps", "System", ""]));
+      expect(cells()).toEqual([["1", "Ross 154", ""]]);
+      expect(screen.getByRole("button", { name: "Set Ross 154 as the destination" })).toBeTruthy();
+    } finally {
+      width.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("ranks by jumps when nothing else ranks, and gives a system lookup no pad or arrival column", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const r = { ...results, rows: [{ ...results.rows[0]!, updated_at: daysAgo(2), exact: false }] };
+    kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(heads()).toEqual(["Jumps", "System", "Faction", "Distance", "Updated", ""]);
+    expect(cells()).toEqual([["~1", "Ross 154", "Ross 154 Boys", "9.7ly", "2d", ""]]);
+    expect(screen.getByText("Nearest to Sol · reports of any age")).toBeTruthy();
+    expect(screen.getByText(/~ = straight-line estimate/)).toBeTruthy();
+  });
+
+  it("steps a stale report down with its age in Orange when there is no age filter", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const r: Results = {
+      ...results,
+      fetched: new Date().toISOString(),
+      rows: [
+        { key: 1, system: "Fresh", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(3) },
+        { key: 2, system: "Old", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(212) },
+        { key: 3, system: "Undated", ly: 3, jumps: 1, exact: true, updated_at: null },
+      ],
+    };
+    kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
+    expect(await screen.findByText("Old")).toBeTruthy();
+    const stale = screen.getAllByRole("row").filter((row) => row.classList.contains("stale"));
+    expect(stale.map((row) => row.textContent)).toEqual([expect.stringContaining("Old")]);
+    expect(stale[0]!.querySelector(".age")?.textContent).toBe("212d");
+  });
+
+  it("hides reports older than the age filter and counts them, with any the source left out", async () => {
+    loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 7 });
+    const r: Results = {
+      ...results,
+      fetched: new Date().toISOString(),
+      hidden_stale: 2,
+      rows: [
+        { key: 1, system: "Fresh", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(3) },
+        { key: 2, system: "Old", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(10) },
+      ],
+    };
+    kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
+    expect(await screen.findByText("Fresh")).toBeTruthy();
+    expect(screen.queryByText("Old")).toBeNull();
+    expect(screen.getByText("Nearest to Sol · reports up to 7 days old · 3 older reports hidden")).toBeTruthy();
+    expect(document.querySelector(".stale")).toBeNull();
+  });
+
+  it("says what is empty and widens the search in one action", async () => {
+    let stored: Filters = DEFAULT_FILTERS;
+    loadFilters.mockImplementation(async () => stored);
+    saveFilters.mockImplementation(async (_, f) => void (stored = f));
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockImplementation(async (_, f) => (f.max_distance_ly === 200 ? results : { ...results, rows: [] }));
+    kit(run, { offers: ["distance"], hints: { distance: 100 }, noun: "buyers" });
+    expect(await screen.findByText(/No buyers within 100 ly\./)).toBeTruthy();
+    expect(screen.queryByRole("table")).toBeNull();
+    await fireEvent.click(screen.getByRole("button", { name: "Widen to 200 ly" }));
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(run).toHaveBeenLastCalledWith(null, expect.objectContaining({ max_distance_ly: 200 }));
+    expect(stored.max_distance_ly).toBe(200);
+  });
+
+  it("keeps the old rows, dim, under one line naming the source while a new search runs", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValueOnce(results).mockReturnValue(new Promise(() => {}));
+    kit(run, { busyText: "Asking Spansh…" });
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("false");
+    const box = screen.getByLabelText("Search from system");
+    await fireEvent.input(box, { target: { value: "Deciat" } });
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(await screen.findByText("Asking Spansh…")).toBeTruthy();
+    expect(screen.getByText("Ross 154")).toBeTruthy();
+    expect(screen.getByRole("table").getAttribute("aria-busy")).toBe("true");
+    expect(screen.queryByText(/^Nearest to/)).toBeNull();
+  });
+
+  it("shows a failed search as a hard error, and TRY AGAIN runs it again", async () => {
+    loadFilters.mockResolvedValue(DEFAULT_FILTERS);
+    const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockRejectedValueOnce("Spansh took too long to answer").mockResolvedValue(results);
+    kit(run);
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toMatch(/^! Spansh took too long to answer\s*Try again$/);
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(run).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("shows a filter that couldn't be saved as a hard error, and TRY AGAIN saves it again", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    let stored = DEFAULT_FILTERS;
+    loadFilters.mockImplementation(async () => stored);
+    saveFilters.mockRejectedValueOnce(new Error("database is locked")).mockImplementation(async (_, f) => void (stored = f));
+    kit(vi.fn().mockResolvedValue(results), { offers: ["age"] });
+    const select = (await screen.findByRole("combobox")) as HTMLSelectElement;
+    await fireEvent.change(select, { target: { value: "7" } });
+    expect((await screen.findByRole("alert")).textContent).toMatch(/Couldn't save the filter: database is locked/);
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(stored.max_age_days).toBe(7));
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("Add stop and Set destination hand the core the row's system and label, and say when it can't", async () => {
@@ -126,9 +257,15 @@ describe("SearchKit", () => {
     history.replaceState(null, "", "/");
     const { unmount } = render(SearchKit, { lookup: "stations.service", offers: [], run });
     await fireEvent.click(await screen.findByRole("button", { name: "Add Deciat as a stop" }));
-    expect(await screen.findByText("Couldn't add it: not running inside the app")).toBeTruthy();
+    // A hard error: a red "!", why, and TRY AGAIN, which tries the same action again.
+    expect((await screen.findByRole("alert")).textContent).toMatch(/^! Couldn't add it: not running inside the app\s*Try again$/);
     await fireEvent.click(screen.getByRole("button", { name: "Set Deciat as the destination" }));
-    expect(await screen.findByText("Couldn't follow it: not running inside the app")).toBeTruthy();
+    expect(await screen.findByText(/Couldn't follow it: not running inside the app/)).toBeTruthy();
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    await fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Following. Deciat is on your clipboard.")).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
     unmount();
 
     history.replaceState(null, "", "/?core=ready");

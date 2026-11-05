@@ -9,7 +9,7 @@ import { previewLookup } from "./fakecore";
 import sample from "./fixtures/stations.json";
 import moduleSample from "./fixtures/stations-module.json";
 import shipSample from "./fixtures/stations-ship.json";
-import type { Filters, Origin, Pad, Results } from "./search";
+import { figure, stateLabel, type Column, type Filters, type Origin, type Pad, type Results } from "./search";
 
 /** Service ids (astromech_galaxy::stations::Service) with the names shown for them. */
 export const SERVICES = [
@@ -101,14 +101,29 @@ export async function stations(want: Want, origin: Origin, filters: Filters): Pr
   return await invoke<StationsNearby>("stations_nearby", { want, origin, filters });
 }
 
-/** The search kit's rows for a station lookup's answer. */
+/** "Federation · Mother Gaia · Boom": who runs the station and its state, when the source says. */
+export function factionLine(h: Pick<StationHit, "allegiance" | "faction" | "state">): string {
+  const named = (v: string | null) => (v && v !== "None" ? v : "");
+  return [named(h.allegiance), named(h.faction), stateLabel(h.state)].filter(Boolean).join(" · ");
+}
+
+/**
+ * The search kit's rows for a station lookup's answer: ranked by jumps, with the modules that
+ * matched (Outfitting), the price (Outfitting, Shipyard) and the faction as the lookup's columns.
+ */
 export function toResults(r: StationsNearby): Results {
+  const columns: Column[] = [];
+  if (r.hits.some((h) => h.detail)) columns.push({ key: "detail", head: "Module", text: true });
+  if (r.hits.some((h) => h.price != null)) columns.push({ key: "price", head: "Price", unit: "cr", width: 120 });
+  if (r.hits.some((h) => factionLine(h))) columns.push({ key: "faction", head: "Faction", text: true });
   return {
     origin: r.here.system,
     range: r.range,
     source: "Spansh",
     fetched: r.fetched,
     warning: r.warning,
+    place: "station",
+    columns,
     rows: r.hits.map((h) => ({
       key: `${h.system_id64}/${h.name}`,
       system: h.system,
@@ -120,11 +135,7 @@ export function toResults(r: StationsNearby): Results {
       arrival_ls: h.arrival_ls,
       updated_at: h.updated_at,
       station_type: h.station_type,
-      lead: h.price != null ? `${h.price.toLocaleString("en")} cr` : undefined,
-      detail: h.detail || undefined,
-      allegiance: h.allegiance,
-      faction: h.faction,
-      state: h.state,
+      facts: { detail: h.detail ?? "", price: h.price == null ? "" : figure(h.price), faction: factionLine(h) },
     })),
   };
 }

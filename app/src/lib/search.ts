@@ -16,6 +16,7 @@ export type Pad = "S" | "M" | "L";
 export interface Row {
   key: string | number;
   system: string;
+  /** The station or body; absent when the place is the system. */
   station?: string;
   ly: number;
   jumps: number;
@@ -26,19 +27,29 @@ export interface Row {
   arrival_ls?: number | null;
   /** When the source last saw this data (ISO 8601). */
   updated_at: string | null;
-  /** Lookup-specific line, e.g. the matching faction and its states. */
-  detail?: string;
-  /** Shown first on the distance line, e.g. a market's price. */
-  lead?: string;
+  /** The value the list is ranked by when it isn't jumps (Results.main), e.g. "313,239". */
+  main?: string;
+  /** The lookup's own columns (Results.columns), by key. Missing: "—". */
+  facts?: Record<string, string>;
   /** Spansh station type, shown as a HUD mark. */
   station_type?: string | null;
-  /** Superpower the station answers to. */
-  allegiance?: string | null;
-  /** Controlling minor faction. */
-  faction?: string | null;
-  /** Station state ("Under repairs"); "None" is omitted in the row. */
-  state?: string | null;
 }
+
+/** A column a lookup adds to the shared ones (DESIGN.md Lookup result row). */
+export interface Column {
+  key: string;
+  /** The column head, in Label. */
+  head: string;
+  /** Figures: right-aligned, with this unit after each. */
+  unit?: string;
+  /** Prose (factions, bodies, a module): left-aligned, truncated, sharing the row's spare width with the place. */
+  text?: boolean;
+  /** A figure column's width in px. */
+  width?: number;
+}
+
+/** What a lookup's place column holds: stations get pad and arrival columns, bodies arrival. */
+export type Place = "station" | "body" | "system";
 
 export interface Results {
   /** The system the search measured from. */
@@ -49,8 +60,15 @@ export interface Results {
   source: string;
   /** When the source was asked (ISO 8601; may be a cached answer). */
   fetched: string;
+  place: Place;
+  /** What the list is ranked by, shown first and largest (Row.main). Absent: jumps. */
+  main?: { head: string; unit?: string };
+  /** The lookup's own fact columns, before distance, jumps, pad, arrival and report age. */
+  columns?: Column[];
   rows: Row[];
   warning?: string;
+  /** Reports the source left out for being older than the age filter, when it can say. */
+  hidden_stale?: number;
   /** What the lookup found, e.g. "Famine": the label a result gets on the route (Add stop, Set destination) when it has no station. */
   label?: string;
 }
@@ -160,4 +178,140 @@ export function arrivalLabel(ls: number | null | undefined): string {
 export function stateLabel(s: string | null | undefined): string {
   if (!s || /^none$/i.test(s)) return "";
   return s.replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
+/** The steps each filter's dropdown offers (SearchFilters), which widening walks up. */
+export const AGES = [1, 3, 7, 30, 90, 365];
+export const ARRIVALS = [1000, 5000, 25000];
+export const DISTANCES = [20, 50, 100, 200, 500];
+export const VOLUMES = [100, 500, 1000, 5000];
+
+/** A report older than this many days is stale when the lookup has no age filter of its own (DESIGN.md States). */
+export const STALE_DAYS = 30;
+
+/** "1,234" with no decimals, "1,234.5" with `digits`. */
+export function figure(n: number, digits = 0): string {
+  return n.toLocaleString("en", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+/** One cell of a result row: a figure with its unit, or prose. */
+export interface Cell {
+  value: string;
+  unit?: string;
+  text?: boolean;
+}
+
+/** A fact column of the row as the kit draws it: the lookup's own, then the shared ones. */
+export interface FactColumn extends Column {
+  cell: (r: Row, now: number) => Cell;
+}
+
+const DASH: Cell = { value: "—" };
+
+/** "~3" for a straight-line estimate, "3" for a route over known stars. */
+export function jumpsFigure(r: Pick<Row, "jumps" | "exact">): string {
+  return `${r.exact ? "" : "~"}${figure(r.jumps)}`;
+}
+
+/** How old a report is, as a figure and unit: "12 min", "5 h", "212 d". */
+export function ageCell(iso: string | null, now: number): Cell {
+  if (!iso) return DASH;
+  const s = Math.max(0, (now - Date.parse(iso)) / 1000);
+  if (s < 3600) return { value: figure(Math.max(1, Math.round(s / 60))), unit: "min" };
+  if (s < 172800) return { value: figure(Math.round(s / 3600)), unit: "h" };
+  return { value: figure(Math.round(s / 86400)), unit: "d" };
+}
+
+/**
+ * The fact columns after the place, in order: the lookup's own, distance, jumps (unless they
+ * are the main value), pad for stations, arrival for stations and bodies, report age.
+ */
+export function factColumns(res: Pick<Results, "place" | "main" | "columns">): FactColumn[] {
+  const own = (res.columns ?? []).map(
+    (c): FactColumn => ({ ...c, cell: (r) => (r.facts?.[c.key] ? { value: r.facts[c.key]!, unit: c.unit, text: c.text } : DASH) }),
+  );
+  const shared: FactColumn[] = [{ key: "ly", head: "Distance", unit: "ly", width: 88, cell: (r) => ({ value: figure(r.ly, 1), unit: "ly" }) }];
+  if (res.main) shared.push({ key: "jumps", head: "Jumps", width: 56, cell: (r) => ({ value: jumpsFigure(r) }) });
+  if (res.place === "station") shared.push({ key: "pad", head: "Pad", width: 40, cell: (r) => (r.pad ? { value: r.pad } : DASH) });
+  if (res.place !== "system") {
+    shared.push({ key: "arrival", head: "Arrival", unit: "ls", width: 96, cell: (r) => (r.arrival_ls == null ? DASH : { value: figure(r.arrival_ls), unit: "ls" }) });
+  }
+  shared.push({ key: "age", head: "Updated", width: 72, cell: (r, now) => ageCell(r.updated_at, now) });
+  return [...own, ...shared];
+}
+
+/** The age filter in force, in days: the commander's, else the lookup's default; null: any age. */
+export function ageLimit(filters: Filters, hints: FilterHints): number | null {
+  return filters.max_age_days ?? hints.age ?? null;
+}
+
+/** Whether a row's report is older than `days`. A row with no date is not stale: its age is unknown. */
+export function isStale(r: Pick<Row, "updated_at">, days: number, now: number): boolean {
+  return r.updated_at != null && now - Date.parse(r.updated_at) > days * 86400000;
+}
+
+const PAD_NAMES: Record<Pad, string> = { S: "", M: "medium or large pad", L: "large pad" };
+
+/**
+ * The one-line summary of a search's constraints above the column heads ("Within 100 ly of Sol ·
+ * large pad · reports up to 30 days old"), naming only the filters the lookup offers.
+ * `lead` says where it searched when there is no radius ("Nearest to Sol").
+ */
+export function summary(lead: string, origin: string, filters: Filters, offers: FilterKey[], hints: FilterHints, hidden: number): string {
+  const has = (k: FilterKey) => offers.includes(k);
+  const radius = filters.max_distance_ly ?? hints.distance ?? null;
+  const parts = [has("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`];
+  if (has("volume") && filters.min_volume != null) parts.push(`${(hints.volume ?? "volume").toLowerCase()} at least ${figure(filters.min_volume)} t`);
+  if (has("pad") && filters.pad && PAD_NAMES[filters.pad]) parts.push(PAD_NAMES[filters.pad]);
+  if (has("arrival") && filters.max_arrival_ls != null) parts.push(`arrival up to ${figure(filters.max_arrival_ls)} ls`);
+  if (has("carriers") && filters.exclude_carriers) parts.push("no carriers");
+  if (has("odyssey") && filters.exclude_odyssey) parts.push("no Odyssey settlements");
+  if (has("age")) {
+    const days = ageLimit(filters, hints);
+    parts.push(days == null ? "reports of any age" : `reports up to ${figure(days)} day${days === 1 ? "" : "s"} old`);
+  }
+  if (hidden > 0) parts.push(`${figure(hidden)} older report${hidden === 1 ? "" : "s"} hidden`);
+  return parts.join(" · ");
+}
+
+/** An empty search's one way forward: what held it back, and the filters with that relaxed. */
+export interface Widening {
+  /** Completes "No stations …": "within 100 ly". */
+  phrase: string;
+  /** The action: "Widen to 200 ly". */
+  label: string;
+  filters: Filters;
+}
+
+const nextStep = (steps: number[], v: number) => steps.find((s) => s > v);
+
+/**
+ * The first constraint an empty search can relax: the radius, the report age, the demand or
+ * stock, the arrival distance, then carriers and Odyssey settlements. Never the pad: a bigger
+ * search is no use if the ship can't land. Null when nothing is left to relax.
+ */
+export function widening(filters: Filters, offers: FilterKey[], hints: FilterHints): Widening | null {
+  const has = (k: FilterKey) => offers.includes(k);
+  const radius = filters.max_distance_ly ?? hints.distance ?? null;
+  const wider = radius == null ? undefined : nextStep(DISTANCES, radius);
+  if (has("distance") && radius != null && wider != null) {
+    return { phrase: `within ${figure(radius)} ly`, label: `Widen to ${figure(wider)} ly`, filters: { ...filters, max_distance_ly: wider } };
+  }
+  const days = ageLimit(filters, hints);
+  if (has("age") && days != null) {
+    const older = nextStep(AGES, days);
+    const phrase = `with reports up to ${figure(days)} day${days === 1 ? "" : "s"} old`;
+    if (older != null) return { phrase, label: `Allow ${figure(older)} days`, filters: { ...filters, max_age_days: older } };
+    if (hints.age == null) return { phrase, label: "Allow any age", filters: { ...filters, max_age_days: null } };
+  }
+  if (has("volume") && filters.min_volume != null) {
+    const what = (hints.volume ?? "volume").toLowerCase();
+    return { phrase: `with ${what} of at least ${figure(filters.min_volume)} t`, label: `Any ${what}`, filters: { ...filters, min_volume: null } };
+  }
+  if (has("arrival") && filters.max_arrival_ls != null) {
+    return { phrase: `within ${figure(filters.max_arrival_ls)} ls of the star`, label: "Any arrival distance", filters: { ...filters, max_arrival_ls: null } };
+  }
+  if (has("carriers") && filters.exclude_carriers) return { phrase: "outside fleet carriers", label: "Include carriers", filters: { ...filters, exclude_carriers: false } };
+  if (has("odyssey") && filters.exclude_odyssey) return { phrase: "outside Odyssey settlements", label: "Include Odyssey", filters: { ...filters, exclude_odyssey: false } };
+  return null;
 }
