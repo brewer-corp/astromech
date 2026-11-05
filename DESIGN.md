@@ -467,9 +467,11 @@ and prose are mixed or sentence case. *Why:* when everything is caps (the audit 
 140 caps rules), caps signal nothing; mixed case also reads faster, and procedural system
 names carry meaning in their case ("Synuefe GW-Z a54-3", "HR-W d1-42").
 
-**The Tabular Rule.** Every number in a column, tile, cell or strip uses tabular figures and
-is right-aligned. *Why:* the ones digit sits under the ones digit, so a column can be
-compared by eye, as the game's market columns can.
+**The Tabular Rule.** Every number uses tabular figures, and a column of quantities is
+right-aligned. A tile's value sits where its tile spec puts it (the material tile's count top
+left); the values in a fact list and dates in a column read as text and stay left-aligned.
+*Why:* the ones digit sits under the ones digit, so a column can be compared by eye, as the
+game's market columns can; a fact list or a date has no column of quantities to compare.
 
 ## Layout
 

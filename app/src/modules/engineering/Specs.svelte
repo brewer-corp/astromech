@@ -146,7 +146,7 @@
   .stat { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .v { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
-  .q { font-size: var(--fs-l); color: var(--accent); }
+  .q { font-size: var(--fs-l); line-height: 1.2; color: var(--accent); }
   .sep { color: var(--orange-mid); }
   .u { color: var(--orange-mid); font-size: var(--fs-s); }
   .power { grid-column: 1 / -1; }
