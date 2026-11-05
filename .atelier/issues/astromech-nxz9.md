@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-05T08:47:00.340367900+00:00"
+status: "done"
 title: "Places home and the Galaxy finders as Places pages"
-updated_at: "2026-11-05T08:38:04.007547777+00:00"
+updated_at: "2026-11-05T08:47:00.340367900+00:00"
 ---
 
 ## Goal
@@ -46,3 +47,7 @@ Turn the Galaxy area into Places: a home page that shows every finder as a tile 
 ## Notes
 
 - 2026-11-05 [note] Implementer choices DESIGN.md, the issue and the decisions leave open, each the reversible option: (1) the Places home leaves out a section heading with no finder built yet (Trade, Mining, Route stay hidden until kwoi and f7i0 add finders); (2) Services keeps the trader services in its dropdown, and Material traders is its own finder on the same lookup and remembered filters (stations.service); (3) every Places page uses one Help link, places.md, not a heading per finder; (4) a tile's answer names only the input ("Interstellar Factors · 2 jumps"), not where it was asked from, and the tile opens that same search again; (5) the guide page galaxy.md is renamed places.md, and the old release notes keep their links to galaxy.md on GitHub; (6) the Ctrl+K palette gains an entry per finder and per service, replacing the reach the Galaxy Find box had.
+
+## Close Reason
+
+Implementer report. Galaxy's page tabs are Places and Route. #/places shows finder tiles under Ship (Services, Outfitting, Shipyard) and Engineering (Material traders); sections with no finder yet are hidden. Each finder is a page at #/places/<finder>[/<input>] with a Places crumb, title, main input (service dropdown, module box with class/rating/mount, ship box, Raw/Manufactured/Encoded/Any) and the jp36 rows; no third tab row. Tiles show the finder's last answer this session (SearchKit gained an optional onanswer) and the home page makes no request. app/src/lib/places.ts FINDERS (id, title, section, what, input) is the one declared list; PAGES in modules/places/View.svelte is typed on FinderId so a finder without a page fails the typecheck. Old #/services[/id], #/outfitting/<module>[?class&rating&mount] and /5A[/Mount], #/shipyard/<ship> links, including links followed inside the window, open the matching finder; Ctrl+K module, ship, finder and service entries go to the new routes. FindWant.svelte, lib/find.ts and the three old Galaxy modules are removed; galaxy.md is now places.md; ARCHITECTURE §18.2 describes Places. Proof: app lint, svelte-check 0/0, build, 432 tests; check-guide 0 problems; mutations of old-link moves, page tabs, in-window rewriting and the tile answer fail tests; screenshots docs/design/places-*-1600.png; the reviewer exercised every old URL form in headless Chrome. Review: reviewer-fable-nxz9 approved (astromech-v69r); 5pjm (per-finder phrase list) and ux31 (replaceState on first-load redirect) folded into astromech-2hbw; k5sa, dkqe no action. Reviewer decisions (reversible, matching the branch): hide empty sections; keep trader services in Services; one Help page places.md; tile shows input and figure only; leave the two alpha release notes' galaxy.md links; keep the Ctrl+K finder entries until 2hbw.
