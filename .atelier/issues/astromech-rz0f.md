@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-05T07:29:12.833060410+00:00"
+status: "done"
 title: "Add stop and Set destination on every lookup result"
-updated_at: "2026-11-05T07:09:28.110659646+00:00"
+updated_at: "2026-11-05T07:29:12.833060410+00:00"
 ---
 
 ## Goal
@@ -42,3 +43,7 @@ Core route follower, its control command, `lib/route.ts`, `fakecore.ts`, SearchK
 - Route follower: `crates/astromech-core/src/route.rs` (`Desk::set`, `resume`, parking), `app.rs` `route_cmd`; docs/PLOTTING.md.
 - `followRoute` callers: SearchKit and `modules/engineering/Build.svelte` (engineer trip: its call is unchanged, it gains the park and the "Replaced" note through `set`).
 - Add stop inserts as the next stop (decision astromech-g8d5, item 2); leg-aware insertion comes with Find along route (astromech-wla4).
+
+## Close Reason
+
+Implementer report. Add stop and Set destination replace Go on every SearchKit result (icon buttons labelled "Add <system> as a stop" / "Set <system> as the destination"). New core command route_add {system, label?, source?} (Desk::add): inserts as the next waypoint, merges with the next or just-passed waypoint in the same system, counts a stop in the current system as reached, copies to the clipboard, and starts a one-stop route when there is no unfinished route of our own (none, finished, galaxy map). Desk::set now parks the unfinished route of our own it replaces (one parked route); finished and galaxy-map routes are not parked, and an already parked route then stays. Set destination, the engineer trip, the plotter and imports inherit this; FollowNote.svelte shows "Replaced X." with RESUME under results, the engineer trip and the plot panel. fakecore mirrors the core; guide routes.md and galaxy.md and docs/PLOTTING.md updated. Deviation: one existing assertion changed (set over a galaxy-map route keeps the parked route instead of dropping it), so a paused trip is not dropped silently (bi94). Proof: 7 new/changed Rust tests fail without the change; cargo test -p astromech-core 211 lib pass, gear_down 21 pass; clippy -D warnings and fmt clean; app lint, svelte-check 0/0, build, 398 tests; check-guide 0 problems; screenshots docs/design/route-actions-{1..5}-*.png. Not run locally: the Tauri shell crate (CI). Review: reviewer-fable-rz0f approved (astromech-fwfv); findings n0t1 and f1fo deferred to astromech-orha, jgyk to astromech-jp36. Decisions (reviewer, reversible, all matching the branch): keep the parked route when Set destination replaces a galaxy-map route; Add stop on a galaxy-map route starts a one-stop route of ours; Resume drops the current route rather than swapping; a search route is named after its system with source "search"; the Replaced note may name an earlier-parked route for now (astromech-orha).
