@@ -18,9 +18,9 @@ relationships:
     type: "supersedes"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Mining hotspots finder in Places, with its voice query"
-updated_at: "2026-11-05T06:19:45.358271847+00:00"
+updated_at: "2026-11-05T08:47:08.358975007+00:00"
 ---
 
 ## Goal
