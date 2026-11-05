@@ -1854,7 +1854,6 @@ mod tests {
             "this system is worth it",
             "map it",
             "worth mapping",
-            "what is this worth",
             "system values",
             "unsold",
             "sold data",
@@ -1906,9 +1905,18 @@ mod tests {
             ("How much is my data worth?", "exploration.unsold"),
             ("How much is this system worth?", "exploration.system_value"),
             ("What is worth mapping?", "exploration.worth_mapping"),
+            ("What is this system worth?", "exploration.system_value"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // Deliberate (astromech-e0im): "my" is filler, so the ship phrases ("how much is ship
+        // worth") sit one word from the bare "this worth" and swallow it: "Say again", not a
+        // guess at system value. Revisit if real transcripts show players meaning system value.
+        for t in
+            ["How much is this worth?", "What is this worth?", "How much is my ship worth?", "What is my ship worth?"]
+        {
+            assert_eq!(g.best(t).decision, Decision::NoMatch, "{t:?} -> {:?}", g.best(t));
         }
     }
 
