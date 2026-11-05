@@ -222,6 +222,9 @@
   .cell:hover { background-color: var(--row-hover); }
   .cell.empty { background: var(--bg); outline: 1px solid var(--line); outline-offset: -1px; }
   .cell.empty .n, .cell.empty .q { color: var(--orange-dim); }
+  /* The Seam outline must not hide the focus ring or the hover (review astromech-hdht). */
+  .cell.empty:hover { background: var(--row-hover); }
+  .cell.empty:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .cell.sel, .cell.sel:hover { background: var(--accent); outline: 0; }
   .cell.sel :is(.n, .q) { color: var(--on-accent); }
   .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }

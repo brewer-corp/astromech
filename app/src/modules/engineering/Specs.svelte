@@ -50,7 +50,7 @@
 
   <div class="band">
     <div class="stat" aria-label="Speed">
-      <div class="k">Speed (top | boost)</div>
+      <div class="k">Speed (top / boost)</div>
       <div class="v"><span class="q">{n(speed, 0)}</span> <span class="sep">|</span> <span class="q">{n(boost, 0)}</span> <span class="u">m/s</span></div>
     </div>
     <div class="stat" aria-label="Pitch / roll / yaw" title="Hull stand-in at four pips to engines, until the ship calculations include handling">

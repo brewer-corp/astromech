@@ -135,11 +135,11 @@
   .access { display: inline-flex; align-items: center; gap: 3px; flex: none; }
   .gate { font-size: var(--fs-s); color: var(--orange-dim); }
   .eng.known .gate, .eng.invited .gate { color: var(--accent); }
-  .badge, .outline, .barred, .mail { width: 12px; height: 14px; flex: none; }
-  .badge { background: currentColor; color: var(--accent); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
-  .outline { color: var(--orange-dim); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
-  .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
-  .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }
+  .access > :is(.badge, .outline, .barred, .mail) { width: 12px; height: 14px; flex: none; }
+  .access > .badge { background: currentColor; color: var(--accent); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; }
+  .access > .outline { color: var(--orange-dim); -webkit-mask: url("/engineers/access.svg") center / contain no-repeat; mask: url("/engineers/access.svg") center / contain no-repeat; background: currentColor; }
+  .access > .mail { color: var(--accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='black' stroke-width='1.25' d='M2.5 4.5h11v7h-11zM2.5 4.5L8 9l5.5-4.5'/%3E%3C/svg%3E") center / contain no-repeat; background: currentColor; }
+  .access > .barred { border: 1px solid currentColor; background: linear-gradient(to top right, transparent 46%, currentColor 46%, currentColor 54%, transparent 54%); }
   .spec { font-size: var(--fs-s); }
   .where, .from { font-size: var(--fs-s); color: var(--orange-mid); }
   .left { margin: 0; font-size: var(--fs-s); line-height: 1.45; }
