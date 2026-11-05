@@ -28,9 +28,9 @@ A trailing "system" is not part of the name. The answer says which system it sea
 
 "near me", "near here", "from here", "near you", "near my current location" and a word that
 sounds like "me" ("near mi") mean where you are, as does naming the system you are in. So do
-words that name no system: "from a station" or "near my carrier" search from where you are. The
-system is found by its exact name on Spansh (any case), so it works before the journal gives a
-position too. A name Spansh does not know is said plainly ("Nowhere Prime. Spansh does not know
+words that name no system: "from a station", "near my carrier" or "in bulk" search from where you
+are. The system is found by its exact name on Spansh (any case), so it works before the journal
+gives a position too. A name Spansh does not know is said plainly ("Nowhere Prime. Spansh does not know
 that system."), and nothing is searched. A command that is not a lookup stays one with a system
 after it: "paste from Sol" gets "Say again.", not a lookup. A procedural name ("Col 285 Sector
 AB-C d1-2") is hard for speech recognition to get exactly right; the pages let you type one.

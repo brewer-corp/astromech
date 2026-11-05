@@ -490,13 +490,30 @@ pub const HERE_WORDS: &[&str] = &[
     "current system",
 ];
 
-/// First words of a place that is no system's name ("from a station", "near my carrier").
-const NOT_A_NAME: &[&str] =
-    &["a", "an", "any", "some", "another", "my", "your", "our", "their", "that", "those", "these"];
+/// First words of a place that is no system's name ("from a station", "near my carrier"), and
+/// of a quantity ("in bulk", "in large quantities").
+const NOT_A_NAME: &[&str] = &[
+    "a",
+    "an",
+    "any",
+    "some",
+    "another",
+    "my",
+    "your",
+    "our",
+    "their",
+    "that",
+    "those",
+    "these",
+    "bulk",
+    "large",
+    "quantity",
+    "quantities",
+];
 
 /// A transcript ending in "near <place>" (or another of the [`ORIGIN_WORDS`]), split there:
 /// (the words before, the system as said). The system is `None` when the place is one of the
-/// [`HERE_WORDS`], or no system's name ("from a station", "near my carrier"): the lookup
+/// [`HERE_WORDS`], or no system's name ("from a station", "near my carrier", "in bulk"): the lookup
 /// searches from the current system. A trailing "system" is not part of the name ("near the
 /// Sol system"). `None` when it does not end so.
 fn split_origin(t: &str) -> Option<(String, Option<String>)> {
@@ -1520,6 +1537,10 @@ mod tests {
             "where can I sell gold near my carrier",
             "where can I sell gold in a hurry",
             "where can I sell gold near the current system",
+            // quantities, not places (astromech-9fwe)
+            "where can I sell gold in bulk",
+            "where can I sell gold in large quantities",
+            "where can I sell gold in quantity",
         ] {
             assert_eq!(heard(t), sell(None), "{t:?}");
         }

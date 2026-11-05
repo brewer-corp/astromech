@@ -747,16 +747,48 @@ fn after_an_hour_of_503s_the_queue_drains_in_batches() {
 
 /// astromech-7ew2: one event EDSM always chokes on in the backlog an outage leaves doesn't turn
 /// the drain into one request per event: the refused batch holding it is split in halves
-/// (astromech-sklz), and only the poisoned event is lost.
+/// (astromech-sklz), and only the poisoned event is lost. The poison sits at either end, on both
+/// sides of a batch edge and in the middle (astromech-u6ai).
 #[test]
 fn a_poisoned_event_in_an_outages_backlog_still_drains_in_batches() {
-    let d = drain_after_an_outage(&[100]);
-    let stored = stored_once(&d.stored);
-    assert!(!d.stored.contains(&"100".to_owned()), "the poisoned event was stored");
-    assert_eq!(stored + 1, d.events, "every event but the poisoned one was stored");
-    // 77 requests before astromech-7ew2 (refused events alone after the failed batch), 29 with it
-    // (6 of them the poisoned event alone in later passes, until it is given up).
-    assert!(d.requests * 5 <= d.events, "{} requests for {} events", d.requests, d.events);
+    for poison in [0, 49, 50, 100, 199] {
+        let d = drain_after_an_outage(&[poison]);
+        let stored = stored_once(&d.stored);
+        assert!(!d.stored.contains(&poison.to_string()), "poison at {poison}: the poisoned event was stored");
+        assert_eq!(stored + 1, d.events, "poison at {poison}: every event but the poisoned one was stored");
+        // At 100: 77 requests before astromech-7ew2 (refused events alone after the failed
+        // batch), 29 with it (6 of them the poisoned event alone in later passes, until it is
+        // given up).
+        assert!(d.requests * 5 <= d.events, "poison at {poison}: {} requests for {} events", d.requests, d.events);
+    }
+}
+
+/// The refusals of the queued event whose body holds `event`.
+fn refusals_of(r: &Rig, event: &str) -> i64 {
+    let all = r.courier.outbox().due(i64::MAX, true, 1000).unwrap();
+    let needle = format!("\"event\":\"{event}\"");
+    let q = all.iter().find(|q| String::from_utf8_lossy(&q.body).contains(&needle)).expect(event);
+    q.refusals
+}
+
+/// astromech-sklz, astromech-u6ai: a failed batch of events refused before, or one of its
+/// halves, counts no refusal against its events; only the poisoned event's, failing alone,
+/// counts. Its good neighbours go through every half with it and are all stored in this pass.
+#[test]
+fn a_failed_refused_batch_counts_a_refusal_only_against_the_event_failing_alone() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig_with(api.clone(), 40, &[17]);
+    refused_once(&r);
+    assert_eq!(refusals_of(&r, "Poison"), 1);
+    // An event never refused goes first and is stored, so EDSM is up and the refused events go
+    // in batches that are halved when they fail.
+    r.up.journal(&json!({"event": "Scan", "n": 100}), true, NOW);
+    let d = r.courier.pass(NOW + 4000, r.t0 + Duration::from_secs(4000)).unwrap();
+    let sizes = api.sizes.lock().unwrap().clone();
+    assert!(sizes.iter().filter(|n| **n > 1).count() >= 5, "the refused batch was halved: {sizes:?}");
+    assert_eq!(stored(&api).len(), 40, "every good event was stored in this pass: {d:?}, {sizes:?}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1, "only the poisoned event is left");
+    assert_eq!(refusals_of(&r, "Poison"), 2, "one refusal for failing alone, none for the batches: {sizes:?}");
 }
 
 /// astromech-az6g: when EDSM says no requests are left (`X-Rate-Limit-Remaining: 0`), the courier
