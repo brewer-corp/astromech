@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Find or plot: one header box for systems, finders and Ctrl+K"
-updated_at: "2026-11-05T06:19:45.194670106+00:00"
+updated_at: "2026-11-05T06:47:00.768908783+00:00"
 ---
 
 ## Goal
@@ -45,3 +45,7 @@ Replace the header's systems-only plot box (`modules/route/PlotBar.svelte`) and 
 - DESIGN.md: Find or plot, Frame (header 64 px), Input.
 - Needs astromech-nxz9's finders and URLs and the Add stop and Set destination actions (astromech-rz0f). Its phrase tests cover only astromech-nxz9's finders so it does not wait for astromech-kwoi; whichever of the two lands second adds phrase tests for the Trade and Materials finders ("sell painite").
 - Search box and voice keep separate matchers that target the same finder IDs and URLs (decision astromech-g8d5, item 7).
+
+## Notes
+
+- 2026-11-05 [note] 2026-11-05: decision astromech-ghyo item 9: below the width where the one-row header fits (about 1600 px), the top tabs move to a 44 px second row under the wordmark. 2hbw implements this breakpoint with the one-row header and remeasures the width once the 320 px Find or plot box and its Ctrl+K hint are in, then updates DESIGN.md's Frame table figure.
