@@ -15,9 +15,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-05T07:57:17.230979782+00:00"
+status: "done"
 title: "Route strip on every page"
-updated_at: "2026-11-05T07:29:27.200573878+00:00"
+updated_at: "2026-11-05T07:57:17.230979782+00:00"
 ---
 
 ## Goal
@@ -42,3 +43,7 @@ The frame and a new strip component in `app/src/lib/ui` or `modules/route`; the 
 - DESIGN.md: Layout/Frame, Route strip, Badge, States; mockups `docs/design/design-system-places-*-after.png` show the strip.
 - Uses Badge and Icon button from astromech-pey5.
 - `app/src/lib/route.ts` (`RouteView`, `watchRoute`), `modules/route/View.svelte`, `crates/astromech-core/src/route.rs`, `crates/astromech-galaxy/src/plot.rs` (per-leg jumps).
+
+## Close Reason
+
+Implementer report. Route strip on every page (36 px, under the header, not in onboarding): Next · system · copy · "n of N" · flag badges · To destination (links to #/route) · "N jumps left" for plotted and galaxy-map routes, or "N stops left" when a stop does not know its jumps (g8d5 item 10). Warnings, one at a time, orange "!": clipboard failed, Off route, Refuel before the next jump at a fuel stop; a failed core read is red. No route or finished: Find or plot, which focuses the header box (PlotBar exports focusFindOrPlot for 2hbw); a parked route shows Paused <name> + Resume once the followed one has ended. Never a second line (worst case checked at 1100 and 1600 px). Rail.svelte and the Galaxy split are gone; the Route page keeps list, import and Resume; Services/Outfitting/Shipyard keep their spacing at the 1200 px list width. Core: optional Waypoint.jumps (from astromech_galaxy::plot for exact and neutron routes, 1 per galaxy-map waypoint, cleared on the leg after an Add stop) and View.jumps_left; old route.json without jumps loads. Preview: ?core=ready&route=exact. Deviation from the Done when: Off route fires only when the next waypoint is one jump on, not whenever the commander is in neither the previous nor next waypoint (the literal rule flags every neutron leg and engineer trip); decided by the reviewer. Added the refuel warning DESIGN.md names (it cannot see the tank, so it stays until the jump). Proof: cargo test -p astromech-core -p astromech-galaxy 418 pass; clippy -D warnings, fmt clean; app lint, svelte-check 0/0, build, 408 tests (Strip.test.ts, frame test); check-guide, check-deps OK; mutations of the strip, the one-jump rule and the jump reset each fail a test; screenshots docs/design/route-strip-*.png. Not run locally: the Tauri shell build (CI). Review: reviewer-fable-1d92 approved (astromech-kk4y); w52v and aeub folded into astromech-jp36, 9ju1 and 7464 deferred to astromech-nh0g, 9e5p answered here. Reviewer decisions (reversible, matching the branch): one-jump off-route rule; keep the refuel warning, Status.json fuel later; keep the destination link; keep the "Find or plot" label; keep the 1200 px cap; clipboard failure orange, failed call red. Follow-up noted: the strip and the Route page each poll the route every 2 s.
