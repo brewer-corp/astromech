@@ -56,7 +56,7 @@
   </SearchKit>
   {#if plan && plan.per_commodity.length}
     <div class="each-wrap">
-      <h2>Best for each on its own</h2>
+      <h2 class="section">Best for each on its own</h2>
       <ul class="each">
         {#each plan.per_commodity as c (c.commodity)}
           <li>
@@ -93,16 +93,15 @@
 <style>
   .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; }
   .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .q { font-family: var(--mono); color: var(--accent); }
-  .left .q { color: var(--text); }
-  .lo { color: var(--text-lo); }
+  .left .q { color: var(--orange-mid); }
+  .lo { color: var(--orange-mid); }
   .each-wrap { padding: 8px 8px 28px; }
-  h2 { margin: 18px 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  h2 { margin: 18px 0 6px; }
   .each { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  .each li { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr) minmax(10rem, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs-s); line-height: 1.35; }
-  .who { display: flex; flex-direction: column; gap: 2px; color: var(--text-hi); font-size: var(--fs); font-weight: 500; }
-  .place { color: var(--text); }
+  .each li { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.4fr) minmax(10rem, 1fr) auto; gap: 8px 18px; align-items: start; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); line-height: 1.35; }
+  .who { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs); font-weight: 500; }
   .facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   @media (max-width: 900px) {
     .each li { grid-template-columns: minmax(0, 1fr); }

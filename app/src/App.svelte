@@ -149,20 +149,26 @@
   /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
   header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); height: 64px; margin: 0 clamp(16px, 3vw, 40px); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
-  nav { display: flex; gap: clamp(16px, 2.5vw, 28px); flex: 1; flex-wrap: wrap; }
-  header nav { flex-wrap: nowrap; }
-  button { all: unset; cursor: pointer; color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
-  button:hover { color: var(--text); }
-  button.on { color: var(--text-hi); }
-  nav.sub { flex: none; gap: 24px; margin: 0 clamp(16px, 3vw, 40px); padding: 12px 0 0; }
-  nav.sub button { font-size: var(--fs-s); font-weight: 600; padding-bottom: 4px; border-bottom: 2px solid transparent; }
-  nav.sub button.on { color: var(--text-hi); border-bottom-color: var(--accent); }
+  nav { display: flex; gap: var(--sp-1); flex: 1; flex-wrap: wrap; }
+  header nav { flex-wrap: nowrap; align-items: center; }
+  button { all: unset; cursor: pointer; }
+  /* DESIGN.md Tabs: top tabs are Nav caps in Orange Mid, the active one a solid orange box;
+     page tabs are Name in mixed case, Orange Mid, the active one Orange Lit on a 2 px underline.
+     An inactive tab hovers to Orange, never to Lit. */
+  header nav button { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); color: var(--orange-mid); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
+  header nav button:hover { color: var(--accent); }
+  header nav button.on { background: var(--accent); color: var(--on-accent); }
+  header nav button.on:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
+  nav.sub { flex: none; gap: var(--sp-6); height: 44px; margin: 0 clamp(16px, 3vw, 40px); }
+  nav.sub button { display: flex; align-items: center; font-weight: 500; color: var(--orange-mid); border-bottom: 2px solid transparent; }
+  nav.sub button:hover { color: var(--accent); }
+  nav.sub button.on { color: var(--orange-lit); border-bottom-color: var(--accent); }
   /* A link to somewhere else (DESIGN.md Buttons → Links): Orange text, a 1 px Orange Mid underline. */
-  .help { color: var(--accent); font-size: var(--fs-s); text-transform: none; letter-spacing: normal; text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .help:hover { color: var(--orange-lit); }
   .right { display: flex; align-items: baseline; gap: 16px; }
-  .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
-  .state.warn { color: var(--accent); font-weight: 600; }
+  .state { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
+  .state.warn { color: var(--accent); }
   main { min-height: 0; overflow: auto; padding: 0 clamp(16px, 3vw, 40px); scrollbar-gutter: stable; }
   header.stacked { height: 108px; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
   header.stacked .app { display: flex; align-items: center; height: 63px; margin-right: auto; }

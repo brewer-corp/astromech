@@ -91,7 +91,7 @@
           {#if project.system_name}<SystemChip name={project.system_name} />&nbsp;·&nbsp;{/if}{project.complete || project.failed ? status(project) : `${status(project)} built`}
         </p>
         {#if needs.length}
-          <h4>Still to buy</h4>
+          <h4 class="section">Still to buy</h4>
           <ul class="list">
             {#each project.shopping.lines as l (l.symbol)}
               <li>
@@ -128,19 +128,19 @@
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); }
-  .acts button { color: var(--text-lo); }
-  .acts button:hover { color: var(--text); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; }
+  .acts button { color: var(--orange-mid); font-weight: 500; }
+  .acts button:hover { color: var(--accent); }
   .acts .on { color: var(--accent); }
   /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
   .main { max-width: var(--list-w); }
   .main > p, .main > .list { max-width: var(--measure); }
   h3 { margin: 14px 0 2px; color: var(--text-hi); font-weight: 500; }
-  h4 { margin: 14px 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 10px; }
+  h4 { margin: 14px 0 6px; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0 0 10px; }
   .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 18px; row-gap: 3px; font-size: var(--fs-s); }
   .list li { display: contents; }
   .q { color: var(--accent); font-family: var(--mono); text-align: right; }
-  .total { font-size: var(--fs-s); color: var(--text); margin: 8px 0 14px; }
-  .lo { color: var(--text-lo); }
+  .total { font-size: var(--fs-s); margin: 8px 0 14px; }
+  .lo { color: var(--orange-mid); }
 </style>

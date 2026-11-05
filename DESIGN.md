@@ -9,7 +9,7 @@ colors:
   placeholder: "#fa6e00bf"
   on-orange: "#0c0d0f"
   ember-cell: "#3d220f"
-  ember-cell-hover: "#4d2b12"
+  ember-cell-hover: "#482810"
   ember-empty: "#1c1610"
   hull: "#1a1310"
   hull-raised: "#241811"
@@ -176,7 +176,7 @@ components:
     height: "34px"
   binding-cell-empty:
     backgroundColor: "{colors.ember-empty}"
-    textColor: "{colors.orange-dim}"
+    textColor: "{colors.orange-mid}"
     typography: "{typography.body}"
     padding: "0 12px"
     height: "34px"
@@ -251,10 +251,9 @@ components:
 
 <!-- Target system (astromech-c4i0), revision 3: revised 25 Oct 2026 after Sumeet's review,
 then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
-Tokens: app/src/design/tokens.css, mapped in Token map below. Pages still to be brought in
-line: astromech-yxtz (orange palette, caps), astromech-dfvp (cells mean editable),
-astromech-sllo (two tab rows), astromech-dzwy (one
-face). The route strip and Places finders arrive with astromech-51ue. Mockups:
+Tokens: app/src/design/tokens.css, mapped in Token map below. The pages moved to the orange
+ramp and the caps rule with astromech-yxtz. Still to be brought in line: astromech-dfvp (cells
+mean editable), astromech-sllo (two tab rows), astromech-dzwy (one face). Mockups:
 docs/design/design-system-*.png. -->
 
 ## Overview
@@ -344,7 +343,8 @@ anti-aliased samples read darker than the game draws them.
 - **Orange Mid** (`orange-mid`, 5.1:1 on Void, 4.8:1 on Hull): labels, column heads, units,
   secondary facts such as the system after a station name, inactive tabs, icons at rest.
   Never on an ember cell (3.8:1 there); text in cells is at least Orange, the placeholder
-  excepted. *Why:* one step down for what supports the main value, still above 4.5:1 where it
+  excepted. The darker Ember Empty is the exception (4.7:1): an empty binding slot's word is
+  Orange Mid. *Why:* one step down for what supports the main value, still above 4.5:1 where it
   is used.
 - **Orange Dim** (`orange-dim`, 3.3:1 on Void, 3.1:1 on Hull): unavailable, zero, disabled.
   It is state, not content, and knowingly below WCAG AA: it says "not this one", and it never
@@ -367,11 +367,13 @@ anti-aliased samples read darker than the game draws them.
 - **Ember Cell** (`ember-cell`) and **Ember Cell Hover** (`ember-cell-hover`): every value
   the commander can change (input, dropdown, choice, binding slot, Settings value). *Why:*
   the game's binding and option cells are this brown; making it brighter than the hull keeps
-  "can change" visible at a glance.
+  "can change" visible at a glance. The hover is only as bright as keeps Orange text at 4.5:1
+  (4.6:1); the placeholder there is 3.3:1, a hint the input's own label backs up.
 - **Ember Empty** (`ember-empty`): an unbound binding slot. *Why:* the game draws empty slots
   like filled ones; we make them visibly empty (see Deviations).
 - **Seam** (`seam`): the only line colour besides orange: section rules, column-head
-  hairlines, popover and badge outlines, empty-tile outlines. *Why:* the game's inactive
+  hairlines, popover and badge outlines, empty-tile outlines, and the scrollbar thumb at rest
+  (Orange Dim under the pointer, Orange Mid while dragged). *Why:* the game's inactive
   section rules are this dim brown.
 
 ### Neutrals (each with a reason)
@@ -380,7 +382,9 @@ anti-aliased samples read darker than the game draws them.
   cockpit that reads as neutral near-black; a neutral ground makes the orange look like
   light, and a brown ground would make the brown cells disappear.
 - **White** (`white`): page and panel titles, the heading of the current section, the
-  selected item's key value in a side panel, the wordmark. *Why:* the game uses white
+  selected item's key value in a side panel, the wordmark. The **current section** is the one
+  holding the item a side panel describes (the selected row, tile or binding); a page with no
+  such selection has none. Focus and scroll position do not make a section current. *Why:* the game uses white
   exactly there (screen titles, the trader's current section, the market's "91 CR").
 - **Options Grey** (`options-grey`): row labels and binding text on Controls and Settings
   lists. *Why:* the game's Options screen, which those pages copy, draws its labels and
@@ -711,13 +715,13 @@ right-hand detail panel (white item name, orange facts, white key price) and the
 |---|---|---|
 | Selected row, tile, option, tab | solid orange, On Orange text; a row or tile only while a side panel or keyboard focus shows the selection | the game's selection |
 | Active page tab | Orange Lit + 2 px orange underline | one step below the top tab |
-| Current section | heading white, its rule orange | the trader screen |
+| Current section | heading white, its rule orange; only the section holding the item a side panel describes | the trader screen, where the section the cursor is in is white |
 | Hover | Row Hover on read-only things; Ember Cell Hover on cells; icons Orange Lit | a response without a new colour |
 | Focus | 1 px orange outline, 2 px offset. On a filled element (selected row, tile or option, active top tab) a 1 px On Orange outline, inset 2 px | keyboard users need to see where they are; an orange outline vanishes against an orange fill |
 | Unavailable, none, zero, disabled | Orange Dim; no surface lift | the trader's empty tiles |
 | Stale report | name stays Orange; main value and facts step down to Orange Mid; the age in Orange ("212 d") | a step down says "do not trust this" and the age, now the brightest fact, says why; the facts stay readable, and red stays for failures |
 | Warning (act on it) | orange "!" + plain words, at the place it applies | the game's orange warnings; urgent but not failed |
-| Hard error (it failed) | red "!" + plain words + a recovery action ("! Could not read the route. TRY AGAIN"); a whole-page error is a white title, a prose line and the action. Never a filled block | red is the game's malfunction colour |
+| Hard error (it failed) | red "!" + plain words + a recovery action ("! Could not read the route. TRY AGAIN"); a whole-page error is a white title, a prose line and the action. A page that re-reads on its own every few seconds offers no action: the next read is the recovery. Never a filled block | red is the game's malfunction colour |
 | Empty | one prose line saying what is empty and what to relax, plus one action ("No buyers within 100 ly. WIDEN TO 250 LY") | an empty list with no way forward is a dead end |
 | Loading | one Orange Mid line naming what is fetched ("Asking Spansh…"); a refresh keeps old rows Dim until replaced. No spinners or skeletons | motion pulls the eye; dim old rows keep the layout still |
 | Listening (press to bind) | binding cell filled orange, On Orange caps | the game's listening cell |
@@ -745,7 +749,7 @@ the variable; never repeat the value. Some variables keep names from before this
 | row-hover | `--row-hover` | #21170f |
 | seam | `--line` | #3a2716 |
 | ember-cell | `--cell` | #3d220f |
-| ember-cell-hover | `--cell-hover` | #4d2b12 |
+| ember-cell-hover | `--cell-hover` | #482810 |
 | ember-empty | `--cell-empty` | #1c1610 |
 | orange | `--accent` | #fa6e00 |
 | orange-lit | `--orange-lit` | #ffa04a |
@@ -782,7 +786,7 @@ Each place we depart from Elite's UI, what we do instead, and why.
 | Red, green and blue for status (green supply bars, green/red price arrows, blue mission goods) | Only one extra colour: red, for hard errors | One semantic colour is enough for a lookup window; green and blue would bring a second meaning system to learn |
 | Red for warnings and damage alike | Warnings and stale data stay orange; red only when something failed | Keeps red rare enough to notice; an orange "!" already reads as "look here" in the game |
 | The item under the gamepad cursor is filled, so the default action starts filled | The primary button is always filled; other buttons are text actions | A mouse window has no cursor highlight; the primary needs the fill to be found |
-| Empty binding slots look like filled ones | Empty slots are the dimmer Ember Empty with dim "Unbound" text | Finding unbound actions is a main job of the Controls pages |
+| Empty binding slots look like filled ones | Empty slots are the dimmer Ember Empty with the word "Set" in Orange Mid | Finding unbound actions is a main job of the Controls pages; the word is what the commander clicks, so it stays readable |
 | Blurred cockpit behind every panel | Flat neutral Void | Calmer and more legible; no Frontier art behind the window |
 | Glow, scan lines and animated panel transitions | Flat, no glow, no motion | A desktop window beside the game should not pull the eye |
 | Prose in orange on station screens | Paragraphs in Prose Grey | Long orange passages tire the eye; the game's own Options screen uses grey for its explanations |

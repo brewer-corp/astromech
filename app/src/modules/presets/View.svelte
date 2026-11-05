@@ -11,16 +11,19 @@
   let sel = $state<string | null>(null);
   let copyName = $state("");
   let msg = $state<string | null>(null);
+  let msgErr = $state(false);
   const p = $derived(binds.state?.presets.find((x) => x.path === sel) ?? binds.state?.presets[0]);
   const fileOf = (path: string) => path.split("\\").pop() ?? path;
 
   async function run(f: () => Promise<unknown>, ok: string) {
     msg = null;
+    msgErr = false;
     try {
       await f();
       msg = ok;
       await binds.load();
     } catch (e) {
+      msgErr = true;
       msg = String(e);
     }
   }
@@ -30,7 +33,7 @@
 
 <div class="cols">
   <section>
-    <h3>Presets</h3>
+    <h3 class="section" class:current={!!p}>Presets</h3>
     <div class="head"><span>Name</span><span>General</span><span>Ship</span><span>SRV</span><span>On foot</span><span></span></div>
     {#each binds.state?.presets ?? [] as x (x.path)}
       <div class="row" class:sel={p?.path === x.path}>
@@ -44,10 +47,10 @@
       <p class="lo">{binds.state ? "No presets found. Run Elite once, or set the Bindings folder in Settings." : binds.error ?? "Loading…"}</p>
     {/each}
     <p class="lo">Click a cell to use that preset there (this writes StartPreset, like picking it in the game's Controls menu). Restart Elite, or pick the preset in Options → Controls, for it to take effect.</p>
-    {#if msg}<p class="msg">{msg}</p>{/if}
-    {#if binds.state && binds.error}<p class="msg">{binds.error}</p>{/if}
+    {#if msg}<p class="msg" class:err={msgErr} role={msgErr ? "alert" : undefined}>{msg}</p>{/if}
+    {#if binds.state && binds.error}<p class="msg err" role="alert">{binds.error}</p>{/if}
 
-    <h3 class="gap">Backups</h3>
+    <h3 class="section gap">Backups</h3>
     {#each binds.state?.backups ?? [] as b (b.path)}
       <div class="row b">
         <span class="name">{b.original}</span><span class="lo">{b.created}</span>
@@ -83,27 +86,30 @@
 <style>
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .cols { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; padding-top: 18px; }
-  h3 { margin: 0 0 10px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 0 0 10px; }
   h3.gap { margin-top: 34px; }
   .head, .row { display: grid; grid-template-columns: 1fr repeat(4, 120px) 130px; gap: var(--gap); align-items: center; }
-  .head { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding: 0 0 6px; }
+  .head { color: var(--orange-mid); font-size: var(--fs-s); padding: 0 0 6px; }
   .head span:not(:first-child) { padding-left: 12px; }
   .row { min-height: var(--row); margin-bottom: var(--gap); }
   .row.b { grid-template-columns: 1fr 220px 120px; }
-  .name { height: var(--row); display: flex; align-items: center; }
+  .name { height: var(--row); display: flex; align-items: center; color: var(--options-grey); }
   .row.sel .name { color: var(--accent); }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 12px; background: var(--cell-empty); color: var(--text-lo); }
-  .cell.on { background: var(--cell); color: var(--text); }
-  .cell:hover { outline: 1px solid var(--text-lo); outline-offset: -1px; }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 12px; background: var(--cell-empty); }
+  .cell.on { background: var(--cell); }
+  .cell:hover { background: var(--cell-hover); }
   .mark { color: var(--accent); font-size: var(--fs-s); font-weight: 600; padding-left: 10px; }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
+  p.lo { color: var(--prose); }
   .msg, .warn { color: var(--accent); }
+  .msg.err { color: var(--alarm); }
+  .msg.err::before { content: "! "; font-weight: 600; }
   p { line-height: 1.45; }
-  aside { padding: 4px 0 20px 28px; border-left: 2px solid var(--accent); }
-  .lbl { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  aside { padding: 4px 0 20px 28px; border-left: 1px solid var(--accent); }
+  .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
   h2 { margin: 6px 0 12px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   aside p { margin: 0 0 8px; }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); margin: 18px 0 4px; }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); margin: 18px 0 4px; }
   aside > :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
   .copy { display: flex; gap: 16px; align-items: center; }
   .copy > :global(.grow) { flex: 1; }

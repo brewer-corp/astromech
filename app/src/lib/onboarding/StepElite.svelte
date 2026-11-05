@@ -56,5 +56,5 @@
     {/if}
     <div class="acts"><Button onclick={check}>Check again</Button></div>
   {/if}
-  {#if error}<p class="warn-text">{error}</p>{/if}
+  {#if error}<p class="err" role="alert">{error}</p>{/if}
 </div>

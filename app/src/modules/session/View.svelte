@@ -42,7 +42,7 @@
       <div><span class="k">Distance</span><span class="v">{s.distance_ly.toFixed(1)} ly</span></div>
     </div>
 
-    <h3>Credits by activity</h3>
+    <h3 class="section">Credits by activity</h3>
     {#if s.earnings.length}
       <table>
         <tbody>
@@ -59,7 +59,7 @@
       <p class="lo">Nothing earned yet this session.</p>
     {/if}
 
-    <h3>Also</h3>
+    <h3 class="section">Also</h3>
     <ul class="also">
       <li>Data sold: {cr(s.data_sold)} <span class="lo">(exploration and organic, included above)</span></li>
       <li>Bounties awarded: {s.bounties_awarded} worth {cr(s.bounty_value)} <span class="lo">(paid when you hand in the vouchers)</span></li>
@@ -75,17 +75,17 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0 14px; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
   .err { color: var(--accent); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .v { color: var(--text-hi); font-family: var(--mono); font-size: var(--fs-l); }
-  h3 { margin: 22px 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
+  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
+  h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; max-width: 48rem; width: 100%; }
   td { padding: 5px 16px 5px 0; border-top: 1px solid var(--cell); }
   .num { text-align: right; font-family: var(--mono); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
   .also { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
   .note { margin-top: 18px; font-size: var(--fs-s); max-width: 48rem; }
 </style>

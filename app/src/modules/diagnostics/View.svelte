@@ -4,12 +4,14 @@
   import Button from "../../lib/ui/Button.svelte";
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
   import { pollFailure } from "../../lib/ui/errors";
+  import Failure from "../../lib/ui/Failure.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { eddnLog, schemaName, when, type EddnLog, type EddnLogEntry } from "../../lib/eddn";
 
   let status = $state<CoreStatus | null>(null);
   let shell = $state("…");
   let note = $state("");
+  let noteErr = $state(false);
   let eddn = $state<EddnLog | null>(null);
   let eddnErr = $state<string | null>(null);
 
@@ -30,8 +32,10 @@
   });
 
   async function save() {
+    noteErr = false;
     note = "Saving…";
     const r = await coreCall("save_diagnostics");
+    noteErr = !r.ok;
     note = r.ok ? `Saved ${String(r.path)}` : `Couldn't save: ${String(r.error)}`;
     await refresh();
   }
@@ -62,7 +66,7 @@
 
 <section>
   {#if status?.crash_pending}
-    <p class="crash">astromech crashed last time. Save diagnostics and attach the zip to a GitHub issue.</p>
+    <p class="crash"><b>!</b> astromech crashed last time. Save diagnostics and attach the zip to a GitHub issue.</p>
   {/if}
   <dl>
     <dt>Version</dt><dd>{version}</dd>
@@ -78,12 +82,12 @@
     <Button kind="primary" onclick={save} disabled={!status}>Save diagnostics</Button>
     <Button onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</Button>
   </div>
-  {#if note}<p class="note">{note}</p>{/if}
+  {#if note}<p class="note" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
 
-  <h2>EDDN</h2>
+  <h2 class="section">EDDN</h2>
   <Stale error={eddn ? eddnErr : null} />
   {#if eddnErr && !eddn}
-    <p class="note">{eddnErr}</p>
+    <Failure text={eddnErr} onaction={() => void refresh()} />
   {:else if !eddn}
     <p class="note">—</p>
   {:else}
@@ -107,17 +111,22 @@
   section { padding: 28px 0; max-width: 60rem; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0 0 24px; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); }
+  dt { color: var(--options-grey); }
+  dd { background: var(--cell-opt); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .actions { display: flex; gap: 16px; align-items: center; }
-  .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }
-  h2 { margin: 32px 0 12px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-weight: 600; }
-  h3 { margin: 20px 0 0; color: var(--text-lo); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
+  .crash { margin: 0 0 20px; }
+  .crash b { font-weight: 600; }
+  h2 { margin: 32px 0 12px; }
+  h3 { margin: 20px 0 0; font-weight: 500; font-size: var(--fs); }
   .eddn { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
-  .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); color: var(--text); }
+  .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--cell-opt); }
   .eddn li > span { padding: 0 12px; }
-  .eddn .detail { color: var(--text-lo); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .eddn li.rejected, .eddn li.gave_up, .eddn li.discarded, .eddn li.dropped { color: var(--text-lo); }
-  .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); }
+  .eddn .detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Text in a cell is at least Orange, so failed sends are told apart by their outcome word only
+     until astromech-dfvp moves these read-only rows off the cell. */
+  .note { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); }
+  .note.err { color: var(--alarm); }
+  .note.err::before { content: "! "; font-weight: 600; }
 </style>

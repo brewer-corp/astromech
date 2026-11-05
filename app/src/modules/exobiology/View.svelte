@@ -36,7 +36,7 @@
 <section>
   <Stale error={v ? failed : null} />
   {#if failed && !v}
-    <p class="sub">{failed} Biology follows the game while it runs.</p>
+    <p class="sub err" role="alert">{failed} Biology follows the game while it runs.</p>
   {:else if !v}
     <p class="sub">Reading the journal…</p>
   {:else}
@@ -49,7 +49,7 @@
     {#if v.sampling}
       {@const s = v.sampling}
       {@const c = s.clearance}
-      <h3>Sampling</h3>
+      <h3 class="section">Sampling</h3>
       <div class="tiles" aria-label="Sampling">
         <div><span class="k">Species</span><span class="v">{s.species}</span></div>
         <div><span class="k">Samples</span><span class="v">{s.count} of 3</span></div>
@@ -71,7 +71,7 @@
       {#if sampledBody}<p class="lo">On {short(sampledBody.name)}. Sample again at least the colony range from every earlier sample.</p>{/if}
     {/if}
 
-    <h3>Bodies with biology</h3>
+    <h3 class="section">Bodies with biology</h3>
     {#if v.bodies.length}
       <table aria-label="Bodies with biology">
         <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera</th><th class="num">Value</th></tr></thead>
@@ -106,7 +106,7 @@
     {/if}
 
     {#if v.known?.length}
-      <h3>Reported by other players</h3>
+      <h3 class="section">Reported by other players</h3>
       <table aria-label="Reported by other players">
         <thead><tr><th>Body</th><th class="num">Signals</th><th>Genera and species</th><th class="num">Value</th></tr></thead>
         <tbody>
@@ -130,24 +130,25 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0 14px; }
-  h3 { margin: 22px 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
+  h3 { margin: 22px 0 8px; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
   .tiles div.go { outline: 1px solid var(--accent); }
   .tiles div.go .v { color: var(--accent); }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .v { color: var(--text-hi); font-family: var(--mono); font-size: var(--fs-l); }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
+  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
-  th { text-align: left; color: var(--text-lo); font-size: var(--fs-s); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 0 12px 6px 0; }
+  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
-  .body { color: var(--text-hi); white-space: nowrap; }
+  .body { font-weight: 500; white-space: nowrap; }
   .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .genera li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  .genus { color: var(--text-hi); }
-  .guess .genus { color: var(--text); font-style: italic; }
-  .lo { color: var(--text-lo); }
+  .guess .genus { color: var(--orange-mid); font-style: italic; }
+  .lo { color: var(--orange-mid); }
   .small { font-size: var(--fs-s); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
 </style>

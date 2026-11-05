@@ -63,13 +63,15 @@
 <style>
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
+  dt { color: var(--options-grey); }
   /* The threshold is a control of its own, so the row has no cell around it. */
-  dd { padding: 0; color: var(--text); gap: var(--sp-3); }
+  dd { padding: 0; gap: var(--sp-3); }
   label { display: flex; align-items: center; gap: 8px; }
   label > :global(.num) { width: 4.5rem; }
-  .lo { color: var(--text-lo); font-size: var(--fs-s); }
-  .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .lo { color: var(--orange-mid); font-size: var(--fs-s); }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .hint:empty { margin: 0; }
-  .warn-text { color: var(--accent); }
+  /* A failed save or a refused value: a red "!" and plain words under the field. */
+  .warn-text { color: var(--alarm); }
+  .warn-text::before { content: "! "; font-weight: 600; }
 </style>

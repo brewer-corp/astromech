@@ -11,7 +11,7 @@
         "tonalRamp": [
           "#1a1310",
           "#3d220f",
-          "#4d2b12",
+          "#482810",
           "#8a5834",
           "#c26c32",
           "#fa6e00",
@@ -52,7 +52,7 @@
       "ember-cell-hover": {
         "role": "primary",
         "displayName": "Ember Cell Hover",
-        "canonical": "#4d2b12"
+        "canonical": "#482810"
       },
       "ember-empty": {
         "role": "primary",
@@ -165,7 +165,7 @@
       "refersTo": "input",
       "description": "Ember cell: a cell means editable. Orange text, placeholder Orange at 75 %, no underline; focus is a 1 px orange outline.",
       "html": "<input class=\"ds-input\" placeholder=\"Find or plot\">",
-      "css": ".ds-input { box-sizing: border-box; height: 34px; width: 320px; padding: 0 12px; border: 0; border-radius: 0; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-input::placeholder { color: var(--placeholder, #fa6e00bf); opacity: 1; } .ds-input:hover { background: var(--cell-hover, #4d2b12); } .ds-input:focus-visible { outline: 1px solid var(--accent, #fa6e00); }"
+      "css": ".ds-input { box-sizing: border-box; height: 34px; width: 320px; padding: 0 12px; border: 0; border-radius: 0; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-input::placeholder { color: var(--placeholder, #fa6e00bf); opacity: 1; } .ds-input:hover { background: var(--cell-hover, #482810); } .ds-input:focus-visible { outline: 1px solid var(--accent, #fa6e00); }"
     },
     {
       "name": "Dropdown",
@@ -173,7 +173,7 @@
       "refersTo": "dropdown",
       "description": "Ember cell with an orange value and chevron, like the game's option dropdowns.",
       "html": "<button class=\"ds-dropdown\">Here: Sol<svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\"><path d=\"M4 6l4 4 4-4\"/></svg></button>",
-      "css": ".ds-dropdown { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 160px; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-dropdown svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; } .ds-dropdown:hover { background: var(--cell-hover, #4d2b12); } .ds-dropdown:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
+      "css": ".ds-dropdown { all: unset; cursor: pointer; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 160px; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 15px; } .ds-dropdown svg { fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; } .ds-dropdown:hover { background: var(--cell-hover, #482810); } .ds-dropdown:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; }"
     },
     {
       "name": "Choice",
@@ -181,7 +181,7 @@
       "refersTo": "choice-on",
       "description": "Options in ember cells; the chosen option is always the filled one (solid orange, dark text), never drawn inverted. Focus on it is an inset On Orange outline.",
       "html": "<span class=\"ds-choices\"><button class=\"ds-choice\">Natural</button><button class=\"ds-choice on\">Cockpit</button><button class=\"ds-choice\">Harsh</button></span>",
-      "css": ".ds-choices { display: inline-flex; gap: 2px; } .ds-choice { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; } .ds-choice:hover { background: var(--cell-hover, #4d2b12); } .ds-choice.on { background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); } .ds-choice:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; } .ds-choice.on:focus-visible { outline: 1px solid var(--on-accent, #0c0d0f); outline-offset: -3px; }"
+      "css": ".ds-choices { display: inline-flex; gap: 2px; } .ds-choice { all: unset; cursor: pointer; display: inline-flex; align-items: center; height: 34px; padding: 0 12px; background: var(--cell, #3d220f); color: var(--accent, #fa6e00); font-family: 'Saira Variable', Bahnschrift, sans-serif; font-stretch: 87.5%; font-variant-numeric: tabular-nums; font-size: 13px; } .ds-choice:hover { background: var(--cell-hover, #482810); } .ds-choice.on { background: var(--accent, #fa6e00); color: var(--on-accent, #0c0d0f); } .ds-choice:focus-visible { outline: 1px solid var(--accent, #fa6e00); outline-offset: 2px; } .ds-choice.on:focus-visible { outline: 1px solid var(--on-accent, #0c0d0f); outline-offset: -3px; }"
     },
     {
       "name": "Tabs",

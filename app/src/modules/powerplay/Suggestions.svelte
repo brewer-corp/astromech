@@ -36,13 +36,13 @@
 
 <style>
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .name { color: var(--text-hi); }
+  .name { font-weight: 500; }
   li > :global(.badge) { margin-left: 6px; }
-  .unverified, .key { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); }
+  .unverified, .key { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); }
   .unverified { margin-left: 6px; }
-  .unsure { margin: 2px 0 0; color: var(--text-lo); font-size: var(--fs-s); font-style: italic; opacity: 0.8; }
-  .how { margin: 2px 0 0; color: var(--text-lo); font-size: var(--fs-s); line-height: 1.4; }
-  .foot { margin: 14px 0 0; color: var(--text-lo); font-size: var(--fs-s); line-height: 1.45; }
+  .unsure { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); font-style: italic; }
+  .how { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.4; }
+  .foot { margin: 14px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.45; }
   .foot p { margin: 0 0 4px; }
   .key { display: inline-block; width: 1.2em; text-align: center; }
 </style>

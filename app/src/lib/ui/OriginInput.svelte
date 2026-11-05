@@ -130,6 +130,6 @@
 
 <style>
   .origin { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--fs); }
-  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); min-width: 5.5em; }
+  .lbl { color: var(--orange-mid); font-size: var(--fs-s); min-width: 5.5em; }
   .origin :global(.box) { flex: 1; }
 </style>

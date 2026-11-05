@@ -82,7 +82,7 @@
         {/if}
       </div>
       {#if others.length}
-        <p class="warn">Also used by {others.map((o) => o.name).join(", ")}. Both will respond to it.</p>
+        <p class="warn"><b>!</b> Also used by {others.map((o) => o.name).join(", ")}. Both will respond to it.</p>
       {/if}
       {#if !editable}
         <label class="copy">
@@ -93,7 +93,7 @@
       {:else}
         <p class="lo">Writes to {binds.view?.path.split("\\").pop()} after making a backup.</p>
       {/if}
-      {#if error}<p class="warn">{error}</p>{/if}
+      {#if error}<p class="err" role="alert"><b>!</b> {error}</p>{/if}
       <div class="acts">
         <Button kind="primary" disabled={!got || busy} onclick={() => save()}>Save</Button>
         {#if got}<Button onclick={() => (got = null)}>Press again</Button>{/if}
@@ -107,14 +107,16 @@
 <style>
   .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
   .dlg { width: 560px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
-  .lbl { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
   h2 { margin: 6px 0 4px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   p { margin: 8px 0; line-height: 1.45; }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--prose); }
   .warn { color: var(--accent); }
+  .err { color: var(--alarm); }
+  b { font-weight: 600; }
   .press { margin: 16px 0; height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--accent); color: var(--on-accent); font-size: var(--fs-l); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); }
-  .press.got { background: var(--cell); color: var(--text-hi); text-transform: none; letter-spacing: 0; font-weight: 500; }
-  .press.got .lo { color: var(--text-lo); }
+  .press.got { background: var(--cell); color: var(--options-grey); text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .press.got .lo { color: var(--accent); }
   .copy { display: grid; gap: 6px; margin: 12px 0; }
   .acts { display: flex; align-items: center; gap: var(--sp-4); margin-top: 18px; }
 </style>

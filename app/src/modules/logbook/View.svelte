@@ -77,7 +77,7 @@
   {#if failed && !book}
     <p class="err">{failed}</p>
   {:else if book}
-    <h3>Places{book.query ? ` matching “${book.query}”` : ""}</h3>
+    <h3 class="section">Places{book.query ? ` matching “${book.query}”` : ""}</h3>
     {#if book.places.length}
       <table>
         <thead><tr><th>Place</th><th class="num">Visits</th><th>First</th><th>Last</th></tr></thead>
@@ -105,7 +105,7 @@
       <p class="lo">{book.query ? `No visited system or station matches “${book.query}”.` : "No visits yet."}</p>
     {/if}
 
-    <h3>Timeline</h3>
+    <h3 class="section">Timeline</h3>
     {#if book.timeline.length}
       <ol class="timeline">
         {#each book.timeline as v, i (`${v.ts}:${i}`)}
@@ -128,18 +128,18 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0 6px; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 6px; }
   .err { color: var(--accent); }
-  .search { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-size: var(--fs-s); }
-  .search > :global(.q) { flex: 0 1 24rem; text-transform: none; letter-spacing: normal; }
-  h3 { margin: 22px 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  .search { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; color: var(--orange-mid); font-size: var(--fs-s); }
+  .search > :global(.q) { flex: 0 1 24rem; }
+  h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; }
-  th { text-align: left; color: var(--text-lo); font-size: var(--fs-s); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 0 12px 6px 0; }
+  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .station { color: var(--text-hi); }
-  .lo { color: var(--text-lo); }
+  .station { font-weight: 500; }
+  .lo { color: var(--orange-mid); }
   .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
   .timeline li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 </style>

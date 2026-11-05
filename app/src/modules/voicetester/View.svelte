@@ -23,6 +23,7 @@
   let error = $state("");
   let listening = $state(false);
   let liveNote = $state("");
+  let liveErr = $state(false);
   let running = $state(false);
 
   function show(r: DryRun) {
@@ -99,11 +100,13 @@
     if (!result?.live) return;
     running = true;
     liveNote = "";
+    liveErr = false;
     countdown = SWITCH_SECONDS;
     const t = setInterval(() => (countdown = Math.max(0, countdown - 1)), 1000);
     try {
       liveNote = await voiceLive(result.live, result.live_from);
     } catch (err) {
+      liveErr = true;
       liveNote = String(err instanceof Error ? err.message : err);
     }
     clearInterval(t);
@@ -130,7 +133,7 @@
 </script>
 
 <section>
-  <p class="lo">
+  <p class="intro">
     {#if listening}
       Push-to-talk is in test mode while this page is open: speak a command and it shows here. Nothing is sent to the game.
     {:else}
@@ -142,7 +145,7 @@
       {#snippet end()}<Button type="submit" disabled={!text.trim()}>Test</Button>{/snippet}
     </Input>
   </form>
-  {#if error}<p class="note">{error}</p>{/if}
+  {#if error}<p class="note err" role="alert">{error}</p>{/if}
 
   {#if result}
     <dl>
@@ -189,14 +192,14 @@
         </span>
       </div>
     {/if}
-    {#if liveNote}<p class="note">{liveNote}</p>{/if}
+    {#if liveNote}<p class="note" class:err={liveErr} role={liveErr ? "alert" : undefined}>{liveNote}</p>{/if}
   {/if}
 
-  <h2>Learned phrases</h2>
+  <h2 class="section">Learned phrases</h2>
   {#if learned.length === 0}
-    <p class="lo">None yet. When you answer yes to "Did you mean ...?", astromech remembers what it heard and runs that command next time.</p>
+    <p class="intro">None yet. When you answer yes to "Did you mean ...?", astromech remembers what it heard and runs that command next time.</p>
   {:else}
-    <p class="lo">Phrases astromech runs without asking, because you once answered yes. Remove one that was taught wrongly.</p>
+    <p class="intro">Phrases astromech runs without asking, because you once answered yes. Remove one that was taught wrongly.</p>
     <ul class="learned">
       {#each learned as p (p.heard)}
         <li>
@@ -207,26 +210,31 @@
       {/each}
     </ul>
   {/if}
-  {#if learnedError}<p class="note">{learnedError}</p>{/if}
+  {#if learnedError}<p class="note err" role="alert">{learnedError}</p>{/if}
 </section>
 
 <style>
   section { padding: 28px 0; max-width: 60rem; }
   p { margin: 0; }
-  .lo { color: var(--text-lo); }
+  .intro { color: var(--prose); }
+  .lo { color: var(--orange-mid); }
+  /* Text in a cell is at least Orange. */
+  dd .lo, .learned .lo { color: var(--accent); }
   .ask { display: flex; margin: 20px 0 24px; }
   .ask > :global(.grow) { flex: 1; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0 0 16px; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); }
+  dt { color: var(--options-grey); }
+  dd { background: var(--cell-opt); }
   .key { background: var(--cell); color: var(--accent); padding: 2px 8px; font-family: var(--mono); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .safe { color: var(--text-lo); margin-bottom: 16px; }
+  .safe { color: var(--orange-mid); margin-bottom: 16px; }
   .actions { display: flex; gap: 28px; align-items: center; }
-  h2 { margin: 32px 0 12px; font-size: var(--fs-l); color: var(--text-hi); font-weight: 600; }
+  h2 { margin: 32px 0 12px; }
   .learned { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
   .learned li { display: flex; gap: 24px; align-items: center; background: var(--cell-opt); padding: 0 12px; min-height: var(--row); }
-  .said { color: var(--text); flex: 1; }
-  .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); margin-top: 12px; }
+  .said { flex: 1; }
+  .note { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); margin-top: 12px; }
+  .note.err { color: var(--alarm); }
+  .note.err::before { content: "! "; font-weight: 600; }
 </style>

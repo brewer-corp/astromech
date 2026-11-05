@@ -146,7 +146,7 @@
         <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
       {/if}
     </div>
-    {#if linkErr}<p class="lo">{linkErr}</p>{/if}
+    {#if linkErr}<p class="err" role="alert"><b>!</b> {linkErr}</p>{/if}
     <p class="sub">
       {#if !fleet}
         {fleetErr ?? "Reading the journal…"}
@@ -224,39 +224,42 @@
 
 <style>
   section { padding: 0; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); flex: none; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; text-transform: uppercase; letter-spacing: var(--caps); }
-  .acts a { color: var(--text-lo); text-decoration: none; }
-  .acts a:hover { color: var(--text); }
-  .acts .on { color: var(--accent); }
-  .open { color: var(--text-lo); text-transform: none; letter-spacing: 0; margin-left: auto; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); flex: none; }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; }
+  .acts a { color: var(--orange-mid); font-weight: 500; text-decoration: none; }
+  .acts a:hover { color: var(--accent); }
+  .acts .on { color: var(--orange-lit); }
+  .open { color: var(--orange-mid); margin-left: auto; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
+  .err { margin: 0; color: var(--alarm); font-size: var(--fs-s); }
+  .err b { font-weight: 600; }
   .stage { flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; }
   .ship { display: grid; grid-template-columns: auto minmax(12rem, 1.4fr) minmax(12rem, 1fr); gap: 18px 28px; align-items: start; padding: 18px 20px 4px; }
   .art { display: grid; place-items: center; min-width: 12rem; }
   .who h2 { margin: 0 0 4px; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
   .id { font-family: var(--mono); font-size: var(--fs-s); margin: 0 0 8px; }
-  .type { margin: 0 0 8px; font-size: var(--fs-l); color: var(--text); }
-  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 4px; margin: 0; font-size: var(--fs); color: var(--text-lo); }
-  .lo { color: var(--text-lo); }
+  .type { margin: 0 0 8px; font-size: var(--fs-l); }
+  .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 4px; margin: 0; font-size: var(--fs); color: var(--orange-mid); }
+  .lo { color: var(--orange-mid); }
   .mark { color: var(--accent); }
   .accent { color: var(--accent); }
   .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; min-width: 0; padding-top: 8px; }
   .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .q { font-family: var(--mono); font-size: var(--fs-l); }
   .eng { align-items: center; }
   .bar { flex: 1 1 6rem; min-width: 4rem; height: 4px; background: var(--cell-opt); align-self: center; }
   .bar i { display: block; height: 100%; background: var(--accent); }
-  .none { color: var(--text-lo); padding: 28px 20px; }
-  .rail { display: flex; gap: 8px; overflow-x: auto; flex: none; padding: 12px 12px 16px; background: var(--bg-list); border-top: 1px solid var(--accent-dim); }
+  .none { color: var(--prose); padding: 28px 20px; }
+  .rail { display: flex; gap: 8px; overflow-x: auto; flex: none; padding: 12px 12px 16px; border-top: 1px solid var(--line); }
   .pick { display: flex; align-items: center; gap: 12px; min-width: 13rem; padding: 10px 12px; background: var(--cell-empty); color: inherit; text-decoration: none; }
   .pick:hover { background: var(--row-hover); }
   .pick.on { background: var(--cell); }
   .pick-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .pick-name { color: var(--text-hi); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pick.on .pick-name { color: var(--accent); }
-  .pick-type, .pick-now { font-size: var(--fs-s); color: var(--text-lo); }
+  .pick-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pick.on .pick-name { color: var(--orange-lit); }
+  .pick-type, .pick-now { font-size: var(--fs-s); color: var(--orange-mid); }
+  .pick.on :is(.pick-type, .pick-now) { color: var(--accent); } /* text in a cell is at least Orange */
   .pick.now .pick-now { color: var(--accent); }
   @media (max-width: 900px) {
     .ship { grid-template-columns: minmax(0, 1fr); }

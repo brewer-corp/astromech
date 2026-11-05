@@ -97,16 +97,18 @@
 
 <style>
   .frame { height: 100vh; display: grid; grid-template-rows: auto 1fr; }
-  header { display: flex; align-items: baseline; gap: 40px; margin: 0 40px; padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
+  header { display: flex; align-items: center; gap: 40px; height: 64px; margin: 0 40px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
-  .title { flex: 1; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
+  /* The area's one top tab, active: Nav caps on a solid orange box. */
+  .title { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); margin-right: auto; background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
   .body { display: grid; grid-template-columns: 15rem 1fr; gap: 40px; padding: 28px 40px; min-height: 0; overflow: auto; }
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
-  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--text-lo); text-transform: none; letter-spacing: 0; font-weight: 500; font-size: var(--fs); }
-  .nav button.on { background: var(--cell); color: var(--text-hi); }
-  .nav .n { font-family: var(--mono); color: var(--accent); }
+  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--accent); font-weight: 500; font-size: var(--fs); }
+  .nav button.on { background: var(--cell); color: var(--orange-lit); }
+  .nav .n { font-family: var(--mono); color: var(--orange-mid); }
+  .nav button.on .n { color: inherit; }
   main { max-width: 52rem; }
   h1 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
-  .lead { margin: 0 0 22px; color: var(--text-lo); }
+  .lead { margin: 0 0 22px; color: var(--prose); }
   footer { display: flex; gap: 28px; margin-top: 32px; }
 </style>

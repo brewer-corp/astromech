@@ -10,6 +10,7 @@
   let eddn = $state<EddnLog | null>(null);
   let loaded = $state(false);
   let note = $state("");
+  let noteErr = $state(false);
   let busy = $state(false);
   let failed = $state<string | null>(null);
 
@@ -34,6 +35,7 @@
     const on = !eddn.enabled;
     const r = await setEddn(on);
     busy = false;
+    noteErr = !r.ok;
     note = r.ok ? (on ? "Sharing is on. Live game data goes to EDDN from now on." : "Sharing is off. Nothing more is sent, and anything waiting is discarded.") : `Couldn't save: ${String(r.error)}`;
     await refresh();
   }
@@ -46,7 +48,7 @@
   {:else if !eddn}
     <p class="lo">{failed}</p>
   {:else}
-    <h3>EDDN</h3>
+    <h3 class="section">EDDN</h3>
     <dl>
       <dt>Share with EDDN</dt>
       <dd>
@@ -62,9 +64,9 @@
         <span class="err">{eddn.last_error ? `${when(eddn.last_error.at)} · ${schemaName(eddn.last_error.schema_ref)} · ${eddn.last_error.detail}` : "None"}</span>
       </dd>
     </dl>
-    {#if note}<p class="hint">{note}</p>{/if}
+    {#if note}<p class="hint" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
 
-    <h3>What gets sent</h3>
+    <h3 class="section">What gets sent</h3>
     <div class="text">
       <p>
         The Elite Dangerous Data Network collects what players see in game, so tools like Inara, Spansh and EDSM stay
@@ -90,18 +92,22 @@
 
 <style>
   section { padding: 28px 0; max-width: 60rem; }
-  h3 { margin: 28px 0 10px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 28px 0 10px; }
   h3:first-child { margin-top: 0; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
-  dd.warn { background: var(--cell); color: var(--text-hi); }
+  dt { color: var(--options-grey); }
+  dd { background: var(--cell-opt); color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd.warn { background: var(--cell); }
+  /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
+  dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
-  .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
-  .lo { color: var(--text-lo); }
-  .text { color: var(--text); line-height: 1.6; max-width: 46rem; }
+  .hint.err { color: var(--alarm); }
+  .hint.err::before { content: "! "; font-weight: 600; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .lo { color: var(--prose); }
+  .text { color: var(--prose); line-height: 1.6; max-width: 46rem; }
   .text p { margin: 0 0 10px; }
   .text ul { margin: 0 0 10px; padding-left: 20px; }
 </style>

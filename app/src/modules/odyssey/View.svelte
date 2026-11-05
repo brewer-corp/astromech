@@ -168,7 +168,7 @@
         <button class:on={tab === t.id} onclick={() => (tab = t.id)}>{t.title}</button>
       {/each}
     </div>
-    <p class="sub">
+    <p class="sub" class:err={!!error && !view}>
       {#if error && !view}
         {error}
       {:else if view}
@@ -264,7 +264,7 @@
       <Button kind="primary" disabled={!candidate} onclick={add}>Add</Button>
     </div>
 
-    {#if shopError}<p class="sub">{shopError}</p>{/if}
+    {#if shopError}<p class="sub err" role="alert">{shopError}</p>{/if}
     {#if !picks.length}
       <p class="lo">Pick a suit or weapon upgrade, or a modification, to see what it needs and what you're short of.</p>
     {:else}
@@ -299,7 +299,7 @@
       </div>
 
       {#if list}
-      <h3 class="list">Shopping list</h3>
+      <h3 class="section list">Shopping list</h3>
       <p class="sub">
         {list.credits.toLocaleString()}{list.credits_partial ? "+" : ""} CR
         {#if list.barter_short}· short assets are worth {list.barter_short.toLocaleString()} barter at a bartender{/if}
@@ -318,7 +318,7 @@
           {/each}
         </tbody>
       </table>
-      <h3 class="list">Bartender trade</h3>
+      <h3 class="section list">Bartender trade</h3>
       {#if list.trade.swaps.length}
         <ul class="swaps">
           {#each list.trade.swaps as w (w.get_id)}
@@ -373,45 +373,45 @@
 <style>
   section { padding: 0 0 28px; min-height: 0; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; text-transform: uppercase; letter-spacing: var(--caps); align-items: baseline; }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; }
   .acts.small { gap: 18px; font-size: var(--fs-s); }
-  .acts button { color: var(--text-lo); }
-  .acts button:hover { color: var(--text); }
-  .acts .on { color: var(--accent); }
-  .acts > :global(.tog) { margin-left: auto; align-self: center; text-transform: none; letter-spacing: normal; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .acts button { color: var(--orange-mid); font-weight: 500; }
+  .acts button:hover { color: var(--accent); }
+  .acts .on { color: var(--orange-lit); }
+  .acts > :global(.tog) { margin-left: auto; align-self: center; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .out { padding: 24px 4px 8px; min-width: 0; }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
   .note { font-size: var(--fs-s); margin-top: 16px; }
   .foot { padding: 0 8px; }
   table.inv { border-collapse: collapse; width: 100%; font-size: var(--fs); }
-  .inv th { text-align: left; color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); padding: 0 12px 10px 8px; }
-  .inv td { padding: 14px 12px 14px 8px; border-top: 1px solid #1a1c1e; }
+  .inv th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 12px 10px 8px; }
+  .inv td { padding: 14px 12px 14px 8px; border-top: 1px solid var(--line); }
   .inv tbody tr:hover { background: var(--row-hover); }
   .q { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
   .inv th:not(:first-child) { text-align: right; }
-  .inv tr.done td { color: var(--text-lo); }
+  .inv tr.done td { color: var(--orange-dim); }
   .short { color: var(--accent); }
   .picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 20px; }
-  .picker label { color: var(--text-lo); display: inline-flex; gap: 6px; align-items: center; }
+  .picker label { color: var(--orange-mid); display: inline-flex; gap: 6px; align-items: center; }
   .picks { display: flex; flex-direction: column; }
-  .pick, .eng { padding: 16px 8px; border-bottom: 1px solid #1a1c1e; }
+  .pick, .eng { padding: 16px 8px; border-bottom: 1px solid var(--line); }
   .pick header, .eng header { display: flex; gap: 16px; align-items: baseline; }
-  .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; color: var(--text-hi); flex: 1; }
-  .pick.ready h3 { color: var(--accent); }
+  .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; flex: 1; }
+  .pick.ready h3 { color: var(--orange-lit); }
   .missing { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
   .missing li { display: grid; grid-template-columns: 1fr 4.5rem 3.5rem; gap: 12px; }
   .ok { color: var(--accent); font-size: var(--fs-s); }
-  .err { color: var(--text); }
-  .pick.bad h3 { color: var(--text-lo); }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
+  .pick.bad h3 { color: var(--orange-mid); }
   .pick p, .eng p { margin: 8px 0 0; font-size: var(--fs-s); }
   .fit-on { color: var(--accent); }
   .swaps { margin: 8px 0 12px; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-s); }
-  h3.list { margin: 32px 8px 8px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  h3.list { margin: 32px 8px 8px; }
   .engs { display: flex; flex-direction: column; }
-  .eng .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .eng .state { color: var(--orange-mid); font-size: var(--fs-s); }
   .eng.unlocked .state { color: var(--accent); }
-  .next { color: var(--text); }
   .owned { margin-bottom: 16px; }
 </style>

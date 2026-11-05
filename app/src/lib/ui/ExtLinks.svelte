@@ -27,10 +27,11 @@
 <span class="ext">
   <Button title="Open {what} on Spansh" onclick={() => void open(spansh)}>Spansh <Glyph name="external" /></Button>
   {#if station || !marketId}<Button title="Open {what} on Inara" onclick={() => void open(inara)}>Inara <Glyph name="external" /></Button>{/if}
-  {#if err}<span class="err">{err}</span>{/if}
+  {#if err}<span class="err" role="alert"><b>!</b> {err}</span>{/if}
 </span>
 
 <style>
   .ext { display: inline-flex; gap: var(--sp-1); align-items: center; }
-  .err { color: var(--warn, var(--text-lo)); font-size: var(--fs-s); }
+  .err { color: var(--alarm); font-size: var(--fs-s); }
+  b { font-weight: 600; }
 </style>

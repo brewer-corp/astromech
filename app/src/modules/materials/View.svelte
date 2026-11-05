@@ -197,41 +197,41 @@
   section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem); gap: 0; min-height: 0; padding: 0 0 28px; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .find { min-width: 0; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; text-transform: uppercase; letter-spacing: var(--caps); }
-  .acts button { color: var(--text-lo); }
-  .acts button:hover { color: var(--text); }
-  .acts .on { color: var(--accent); }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
-  .here { color: var(--text); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
+  .acts { display: flex; flex-wrap: wrap; gap: 26px; }
+  .acts button { color: var(--orange-mid); font-weight: 500; }
+  .acts button:hover { color: var(--accent); }
+  .acts .on { color: var(--orange-lit); }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
+  .here { color: var(--accent); }
   .out { padding: 24px 8px 8px 4px; min-width: 0; }
   .farm { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; }
-  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem 1fr; gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs-s); }
-  .farm button { color: var(--text-hi); }
-  .farm button:hover, .farm .on { color: var(--accent); }
+  .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem 1fr; gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); }
+  .farm button { font-weight: 500; }
+  .farm button:hover, .farm .on { color: var(--orange-lit); }
   .grid { display: grid; grid-template-columns: 10rem repeat(var(--cols), minmax(7.5rem, 1fr)); gap: 8px; align-content: start; }
-  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .gh, .rh, .corner { min-height: 40px; display: flex; align-items: center; color: var(--orange-mid); font-size: var(--fs-s); }
   .gh { justify-content: center; }
   .rh { padding: 0 10px; }
-  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; color: var(--text); text-align: left; }
-  .cell:hover { outline: 1px solid var(--accent-dim); outline-offset: -1px; }
+  .cell { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 64px; padding: 10px 12px; text-align: left; }
+  .cell:hover { outline: 1px solid var(--orange-dim); outline-offset: -1px; }
   .cell.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
-  .cell.empty .n, .cell.empty .q { color: var(--text-lo); }
+  .cell.empty .n, .cell.empty .q { color: var(--orange-dim); }
   .n { font-size: var(--fs-s); line-height: 1.25; }
   .q { font-family: var(--mono); font-size: var(--fs-s); }
   .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }
-  .about { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent-dim); background: var(--bg-list); padding: 20px 8px 28px 24px; }
+  .about { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
   .find { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .find a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .find a:hover, .link:hover { color: var(--orange-lit); }
   @media (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
-    .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; }
+    .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent); padding: 16px 0 20px; }
     .out { padding: 20px 0 8px; }
   }
 </style>

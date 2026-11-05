@@ -33,5 +33,6 @@
 
 <style>
   .toasts { position: fixed; right: 40px; bottom: 32px; display: grid; gap: 8px; max-width: 360px; pointer-events: none; }
-  p { margin: 0; padding: 10px 14px; background: var(--row-hover); color: var(--text-hi); border-left: 2px solid var(--accent); font-size: var(--fs-s); }
+  /* A popover (DESIGN.md Elevation): Hull Raised with a Seam border, words in Orange. */
+  p { margin: 0; padding: 10px 14px; background: var(--surface-hi); color: var(--accent); border: 1px solid var(--line); font-size: var(--fs-s); }
 </style>

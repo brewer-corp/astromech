@@ -26,5 +26,5 @@
 
 <style>
   .chip { display: inline-flex; align-items: stretch; vertical-align: baseline; max-width: 100%; min-width: 0; }
-  .name { padding: 0 2px 0 0; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .name { padding: 0 2px 0 0; color: var(--accent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

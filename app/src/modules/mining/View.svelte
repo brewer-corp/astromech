@@ -34,7 +34,7 @@
   {#if !loaded}
     <p class="sub">Reading the run…</p>
   {:else if failed && !run}
-    <p class="sub">{failed}</p>
+    <p class="sub err" role="alert">{failed}</p>
   {:else if !run}
     <p class="sub">No mining run yet.</p>
   {:else if !run.started}
@@ -44,7 +44,7 @@
       <div><span class="k">Refined</span><span class="v">{run.total} t</span></div>
       <div><span class="k">Per hour</span><span class="v">{run.per_hour === null ? "–" : `${run.per_hour.toFixed(0)} t/h`}</span></div>
     </div>
-    <h3>By ore</h3>
+    <h3 class="section">By ore</h3>
     {#if ores.length}
       <table aria-label="Tons refined by ore">
         <tbody>
@@ -62,15 +62,17 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0; }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 14px; }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .v { color: var(--text-hi); font-family: var(--mono); font-size: var(--fs-l); }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
+  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; }
   td { padding: 4px 18px 4px 0; }
-  .num { text-align: right; font-family: var(--mono); color: var(--text-hi); }
-  .lo { color: var(--text-lo); }
+  .num { text-align: right; font-family: var(--mono); }
+  .lo { color: var(--orange-mid); }
   .note { font-size: var(--fs-s); margin-top: 14px; }
 </style>

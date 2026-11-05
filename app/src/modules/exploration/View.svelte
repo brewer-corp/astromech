@@ -123,7 +123,7 @@
     </p>
   {/if}
 
-  <h3>Unsold data</h3>
+  <h3 class="section">Unsold data</h3>
   <Stale error={unsold ? unsoldFailed : null} />
   {#if unsoldFailed && !unsold}
     <p class="err">{unsoldFailed}</p>
@@ -143,7 +143,7 @@
       CMDR {unsold.commander.name}{unsold.since ? ` · unsold since ${when(unsold.since)} UTC` : ""}{unsold.source ? ` · ${unsold.source}` : ""}
     </p>
     {#if unsold.risky}
-      <p class="risk" role="alert">{credits(unsold.total)} aboard. Dying loses all of it: sell it at the nearest station (links below).</p>
+      <p class="risk" role="alert"><b>!</b> {credits(unsold.total)} aboard. Dying loses all of it: sell it at the nearest station (links below).</p>
     {/if}
   {:else if unsoldLoaded}
     <p class="lo">No commander in the journal history yet.</p>
@@ -151,7 +151,7 @@
     <p class="lo">Reading the journal history…</p>
   {/if}
 
-  <h3>Where to sell</h3>
+  <h3 class="section">Where to sell</h3>
   <ul class="sell">
     {#each sellAt as l (l.route)}
       <li><a href="#/{l.route}">Nearest {l.label}</a> <span class="lo">for {l.what}</span></li>
@@ -161,27 +161,31 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0 14px; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 14px 0 14px; }
   .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
-  .err { color: var(--accent); }
-  .lo { color: var(--text-lo); }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
+  .lo { color: var(--orange-mid); }
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-bottom: 18px; }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--cell); }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .v { color: var(--text-hi); font-family: var(--mono); font-size: var(--fs-l); }
+  /* Text on an ember cell is at least Orange (until astromech-dfvp moves these tiles to the hull). */
+  .k { font-size: var(--fs-s); }
+  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; }
-  th { text-align: left; color: var(--text-lo); font-weight: 400; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding: 0 14px 6px 0; }
-  td { padding: 5px 14px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
+  th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 14px 6px 0; }
+  td { padding: 5px 14px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
-  .name { color: var(--text-hi); white-space: nowrap; }
+  .name { font-weight: 500; white-space: nowrap; }
   .facts { display: flex; flex-wrap: wrap; gap: 4px; }
   .fact { padding: 0 6px; background: var(--cell-opt); font-size: var(--fs-s); }
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }
-  tr.worth .name { color: var(--accent); }
+  tr.worth .name { color: var(--orange-lit); }
   p.note { margin-top: 18px; font-size: var(--fs-s); max-width: 52rem; }
-  h3 { margin: 28px 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
+  h3 { margin: 28px 0 10px; }
   .small { font-size: var(--fs-s); }
-  .risk { padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--cell); color: var(--text-hi); max-width: 52rem; }
+  /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
+  .risk { color: var(--accent); max-width: 52rem; }
+  .risk b { font-weight: 600; }
   .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .sell a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }

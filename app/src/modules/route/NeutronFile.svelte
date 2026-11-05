@@ -105,14 +105,15 @@
   {:else if status || downloading}
     <p class="lo">Until it is downloaded, Spansh plots neutron routes.</p>
   {/if}
-  {#if err}<p class="err">{err}</p>{/if}
+  {#if err}<p class="err" role="alert"><b>!</b> {err}</p>{/if}
 </div>
 
 <style>
   .neutron { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 6px; font-size: var(--fs-s); }
   p { margin: 0; }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--prose); }
   .neutron > :global(.act) { align-self: flex-start; margin-left: calc(-1 * var(--sp-2)); }
   progress { width: 100%; max-width: 24rem; height: 6px; accent-color: var(--accent); }
-  .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
+  .err { color: var(--alarm); }
+  .err b { font-weight: 600; }
 </style>

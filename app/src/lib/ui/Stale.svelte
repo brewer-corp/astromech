@@ -13,7 +13,7 @@
   .stale {
     margin: 0 0 8px;
     font-size: var(--fs-s);
-    color: var(--text-lo);
+    color: var(--orange-mid);
   }
   .mark {
     color: var(--accent);

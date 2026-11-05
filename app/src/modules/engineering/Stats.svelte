@@ -147,17 +147,18 @@
 
 <style>
   .stats { font-size: var(--fs-s); }
-  .lo { color: var(--text-lo); margin: 0; }
+  .lo { color: var(--orange-mid); margin: 0; }
   .warn { margin: 0 0 8px; line-height: 1.4; }
   .mark { color: var(--accent); font-weight: 600; }
   table { border-collapse: collapse; width: 100%; }
   th, td { padding: 5px 0; }
-  thead th { color: var(--text-lo); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); text-align: right; padding-left: 12px; }
-  th[scope="row"] { text-align: left; font-weight: 400; color: var(--text); white-space: nowrap; padding-right: 12px; }
-  .group th { text-align: left; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); padding: 16px 0 6px; }
+  thead th { color: var(--orange-mid); font-weight: 400; text-align: right; padding-left: 12px; }
+  th[scope="row"] { text-align: left; font-weight: 400; white-space: nowrap; padding-right: 12px; }
+  /* A section heading inside the table: Orange caps. */
+  .group th { text-align: left; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: 16px 0 6px; }
   tbody:first-of-type .group th { padding-top: 4px; }
-  td { font-family: var(--mono); text-align: right; color: var(--text-lo); white-space: nowrap; padding-left: 12px; }
-  td.changed { color: var(--text-hi); }
-  td.d { color: var(--text); }
+  td { font-family: var(--mono); text-align: right; color: var(--orange-mid); white-space: nowrap; padding-left: 12px; }
+  td.changed { color: var(--orange-lit); }
+  td.d { color: var(--accent); }
   td.better { color: var(--accent); }
 </style>

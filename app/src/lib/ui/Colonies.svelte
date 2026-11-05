@@ -15,7 +15,7 @@
 </script>
 
 <div class="colonies">
-  <h3>Colonisation candidates</h3>
+  <h3 class="section">Colonisation candidates</h3>
   <div class="kinds" role="tablist" aria-label="Bodies of interest">
     {#each INTERESTS as k (k.id)}
       <button role="tab" aria-selected={k.id === interest} class:on={k.id === interest} onclick={() => (interest = k.id)}>{k.label}</button>
@@ -27,11 +27,11 @@
 
 <style>
   .colonies { margin-top: 32px; }
-  h3 { margin: 0 0 8px; color: var(--text-hi); font-weight: 500; }
+  h3 { margin: 0 0 var(--sp-3); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .kinds { display: flex; flex-wrap: wrap; gap: 18px; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); margin-bottom: 6px; }
-  .kinds button { color: var(--text-lo); }
-  .kinds button:hover { color: var(--text); }
-  .kinds .on { color: var(--accent); }
-  .lo { color: var(--text-lo); font-size: var(--fs-s); margin: 0 0 4px; }
+  .kinds { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 6px; }
+  .kinds button { color: var(--orange-mid); font-weight: 500; }
+  .kinds button:hover { color: var(--accent); }
+  .kinds .on { color: var(--orange-lit); }
+  .lo { color: var(--prose); font-size: var(--fs-s); margin: 0 0 4px; }
 </style>

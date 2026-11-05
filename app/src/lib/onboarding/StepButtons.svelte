@@ -89,5 +89,5 @@
     </div>
   {/if}
   {#if saved}<p>{saved}</p>{/if}
-  {#if error}<p class="warn-text">{error}</p>{/if}
+  {#if error}<p class="err" role="alert">{error}</p>{/if}
 </div>

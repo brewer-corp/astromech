@@ -10,13 +10,13 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
 **What it needs:** the journal (your engineer progress). No network.
 
 - Choose **Ship engineers** or **Suit engineers**. The line under the tabs counts how many you
-  have unlocked, and how the marks work: orange for rank, grey for no access yet, dimmer cards
+  have unlocked, and how the marks work: orange for rank, a dim mark for no access yet, dimmer cards
   for engineers who have not been introduced. A ship engineer introduces the next ones once
   your rank with them passes grade 3; each suit engineer refers the next after a task.
 - Each card shows the engineer, what they specialise in, and your **access** as engineer marks:
-  one orange mark per rank once you have unlocked them (so rank 5 is five marks), a grey mark
-  when they are **Known** but you have no access yet, a dimmer grey mark when they have **Not
-  been introduced**, an envelope when you are **Invited**, and a struck mark if you are
+  one orange mark per rank once you have unlocked them (so rank 5 is five marks), a dim mark
+  when they are **Known** but you have no access yet, the same dim mark on a dimmer card when
+  they have **Not been introduced**, an envelope when you are **Invited**, and a struck mark if you are
   **Barred**. Unlocked engineers are full colour; known ones stay readable with "Known · no
   access yet"; cards that still need an introduction are dimmer. What is left to do stays on
   the card. Engineers you can work on now sit at the top of their column, with an orange edge.

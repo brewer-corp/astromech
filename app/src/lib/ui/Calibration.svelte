@@ -80,7 +80,7 @@
       {#each ["Silence", "gear down", "deploy hardpoints", "request docking"] as label, i (label)}
         <li class:now={i === next.step} class:past={i < next.step}>
           <span>{i === 0 ? label : `“${label}”`}</span>
-          {#if levels[i]}<span class="mono lo">{dbfs(levels[i].peak_dbfs)}</span>{/if}
+          {#if levels[i]}<span class="mono">{dbfs(levels[i].peak_dbfs)}</span>{/if}
         </li>
       {/each}
     </ol>
@@ -98,7 +98,7 @@
     </div>
   {/if}
   {#if error}
-    <p class="warn">{error}</p>
+    <p class="err" role="alert"><b>!</b> {error}</p>
     <div class="acts"><Button onclick={start}>Start over</Button></div>
   {/if}
 </div>
@@ -107,17 +107,17 @@
   .cal { display: grid; gap: 12px; }
   p { margin: 0; line-height: 1.45; }
   .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); }
-  .steps li { display: flex; justify-content: space-between; min-height: 30px; align-items: center; padding: 0 12px; background: var(--cell-empty); color: var(--text-lo); }
-  .steps li.past { background: var(--cell-opt); color: var(--text); }
-  .steps li.now { background: var(--cell); color: var(--text-hi); }
-  .prompt { min-height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--cell-opt); color: var(--text-hi); font-size: var(--fs-l); }
+  .steps li { display: flex; justify-content: space-between; min-height: 30px; align-items: center; padding: 0 12px; background: var(--cell-empty); color: var(--orange-mid); }
+  .steps li.past { background: var(--cell-opt); color: var(--accent); }
+  .steps li.now { background: var(--cell); color: var(--orange-lit); }
+  .prompt { min-height: 48px; display: flex; align-items: center; padding: 0 14px; background: var(--cell-opt); color: var(--orange-lit); font-size: var(--fs-l); }
   .prompt.busy { background: var(--cell); }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: 30px; display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
+  dt { color: var(--options-grey); }
   dd { background: var(--cell-opt); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .lo { color: var(--text-lo); }
-  .warn { color: var(--accent); }
+  .err { color: var(--alarm); }
+  b { font-weight: 600; }
   .acts { display: flex; align-items: center; gap: var(--sp-4); }
 </style>

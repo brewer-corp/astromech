@@ -161,7 +161,7 @@
     </p>
     <div class="band">
       <section>
-        <h3>{act ? `${act.title} on this stick` : "Everything on this stick"}</h3>
+        <h3 class="section" class:current={listed.some((r) => r.id === selId)}>{act ? `${act.title} on this stick` : "Everything on this stick"}</h3>
         {#each listed as r (r.id)}
           <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
             <span class="n">{r.name}</span><span class="v">{slotText(slotHere(r))}</span>
@@ -172,7 +172,7 @@
       </section>
       {#if act}
         <section>
-          <h3>Not bound yet</h3>
+          <h3 class="section" class:current={notBound.some((a) => a.important && a.id === selId)}>Not bound yet</h3>
           {#each notBound.filter((a) => a.important) as a (a.id)}
             <div class="row" class:sel={selId === a.id}>
               {#if a.row}<button class="n" onclick={() => a.row && showRow(a.row)}>{a.row.name}</button>{:else}<span class="n">{a.id}</span>{/if}
@@ -185,7 +185,7 @@
             <p class="lo more">Also unbound: {notBound.filter((a) => !a.important).map((a) => a.row?.name ?? a.id).join(", ")}</p>
           {/if}
           {#if otherStick.length}
-            <h3 class="gap">On the other stick</h3>
+            <h3 class="section gap" class:current={otherStick.some((r) => r.id === selId)}>On the other stick</h3>
             {#each otherStick as r (r.id)}
               <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
                 <span class="n">{r.name}</span><span class="v">{slotText(onOther(r))}</span>
@@ -193,7 +193,7 @@
             {/each}
           {/if}
           {#if elsewhere.length}
-            <h3 class="gap">Elsewhere (keyboard, mouse)</h3>
+            <h3 class="section gap" class:current={elsewhere.some((r) => r.id === selId)}>Elsewhere (keyboard, mouse)</h3>
             {#each elsewhere as r (r.id)}
               <button class="row" class:sel={selId === r.id} onclick={() => showRow(r)}>
                 <span class="n">{r.name}</span><span class="v">{slotText(r.slots.find(bound))}</span>
@@ -245,20 +245,21 @@
   button { all: unset; cursor: pointer; }
   .cols { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding-top: 14px; }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .devices { display: flex; gap: 32px; text-transform: uppercase; letter-spacing: var(--caps); }
-  .devices button { color: var(--text-lo); }
-  .devices .on { color: var(--text-hi); }
+  .devices { display: flex; gap: 32px; }
+  .devices button { color: var(--orange-mid); font-weight: 500; }
+  .devices button:hover { color: var(--accent); }
+  .devices .on { color: var(--orange-lit); }
   section > :global(.acts) { margin: 12px 0 8px; }
   .band { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
-  h3 { margin: 0 0 8px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 0 0 8px; }
   h3.gap { margin-top: 18px; }
   .row { display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; height: 30px; margin-bottom: 4px; padding: 0 12px; background: var(--cell-empty); }
   .row.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .row.sel .n { color: var(--accent); }
-  .row .n { color: var(--text); }
+  .row { color: var(--options-grey); }
   .warn { color: var(--accent); }
   .more { margin-top: 10px; font-size: var(--fs-s); line-height: 1.5; }
-  .ask { color: var(--text-hi); background: var(--cell); padding: 8px 12px; margin: 0 0 8px; }
-  .credit { color: var(--text-lo); font-size: var(--fs-s); }
-  .lo { color: var(--text-lo); }
+  .ask { color: var(--orange-lit); background: var(--cell); padding: 8px 12px; margin: 0 0 8px; }
+  .credit { color: var(--orange-mid); font-size: var(--fs-s); }
+  .lo { color: var(--orange-mid); }
 </style>

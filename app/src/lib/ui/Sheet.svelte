@@ -55,14 +55,14 @@
   .sheet { position: relative; }
   img { width: 100%; height: 100%; display: block; }
   .num, .txt { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--font); }
-  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--text-lo); pointer-events: none; }
-  .txt { all: unset; position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--text); cursor: pointer; }
-  .txt.dim { color: var(--text-lo); opacity: 0.4; }
+  .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--orange-mid); pointer-events: none; }
+  .txt { all: unset; position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--options-grey); cursor: pointer; }
+  .txt.dim { color: var(--orange-dim); }
   .txt b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; }
-  .txt i { font-style: normal; margin-left: auto; color: var(--text-lo); }
+  .txt i { font-style: normal; margin-left: auto; color: var(--orange-mid); }
   .txt.hi { background: var(--accent); color: var(--on-accent); }
   .txt.hi i { color: var(--on-accent); }
   .txt.hi b { font-weight: 600; }
-  .txt.sel { outline: 2px solid var(--text-hi); outline-offset: -2px; }
+  .txt.sel { outline: 2px solid var(--orange-lit); outline-offset: -2px; }
   .txt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 </style>

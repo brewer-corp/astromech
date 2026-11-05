@@ -3,6 +3,7 @@
   // best cargo back, for the hold, credits, pad and hop distance. The numbers start from the
   // current ship and the journal and can be changed; the filters are remembered as
   // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
+  import Failure from "../../lib/ui/Failure.svelte";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
   import Input from "../../lib/ui/Input.svelte";
@@ -124,15 +125,15 @@
       {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
       <Button kind="primary" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</Button>
     </div>
-    {#if defaultsErr}<p class="lo">{defaultsErr}</p>{/if}
-    {#if filterErr}<p class="lo">{filterErr}</p>{/if}
+    {#if defaultsErr}<p class="warn">{defaultsErr}</p>{/if}
+    {#if filterErr}<p class="warn">{filterErr}</p>{/if}
   </div>
 
   <div class="out">
     {#if busy}
       <p class="lo">Asking Spansh… a route can take a minute.</p>
     {:else if err}
-      <p class="lo err">{err}</p>
+      <Failure text={err} onaction={() => void find()} />
     {:else if res}
       <h4>{res.route.kind === "loop" ? "Loop" : "Single hop"} from&nbsp;<SystemChip name={res.here.system} /></h4>
       {#if res.route.warning}<p class="warn" role="alert">{res.route.warning}</p>{/if}
@@ -185,37 +186,38 @@
 
 <style>
   .route { display: flex; flex-direction: column; min-width: 0; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 12px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 12px 20px 20px; border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; min-width: 0; grid-column: 1; }
   .form-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: center; }
   .form-grid > :global(.kinds) { grid-column: 2; grid-row: 1; }
   .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); grid-column: 1; min-width: 0; }
-  .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; font-size: var(--fs-s); }
+  .lbl { color: var(--orange-mid); min-width: 5.5em; font-size: var(--fs-s); }
   .pick :global(.box) { flex: 1; }
   .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; grid-column: 1; min-width: 0; }
   label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
-  label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); }
+  label > span { color: var(--orange-mid); }
   .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
   .tools :global(.filters) { flex: 1 1 auto; }
   .tools :global(.go) { margin-left: auto; }
   .out { padding: 24px 8px 28px; }
-  h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
+  /* The answer's title: white, mixed case (system names carry meaning in their case). */
+  h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-  li { display: grid; grid-template-columns: minmax(14rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid #1a1c1e; font-size: var(--fs); line-height: 1.3; }
+  li { display: grid; grid-template-columns: minmax(14rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs); line-height: 1.3; }
   .place, .cargo, .facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; min-width: 0; }
-  .st { color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .to { color: var(--text-lo); }
-  .who { color: var(--text); }
+  .st { font-size: var(--fs-l); font-weight: 500; }
+  .to { color: var(--orange-mid); }
   .q { color: var(--accent); font-family: var(--mono); }
   .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
-  .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
+  .meta { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
   .total { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 16px 8px 8px; padding: 14px 16px; background: var(--cell-empty); }
   .pair { display: inline-flex; align-items: baseline; gap: 8px; }
-  .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .k { color: var(--orange-mid); font-size: var(--fs-s); }
   .total .q { font-size: var(--fs-l); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
   .warn { color: var(--accent); margin: 0 0 12px; }
+  .warn::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin: 0 8px; }
   p { margin: 0 0 8px; }
   @media (max-width: 1100px) {

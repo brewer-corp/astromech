@@ -118,5 +118,5 @@
 <style>
   .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; font-size: var(--fs-s); }
   label, .field { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  label > span, .field > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
+  label > span, .field > span { color: var(--orange-mid); font-size: var(--fs-s); min-width: 5.5em; }
 </style>

@@ -41,10 +41,9 @@
 <SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title="Nearest" noun="systems" busyText={kind?.busy ?? "Searching…"} />
 
 <style>
-  .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; text-transform: uppercase; letter-spacing: var(--caps); }
-  button { all: unset; cursor: pointer; color: var(--text-lo); }
-  button:hover { color: var(--text); }
-  .on { color: var(--accent); }
-  label { display: flex; align-items: center; gap: 8px; color: var(--text-lo); font-size: var(--fs-s); }
-  label > :global(.dropdown) { text-transform: none; letter-spacing: normal; }
+  .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
+  button { all: unset; cursor: pointer; color: var(--orange-mid); font-weight: 500; }
+  button:hover { color: var(--accent); }
+  .on { color: var(--orange-lit); }
+  label { display: flex; align-items: center; gap: 8px; color: var(--orange-mid); font-size: var(--fs-s); }
 </style>

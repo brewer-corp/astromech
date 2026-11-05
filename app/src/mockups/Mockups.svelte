@@ -28,5 +28,11 @@
 {:else if id === "ds-settings"}
   <DsSettings />
 {:else}
-  <Page />
+  <div class="first-draft"><Page /></div>
 {/if}
+
+<style>
+  /* The V1 mockups record the first, grey-based direction (docs/design/mockup-*.png), so they keep
+     its palette here; the app's tokens.css no longer has it (astromech-yxtz). */
+  .first-draft { display: contents; --text: #e8e8e8; --text-lo: #a0a0a0; --accent-dim: #8a3d00; --cell-opt: #2b2d2e; color: var(--text); }
+</style>

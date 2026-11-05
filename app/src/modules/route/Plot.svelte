@@ -8,6 +8,7 @@
   import { plotRoute, plotSetup, replacedNote, type FollowNote, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
+  import Failure from "../../lib/ui/Failure.svelte";
   import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import NeutronFile from "./NeutronFile.svelte";
@@ -118,9 +119,9 @@
   </p>
   <Button kind="primary" class="go" disabled={!ready} onclick={() => void go()}>{busy ? "Plotting…" : "Plot and follow"}</Button>
   {#if busy}
-    <p class="lo">{onThisPC ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
+    <p class="busy">{onThisPC ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
   {:else if err}
-    <p class="err">{err}</p>
+    <Failure text={err} onaction={() => void go()} />
   {:else if done}
     <p class="ok">Following {done.name}: {summary(done)}. {where(done)} <a href="#/route">Show the route</a></p>
     {#if done.fallback}<p class="lo">The neutron star file can't be read, so Spansh plotted this route: {done.fallback}</p>{/if}
@@ -131,17 +132,18 @@
 <style>
   .plot { display: flex; flex-direction: column; gap: 4px; }
   h4 { margin: 0 0 8px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); line-height: 1.2; overflow-wrap: anywhere; }
-  h4 .lo { display: block; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  a { color: var(--text-hi); }
+  h4 .lo { display: block; font-size: var(--fs-s); color: var(--orange-mid); }
+  a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  a:hover { color: var(--orange-lit); }
   p { margin: 0; font-size: var(--fs-s); }
   .plot > :global(.kinds) { margin: 0 0 8px; }
   .fields { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; font-size: var(--fs-s); }
   label { display: flex; align-items: center; gap: 8px; }
-  label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
+  label > span { color: var(--orange-mid); min-width: 5.5em; }
   label > :global(.grow) { flex: 1; }
-  .check { color: var(--text); }
+  .check { color: var(--accent); }
   .plot > :global(.go) { align-self: flex-start; margin: 6px 0 4px; }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--prose); }
+  .busy { color: var(--orange-mid); }
   .ok { color: var(--accent); }
-  .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
 </style>

@@ -15,12 +15,13 @@
     {/each}
   </Dropdown>
 </label>
-{#if binds.error}<p class="err">{binds.error}</p>{/if}
+{#if binds.error}<p class="err" role="alert"><b>!</b> {binds.error}</p>{/if}
 
 <style>
   .row { display: grid; grid-template-columns: 160px 1fr; align-items: center; margin-top: 12px; }
-  .err { margin: 8px 0 0; padding-left: 172px; color: var(--accent); }
-  .lbl { padding-left: 34px; color: var(--text-lo); }
+  .err { margin: 8px 0 0; padding-left: 172px; color: var(--alarm); }
+  b { font-weight: 600; }
+  .lbl { padding-left: 34px; color: var(--options-grey); }
   .compact { grid-template-columns: auto 1fr; gap: 12px; margin: 0; min-width: 16rem; }
   .compact .lbl { padding-left: 0; }
 </style>

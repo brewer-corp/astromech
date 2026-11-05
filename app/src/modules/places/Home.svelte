@@ -12,7 +12,7 @@
 <section class="home">
   {#each sections as [heading, finders] (heading)}
     <section aria-labelledby="places-{heading}">
-      <h2 class="heading" id="places-{heading}">{heading}</h2>
+      <h2 class="section heading" id="places-{heading}">{heading}</h2>
       <div class="tiles">
         {#each finders as f (f.id)}
           {@const a = lastAnswer(f.id)}
@@ -36,9 +36,7 @@
 <style>
   /* Three 220 px tiles wide, as the mockup (docs/design/design-system-places-home-after.png). */
   .home { --w: calc(3 * 220px + 2 * var(--sp-2)); display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-8) 0 72px; max-width: var(--w); }
-  /* A section heading: Orange caps with a Seam rule (DESIGN.md Settings row, Places home). */
-  .heading { display: flex; align-items: center; gap: var(--sp-3); margin: 0 0 var(--sp-3); font-size: var(--fs-s); font-weight: 600; letter-spacing: var(--caps); text-transform: uppercase; color: var(--accent); }
-  .heading::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .heading { margin: 0 0 var(--sp-3); }
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, 220px); gap: var(--sp-2); }
   .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); background: var(--surface); color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; }
   .tile:hover { background: var(--row-hover); }

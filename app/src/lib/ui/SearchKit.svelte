@@ -325,10 +325,9 @@
 
 <style>
   .kit { display: flex; flex-direction: column; gap: 0; min-width: 0; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
   .query :global(.origin) { margin: 0; }
-  /* Mixed case whatever the host panel sets (The Caps Are Wayfinding Rule): system names carry meaning in their case. */
-  .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; max-width: var(--list-w); text-transform: none; letter-spacing: normal; }
+  .out { padding: var(--sp-6) 0 var(--sp-2); min-width: 0; max-width: var(--list-w); }
   p { margin: 0; }
 
   /* Label lines: the summary above the heads, loading, a warning and the source line below. */

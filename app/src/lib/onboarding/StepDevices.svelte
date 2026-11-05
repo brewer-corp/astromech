@@ -48,5 +48,5 @@
     {binds.last ? `Last press: ${control(binds.last.device, binds.last.key)}` : "Press any button or key…"}
   </div>
   <div class="acts"><Button onclick={scan}>Check again</Button></div>
-  {#if error}<p class="warn-text">{error}</p>{/if}
+  {#if error}<p class="err" role="alert">{error}</p>{/if}
 </div>

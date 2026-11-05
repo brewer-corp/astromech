@@ -44,16 +44,19 @@
   p { margin: 0; }
   .grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; margin-top: 20px; }
   .head, .row { display: grid; grid-template-columns: 260px 240px 1fr; gap: var(--gap); }
-  .head { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-bottom: 6px; }
+  .head { color: var(--orange-mid); font-size: var(--fs-s); padding-bottom: 6px; }
   .row { min-height: 30px; margin-bottom: var(--gap); }
-  .row > span { background: var(--cell-empty); padding: 0 12px; display: flex; align-items: center; }
-  .row.new > span { background: var(--cell); color: var(--text-hi); }
+  .row > span { background: var(--cell-empty); padding: 0 12px; display: flex; align-items: center; color: var(--options-grey); }
+  .row.new > span { background: var(--cell); color: var(--orange-lit); }
+  .row.new .lo, .dev .lo { color: var(--accent); } /* text in a cell is at least Orange */
   .row.empty { grid-template-columns: 1fr; }
+  /* Listening (DESIGN.md States): the cell filled orange, On Orange caps. */
   .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
   .row.empty .lo { color: var(--on-accent); }
   .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--cell-opt); margin-bottom: var(--gap); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
+  p.lo { color: var(--prose); }
   @media (max-width: 1200px) {
     .grid { grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; }
     .head, .row { grid-template-columns: 150px 150px minmax(0, 1fr); }

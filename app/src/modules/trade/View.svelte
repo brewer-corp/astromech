@@ -27,10 +27,10 @@
 
 <style>
   section { padding: 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; height: 100%; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 0; background: var(--bg-list); }
+  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 0; }
   .moved { margin: 0; font-size: var(--fs-s); color: var(--orange-mid); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
   .moved a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .moved a:hover { color: var(--orange-lit); }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
 </style>

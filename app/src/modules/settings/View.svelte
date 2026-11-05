@@ -112,7 +112,7 @@
     <p class="lo">astromech's background process isn't running, so settings can't be shown. It starts with this window; if this stays, see Diagnostics.</p>
   {:else}
     <Stale error={statusErr} />
-    <h3>Startup</h3>
+    <h3 class="section">Startup</h3>
     <dl>
       <dt>Start with Windows</dt>
       <dd class="bare">
@@ -133,7 +133,7 @@
     </dl>
     <p class="hint">Starts quietly in the tray and waits for Elite, so voice is ready when you launch the game.</p>
 
-    <h3>Voice</h3>
+    <h3 class="section">Voice</h3>
     <dl>
       <dt>Push-to-talk</dt>
       <dd class:warn={!status.ptt}>
@@ -163,7 +163,7 @@
     {/if}
 
     {#if voice}
-      <h3>Voice responses</h3>
+      <h3 class="section">Voice responses</h3>
       <dl>
         <dt>Speaker</dt>
         <dd class="bare">
@@ -194,7 +194,7 @@
       <p class="hint">{voiceNote || "Cockpit sounds like the ship's PA, close to Elite's own voice. Changes apply to the next reply."}</p>
     {/if}
 
-    <h3>Microphone</h3>
+    <h3 class="section">Microphone</h3>
     <dl>
       <dt>Device</dt>
       <dd class:warn={!!mics && !mics.names.length}>
@@ -208,15 +208,15 @@
       </dd>
     </dl>
     <p class="hint">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
-    <h3>Callouts</h3>
+    <h3 class="section">Callouts</h3>
     <Callouts />
     <p class="hint">Spoken lines astromech says on its own as you play. Off means never; the cooldown is how long one stays silent after it speaks. Changes apply from the next session.</p>
 
-    <h3>Prospector callouts</h3>
+    <h3 class="section">Prospector callouts</h3>
     <ProspectorThresholds />
     <p class="hint">A prospected rock with at least this much of an ore is read out ("Platinum 34%."). Leave a box empty to turn that ore off. A motherlode is always read out.</p>
 
-    <h3>Updates</h3>
+    <h3 class="section">Updates</h3>
     <dl>
       <dt>Version</dt>
       <dd>
@@ -239,7 +239,7 @@
       <p class="hint">Installing closes astromech for a few seconds and reopens it. Elite can keep running.</p>
     {/if}
 
-    <h3>Files</h3>
+    <h3 class="section">Files</h3>
     <dl>
       <dt>Config file</dt>
       <dd><span class="mono path">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
@@ -248,7 +248,7 @@
     </dl>
     {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
   {/if}
-  {#if note}<p class="note">{note}</p>{/if}
+  {#if note}<p class="note err" role="alert">{note}</p>{/if}
 </section>
 
 {#if calibrating}
@@ -264,27 +264,32 @@
 
 <style>
   section { padding: 28px 0; max-width: 60rem; }
-  h3 { margin: 28px 0 10px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 28px 0 10px; }
   h3:first-child { margin-top: 0; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
-  dd.warn { background: var(--cell); color: var(--text-hi); }
+  dt { color: var(--options-grey); }
+  dd { background: var(--cell-opt); color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd.warn { background: var(--cell); }
+  /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
+  dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .path { overflow-wrap: anywhere; }
-  .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .warn-text { color: var(--accent); }
-  .lo { color: var(--text-lo); }
+  .warn-text::before { content: "! "; font-weight: 600; }
+  .lo { color: var(--prose); }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
   /* A row whose value is its own control (a choice or a dropdown) has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
   .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
   .dlg { width: 600px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
-  .lbl { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  .lbl { color: var(--orange-mid); font-size: var(--fs-s); }
   h2 { margin: 6px 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
   .close { margin-top: 20px; }
   .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); margin-top: 20px; }
+  .note { font-size: var(--fs-s); margin-top: 20px; }
 </style>

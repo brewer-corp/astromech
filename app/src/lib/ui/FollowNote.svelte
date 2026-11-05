@@ -35,5 +35,5 @@
 
 <style>
   /* One control row high, so Resume keeps the 34 px hit area of every button. */
-  .note { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); margin: var(--sp-3) 0 var(--sp-2); color: var(--text-lo); font-size: var(--fs-s); }
+  .note { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); margin: var(--sp-3) 0 var(--sp-2); color: var(--orange-mid); font-size: var(--fs-s); }
 </style>

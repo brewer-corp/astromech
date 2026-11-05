@@ -12,6 +12,7 @@
   let commander = $state("");
   let key = $state("");
   let note = $state("");
+  let noteErr = $state(false);
   let busy = $state(false);
   let visits = $state<Visit[] | null>(null);
   let logError = $state("");
@@ -41,6 +42,7 @@
     busy = true;
     const r = await setEdsm(change);
     busy = false;
+    noteErr = !r.ok;
     note = r.ok ? ok : `Couldn't save: ${String(r.error)}`;
     // A saved key leaves the page at once.
     if (r.ok && change.api_key !== undefined) key = "";
@@ -70,7 +72,7 @@
 </script>
 
 {#if st}
-  <h3>EDSM</h3>
+  <h3 class="section">EDSM</h3>
   <Stale error={readErr} />
   <dl>
     <dt>Upload to EDSM</dt>
@@ -98,7 +100,7 @@
     </dd>
     {#if st.key_error}
       <dt>Keyring</dt>
-      <dd class="warn"><span class="err">{st.key_error}</span></dd>
+      <dd class="warn failed" role="alert"><span class="err">{st.key_error}</span></dd>
     {/if}
     <dt>Waiting to send</dt>
     <dd><span>{st.pending}</span></dd>
@@ -114,7 +116,7 @@
       <Button onclick={showLog} disabled={busy || !st.has_key || !st.commander} aria-label="Show flight log">Show</Button>
     </dd>
   </dl>
-  {#if note}<p class="hint">{note}</p>{/if}
+  {#if note}<p class="hint" class:err={noteErr} role={noteErr ? "alert" : undefined}>{note}</p>{/if}
   {#if visits && visits.length}
     <table>
       <thead><tr><th>Arrived (UTC)</th><th>System</th><th></th></tr></thead>
@@ -138,21 +140,25 @@
 {/if}
 
 <style>
-  h3 { margin: 28px 0 10px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 28px 0 10px; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
-  dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
-  dd.warn { background: var(--cell); color: var(--text-hi); }
+  dt { color: var(--options-grey); }
+  dd { background: var(--cell-opt); color: var(--accent); gap: 24px; justify-content: space-between; }
+  dd.warn { background: var(--cell); }
+  /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
+  dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
+  .hint.err { color: var(--alarm); }
+  .hint.err::before { content: "! "; font-weight: 600; }
   /* A row whose value is a box of its own has no cell around it. */
   dd.bare { padding: 0; background: none; }
   dd.bare > :global(.grow) { flex: 1; }
-  .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
-  .text { color: var(--text); line-height: 1.6; max-width: 46rem; margin-top: 16px; }
+  .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
+  .text { color: var(--prose); line-height: 1.6; max-width: 46rem; margin-top: 16px; }
   .text p { margin: 0 0 10px; }
   table { border-collapse: collapse; margin: 12px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); }
-  th { color: var(--text-lo); font-weight: 400; text-align: left; padding: 4px 16px 4px 0; }
-  td { color: var(--text); padding: 4px 16px 4px 0; }
+  th { color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; text-align: left; padding: 4px 16px 4px 0; }
+  td { padding: 4px 16px 4px 0; }
 </style>

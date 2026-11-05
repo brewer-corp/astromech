@@ -33,10 +33,10 @@
 
 <section>
   <div class="panel">
-    <h3>My standing</h3>
+    <h3 class="section">My standing</h3>
     <Stale error={ov ? err : null} />
     {#if err && !ov}
-      <p class="lo">{err}</p>
+      <p class="err" role="alert">{err}</p>
     {:else if !st}
       <p class="lo">Reading the journal…</p>
     {:else if !st.power}
@@ -67,7 +67,7 @@
   </div>
 
   <div class="panel">
-    <h3>This system</h3>
+    <h3 class="section">This system</h3>
     {#if !ov}
       <p class="lo">{err ? "Not shown until the journal can be read." : "Reading the journal…"}</p>
     {:else if !ov.here}
@@ -104,7 +104,7 @@
   </div>
 
   <div class="panel merits">
-    <h3>What earns merits here</h3>
+    <h3 class="section">What earns merits here</h3>
     {#if !ov}
       <p class="lo">{err ? "Not shown until the journal can be read." : "Reading the journal…"}</p>
     {:else if !st?.power}
@@ -119,7 +119,7 @@
   </div>
 
   <div class="panel work">
-    <h3>Where to work</h3>
+    <h3 class="section">Where to work</h3>
     {#if st && !st.power}
       <p class="lo">Pledge to a power to see where it wants work.</p>
     {:else}
@@ -139,17 +139,19 @@
     .merits { grid-row: span 2; }
     .work { grid-column: span 2; }
   }
-  h3 { margin: 0 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); }
+  h3 { margin: 0 0 10px; }
   .sys { display: flex; align-items: baseline; gap: 10px; }
   .power { margin: 0 0 10px; color: var(--accent); font-size: var(--fs-l); }
   dl { display: grid; grid-template-columns: 8rem 1fr; gap: 6px 14px; margin: 0; }
-  dt { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
-  dd { margin: 0; color: var(--text); }
-  .q { font-family: var(--mono); color: var(--text-hi); }
-  .work { color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  dt { color: var(--orange-mid); font-size: var(--fs-s); }
+  dd { margin: 0; }
+  .q { font-family: var(--mono); color: var(--orange-lit); }
+  .work { font-size: var(--fs-s); }
   .bar { display: inline-block; width: 8rem; height: 6px; background: var(--cell-empty); vertical-align: middle; margin-right: 8px; }
   .bar span { display: block; height: 100%; background: var(--accent); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
+  .err { color: var(--alarm); }
+  .err::before { content: "! "; font-weight: 600; }
   .small { font-size: var(--fs-s); margin-top: 12px; }
   p { margin: 0 0 8px; line-height: 1.45; }
 </style>

@@ -121,13 +121,13 @@
   {/if}
 
   <div class="how">
-    <h4>In the galaxy map</h4>
+    <h4 class="section">In the galaxy map</h4>
     <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
     <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
   </div>
 
   <div class="import">
-    <h4>Import</h4>
+    <h4 class="section">Import</h4>
     <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
     <Input rows={6} aria-label="Route" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text} />
     <div class="actions">
@@ -138,25 +138,27 @@
 
 <style>
   section { padding: 28px 0; max-width: 60rem; display: flex; flex-direction: column; gap: 20px; }
-  h3 { margin: 0; color: var(--text-hi); font-weight: 500; }
-  h4 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  h3 { margin: 0; color: var(--text-hi); font-weight: 600; font-size: var(--fs-xl); line-height: 1.2; }
+  h4 { margin: 0 0 var(--sp-3); }
   p { margin: 0 0 6px; }
   .head { display: flex; flex-direction: column; gap: 4px; }
   .next { display: flex; flex-direction: column; gap: 4px; background: var(--cell-opt); padding: 14px 16px; }
-  .next .sys { font-size: 1.45em; color: var(--text-hi); line-height: 1.15; }
-  .sublabel { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
+  .next .sys { font-size: 1.45em; color: var(--orange-lit); line-height: 1.15; }
+  .sublabel { color: var(--orange-mid); font-size: var(--fs-s); }
+  /* Text in a cell is at least Orange: Orange Mid is too faint there. */
+  .next :is(.sublabel, .lo) { color: var(--accent); }
   .clip { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: var(--fs-s); }
-  .warn { color: var(--text-hi); }
+  .warn { color: var(--alarm); }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .stops { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs); }
-  .stops .sys { color: var(--text); }
-  .stops .past .sys { color: var(--text-lo); text-decoration: line-through; }
-  .stops .current .sys { color: var(--accent); }
-  .lo { color: var(--text-lo); }
-  .empty { line-height: 1.45; }
-  .q { color: var(--text-hi); }
+  .stops .sys { color: var(--accent); }
+  .stops .past .sys { color: var(--orange-dim); text-decoration: line-through; }
+  .stops .current .sys { color: var(--orange-lit); }
+  .lo { color: var(--orange-mid); }
+  .empty { line-height: 1.45; color: var(--prose); }
+  .q { color: var(--accent); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .how p { color: var(--text); font-size: var(--fs-s); line-height: 1.45; }
+  .how p { color: var(--prose); font-size: var(--fs-s); line-height: 1.45; }
   .import { display: flex; flex-direction: column; gap: 8px; }
-  .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--accent-dim); color: var(--text); font-size: var(--fs-s); }
+  .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); color: var(--accent); font-size: var(--fs-s); }
 </style>

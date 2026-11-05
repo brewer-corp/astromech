@@ -57,7 +57,7 @@
 </script>
 
 <section>
-  <h3>Docked here</h3>
+  <h3 class="section">Docked here</h3>
   <Stale error={here ? failed : null} />
   {#if failed && !here}
     <p class="err">{failed}</p>
@@ -107,14 +107,14 @@
       {/if}
     </dl>
 
-    <h3>Market</h3>
+    <h3 class="section">Market</h3>
     {#if !here.services.includes("commodities")}
       <p class="lo">This station has no market.</p>
     {:else}
       <Market marketId={here.market_id} />
     {/if}
 
-    <h3>Outfitting{here.ship ? ` for ${here.ship}` : ""}</h3>
+    <h3 class="section">Outfitting{here.ship ? ` for ${here.ship}` : ""}</h3>
     {#if !here.services.includes("outfitting") && !here.outfitting}
       <p class="lo">This station has no outfitting.</p>
     {:else if !here.outfitting}
@@ -136,7 +136,7 @@
     {/if}
   {/if}
 
-  <h3>Where did I see…</h3>
+  <h3 class="section">Where did I see…</h3>
   <label class="search">
     <span>Module</span>
     <Input class="q" type="search" bind:value={query} placeholder="5a frame shift, fsd, pulse laser, hyperdrive_size5" spellcheck="false" autocomplete="off" />
@@ -172,24 +172,24 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  h3 { margin: 22px 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
-  .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 8px 0; }
+  h3 { margin: 22px 0 8px; }
+  .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 8px 0; }
   .err { color: var(--accent); }
-  .lo { color: var(--text-lo); }
+  .lo { color: var(--orange-mid); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .station { color: var(--text-hi); }
+  .station { font-weight: 500; }
   .head { display: flex; align-items: baseline; gap: 10px; }
   .faction { display: flex; gap: 6px; }
   .state { color: var(--accent); }
   .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 10px 0 0; max-width: 60rem; }
-  dt { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-top: 2px; }
+  dt { color: var(--orange-mid); font-size: var(--fs-s); padding-top: 2px; }
   dd { margin: 0; }
   .services { display: flex; flex-wrap: wrap; gap: 4px; }
   .svc { background: var(--cell); padding: 1px 8px; font-size: var(--fs-s); }
-  .search { display: flex; align-items: center; gap: 12px; margin: 10px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-size: var(--fs-s); }
-  .search > :global(.q) { flex: 0 1 30rem; text-transform: none; letter-spacing: normal; }
+  .search { display: flex; align-items: center; gap: 12px; margin: 10px 0 6px; color: var(--orange-mid); font-size: var(--fs-s); }
+  .search > :global(.q) { flex: 0 1 30rem; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
-  th { text-align: left; color: var(--text-lo); font-size: var(--fs-s); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 0 12px 6px 0; }
+  th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }
   .num { text-align: right; font-family: var(--mono); }
 </style>
