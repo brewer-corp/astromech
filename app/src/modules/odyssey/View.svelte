@@ -27,22 +27,33 @@
     type Shopping,
   } from "../../lib/odyssey";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
+  import { hashParam, pageHash } from "../../lib/hashstate";
 
-  const TABS = [
-    { id: "inventory", title: "Inventory" },
-    { id: "blueprints", title: "Blueprints" },
-    { id: "engineers", title: "Engineers" },
+  // The inventory, the blueprints and the engineers are a choice on the page, not a third tab
+  // row (DESIGN.md The Two Tab Rows Rule), kept in the link: #/odyssey?view=blueprints.
+  const VIEWS = [
+    { value: "inventory", label: "Inventory" },
+    { value: "blueprints", label: "Blueprints" },
+    { value: "engineers", label: "Engineers" },
   ] as const;
-  const CATS: { id: Category; title: string }[] = [
-    { id: "goods", title: "Goods" },
-    { id: "assets", title: "Assets" },
-    { id: "data", title: "Data" },
-    { id: "consumables", title: "Consumables" },
+  type View = (typeof VIEWS)[number]["value"];
+  const CATS: { value: Category; label: string }[] = [
+    { value: "goods", label: "Goods" },
+    { value: "assets", label: "Assets" },
+    { value: "data", label: "Data" },
+    { value: "consumables", label: "Consumables" },
   ];
 
   let view = $state<OdysseyView | null>(null);
   let error = $state<string | null>(null);
-  let tab = $state<(typeof TABS)[number]["id"]>("inventory");
+  const readView = (): View => VIEWS.find((v) => v.value === hashParam("view"))?.value ?? "inventory";
+  let tab = $state<View>(readView());
+  $effect(() => {
+    const onHash = () => (tab = readView());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
+  const chooseView = (v: View) => (location.hash = pageHash("odyssey", { view: v === "inventory" ? null : v }));
   let cat = $state<Category>("goods");
   let heldOnly = $state(true);
 
@@ -164,25 +175,21 @@
 <section>
   <div class="query">
     <div class="acts">
-      {#each TABS as t (t.id)}
-        <button class:on={tab === t.id} onclick={() => (tab = t.id)}>{t.title}</button>
-      {/each}
+      <Choice label="On foot" options={[...VIEWS]} value={tab} onchange={chooseView} />
+      <p class="sub" class:err={!!error && !view}>
+        {#if error && !view}
+          {error}
+        {:else if view}
+          {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
+        {:else}
+          Reading the ShipLocker…
+        {/if}
+      </p>
     </div>
-    <p class="sub" class:err={!!error && !view}>
-      {#if error && !view}
-        {error}
-      {:else if view}
-        {view.source}{view.locker_ts ? ` · ${view.locker_ts.replace("T", " ").replace("Z", "")}` : " · not written yet (log in on foot once)"}
-      {:else}
-        Reading the ShipLocker…
-      {/if}
-    </p>
     <Stale error={view ? error : null} />
     {#if view && tab === "inventory"}
-      <div class="acts small">
-        {#each CATS as c (c.id)}
-          <button class:on={cat === c.id} onclick={() => (cat = c.id)}>{c.title}</button>
-        {/each}
+      <div class="acts">
+        <Choice label="Item kind" options={CATS} value={cat} onchange={(v) => (cat = v)} />
         <Choice
           class="tog"
           label="Which items"
@@ -372,16 +379,11 @@
 
 <style>
   section { padding: 0 0 28px; min-height: 0; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; }
-  .acts.small { gap: 18px; font-size: var(--fs-s); }
-  .acts button { color: var(--orange-mid); font-weight: 500; }
-  .acts button:hover { color: var(--accent); }
-  .acts .on { color: var(--orange-lit); }
-  .acts > :global(.tog) { margin-left: auto; align-self: center; }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
+  .acts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; }
+  .acts > :global(.tog) { margin-left: auto; }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
-  .out { padding: 24px 4px 8px; min-width: 0; }
+  .out { padding: var(--sp-6) 0 8px; min-width: 0; }
   .lo { color: var(--orange-mid); }
   .note { font-size: var(--fs-s); margin-top: 16px; }
   .foot { padding: 0 8px; }

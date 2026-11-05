@@ -7,6 +7,7 @@
   import Stale from "../../lib/ui/Stale.svelte";
   import { untrack } from "svelte";
   import Colonies from "../../lib/ui/Colonies.svelte";
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { buyList, buyResults, loadProjects, LOOKUP, needsOf, projectName, type Need, type Project } from "../../lib/colonisation";
@@ -78,10 +79,12 @@
     <p class="lo">No construction sites in your journals yet. Dock at one and it shows here with what it still needs.</p>
   {:else}
     {#if projects.length > 1}
-      <div class="acts">
-        {#each projects as p (p.market_id)}
-          <button class:on={p.market_id === picked} onclick={() => (picked = p.market_id)}>{projectName(p)} <span class="lo">{status(p)}</span></button>
-        {/each}
+      <!-- The site is a dropdown on the page, not a third tab row (DESIGN.md The Two Tab Rows
+           Rule); a coloniser can have many. -->
+      <div class="pick">
+        <Dropdown bind:value={picked} aria-label="Construction site">
+          {#each projects as p (p.market_id)}<option value={p.market_id}>{projectName(p)} · {status(p)}</option>{/each}
+        </Dropdown>
       </div>
     {/if}
     {#if project}
@@ -127,11 +130,7 @@
 
 <style>
   section { padding: 8px 0 28px; min-height: 0; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; padding: 14px 0 6px; }
-  .acts button { color: var(--orange-mid); font-weight: 500; }
-  .acts button:hover { color: var(--accent); }
-  .acts .on { color: var(--accent); }
+  .pick { padding: var(--sp-4) 0 var(--sp-1); }
   /* DESIGN.md's result-list width, so the lookups' rows keep every column; prose stays at 68ch. */
   .main { max-width: var(--list-w); }
   .main > p, .main > .list { max-width: var(--measure); }

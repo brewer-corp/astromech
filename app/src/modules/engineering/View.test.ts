@@ -37,9 +37,9 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-it("shows speed, jump and power on the Info tab", async () => {
+it("shows speed, jump and power on Info", async () => {
   render(View);
-  expect(await screen.findByRole("tab", { name: "Info" })).toBeTruthy();
+  expect(await screen.findByRole("button", { name: "Info", pressed: true })).toBeTruthy();
   expect(screen.queryByRole("heading", { name: "Core internals" })).toBeNull();
   expect((await screen.findByLabelText("Speed")).textContent).toMatch(/376/);
   expect(screen.getByLabelText("Jump").textContent).toMatch(/24\.87/);
@@ -59,8 +59,9 @@ it("shows the build planner on the Engineering tab", async () => {
 it("switches from Info to Engineering", async () => {
   render(View);
   expect(await screen.findByLabelText("Speed")).toBeTruthy();
-  await fireEvent.click(screen.getByRole("tab", { name: "Engineering" }));
+  await fireEvent.click(screen.getByRole("button", { name: "Engineering", pressed: false }));
   expect(await screen.findByRole("heading", { name: "Core internals" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Engineering", pressed: true })).toBeTruthy();
 });
 
 it("says when the hull is not in the ship data", async () => {
@@ -124,14 +125,15 @@ it("says when the row stats can't be worked out", async () => {
   expect(note).toBeTruthy();
 });
 
-it("opens the engineering tab for the selected ship", async () => {
+it("opens Engineering for the selected ship", async () => {
   render(View);
-  const plan = await screen.findByRole("tab", { name: "Engineering" });
-  expect(plan.getAttribute("href")).toBe("#/engineering/1/plan");
+  await fireEvent.click(await screen.findByRole("button", { name: "Engineering", pressed: false }));
+  expect(location.hash).toBe("#/engineering/1/plan");
 });
 
-it("opens the Info tab for the selected ship", async () => {
+it("opens Info for the selected ship", async () => {
+  location.hash = "#/engineering/1/plan";
   render(View);
-  const info = await screen.findByRole("tab", { name: "Info" });
-  expect(info.getAttribute("href")).toBe("#/engineering/1");
+  await fireEvent.click(await screen.findByRole("button", { name: "Info", pressed: false }));
+  expect(location.hash).toBe("#/engineering/1");
 });

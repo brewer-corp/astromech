@@ -11,7 +11,7 @@ seconds.
 ## Projects
 
 Docking at a construction site makes it show here, with its name, system and how built it is, or
-"complete" or "failed". With several projects, pick one from the buttons at the top.
+"complete" or "failed". With several projects, pick one in the list at the top.
 
 **Still to buy** lists each commodity you still have to buy, in tonnes, with what you already carry. The total is
 given in tonnes and in loads at your ship's cargo capacity ("3 loads at 256 t"). If everything still

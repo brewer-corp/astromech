@@ -34,6 +34,12 @@ afterEach(() => {
 
 /** A fresh copy each poll, as the shell sends: same content, new objects. */
 const fresh = (): Project[] => structuredClone(projects);
+/** Pick a construction site in the page's dropdown. */
+async function pickSite(name: RegExp) {
+  const site = screen.getByRole("combobox", { name: "Construction site" });
+  const opt = screen.getByRole("option", { name }) as HTMLOptionElement;
+  await fireEvent.change(site, { target: { value: opt.value } });
+}
 
 describe("Colonisation", () => {
   it("lists what is left to buy and where, stations stocking most of the list first, from the site", async () => {
@@ -116,7 +122,7 @@ describe("Colonisation", () => {
     expect(buy.mock.lastCall?.[0][0]).toEqual({ symbol: "steel", name: "Steel", tonnes: 4000 });
 
     // The picked project stays picked across polls.
-    await fireEvent.click(screen.getByRole("button", { name: /Test Relay/ }));
+    await pickSite(/Test Relay/);
     expect(await screen.findByText("Nothing left to deliver.")).toBeTruthy();
     const after = load.mock.calls.length;
     await vi.advanceTimersByTimeAsync(4000);
@@ -163,7 +169,8 @@ describe("Colonisation", () => {
     load.mockResolvedValue(projects);
     buy.mockImplementation(async (_n, o) => answer(o));
     render(View);
-    await fireEvent.click(await screen.findByRole("button", { name: /Test Relay/ }));
+    await screen.findByRole("combobox", { name: "Construction site" });
+    await pickSite(/Test Relay/);
     expect(await screen.findByText("Nothing left to deliver.")).toBeTruthy();
     buy.mockClear();
     await new Promise((r) => setTimeout(r, 20));

@@ -51,7 +51,7 @@ describe("Find or plot in the window", () => {
     await fireEvent.keyDown(input, { key: "Enter" });
 
     expect(await screen.findByRole("heading", { name: "Datamined Wake Exceptions" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Encoded/i }).className).toContain("on");
+    expect(screen.getByRole("button", { name: "Encoded", pressed: true })).toBeTruthy();
   });
 
   it("opens finders filled in from phrases typed in the header's one box", async () => {

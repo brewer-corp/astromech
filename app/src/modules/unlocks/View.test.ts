@@ -2,7 +2,10 @@ import { afterEach, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import View from "./View.svelte";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  location.hash = "";
+});
 
 it("shows engineer cards with specialties and access, without column titles", async () => {
   render(View);
@@ -29,7 +32,8 @@ it("shows engineer cards with specialties and access, without column titles", as
   const todNext = screen.getByLabelText('Tod "The Blaster" McQuinn');
   expect(todNext.className.split(/\s+/)).toContain("next");
 
-  await fireEvent.click(screen.getByRole("tab", { name: "Suit engineers" }));
+  await fireEvent.click(screen.getByRole("button", { name: "Suit engineers" }));
+  expect(location.hash).toBe("#/unlocks?kind=suit");
   expect(await screen.findByLabelText("Kit Fowler")).toBeTruthy();
   const kit = screen.getByLabelText("Kit Fowler");
   expect(kit.className.split(/\s+/)).toContain("invited");

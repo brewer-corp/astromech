@@ -2,6 +2,7 @@
   // Ships page: one selected ship as the main pane (info or engineering), the rest of the
   // fleet as a bottom rail. Stored modules live on their own Engineering tab.
   import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import { failure, pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -74,6 +75,10 @@
     return ships.find((s) => s.id === want.id) ?? ships.find((s) => s.current) ?? ships[0];
   });
   const tab = $derived(want.tab);
+  const VIEWS: { value: "content" | "plan"; label: string }[] = [
+    { value: "content", label: "Info" },
+    { value: "plan", label: "Engineering" },
+  ];
   const IN_TRANSIT_TO = "In transit to ";
   const stats = $derived(compared && "current" in compared ? compared.current : null);
   const unknownHull = $derived(compared && "unknown_hull" in compared ? compared.unknown_hull : null);
@@ -131,10 +136,12 @@
 
 <section>
   <div class="query">
-    <div class="acts" role="tablist" aria-label="Ship">
+    <div class="acts">
       {#if ship}
-        <a role="tab" aria-selected={tab === "content"} class:on={tab === "content"} href={href(ship.id, "content")}>Info</a>
-        <a role="tab" aria-selected={tab === "plan"} class:on={tab === "plan"} href={href(ship.id, "plan")}>Engineering</a>
+        {@const id = ship.id}
+        <!-- Info or the build plan is a choice on the page, not a third tab row; its link stays
+             #/engineering/<id>[/plan]. -->
+        <Choice label="Ship" options={VIEWS} value={tab} onchange={(v) => (location.hash = href(id, v))} />
       {/if}
       {#if ship?.links}
         <span class="open">
@@ -224,11 +231,8 @@
 
 <style>
   section { padding: 0; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); flex: none; }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; }
-  .acts a { color: var(--orange-mid); font-weight: 500; text-decoration: none; }
-  .acts a:hover { color: var(--accent); }
-  .acts .on { color: var(--orange-lit); }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 var(--sp-3); flex: none; }
+  .acts { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; }
   .open { color: var(--orange-mid); margin-left: auto; }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .err { margin: 0; color: var(--alarm); font-size: var(--fs-s); }

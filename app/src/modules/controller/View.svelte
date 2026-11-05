@@ -146,11 +146,8 @@
 <div class="cols">
   <section>
     <div class="top">
-      <div class="devices">
-        {#each maps as x (x.device_id)}
-          <button class:on={x.device_id === m.device_id} onclick={() => { dev = x.device_id; picked = null; selId = null; }}>{x.title} · {x.device_id}</button>
-        {/each}
-      </div>
+      <!-- The stick is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). -->
+      <Choice label="Stick" options={maps.map((x) => ({ value: x.device_id, label: `${x.title} · ${x.device_id}` }))} value={m.device_id} onchange={(v) => { dev = v; picked = null; selId = null; }} />
       <PresetPicker compact />
     </div>
     <Choice class="acts" label="Activity" value={act?.id ?? "all"} options={[{ value: "all", label: "All" }, ...acts.map((a) => ({ value: a.id, label: a.title }))]} onchange={choose} />
@@ -245,10 +242,6 @@
   button { all: unset; cursor: pointer; }
   .cols { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding-top: 14px; }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-  .devices { display: flex; gap: 32px; }
-  .devices button { color: var(--orange-mid); font-weight: 500; }
-  .devices button:hover { color: var(--accent); }
-  .devices .on { color: var(--orange-lit); }
   section > :global(.acts) { margin: 12px 0 8px; }
   .band { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
   h3 { margin: 0 0 8px; }

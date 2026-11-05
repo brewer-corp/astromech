@@ -40,14 +40,14 @@ describe("Colonies", () => {
     // The radius defaults to 30 ly.
     expect(screen.getByRole("option", { name: "30 ly" })).toBeTruthy();
 
-    await fireEvent.click(screen.getByRole("tab", { name: "Rings" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Rings" }));
     await waitFor(() => expect(asked).toHaveBeenLastCalledWith("rings", null, DEFAULT_FILTERS));
     await waitFor(() => expect(rows()).toHaveLength(1));
     expect(rows()[0]).toContain("Greae Phoea KJ-T c19-51");
     expect(rows()[0]).toContain("3 ringed");
-    expect(screen.getByRole("tab", { name: "Rings" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("button", { name: "Rings", pressed: true })).toBeTruthy();
 
-    await fireEvent.click(screen.getByRole("tab", { name: "Earth-like world" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Earth-like world" }));
     // Nothing within the default 30 ly: say so, and offer the next radius.
     expect(await screen.findByText(/No candidates within 30 ly\./)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Widen to 50 ly" })).toBeTruthy();

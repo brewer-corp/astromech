@@ -30,8 +30,9 @@
   // A moved link opened from outside (a bookmark) is rewritten in place, as one followed in the
   // window is, so Back doesn't land on the old address.
   if (location.hash && location.hash !== `#/${start}`) history.replaceState(null, "", `#/${start}`);
-  // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
-  const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
+  // A page may route within itself ("engineering/7" opens that ship) or keep its choices in a
+  // query ("materials?kind=encoded", lib/hashstate.ts): the module is the first part.
+  const current = $derived(findModule(route.split(/[/?]/)[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);

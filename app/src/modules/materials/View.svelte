@@ -4,6 +4,8 @@
   // links into them with the site kind or faction state filled in (decision astromech-g8d5, item 5).
   import { tick } from "svelte";
   import { pollFailure } from "../../lib/ui/errors";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import { hashParam, pageHash } from "../../lib/hashstate";
   import Stale from "../../lib/ui/Stale.svelte";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
   import { factionRoute, siteRoute } from "../../lib/places";
@@ -15,10 +17,10 @@
   const SEP = ", ";
   let inv = $state<Inventory | null>(null);
   let failed = $state<string | null>(null);
-  let kindId = $state("raw");
-  // A material opens at #/materials/<id> (Find or plot links there), so back and reload keep it.
+  // A material opens at #/materials/<id> (Find or plot links there) and a kind at
+  // #/materials?kind=encoded, so back and reload keep them.
   const readSel = () => {
-    const m = /^#\/materials\/(.+)$/.exec(location.hash);
+    const m = /^#\/materials\/([^?]+)/.exec(location.hash);
     if (!m?.[1]) return null;
     try {
       return decodeURIComponent(m[1]);
@@ -27,12 +29,21 @@
     }
   };
   let selId = $state<string | null>(readSel());
+  let wantKind = $state(hashParam("kind"));
 
-  const kind = $derived(inv?.kinds.find((k) => k.id === kindId) ?? inv?.kinds[0]);
-  const tabs = $derived([
-    ...(inv?.kinds.map((k) => ({ id: k.id, title: k.title })) ?? []),
-    ...(inv && inv.other.length ? [{ id: "other", title: "Other" }] : []),
+  const kinds = $derived([
+    ...(inv?.kinds.map((k) => ({ value: k.id, label: k.title })) ?? []),
+    ...(inv && inv.other.length ? [{ value: "other", label: "Other" }] : []),
   ]);
+  // The selected material's kind, else the one the link asks for, else Raw.
+  const selKind = $derived.by(() => {
+    const id = selId;
+    if (!inv || !id) return undefined;
+    if (inv.other.some((c) => c.id === id)) return "other";
+    return inv.kinds.find((kd) => kd.groups.some((g) => g.cells.some((c) => c.id === id)))?.id;
+  });
+  const kindId = $derived(selKind ?? (kinds.some((k) => k.value === wantKind) ? wantKind! : "raw"));
+  const kind = $derived(inv?.kinds.find((k) => k.id === kindId) ?? inv?.kinds[0]);
   const sel = $derived(
     kindId === "other"
       ? inv?.other.find((c) => c.id === selId)
@@ -40,17 +51,12 @@
   );
 
   $effect(() => {
-    const onHash = () => (selId = readSel());
+    const onHash = () => {
+      selId = readSel();
+      wantKind = hashParam("kind");
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
-  });
-
-  // Show the tab the selected material is on.
-  $effect(() => {
-    if (!inv || !selId) return;
-    const id = selId;
-    const k = inv.other.some((c) => c.id === id) ? "other" : inv.kinds.find((kd) => kd.groups.some((g) => g.cells.some((c) => c.id === id)))?.id;
-    if (k) kindId = k;
   });
 
   $effect(() => {
@@ -79,9 +85,10 @@
 
   let about: HTMLElement | undefined = $state();
 
-  function pick(id: string | null) {
-    location.hash = id ? `#/materials/${encodeURIComponent(id)}` : "#/materials";
+  function pick(id: string) {
+    location.hash = `#/materials/${encodeURIComponent(id)}`;
   }
+  const chooseKind = (k: string) => (location.hash = pageHash("materials", { kind: k === "raw" ? null : k }));
 
   // The detail sits below the grid; on a short window it is off screen, so bring it up once per pick.
   let shownId: string | null = null;
@@ -96,22 +103,20 @@
 <section>
   <div class="find">
     <div class="query">
-      <div class="acts">
-        {#each tabs as k (k.id)}
-          <button class:on={kindId === k.id} onclick={() => { kindId = k.id; pick(null); }}>{k.title}</button>
-        {/each}
-      </div>
-      <p class="sub">
-        {#if inv}
-          {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
-          {#if kindId !== "other" && kind}
-            · {kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}
+      <div class="bar">
+        {#if kinds.length}<Choice label="Kind" options={kinds} value={kindId} onchange={chooseKind} />{/if}
+        <p class="sub">
+          {#if inv}
+            {kindId === "other" ? "Guardian, Thargoid and anything the journal named that is not on a trader." : (kind?.trader ?? "")}
+            {#if kindId !== "other" && kind}
+              · {kind.held.toLocaleString()} / {kind.capacity.toLocaleString()}
+            {/if}
+            · {inv.source}
+          {:else}
+            {failed ?? "Reading the journal…"}
           {/if}
-          · {inv.source}
-        {:else}
-          {failed ?? "Reading the journal…"}
-        {/if}
-      </p>
+        </p>
+      </div>
       <Stale error={inv ? failed : null} />
       {#if kindId === "manufactured" && inv?.here}
         <p class="sub here">
@@ -200,14 +205,12 @@
   section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem); gap: 0; min-height: 0; padding: 0 0 28px; }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .find { min-width: 0; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
-  .acts { display: flex; flex-wrap: wrap; gap: 26px; }
-  .acts button { color: var(--orange-mid); font-weight: 500; }
-  .acts button:hover { color: var(--accent); }
-  .acts .on { color: var(--orange-lit); }
+  /* The kind is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .here { color: var(--accent); }
-  .out { padding: 24px 8px 8px 4px; min-width: 0; }
+  .out { padding: var(--sp-6) 8px 8px 0; min-width: 0; }
   .farm { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; }
   .farm li { display: grid; grid-template-columns: minmax(10rem, 14rem) 5rem 1fr; gap: 10px 18px; align-items: baseline; padding: 14px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs-s); }
   .farm button { font-weight: 500; }

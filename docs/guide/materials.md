@@ -12,12 +12,13 @@ the page says "Could not read the materials" and gives the reason. It never show
 
 ## The grids
 
-Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
+Choose a kind at the top: **Raw**, **Manufactured**, **Encoded** or **Other**. The chosen one is
+filled orange.
 
 - Each tile is a material, with how many you hold out of its cap. The line along its bottom
   fills towards the cap; a material you have none of is dim, in an outline. The one you click is
   filled orange. Caps are 300, 250, 200, 150 and 100 for grades 1 to 5.
-- The line under the tabs says which trader trades this kind, and the total held out of the
+- The line beside the kinds says which trader trades this kind, and the total held out of the
   total capacity.
 - **Other** lists materials not on a trader: Guardian, Thargoid and anything else the journal
   named.
@@ -29,7 +30,7 @@ Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
 
 ## High Grade Emissions
 
-On the **Manufactured** tab, a line under the tabs says what the system you are in offers: its
+With **Manufactured** chosen, a line under the kinds says what the system you are in offers: its
 name, allegiance and population, whether a High Grade Emissions signal is on your scanner now, and which materials
 they could drop. Below the grid, a list of up to eight grade 4 and 5 manufactured materials you are not full on,
 least full first, each with the High Grade Emissions source that drops it.
@@ -58,7 +59,7 @@ population then distance. By voice, see
 
 ## Raw material sites
 
-On the **Raw** tab, the line under the grid links each kind of site (crystalline shards, brain
+With **Raw** chosen, the line under the grid links each kind of site (crystalline shards, brain
 trees, crashed ships, geological sites, known raw farms) to the [Raw sites](places.md#raw-sites)
 finder, which lists the nearest bodies with it. By voice: "nearest crystalline shards" and the
 like ([lookups](lookups.md#raw-material-sites)).

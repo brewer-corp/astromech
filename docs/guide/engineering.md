@@ -9,7 +9,7 @@ A tech tree of every ship engineer and suit engineer, with your progress and wha
 
 **What it needs:** the journal (your engineer progress). No network.
 
-- Choose **Ship engineers** or **Suit engineers**. The line under the tabs counts how many you
+- Choose **Ship engineers** or **Suit engineers** at the top. The line beside them counts how many you
   have unlocked, and how the marks work: orange for rank, a dim mark for no access yet, dimmer cards
   for engineers who have not been introduced. A ship engineer introduces the next ones once
   your rank with them passes grade 3; each suit engineer refers the next after a task.
@@ -34,12 +34,12 @@ Odyssey micro-resources and blueprints. **What it needs:** the journal and the g
 `ShipLocker` file, which the game writes when you are on foot. Until then the page says "not
 written yet (log in on foot once)". No network.
 
-Three tabs:
+Choose one of three views at the top:
 
 ### Inventory
 
-Your ship locker and backpack by the game's own categories: **Goods**, **Assets**, **Data** and
-**Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
+Your ship locker and backpack by the game's own categories: choose **Goods**, **Assets**, **Data**
+or **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
 what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** hides what you do not have; **All items** shows the rest of the catalogue. The
 one in use is filled orange. The line above says how much is held and what a bartender would pay
 for it. Mission items go back when the mission ends and do not count for blueprints.

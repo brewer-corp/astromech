@@ -1,6 +1,7 @@
 <script lang="ts">
   // Where my power wants work: nearby acquisition, reinforcement and undermining systems
   // (Spansh), on the search kit.
+  import Choice from "../../lib/ui/Choice.svelte";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
   import { loadTargets, targetDetail, TARGETS, type Target } from "../../lib/powerplay";
   import type { Filters, Origin, Results } from "../../lib/search";
@@ -28,9 +29,8 @@
 </script>
 
 <div class="acts">
-  {#each TARGETS as t (t.id)}
-    <button class:on={target === t.id} onclick={() => (target = t.id)}>{t.title}</button>
-  {/each}
+  <!-- Which work is a choice in the section, not a tab row (DESIGN.md Choice). -->
+  <Choice label="Work" options={TARGETS.map((t) => ({ value: t.id, label: t.title }))} value={target} onchange={(v) => (target = v)} />
   <label>Within
     <Dropdown bind:value={within}>
       {#each RANGES as r (r)}<option value={r}>{r} ly</option>{/each}
@@ -41,9 +41,6 @@
 <SearchKit lookup={`powerplay.${target}`} offers={["age"]} {run} title="Nearest" noun="systems" busyText={kind?.busy ?? "Searching…"} />
 
 <style>
-  .acts { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; }
-  button { all: unset; cursor: pointer; color: var(--orange-mid); font-weight: 500; }
-  button:hover { color: var(--accent); }
-  .on { color: var(--orange-lit); }
+  .acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   label { display: flex; align-items: center; gap: 8px; color: var(--orange-mid); font-size: var(--fs-s); }
 </style>

@@ -17,7 +17,8 @@ the page says "Could not read the fleet" and gives the reason. It never shows ma
 
 ## The fleet
 
-The page opens on the ship you are flying (or the first ship in the journal). Two tabs:
+The page opens on the ship you are flying (or the first ship in the journal). Choose what to
+show at the top:
 
 - **Info** — name and ID, type, where it is (**Flying now**, stored at a system with a copy
   button, "In transit to" a system, or "Stored"), **Value** and **Rebuy**, and **Engineered**

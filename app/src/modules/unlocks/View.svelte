@@ -4,12 +4,25 @@
   import { failure } from "../../lib/ui/errors";
   import { columns, loadUnlocks, type Status, type UnlockNode, type UnlockTree } from "../../lib/unlocks";
   import { specialties } from "../../lib/engineerSpecialties";
+  import Choice from "../../lib/ui/Choice.svelte";
   import Failure from "../../lib/ui/Failure.svelte";
+  import { hashParam, pageHash } from "../../lib/hashstate";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let tree = $state<UnlockTree | null>(null);
   let err = $state<string | null>(null);
-  let kind = $state<"ship" | "suit">("ship");
+  // Ship or suit engineers is a choice on the page, kept in the link: #/unlocks?kind=suit.
+  const readKind = () => (hashParam("kind") === "suit" ? "suit" : "ship");
+  let kind = $state<"ship" | "suit">(readKind());
+  $effect(() => {
+    const onHash = () => (kind = readKind());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  });
+  const KINDS = [
+    { value: "ship", label: "Ship engineers" },
+    { value: "suit", label: "Suit engineers" },
+  ];
   let hover = $state<string | null>(null);
 
   function load() {
@@ -38,18 +51,18 @@
 
 <section>
   <div class="query">
-    <div class="acts" role="tablist" aria-label="Engineers">
-      <button role="tab" aria-selected={kind === "ship"} class:on={kind === "ship"} onclick={() => (kind = "ship")}>Ship engineers</button>
-      <button role="tab" aria-selected={kind === "suit"} class:on={kind === "suit"} onclick={() => (kind = "suit")}>Suit engineers</button>
+    <div class="bar">
+      <Choice label="Engineers" options={KINDS} value={kind} onchange={(v) => (location.hash = pageHash("unlocks", { kind: v === "suit" ? "suit" : null }))} />
+      {#if !err && !tree}
+        <p class="sub">Reading the journal…</p>
+      {:else if tree}
+        <p class="sub">
+          {mine.filter((n) => n.status === "unlocked").length} of {mine.length} unlocked · orange marks are your rank · a dim mark means no access yet · dimmer cards have not been introduced
+        </p>
+      {/if}
     </div>
     {#if err}
       <Failure text={err} onaction={load} />
-    {:else if !tree}
-      <p class="sub">Reading the journal…</p>
-    {:else}
-      <p class="sub">
-        {mine.filter((n) => n.status === "unlocked").length} of {mine.length} unlocked · orange marks are your rank · a dim mark means no access yet · dimmer cards have not been introduced
-      </p>
     {/if}
   </div>
   {#if tree}
@@ -110,14 +123,11 @@
 
 <style>
   section { padding: 0 0 28px; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; border-bottom: 1px solid var(--line); }
-  .acts { display: flex; gap: 26px; }
-  .acts button { color: var(--orange-mid); font-weight: 500; }
-  .acts button:hover { color: var(--accent); }
-  .acts .on { color: var(--orange-lit); }
+  /* Ship or suit is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
-  .out { padding: 24px 4px 8px; }
+  .out { padding: var(--sp-6) 0 8px; }
   .tree { display: grid; grid-template-columns: repeat(var(--cols), minmax(16rem, 1fr)); gap: 8px 20px; align-items: start; }
   .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   /* Read-only cards on the hull (DESIGN.md Surfaces and cells), with no side border: state is
