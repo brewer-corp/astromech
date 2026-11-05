@@ -154,7 +154,7 @@
       <dt>Intent</dt>
       <dd>
         {#if result.intent && result.intent.decision !== "no_match"}
-          {result.intent.phrase}<span class="mono lo">&nbsp;· {result.intent.command}</span>
+          {result.intent.phrase}<span class="cmd lo">&nbsp;· {result.intent.command}</span>
         {:else}
           No match
         {/if}
@@ -225,15 +225,15 @@
   dt { color: var(--options-grey); }
   /* What the tester worked out is read-only: facts outside a cell, the keys outlined like a badge. */
   dd { color: var(--accent); }
-  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--accent); padding: 2px 8px; font-family: var(--mono); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .key { outline: 1px solid var(--line); outline-offset: -1px; color: var(--accent); padding: 2px 8px; }
+  .cmd { font-size: var(--fs-s); }
   .safe { color: var(--orange-mid); margin-bottom: 16px; }
   .actions { display: flex; gap: 28px; align-items: center; }
   h2 { margin: 32px 0 12px; }
   .learned { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
   .learned li { display: flex; gap: 24px; align-items: center; background: var(--surface); padding: 0 12px; min-height: var(--row); }
   .said { flex: 1; }
-  .note { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); margin-top: 12px; }
+  .note { color: var(--orange-mid); font-size: var(--fs-s); margin-top: 12px; }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>

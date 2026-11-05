@@ -38,7 +38,7 @@
   .home { --w: calc(3 * 220px + 2 * var(--sp-2)); display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-8) 0 72px; max-width: var(--w); }
   .heading { margin: 0 0 var(--sp-3); }
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, 220px); gap: var(--sp-2); }
-  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); background: var(--surface); color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; }
+  .tile { display: grid; grid-template-rows: auto auto 1fr; gap: var(--sp-1); min-height: 104px; padding: var(--sp-3); background: var(--surface); color: var(--accent); text-decoration: none; }
   .tile:hover { background: var(--row-hover); }
   .tile:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .name { font-size: var(--fs); font-weight: 500; }

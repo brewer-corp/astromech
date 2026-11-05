@@ -36,7 +36,7 @@
   .dropdown:hover { background: var(--cell-hover); }
   .dropdown.off { background: var(--cell-empty); color: var(--orange-dim); }
   .pick { position: relative; display: flex; flex: 1; min-width: 0; }
-  select { all: unset; box-sizing: border-box; display: flex; align-items: center; flex: 1; min-width: 0; height: var(--row); padding: 0 calc(var(--sp-3) + 16px + var(--sp-2)) 0 var(--sp-3); color: inherit; font-size: var(--fs); font-variant-numeric: tabular-nums; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  select { all: unset; box-sizing: border-box; display: flex; align-items: center; flex: 1; min-width: 0; height: var(--row); padding: 0 calc(var(--sp-3) + 16px + var(--sp-2)) 0 var(--sp-3); color: inherit; font-size: var(--fs); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   select:disabled { cursor: default; }
   select:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
   .chev { position: absolute; right: var(--sp-3); top: 50%; transform: translateY(-50%); pointer-events: none; }

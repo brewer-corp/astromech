@@ -72,10 +72,10 @@
   .dot { fill: var(--accent); }
   .lead.miss { stroke: var(--accent); stroke-dasharray: 4 3; }
   .dot.miss { fill: none; stroke: var(--accent); stroke-width: 1.5; }
-  .pn { fill: var(--text-hi); font: 500 13px var(--font); letter-spacing: 0.06em; }
+  .pn { fill: var(--text-hi); font: 500 13px var(--face); font-stretch: var(--face-stretch); letter-spacing: 0.06em; }
   .c { fill: var(--cell); }
   .c.e { fill: var(--cell-empty); }
   .c.miss { fill: var(--cell-empty); stroke: var(--accent); stroke-width: 1; }
-  .v { fill: var(--text); font: 400 14px var(--font); }
+  .v { fill: var(--text); font: 400 14px var(--face); font-stretch: var(--face-stretch); }
   .note { margin-left: auto; color: var(--text-lo); font-weight: 400; text-transform: none; letter-spacing: 0; }
 </style>

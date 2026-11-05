@@ -31,7 +31,7 @@
 <style>
   .sheet { position: relative; }
   img { width: 100%; height: 100%; display: block; }
-  span { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--font); }
+  span { position: absolute; display: flex; align-items: center; overflow: hidden; white-space: nowrap; font-family: var(--face); }
   .num { justify-content: center; font-size: calc(9.5px * var(--k)); font-weight: 600; color: var(--text-lo); }
   .txt { padding: 0 calc(4px * var(--k)); gap: calc(6px * var(--k)); font-size: calc(10px * var(--k)); color: var(--text); }
   .txt.dim { color: var(--text-lo); }

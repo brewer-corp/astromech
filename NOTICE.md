@@ -39,8 +39,8 @@ to follow the window's text colour. Credit EDAssets and the designers.
 These files keep that licence; they are not MIT.
 
 ## Fonts (app UI)
-Bundled from the `@fontsource` packages, all under the SIL Open Font License 1.1:
-Michroma (Vernon Adams), Saira Semi Condensed (Omnibus-Type), Share Tech Mono (Carrois Apostrophe).
+Saira (The Saira Project Authors, Omnibus-Type), the variable font from the
+`@fontsource-variable/saira` package, under the SIL Open Font License 1.1.
 No fonts or other assets from Elite Dangerous or Frontier Developments are used.
 
 ## VKB reference sheets and device data

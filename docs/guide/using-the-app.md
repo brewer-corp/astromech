@@ -22,7 +22,7 @@ click its destination for the full Route page, which [Find or plot](#find-or-plo
 | **Settings** | General, Data sharing, Diagnostics, Voice tester: [Settings](settings.md), [Data sharing](data-sharing.md), [Voice tester](voice-tester.md) |
 
 The header holds the **Find or plot** box too (below). In a window too narrow for everything on
-one line (about 1580 pixels wide, more with a long status), the area tabs move to a row of their
+one line (about 1565 pixels wide, more with a long status), the area tabs move to a row of their
 own under the name.
 
 It opens on **My controller**. At the right of the header, a short line says what astromech is

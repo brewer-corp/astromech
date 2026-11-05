@@ -94,13 +94,13 @@
       {#if here.landing_pads}
         <dt>Landing pads</dt>
         <dd>
-          <span class="mono">{here.landing_pads.large} large · {here.landing_pads.medium} medium · {here.landing_pads.small} small</span>
+          <span>{here.landing_pads.large} large · {here.landing_pads.medium} medium · {here.landing_pads.small} small</span>
           {#if here.max_pad}<span class="lo">(up to {here.max_pad.toLowerCase()})</span>{/if}
         </dd>
       {/if}
       {#if here.dist_from_star_ls !== null}
         <dt>From the star</dt>
-        <dd class="mono">{Math.round(here.dist_from_star_ls).toLocaleString()} ls</dd>
+        <dd>{Math.round(here.dist_from_star_ls).toLocaleString()} ls</dd>
       {/if}
       {#if here.services.length}
         <dt>Services</dt>
@@ -158,7 +158,7 @@
               <td class="station">{f.name}</td>
               <td>{f.station_name} <SystemChip name={f.star_system} /></td>
               <td class="num">{cr(f.price)}</td>
-              <td class="mono">{when(f.seen)}</td>
+              <td class="when">{when(f.seen)}</td>
               <td class="num">{f.distance_ly === null ? "–" : `${f.distance_ly.toFixed(1)} ly`}</td>
             </tr>
           {/each}
@@ -177,7 +177,7 @@
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 8px 0; }
   .err { color: var(--accent); }
   .lo { color: var(--orange-mid); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .when { font-size: var(--fs-s); }
   .station { font-weight: 500; }
   .head { display: flex; align-items: baseline; gap: 10px; }
   .faction { display: flex; gap: 6px; }
@@ -191,5 +191,5 @@
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
-  .num { text-align: right; font-family: var(--mono); }
+  .num { text-align: right; }
 </style>

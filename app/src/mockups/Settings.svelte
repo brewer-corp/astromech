@@ -76,6 +76,6 @@
   .bar { position: relative; flex: 1; height: 8px; background: #111; }
   .fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
   .tgt { position: absolute; left: 75%; top: -4px; bottom: -4px; width: 2px; background: var(--text-hi); }
-  .db { font-family: var(--mono); color: var(--text-lo); font-size: var(--fs-s); width: 72px; text-align: right; }
+  .db { color: var(--text-lo); font-size: var(--fs-s); width: 72px; text-align: right; }
   .note { margin-left: auto; color: var(--text-lo); font-weight: 400; text-transform: none; letter-spacing: 0; }
 </style>

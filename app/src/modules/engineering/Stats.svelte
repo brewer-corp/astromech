@@ -157,7 +157,7 @@
   /* A section heading inside the table: Orange caps. */
   .group th { text-align: left; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: var(--caps); padding: 16px 0 6px; }
   tbody:first-of-type .group th { padding-top: 4px; }
-  td { font-family: var(--mono); text-align: right; color: var(--orange-mid); white-space: nowrap; padding-left: 12px; }
+  td { text-align: right; color: var(--orange-mid); white-space: nowrap; padding-left: 12px; }
   td.changed { color: var(--orange-lit); }
   td.d { color: var(--accent); }
   td.better { color: var(--accent); }

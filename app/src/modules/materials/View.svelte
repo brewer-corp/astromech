@@ -229,12 +229,13 @@
   .cell.sel :is(.n, .q) { color: var(--on-accent); }
   .cell.sel:focus-visible { outline: 1px solid var(--on-accent); outline-offset: -3px; }
   .n { font-size: var(--fs-s); line-height: 1.25; }
-  .q { font-family: var(--mono); font-size: var(--fs-s); }
+  .q { font-size: var(--fs-s); }
+  .farm .q { text-align: right; }
   .other { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 8px; align-content: start; }
   .about { position: sticky; top: 0; align-self: start; max-height: calc(100vh - 150px); overflow-y: auto; border-left: 1px solid var(--accent); padding: 20px 8px 28px 24px; }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
-  .qty { color: var(--accent); font-family: var(--mono); }
+  .qty { color: var(--accent); }
   .lo { color: var(--orange-mid); }
   .find { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */

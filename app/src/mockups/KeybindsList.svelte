@@ -80,7 +80,7 @@
   .iss { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .item { margin-bottom: var(--gap); }
   .item .name { padding-left: 34px; }
-  .cell { height: var(--row); display: flex; align-items: center; padding: 0 12px; background: var(--cell); color: var(--text); font-family: var(--font); letter-spacing: 0.02em; }
+  .cell { height: var(--row); display: flex; align-items: center; padding: 0 12px; background: var(--cell); color: var(--text); font-family: var(--face); letter-spacing: 0.02em; }
   .cell.empty { background: var(--cell-empty); }
   .cell.bad { text-decoration: line-through; color: var(--text-lo); }
   .mark { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); padding-left: 10px; font-weight: 600; }

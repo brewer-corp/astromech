@@ -501,7 +501,7 @@
   .h { color: var(--orange-mid); font-size: var(--fs-s); }
   .r { text-align: right; }
   .slot { color: var(--orange-mid); font-size: var(--fs-s); }
-  .cost { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  .cost { color: var(--accent); font-size: var(--fs-s); }
   .picks > :global(.dropdown) { min-width: 0; }
   .triphead { display: flex; align-items: baseline; gap: 20px; }
   h4 { margin: 32px 8px 12px; }
@@ -512,7 +512,7 @@
   .mrow:hover { background: var(--row-hover); }
   .mrow.sel { outline: 1px solid var(--accent); outline-offset: -1px; }
   .mrow .mn { padding: 8px 10px; font-size: var(--fs-s); }
-  .q { font-family: var(--mono); font-size: var(--fs); }
+  .q { font-size: var(--fs); }
   .bad { color: var(--accent); }
   .ok { color: var(--accent); margin: 18px 8px 0; }
   .plain { list-style: none; margin: 0; padding: 0 8px; display: flex; flex-direction: column; gap: 10px; font-size: var(--fs-s); }
@@ -527,7 +527,7 @@
   .back { display: block; margin-bottom: 10px; color: var(--orange-mid); font-size: var(--fs-s); }
   .about h3 { margin: 0 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .about p { margin: 0 0 10px; line-height: 1.45; }
-  .qty { color: var(--accent); font-family: var(--mono); }
+  .qty { color: var(--accent); }
   .lo { color: var(--orange-mid); }
   .err { margin: 0 8px; color: var(--alarm); }
   .err::before { content: "! "; font-weight: 600; }

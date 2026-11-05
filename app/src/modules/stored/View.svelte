@@ -53,7 +53,7 @@
           <span class="mn">{m.name}</span>
           <span class:lo={!m.blueprint_name}>{m.blueprint_name ? `G${m.grade ?? "?"} ${m.blueprint_name}` : "–"}</span>
           <span class:lo={!m.system}>{#if m.system}<SystemChip name={m.system} />{:else}In transit{/if}</span>
-          <span class="r q">{cr(m.value)}</span>
+          <span class="r">{cr(m.value)}</span>
         </li>
       {:else}
         {#if fleet}<li class="none">No modules in storage.</li>{/if}
@@ -72,7 +72,6 @@
   .mn { font-weight: 500; }
   .lo { color: var(--orange-mid); }
   .r { text-align: right; }
-  .q { font-family: var(--mono); }
   .none { display: block; color: var(--prose); border: 0; }
   @media (max-width: 900px) {
     .stored li { grid-template-columns: minmax(0, 1fr) auto; }

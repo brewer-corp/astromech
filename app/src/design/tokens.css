@@ -4,12 +4,8 @@
    red for hard errors. The ember cells (--cell, --cell-hover, --cell-empty) are only for values
    the commander can change; read-only things sit on --surface or --bg. No Frontier assets;
    fonts are OFL. */
-@import "@fontsource/saira-semi-condensed/400.css";
-@import "@fontsource/saira-semi-condensed/500.css";
-@import "@fontsource/saira-semi-condensed/600.css";
-@import "@fontsource/share-tech-mono/400.css";
 /* DESIGN.md's one face: variable Saira at 87.5% width (--face, --face-stretch) with tabular
-   figures. The static cuts and Share Tech Mono above go when astromech-dzwy moves --font. */
+   figures, for everything including paths and logs. */
 @import "@fontsource-variable/saira/wdth.css";
 
 :root {
@@ -36,10 +32,8 @@
   --alarm: #f0412e; /* only hard errors (the "!" and its words). 5.1:1 */
 
   /* Type */
-  --font: "Saira Semi Condensed", "Bahnschrift", "Segoe UI", sans-serif;
   --face: "Saira Variable", "Bahnschrift", "Segoe UI", sans-serif; /* DESIGN.md's one face */
-  --face-stretch: 87.5%; /* semi condensed */
-  --mono: "Share Tech Mono", Consolas, monospace; /* retired by DESIGN.md (astromech-dzwy) */
+  --face-stretch: 87.5%; /* semi condensed; the "font" shorthand resets it, so set it after */
   --fs-s: 13px;
   --fs: 15px; /* rows: larger than the game's ~11 px at 1080p */
   --fs-l: 18px;
@@ -73,7 +67,10 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--accent); font: 400 var(--fs) var(--font); }
+/* The one face everywhere. Figures are tabular throughout (DESIGN.md, The Tabular Rule), as in
+   the DESIGN.md mockups; the type scale uses 400, 500 and 600 only, so <b> is 600. */
+html, body { margin: 0; background: var(--bg); color: var(--accent); font: 400 var(--fs) var(--face); font-stretch: var(--face-stretch); font-variant-numeric: tabular-nums; }
+b, strong { font-weight: 600; }
 input[type="checkbox"] { accent-color: var(--accent); }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 ::selection { background: var(--accent); color: var(--on-accent); }

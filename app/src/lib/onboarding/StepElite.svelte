@@ -38,11 +38,11 @@
   {#if found}
     <dl>
       <dt>Keybindings</dt>
-      <dd class:warn={!found.bindings_found}><span class="mono">{found.bindings_dir ?? "—"}</span><span>{found.bindings_found ? "Found" : "Not found"}</span></dd>
+      <dd class:warn={!found.bindings_found}><span class="path">{found.bindings_dir ?? "—"}</span><span>{found.bindings_found ? "Found" : "Not found"}</span></dd>
       <dt>Journals</dt>
-      <dd class:warn={!found.journal_found}><span class="mono">{found.journal_dir ?? "—"}</span><span>{found.journal_found ? "Found" : "Not found"}</span></dd>
+      <dd class:warn={!found.journal_found}><span class="path">{found.journal_dir ?? "—"}</span><span>{found.journal_found ? "Found" : "Not found"}</span></dd>
       <dt>Game install</dt>
-      <dd><span class="mono">{found.install ?? "Not found"}</span><span>{found.install_source ?? "Optional"}</span></dd>
+      <dd><span class="path">{found.install ?? "Not found"}</span><span>{found.install_source ?? "Optional"}</span></dd>
     </dl>
     {#if found.ok}
       <p>Found Elite. {found.install ? "" : "Without the install folder, Elite's built-in presets aren't listed; your own presets work."}</p>

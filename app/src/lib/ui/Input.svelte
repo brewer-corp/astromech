@@ -48,7 +48,7 @@
   .cell { display: flex; align-items: center; min-height: var(--row); background: var(--cell); color: var(--accent); }
   .cell:hover { background: var(--cell-hover); }
   .cell:focus-within { outline: 1px solid var(--accent); outline-offset: 2px; }
-  input, textarea { all: unset; box-sizing: border-box; flex: 1; min-width: 0; width: 100%; padding: 0 var(--sp-3); font-size: var(--fs); color: var(--accent); font-variant-numeric: tabular-nums; }
+  input, textarea { all: unset; box-sizing: border-box; flex: 1; min-width: 0; width: 100%; padding: 0 var(--sp-3); font-size: var(--fs); color: var(--accent); }
   input { height: var(--row); }
   textarea { padding: var(--sp-2) var(--sp-3); line-height: 1.45; white-space: pre-wrap; resize: vertical; }
   .multi { align-items: stretch; }

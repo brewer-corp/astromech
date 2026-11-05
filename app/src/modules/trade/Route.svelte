@@ -205,11 +205,12 @@
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
   li { display: grid; grid-template-columns: minmax(14rem, 1.5fr) minmax(12rem, 1.3fr) minmax(10rem, 1fr) auto; gap: 10px 18px; align-items: start; padding: 16px 8px; border-bottom: 1px solid var(--line); font-size: var(--fs); line-height: 1.3; }
   .place, .cargo, .facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .facts { align-items: flex-end; text-align: right; } /* a column of figures */
   .leg, .via { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; min-width: 0; }
   .st { font-size: var(--fs-l); font-weight: 500; }
   .to { color: var(--orange-mid); }
-  .q { color: var(--accent); font-family: var(--mono); }
-  .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
+  .q { color: var(--accent); }
+  .dist { color: var(--accent); font-size: var(--fs-s); }
   .meta { color: var(--orange-mid); font-size: var(--fs-s); white-space: nowrap; }
   .total { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 16px 8px 8px; padding: 14px 16px; background: var(--surface); } /* read-only summary: hull */
   .pair { display: inline-flex; align-items: baseline; gap: 8px; }
@@ -227,6 +228,7 @@
     .form-grid { grid-template-columns: minmax(0, 1fr); }
     .form-grid > :global(.kinds) { grid-column: 1; grid-row: auto; }
     li { grid-template-columns: minmax(0, 1fr); }
+    .facts { align-items: flex-start; text-align: left; }
     .meta { white-space: normal; }
   }
 </style>

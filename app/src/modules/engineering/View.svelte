@@ -237,7 +237,7 @@
   .ship { display: grid; grid-template-columns: auto minmax(12rem, 1.4fr) minmax(12rem, 1fr); gap: 18px 28px; align-items: start; padding: 18px 20px 4px; }
   .art { display: grid; place-items: center; min-width: 12rem; }
   .who h2 { margin: 0 0 4px; color: var(--text-hi); font-size: var(--fs-xl); font-weight: 500; }
-  .id { font-family: var(--mono); font-size: var(--fs-s); margin: 0 0 8px; }
+  .id { font-size: var(--fs-s); margin: 0 0 8px; }
   .type { margin: 0 0 8px; font-size: var(--fs-l); }
   .where { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 4px; margin: 0; font-size: var(--fs); color: var(--orange-mid); }
   .lo { color: var(--orange-mid); }
@@ -246,7 +246,7 @@
   .more { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; min-width: 0; padding-top: 8px; }
   .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .q { font-family: var(--mono); font-size: var(--fs-l); }
+  .q { font-size: var(--fs-l); }
   .eng { align-items: center; }
   .bar { flex: 1 1 6rem; min-width: 4rem; height: 4px; background: var(--line); align-self: center; }
   .bar i { display: block; height: 100%; background: var(--accent); }

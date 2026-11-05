@@ -169,11 +169,11 @@
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-bottom: 18px; }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
+  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; }
   th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 14px 6px 0; }
   td { padding: 5px 14px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
-  .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+  .num { text-align: right; white-space: nowrap; }
   .name { font-weight: 500; white-space: nowrap; }
   .facts { display: flex; flex-wrap: wrap; gap: 4px; }
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }

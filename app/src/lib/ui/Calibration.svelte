@@ -67,7 +67,7 @@
 
 <div class="cal">
   {#if result}
-    <p class="done">Calibrated <span class="mono">{result.device}</span>.</p>
+    <p class="done">Calibrated <span class="small">{result.device}</span>.</p>
     <dl>
       <dt>Background noise</dt><dd>{dbfs(result.noise_dbfs)}</dd>
       <dt>Your voice (loudest)</dt><dd>{dbfs(result.speech_peak_dbfs)}</dd>
@@ -80,7 +80,7 @@
       {#each ["Silence", "gear down", "deploy hardpoints", "request docking"] as label, i (label)}
         <li class:now={i === next.step} class:past={i < next.step}>
           <span>{i === 0 ? label : `“${label}”`}</span>
-          {#if levels[i]}<span class="mono">{dbfs(levels[i].peak_dbfs)}</span>{/if}
+          {#if levels[i]}<span class="small">{dbfs(levels[i].peak_dbfs)}</span>{/if}
         </li>
       {/each}
     </ol>
@@ -117,7 +117,7 @@
   dt, dd { margin: 0; padding: 0 12px; min-height: 30px; display: flex; align-items: center; }
   dt { color: var(--options-grey); }
   dd { color: var(--accent); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .small { font-size: var(--fs-s); }
   .err { color: var(--alarm); }
   b { font-weight: 600; }
   .acts { display: flex; align-items: center; gap: var(--sp-4); }

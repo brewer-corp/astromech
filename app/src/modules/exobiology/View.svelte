@@ -87,7 +87,7 @@
                       <li class:guess={!g.known}>
                         <span class="genus">{g.genus}</span>
                         {#if g.species.length}<span class="lo">{g.species.map((c) => c.species.replace(`${g.genus} `, "")).join(", ")}</span>{/if}
-                        <span class="mono">{valueRange(g.value)}</span>
+                        <span class="worth">{valueRange(g.value)}</span>
                       </li>
                     {/each}
                   </ul>
@@ -139,16 +139,16 @@
   .tiles div.go { outline: 1px solid var(--accent); }
   .tiles div.go .v { color: var(--accent); }
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
+  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
-  .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+  .num { text-align: right; white-space: nowrap; }
   .body { font-weight: 500; white-space: nowrap; }
   .genera { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
   .genera li { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
   .guess .genus { color: var(--orange-mid); font-style: italic; }
   .lo { color: var(--orange-mid); }
   .small { font-size: var(--fs-s); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .worth { font-size: var(--fs-s); }
 </style>

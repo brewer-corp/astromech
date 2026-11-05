@@ -123,7 +123,7 @@
 
   <div class="how">
     <h4 class="section">In the galaxy map</h4>
-    <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
+    <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="setting">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
     <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
   </div>
 
@@ -156,7 +156,7 @@
   .lo { color: var(--orange-mid); }
   .empty { line-height: 1.45; color: var(--prose); }
   .q { color: var(--accent); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .setting { font-size: var(--fs-s); }
   .how p { color: var(--prose); font-size: var(--fs-s); line-height: 1.45; }
   .import { display: flex; flex-direction: column; gap: 8px; }
   .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--line); color: var(--accent); font-size: var(--fs-s); }

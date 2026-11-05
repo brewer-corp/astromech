@@ -38,7 +38,7 @@
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
   .name { font-weight: 500; }
   li > :global(.badge) { margin-left: 6px; }
-  .unverified, .key { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); }
+  .unverified, .key { color: var(--orange-mid); font-size: var(--fs-s); }
   .unverified { margin-left: 6px; }
   .unsure { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); font-style: italic; }
   .how { margin: 2px 0 0; color: var(--orange-mid); font-size: var(--fs-s); line-height: 1.4; }

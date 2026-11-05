@@ -15,7 +15,7 @@
 .setup-step dd > span { min-width: 0; overflow-wrap: anywhere; }
 .setup-step dd > span + span { flex: none; white-space: nowrap; }
 .setup-step dd { padding-top: 4px; padding-bottom: 4px; }
-.setup-step .mono { font-family: var(--mono); font-size: var(--fs-s); }
+.setup-step :is(.path, .id) { font-size: var(--fs-s); }
 .setup-step .lo { color: var(--prose); }
 .setup-step dd .lo { color: var(--orange-mid); }
 .setup-step dd.value .lo { color: inherit; } /* text in a cell is at least Orange */

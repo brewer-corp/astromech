@@ -252,8 +252,8 @@ components:
 <!-- Target system (astromech-c4i0), revision 3: revised 25 Oct 2026 after Sumeet's review,
 then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
 Tokens: app/src/design/tokens.css, mapped in Token map below. The pages moved to the orange
-ramp and the caps rule with astromech-yxtz, and to cells-mean-editable with astromech-dfvp.
-Still to be brought in line: astromech-sllo (two tab rows), astromech-dzwy (one face). Mockups:
+ramp and the caps rule with astromech-yxtz, to cells-mean-editable with astromech-dfvp, and to
+the one face with astromech-dzwy. Still to be brought in line: astromech-sllo (two tab rows). Mockups:
 docs/design/design-system-*.png. -->
 
 ## Overview
@@ -431,7 +431,9 @@ being rare; once it decorates, the next real failure is missed.
 cut), from `@fontsource-variable/saira`, with Bahnschrift and Segoe UI as fallbacks. One face
 for everything, including paths and logs. *Why:* condensed and square-shouldered like the
 game's lettering without copying it; the variable file has tabular figures (the static
-Semi Condensed files do not) and replaces three files (two Saira cuts and Share Tech Mono).
+Semi Condensed files do not) and replaced three files (two Saira cuts and Share Tech Mono).
+`tokens.css` sets the face, its width and tabular figures once on the page, so every element
+has them; the `font` shorthand resets the width, so set `font-stretch` after it.
 
 ### Hierarchy
 
@@ -484,7 +486,7 @@ wide separations let grouping be seen without boxes.
 
 | Part | Height | Notes |
 |---|---|---|
-| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1580 px with the usual status and the 320 px Find or plot box, measured 5 Nov 2026; a long status or Finish setup needs up to about 1900 px) the top tabs sit on a 44 px second row under the wordmark |
+| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1565 px with the usual status, "Waiting for Elite", and the 320 px Find or plot box, remeasured 5 Nov 2026 with the one face; the longest status needs about 1720 px, and Finish setup up to about 1900 px) the top tabs sit on a 44 px second row under the wordmark |
 | Route strip | 36 px | on every page |
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |

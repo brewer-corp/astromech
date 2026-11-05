@@ -18,15 +18,6 @@ importers:
       '@fontsource-variable/saira':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/michroma':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/saira-semi-condensed':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/share-tech-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.0
         version: 6.2.4(svelte@5.57.2(@typescript-eslint/types@8.71.1))(vite@7.3.7)
@@ -337,15 +328,6 @@ packages:
 
   '@fontsource-variable/saira@5.3.0':
     resolution: {integrity: sha512-C1rm7n1OuEx4Se/SAB/5EeUuCviGFFnYTr5vxuQQm2YIOfgbQWx/P6qqhdXlVCBRm/1UzNWCtDK5jNbVmO6W2w==}
-
-  '@fontsource/michroma@5.3.0':
-    resolution: {integrity: sha512-9sbGD7ek1hGvq0TmgNPFbuI3k7qwXVdZ+zCDsTHDGRIQqfYrpYWwEYcwH2fzOtvn8uiGqzAoJ72vuFE3v/hDdg==}
-
-  '@fontsource/saira-semi-condensed@5.3.0':
-    resolution: {integrity: sha512-ODnnx0osErt7pRMY+MhxqwXOpPEKlRNW6Bb1Ci70Y37JMnISFAUZYo6ZGv/VOWc2x/IetzdmMaiiEVNPtWMi9Q==}
-
-  '@fontsource/share-tech-mono@5.3.0':
-    resolution: {integrity: sha512-hVEzVCzEid/fBfhggMyvkfDzn9ODrMihxC0EiOeQK3BuQNvdjmith2ERnoDNUkbW8zhufbKNuCgaSoT8LUNpuQ==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1692,12 +1674,6 @@ snapshots:
   '@exodus/bytes@1.16.0': {}
 
   '@fontsource-variable/saira@5.3.0': {}
-
-  '@fontsource/michroma@5.3.0': {}
-
-  '@fontsource/saira-semi-condensed@5.3.0': {}
-
-  '@fontsource/share-tech-mono@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

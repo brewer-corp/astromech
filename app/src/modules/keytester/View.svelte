@@ -18,7 +18,7 @@
         {@const rows = binds.rowsFor(p.device, p.key)}
         <div class="row" class:new={i === 0}>
           <span>{control(p.device, p.key)}{#if ctl(p.device, p.key)}<span class="lo"> · {ctl(p.device, p.key)}</span>{/if}</span>
-          <span class="mono">{p.device} {p.key}</span>
+          <span class="id">{p.device} {p.key}</span>
           <span>{rows.map((r) => r.name).join(", ") || "—"}</span>
         </div>
       {:else}
@@ -28,7 +28,7 @@
     <div>
       <div class="head"><span>Connected controllers</span></div>
       {#each binds.state?.inventory.controllers ?? [] as c (c.elite_id)}
-        <div class="dev"><span>{c.product.trim()}</span><span class="mono">{c.elite_id}</span><span class="lo">{c.buttons} buttons, {c.axes.length} axes, {c.hats} hat{c.hats === 1 ? "" : "s"}</span></div>
+        <div class="dev"><span>{c.product.trim()}</span><span class="id">{c.elite_id}</span><span class="lo">{c.buttons} buttons, {c.axes.length} axes, {c.hats} hat{c.hats === 1 ? "" : "s"}</span></div>
       {:else}
         <p class="lo">None found.</p>
       {/each}
@@ -54,7 +54,7 @@
   .row.empty > span { background: var(--accent); color: var(--on-accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
   .row.empty .lo { color: var(--on-accent); }
   .dev { display: grid; gap: 2px; padding: 8px 12px; background: var(--surface); margin-bottom: var(--gap); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .id { font-size: var(--fs-s); }
   .lo { color: var(--orange-mid); }
   p.lo { color: var(--prose); }
   @media (max-width: 1200px) {

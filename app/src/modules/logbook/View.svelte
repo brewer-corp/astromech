@@ -92,8 +92,8 @@
                 {/if}
               </td>
               <td class="num">{n(p.visits)}</td>
-              <td class="mono">{when(p.first)}</td>
-              <td class="mono">{when(p.last)}</td>
+              <td class="when">{when(p.first)}</td>
+              <td class="when">{when(p.last)}</td>
             </tr>
           {/each}
         </tbody>
@@ -110,7 +110,7 @@
       <ol class="timeline">
         {#each book.timeline as v, i (`${v.ts}:${i}`)}
           <li>
-            <span class="mono lo">{when(v.ts)}</span>
+            <span class="when lo">{when(v.ts)}</span>
             {#if v.kind === "station"}
               <span>Docked at <span class="station">{v.station_name}</span></span> <SystemChip name={v.star_system} />
             {:else}
@@ -136,8 +136,8 @@
   table { border-collapse: collapse; width: 100%; max-width: 60rem; }
   th { text-align: left; color: var(--orange-mid); font-size: var(--fs-s); font-weight: 400; padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--line); vertical-align: baseline; }
-  .num { text-align: right; font-family: var(--mono); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
+  .num { text-align: right; }
+  .when { font-size: var(--fs-s); }
   .station { font-weight: 500; }
   .lo { color: var(--orange-mid); }
   .timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }

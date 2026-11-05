@@ -338,7 +338,7 @@
   .empty { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--sp-2); min-height: var(--row); color: var(--prose); }
 
   /* DESIGN.md Lookup result row: one 44 px line per result, every row on the list's columns. */
-  .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); font-variant-numeric: tabular-nums; }
+  .list { display: grid; grid-template-columns: var(--cols); column-gap: var(--sp-3); }
   .row { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: center; height: var(--row-result); white-space: nowrap; color: var(--accent); font-size: var(--fs); }
   .row > * { min-width: 0; }
   .heads { height: 28px; border-bottom: 1px solid var(--line); color: var(--orange-mid); font-size: var(--fs-s); }

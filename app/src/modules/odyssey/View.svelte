@@ -389,7 +389,7 @@
   .inv th { text-align: left; color: var(--orange-mid); font-weight: 400; font-size: var(--fs-s); padding: 0 12px 10px 8px; }
   .inv td { padding: 14px 12px 14px 8px; border-top: 1px solid var(--line); }
   .inv tbody tr:hover { background: var(--row-hover); }
-  .q { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .q { text-align: right; }
   .inv th:not(:first-child) { text-align: right; }
   .inv tr.done td { color: var(--orange-dim); }
   .short { color: var(--accent); }

@@ -29,7 +29,7 @@
     {#if controllers.length}
       <dl>
         {#each controllers as c (c.elite_id)}
-          <dt class="mono">{c.elite_id}</dt>
+          <dt class="id">{c.elite_id}</dt>
           <dd>
             <span>{c.product.trim()}</span>
             <span class="lo">{c.buttons} buttons{mapFor(c.elite_id) ? " · stock map" : ""}</span>

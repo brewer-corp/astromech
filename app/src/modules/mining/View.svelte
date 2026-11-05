@@ -68,11 +68,11 @@
   .tiles { display: flex; flex-wrap: wrap; gap: var(--gap); margin-top: 14px; }
   .tiles div { display: flex; flex-direction: column; gap: 4px; min-width: 11rem; padding: 10px 14px; background: var(--surface); } /* read-only tiles: hull */
   .k { color: var(--orange-mid); font-size: var(--fs-s); }
-  .v { color: var(--orange-lit); font-family: var(--mono); font-size: var(--fs-l); }
+  .v { color: var(--orange-lit); font-size: var(--fs-l); }
   h3 { margin: 22px 0 8px; }
   table { border-collapse: collapse; }
   td { padding: 4px 18px 4px 0; }
-  .num { text-align: right; font-family: var(--mono); }
+  .num { text-align: right; }
   .lo { color: var(--orange-mid); }
   .note { font-size: var(--fs-s); margin-top: 14px; }
 </style>

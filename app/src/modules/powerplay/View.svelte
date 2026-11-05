@@ -145,7 +145,7 @@
   dl { display: grid; grid-template-columns: 8rem 1fr; gap: 6px 14px; margin: 0; }
   dt { color: var(--orange-mid); font-size: var(--fs-s); }
   dd { margin: 0; }
-  .q { font-family: var(--mono); color: var(--orange-lit); }
+  .q { color: var(--orange-lit); }
   .work { font-size: var(--fs-s); }
   .bar { display: inline-block; width: 8rem; height: 6px; background: var(--line); vertical-align: middle; margin-right: 8px; }
   .bar span { display: block; height: 100%; background: var(--accent); }

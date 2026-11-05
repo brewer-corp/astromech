@@ -140,7 +140,7 @@
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0 0 10px; }
   .list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content max-content 1fr; column-gap: 18px; row-gap: 3px; font-size: var(--fs-s); }
   .list li { display: contents; }
-  .q { color: var(--accent); font-family: var(--mono); text-align: right; }
+  .q { color: var(--accent); text-align: right; }
   .total { font-size: var(--fs-s); margin: 8px 0 14px; }
   .lo { color: var(--orange-mid); }
 </style>

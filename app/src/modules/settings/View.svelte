@@ -242,9 +242,9 @@
     <h3 class="section">Files</h3>
     <dl>
       <dt>Config file</dt>
-      <dd><span class="mono path">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
+      <dd><span class="path">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
       <dt>Logs</dt>
-      <dd><span class="mono path">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
+      <dd><span class="path">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
     </dl>
     {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
   {/if}
@@ -276,8 +276,7 @@
   /* A row that needs the commander: an orange "!" before its words (DESIGN.md States). */
   dd.warn > :first-child::before { content: "! "; font-weight: 600; }
   dd > span { min-width: 0; }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
-  .path { overflow-wrap: anywhere; }
+  .path { font-size: var(--fs-s); overflow-wrap: anywhere; }
   .hint { color: var(--prose); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .warn-text { color: var(--accent); }
   .warn-text::before { content: "! "; font-weight: 600; }

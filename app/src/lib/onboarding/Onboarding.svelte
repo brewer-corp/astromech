@@ -106,7 +106,7 @@
   .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--accent); font-weight: 500; font-size: var(--fs); }
   /* The step you are on: hull and Orange Lit, a place marker rather than a value (no cell). */
   .nav button.on { background: var(--surface); color: var(--orange-lit); }
-  .nav .n { font-family: var(--mono); color: var(--orange-mid); }
+  .nav .n { color: var(--orange-mid); }
   .nav button.on .n { color: inherit; }
   main { max-width: 52rem; }
   h1 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }

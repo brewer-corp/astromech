@@ -55,10 +55,10 @@
   <ol class="eddn">
     {#each entries as e, i (i)}
       <li class={e.outcome}>
-        <span class="mono">{when(e.at)}</span>
+        <span class="when">{when(e.at)}</span>
         <span>{schemaName(e.schema_ref)}</span>
         <span>{outcome[e.outcome] ?? e.outcome}</span>
-        <span class="mono detail">{e.detail}</span>
+        <span class="detail">{e.detail}</span>
       </li>
     {/each}
   </ol>
@@ -76,7 +76,7 @@
     <dt>Kill switch</dt><dd>{status ? (status.killed ? "On" : "Off") : "—"}</dd>
     <dt>Setup</dt><dd>{status ? (status.setup_needed?.length ? status.setup_needed.join(", ") : "Done") : "—"}</dd>
     {#if status?.config_note}<dt>Config</dt><dd>{status.config_note}</dd>{/if}
-    <dt>Process</dt><dd class="mono">{status ? `pid ${status.pid}` : "—"}</dd>
+    <dt>Process</dt><dd>{status ? `pid ${status.pid}` : "—"}</dd>
   </dl>
   <div class="actions">
     <Button kind="primary" onclick={save} disabled={!status}>Save diagnostics</Button>
@@ -114,7 +114,6 @@
   dt { color: var(--options-grey); }
   /* Read-only facts, outside a cell (DESIGN.md Settings row). */
   dd { color: var(--accent); }
-  .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .actions { display: flex; gap: 16px; align-items: center; }
   /* A warning: an orange "!" and plain words, never a filled block (DESIGN.md States). */
   .crash { margin: 0 0 20px; }
@@ -124,10 +123,11 @@
   .eddn { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
   .eddn li { display: grid; grid-template-columns: 11rem 12rem 7rem 1fr; align-items: center; min-height: var(--row); background: var(--surface); } /* read-only log rows: hull */
   .eddn li > span { padding: 0 12px; }
+  .eddn :is(.when, .detail) { font-size: var(--fs-s); }
   .eddn .detail { color: var(--orange-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   /* A send that went nowhere steps down a level; its outcome word says why. */
   .eddn li:is(.rejected, .gave_up, .discarded, .dropped) { color: var(--orange-mid); }
-  .note { color: var(--orange-mid); font-family: var(--mono); font-size: var(--fs-s); }
+  .note { color: var(--orange-mid); font-size: var(--fs-s); }
   .note.err { color: var(--alarm); }
   .note.err::before { content: "! "; font-weight: 600; }
 </style>
