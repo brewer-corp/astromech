@@ -2903,9 +2903,12 @@ mod tests {
         touch(&j1, 10);
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j1);
-        std::fs::write(d.path().join("Market.json"), market_file(&ts(0), 7)).unwrap();
-        append(&j2, &docked(&ts(0)));
-        append(&j2, &market_event(&ts(0), 7));
+        // One stamp, as the game writes it: a file stamped a second before its event is stale
+        // (astromech-aiwv: two `ts(0)` reads straddled a second on a slow runner).
+        let now = ts(0);
+        std::fs::write(d.path().join("Market.json"), market_file(&now, 7)).unwrap();
+        append(&j2, &docked(&now));
+        append(&j2, &market_event(&now, 7));
         touch(&j2, 20);
         t.on_journal_activity();
         assert_eq!(t.tail.as_ref().unwrap().path, j2);
