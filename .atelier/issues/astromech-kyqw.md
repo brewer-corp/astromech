@@ -33,9 +33,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Validate the galaxy rework on the Linux build"
-updated_at: "2026-11-05T06:19:46.182255093+00:00"
+updated_at: "2026-11-05T15:39:07.424764795+00:00"
 ---
 
 ## Goal
