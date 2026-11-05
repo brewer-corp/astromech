@@ -13,14 +13,11 @@ relationships:
   - kind: "issue"
     id: "astromech-nxz9"
     type: "blocked_by"
-  - kind: "issue"
-    id: "astromech-sllo"
-    type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Move the Trade and Materials finders into Places"
-updated_at: "2026-11-05T06:19:45.033104685+00:00"
+updated_at: "2026-11-05T08:47:45.129072779+00:00"
 ---
 
 ## Goal
@@ -42,5 +39,9 @@ Move the place-finding lookups that live on other pages today into Places as fin
 
 ## Context
 
-- Builds on astromech-nxz9; astromech-sllo folds Trade's mode tabs, so this starts after it.
+- Builds on astromech-nxz9. astromech-sllo (Two Tab Rows) starts after this and folds any third tab level Trade still has once Sell, Buy and Sell my cargo have moved.
 - DESIGN.md: Places home, Side panel; mockup `#/mockup/ds-sell`.
+
+## Notes
+
+- 2026-11-05 [note] 2026-11-05 (orchestrator): no longer blocked by astromech-sllo (sllo now waits for this). Where moving the Trade modes leaves Trade with a third tab level, leave it for sllo rather than folding it here.
