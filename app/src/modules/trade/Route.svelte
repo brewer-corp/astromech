@@ -3,6 +3,9 @@
   // best cargo back, for the hold, credits, pad and hop distance. The numbers start from the
   // current ship and the journal and can be changed; the filters are remembered as
   // `trade.route`. Spansh works the route out as a job, so it runs only on "Find route".
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { changeFilters, openFilters, type FilterStore } from "../../lib/filterstate";
   import { ago, jumps } from "../../lib/galaxy";
   import { arrivalLabel, DEFAULT_FILTERS, loadFilters, padLabel, saveFilters, type Filters, type Origin, type Pad } from "../../lib/search";
@@ -100,25 +103,26 @@
   <div class="query">
     <div class="form-grid">
       <OriginInput {origin} onchange={(o) => (origin = o)} />
-      <div class="kinds" role="group" aria-label="Route kind">
-        <button type="button" class:on={kind === "single"} aria-pressed={kind === "single"} onclick={() => (kind = "single")}>Single hop</button>
-        <button type="button" class:on={kind === "loop"} aria-pressed={kind === "loop"} onclick={() => (kind = "loop")}>Loop</button>
-      </div>
+      <Choice
+        class="kinds"
+        label="Route kind"
+        value={kind}
+        options={[{ value: "single", label: "Single hop" }, { value: "loop", label: "Loop" }]}
+        onchange={(v) => (kind = v)}
+      />
       <div class="pick">
         <span class="lbl">Station</span>
-        <div class="box">
-          <input aria-label="Start station" placeholder={origin == null && docked ? docked : "Nearest the star"} bind:value={station} />
-        </div>
+        <Input class="box" aria-label="Start station" placeholder={origin == null && docked ? docked : "Nearest the star"} bind:value={station} />
       </div>
       <div class="fields">
-      <label><span>Cargo</span><input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))} /><em>t</em></label>
-      <label><span>Credits</span><input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))} /><em>cr</em></label>
-      <label><span>Max hop</span><input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))} /><em>ly</em></label>
+        <label><span>Cargo</span><Input aria-label="Cargo capacity" type="number" min="1" value={capacity ?? ""} oninput={(e) => (capacity = num(e.currentTarget.value))}>{#snippet end()}t{/snippet}</Input></label>
+        <label><span>Credits</span><Input aria-label="Credits" type="number" min="1" value={cash ?? ""} oninput={(e) => (cash = num(e.currentTarget.value))}>{#snippet end()}cr{/snippet}</Input></label>
+        <label><span>Max hop</span><Input aria-label="Max hop distance" type="number" min="1" step="0.1" value={hop ?? ""} oninput={(e) => (hop = num(e.currentTarget.value))}>{#snippet end()}ly{/snippet}</Input></label>
       </div>
     </div>
     <div class="tools">
       {#if filters}<SearchFilters {filters} {shipPad} offers={["pad", "age", "arrival", "carriers"]} hints={{ age: DEFAULT_MAX_AGE_DAYS }} onchange={(f) => void changeFilter(f)} />{/if}
-      <button type="button" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</button>
+      <Button kind="primary" class="go" disabled={!ready || busy} onclick={() => void find()}>{busy ? "Finding…" : "Find route"}</Button>
     </div>
     {#if defaultsErr}<p class="lo">{defaultsErr}</p>{/if}
     {#if filterErr}<p class="lo">{filterErr}</p>{/if}
@@ -181,30 +185,19 @@
 
 <style>
   .route { display: flex; flex-direction: column; min-width: 0; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
   .query { display: flex; flex-direction: column; gap: 12px; padding: 12px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); }
   .query :global(.origin) { margin: 0; min-width: 0; grid-column: 1; }
   .form-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px 18px; align-items: center; }
-  .kinds { display: flex; gap: 16px; grid-column: 2; grid-row: 1; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .kinds button { color: var(--text-lo); }
-  .kinds button:hover { color: var(--text); }
-  .kinds .on { color: var(--accent); }
+  .form-grid > :global(.kinds) { grid-column: 2; grid-row: 1; }
   .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); grid-column: 1; min-width: 0; }
   .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; font-size: var(--fs-s); }
-  .box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
-  .box input { all: unset; flex: 1; min-width: 0; width: 100%; height: 32px; padding: 0 10px; color: var(--text-hi); }
-  .box input::placeholder { color: var(--text-lo); }
+  .pick :global(.box) { flex: 1; }
   .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 16px; grid-column: 1; min-width: 0; }
-  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
+  label { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); align-items: center; gap: 8px; font-size: var(--fs-s); min-width: 0; }
   label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); }
-  label em { font-style: normal; color: var(--text-lo); min-width: 1.4em; }
-  label input { all: unset; min-width: 0; height: 26px; padding: 0 8px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
-  label input::placeholder { color: var(--text-lo); }
   .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
   .tools :global(.filters) { flex: 1 1 auto; }
-  .go { margin-left: auto; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; }
-  .go:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
-  .go:not(:disabled):hover { color: var(--text-hi); }
+  .tools :global(.go) { margin-left: auto; }
   .out { padding: 24px 8px 28px; }
   h4 { margin: 0 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
   ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
@@ -230,7 +223,7 @@
   }
   @media (max-width: 900px) {
     .form-grid { grid-template-columns: minmax(0, 1fr); }
-    .kinds { grid-column: 1; grid-row: auto; }
+    .form-grid > :global(.kinds) { grid-column: 1; grid-row: auto; }
     li { grid-template-columns: minmax(0, 1fr); }
     .meta { white-space: normal; }
   }

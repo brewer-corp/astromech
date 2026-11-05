@@ -9,6 +9,7 @@
   import { followedNote, followRoute } from "../route";
   import { arrivalLabel, DEFAULT_FILTERS, loadFilters, saveFilters, stateLabel, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
   import Allegiance from "./Allegiance.svelte";
+  import IconButton from "./IconButton.svelte";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
   import StationKind from "./StationKind.svelte";
@@ -167,7 +168,7 @@
               {#if r.updated_at}<span class="meta">{ago(r.updated_at)}</span>{/if}
               {#if r.detail}<span class="extra">{r.detail}</span>{/if}
             </span>
-            <button type="button" class="go" aria-label={`Go to ${r.system}`} title="Follow it: the system goes on the clipboard for the galaxy map" onclick={() => void go(r)}>Go</button>
+            <IconButton class="go" icon="destination" label={`Go to ${r.system}`} tip={`Go to ${r.system}: it replaces the route and goes on the clipboard for the galaxy map`} onclick={() => void go(r)} />
           </li>
         {:else}
           <li class="none">None found.</li>
@@ -200,8 +201,8 @@
   .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs); white-space: nowrap; }
   .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
   .extra { color: var(--text-lo); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; }
-  .go { all: unset; cursor: pointer; height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); justify-self: end; }
-  .go:hover, .go:focus-visible { color: var(--text-hi); }
+  li :global(.go) { justify-self: end; }
+  li:hover :global(.go) { color: var(--orange-lit); }
   .lo { color: var(--text-lo); }
   .small { font-size: var(--fs-s); margin-top: 14px; }
   p { margin: 0 0 8px; }

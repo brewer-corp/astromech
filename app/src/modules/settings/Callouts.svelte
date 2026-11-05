@@ -2,6 +2,9 @@
   // Each callout's switch and cooldown, written to [callouts.<id>] in astromech.toml by the core.
   // A change applies from the next session. The cooldown is how long a callout stays quiet after
   // it speaks, so a burst of the same event gives one line.
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { changeCallout, loadCallouts, parseCooldown, type CalloutSetting } from "../../lib/callouts";
   import { announcer } from "../../lib/ui/announce";
 
@@ -50,11 +53,17 @@
   {#each list as c (c.id)}
     <dt>{c.title}</dt>
     <dd>
-      <button class:on={c.enabled} aria-pressed={c.enabled} aria-label={`${c.title} on or off`} onclick={() => change(c, { enabled: !c.enabled })}>
-        {c.enabled ? "On" : "Off"}
-      </button>
+      <Choice
+        label={`${c.title} on or off`}
+        value={c.enabled ? "on" : "off"}
+        options={[{ value: "on", label: "On" }, { value: "off", label: "Off" }]}
+        onchange={(v) => {
+          if ((v === "on") !== c.enabled) void change(c, { enabled: v === "on" });
+        }}
+      />
       <label>
-        <input
+        <Input
+          class="num"
           type="text"
           inputmode="decimal"
           aria-label={`${c.title} cooldown, seconds`}
@@ -64,7 +73,7 @@
         <span class="lo">s quiet after it speaks</span>
       </label>
       {#if c.cooldown_s !== c.default_cooldown_s}
-        <button onclick={() => change(c, { cooldown_s: null })}>Reset to {c.default_cooldown_s} s</button>
+        <Button onclick={() => change(c, { cooldown_s: null })}>Reset to {c.default_cooldown_s} s</Button>
       {/if}
     </dd>
   {/each}
@@ -76,15 +85,12 @@
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
-  label { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-  input { width: 4rem; background: var(--bg); color: var(--text-hi); border: 1px solid var(--accent-dim); padding: 4px 6px; font: inherit; font-family: var(--mono); }
+  /* The switch and the cooldown are controls of their own, so the row has no cell around them. */
+  dd { padding: 0; color: var(--text); gap: var(--sp-3); }
+  label { display: flex; align-items: center; gap: 8px; }
+  label > :global(.num) { width: 4.5rem; }
   .lo { color: var(--text-lo); font-size: var(--fs-s); }
   .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .hint:empty { margin: 0; }
   .warn-text { color: var(--accent); }
-  button { all: unset; cursor: pointer; flex: none; color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); min-width: 2rem; }
-  button.on { color: var(--accent); }
-  button:hover, button:focus-visible { color: var(--text-hi); }
-  button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 </style>

@@ -3,6 +3,7 @@
   // best price first, with demand or stock, pad, arrival distance and data age; where to sell
   // the cargo in the hold, as a whole load and per commodity; and a single-hop or loop trade
   // route from here. Each mode remembers its own filters, which voice questions use too.
+  import Choice from "../../lib/ui/Choice.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import { ago, jumps } from "../../lib/galaxy";
@@ -95,10 +96,13 @@
             <button type="button" role="tab" aria-selected={false} onclick={() => (mode = "route")}>Route</button>
           </div>
           {#if mode === "sell" || mode === "buy"}
-            <span class="scope" role="group" aria-label="Search range">
-              <button type="button" class:on={!anywhere} aria-pressed={!anywhere} onclick={() => (anywhere = false)}>Near</button>
-              <button type="button" class:on={anywhere} aria-pressed={anywhere} onclick={() => (anywhere = true)}>Anywhere</button>
-            </span>
+            <Choice
+              class="scope"
+              label="Search range"
+              value={anywhere ? "anywhere" : "near"}
+              options={[{ value: "near", label: "Near" }, { value: "anywhere", label: "Anywhere" }]}
+              onchange={(v) => (anywhere = v === "anywhere")}
+            />
           {/if}
         </div>
         <p class="sub">{sub}</p>
@@ -171,7 +175,7 @@
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
-  .scope { display: flex; gap: 16px; margin-left: auto; font-size: var(--fs-s); }
+  .acts :global(.scope) { margin-left: auto; text-transform: none; letter-spacing: normal; }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
   .hold { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 18px; }
   .pair { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
@@ -188,6 +192,6 @@
   .facts { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   @media (max-width: 900px) {
     .each li { grid-template-columns: minmax(0, 1fr); }
-    .scope { margin-left: 0; }
+    .acts :global(.scope) { margin-left: 0; }
   }
 </style>

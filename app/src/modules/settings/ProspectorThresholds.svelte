@@ -1,6 +1,8 @@
 <script lang="ts">
   // Per-ore prospector thresholds: a rock with this much of the ore or more is called out.
   // Empty turns the ore off (a motherlode is always called out).
+  import Button from "../../lib/ui/Button.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { loadThresholds, parseThreshold, setThreshold, type OreThreshold } from "../../lib/prospector";
   import { announcer } from "../../lib/ui/announce";
 
@@ -38,18 +40,19 @@
     <dt>{o.name}</dt>
     <dd>
       <label>
-        <input
+        <Input
+          class="num"
           type="text"
           inputmode="decimal"
           aria-label={`${o.name} threshold, percent`}
           value={o.threshold ?? ""}
-          placeholder="off"
+          placeholder="Off"
           onchange={(e) => change(o, e.currentTarget.value, e.currentTarget)}
         />
         <span class="lo">% or more</span>
       </label>
       {#if o.threshold !== o.default}
-        <button onclick={() => change(o, "reset")}>Reset to {o.default ?? "off"}{o.default !== null ? "%" : ""}</button>
+        <Button onclick={() => change(o, "reset")}>Reset to {o.default ?? "off"}{o.default !== null ? "%" : ""}</Button>
       {/if}
     </dd>
   {/each}
@@ -61,14 +64,12 @@
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--text-lo); }
-  dd { background: var(--cell-opt); color: var(--text); gap: 24px; justify-content: space-between; }
+  /* The threshold is a control of its own, so the row has no cell around it. */
+  dd { padding: 0; color: var(--text); gap: var(--sp-3); }
   label { display: flex; align-items: center; gap: 8px; }
-  input { width: 4rem; background: var(--bg); color: var(--text-hi); border: 1px solid var(--accent-dim); padding: 4px 6px; font: inherit; font-family: var(--mono); }
+  label > :global(.num) { width: 4.5rem; }
   .lo { color: var(--text-lo); font-size: var(--fs-s); }
   .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .hint:empty { margin: 0; }
   .warn-text { color: var(--accent); }
-  button { all: unset; cursor: pointer; flex: none; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:hover, button:focus-visible { color: var(--text-hi); }
-  button:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 </style>

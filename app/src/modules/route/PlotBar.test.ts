@@ -24,13 +24,13 @@ describe("Top bar → Plot to a system", () => {
     resetFakeCore();
     render(PlotBar);
     await fireEvent.input(screen.getByLabelText("Plot to a system"), { target: { value: "Col" } });
-    await fireEvent.click(await screen.findByRole("button", { name: "Colonia" }));
+    await fireEvent.click(await screen.findByRole("option", { name: "Colonia" }));
     expect(screen.getByRole("dialog", { name: "Plot to Colonia" })).toBeTruthy();
     expect(screen.queryByText(/^From/), "routes always start where you are").toBeNull();
     // Enter takes the highlighted suggestion, not a partial name.
     await fireEvent.keyDown(screen.getByLabelText("Plot to a system"), { key: "Escape" });
     await fireEvent.input(screen.getByLabelText("Plot to a system"), { target: { value: "Shin" } });
-    await screen.findByRole("button", { name: "Shinrarta Dezhra" });
+    await screen.findByRole("option", { name: "Shinrarta Dezhra" });
     await fireEvent.keyDown(screen.getByLabelText("Plot to a system"), { key: "Enter" });
     expect(screen.getByRole("dialog", { name: "Plot to Shinrarta Dezhra" })).toBeTruthy();
     // Escape closes the panel.

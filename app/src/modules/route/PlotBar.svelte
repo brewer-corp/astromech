@@ -5,6 +5,9 @@
   // a click outside closes the panel; the route itself is on the Route page and the Galaxy rail.
   import { systemNames } from "../../lib/search";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
+  import IconButton from "../../lib/ui/IconButton.svelte";
+  import Input from "../../lib/ui/Input.svelte";
+  import Suggestions from "../../lib/ui/Suggestions.svelte";
   import Plot from "./Plot.svelte";
 
   let text = $state("");
@@ -107,30 +110,25 @@
 </script>
 
 <div class="plotbar" bind:this={box}>
-  <div class="field">
-    <input
-      value={text}
-      placeholder="Plot to a system"
-      spellcheck="false"
-      autocomplete="off"
-      aria-label="Plot to a system"
-      oninput={(e) => typed(e.currentTarget.value)}
-      onkeydown={key}
-      onfocus={() => (open = hits.length > 0)}
-      onblur={() => setTimeout(() => (open = false), 150)}
-    />
-    {#if text}
-      <button class="clear" title="Clear" aria-label="Clear the search" onclick={() => { typed(""); close(); }}>×</button>
-    {/if}
-  </div>
+  <Input
+    value={text}
+    placeholder="Plot to a system"
+    spellcheck="false"
+    autocomplete="off"
+    aria-label="Plot to a system"
+    oninput={(e) => typed(e.currentTarget.value)}
+    onkeydown={key}
+    onfocus={() => (open = hits.length > 0)}
+    onblur={() => setTimeout(() => (open = false), 150)}
+  >
+    {#snippet end()}
+      {#if text}<IconButton icon="clear" label="Clear the search" tip="Clear" onclick={() => { typed(""); close(); }} />{/if}
+    {/snippet}
+  </Input>
   {#if open}
-    <ul class="hits" role="listbox">
-      {#each hits as h, i (h)}
-        <li role="option" aria-selected={i === sel}>
-          <button class:on={i === sel} onmousedown={(e) => e.preventDefault()} onclick={() => pick(h)}>{h}</button>
-        </li>
-      {/each}
-    </ul>
+    <Suggestions items={hits} {sel} key={(h) => h} onpick={pick}>
+      {#snippet item(h)}{h}{/snippet}
+    </Suggestions>
   {:else if picked}
     <div class="panel" role="dialog" aria-label={`Plot to ${picked}`}>
       <Plot bind:this={plot} to={picked} />
@@ -140,17 +138,8 @@
 </div>
 
 <style>
-  .plotbar { position: relative; flex: 0 1 22rem; min-width: 12rem; font-size: var(--fs); }
-  .field { display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
-  input { all: unset; flex: 1; min-width: 0; height: 32px; padding: 0 10px; color: var(--text-hi); text-transform: none; letter-spacing: normal; }
-  input::placeholder { color: var(--text-lo); }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .clear { padding: 0 10px; color: var(--text-lo); }
-  .clear:hover { color: var(--accent); }
-  .hits, .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: 2px 0 0; background: var(--bg-list); border: 1px solid var(--accent-dim); }
-  .hits { left: 0; padding: 0; list-style: none; }
-  .hits button { display: block; width: 100%; padding: 6px 10px; color: var(--text); }
-  .hits button.on, .hits button:hover { background: var(--cell); color: var(--text-hi); }
-  .panel { width: min(28rem, calc(100vw - 32px)); padding: 16px; background: var(--bg); border-top: 2px solid var(--accent); box-shadow: 0 12px 40px rgb(0 0 0 / 0.6); max-height: calc(100vh - 120px); overflow: auto; }
+  /* DESIGN.md's header box is 320 px; it gives way first when the header is short of room. */
+  .plotbar { position: relative; flex: 0 1 320px; min-width: 12rem; font-size: var(--fs); }
+  .panel { position: absolute; z-index: 20; top: 100%; right: 0; margin: 2px 0 0; border: 1px solid var(--accent-dim); width: min(28rem, calc(100vw - 32px)); padding: 16px; background: var(--bg); border-top: 2px solid var(--accent); box-shadow: 0 12px 40px rgb(0 0 0 / 0.6); max-height: calc(100vh - 120px); overflow: auto; }
   .links { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--accent-dim); }
 </style>

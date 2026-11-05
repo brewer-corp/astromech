@@ -1,8 +1,15 @@
 <script lang="ts">
-  // One-stroke HUD marks: copy, route, and station kinds. 16×16, currentColor, no fill.
+  // DESIGN.md's icon set (Shapes → Icons): one-stroke marks drawn for astromech on a 16 px grid,
+  // 1 px stroke, currentColor, no fill, square ends. Copy, route actions, the dropdown chevron,
+  // station kinds, the ship and the factions.
   export type GlyphName =
     | "copy"
     | "copied"
+    | "add-stop"
+    | "destination"
+    | "external"
+    | "chevron"
+    | "clear"
     | "settlement"
     | "planetary"
     | "outpost"
@@ -27,6 +34,20 @@
     <rect x="5.5" y="2.5" width="7" height="9" />
     <path d="M3.5 5.5h6v8h-6z" />
     <path d="M5 10.2l1.4 1.4 2.6-3" />
+  {:else if name === "add-stop"}
+    <circle cx="4.5" cy="3.5" r="1.5" />
+    <circle cx="4.5" cy="12.5" r="1.5" />
+    <path d="M4.5 5v6M10.5 8h5M13 5.5v5" />
+  {:else if name === "destination"}
+    <path d="M3.5 15V1.5" />
+    <path d="M3.5 2h9l-2.5 3 2.5 3h-9" />
+  {:else if name === "external"}
+    <path d="M7 3.5H2.5v10h10V9" />
+    <path d="M9.5 2.5h4v4M13.5 2.5L7.5 8.5" />
+  {:else if name === "chevron"}
+    <path d="M4 6l4 4 4-4" />
+  {:else if name === "clear"}
+    <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" />
   {:else if name === "settlement"}
     <rect x="1.5" y="8.5" width="4" height="5" />
     <rect x="6.5" y="4.5" width="3" height="9" />
@@ -65,5 +86,5 @@
 </svg>
 
 <style>
-  .glyph { display: block; fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linejoin: miter; flex: none; }
+  .glyph { display: block; fill: none; stroke: currentColor; stroke-width: 1; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
 </style>

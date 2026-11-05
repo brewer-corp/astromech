@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/svelte";
+import { render, screen, fireEvent, within } from "@testing-library/svelte";
 import Callouts from "./Callouts.svelte";
 import { fakeCall, resetFakeCore } from "../../lib/fakecore";
 
@@ -12,11 +12,12 @@ describe("Settings → Callouts", () => {
     resetFakeCore();
     render(Callouts);
     expect(await screen.findByText("Scans")).toBeTruthy();
-    const toggle = (await screen.findByLabelText("Scans on or off")) as HTMLButtonElement;
-    expect(toggle.getAttribute("aria-pressed")).toBe("true");
-    expect((await screen.findByLabelText("Powerplay arrival on or off")).getAttribute("aria-pressed")).toBe("false");
+    const scans = await screen.findByRole("group", { name: "Scans on or off" });
+    expect(within(scans).getByRole("button", { name: "On" }).getAttribute("aria-pressed")).toBe("true");
+    const powerplay = await screen.findByRole("group", { name: "Powerplay arrival on or off" });
+    expect(within(powerplay).getByRole("button", { name: "On" }).getAttribute("aria-pressed")).toBe("false");
 
-    await fireEvent.click(toggle);
+    await fireEvent.click(within(scans).getByRole("button", { name: "Off" }));
     expect((await screen.findByText(/applies the next time Elite starts/)).getAttribute("aria-live"), "Saved is announced").toBe("polite");
     expect(find(await fakeCall("callouts"), "scan").enabled).toBe(false);
 

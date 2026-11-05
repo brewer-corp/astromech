@@ -4,7 +4,10 @@
   // are picked in setup (onboarding); calibration's "Run again" opens just that step.
   import { coreCall, coreStatus, openUrl, type CoreStatus, type CoreCmd, type MicList, type VoiceSettings, type Colour } from "../../lib/core";
   import { control } from "../../lib/format";
+  import Button from "../../lib/ui/Button.svelte";
   import Calibration from "../../lib/ui/Calibration.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import ProspectorThresholds from "./ProspectorThresholds.svelte";
   import Callouts from "./Callouts.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -112,14 +115,20 @@
     <h3>Startup</h3>
     <dl>
       <dt>Start with Windows</dt>
-      <dd>
-        <span>{status.autostart ? "On" : "Off"}</span>
-        <button onclick={() => run(status?.autostart ? "autostart_off" : "autostart_on")}>{status.autostart ? "Turn off" : "Turn on"}</button>
+      <dd class="bare">
+        <Choice
+          label="Start with Windows"
+          value={status.autostart ? "on" : "off"}
+          options={[{ value: "on", label: "On" }, { value: "off", label: "Off" }]}
+          onchange={(v) => {
+            if ((v === "on") !== status?.autostart) void run(v === "on" ? "autostart_on" : "autostart_off");
+          }}
+        />
       </dd>
       <dt>Setup</dt>
       <dd>
         <span>{status.onboarded === false ? "Not finished" : "Done"}</span>
-        <a href="#/setup">Run again</a>
+        <Button onclick={() => (location.hash = "#/setup")}>Run again</Button>
       </dd>
     </dl>
     <p class="hint">Starts quietly in the tray and waits for Elite, so voice is ready when you launch the game.</p>
@@ -129,24 +138,24 @@
       <dt>Push-to-talk</dt>
       <dd class:warn={!status.ptt}>
         <span>{button(status.ptt) ?? "Not set"}</span>
-        <a href="#/setup/buttons">Change</a>
+        <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
       <dt>Kill switch</dt>
       <dd>
         <span>{button(status.kill_switch) ?? "Not set"}</span>
-        <a href="#/setup/buttons">Change</a>
+        <Button onclick={() => (location.hash = "#/setup/buttons")}>Change</Button>
       </dd>
       <dt>Speech models</dt>
       <dd class:warn={status.models_missing && !status.models_progress}>
         <span>{status.models_progress ?? (status.models_missing ? "Not downloaded (about 800 MB)" : "Installed")}</span>
         {#if status.models_missing && !status.models_progress}
-          <button onclick={() => run("download_models")}>Download</button>
+          <Button onclick={() => run("download_models")}>Download</Button>
         {/if}
       </dd>
       <dt>Voice</dt>
       <dd>
         <span>{status.voice_paused ? "Paused" : "Listening while Elite runs"}</span>
-        <button onclick={() => run(status?.voice_paused ? "resume_voice" : "pause_voice")}>{status.voice_paused ? "Resume" : "Pause"}</button>
+        <Button onclick={() => run(status?.voice_paused ? "resume_voice" : "pause_voice")}>{status.voice_paused ? "Resume" : "Pause"}</Button>
       </dd>
     </dl>
     {#if !status.ptt}
@@ -157,8 +166,8 @@
       <h3>Voice responses</h3>
       <dl>
         <dt>Speaker</dt>
-        <dd>
-          <select aria-label="Speaker" value={voice.speaker} onchange={(e) => setVoice({ speaker: e.currentTarget.value })}>
+        <dd class="bare">
+          <Dropdown class="grow" aria-label="Speaker" value={voice.speaker} onchange={(e) => setVoice({ speaker: e.currentTarget.value })}>
             {#each ["British", "American"] as accent (accent)}
               <optgroup label={accent}>
                 {#each voice.voices.filter((v) => v.accent === accent) as v (v.name)}
@@ -166,24 +175,20 @@
                 {/each}
               </optgroup>
             {/each}
-          </select>
-          <button onclick={preview}>Preview</button>
+            {#snippet end()}<Button onclick={preview}>Preview</Button>{/snippet}
+          </Dropdown>
         </dd>
         <dt>Colour</dt>
-        <dd>
-          <span class="choices">
-            {#each COLOURS as c (c.id)}
-              <button class:on={voice.colour === c.id} aria-pressed={voice.colour === c.id} onclick={() => setVoice({ colour: c.id })}>{c.label}</button>
-            {/each}
-          </span>
+        <dd class="bare">
+          <Choice label="Colour" value={voice.colour} options={COLOURS.map((c) => ({ value: c.id, label: c.label }))} onchange={(v) => setVoice({ colour: v })} />
         </dd>
         <dt>Speed</dt>
-        <dd>
-          <select aria-label="Speed" value={shownSpeed} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
+        <dd class="bare">
+          <Dropdown class="grow" aria-label="Speed" value={shownSpeed} onchange={(e) => setVoice({ speed: Number(e.currentTarget.value) })}>
             {#each speeds as x (x)}
               <option value={x.toFixed(1)}>{x === 1 ? "Normal (the colour's own pace)" : `${x.toFixed(1)}×`}</option>
             {/each}
-          </select>
+          </Dropdown>
         </dd>
       </dl>
       <p class="hint">{voiceNote || "Cockpit sounds like the ship's PA, close to Elite's own voice. Changes apply to the next reply."}</p>
@@ -194,12 +199,12 @@
       <dt>Device</dt>
       <dd class:warn={!!mics && !mics.names.length}>
         <span>{mics ? (mics.setting ? (mics.chosen ?? `${mics.setting} (not connected)`) : `Windows default${mics.default ? ` · ${mics.default}` : ""}`) : "—"}</span>
-        <a href="#/setup/mic">Change</a>
+        <Button onclick={() => (location.hash = "#/setup/mic")}>Change</Button>
       </dd>
       <dt>Calibration</dt>
       <dd class:warn={gate == null}>
         <span>{gate != null ? `Ignores clips quieter than ${gate.toFixed(0)} dBFS` : "Not calibrated"}</span>
-        <button onclick={() => (calibrating = true)}>{gate != null ? "Run again" : "Calibrate"}</button>
+        <Button onclick={() => (calibrating = true)}>{gate != null ? "Run again" : "Calibrate"}</Button>
       </dd>
     </dl>
     <p class="hint">Calibration measures the room and your voice on this mic, so quiet speech isn't dropped and background noise isn't heard as words.</p>
@@ -216,15 +221,15 @@
       <dt>Version</dt>
       <dd>
         <span>{status.version}</span>
-        <button onclick={() => openUrl("https://github.com/brewer-corp/astromech/releases")}>Release notes</button>
+        <Button onclick={() => openUrl("https://github.com/brewer-corp/astromech/releases")}>Release notes</Button>
       </dd>
       <dt>Updates</dt>
       <dd class:warn={u?.status === "error"}>
         <span>{updateLine()}</span>
         {#if u?.ready && u.status !== "applying"}
-          <button onclick={() => run("install_update", "Installing… astromech will close and reopen.")}>Install and restart</button>
+          <Button onclick={() => run("install_update", "Installing… astromech will close and reopen.")}>Install and restart</Button>
         {:else}
-          <button disabled={busy} onclick={() => run("check_update")}>Check now</button>
+          <Button disabled={busy} onclick={() => run("check_update")}>Check now</Button>
         {/if}
       </dd>
     </dl>
@@ -237,9 +242,9 @@
     <h3>Files</h3>
     <dl>
       <dt>Config file</dt>
-      <dd><span class="mono path">{status.config}</span><button onclick={() => run("open_config")}>Open</button></dd>
+      <dd><span class="mono path">{status.config}</span><Button onclick={() => run("open_config")}>Open</Button></dd>
       <dt>Logs</dt>
-      <dd><span class="mono path">{status.log_dir}</span><button onclick={() => status && openUrl(status.log_dir)}>Open folder</button></dd>
+      <dd><span class="mono path">{status.log_dir}</span><Button onclick={() => status && openUrl(status.log_dir)}>Open folder</Button></dd>
     </dl>
     {#if status.config_note}<p class="hint warn-text">{status.config_note}</p>{/if}
   {/if}
@@ -252,7 +257,7 @@
       <div class="lbl">Microphone · Calibration</div>
       <h2>{mics?.calibration.device ?? "Microphone"}</h2>
       <Calibration ondone={() => void loadMics()} />
-      <div class="close"><button onclick={() => (calibrating = false)}>Close</button></div>
+      <div class="close"><Button onclick={() => (calibrating = false)}>Close</Button></div>
     </div>
   </div>
 {/if}
@@ -272,22 +277,14 @@
   .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .warn-text { color: var(--accent); }
   .lo { color: var(--text-lo); }
-  select { all: unset; flex: 1; cursor: pointer; color: var(--text); }
-  select:focus-visible { color: var(--text-hi); }
-  option, optgroup { background: var(--bg); color: var(--text); }
-  .choices { display: flex; gap: 24px; }
-  .choices button { color: var(--text-lo); }
-  .choices button.on { color: var(--accent); }
+  /* A row whose value is its own control (a choice or a dropdown) has no cell around it. */
+  dd.bare { padding: 0; background: none; }
+  dd.bare > :global(.grow) { flex: 1; }
   .shade { position: fixed; inset: 0; background: rgb(0 0 0 / 0.7); display: grid; place-items: center; z-index: 10; }
   .dlg { width: 600px; background: var(--bg); border-top: 2px solid var(--accent); border-bottom: 2px solid var(--accent); padding: 22px 28px; }
   .lbl { color: var(--accent); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   h2 { margin: 6px 0 16px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); }
   .close { margin-top: 20px; }
-  a { color: var(--accent); text-decoration: none; text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); flex: none; }
-  .hint a { text-transform: none; letter-spacing: 0; font-size: inherit; }
-  a:hover { color: var(--text-hi); }
-  button { all: unset; cursor: pointer; flex: none; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
+  .hint a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
   .note { color: var(--text-lo); font-family: var(--mono); font-size: var(--fs-s); margin-top: 20px; }
 </style>

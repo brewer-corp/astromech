@@ -1,6 +1,8 @@
 <script lang="ts">
   // Pick a market commodity by typing part of its name (or an alias such as "LTDs"). Enter or a
   // click picks; an unknown name keeps the previous pick.
+  import Input from "../../lib/ui/Input.svelte";
+  import Suggestions from "../../lib/ui/Suggestions.svelte";
   import { findCommodity, suggestCommodities, type Commodity } from "../../lib/trade";
 
   let { value, onchange }: { value: Commodity; onchange: (c: Commodity) => void } = $props();
@@ -43,39 +45,27 @@
 
 <div class="pick">
   <span class="lbl">Commodity</span>
-  <div class="box">
-    <input
-      value={text}
-      spellcheck="false"
-      autocomplete="off"
-      aria-label="Commodity"
-      oninput={(e) => typed(e.currentTarget.value)}
-      onkeydown={key}
-      onfocus={(e) => e.currentTarget.select()}
-      onblur={() => setTimeout(() => pick(open ? undefined : findCommodity(text)), 150)}
-    />
+  <Input
+    class="box"
+    value={text}
+    spellcheck="false"
+    autocomplete="off"
+    aria-label="Commodity"
+    oninput={(e) => typed(e.currentTarget.value)}
+    onkeydown={key}
+    onfocus={(e) => e.currentTarget.select()}
+    onblur={() => setTimeout(() => pick(open ? undefined : findCommodity(text)), 150)}
+  >
     {#if open}
-      <ul class="hits" role="listbox">
-        {#each hits as h, i (h.symbol)}
-          <li role="option" aria-selected={i === sel}>
-            <button class:on={i === sel} onmousedown={(e) => e.preventDefault()} onclick={() => pick(h)}>
-              {h.name} <span class="cat">{h.category}</span>
-            </button>
-          </li>
-        {/each}
-      </ul>
+      <Suggestions items={hits} {sel} key={(h) => h.symbol} onpick={pick}>
+        {#snippet item(h)}{h.name} <span class="sub">{h.category}</span>{/snippet}
+      </Suggestions>
     {/if}
-  </div>
+  </Input>
 </div>
 
 <style>
   .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs); }
   .lbl { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; font-size: var(--fs-s); }
-  .box { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
-  input { all: unset; flex: 1; min-width: 0; width: 100%; height: 28px; padding: 0 8px; color: var(--text-hi); }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .hits { position: absolute; z-index: 5; top: 100%; left: 0; right: 0; margin: 2px 0 0; padding: 0; list-style: none; background: var(--bg-list); border: 1px solid var(--accent-dim); }
-  .hits button { display: block; width: 100%; padding: 5px 8px; color: var(--text); }
-  .hits button.on, .hits button:hover { background: var(--cell); color: var(--text-hi); }
-  .cat { color: var(--text-lo); margin-left: 6px; }
+  .pick :global(.box) { flex: 1; }
 </style>

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 
 // A screen reader reads a live region again only when its text changes. These check that a
 // second save, or the same error twice, empties the region before filling it again.
@@ -34,7 +34,7 @@ function texts(region: Element): string[] {
 describe("Settings live regions", () => {
   it("announce a second Saved on the Callouts settings", async () => {
     const { container } = render(Callouts);
-    const button = await screen.findByLabelText("Prospector on or off");
+    const button = within(await screen.findByRole("group", { name: "Prospector on or off" })).getByRole("button", { name: "Off" });
     const region = container.querySelector("[aria-live]")!;
     const seen = texts(region);
     const saved = "Saved. It applies the next time Elite starts.";
