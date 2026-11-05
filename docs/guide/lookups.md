@@ -16,6 +16,25 @@ voice uses. Questions about your own ship, such as fuel and cargo, are in
 - **The star map.** It is bundled for 500 light years around Sol and fills in from EDSM as you
   travel. If it cannot be opened: "Lookups are not available: the star map could not be opened."
 
+## From another system
+
+Every lookup on this page can search from a system you name, and so can where to buy for a
+colonisation build. End the question with "near", "from", "in" or "around" and the system:
+"where can I sell painite near Sol", "nearest 5A frame shift drive from Shinrarta Dezhra",
+"where can I undermine in the Lembava system", "where can I buy steel for the depot near Sol".
+A trailing "system" is not part of the name. The answer says which system it searched from first:
+
+> From Sol. Best price for Painite: Good Landing in LHS 1827, 19 light years. 211,587 credits, demand 13,884.
+
+"near me", "near here", "from here", "near you", "near my current location" and a word that
+sounds like "me" ("near mi") mean where you are, as does naming the system you are in. So do
+words that name no system: "from a station", "near my carrier" or "in bulk" search from where you
+are. The system is found by its exact name on Spansh (any case), so it works before the journal
+gives a position too. A name Spansh does not know is said plainly ("Nowhere Prime. Spansh does not know
+that system."), and nothing is searched. A command that is not a lookup stays one with a system
+after it: "paste from Sol" gets "Say again.", not a lookup. A procedural name ("Col 285 Sector
+AB-C d1-2") is hard for speech recognition to get exactly right; the pages let you type one.
+
 Jump counts use your ship's range from the last loadout (20 light years if unknown). Inside the
 known star map a count is worked out along real stars. Outside it, or if the search gives up, it
 is a straight-line estimate and the page marks it with "~". Neutron boosts and fuel are not
@@ -109,7 +128,8 @@ If you are not pledged: "Not pledged to a power, so there are no targets." It se
 ## Colonisation
 
 Ask: "how is the build going", "what is left to deliver", "where can I buy steel for the
-depot".
+depot". Where to buy searches from where you are, or from a system you name ("where can I buy
+steel for the depot near Sol"; [From another system](#from-another-system)).
 
 > Test Hub is 50 percent built. 300 tonnes left to deliver.
 
@@ -127,17 +147,22 @@ buy. See [Colonisation](colonisation.md). With no project: "No construction proj
 - "No <thing> found near <system> with your search filters." Loosen the filters on the page.
 - "Could not look that up." followed by the reason, such as no network.
 - "Spansh does not know this system yet." for a system too new for Spansh.
+- "<name>. Spansh does not know that system." for a system you named that Spansh does not
+  know, or that was misheard.
 
 ## Limits
 
 - One answer per question: the best one. Use the pages to see more.
 - Data comes from other players and tools, so it is as old as their last visit.
-- Lookups search from where the journal says you are, not from a system you name.
-  The pages let you type another system to search from.
+- Lookups search from where the journal says you are, or from a system you name
+  ([From another system](#from-another-system)). Colonisation progress and what is left are
+  about your project.
 
 ## All the phrases
 
 Slots in braces are filled by what you say: `{service}`, `{module}`, `{ship}`, `{commodity}`.
+Any of these except colonisation progress and what is left can end with "near <system>",
+"from <system>", "in <system>" or "around <system>" ([From another system](#from-another-system)).
 
 
 ### Stations

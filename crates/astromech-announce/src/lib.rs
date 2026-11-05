@@ -150,6 +150,7 @@ pub trait Rule: Send {
 
 pub mod arrival;
 pub mod biology;
+pub mod credits;
 pub mod discovery;
 pub mod docking;
 pub mod fuel;

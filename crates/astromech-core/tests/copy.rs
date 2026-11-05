@@ -693,7 +693,10 @@ fn the_powerplay_target_answers_keep_to_the_copy_guide() {
             hits,
             warning: None,
         };
-        lines.push(targets::spoken(&found(vec![])));
+        for named in [false, true] {
+            let said = from_named(named, targets::spoken(&found(vec![]), named));
+            lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+        }
         for (ly, exact) in [(0.0, true), (4.0, true), (199.6, false)] {
             for controller in [None, Some("Jerome Archer"), Some("Archon Delaine")] {
                 for state in ["Unoccupied", "Exploited", "Fortified", "Stronghold"] {
@@ -710,8 +713,10 @@ fn the_powerplay_target_answers_keep_to_the_copy_guide() {
                         others: vec!["Aisling Duval".into(), "Zemina Torval".into()],
                         updated_at: None,
                     };
-                    let said = targets::spoken(&found(vec![hit]));
-                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                    for named in [false, true] {
+                        let said = from_named(named, targets::spoken(&found(vec![hit.clone()]), named));
+                        lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                    }
                 }
             }
         }
@@ -826,7 +831,10 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
             hits,
             warning: None,
         };
-        lines.push(astromech_tools::faction::spoken(&nearby(vec![]), now));
+        for named in [false, true] {
+            let said = from_named(named, astromech_tools::faction::spoken(&nearby(vec![]), named, now));
+            lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+        }
         for (ly, exact) in [(0.0, true), (4.0, true), (1999.6, false)] {
             for population in [0, 9_000_000_000] {
                 for (updated_at, seen_on_visit) in
@@ -842,8 +850,11 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
                         seen_on_visit,
                         score: None,
                     };
-                    let said = astromech_tools::faction::spoken(&nearby(vec![hit]), now);
-                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                    for named in [false, true] {
+                        let said =
+                            from_named(named, astromech_tools::faction::spoken(&nearby(vec![hit.clone()]), named, now));
+                        lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                    }
                 }
             }
         }
@@ -851,6 +862,53 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
     assert!(lines.iter().any(|l| l == "Seen on your visit yesterday."), "{lines:?}");
     assert!(lines.iter().any(|l| l == "Over a billion people."), "{lines:?}");
     let bad = check("faction answer", &lines, ANSWER_WORDS);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
+/// The longest procedural name the named-system lines are checked on: 12 spoken words.
+const LONG_NAME: &str = "NGC 7822 Sector AB-C d14-123";
+
+/// `answer` as a lookup searched from a system the commander named says it: led by "From
+/// <system>." ([`astromech_core::lookups::from_named`]) when `named`, the system [`LONG_NAME`].
+fn from_named(named: bool, answer: String) -> String {
+    let here = astromech_galaxy::Here { system: LONG_NAME.into(), id64: None, pos: [0.0; 3] };
+    astromech_core::lookups::from_named(named.then_some(&here), answer)
+}
+
+/// Spansh's system names, knowing none.
+struct NoSystems;
+
+impl astromech_data::Transport for NoSystems {
+    fn send(
+        &self,
+        _url: &str,
+        _req: &astromech_data::Request,
+    ) -> Result<astromech_data::Response, astromech_data::TransportError> {
+        Ok(astromech_data::Response { status: 200, body: r#"{"min_max":[],"values":[]}"#.into() })
+    }
+}
+
+/// What a lookup from a named system says before its answer (astromech-1n9b): "From <system>."
+/// and, for a name Spansh does not know, the line said instead of a search, on a short name and
+/// the longest procedural one, through the code that says them.
+#[test]
+fn the_named_system_lines_keep_to_the_copy_guide() {
+    use astromech_data::{Cache, Client, Limiter};
+    let client =
+        Client::with_transport(Cache::in_memory().unwrap(), std::sync::Arc::new(NoSystems)).limiter(Limiter::none());
+    let game = GameState { system: Some("Achenar".into()), ..Default::default() };
+    let mut lines = vec![];
+    for name in ["Sol", "Synuefe BY-F d12-39", LONG_NAME] {
+        let here = astromech_galaxy::Here { system: name.into(), id64: None, pos: [0.0; 3] };
+        let said = astromech_core::lookups::from_named(Some(&here), "Answer.".into());
+        lines.push(said.strip_suffix(" Answer.").unwrap().to_string());
+        let unknown =
+            astromech_core::lookups::named_origin(&game, Some(name), |n| astromech_galaxy::locate_remote(&client, n));
+        lines.extend(unknown.unwrap_err().split_inclusive(". ").map(|s| s.trim().to_string()));
+    }
+    assert!(lines.iter().any(|l| l == "From Sol."), "{lines:?}");
+    assert!(lines.iter().any(|l| l == "Spansh does not know that system."), "{lines:?}");
+    let bad = check_with_names("named-system line", &lines, ANSWER_WORDS, &["Sol", "Synuefe BY-F d12-39", LONG_NAME]);
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 

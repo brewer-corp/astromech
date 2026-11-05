@@ -397,8 +397,11 @@ fn outages_do_not_use_up_a_messages_refusals() {
     assert_eq!(r.courier.outbox().pending().unwrap(), 1);
     let at = |i: i64| (NOW + 4000 * i, r.t0 + Duration::from_secs(4000 * i as u64));
     for i in 0..MAX_ATTEMPTS - 1 {
-        let outage =
-            if i % 2 == 0 { Ok(Response { status: 429, body: "slow down".into() }) } else { Err("timed out".into()) };
+        let outage = if i % 2 == 0 {
+            Ok(Response { status: 429, body: "slow down".into(), headers: vec![] })
+        } else {
+            Err("timed out".into())
+        };
         r.api.answer(JOURNAL_URL, outage);
         let (wall, mono) = at(i);
         let d = r.courier.pass(wall, mono).unwrap();
@@ -407,7 +410,8 @@ fn outages_do_not_use_up_a_messages_refusals() {
     // Seven outages have gone by: the event still has all its refusals, so it takes the full
     // MAX_ATTEMPTS of them to give it up.
     for i in 0..MAX_ATTEMPTS {
-        r.api.answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into() }));
+        r.api
+            .answer(JOURNAL_URL, Ok(Response { status: 403, body: "<html>Cloudflare</html>".into(), headers: vec![] }));
         let (wall, mono) = at(MAX_ATTEMPTS + i);
         let d = r.courier.pass(wall, mono).unwrap();
         let last = i == MAX_ATTEMPTS - 1;
@@ -446,17 +450,17 @@ impl Choosy {
 
 impl api::Api for Choosy {
     fn get(&self, _: &str, _: &[(&str, &str)]) -> Result<Response, String> {
-        Ok(Response { status: 200, body: "[]".into() })
+        Ok(Response { status: 200, body: "[]".into(), headers: vec![] })
     }
     fn post_json(&self, _: &str, body: &[u8]) -> Result<Response, String> {
         let req: Value = serde_json::from_slice(body).unwrap();
         let events = req["message"].as_array().unwrap();
         self.sizes.lock().unwrap().push(events.len());
         if events.len() > self.max || events.iter().any(|e| e["event"] == "Poison") {
-            return Ok(Response { status: self.status, body: "no".into() });
+            return Ok(Response { status: self.status, body: "no".into(), headers: vec![] });
         }
         self.stored.lock().unwrap().extend(events.iter().map(|e| e["n"].to_string()));
-        Ok(Response { status: 200, body: all_ok(events.len()).to_string() })
+        Ok(Response { status: 200, body: all_ok(events.len()).to_string(), headers: vec![] })
     }
 }
 
@@ -663,7 +667,7 @@ fn an_outage_of_5xx_answers_gives_up_a_few_events_not_the_queue() {
 
 #[test]
 fn what_counts_as_refused_and_what_is_only_held() {
-    let ok = |status: u16, body: &str| Ok(Response { status, body: body.into() });
+    let ok = |status: u16, body: &str| Ok(Response { status, body: body.into(), headers: vec![] });
     assert!(matches!(answer(ok(413, "big"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(400, ""), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, "<html>"), 2), Answer::Refused(_)));
@@ -676,4 +680,194 @@ fn what_counts_as_refused_and_what_is_only_held() {
     assert!(matches!(answer(ok(500, "x"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(503, "x"), 2), Answer::Refused(_)));
     assert!(matches!(answer(ok(200, r#"{"msgnum":500,"msg":"x"}"#), 2), Answer::Refused(_)));
+}
+
+/// Passes as the worker makes them, from `from` (Unix seconds) until `until` or an empty queue:
+/// each after the courier's own wait, on both clocks. Returns where it stopped.
+fn run_as_worker(r: &mut Rig, from: i64, until: i64) -> i64 {
+    let mut wall = from;
+    while wall < until && r.courier.outbox().pending().unwrap() > 0 {
+        let mono = r.t0 + Duration::from_secs((wall - NOW) as u64);
+        r.courier.pass(wall, mono).unwrap();
+        wall += r.courier.wait(wall, mono).as_secs() as i64;
+    }
+    wall
+}
+
+/// What an hour of 503s (Cloudflare in front of a down EDSM) and then EDSM back up cost.
+struct Drain {
+    /// Requests from EDSM's return until the queue was empty.
+    requests: usize,
+    /// Events left queued when EDSM came back.
+    events: usize,
+    /// Each stored event's `n` ("null" for the Commander event), in the order stored.
+    stored: Vec<String>,
+}
+
+/// 201 events (200 numbered, `Poison` at each index in `poisons`) through an hour of 503s,
+/// then an EDSM that fails any request holding a poisoned event with a 500.
+fn drain_after_an_outage(poisons: &[usize]) -> Drain {
+    let mut r = choosy_rig_with(Choosy::new(503, 0), 200, poisons);
+    let queued = r.courier.outbox().pending().unwrap();
+    assert_eq!(queued, 201);
+    let back = run_as_worker(&mut r, NOW, NOW + 3600);
+    let events = r.courier.outbox().pending().unwrap();
+    assert!(queued - events <= OUTAGE_AFTER as usize, "the outage gave up {} events", queued - events);
+    assert!(
+        r.courier.outbox().due(back + 7200, true, 300).unwrap().iter().any(|q| q.refusals > 0),
+        "the outage left refused events (the case these tests are about)"
+    );
+
+    let up = Choosy::new(500, BATCH);
+    r.courier.api = Box::new(up.clone());
+    // Long enough for a poisoned event to use up its refusals and be given up.
+    run_as_worker(&mut r, back, back + 48 * 3600);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0, "drained");
+    let requests = up.sizes.lock().unwrap().len();
+    let stored = up.stored.lock().unwrap().clone();
+    Drain { requests, events, stored }
+}
+
+/// No event stored twice; returns how many were stored.
+fn stored_once(stored: &[String]) -> usize {
+    let unique: HashSet<&String> = stored.iter().collect();
+    assert_eq!(unique.len(), stored.len(), "an event was stored twice: {stored:?}");
+    stored.len()
+}
+
+/// astromech-az6g: after an hour of 503s, the events left go in batches again once EDSM is
+/// back, not one request per event, and every one of them is stored once (astromech-kusu).
+#[test]
+fn after_an_hour_of_503s_the_queue_drains_in_batches() {
+    let d = drain_after_an_outage(&[]);
+    assert_eq!(stored_once(&d.stored), d.events, "every event left was stored, none given up");
+    // One request per event before astromech-az6g (168 for these 201); 10 with it.
+    assert!(d.requests * 5 <= d.events, "{} requests for {} events", d.requests, d.events);
+}
+
+/// astromech-7ew2: one event EDSM always chokes on in the backlog an outage leaves doesn't turn
+/// the drain into one request per event: the refused batch holding it is split in halves
+/// (astromech-sklz), and only the poisoned event is lost. The poison sits at either end, on both
+/// sides of a batch edge and in the middle (astromech-u6ai).
+#[test]
+fn a_poisoned_event_in_an_outages_backlog_still_drains_in_batches() {
+    for poison in [0, 49, 50, 100, 199] {
+        let d = drain_after_an_outage(&[poison]);
+        let stored = stored_once(&d.stored);
+        assert!(!d.stored.contains(&poison.to_string()), "poison at {poison}: the poisoned event was stored");
+        assert_eq!(stored + 1, d.events, "poison at {poison}: every event but the poisoned one was stored");
+        // At 100: 77 requests before astromech-7ew2 (refused events alone after the failed
+        // batch), 29 with it (6 of them the poisoned event alone in later passes, until it is
+        // given up).
+        assert!(d.requests * 5 <= d.events, "poison at {poison}: {} requests for {} events", d.requests, d.events);
+    }
+}
+
+/// The refusals of the queued event whose body holds `event`.
+fn refusals_of(r: &Rig, event: &str) -> i64 {
+    let all = r.courier.outbox().due(i64::MAX, true, 1000).unwrap();
+    let needle = format!("\"event\":\"{event}\"");
+    let q = all.iter().find(|q| String::from_utf8_lossy(&q.body).contains(&needle)).expect(event);
+    q.refusals
+}
+
+/// astromech-sklz, astromech-u6ai: a failed batch of events refused before, or one of its
+/// halves, counts no refusal against its events; only the poisoned event's, failing alone,
+/// counts. Its good neighbours go through every half with it and are all stored in this pass.
+#[test]
+fn a_failed_refused_batch_counts_a_refusal_only_against_the_event_failing_alone() {
+    let api = Choosy::new(500, BATCH);
+    let mut r = choosy_rig_with(api.clone(), 40, &[17]);
+    refused_once(&r);
+    assert_eq!(refusals_of(&r, "Poison"), 1);
+    // An event never refused goes first and is stored, so EDSM is up and the refused events go
+    // in batches that are halved when they fail.
+    r.up.journal(&json!({"event": "Scan", "n": 100}), true, NOW);
+    let d = r.courier.pass(NOW + 4000, r.t0 + Duration::from_secs(4000)).unwrap();
+    let sizes = api.sizes.lock().unwrap().clone();
+    assert!(sizes.iter().filter(|n| **n > 1).count() >= 5, "the refused batch was halved: {sizes:?}");
+    assert_eq!(stored(&api).len(), 40, "every good event was stored in this pass: {d:?}, {sizes:?}");
+    assert_eq!(r.courier.outbox().pending().unwrap(), 1, "only the poisoned event is left");
+    assert_eq!(refusals_of(&r, "Poison"), 2, "one refusal for failing alone, none for the batches: {sizes:?}");
+}
+
+/// astromech-az6g: when EDSM says no requests are left (`X-Rate-Limit-Remaining: 0`), the courier
+/// posts nothing more, in this pass or the next, until `X-Rate-Limit-Reset` seconds have passed.
+#[test]
+fn no_request_goes_while_edsms_rate_limit_is_used_up() {
+    let mut r = rig(true);
+    r.discards.set(vec![], NOW);
+    // Two game sessions, so two requests are due.
+    feed(&mut r, &session()[..5], true);
+    r.up.journal(&json!({"event":"Fileheader","part":1,"gameversion":"4.0.0.2000","build":"r2"}), true, NOW);
+    r.up.journal(&json!({"event":"LoadGame","Commander":"Jameson"}), true, NOW);
+    let first = r.up.outbox().pending().unwrap() - 1;
+    let limited = |n: usize, remaining: &str| {
+        let headers = vec![
+            ("x-rate-limit-limit".to_owned(), "720".to_owned()),
+            ("x-rate-limit-remaining".to_owned(), remaining.to_owned()),
+            ("x-rate-limit-reset".to_owned(), "600".to_owned()),
+        ];
+        Ok(Response { status: 200, body: all_ok(n).to_string(), headers })
+    };
+    // FakeApi panics on a request it has no answer for: only one is scripted.
+    r.api.answer(JOURNAL_URL, limited(first, "0"));
+    let at = |s: u64| (NOW + s as i64, r.t0 + Duration::from_secs(s));
+    let (wall, mono) = at(0);
+    let d = r.courier.pass(wall, mono).unwrap();
+    assert_eq!((d.sent, d.stopped), (first, true), "{d:?}");
+    assert_eq!(r.api.posts().len(), 1, "the second session's request waits");
+    let log: Vec<String> = r.courier.outbox().recent(2).unwrap().into_iter().map(|l| l.detail).collect();
+    assert!(log.contains(&"EDSM's rate limit reached; next request in 600 s".to_owned()), "{log:?}");
+
+    // A new event wakes the worker; still nothing goes, and it sleeps until the reset.
+    r.up.journal(&json!({"event":"Scan"}), true, NOW + 450);
+    let (wall, mono) = at(450);
+    assert_eq!(r.courier.pass(wall, mono).unwrap(), Delivery::default());
+    assert_eq!(r.api.posts().len(), 1);
+    assert_eq!(r.courier.wait(wall, mono), Duration::from_secs(150));
+
+    // At the reset, the rest goes; requests left, so nothing stops the pass.
+    r.api.answer(JOURNAL_URL, limited(2, "719"));
+    let (wall, mono) = at(600);
+    assert_eq!(r.courier.pass(wall, mono).unwrap().sent, 2);
+    assert_eq!(r.courier.outbox().pending().unwrap(), 0);
+}
+
+/// astromech-ys8x: a bad rate-limit header never stops posting for longer than EDSM's hour.
+#[test]
+fn edsms_rate_limit_headers_wait_at_most_an_hour() {
+    let mut r = rig(true);
+    let cases: &[(Option<&str>, Option<&str>, u64)] = &[
+        // Remaining missing or not a count of requests left: no wait.
+        (None, Some("600"), 0),
+        (Some("lots"), Some("600"), 0),
+        (Some("-1"), Some("600"), 0),
+        (Some("5"), Some("600"), 0),
+        // None left: Reset seconds, a minute if it's missing or unreadable, an hour at most.
+        (Some("0"), Some(" 600 "), 600),
+        (Some("0"), None, 60),
+        (Some("0"), Some("soon"), 60),
+        (Some("0"), Some("-30"), 60),
+        (Some("0"), Some("99999999999999999999999"), 60),
+        (Some("0"), Some("86400"), 3600),
+        (Some("0"), Some("1800000600"), 3600),
+    ];
+    for &(remaining, reset, wait) in cases {
+        let mut headers = vec![];
+        if let Some(v) = remaining {
+            headers.push(("x-rate-limit-remaining".to_owned(), v.to_owned()));
+        }
+        if let Some(v) = reset {
+            headers.push(("x-rate-limit-reset".to_owned(), v.to_owned()));
+        }
+        r.courier.limited_until = r.t0;
+        let answer = Ok(Response { status: 200, body: all_ok(1).to_string(), headers });
+        r.courier.rate_limit(&answer, NOW, r.t0).unwrap();
+        assert_eq!(r.courier.limited_until - r.t0, Duration::from_secs(wait), "{remaining:?} {reset:?}");
+    }
+    // No answer at all: no wait.
+    r.courier.limited_until = r.t0;
+    r.courier.rate_limit(&Err("timed out".into()), NOW, r.t0).unwrap();
+    assert_eq!(r.courier.limited_until, r.t0);
 }

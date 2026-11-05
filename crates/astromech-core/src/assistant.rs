@@ -36,8 +36,19 @@ pub enum Handled {
 }
 
 enum Pending {
-    Mean { command: &'static str, slot: Option<String>, slot_text: Option<String>, heard: String, at: Instant },
-    Act { command: &'static str, at: Instant },
+    Mean {
+        command: &'static str,
+        slot: Option<String>,
+        slot_text: Option<String>,
+        /// The system a lookup searches from ([`astromech_intent::Match::origin`]).
+        from: Option<String>,
+        heard: String,
+        at: Instant,
+    },
+    Act {
+        command: &'static str,
+        at: Instant,
+    },
 }
 
 /// The spoken answer for a command the grammar knows but the app can't run yet.
@@ -182,10 +193,16 @@ impl Assistant {
     }
 
     /// Count a yes to "Did you mean `command`?" after `heard`; the phrase runs without asking
-    /// once [`alias_runs`] says so. Ask-only phrases are not even counted.
+    /// once [`alias_runs`] says so. Ask-only phrases, and phrases that name a system to search
+    /// from, are not even counted.
     fn learn(&self, heard: &str, command: &'static str) {
         let heard = heard.trim();
-        if heard.is_empty() || command == "confirm" || command == "cancel" || astromech_intent::is_ask_only(heard) {
+        if heard.is_empty()
+            || command == "confirm"
+            || command == "cancel"
+            || astromech_intent::is_ask_only(heard)
+            || astromech_intent::names_origin(heard, command)
+        {
             return;
         }
         let count = match &self.store {
@@ -215,23 +232,26 @@ impl Assistant {
         in_grammar || in_store
     }
 
-    /// Look `want` up near the commander and say the answer when it arrives (off this thread:
-    /// Spansh can take seconds).
-    fn look_up(&self, command: &'static str, want: Want) -> Handled {
+    /// Look `want` up near the commander, or the system named in `from`, and say the answer when
+    /// it arrives (off this thread: Spansh can take seconds).
+    fn look_up(&self, command: &'static str, want: Want, from: Option<&str>) -> Handled {
         let game = self.runner.hub.snapshot();
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
             crate::lookups::filters_for(st.as_deref(), want.lookup(), &game)
         };
         let (remote, speaker, w) = (self.runner.remote.clone(), self.runner.speaker.clone(), want.clone());
-        let now = self.clock.now_s();
-        std::thread::spawn(move || speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, now)));
+        let (now, from) = (self.clock.now_s(), from.map(str::to_string));
+        std::thread::spawn(move || {
+            speaker.say(&crate::lookups::answer(&remote, &filters, &w, &game, from.as_deref(), now));
+        });
         Handled::Lookup { command, want }
     }
 
-    /// Look up the pledged power's nearest target of `target`'s kind, with the app's remembered
-    /// filters for that search, and say the answer when it arrives (off this thread).
-    fn targets_lookup(&self, target: astromech_galaxy::Target) -> Outcome {
+    /// Look up the pledged power's nearest target of `target`'s kind (near the commander, or the
+    /// system named in `from`), with the app's remembered filters for that search, and say the
+    /// answer when it arrives (off this thread).
+    fn targets_lookup(&self, target: astromech_galaxy::Target, from: Option<&str>) -> Outcome {
         use astromech_tools::targets;
         let game = self.runner.hub.snapshot();
         let said = |m: &str| {
@@ -243,7 +263,7 @@ impl Assistant {
             (_, None) => return said(lookup::NO_STAR_MAP),
             (Some(_), Some(g)) => g,
         };
-        if game.system.is_none() || game.star_pos.is_none() {
+        if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             return said(lookup::NO_POSITION);
         }
         let filters = {
@@ -251,23 +271,29 @@ impl Assistant {
             crate::lookups::filters_for(st.as_deref(), targets::lookup(target), &game)
         };
         self.say("Looking that up.");
-        let speaker = self.runner.speaker.clone();
+        let (speaker, from) = (self.runner.speaker.clone(), from.map(str::to_string));
         Outcome::LookingUp(std::thread::spawn(move || {
-            let m = crate::lookups::targets_answer(&galaxy, &filters, target, &game);
+            let m = crate::lookups::targets_answer(&galaxy, &filters, target, &game, from.as_deref());
             speaker.say(&m);
             m
         }))
     }
 
-    /// Look up the faction-state systems for `q` near the commander, with the app's remembered
-    /// filters for that lookup, and say the answer when it arrives (off this thread).
-    fn faction_lookup(&self, command: &'static str, q: &'static astromech_galaxy::Query) -> Outcome {
+    /// Look up the faction-state systems for `q` near the commander (or the system named in
+    /// `from`), with the app's remembered filters for that lookup, and say the answer when it
+    /// arrives (off this thread).
+    fn faction_lookup(
+        &self,
+        command: &'static str,
+        q: &'static astromech_galaxy::Query,
+        from: Option<&str>,
+    ) -> Outcome {
         let game = self.runner.hub.snapshot();
         let Some(galaxy) = self.runner.galaxy.clone() else {
             self.say(lookup::NO_STAR_MAP);
             return Outcome::Spoken(lookup::NO_STAR_MAP.into());
         };
-        if game.system.is_none() || game.star_pos.is_none() {
+        if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
             self.say(lookup::NO_POSITION);
             return Outcome::Spoken(lookup::NO_POSITION.into());
         }
@@ -276,10 +302,11 @@ impl Assistant {
             crate::lookups::filters_for(st.as_deref(), command, &game)
         };
         self.say("Looking that up.");
-        let (speaker, now) = (self.runner.speaker.clone(), self.clock.now_s());
+        let (speaker, now, from) = (self.runner.speaker.clone(), self.clock.now_s(), from.map(str::to_string));
         let journals = self.projects.dir().map(std::path::Path::to_path_buf);
         Outcome::LookingUp(std::thread::spawn(move || {
-            let m = crate::lookups::faction_answer(&galaxy, &filters, q, &game, journals.as_deref(), now);
+            let m =
+                crate::lookups::faction_answer(&galaxy, &filters, q, &game, from.as_deref(), journals.as_deref(), now);
             speaker.say(&m);
             m
         }))
@@ -299,10 +326,12 @@ impl Assistant {
         Some(Handled::Ran { command, outcome: Outcome::Spoken(m) })
     }
 
+    /// Run `command`. `from` is the system a lookup searches from, when one was named.
     fn dispatch(
         &self,
         command: &'static str,
         (slot, slot_text): (Option<&str>, Option<&str>),
+        from: Option<&str>,
         origin: Origin,
         confirmed: bool,
     ) -> Handled {
@@ -311,7 +340,7 @@ impl Assistant {
         }
         if lookup::is_lookup(command) {
             return match lookup::want(command, slot, slot_text) {
-                Some(want) => self.look_up(command, want),
+                Some(want) => self.look_up(command, want, from),
                 None => {
                     self.say(lookup::NOT_CAUGHT);
                     Handled::NotUnderstood
@@ -319,7 +348,7 @@ impl Assistant {
             };
         }
         if let Some(q) = astromech_tools::faction::from_command(command) {
-            return Handled::Ran { command, outcome: self.faction_lookup(command, q) };
+            return Handled::Ran { command, outcome: self.faction_lookup(command, q, from) };
         }
         if astromech_tools::session::is_summary(command) {
             let game = self.runner.hub.snapshot();
@@ -334,7 +363,7 @@ impl Assistant {
             return Handled::Ran { command, outcome: Outcome::Spoken(lines.join(" ")) };
         }
         if let Some(target) = astromech_tools::targets::from_command(command) {
-            return Handled::Ran { command, outcome: self.targets_lookup(target) };
+            return Handled::Ran { command, outcome: self.targets_lookup(target, from) };
         }
         if let Some(ask) = astromech_tools::trade::from_command(command) {
             let game = self.runner.hub.snapshot();
@@ -342,17 +371,20 @@ impl Assistant {
                 let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
                 crate::lookups::filters_for(st.as_deref(), ask.lookup(), &game)
             };
-            let s = crate::trade::answer(&self.runner.remote, &filters, ask, slot, &game, self.clock.now_s());
+            let s = crate::trade::answer(&self.runner.remote, &filters, ask, slot, &game, from, self.clock.now_s());
             self.say(&s);
             return Handled::Ran { command, outcome: Outcome::Spoken(s) };
         }
         if let Some(ask) = astromech_tools::colonisation::from_command(command) {
-            return Handled::Ran { command, outcome: self.colonisation(ask, slot) };
+            return Handled::Ran { command, outcome: self.colonisation(ask, slot, from) };
         }
         if let Some(ask) = astromech_tools::exploration::from_command(command) {
             return Handled::Ran { command, outcome: self.exploration(ask) };
         }
         match astromech_tools::from_command(command) {
+            Some(astromech_tools::ToolCall::Nearest(kind)) => {
+                Handled::Ran { command, outcome: self.runner.nearest_site(kind, from.map(str::to_string)) }
+            }
             Some(call) => {
                 let outcome =
                     if confirmed { self.runner.run_confirmed(call, origin) } else { self.runner.run(call, origin) };
@@ -381,8 +413,14 @@ impl Assistant {
     }
 
     /// Answer a colonisation question off this thread (a replay of the journals can take a
-    /// while); says "Looking that up." first.
-    fn colonisation(&self, ask: astromech_tools::colonisation::Ask, commodity: Option<&str>) -> Outcome {
+    /// while); says "Looking that up." first. Where to buy searches from the system named in
+    /// `from`, when one was.
+    fn colonisation(
+        &self,
+        ask: astromech_tools::colonisation::Ask,
+        commodity: Option<&str>,
+        from: Option<&str>,
+    ) -> Outcome {
         let game = self.runner.hub.snapshot();
         let filters = {
             let st = self.store.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()));
@@ -392,10 +430,11 @@ impl Assistant {
         self.say("Looking that up.");
         let (projects, galaxy, speaker) =
             (self.projects.clone(), self.runner.galaxy.clone(), self.runner.speaker.clone());
-        let (commodity, now) = (commodity.map(str::to_string), self.clock.now_s());
+        let (commodity, from, now) = (commodity.map(str::to_string), from.map(str::to_string), self.clock.now_s());
         Outcome::LookingUp(std::thread::spawn(move || {
             let lookup = galaxy.as_deref().map(|g| (g, &filters));
-            let m = crate::colonisation::answer(ask, &projects.get(), commodity.as_deref(), lookup, &game, now);
+            let (commodity, from) = (commodity.as_deref(), from.as_deref());
+            let m = crate::colonisation::answer(ask, &projects.get(), commodity, from, lookup, &game, now);
             speaker.say(&m);
             m
         }))
@@ -439,12 +478,19 @@ impl Assistant {
                 self.say("Say again.");
                 Handled::NotUnderstood
             }
-            Decision::Execute => self.dispatch(m.command, (m.slot.as_deref(), m.slot_text.as_deref()), origin, false),
+            Decision::Execute => self.dispatch(
+                m.command,
+                (m.slot.as_deref(), m.slot_text.as_deref()),
+                m.origin.as_deref(),
+                origin,
+                false,
+            ),
             Decision::Ask if m.command != "confirm" && m.command != "cancel" => {
                 *self.pending.lock().unwrap() = Some(Pending::Mean {
                     command: m.command,
                     slot: m.slot.clone(),
                     slot_text: m.slot_text.clone(),
+                    from: m.origin.clone(),
                     heard: transcript.to_string(),
                     at: Instant::now(),
                 });
@@ -460,14 +506,15 @@ impl Assistant {
 
     fn resolve_yes(&self, pend: Pending, origin: Origin) -> Handled {
         match pend {
-            Pending::Mean { command, slot, slot_text, heard, .. } => {
-                // An alias stands for a command, not for its slot value: don't learn those.
-                if slot.is_none() {
+            Pending::Mean { command, slot, slot_text, from, heard, .. } => {
+                // An alias stands for a command, not for its slot value or the system it searched
+                // from: don't learn those.
+                if slot.is_none() && from.is_none() {
                     self.learn(&heard, command);
                 }
-                self.dispatch(command, (slot.as_deref(), slot_text.as_deref()), origin, false)
+                self.dispatch(command, (slot.as_deref(), slot_text.as_deref()), from.as_deref(), origin, false)
             }
-            Pending::Act { command, .. } => self.dispatch(command, (None, None), origin, true),
+            Pending::Act { command, .. } => self.dispatch(command, (None, None), None, origin, true),
         }
     }
 }

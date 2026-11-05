@@ -212,13 +212,7 @@ impl Galaxy {
         if let Some((id64, system, pos)) = self.store().system(name)? {
             return Ok(Here { system, id64: Some(id64), pos });
         }
-        self.remote
-            .spansh_system_names(name)?
-            .value
-            .into_iter()
-            .find(|s| s.name.eq_ignore_ascii_case(name))
-            .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
-            .ok_or_else(|| anyhow::anyhow!("Spansh does not know a system called {name}."))
+        locate_remote(&self.remote, name)
     }
 
     /// Fetch the stars around `p` from EDSM if `p` is outside covered space. Returns whether a
@@ -515,6 +509,33 @@ pub fn engineering_journal_events() -> Vec<&'static str> {
     .concat()
 }
 
+/// The error [`locate_remote`] (and so [`Galaxy::locate`]) gives for a name Spansh does not
+/// know: the name as asked for.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnknownSystem(pub String);
+
+impl std::fmt::Display for UnknownSystem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Spansh does not know a system called {}.", self.0)
+    }
+}
+
+impl std::error::Error for UnknownSystem {}
+
+/// Where a system named `name` is on Spansh (exact name, any case), without the local star map
+/// ([`Galaxy::locate`] looks there first). A name Spansh does not know is an [`UnknownSystem`];
+/// a failed request is the `astromech_data::Error` behind it.
+pub fn locate_remote(remote: &astromech_data::Client, name: &str) -> Result<Here> {
+    let name = name.trim();
+    remote
+        .spansh_system_names(name)?
+        .value
+        .into_iter()
+        .find(|s| s.name.eq_ignore_ascii_case(name))
+        .map(|s| Here { pos: s.pos(), system: s.name, id64: Some(s.id64) })
+        .ok_or_else(|| UnknownSystem(name.to_string()).into())
+}
+
 /// Newest `Location` / `FSDJump` / `CarrierJump` with `StarPos`, newest journal first.
 pub fn here_from_journal_dir(dir: &Path) -> Option<Here> {
     let mut logs = astromech_journal::journal_logs(dir);
@@ -661,8 +682,9 @@ mod tests {
         assert_eq!(sd.id64, Some(3932277478106));
         assert_eq!(sd.pos, [55.71875, 17.59375, 27.15625]);
 
-        let err = g.locate("Shin").unwrap_err().to_string();
-        assert_eq!(err, "Spansh does not know a system called Shin.", "a prefix is not a system");
+        let err = g.locate("Shin").unwrap_err();
+        assert_eq!(err.to_string(), "Spansh does not know a system called Shin.", "a prefix is not a system");
+        assert_eq!(err.downcast_ref(), Some(&UnknownSystem("Shin".into())));
     }
 
     #[test]

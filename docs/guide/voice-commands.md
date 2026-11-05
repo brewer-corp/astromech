@@ -91,7 +91,11 @@ Powerplay questions, from the journal (examples again):
 ## Lookups
 
 These search the galaxy and answer with the nearest or best result. They need a network
-connection. [Voice lookups](lookups.md) has the details of each.
+connection. They search from where you are, or from a system you name at the end ("where can I
+sell gold near Sol", "nearest interstellar factors from Shinrarta Dezhra", "where can I buy steel
+for the depot in Sol"). Another command with a system after it is not understood: "paste from
+Sol" gets "Say again."
+[Voice lookups](lookups.md#from-another-system) has the details of each.
 
 | You say | What it finds |
 |---|---|
@@ -114,7 +118,7 @@ answer is on the [Exploration](exploration.md#by-voice) page.
 | You say | You hear |
 |---|---|
 | "what is this system worth", "system value" | What the scanned bodies are worth now, and with the best ones mapped |
-| "is this system worth mapping", "which bodies are worth mapping", "what should I map" | The planets worth mapping, best first, with what each is worth mapped |
+| "is this system worth mapping", "which bodies are worth mapping", "what is worth mapping" | The planets worth mapping, best first, with what each is worth mapped |
 | "which organics haven't I scanned here", "what biology is left to sample", "what biology is in this system" | The genera left to sample, by body |
 | "how much is my unsold data worth", "unsold data" | Your unsold cartographic and organic data |
 

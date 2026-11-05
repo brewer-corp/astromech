@@ -6,7 +6,13 @@
   import { binds } from "../store.svelte";
   import { control } from "../format";
 
-  let { status, refresh }: { status: CoreStatus | null; refresh: () => Promise<void> } = $props();
+  // `unread`: why there is no status yet (none read, or the reads failed), so a button is not
+  // shown as "Not set" before astromech knows.
+  let {
+    status,
+    unread = "checking",
+    refresh,
+  }: { status: CoreStatus | null; unread?: "checking" | "failed"; refresh: () => Promise<void> } = $props();
 
   type Which = "ptt" | "kill_switch";
   let capturing = $state<Which | null>(null);
@@ -54,6 +60,7 @@
   }
 
   const shown = (s: string | null | undefined) => {
+    if (!status) return unread === "failed" ? "Could not read" : "Checking…";
     const b = parseButton(s);
     return b ? control(b.device, b.key) : "Not set";
   };
@@ -62,7 +69,7 @@
 <div class="setup-step">
   <dl>
     <dt>Push-to-talk</dt>
-    <dd class:warn={!status?.ptt}><span>{shown(status?.ptt)}</span><button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</button></dd>
+    <dd class:warn={status ? !status.ptt : unread === "failed"}><span>{shown(status?.ptt)}</span><button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</button></dd>
     <dt>Kill switch</dt>
     <dd><span>{shown(status?.kill_switch)}</span><button onclick={() => capture("kill_switch")}>{status?.kill_switch ? "Change" : "Set"}</button></dd>
   </dl>

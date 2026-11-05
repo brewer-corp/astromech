@@ -237,30 +237,64 @@ fn module_list() -> &'static ModuleList {
 /// data (`export_outfitting`); its journal path (`export_journal_outfitting`) drops only
 /// `int_planetapproachsuite` and sends commander-specific modules as station stock.
 fn modules(file: &Value) -> Result<(&'static str, Value), Unusable> {
-    let list = module_list();
     let mut out: Vec<&str> = Vec::new();
     for item in items(file, "Items")? {
         let name = item.get("Name").and_then(Value::as_str).ok_or_else(|| bad(item, "no Name"))?;
-        let station_item = ["Hpt_", "hpt_", "Int_", "int_"].iter().any(|p| name.starts_with(p))
-            || ["_Armour_", "_armour_"].iter().any(|p| name.contains(p));
-        if !station_item || name.eq_ignore_ascii_case("Int_PlanetApproachSuite") || out.contains(&name) {
+        if out.contains(&name) {
             continue;
         }
-        let symbol = name.to_ascii_lowercase();
-        let cmdr_sku = match item.get("sku") {
-            Some(s) if !s.is_null() => s.as_str() != Some("ELITE_HORIZONS_V_PLANETARY_LANDINGS"),
-            _ if list.commander.contains(&symbol) => true,
-            _ if list.station.contains(&symbol) => false,
-            _ => return Err(Unusable::UnknownModule(name.to_owned())),
-        };
-        if !cmdr_sku {
-            out.push(name);
+        match owner(item, name) {
+            Some(Owner::Station) => out.push(name),
+            Some(Owner::Unknown) => return Err(Unusable::UnknownModule(name.to_owned())),
+            Some(Owner::Commander) | None => {}
         }
     }
     if out.is_empty() {
         return Err(Unusable::Empty);
     }
     Ok(("modules", json!(out)))
+}
+
+/// Whose an outfitting item `name` is, by the rules of [`modules`]; `None` for an item
+/// outfitting/2 doesn't carry.
+enum Owner {
+    Station,
+    Commander,
+    /// In neither of [`module_list`]'s lists: the visit sends nothing.
+    Unknown,
+}
+
+fn owner(item: &Value, name: &str) -> Option<Owner> {
+    let station_item = ["Hpt_", "hpt_", "Int_", "int_"].iter().any(|p| name.starts_with(p))
+        || ["_Armour_", "_armour_"].iter().any(|p| name.contains(p));
+    if !station_item || name.eq_ignore_ascii_case("Int_PlanetApproachSuite") {
+        return None;
+    }
+    let list = module_list();
+    let symbol = name.to_ascii_lowercase();
+    Some(match item.get("sku") {
+        Some(s) if s.as_str() == Some("ELITE_HORIZONS_V_PLANETARY_LANDINGS") => Owner::Station,
+        Some(s) if !s.is_null() => Owner::Commander,
+        _ if list.commander.contains(&symbol) => Owner::Commander,
+        _ if list.station.contains(&symbol) => Owner::Station,
+        _ => Owner::Unknown,
+    })
+}
+
+/// Every module in an `Outfitting.json` `file` that astromech's module list doesn't know, in
+/// file order without duplicates: any one of them makes the visit send nothing
+/// ([`Unusable::UnknownModule`]). The real-journal harness reports them; the fix is to
+/// regenerate `data/catalog/eddn-outfitting.json` (scripts/gen-eddn-outfitting.py).
+pub fn unknown_modules(file: &Value) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for item in file.get("Items").and_then(Value::as_array).into_iter().flatten() {
+        if let Some(name) = item.get("Name").and_then(Value::as_str) {
+            if matches!(owner(item, name), Some(Owner::Unknown)) && !out.iter().any(|n| n == name) {
+                out.push(name.to_owned());
+            }
+        }
+    }
+    out
 }
 
 /// shipyard/2 `ships` from `PriceList[].ShipType`, duplicates dropped.
@@ -472,6 +506,21 @@ mod tests {
         // Cosmetics aren't looked up: the schema's pattern drops them first.
         let g = with_items(&["hpt_chafflauncher_tiny", "paintjob_new_01"]);
         assert!(message(&journal_event(&g), &g).is_ok());
+    }
+
+    #[test]
+    fn unknown_modules_lists_every_one_the_visit_would_be_refused_for() {
+        let f = with_items(&[
+            "hpt_newweapon_fixed_small",
+            "hpt_chafflauncher_tiny",
+            "Int_NewThing_Size1_Class1",
+            "hpt_newweapon_fixed_small",
+            "paintjob_new_01",
+            "int_planetapproachsuite",
+        ]);
+        assert_eq!(unknown_modules(&f), ["hpt_newweapon_fixed_small", "Int_NewThing_Size1_Class1"]);
+        assert!(unknown_modules(&fixture("Outfitting.json")).is_empty());
+        assert!(unknown_modules(&json!({})).is_empty());
     }
 
     #[test]

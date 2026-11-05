@@ -460,7 +460,11 @@ pub(crate) mod tests {
     }
 
     pub fn status(code: u16) -> std::result::Result<Response, String> {
-        Ok(Response { status: code, body: if code == 200 { "OK".into() } else { format!("FAIL: {code}") } })
+        Ok(Response {
+            status: code,
+            body: if code == 200 { "OK".into() } else { format!("FAIL: {code}") },
+            headers: vec![],
+        })
     }
 
     const REF: &str = "https://eddn.edcd.io/schemas/journal/1/test";
@@ -696,7 +700,7 @@ pub(crate) mod tests {
         fn post(&self, _: &[u8]) -> std::result::Result<Response, String> {
             *self.1.borrow_mut() += 1;
             Outbox::open(&self.0).unwrap().discard_all(1000).unwrap();
-            Ok(Response { status: 200, body: "OK".into() })
+            Ok(Response { status: 200, body: "OK".into(), headers: vec![] })
         }
     }
 
@@ -728,7 +732,7 @@ pub(crate) mod tests {
                     o.enqueue(REF, n, 1000).unwrap();
                 }
             }
-            Ok(Response { status: 200, body: "OK".into() })
+            Ok(Response { status: 200, body: "OK".into(), headers: vec![] })
         }
     }
 

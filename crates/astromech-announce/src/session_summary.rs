@@ -21,6 +21,7 @@
 //! fresh launch's menu, before any login, says nothing. A replayed line starts the state over
 //! but keeps a summary that is waiting for the history and the fact that one was said.
 
+use crate::credits::{amount, credits};
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
 use astromech_journal::JournalEvent;
@@ -76,21 +77,9 @@ impl std::fmt::Debug for SharedSessions {
     }
 }
 
-/// "5.1 million credits", "578 thousand credits", "900 credits". Rounds up into millions from
-/// 999,500, so it never says "1000 thousand".
-pub fn credits(c: i64) -> String {
-    if c >= 999_500 {
-        format!("{:.1} million credits", c as f64 / 1e6)
-    } else if c >= 10_000 {
-        format!("{:.0} thousand credits", c as f64 / 1e3)
-    } else {
-        format!("{c} credits")
-    }
-}
-
 /// "1.9 million an hour" (the rate without the word credits).
 fn rate(c: i64) -> String {
-    credits(c).trim_end_matches(" credits").to_string() + " an hour"
+    amount(c) + " an hour"
 }
 
 /// The lines for a session: earned, travelled, bounties. A zero is left out.
@@ -216,21 +205,17 @@ impl Rule for SessionSummary {
 
 #[cfg(test)]
 mod tests {
-    use super::credits;
+    use super::{lines, Totals};
 
+    /// The earnings read as every other answer reads credits: no "1.0 million", and billions
+    /// for an expedition's payout, not "1460.0 million".
     #[test]
-    fn credits_round_into_millions_at_the_boundary() {
-        for (c, said) in [
-            (900, "900 credits"),
-            (9_999, "9999 credits"),
-            (10_000, "10 thousand credits"),
-            (578_400, "578 thousand credits"),
-            (999_499, "999 thousand credits"),
-            (999_500, "1.0 million credits"),
-            (999_999, "1.0 million credits"),
-            (5_100_000, "5.1 million credits"),
-        ] {
-            assert_eq!(credits(c), said);
-        }
+    fn earnings_say_credits_the_shared_way() {
+        let earned =
+            |total, per_hour| Totals { end: String::new(), total, per_hour, jumps: 0, distance_ly: 0.0, bounties: 0 };
+        let t = earned(999_500, Some(5_100_000));
+        assert_eq!(lines(&t), ["Earned 1 million credits, 5.1 million an hour."]);
+        let t = earned(1_460_000_000, Some(578_400));
+        assert_eq!(lines(&t), ["Earned 1.5 billion credits, 578 thousand an hour."]);
     }
 }
