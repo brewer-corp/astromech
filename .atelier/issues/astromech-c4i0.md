@@ -4,6 +4,9 @@ id: "astromech-c4i0"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-c4i0
 priority: "P1"
 relationships:
   blocks: []
@@ -15,9 +18,10 @@ relationships:
     type: "derived_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-05T01:17:54.991555368+00:00"
+status: "done"
 title: "Write DESIGN.md: the window's design system"
-updated_at: "2026-10-24T23:07:07.397323815+00:00"
+updated_at: "2026-11-05T01:17:54.991555368+00:00"
 ---
 
 ## Goal
@@ -30,8 +34,12 @@ Write the design system the "Elite Controls dialect" never had, so pages are rev
 - `app/src/design/tokens.css` matches it, or the gaps are listed as follow-up issues.
 - Static before/after mockups for Materials and a Places finder result list (Sell, plus Mining to show two finders reading differently on one layout), with screenshots under `docs/design/`.
 - PRODUCT.md and V1-DESIGN §4 point at DESIGN.md instead of contradicting it.
-- Sumeet approves the direction before merge.
+- The direction is approved (decision astromech-5p9c: independent panel, per Sumeet's 4 Nov 2026 direction).
 
 ## Context
 
 Decision astromech-bi94. The audit's evidence is the screenshot set taken 24 Oct 2026; the pages left out of the facelift (System, Station, Settings, onboarding) are denser, but density is not the goal.
+
+## Close Reason
+
+Implementer report. Changed: DESIGN.md (revision 3, impeccable format) at the repo root, with .impeccable/design.json. app/src/design/tokens.css gains the design tokens plus a role-to-token map, and --row-hover is now warm #21170f (it was grey). Static mockups are in app/src/mockups/ds/, with before/after screenshots in docs/design/design-system-*.png. scripts/mockup-shots.sh renders the ds-* mockups. PRODUCT.md, V1-DESIGN section 4, AGENTS.md and CONTRIBUTING.md point at DESIGN.md. Follow-ups yxtz, dfvp, pey5, sllo and dzwy carry the page work and the deferred panel items. Decision: direction approved with 13 changes by an independent panel (Fable 5.1 and Opus 5.5) per Sumeet's 4 Nov 2026 direction; see astromech-5p9c. Red is for hard errors only. Proof: pnpm lint, check, build and test (397/397); check-guide; atelier doctor; evidence after merging main; PR #185 CI green, including WebKitGTK and WebView2. Review: approval astromech-82p7; xmdr fixed; qy3c deferred to yxtz; f6w9 no_action. Deviations: Sumeet's approval was replaced by the panel decision, at his direction. Open items: how the full-orange text reads on a real second monitor beside the game, and at Windows DPI, is unverified (needs the PC). Live pages beyond the --row-hover tint are unchanged until the follow-ups.

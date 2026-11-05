@@ -1884,7 +1884,6 @@ mod tests {
             "this system is worth it",
             "map it",
             "worth mapping",
-            "what is this worth",
             "system values",
             "unsold",
             "sold data",
@@ -1936,6 +1935,40 @@ mod tests {
             ("How much is my data worth?", "exploration.unsold"),
             ("How much is this system worth?", "exploration.system_value"),
             ("What is worth mapping?", "exploration.worth_mapping"),
+            ("What is this system worth?", "exploration.system_value"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // Deliberate (astromech-e0im): "my" is filler, so the ship phrases ("how much is ship
+        // worth") sit one word from the bare "this worth" and swallow it: "Say again", not a
+        // guess at system value. Revisit if real transcripts show players meaning system value.
+        for t in
+            ["How much is this worth?", "What is this worth?", "How much is my ship worth?", "What is my ship worth?"]
+        {
+            assert_eq!(g.best(t).decision, Decision::NoMatch, "{t:?} -> {:?}", g.best(t));
+        }
+    }
+
+    /// EVERYDAY counts against every command's margin on purpose (astromech-e0im): speech that
+    /// is closer to a command than to an everyday question, but not clearly, asks rather than
+    /// answers. An extra "yes" costs less than confidently reading out the wrong number in
+    /// flight. Dropping the `runner.max(everyday)` term in `best_whole` would make these execute.
+    #[test]
+    fn everyday_margin_asks_for_near_misses() {
+        let g = g();
+        for (t, c) in [
+            ("How much is my unsold cargo worth?", "exploration.unsold"),
+            ("How much is my dater worth?", "exploration.unsold"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Ask), "{t:?} -> {m:?}");
+        }
+        assert_ne!(g.best("what is is in this system").decision, Decision::Execute);
+        // The exploration phrases they sit beside still execute.
+        for (t, c) in [
+            ("How much is my data worth?", "exploration.unsold"),
+            ("What biology is in this system?", "exploration.biology"),
         ] {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");

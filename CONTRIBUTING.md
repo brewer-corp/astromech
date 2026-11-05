@@ -7,6 +7,7 @@ the code.
 ## Where things are
 
 - [docs/V1-DESIGN.md](docs/V1-DESIGN.md): what v1 is, and the copy rules for what astromech says (§6.5).
+- [DESIGN.md](DESIGN.md): the window's design system, binding for UI changes.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): architecture, crates, dependency rules and spike
   results. Open an issue before large changes.
 - [docs/PLOTTING.md](docs/PLOTTING.md): routes: the next waypoint on the clipboard, "paste" in the galaxy map, and the plotting macro to come.
@@ -78,10 +79,13 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   sentences like the app's own copy (docs/V1-DESIGN.md §6.5). Describe what the code does, not
   what is planned. A page you add goes in [docs/guide/index.md](docs/guide/index.md) too, and every
   link must resolve. A change with no visible effect needs no guide edit.
-- UI changes: run the Vite app (`cd app && pnpm dev`) and check it with headless Chrome:
+- UI changes follow [DESIGN.md](DESIGN.md), the window's design system: use its tokens
+  (`app/src/design/tokens.css`, mapped in its Token map) and check the page against its rules.
+  Run the Vite app (`cd app && pnpm dev`) and check it with headless Chrome:
   `scripts/ui --url http://127.0.0.1:5173/#/materials --wait Iron --screenshot /tmp/materials.png --text`.
   Needs Google Chrome (or `CHROME` pointing at Chromium). `scripts/app-shots.sh` and
-  `scripts/mockup-shots.sh` use the same binary.
+  `scripts/mockup-shots.sh` use the same binary; `scripts/mockup-shots.sh ds-sell ds-places`
+  re-renders only the named mockups (the DESIGN.md ones are `ds-*`).
 - Respect the dependency rules: actions go through `astromech-policy`; voice and tools never use
   the input executor directly.
 - Player-visible game data (anything on the Elite Dangerous wiki) is fine in `data/`; credit its
