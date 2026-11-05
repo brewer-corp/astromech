@@ -2,13 +2,12 @@
   // The window frame (docs/V1-DESIGN.md §2.2, §4; DESIGN.md Frame): title, plain text tabs for
   // the areas, one orange rule, the route strip, the area's pages as sub-tabs, the page, and a
   // one-line core state. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
-  // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page, and the top
-  // bar's system search (PlotBar) plots a route from any page.
+  // at #/setup or #/setup/<step>. The header's Find or plot box (PlotBar) finds a page, finder,
+  // material, module or ship, or plots to a system, from any page; Ctrl+K puts the cursor in it.
   import { groups, groupModules, findModule, modules } from "./lib/modules";
   import { MOVED_FINDERS } from "./lib/places";
   import { collect } from "./lib/palette";
   import Button from "./lib/ui/Button.svelte";
-  import Palette from "./lib/ui/Palette.svelte";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
@@ -28,7 +27,9 @@
   const fromHash = () => resolve(location.hash.replace(/^#\//, ""));
   const start = fromHash();
   let route = $state(start);
-  if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
+  // A moved link opened from outside (a bookmark) is rewritten in place, as one followed in the
+  // window is, so Back doesn't land on the old address.
+  if (location.hash && location.hash !== `#/${start}`) history.replaceState(null, "", `#/${start}`);
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
   const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current ? groupModules(current.group) : []);
@@ -36,17 +37,18 @@
   const setup = $derived(status?.setup_needed ?? []);
   const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
 
-  // The tabs share a row with the name and status while all of it fits (the status runs from "Not
-  // running" to "Waiting for Elite · Voice paused · Kill switch on"); in a narrower window they
-  // take a row of their own under the name.
+  // DESIGN.md Frame: one 64 px header row while the name, tabs, Find or plot, status and Help fit
+  // on it (the status runs from "Not running" to "Waiting for Elite · Voice paused · Kill switch
+  // on"); in a narrower window the tabs take a 44 px row of their own under the name.
   let header = $state<HTMLElement>();
   let stacked = $state(false);
-  /** The header's width on one row: each part at its own width (the tabs at their buttons'). */
+  /** The header's width on one row: each part at its own width (the tabs at their buttons', Find
+   * or plot at its full 320 px even while it has given way). */
   function oneRow(h: HTMLElement): number {
     const gap = (el: Element) => parseFloat(getComputedStyle(el).columnGap) || 0;
     const parts = [...h.children] as HTMLElement[];
     const width = (el: HTMLElement) => {
-      if (el.tagName !== "NAV") return el.offsetWidth;
+      if (el.tagName !== "NAV") return Math.max(el.offsetWidth, parseFloat(getComputedStyle(el).flexBasis) || 0);
       const tabs = [...el.children] as HTMLElement[];
       return tabs.reduce((w, t) => w + t.offsetWidth, 0) + gap(el) * Math.max(0, tabs.length - 1);
     };
@@ -112,7 +114,7 @@
         {/if}
       {/each}
     </nav>
-    <PlotBar />
+    <PlotBar load={paletteItems} onpick={go} />
     {#if showSetup}
       <Button title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</Button>
     {/if}
@@ -140,12 +142,12 @@
   </main>
   <Toasts {status} />
 </div>
-<Palette load={paletteItems} onpick={go} />
 {/if}
 
 <style>
   .frame { height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr; grid-template-columns: minmax(0, 1fr); }
-  header { display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); margin: 0 clamp(16px, 3vw, 40px); padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
+  /* DESIGN.md Frame: a 64 px row with the 1 px orange rule under it; stacked, the tabs add 44 px. */
+  header { box-sizing: border-box; display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); height: 64px; margin: 0 clamp(16px, 3vw, 40px); border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: clamp(16px, 2.5vw, 28px); flex: 1; flex-wrap: wrap; }
   header nav { flex-wrap: nowrap; }
@@ -162,9 +164,9 @@
   .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
   .state.warn { color: var(--accent); font-weight: 600; }
   main { min-height: 0; overflow: auto; padding: 0 clamp(16px, 3vw, 40px); scrollbar-gutter: stable; }
-  header.stacked { flex-wrap: wrap; row-gap: 14px; }
-  header.stacked .app { margin-right: auto; }
-  header.stacked nav { order: 1; flex-basis: 100%; }
+  header.stacked { height: 108px; flex-wrap: wrap; align-content: flex-start; row-gap: 0; }
+  header.stacked .app { display: flex; align-items: center; height: 63px; margin-right: auto; }
+  header.stacked nav { order: 1; flex-basis: 100%; align-items: center; height: 44px; }
   /* The header's gaps scale with the window only (no breakpoint), so the width one row needs grows
      steadily with it: the header stacks once as the window narrows and stays stacked below that. */
   @media (max-width: 1100px) {

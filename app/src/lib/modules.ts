@@ -36,7 +36,7 @@ export interface ModuleManifest {
   api: string[];
   /** Lazy view loader so modules do not bloat the first paint. */
   load: () => Promise<{ default: Component }>;
-  /** Command palette entries from data the window has, beyond the page itself (lazy-load the data). */
+  /** Find or plot entries from data the window has, beyond the page itself (lazy-load the data). */
   palette?: () => Promise<PaletteItem[]>;
 }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Outfitting finder: the nearest stations selling a module, on the search kit. The main
   // input is the module; its class, rating and mount narrow it. #/places/outfitting/<module>
-  // [?class=&rating=&mount=] picks the module (the command palette links there), so back and
+  // [?class=&rating=&mount=] picks the module (Find or plot links there), so back and
   // reload keep it.
   import { CATEGORIES, MODULES, choices, moduleRoute, parseModuleRoute, settle } from "../../lib/outfitting";
   import { rememberAnswer, showing, type Finder } from "../../lib/places";

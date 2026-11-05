@@ -74,7 +74,7 @@ describe("Route strip", () => {
     await strip().findByText("No route");
     expect(line()).toBe("No route Find or plot");
     await fireEvent.click(strip().getByRole("button", { name: "Find or plot" }));
-    expect(document.activeElement).toBe(screen.getByLabelText("Plot to a system"));
+    expect(document.activeElement).toBe(screen.getByRole("combobox", { name: "Find or plot" }));
   });
 
   it("says Off route when the commander isn't in the last stop or the next, a jump apart", async () => {

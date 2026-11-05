@@ -35,7 +35,7 @@ Windows, same machine as Elite Dangerous. astromech lives in the tray, starts wi
 
 The window is for setup and for looking things up between jumps. While they fly, voice does the work and the window can stay closed. In-flight UI is voice plus tray. There is no VR overlay or in-headset UI in v1.
 
-Header areas: Controls, Engineering, Galaxy, Trade, Exploration, Powerplay, Logbook, Settings. Default window route is My controller. Ctrl+K jumps to a page, material, ship, blueprint, or module by name. System names copy to the clipboard for pasting into Elite's galaxy map; astromech does not type into the game.
+Header areas: Controls, Engineering, Galaxy, Trade, Exploration, Powerplay, Logbook, Settings. Default window route is My controller. The header's Find or plot box (Ctrl+K) plots to a system, opens a Places finder filled in from a phrase ("raw trader"), or jumps to a page, material, ship, blueprint, or module by name. System names copy to the clipboard for pasting into Elite's galaxy map; astromech does not type into the game.
 
 Journal-backed pages refresh every few seconds. Voice and history stay on the PC. Network is used for lookups (Spansh, Ardent Insight, EDSM), updates, the first speech-model download, and, only if turned on, EDDN/EDSM sharing.
 

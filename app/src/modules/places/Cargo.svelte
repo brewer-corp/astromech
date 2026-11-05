@@ -39,7 +39,7 @@
   >
     {#snippet lead()}
       {#if plan}
-        <div class="hold" role="group" aria-label="Hold">
+        <div class="hold" role="group" aria-label={finder.input}>
           {#if plan.load.length}
             {#each plan.load as l (l.symbol)}
               <span class="pair"><span class="k">{l.name}</span> <span class="q">{credits(l.tonnes)} t</span></span>

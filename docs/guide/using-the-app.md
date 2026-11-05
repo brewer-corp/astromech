@@ -8,7 +8,7 @@ and the window can stay closed.
 The header has plain text tabs for the areas. Areas with more than one page list them as
 sub-tabs below. Under the header, on every page,
 the [route strip](routes.md#the-route-strip) shows the next stop of the route you are following;
-click its destination for the full Route page, which is also in the command palette (Ctrl+K).
+click its destination for the full Route page, which [Find or plot](#find-or-plot) also opens.
 
 | Area | Pages |
 |---|---|
@@ -20,6 +20,10 @@ click its destination for the full Route page, which is also in the command pale
 | **Powerplay** | [Powerplay](powerplay.md) |
 | **Logbook** | Logbook, Session, Mining, Station: [Logbook](logbook.md), [Mining](mining.md) |
 | **Settings** | General, Data sharing, Diagnostics, Voice tester: [Settings](settings.md), [Data sharing](data-sharing.md), [Voice tester](voice-tester.md) |
+
+The header holds the **Find or plot** box too (below). In a window too narrow for everything on
+one line (about 1580 pixels wide, more with a long status), the area tabs move to a row of their
+own under the name.
 
 It opens on **My controller**. At the right of the header, a short line says what astromech is
 doing: "Waiting for Elite", "Elite running · Voice ready", "Voice paused", "Kill switch on".
@@ -34,18 +38,30 @@ every few seconds, and so do Settings, setup and the engineer trip. If a later r
 read fails, the page says "Could not read" and the reason instead (setup's push-to-talk and
 kill switch rows say only "Could not read").
 
-## Command palette
+## Find or plot
 
-Press **Ctrl+K** anywhere in the window to jump to something by name. Type part of a name:
+The **Find or plot** box in the header finds things by name and plots routes, from any page.
+Press **Ctrl+K** anywhere in the window to put the cursor in it. Type part of a name:
 
-- a **page** ("trade", "powerplay"),
-- a **material** ("heat radiators"), which opens it on the Materials page,
-- a **ship** of yours, a **blueprint** or an **experimental**, which opens that ship's build planner,
-- a **module** you have fitted or any module, which opens the nearest stations selling it,
-- a **ship** from the catalogue, which opens the nearest shipyards selling it.
+- a **system**, for a route to it. Its row has **Plot**, which opens the
+  [plot panel](routes.md#plot-a-route), and the two route buttons every search result has:
+  **Add stop** and **Set destination** ([From a search result](routes.md#from-a-search-result)).
+  What they did shows under the box. System names come from Spansh as you type;
+- a **finder**, or what you want it to find, which opens that [Places](places.md) finder
+  filled in: "interstellar factors", "raw trader", "outfitting fsd", "shipyard python", "sell
+  painite", "crystalline shards", "painite hotspots". The finder's name can come first or last,
+  and the start of each word is enough ("sel painite");
+- a **page** ("trade", "powerplay");
+- a **material** ("heat radiators"), which opens it on the Materials page;
+- a **ship** of yours, a **blueprint** or an **experimental**, which opens that ship's build planner;
+- a **module** you have fitted, which opens the nearest stations selling it at that size.
 
-Letters of each word work ("fsd" finds Frame Shift Drive). Arrow keys move, Enter opens, Esc
-closes. It does not open while a dialog such as a bind capture has the keyboard.
+Pages, finders and systems are listed together, best match first: a system you typed in full
+comes first, and one you have only started comes after the pages and finders whose names start
+the same way. Letters of each word work ("fsd" finds Frame Shift Drive). Arrow keys move, Enter
+opens the highlighted row (for a system, the plot panel), Esc closes the list, then the panel,
+then leaves the box. With nothing listed, Enter plots to what you typed. Ctrl+K does nothing
+while a dialog such as a bind capture has the keyboard.
 
 ## System names
 

@@ -1,10 +1,12 @@
 /**
  * Places (decision astromech-bi94, DESIGN.md Places home): a family of finders, each with its
  * own title, main input and URL, listed on the Places home as tiles under section headings.
- * `FINDERS` is the one list of them: the home page, the Ctrl+K palette and, later, the header's
- * Find or plot box and voice read it. A finder's page is `#/places/<id>[/<input>]`; the input is
- * the finder's main value (a commodity, service, module, ship, trader or site kind, faction state
- * or mineral), URL-encoded.
+ * `FINDERS` is the one list of them: the home page and the header's Find or plot box read it
+ * (voice keeps its own grammar for the same finders, decision astromech-g8d5 item 7). A finder's
+ * page is `#/places/<id>[/<input>]`; the input is the finder's main value (a commodity, service,
+ * module, ship, trader or site kind, faction state or mineral), URL-encoded. Each finder lists
+ * the values it opens with (`inputs`), so Find or plot matches "sell painite" or "raw trader"
+ * for a finder added later without a change to the box.
  */
 import { FACTION_STATES } from "./galaxy";
 import { ORES, RING_TYPES, type Reserve, type RingType, type Want as HotspotWant } from "./hotspots";
@@ -37,21 +39,99 @@ export interface Finder {
   /** The tile's one Label line: what it finds. */
   what: string;
   /** The main input's name ("Service"), shown beside it on the finder's page. Sell my cargo asks
-   * nothing: its "input" is the hold it reads, listed above its results. */
+   * nothing: its "input" is the hold it reads, and names the hold list above its results. */
   input: string;
+  /** Every value the finder opens with, each with its page: what Find or plot matches, alone
+   * ("interstellar factors") or after the finder's name ("outfitting fsd"). Loaded when asked,
+   * as the outfitting catalogue is a chunk of its own. */
+  inputs?: () => Promise<FinderInput[]>;
 }
 
+/** One value a finder opens with. */
+export interface FinderInput {
+  /** The value as typed: "Painite", "Frame Shift Drive", "Raw trader". */
+  label: string;
+  /** The finder's page with this value: "places/sell/painite". */
+  route: string;
+  /** Other words that find it: a commodity's aliases, a service's id. */
+  keywords?: string;
+}
+
+const outfitting = () => import("./outfitting");
+
+const commodityInputs = (side: Side) => async () =>
+  commodities.map((c) => ({ label: c.name, route: marketRoute({ side, symbol: c.symbol, anywhere: false }), keywords: c.aliases?.join(" ") }));
+
 export const FINDERS: readonly Finder[] = [
-  { id: "sell", title: "Sell", section: "Trade", what: "Where a commodity fetches the most", input: "Commodity" },
-  { id: "buy", title: "Buy", section: "Trade", what: "Where a commodity is cheapest", input: "Commodity" },
+  { id: "sell", title: "Sell", section: "Trade", what: "Where a commodity fetches the most", input: "Commodity", inputs: commodityInputs("sell") },
+  { id: "buy", title: "Buy", section: "Trade", what: "Where a commodity is cheapest", input: "Commodity", inputs: commodityInputs("buy") },
   { id: "sell-cargo", title: "Sell my cargo", section: "Trade", what: "The best stations for the whole hold", input: "Hold" },
-  { id: "services", title: "Services", section: "Ship", what: "Interstellar Factors, traders, brokers, repair", input: "Service" },
-  { id: "outfitting", title: "Outfitting", section: "Ship", what: "Stations selling a module", input: "Module" },
-  { id: "shipyard", title: "Shipyard", section: "Ship", what: "Stations selling a ship", input: "Ship" },
-  { id: "material-traders", title: "Material traders", section: "Engineering", what: "Raw, manufactured and encoded", input: "Trader" },
-  { id: "raw-sites", title: "Raw sites", section: "Engineering", what: "Crystalline shards, brain trees, geological sites", input: "Site" },
-  { id: "faction-states", title: "Faction states", section: "Engineering", what: "Boom, war, outbreak, for High Grade Emissions", input: "State" },
-  { id: "mining-hotspots", title: "Mining hotspots", section: "Mining", what: "Rings with hotspots for a mineral", input: "Mineral" },
+  {
+    id: "services",
+    title: "Services",
+    section: "Ship",
+    what: "Interstellar Factors, traders, brokers, repair",
+    input: "Service",
+    inputs: async () => SERVICES.map((s) => ({ label: s.label, route: serviceRoute(s.id), keywords: s.id.replaceAll("_", " ") })),
+  },
+  {
+    id: "outfitting",
+    title: "Outfitting",
+    section: "Ship",
+    what: "Stations selling a module",
+    input: "Module",
+    inputs: async () => {
+      const { CATEGORIES, MODULES, moduleRoute } = await outfitting();
+      return MODULES.map((m) => ({
+        label: m.name,
+        route: moduleRoute({ name: m.name, class: null, rating: null, mount: null }),
+        keywords: CATEGORIES.find((c) => c.id === m.category)?.title,
+      }));
+    },
+  },
+  {
+    id: "shipyard",
+    title: "Shipyard",
+    section: "Ship",
+    what: "Stations selling a ship",
+    input: "Ship",
+    inputs: async () => {
+      const { SHIPS, shipRoute } = await outfitting();
+      return SHIPS.map((s) => ({ label: s.name, route: shipRoute(s.name) }));
+    },
+  },
+  {
+    id: "material-traders",
+    title: "Material traders",
+    section: "Engineering",
+    what: "Raw, manufactured and encoded",
+    input: "Trader",
+    inputs: async () => TRADERS.map((t) => ({ label: t.name, route: traderRoute(t.kind) })),
+  },
+  {
+    id: "raw-sites",
+    title: "Raw sites",
+    section: "Engineering",
+    what: "Crystalline shards, brain trees, geological sites",
+    input: "Site",
+    inputs: async () => SITE_KINDS.map((k) => ({ label: k.label, route: siteRoute(k.id), keywords: k.yields })),
+  },
+  {
+    id: "faction-states",
+    title: "Faction states",
+    section: "Engineering",
+    what: "Boom, war, outbreak, for High Grade Emissions",
+    input: "State",
+    inputs: async () => FACTION_STATES.map((q) => ({ label: q.name, route: factionRoute(q.id), keywords: q.about })),
+  },
+  {
+    id: "mining-hotspots",
+    title: "Mining hotspots",
+    section: "Mining",
+    what: "Rings with hotspots for a mineral",
+    input: "Mineral",
+    inputs: async () => ORES.map((o) => ({ label: o.name, route: hotspotRoute({ ore: o.symbol, ring_type: null, reserve: null }) })),
+  },
 ];
 
 /** The home page's sections that have finders, each with its finders in order. */

@@ -479,7 +479,7 @@ wide separations let grouping be seen without boxes.
 
 | Part | Height | Notes |
 |---|---|---|
-| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1600 px; remeasure when Find or plot lands) the top tabs sit on a 44 px second row under the wordmark |
+| Header | 64 px, or 64 + 44 px | wordmark, top tabs, Find or plot, status, Help; 1 px orange rule under it. Below the width where one row fits (about 1580 px with the usual status and the 320 px Find or plot box, measured 5 Nov 2026; a long status or Finish setup needs up to about 1900 px) the top tabs sit on a 44 px second row under the wordmark |
 | Route strip | 36 px | on every page |
 | Page tabs | 44 px | one row, only when the area has more than one page |
 | Page | rest | scrolls; the frame does not |
@@ -683,7 +683,11 @@ ask for next stop, n of N and refuel on one line they can keep their eyes on.
 
 The header's one search box: an input, 320 px, placeholder "Find or plot", "Ctrl+K" at its
 right end in Label size, Orange (it is text in a cell, so not Orange Mid). A system plots or
-adds a stop; a phrase opens a finder. Results in a popover.
+adds a stop; a phrase opens a finder. Results in a popover: one 34 px row each, the name in
+Orange and what it is in Label, Orange Mid ("System", "Material traders", "Page · Trade"),
+systems and entries ranked together, the highlighted row filled. A system row ends with PLOT
+(a word: it opens the plot panel) and the add stop and set destination icon buttons. With text in
+the box the clear icon replaces "Ctrl+K".
 
 ### Places home
 
