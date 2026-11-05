@@ -3,6 +3,9 @@ created_at: "2026-11-05T06:06:20.721136457+00:00"
 id: "astromech-aiwv"
 issue_type: "bug"
 labels: []
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-aiwv
 priority: "P1"
 relationships:
   blocks: []
@@ -14,9 +17,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Flaky on CI: a_dock_in_the_live_half_of_a_reopened_journal_still_gets_its_market_callout"
-updated_at: "2026-11-05T06:06:20.721136457+00:00"
+updated_at: "2026-11-05T06:06:24.361299383+00:00"
 ---
 
 ## Goal
