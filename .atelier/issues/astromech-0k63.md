@@ -15,10 +15,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-closed_at: "2026-11-05T17:23:12.311339439+00:00"
-status: "done"
+status: "todo"
 title: "Route page: clipboard failure as a red ! line, off the old option cell"
-updated_at: "2026-11-05T17:23:12.311339439+00:00"
+updated_at: "2026-11-05T17:08:32.388768233+00:00"
 ---
 
 ## Goal
@@ -37,7 +36,3 @@ Deferred finding astromech-fzd8 from the yxtz review (reviewer-sonnet-yxtz).
 ## Notes
 
 - 2026-11-05 [note] Done on task/astromech-dfvp with dfvp: the clipboard failure is Failure.svelte's red ! line with Try again (re-copies) on the Route page's Hull card (alarm on --surface 4.81:1); test in route/View.test.ts; before/after docs/design/cells-route-clipboard-*.png.
-
-## Close Reason
-
-Implementer report. The Route page's clipboard failure is Failure.svelte's red "!" plus "Not on the clipboard: <why>" with Try again (copies again), no copy glyph, on the Hull card instead of --cell-opt (red 4.81:1, was 3.62:1). A test in route/View.test.ts covers the line and Try again and fails on the old view; the routes guide is updated; screenshots docs/design/cells-route-clipboard-{before,after}.png. Done on task/astromech-dfvp (c29350a2) and reviewed with it (reviewer-fable-dfvp, approval astromech-4srf on dfvp); finding rtf9 (the strip shows the same failure as an orange line) deferred to astromech-rpdc.
