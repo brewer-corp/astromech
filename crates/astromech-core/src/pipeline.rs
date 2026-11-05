@@ -128,13 +128,13 @@ fn local_header_check() -> Box<dyn Fn(i64, i64) -> bool + Send> {
 /// [`AHEAD_SECS`] after it. A line stamped further ahead was written by a clock running fast:
 /// before now, so not fresh (astromech-puak).
 fn line_is_fresh(line: &str) -> bool {
-    let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { return false };
-    let Some(t) =
-        v.get("timestamp").and_then(|t| t.as_str()).and_then(|t| chrono::DateTime::parse_from_rfc3339(t).ok())
-    else {
-        return false;
-    };
-    (-AHEAD_SECS..=FRESH_LINE_SECS).contains(&(chrono::Utc::now().timestamp() - t.timestamp()))
+    line_time(line).is_some_and(|t| (-AHEAD_SECS..=FRESH_LINE_SECS).contains(&(chrono::Utc::now().timestamp() - t)))
+}
+
+/// A journal line's timestamp (UTC seconds).
+fn line_time(line: &str) -> Option<i64> {
+    let v = serde_json::from_str::<serde_json::Value>(line).ok()?;
+    chrono::DateTime::parse_from_rfc3339(v.get("timestamp")?.as_str()?).ok().map(|t| t.timestamp())
 }
 
 /// The last complete line of a journal, if it ends within the last [`LAST_LINE_WINDOW`] bytes.
@@ -600,6 +600,17 @@ impl Tailer {
         fresh
     }
 
+    /// Whether the last line of the journal at `path` is stamped after `followed` began (see
+    /// `Tailer::start_time`), or `followed` has no believable start time. The game leaves a journal
+    /// before it begins the next, so one it has just left, whose last line is still fresh, can't
+    /// take the session back when a tool touches it (astromech-b0tn).
+    fn written_since_start(&mut self, path: &Path, followed: &Path) -> bool {
+        match self.start_time(followed) {
+            None => true,
+            Some(start) => last_line(path).and_then(|l| line_time(&l)).is_some_and(|t| t > start),
+        }
+    }
+
     /// The game is writing the journal at `path` (session `stamp`): it is the one to keep, its
     /// session is the game's, and the folder's latest by name, if another session, is the game's
     /// no longer (after a clock correction it can be an older one, astromech-52p1).
@@ -746,7 +757,8 @@ impl Tailer {
     }
 
     /// Switch to the newest journal by modified time when it isn't the one we follow and the game
-    /// is writing it now (see `Tailer::being_written`), or when it didn't begin before the one we
+    /// is writing it now (see `Tailer::being_written`) and wrote it after the followed one began
+    /// (`Tailer::written_since_start`: not one the game just left), or when it didn't begin before the one we
     /// follow (see `Tailer::begins_before`) and the game isn't writing that one, nor was it the
     /// last seen being written (`writing`: the game may be quiet for minutes, astromech-52p1). So a backup or
     /// sync tool touching an older journal, or appending old lines to it, leaves the game's
@@ -764,7 +776,7 @@ impl Tailer {
                 Some(followed) => {
                     followed != n
                         && self.start_time(&n).is_some()
-                        && (self.being_written(&n)
+                        && ((self.written_since_start(&n, &followed) && self.being_written(&n))
                             || (!self.begins_before(&n, &followed)
                                 && self.writing.as_ref() != Some(&followed)
                                 && !self.being_written(&followed)))
@@ -2456,6 +2468,35 @@ mod tests {
         touch(&current, 40);
         t.on_journal_activity();
         assert_eq!(eddn_state(&db).0, 1);
+    }
+
+    /// astromech-b0tn: the game rolls over to a new journal, and a sync tool touches the one it just
+    /// left while that one's last line is still fresh. The old journal was last written before the
+    /// new one began, so it can't take the session back: the new one stays followed and the game's.
+    #[test]
+    fn a_just_left_journal_touched_within_two_minutes_keeps_the_new_one_followed() {
+        let d = tempfile::tempdir().unwrap();
+        let old = d.path().join(game_name(-5));
+        std::fs::write(&old, format!("{}{}\n", session(&ts(300), "r1 "), docked(&ts(10)))).unwrap();
+        let (mut t, db) = eddn_tailer(d.path());
+        t.catch_up();
+        assert_eq!(t.tail.as_ref().unwrap().path, old);
+
+        let new = d.path().join(game_name(0));
+        std::fs::write(&new, format!("{}{}\n", session(&ts(1), "r2 "), docked(&ts(0)))).unwrap();
+        touch(&new, 10);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, new, "the rollover");
+        assert_eq!(eddn_state(&db).0, 2);
+
+        // A sync tool touches the journal just left, well within FRESH_LINE_SECS of its last line.
+        touch(&old, 20);
+        t.on_journal_activity();
+        assert_eq!(t.tail.as_ref().unwrap().path, new, "the just-left journal doesn't take the session");
+        assert_eq!(t.classify(&new), Class::Game, "the game's session is not retired");
+        append(&new, &docked(&ts(0)));
+        t.on_journal_activity();
+        assert_eq!(eddn_state(&db).0, 3, "the game's next line is live");
     }
 
     /// The same shapes with a restored or copied journal rather than the game's: an old stamp, a
