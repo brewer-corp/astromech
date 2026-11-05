@@ -4,6 +4,9 @@ id: "astromech-dzwy"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dzwy
 priority: "P2"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "One face: move the window to variable Saira with tabular figures; retire the static cuts and Share Tech Mono"
-updated_at: "2026-10-25T19:02:01.607524386+00:00"
+updated_at: "2026-11-05T17:46:03.107903380+00:00"
 ---
 
 ## Goal
