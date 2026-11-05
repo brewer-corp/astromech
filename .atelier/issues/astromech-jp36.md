@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Lookup result row: main value first, aligned columns, DESIGN.md states"
-updated_at: "2026-11-05T07:29:01.832361840+00:00"
+updated_at: "2026-11-05T07:57:02.554581883+00:00"
 ---
 
 ## Goal
@@ -47,3 +47,4 @@ Make the search kit's results the DESIGN.md Lookup result row, so every lookup (
 ## Notes
 
 - 2026-11-05 [note] 2026-11-05: deferred finding astromech-jgyk from the rz0f review: FollowNote.svelte (app/src/lib/ui) shows failure text as Dim prose rather than DESIGN.md's hard-error state (red ! + words + recovery action), and its inline Resume overrides the 34 px hit area. Fold into this child's States work.
+- 2026-11-05 [note] 2026-11-05: deferred findings from the 1d92 review for this child's States work: astromech-w52v (Strip.svelte's hard error has no recovery action; DESIGN.md's example is '! Could not read the route. TRY AGAIN') and astromech-aeub (route/View.svelte's .err is a filled orange block, which DESIGN forbids; make it the States table's hard-error line).
