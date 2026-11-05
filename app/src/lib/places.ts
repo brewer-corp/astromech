@@ -3,16 +3,30 @@
  * own title, main input and URL, listed on the Places home as tiles under section headings.
  * `FINDERS` is the one list of them: the home page, the Ctrl+K palette and, later, the header's
  * Find or plot box and voice read it. A finder's page is `#/places/<id>[/<input>]`; the input is
- * the finder's main value (a service, module, ship or trader kind), URL-encoded.
+ * the finder's main value (a commodity, service, module, ship, trader or site kind, faction state
+ * or mineral), URL-encoded.
  */
+import { FACTION_STATES } from "./galaxy";
 import { ORES, RING_TYPES, type Reserve, type RingType, type Want as HotspotWant } from "./hotspots";
+import { SITE_KINDS } from "./sites";
 import { SERVICES, type ServiceId } from "./stations";
+import { commodities, type Side } from "./trade";
 
 /** The home page's section headings, in order. A section with no finder built yet is left out. */
 export const SECTIONS = ["Trade", "Ship", "Engineering", "Mining", "Route"] as const;
 export type Section = (typeof SECTIONS)[number];
 
-export type FinderId = "services" | "outfitting" | "shipyard" | "material-traders" | "mining-hotspots";
+export type FinderId =
+  | "sell"
+  | "buy"
+  | "sell-cargo"
+  | "services"
+  | "outfitting"
+  | "shipyard"
+  | "material-traders"
+  | "raw-sites"
+  | "faction-states"
+  | "mining-hotspots";
 
 export interface Finder {
   /** Stable id and URL part: `#/places/<id>`. */
@@ -22,15 +36,21 @@ export interface Finder {
   section: Section;
   /** The tile's one Label line: what it finds. */
   what: string;
-  /** The main input's name ("Service"), shown beside it on the finder's page. */
+  /** The main input's name ("Service"), shown beside it on the finder's page. Sell my cargo asks
+   * nothing: its "input" is the hold it reads, listed above its results. */
   input: string;
 }
 
 export const FINDERS: readonly Finder[] = [
+  { id: "sell", title: "Sell", section: "Trade", what: "Where a commodity fetches the most", input: "Commodity" },
+  { id: "buy", title: "Buy", section: "Trade", what: "Where a commodity is cheapest", input: "Commodity" },
+  { id: "sell-cargo", title: "Sell my cargo", section: "Trade", what: "The best stations for the whole hold", input: "Hold" },
   { id: "services", title: "Services", section: "Ship", what: "Interstellar Factors, traders, brokers, repair", input: "Service" },
   { id: "outfitting", title: "Outfitting", section: "Ship", what: "Stations selling a module", input: "Module" },
   { id: "shipyard", title: "Shipyard", section: "Ship", what: "Stations selling a ship", input: "Ship" },
   { id: "material-traders", title: "Material traders", section: "Engineering", what: "Raw, manufactured and encoded", input: "Trader" },
+  { id: "raw-sites", title: "Raw sites", section: "Engineering", what: "Crystalline shards, brain trees, geological sites", input: "Site" },
+  { id: "faction-states", title: "Faction states", section: "Engineering", what: "Boom, war, outbreak, for High Grade Emissions", input: "State" },
   { id: "mining-hotspots", title: "Mining hotspots", section: "Mining", what: "Rings with hotspots for a mineral", input: "Mineral" },
 ];
 
@@ -120,6 +140,52 @@ export function parseTraderRoute(hash: string): TraderKind | null {
   const at = parsePlaces(hash);
   if (at?.finder?.id !== "material-traders") return null;
   return TRADERS.find((t) => t.kind === at.input)?.kind ?? null;
+}
+
+// Sell and Buy: #/places/<sell|buy>/<commodity symbol>[?range=anywhere], near the origin unless
+// the range is anywhere in the galaxy.
+
+export interface MarketWant {
+  side: Side;
+  /** The commodity's journal symbol: "painite". */
+  symbol: string;
+  anywhere: boolean;
+}
+
+export function marketRoute(w: MarketWant): string {
+  return placesRoute(w.side, w.symbol, w.anywhere ? new URLSearchParams({ range: "anywhere" }) : undefined);
+}
+
+/** What a `#/places/<sell|buy>/<symbol>` hash asks for; null for another page or an unknown commodity. */
+export function parseMarketRoute(hash: string): MarketWant | null {
+  const at = parsePlaces(hash);
+  const side = at?.finder?.id;
+  if (!at || (side !== "sell" && side !== "buy")) return null;
+  const symbol = commodities.find((c) => c.symbol === decode(at.input))?.symbol;
+  return symbol ? { side, symbol, anywhere: at.query.get("range") === "anywhere" } : null;
+}
+
+// Raw sites: #/places/raw-sites/<site kind id>.
+
+export const siteRoute = (kind: string) => placesRoute("raw-sites", kind);
+
+/** The site kind a `#/places/raw-sites/<kind>` hash asks for, or null. */
+export function parseSiteRoute(hash: string): string | null {
+  const at = parsePlaces(hash);
+  if (at?.finder?.id !== "raw-sites") return null;
+  return SITE_KINDS.find((k) => k.id === at.input)?.id ?? null;
+}
+
+// Faction states: #/places/faction-states/<query id>, the same id the voice query and the
+// remembered filters (`faction.<id>`) use.
+
+export const factionRoute = (query: string) => placesRoute("faction-states", query);
+
+/** The faction-state lookup a `#/places/faction-states/<id>` hash asks for, or null. */
+export function parseFactionRoute(hash: string): string | null {
+  const at = parsePlaces(hash);
+  if (at?.finder?.id !== "faction-states") return null;
+  return FACTION_STATES.find((q) => q.id === at.input)?.id ?? null;
 }
 
 // Mining hotspots: #/places/mining-hotspots/<ore symbol>[?ring=<type>&reserve=<pristine|major>],

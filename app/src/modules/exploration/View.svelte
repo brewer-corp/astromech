@@ -3,14 +3,11 @@
   // scan them, with what each is worth now and mapped, which are worth mapping, and the facts
   // that decide where to fly (terraformable, landable, rings, gravity, signals).
   import Badge from "../../lib/ui/Badge.svelte";
-  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
   import { when } from "../../lib/logbook";
-  import type { Filters, Origin } from "../../lib/search";
-  import { stations, toResults } from "../../lib/stations";
-  import SearchKit from "../../lib/ui/SearchKit.svelte";
+  import { serviceRoute } from "../../lib/places";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
   let view = $state<SystemView | null>(null);
@@ -48,12 +45,11 @@
     return () => clearInterval(t);
   });
 
-  // Where to sell it: the nearest Universal Cartographics or Vista Genomics, on the search kit.
-  let sellAt = $state<"universal_cartographics" | "vista_genomics">("universal_cartographics");
-  const run = $derived.by(() => {
-    const service = sellAt;
-    return async (origin: Origin, filters: Filters) => toResults(await stations({ kind: "service", service }, origin, filters));
-  });
+  // Where to sell it: links into the Services finder (decision astromech-g8d5, item 5).
+  const sellAt = [
+    { route: serviceRoute("universal_cartographics"), label: "Universal Cartographics", what: "cartographic data" },
+    { route: serviceRoute("vista_genomics"), label: "Vista Genomics", what: "organic data" },
+  ];
 
   /** Short facts for the body's row. */
   function facts(b: Body): string[] {
@@ -147,7 +143,7 @@
       CMDR {unsold.commander.name}{unsold.since ? ` · unsold since ${when(unsold.since)} UTC` : ""}{unsold.source ? ` · ${unsold.source}` : ""}
     </p>
     {#if unsold.risky}
-      <p class="risk" role="alert">{credits(unsold.total)} aboard. Dying loses all of it: sell it at the nearest station below.</p>
+      <p class="risk" role="alert">{credits(unsold.total)} aboard. Dying loses all of it: sell it at the nearest station (links below).</p>
     {/if}
   {:else if unsoldLoaded}
     <p class="lo">No commander in the journal history yet.</p>
@@ -156,16 +152,11 @@
   {/if}
 
   <h3>Where to sell</h3>
-  <div class="sell">
-    <label class="pick">
-      <span>Sell</span>
-      <Dropdown class="grow" bind:value={sellAt}>
-        <option value="universal_cartographics">Cartographic data: Universal Cartographics</option>
-        <option value="vista_genomics">Organic data: Vista Genomics</option>
-      </Dropdown>
-    </label>
-    <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" noun="stations" busyText="Asking Spansh…" />
-  </div>
+  <ul class="sell">
+    {#each sellAt as l (l.route)}
+      <li><a href="#/{l.route}">Nearest {l.label}</a> <span class="lo">for {l.what}</span></li>
+    {/each}
+  </ul>
 </section>
 
 <style>
@@ -191,8 +182,8 @@
   h3 { margin: 28px 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   .small { font-size: var(--fs-s); }
   .risk { padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--cell); color: var(--text-hi); max-width: 52rem; }
-  .sell { max-width: 46rem; }
-  .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); margin-bottom: 4px; }
-  .pick > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
-  .pick > :global(.grow) { flex: 1; }
+  .sell { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  /* Links to somewhere else (DESIGN.md Buttons → Links). */
+  .sell a { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .sell a:hover { color: var(--orange-lit); }
 </style>

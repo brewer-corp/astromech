@@ -4,7 +4,7 @@ const manifest: ModuleManifest = {
   id: "materials",
   group: "engineering",
   title: "Materials",
-  summary: "Engineering materials as the traders show them, plus where High Grade Emissions drop and the nearest raw-material sites",
+  summary: "Engineering materials as the traders show them and where each comes from, with links to the Raw sites and Faction states finders",
   help: "materials.md",
   order: 10,
   api: ["materials"],

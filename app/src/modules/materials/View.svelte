@@ -1,14 +1,18 @@
 <script lang="ts">
-  // Journal-fed trader grids: the in-game inventory is a flat list with no grades.
+  // Journal-fed trader grids: the in-game inventory is a flat list with no grades. Where to
+  // find raw sites and the systems a material's source needs are Places finders: this page
+  // links into them with the site kind or faction state filled in (decision astromech-g8d5, item 5).
   import { tick } from "svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { loadMaterials, type Cell, type Inventory } from "../../lib/materials";
-  import Nearby from "../../lib/ui/Nearby.svelte";
-  import Sites from "../../lib/ui/Sites.svelte";
+  import { factionRoute, siteRoute } from "../../lib/places";
+  import { SITE_KINDS } from "../../lib/sites";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
 
+  /** Between the raw-site links (a literal space at a tag edge would be trimmed). */
+  const SEP = ", ";
   let inv = $state<Inventory | null>(null);
   let failed = $state<string | null>(null);
   let kindId = $state("raw");
@@ -152,7 +156,12 @@
             {/each}
           </ul>
         {/if}
-        {#if kindId === "raw"}<Sites />{/if}
+        {#if kindId === "raw"}
+          <p class="find">
+            Raw sites near you, in Places:
+            {#each SITE_KINDS as k, i (k.id)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{siteRoute(k.id)}">{k.label}</a>{/each}
+          </p>
+        {/if}
       {/if}
     </div>
   </div>
@@ -171,7 +180,7 @@
       {/if}
       <p class="lo">{sel.trader ? "Shown on the matching material trader." : "Not traded at material traders."}</p>
       {@const lookup = sel.sources?.find((s) => s.query)?.query}
-      {#if lookup}<Nearby query={lookup} />{/if}
+      {#if lookup}<p><a class="link" href="#/{factionRoute(lookup)}">Find the nearest systems</a></p>{/if}
     {:else}
       <h3>{kind?.title ?? "Materials"}</h3>
       {#if kindId === "other"}
@@ -216,6 +225,10 @@
   .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); font-family: var(--mono); }
   .lo { color: var(--text-lo); }
+  .find { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
+  /* Links to somewhere else (DESIGN.md Buttons → Links). */
+  .find a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .find a:hover, .link:hover { color: var(--orange-lit); }
   @media (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
     .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; }

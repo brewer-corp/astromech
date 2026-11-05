@@ -1,5 +1,5 @@
 // Command palette entries: every material the window knows, opening it on the Materials page
-// (with its nearby search when it has one).
+// (with a link to its Faction states finder when its source has one).
 import { loadMaterials } from "../../lib/materials";
 import type { PaletteItem } from "../../lib/palette";
 

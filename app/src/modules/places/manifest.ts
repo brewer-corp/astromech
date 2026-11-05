@@ -4,10 +4,10 @@ const manifest: ModuleManifest = {
   id: "places",
   group: "galaxy",
   title: "Places",
-  summary: "Finders for a service, module, ship, material trader or mining hotspot near you",
+  summary: "Finders for where to sell or buy a commodity or sell the hold, and the nearest service, module, ship, material trader, raw site, faction state or mining hotspot",
   help: "places.md",
   order: 0,
-  api: ["stations"],
+  api: ["stations", "trade", "galaxy"],
   load: () => import("./View.svelte"),
   palette: async () => (await import("./palette")).default(),
 };

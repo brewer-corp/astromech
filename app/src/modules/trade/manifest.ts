@@ -4,7 +4,7 @@ const manifest: ModuleManifest = {
   id: "trade",
   group: "trade",
   title: "Commodities",
-  summary: "Where to sell or buy a commodity near you or anywhere, best price first (Ardent Insight), and trade routes (Spansh)",
+  summary: "Trade routes from a station (Spansh), with links to the Sell, Buy and Sell my cargo finders",
   help: "trade.md",
   order: 10,
   api: ["trade"],

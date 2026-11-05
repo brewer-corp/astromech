@@ -1,21 +1,24 @@
 <script lang="ts">
   // One finder's page (DESIGN.md Places home, mockup Finder.svelte): a "Places" crumb back to the
   // home page, the finder's title, its main input with its name, then the search kit with the
-  // finder's result rows. A finder has no tab row of its own (The Two Tab Rows Rule).
+  // finder's result rows. A finder has no tab row of its own (The Two Tab Rows Rule). A finder
+  // that asks nothing (Sell my cargo) has no main input.
   import type { Snippet } from "svelte";
   import type { Finder } from "../../lib/places";
 
-  let { finder, input, children }: { finder: Finder; input: Snippet; children: Snippet } = $props();
+  let { finder, input, children }: { finder: Finder; input?: Snippet; children: Snippet } = $props();
 </script>
 
 <section class="finder">
   <a class="crumb" href="#/places">Places</a>
   <div class="head">
     <h1>{finder.title}</h1>
-    <div class="main">
-      <span class="label">{finder.input}</span>
-      {@render input()}
-    </div>
+    {#if input}
+      <div class="main">
+        <span class="label">{finder.input}</span>
+        {@render input()}
+      </div>
+    {/if}
   </div>
   {@render children()}
 </section>
