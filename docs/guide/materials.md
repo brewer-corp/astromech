@@ -68,7 +68,7 @@ On the **Raw** tab, below the grid, pick a kind of site and the nearest bodies a
 
 Each row is a body, nearest in jumps first, with what is there, the distance, how far it is from
 the arrival star and how old the data is. The search starts from your current system, or one you type. You can limit the age of the data and the
-arrival distance. See [Galaxy](galaxy.md#how-searches-work). By voice:
+arrival distance. See [Places](places.md#how-searches-work). By voice:
 "nearest crystalline shards" and the like ([lookups](lookups.md#raw-material-sites)).
 
 Sources: Spansh's bodies search at run time; the known farms are a hand-checked list from player

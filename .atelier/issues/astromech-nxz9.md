@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Places home and the Galaxy finders as Places pages"
-updated_at: "2026-11-05T08:27:06.333434639+00:00"
+updated_at: "2026-11-05T08:38:04.007547777+00:00"
 ---
 
 ## Goal
@@ -42,3 +42,7 @@ Turn the Galaxy area into Places: a home page that shows every finder as a tile 
 
 - DESIGN.md: Places home, Tabs, The Two Tab Rows Rule; mockup `app/src/mockups/ds/PlacesHome.svelte` (`#/mockup/ds-places`).
 - docs/ARCHITECTURE.md §18.2 (module contract, palette routes).
+
+## Notes
+
+- 2026-11-05 [note] Implementer choices DESIGN.md, the issue and the decisions leave open, each the reversible option: (1) the Places home leaves out a section heading with no finder built yet (Trade, Mining, Route stay hidden until kwoi and f7i0 add finders); (2) Services keeps the trader services in its dropdown, and Material traders is its own finder on the same lookup and remembered filters (stations.service); (3) every Places page uses one Help link, places.md, not a heading per finder; (4) a tile's answer names only the input ("Interstellar Factors · 2 jumps"), not where it was asked from, and the tile opens that same search again; (5) the guide page galaxy.md is renamed places.md, and the old release notes keep their links to galaxy.md on GitHub; (6) the Ctrl+K palette gains an entry per finder and per service, replacing the reach the Galaxy Find box had.

@@ -218,7 +218,7 @@ It needs:
   it is done. One route is plotted at a time.
 - your current system, from the game's journal: log in to Elite at least once on this PC.
 - for a neutron route on this PC, internet only to find a destination that isn't on
-  astromech's star map ([Galaxy](galaxy.md#jumps-and-distance)) yet: it asks Spansh where the
+  astromech's star map ([Places](places.md#jumps-and-distance)) yet: it asks Spansh where the
   system is.
 - a ship flown since the journal began, so its loadout is there.
 - a fuel scoop. Exact routes plan their refuel stops by scooping, and astromech does not check
@@ -275,7 +275,7 @@ give it a name if you like, and press **Follow this route**.
 - [Trade, Route](trade.md#route) finds a profitable trade route with Spansh. It does not plot a
   flight route.
 - Every list of "nearest" places counts jumps along the known star map at your ship's range:
-  [Galaxy](galaxy.md#jumps-and-distance).
+  [Places](places.md#jumps-and-distance).
 
 ## Limits
 

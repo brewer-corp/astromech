@@ -5,8 +5,8 @@ and the window can stay closed.
 
 ## The window
 
-The header has plain text tabs for the areas. Most areas list their pages as sub-tabs below.
-Galaxy has a Find box instead: type a service, module or ship. Under the header, on every page,
+The header has plain text tabs for the areas. Areas with more than one page list them as
+sub-tabs below. Under the header, on every page,
 the [route strip](routes.md#the-route-strip) shows the next stop of the route you are following;
 click its destination for the full Route page, which is also in the command palette (Ctrl+K).
 
@@ -14,7 +14,7 @@ click its destination for the full Route page, which is also in the command pale
 |---|---|
 | **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
 | **Engineering** | Ships, Stored modules, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
-| **Galaxy** | Find a service, module or ship: [Galaxy](galaxy.md) |
+| **Galaxy** | Places, Route: [Places](places.md), [Routes](routes.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |
 | **Powerplay** | [Powerplay](powerplay.md) |
@@ -56,7 +56,7 @@ open that system or station in your browser. astromech does not type into the ga
 ## Searches near you
 
 The "nearest" pages share one kit: where to search from, filters, and a list with jumps and
-distance. It is described once in [Galaxy](galaxy.md#how-searches-work).
+distance. It is described once in [Places](places.md#how-searches-work).
 
 ## What needs the network
 

@@ -54,6 +54,7 @@
     start = null,
     header,
     lead,
+    onanswer,
   }: {
     /** Stable id of the lookup: filters are remembered under it, and a change re-runs the search. */
     lookup: string;
@@ -76,6 +77,11 @@
     header?: Snippet;
     /** What to find, rendered in the query band (service, module, commodity…). */
     lead?: Snippet;
+    /**
+     * Each answer as shown: the first row's ranked value and its unit, or null when nothing was
+     * found. A Places finder keeps it for its tile.
+     */
+    onanswer?: (top: { figure: string; unit: string } | null) => void;
   } = $props();
 
   // Follows `start`; the commander's pick (or ×) overrides it until `start` changes.
@@ -188,6 +194,14 @@
   const rows = $derived(res ? (limit == null ? res.rows : res.rows.filter((r) => !isStale(r, limit, asOf))) : []);
   const hidden = $derived(res ? res.rows.length - rows.length : 0);
   const columns = $derived(res ? factColumns(res) : []);
+
+  $effect(() => {
+    if (!onanswer || busy || err || !res) return;
+    const top = rows[0];
+    if (!top) return onanswer(null);
+    const figure = top.main ?? jumpsFigure(top);
+    onanswer({ figure, unit: res.main ? (res.main.unit ?? "") : /^~?1$/.test(figure) ? "jump" : "jumps" });
+  });
 
   /** The list's width, to fall back to the compact row where the columns don't fit. */
   let out = $state<HTMLElement | null>(null);

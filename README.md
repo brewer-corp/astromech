@@ -54,7 +54,7 @@ The [guide](docs/guide/index.md) covers every page and feature:
 - Voice: [Voice](docs/guide/voice.md), [Voice commands](docs/guide/voice-commands.md), [Voice lookups](docs/guide/lookups.md), [Callouts](docs/guide/callouts.md), [Voice tester](docs/guide/voice-tester.md)
 - Controls: [Controls](docs/guide/controls.md)
 - Ships and engineering: [Ships](docs/guide/ships.md), [Materials](docs/guide/materials.md), [Engineers and on foot](docs/guide/engineering.md)
-- Galaxy and trade: [Galaxy](docs/guide/galaxy.md), [Routes](docs/guide/routes.md), [Trade](docs/guide/trade.md), [Mining](docs/guide/mining.md), [Colonisation](docs/guide/colonisation.md), [Powerplay](docs/guide/powerplay.md)
+- Galaxy and trade: [Places](docs/guide/places.md), [Routes](docs/guide/routes.md), [Trade](docs/guide/trade.md), [Mining](docs/guide/mining.md), [Colonisation](docs/guide/colonisation.md), [Powerplay](docs/guide/powerplay.md)
 - Exploring and history: [Exploration](docs/guide/exploration.md), [Logbook](docs/guide/logbook.md), [Data sharing](docs/guide/data-sharing.md) (exactly what is sent where)
 
 ## Release notes

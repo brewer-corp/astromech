@@ -11,7 +11,7 @@ export const GUIDE_URL = "https://github.com/brewer-corp/astromech/blob/main/doc
 /** The guide page of first-run setup (it is not a module). */
 export const SETUP_HELP = "getting-started.md#first-run";
 
-/** The link for a manifest's `help` ("galaxy.md#services"). */
+/** The link for a manifest's `help` ("places.md#services"). */
 export function helpUrl(help: string): string {
   return GUIDE_URL + help;
 }

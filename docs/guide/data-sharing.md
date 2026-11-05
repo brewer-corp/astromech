@@ -118,7 +118,7 @@ of systems from EDSM, with "First to report" where it applies.
 ## What else uses these services
 
 EDSM is also used, without an account, to fill in the star map around you (systems near you), see
-[Galaxy](galaxy.md#jumps-and-distance). That sends a search for a sphere of space, not your journal.
+[Places](places.md#jumps-and-distance). That sends a search for a sphere of space, not your journal.
 
 ## Turning it off
 

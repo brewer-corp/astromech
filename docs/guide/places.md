@@ -1,9 +1,19 @@
-# Galaxy
+# Places
 
-**Galaxy** is one place to ask *where is X?* — a **service**, a **module**, or a **ship** — and
-to follow a route there. The three lookups sit on the same search every "nearest" list in
-astromech uses, described [below](#how-searches-work). The **route** you are following stays
-on the right while you search (and also as its own page from the command palette).
+**Places** is one place to ask *where is X?* Open the **Galaxy** tab: its pages are **Places**
+and **Route**. The Places page shows a tile for each finder, grouped under headings:
+
+- **Ship:** [Services](#services), [Outfitting](#outfitting) and [Shipyard](#shipyard).
+- **Engineering:** [Material traders](#material-traders).
+
+Click a tile to open that finder. Each finder is its own page, with a **Places** link back, its
+title and its main input at the top: the service, module, ship or kind of trader. Below that is
+the same search every "nearest" list in astromech uses, described [below](#how-searches-work).
+Back and reload keep what you picked, and **Ctrl+K** opens any finder by name.
+
+Once a finder has answered, its tile shows the first result until you close the window ("Black
+market · 3 jumps"), and opens that search again. Opening the Places page asks nothing: a tile
+you haven't used this session shows only its name and what it finds.
 
 **What they need:** a network connection (Spansh for stations, EDSM to fill in the star map) and a
 position. The position is your current system from the journal, or a system you type. By
@@ -11,8 +21,7 @@ voice, the same searches are [lookups](lookups.md#stations-services-modules-ship
 
 ## Services
 
-Type a **service** in **Find** (or pick one from the suggestions). The nearest stations with it
-are listed:
+Pick a **service** in the dropdown. The nearest stations with it are listed:
 
 Interstellar Factors, Raw / Manufactured / Encoded material trader, Material trader (any type),
 Human / Guardian technology broker, Technology broker (any type), Universal Cartographics,
@@ -22,12 +31,14 @@ Repair, Rearm, Black market, Search and rescue.
 Filters: pad size, carriers, Odyssey settlements, data age, arrival distance. The list is ranked
 by jumps. Each row shows the station (with its type mark) and its system, the allegiance,
 controlling faction and state, then distance, pad, arrival distance and how old the report is.
+It opens on Interstellar Factors.
 
 ## Outfitting
 
-Type a **module** in **Find**, then pick its **class**, **rating** and, for weapons, **mount**
-(fixed, gimballed or turreted). Only the sizes and ratings the module comes in are offered. The
-nearest stations selling it are listed with the modules that matched and the price.
+Type a **module** in the **Module** box and pick it from the suggestions, then pick its
+**class**, **rating** and, for weapons, **mount** (fixed, gimballed or turreted). Only the sizes
+and ratings the module comes in are offered. The nearest stations selling it are listed with
+the modules that matched and the price.
 
 - It opens on a Frame Shift Drive class 5, rating A.
 - **Ctrl+K** finds a module by name and opens it here. So do the modules fitted on your ships.
@@ -36,13 +47,18 @@ nearest stations selling it are listed with the modules that matched and the pri
 
 ## Shipyard
 
-Type a **ship** in **Find**. The nearest shipyards selling it are listed with the price. Stations
-whose landing pads are too small for that ship are left out, whatever pad you pick. It opens on
-a Krait Mk II.
+Type a **ship** in the **Ship** box and pick it. The nearest shipyards selling it are listed with
+the price. Stations whose landing pads are too small for that ship are left out, whatever pad you
+pick. It opens on a Krait Mk II.
+
+## Material traders
+
+Pick **Raw**, **Manufactured**, **Encoded** or **Any**. The nearest material traders of that
+kind are listed, as on [Services](#services), with the same remembered filters. It opens on Raw.
 
 ## How searches work
 
-Every list that says "Nearest" works the same way. It appears on these pages and on Materials,
+Every list that says "Nearest" works the same way. It appears on these finders and on Materials,
 Trade, Colonisation, Powerplay and Exploration.
 
 - **From.** Empty means your current system. Type to search from another system: names are
@@ -105,4 +121,4 @@ route to follow.
 
 - Only what Spansh knows. A system or station nobody has reported is not found.
 - Jump counts are for your ship at its last loadout, not for a different build.
-- The pages do not plot a route. **Add stop** and **Set destination** on a result put its system on the route followed: see [Routes](routes.md#from-a-search-result).
+- The finders do not plot a route. **Add stop** and **Set destination** on a result put its system on the route followed: see [Routes](routes.md#from-a-search-result).

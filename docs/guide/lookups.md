@@ -38,7 +38,7 @@ AB-C d1-2") is hard for speech recognition to get exactly right; the pages let y
 Jump counts use your ship's range from the last loadout (20 light years if unknown). Inside the
 known star map a count is worked out along real stars. Outside it, or if the search gives up, it
 is a straight-line estimate and the page marks it with "~". Neutron boosts and fuel are not
-counted. See [Galaxy](galaxy.md#jumps-and-distance).
+counted. See [Places](places.md#jumps-and-distance).
 
 ## Stations: services, modules, ships
 
@@ -61,7 +61,7 @@ and a mount for weapons. Common short names work (FSD, scoop, AFMU, DSS, SCB, HR
 the ship's name or a short form ("krait", "dropship", "gunship"). A shipyard is skipped if its pads are too small
 for the ship.
 
-The same searches are on the [Galaxy](galaxy.md) pages: Services, Outfitting and Shipyard. Filters
+The same searches are the [Places](places.md) finders: Services, Outfitting, Shipyard and Material traders. Filters
 there (pad size, fleet carriers, Odyssey settlements, data age, arrival distance) apply to voice
 too. The pad follows your current ship until you pick one.
 

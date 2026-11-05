@@ -29,16 +29,16 @@ describe("outfitting catalogue", () => {
     for (const n of ["Military Grade Composite", "Mk II Ablative Reactive Surface Composite", "Enduring Feedback Rail Gun", "Rapid Phase Multi-Cannon", "Caustic Sink Launcher", "Extended Cargo Rack", "Long Range Detailed Surface Scanner"])
       expect(names).toContain(n);
     expect(names).not.toContain("Basic Discovery Scanner");
-    expect(parseModuleRoute("#/outfitting/Enduring%20Feedback%20Rail%20Gun")).toEqual({ name: "Enduring Feedback Rail Gun", class: null, rating: null, mount: null });
+    expect(parseModuleRoute("#/places/outfitting/Enduring%20Feedback%20Rail%20Gun")).toEqual({ name: "Enduring Feedback Rail Gun", class: null, rating: null, mount: null });
   });
 
   it("round-trips a module through the Outfitting route", () => {
     const fsd = { name: "Frame Shift Drive", class: 5, rating: "A", mount: null };
-    expect(moduleRoute(fsd)).toBe("outfitting/Frame%20Shift%20Drive?class=5&rating=A");
+    expect(moduleRoute(fsd)).toBe("places/outfitting/Frame%20Shift%20Drive?class=5&rating=A");
     expect(parseModuleRoute(`#/${moduleRoute(fsd)}`)).toEqual(fsd);
     const pl = { name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" as const };
     expect(parseModuleRoute(`#/${moduleRoute(pl)}`)).toEqual(pl);
-    expect(parseModuleRoute("#/outfitting/Fuel%20Scoop")).toEqual({ name: "Fuel Scoop", class: null, rating: null, mount: null });
+    expect(parseModuleRoute("#/places/outfitting/Fuel%20Scoop")).toEqual({ name: "Fuel Scoop", class: null, rating: null, mount: null });
   });
 
   it("round-trips every partial pick through the Outfitting route", () => {
@@ -52,28 +52,28 @@ describe("outfitting catalogue", () => {
             expect(parseModuleRoute(`#/${moduleRoute(w)}`)).toEqual(w);
           }
     }
-    expect(moduleRoute({ name: "Pulse Laser", class: null, rating: null, mount: "Fixed" })).toBe("outfitting/Pulse%20Laser?mount=Fixed");
-    expect(moduleRoute({ name: "Frame Shift Drive", class: 5, rating: null, mount: null })).toBe("outfitting/Frame%20Shift%20Drive?class=5");
+    expect(moduleRoute({ name: "Pulse Laser", class: null, rating: null, mount: "Fixed" })).toBe("places/outfitting/Pulse%20Laser?mount=Fixed");
+    expect(moduleRoute({ name: "Frame Shift Drive", class: 5, rating: null, mount: null })).toBe("places/outfitting/Frame%20Shift%20Drive?class=5");
   });
 
   it("still reads the older /<class><rating>[/<mount>] links", () => {
-    expect(parseModuleRoute("#/outfitting/Frame%20Shift%20Drive/5A")).toEqual({ name: "Frame Shift Drive", class: 5, rating: "A", mount: null });
-    expect(parseModuleRoute("#/outfitting/Pulse%20Laser/2F/Gimballed")).toEqual({ name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" });
+    expect(parseModuleRoute("#/places/outfitting/Frame%20Shift%20Drive/5A")).toEqual({ name: "Frame Shift Drive", class: 5, rating: "A", mount: null });
+    expect(parseModuleRoute("#/places/outfitting/Pulse%20Laser/2F/Gimballed")).toEqual({ name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" });
   });
 
   it("ignores Outfitting routes for no, unknown or mangled modules, and drops sizes it doesn't come in", () => {
-    expect(parseModuleRoute("#/outfitting")).toBeNull();
-    expect(parseModuleRoute("#/outfitting/Warp%20Core")).toBeNull();
-    expect(parseModuleRoute("#/outfitting/%E0%A4%A")).toBeNull();
-    expect(parseModuleRoute("#/outfitting/Shield%20Booster/5A")).toEqual({ name: "Shield Booster", class: null, rating: "A", mount: null });
+    expect(parseModuleRoute("#/places/outfitting")).toBeNull();
+    expect(parseModuleRoute("#/places/outfitting/Warp%20Core")).toBeNull();
+    expect(parseModuleRoute("#/places/outfitting/%E0%A4%A")).toBeNull();
+    expect(parseModuleRoute("#/places/outfitting/Shield%20Booster/5A")).toEqual({ name: "Shield Booster", class: null, rating: "A", mount: null });
     const anySize = { name: "Frame Shift Drive", class: null, rating: null, mount: null };
-    expect(parseModuleRoute("#/outfitting/Frame%20Shift%20Drive/9Z")).toEqual(anySize);
-    expect(parseModuleRoute("#/outfitting/Frame%20Shift%20Drive?class=x&rating=Z&mount=Sideways")).toEqual(anySize);
+    expect(parseModuleRoute("#/places/outfitting/Frame%20Shift%20Drive/9Z")).toEqual(anySize);
+    expect(parseModuleRoute("#/places/outfitting/Frame%20Shift%20Drive?class=x&rating=Z&mount=Sideways")).toEqual(anySize);
   });
 
   it("round-trips a ship through the Shipyard route", () => {
     expect(parseShipRoute(`#/${shipRoute("Krait MkII")}`)).toBe("Krait MkII");
-    expect(parseShipRoute("#/shipyard/Millennium%20Falcon")).toBeNull();
-    expect(parseShipRoute("#/shipyard/%E0%A4%A")).toBeNull();
+    expect(parseShipRoute("#/places/shipyard/Millennium%20Falcon")).toBeNull();
+    expect(parseShipRoute("#/places/shipyard/%E0%A4%A")).toBeNull();
   });
 });

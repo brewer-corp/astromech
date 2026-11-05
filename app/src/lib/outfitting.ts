@@ -3,6 +3,7 @@
  * station sells, with the classes, ratings and mounts it comes in, and every ship.
  */
 import catalog from "../../../data/catalog/outfitting.json";
+import { placesRoute } from "./places";
 import type { ModuleWant, Mount } from "./stations";
 
 export interface Size {
@@ -78,27 +79,27 @@ export function wantFor(symbol: string): ModuleWant | null {
 }
 
 /**
- * The Outfitting page's route for `w`: `outfitting/<module>[?class=&rating=&mount=]`, each part
- * only when picked, e.g. "outfitting/Pulse%20Laser?mount=Fixed". Nothing picked searches any size.
+ * The Outfitting finder's route for `w`: `places/outfitting/<module>[?class=&rating=&mount=]`,
+ * each part only when picked, e.g. "places/outfitting/Pulse%20Laser?mount=Fixed". Nothing picked
+ * searches any size.
  */
 export function moduleRoute(w: ModuleWant): string {
   const q = new URLSearchParams();
   if (w.class != null) q.set("class", String(w.class));
   if (w.rating) q.set("rating", w.rating);
   if (w.mount) q.set("mount", w.mount);
-  const qs = q.toString();
-  return `outfitting/${encodeURIComponent(w.name)}${qs ? `?${qs}` : ""}`;
+  return placesRoute("outfitting", w.name, q);
 }
 
 const MOUNTS: Mount[] = ["Fixed", "Gimballed", "Turreted"];
 
 /**
- * The module a `#/outfitting/...` hash asks for, settled to what it comes in; null for no or an
+ * The module a `#/places/outfitting/...` hash asks for, settled to what it comes in; null for no or an
  * unknown module. A size it doesn't come in, or a bad one, is dropped. Also reads the older
  * `/<class><rating>[/<mount>]` form.
  */
 export function parseModuleRoute(hash: string): ModuleWant | null {
-  const m = /^#\/outfitting\/([^/?]+)([^?]*)(?:\?(.*))?$/.exec(hash);
+  const m = /^#\/places\/outfitting\/([^/?]+)([^?]*)(?:\?(.*))?$/.exec(hash);
   if (!m?.[1]) return null;
   let name: string;
   try {
@@ -120,12 +121,12 @@ export function parseModuleRoute(hash: string): ModuleWant | null {
   });
 }
 
-/** The Shipyard page's route for a ship: `shipyard/<ship name>`. */
-export const shipRoute = (name: string) => `shipyard/${encodeURIComponent(name)}`;
+/** The Shipyard finder's route for a ship: `places/shipyard/<ship name>`. */
+export const shipRoute = (name: string) => placesRoute("shipyard", name);
 
-/** The ship a `#/shipyard/<name>` hash asks for, or null for no or an unknown ship. */
+/** The ship a `#/places/shipyard/<name>` hash asks for, or null for no or an unknown ship. */
 export function parseShipRoute(hash: string): string | null {
-  const m = /^#\/shipyard\/(.+)$/.exec(hash);
+  const m = /^#\/places\/shipyard\/(.+)$/.exec(hash);
   if (!m?.[1]) return null;
   try {
     const name = decodeURIComponent(m[1]);

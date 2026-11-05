@@ -44,7 +44,7 @@ Selling data removes it from the totals. The first-logged bonus on organic sampl
 ### Where to sell
 
 Pick **Cartographic data: Universal Cartographics** or **Organic data: Vista Genomics** and the
-nearest stations are listed on the usual search ([Galaxy](galaxy.md#how-searches-work)).
+nearest stations are listed on the usual search ([Places](places.md#how-searches-work)).
 
 ## Biology
 

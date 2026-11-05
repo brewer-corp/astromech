@@ -5,6 +5,7 @@
   // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page, and the top
   // bar's system search (PlotBar) plots a route from any page.
   import { groups, groupModules, findModule, modules } from "./lib/modules";
+  import { MOVED_FINDERS } from "./lib/places";
   import { collect } from "./lib/palette";
   import Button from "./lib/ui/Button.svelte";
   import Palette from "./lib/ui/Palette.svelte";
@@ -16,16 +17,21 @@
   import Strip from "./modules/route/Strip.svelte";
 
   const DEFAULT = "controller";
-  // Pages that were merged into another keep working as links.
-  const MOVED: Record<string, string> = { activities: "controller" };
-  const resolve = (r: string) => MOVED[r] ?? (r || DEFAULT);
+  // Pages that were merged into another keep working as links: the route's first part moves,
+  // and what followed it stays ("services/black_market" opens "places/services/black_market").
+  const MOVED: Record<string, string> = { activities: "controller", ...MOVED_FINDERS };
+  const moved = (r: string) => {
+    const [, head = "", rest = ""] = /^([^/?]*)(.*)$/.exec(r) ?? [];
+    return Object.hasOwn(MOVED, head) ? MOVED[head] + rest : null;
+  };
+  const resolve = (r: string) => moved(r) ?? (r || DEFAULT);
   const fromHash = () => resolve(location.hash.replace(/^#\//, ""));
   const start = fromHash();
   let route = $state(start);
   if (location.hash && location.hash !== `#/${start}`) location.hash = `#/${start}`;
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
   const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
-  const pages = $derived(current && current.group !== "galaxy" ? groupModules(current.group) : []);
+  const pages = $derived(current ? groupModules(current.group) : []);
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
   const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
@@ -63,7 +69,14 @@
   }
 
   $effect(() => {
-    const hash = () => (route = fromHash());
+    // An old link followed in the window is rewritten in place before the page reads it
+    // (this listener is added before any page's).
+    const hash = () => {
+      const raw = location.hash.replace(/^#\//, "");
+      const to = moved(raw);
+      if (to) history.replaceState(null, "", `#/${to}`);
+      route = to ?? resolve(raw);
+    };
     window.addEventListener("hashchange", hash);
     return () => window.removeEventListener("hashchange", hash);
   });

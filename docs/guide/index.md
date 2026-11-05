@@ -41,7 +41,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 
 | Page | What is in it |
 |---|---|
-| [Galaxy](galaxy.md) | Services, Outfitting, Shipyard, and how every "nearest" search works |
+| [Places](places.md) | The Places finders (Services, Outfitting, Shipyard, Material traders) and how every "nearest" search works |
 | [Routes](routes.md) | The route follower, paste into the galaxy map, and Spansh's neutron and exact plotters |
 | [Trade](trade.md) | Where to sell and buy, your cargo, trade routes |
 | [Mining](mining.md) | The current mining run |

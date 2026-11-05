@@ -38,7 +38,7 @@ It lists reinforcing (when your power controls the system), undermining (another
 
 ## Where to work
 
-Nearby systems where your power wants work, on the usual search ([Galaxy](galaxy.md#how-searches-work)):
+Nearby systems where your power wants work, on the usual search ([Places](places.md#how-searches-work)):
 
 - **Acquire.** Unoccupied systems your power can take, with its progress.
 - **Reinforce.** Your power's systems.
