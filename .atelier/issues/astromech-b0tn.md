@@ -4,6 +4,9 @@ id: "astromech-b0tn"
 issue_type: "bug"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: bug/astromech-b0tn
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journal following: a just-left journal touched by a sync tool"
-updated_at: "2026-11-04T23:55:31.999191885+00:00"
+updated_at: "2026-11-05T00:16:14.116605205+00:00"
 ---
 
 ## Goal
