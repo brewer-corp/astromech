@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte";
-import type { PlotSetup, Plotted } from "../../lib/route";
+import { resetFakeCore } from "../../lib/fakecore";
+import { followRoute, type PlotSetup, type Plotted } from "../../lib/route";
 import Plot from "./Plot.svelte";
 
 // The range line shows the ship and cargo a plot would use now (astromech-83og): a ship swap or
@@ -43,6 +44,26 @@ describe("Route plotter range line", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
     expect(await screen.findByText("Following Sol to Maia: 12 jumps · 452 ly · 2 refuel stops, at 31.20 ly a jump. Plotted by Spansh.")).toBeTruthy();
     expect(await screen.findByText(/31\.20 ly a jump with a full tank and 64 t of cargo/)).toBeTruthy();
+  });
+});
+
+describe("Route plotter, the route it replaced", () => {
+  it("says which route the plot parked, and Resume brings it back", async () => {
+    history.replaceState(null, "", "/?core=ready");
+    resetFakeCore();
+    const trip = { name: "Engineer trip", source: "engineer trip", waypoints: [{ system: "Kuk" }], next: 0 };
+    calls.setup.mockResolvedValue(asp);
+    calls.plot.mockResolvedValue({ plotted, view: { ...VIEW, parked: trip } });
+    await followRoute("Engineer trip", "engineer trip", [{ system: "Kuk" }]);
+    await followRoute("Sol to Maia", "exact plotter", [{ system: "Maia" }]);
+    render(Plot, { to: TO, onfollow: () => {} });
+    await screen.findByText(/39\.87 ly a jump/);
+    await fireEvent.click(screen.getByRole("button", { name: "Plot and follow" }));
+    expect(await screen.findByText("Replaced Engineer trip.")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+    expect(await screen.findByText("Following. Kuk is on your clipboard.")).toBeTruthy();
+    expect(screen.queryByText(/^Following Sol to Maia/)).toBeNull();
+    history.replaceState(null, "", "/");
   });
 });
 

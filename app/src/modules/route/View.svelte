@@ -1,9 +1,9 @@
 <script lang="ts">
   // Route (docs/PLOTTING.md, layer 1): the route the core follows. Its next waypoint is on the
   // clipboard for the galaxy map's search box; jumping into it copies the one after. Routes come
-  // from the top bar's plotter (PlotBar), the engineer trip, Go on a search result, an import (a
-  // Spansh CSV, or a list of systems) or the galaxy map itself: a route plotted there is followed
-  // quietly, and the route it replaced is parked to resume.
+  // from the top bar's plotter (PlotBar), the engineer trip, a search result's Add stop or Set
+  // destination, an import (a Spansh CSV, or a list of systems) or the galaxy map itself: a route
+  // plotted there is followed quietly. A route replaced by any of them is parked to resume.
   import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
@@ -36,7 +36,7 @@
     }
   }
 
-  // The core moves the route on as you jump, so keep looking. Go/plot also ping watchRoute.
+  // The core moves the route on as you jump, so keep looking. Route changes from other pages also ping watchRoute.
   $effect(() => {
     void run(getRoute, true);
     const t = setInterval(() => void run(getRoute, true), 2000);
@@ -111,7 +111,7 @@
       {/each}
     </ol>
   {:else if view}
-    <p class="lo empty">{compact ? "No route. Search a system in the top bar to plot one, plot in the galaxy map, or press Go on a result." : "No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, press Go on a search result, or import one."}</p>
+    <p class="lo empty">{compact ? "No route. Search a system in the top bar to plot one, plot in the galaxy map, or add a search result as a stop." : "No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, add a search result as a stop or make it the destination, or import one."}</p>
   {/if}
 
   {#if compact}

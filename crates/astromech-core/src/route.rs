@@ -4,12 +4,17 @@
 //! `FSDJump`, `CarrierJump` or `Location`, live only: the callout engine's `route_follow` rule
 //! calls [`Desk`] as a `Follower`) moves the route on and copies the stop after it.
 //!
+//! A route is never dropped silently. Following a new one from the window ([`Desk::set`]: Set
+//! destination, the engineer trip, an import, the plotter) parks the unfinished route it
+//! replaces, and Resume brings that back. Add stop ([`Desk::add`]) makes a place the next stop
+//! of the route followed instead of replacing it.
+//!
 //! A route plotted in the galaxy map is followed too ([`Desk::plotted`]). If it ends at a
 //! waypoint still ahead on the route being followed, it is a leg of that route (a neutron route's
 //! next neutron star) and nothing changes. Otherwise it becomes the route, silently and without
 //! the clipboard (the game has it plotted and its HUD shows the next jump), and a route it
 //! replaces is parked: Resume brings it back, and so does plotting to one of its waypoints in the
-//! galaxy map.
+//! galaxy map. Only a route of our own is parked: the game keeps its own plotted route.
 //!
 //! [`Route`] is the pure part. [`Desk`] owns the one active route and the parked one: it saves
 //! them to `route.json`, so they survive restarts and can be set from the app window while Elite
@@ -54,6 +59,14 @@ fn same_system(a: &str, b: &str) -> bool {
     a.trim().eq_ignore_ascii_case(b.trim())
 }
 
+/// Two stops in one system are one jump target: "Felicity Farseer, Someone Else".
+fn merge_labels(a: Option<String>, b: Option<String>) -> Option<String> {
+    match (a, b) {
+        (Some(a), Some(b)) if a != b => Some(format!("{a}, {b}")),
+        (a, b) => a.or(b),
+    }
+}
+
 impl Route {
     /// A route over `waypoints`, with blank systems dropped and consecutive stops in the same
     /// system merged (two engineers in one system are one jump target).
@@ -66,10 +79,7 @@ impl Route {
             }
             match out.last_mut() {
                 Some(last) if same_system(&last.system, &w.system) => {
-                    last.label = match (last.label.take(), w.label) {
-                        (Some(a), Some(b)) if a != b => Some(format!("{a}, {b}")),
-                        (a, b) => a.or(b),
-                    };
+                    last.label = merge_labels(last.label.take(), w.label);
                 }
                 _ => out.push(w),
             }
@@ -122,6 +132,22 @@ impl Route {
         }
         self.next -= 1;
         true
+    }
+
+    /// Make `stop` the next waypoint. In the same system as the next waypoint, or as the one just
+    /// passed, it merges with it (as [`Route::new`] merges neighbours), and that one is next.
+    fn add_next(&mut self, stop: Waypoint) {
+        let i = self.next;
+        if let Some(w) = self.waypoints.get_mut(i).filter(|w| same_system(&w.system, &stop.system)) {
+            w.label = merge_labels(stop.label, w.label.take());
+        } else if let Some(w) =
+            i.checked_sub(1).map(|p| &mut self.waypoints[p]).filter(|w| same_system(&w.system, &stop.system))
+        {
+            w.label = merge_labels(w.label.take(), stop.label);
+            self.next = i - 1;
+        } else {
+            self.waypoints.insert(i, stop);
+        }
     }
 }
 
@@ -298,7 +324,7 @@ pub struct View {
     pub remaining: usize,
     /// Why the last clipboard write failed, if it did.
     pub clipboard_error: Option<String>,
-    /// The route a galaxy-map plot replaced, to resume.
+    /// The route a galaxy-map plot or a route set from the window replaced, to resume.
     pub parked: Option<Route>,
 }
 
@@ -383,13 +409,19 @@ impl Desk {
         self.state.lock().unwrap().0.route.is_some()
     }
 
-    /// Start following `route` (and forget a parked one). If we are already in its first system
-    /// it starts after it. The next waypoint is copied straight away.
-    pub fn set(&self, mut route: Route) -> Result<View, String> {
+    /// Start following `route`. An unfinished route of our own that it replaces is parked (in
+    /// place of an older parked one), for Resume; otherwise a parked route stays parked. If we
+    /// are already in its first system it starts after it. The next waypoint is copied straight
+    /// away.
+    pub fn set(&self, route: Route) -> Result<View, String> {
         if route.waypoints.is_empty() {
             return Err("the route has no systems".into());
         }
         let mut st = self.state.lock().unwrap();
+        Ok(self.follow(&mut st, route))
+    }
+
+    fn follow(&self, st: &mut (Saved, Option<String>), mut route: Route) -> View {
         route.next = 0;
         if let Some(h) = st.0.here.clone() {
             // Only the start counts: being in a later stop shouldn't skip the ones before it.
@@ -403,8 +435,38 @@ impl Desk {
             route.waypoints.len(),
             if route.source.is_empty() { "?" } else { &route.source }
         ));
+        if let Some(old) = st.0.route.take().filter(|r| !r.from_game() && !r.finished()) {
+            crate::logging::log(&format!("route: parked {:?}", old.name));
+            st.0.parked = Some(old);
+        }
         st.0.route = Some(route);
-        st.0.parked = None;
+        self.copy(st);
+        self.save(&st.0);
+        Self::view_of(st)
+    }
+
+    /// Add stop: make `stop` the next waypoint of the route followed and copy it. Already in its
+    /// system, it counts as reached (as a new route's first stop does) and the stop after it is
+    /// next. With no route of our own to add to (none, a finished one, or the galaxy map's), it
+    /// is followed as a one-stop route named after its system, from `source`.
+    pub fn add(&self, stop: Waypoint, source: &str) -> Result<View, String> {
+        let stop =
+            Waypoint { system: stop.system.trim().to_string(), label: stop.label.filter(|l| !l.trim().is_empty()) };
+        if stop.system.is_empty() {
+            return Err("the stop has no system".into());
+        }
+        let mut st = self.state.lock().unwrap();
+        let Some(r) = st.0.route.as_mut().filter(|r| !r.from_game() && !r.finished()) else {
+            let route = Route::new(&stop.system.clone(), source, vec![stop]);
+            return Ok(self.follow(&mut st, route));
+        };
+        crate::logging::log(&format!("route: added {} as the next stop of {:?}", stop.system, r.name));
+        r.add_next(stop);
+        let here = st.0.here.clone();
+        let r = st.0.route.as_mut().expect("the route added to");
+        if here.is_some_and(|h| r.next_stop().is_some_and(|w| same_system(&w.system, &h))) {
+            r.next += 1;
+        }
         self.copy(&mut st);
         self.save(&st.0);
         Ok(Self::view_of(&st))
@@ -711,11 +773,136 @@ mod tests {
         plot_in_game(&d, &["Sol", "Elsewhere"]);
         d.on_system("B");
         assert_eq!(d.resume().unwrap().next.unwrap().system, "C");
-        // A route set from the window or cleared drops a parked one.
+        // A route set from the window replaces the galaxy map's route, which is not parked, so
+        // the parked route stays; clearing drops it.
         plot_in_game(&d, &["Sol", "Elsewhere"]);
-        assert!(d.set(route(&["C"])).unwrap().parked.is_none());
-        plot_in_game(&d, &["Sol", "Elsewhere"]);
+        assert_eq!(d.set(route(&["C"])).unwrap().parked.unwrap().name, "test");
         assert!(d.clear().parked.is_none());
+    }
+
+    fn named(name: &str, systems: &[&str]) -> Route {
+        Route::new(name, "import", systems.iter().map(|s| Waypoint::new(s)).collect())
+    }
+
+    fn stop(system: &str, label: &str) -> Waypoint {
+        Waypoint { system: system.into(), label: Some(label.into()) }
+    }
+
+    fn systems(v: &View) -> Vec<String> {
+        v.route.as_ref().unwrap().waypoints.iter().map(|w| w.system.clone()).collect()
+    }
+
+    /// Set destination (or any route set from the window) parks the unfinished route it
+    /// replaces, so Resume brings it back: never a silent replace (decision astromech-bi94).
+    #[test]
+    fn setting_a_route_parks_the_unfinished_one_it_replaces() {
+        let (d, got) = desk();
+        d.set(named("trip", &["A", "B"])).unwrap();
+        let v = d.set(named("Deciat", &["Deciat"])).unwrap();
+        assert_eq!(v.next.unwrap().system, "Deciat");
+        assert_eq!(v.parked.as_ref().unwrap().name, "trip");
+        // A newer replacement parks its route in place of the older parked one.
+        let v = d.set(named("Kuk", &["Kuk"])).unwrap();
+        assert_eq!(v.parked.as_ref().unwrap().name, "Deciat");
+        let v = d.resume().unwrap();
+        assert_eq!(v.route.unwrap().name, "Deciat");
+        assert!(v.parked.is_none(), "one route stays parked");
+        assert_eq!(got.lock().unwrap().as_slice(), ["A", "Deciat", "Kuk", "Deciat"]);
+    }
+
+    #[test]
+    fn a_finished_route_is_not_parked_by_a_new_one() {
+        let (d, _) = desk();
+        d.set(named("old", &["A", "B"])).unwrap();
+        d.set(named("trip", &["A"])).unwrap();
+        d.on_system("A");
+        let v = d.set(named("next", &["C"])).unwrap();
+        assert_eq!(v.parked.unwrap().name, "old", "the finished trip does not displace the parked route");
+    }
+
+    /// Add stop makes the place the next waypoint, copies it, and leaves the rest of the route.
+    #[test]
+    fn add_stop_inserts_the_next_waypoint() {
+        let (d, got) = desk();
+        d.on_system("A");
+        d.set(named("trip", &["A", "B", "C"])).unwrap();
+        let v = d.add(stop("X", "Interstellar Factors"), "stations.service").unwrap();
+        assert_eq!(systems(&v), ["A", "X", "B", "C"]);
+        assert_eq!(v.next, Some(stop("X", "Interstellar Factors")));
+        assert_eq!(v.remaining, 3);
+        assert_eq!(v.route.as_ref().unwrap().name, "trip");
+        assert!(v.parked.is_none(), "adding replaces nothing");
+        assert_eq!(got.lock().unwrap().as_slice(), ["B", "X"]);
+        // Arriving there moves on to the route's own next stop.
+        assert!(matches!(d.on_system("X"), Some(Moved::Arrived { ref next, .. }) if next.system == "B"));
+    }
+
+    /// A stop in the same system as the next waypoint, or the one just passed (skipped, here),
+    /// merges with it as `Route::new` merges neighbours, and that waypoint is next.
+    #[test]
+    fn add_stop_merges_with_a_neighbour_in_its_system() {
+        let (d, got) = desk();
+        d.set(Route::new(
+            "trip",
+            "engineer trip",
+            vec![stop("A", "Farseer"), stop("B", "Ram Tah"), stop("C", "Palin")],
+        ))
+        .unwrap();
+        d.step(true);
+        let v = d.add(stop("b", "Material Trader"), "").unwrap();
+        assert_eq!(systems(&v), ["A", "B", "C"]);
+        assert_eq!(v.next, Some(stop("B", "Material Trader, Ram Tah")));
+        let v = d.add(stop("A", "Interstellar Factors"), "").unwrap();
+        assert_eq!(systems(&v), ["A", "B", "C"]);
+        assert_eq!(v.next, Some(stop("A", "Farseer, Interstellar Factors")), "back to the stop just passed");
+        assert_eq!(v.remaining, 3);
+        assert_eq!(got.lock().unwrap().as_slice(), ["A", "B", "B", "A"]);
+    }
+
+    /// A stop in the system the commander is in counts as reached, as a new route's first stop
+    /// does: the route stays on its next stop instead of waiting for a jump into where they are.
+    #[test]
+    fn add_stop_where_you_are_counts_as_reached() {
+        let (d, got) = desk();
+        d.on_system("A");
+        d.set(named("trip", &["A", "B"])).unwrap();
+        let v = d.add(stop("a", "Interstellar Factors"), "").unwrap();
+        assert_eq!(systems(&v), ["A", "B"]);
+        assert_eq!(v.route.as_ref().unwrap().waypoints[0].label.as_deref(), Some("Interstellar Factors"));
+        assert_eq!(v.next.unwrap().system, "B");
+        d.on_system("Wolf 359");
+        let v = d.add(Waypoint::new("Wolf 359"), "").unwrap();
+        assert_eq!(systems(&v), ["A", "Wolf 359", "B"]);
+        assert_eq!(v.next.unwrap().system, "B");
+        assert_eq!(got.lock().unwrap().as_slice(), ["B", "B", "B"]);
+    }
+
+    /// With no route of our own to add to, Add stop follows the place on its own; a finished or
+    /// galaxy-map route it replaces is not parked, and a parked route stays.
+    #[test]
+    fn add_stop_with_no_route_starts_a_one_stop_route() {
+        let (d, got) = desk();
+        let v = d.add(stop("Deciat", "Garay Terminal"), "search").unwrap();
+        let r = v.route.unwrap();
+        assert_eq!((r.name.as_str(), r.source.as_str()), ("Deciat", "search"));
+        assert_eq!(v.next, Some(stop("Deciat", "Garay Terminal")));
+        assert!(v.parked.is_none());
+
+        // Finished: replaced, not added to.
+        d.on_system("Deciat");
+        let v = d.add(Waypoint::new("Kuk"), "search").unwrap();
+        assert_eq!(systems(&v), ["Kuk"]);
+        assert!(v.parked.is_none());
+
+        // The galaxy map's route: replaced, not added to, and the parked route of ours stays.
+        plot_in_game(&d, &["Deciat", "Wolf 359", "Sol"]);
+        assert_eq!(d.view().parked.unwrap().name, "Kuk");
+        let v = d.add(Waypoint::new("Shinrarta Dezhra"), "search").unwrap();
+        assert_eq!(systems(&v), ["Shinrarta Dezhra"]);
+        assert_eq!(v.parked.unwrap().name, "Kuk");
+        assert_eq!(got.lock().unwrap().as_slice(), ["Deciat", "Kuk", "Shinrarta Dezhra"]);
+
+        assert!(d.add(Waypoint::new("  "), "search").is_err());
     }
 
     #[test]

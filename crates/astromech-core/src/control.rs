@@ -29,7 +29,7 @@ pub struct Request {
     /// "status", "open_window", "save_diagnostics", "ack_crash", "quit", "check_update", "install_update",
     /// "eddn_log", "voice_test", "voice_test_poll", "voice_test_stop", "voice_test_live",
     /// "prospector_thresholds", "prospector_set" (text: the change as JSON), "route", "route_set"
-    /// (args: the route), "route_skip", "route_back", "route_clear", "route_copy", ...
+    /// (args: the route), "route_add" (args: the stop), "route_skip", "route_back", "route_clear", "route_copy", ...
     pub cmd: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub route: Option<String>,
@@ -37,7 +37,7 @@ pub struct Request {
     /// a lookup from a named system sends `args` `{command, from}` instead).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
-    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`) and `route_set`.
+    /// Arguments for setup commands (e.g. `set_ptt` with `{device, key}`) and `route_set` / `route_add`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub args: Option<Value>,
 }

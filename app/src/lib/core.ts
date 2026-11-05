@@ -165,6 +165,7 @@ export type CoreCmd =
   // Galaxy → Route: the route the core follows (core: route.rs, docs/PLOTTING.md).
   | "route"
   | "route_set"
+  | "route_add"
   | "route_skip"
   | "route_back"
   | "route_clear"

@@ -66,10 +66,13 @@ describe("Galaxy → Route", () => {
     expect(screen.queryByText("Paused")).toBeNull();
     expect(screen.getByText("On your clipboard")).toBeTruthy();
 
-    // A route set from the window drops a parked one, as in the core.
+    // A route set from the window parks the unfinished route of ours it replaces, as in the
+    // core; the galaxy map's route isn't parked, so the parked route stays.
     fakePlotInGame(["Sol", "Wolf 359"]);
     expect((await fakeCall("route")).view.parked?.name).toBe("Sol to Colonia");
     await followRoute("Trip", "engineer trip", [{ system: "Deciat" }]);
-    expect((await fakeCall("route")).view.parked).toBeNull();
+    expect((await fakeCall("route")).view.parked?.name).toBe("Sol to Colonia");
+    await followRoute("Deciat", "search", [{ system: "Deciat" }]);
+    expect((await fakeCall("route")).view.parked?.name).toBe("Trip");
   });
 });

@@ -16,7 +16,8 @@
   import { openUrl } from "../../lib/core";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import Nearby from "../../lib/ui/Nearby.svelte";
-  import { followedNote, followRoute } from "../../lib/route";
+  import { failedNote, followedNote, followRoute, type FollowNote } from "../../lib/route";
+  import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import SystemChip from "../../lib/ui/SystemChip.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import { pollFailure } from "../../lib/ui/errors";
@@ -36,15 +37,16 @@
   let engineersErr = $state<string | null>(null);
   let trip = $state<Trip | null>(null);
   let tripErr = $state<string | null>(null);
-  let followNote = $state<string | null>(null);
+  let followNote = $state<FollowNote | null>(null);
 
-  // Hand the trip to the core's route follower: the first engineer's system goes on the clipboard.
+  // Hand the trip to the core's route follower: the first engineer's system goes on the clipboard,
+  // and the route it replaces is parked for Resume.
   async function followTrip() {
     if (!trip) return;
     try {
       followNote = followedNote(await followRoute("Engineer trip", "engineer trip", trip.stops.map((s) => ({ system: s.system, label: s.engineer }))));
     } catch (e) {
-      followNote = `Could not follow it: ${e instanceof Error ? e.message : String(e)}`;
+      followNote = failedNote("Could not follow it", e);
     }
   }
   let stats = $state<StatsComparison | null>(null);
@@ -371,7 +373,7 @@
           {#if trip.stops.length}<Button onclick={() => void followTrip()}>Follow</Button>{/if}
         </div>
         <Stale error={engineersErr} />
-        {#if followNote}<p class="lo small">{followNote}</p>{/if}
+        <FollowNoteLine bind:note={followNote} />
         <p class="lo small">
           {#if trip.start}From <SystemChip name={trip.start} />{:else}Start unknown{/if} · {jumps(trip.total_jumps, trip.exact)} at {trip.range.toFixed(1)} ly
           {#if !trip.exact}· ~ = straight-line estimate{/if}

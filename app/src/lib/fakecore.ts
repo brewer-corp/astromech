@@ -238,16 +238,48 @@ export function fakePlotInGame(systems: string[]): void {
   st.route = { name: `Route to ${dest}`, source: GAME_SOURCE, waypoints: cleanStops(systems.slice(1).map((system) => ({ system }))), next: 0 };
 }
 
+/** An unfinished route of our own (not the galaxy map's). */
+const ours = (r: Route | null): r is Route => !!r && r.source !== GAME_SOURCE && r.next < r.waypoints.length;
+
+/** As the core's `Desk::set`: follow `waypoints`, parking the unfinished route of ours it replaces. */
+function follow(st: State, name: string, source: string, waypoints: Waypoint[]): void {
+  const first = waypoints[0];
+  const next = st.here && first && sameSystem(first.system, st.here) ? 1 : 0;
+  if (ours(st.route)) st.parked = st.route;
+  st.route = { name, source, waypoints, next };
+}
+
+/** As the core's `Desk::add` on a route of ours: the stop becomes the next waypoint, merged with
+ * the next one or the one just passed when it is in the same system; already in its system, it
+ * counts as reached. */
+function addNext(st: State, r: Route, stop: Waypoint): void {
+  const merge = (a?: string, b?: string) => (a && b && a !== b ? `${a}, ${b}` : (a ?? b));
+  const at = r.waypoints[r.next];
+  const prev = r.waypoints[r.next - 1];
+  if (at && sameSystem(at.system, stop.system)) at.label = merge(stop.label, at.label);
+  else if (prev && sameSystem(prev.system, stop.system)) {
+    prev.label = merge(prev.label, stop.label);
+    r.next -= 1;
+  } else r.waypoints.splice(r.next, 0, stop);
+  const next = r.waypoints[r.next];
+  if (st.here && next && sameSystem(next.system, st.here)) r.next += 1;
+}
+
 function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Reply {
   const r = st.route;
   switch (cmd) {
     case "route_set": {
       const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : ((args.waypoints as Waypoint[] | undefined) ?? []));
       if (!waypoints.length) return { ok: false, error: "the route has no systems" };
-      const first = waypoints[0];
-      const next = st.here && first && sameSystem(first.system, st.here) ? 1 : 0;
-      st.route = { name: String(args.name || "Route"), source: String(args.source ?? ""), waypoints, next };
-      st.parked = null;
+      follow(st, String(args.name || "Route"), String(args.source ?? ""), waypoints);
+      break;
+    }
+    case "route_add": {
+      const system = String(args.system ?? "").trim();
+      if (!system) return { ok: false, error: "the stop has no system" };
+      const stop: Waypoint = { system, ...(typeof args.label === "string" && args.label.trim() ? { label: args.label } : {}) };
+      if (ours(r)) addNext(st, r, stop);
+      else follow(st, system, String(args.source ?? ""), [stop]);
       break;
     }
     case "route_skip":
@@ -358,6 +390,7 @@ export async function fakeCall(cmd: CoreCmd, args?: unknown): Promise<Reply> {
   switch (cmd) {
     case "route":
     case "route_set":
+    case "route_add":
     case "route_skip":
     case "route_back":
     case "route_clear":

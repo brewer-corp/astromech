@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { fakeCall, resetFakeCore } from "../fakecore";
+import { followRoute } from "../route";
 import { DEFAULT_FILTERS, type Filters, type Origin, type Results } from "../search";
 import SearchKit from "./SearchKit.svelte";
 
@@ -114,26 +115,50 @@ describe("SearchKit", () => {
     expect(screen.queryByText(/^[SML]$/)).toBeNull();
   });
 
-  it("Go follows a station result, labelled with the station, and says when the core can't", async () => {
+  it("Add stop and Set destination hand the core the row's system and label, and say when it can't", async () => {
     loadFilters.mockResolvedValue(DEFAULT_FILTERS);
     const station: Results = {
       ...results,
       rows: [{ key: 2, system: "Deciat", station: "Garay Terminal", ly: 12, jumps: 1, exact: true, updated_at: null }],
     };
     const run = vi.fn<(o: Origin, f: Filters) => Promise<Results>>().mockResolvedValue(station);
-    // Outside the app with no preview core, the core isn't there to follow it.
+    // Outside the app with no preview core, the core isn't there to take it.
     history.replaceState(null, "", "/");
     const { unmount } = render(SearchKit, { lookup: "stations.service", offers: [], run });
-    await fireEvent.click(await screen.findByRole("button", { name: "Go to Deciat" }));
+    await fireEvent.click(await screen.findByRole("button", { name: "Add Deciat as a stop" }));
+    expect(await screen.findByText("Couldn't add it: not running inside the app")).toBeTruthy();
+    await fireEvent.click(screen.getByRole("button", { name: "Set Deciat as the destination" }));
     expect(await screen.findByText("Couldn't follow it: not running inside the app")).toBeTruthy();
     unmount();
 
     history.replaceState(null, "", "/?core=ready");
     resetFakeCore();
+    await followRoute("Engineer trip", "engineer trip", [{ system: "Kuk", label: "Ram Tah" }, { system: "Sol" }]);
     render(SearchKit, { lookup: "stations.service", offers: [], run });
-    await fireEvent.click(await screen.findByRole("button", { name: "Go to Deciat" }));
-    expect(await screen.findByText("Following. Deciat is on your clipboard.")).toBeTruthy();
-    expect((await fakeCall("route")).view.route.waypoints).toEqual([{ system: "Deciat", label: "Garay Terminal" }]);
+    const route = async () => (await fakeCall("route")).view;
+
+    // Add stop: the next stop of the route followed, which stays.
+    await fireEvent.click(await screen.findByRole("button", { name: "Add Deciat as a stop" }));
+    expect(await screen.findByText("Deciat is the next stop. Deciat is on your clipboard.")).toBeTruthy();
+    let v = await route();
+    expect(v.route).toMatchObject({ name: "Engineer trip", next: 0 });
+    expect(v.route.waypoints).toEqual([{ system: "Deciat", label: "Garay Terminal" }, { system: "Kuk", label: "Ram Tah" }, { system: "Sol" }]);
+    expect(screen.queryByRole("button", { name: "Resume" })).toBeNull();
+
+    // Set destination: a one-stop route; the trip is parked, and the note offers it back.
+    await fireEvent.click(screen.getByRole("button", { name: "Set Deciat as the destination" }));
+    expect(await screen.findByText("Replaced Engineer trip.")).toBeTruthy();
+    expect(screen.getByText(/Following\. Deciat is on your clipboard\./)).toBeTruthy();
+    v = await route();
+    expect(v.route).toMatchObject({ name: "Deciat", source: "search" });
+    expect(v.route.waypoints).toEqual([{ system: "Deciat", label: "Garay Terminal" }]);
+    expect(v.parked.name).toBe("Engineer trip");
+
+    await fireEvent.click(screen.getByRole("button", { name: "Resume" }));
+    await waitFor(() => expect(screen.queryByText("Replaced Engineer trip.")).toBeNull());
+    v = await route();
+    expect(v.route.name).toBe("Engineer trip");
+    expect(v.parked).toBeNull();
     history.replaceState(null, "", "/");
   });
 });

@@ -667,7 +667,8 @@ impl Core {
     }
 
     /// The Route page's commands. `route_set` takes `{name, source, waypoints}` or, for an
-    /// import, `{name, source, text}` (a Spansh CSV or one system per line).
+    /// import, `{name, source, text}` (a Spansh CSV or one system per line). `route_add` takes
+    /// `{system, label, source}`: a lookup result's Add stop.
     fn route_cmd(&self, r: &Request) -> Value {
         use crate::route::{parse_list, Route, Waypoint};
         let d = &self.route;
@@ -688,6 +689,15 @@ impl Core {
                     Err(e) => return json!({"ok": false, "error": e}),
                 }
             }
+            "route_add" => {
+                let a = r.args.clone().unwrap_or_default();
+                let s = |k: &str| a.get(k).and_then(|x| x.as_str()).map(str::to_string);
+                let stop = Waypoint { system: s("system").unwrap_or_default(), label: s("label") };
+                match d.add(stop, &s("source").unwrap_or_default()) {
+                    Ok(v) => v,
+                    Err(e) => return json!({"ok": false, "error": e}),
+                }
+            }
             "route_skip" => d.step(true),
             "route_back" => d.step(false),
             "route_clear" => d.clear(),
@@ -703,9 +713,8 @@ impl Core {
 
     pub fn handle(self: &Arc<Self>, r: &Request) -> Value {
         match r.cmd.as_str() {
-            "route" | "route_set" | "route_skip" | "route_back" | "route_clear" | "route_copy" | "route_resume" => {
-                self.route_cmd(r)
-            }
+            "route" | "route_set" | "route_add" | "route_skip" | "route_back" | "route_clear" | "route_copy"
+            | "route_resume" => self.route_cmd(r),
             "status" => self.status_json(),
             "open_window" => match self.open_window(r.route.as_deref()) {
                 Ok(()) => json!({"ok": true}),
@@ -1493,6 +1502,39 @@ mod tests {
         let v = call("route_resume", None);
         assert_eq!(v["view"]["route"]["waypoints"][1]["system"], "Colonia", "{v}");
         assert_eq!(v["view"]["parked"], Value::Null);
+    }
+
+    /// A lookup result's two actions: Add stop (`route_add`) makes it the next stop and copies
+    /// it; Set destination (`route_set` with one stop) parks the route it replaces for Resume.
+    #[test]
+    fn add_stop_and_set_destination_over_the_control_api() {
+        let d = tempfile::tempdir().unwrap();
+        let core = core(d.path(), "");
+        let call = |cmd: &str, args: Value| {
+            core.handle(&Request { token: String::new(), cmd: cmd.into(), route: None, text: None, args: Some(args) })
+        };
+        let trip =
+            json!({"name": "Trip", "source": "engineer trip", "waypoints": [{"system": "Deciat"}, {"system": "Kuk"}]});
+        call("route_set", trip);
+        let v = call(
+            "route_add",
+            json!({"system": "Shinrarta Dezhra", "label": "Interstellar Factors", "source": "search"}),
+        );
+        assert_eq!(v["view"]["next"], json!({"system": "Shinrarta Dezhra", "label": "Interstellar Factors"}), "{v}");
+        assert_eq!(v["view"]["route"]["name"], "Trip");
+        assert_eq!(v["view"]["remaining"], 3);
+        assert_eq!(call("route_add", json!({"system": " "}))["ok"], false);
+
+        let v = call("route_set", json!({"name": "Sol", "source": "search", "waypoints": [{"system": "Sol"}]}));
+        assert_eq!(v["view"]["next"]["system"], "Sol");
+        assert_eq!(v["view"]["parked"]["name"], "Trip", "{v}");
+        let v = call("route_resume", json!({}));
+        assert_eq!(v["view"]["next"]["system"], "Shinrarta Dezhra", "{v}");
+
+        call("route_clear", json!({}));
+        let v = call("route_add", json!({"system": "Colonia", "source": "search"}));
+        assert_eq!(v["view"]["route"]["name"], "Colonia", "{v}");
+        assert_eq!(v["view"]["remaining"], 1);
     }
 
     /// Test mode is on the tray status line, over whatever the game is doing.

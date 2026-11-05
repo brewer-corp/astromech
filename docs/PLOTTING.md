@@ -30,8 +30,8 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Paste button: `controls.paste = { device, key }`, read with the same Raw Input listener as push-to-talk | `controls.rs`, `config.rs` |
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Galaxy-map routes: a live new `NavRoute.json` (the engine's `Input::Route`) and a live `NavRouteClear` go to the same rule, which hands them to the follower (`Follower::plotted`, `cleared`) | `astromech_announce::route_follow`, `Desk::plotted`, `Desk::cleared_in_game` |
-| Control API: `route`, `route_set`, `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; the shell's `core_call` allows them |
-| UI: the top bar's **Plot to a system** (every page); Galaxy route rail (and the Route page) with Resume; **Follow** on the engineer trip; **Go** on every search-kit result | `app/src/modules/route` (`PlotBar.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte` |
+| Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; the shell's `core_call` allows them |
+| UI: the top bar's **Plot to a system** (every page); Galaxy route rail (and the Route page) with Resume; **Follow** on the engineer trip; **Add stop** and **Set destination** on every search-kit result; "Replaced *name*" with Resume under each of them and the plot panel | `app/src/modules/route` (`PlotBar.svelte`, `Plot.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte`, `lib/ui/FollowNote.svelte` |
 
 Behaviour:
 
@@ -40,6 +40,17 @@ Behaviour:
 - Setting a route copies its first stop straight away. If you are already in that system, the
   route starts at the stop after it. Being in a *later* stop at that moment doesn't skip
   anything.
+- A route is never replaced silently (decision astromech-bi94). `route_set` (Set destination,
+  the engineer trip, an import, the plotter) **parks** the route it replaces when that is an
+  unfinished route of our own, in place of an older parked one; `route_resume` brings it back.
+  A finished route or a galaxy-map route is not parked, and then a route already parked stays.
+- `route_add` (Add stop) makes the stop the **next** waypoint of the route followed and copies
+  it. In the same system as the next waypoint, or as the one just passed, it merges with that
+  one (labels joined, as `Route::new` merges neighbours) and that one is next. In the system the
+  commander is in, it counts as reached, as a new route's first stop does. With no route of
+  our own to add to (none, a finished one, or a galaxy-map route) it follows the stop as a
+  one-stop route named after its system, as `route_set` would. Leg-aware insertion (the least
+  detour) comes with Find along route (astromech-wla4).
 - Arriving in the next waypoint, or a later one (stops skipped), moves the route on, copies the
   next system and says *"Next waypoint. Deciat."* (*"Not copied."* after it if the clipboard
   write failed). The last one says *"Final waypoint reached. Route complete."* Catching up on
@@ -60,8 +71,8 @@ Behaviour:
   (clearing a leg, or arriving at its end, leaves our route alone). The game rewrites
   `NavRoute.json` empty on a clear, and that empty file (after one with hops) is the clear the
   follower goes by, so plots and clears keep the file's order whichever of it and the journal is
-  read first; a `NavRouteClear` line read while the file still has hops is ignored. `route_set` and
-  `route_clear` drop a parked route. With `route_follow` off, galaxy-map routes are not followed.
+  read first; a `NavRouteClear` line read while the file still has hops is ignored. `route_clear`
+  drops a parked route. With `route_follow` off, galaxy-map routes are not followed.
   The game's route repeated (the engine skips a `NavRoute.json` equal to the last one) is not news.
 - Consecutive stops in the same system are merged, which covers two engineers in one system and
   road-to-riches rows (one per body).

@@ -16,8 +16,8 @@ the **Route** page in the command palette:
 - every stop, with the ones behind you struck out and **you are here** next to the first stop
   when you are in it;
 - **Copy** (something else took the clipboard), **Skip**, **Back** and **Clear route**;
-- **Paused** and **Resume** when a route you plotted in the galaxy map took over from another
-  one ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map)).
+- **Paused** and **Resume** when another route took over from one you had not finished
+  ([One route at a time](#one-route-at-a-time)).
 
 [Import](#import-a-route) sits under the live route.
 
@@ -26,15 +26,42 @@ A route comes from:
 - **Plot to a system** in the top bar ([Plot a route](#plot-a-route));
 - the galaxy map, when you plot a route there ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map));
 - **Follow** on the engineer trip ([Engineering](engineering.md));
-- the flag (**Go to** the system) on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
-  Powerplay targets and the material sites). That is a route with one stop: the result's
-  system. If you are already in that system, the route is finished straight away and nothing is
-  copied;
+- the two buttons at the end of every search result (Services, Outfitting, Shipyard, Trade,
+  Exploration, Colonisation, Powerplay targets and the material sites): see
+  [From a search result](#from-a-search-result);
 - **Import** on this page.
 
-There is one route at a time: a new one replaces the old, and **Clear route** clears a paused
-one too. astromech keeps it while Elite or the
-window is closed, and after a restart. You can set a route with Elite closed.
+### From a search result
+
+Each result has two buttons for its system. Hover over one to see what it does.
+
+- **Add stop** (a route with a plus) makes the result's system the **next stop** of the route
+  you are following and puts it on your clipboard. The rest of the route stays: when you
+  arrive, the route carries on to the stop that was next before. If the result is in the same
+  system as the next stop, or the stop you have just reached, it joins that stop instead of
+  adding another. With no route, a finished one, or a route plotted in the galaxy map, it starts
+  a route with that one stop.
+- **Set destination** (a flag) makes the result's system the whole route: one stop, on your
+  clipboard. The route it replaces is paused, not lost: the line under the results says
+  *Replaced* and its name, with **Resume**.
+
+Either way, the stop is labelled with the station or what was found there. If you are already
+in that system, the stop counts as reached: Add stop leaves the route's next stop as it was,
+and a new one-stop route is finished straight away with nothing copied.
+
+### One route at a time
+
+astromech follows one route at a time. Setting a new one (**Set destination**, **Follow** on
+the engineer trip, **Plot and follow**, **Follow this route** for an import) **pauses** the
+route it replaces, if that route is not finished. The line under the button says *Replaced*
+and the route's name, with **Resume**, and the route rail shows it as **Paused** with
+**Resume**. Resume follows it again and puts its next waypoint on your clipboard; the route
+you set instead is dropped. Only one route is paused at a time: pausing another replaces it.
+A route plotted in the galaxy map is never paused (the game still has it), so setting a route
+over one keeps the route already paused. **Clear route** clears a paused one too.
+
+astromech keeps the routes while Elite or the window is closed, and after a restart. You can set
+a route with Elite closed.
 
 ## Following a route
 
@@ -123,7 +150,7 @@ When you plot a route in the galaxy map, astromech reads it from the game (`NavR
 
 Only plots made while astromech is running count: the route already plotted when astromech
 starts is not picked up. With `[callouts.route_follow] enabled = false`, galaxy-map routes are
-not followed either. Plotting a new route in astromech replaces a paused one.
+not followed either. Setting a new route in astromech pauses the one it replaces, as above.
 
 ## Plot a route
 

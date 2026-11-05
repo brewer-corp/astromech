@@ -202,10 +202,12 @@ describe("ship detail panels", () => {
     expect(screen.getByRole("heading", { level: 3, name: "Engineering" })).toBeTruthy();
   });
 
-  it("hands the engineer trip to the route follower", async () => {
+  it("hands the engineer trip to the route follower, parking the route it replaces", async () => {
     history.replaceState(null, "", "/?core=ready");
     const { resetFakeCore, fakeCall } = await import("../../lib/fakecore");
     resetFakeCore();
+    const { followRoute } = await import("../../lib/route");
+    await followRoute("Colonia run", "import", [{ system: "Colonia" }]);
     const { loadFleet, planTrip, savedPlan } = await import("../../lib/engineering");
     const sample = await loadFleet();
     render(Build, { fleet: sample, shipId: 7, onback: () => {} });
@@ -213,10 +215,13 @@ describe("ship detail panels", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Follow" }));
     const trip = (await planTrip(savedPlan(7)))!;
     const first = trip.stops[0]!;
-    expect(await screen.findByText(`Following. ${first.system} is on your clipboard.`)).toBeTruthy();
+    expect(await screen.findByText("Replaced Colonia run.")).toBeTruthy();
+    expect(screen.getByText(`Following. ${first.system} is on your clipboard.`, { exact: false })).toBeTruthy();
     const { view } = await fakeCall("route");
     expect(view.route.source).toBe("engineer trip");
     expect(view.route.waypoints[0]).toEqual({ system: first.system, label: first.engineer });
+    expect(view.parked.name).toBe("Colonia run");
+    expect(screen.getByRole("button", { name: "Resume" })).toBeTruthy();
     history.replaceState(null, "", "/");
   });
 });

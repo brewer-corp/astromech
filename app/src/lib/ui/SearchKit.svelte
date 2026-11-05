@@ -1,14 +1,16 @@
 <script lang="ts">
   // The "search near me" kit every lookup uses: pick where to search from (current or typed
   // system) and the lookup's remembered filters, run the lookup, and list the nearest results
-  // with jumps at the current range, distance, pad size, arrival distance and data age. Go on a
-  // result hands it to the core's route follower (docs/PLOTTING.md): its system goes on the
-  // clipboard for the galaxy map's search box.
+  // with jumps at the current range, distance, pad size, arrival distance and data age. Each
+  // result has two actions for the core's route follower (docs/PLOTTING.md): Add stop makes it the
+  // next stop of the route followed, and Set destination follows it on its own, parking the route
+  // it replaces for Resume. Either way its system goes on the clipboard for the galaxy map.
   import { ago, jumps } from "../galaxy";
   import { changeFilters, openFilters, type FilterStore } from "../filterstate";
-  import { followedNote, followRoute } from "../route";
+  import { addedNote, addStop, failedNote, followedNote, followRoute, type FollowNote, type Waypoint } from "../route";
   import { arrivalLabel, DEFAULT_FILTERS, loadFilters, saveFilters, stateLabel, type FilterHints, type FilterKey, type Filters, type Origin, type Pad, type Results } from "../search";
   import Allegiance from "./Allegiance.svelte";
+  import FollowNoteLine from "./FollowNote.svelte";
   import IconButton from "./IconButton.svelte";
   import OriginInput from "./OriginInput.svelte";
   import SearchFilters from "./SearchFilters.svelte";
@@ -58,8 +60,8 @@
   let filterErr = $state<string | null>(null);
   const store: FilterStore = { load: loadFilters, save: saveFilters };
   let busy = $state(false);
-  /** What Go did, or why it failed. */
-  let goNote = $state<string | null>(null);
+  /** What Add stop or Set destination did, or why it failed. */
+  let goNote = $state<FollowNote | null>(null);
   let asked = 0;
   let changed = 0; // filter changes made, so a slow earlier one can't overwrite a later one
 
@@ -115,13 +117,27 @@
     }
   }
 
-  /** A one-stop route to the result's system, labelled with the station or what was found there. */
-  async function go(r: Results["rows"][number]) {
+  /** The result as a stop: its system, labelled with the station or what was found there. */
+  function stop(r: Results["rows"][number]): Waypoint {
     const label = r.station ?? res?.label;
+    return { system: r.system, ...(label ? { label } : {}) };
+  }
+
+  /** Add stop: the result becomes the next stop of the route followed. */
+  async function add(r: Results["rows"][number]) {
     try {
-      goNote = followedNote(await followRoute(r.system, "search", [{ system: r.system, ...(label ? { label } : {}) }]));
+      goNote = addedNote(await addStop(stop(r), "search"));
     } catch (e) {
-      goNote = `Couldn't follow it: ${e instanceof Error ? e.message : String(e)}`;
+      goNote = failedNote("Couldn't add it", e);
+    }
+  }
+
+  /** Set destination: a one-stop route to the result; the route it replaces is parked. */
+  async function destination(r: Results["rows"][number]) {
+    try {
+      goNote = followedNote(await followRoute(r.system, "search", [stop(r)]));
+    } catch (e) {
+      goNote = failedNote("Couldn't follow it", e);
     }
   }
 </script>
@@ -168,13 +184,16 @@
               {#if r.updated_at}<span class="meta">{ago(r.updated_at)}</span>{/if}
               {#if r.detail}<span class="extra">{r.detail}</span>{/if}
             </span>
-            <IconButton class="go" icon="destination" label={`Go to ${r.system}`} tip={`Go to ${r.system}: it replaces the route and goes on the clipboard for the galaxy map`} onclick={() => void go(r)} />
+            <span class="acts">
+              <IconButton icon="add-stop" label={`Add ${r.system} as a stop`} tip={`Add ${r.system} as the next stop`} onclick={() => void add(r)} />
+              <IconButton icon="destination" label={`Set ${r.system} as the destination`} tip={`Set ${r.system} as the destination (replaces the route, which Resume brings back)`} onclick={() => void destination(r)} />
+            </span>
           </li>
         {:else}
           <li class="none">None found.</li>
         {/each}
       </ul>
-      {#if goNote}<p class="lo small">{goNote}</p>{/if}
+      <FollowNoteLine bind:note={goNote} />
       <p class="lo small">At {res.range.toFixed(1)} ly per jump · {res.source}, {ago(res.fetched)}{res.rows.some((r) => !r.exact) ? " · ~ = straight-line estimate" : ""}</p>
     {/if}
   </div>
@@ -201,8 +220,8 @@
   .dist { color: var(--accent); font-family: var(--mono); font-size: var(--fs); white-space: nowrap; }
   .meta { color: var(--text-lo); font-size: var(--fs-s); white-space: nowrap; }
   .extra { color: var(--text-lo); font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 16rem; }
-  li :global(.go) { justify-self: end; }
-  li:hover :global(.go) { color: var(--orange-lit); }
+  .acts { justify-self: end; display: flex; }
+  li:hover .acts :global(.ibtn) { color: var(--orange-lit); }
   .lo { color: var(--text-lo); }
   .small { font-size: var(--fs-s); margin-top: 14px; }
   p { margin: 0 0 8px; }

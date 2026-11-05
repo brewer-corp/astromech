@@ -5,9 +5,10 @@
   // The range and drive come from the ship's latest Loadout. A neutron route is worked out on
   // this PC in seconds when the neutron star file is downloaded (NeutronFile), else by Spansh;
   // an exact route always by Spansh, as a job that can take a minute.
-  import { plotRoute, plotSetup, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
+  import { plotRoute, plotSetup, replacedNote, type FollowNote, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
   import Button from "../../lib/ui/Button.svelte";
   import Choice from "../../lib/ui/Choice.svelte";
+  import FollowNoteLine from "../../lib/ui/FollowNote.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import NeutronFile from "./NeutronFile.svelte";
 
@@ -20,6 +21,8 @@
   let busy = $state(false);
   let err = $state<string | null>(null);
   let done = $state<Plotted | null>(null);
+  /** The route the plotted one replaced, parked for Resume, or what Resume did. */
+  let note = $state<FollowNote | null>(null);
   // The neutron star file is there, so neutron routes are plotted on this PC.
   let local = $state(false);
   // Bumped after a plot: the file's status may have changed (it failed to load).
@@ -45,6 +48,7 @@
   $effect(() => {
     void to;
     done = null;
+    note = null;
     err = null;
   });
 
@@ -57,10 +61,12 @@
     busy = true;
     err = null;
     done = null;
+    note = null;
     try {
       const eff = Math.min(100, Math.max(1, Math.round(Number(efficiency) || 60)));
       const r = await plotRoute({ plotter, to: to.trim(), efficiency: eff, refuel_every_scoopable: refuel });
       done = r.plotted;
+      note = replacedNote(r.view);
       onfollow?.(r.view);
     } catch (e) {
       err = String(e instanceof Error ? e.message : e);
@@ -119,6 +125,7 @@
     <p class="ok">Following {done.name}: {summary(done)}. {where(done)} <a href="#/route">Show the route</a></p>
     {#if done.fallback}<p class="lo">The neutron star file can't be read, so Spansh plotted this route: {done.fallback}</p>{/if}
   {/if}
+  <FollowNoteLine bind:note onresume={() => (done = null)} />
 </div>
 
 <style>

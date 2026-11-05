@@ -1217,6 +1217,7 @@ async fn core_call(cmd: String, text: Option<String>, args: Option<Value>) -> Va
         // The route the core follows (docs/PLOTTING.md).
         "route",
         "route_set",
+        "route_add",
         "route_skip",
         "route_back",
         "route_clear",

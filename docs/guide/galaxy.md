@@ -59,8 +59,9 @@ Trade, Colonisation, Powerplay and Exploration.
   - **Within** and **volume:** the search radius (20 to 500 ly) and minimum demand or stock, on trade lists.
 - **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. A station row has the type mark and name with arrival distance,
   the system with a copy mark plus light years and jumps, then allegiance, controlling faction
-  and state. The flag at the end of the row (**Go to** the system) puts that system on the route
-(the right-hand rail). The line under the list
+  and state. Two buttons end the row: **Add stop** makes that system the next stop of the route
+  (the right-hand rail), and **Set destination** makes it the whole route, pausing the old one
+  ([Routes](routes.md#from-a-search-result)). The line under the list
   says which jump range was used, who the source is and how old the answer is.
 - Searches are cached for a while, so asking twice is quick. Change a filter or the "From" to search again.
 
@@ -87,4 +88,4 @@ route to follow.
 
 - Only what Spansh knows. A system or station nobody has reported is not found.
 - Jump counts are for your ship at its last loadout, not for a different build.
-- The pages do not plot a route. **Go** on a result makes its system a one-stop route to follow: see [Routes](routes.md).
+- The pages do not plot a route. **Add stop** and **Set destination** on a result put its system on the route followed: see [Routes](routes.md#from-a-search-result).

@@ -36,7 +36,7 @@ export interface RouteView {
   remaining: number;
   /** Why the last clipboard write failed, if it did. */
   clipboard_error: string | null;
-  /** The route a galaxy-map plot replaced, to resume. */
+  /** The route a galaxy-map plot or a newly followed route replaced, to resume. */
   parked: Route | null;
 }
 
@@ -74,10 +74,42 @@ export function importRoute(name: string, text: string): Promise<RouteView> {
   return call("route_set", { name, source: "import", text }, true);
 }
 
-/** "Deciat is on your clipboard." after following a route, or why it isn't. */
-export function followedNote(v: RouteView): string {
-  if (!v.next) return "Following.";
-  return v.clipboard_error ? `Following. ${v.next.system} is not on the clipboard: ${v.clipboard_error}` : `Following. ${v.next.system} is on your clipboard.`;
+/** Make this stop the next one on the route followed (merged with a stop in the same system),
+ * or, with no route of our own to add to, follow it on its own. It is copied straight away. */
+export function addStop(stop: Waypoint, source: string): Promise<RouteView> {
+  return call("route_add", { ...stop, source }, true);
+}
+
+/** What following or adding a stop did, for the line under the button. */
+export interface FollowNote {
+  text: string;
+  /** The parked route's name: it was replaced and RESUME brings it back. */
+  replaced: string | null;
+}
+
+const clip = (v: RouteView, w: Waypoint) => (v.clipboard_error ? `${w.system} is not on the clipboard: ${v.clipboard_error}` : `${w.system} is on your clipboard.`);
+
+/** "Following. Deciat is on your clipboard." after following a route, or why it isn't, and the
+ * route it replaced ("Replaced Engineer trip." and RESUME): following never drops a route
+ * silently. */
+export function followedNote(v: RouteView): FollowNote {
+  return { text: v.next ? `Following. ${clip(v, v.next)}` : "Following.", replaced: v.parked?.name ?? null };
+}
+
+/** "Deciat is the next stop. Deciat is on your clipboard." after Add stop. Adding replaces
+ * nothing, so a route parked before stays parked but isn't news here. */
+export function addedNote(v: RouteView): FollowNote {
+  return { text: v.next ? `${v.next.system} is the next stop. ${clip(v, v.next)}` : "Added.", replaced: null };
+}
+
+/** Only the replaced route, for a panel that says what it followed itself (the plotter). */
+export function replacedNote(v: RouteView): FollowNote {
+  return { text: "", replaced: v.parked?.name ?? null };
+}
+
+/** The action failed: "Couldn't follow it: …". */
+export function failedNote(what: string, e: unknown): FollowNote {
+  return { text: `${what}: ${e instanceof Error ? e.message : String(e)}`, replaced: null };
 }
 
 /** The plotters (astromech_galaxy::plot). */

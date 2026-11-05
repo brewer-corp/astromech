@@ -34,11 +34,11 @@ describe("Nearby", () => {
     expect(visited[0]?.textContent).toMatch(/Ross 154 Boys \(Independent, Famine\) · seen on your visit/);
   });
 
-  it("Go puts a faction-state system on the route follower", async () => {
+  it("Set destination puts a faction-state system on the route follower", async () => {
     history.replaceState(null, "", "/?core=ready");
     resetFakeCore();
     render(Nearby, { query: "famine" });
-    await fireEvent.click(await screen.findByRole("button", { name: "Go to Ross 154" }));
+    await fireEvent.click(await screen.findByRole("button", { name: "Set Ross 154 as the destination" }));
     expect(await screen.findByText("Following. Ross 154 is on your clipboard.")).toBeTruthy();
     const { view } = await fakeCall("route");
     expect(view.route).toMatchObject({ name: "Ross 154", source: "search", next: 0 });
