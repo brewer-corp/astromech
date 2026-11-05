@@ -39,7 +39,7 @@ Move the place-finding lookups that live on other pages today into Places as fin
 
 ## Context
 
-- Builds on astromech-nxz9; astromech-sllo folds Trade's mode tabs, so this starts after it.
+- Builds on astromech-nxz9. astromech-sllo (Two Tab Rows) starts after this and folds any third tab level Trade still has once Sell, Buy and Sell my cargo have moved.
 - DESIGN.md: Places home, Side panel; mockup `#/mockup/ds-sell`.
 
 ## Notes
