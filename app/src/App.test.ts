@@ -23,7 +23,7 @@ describe("command palette in the window", () => {
   beforeAll(() => (Element.prototype.scrollIntoView = vi.fn())); // jsdom has no layout
   afterEach(() => (location.hash = ""));
 
-  it("opens a material's nearby search from the Powerplay page", async () => {
+  it("opens a material from the Powerplay page, with a link to its Faction states finder", async () => {
     location.hash = "#/powerplay";
     render(App);
     await screen.findByText("My standing");
@@ -36,8 +36,7 @@ describe("command palette in the window", () => {
 
     expect(location.hash).toBe("#/materials/protoheatradiators");
     expect(await screen.findByRole("heading", { name: "Proto Heat Radiators" })).toBeTruthy();
-    expect(await screen.findByText(/^Nearest to Sol/)).toBeTruthy();
-    expect(await screen.findByText("Ross 154")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Find the nearest systems" }).getAttribute("href")).toBe("#/places/faction-states/proto");
   });
 
   it("switches material on the Materials page itself", async () => {
@@ -208,10 +207,11 @@ describe("Places in the window", () => {
     expect(location.hash).toBe("#/places");
     expect(await screen.findByRole("heading", { name: "Ship" })).toBeTruthy();
     expect(pageTabs()).toEqual(["Places", "Route"]);
-    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Ship", "Engineering", "Mining"]);
-    const ship = within(screen.getByRole("region", { name: "Ship" }));
-    expect(ship.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["#/places/services", "#/places/outfitting", "#/places/shipyard"]);
-    expect(screen.getByRole("link", { name: /Material traders/ }).getAttribute("href")).toBe("#/places/material-traders");
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Trade", "Ship", "Engineering", "Mining"]);
+    const hrefs = (section: string) => within(screen.getByRole("region", { name: section })).getAllByRole("link").map((a) => a.getAttribute("href"));
+    expect(hrefs("Trade")).toEqual(["#/places/sell", "#/places/buy", "#/places/sell-cargo"]);
+    expect(hrefs("Ship")).toEqual(["#/places/services", "#/places/outfitting", "#/places/shipyard"]);
+    expect(hrefs("Engineering")).toEqual(["#/places/material-traders", "#/places/raw-sites", "#/places/faction-states"]);
     expect(screen.getByRole("link", { name: /Mining hotspots/ }).getAttribute("href")).toBe("#/places/mining-hotspots");
     expect(document.querySelector(".home .v"), "no Lit figure without an answer").toBeNull();
     expect(stationsSpy).not.toHaveBeenCalled();
@@ -263,6 +263,49 @@ describe("Places in the window", () => {
       render(App);
       await waitFor(() => expect(location.hash, old).toBe(now));
       await waitFor(() => expect(stationsSpy, old).toHaveBeenLastCalledWith(want, null, expect.anything()));
+      cleanup();
+    }
+  });
+
+  it("links each page a lookup moved from into its finder with the input filled in", async () => {
+    // [page, link name, finder address, finder title, main input name, its value]
+    const cases: [string, string, string, string, string, string][] = [
+      ["#/trade", "Sell", "#/places/sell/painite", "Sell", "Commodity", "Painite"],
+      ["#/trade", "Buy", "#/places/buy/painite", "Buy", "Commodity", "Painite"],
+      ["#/trade", "Sell my cargo", "#/places/sell-cargo", "Sell my cargo", "", ""],
+      ["#/materials", "Crystalline shards", "#/places/raw-sites/crystalline_shards", "Raw sites", "Site", "crystalline_shards"],
+      ["#/materials", "Known raw farms", "#/places/raw-sites/raw_farms", "Raw sites", "Site", "raw_farms"],
+      ["#/materials/protoheatradiators", "Find the nearest systems", "#/places/faction-states/proto", "Faction states", "State", "proto"],
+      ["#/materials/imperialshielding", "Find the nearest systems", "#/places/faction-states/empire_shielding", "Faction states", "State", "empire_shielding"],
+      ["#/exploration", "Nearest Universal Cartographics", "#/places/services/universal_cartographics", "Services", "Service", "universal_cartographics"],
+      ["#/exploration", "Nearest Vista Genomics", "#/places/services/vista_genomics", "Services", "Service", "vista_genomics"],
+    ];
+    for (const [page, name, to, title, input, value] of cases) {
+      const at = `${page} → ${name}`;
+      location.hash = page;
+      render(App);
+      const link = await screen.findByRole("link", { name });
+      expect(link.getAttribute("href"), at).toBe(to);
+      location.hash = to; // following the link (jsdom does not navigate on a click)
+      expect(await screen.findByRole("heading", { level: 1, name: title }), at).toBeTruthy();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(location.hash, at).toBe(to);
+      if (input) expect((screen.getByRole("combobox", { name: input }) as HTMLInputElement).value, at).toBe(value);
+      cleanup();
+    }
+  });
+
+  it("keeps the source pages' old addresses: Trade, Materials and Exploration still open", async () => {
+    for (const [page, sees] of [
+      ["#/trade", /most profitable hop/],
+      ["#/materials", /^Raw sites near you/],
+      ["#/materials/protoheatradiators", /^Find the nearest systems$/],
+      ["#/exploration", /^Where to sell$/],
+    ] as const) {
+      location.hash = page;
+      render(App);
+      expect(await screen.findByText(sees), page).toBeTruthy();
+      expect(location.hash, page).toBe(page);
       cleanup();
     }
   });
@@ -357,7 +400,7 @@ describe("Places in the window", () => {
         at = f.title;
         location.hash = "#/places";
         render(App);
-        await fireEvent.click(await screen.findByRole("link", { name: new RegExp(`^${f.title}`) }));
+        await fireEvent.click(await screen.findByRole("link", { name: new RegExp(`^${f.title} ${f.what}`) }));
         expect(await screen.findByRole("heading", { level: 1, name: f.title })).toBeTruthy();
         await fireEvent.click(screen.getByRole("link", { name: "Places" }));
         expect(await screen.findByRole("heading", { level: 2, name: "Ship" }), f.title).toBeTruthy();

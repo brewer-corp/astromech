@@ -2,36 +2,69 @@ import { describe, expect, it } from "vitest";
 import {
   FINDERS,
   MOVED_FINDERS,
+  factionRoute,
   forgetAnswers,
   homeSections,
   hotspotRoute,
   lastAnswer,
+  marketRoute,
+  parseFactionRoute,
   parseHotspotRoute,
+  parseMarketRoute,
   parsePlaces,
   parseServiceRoute,
+  parseSiteRoute,
   parseTraderRoute,
   placesRoute,
   rememberAnswer,
   serviceRoute,
+  siteRoute,
   traderRoute,
 } from "./places";
 
 describe("Places finders", () => {
-  it("lists the built finders under Ship, Engineering and Mining, leaving out sections with none yet", () => {
+  it("lists the built finders under Trade, Ship, Engineering and Mining, leaving out sections with none yet", () => {
     expect(FINDERS.map((f) => [f.id, f.title, f.section, f.input])).toEqual([
+      ["sell", "Sell", "Trade", "Commodity"],
+      ["buy", "Buy", "Trade", "Commodity"],
+      ["sell-cargo", "Sell my cargo", "Trade", "Hold"],
       ["services", "Services", "Ship", "Service"],
       ["outfitting", "Outfitting", "Ship", "Module"],
       ["shipyard", "Shipyard", "Ship", "Ship"],
       ["material-traders", "Material traders", "Engineering", "Trader"],
+      ["raw-sites", "Raw sites", "Engineering", "Site"],
+      ["faction-states", "Faction states", "Engineering", "State"],
       ["mining-hotspots", "Mining hotspots", "Mining", "Mineral"],
     ]);
     expect(homeSections().map(([s, fs]) => [s, fs.map((f) => f.id)])).toEqual([
+      ["Trade", ["sell", "buy", "sell-cargo"]],
       ["Ship", ["services", "outfitting", "shipyard"]],
-      ["Engineering", ["material-traders"]],
+      ["Engineering", ["material-traders", "raw-sites", "faction-states"]],
       ["Mining", ["mining-hotspots"]],
     ]);
-    const sell = { id: "services", title: "Sell", section: "Trade", what: "", input: "Commodity" } as const;
-    expect(homeSections([sell, ...FINDERS]).map(([s]) => s)).toEqual(["Trade", "Ship", "Engineering", "Mining"]);
+    expect(homeSections(FINDERS.filter((f) => f.section !== "Trade")).map(([s]) => s)).toEqual(["Ship", "Engineering", "Mining"]);
+  });
+
+  it("keeps the commodity and range in a Sell or Buy address", () => {
+    expect(marketRoute({ side: "sell", symbol: "painite", anywhere: false })).toBe("places/sell/painite");
+    expect(marketRoute({ side: "buy", symbol: "lowtemperaturediamond", anywhere: true })).toBe("places/buy/lowtemperaturediamond?range=anywhere");
+    expect(parseMarketRoute("#/places/buy/lowtemperaturediamond?range=anywhere")).toEqual({ side: "buy", symbol: "lowtemperaturediamond", anywhere: true });
+    expect(parseMarketRoute("#/places/sell/painite?range=far")).toEqual({ side: "sell", symbol: "painite", anywhere: false });
+    expect(parseMarketRoute("#/places/sell/unobtainium")).toBeNull();
+    expect(parseMarketRoute("#/places/sell")).toBeNull();
+    expect(parseMarketRoute("#/places/sell-cargo/painite")).toBeNull();
+    expect(parseMarketRoute("#/places/services/painite")).toBeNull();
+  });
+
+  it("reads the site kind and faction-state lookup from the address, and nothing from a bad one", () => {
+    expect(siteRoute("brain_trees")).toBe("places/raw-sites/brain_trees");
+    expect(parseSiteRoute("#/places/raw-sites/geological")).toBe("geological");
+    expect(parseSiteRoute("#/places/raw-sites/volcano")).toBeNull();
+    expect(parseSiteRoute("#/places/faction-states/geological")).toBeNull();
+    expect(factionRoute("famine")).toBe("places/faction-states/famine");
+    expect(parseFactionRoute("#/places/faction-states/pharma")).toBe("pharma");
+    expect(parseFactionRoute("#/places/faction-states/peace")).toBeNull();
+    expect(parseFactionRoute("#/places/raw-sites/pharma")).toBeNull();
   });
 
   it("keeps the mineral, ring type and reserve in a Mining hotspots address", () => {

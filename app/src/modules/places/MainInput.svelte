@@ -18,14 +18,15 @@
     label: string;
     /** The name of what the finder shows now. */
     current: string;
-    /** What can be picked: `label` is the value passed to `onpick`, `detail` an aside. */
-    items: { label: string; detail?: string }[];
+    /** What can be picked: `label` is the value passed to `onpick`, `detail` an aside, `keywords`
+     * other names it is found by ("LTDs"). */
+    items: { label: string; detail?: string; keywords?: string }[];
     placeholder: string;
     onpick: (label: string) => void;
   } = $props();
 
   const id = $derived(`main-${label.toLowerCase()}`);
-  const listed = $derived<PaletteItem[]>(items.map((i) => ({ label: i.label, detail: i.detail ?? "", route: i.label })));
+  const listed = $derived<PaletteItem[]>(items.map((i) => ({ label: i.label, detail: i.detail ?? "", route: i.label, keywords: i.keywords })));
   let text = $derived(current);
   let hits = $state<PaletteItem[]>([]);
   let sel = $state(0);

@@ -4,7 +4,7 @@
 does, without flying to one. The game's own inventory is a flat list with no grades; here each
 row is a category and each column a grade.
 
-**What it needs:** the journal, for what you hold. The farming searches need a network
+**What it needs:** the journal, for what you hold. The finders it links to need a network
 (Spansh and EDSM). It is updated as the game writes your materials.
 
 If the journal folder cannot be read (it is not where astromech looks, or it cannot be opened),
@@ -22,7 +22,8 @@ Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
   named.
 - Click a material to open its panel on the right: its grade, rarity and group, how many you
   hold, **where it comes from** (with a hint), and whether a material trader takes it. When
-  it has a farming source, a **Nearby** search finds the nearest systems for it.
+  its source is a faction state, **Find the nearest systems** opens the
+  [Faction states](places.md#faction-states) finder on that state.
 - **Ctrl+K** finds a material by name from any page (see [Using the app](using-the-app.md#command-palette)).
 
 ## High Grade Emissions
@@ -49,30 +50,17 @@ callout](callouts.md#high-grade-emissions) names the pool from the faction that 
 which. Biotech Conductors and Exquisite Focus Crystals are not at High Grade Emissions at all
 (missions or a manufactured trader).
 
-The nearby search for these finds the systems where the state is, ranked by a score of
-population then distance (the first column), with the population, the faction and its states,
-and how old Spansh's report is. By voice, see
+To find systems in one of these states, select a material it drops and click **Find the nearest
+systems**: the [Faction states](places.md#faction-states) finder ranks them by a score of
+population then distance. By voice, see
 [Voice lookups](lookups.md#faction-states-famine-boom-war-and-more).
 
 ## Raw material sites
 
-On the **Raw** tab, below the grid, pick a kind of site and the nearest bodies are listed:
-
-| Site | What it gives |
-|---|---|
-| Crystalline shards | Grade 4 raw (polonium, ruthenium, tellurium, technetium, yttrium, antimony and more). Shoot the shards from the SRV and collect the fragments. |
-| Brain trees | Grade 4 raw. Shoot them (turrets or flak), then collect with the SRV. |
-| Crashed ships | Encoded data points and salvage. Scan the data points from the SRV. |
-| Geological sites | Grade 1 to 3 raw from the outcrops around geysers, fumaroles and vents. |
-| Known raw farms | The well-known grade 4 farms: one body for each element. |
-
-Each row is a body, nearest in jumps first, with what is there, the distance, how far it is from
-the arrival star and how old the data is. The search starts from your current system, or one you type. You can limit the age of the data and the
-arrival distance. See [Places](places.md#how-searches-work). By voice:
-"nearest crystalline shards" and the like ([lookups](lookups.md#raw-material-sites)).
-
-Sources: Spansh's bodies search at run time; the known farms are a hand-checked list from player
-reports (forums, Steam, the wiki). The named bodies are starting points, not guarantees.
+On the **Raw** tab, the line under the grid links each kind of site (crystalline shards, brain
+trees, crashed ships, geological sites, known raw farms) to the [Raw sites](places.md#raw-sites)
+finder, which lists the nearest bodies with it. By voice: "nearest crystalline shards" and the
+like ([lookups](lookups.md#raw-material-sites)).
 
 ## Farming notes
 
@@ -86,5 +74,3 @@ These are community reports, not Frontier's.
 
 - Counts are as of the journal. Materials gained since the game last wrote are not shown.
 - Where-to-find notes are community knowledge and can go stale when the game changes.
-- Faction states come from Spansh, which can be days old; a system you visited recently
-  uses your own visit instead.

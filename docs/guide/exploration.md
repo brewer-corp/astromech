@@ -5,7 +5,7 @@ and **Biology**, the system's life ranked by value, with a sampling helper.
 
 **What they need:** Elite running and the journal. The page follows the game and refreshes every
 few seconds. The unsold-data totals need the journal history (see
-[Logbook](logbook.md)); the sell search needs the network. Searches use Spansh, and the "other players reported" biology comes from
+[Logbook](logbook.md)); the Where to sell links open finders that need the network. Searches use Spansh, and the "other players reported" biology comes from
 Spansh too.
 
 ## System
@@ -43,8 +43,8 @@ Selling data removes it from the totals. The first-logged bonus on organic sampl
 
 ### Where to sell
 
-Pick **Cartographic data: Universal Cartographics** or **Organic data: Vista Genomics** and the
-nearest stations are listed on the usual search ([Places](places.md#how-searches-work)).
+**Nearest Universal Cartographics** (cartographic data) and **Nearest Vista Genomics** (organic
+data) open the [Services](places.md#services) finder on that service.
 
 ## Biology
 

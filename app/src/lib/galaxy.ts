@@ -7,7 +7,7 @@ import { inTauri } from "./core";
 import { previewLookup } from "./fakecore";
 import sample from "./fixtures/nearby.json";
 import hgeSample from "./fixtures/nearby-hge.json";
-import type { Filters, Origin } from "./search";
+import { figure, type Filters, type Origin, type Results } from "./search";
 
 export interface Faction {
   name: string;
@@ -41,6 +41,21 @@ export interface Nearby {
   warning?: string;
 }
 
+/**
+ * The faction-state lookups the shell offers (astromech_galaxy::remote::QUERIES, same ids): the
+ * High Grade Emissions pools, then wake scanning (Famine). `name` is the Faction states finder's
+ * pick, `about` the line under it.
+ */
+export const FACTION_STATES = [
+  { id: "fed_composites", name: "Federation faction", about: "High Grade Emissions for Federation composites, in systems over a billion people." },
+  { id: "empire_shielding", name: "Empire faction", about: "High Grade Emissions for Imperial Shielding, in systems over a billion people." },
+  { id: "proto", name: "Boom (Independent or Alliance)", about: "High Grade Emissions for Proto materials." },
+  { id: "military", name: "War or Civil War", about: "High Grade Emissions for Military materials, any allegiance." },
+  { id: "improvised", name: "Civil Unrest (Independent or Alliance)", about: "High Grade Emissions for Improvised Components." },
+  { id: "pharma", name: "Outbreak (Independent or Alliance)", about: "High Grade Emissions for Pharmaceutical Isolators." },
+  { id: "famine", name: "Famine", about: "Distribution centres, for wake scanning." },
+] as const;
+
 /** Systems matching `query` and `filters` near `origin` (a typed system name), or near the commander. */
 export async function nearby(query: string, origin: Origin = null, filters: Filters | null = null): Promise<Nearby> {
   if (!inTauri) {
@@ -52,6 +67,40 @@ export async function nearby(query: string, origin: Origin = null, filters: Filt
     });
   }
   return await invoke<Nearby>("galaxy_nearby", { query, origin, filters });
+}
+
+/** The matching faction, its allegiance and states, and whether the commander's own visit said so. */
+function factionFact(h: NearbyHit): string {
+  const f = h.factions[0];
+  const st = f ? (f.active_states.length ? f.active_states.join(", ") : (f.state ?? "")) : "";
+  return [f ? `${f.name} (${f.allegiance}${st ? `, ${st}` : ""})` : "", h.seen_on_visit ? "seen on your visit" : ""].filter(Boolean).join(" · ");
+}
+
+/** The search kit's rows for a faction-state answer: HGE lookups ranked by the score, with the
+ * population it weighs; faction states by jumps. */
+export function nearbyResults(r: Nearby): Results {
+  const scored = r.hits.some((h) => h.score != null);
+  return {
+    origin: r.here.system,
+    range: r.range,
+    source: scored ? "Spansh, ranked by population and distance" : "Spansh",
+    fetched: r.fetched,
+    warning: r.warning,
+    label: r.query.label,
+    place: "system",
+    ...(scored ? { main: { head: "Score" } } : {}),
+    columns: [...(scored ? [{ key: "pop", head: "Population", width: 96 }] : []), { key: "faction", head: "Faction", text: true }],
+    rows: r.hits.map((h) => ({
+      key: h.id64,
+      system: h.name,
+      ly: h.ly,
+      jumps: h.jumps,
+      exact: h.exact,
+      updated_at: h.updated_at,
+      ...(h.score == null ? {} : { main: figure(h.score) }),
+      facts: { pop: population(h.population), faction: factionFact(h) },
+    })),
+  };
 }
 
 /** "2.0B", "85M", "35k", "uninhabited". */

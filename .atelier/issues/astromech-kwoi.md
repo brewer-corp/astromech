@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Move the Trade and Materials finders into Places"
-updated_at: "2026-11-05T09:34:00.982492657+00:00"
+updated_at: "2026-11-05T09:52:07.631091573+00:00"
 ---
 
 ## Goal
@@ -45,3 +45,4 @@ Move the place-finding lookups that live on other pages today into Places as fin
 ## Notes
 
 - 2026-11-05 [note] 2026-11-05 (orchestrator): no longer blocked by astromech-sllo (sllo now waits for this). Where moving the Trade modes leaves Trade with a third tab level, leave it for sllo rather than folding it here.
+- 2026-11-05 [note] 2026-11-05 (implementer): reversible choices DESIGN.md and the decisions left open, each in the handoff with options: Trade's Commodities page keeps its title and becomes trade routes with a links line (no mode tabs left, so nothing for sllo to fold there); its links open Sell/Buy on Painite, the finders' default, as Trade has no commodity of its own any more; Sell my cargo has no main input (FinderPage's input snippet is optional; its FINDERS input is 'Hold'); Faction states opens on Boom and lists the HGE pools before Famine; Raw sites and Faction states pick from a dropdown; Materials links every site kind under the raw grid and 'Find the nearest systems' in the side panel; Engineering's build plan keeps its embedded Nearby (not in scope).

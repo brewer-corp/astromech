@@ -60,8 +60,8 @@ somewhere and the station's facts show here."
 ### Market
 
 The market you are docked at, compared with the best prices elsewhere. It uses Ardent Insight, asks once
-per dock and **Check again** asks anew. The comparison uses the filters of Commodities, Sell
-(100 light years and 30 days unless you change them).
+per dock and **Check again** asks anew. The comparison uses the filters of the
+[Sell](places.md#sell-and-buy) finder (100 light years and 30 days unless you change them).
 
 - **Your cargo**: for each commodity in the hold, what it sells for here, the best price nearby
   (in another system), the difference per ton and where.

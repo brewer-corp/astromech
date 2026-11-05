@@ -83,7 +83,8 @@ cargo, stolen goods and limpets are left out ("Nothing in your hold to sell: mis
 stolen goods and limpets are left out."). Data older than a day says how old it is.
 
 Source: Ardent Insight. It searches within 100 light years and 30 days old by default, with the
-filters of the [Trade](trade.md) page's Sell, Buy and My cargo modes. Say a commodity by its
+filters of the [Sell and Buy](places.md#sell-and-buy) and [Sell my cargo](places.md#sell-my-cargo)
+finders. Say a commodity by its
 game name; many have short names ("LTDs").
 
 ## Raw material sites
@@ -96,7 +97,7 @@ geological sites", "nearest raw material farm".
 
 The answer is the nearest body with that kind of site, how far, how many jumps, and the distance
 from the arrival star (a long supercruise is worth knowing about before you set off). The
-page [Materials](materials.md#raw-material-sites) shows the list. Source: Spansh. Voice does
+[Raw sites](places.md#raw-sites) finder shows the list. Source: Spansh. Voice does
 not use the page's filters for sites.
 
 ## Faction states: famine, boom, war and more
@@ -113,7 +114,7 @@ searches are ranked by population and say "Best"; famine says "Nearest".
 > Nearest famine system: Aleapa. 12 light years, 2 jumps. Reported 3 days ago.
 
 Source: Spansh, with your own visits to a system taking priority when newer ("Seen on your
-visit"). The page is under Materials (the side panel of a farming source). Voice uses the filters you set there.
+visit"). The [Faction states](places.md#faction-states) finder shows the list. Voice uses the filters you set there.
 
 ## Mining hotspots
 

@@ -34,16 +34,16 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 | Page | What is in it |
 |---|---|
 | [Ships](ships.md) | Your fleet, ship stats, the build planner, stored modules |
-| [Materials](materials.md) | The material grids, High Grade Emissions, raw material sites |
+| [Materials](materials.md) | The material grids, High Grade Emissions, links to raw sites and faction states |
 | [Engineers and on foot](engineering.md) | The engineer unlock tree, Odyssey inventory and blueprints |
 
 ## Galaxy and trade
 
 | Page | What is in it |
 |---|---|
-| [Places](places.md) | The Places finders (Services, Outfitting, Shipyard, Material traders) and how every "nearest" search works |
+| [Places](places.md) | The Places finders (Sell, Buy, Sell my cargo, Services, Outfitting, Shipyard, Material traders, Raw sites, Faction states, Mining hotspots) and how every "nearest" search works |
 | [Routes](routes.md) | The route follower, paste into the galaxy map, and Spansh's neutron and exact plotters |
-| [Trade](trade.md) | Where to sell and buy, your cargo, trade routes |
+| [Trade](trade.md) | Trade routes, and links to the Sell, Buy and Sell my cargo finders |
 | [Mining](mining.md) | The current mining run |
 | [Colonisation](colonisation.md) | Construction projects and colonisation candidates |
 | [Powerplay](powerplay.md) | Your standing, the system, what earns merits, where to work |

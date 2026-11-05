@@ -1,41 +1,18 @@
 # Trade
 
-**Trade, Commodities** answers "where do I sell this?" and "where do I buy that?". It has four
-modes: **Sell**, **Buy**, **My cargo** and **Route**. Prices come from **Ardent Insight**
-(api.ardent-insight.com), which is fed by what players share with EDDN.
+**Trade, Commodities** finds a profitable trade route from a station. Where to sell or buy one
+commodity, and where to sell your whole hold, are finders in [Places](places.md): the line at the
+top of the page links to them.
 
-**What it needs:** a network connection, and your position (journal) or a system you type. **My
-cargo** and **Route** use your hold and credits from the journal. Each mode remembers its own
-filters, and voice questions use the same ones (see [Voice lookups](lookups.md#trade)).
+**What it needs:** a network connection, and your position (journal) or a system you type. It uses
+your hold and credits from the journal.
 
-## Sell and Buy
+## Sell, Buy and Sell my cargo
 
-1. Choose **Sell** or **Buy**.
-2. Type a **commodity** (part of its name, or a short name such as "LTDs") and pick it. The
-   page opens on painite.
-3. Read the list: best price first for Sell (stations buying), cheapest first for Buy (stations
-   selling).
-
-Each row starts with the price, then the station (type mark) and its system, the **demand** (Sell)
-or **stock** (Buy) in tonnes, distance, jumps, pad, arrival distance and how old the report is.
-Voice questions use the same filters (see [Voice lookups](lookups.md#trade)).
-
-- **Near** searches around you or a system you type, within a distance (100 light years by
-  default) and data age (30 days by default).
-- **Anywhere** takes Ardent's best 100 prices in the whole galaxy that pass the filters, with
-  distances from you. Use it when nothing close pays well.
-- Filters: minimum demand or stock, pad, data age, arrival distance, no fleet carriers, no Odyssey
-  settlements, and (near) the search distance.
-
-## My cargo
-
-Where to sell **everything in your hold**. The query band lists what is in the hold, and what was
-left out (mission cargo, stolen goods, limpets). It then lists the stations that pay the most for
-the whole load, each commodity capped by what the station will take: each row starts with the total
-and says how many tonnes the station **takes**. Under it, **Best for each on
-its own** shows the best station for each commodity separately. When no market takes all of one
-commodity, it shows the market that takes the most. Voice: "where should I sell my cargo"
-(see [Voice lookups](lookups.md#trade)).
+The links at the top open the Places finders: **Sell** and **Buy** on Painite
+([Sell and Buy](places.md#sell-and-buy)) and **Sell my cargo** ([Sell my
+cargo](places.md#sell-my-cargo)). Each keeps the filters it had on this page, and voice
+questions use the same ones ([Voice lookups](lookups.md#trade)).
 
 ## Route
 
@@ -65,7 +42,6 @@ The **Colonisation** page is also under Trade: [Colonisation](colonisation.md).
 
 ## Limits
 
-- Prices are what players last reported, so they can be old. Each row shows its age.
+- Market data is what players last reported, so it can be old.
 - The estimate of profit per hour is rough.
-- Ardent Insight's coverage and speed are not astromech's; if it is down the page says so.
 - Hold, pad and credits come from the journal's last write.
