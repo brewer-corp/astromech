@@ -10,8 +10,8 @@ relationships:
   children: []
   attachments: []
   relates:
-  - kind: "review"
-    id: "astromech-et0g"
+  - kind: "issue"
+    id: "astromech-51ue"
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
