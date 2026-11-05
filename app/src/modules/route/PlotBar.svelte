@@ -42,6 +42,8 @@
   let systems = $state<string[]>([]);
   /** Asking Spansh for systems, or it failed. */
   let asking = $state(false);
+  /** The highlight was moved with the arrows since the last keystroke. */
+  let moved = false;
   let failed = $state(false);
   let sel = $state(0);
   let open = $state(false);
@@ -73,6 +75,7 @@
   function typed(v: string) {
     text = v;
     sel = 0;
+    moved = false;
     open = v.trim().length > 0;
     clearTimeout(timer);
     const q = v.trim();
@@ -164,12 +167,18 @@
       sel = 0;
     } else if (e.key === "ArrowDown" && n) {
       sel = (sel + 1) % n;
+      moved = true;
     } else if (e.key === "ArrowUp" && n) {
       sel = (sel - 1 + n) % n;
+      moved = true;
     } else if (e.key === "Enter" && !e.isComposing) {
       // The plot panel is open for what is typed: Enter plots. Otherwise it takes the highlighted
       // row, or, with nothing listed, plots to the text as a system.
+      // While Spansh hasn't answered, a system typed or pasted and entered at once plots: a looser
+      // entry match ("Frontline Solutions" for "Sol") doesn't take it unless the highlight was
+      // moved to it or the match is sure (whole label, its start, a finder phrase; astromech-gasg).
       if (!open && picked && text.trim() === picked) void plot?.go();
+      else if (open && row && asking && !moved && !(row.kind === "entry" && row.sure)) plotTo(text);
       else if (open && row) choose(row);
       else plotTo(text);
     } else if (e.key === "Escape") {

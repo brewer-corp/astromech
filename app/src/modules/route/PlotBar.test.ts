@@ -149,6 +149,21 @@ describe("Find or plot", () => {
     expect(screen.getByRole("dialog", { name: "Plot to Achenar" })).toBeTruthy();
   });
 
+  it("plots a system entered before Spansh answers, unless an entry starts with it (astromech-gasg)", async () => {
+    const { box, onpick } = setup();
+    await type(box, "trader");
+    await waitFor(() => expect(rows()[0]).toMatch(/^Raw trader/));
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(screen.getByRole("dialog", { name: "Plot to trader" }), "a looser entry match doesn't take a system typed and entered at once").toBeTruthy();
+    expect(onpick).not.toHaveBeenCalled();
+
+    await fireEvent.keyDown(box, { key: "Escape" });
+    await type(box, "Col");
+    await waitFor(() => expect(rows()[0]).toMatch(/^Colonisation/));
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(onpick).toHaveBeenCalledWith("colonisation");
+  });
+
   it("plots an exact route with Spansh and follows it", async () => {
     setup();
     await search("Maia");
