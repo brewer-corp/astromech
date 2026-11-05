@@ -19,7 +19,9 @@
 import { score, words, type PaletteItem } from "./palette";
 import { FINDERS, type Finder, type FinderId } from "./places";
 
-export type Match = { kind: "entry"; item: PaletteItem } | { kind: "system"; name: string };
+/** `sure`: the entry matched its whole label, the label's start, or a finder phrase ("outfitting fsd"),
+ * so Enter may take it before Spansh has answered for a typed system (astromech-gasg). */
+export type Match = { kind: "entry"; item: PaletteItem; sure: boolean } | { kind: "system"; name: string };
 
 /** A system that is not exactly the query ranks after word-start matches. */
 const SYSTEM = 2.5;
@@ -64,8 +66,10 @@ export function find(items: PaletteItem[], systems: string[], query: string, lim
   const best = (a: number | null, b: number | null) => (a === null ? b : b === null ? a : Math.min(a, b));
   const hits: { m: Match; s: number; group: number; i: number }[] = [];
   items.forEach((item, i) => {
-    const s = best(score(item, q, qw), phrase(item, qw));
-    if (s !== null) hits.push({ m: { kind: "entry", item }, s, group: 0, i });
+    const direct = score(item, q, qw);
+    const ph = phrase(item, qw);
+    const s = best(direct, ph);
+    if (s !== null) hits.push({ m: { kind: "entry", item, sure: ph !== null || (direct !== null && direct <= 1) }, s, group: 0, i });
   });
   systems.forEach((name, i) => hits.push({ m: { kind: "system", name }, s: name.toLowerCase() === q ? 0 : SYSTEM, group: 1, i }));
   return hits
