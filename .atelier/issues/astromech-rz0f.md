@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Add stop and Set destination on every lookup result"
-updated_at: "2026-11-05T06:19:44.374075993+00:00"
+updated_at: "2026-11-05T07:09:28.110659646+00:00"
 ---
 
 ## Goal

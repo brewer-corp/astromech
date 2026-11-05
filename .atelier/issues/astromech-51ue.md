@@ -4,6 +4,9 @@ id: "astromech-51ue"
 issue_type: "feature"
 labels:
 - "size-l"
+workflow_branch:
+  branch_base: main
+  work_branch: feature/astromech-51ue
 priority: "P1"
 relationships:
   blocks: []
@@ -44,7 +47,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Galaxy rework: route strip, Places finders, one search box"
-updated_at: "2026-11-05T06:28:18.349272352+00:00"
+updated_at: "2026-11-05T07:09:28.110654817+00:00"
 ---
 
 ## Goal
