@@ -173,12 +173,11 @@ describe("SearchKit", () => {
     expect(stale[0]!.querySelector(".age")?.textContent).toBe("212d");
   });
 
-  it("hides reports older than the age filter and counts them, with any the source left out", async () => {
+  it("hides reports older than the age filter and counts the ones that came back", async () => {
     loadFilters.mockResolvedValue({ ...DEFAULT_FILTERS, max_age_days: 7 });
     const r: Results = {
       ...results,
       fetched: new Date().toISOString(),
-      hidden_stale: 2,
       rows: [
         { key: 1, system: "Fresh", ly: 1, jumps: 1, exact: true, updated_at: daysAgo(3) },
         { key: 2, system: "Old", ly: 2, jumps: 1, exact: true, updated_at: daysAgo(10) },
@@ -187,7 +186,7 @@ describe("SearchKit", () => {
     kit(vi.fn().mockResolvedValue(r), { offers: ["age"] });
     expect(await screen.findByText("Fresh")).toBeTruthy();
     expect(screen.queryByText("Old")).toBeNull();
-    expect(screen.getByText("Nearest to Sol · reports up to 7 days old · 3 older reports hidden")).toBeTruthy();
+    expect(screen.getByText("Nearest to Sol · reports up to 7 days old · 1 older report hidden")).toBeTruthy();
     expect(document.querySelector(".stale")).toBeNull();
   });
 

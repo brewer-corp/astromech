@@ -183,9 +183,10 @@
   const now = $derived(res ? Date.now() : 0);
   /** Staleness is judged as of the answer, as the source's own age filter was (a cached answer included). */
   const asOf = $derived(res ? Date.parse(res.fetched) || now : 0);
-  /** With an age filter, reports older than it are hidden and counted; the source may have counted more. */
+  /** With an age filter, reports older than it are hidden and counted. Sources apply the filter in the query, so this
+   * counts only what came back past it; the summary names the limit either way. */
   const rows = $derived(res ? (limit == null ? res.rows : res.rows.filter((r) => !isStale(r, limit, asOf))) : []);
-  const hidden = $derived(res ? res.rows.length - rows.length + (res.hidden_stale ?? 0) : 0);
+  const hidden = $derived(res ? res.rows.length - rows.length : 0);
   const columns = $derived(res ? factColumns(res) : []);
 
   /** The list's width, to fall back to the compact row where the columns don't fit. */

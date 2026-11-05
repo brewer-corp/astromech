@@ -67,8 +67,6 @@ export interface Results {
   columns?: Column[];
   rows: Row[];
   warning?: string;
-  /** Reports the source left out for being older than the age filter, when it can say. */
-  hidden_stale?: number;
   /** What the lookup found, e.g. "Famine": the label a result gets on the route (Add stop, Set destination) when it has no station. */
   label?: string;
 }

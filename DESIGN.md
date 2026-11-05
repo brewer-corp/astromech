@@ -663,6 +663,13 @@ pad · reports up to 30 days old"). *Why:* the market screen's grammar (columns,
 row), with the ranked value moved first and made largest, which the audit found was the
 smallest text in a row.
 
+Text fact columns (faction, module, bodies) share the width left after the fixed columns with
+the place, and truncate with an ellipsis rather than wrap. Where even that leaves no room, as in
+a side panel, the row is **compact**: main value, place and actions only, no fact columns or
+heads. *Why:* the Aligned Columns Rule drops the fact before it wraps the row; a 320 px panel
+cannot hold the facts, and its lookups become links into their finder later (decision
+astromech-g8d5, item 5).
+
 ### Route strip
 
 A 36 px Hull band under the header on every page: "Next" in Label · the next system in Name,
@@ -714,7 +721,10 @@ right-hand detail panel (white item name, orange facts, white key price) and the
 
 A report is stale when it is older than the finder's age filter (30 days by default). With the
 filter at "Any age", stale rows are shown stepped down with their age in Orange; otherwise
-they are hidden and the summary line says how many.
+they are hidden and the summary line names the limit ("reports up to 30 days old"). Sources
+apply the age filter in the query, so the window cannot count what they left out; it counts
+only rows that came back past the limit. Staleness is judged as of the answer's fetch time
+(when the source applied the filter); the age shown is measured from now.
 
 ## Token map
 
