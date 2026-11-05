@@ -19,7 +19,7 @@
     <nav class="top">
       {#each nav as n (n)}<span class:on={n === top}>{n}</span>{/each}
     </nav>
-    <div class="cell find"><span class="ph">Find or plot</span><span class="label">Ctrl+K</span></div>
+    <div class="cell find"><span class="ph">Find or plot</span><span class="key">Ctrl+K</span></div>
     <span class="label">Elite running</span>
     <a class="help" href="#/mockup/ds-places">Help</a>
   </header>
@@ -49,6 +49,7 @@
   .top span { display: flex; align-items: center; height: var(--row); padding: 0 var(--sp-3); font-weight: 500; letter-spacing: var(--caps); text-transform: uppercase; color: var(--orange-mid); }
   .top span.on { background: var(--accent); color: var(--on-accent); }
   .find { width: 300px; justify-content: space-between; }
+  .find .key { font-size: var(--fs-s); } /* text in a cell is at least Orange */
   .help { color: var(--accent); font-size: var(--fs-s); text-decoration: underline; text-decoration-color: var(--orange-mid); text-underline-offset: 3px; }
   .strip { display: flex; align-items: center; gap: var(--sp-3); padding: 0 var(--gutter); background: var(--surface); }
   .strip .sys { font-weight: 500; margin-right: -10px; }

@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Shared controls and icons per DESIGN.md: input, dropdown, choice, buttons, badge, icon set"
-updated_at: "2026-10-25T19:02:01.384978423+00:00"
+updated_at: "2026-11-05T00:44:51.118551804+00:00"
 ---
 
 ## Goal
@@ -33,3 +33,7 @@ Replace the five input, five button and four badge styles found in the 24 Oct au
 - `Glyph.svelte` gains the DESIGN.md icons: add stop, set destination, open external and chevron (drawings in `app/src/mockups/ds/Icon.svelte`); all own-drawn, 1 px stroke.
 - Pages use them; the inverted Carriers/Odyssey toggles, chevron-less dropdowns and the orange underline on the header box at rest are gone; repeated row actions are icon buttons.
 - `pnpm lint && pnpm check && pnpm build && pnpm test` pass; screenshots of Trade, Materials and Settings before and after.
+
+## Notes
+
+- 2026-11-04 [note] Deferred from decision astromech-5p9c (Fable R8): DESIGN.md says the minimum window width is 1100 px and nothing in the frame wraps above it, but no mockup or check proves the header (wordmark, eight top tabs, 320 px Find or plot, status, Help) fits at 1100 px. Check it at 1100 px when the shared Input lands and shrink or drop parts until it does, then fix the number in DESIGN.md if it has to change. The screenshot half is done on c4i0: scripts/mockup-shots.sh now renders the ds-* mockups (scripts/mockup-shots.sh ds-sell ...); add a narrow-window shot here.

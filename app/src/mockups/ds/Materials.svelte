@@ -1,7 +1,8 @@
 <script lang="ts">
   // DESIGN.md mockup: Materials, raw grid. Rows are categories, columns are grades (the trader's
   // own layout). One value per tile (the count), state by orange brightness, the selected tile
-  // filled. Its category head turns white, as the trader's current section does.
+  // filled (the side panel shows it) and drawn with keyboard focus: an inset On Orange outline.
+  // Its category head turns white, as the trader's current section does.
   // Same sample counts as the current page (docs/design/design-system-materials-before.png).
   import Chrome from "./Chrome.svelte";
 
@@ -38,7 +39,7 @@
           {#each row as [name, n], g (name)}
             {@const cap = caps[g] ?? 1}
             {@const want = need[name]}
-            <div class="tile" class:none={n === 0} class:sel={name === selected}>
+            <div class="tile" class:none={n === 0} class:sel={name === selected} class:focus={name === selected}>
               <span class="count num">{n}</span>
               <span class="name">{name}</span>
               {#if want}<span class="need num">{#if n < want}<span class="bang">!</span>{/if}need {want}</span>{/if}

@@ -1,7 +1,9 @@
 <script lang="ts">
   // DESIGN.md mockup: Settings, the game's Options screen. Grey labels, ember cells holding
   // orange values, one orange action word per cell, the chosen option filled, orange section
-  // heads with a rule. Read-only facts (Speech models) sit outside a cell.
+  // heads with a rule. A status with its one action (Setup: Done · RUN AGAIN, Voice: Listening ·
+  // PAUSE) is a changeable value in a cell; a status with no action (Speech models) is a fact
+  // outside a cell.
   import Chrome from "./Chrome.svelte";
   import Icon from "./Icon.svelte";
 

@@ -41,6 +41,8 @@ under `.atelier/`, committed with the code they describe. There is no separate b
 ## Where things are
 
 - Product and v1 scope: [docs/V1-DESIGN.md](docs/V1-DESIGN.md)
+- The window's design system (colours, type, layout, components, states), binding for any
+  UI change: [DESIGN.md](DESIGN.md), with its tokens in `app/src/design/tokens.css`
 - Architecture, crates and dependency rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Data sources and the tool survey: [docs/REPORT.md](docs/REPORT.md),
   [docs/COMPETITORS.md](docs/COMPETITORS.md)

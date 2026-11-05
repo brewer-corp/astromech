@@ -1,6 +1,7 @@
 /* astromech visual system. The rules are in DESIGN.md at the repo root; this file holds its
-   tokens. DESIGN.md's palette is the game's orange ramp on warm brown surfaces over a neutral
-   near-black, with one semantic red. Pages still use the first, grey-based tokens (--cell-opt,
+   tokens, and DESIGN.md's Token map names the variable for each of its roles. Its palette is
+   the game's orange ramp on warm brown surfaces over a neutral near-black, with one semantic
+   red for hard errors. Pages still use the first, grey-based tokens (--cell-opt,
    --text, --text-lo) until astromech-yxtz moves them to the ramp; new work uses the DESIGN.md
    tokens. No Frontier assets; fonts are OFL. */
 @import "@fontsource/saira-semi-condensed/400.css";
@@ -20,7 +21,7 @@
   --cell: #3d220f; /* binding cell; DESIGN.md "ember cell" for every editable value. Game #42230e */
   --cell-opt: #2b2d2e; /* grey option cell; replaced by --cell under DESIGN.md */
   --cell-empty: #1c1610; /* unbound slot; DESIGN.md "ember empty" */
-  --row-hover: #16171a;
+  --row-hover: #21170f; /* DESIGN.md "row hover": a read-only row or tile under the pointer */
   --accent: #fa6e00; /* DESIGN.md "orange": base text, headings, actions and the selection fill */
   --accent-dim: #8a3d00; /* scrollbar thumb while dragged */
   --text-hi: #ffffff; /* DESIGN.md "white": titles, the current section, a key value */
@@ -31,15 +32,15 @@
   /* DESIGN.md palette (new work and the mockups in src/mockups/ds) */
   --orange-lit: #ffa04a; /* the one main value; the active page tab. 9.6:1 on --bg */
   --orange-mid: #c26c32; /* labels, column heads, units, icons at rest. 5.1:1; never on a cell */
-  --orange-dim: #8a5834; /* unavailable, zero, disabled, stale. 3.3:1 */
+  --orange-dim: #8a5834; /* unavailable, zero, disabled: state, never text needed to act. 3.3:1 */
+  --placeholder: #fa6e00bf; /* Orange at 75 %: placeholder text in an empty input, only. 3.5:1 on a cell */
   --cell-hover: #4d2b12; /* ember cell under the pointer */
   --surface: #1a1310; /* "hull": read-only tiles, the route strip, panel blocks; never a cell */
   --surface-hi: #241811; /* popovers and menus, with a 1 px --line border */
-  --hover: #21170f; /* hover on a read-only row or tile */
   --line: #3a2716; /* "seam": section rules, column-head hairlines, outlines */
   --options-grey: #e0e0e0; /* Controls and Settings row labels, binding text (game Options) */
   --prose: #c4c4c4; /* paragraphs */
-  --alarm: #f0412e; /* only stale report ages and hard errors. 5.1:1 */
+  --alarm: #f0412e; /* only hard errors (the "!" and its words). 5.1:1 */
 
   /* Type */
   --font: "Saira Semi Condensed", "Bahnschrift", "Segoe UI", sans-serif;
@@ -73,7 +74,7 @@
 
   /* Content widths */
   --measure: 68ch; /* prose */
-  --form-w: 940px; /* settings and forms: 200 px label + 700 px cell */
+  --form-w: 900px; /* settings and forms: a 200 px label and a cell up to 700 px */
   --list-w: 1200px; /* result lists */
   --panel: 320px; /* side panel */
 }
@@ -83,6 +84,8 @@ html, body { margin: 0; background: var(--bg); color: var(--text); font: 400 var
 input[type="checkbox"] { accent-color: var(--accent); }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 ::selection { background: var(--accent); color: var(--on-accent); }
+/* Grey placeholder for the pages still on the grey tokens; DESIGN.md's is --placeholder, which
+   astromech-yxtz moves them to. */
 input::placeholder, textarea::placeholder { color: var(--text-lo); opacity: 1; }
 
 /* Scrollbars: a thin dark thumb on no track, like the game's lists; orange while dragged. */

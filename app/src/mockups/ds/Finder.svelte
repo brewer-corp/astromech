@@ -80,7 +80,7 @@
   };
   const f = $derived(finders[kind]);
   const grid = $derived(`112px minmax(240px, 1fr) ${f.cols.map((c) => c.w).join(" ")} 64px`);
-  const selected = 4; // filled, as the game fills the selected row
+  // No selected row: a plain finder list has no side panel and no keyboard focus to show one.
   const hover = 6;
 </script>
 
@@ -113,12 +113,12 @@
         <span></span>
       </div>
       {#each f.rows as r, i (r.place)}
-        <div class="row" class:hover={i === hover} class:sel={i === selected} class:dim={r.stale}>
+        <div class="row" class:hover={i === hover} class:stale={r.stale}>
           <span class="r lead"><span class="lit v">{r.lead}</span>{#if f.lead.unit}<span class="unit">{f.lead.unit}</span>{/if}</span>
           <span class="place"><span class="pname">{r.place}</span><span class="sys label">{r.system}</span><Copy /></span>
           {#each f.cols as c (c.key)}
             {@const text = c.key === "also" || c.key === "ring" || c.key === "reserve"}
-            <span class:r={!text} class:mid={text && r[c.key] === "—"} class:alarm={r.stale && c.key === "age"}>
+            <span class:r={!text} class:mid={text && r[c.key] === "—"} class:age={c.key === "age"}>
               {#if r.warn === c.key}<span class="bang">!</span>{/if}{r[c.key]}{#if c.unit && !text}<span class="unit">{c.unit}</span>{/if}
             </span>
           {/each}
@@ -145,10 +145,11 @@
   .summary { margin: var(--sp-4) 0 var(--sp-4); }
   .row { display: grid; grid-template-columns: var(--cols); align-items: center; column-gap: var(--sp-3); height: var(--row-result); padding: 0 var(--sp-3); white-space: nowrap; }
   .row.heads { height: 28px; border-bottom: 1px solid var(--line); }
-  .row.hover { background: var(--hover); }
+  .row.hover { background: var(--row-hover); }
   .row.hover .ibtn { color: var(--orange-lit); }
-  .row.sel { background: var(--accent); }
-  .row.sel, .row.sel * { color: var(--on-accent) !important; }
+  /* Stale: the name stays Orange, the value and facts step down to Mid, the age stays Orange. */
+  .row.stale > span, .row.stale .v { color: var(--orange-mid); }
+  .row.stale .pname, .row.stale .age { color: var(--accent); }
   .r { text-align: right; }
   .lead .v { font-size: var(--fs-l); font-weight: 600; }
   .place { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; overflow: hidden; }

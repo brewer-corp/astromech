@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Cells mean editable: ember cells for every editable value, hull for read-only things"
-updated_at: "2026-10-25T19:02:01.158865111+00:00"
+updated_at: "2026-11-05T00:44:51.430028019+00:00"
 ---
 
 ## Goal
@@ -37,3 +37,7 @@ Make real controls look clickable by keeping the ember (brown) cell for editable
 ## Context
 
 The audit found `--cell` / `--cell-opt` on read-only material tiles, ship specs, engineer cards, chips, the Mining tally and summaries (`var(--cell)` in 41 files). DESIGN.md (revised 25 Oct) makes every editable value an ember cell (`--cell`, including what used the grey `--cell-opt`) and read-only grouping `--surface` (hull, `#1a1310`).
+
+## Notes
+
+- 2026-11-04 [note] Deferred from decision astromech-5p9c: (1) fact list, multi-value stat and meter patterns (Opus R9): DESIGN.md has the tile, the result row and the side panel's facts, but no pattern for a read-only list of label/value facts (ship specs, System bodies), a stat with several values, or a meter (fuel, cargo, storage beyond the tile track); define them on hull or Void as this issue moves read-only things off cells. (2) filter-fixed columns (Opus R10): when a filter fixes a column's value (Pad L, Metallic, Pristine in the Sell and Mining mockups) the column repeats one value on every row; decide whether it is dropped and stated in the summary line instead.

@@ -52,7 +52,7 @@ Journal-backed pages refresh every few seconds. Voice and history stay on the PC
 - English only.
 - Unofficial Frontier fan project; not affiliated with or endorsed by Frontier Developments. No Frontier art, audio, fonts, copies of game files, or datamined data.
 - Unsigned per-user Windows install (`%LOCALAPPDATA%\astromech`). SmartScreen on first run is expected.
-- Stock Elite orange palette, plus one semantic red used only for stale reports and hard errors (the game uses red for danger). No colour or theme customisation, and no following the in-game HUD colour.
+- Stock orange, plus red for hard errors (the game uses red for danger and malfunction); staleness is shown by orange brightness, not red. No colour or theme customisation, and no following the in-game HUD colour.
 - Read-only by default: a copy of `.binds`, and SendInput only for voice actions the commander asked for.
 - Kill switch and policy are product ground.
 - No VR UI in v1. Voice still has to work while they fly in VR.
@@ -92,7 +92,7 @@ Do not invent testimonials, commander quotes, benchmarks, pricing, or affiliatio
 2. Local and grammar-first. The copilot must work with no cloud model and no LLM.
 3. Honest about binds and about the game. Health marks, Status.json checks, and copy that does not pretend astromech typed into Elite.
 4. Small and solid. Two headline jobs done well beat a panel zoo or a personality.
-5. Stay unofficial and stay in Elite's own register. Stock orange palette, Elite's design language (DESIGN.md), English, no Frontier assets.
+5. Stay unofficial and stay in Elite's own register. Stock orange, plus red for hard errors, Elite's design language (DESIGN.md), English, no Frontier assets.
 
 ## Accessibility & Inclusion
 

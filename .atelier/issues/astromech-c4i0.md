@@ -33,7 +33,7 @@ Write the design system the "Elite Controls dialect" never had, so pages are rev
 - `app/src/design/tokens.css` matches it, or the gaps are listed as follow-up issues.
 - Static before/after mockups for Materials and a Places finder result list (Sell, plus Mining to show two finders reading differently on one layout), with screenshots under `docs/design/`.
 - PRODUCT.md and V1-DESIGN §4 point at DESIGN.md instead of contradicting it.
-- Sumeet approves the direction before merge.
+- The direction is approved (decision astromech-5p9c: independent panel, per Sumeet's 4 Nov 2026 direction).
 
 ## Context
 

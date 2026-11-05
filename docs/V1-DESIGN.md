@@ -478,10 +478,10 @@ the left panel (to request docking). The real version would use the three-quarte
 `app/src/design/tokens.css`. It replaces the first version of this section (11 Oct 2026),
 which copied the game's Options → Controls screen: neutral near-black, one orange accent,
 filled value cells instead of boxes, an "about this setting" panel, two thin orange rules and
-almost nothing else. DESIGN.md (revised 25 Oct) goes further into the game's own language:
+almost nothing else. DESIGN.md (revised 25 Oct, revision 3 on 4 Nov after decision astromech-5p9c) goes further into the game's own language:
 the station screens' orange as the base palette, with rank and state shown by its brightness
 and a solid fill for selection, brown cells only for what can be changed, white for titles,
-one semantic red for stale reports and hard errors, one face (variable Saira with tabular
+one semantic red for hard errors only, one face (variable Saira with tabular
 figures), an icon set for repeated actions, at most two tab rows, one style per control, the
 states, lookup result rows and the route strip. It lists every deliberate deviation from the
 game with its reason. Where this document and DESIGN.md disagree on how the window looks,

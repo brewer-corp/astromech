@@ -6,6 +6,7 @@ colors:
   orange-lit: "#ffa04a"
   orange-mid: "#c26c32"
   orange-dim: "#8a5834"
+  placeholder: "#fa6e00bf"
   on-orange: "#0c0d0f"
   ember-cell: "#3d220f"
   ember-cell-hover: "#4d2b12"
@@ -248,11 +249,13 @@ components:
 
 # Design System: astromech
 
-<!-- Target system (astromech-c4i0, revised 25 Oct 2026 after Sumeet's review). Tokens:
-app/src/design/tokens.css. Pages still to be brought in line: astromech-yxtz (orange palette,
-caps), astromech-dfvp (cells mean editable), astromech-pey5 (shared controls and icons),
-astromech-sllo (two tab rows), astromech-dzwy (one face). The route strip and Places finders
-arrive with astromech-51ue. Mockups: docs/design/design-system-*.png. -->
+<!-- Target system (astromech-c4i0), revision 3: revised 25 Oct 2026 after Sumeet's review,
+then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
+Tokens: app/src/design/tokens.css, mapped in Token map below. Pages still to be brought in
+line: astromech-yxtz (orange palette, caps), astromech-dfvp (cells mean editable),
+astromech-pey5 (shared controls and icons), astromech-sllo (two tab rows), astromech-dzwy (one
+face). The route strip and Places finders arrive with astromech-51ue. Mockups:
+docs/design/design-system-*.png. -->
 
 ## Overview
 
@@ -284,7 +287,7 @@ that needs them, without reading?
 - Solid orange fill with dark text means selected, as in the game.
 - Brown surfaces: dark hull for read-only tiles, brighter ember cells for what you can change.
 - White only for titles, the current section and the selected item's key value.
-- Red only for stale reports and hard errors.
+- Red only for hard errors.
 - One face (variable Saira), tabular figures, square corners, no shadow, no glow, no motion.
 
 ### Principles
@@ -340,11 +343,20 @@ anti-aliased samples read darker than the game draws them.
   ordinary text on every station screen.
 - **Orange Mid** (`orange-mid`, 5.1:1 on Void, 4.8:1 on Hull): labels, column heads, units,
   secondary facts such as the system after a station name, inactive tabs, icons at rest.
-  Never on an ember cell (3.8:1 there); text in cells is at least Orange. *Why:* one step down
-  for what supports the main value, still above 4.5:1 where it is used.
-- **Orange Dim** (`orange-dim`, 3.3:1 on Void, 3.1:1 on Hull): unavailable, zero, disabled, stale. *Why:* the
-  trader's empty tiles: still legible, plainly absent, no word needed.
-- **On Orange** (`on-orange`, 6.7:1 on Orange): text and icons on an orange fill.
+  Never on an ember cell (3.8:1 there); text in cells is at least Orange, the placeholder
+  excepted. *Why:* one step down for what supports the main value, still above 4.5:1 where it
+  is used.
+- **Orange Dim** (`orange-dim`, 3.3:1 on Void, 3.1:1 on Hull): unavailable, zero, disabled.
+  It is state, not content, and knowingly below WCAG AA: it says "not this one", and it never
+  carries text the commander needs in order to act. Anything they must read to decide stays
+  at Orange Mid or brighter. *Why:* the trader's empty tiles: still legible, plainly absent,
+  no word needed.
+- **On Orange** (`on-orange`, 6.7:1 on Orange): text and icons on an orange fill, and the
+  focus outline on a filled element.
+- **Placeholder** (`placeholder`, Orange at 75 % opacity, 3.5:1 on an ember cell): the hint
+  text in an empty input, and nothing else. It disappears as soon as there is a value, and the
+  input always has a label of its own (visible, or an accessible name for the header's Find
+  or plot). *Why:* one step below the value it stands in for, without a second hue in a cell.
 
 ### Surfaces: ember and hull
 
@@ -379,10 +391,11 @@ anti-aliased samples read darker than the game draws them.
 
 ### Alarm
 
-- **Alarm Red** (`alarm-red`, 5.1:1): only (a) the age of a stale report, and (b) the "!"
-  and the words of a hard error (something failed: a lookup, a file read, a write). *Why:*
-  the game uses red for danger and malfunction (a failing module turns red), so red already
-  means "this is not right". Warnings that ask for action stay orange; see Deviations.
+- **Alarm Red** (`alarm-red`, 5.1:1): only the "!" and the words of a hard error (something
+  failed: a lookup, a file read, a write). *Why:* the game uses red for danger and malfunction
+  (a failing module turns red), so red already means "this is not right". Warnings that ask
+  for action stay orange, and so does staleness, which brightness carries (see
+  [States](#states)); each hue keeps one meaning.
 
 ### Named Rules
 
@@ -391,14 +404,21 @@ switching to another colour. Lit is the main value, base is ordinary, mid is sup
 dim is unavailable, fill is selected. *Why:* that is the game's own system; it replaces the
 first draft's "orange vs grey" signal, which the game never uses on station screens.
 
+Decision astromech-bi94 asked for "orange only where it means something". With orange as the
+base text colour, that rule is now carried by brightness and fill: Lit and fill appear only
+where they mean something (the one main value, the one selection), never as decoration.
+
 **The One Fill Per Group Rule.** In any group of alternatives (a tab row, a choice, a list,
 a grid) at most one item is filled, except multiple choices where each chosen option is
-filled. A view has at most one primary button. *Why:* the game fills the selected tab and
-the selected row at the same time, but never two rows; a fill means "this one".
+filled. A view has at most one primary button. A list or grid has a filled item only when
+something shows the selection: a side panel about it, or keyboard focus in the list. There is
+no default selected row. *Why:* the game fills the selected tab and the selected row at the
+same time, but never two rows; a fill means "this one", and a fill that nothing explains is
+decoration.
 
-**The Narrow Red Rule.** Red appears only on a stale report's age and on a hard error. Never
-for warnings, health issues, decoration, numbers going down, or emphasis. *Why:* red earns
-its meaning by being rare; once it decorates, the next real failure is missed.
+**The Narrow Red Rule.** Red appears only on a hard error. Never for stale data, warnings,
+health issues, decoration, numbers going down, or emphasis. *Why:* red earns its meaning by
+being rare; once it decorates, the next real failure is missed.
 
 ## Typography
 
@@ -424,6 +444,10 @@ Semi Condensed files do not) and replaces three files (two Saira cuts and Share 
 | Label | 13 / 400 / 1.3 | sentence | orange mid | column heads, field labels, units, secondary facts, badges |
 | Meta | 12 / 400, tabular | figures | orange mid | corner marks in tiles |
 | Action | 13 / 600, tracking 0.06em | caps | orange; on orange on a fill | buttons and text actions |
+
+The Colour column gives each role's default. A component may override it where its own
+spec says so (a material tile's name is Label size in Orange; anything on a fill is On
+Orange; a stale row's facts step down to Orange Mid).
 
 Units follow their number in Label size and Orange Mid: **390,780** cr, **7** jumps.
 Thousands use commas. *Why:* the unit supports the number; it should not compete with it.
@@ -464,10 +488,10 @@ Side margins 40 px; minimum window width 1100 px, and nothing in the frame wraps
 
 ### Content widths and rows
 
-- Prose: 68ch. Settings and forms: 200 px label + up to 700 px cell. Result lists: up to
-  1200 px, actions right after the last fact column. Tile grids: 200–240 px columns, 8 px
-  gaps. Side panel: 320 px after a 1 px orange line. *Why:* a 1600 px row put the old GO
-  button 1400 px from the name it acted on.
+- Prose: 68ch. Settings and forms: 900 px, a 200 px label and a cell up to 700 px. Result
+  lists: up to 1200 px, actions right after the last fact column. Tile grids: 200–240 px
+  columns, 8 px gaps. Side panel: 320 px after a 1 px orange line. *Why:* a 1600 px row put the
+  old GO button 1400 px from the name it acted on.
 - Control row 34 px; result row 44 px, one line; material tile 76 px. *Why:* one-line rows
   fit about 18 results on a 1000 px window and keep columns aligned; the old 65–100 px rows
   fit 8.
@@ -541,12 +565,18 @@ filled. Group description below in Label, Prose Grey. Section headings Orange ca
 Seam rule. *Why:* this is the game's Options screen: grey labels, brown cells, orange values,
 and the selected option filled like the selected landing-gear cell.
 
+A status the commander changes with its one action is a changeable value, so it sits in a
+cell with that action: "Setup: Done · RUN AGAIN", "Voice: Listening while Elite runs ·
+PAUSE". A status with no action is a fact and sits outside a cell ("Speech models:
+Installed"). *Why:* the cell still means "you can change this here"; the action word says
+how.
+
 ### Input
 
-Ember cell, 34 px, Body text in Orange, placeholder Orange Mid, no border or underline at
-rest, 1 px orange outline on focus. An error puts a red "!" and plain words directly under
-it. *Why:* the game's text fields are brown boxes with orange text; the orange underline the
-old header box had at rest looked like focus all the time.
+Ember cell, 34 px, Body text in Orange, placeholder in Placeholder (Orange at 75 %), no border
+or underline at rest, 1 px orange outline on focus. An error puts a red "!" and plain words
+directly under it. *Why:* the game's text fields are brown boxes with orange text; the orange
+underline the old header box had at rest looked like focus all the time.
 
 ### Dropdown
 
@@ -559,8 +589,8 @@ chevron and did not look openable.
 
 A row of ember cells, 2 px apart, Label size: unselected Orange; selected solid orange with
 On Orange text. Single and multiple choice look the same; a multiple choice may have
-several filled. "On" is always the filled one. *Why:* the game fills the chosen option; the
-old Carriers/Odyssey toggles were drawn inverted.
+several filled. The chosen option is always the filled one; never draw it inverted. *Why:*
+the game fills the chosen option; the old Carriers/Odyssey toggles were drawn inverted.
 
 ### Buttons
 
@@ -621,11 +651,15 @@ fact columns.
    Mid): demand, distance, jumps, pad (always shown for stations), arrival, report age.
 4. **Actions:** icon buttons for add stop and set destination, after the facts.
 
-Rows are 44 px, no zebra, no separators. Hover: Row Hover. Selected: solid orange fill with
-On Orange text (one per list). Column heads sit above a Seam hairline. A one-line summary of
-the constraints sits above them in Label ("Within 100 ly of Sol · large pad · reports up to
-30 days old"). *Why:* the market screen's grammar (columns, one filled row), with the ranked
-value moved first and made largest, which the audit found was the smallest text in a row.
+Rows are 44 px, no zebra, no separators. Hover: Row Hover. Selected: solid orange fill with On
+Orange text, one per list, and only while something shows the selection (a side panel about the
+row, or keyboard focus in the list); a plain finder list has no filled row. A stale row keeps
+its name in Orange, steps its main value and facts down to Orange Mid and shows its report age
+in Orange, so the age is the brightest fact on the row. Column heads sit above a Seam hairline.
+A one-line summary of the constraints sits above them in Label ("Within 100 ly of Sol · large
+pad · reports up to 30 days old"). *Why:* the market screen's grammar (columns, one filled
+row), with the ranked value moved first and made largest, which the audit found was the
+smallest text in a row.
 
 ### Route strip
 
@@ -639,15 +673,17 @@ ask for next stop, n of N and refuel on one line they can keep their eyes on.
 ### Find or plot
 
 The header's one search box: an input, 320 px, placeholder "Find or plot", "Ctrl+K" at its
-right end in Orange Mid. A system plots or adds a stop; a phrase opens a finder. Results in a
-popover.
+right end in Label size, Orange (it is text in a cell, so not Orange Mid). A system plots or
+adds a stop; a phrase opens a finder. Results in a popover.
 
 ### Places home
 
 Finder tiles under section headings (Trade, Ship, Engineering, Mining, Route). Each tile is a
-Hull link, 220 px: finder name in Name, Orange Lit; one line in Label, Orange Mid; a live
-answer in Figures where known. Hover: Row Hover. *Why:* a visible grid of what can be found,
-like the station services board, so search and voice are shortcuts, not the only way in.
+Hull link, 220 px, with one main value: finder name in Name, Orange; one line in Label, Orange
+Mid; where a live answer is known, its figure is the main value in Value L, Orange Lit, with
+its context in Label, Orange Mid. A tile with no answer has no Lit text. Hover: Row Hover.
+*Why:* a visible grid of what can be found, like the station services board, so search and
+voice are shortcuts, not the only way in.
 
 ### Side panel (kept)
 
@@ -660,13 +696,13 @@ right-hand detail panel (white item name, orange facts, white key price) and the
 
 | State | Treatment | Why |
 |---|---|---|
-| Selected row, tile, option, tab | solid orange, On Orange text | the game's selection |
+| Selected row, tile, option, tab | solid orange, On Orange text; a row or tile only while a side panel or keyboard focus shows the selection | the game's selection |
 | Active page tab | Orange Lit + 2 px orange underline | one step below the top tab |
 | Current section | heading white, its rule orange | the trader screen |
 | Hover | Row Hover on read-only things; Ember Cell Hover on cells; icons Orange Lit | a response without a new colour |
-| Focus | 1 px orange outline, 2 px offset | keyboard users need to see where they are |
+| Focus | 1 px orange outline, 2 px offset. On a filled element (selected row, tile or option, active top tab) a 1 px On Orange outline, inset 2 px | keyboard users need to see where they are; an orange outline vanishes against an orange fill |
 | Unavailable, none, zero, disabled | Orange Dim; no surface lift | the trader's empty tiles |
-| Stale report | the row or tile in Orange Dim; the age in Alarm Red ("212 d") | dim says "do not trust this", red says why |
+| Stale report | name stays Orange; main value and facts step down to Orange Mid; the age in Orange ("212 d") | a step down says "do not trust this" and the age, now the brightest fact, says why; the facts stay readable, and red stays for failures |
 | Warning (act on it) | orange "!" + plain words, at the place it applies | the game's orange warnings; urgent but not failed |
 | Hard error (it failed) | red "!" + plain words + a recovery action ("! Could not read the route. TRY AGAIN"); a whole-page error is a white title, a prose line and the action. Never a filled block | red is the game's malfunction colour |
 | Empty | one prose line saying what is empty and what to relax, plus one action ("No buyers within 100 ly. WIDEN TO 250 LY") | an empty list with no way forward is a dead end |
@@ -675,8 +711,50 @@ right-hand detail panel (white item name, orange facts, white key price) and the
 | Conflict, ignored binding | orange "!" + "Also: <action>"; ignored text struck through, Dim | a warning, not a failure |
 
 A report is stale when it is older than the finder's age filter (30 days by default). With the
-filter at "Any age", stale rows are shown dimmed with the red age; otherwise they are hidden
-and the summary line says how many.
+filter at "Any age", stale rows are shown stepped down with their age in Orange; otherwise
+they are hidden and the summary line says how many.
+
+## Token map
+
+Each name in this document and the `app/src/design/tokens.css` variable that holds it. Use
+the variable; never repeat the value. Some variables keep names from before this document
+(`--accent`, `--bg`, `--cell`) because the pages already use them. `--row-hover` was a grey
+(#16171a) before revision 3; it is now DESIGN.md's warm Row Hover for every page.
+
+| DESIGN.md | tokens.css | Value |
+|---|---|---|
+| void | `--bg` | #0c0d0f |
+| hull | `--surface` | #1a1310 |
+| hull-raised | `--surface-hi` | #241811 |
+| row-hover | `--row-hover` | #21170f |
+| seam | `--line` | #3a2716 |
+| ember-cell | `--cell` | #3d220f |
+| ember-cell-hover | `--cell-hover` | #4d2b12 |
+| ember-empty | `--cell-empty` | #1c1610 |
+| orange | `--accent` | #fa6e00 |
+| orange-lit | `--orange-lit` | #ffa04a |
+| orange-mid | `--orange-mid` | #c26c32 |
+| orange-dim | `--orange-dim` | #8a5834 |
+| placeholder | `--placeholder` | #fa6e00bf (Orange at 75 %) |
+| on-orange | `--on-accent` | #0c0d0f |
+| white | `--text-hi` | #ffffff |
+| options-grey | `--options-grey` | #e0e0e0 |
+| prose-grey | `--prose` | #c4c4c4 |
+| alarm-red | `--alarm` | #f0412e |
+| hair | `--gap` | 2 px |
+| xs, sm, md, lg | `--sp-1`, `--sp-2`, `--sp-3`, `--sp-4` | 4, 8, 12, 16 px |
+| xl, 2xl, 3xl | `--sp-6`, `--sp-8`, `--sp-12` | 24, 32, 48 px |
+| gutter | `--gutter` | 40 px |
+| Prose width | `--measure` | 68ch |
+| Settings and forms width | `--form-w` | 900 px |
+| Result list width | `--list-w` | 1200 px |
+| Side panel | `--panel` | 320 px |
+| Control row, result row | `--row`, `--row-result` | 34, 44 px |
+| Route strip, material tile | `--strip`, `--tile` | 36, 76 px |
+| Meta, Label/Section/Action, Body/Name/Nav/Figures | `--fs-xs`, `--fs-s`, `--fs` | 12, 13, 15 px |
+| Value L and wordmark, Title, Value XL | `--fs-l`, `--fs-xl`, `--fs-xxl` | 18, 24, 28 px |
+| Caps tracking | `--caps` | 0.06em |
+| The face | `--face`, `--face-stretch` | Saira Variable at 87.5 % |
 
 ## Deviations from the game
 
@@ -685,8 +763,8 @@ Each place we depart from Elite's UI, what we do instead, and why.
 | The game | astromech | Why |
 |---|---|---|
 | All text in caps | Caps only for the wordmark, top tabs, section headings and action words; mixed case elsewhere | Caps everywhere signals nothing and reads slower; system names carry meaning in their case. Decided for row labels on 11 Oct (V1-DESIGN §9) |
-| Red, green and blue for status (green supply bars, green/red price arrows, blue mission goods) | Only one extra colour: red, for stale report ages and hard errors | One semantic colour is enough for a lookup window; green and blue would bring a second meaning system to learn |
-| Red for warnings and damage alike | Warnings stay orange "!"; red only when something failed or data is untrustworthy | Keeps red rare enough to notice; an orange "!" already reads as "look here" in the game |
+| Red, green and blue for status (green supply bars, green/red price arrows, blue mission goods) | Only one extra colour: red, for hard errors | One semantic colour is enough for a lookup window; green and blue would bring a second meaning system to learn |
+| Red for warnings and damage alike | Warnings and stale data stay orange; red only when something failed | Keeps red rare enough to notice; an orange "!" already reads as "look here" in the game |
 | The item under the gamepad cursor is filled, so the default action starts filled | The primary button is always filled; other buttons are text actions | A mouse window has no cursor highlight; the primary needs the fill to be found |
 | Empty binding slots look like filled ones | Empty slots are the dimmer Ember Empty with dim "Unbound" text | Finding unbound actions is a main job of the Controls pages |
 | Blurred cockpit behind every panel | Flat neutral Void | Calmer and more legible; no Frontier art behind the window |
@@ -721,7 +799,10 @@ Each place we depart from Elite's UI, what we do instead, and why.
   labels and prose.
 - **Don't** put read-only tiles, specs, chips or cards in ember cells.
 - **Don't** fill more than one item in a group, or show more than one primary button.
-- **Don't** use red for warnings, health issues, decoration or emphasis.
+- **Don't** use red for stale data, warnings, health issues, decoration or emphasis.
+- **Don't** put text the commander needs in order to act in Orange Dim.
+- **Don't** fill a row or tile by default; a selection shows only with its side panel or
+  keyboard focus.
 - **Don't** stack more than two tab rows.
 - **Don't** put repeated words like ADD STOP on every row, or hide row actions until hover.
 - **Don't** make the ranked value the smallest text in a row.
