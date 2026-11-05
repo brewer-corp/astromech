@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Lookup result row: main value first, aligned columns, DESIGN.md states"
-updated_at: "2026-11-05T06:19:44.708270656+00:00"
+updated_at: "2026-11-05T07:29:01.832361840+00:00"
 ---
 
 ## Goal
@@ -43,3 +43,7 @@ Make the search kit's results the DESIGN.md Lookup result row, so every lookup (
 
 - DESIGN.md: Lookup result row, States, Content widths and rows, The Aligned Columns Rule; mockup `app/src/mockups/ds/Finder.svelte` (`#/mockup/ds-sell`).
 - docs/ARCHITECTURE.md §18.2 Search kit.
+
+## Notes
+
+- 2026-11-05 [note] 2026-11-05: deferred finding astromech-jgyk from the rz0f review: FollowNote.svelte (app/src/lib/ui) shows failure text as Dim prose rather than DESIGN.md's hard-error state (red ! + words + recovery action), and its inline Resume overrides the 34 px hit area. Fold into this child's States work.
