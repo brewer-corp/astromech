@@ -21,9 +21,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-05T01:04:03.064133661+00:00"
+status: "done"
 title: "Voice grammar: pin the everyday-question margin and 'how much is this worth'"
-updated_at: "2026-11-05T00:56:58.752511984+00:00"
+updated_at: "2026-11-05T01:04:03.064133661+00:00"
 ---
 
 ## Goal
@@ -53,3 +54,7 @@ Deferred review findings on task/astromech-54k4: crates/astromech-intent/src/lib
 - 2026-11-04 [decision] R3 (astromech-eony): 'how much is this worth' and 'what is this worth' answer 'Say again' (NoMatch), pinned in everyday_questions_ask_no_exploration.
   Reason: Rescuing these via the NoMatch rule changes the veto for every command for near-tie leads (0.067/0.075 vs 0.08); bare 'this worth' is ambiguous in Elite; 'Say again' costs one rephrase; reversible in one line. Independent decider agent under Sumeet's 4 Nov 2026 direction; first pick (Ask) withdrawn because its premise was measured wrong. Revisit if real transcripts show players meaning system value.
   Rejected: Ask 'Did you mean what is this system worth?' by changing the NoMatch rule to everyday - best.score >= MARGIN
+
+## Close Reason
+
+Implementer report. Changed: tests only, crates/astromech-intent/src/lib.rs. The new test everyday_margin_asks_for_near_misses pins R2: EVERYDAY keeps counting against the margin, so 'how much is my unsold cargo worth' asks at 0.867 against everyday 0.833. everyday_questions_ask_no_exploration pins R3: 'how much is this worth' and 'what is this worth' get NoMatch ('Say again'). Decisions: an independent decider agent made both, under Sumeet's 4 Nov 2026 direction; they are recorded as decision notes. The first R3 pick, Ask, was withdrawn because the implementer measured its premise wrong. Proof: cargo test -p astromech-intent (36 passed), fmt and clippy clean. Mutations checked by the reviewer: dropping the margin term fails the R2 test, and the alternative NoMatch rule fails the R3 test. Review: approvals astromech-4yjx and astromech-hdry; finding astromech-u270 fixed (dae90f95). Deviations: none. Surprise: the bare 'this worth' phrases were already NoMatch, because 'my' is a filler word. Open items: revisit R3 if real transcripts show players meaning system value.
