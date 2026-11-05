@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Find or plot: one header box for systems, finders and Ctrl+K"
-updated_at: "2026-11-05T06:47:00.768908783+00:00"
+updated_at: "2026-11-05T08:46:56.952883942+00:00"
 ---
 
 ## Goal
@@ -49,3 +49,4 @@ Replace the header's systems-only plot box (`modules/route/PlotBar.svelte`) and 
 ## Notes
 
 - 2026-11-05 [note] 2026-11-05: decision astromech-ghyo item 9: below the width where the one-row header fits (about 1600 px), the top tabs move to a 44 px second row under the wordmark. 2hbw implements this breakpoint with the one-row header and remeasures the width once the 320 px Find or plot box and its Ctrl+K hint are in, then updates DESIGN.md's Frame table figure.
+- 2026-11-05 [note] 2026-11-05: deferred findings from the nxz9 review (reviewer-fable-nxz9), part of this child: astromech-5pjm: give each Finder in app/src/lib/places.ts its phrase/entry list (input vocabulary + a route-with-input builder) read by both the box's matcher and modules/places/palette.ts, so kwoi and f7i0 add finders without editing the box; today palette.ts hand-lists FINDERS+SERVICES+MODULES+SHIPS and leaves TRADERS out ('raw trader' opens Services). astromech-ux31: App.svelte:54 normalises a moved link on first load with a location.hash push; use history.replaceState like the in-window path, so Back from a bookmarked #/services doesn't land on the old hash.
