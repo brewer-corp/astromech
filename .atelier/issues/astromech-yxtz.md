@@ -4,6 +4,9 @@ id: "astromech-yxtz"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-yxtz
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Orange palette and caps per DESIGN.md: move pages from grey to the game's orange ramp"
-updated_at: "2026-11-05T00:53:03.932393682+00:00"
+updated_at: "2026-11-05T16:11:33.433009819+00:00"
 ---
 
 ## Goal
