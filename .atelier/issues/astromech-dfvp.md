@@ -4,6 +4,9 @@ id: "astromech-dfvp"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-dfvp
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Cells mean editable: ember cells for every editable value, hull for read-only things"
-updated_at: "2026-11-05T00:44:51.430028019+00:00"
+updated_at: "2026-11-05T16:54:42.843775541+00:00"
 ---
 
 ## Goal
