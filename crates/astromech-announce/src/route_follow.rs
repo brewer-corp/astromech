@@ -8,7 +8,8 @@
 //! is), and speech waits out combat and docking (the clipboard and the toast don't).
 //!
 //! A route plotted in the galaxy map (a new `NavRoute.json`, live) and `NavRouteClear` are
-//! handed over too: the follower decides whether the plot is a leg of its route or a new one.
+//! handed over too: the follower decides whether the plot is a leg of its route or a new one. A
+//! `NavRouteClear` read while the route file still has hops is older than that route, and ignored.
 
 use crate::{Callout, Channels, Input, Priority, Rule};
 use astromech_gamestate::GameState;
@@ -74,15 +75,20 @@ impl Rule for RouteFollow {
     fn cooldown(&self) -> Duration {
         Duration::ZERO
     }
-    fn react(&self, input: &Input, _state: &GameState) -> Option<Callout> {
+    fn react(&self, input: &Input, state: &GameState) -> Option<Callout> {
         let f = self.follower.get()?;
         match input {
             Input::Route(r) => {
                 f.plotted(&r.systems);
                 return None;
             }
+            // The clear is ignored while the route file last read still has hops: `NavRoute.json`
+            // is read on Status.json changes, ahead of journal lines that lag, so a re-plot after
+            // the clear may already be in it. A cleared route rewrites the file empty.
             Input::Journal(l) if matches!(l.event, JournalEvent::Extra(ExtraEvent::NavRouteClear)) => {
-                f.cleared();
+                if state.route_hops.is_empty() {
+                    f.cleared();
+                }
                 return None;
             }
             _ => {}
@@ -202,5 +208,42 @@ mod tests {
         e.route(&snap(&["Sol", "Kuk"]), &g, Instant::now());
         e.journal(&clear, &g, Instant::now());
         assert!(log.0.lock().unwrap().is_empty(), "following off: the galaxy map's route isn't mirrored");
+    }
+
+    /// A clear then a re-plot, with the journal read late: the new route file (read on a
+    /// Status.json change) reaches the follower before the clear's journal line. The clear is
+    /// older than the route the file holds, so it is ignored (astromech-k1fw).
+    #[test]
+    fn a_clear_read_after_a_newer_plot_is_ignored() {
+        let log = Arc::new(Log::default());
+        let shared = SharedFollower::default();
+        shared.set(log.clone());
+        let mut e = Engine::new(vec![Box::new(RouteFollow { follower: shared })], &Settings::default());
+        e.set_live(true);
+        let snap = |s: &[&str]| astromech_journal::NavRouteSnap {
+            systems: s.iter().map(|x| x.to_string()).collect(),
+            hops: s
+                .iter()
+                .map(|x| astromech_journal::RouteHop { system: x.to_string(), ..Default::default() })
+                .collect(),
+        };
+        let mut g = GameState::default();
+        let a = snap(&["Sol", "Kuk"]);
+        g.apply_route(&a);
+        e.route(&a, &g, Instant::now());
+        // The game cleared A and plotted B; the file (B) is read before the journal's lines.
+        let b = snap(&["Sol", "Wolf 359", "Deciat"]);
+        g.apply_route(&b);
+        e.route(&b, &g, Instant::now());
+        let clear = line(r#"{"timestamp":"t","event":"NavRouteClear","Route":[]}"#);
+        e.journal(&clear, &g, Instant::now());
+        assert_eq!(*log.0.lock().unwrap(), ["plotted Sol>Kuk", "plotted Sol>Wolf 359>Deciat"]);
+
+        // A clear whose file was read first (now empty) still clears.
+        let empty = snap(&[]);
+        g.apply_route(&empty);
+        e.route(&empty, &g, Instant::now());
+        e.journal(&clear, &g, Instant::now());
+        assert_eq!(log.0.lock().unwrap().last().map(String::as_str), Some("cleared"));
     }
 }
