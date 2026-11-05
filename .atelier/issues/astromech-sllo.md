@@ -4,15 +4,15 @@ id: "astromech-sllo"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-sllo
 priority: "P2"
 relationships:
   blocks: []
   children: []
   attachments: []
   relates:
-  - kind: "review"
-    id: "astromech-hehd"
-    type: "discovered_from"
   - kind: "issue"
     id: "astromech-c4i0"
     type: "blocked_by"
@@ -22,11 +22,14 @@ relationships:
   - kind: "issue"
     id: "astromech-kwoi"
     type: "blocked_by"
+  - kind: "review"
+    id: "astromech-hehd"
+    type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Two tab rows at most: fold third-level tabs into choices or sections"
-updated_at: "2026-11-05T09:13:45.294410183+00:00"
+updated_at: "2026-11-05T18:27:08.683901431+00:00"
 ---
 
 ## Goal
