@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Places home and the Galaxy finders as Places pages"
-updated_at: "2026-11-05T06:19:44.872165553+00:00"
+updated_at: "2026-11-05T08:27:06.333434639+00:00"
 ---
 
 ## Goal
