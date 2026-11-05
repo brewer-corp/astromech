@@ -36,37 +36,47 @@
   "source": "exact plotter",
   "waypoints": [
    {
-    "system": "Sol"
+    "system": "Sol",
+    "jumps": 0
    },
    {
     "system": "Tascheter Sector MN-T b3-6",
-    "label": "fuel"
+    "label": "fuel",
+    "jumps": 1
    },
    {
-    "system": "Tascheter Sector LS-T a3-0"
+    "system": "Tascheter Sector LS-T a3-0",
+    "jumps": 1
    },
    {
-    "system": "Arietis Sector LD-H a11-1"
+    "system": "Arietis Sector LD-H a11-1",
+    "jumps": 1
    },
    {
-    "system": "Arietis Sector UE-O a7-1"
+    "system": "Arietis Sector UE-O a7-1",
+    "jumps": 1
    },
    {
-    "system": "Arietis Sector EG-V a3-1"
+    "system": "Arietis Sector EG-V a3-1",
+    "jumps": 1
    },
    {
     "system": "Hyades Sector DB-W b2-6",
-    "label": "fuel"
+    "label": "fuel",
+    "jumps": 1
    },
    {
-    "system": "Hyades Sector XJ-Z b3"
+    "system": "Hyades Sector XJ-Z b3",
+    "jumps": 1
    },
    {
     "system": "98 k Tauri",
-    "label": "neutron boost and fuel"
+    "label": "neutron boost and fuel",
+    "jumps": 1
    },
    {
-    "system": "Maia"
+    "system": "Maia",
+    "jumps": 1
    }
   ],
   "jumps": 9,

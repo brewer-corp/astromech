@@ -14,10 +14,14 @@
  * `materials_inventory`, `eddn_log`, `core_status`, and so on (the `invoke` name in lib/*.ts).
  * `?core=empty` makes the sample-backed pages answer as a commander with no history (previewData),
  * and the network lookups fail for want of a position unless a system is typed (previewLookup).
+ *
+ * `?core=ready&route=exact` starts on a route, for the route strip: fixtures/plot.json's exact
+ * route, with the commander in its third waypoint. Without it the preview has no route.
  */
 import type { CoreCmd, CoreStatus, Reply } from "./core";
 import type { Route, RouteView, Waypoint } from "./route";
 import eddnSample from "./fixtures/eddn-log.json";
+import plotSample from "./fixtures/plot.json";
 import biologySample from "./fixtures/exobiology.json";
 
 export type Scenario = "empty" | "new" | "ready";
@@ -54,6 +58,9 @@ interface State {
   /** The route a galaxy-map plot replaced. */
   parked: Route | null;
   here: string | null;
+  /** Why the clipboard turns writes down (tests: `fakeClipboard`), and the last write's error. */
+  clipFails: string | null;
+  clipError: string | null;
 }
 
 let state: State | null = null;
@@ -163,10 +170,20 @@ function fresh(scenario: Scenario): State {
     callouts: {},
     eddn: false,
     edsm: { enabled: false, commander: "", key: false },
-    route: null,
+    route: done ? startingRoute() : null,
     parked: null,
-    here: done ? "Sol" : null,
+    here: done ? (startingRoute()?.waypoints[2]?.system ?? "Sol") : null,
+    clipFails: null,
+    clipError: null,
   };
+}
+
+/** `?route=exact`: the exact route from fixtures/plot.json, with the commander in its third
+ * waypoint, so the fourth is next. */
+function startingRoute(): Route | null {
+  if (new URLSearchParams(location.search).get("route") !== "exact") return null;
+  const { name, source, waypoints } = plotSample.exact;
+  return { name, source, waypoints: structuredClone(waypoints), next: 3 };
 }
 
 const sameSystem = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -180,7 +197,8 @@ function cleanStops(list: Waypoint[]): Waypoint[] {
     const last = out.at(-1);
     if (last && sameSystem(last.system, system)) {
       if (w.label && w.label !== last.label) last.label = last.label ? `${last.label}, ${w.label}` : w.label;
-    } else out.push({ system, ...(w.label ? { label: w.label } : {}) });
+      if (last.jumps !== undefined) last.jumps += w.jumps ?? 0;
+    } else out.push({ system, ...(w.label ? { label: w.label } : {}), ...(w.jumps !== undefined ? { jumps: w.jumps } : {}) });
   }
   return out;
 }
@@ -194,7 +212,13 @@ function parseList(text: string): Waypoint[] {
   return rows.map((system) => ({ system }));
 }
 
-/** The preview's clipboard always takes the text. */
+/** As the core's `Route::jumps_left`: null when a waypoint still to reach doesn't know its jumps. */
+function jumpsLeft(r: Route): number | null {
+  const ahead = r.waypoints.slice(r.next);
+  return ahead.every((w) => w.jumps !== undefined) ? ahead.reduce((n, w) => n + (w.jumps ?? 0), 0) : null;
+}
+
+/** The preview's clipboard takes the text unless a test made it fail (`fakeClipboard`). */
 function routeView(st: State): RouteView {
   const r = st.route;
   return {
@@ -202,7 +226,8 @@ function routeView(st: State): RouteView {
     here: st.here,
     next: r?.waypoints[r.next] ?? null,
     remaining: r ? r.waypoints.length - r.next : 0,
-    clipboard_error: null,
+    jumps_left: r ? jumpsLeft(r) : null,
+    clipboard_error: st.clipError,
     parked: st.parked ? structuredClone(st.parked) : null,
   };
 }
@@ -235,7 +260,7 @@ export function fakePlotInGame(systems: string[]): void {
     return;
   }
   if (r && r.source !== GAME_SOURCE && r.next < r.waypoints.length) st.parked = r;
-  st.route = { name: `Route to ${dest}`, source: GAME_SOURCE, waypoints: cleanStops(systems.slice(1).map((system) => ({ system }))), next: 0 };
+  st.route = { name: `Route to ${dest}`, source: GAME_SOURCE, waypoints: cleanStops(systems.slice(1).map((system) => ({ system, jumps: 1 }))), next: 0 };
 }
 
 /** An unfinished route of our own (not the galaxy map's). */
@@ -260,13 +285,33 @@ function addNext(st: State, r: Route, stop: Waypoint): void {
   else if (prev && sameSystem(prev.system, stop.system)) {
     prev.label = merge(prev.label, stop.label);
     r.next -= 1;
-  } else r.waypoints.splice(r.next, 0, stop);
+  } else {
+    // The leg after the new stop starts there now: its jumps are unknown.
+    if (at) delete at.jumps;
+    r.waypoints.splice(r.next, 0, stop);
+  }
   const next = r.waypoints[r.next];
   if (st.here && next && sameSystem(next.system, st.here)) r.next += 1;
 }
 
+/** Tests: the clipboard turns writes down with `error` from the next one on, or takes them again. */
+export function fakeClipboard(error: string | null): void {
+  s().clipFails = error;
+}
+
+/** A live arrival in `system`, as the core's `Desk::on_system` takes it (tests): the commander is
+ * there, and a waypoint ahead is reached. */
+export function fakeJump(system: string): void {
+  const st = s();
+  st.here = system;
+  skipReached(st);
+}
+
 function routeCall(st: State, cmd: CoreCmd, args: Record<string, unknown>): Reply {
   const r = st.route;
+  // Everything but reading the route (and clearing it) writes the next waypoint to the clipboard.
+  if (cmd === "route_clear") st.clipError = null;
+  else if (cmd !== "route") st.clipError = st.clipFails;
   switch (cmd) {
     case "route_set": {
       const waypoints = cleanStops(typeof args.text === "string" ? parseList(args.text) : ((args.waypoints as Waypoint[] | undefined) ?? []));

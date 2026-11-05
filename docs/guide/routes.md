@@ -5,10 +5,35 @@ map in VR. astromech fills the gap with a **route follower**: it keeps one route
 waypoint on your clipboard, and pastes it into the galaxy map's search box when you ask. You still
 plot each leg in the galaxy map yourself. A route you plot in the galaxy map is followed too.
 
-## The route rail
+## The route strip
 
-Galaxy keeps the route you are following on the **right** while you search. The same view is
-the **Route** page in the command palette:
+A strip under the header, on every page but setup, shows the route you are following on one line:
+
+- **Next** and the next waypoint's system, with a **copy** button that puts it on your clipboard
+  again;
+- where it is in the route ("4 of 10");
+- what is there, one box each: "neutron boost", "fuel", an engineer or a station;
+- on the right, **To** and the route's last system, and how far is left. A route plotted in
+  astromech or in the galaxy map says **jumps left**. A route that does not know its jumps (an
+  import, an engineer trip, a search result's stop) says **stops left** instead, and so does a
+  plotted route once you add a stop to it.
+
+An orange **!** and a few words say when to act, one at a time:
+
+- **Not on the clipboard** and why, when astromech could not write the next waypoint to the
+  clipboard. Press copy to try again.
+- **Off route** when you are in neither the waypoint you last reached nor the next one, on a route
+  where they are one jump apart (an exact route, or one plotted in the galaxy map). Between the
+  stops of a neutron route or an engineer trip you are usually somewhere else, so it does not say
+  it there.
+- **Refuel before the next jump** while you are in a waypoint marked fuel. astromech does not read
+  your tank, so it says this until you jump on, even after you have scooped.
+
+With no route it says **No route**, and **Find or plot** puts the cursor in the header's search
+box. A finished route says **Route finished**. When the route you were following has ended and
+another one is paused, the strip shows it with **Resume**.
+
+Click the destination for the **Route** page, also in the command palette:
 
 - its name, where it came from, and how many waypoints are left;
 - the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
@@ -54,7 +79,7 @@ and a new one-stop route is finished straight away with nothing copied.
 astromech follows one route at a time. Setting a new one (**Set destination**, **Follow** on
 the engineer trip, **Plot and follow**, **Follow this route** for an import) **pauses** the
 route it replaces, if that route is not finished. The line under the button says *Replaced*
-and the route's name, with **Resume**, and the route rail shows it as **Paused** with
+and the route's name, with **Resume**, and the Route page shows it as **Paused** with
 **Resume**. Resume follows it again and puts its next waypoint on your clipboard; the route
 you set instead is dropped. Only one route is paused at a time: pausing another replaces it.
 A route plotted in the galaxy map is never paused (the game still has it), so setting a route
@@ -142,7 +167,7 @@ When you plot a route in the galaxy map, astromech reads it from the game (`NavR
   on as you jump, but astromech says nothing and copies nothing: the game already has the route
   plotted and shows the next jump. Copy, Skip and Back still copy when you press them.
 - **A detour.** If you were following a route of your own (a neutron route, say) and it isn't
-  finished, it is **paused**, not lost. The route rail shows it with **Resume**, which follows it
+  finished, it is **paused**, not lost. The Route page shows it with **Resume**, which follows it
   again and puts its next waypoint on your clipboard. Plotting in the galaxy map to one of its
   waypoints ahead resumes it too, with nothing copied (you have just plotted it).
 - **Clearing the route in the galaxy map** stops following a route that came from the galaxy

@@ -1,7 +1,7 @@
 <script lang="ts">
-  // The window frame (docs/V1-DESIGN.md §2.2, §4): title, plain text tabs for the three areas,
-  // one orange rule, the area's pages as sub-tabs, the page, and a one-line core state. Opens on
-  // My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
+  // The window frame (docs/V1-DESIGN.md §2.2, §4; DESIGN.md Frame): title, plain text tabs for
+  // the areas, one orange rule, the route strip, the area's pages as sub-tabs, the page, and a
+  // one-line core state. Opens on My controller. Onboarding replaces the frame on first launch (until finished or skipped) and
   // at #/setup or #/setup/<step>. Ctrl+K opens the command palette from any page, and the top
   // bar's system search (PlotBar) plots a route from any page.
   import { groups, groupModules, findModule, modules } from "./lib/modules";
@@ -12,8 +12,8 @@
   import Toasts from "./lib/ui/Toasts.svelte";
   import Onboarding from "./lib/onboarding/Onboarding.svelte";
   import { openHelp } from "./lib/help";
-  import Rail from "./modules/route/Rail.svelte";
   import PlotBar from "./modules/route/PlotBar.svelte";
+  import Strip from "./modules/route/Strip.svelte";
 
   const DEFAULT = "controller";
   // Pages that were merged into another keep working as links.
@@ -26,7 +26,6 @@
   // A page may route within itself ("engineering/7" opens that ship): the module is the first part.
   const current = $derived(findModule(route.split("/")[0] ?? "") ?? findModule(DEFAULT));
   const pages = $derived(current && current.group !== "galaxy" ? groupModules(current.group) : []);
-  const galaxyFind = $derived(current?.group === "galaxy" && current.id !== "route");
   let status = $state<CoreStatus | null>(null);
   const setup = $derived(status?.setup_needed ?? []);
   const showSetup = $derived(setup.length > 0 && current?.id !== "settings");
@@ -111,6 +110,7 @@
       {/if}
     </span>
   </header>
+  <Strip />
   {#if pages.length > 1}
     <nav class="sub">
       {#each pages as m (m.id)}
@@ -118,22 +118,11 @@
       {/each}
     </nav>
   {/if}
-  <main class:split={galaxyFind}>
+  <main>
     {#if current}
-      {#if galaxyFind}
-        <div class="find">
-          {#await current.load() then view}
-            <view.default />
-          {/await}
-        </div>
-        <aside class="rail" aria-label="Route">
-          <Rail />
-        </aside>
-      {:else}
-        {#await current.load() then view}
-          <view.default />
-        {/await}
-      {/if}
+      {#await current.load() then view}
+        <view.default />
+      {/await}
     {/if}
   </main>
   <Toasts {status} />
@@ -142,7 +131,7 @@
 {/if}
 
 <style>
-  .frame { height: 100vh; display: grid; grid-template-rows: auto auto 1fr; grid-template-columns: minmax(0, 1fr); }
+  .frame { height: 100vh; display: grid; grid-template-rows: auto auto auto 1fr; grid-template-columns: minmax(0, 1fr); }
   header { display: flex; align-items: center; gap: clamp(16px, 2.5vw, 40px); margin: 0 clamp(16px, 3vw, 40px); padding: 26px 0 12px; border-bottom: 1px solid var(--accent); }
   .app { font-weight: 600; font-size: var(--fs-l); letter-spacing: 0.12em; color: var(--text-hi); }
   nav { display: flex; gap: clamp(16px, 2.5vw, 28px); flex: 1; flex-wrap: wrap; }
@@ -160,9 +149,6 @@
   .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
   .state.warn { color: var(--accent); font-weight: 600; }
   main { min-height: 0; overflow: auto; padding: 0 clamp(16px, 3vw, 40px); scrollbar-gutter: stable; }
-  main.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem); gap: 0; overflow: hidden; padding-right: 0; }
-  .find { min-width: 0; overflow: auto; padding: 20px 24px 40px 0; scrollbar-gutter: stable; }
-  .rail { min-width: 0; overflow: auto; padding: 20px clamp(16px, 3vw, 28px) 40px 24px; border-left: 1px solid var(--accent-dim); background: var(--bg-list); }
   header.stacked { flex-wrap: wrap; row-gap: 14px; }
   header.stacked .app { margin-right: auto; }
   header.stacked nav { order: 1; flex-basis: 100%; }
@@ -170,8 +156,5 @@
      steadily with it: the header stacks once as the window narrows and stays stacked below that. */
   @media (max-width: 1100px) {
     nav.sub { gap: 16px; }
-    main.split { display: flex; flex-direction: column; overflow: auto; padding-right: clamp(16px, 3vw, 40px); }
-    .find { padding: 20px 0 24px; overflow: visible; flex: none; }
-    .rail { border-left: 0; border-top: 1px solid var(--accent-dim); padding: 16px 0 20px; max-height: 38vh; overflow: auto; position: sticky; bottom: 0; z-index: 2; }
   }
 </style>

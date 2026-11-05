@@ -54,7 +54,8 @@
 </section>
 
 <style>
-  section { padding: 8px 0 32px; min-width: 0; }
+  /* The route strip took over from the Galaxy rail; the page keeps its spacing and DESIGN.md's list width. */
+  section { padding: 28px 0 72px; min-width: 0; max-width: var(--list-w); }
   .want { display: flex; flex-direction: column; gap: 10px; }
   .field { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .field > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); flex: none; min-width: 5.5em; }

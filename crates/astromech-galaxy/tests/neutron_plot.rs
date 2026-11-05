@@ -342,6 +342,8 @@ fn plots_with_the_stops_names_and_labels() {
         p.waypoints.iter().map(|w| (w.system.as_str(), w.label.as_deref())).collect();
     assert_eq!(stops, [("Sol", None), ("Jackson's Lighthouse", Some(NEUTRON)), ("Somewhere", None)]);
     assert_eq!((p.jumps, p.neutrons, p.refuels, p.range), (8, 1, 0, 25.0));
+    // Each stop carries its leg's jumps: 7 to the lighthouse, 1 boosted jump on.
+    assert_eq!(p.waypoints.iter().map(|w| w.jumps).collect::<Vec<_>>(), [0, 7, 1]);
     assert_eq!((p.local, p.fewest, p.fallback), (true, Some(true), None));
     assert!((p.ly - dist(from.pos, to.pos)).abs() < 1e-9);
 

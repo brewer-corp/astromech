@@ -1,8 +1,17 @@
+<script lang="ts" module>
+  let focusBox: (() => void) | null = null;
+
+  /** Put the cursor in the header's search box (the route strip's Find or plot shortcut). */
+  export function focusFindOrPlot(): void {
+    focusBox?.();
+  }
+</script>
+
 <script lang="ts">
   // The top bar's system search, on every page (docs/PLOTTING.md): type a system (Spansh
   // autocomplete), pick it with Enter or a click, and a panel under the bar plots a route to it
   // from the current system (Plot) or opens it on Spansh or Inara. Enter again plots. Escape or
-  // a click outside closes the panel; the route itself is on the Route page and the Galaxy rail.
+  // a click outside closes the panel; the route itself is on the route strip and the Route page.
   import { systemNames } from "../../lib/search";
   import ExtLinks from "../../lib/ui/ExtLinks.svelte";
   import IconButton from "../../lib/ui/IconButton.svelte";
@@ -21,6 +30,13 @@
   let timer: ReturnType<typeof setTimeout> | undefined;
   let box = $state<HTMLElement>();
   let plot = $state<{ go: () => Promise<void>; plotting: () => boolean }>();
+  let input = $state<HTMLInputElement | HTMLTextAreaElement>();
+
+  $effect(() => {
+    const el = input;
+    focusBox = () => el?.focus();
+    return () => (focusBox = null);
+  });
 
   function typed(v: string) {
     text = v;
@@ -111,6 +127,7 @@
 
 <div class="plotbar" bind:this={box}>
   <Input
+    bind:input
     value={text}
     placeholder="Plot to a system"
     spellcheck="false"

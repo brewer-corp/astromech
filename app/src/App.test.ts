@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte";
 import App from "./App.svelte";
 
 const stationsSpy = vi.fn();
@@ -152,5 +152,31 @@ describe("command palette in the window", () => {
     location.hash = "#/materials/%E0%A4%A";
     render(App);
     expect(await screen.findByRole("heading", { name: "Raw" })).toBeTruthy();
+  });
+});
+
+describe("route strip in the window", () => {
+  afterEach(() => {
+    cleanup();
+    location.hash = "";
+    history.replaceState(null, "", "/");
+  });
+
+  it("is under the header on every page, Galaxy's included, and gone in onboarding", async () => {
+    history.replaceState(null, "", "/?core=ready&route=exact");
+    const { resetFakeCore } = await import("./lib/fakecore");
+    resetFakeCore();
+    for (const page of ["settings", "materials", "services", "route"]) {
+      location.hash = `#/${page}`;
+      render(App);
+      const strip = await screen.findByRole("region", { name: "Route" });
+      expect(await within(strip).findByText("Arietis Sector LD-H a11-1"), page).toBeTruthy();
+      expect(screen.queryByRole("complementary", { name: "Route" }), "no Galaxy rail").toBeNull();
+      cleanup();
+    }
+    location.hash = "#/setup";
+    render(App);
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByRole("region", { name: "Route" })).toBeNull();
   });
 });

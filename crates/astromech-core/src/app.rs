@@ -692,7 +692,7 @@ impl Core {
             "route_add" => {
                 let a = r.args.clone().unwrap_or_default();
                 let s = |k: &str| a.get(k).and_then(|x| x.as_str()).map(str::to_string);
-                let stop = Waypoint { system: s("system").unwrap_or_default(), label: s("label") };
+                let stop = Waypoint { system: s("system").unwrap_or_default(), label: s("label"), jumps: None };
                 match d.add(stop, &s("source").unwrap_or_default()) {
                     Ok(v) => v,
                     Err(e) => return json!({"ok": false, "error": e}),
@@ -1487,6 +1487,7 @@ mod tests {
         );
         assert_eq!(v["view"]["next"]["system"], "Deciat", "{v}");
         assert_eq!(v["view"]["route"]["source"], "engineer trip");
+        assert_eq!(v["view"]["jumps_left"], Value::Null, "an engineer trip knows no jumps");
         assert_eq!(call("route_skip", None)["view"]["next"]["system"], "Kuk");
         assert_eq!(call("route_back", None)["view"]["remaining"], 2);
         let v = call("route_set", Some(json!({"text": "System Name,Jumps\nSol,0\nColonia,40\n"})));
@@ -1623,8 +1624,9 @@ mod tests {
         let v = set(neutron);
         assert_eq!(v["view"]["route"]["name"], "Sol to Colonia", "{v}");
         assert_eq!(v["view"]["route"]["source"], "neutron plotter");
-        assert_eq!(v["view"]["next"], json!({"system": "PSR J1752-2806", "label": "neutron boost"}));
-        assert_eq!(v["view"]["remaining"], 2);
+        assert_eq!(v["view"]["next"], json!({"system": "PSR J1752-2806", "label": "neutron boost", "jumps": 10}));
+        // Each stop brought its leg's jumps: 10 to the neutron star, 1 on to Colonia.
+        assert_eq!((v["view"]["remaining"].clone(), v["view"]["jumps_left"].clone()), (json!(2), json!(11)));
 
         let exact = plotted(
             Plotter::Exact,
@@ -1637,8 +1639,8 @@ mod tests {
         );
         let v = set(exact);
         assert_eq!(v["view"]["route"]["source"], "exact plotter", "{v}");
-        assert_eq!(v["view"]["next"], json!({"system": "Tascheter Sector MN-T b3-6", "label": "fuel"}));
-        assert_eq!(v["view"]["remaining"], 9);
+        assert_eq!(v["view"]["next"], json!({"system": "Tascheter Sector MN-T b3-6", "label": "fuel", "jumps": 1}));
+        assert_eq!((v["view"]["remaining"].clone(), v["view"]["jumps_left"].clone()), (json!(9), json!(9)));
         let moved = core.route.on_system("Tascheter Sector MN-T b3-6").unwrap();
         assert_eq!(moved.spoken(), "Next waypoint. Tascheter Sector LS-T a3-0.");
         for s in [

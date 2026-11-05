@@ -556,11 +556,11 @@ pub fn plot(file: &NeutronStars, from: &Here, to: &Here, ship: &Ship) -> Result<
     let stars: Vec<usize> = r.legs.iter().filter_map(|l| l.star).collect();
     let mut names = file.names(&stars).map_err(|e| format!("{e:#}"))?.into_iter();
     let boosted = |yes: bool| yes.then(|| NEUTRON.to_string());
-    let mut waypoints = vec![Stop { system: from.system.clone(), label: boosted(r.start.is_some()) }];
+    let mut waypoints = vec![Stop { system: from.system.clone(), label: boosted(r.start.is_some()), jumps: 0 }];
     for leg in &r.legs {
         waypoints.push(match leg.star {
-            Some(_) => Stop { system: names.next().unwrap_or_default(), label: boosted(true) },
-            None => Stop { system: to.system.clone(), label: None },
+            Some(_) => Stop { system: names.next().unwrap_or_default(), label: boosted(true), jumps: leg.jumps },
+            None => Stop { system: to.system.clone(), label: None, jumps: leg.jumps },
         });
     }
     Ok(Plotted {

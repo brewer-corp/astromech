@@ -6,14 +6,15 @@ and the window can stay closed.
 ## The window
 
 The header has plain text tabs for the areas. Most areas list their pages as sub-tabs below.
-Galaxy has a Find box instead: type a service, module or ship. The route you are following sits
-on the right. The full Route page is in the command palette (Ctrl+K).
+Galaxy has a Find box instead: type a service, module or ship. Under the header, on every page,
+the [route strip](routes.md#the-route-strip) shows the next stop of the route you are following;
+click its destination for the full Route page, which is also in the command palette (Ctrl+K).
 
 | Area | Pages |
 |---|---|
 | **Controls** | My controller, All keybinds, Presets, Key tester: [Controls](controls.md) |
 | **Engineering** | Ships, Stored modules, Materials, On foot, Engineers: [Ships](ships.md), [Materials](materials.md), [Engineers and on foot](engineering.md) |
-| **Galaxy** | Find a service, module or ship; the route sits on the right: [Galaxy](galaxy.md) |
+| **Galaxy** | Find a service, module or ship: [Galaxy](galaxy.md) |
 | **Trade** | Colonisation, Commodities: [Colonisation](colonisation.md), [Trade](trade.md) |
 | **Exploration** | System, Biology: [Exploration](exploration.md) |
 | **Powerplay** | [Powerplay](powerplay.md) |

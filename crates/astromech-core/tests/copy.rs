@@ -929,7 +929,11 @@ fn check_with_names(kind: &str, lines: &[String], budget: usize, names: &[&str])
 #[test]
 fn the_route_lines_keep_to_the_copy_guide() {
     use astromech_core::route::{answer_line, next_line, Moved, Waypoint, FIXED_LINES};
-    let w = |system: &str, label: Option<&str>| Waypoint { system: system.into(), label: label.map(Into::into) };
+    let w = |system: &str, label: Option<&str>| Waypoint {
+        system: system.into(),
+        label: label.map(Into::into),
+        jumps: None,
+    };
     let mut callouts = vec![];
     let (mut replies, mut answers) = (vec![], vec![]);
     // Plotted routes label their stops (astromech_galaxy::plot): the longest label on a long name.

@@ -32,11 +32,16 @@ pub struct Waypoint {
     /// What is there, e.g. the engineer's name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
+    /// Jumps from the waypoint before, where the route knows them: a plotted route
+    /// (`astromech_galaxy::plot`) and one plotted in the galaxy map do, an import or a lookup's
+    /// stop doesn't. `route.json` from before it was recorded loads without it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub jumps: Option<u32>,
 }
 
 impl Waypoint {
     pub fn new(system: &str) -> Self {
-        Self { system: system.trim().to_string(), label: None }
+        Self { system: system.trim().to_string(), label: None, jumps: None }
     }
 }
 
@@ -73,13 +78,16 @@ impl Route {
     pub fn new(name: &str, source: &str, waypoints: Vec<Waypoint>) -> Self {
         let mut out: Vec<Waypoint> = vec![];
         for w in waypoints {
-            let w = Waypoint { system: w.system.trim().to_string(), label: w.label.filter(|l| !l.trim().is_empty()) };
+            let w =
+                Waypoint { system: w.system.trim().to_string(), label: w.label.filter(|l| !l.trim().is_empty()), ..w };
             if w.system.is_empty() {
                 continue;
             }
             match out.last_mut() {
                 Some(last) if same_system(&last.system, &w.system) => {
                     last.label = merge_labels(last.label.take(), w.label);
+                    // A repeat of the same system is no further jump.
+                    last.jumps = last.jumps.map(|j| j + w.jumps.unwrap_or(0));
                 }
                 _ => out.push(w),
             }
@@ -98,6 +106,12 @@ impl Route {
 
     pub fn finished(&self) -> bool {
         self.next >= self.waypoints.len()
+    }
+
+    /// Jumps to the end, the leg to the next waypoint included, when every waypoint still to
+    /// reach knows its jumps; `None` when one doesn't (an import, a lookup's stop).
+    pub fn jumps_left(&self) -> Option<u32> {
+        self.waypoints.iter().skip(self.next).map(|w| w.jumps).sum()
     }
 
     /// Plotted in the galaxy map ([`GAME`]): followed silently, never copied.
@@ -146,6 +160,10 @@ impl Route {
             w.label = merge_labels(w.label.take(), stop.label);
             self.next = i - 1;
         } else {
+            // The stop after it is now reached from the new stop, so its jumps are unknown too.
+            if let Some(after) = self.waypoints.get_mut(i) {
+                after.jumps = None;
+            }
             self.waypoints.insert(i, stop);
         }
     }
@@ -322,6 +340,8 @@ pub struct View {
     pub here: Option<String>,
     pub next: Option<Waypoint>,
     pub remaining: usize,
+    /// Jumps to the end ([`Route::jumps_left`]), when the route knows them.
+    pub jumps_left: Option<u32>,
     /// Why the last clipboard write failed, if it did.
     pub clipboard_error: Option<String>,
     /// The route a galaxy-map plot or a route set from the window replaced, to resume.
@@ -396,6 +416,7 @@ impl Desk {
             here: st.0.here.clone(),
             next: r.and_then(|r| r.next_stop().cloned()),
             remaining: r.map(|r| r.remaining()).unwrap_or(0),
+            jumps_left: r.and_then(Route::jumps_left),
             clipboard_error: st.1.clone(),
             parked: st.0.parked.clone(),
         }
@@ -450,8 +471,11 @@ impl Desk {
     /// next. With no route of our own to add to (none, a finished one, or the galaxy map's), it
     /// is followed as a one-stop route named after its system, from `source`.
     pub fn add(&self, stop: Waypoint, source: &str) -> Result<View, String> {
-        let stop =
-            Waypoint { system: stop.system.trim().to_string(), label: stop.label.filter(|l| !l.trim().is_empty()) };
+        let stop = Waypoint {
+            system: stop.system.trim().to_string(),
+            label: stop.label.filter(|l| !l.trim().is_empty()),
+            ..stop
+        };
         if stop.system.is_empty() {
             return Err("the stop has no system".into());
         }
@@ -537,7 +561,8 @@ impl Desk {
             self.save(&st.0);
             return;
         }
-        let jumps = systems[1..].iter().map(|s| Waypoint::new(s)).collect();
+        // The galaxy map's route has every jump as a waypoint.
+        let jumps = systems[1..].iter().map(|s| Waypoint { jumps: Some(1), ..Waypoint::new(s) }).collect();
         let game = Route::new(&format!("Route to {dest}"), GAME, jumps);
         if game.waypoints.is_empty() {
             return;
@@ -785,7 +810,7 @@ mod tests {
     }
 
     fn stop(system: &str, label: &str) -> Waypoint {
-        Waypoint { system: system.into(), label: Some(label.into()) }
+        Waypoint { system: system.into(), label: Some(label.into()), jumps: None }
     }
 
     fn systems(v: &View) -> Vec<String> {
@@ -950,6 +975,67 @@ mod tests {
         assert_eq!(v.here.as_deref(), Some("A"));
     }
 
+    /// `route.json` written before waypoints recorded their jumps still loads: the route is
+    /// followed as before and says how many stops are left, not jumps.
+    #[test]
+    fn a_route_saved_without_jumps_still_loads() {
+        let dir = tempfile::tempdir().unwrap();
+        let p = dir.path().join("route.json");
+        std::fs::write(
+            &p,
+            r#"{"route":{"name":"Sol to Maia","source":"exact plotter","waypoints":[{"system":"Sol"},{"system":"Tascheter Sector MN-T b3-6","label":"fuel"},{"system":"Maia"}],"next":1},"here":"Sol"}"#,
+        )
+        .unwrap();
+        let v = Desk::open(Some(p.clone()), Box::new(|_| Ok(()))).view();
+        assert_eq!(v.next.as_ref().unwrap().system, "Tascheter Sector MN-T b3-6");
+        assert_eq!(v.next.unwrap().jumps, None);
+        assert_eq!((v.remaining, v.jumps_left), (2, None));
+        // Saving it again doesn't write jumps it never had.
+        let d = Desk::open(Some(p.clone()), Box::new(|_| Ok(())));
+        d.step(true);
+        assert!(!std::fs::read_to_string(&p).unwrap().contains("jumps"));
+    }
+
+    fn legs(stops: &[(&str, u32)]) -> Route {
+        let w = stops.iter().map(|&(s, j)| Waypoint { jumps: Some(j), ..Waypoint::new(s) }).collect();
+        Route::new("Sol to Colonia", "neutron plotter", w)
+    }
+
+    /// A plotted route knows each leg's jumps, so the strip can say "N jumps left"; a route with
+    /// a stop that doesn't (an import, a lookup's Add stop) has only its stops to count.
+    #[test]
+    fn counts_the_jumps_left_where_every_stop_knows_them() {
+        let (d, _) = desk();
+        d.on_system("Sol");
+        // A neutron route: legs of 10 jumps and 1, then 6 to the end.
+        let v = d.set(legs(&[("Sol", 0), ("N1", 10), ("N2", 1), ("Colonia", 6)])).unwrap();
+        assert_eq!((v.remaining, v.jumps_left), (3, Some(17)));
+        d.on_system("N1");
+        assert_eq!(d.view().jumps_left, Some(7));
+        // A repeat of a system in a row is one stop and no extra jump.
+        let r = legs(&[("Sol", 0), ("A", 3), ("a", 0), ("B", 2)]);
+        assert_eq!((r.waypoints.len(), r.jumps_left()), (3, Some(5)));
+
+        // An import knows no jumps.
+        assert_eq!(d.set(route(&["Sol", "A", "B"])).unwrap().jumps_left, None);
+
+        // Add stop puts a stop of unknown jumps ahead, and the leg after it starts there now.
+        d.set(legs(&[("N1", 0), ("N2", 1), ("Colonia", 6)])).unwrap();
+        assert_eq!(d.view().jumps_left, Some(7));
+        let v = d.add(stop("Deciat", "Felicity Farseer"), "services").unwrap();
+        assert_eq!((v.remaining, v.jumps_left), (3, None));
+        d.on_system("Deciat");
+        let v = d.view();
+        assert_eq!(v.next.as_ref().unwrap().system, "N2");
+        assert_eq!(v.jumps_left, None, "N2's jumps were from N1, not from Deciat");
+
+        // A route plotted in the galaxy map has every jump as a waypoint.
+        plot_in_game(&d, &["Deciat", "W1", "W2", "Ross 128"]);
+        assert_eq!(d.view().jumps_left, Some(3));
+        d.on_system("W1");
+        assert_eq!(d.view().jumps_left, Some(2));
+    }
+
     /// `[callouts.route_follow] enabled = false`: jumping doesn't move the route or copy, but the
     /// desk still knows where the commander is, so the Route page's "you are here" is right and a
     /// route set now starts after the system the commander is in.
@@ -987,11 +1073,7 @@ mod tests {
         let r = Route::new(
             "trip",
             "engineer trip",
-            vec![
-                Waypoint { system: "Deciat".into(), label: Some("Felicity Farseer".into()) },
-                Waypoint { system: "deciat".into(), label: Some("Someone Else".into()) },
-                Waypoint { system: "Kuk".into(), label: Some("Ram Tah".into()) },
-            ],
+            vec![stop("Deciat", "Felicity Farseer"), stop("deciat", "Someone Else"), stop("Kuk", "Ram Tah")],
         );
         assert_eq!(r.waypoints.len(), 2);
         assert_eq!(r.waypoints[0].label.as_deref(), Some("Felicity Farseer, Someone Else"));

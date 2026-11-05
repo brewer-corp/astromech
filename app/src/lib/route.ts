@@ -14,8 +14,11 @@ import plotSample from "./fixtures/plot.json";
 
 export interface Waypoint {
   system: string;
-  /** What is there, e.g. the engineer's name. */
+  /** What is there, e.g. the engineer's name, or a plotter's "neutron boost" and "fuel". */
   label?: string;
+  /** Jumps from the waypoint before: plotted routes and the galaxy map's know them; imports
+   * and a lookup's stops don't. */
+  jumps?: number;
 }
 
 export interface Route {
@@ -34,17 +37,26 @@ export interface RouteView {
   next: Waypoint | null;
   /** Waypoints still to reach, the next one included. */
   remaining: number;
+  /** Jumps to the end, when every waypoint still to reach knows its jumps. */
+  jumps_left: number | null;
   /** Why the last clipboard write failed, if it did. */
   clipboard_error: string | null;
   /** The route a galaxy-map plot or a newly followed route replaced, to resume. */
   parked: Route | null;
 }
 
+/** What is at a stop, one badge each: "neutron boost and fuel" (astromech_galaxy::plot) is two,
+ * and stops merged in one system ("Felicity Farseer, Professor Palin") are one each. */
+export function stopFlags(label: string | undefined): string[] {
+  if (!label) return [];
+  return label.split(", ").flatMap((l) => (l === "neutron boost and fuel" ? ["neutron boost", "fuel"] : [l]));
+}
+
 /** The source of a route plotted in the galaxy map: followed quietly, never copied. */
 export const GAME_SOURCE = "galaxy map";
 
 const watchers = new Set<() => void>();
-/** The Galaxy rail refreshes as soon as a route mutates, not on the next poll. */
+/** The route strip and the Route page refresh as soon as a route mutates, not on the next poll. */
 export function watchRoute(fn: () => void): () => void {
   watchers.add(fn);
   return () => watchers.delete(fn);

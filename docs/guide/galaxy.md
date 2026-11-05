@@ -60,7 +60,7 @@ Trade, Colonisation, Powerplay and Exploration.
 - **Results.** Up to eight (sites, trade, faction states) or ten (stations, colonisation, Powerplay), nearest first. A station row has the type mark and name with arrival distance,
   the system with a copy mark plus light years and jumps, then allegiance, controlling faction
   and state. Two buttons end the row: **Add stop** makes that system the next stop of the route
-  (the right-hand rail), and **Set destination** makes it the whole route, pausing the old one
+  (the [route strip](routes.md#the-route-strip) under the header), and **Set destination** makes it the whole route, pausing the old one
   ([Routes](routes.md#from-a-search-result)). The line under the list
   says which jump range was used, who the source is and how old the answer is.
 - Searches are cached for a while, so asking twice is quick. Change a filter or the "From" to search again.

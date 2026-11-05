@@ -3,15 +3,14 @@
   // clipboard for the galaxy map's search box; jumping into it copies the one after. Routes come
   // from the top bar's plotter (PlotBar), the engineer trip, a search result's Add stop or Set
   // destination, an import (a Spansh CSV, or a list of systems) or the galaxy map itself: a route
-  // plotted there is followed quietly. A route replaced by any of them is parked to resume.
+  // plotted there is followed quietly. A route replaced by any of them is parked to resume. The
+  // route strip (Strip.svelte) shows the next stop on every page and links here.
   import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
   import Button from "../../lib/ui/Button.svelte";
   import Input from "../../lib/ui/Input.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
-
-  let { compact = false }: { compact?: boolean } = $props();
 
   let view = $state<RouteView | null>(null);
   /** The last action (Copy, Skip, Back, Clear, import) failed; it stays until the next action. */
@@ -58,7 +57,7 @@
   const parked = $derived(view?.parked ?? null);
 </script>
 
-<section class:compact>
+<section>
   {#if err}<p class="err">{err}</p>{/if}
   {#if readErr}<p class="err">{readErr}</p>{/if}
   <Stale error={stale} />
@@ -111,48 +110,27 @@
       {/each}
     </ol>
   {:else if view}
-    <p class="lo empty">{compact ? "No route. Search a system in the top bar to plot one, plot in the galaxy map, or add a search result as a stop." : "No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, add a search result as a stop or make it the destination, or import one."}</p>
+    <p class="lo empty">No route. Search a system in the top bar to plot one, plot in the galaxy map, follow the engineer trip, add a search result as a stop or make it the destination, or import one.</p>
   {/if}
 
-  {#if compact}
-    <details class="block">
-      <summary>Galaxy map</summary>
-      <div class="how">
-        <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button. astromech sends Ctrl+V and Enter while the galaxy map is open.</p>
-        <p>Jumping into the waypoint copies the next. Say <span class="q">“next waypoint”</span>, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
-      </div>
-    </details>
-    <details class="block">
-      <summary>Import</summary>
-      <div class="import">
-        <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
-        <Input rows={5} aria-label="Route" placeholder="Paste a Spansh CSV or one system name per line" bind:value={text} />
-        <div class="actions">
-          <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
-        </div>
-      </div>
-    </details>
-  {:else}
-    <div class="how">
-      <h4>In the galaxy map</h4>
-      <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
-      <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
-    </div>
+  <div class="how">
+    <h4>In the galaxy map</h4>
+    <p>Select the search box, then say <span class="q">“paste”</span> or press your paste button (<span class="mono">controls.paste</span> in the config). astromech sends Ctrl+V and Enter, only while the galaxy map is open. Then plot the route as usual.</p>
+    <p>When you jump into the waypoint, the next one is copied and read out. Say <span class="q">“next waypoint”</span> to hear it again, <span class="q">“skip waypoint”</span> or <span class="q">“clear route”</span>.</p>
+  </div>
 
-    <div class="import">
-      <h4>Import</h4>
-      <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
-      <Input rows={6} aria-label="Route" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text} />
-      <div class="actions">
-        <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
-      </div>
+  <div class="import">
+    <h4>Import</h4>
+    <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
+    <Input rows={6} aria-label="Route" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text} />
+    <div class="actions">
+      <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
     </div>
-  {/if}
+  </div>
 </section>
 
 <style>
   section { padding: 28px 0; max-width: 60rem; display: flex; flex-direction: column; gap: 20px; }
-  section.compact { padding: 0; max-width: none; gap: 16px; }
   h3 { margin: 0; color: var(--text-hi); font-weight: 500; }
   h4 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); }
   p { margin: 0 0 6px; }
@@ -175,7 +153,4 @@
   .import { display: flex; flex-direction: column; gap: 8px; }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
   .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--accent-dim); color: var(--text); font-size: var(--fs-s); }
-  details.block { border-top: 1px solid var(--accent-dim); padding-top: 12px; }
-  details.block summary { cursor: pointer; color: var(--text-hi); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; margin-bottom: 10px; }
-  details.block[open] summary { color: var(--accent); }
 </style>

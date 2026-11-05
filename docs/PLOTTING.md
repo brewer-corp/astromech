@@ -31,7 +31,7 @@ Research sources (read 15 Oct 2026): COVAS:NEXT `Plotter.py`, Directive 47 (d47)
 | Voice: "next waypoint", "skip waypoint", "previous waypoint", "clear route", "paste" | `astromech-intent` MVP grammar, `Assistant::route_command` |
 | Galaxy-map routes: a live new `NavRoute.json` (the engine's `Input::Route`) and a live `NavRouteClear` go to the same rule, which hands them to the follower (`Follower::plotted`, `cleared`) | `astromech_announce::route_follow`, `Desk::plotted`, `Desk::cleared_in_game` |
 | Control API: `route`, `route_set`, `route_add` (`{system, label, source}`), `route_skip`, `route_back`, `route_clear`, `route_copy`, `route_resume` | `Core::route_cmd`; the shell's `core_call` allows them |
-| UI: the top bar's **Plot to a system** (every page); Galaxy route rail (and the Route page) with Resume; **Follow** on the engineer trip; **Add stop** and **Set destination** on every search-kit result; "Replaced *name*" with Resume under each of them and the plot panel | `app/src/modules/route` (`PlotBar.svelte`, `Plot.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte`, `lib/ui/FollowNote.svelte` |
+| UI: the top bar's **Plot to a system** (every page); the route strip under the header on every page (Resume once the route followed has ended) and the Route page with Resume; **Follow** on the engineer trip; **Add stop** and **Set destination** on every search-kit result; "Replaced *name*" with Resume under each of them and the plot panel | `app/src/modules/route` (`PlotBar.svelte`, `Plot.svelte`, `Strip.svelte`, `View.svelte`), `lib/route.ts`, `lib/ui/SearchKit.svelte`, `lib/ui/FollowNote.svelte` |
 
 Behaviour:
 
@@ -76,6 +76,13 @@ Behaviour:
   The game's route repeated (the engine skips a `NavRoute.json` equal to the last one) is not news.
 - Consecutive stops in the same system are merged, which covers two engineers in one system and
   road-to-riches rows (one per body).
+- A waypoint may carry `jumps`, the jumps from the waypoint before: the plotters record each
+  stop's (`astromech_galaxy::plot::Stop`: 1 a stop on an exact route, the leg's on a neutron
+  route) and a galaxy-map route has 1 for each. The view's `jumps_left` adds up the waypoints
+  still to reach, and is `null` when one of them has none (an import, an engineer trip, a
+  lookup's stop), so the route strip says "N stops left" instead. Add stop clears the jumps of
+  the stop after the one it inserts, whose leg now starts at the new stop. `route.json` from
+  before the field loads as it did, with no jump counts.
 - The clipboard is written only on these events, never on a timer, so it doesn't fight you for
   the clipboard.
 

@@ -41,5 +41,6 @@
 </section>
 
 <style>
-  section { padding: 8px 0 32px; min-width: 0; }
+  /* The route strip took over from the Galaxy rail; the page keeps its spacing and DESIGN.md's list width. */
+  section { padding: 28px 0 72px; min-width: 0; max-width: var(--list-w); }
 </style>

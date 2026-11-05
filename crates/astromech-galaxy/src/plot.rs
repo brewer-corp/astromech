@@ -103,20 +103,22 @@ pub struct Stop {
     /// "neutron boost", "fuel", or both.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
+    /// Jumps from the stop before (0 for the first): the route strip's "N jumps left".
+    pub jumps: u32,
 }
 
 /// Labels: what to do at a stop besides plotting on. "Next waypoint. X. For fuel."
 pub const NEUTRON: &str = "neutron boost";
 pub const FUEL: &str = "fuel";
 
-fn stop(system: &str, neutron: bool, refuel: bool) -> Stop {
+fn stop(system: &str, jumps: u32, neutron: bool, refuel: bool) -> Stop {
     let label = match (neutron, refuel) {
         (true, true) => Some(format!("{NEUTRON} and {FUEL}")),
         (true, false) => Some(NEUTRON.to_string()),
         (false, true) => Some(FUEL.to_string()),
         (false, false) => None,
     };
-    Stop { system: system.to_string(), label }
+    Stop { system: system.to_string(), label, jumps }
 }
 
 /// A plotted route: what the core's `route_set` takes (`name`, `source`, `waypoints`), and its
@@ -217,7 +219,7 @@ fn spansh(
             };
             let plan = client.spansh_route_wait(&r, polling)?;
             let waypoints: Vec<Stop> =
-                plan.system_jumps.iter().map(|j| stop(&j.system, j.neutron_star, false)).collect();
+                plan.system_jumps.iter().map(|j| stop(&j.system, j.jumps, j.neutron_star, false)).collect();
             Ok(Plotted {
                 name,
                 source: plotter.source(),
@@ -254,7 +256,13 @@ fn spansh(
             Ok(Plotted {
                 name,
                 source: plotter.source(),
-                waypoints: plan.jumps.iter().map(|j| stop(&j.name, j.has_neutron, j.must_refuel)).collect(),
+                // Every stop is one jump on from the one before; the first is where it starts.
+                waypoints: plan
+                    .jumps
+                    .iter()
+                    .enumerate()
+                    .map(|(i, j)| stop(&j.name, u32::from(i > 0), j.has_neutron, j.must_refuel))
+                    .collect(),
                 jumps: plan.jumps.len().saturating_sub(1) as u32,
                 ly: plan.jumps.iter().map(|j| j.distance).sum(),
                 neutrons: plan.jumps.iter().filter(|j| j.has_neutron).count(),

@@ -127,6 +127,9 @@ fn an_exact_route_has_every_jump_and_its_refuel_stops() {
         ]
     );
     assert_eq!(p.waypoints.last().unwrap().system, "Maia");
+    // Each stop is one jump on from the one before, so the core can count the jumps left.
+    let jumps: Vec<u32> = p.waypoints.iter().map(|w| w.jumps).collect();
+    assert_eq!(jumps, [0, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
 }
 
 #[test]
@@ -150,6 +153,8 @@ fn a_neutron_route_stops_at_the_neutron_stars() {
     let stops: Vec<(&str, Option<&str>)> =
         p.waypoints.iter().map(|w| (w.system.as_str(), w.label.as_deref())).collect();
     assert_eq!(stops, [("Sol", None), ("PSR J1752-2806", Some("neutron boost")), ("Colonia", None)]);
+    // Each stop carries its leg's jumps, which add up to the route's.
+    assert_eq!(p.waypoints.iter().map(|w| w.jumps).collect::<Vec<_>>(), [0, 10, 1]);
 }
 
 /// The whole Sol to Colonia neutron route Spansh plotted on 22 Oct 2026 (50 ly, boost 4):
@@ -164,6 +169,7 @@ fn a_neutron_route_counts_jumps_not_legs() {
     let p = plot(&client(&rec), "Sol", &ask(Plotter::Neutron, "Colonia"), &ship, NO_WAIT).unwrap();
     assert_eq!(p.waypoints.len(), 129, "128 legs");
     assert_eq!(p.jumps, 166, "jumps, not Spansh's 128 legs");
+    assert_eq!(p.waypoints.iter().map(|w| w.jumps).sum::<u32>(), 166, "the stops' jumps add up to the route's");
 }
 
 #[test]
