@@ -15,9 +15,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Route strip on every page"
-updated_at: "2026-11-05T06:19:44.543783724+00:00"
+updated_at: "2026-11-05T07:29:27.200573878+00:00"
 ---
 
 ## Goal
