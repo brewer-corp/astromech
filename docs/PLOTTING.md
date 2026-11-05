@@ -57,9 +57,10 @@ Behaviour:
   `route.json` with the route): `route_resume` brings it back and copies its next waypoint, and a
   galaxy-map plot to a waypoint ahead on it resumes it without a copy. A second detour replaces
   the galaxy-map route and keeps the parked one. `NavRouteClear` drops only a galaxy-map route
-  (clearing a leg, or arriving at its end, leaves our route alone); one read while the last
-  `NavRoute.json` read still has hops is ignored, since the game rewrites the file empty on a
-  clear and a re-plot can reach the file ahead of a lagging journal. `route_set` and
+  (clearing a leg, or arriving at its end, leaves our route alone). The game rewrites
+  `NavRoute.json` empty on a clear, and that empty file (after one with hops) is the clear the
+  follower goes by, so plots and clears keep the file's order whichever of it and the journal is
+  read first; a `NavRouteClear` line read while the file still has hops is ignored. `route_set` and
   `route_clear` drop a parked route. With `route_follow` off, galaxy-map routes are not followed.
   The game's route repeated (the engine skips a `NavRoute.json` equal to the last one) is not news.
 - Consecutive stops in the same system are merged, which covers two engineers in one system and

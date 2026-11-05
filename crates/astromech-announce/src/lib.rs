@@ -16,7 +16,7 @@
 //! - **Quiet during docking and combat** (see [`Quiet`]): speech is dropped unless the callout
 //!   is [`Priority::Urgent`]; toasts and notifications still go.
 //! - **Status.json and NavRoute.json are deduplicated**: a rewrite with the same contents is not
-//!   an event, nor is a cleared route.
+//!   an event, nor is an empty route unless it clears one with hops.
 //!
 //! Speech that fires goes through a [`SpeechQueue`]: highest priority first, stale lines
 //! dropped, low priority dropped first when it is full. Rules mostly decide from the event and the
@@ -101,8 +101,9 @@ pub enum Input<'a> {
         now: &'a StatusSnap,
         before: Option<&'a StatusSnap>,
     },
-    /// A newly plotted route: `NavRoute.json` with contents different from the last read, not
-    /// empty (a cleared route isn't an event).
+    /// A newly plotted route: `NavRoute.json` with contents different from the last read. Empty
+    /// only when the last read had hops (the route was cleared; the rules that brief a route find
+    /// nothing in it).
     Route(&'a NavRouteSnap),
     /// A fresh `Market.json` for the market docked at, once per dock (see [`Engine::market`]).
     Market(&'a MarketSnap),
@@ -429,14 +430,14 @@ impl Engine {
         self.fire(&Input::Status { now: snap, before: before.as_ref() }, state, now, quiet)
     }
 
-    /// `NavRoute.json` was read, already applied to `state`. The same route again, or an empty
-    /// one (cleared), is not an event.
+    /// `NavRoute.json` was read, already applied to `state`. The same route again is not an
+    /// event, nor is an empty one unless it follows one with hops (the route was cleared).
     pub fn route(&mut self, route: &NavRouteSnap, state: &GameState, now: Instant) -> Vec<Reaction> {
         if self.last_route.as_ref() == Some(route) {
             return vec![];
         }
-        self.last_route = Some(route.clone());
-        if route.hops.is_empty() {
+        let had_hops = self.last_route.replace(route.clone()).is_some_and(|r| !r.hops.is_empty());
+        if route.hops.is_empty() && !had_hops {
             return vec![];
         }
         let quiet = self.quiet(now);
