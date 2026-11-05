@@ -788,6 +788,28 @@ async fn trade_cargo(
     .await
 }
 
+/// Rings with a hotspot of `want`'s ore (of its ring type, with its reserve) near `origin` (a
+/// typed system, or the route's next stop) or the commander, within the finder's radius (100 ly
+/// unless the commander picked one), most hotspots first, with jumps at the current ship's
+/// range. One Spansh bodies search.
+#[tauri::command]
+async fn mining_hotspots(
+    app: tauri::AppHandle,
+    want: astromech_market::mining::Want,
+    origin: Option<String>,
+    filters: Option<astromech_galaxy::Filters>,
+) -> Result<Value, String> {
+    use astromech_market::mining::{hotspots_search, Order, DEFAULT_RADIUS_LY};
+    blocking(move || {
+        let g = galaxy(&app)?;
+        let (here, range, filters) = search_origin(&app, &g, origin.as_deref(), filters)?;
+        let radius = filters.max_distance_ly.unwrap_or(DEFAULT_RADIUS_LY);
+        let h = hotspots_search(&g, &here, range, &want, Some(radius), Order::Most, 10).map_err(|e| e.to_string())?;
+        serde_json::to_value(h).map_err(|e| e.to_string())
+    })
+    .await
+}
+
 /// The station docked at (`Market.json`) and the hold against the best nearby prices: what each
 /// carried commodity fetches here and nearby, and what the goods for sale here sell for nearby
 /// (Ardent Insight, the sell lookup's remembered filters). `null` when not docked.
@@ -1346,6 +1368,7 @@ fn main() {
             trade_search,
             trade_anywhere,
             trade_cargo,
+            mining_hotspots,
             market_compare,
             trade_route_defaults,
             trade_route,

@@ -9,6 +9,8 @@ describe("result row columns", () => {
     expect(factColumns({ place: "station" }).map((c) => c.head)).toEqual(["Distance", "Pad", "Arrival", "Updated"]);
     expect(factColumns({ place: "body" }).map((c) => c.head)).toEqual(["Distance", "Arrival", "Updated"]);
     expect(factColumns({ place: "system" }).map((c) => c.head)).toEqual(["Distance", "Updated"]);
+    // Rings get arrival like bodies; data that never ages (ring hotspots) has no Updated column.
+    expect(factColumns({ place: "ring", main: { head: "Hotspots" }, undated: true }).map((c) => c.head)).toEqual(["Distance", "Jumps", "Arrival"]);
   });
 
   it("puts a lookup's own columns first, and jumps among the facts when something else ranks", () => {
@@ -55,6 +57,12 @@ describe("constraint summary", () => {
     expect(summary("Nearest to", "Deciat", DEFAULT_FILTERS, ["age"], {}, 0)).toBe("Nearest to Deciat · reports of any age");
     expect(summary("Best prices anywhere · distances from", "Sol", f, ["volume", "pad", "arrival", "carriers", "odyssey"], { volume: "Demand" }, 1)).toBe(
       "Best prices anywhere · distances from Sol · demand at least 500 t · medium or large pad · arrival up to 5,000 ls · no carriers · 1 older report hidden",
+    );
+  });
+
+  it("puts a lookup's own constraints after where it searched", () => {
+    expect(summary("Nearest to", "Sol", DEFAULT_FILTERS, ["distance"], { distance: 100 }, 0, ["metallic rings", "pristine reserves"])).toBe(
+      "Within 100 ly of Sol · metallic rings · pristine reserves",
     );
   });
 });

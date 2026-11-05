@@ -5,13 +5,14 @@
  * Find or plot box and voice read it. A finder's page is `#/places/<id>[/<input>]`; the input is
  * the finder's main value (a service, module, ship or trader kind), URL-encoded.
  */
+import { ORES, RING_TYPES, type Reserve, type RingType, type Want as HotspotWant } from "./hotspots";
 import { SERVICES, type ServiceId } from "./stations";
 
 /** The home page's section headings, in order. A section with no finder built yet is left out. */
 export const SECTIONS = ["Trade", "Ship", "Engineering", "Mining", "Route"] as const;
 export type Section = (typeof SECTIONS)[number];
 
-export type FinderId = "services" | "outfitting" | "shipyard" | "material-traders";
+export type FinderId = "services" | "outfitting" | "shipyard" | "material-traders" | "mining-hotspots";
 
 export interface Finder {
   /** Stable id and URL part: `#/places/<id>`. */
@@ -30,6 +31,7 @@ export const FINDERS: readonly Finder[] = [
   { id: "outfitting", title: "Outfitting", section: "Ship", what: "Stations selling a module", input: "Module" },
   { id: "shipyard", title: "Shipyard", section: "Ship", what: "Stations selling a ship", input: "Ship" },
   { id: "material-traders", title: "Material traders", section: "Engineering", what: "Raw, manufactured and encoded", input: "Trader" },
+  { id: "mining-hotspots", title: "Mining hotspots", section: "Mining", what: "Rings with hotspots for a mineral", input: "Mineral" },
 ];
 
 /** The home page's sections that have finders, each with its finders in order. */
@@ -109,6 +111,31 @@ export function parseTraderRoute(hash: string): TraderKind | null {
   const at = parsePlaces(hash);
   if (at?.finder?.id !== "material-traders") return null;
   return TRADERS.find((t) => t.kind === at.input)?.kind ?? null;
+}
+
+// Mining hotspots: #/places/mining-hotspots/<ore symbol>[?ring=<type>&reserve=<pristine|major>],
+// the ring type and least reserve being the finder's own choices (absent: any).
+
+const RING_PARAM: Record<RingType, string> = { Metallic: "metallic", "Metal Rich": "metal-rich", Rocky: "rocky", Icy: "icy" };
+
+export function hotspotRoute(want: HotspotWant): string {
+  const q = new URLSearchParams();
+  if (want.ring_type) q.set("ring", RING_PARAM[want.ring_type]);
+  if (want.reserve) q.set("reserve", want.reserve);
+  return placesRoute("mining-hotspots", want.ore, q);
+}
+
+/** What a `#/places/mining-hotspots/<ore>` hash asks for; null for another page or an unknown
+ * ore. An unknown ring type or reserve reads as any. */
+export function parseHotspotRoute(hash: string): HotspotWant | null {
+  const at = parsePlaces(hash);
+  if (at?.finder?.id !== "mining-hotspots") return null;
+  const ore = ORES.find((o) => o.symbol === decode(at.input))?.symbol;
+  if (!ore) return null;
+  const ring = RING_TYPES.find((t) => RING_PARAM[t] === at.query.get("ring")) ?? null;
+  const r = at.query.get("reserve");
+  const reserve: Reserve | null = r === "pristine" || r === "major" ? r : null;
+  return { ore, ring_type: ring, reserve };
 }
 
 // The last answer of each finder this session, for its tile (decision astromech-g8d5, item 6):

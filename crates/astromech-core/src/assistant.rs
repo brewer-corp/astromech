@@ -312,6 +312,27 @@ impl Assistant {
         }))
     }
 
+    /// Look up the nearest ring with a hotspot of `want`'s ore near the commander (or the system
+    /// named in `from`), and say the answer when it arrives (off this thread).
+    fn hotspot_lookup(&self, want: astromech_market::mining::Want, from: Option<&str>) -> Outcome {
+        let game = self.runner.hub.snapshot();
+        let Some(galaxy) = self.runner.galaxy.clone() else {
+            self.say(lookup::NO_STAR_MAP);
+            return Outcome::Spoken(lookup::NO_STAR_MAP.into());
+        };
+        if from.is_none() && (game.system.is_none() || game.star_pos.is_none()) {
+            self.say(lookup::NO_POSITION);
+            return Outcome::Spoken(lookup::NO_POSITION.into());
+        }
+        self.say("Looking that up.");
+        let (speaker, from) = (self.runner.speaker.clone(), from.map(str::to_string));
+        Outcome::LookingUp(std::thread::spawn(move || {
+            let m = crate::lookups::hotspots_answer(&galaxy, &want, &game, from.as_deref());
+            speaker.say(&m);
+            m
+        }))
+    }
+
     /// Route following and paste (docs/PLOTTING.md). None: not one of these.
     fn route_command(&self, command: &'static str, origin: Origin) -> Option<Handled> {
         let cmd = route::Command::from_id(command)?;
@@ -349,6 +370,15 @@ impl Assistant {
         }
         if let Some(q) = astromech_tools::faction::from_command(command) {
             return Handled::Ran { command, outcome: self.faction_lookup(command, q, from) };
+        }
+        if astromech_tools::mining::is_hotspots(command) {
+            return match astromech_tools::mining::want(slot) {
+                Some(want) => Handled::Ran { command, outcome: self.hotspot_lookup(want, from) },
+                None => {
+                    self.say(astromech_tools::mining::WHICH_MINERAL);
+                    Handled::NotUnderstood
+                }
+            };
         }
         if astromech_tools::session::is_summary(command) {
             let game = self.runner.hub.snapshot();

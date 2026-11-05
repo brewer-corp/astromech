@@ -5,9 +5,10 @@ and **Route**. The Places page shows a tile for each finder, grouped under headi
 
 - **Ship:** [Services](#services), [Outfitting](#outfitting) and [Shipyard](#shipyard).
 - **Engineering:** [Material traders](#material-traders).
+- **Mining:** [Mining hotspots](#mining-hotspots).
 
 Click a tile to open that finder. Each finder is its own page, with a **Places** link back, its
-title and its main input at the top: the service, module, ship or kind of trader. Below that is
+title and its main input at the top: the service, module, ship, kind of trader or mineral. Below that is
 the same search every "nearest" list in astromech uses, described [below](#how-searches-work).
 Back and reload keep what you picked, and **Ctrl+K** opens any finder by name.
 
@@ -56,6 +57,31 @@ pick. It opens on a Krait Mk II.
 Pick **Raw**, **Manufactured**, **Encoded** or **Any**. The nearest material traders of that
 kind are listed, as on [Services](#services), with the same remembered filters. It opens on Raw.
 
+## Mining hotspots
+
+Type a **mineral** in the **Mineral** box and pick it: Void Opal, Low Temperature Diamonds,
+Painite, Platinum, Musgravite, Grandidierite, Alexandrite, Benitoite, Monazite, Rhodplumsite,
+Serendibite, Osmium, Palladium, Bromellite or Tritium. The rings with a hotspot of it are listed,
+**most hotspots first**, then nearest.
+
+- **Around:** where to search from. Empty means here. Click the box to pick the route's **next
+  stop** (it then says "Next stop: Deciat"), or **Here** to go back; or type a system.
+- **Ring:** Metallic, Metal Rich, Rocky, Icy or **Any**.
+- **Reserve:** **Pristine**, **Major** (major or pristine) or **Any**.
+- **Within:** the search radius, 100 light years unless you pick another.
+
+Each row shows the ring's hotspots of the mineral, the ring and its system, **Also** (its
+hotspots of other minerals, "Platinum 1"), the ring type, the reserve level, then distance, jumps
+and the body's distance from the star. Hotspots never change, so there is no report age. **Add
+stop** and **Set destination** put the ring's system on the route. It opens on Painite, any ring,
+any reserve; **Ctrl+K** opens a mineral's hotspots by name ("Painite hotspots").
+
+Limits: the search looks at the nearest 50 bodies with the mineral within the radius and lists
+the ten rings with the most hotspots among them, so a ring type that is rare there can leave few
+or no rows (widen the radius). Spansh files the reserve
+level on the body, so every ring of a body has the same one. Hotspots nobody has scanned and
+reported are not known. By voice: "nearest painite hotspot" ([Mining](mining.md#finding-hotspots)).
+
 ## How searches work
 
 Every list that says "Nearest" works the same way. It appears on these finders and on Materials,
@@ -63,7 +89,7 @@ Trade, Colonisation, Powerplay and Exploration.
 
 - **From.** Empty means your current system. Type to search from another system: names are
   suggested as you type (Spansh), and Enter or a click picks one. The **x** goes back to your
-  current system.
+  current system. Mining hotspots calls it **Around** and also offers the route's next stop.
 - **Filters.** Only those that make sense for the list are shown, and they are **remembered**
   for each kind of search. Voice lookups use the same remembered filters, so set them here once.
   - **Pad:** **S**, **M** or **L** (S is any pad). Your ship's size is marked with a ship glyph

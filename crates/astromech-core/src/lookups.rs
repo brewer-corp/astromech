@@ -13,7 +13,7 @@ use astromech_store::Store;
 use astromech_tools::{lookup, targets};
 
 /// The command grammar with the lookups' slot values: market commodities (trade), station
-/// services, modules and ships.
+/// services, modules, ships and the hotspot ores (mining).
 pub fn grammar(systems: &[&str]) -> Grammar {
     let services = lookup::service_values();
     let modifier: astromech_intent::FreeWord = astromech_galaxy::outfitting::is_modifier;
@@ -22,6 +22,7 @@ pub fn grammar(systems: &[&str]) -> Grammar {
         .with_slot("service", services.iter().map(|(said, id)| (*said, id.as_str())), None)
         .with_slot("module", lookup::module_values(), Some(modifier))
         .with_slot("ship", lookup::ship_values(), None)
+        .with_slot("mineral", astromech_tools::mining::mineral_values(), None)
 }
 
 /// The filters a voice lookup uses: the app's remembered ones for `lookup` (`search.filters.
@@ -193,6 +194,33 @@ pub fn sites_answer(galaxy: &astromech_galaxy::Galaxy, kind: &str, game: &GameSt
     let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
     let said = match galaxy.sites(kind, &here, range, 1, &Filters::default()) {
         Ok(s) => astromech_galaxy::sites::spoken(&s, named.is_some()),
+        Err(e) => lookup::failed(&e.to_string()),
+    };
+    from_named(named.as_ref(), said)
+}
+
+/// The spoken answer to "nearest painite hotspot" (`want`, from the grammar's `{mineral}`
+/// slot): the nearest ring holding the ore, from the journal's position or the system named in
+/// `from`, with jumps at the ship's range (20 ly when unknown). The finder's ring type, reserve
+/// and radius don't apply: the phrase asks for the nearest. One Spansh request.
+pub fn hotspots_answer(
+    galaxy: &astromech_galaxy::Galaxy,
+    want: &astromech_market::mining::Want,
+    game: &GameState,
+    from: Option<&str>,
+) -> String {
+    use astromech_market::mining::{hotspots_search, Order};
+    let named = match named_origin(game, from, |n| galaxy.locate(n)) {
+        Ok(n) => n,
+        Err(m) => return m,
+    };
+    let here = match search_here(game, named.clone()) {
+        Ok(h) => h,
+        Err(m) => return m,
+    };
+    let range = game.max_jump_range.filter(|r| *r > 1.0).unwrap_or(20.0);
+    let said = match hotspots_search(galaxy, &here, range, want, None, Order::Nearest, 1) {
+        Ok(h) => astromech_tools::mining::spoken(&h, named.is_some()),
         Err(e) => lookup::failed(&e.to_string()),
     };
     from_named(named.as_ref(), said)
@@ -445,6 +473,45 @@ mod tests {
             let m = g.best(t);
             assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
         }
+    }
+
+    #[test]
+    fn hotspot_phrases_resolve_to_the_mining_lookup() {
+        let g = grammar(&["Sol"]);
+        for (phrase, ore) in [
+            ("Nearest painite hotspot.", "painite"),
+            ("where is the nearest platinum hotspot", "platinum"),
+            ("Where's the nearest platinum hotspot?", "platinum"),
+            ("find a void opal hotspot", "opal"),
+            ("nearest void opals hotspot", "opal"),
+            ("nearest LTD hotspot", "lowtemperaturediamond"),
+            ("nearest low temperature diamonds hotspot", "lowtemperaturediamond"),
+            ("nearest tritium hotspots", "tritium"),
+            ("monazite hotspot near me", "monazite"),
+            ("where can I mine alexandrite", "alexandrite"),
+            ("where can i mine low temperature diamonds", "lowtemperaturediamond"),
+            ("nearest painite hotspot near Shinrarta Dezhra", "painite"),
+        ] {
+            let m = g.best(phrase);
+            let want = astromech_tools::mining::want(m.slot.as_deref()).map(|w| w.ore);
+            assert_eq!(
+                (m.command, want.as_deref(), m.decision),
+                ("mining.hotspots", Some(ore), Decision::Execute),
+                "{phrase:?} -> {m:?}"
+            );
+        }
+        assert_eq!(g.best("nearest painite hotspot near Shinrarta Dezhra").origin.as_deref(), Some("Shinrarta Dezhra"));
+        // the neighbours keep theirs
+        for (t, c) in [
+            ("where can I sell painite", "trade.sell"),
+            ("nearest refuel", "find.service"),
+            ("nearest Anaconda", "find.ship"),
+        ] {
+            let m = g.best(t);
+            assert_eq!((m.command, m.decision), (c, Decision::Execute), "{t:?} -> {m:?}");
+        }
+        // gold has no hotspots: never a hotspot lookup on a guess
+        assert_ne!(g.best("nearest gold hotspot").decision, Decision::Execute);
     }
 
     #[test]

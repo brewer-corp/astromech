@@ -14,7 +14,7 @@
 //!
 //! Phrases may contain one slot, `{name}`, filled by one or more words of the transcript and
 //! resolved against values the caller supplies for that slot (`{system}`: known system names;
-//! the lookups add `{commodity}`, `{service}`, `{module}` and `{ship}`). A slot can also allow free words that
+//! the lookups add `{commodity}`, `{service}`, `{module}`, `{ship}` and `{mineral}`). A slot can also allow free words that
 //! are kept in [`Match::slot_text`] but not matched against its values (a module's "5A" or
 //! "gimballed").
 //!
@@ -289,6 +289,19 @@ pub const MVP: &[(&str, &[&str])] = &[
             "where can i undermine",
         ],
     ),
+    // The mining hotspot lookup (astromech-market `mining`, `{mineral}` an ore's symbol): spoken
+    // answer, nothing pressed.
+    (
+        "mining.hotspots",
+        &[
+            "nearest {mineral} hotspot",
+            "where is the nearest {mineral} hotspot",
+            "find a {mineral} hotspot",
+            "nearest {mineral} hotspots",
+            "{mineral} hotspot near me",
+            "where can i mine {mineral}",
+        ],
+    ),
     // Recognised but not executable in the gear-down slice; kept so they don't get mis-matched
     // to a shorter phrase (and to cover the S9 misses).
     ("request_docking", &["request docking", "request docking permission", "dock"]),
@@ -459,12 +472,12 @@ pub const MVP: &[(&str, &[&str])] = &[
     ("cancel", &["no", "cancel", "never mind", "negative", "abort"]),
 ];
 
-/// Commands that search from a place: the station, trade, raw-site, faction-state and Powerplay
-/// target lookups, and where to buy for a construction project. Each can end in "near
+/// Commands that search from a place: the station, trade, raw-site, faction-state, Powerplay
+/// target and mining hotspot lookups, and where to buy for a construction project. Each can end in "near
 /// <system>" (or "from", "in", "around"; [`Match::origin`]).
 pub fn takes_origin(command: &str) -> bool {
     command == "colonisation.buy"
-        || ["find.", "trade.", "sites.", "faction.", "powerplay."].iter().any(|p| command.starts_with(p))
+        || ["find.", "trade.", "sites.", "faction.", "powerplay.", "mining."].iter().any(|p| command.starts_with(p))
 }
 
 /// The words before the system a lookup searches from ("where can I sell gold near Sol").

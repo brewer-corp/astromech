@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import OriginInput from "./OriginInput.svelte";
 
 const names = vi.fn<(p: string) => Promise<string[]>>();
@@ -37,5 +37,47 @@ describe("OriginInput Enter", () => {
   it("takes the suggestion the commander arrowed to", async () => {
     const onchange = await typeAndEnter("Sho", ["Shinrarta Dezhra", "Shoi"], 1);
     expect(onchange).toHaveBeenCalledWith("Shoi");
+  });
+});
+
+const route = vi.fn<() => Promise<{ next: { system: string } | null }>>();
+vi.mock("../route", async (orig) => ({
+  ...(await orig<typeof import("../route")>()),
+  getRoute: () => route(),
+}));
+
+describe("OriginInput around (a Places finder)", () => {
+  it("is labelled Around and offers the route's next stop, then Here once it searches elsewhere", async () => {
+    route.mockResolvedValue({ next: { system: "Deciat" } });
+    const onchange = vi.fn();
+    const { rerender } = render(OriginInput, { origin: null, onchange, around: true });
+    expect(screen.getByText("Around")).toBeTruthy();
+    const box = screen.getByLabelText("Search from system");
+    await fireEvent.focus(box);
+    await fireEvent.click(await screen.findByRole("option", { name: "Next stop: Deciat" }));
+    expect(onchange).toHaveBeenLastCalledWith("Deciat");
+    await rerender({ origin: "Deciat", onchange, around: true });
+    expect((box as HTMLInputElement).value).toBe("Next stop: Deciat");
+
+    await fireEvent.focus(box);
+    const options = await screen.findAllByRole("option");
+    expect(options.map((o) => o.textContent)).toEqual(["Here"]);
+    await fireEvent.click(options[0]!);
+    expect(onchange).toHaveBeenLastCalledWith(null);
+  });
+
+  it("offers nothing extra without a route, and nothing at all outside a finder", async () => {
+    route.mockResolvedValue({ next: null });
+    render(OriginInput, { origin: null, onchange: vi.fn(), around: true });
+    await fireEvent.focus(screen.getByLabelText("Search from system"));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(route).toHaveBeenCalledTimes(1);
+    cleanup();
+    route.mockClear();
+    render(OriginInput, { origin: null, onchange: vi.fn() });
+    expect(screen.getByText("From")).toBeTruthy();
+    await fireEvent.focus(screen.getByLabelText("Search from system"));
+    expect(route).not.toHaveBeenCalled();
   });
 });

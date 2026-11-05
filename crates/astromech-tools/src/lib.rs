@@ -12,6 +12,7 @@ use astromech_proto::Tier;
 use astromech_status as st;
 
 pub mod faction;
+pub mod mining;
 pub mod session;
 pub mod trade;
 

@@ -160,6 +160,14 @@ fn judge(mut r: DryRun, m: &astromech_intent::Match, game: &GameState, binds: &B
         };
         return r;
     }
+    if astromech_tools::mining::is_hotspots(m.command) {
+        (r.would, r.message) = match (m.decision, astromech_tools::mining::want(m.slot.as_deref())) {
+            (_, None) => (Would::NotUnderstood, astromech_tools::mining::WHICH_MINERAL.into()),
+            (Decision::Ask, Some(_)) => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),
+            (_, Some(w)) => (Would::Speak, astromech_tools::mining::describe(Some(&w))),
+        };
+        return r;
+    }
     if astromech_tools::session::is_summary(m.command) {
         (r.would, r.message) = match m.decision {
             Decision::Ask => (Would::DidYouMean, format!("Did you mean {}?", m.phrase)),

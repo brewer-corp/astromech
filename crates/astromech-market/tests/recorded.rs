@@ -32,7 +32,12 @@ impl Transport for Recorded {
             fixture!("ardent-buy-tritium-sol.json")
         } else if url.contains("/api/bodies/search") {
             let asked = format!("{:?}", req.body);
-            if asked.contains("\"Platinum\"") {
+            if asked.contains("\"Painite\"") {
+                let all: serde_json::Value =
+                    serde_json::from_str(fixture!("spansh-hotspots-painite-sol.json")).unwrap();
+                let page = if asked.contains("reserve_level") { "pristine" } else { "any" };
+                return Ok(Response { status: 200, body: all[page].to_string() });
+            } else if asked.contains("\"Platinum\"") {
                 fixture!("spansh-rings-platinum-sol.json")
             } else if asked.contains("\"Low Temperature Diamonds\"") {
                 fixture!("spansh-rings-lowtemperaturediamond-sol.json")
@@ -41,6 +46,8 @@ impl Transport for Recorded {
             } else {
                 panic!("no recorded ring search for {asked}")
             }
+        } else if url.contains("/api/systems/field_values/system_names") {
+            r#"{"min_max":[{"id64":2869977753001,"name":"Wolf 1481","x":5.1875,"y":13.375,"z":13.5625}],"values":["Wolf 1481"]}"#
         } else if url.contains("/api-v1/sphere-systems") {
             "[]"
         } else {
@@ -463,12 +470,21 @@ fn hotspot_names(h: &[mining::Hotspot]) -> Vec<(&str, u32)> {
     h.iter().map(|x| (x.ring.as_str(), x.count)).collect()
 }
 
+fn hotspots(c: &Client, ore: &str, limit: usize) -> Vec<mining::Hotspot> {
+    let (mut h, _) = mining::hotspots(c, &sol(), &mining::Want::ore(ore), None, 20.0).unwrap();
+    h.truncate(limit);
+    h
+}
+
 #[test]
 fn hotspots_are_the_nearest_rings_holding_the_chosen_ore() {
     let (c, rec) = client();
-    let h = mining::hotspots(&c, &sol(), "platinum", 20.0, 3).unwrap();
-    // Asked the way Spansh understands it: the ore's name in the ring signals filter.
-    assert!(rec.last_body().contains("ring_signals"), "{}", rec.last_body());
+    let h = hotspots(&c, "platinum", 3);
+    // Asked the way Spansh understands it: the ore's name in the ring signals filter, one page
+    // of bodies, no radius or reserve unless asked.
+    let body = rec.last_body();
+    assert!(body.contains("ring_signals") && body.contains("\"size\": Number(50)"), "{body}");
+    assert!(!body.contains("reserve_level") && !body.contains("\"max\""), "{body}");
     assert_eq!(
         hotspot_names(&h),
         [("Barnard's Star 5 A Ring", 1), ("WISE 0855-0714 6 A Ring", 1), ("Luyten's Star 1 A Ring", 1)],
@@ -485,16 +501,95 @@ fn hotspots_are_the_nearest_rings_holding_the_chosen_ore() {
 fn hotspots_pick_the_ring_not_the_body() {
     let (c, rec) = client();
     // LTDs: Barnard's Star 5 holds them in its B ring; 6's A ring is empty and its B ring has them.
-    let h = mining::hotspots(&c, &sol(), "lowtemperaturediamond", 20.0, 2).unwrap();
+    let h = hotspots(&c, "lowtemperaturediamond", 2);
     assert_eq!(hotspot_names(&h), [("Barnard's Star 5 B Ring", 1), ("Barnard's Star 6 B Ring", 1)]);
     assert!(rec.last_body().contains("Low Temperature Diamonds"));
     // Void Opal: the catalogue's name, which is how the rings list it.
-    let h = mining::hotspots(&c, &sol(), "opal", 20.0, 1).unwrap();
+    let h = hotspots(&c, "opal", 1);
     assert_eq!(hotspot_names(&h), [("Barnard's Star 6 B Ring", 2)]);
     // Counts one ring's hotspots, not the body's.
-    let h = mining::hotspots(&c, &sol(), "platinum", 20.0, 4).unwrap();
+    let h = hotspots(&c, "platinum", 4);
     assert_eq!(h[3].ring, "TZ Arietis 3 A Ring");
     assert_eq!(h[3].count, 2);
+}
+
+// --- astromech-f7i0: the Mining hotspots finder in Places, and its voice query ---
+
+/// Painite rings around Sol (Spansh, 5 Nov 2026, 30 bodies a page): any reserve, and Pristine.
+fn painite(c: &Client, want: mining::Want, radius: Option<u32>, order: mining::Order) -> Vec<mining::Hotspot> {
+    let (mut h, _) = mining::hotspots(c, &sol(), &want, radius, 20.0).unwrap();
+    mining::order(&mut h, order);
+    h
+}
+
+#[test]
+fn the_finder_lists_most_hotspots_first_with_the_rings_other_hotspots_and_reserve() {
+    let (c, rec) = client();
+    let h = painite(&c, mining::Want::ore("painite"), Some(100), mining::Order::Most);
+    assert!(rec.last_body().contains("\"max\": String(\"100\")"), "the radius goes to Spansh: {}", rec.last_body());
+    assert!(h.windows(2).all(|w| w[0].count > w[1].count || (w[0].count == w[1].count && w[0].hop.ly <= w[1].hop.ly)));
+    let top = &h[0];
+    assert_eq!((top.ring.as_str(), top.count), ("Sosolingati 5 A Ring", 4), "4 at 25.5 ly before 3 at 15.8 ly");
+    assert_eq!((h[1].ring.as_str(), h[1].count), ("Kokary 5 B Ring", 3));
+    assert_eq!(h[1].reserve.as_deref(), Some("Common"));
+    let also: Vec<(&str, u32)> = h[1].also.iter().map(|s| (s.name.as_str(), s.count)).collect();
+    assert_eq!(also, [("Monazite", 2), ("Platinum", 2), ("Serendibite", 1)], "most first, Painite left out");
+    // Nearest first, the same rings.
+    let near = painite(&c, mining::Want::ore("painite"), Some(100), mining::Order::Nearest);
+    assert_eq!((near[0].ring.as_str(), near[0].count), ("Barnard's Star 5 A Ring", 2));
+    assert_eq!(near.len(), h.len());
+}
+
+#[test]
+fn ring_type_is_checked_here_and_reserve_is_asked_of_spansh() {
+    let (c, rec) = client();
+    let metallic = mining::Want { ring_type: Some("Metallic".into()), ..mining::Want::ore("painite") };
+    let h = painite(&c, metallic, None, mining::Order::Nearest);
+    assert!(!h.is_empty() && h.iter().all(|r| r.ring_type == "Metallic"), "{:?}", hotspot_names(&h));
+    assert_eq!(h[0].ring, "TZ Arietis 3 A Ring");
+    assert!(!rec.last_body().contains("Metallic"), "Spansh can't filter ring type: {}", rec.last_body());
+
+    let pristine = mining::Want { reserve: Some(mining::Reserve::Pristine), ..mining::Want::ore("painite") };
+    let h = painite(&c, pristine, None, mining::Order::Nearest);
+    assert!(rec.last_body().contains("reserve_level"), "{}", rec.last_body());
+    assert!(h.iter().all(|r| r.reserve.as_deref() == Some("Pristine")));
+    assert_eq!(h[0].ring, "LFT 65 1 A Ring");
+    let major = mining::Want { reserve: Some(mining::Reserve::Major), ..mining::Want::ore("painite") };
+    painite(&c, major, None, mining::Order::Nearest);
+    assert!(rec.last_body().contains("String(\"Major\")"), "Major or better: {}", rec.last_body());
+    assert!(rec.last_body().contains("String(\"Pristine\")"), "{}", rec.last_body());
+}
+
+/// The shell's command searches from the system typed or picked (a route's next stop) once it
+/// is located, else from the commander's position: either way the search and its distances
+/// are measured from that origin's coordinates, and the answer says where it searched from.
+#[test]
+fn a_typed_origin_is_located_and_searched_from() {
+    let (c, rec) = client();
+    let g = Galaxy::with_remote(Store::in_memory().unwrap(), c);
+    let here = g.locate("Wolf 1481").unwrap();
+    assert_eq!(here.system, "Wolf 1481");
+    let want = mining::Want::ore("painite");
+    let found = mining::hotspots_search(&g, &here, 15.0, &want, Some(100), mining::Order::Most, 10).unwrap();
+    let body = rec
+        .log
+        .lock()
+        .unwrap()
+        .iter()
+        .rev()
+        .find(|(u, _)| u.contains("/api/bodies/search"))
+        .map(|(_, r)| format!("{:?}", r.body))
+        .unwrap();
+    assert!(body.contains("reference_coords"), "{body}");
+    assert!(body.contains("5.1875") && body.contains("13.5625"), "{body}");
+    assert_eq!(found.here.system, "Wolf 1481");
+    assert_eq!((found.name.as_str(), found.radius_ly, found.rings.len()), ("Painite", Some(100), 10));
+    let wolf = found.rings.iter().find(|r| r.system == "Wolf 1481").expect("Wolf 1481's own ring");
+    assert!(wolf.hop.ly < 0.01 && wolf.hop.jumps == 0, "{:?}", wolf.hop);
+    let json = serde_json::to_value(&found).unwrap();
+    assert_eq!(json["rings"][0]["jumps"], serde_json::json!(found.rings[0].hop.jumps));
+    assert_eq!(json["want"]["ore"], "painite");
+    assert!(json["rings"][0]["also"].is_array() && json["rings"][0].get("reserve").is_some());
 }
 
 /// Ardent cuts its answer at 1000 rows, placeholders included (they carry a high price, so they

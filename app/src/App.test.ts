@@ -8,6 +8,12 @@ vi.mock("./lib/stations", async (orig) => {
   return { ...real, stations: (...a: Parameters<typeof real.stations>) => (stationsSpy(...a), real.stations(...a)) };
 });
 
+const hotspotsSpy = vi.fn();
+vi.mock("./lib/hotspots", async (orig) => {
+  const real = await orig<typeof import("./lib/hotspots")>();
+  return { ...real, hotspots: (...a: Parameters<typeof real.hotspots>) => (hotspotsSpy(...a), real.hotspots(...a)) };
+});
+
 vi.mock("./lib/core", async (orig) => ({
   ...(await orig<typeof import("./lib/core")>()),
   coreStatus: () => Promise.resolve(null),
@@ -186,6 +192,7 @@ describe("Places in the window", () => {
   beforeEach(async () => {
     (await import("./lib/places")).forgetAnswers();
     stationsSpy.mockClear();
+    hotspotsSpy.mockClear();
   });
   afterEach(() => {
     cleanup();
@@ -201,10 +208,11 @@ describe("Places in the window", () => {
     expect(location.hash).toBe("#/places");
     expect(await screen.findByRole("heading", { name: "Ship" })).toBeTruthy();
     expect(pageTabs()).toEqual(["Places", "Route"]);
-    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Ship", "Engineering"]);
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Ship", "Engineering", "Mining"]);
     const ship = within(screen.getByRole("region", { name: "Ship" }));
     expect(ship.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["#/places/services", "#/places/outfitting", "#/places/shipyard"]);
     expect(screen.getByRole("link", { name: /Material traders/ }).getAttribute("href")).toBe("#/places/material-traders");
+    expect(screen.getByRole("link", { name: /Mining hotspots/ }).getAttribute("href")).toBe("#/places/mining-hotspots");
     expect(document.querySelector(".home .v"), "no Lit figure without an answer").toBeNull();
     expect(stationsSpy).not.toHaveBeenCalled();
   });
@@ -278,6 +286,61 @@ describe("Places in the window", () => {
     await fireEvent.keyDown(box, { key: "Enter" });
     expect(location.hash).toBe("#/places/outfitting/Pulse%20Laser");
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "module", name: "Pulse Laser", class: null, rating: null, mount: null }, null, expect.anything()));
+  });
+
+  it("finds Mining hotspots from its tile: rings most hotspots first, with Add stop and Set destination", async () => {
+    location.hash = "#/places";
+    render(App);
+    await fireEvent.click(await screen.findByRole("link", { name: /Mining hotspots/ }));
+    expect(await screen.findByRole("heading", { level: 1, name: "Mining hotspots" })).toBeTruthy();
+    await waitFor(() => expect(location.hash).toBe("#/places/mining-hotspots/painite"));
+    expect((screen.getByRole("combobox", { name: "Mineral" }) as HTMLInputElement).value).toBe("Painite");
+    expect(screen.getByText("Around")).toBeTruthy();
+    await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "painite", ring_type: null, reserve: null }, null, expect.anything()));
+    expect(await screen.findByText("Within 100 ly of Sol")).toBeTruthy();
+    const heads = screen.getAllByRole("columnheader").map((h) => h.textContent);
+    expect(heads).toEqual(["Hotspots", "Ring", "Also", "Type", "Reserve", "Distance", "Jumps", "Arrival", ""]);
+    const rows = screen.getAllByRole("row").slice(1);
+    expect(rows).toHaveLength(10);
+    expect(within(rows[0]!).getByText("5 A Ring")).toBeTruthy();
+    expect(within(rows[0]!).getByText("Sosolingati")).toBeTruthy();
+    expect(rows[0]!.querySelector(".main .v")?.textContent).toBe("4");
+    expect(within(rows[0]!).getByRole("button", { name: "Add Sosolingati as a stop" })).toBeTruthy();
+    expect(within(rows[0]!).getByRole("button", { name: "Set Sosolingati as the destination" })).toBeTruthy();
+
+    // the tile keeps the answer
+    await fireEvent.click(screen.getByRole("link", { name: "Places" }));
+    const tile = await screen.findByRole("link", { name: /^Mining hotspots/ });
+    expect(tile.getAttribute("href")).toBe("#/places/mining-hotspots/painite");
+    expect(within(tile).getByText("Painite")).toBeTruthy();
+    expect(within(tile).getByText("hotspots")).toBeTruthy();
+    expect(tile.querySelector(".v")?.textContent).toBe("4");
+  });
+
+  it("keeps the Mining hotspots mineral, ring type and reserve in the address and searches again", async () => {
+    location.hash = "#/places/mining-hotspots/painite";
+    render(App);
+    await screen.findByText("Within 100 ly of Sol");
+    await fireEvent.click(screen.getByRole("button", { name: "Metallic" }));
+    expect(location.hash).toBe("#/places/mining-hotspots/painite?ring=metallic");
+    await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "painite", ring_type: "Metallic", reserve: null }, null, expect.anything()));
+    await fireEvent.click(screen.getByRole("button", { name: "Pristine" }));
+    expect(location.hash).toBe("#/places/mining-hotspots/painite?ring=metallic&reserve=pristine");
+    await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "painite", ring_type: "Metallic", reserve: "pristine" }, null, expect.anything()));
+    expect(await screen.findByText("Within 100 ly of Sol · metallic rings · pristine reserves")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pristine" }).getAttribute("aria-pressed")).toBe("true");
+
+    const box = screen.getByRole("combobox", { name: "Mineral" });
+    await fireEvent.input(box, { target: { value: "low temp" } });
+    await screen.findByText("Low Temperature Diamonds");
+    await fireEvent.keyDown(box, { key: "Enter" });
+    expect(location.hash).toBe("#/places/mining-hotspots/lowtemperaturediamond?ring=metallic&reserve=pristine");
+    await waitFor(() =>
+      expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "lowtemperaturediamond", ring_type: "Metallic", reserve: "pristine" }, null, expect.anything()),
+    );
+    await fireEvent.click(screen.getByRole("button", { name: "Any ring type" }));
+    await fireEvent.click(screen.getByRole("button", { name: "Any reserve" }));
+    expect(location.hash).toBe("#/places/mining-hotspots/lowtemperaturediamond");
   });
 
   it("leaves a finder for another page without rewriting the address", async () => {

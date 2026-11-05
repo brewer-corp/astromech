@@ -52,6 +52,8 @@
     noun = "results",
     busyText = "Searching…",
     start = null,
+    around = false,
+    notes = [],
     header,
     lead,
     onanswer,
@@ -73,6 +75,10 @@
     busyText?: string;
     /** Where to search from until the commander picks another system; a new one resets the box. */
     start?: Origin;
+    /** A Places finder's origin: labelled "Around", offering here, the route's next stop and a typed system. */
+    around?: boolean;
+    /** The lookup's own constraints for the summary line, after where it searched ("metallic rings"). */
+    notes?: string[];
     /** Mode tabs or other chrome at the top of the query band. */
     header?: Snippet;
     /** What to find, rendered in the query band (service, module, commodity…). */
@@ -226,10 +232,10 @@
   const template = $derived(
     compact
       ? "max-content minmax(0, 1fr) 64px"
-      : ["112px", "minmax(240px, 1.5fr)", ...columns.map((c) => (c.text ? "minmax(0, 1fr)" : `${c.width ?? 0}px`)), "64px"].join(" "),
+      : ["112px", "minmax(240px, 1.5fr)", ...columns.map((c) => (c.text && !c.width ? "minmax(0, 1fr)" : `${c.width ?? 0}px`)), "64px"].join(" "),
   );
   const shown = $derived(compact ? [] : columns);
-  const PLACE_HEADS = { station: "Station", body: "Body", system: "System" } as const;
+  const PLACE_HEADS = { station: "Station", body: "Body", ring: "Ring", system: "System" } as const;
   /** The one constraint an empty answer can relax, and how. */
   const widen = $derived(widening(filters, offers, hints));
 
@@ -248,7 +254,7 @@
   <div class="query">
     {#if header}{@render header()}{/if}
     {#if lead}{@render lead()}{/if}
-    <OriginInput {origin} onchange={(o) => (origin = o)} />
+    <OriginInput {origin} {around} onchange={(o) => (origin = o)} />
     {#if saved && offers.length}<SearchFilters filters={saved.filters} shipPad={ship?.lookup === lookup ? ship.pad : undefined} {offers} {hints} onchange={(f) => void change(f)} />{/if}
     {#if filterErr && unsaved}<Failure text={filterErr} onaction={retrySave} />{/if}
   </div>
@@ -259,7 +265,7 @@
     {:else if busy}
       <p class="line">{busyText}</p>
     {:else if res}
-      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden)}</p>
+      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden, notes)}</p>
     {/if}
     {#if res && !err}
       {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}

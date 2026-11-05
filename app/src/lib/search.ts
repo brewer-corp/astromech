@@ -44,12 +44,12 @@ export interface Column {
   unit?: string;
   /** Prose (factions, bodies, a module): left-aligned, truncated, sharing the row's spare width with the place. */
   text?: boolean;
-  /** A figure column's width in px. */
+  /** A figure column's width in px; on a prose column, a fixed width instead of a share (a ring type). */
   width?: number;
 }
 
-/** What a lookup's place column holds: stations get pad and arrival columns, bodies arrival. */
-export type Place = "station" | "body" | "system";
+/** What a lookup's place column holds: stations get pad and arrival columns, bodies and rings arrival. */
+export type Place = "station" | "body" | "ring" | "system";
 
 export interface Results {
   /** The system the search measured from. */
@@ -69,6 +69,8 @@ export interface Results {
   warning?: string;
   /** What the lookup found, e.g. "Famine": the label a result gets on the route (Add stop, Set destination) when it has no station. */
   label?: string;
+  /** The source's data doesn't go stale (ring hotspots never change): no report age column. */
+  undated?: boolean;
 }
 
 /** One lookup's filters (astromech_galaxy::Filters). */
@@ -224,7 +226,7 @@ export function ageCell(iso: string | null, now: number): Cell {
  * The fact columns after the place, in order: the lookup's own, distance, jumps (unless they
  * are the main value), pad for stations, arrival for stations and bodies, report age.
  */
-export function factColumns(res: Pick<Results, "place" | "main" | "columns">): FactColumn[] {
+export function factColumns(res: Pick<Results, "place" | "main" | "columns" | "undated">): FactColumn[] {
   const own = (res.columns ?? []).map(
     (c): FactColumn => ({ ...c, cell: (r) => (r.facts?.[c.key] ? { value: r.facts[c.key]!, unit: c.unit, text: c.text } : DASH) }),
   );
@@ -234,7 +236,7 @@ export function factColumns(res: Pick<Results, "place" | "main" | "columns">): F
   if (res.place !== "system") {
     shared.push({ key: "arrival", head: "Arrival", unit: "ls", width: 96, cell: (r) => (r.arrival_ls == null ? DASH : { value: figure(r.arrival_ls), unit: "ls" }) });
   }
-  shared.push({ key: "age", head: "Updated", width: 72, cell: (r, now) => ageCell(r.updated_at, now) });
+  if (!res.undated) shared.push({ key: "age", head: "Updated", width: 72, cell: (r, now) => ageCell(r.updated_at, now) });
   return [...own, ...shared];
 }
 
@@ -253,12 +255,13 @@ const PAD_NAMES: Record<Pad, string> = { S: "", M: "medium or large pad", L: "la
 /**
  * The one-line summary of a search's constraints above the column heads ("Within 100 ly of Sol ·
  * large pad · reports up to 30 days old"), naming only the filters the lookup offers.
- * `lead` says where it searched when there is no radius ("Nearest to Sol").
+ * `lead` says where it searched when there is no radius ("Nearest to Sol"); `notes` are the
+ * lookup's own constraints, after it ("metallic rings").
  */
-export function summary(lead: string, origin: string, filters: Filters, offers: FilterKey[], hints: FilterHints, hidden: number): string {
+export function summary(lead: string, origin: string, filters: Filters, offers: FilterKey[], hints: FilterHints, hidden: number, notes: string[] = []): string {
   const has = (k: FilterKey) => offers.includes(k);
   const radius = filters.max_distance_ly ?? hints.distance ?? null;
-  const parts = [has("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`];
+  const parts = [has("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`, ...notes];
   if (has("volume") && filters.min_volume != null) parts.push(`${(hints.volume ?? "volume").toLowerCase()} at least ${figure(filters.min_volume)} t`);
   if (has("pad") && filters.pad && PAD_NAMES[filters.pad]) parts.push(PAD_NAMES[filters.pad]);
   if (has("arrival") && filters.max_arrival_ls != null) parts.push(`arrival up to ${figure(filters.max_arrival_ls)} ls`);

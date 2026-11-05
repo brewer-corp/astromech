@@ -1,0 +1,3625 @@
+{
+ "any": {
+  "count": 10000,
+  "from": 0,
+  "results": [
+   {
+    "id64": 468392624387073449,
+    "body_id": 13,
+    "name": "Barnard's Star 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Barnard's Star",
+    "system_id64": 18263140541865,
+    "system_x": -3.03125,
+    "system_y": 1.375,
+    "system_z": 4.9375,
+    "distance": 5.95466269510709,
+    "distance_to_arrival": 3272.391994,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 145100000.0,
+      "mass": 212120000000.0,
+      "name": "Barnard's Star 5 A Ring",
+      "outer_radius": 166790000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2026-10-26T16:22:27Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 166890000.0,
+      "mass": 1636900000000.0,
+      "name": "Barnard's Star 5 B Ring",
+      "outer_radius": 282870000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Bromellite"
+       },
+       {
+        "count": 1,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-10-26T16:22:20Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-05T02:42:02Z"
+   },
+   {
+    "id64": 396374911939267408,
+    "body_id": 11,
+    "name": "WISE 0855-0714 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "WISE 0855-0714",
+    "system_id64": 58144730663760,
+    "system_x": 6.53125,
+    "system_y": -2.15625,
+    "system_z": 2.03125,
+    "distance": 7.17165372752338,
+    "distance_to_arrival": 536.546037,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 85667000.0,
+      "mass": 28080000000.0,
+      "name": "WISE 0855-0714 5 A Ring",
+      "outer_radius": 91488000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-10-18T14:24:51Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 91588000.0,
+      "mass": 365800000000.0,
+      "name": "WISE 0855-0714 5 B Ring",
+      "outer_radius": 145960000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Bromellite"
+       },
+       {
+        "count": 1,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 1,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-11-01T10:19:47Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-04T14:39:25Z"
+   },
+   {
+    "id64": 756662882128907088,
+    "body_id": 21,
+    "name": "WISE 0855-0714 6",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "WISE 0855-0714",
+    "system_id64": 58144730663760,
+    "system_x": 6.53125,
+    "system_y": -2.15625,
+    "system_z": 2.03125,
+    "distance": 7.17165372752338,
+    "distance_to_arrival": 917.104439,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 66837000.0,
+      "mass": 33381000000.0,
+      "name": "WISE 0855-0714 6 A Ring",
+      "outer_radius": 74974000.0,
+      "signal_count": 10,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-26T11:43:58Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 75074000.0,
+      "mass": 202710000000.0,
+      "name": "WISE 0855-0714 6 B Ring",
+      "outer_radius": 112380000.0,
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-04T14:39:25Z"
+   },
+   {
+    "id64": 864704993280664993,
+    "body_id": 24,
+    "name": "TZ Arietis 3",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "TZ Arietis",
+    "system_id64": 13864825529761,
+    "system_x": -5.375,
+    "system_y": -10.59375,
+    "system_z": -8.5,
+    "distance": 14.6071271666437,
+    "distance_to_arrival": 822.693736,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 113130000.0,
+      "mass": 116880000000.0,
+      "name": "TZ Arietis 3 A Ring",
+      "outer_radius": 131160000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2026-11-05T05:25:02Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 131260000.0,
+      "mass": 1592500000000.0,
+      "name": "TZ Arietis 3 B Ring",
+      "outer_radius": 270620000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Benitoite"
+       },
+       {
+        "count": 1,
+        "name": "Musgravite"
+       }
+      ],
+      "signals_updated_at": "2026-11-05T05:24:48Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-04T13:11:10Z"
+   },
+   {
+    "id64": 1116897184831244651,
+    "body_id": 31,
+    "name": "Kokary 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Kokary",
+    "system_id64": 4477243361643,
+    "system_x": 3.5,
+    "system_y": -10.3125,
+    "system_z": -11.4375,
+    "distance": 15.7928484606166,
+    "distance_to_arrival": 1679.922855,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 78465000.0,
+      "mass": 36907000000.0,
+      "name": "Kokary 5 A Ring",
+      "outer_radius": 87055000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-30T15:56:16Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 87155000.0,
+      "mass": 241230000000.0,
+      "name": "Kokary 5 B Ring",
+      "outer_radius": 128530000.0,
+      "signal_count": 8,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-01T19:10:59Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Common",
+    "updated_at": "2026-11-04T15:23:25Z"
+   },
+   {
+    "id64": 1693355325794552171,
+    "body_id": 47,
+    "name": "36 Ophiuchi C 10",
+    "type": "Planet",
+    "subtype": "Gas giant with water-based life",
+    "system_name": "36 Ophiuchi",
+    "system_id64": 1865903245675,
+    "system_x": 0.4375,
+    "system_y": 2.09375,
+    "system_z": 19.21875,
+    "distance": 19.3374131381372,
+    "distance_to_arrival": 4215390.884416,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 131760000.0,
+      "mass": 152800000000.0,
+      "name": "36 Ophiuchi C 10 A Ring",
+      "outer_radius": 155550000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-03T12:04:10Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 155650000.0,
+      "mass": 1407400000000.0,
+      "name": "36 Ophiuchi C 10 B Ring",
+      "outer_radius": 295200000.0,
+      "signal_count": 11,
+      "signals": [
+       {
+        "count": 4,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Bromellite"
+       },
+       {
+        "count": 2,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 2,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-10-03T12:04:07Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-01T12:37:40Z"
+   },
+   {
+    "id64": 900722795451852201,
+    "body_id": 25,
+    "name": "Wolf 1481 4",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Wolf 1481",
+    "system_id64": 2869977753001,
+    "system_x": 5.1875,
+    "system_y": 13.375,
+    "system_z": 13.5625,
+    "distance": 19.7418891573223,
+    "distance_to_arrival": 1685.012736,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 126260000.0,
+      "mass": 6553900000000.0,
+      "name": "Wolf 1481 4 A Ring",
+      "outer_radius": 474350000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-05-23T16:12:19Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-10-29T19:43:22Z"
+   },
+   {
+    "id64": 972800180967515561,
+    "body_id": 27,
+    "name": "LTT 3572 7",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LTT 3572",
+    "system_id64": 22661455488425,
+    "system_x": 18.90625,
+    "system_y": -4.21875,
+    "system_z": 5.875,
+    "distance": 20.2425236970344,
+    "distance_to_arrival": 1100.240558,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 127020000.0,
+      "mass": 452230000000.0,
+      "name": "LTT 3572 7 A Ring",
+      "outer_radius": 174860000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2026-09-04T13:28:34Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 174960000.0,
+      "mass": 4783400000000.0,
+      "name": "LTT 3572 7 B Ring",
+      "outer_radius": 428180000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Benitoite"
+       }
+      ],
+      "signals_updated_at": "2026-10-24T04:39:07Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Common",
+    "updated_at": "2026-11-03T23:36:32Z"
+   },
+   {
+    "id64": 1080886572024407465,
+    "body_id": 30,
+    "name": "LTT 3572 8",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LTT 3572",
+    "system_id64": 22661455488425,
+    "system_x": 18.90625,
+    "system_y": -4.21875,
+    "system_z": 5.875,
+    "distance": 20.2425236970344,
+    "distance_to_arrival": 1113.20744,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 138780000.0,
+      "mass": 3572400000000.0,
+      "name": "LTT 3572 8 A Ring",
+      "outer_radius": 367830000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-02-19T20:47:07Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Common",
+    "updated_at": "2026-10-30T18:25:59Z"
+   },
+   {
+    "id64": 936753791494137249,
+    "body_id": 26,
+    "name": "Ross 104 ABC 2",
+    "type": "Planet",
+    "subtype": "Gas giant with water-based life",
+    "system_name": "Ross 104",
+    "system_id64": 5069001074081,
+    "system_x": 5.5625,
+    "system_y": 19.6875,
+    "system_z": -7.3125,
+    "distance": 21.7258306803215,
+    "distance_to_arrival": 799.026675,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 140180000.0,
+      "mass": 233500000000.0,
+      "name": "Ross 104 ABC 2 A Ring",
+      "outer_radius": 165470000.0,
+      "signal_count": 15,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 4,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T22:40:28Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 165570000.0,
+      "mass": 2588000000000.0,
+      "name": "Ross 104 ABC 2 B Ring",
+      "outer_radius": 336230000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Bromellite"
+       },
+       {
+        "count": 2,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 2,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T22:40:28Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Common",
+    "updated_at": "2026-11-05T05:28:55Z"
+   },
+   {
+    "id64": 1044835784504518049,
+    "body_id": 29,
+    "name": "Ross 446 4",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Ross 446",
+    "system_id64": 670954562977,
+    "system_x": 14.21875,
+    "system_y": 16.90625,
+    "system_z": -6.53125,
+    "distance": 23.0358713138336,
+    "distance_to_arrival": 1944.326998,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 125380000.0,
+      "mass": 231980000000.0,
+      "name": "Ross 446 4 A Ring",
+      "outer_radius": 170410000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2026-09-21T16:41:29Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 170510000.0,
+      "mass": 2483300000000.0,
+      "name": "Ross 446 4 B Ring",
+      "outer_radius": 414280000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Bromellite"
+       }
+      ],
+      "signals_updated_at": "2026-09-21T16:41:03Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-05T04:21:06Z"
+   },
+   {
+    "id64": 216176164501197522,
+    "body_id": 6,
+    "name": "PSPF-LF 2 1",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "PSPF-LF 2",
+    "system_id64": 3382387413714,
+    "system_x": -4.40625,
+    "system_y": -17.15625,
+    "system_z": -15.34375,
+    "distance": 23.4346456595251,
+    "distance_to_arrival": 1327.338724,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 125500000.0,
+      "mass": 122580000000.0,
+      "name": "PSPF-LF 2 1 A Ring",
+      "outer_radius": 152770000.0,
+      "signal_count": 16,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 5,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 4,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-06-09T14:32:27Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 152870000.0,
+      "mass": 2389500000000.0,
+      "name": "PSPF-LF 2 1 B Ring",
+      "outer_radius": 403160000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Musgravite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-06-09T14:32:27Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-03T22:24:30Z"
+   },
+   {
+    "id64": 252201589626898795,
+    "body_id": 7,
+    "name": "Beta Hydri 7",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Beta Hydri",
+    "system_id64": 10494151019,
+    "system_x": 15.28125,
+    "system_y": -15.6875,
+    "system_z": 10.5625,
+    "distance": 24.3142070416146,
+    "distance_to_arrival": 2103.524052,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 139170000.0,
+      "mass": 268330000000.0,
+      "name": "Beta Hydri 7 A Ring",
+      "outer_radius": 168390000.0,
+      "signal_count": 17,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Painite"
+       },
+       {
+        "count": 4,
+        "name": "Platinum"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-25T15:45:31Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 168490000.0,
+      "mass": 3944600000000.0,
+      "name": "Beta Hydri 7 B Ring",
+      "outer_radius": 400610000.0,
+      "signal_count": 14,
+      "signals": [
+       {
+        "count": 6,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 4,
+        "name": "Benitoite"
+       },
+       {
+        "count": 3,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Musgravite"
+       }
+      ],
+      "signals_updated_at": "2026-10-25T15:45:29Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-02T17:14:54Z"
+   },
+   {
+    "id64": 1585275124146246362,
+    "body_id": 44,
+    "name": "Narenses 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Narenses",
+    "system_id64": 8055311831770,
+    "system_x": -1.15625,
+    "system_y": -11.03125,
+    "system_z": 21.875,
+    "distance": 24.52633310597,
+    "distance_to_arrival": 3387.315991,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 80213000.0,
+      "mass": 35241000000.0,
+      "name": "Narenses 5 A Ring",
+      "outer_radius": 86976000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-13T22:01:16Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 87076000.0,
+      "mass": 181350000000.0,
+      "name": "Narenses 5 B Ring",
+      "outer_radius": 115680000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-10-13T22:01:12Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-10-31T15:45:03Z"
+   },
+   {
+    "id64": 2774217729190662874,
+    "body_id": 77,
+    "name": "Wolf 718 14",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Wolf 718",
+    "system_id64": 358730437338,
+    "system_x": -10.03125,
+    "system_y": 8.3125,
+    "system_z": 21.4375,
+    "distance": 25.085654048928,
+    "distance_to_arrival": 4291.592584,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 119840000.0,
+      "mass": 146200000000.0,
+      "name": "Wolf 718 14 A Ring",
+      "outer_radius": 137910000.0,
+      "signal_count": 13,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-03T15:35:39Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 138010000.0,
+      "mass": 1820500000000.0,
+      "name": "Wolf 718 14 B Ring",
+      "outer_radius": 277510000.0,
+      "signal_count": 22,
+      "signals": [
+       {
+        "count": 4,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Bromellite"
+       },
+       {
+        "count": 6,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 4,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 4,
+        "name": "Void Opal"
+       },
+       {
+        "count": 2,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-10-03T15:35:38Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-03T23:00:58Z"
+   },
+   {
+    "id64": 1333069657724160363,
+    "body_id": 37,
+    "name": "Sosolingati 5",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Sosolingati",
+    "system_id64": 4168022493547,
+    "system_x": 21.3125,
+    "system_y": -13.875,
+    "system_z": -2.09375,
+    "distance": 25.5170936885943,
+    "distance_to_arrival": 1869.044584,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 138530000.0,
+      "mass": 100300000000.0,
+      "name": "Sosolingati 5 A Ring",
+      "outer_radius": 149610000.0,
+      "signal_count": 9,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 4,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T02:52:50Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 149710000.0,
+      "mass": 2378800000000.0,
+      "name": "Sosolingati 5 B Ring",
+      "outer_radius": 313230000.0,
+      "signal_count": 7,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Benitoite"
+       },
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Musgravite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T02:52:46Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-04T22:16:51Z"
+   },
+   {
+    "id64": 1837472815989655915,
+    "body_id": 51,
+    "name": "Sosolingati 8",
+    "type": "Planet",
+    "subtype": "Icy body",
+    "system_name": "Sosolingati",
+    "system_id64": 4168022493547,
+    "system_x": 21.3125,
+    "system_y": -13.875,
+    "system_z": -2.09375,
+    "distance": 25.5170936885943,
+    "distance_to_arrival": 2710.301394,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 25395000.0,
+      "mass": 103760000000.0,
+      "name": "Sosolingati 8 A Ring",
+      "outer_radius": 67715000.0,
+      "signal_count": 9,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 4,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2025-09-21T15:54:44Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-04T22:16:51Z"
+   },
+   {
+    "id64": 1441156949491197353,
+    "body_id": 40,
+    "name": "LHS 417 6",
+    "type": "Planet",
+    "subtype": "Helium-rich gas giant",
+    "system_name": "LHS 417",
+    "system_id64": 5068732638633,
+    "system_x": -18.3125,
+    "system_y": 18.1875,
+    "system_z": 4.90625,
+    "distance": 26.2717357927203,
+    "distance_to_arrival": 1666.254331,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 141640000.0,
+      "mass": 161370000000.0,
+      "name": "LHS 417 6 A Ring",
+      "outer_radius": 160410000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-01T17:50:27Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 160510000.0,
+      "mass": 3681700000000.0,
+      "name": "LHS 417 6 B Ring",
+      "outer_radius": 393810000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-10-01T17:50:28Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-10-21T20:57:48Z"
+   },
+   {
+    "id64": 1657327525224778091,
+    "body_id": 46,
+    "name": "RR Caeli A 7",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "RR Caeli",
+    "system_id64": 2862352435563,
+    "system_x": 18.3125,
+    "system_y": -18.59375,
+    "system_z": -4.6875,
+    "distance": 26.5150495297011,
+    "distance_to_arrival": 3023.221924,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 25225000.0,
+      "mass": 4565000000.0,
+      "name": "RR Caeli A 7 A Ring",
+      "outer_radius": 29466000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2025-12-05T08:54:08Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 29566000.0,
+      "mass": 76474000000.0,
+      "name": "RR Caeli A 7 B Ring",
+      "outer_radius": 66800000.0,
+      "signal_count": 7,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 2,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 2,
+        "name": "Void Opal"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2025-12-05T08:53:51Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-03T18:08:35Z"
+   },
+   {
+    "id64": 1008824579403031969,
+    "body_id": 28,
+    "name": "LHS 4003 2",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LHS 4003",
+    "system_id64": 18262872040865,
+    "system_x": -23.0,
+    "system_y": -10.9375,
+    "system_z": -7.4375,
+    "distance": 26.5319677464752,
+    "distance_to_arrival": 2671.755642,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 137330000.0,
+      "mass": 502240000000.0,
+      "name": "LHS 4003 2 A Ring",
+      "outer_radius": 186730000.0,
+      "signal_count": 11,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 4,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2025-10-31T08:36:15Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 186830000.0,
+      "mass": 4408200000000.0,
+      "name": "LHS 4003 2 B Ring",
+      "outer_radius": 418780000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Musgravite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2025-10-31T07:57:52Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-10-28T13:32:10Z"
+   },
+   {
+    "id64": 252235235167643049,
+    "body_id": 7,
+    "name": "LP 336-6 A 1",
+    "type": "Planet",
+    "subtype": "Gas giant with water-based life",
+    "system_name": "LP 336-6",
+    "system_id64": 33656034895273,
+    "system_x": -23.46875,
+    "system_y": 5.09375,
+    "system_z": 11.4375,
+    "distance": 26.5997165750878,
+    "distance_to_arrival": 211.778528,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 110330000.0,
+      "mass": 73392000000.0,
+      "name": "LP 336-6 A 1 A Ring",
+      "outer_radius": 120450000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-22T17:12:09Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 120550000.0,
+      "mass": 434080000000.0,
+      "name": "LP 336-6 A 1 B Ring",
+      "outer_radius": 168300000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       }
+      ],
+      "signals_updated_at": "2026-09-22T17:12:19Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-04T04:55:02Z"
+   },
+   {
+    "id64": 288231046837773729,
+    "body_id": 8,
+    "name": "Ross 318 1",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Ross 318",
+    "system_id64": 670686061985,
+    "system_x": -22.0,
+    "system_y": 4.25,
+    "system_z": -14.875,
+    "distance": 26.8947601774026,
+    "distance_to_arrival": 901.455786,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 120120000.0,
+      "mass": 62456000000.0,
+      "name": "Ross 318 1 A Ring",
+      "outer_radius": 128130000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-01-24T22:58:30Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 128230000.0,
+      "mass": 849080000000.0,
+      "name": "Ross 318 1 B Ring",
+      "outer_radius": 208440000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Bromellite"
+       },
+       {
+        "count": 2,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-01-24T22:57:14Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-01T16:53:12Z"
+   },
+   {
+    "id64": 216173453068346793,
+    "body_id": 6,
+    "name": "Wolf 437 1",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Wolf 437",
+    "system_id64": 670954562985,
+    "system_x": 7.0,
+    "system_y": 26.0,
+    "system_z": 4.375,
+    "distance": 27.278941053494,
+    "distance_to_arrival": 1919.683874,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 126710000.0,
+      "mass": 108220000000.0,
+      "name": "Wolf 437 1 A Ring",
+      "outer_radius": 140820000.0,
+      "signal_count": 13,
+      "signals": [
+       {
+        "count": 4,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 4,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-04-26T00:54:47Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 140920000.0,
+      "mass": 1140600000000.0,
+      "name": "Wolf 437 1 B Ring",
+      "outer_radius": 244180000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Bromellite"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-04-26T00:54:30Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Common",
+    "updated_at": "2026-11-05T02:06:13Z"
+   },
+   {
+    "id64": 720587606450120105,
+    "body_id": 20,
+    "name": "Bugas AB 1",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Bugas",
+    "system_id64": 11666070840745,
+    "system_x": 12.59375,
+    "system_y": 24.34375,
+    "system_z": 2.84375,
+    "distance": 27.5555369606092,
+    "distance_to_arrival": 2192.939634,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 137450000.0,
+      "mass": 330170000000.0,
+      "name": "Bugas AB 1 A Ring",
+      "outer_radius": 171870000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-09T20:05:46Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 171970000.0,
+      "mass": 5412300000000.0,
+      "name": "Bugas AB 1 B Ring",
+      "outer_radius": 451740000.0,
+      "signal_count": 13,
+      "signals": [
+       {
+        "count": 4,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-09T20:05:46Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-01T20:59:21Z"
+   },
+   {
+    "id64": 432346536777615723,
+    "body_id": 12,
+    "name": "61 Virginis 4",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "61 Virginis",
+    "system_id64": 972550048107,
+    "system_x": 14.8125,
+    "system_y": 19.28125,
+    "system_z": 13.65625,
+    "distance": 27.8867337971839,
+    "distance_to_arrival": 1515.215738,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 58831000.0,
+      "mass": 37443000000.0,
+      "name": "61 Virginis 4 A Ring",
+      "outer_radius": 69162000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-10-23T20:36:19Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 69262000.0,
+      "mass": 235670000000.0,
+      "name": "61 Virginis 4 B Ring",
+      "outer_radius": 114480000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-10-23T20:36:17Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-03T11:15:37Z"
+   },
+   {
+    "id64": 648519318891399531,
+    "body_id": 18,
+    "name": "61 Virginis 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "61 Virginis",
+    "system_id64": 972550048107,
+    "system_x": 14.8125,
+    "system_y": 19.28125,
+    "system_z": 13.65625,
+    "distance": 27.8867337971839,
+    "distance_to_arrival": 1510.688293,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 63769000.0,
+      "mass": 221200000000.0,
+      "name": "61 Virginis 5 A Ring",
+      "outer_radius": 107980000.0,
+      "signal_count": 11,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-23T20:56:56Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-03T11:15:42Z"
+   },
+   {
+    "id64": 936749695043111275,
+    "body_id": 26,
+    "name": "61 Virginis 6 b",
+    "type": "Planet",
+    "subtype": "Icy body",
+    "system_name": "61 Virginis",
+    "system_id64": 972550048107,
+    "system_x": 14.8125,
+    "system_y": 19.28125,
+    "system_z": 13.65625,
+    "distance": 27.8867337971839,
+    "distance_to_arrival": 2568.008244,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 9036100.0,
+      "mass": 675210.0,
+      "name": "61 Virginis 6 b A Ring",
+      "outer_radius": 23862000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2025-09-11T05:48:12Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Low",
+    "updated_at": "2026-11-03T11:16:20Z"
+   },
+   {
+    "id64": 756605408621110697,
+    "body_id": 21,
+    "name": "LHS 531 C 3",
+    "type": "Planet",
+    "subtype": "Helium-rich gas giant",
+    "system_name": "LHS 531",
+    "system_id64": 671222867369,
+    "system_x": 16.03125,
+    "system_y": -18.0625,
+    "system_z": 14.375,
+    "distance": 28.1050797510432,
+    "distance_to_arrival": 398943.907444,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 62190000.0,
+      "mass": 6693500000.0,
+      "name": "LHS 531 C 3 A Ring",
+      "outer_radius": 63882000.0,
+      "signal_count": 7,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-24T22:34:42Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 63982000.0,
+      "mass": 115470000000.0,
+      "name": "LHS 531 C 3 B Ring",
+      "outer_radius": 88098000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       }
+      ],
+      "signals_updated_at": "2026-10-24T22:32:19Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-04T19:17:33Z"
+   },
+   {
+    "id64": 1224979769867642281,
+    "body_id": 34,
+    "name": "LHS 531 C 5",
+    "type": "Planet",
+    "subtype": "Icy body",
+    "system_name": "LHS 531",
+    "system_id64": 671222867369,
+    "system_x": 16.03125,
+    "system_y": -18.0625,
+    "system_z": 14.375,
+    "distance": 28.1050797510432,
+    "distance_to_arrival": 400603.063263,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 21226000.0,
+      "mass": 271260000.0,
+      "name": "LHS 531 C 5 A Ring",
+      "outer_radius": 25164000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-24T21:55:37Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 25264000.0,
+      "mass": 4996300000.0,
+      "name": "LHS 531 C 5 B Ring",
+      "outer_radius": 63233000.0,
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Depleted",
+    "updated_at": "2026-11-04T19:17:33Z"
+   },
+   {
+    "id64": 612510011217683881,
+    "body_id": 17,
+    "name": "FK Aquarii ABCD 1",
+    "type": "Star",
+    "subtype": "Y (Brown dwarf) Star",
+    "system_name": "FK Aquarii",
+    "system_id64": 20461895296425,
+    "system_x": -9.0,
+    "system_y": -24.46875,
+    "system_z": 11.1875,
+    "distance": 28.3704050519639,
+    "distance_to_arrival": 954.274671,
+    "rings": [
+     {
+      "inner_radius": 101960000.0,
+      "mass": 377660000000.0,
+      "name": "FK Aquarii ABCD 1 A Ring",
+      "outer_radius": 150980000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2025-08-23T18:33:28Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 151080000.0,
+      "mass": 9799600000000.0,
+      "name": "FK Aquarii ABCD 1 B Ring",
+      "outer_radius": 586990000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Musgravite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-05T13:45:56Z",
+      "type": "Rocky"
+     }
+    ],
+    "updated_at": "2026-11-02T22:47:45Z"
+   }
+  ]
+ },
+ "pristine": {
+  "count": 10000,
+  "from": 0,
+  "results": [
+   {
+    "id64": 180147087948630379,
+    "body_id": 5,
+    "name": "LFT 65 1",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LFT 65",
+    "system_id64": 3102853810539,
+    "system_x": -2.96875,
+    "system_y": -32.25,
+    "system_z": -0.375,
+    "distance": 32.3885257701319,
+    "distance_to_arrival": 946.827303,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 119730000.0,
+      "mass": 403620000000.0,
+      "name": "LFT 65 1 A Ring",
+      "outer_radius": 164870000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T15:01:07Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 164970000.0,
+      "mass": 4209800000000.0,
+      "name": "LFT 65 1 B Ring",
+      "outer_radius": 401480000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Bromellite"
+       },
+       {
+        "count": 1,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 1,
+        "name": "Void Opal"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-11-05T05:43:46Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-05T02:35:48Z"
+   },
+   {
+    "id64": 396324034695996841,
+    "body_id": 11,
+    "name": "Caer Bran A 4",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Caer Bran",
+    "system_id64": 7267487393193,
+    "system_x": -31.28125,
+    "system_y": 14.3125,
+    "system_z": 13.78125,
+    "distance": 37.057888625433,
+    "distance_to_arrival": 1409.237681,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 98008000.0,
+      "mass": 25191000000.0,
+      "name": "Caer Bran A 4 A Ring",
+      "outer_radius": 102020000.0,
+      "signal_count": 9,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T18:34:48Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 102120000.0,
+      "mass": 140970000000.0,
+      "name": "Caer Bran A 4 B Ring",
+      "outer_radius": 122040000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Bromellite"
+       },
+       {
+        "count": 2,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T18:34:45Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-05T00:07:29Z"
+   },
+   {
+    "id64": 324259843856803249,
+    "body_id": 9,
+    "name": "OT Serpentis ABC 1",
+    "type": "Planet",
+    "subtype": "Icy body",
+    "system_name": "OT Serpentis",
+    "system_id64": 670686127537,
+    "system_x": -11.125,
+    "system_y": 30.34375,
+    "system_z": 18.40625,
+    "distance": 37.1927254732024,
+    "distance_to_arrival": 5848.852325,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 33863000.0,
+      "mass": 2534400000.0,
+      "name": "OT Serpentis ABC 1 A Ring",
+      "outer_radius": 46445000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-26T18:28:51Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 46545000.0,
+      "mass": 40479000000.0,
+      "name": "OT Serpentis ABC 1 B Ring",
+      "outer_radius": 135260000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 1,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-09-29T02:03:48Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-03T10:54:29Z"
+   },
+   {
+    "id64": 432350934547188584,
+    "body_id": 12,
+    "name": "Arima 7",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Arima",
+    "system_id64": 5370319620968,
+    "system_x": 26.09375,
+    "system_y": -25.3125,
+    "system_z": 31.15625,
+    "distance": 47.8781616123155,
+    "distance_to_arrival": 3186.628172,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 47234000.0,
+      "mass": 11940000000.0,
+      "name": "Arima 7 A Ring",
+      "outer_radius": 51099000.0,
+      "signal_count": 8,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 4,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-03T13:59:54Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 51199000.0,
+      "mass": 90798000000.0,
+      "name": "Arima 7 B Ring",
+      "outer_radius": 74171000.0,
+      "signal_count": 35,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 9,
+        "name": "Bromellite"
+       },
+       {
+        "count": 3,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 5,
+        "name": "Low Temperature Diamonds"
+       },
+       {
+        "count": 7,
+        "name": "Void Opal"
+       },
+       {
+        "count": 6,
+        "name": "Tritium"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T15:11:58Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-05T06:38:53Z"
+   },
+   {
+    "id64": 2702162741853948267,
+    "body_id": 75,
+    "name": "LHS 2661 6",
+    "type": "Planet",
+    "subtype": "Class IV gas giant",
+    "system_name": "LHS 2661",
+    "system_id64": 2965431650667,
+    "system_x": 16.09375,
+    "system_y": 46.71875,
+    "system_z": 12.71875,
+    "distance": 51.0236904994876,
+    "distance_to_arrival": 2158.168111,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 119410000.0,
+      "mass": 333750000000.0,
+      "name": "LHS 2661 6 A Ring",
+      "outer_radius": 158450000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T09:28:32Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 158550000.0,
+      "mass": 8238500000000.0,
+      "name": "LHS 2661 6 B Ring",
+      "outer_radius": 541220000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T09:28:31Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T09:27:42Z"
+   },
+   {
+    "id64": 540439223308789137,
+    "body_id": 15,
+    "name": "LTT 18046 6",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LTT 18046",
+    "system_id64": 7268024329617,
+    "system_x": 9.0625,
+    "system_y": 28.0625,
+    "system_z": -45.6875,
+    "distance": 54.3781249102063,
+    "distance_to_arrival": 1203.831733,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 129390000.0,
+      "mass": 541220000000.0,
+      "name": "LTT 18046 6 A Ring",
+      "outer_radius": 185470000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-29T20:18:47Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 185570000.0,
+      "mass": 4708300000000.0,
+      "name": "LTT 18046 6 B Ring",
+      "outer_radius": 433580000.0,
+      "signal_count": 15,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 7,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-29T20:18:35Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-05T02:17:34Z"
+   },
+   {
+    "id64": 1152928772631176593,
+    "body_id": 32,
+    "name": "LTT 18046 8",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LTT 18046",
+    "system_id64": 7268024329617,
+    "system_x": 9.0625,
+    "system_y": 28.0625,
+    "system_z": -45.6875,
+    "distance": 54.3781249102063,
+    "distance_to_arrival": 2223.571781,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 138400000.0,
+      "mass": 5725900000000.0,
+      "name": "LTT 18046 8 A Ring",
+      "outer_radius": 452150000.0,
+      "signal_count": 13,
+      "signals": [
+       {
+        "count": 6,
+        "name": "Monazite"
+       },
+       {
+        "count": 4,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-27T20:29:33Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-03T11:43:02Z"
+   },
+   {
+    "id64": 252222040759543201,
+    "body_id": 7,
+    "name": "LHS 1168 2",
+    "type": "Planet",
+    "subtype": "Helium-rich gas giant",
+    "system_name": "LHS 1168",
+    "system_id64": 20461626795425,
+    "system_x": -32.8125,
+    "system_y": -40.46875,
+    "system_z": -22.71875,
+    "distance": 56.8376766271722,
+    "distance_to_arrival": 381.538057,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 30154000.0,
+      "mass": 11162000000.0,
+      "name": "LHS 1168 2 A Ring",
+      "outer_radius": 35568000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-08-30T19:05:02Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 35668000.0,
+      "mass": 124940000000.0,
+      "name": "LHS 1168 2 B Ring",
+      "outer_radius": 72444000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-08-30T19:04:59Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-30T14:41:56Z"
+   },
+   {
+    "id64": 2197777079783597473,
+    "body_id": 61,
+    "name": "LHS 1168 8",
+    "type": "Planet",
+    "subtype": "Helium-rich gas giant",
+    "system_name": "LHS 1168",
+    "system_id64": 20461626795425,
+    "system_x": -32.8125,
+    "system_y": -40.46875,
+    "system_z": -22.71875,
+    "distance": 56.8376766271722,
+    "distance_to_arrival": 3042.568116,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 128280000.0,
+      "mass": 133950000000.0,
+      "name": "LHS 1168 8 A Ring",
+      "outer_radius": 150520000.0,
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 150620000.0,
+      "mass": 4703800000000.0,
+      "name": "LHS 1168 8 B Ring",
+      "outer_radius": 490400000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-01-25T15:33:50Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-29T01:56:19Z"
+   },
+   {
+    "id64": 648520452762782059,
+    "body_id": 18,
+    "name": "LHS 2522 4",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "LHS 2522",
+    "system_id64": 2106421430635,
+    "system_x": -24.8125,
+    "system_y": 56.53125,
+    "system_z": -23.4375,
+    "distance": 66.0360415914105,
+    "distance_to_arrival": 2631.125074,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 116250000.0,
+      "mass": 5883100000000.0,
+      "name": "LHS 2522 4 A Ring",
+      "outer_radius": 449060000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T03:22:20Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T21:07:07Z"
+   },
+   {
+    "id64": 1224981205066205547,
+    "body_id": 34,
+    "name": "LHS 2522 6",
+    "type": "Planet",
+    "subtype": "Icy body",
+    "system_name": "LHS 2522",
+    "system_id64": 2106421430635,
+    "system_x": -24.8125,
+    "system_y": 56.53125,
+    "system_z": -23.4375,
+    "distance": 66.0360415914105,
+    "distance_to_arrival": 5211.426648,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 37379000.0,
+      "mass": 42663000000.0,
+      "name": "LHS 2522 6 A Ring",
+      "outer_radius": 53949000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-02T12:45:37Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 54049000.0,
+      "mass": 435610000000.0,
+      "name": "LHS 2522 6 B Ring",
+      "outer_radius": 135510000.0,
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T21:09:27Z"
+   },
+   {
+    "id64": 360288061694674100,
+    "body_id": 10,
+    "name": "Theta Draconis 3",
+    "type": "Planet",
+    "subtype": "Gas giant with ammonia-based life",
+    "system_name": "Theta Draconis",
+    "system_id64": 91505034420,
+    "system_x": -48.9375,
+    "system_y": 48.09375,
+    "system_z": 0.03125,
+    "distance": 68.6140559351726,
+    "distance_to_arrival": 6682.94131,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 25834000.0,
+      "mass": 7889900000.0,
+      "name": "Theta Draconis 3 A Ring",
+      "outer_radius": 31085000.0,
+      "signal_count": 17,
+      "signals": [
+       {
+        "count": 5,
+        "name": "Monazite"
+       },
+       {
+        "count": 5,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 4,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-26T06:40:11Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 31185000.0,
+      "mass": 113790000000.0,
+      "name": "Theta Draconis 3 B Ring",
+      "outer_radius": 72639000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Benitoite"
+       },
+       {
+        "count": 1,
+        "name": "Monazite"
+       }
+      ],
+      "signals_updated_at": "2026-10-26T06:40:15Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T11:25:51Z"
+   },
+   {
+    "id64": 1008808800909527403,
+    "body_id": 28,
+    "name": "Genetrix 2",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Genetrix",
+    "system_id64": 2484378536299,
+    "system_x": -53.5625,
+    "system_y": 4.40625,
+    "system_z": 44.71875,
+    "distance": 69.9151131506987,
+    "distance_to_arrival": 1382.450141,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 140220000.0,
+      "mass": 271790000000.0,
+      "name": "Genetrix 2 A Ring",
+      "outer_radius": 168270000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-25T13:24:28Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 168370000.0,
+      "mass": 6042100000000.0,
+      "name": "Genetrix 2 B Ring",
+      "outer_radius": 469720000.0,
+      "signal_count": 11,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 3,
+        "name": "Benitoite"
+       },
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Musgravite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-25T13:24:06Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-31T00:22:21Z"
+   },
+   {
+    "id64": 936749901201541491,
+    "body_id": 26,
+    "name": "57 Zeta Serpentis AB 6",
+    "type": "Planet",
+    "subtype": "Gas giant with water-based life",
+    "system_name": "57 Zeta Serpentis",
+    "system_id64": 1178708478323,
+    "system_x": -30.9375,
+    "system_y": 12.0,
+    "system_z": 69.28125,
+    "distance": 76.8181001314957,
+    "distance_to_arrival": 2658.053622,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 108970000.0,
+      "mass": 433890000000.0,
+      "name": "57 Zeta Serpentis AB 6 A Ring",
+      "outer_radius": 212240000.0,
+      "signal_count": 10,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 4,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 4,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-08-23T09:56:09Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-16T21:28:08Z"
+   },
+   {
+    "id64": 792636774709987683,
+    "body_id": 22,
+    "name": "Ehlangai 4",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Ehlangai",
+    "system_id64": 3240292780387,
+    "system_x": -51.53125,
+    "system_y": 35.15625,
+    "system_z": -46.125,
+    "distance": 77.5818745946822,
+    "distance_to_arrival": 1571.662102,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 126500000.0,
+      "mass": 161110000000.0,
+      "name": "Ehlangai 4 A Ring",
+      "outer_radius": 172880000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Benitoite"
+       },
+       {
+        "count": 3,
+        "name": "Musgravite"
+       }
+      ],
+      "signals_updated_at": "2026-08-17T12:06:02Z",
+      "type": "Rocky"
+     },
+     {
+      "inner_radius": 172980000.0,
+      "mass": 1686600000000.0,
+      "name": "Ehlangai 4 B Ring",
+      "outer_radius": 403890000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-08-17T12:06:02Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T00:54:55Z"
+   },
+   {
+    "id64": 1224980861485582699,
+    "body_id": 34,
+    "name": "LHS 1939 6",
+    "type": "Planet",
+    "subtype": "Gas giant with water-based life",
+    "system_name": "LHS 1939",
+    "system_id64": 1762840807787,
+    "system_x": 77.625,
+    "system_y": -14.53125,
+    "system_z": -15.375,
+    "distance": 80.4561276508042,
+    "distance_to_arrival": 2720.824844,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 26522000.0,
+      "mass": 6033200000.0,
+      "name": "LHS 1939 6 A Ring",
+      "outer_radius": 30191000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-10-20T06:08:55Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 30291000.0,
+      "mass": 64682000000.0,
+      "name": "LHS 1939 6 B Ring",
+      "outer_radius": 56060000.0,
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-27T15:17:14Z"
+   },
+   {
+    "id64": 720577119104534891,
+    "body_id": 20,
+    "name": "Delkar 6",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Delkar",
+    "system_id64": 1178725255531,
+    "system_x": 67.8125,
+    "system_y": 32.65625,
+    "system_z": 35.25,
+    "distance": 83.1115414386745,
+    "distance_to_arrival": 2033.974531,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 113550000.0,
+      "mass": 33655000000.0,
+      "name": "Delkar 6 A Ring",
+      "outer_radius": 506280000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-11-02T20:36:32Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-03T00:29:48Z"
+   },
+   {
+    "id64": 1008807495256246635,
+    "body_id": 28,
+    "name": "Delkar 7",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Delkar",
+    "system_id64": 1178725255531,
+    "system_x": 67.8125,
+    "system_y": 32.65625,
+    "system_z": 35.25,
+    "distance": 83.1115414386745,
+    "distance_to_arrival": 2800.833726,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 126040000.0,
+      "mass": 379250000000.0,
+      "name": "Delkar 7 A Ring",
+      "outer_radius": 173750000.0,
+      "signal_count": 11,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 2,
+        "name": "Platinum"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-05T03:02:15Z",
+      "type": "Metallic"
+     },
+     {
+      "inner_radius": 173850000.0,
+      "mass": 3071400000000.0,
+      "name": "Delkar 7 B Ring",
+      "outer_radius": 382120000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 2,
+        "name": "Benitoite"
+       }
+      ],
+      "signals_updated_at": "2026-11-05T03:02:15Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-03T00:29:48Z"
+   },
+   {
+    "id64": 1513212130990492011,
+    "body_id": 42,
+    "name": "LTT 4428 DE 2",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "LTT 4428",
+    "system_id64": 2656194005355,
+    "system_x": 75.15625,
+    "system_y": 15.1875,
+    "system_z": 33.34375,
+    "distance": 83.611767918009,
+    "distance_to_arrival": 20762.598969,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 97234000.0,
+      "mass": 42619000000.0,
+      "name": "LTT 4428 DE 2 A Ring",
+      "outer_radius": 104840000.0,
+      "signal_count": 12,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Monazite"
+       },
+       {
+        "count": 3,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 2,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T10:53:13Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 104940000.0,
+      "mass": 549930000000.0,
+      "name": "LTT 4428 DE 2 B Ring",
+      "outer_radius": 173510000.0,
+      "signal_count": 7,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 1,
+        "name": "Bromellite"
+       },
+       {
+        "count": 2,
+        "name": "Grandidierite"
+       },
+       {
+        "count": 2,
+        "name": "Low Temperature Diamonds"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T10:52:22Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T21:51:25Z"
+   },
+   {
+    "id64": 1981585569162924746,
+    "body_id": 55,
+    "name": "Feige 22 4",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Feige 22",
+    "system_id64": 1733119906506,
+    "system_x": -16.0,
+    "system_y": -65.8125,
+    "system_z": -54.53125,
+    "distance": 86.9536795242875,
+    "distance_to_arrival": 1689.311006,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 145700000.0,
+      "mass": 77146000000.0,
+      "name": "Feige 22 4 A Ring",
+      "outer_radius": 154990000.0,
+      "signal_count": 7,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Platinum"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-29T12:38:03Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 155090000.0,
+      "mass": 1558000000000.0,
+      "name": "Feige 22 4 B Ring",
+      "outer_radius": 283630000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Void Opal"
+       }
+      ],
+      "signals_updated_at": "2026-09-29T12:37:59Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-26T22:38:52Z"
+   },
+   {
+    "id64": 684547157555938492,
+    "body_id": 19,
+    "name": "16 Librae 3",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "16 Librae",
+    "system_id64": 14195623100,
+    "system_x": 8.28125,
+    "system_y": 62.78125,
+    "system_z": 60.71875,
+    "distance": 87.7315852739907,
+    "distance_to_arrival": 2142.592186,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 121760000.0,
+      "mass": 3740800000000.0,
+      "name": "16 Librae 3 A Ring",
+      "outer_radius": 429900000.0,
+      "signal_count": 8,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 4,
+        "name": "Platinum"
+       },
+       {
+        "count": 3,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-01T05:47:13Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-01T05:45:44Z"
+   },
+   {
+    "id64": 1657324677067965628,
+    "body_id": 46,
+    "name": "16 Librae 5",
+    "type": "Planet",
+    "subtype": "Class II gas giant",
+    "system_name": "16 Librae",
+    "system_id64": 14195623100,
+    "system_x": 8.28125,
+    "system_y": 62.78125,
+    "system_z": 60.71875,
+    "distance": 87.7315852739907,
+    "distance_to_arrival": 4055.186892,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 62139000.0,
+      "mass": 583130000000.0,
+      "name": "16 Librae 5 A Ring",
+      "outer_radius": 156670000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-09-22T16:55:58Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-03-18T00:57:36Z"
+   },
+   {
+    "id64": 288233479022315891,
+    "body_id": 8,
+    "name": "Epsilon-2 Arae 3",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Epsilon-2 Arae",
+    "system_id64": 3102870604147,
+    "system_x": 36.1875,
+    "system_y": -11.71875,
+    "system_z": 80.21875,
+    "distance": 88.7801335287067,
+    "distance_to_arrival": 3457.54482,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 89098000.0,
+      "mass": 27893000000.0,
+      "name": "Epsilon-2 Arae 3 A Ring",
+      "outer_radius": 95510000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-10-21T00:25:58Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 95609000.0,
+      "mass": 376000000000.0,
+      "name": "Epsilon-2 Arae 3 B Ring",
+      "outer_radius": 156240000.0,
+      "signal_count": 4,
+      "signals": [
+       {
+        "count": 2,
+        "name": "Benitoite"
+       },
+       {
+        "count": 2,
+        "name": "Musgravite"
+       }
+      ],
+      "signals_updated_at": "2026-10-21T00:25:29Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-25T12:25:19Z"
+   },
+   {
+    "id64": 1585271065041439091,
+    "body_id": 44,
+    "name": "Alrai Sector DL-Y d116 5",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Alrai Sector DL-Y d116",
+    "system_id64": 3996207024499,
+    "system_x": -9.5625,
+    "system_y": 39.6875,
+    "system_z": 81.90625,
+    "distance": 91.5159704727131,
+    "distance_to_arrival": 1008.448895,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 136590000.0,
+      "mass": 2925300000000.0,
+      "name": "Alrai Sector DL-Y d116 5 A Ring",
+      "outer_radius": 335590000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-06-27T14:55:34Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-02T05:45:04Z"
+   },
+   {
+    "id64": 1008810523485049570,
+    "body_id": 28,
+    "name": "Basika A 6",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Basika",
+    "system_id64": 4206954058466,
+    "system_x": -32.875,
+    "system_y": 20.0,
+    "system_z": 83.71875,
+    "distance": 92.1389967742351,
+    "distance_to_arrival": 1923.105519,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 67571000.0,
+      "mass": 12064000000.0,
+      "name": "Basika A 6 A Ring",
+      "outer_radius": 70495000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       }
+      ],
+      "signals_updated_at": "2026-06-19T11:12:02Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 70595000.0,
+      "mass": 128810000000.0,
+      "name": "Basika A 6 B Ring",
+      "outer_radius": 96335000.0,
+      "signal_count": 1,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Low Temperature Diamonds"
+       }
+      ],
+      "signals_updated_at": "2026-06-19T11:11:32Z",
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T17:24:32Z"
+   },
+   {
+    "id64": 252201683522684084,
+    "body_id": 7,
+    "name": "Algol A 1",
+    "type": "Planet",
+    "subtype": "Metal-rich body",
+    "system_name": "Algol",
+    "system_id64": 104389936308,
+    "system_x": -45.75,
+    "system_y": -23.125,
+    "system_z": -77.40625,
+    "distance": 92.8415621586717,
+    "distance_to_arrival": 242.370889,
+    "is_landable": true,
+    "rings": [
+     {
+      "inner_radius": 48683000.0,
+      "mass": 14929000000.0,
+      "name": "Algol A 1 A Ring",
+      "outer_radius": 53580000.0,
+      "signal_count": 12,
+      "signals": [
+       {
+        "count": 6,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Platinum"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T19:15:24Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 53680000.0,
+      "mass": 269770000000.0,
+      "name": "Algol A 1 B Ring",
+      "outer_radius": 109180000.0,
+      "signal_count": 32,
+      "signals": [
+       {
+        "count": 6,
+        "name": "Alexandrite"
+       },
+       {
+        "count": 3,
+        "name": "Benitoite"
+       },
+       {
+        "count": 8,
+        "name": "Monazite"
+       },
+       {
+        "count": 9,
+        "name": "Musgravite"
+       },
+       {
+        "count": 6,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-11-04T19:15:31Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-04T19:14:36Z"
+   },
+   {
+    "id64": 612489653712323764,
+    "body_id": 17,
+    "name": "Algol ABCD 1 a",
+    "type": "Planet",
+    "subtype": "Class III gas giant",
+    "system_name": "Algol",
+    "system_id64": 104389936308,
+    "system_x": -45.75,
+    "system_y": -23.125,
+    "system_z": -77.40625,
+    "distance": 92.8415621586717,
+    "distance_to_arrival": 3451.797978,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 124460000.0,
+      "mass": 55573000000.0,
+      "name": "Algol ABCD 1 a A Ring",
+      "outer_radius": 131850000.0,
+      "signal_count": 3,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-10-22T17:43:12Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 131950000.0,
+      "mass": 1581900000000.0,
+      "name": "Algol ABCD 1 a B Ring",
+      "outer_radius": 267040000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Benitoite"
+       },
+       {
+        "count": 3,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-10-23T17:49:53Z",
+      "type": "Rocky"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-03T22:29:29Z"
+   },
+   {
+    "id64": 504406776532158835,
+    "body_id": 14,
+    "name": "Tobala 7",
+    "type": "Planet",
+    "subtype": "Class II gas giant",
+    "system_name": "Tobala",
+    "system_id64": 3618266663283,
+    "system_x": 23.34375,
+    "system_y": -42.46875,
+    "system_z": 79.3125,
+    "distance": 92.9462105030377,
+    "distance_to_arrival": 1600.600008,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 120190000.0,
+      "mass": 1079600000000.0,
+      "name": "Tobala 7 A Ring",
+      "outer_radius": 226640000.0,
+      "signal_count": 5,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Monazite"
+       },
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 3,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-10-25T05:13:10Z",
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-10-29T13:55:51Z"
+   },
+   {
+    "id64": 828665713756476098,
+    "body_id": 23,
+    "name": "Elska 5",
+    "type": "Planet",
+    "subtype": "Class I gas giant",
+    "system_name": "Elska",
+    "system_id64": 3382320304834,
+    "system_x": -63.875,
+    "system_y": -10.78125,
+    "system_z": -67.40625,
+    "distance": 93.4871836971518,
+    "distance_to_arrival": 2120.404999,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 85118000.0,
+      "mass": 47522000000.0,
+      "name": "Elska 5 A Ring",
+      "outer_radius": 93583000.0,
+      "signal_count": 6,
+      "signals": [
+       {
+        "count": 3,
+        "name": "Monazite"
+       },
+       {
+        "count": 2,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Rhodplumsite"
+       }
+      ],
+      "signals_updated_at": "2026-05-10T06:06:33Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 93683000.0,
+      "mass": 255570000000.0,
+      "name": "Elska 5 B Ring",
+      "outer_radius": 129970000.0,
+      "type": "Icy"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-09-24T17:52:32Z"
+   },
+   {
+    "id64": 1405124296824572259,
+    "body_id": 39,
+    "name": "Maurr 6",
+    "type": "Planet",
+    "subtype": "Class II gas giant",
+    "system_name": "Maurr",
+    "system_id64": 1213084977507,
+    "system_x": 50.59375,
+    "system_y": -44.40625,
+    "system_z": -66.75,
+    "distance": 94.8008706612181,
+    "distance_to_arrival": 1051.235293,
+    "is_landable": false,
+    "rings": [
+     {
+      "inner_radius": 116930000.0,
+      "mass": 80691000000.0,
+      "name": "Maurr 6 A Ring",
+      "outer_radius": 127450000.0,
+      "signal_count": 2,
+      "signals": [
+       {
+        "count": 1,
+        "name": "Painite"
+       },
+       {
+        "count": 1,
+        "name": "Serendibite"
+       }
+      ],
+      "signals_updated_at": "2026-06-22T01:02:58Z",
+      "type": "Metal Rich"
+     },
+     {
+      "inner_radius": 127550000.0,
+      "mass": 500920000000.0,
+      "name": "Maurr 6 B Ring",
+      "outer_radius": 179430000.0,
+      "type": "Metal Rich"
+     }
+    ],
+    "reserve_level": "Pristine",
+    "updated_at": "2026-11-02T22:05:17Z"
+   }
+  ]
+ }
+}

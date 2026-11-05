@@ -865,6 +865,63 @@ fn the_faction_lookup_answers_keep_to_the_copy_guide() {
     assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
 }
 
+/// The hotspot lookup by voice ("nearest painite hotspot"): every ore's answer on a long
+/// procedural ring name far away, near and in the system, with each reserve level, a sentence
+/// at a time within the answer budget (the ring's name is a sentence of its own, which the budget
+/// does not count); and the lines said when there is no answer.
+#[test]
+fn the_hotspot_answers_keep_to_the_copy_guide() {
+    use astromech_galaxy::{Here, Hop};
+    use astromech_market::mining::{Hotspot, Hotspots, Want};
+    let here = Here { system: LONG_NAME.into(), id64: None, pos: [0.0; 3] };
+    let mut lines = vec![
+        astromech_tools::lookup::NO_POSITION.to_string(),
+        astromech_tools::lookup::NO_STAR_MAP.to_string(),
+        astromech_tools::mining::WHICH_MINERAL.to_string(),
+    ];
+    for (_, ore) in astromech_tools::mining::mineral_values() {
+        let want = Want::ore(ore);
+        let found = |rings| Hotspots {
+            name: want.name(),
+            want: want.clone(),
+            here: here.clone(),
+            range: 20.0,
+            radius_ly: None,
+            rings,
+            fetched_at: 0,
+        };
+        for named in [false, true] {
+            let said = from_named(named, astromech_tools::mining::spoken(&found(vec![]), named));
+            lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+        }
+        for (ly, exact) in [(0.0, true), (4.0, true), (1999.6, false)] {
+            for reserve in [None, Some("Pristine"), Some("Depleted")] {
+                let ring = Hotspot {
+                    system: LONG_NAME.into(),
+                    system_pos: [0.0; 3],
+                    body: format!("{LONG_NAME} ABC 12"),
+                    ring: format!("{LONG_NAME} ABC 12 B Ring"),
+                    ring_type: "Metal Rich".into(),
+                    count: 12,
+                    also: vec![],
+                    reserve: reserve.map(String::from),
+                    hop: Hop { ly, jumps: 99, exact },
+                    arrival_ls: None,
+                    updated_at: None,
+                };
+                for named in [false, true] {
+                    let said = from_named(named, astromech_tools::mining::spoken(&found(vec![ring.clone()]), named));
+                    lines.extend(said.split_inclusive(". ").map(|s| s.trim().to_string()));
+                }
+            }
+        }
+    }
+    assert!(lines.iter().any(|l| l == "12 hotspots, pristine reserves."), "{lines:?}");
+    let ring = format!("{LONG_NAME} ABC 12 B Ring");
+    let bad = check_with_names("hotspot answer", &lines, ANSWER_WORDS, &[ring.as_str()]);
+    assert!(bad.is_empty(), "{} lines break the copy guide:\n{}", bad.len(), bad.join("\n"));
+}
+
 /// The longest procedural name the named-system lines are checked on: 12 spoken words.
 const LONG_NAME: &str = "NGC 7822 Sector AB-C d14-123";
 

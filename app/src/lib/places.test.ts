@@ -4,7 +4,9 @@ import {
   MOVED_FINDERS,
   forgetAnswers,
   homeSections,
+  hotspotRoute,
   lastAnswer,
+  parseHotspotRoute,
   parsePlaces,
   parseServiceRoute,
   parseTraderRoute,
@@ -15,19 +17,38 @@ import {
 } from "./places";
 
 describe("Places finders", () => {
-  it("lists the built finders under Ship and Engineering, leaving out sections with none yet", () => {
+  it("lists the built finders under Ship, Engineering and Mining, leaving out sections with none yet", () => {
     expect(FINDERS.map((f) => [f.id, f.title, f.section, f.input])).toEqual([
       ["services", "Services", "Ship", "Service"],
       ["outfitting", "Outfitting", "Ship", "Module"],
       ["shipyard", "Shipyard", "Ship", "Ship"],
       ["material-traders", "Material traders", "Engineering", "Trader"],
+      ["mining-hotspots", "Mining hotspots", "Mining", "Mineral"],
     ]);
     expect(homeSections().map(([s, fs]) => [s, fs.map((f) => f.id)])).toEqual([
       ["Ship", ["services", "outfitting", "shipyard"]],
       ["Engineering", ["material-traders"]],
+      ["Mining", ["mining-hotspots"]],
     ]);
-    const mining = { id: "services", title: "Mining hotspots", section: "Mining", what: "", input: "Mineral" } as const;
-    expect(homeSections([mining, ...FINDERS]).map(([s]) => s)).toEqual(["Ship", "Engineering", "Mining"]);
+    const sell = { id: "services", title: "Sell", section: "Trade", what: "", input: "Commodity" } as const;
+    expect(homeSections([sell, ...FINDERS]).map(([s]) => s)).toEqual(["Trade", "Ship", "Engineering", "Mining"]);
+  });
+
+  it("keeps the mineral, ring type and reserve in a Mining hotspots address", () => {
+    const any = { ore: "painite", ring_type: null, reserve: null } as const;
+    expect(hotspotRoute(any)).toBe("places/mining-hotspots/painite");
+    expect(hotspotRoute({ ore: "lowtemperaturediamond", ring_type: "Metal Rich", reserve: "pristine" })).toBe(
+      "places/mining-hotspots/lowtemperaturediamond?ring=metal-rich&reserve=pristine",
+    );
+    expect(parseHotspotRoute("#/places/mining-hotspots/lowtemperaturediamond?ring=metal-rich&reserve=pristine")).toEqual({
+      ore: "lowtemperaturediamond",
+      ring_type: "Metal Rich",
+      reserve: "pristine",
+    });
+    expect(parseHotspotRoute("#/places/mining-hotspots/opal?ring=gold&reserve=rich")).toEqual({ ore: "opal", ring_type: null, reserve: null });
+    expect(parseHotspotRoute("#/places/mining-hotspots/gold")).toBeNull();
+    expect(parseHotspotRoute("#/places/mining-hotspots")).toBeNull();
+    expect(parseHotspotRoute("#/places/services/painite")).toBeNull();
   });
 
   it("routes each finder at #/places/<finder>[/<input>]", () => {

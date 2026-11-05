@@ -21,6 +21,23 @@ the run.** Until then the page says "No mining yet".
 It counts what the refinery has made, not what is in the hold or what you sold. For earnings from
 selling, see [Session](logbook.md#session). To sell, [Trade](trade.md) finds the best price.
 
+## Finding hotspots
+
+Where to mine is a finder in Places: **Galaxy, Places, Mining hotspots**
+([Places](places.md#mining-hotspots)). Pick a **mineral** and it lists the rings with a hotspot
+of it, most hotspots first, within 100 light years of where you are, the route's next stop or a
+system you type. You can narrow it to one **ring type** and to **pristine** or **major** reserves.
+
+By voice, ask "nearest painite hotspot" (any of the [hotspot minerals](places.md#mining-hotspots)).
+astromech says "Looking that up." and then the nearest ring, how far, how many jumps, and its
+hotspots and reserves:
+
+> Nearest Painite hotspot. Barnard's Star 5 A Ring. 6.0 light years, 1 jump. 2 hotspots, depleted reserves.
+
+The voice answer is always the nearest ring of any type and reserve, however far, so it can name
+a ring the finder's choices leave out. Add "near" and a system to ask from somewhere else
+([Voice lookups](lookups.md#mining-hotspots)). Both need a network connection (Spansh).
+
 ## Spoken help while mining
 
 Mining has its own [callouts](callouts.md#prospector): a prospector limpet's result is read out

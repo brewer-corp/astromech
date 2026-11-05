@@ -1,8 +1,9 @@
 // Command palette entries: every finder, every service, every module stations sell (for any
-// size) and every ship, each opening its finder with that input.
+// size), every ship and every hotspot mineral, each opening its finder with that input.
+import { ORES } from "../../lib/hotspots";
 import { CATEGORIES, MODULES, SHIPS, moduleRoute, shipRoute } from "../../lib/outfitting";
 import type { PaletteItem } from "../../lib/palette";
-import { FINDERS, placesRoute, serviceRoute } from "../../lib/places";
+import { FINDERS, hotspotRoute, placesRoute, serviceRoute } from "../../lib/places";
 import { SERVICES } from "../../lib/stations";
 
 export default async function entries(): Promise<PaletteItem[]> {
@@ -15,5 +16,6 @@ export default async function entries(): Promise<PaletteItem[]> {
       route: moduleRoute({ name: m.name, class: null, rating: null, mount: null }),
     })),
     ...SHIPS.map((s) => ({ label: s.name, detail: "Shipyard", route: shipRoute(s.name) })),
+    ...ORES.map((o) => ({ label: `${o.name} hotspots`, detail: "Mining hotspots", route: hotspotRoute({ ore: o.symbol, ring_type: null, reserve: null }) })),
   ];
 }

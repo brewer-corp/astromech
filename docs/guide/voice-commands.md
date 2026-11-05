@@ -106,6 +106,7 @@ Sol" gets "Say again."
 | "where to sell my cargo", "where should I sell my cargo" | The best station for your whole hold |
 | "nearest crystalline shards", "nearest brain trees", "nearest crashed ship", "nearest geological sites", "nearest raw material farm" | The nearest raw material site |
 | "nearest famine system", "nearest boom system", "nearest war system", "nearest civil unrest system", "nearest outbreak system", "nearest federation system", "nearest empire system" | The nearest or best system in that state |
+| "nearest painite hotspot", "where can I mine platinum" | The nearest ring with a hotspot of that mineral |
 | "where can I acquire near me", "where can I reinforce near me", "where can I undermine near me" | A Powerplay target for your power |
 | "how is the build going", "what is left to deliver", "where can I buy steel for the depot" | Your colonisation build |
 

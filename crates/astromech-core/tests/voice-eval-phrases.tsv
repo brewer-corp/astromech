@@ -104,7 +104,6 @@ route	galaxy_map.paste	paste system name
 trade	trade.sell	where to sell painite
 trade	trade.sell	where can i sell tritium
 trade	trade.sell	best price for gold
-trade	trade.sell	sell low temperature diamonds
 trade	trade.buy	where to buy tritium
 trade	trade.buy	where can i buy silver
 trade	trade.buy	cheapest steel
@@ -161,6 +160,8 @@ faction	faction.fed_composites	nearest federation system
 faction	faction.fed_composites	nearest federal faction
 faction	faction.empire_shielding	nearest empire system
 faction	faction.empire_shielding	nearest imperial system
+mining	mining.hotspots	nearest painite hotspot
+mining	mining.hotspots	where can i mine low temperature diamonds
 sites	sites.crystalline_shards	nearest crystalline shards
 sites	sites.crystalline_shards	nearest shard site
 sites	sites.brain_trees	nearest brain trees
@@ -174,7 +175,6 @@ sites	sites.raw_farms	where can i farm raw materials
 stations	find.service	nearest interstellar factors
 stations	find.service	where's the nearest material trader
 stations	find.service	find the nearest guardian tech broker
-stations	find.service	nearest universal cartographics
 stations	find.service	where is the nearest black market
 stations	find.module	nearest fuel scoop
 stations	find.module	where can i buy a 5a frame shift drive

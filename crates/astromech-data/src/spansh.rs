@@ -23,6 +23,9 @@
 //!   nothing (16 Oct 2026), so search by subtype;
 //! - `signals` (bodies): `[{"name": ["Geological"]}]`;
 //! - `is_landable` (bodies): `{"value": true}`;
+//! - `reserve_level` (bodies, a ringed body's reserves): `{"value": ["Pristine", "Major"]}`,
+//!   any listed level (checked 5 Nov 2026: Painite rings from Sol, 30 of 30 hits Pristine with
+//!   `["Pristine"]`, 21 Major and 9 Pristine with both, none of either without the filter);
 //! - `ring_signals` (bodies, ring hotspots): `[{"name": ["Platinum"]}]` with the ore's name as
 //!   the rings list it (`Void Opal`, not `Void Opals`; an unknown name matches nothing). It
 //!   matches a body with the ore in any of its rings, not a particular ring, so check
@@ -255,6 +258,12 @@ impl Search {
     /// Bodies with a ring holding a hotspot of `ore` (the name the rings list, e.g. "Platinum").
     pub fn ring_signal(self, ore: &str) -> Self {
         self.push("ring_signals", json!({ "name": [ore] }))
+    }
+
+    /// Bodies whose rings have any of these reserve levels ("Pristine", "Major", "Common",
+    /// "Low", "Depleted").
+    pub fn reserve_levels(self, levels: &[&str]) -> Self {
+        self.filter("reserve_level", json!({ "value": levels }))
     }
 
     /// Systems controlled by any of `powers`.

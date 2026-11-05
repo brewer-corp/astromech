@@ -5,6 +5,7 @@
   import { parsePlaces, type Finder, type FinderId } from "../../lib/places";
   import type { Component } from "svelte";
   import Home from "./Home.svelte";
+  import Hotspots from "./Hotspots.svelte";
   import Outfitting from "./Outfitting.svelte";
   import Services from "./Services.svelte";
   import Shipyard from "./Shipyard.svelte";
@@ -16,6 +17,7 @@
     outfitting: Outfitting,
     shipyard: Shipyard,
     "material-traders": Traders,
+    "mining-hotspots": Hotspots,
   };
 
   let finder = $state(parsePlaces(location.hash)?.finder ?? null);

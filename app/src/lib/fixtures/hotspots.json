@@ -1,0 +1,1526 @@
+{
+  "any": {
+    "fetched_at": 1793908800,
+    "here": {
+      "id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "system": "Sol"
+    },
+    "name": "Painite",
+    "radius_ly": 100,
+    "range": 15.0,
+    "rings": [
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 1869.044584,
+        "body": "Sosolingati 5",
+        "count": 4,
+        "exact": false,
+        "jumps": 2,
+        "ly": 25.51709368859432,
+        "reserve": "Depleted",
+        "ring": "Sosolingati 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Sosolingati",
+        "updated_at": "2026-11-04T02:52:50Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1679.922855,
+        "body": "Kokary 5",
+        "count": 3,
+        "exact": false,
+        "jumps": 2,
+        "ly": 15.792848460616597,
+        "reserve": "Common",
+        "ring": "Kokary 5 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "Kokary",
+        "updated_at": "2026-11-01T19:10:59Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 1944.326998,
+        "body": "Ross 446 4",
+        "count": 3,
+        "exact": false,
+        "jumps": 2,
+        "ly": 23.035871313833564,
+        "reserve": "Low",
+        "ring": "Ross 446 4 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Ross 446",
+        "updated_at": "2026-09-21T16:41:29Z"
+      },
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Monazite"
+          },
+          {
+            "count": 4,
+            "name": "Platinum"
+          },
+          {
+            "count": 3,
+            "name": "Serendibite"
+          },
+          {
+            "count": 2,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 2103.524052,
+        "body": "Beta Hydri 7",
+        "count": 3,
+        "exact": false,
+        "jumps": 2,
+        "ly": 24.31420704161458,
+        "reserve": "Low",
+        "ring": "Beta Hydri 7 A Ring",
+        "ring_type": "Metallic",
+        "system": "Beta Hydri",
+        "updated_at": "2026-10-25T15:45:31Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 3,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1510.688293,
+        "body": "61 Virginis 5",
+        "count": 3,
+        "exact": false,
+        "jumps": 2,
+        "ly": 27.886733797183922,
+        "reserve": "Low",
+        "ring": "61 Virginis 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "61 Virginis",
+        "updated_at": "2026-10-23T20:56:56Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 3272.391994,
+        "body": "Barnard's Star 5",
+        "count": 2,
+        "exact": false,
+        "jumps": 1,
+        "ly": 5.954662695107087,
+        "reserve": "Depleted",
+        "ring": "Barnard's Star 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Barnard's Star",
+        "updated_at": "2026-10-26T16:22:27Z"
+      },
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 917.104439,
+        "body": "WISE 0855-0714 6",
+        "count": 2,
+        "exact": false,
+        "jumps": 1,
+        "ly": 7.17165372752338,
+        "reserve": "Low",
+        "ring": "WISE 0855-0714 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "WISE 0855-0714",
+        "updated_at": "2026-09-26T11:43:58Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1685.012736,
+        "body": "Wolf 1481 4",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 19.741889157322305,
+        "reserve": "Low",
+        "ring": "Wolf 1481 4 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Wolf 1481",
+        "updated_at": "2026-05-23T16:12:19Z"
+      },
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Monazite"
+          },
+          {
+            "count": 4,
+            "name": "Serendibite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 799.026675,
+        "body": "Ross 104 ABC 2",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 21.725830680321522,
+        "reserve": "Common",
+        "ring": "Ross 104 ABC 2 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Ross 104",
+        "updated_at": "2026-11-04T22:40:28Z"
+      },
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 4,
+            "name": "Serendibite"
+          },
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 1327.338724,
+        "body": "PSPF-LF 2 1",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 23.43464565952513,
+        "reserve": "Depleted",
+        "ring": "PSPF-LF 2 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "PSPF-LF 2",
+        "updated_at": "2026-06-09T14:32:27Z"
+      },
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Monazite"
+          },
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 4291.592584,
+        "body": "Wolf 718 14",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 25.085654048928046,
+        "reserve": "Depleted",
+        "ring": "Wolf 718 14 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Wolf 718",
+        "updated_at": "2026-10-03T15:35:39Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1666.254331,
+        "body": "LHS 417 6",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 26.271735792720282,
+        "reserve": "Depleted",
+        "ring": "LHS 417 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 417",
+        "updated_at": "2026-10-01T17:50:27Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 400603.063263,
+        "body": "LHS 531 C 5",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 28.105079751043228,
+        "reserve": "Depleted",
+        "ring": "LHS 531 C 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 531",
+        "updated_at": "2026-10-24T21:55:37Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 954.274671,
+        "body": "FK Aquarii ABCD 1",
+        "count": 2,
+        "exact": false,
+        "jumps": 2,
+        "ly": 28.37040505196392,
+        "reserve": null,
+        "ring": "FK Aquarii ABCD 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "FK Aquarii",
+        "updated_at": "2025-08-23T18:33:28Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 536.546037,
+        "body": "WISE 0855-0714 5",
+        "count": 1,
+        "exact": false,
+        "jumps": 1,
+        "ly": 7.17165372752338,
+        "reserve": "Low",
+        "ring": "WISE 0855-0714 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "WISE 0855-0714",
+        "updated_at": "2026-10-18T14:24:51Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 822.693736,
+        "body": "TZ Arietis 3",
+        "count": 1,
+        "exact": false,
+        "jumps": 1,
+        "ly": 14.607127166643686,
+        "reserve": "Low",
+        "ring": "TZ Arietis 3 A Ring",
+        "ring_type": "Metallic",
+        "system": "TZ Arietis",
+        "updated_at": "2026-11-05T05:25:02Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1679.922855,
+        "body": "Kokary 5",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 15.792848460616597,
+        "reserve": "Common",
+        "ring": "Kokary 5 A Ring",
+        "ring_type": "Metallic",
+        "system": "Kokary",
+        "updated_at": "2026-10-30T15:56:16Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 4215390.884416,
+        "body": "36 Ophiuchi C 10",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 19.33741313813717,
+        "reserve": "Depleted",
+        "ring": "36 Ophiuchi C 10 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "36 Ophiuchi",
+        "updated_at": "2026-10-03T12:04:10Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 1100.240558,
+        "body": "LTT 3572 7",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 20.242523697034418,
+        "reserve": "Common",
+        "ring": "LTT 3572 7 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LTT 3572",
+        "updated_at": "2026-09-04T13:28:34Z"
+      },
+      {
+        "also": [],
+        "arrival_ls": 1113.20744,
+        "body": "LTT 3572 8",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 20.242523697034418,
+        "reserve": "Common",
+        "ring": "LTT 3572 8 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LTT 3572",
+        "updated_at": "2026-02-19T20:47:07Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 3387.315991,
+        "body": "Narenses 5",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 24.52633310597,
+        "reserve": "Depleted",
+        "ring": "Narenses 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Narenses",
+        "updated_at": "2026-10-13T22:01:16Z"
+      },
+      {
+        "also": [
+          {
+            "count": 4,
+            "name": "Serendibite"
+          },
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 2710.301394,
+        "body": "Sosolingati 8",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 25.51709368859432,
+        "reserve": "Depleted",
+        "ring": "Sosolingati 8 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Sosolingati",
+        "updated_at": "2025-09-21T15:54:44Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 3023.221924,
+        "body": "RR Caeli A 7",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 26.515049529701052,
+        "reserve": "Depleted",
+        "ring": "RR Caeli A 7 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "RR Caeli",
+        "updated_at": "2025-12-05T08:54:08Z"
+      },
+      {
+        "also": [
+          {
+            "count": 4,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 2671.755642,
+        "body": "LHS 4003 2",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 26.531967746475193,
+        "reserve": "Low",
+        "ring": "LHS 4003 2 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 4003",
+        "updated_at": "2025-10-31T08:36:15Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 211.778528,
+        "body": "LP 336-6 A 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 26.599716575087786,
+        "reserve": "Depleted",
+        "ring": "LP 336-6 A 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LP 336-6",
+        "updated_at": "2026-09-22T17:12:09Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 901.455786,
+        "body": "Ross 318 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 26.894760177402585,
+        "reserve": "Depleted",
+        "ring": "Ross 318 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Ross 318",
+        "updated_at": "2026-01-24T22:58:30Z"
+      },
+      {
+        "also": [
+          {
+            "count": 4,
+            "name": "Monazite"
+          },
+          {
+            "count": 4,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 3,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 1919.683874,
+        "body": "Wolf 437 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 27.278941053493995,
+        "reserve": "Common",
+        "ring": "Wolf 437 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Wolf 437",
+        "updated_at": "2026-04-26T00:54:47Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 2192.939634,
+        "body": "Bugas AB 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 27.555536960609206,
+        "reserve": "Low",
+        "ring": "Bugas AB 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Bugas",
+        "updated_at": "2026-09-09T20:05:46Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 1515.215738,
+        "body": "61 Virginis 4",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 27.886733797183922,
+        "reserve": "Low",
+        "ring": "61 Virginis 4 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "61 Virginis",
+        "updated_at": "2026-10-23T20:36:17Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 2568.008244,
+        "body": "61 Virginis 6 b",
+        "count": 1,
+        "exact": false,
+        "jumps": 2,
+        "ly": 27.886733797183922,
+        "reserve": "Low",
+        "ring": "61 Virginis 6 b A Ring",
+        "ring_type": "Metal Rich",
+        "system": "61 Virginis",
+        "updated_at": "2025-09-11T05:48:12Z"
+      }
+    ],
+    "want": {
+      "ore": "painite",
+      "reserve": null,
+      "ring_type": null
+    }
+  },
+  "pristine": {
+    "fetched_at": 1793908800,
+    "here": {
+      "id64": 10477373803,
+      "pos": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "system": "Sol"
+    },
+    "name": "Painite",
+    "radius_ly": 100,
+    "range": 15.0,
+    "rings": [
+      {
+        "also": [
+          {
+            "count": 5,
+            "name": "Monazite"
+          },
+          {
+            "count": 4,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 6682.94131,
+        "body": "Theta Draconis 3",
+        "count": 5,
+        "exact": false,
+        "jumps": 5,
+        "ly": 68.61405593517264,
+        "reserve": "Pristine",
+        "ring": "Theta Draconis 3 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Theta Draconis",
+        "updated_at": "2026-10-26T06:40:11Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 3186.628172,
+        "body": "Arima 7",
+        "count": 4,
+        "exact": false,
+        "jumps": 4,
+        "ly": 47.87816161231548,
+        "reserve": "Pristine",
+        "ring": "Arima 7 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Arima",
+        "updated_at": "2026-11-03T13:59:54Z"
+      },
+      {
+        "also": [
+          {
+            "count": 6,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 2223.571781,
+        "body": "LTT 18046 8",
+        "count": 4,
+        "exact": false,
+        "jumps": 4,
+        "ly": 54.37812491020631,
+        "reserve": "Pristine",
+        "ring": "LTT 18046 8 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LTT 18046",
+        "updated_at": "2026-10-27T20:29:33Z"
+      },
+      {
+        "also": [
+          {
+            "count": 4,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 2658.053622,
+        "body": "57 Zeta Serpentis AB 6",
+        "count": 4,
+        "exact": false,
+        "jumps": 6,
+        "ly": 76.8181001314957,
+        "reserve": "Pristine",
+        "ring": "57 Zeta Serpentis AB 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "57 Zeta Serpentis",
+        "updated_at": "2026-08-23T09:56:09Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 2,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 20762.598969,
+        "body": "LTT 4428 DE 2",
+        "count": 3,
+        "exact": false,
+        "jumps": 6,
+        "ly": 83.61176791800901,
+        "reserve": "Pristine",
+        "ring": "LTT 4428 DE 2 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LTT 4428",
+        "updated_at": "2026-11-04T10:53:13Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 2,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1409.237681,
+        "body": "Caer Bran A 4",
+        "count": 2,
+        "exact": false,
+        "jumps": 3,
+        "ly": 37.057888625433044,
+        "reserve": "Pristine",
+        "ring": "Caer Bran A 4 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Caer Bran",
+        "updated_at": "2026-11-04T18:34:48Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 5848.852325,
+        "body": "OT Serpentis ABC 1",
+        "count": 2,
+        "exact": false,
+        "jumps": 3,
+        "ly": 37.192725473202415,
+        "reserve": "Pristine",
+        "ring": "OT Serpentis ABC 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "OT Serpentis",
+        "updated_at": "2026-09-26T18:28:51Z"
+      },
+      {
+        "also": [
+          {
+            "count": 7,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 3,
+            "name": "Monazite"
+          },
+          {
+            "count": 2,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          }
+        ],
+        "arrival_ls": 1203.831733,
+        "body": "LTT 18046 6",
+        "count": 2,
+        "exact": false,
+        "jumps": 4,
+        "ly": 54.37812491020631,
+        "reserve": "Pristine",
+        "ring": "LTT 18046 6 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "LTT 18046",
+        "updated_at": "2026-10-29T20:18:35Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 381.538057,
+        "body": "LHS 1168 2",
+        "count": 2,
+        "exact": false,
+        "jumps": 4,
+        "ly": 56.83767662717223,
+        "reserve": "Pristine",
+        "ring": "LHS 1168 2 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 1168",
+        "updated_at": "2026-08-30T19:05:02Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Serendibite"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 1382.450141,
+        "body": "Genetrix 2",
+        "count": 2,
+        "exact": false,
+        "jumps": 5,
+        "ly": 69.91511315069869,
+        "reserve": "Pristine",
+        "ring": "Genetrix 2 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Genetrix",
+        "updated_at": "2026-10-25T13:24:28Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 1571.662102,
+        "body": "Ehlangai 4",
+        "count": 2,
+        "exact": false,
+        "jumps": 6,
+        "ly": 77.58187459468223,
+        "reserve": "Pristine",
+        "ring": "Ehlangai 4 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "Ehlangai",
+        "updated_at": "2026-08-17T12:06:02Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Monazite"
+          },
+          {
+            "count": 3,
+            "name": "Serendibite"
+          },
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 2800.833726,
+        "body": "Delkar 7",
+        "count": 2,
+        "exact": false,
+        "jumps": 6,
+        "ly": 83.11154143867445,
+        "reserve": "Pristine",
+        "ring": "Delkar 7 A Ring",
+        "ring_type": "Metallic",
+        "system": "Delkar",
+        "updated_at": "2026-11-05T03:02:15Z"
+      },
+      {
+        "also": [],
+        "arrival_ls": 3457.54482,
+        "body": "Epsilon-2 Arae 3",
+        "count": 2,
+        "exact": false,
+        "jumps": 6,
+        "ly": 88.78013352870674,
+        "reserve": "Pristine",
+        "ring": "Epsilon-2 Arae 3 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Epsilon-2 Arae",
+        "updated_at": "2026-10-21T00:25:58Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 2120.404999,
+        "body": "Elska 5",
+        "count": 2,
+        "exact": false,
+        "jumps": 7,
+        "ly": 93.48718369715178,
+        "reserve": "Pristine",
+        "ring": "Elska 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Elska",
+        "updated_at": "2026-05-10T06:06:33Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 946.827303,
+        "body": "LFT 65 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 3,
+        "ly": 32.38852577013193,
+        "reserve": "Pristine",
+        "ring": "LFT 65 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LFT 65",
+        "updated_at": "2026-11-04T15:01:07Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 2158.168111,
+        "body": "LHS 2661 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 4,
+        "ly": 51.023690499487586,
+        "reserve": "Pristine",
+        "ring": "LHS 2661 6 A Ring",
+        "ring_type": "Metallic",
+        "system": "LHS 2661",
+        "updated_at": "2026-11-04T09:28:32Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 2158.168111,
+        "body": "LHS 2661 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 4,
+        "ly": 51.023690499487586,
+        "reserve": "Pristine",
+        "ring": "LHS 2661 6 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 2661",
+        "updated_at": "2026-11-04T09:28:31Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 381.538057,
+        "body": "LHS 1168 2",
+        "count": 1,
+        "exact": false,
+        "jumps": 4,
+        "ly": 56.83767662717223,
+        "reserve": "Pristine",
+        "ring": "LHS 1168 2 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 1168",
+        "updated_at": "2026-08-30T19:04:59Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 3042.568116,
+        "body": "LHS 1168 8",
+        "count": 1,
+        "exact": false,
+        "jumps": 4,
+        "ly": 56.83767662717223,
+        "reserve": "Pristine",
+        "ring": "LHS 1168 8 B Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 1168",
+        "updated_at": "2026-01-25T15:33:50Z"
+      },
+      {
+        "also": [
+          {
+            "count": 2,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 2631.125074,
+        "body": "LHS 2522 4",
+        "count": 1,
+        "exact": false,
+        "jumps": 5,
+        "ly": 66.03604159141052,
+        "reserve": "Pristine",
+        "ring": "LHS 2522 4 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 2522",
+        "updated_at": "2026-11-04T03:22:20Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 5211.426648,
+        "body": "LHS 2522 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 5,
+        "ly": 66.03604159141052,
+        "reserve": "Pristine",
+        "ring": "LHS 2522 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 2522",
+        "updated_at": "2026-11-02T12:45:37Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          }
+        ],
+        "arrival_ls": 2720.824844,
+        "body": "LHS 1939 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 6,
+        "ly": 80.4561276508042,
+        "reserve": "Pristine",
+        "ring": "LHS 1939 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "LHS 1939",
+        "updated_at": "2026-10-20T06:08:55Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 2033.974531,
+        "body": "Delkar 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 6,
+        "ly": 83.11154143867445,
+        "reserve": "Pristine",
+        "ring": "Delkar 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Delkar",
+        "updated_at": "2026-11-02T20:36:32Z"
+      },
+      {
+        "also": [
+          {
+            "count": 3,
+            "name": "Platinum"
+          },
+          {
+            "count": 3,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 1689.311006,
+        "body": "Feige 22 4",
+        "count": 1,
+        "exact": false,
+        "jumps": 6,
+        "ly": 86.95367952428752,
+        "reserve": "Pristine",
+        "ring": "Feige 22 4 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Feige 22",
+        "updated_at": "2026-09-29T12:38:03Z"
+      },
+      {
+        "also": [
+          {
+            "count": 4,
+            "name": "Platinum"
+          },
+          {
+            "count": 3,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 2142.592186,
+        "body": "16 Librae 3",
+        "count": 1,
+        "exact": false,
+        "jumps": 6,
+        "ly": 87.73158527399069,
+        "reserve": "Pristine",
+        "ring": "16 Librae 3 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "16 Librae",
+        "updated_at": "2026-11-01T05:47:13Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 4055.186892,
+        "body": "16 Librae 5",
+        "count": 1,
+        "exact": false,
+        "jumps": 6,
+        "ly": 87.73158527399069,
+        "reserve": "Pristine",
+        "ring": "16 Librae 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "16 Librae",
+        "updated_at": "2026-09-22T16:55:58Z"
+      },
+      {
+        "also": [],
+        "arrival_ls": 1008.448895,
+        "body": "Alrai Sector DL-Y d116 5",
+        "count": 1,
+        "exact": false,
+        "jumps": 7,
+        "ly": 91.51597047271312,
+        "reserve": "Pristine",
+        "ring": "Alrai Sector DL-Y d116 5 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Alrai Sector DL-Y d116",
+        "updated_at": "2026-06-27T14:55:34Z"
+      },
+      {
+        "also": [],
+        "arrival_ls": 1923.105519,
+        "body": "Basika A 6",
+        "count": 1,
+        "exact": false,
+        "jumps": 7,
+        "ly": 92.13899677423507,
+        "reserve": "Pristine",
+        "ring": "Basika A 6 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Basika",
+        "updated_at": "2026-06-19T11:12:02Z"
+      },
+      {
+        "also": [
+          {
+            "count": 6,
+            "name": "Monazite"
+          },
+          {
+            "count": 3,
+            "name": "Rhodplumsite"
+          },
+          {
+            "count": 1,
+            "name": "Platinum"
+          },
+          {
+            "count": 1,
+            "name": "Serendibite"
+          }
+        ],
+        "arrival_ls": 242.370889,
+        "body": "Algol A 1",
+        "count": 1,
+        "exact": false,
+        "jumps": 7,
+        "ly": 92.84156215867169,
+        "reserve": "Pristine",
+        "ring": "Algol A 1 A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Algol",
+        "updated_at": "2026-11-04T19:15:24Z"
+      },
+      {
+        "also": [
+          {
+            "count": 1,
+            "name": "Monazite"
+          },
+          {
+            "count": 1,
+            "name": "Rhodplumsite"
+          }
+        ],
+        "arrival_ls": 3451.797978,
+        "body": "Algol ABCD 1 a",
+        "count": 1,
+        "exact": false,
+        "jumps": 7,
+        "ly": 92.84156215867169,
+        "reserve": "Pristine",
+        "ring": "Algol ABCD 1 a A Ring",
+        "ring_type": "Metal Rich",
+        "system": "Algol",
+        "updated_at": "2026-10-22T17:43:12Z"
+      }
+    ],
+    "want": {
+      "ore": "painite",
+      "reserve": "pristine",
+      "ring_type": null
+    }
+  }
+}

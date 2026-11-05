@@ -115,6 +115,20 @@ searches are ranked by population and say "Best"; famine says "Nearest".
 Source: Spansh, with your own visits to a system taking priority when newer ("Seen on your
 visit"). The page is under Materials (the side panel of a farming source). Voice uses the filters you set there.
 
+## Mining hotspots
+
+Ask: "nearest painite hotspot", "where is the nearest platinum hotspot", "find a void opal
+hotspot", "where can I mine alexandrite". Any hotspot mineral works: Void Opal, Low Temperature
+Diamonds (or "LTD"), Painite, Platinum, Musgravite, Grandidierite, Alexandrite, Benitoite,
+Monazite, Rhodplumsite, Serendibite, Osmium, Palladium, Bromellite, Tritium.
+
+> Nearest Painite hotspot. Barnard's Star 5 A Ring. 6.0 light years, 1 jump. 2 hotspots, depleted reserves.
+
+It is the nearest ring with a hotspot of that mineral, of any ring type and reserve, however far.
+The page, [Mining hotspots](places.md#mining-hotspots), ranks by the most hotspots and has the
+ring type, reserve and radius; voice does not use them. A mineral with no hotspots, such as gold,
+is not a hotspot lookup. If none is known: "No Painite hotspots known nearby." Source: Spansh.
+
 ## Powerplay targets
 
 Ask: "where can I acquire near me", "where can I reinforce near me", "where can I undermine
@@ -160,7 +174,8 @@ buy. See [Colonisation](colonisation.md). With no project: "No construction proj
 
 ## All the phrases
 
-Slots in braces are filled by what you say: `{service}`, `{module}`, `{ship}`, `{commodity}`.
+Slots in braces are filled by what you say: `{service}`, `{module}`, `{ship}`, `{commodity}`,
+`{mineral}`.
 Any of these except colonisation progress and what is left can end with "near <system>",
 "from <system>", "in <system>" or "around <system>" ([From another system](#from-another-system)).
 
@@ -202,6 +217,12 @@ Any of these except colonisation progress and what is left can end with "near <s
 | Outbreak | "nearest outbreak system", "nearest outbreak", "where is there an outbreak near me" |
 | Federation | "nearest federation system", "nearest federal system", "nearest federation faction", "nearest federation", "nearest federal" |
 | Empire | "nearest empire system", "nearest imperial system", "nearest empire faction", "nearest empire", "nearest imperial" |
+
+### Mining hotspots
+
+| Question | Phrases |
+|---|---|
+| The nearest hotspot | "nearest {mineral} hotspot", "where is the nearest {mineral} hotspot", "find a {mineral} hotspot", "nearest {mineral} hotspots", "{mineral} hotspot near me", "where can i mine {mineral}" |
 
 ### Powerplay targets
 
