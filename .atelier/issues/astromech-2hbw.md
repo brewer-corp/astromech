@@ -20,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Find or plot: one header box for systems, finders and Ctrl+K"
-updated_at: "2026-11-05T08:46:56.952883942+00:00"
+updated_at: "2026-11-05T15:11:03.459348358+00:00"
 ---
 
 ## Goal
@@ -50,3 +50,4 @@ Replace the header's systems-only plot box (`modules/route/PlotBar.svelte`) and 
 
 - 2026-11-05 [note] 2026-11-05: decision astromech-ghyo item 9: below the width where the one-row header fits (about 1600 px), the top tabs move to a 44 px second row under the wordmark. 2hbw implements this breakpoint with the one-row header and remeasures the width once the 320 px Find or plot box and its Ctrl+K hint are in, then updates DESIGN.md's Frame table figure.
 - 2026-11-05 [note] 2026-11-05: deferred findings from the nxz9 review (reviewer-fable-nxz9), part of this child: astromech-5pjm: give each Finder in app/src/lib/places.ts its phrase/entry list (input vocabulary + a route-with-input builder) read by both the box's matcher and modules/places/palette.ts, so kwoi and f7i0 add finders without editing the box; today palette.ts hand-lists FINDERS+SERVICES+MODULES+SHIPS and leaves TRADERS out ('raw trader' opens Services). astromech-ux31: App.svelte:54 normalises a moved link on first load with a location.hash push; use history.replaceState like the in-window path, so Back from a bookmarked #/services doesn't land on the old hash.
+- 2026-11-05 [note] 2026-11-05: deferred findings from the kwoi review (reviewer-fable-kwoi), part of this child: astromech-7r5k: docs/V1-DESIGN.md's Trade row (~194) and Galaxy rows (~196-198) still describe Trade's Sell/Buy and the old Galaxy pages; bring them in line with Places. astromech-6q7m: stale 'opens its nearby search' comments in app/src/lib/palette.ts:5 and lib/ui/Palette.svelte:4, and FINDERS' input 'Hold' (Sell my cargo) has no reader yet: give it one or drop it when the box reads FINDERS.
