@@ -10,6 +10,9 @@ relationships:
   children: []
   attachments: []
   relates:
+  - kind: "review"
+    id: "astromech-hehd"
+    type: "discovered_from"
   - kind: "issue"
     id: "astromech-c4i0"
     type: "blocked_by"
