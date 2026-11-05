@@ -58,7 +58,7 @@
   {/each}
 </dl>
 <!-- Always there, so a screen reader announces each error, repeats included. -->
-<p class="hint warn-text" aria-live="polite">{error}</p>
+<p class="hint" class:warn-text={error} aria-live="polite">{error}</p>
 
 <style>
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0; }

@@ -372,8 +372,9 @@ anti-aliased samples read darker than the game draws them.
 - **Ember Empty** (`ember-empty`): an unbound binding slot. *Why:* the game draws empty slots
   like filled ones; we make them visibly empty (see Deviations).
 - **Seam** (`seam`): the only line colour besides orange: section rules, column-head
-  hairlines, popover and badge outlines, empty-tile outlines, and the scrollbar thumb at rest
-  (Orange Dim under the pointer, Orange Mid while dragged). *Why:* the game's inactive
+  hairlines, popover and badge outlines, and empty-tile outlines. (The scrollbar thumb is
+  Orange Dim at rest and Orange Mid under the pointer or while dragged: Seam is too faint to find
+  on Void.) *Why:* the game's inactive
   section rules are this dim brown.
 
 ### Neutrals (each with a reason)
