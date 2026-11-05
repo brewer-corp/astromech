@@ -13,7 +13,8 @@ Click a tile to open that finder. Each finder is its own page, with a **Places**
 title and its main input at the top: the commodity, service, module, ship, kind of trader or
 site, faction state or mineral. Below that is
 the same search every "nearest" list in astromech uses, described [below](#how-searches-work).
-Back and reload keep what you picked, and **Ctrl+K** opens any finder by name.
+Back and reload keep what you picked. The header's [Find or plot](using-the-app.md#find-or-plot)
+box opens any finder by name, or filled in from a phrase ("raw trader", "sell painite").
 
 Once a finder has answered, its tile shows the first result until you close the window ("Black
 market · 3 jumps"), and opens that search again. Opening the Places page asks nothing: a tile
@@ -81,7 +82,8 @@ and ratings the module comes in are offered. The nearest stations selling it are
 the modules that matched and the price.
 
 - It opens on a Frame Shift Drive class 5, rating A.
-- **Ctrl+K** finds a module by name and opens it here. So do the modules fitted on your ships.
+- **Find or plot** finds a module by name ("outfitting fsd") and opens it here. So do the
+  modules fitted on your ships, at their size.
 - The Station page's [Where did I see ...](logbook.md#station) searches the outfitting you have
   opened yourself, offline.
 
@@ -147,7 +149,7 @@ Each row shows the ring's hotspots of the mineral, the ring and its system, **Al
 hotspots of other minerals, "Platinum 1"), the ring type, the reserve level, then distance, jumps
 and the body's distance from the star. Hotspots never change, so there is no report age. **Add
 stop** and **Set destination** put the ring's system on the route. It opens on Painite, any ring,
-any reserve; **Ctrl+K** opens a mineral's hotspots by name ("Painite hotspots").
+any reserve; **Find or plot** opens a mineral's hotspots by name ("painite hotspots").
 
 The list is the ten rings with the most hotspots in the whole radius, and the line above it says
 how many bodies they were ranked from ("Within 100 ly of Sol · top 10 of 1,101 bodies with

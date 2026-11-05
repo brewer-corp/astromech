@@ -16,7 +16,7 @@
   let inv = $state<Inventory | null>(null);
   let failed = $state<string | null>(null);
   let kindId = $state("raw");
-  // A material opens at #/materials/<id> (the command palette links there), so back and reload keep it.
+  // A material opens at #/materials/<id> (Find or plot links there), so back and reload keep it.
   const readSel = () => {
     const m = /^#\/materials\/(.+)$/.exec(location.hash);
     if (!m?.[1]) return null;

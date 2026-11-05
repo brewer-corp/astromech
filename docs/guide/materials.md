@@ -24,7 +24,7 @@ Tabs: **Raw**, **Manufactured**, **Encoded** and **Other**.
   hold, **where it comes from** (with a hint), and whether a material trader takes it. When
   its source is a faction state, **Find the nearest systems** opens the
   [Faction states](places.md#faction-states) finder on that state.
-- **Ctrl+K** finds a material by name from any page (see [Using the app](using-the-app.md#command-palette)).
+- **Ctrl+K** finds a material by name from any page in **Find or plot** (see [Using the app](using-the-app.md#find-or-plot)).
 
 ## High Grade Emissions
 

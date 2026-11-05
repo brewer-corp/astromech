@@ -10,7 +10,7 @@ New here? Read [Getting started](getting-started.md), then [Voice](voice.md).
 | Page | What is in it |
 |---|---|
 | [Getting started](getting-started.md) | Install, first run, the tray icon, updates, when something is wrong |
-| [Using the app](using-the-app.md) | The window, the command palette, system names, links out, what needs the network |
+| [Using the app](using-the-app.md) | The window, Find or plot, system names, links out, what needs the network |
 | [Settings](settings.md) | Start with Windows, push-to-talk, voice, microphone, updates, Diagnostics |
 
 ## Voice

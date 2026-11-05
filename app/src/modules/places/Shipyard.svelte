@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Shipyard finder: the nearest shipyards selling a ship, on the search kit. Stations whose
   // pads are too small for the ship are left out by the shell, whatever pad is picked. The main
-  // input is the ship; #/places/shipyard/<ship> picks it (the command palette links there), so
+  // input is the ship; #/places/shipyard/<ship> picks it (Find or plot links there), so
   // back and reload keep it.
   import { SHIPS, parseShipRoute, shipRoute } from "../../lib/outfitting";
   import { rememberAnswer, showing, type Finder } from "../../lib/places";

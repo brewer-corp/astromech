@@ -19,7 +19,7 @@ vi.mock("./lib/core", async (orig) => ({
   coreStatus: () => Promise.resolve(null),
 }));
 
-describe("command palette in the window", () => {
+describe("Find or plot in the window", () => {
   beforeAll(() => (Element.prototype.scrollIntoView = vi.fn())); // jsdom has no layout
   afterEach(() => (location.hash = ""));
 
@@ -29,7 +29,7 @@ describe("command palette in the window", () => {
     await screen.findByText("My standing");
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    const input = await screen.findByRole("combobox", { name: "Go to" });
+    const input = await screen.findByRole("combobox", { name: "Find or plot" });
     await fireEvent.input(input, { target: { value: "proto heat" } });
     await screen.findByText("Proto Heat Radiators");
     await fireEvent.keyDown(input, { key: "Enter" });
@@ -45,13 +45,36 @@ describe("command palette in the window", () => {
     await screen.findByRole("heading", { name: "Proto Heat Radiators" });
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    const input = await screen.findByRole("combobox", { name: "Go to" });
+    const input = await screen.findByRole("combobox", { name: "Find or plot" });
     await fireEvent.input(input, { target: { value: "datamined wake" } });
     await screen.findByText("Datamined Wake Exceptions", { selector: ".l" });
     await fireEvent.keyDown(input, { key: "Enter" });
 
     expect(await screen.findByRole("heading", { name: "Datamined Wake Exceptions" })).toBeTruthy();
     expect(screen.getByRole("button", { name: /Encoded/i }).className).toContain("on");
+  });
+
+  it("opens finders filled in from phrases typed in the header's one box", async () => {
+    location.hash = "#/powerplay";
+    render(App);
+    await screen.findByText("My standing");
+    expect(screen.getAllByRole("combobox", { name: "Find or plot" }), "one box, no separate palette").toHaveLength(1);
+    for (const [phrase, to] of [
+      ["raw trader", "#/places/material-traders/raw"],
+      ["interstellar factors", "#/places/services/interstellar_factors"],
+      ["outfitting fsd", "#/places/outfitting/Frame%20Shift%20Drive"],
+      ["shipyard python", "#/places/shipyard/Python"],
+      ["sell painite", "#/places/sell/painite"],
+      ["raw sites brain trees", "#/places/raw-sites/brain_trees"],
+    ]) {
+      await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+      const input = screen.getByRole("combobox", { name: "Find or plot" });
+      expect(document.activeElement, phrase).toBe(input);
+      await fireEvent.input(input, { target: { value: phrase } });
+      await within(await screen.findByRole("listbox", { name: "Matches" })).findAllByRole("option");
+      await fireEvent.keyDown(input, { key: "Enter" });
+      expect(location.hash, phrase).toBe(to);
+    }
   });
 
   it("finds a ship from the Shipyard finder's main input", async () => {
@@ -73,9 +96,9 @@ describe("command palette in the window", () => {
     await screen.findByText("My standing");
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    const input = await screen.findByRole("combobox", { name: "Go to" });
+    const input = await screen.findByRole("combobox", { name: "Find or plot" });
     await fireEvent.input(input, { target: { value: "frame shift" } });
-    await screen.findAllByText("Outfitting · Core internals");
+    await screen.findAllByText("Frame Shift Drive", { selector: ".l" });
     await fireEvent.keyDown(input, { key: "Enter" });
 
     expect(location.hash).toBe("#/places/outfitting/Frame%20Shift%20Drive");
@@ -89,7 +112,7 @@ describe("command palette in the window", () => {
     await screen.findByText(/Abraham Lincoln/);
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    let input = await screen.findByRole("combobox", { name: "Go to" });
+    let input = await screen.findByRole("combobox", { name: "Find or plot" });
     await fireEvent.input(input, { target: { value: "2f pulse laser" } });
     await screen.findByText(/^Outfitting · fitted on/);
     await fireEvent.keyDown(input, { key: "Enter" });
@@ -97,9 +120,9 @@ describe("command palette in the window", () => {
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "module", name: "Pulse Laser", class: 2, rating: "F", mount: "Gimballed" }, null, expect.anything()));
 
     await fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-    input = await screen.findByRole("combobox", { name: "Go to" });
+    input = await screen.findByRole("combobox", { name: "Find or plot" });
     await fireEvent.input(input, { target: { value: "anaconda" } });
-    await screen.findByText("Shipyard", { selector: ".d" });
+    await screen.findByText("Shipyard", { selector: ".sub" });
     await fireEvent.keyDown(input, { key: "Enter" });
     expect(location.hash).toBe("#/places/shipyard/Anaconda");
     await waitFor(() => expect(stationsSpy).toHaveBeenLastCalledWith({ kind: "ship", ship: "Anaconda" }, null, expect.anything()));
@@ -308,6 +331,16 @@ describe("Places in the window", () => {
       expect(location.hash, page).toBe(page);
       cleanup();
     }
+  });
+
+  it("rewrites an old link opened from outside in place, so Back doesn't return to it", async () => {
+    location.hash = "#/route";
+    location.hash = "#/shipyard/Anaconda";
+    const entries = history.length;
+    render(App);
+    await screen.findByRole("heading", { level: 1, name: "Shipyard" });
+    expect(location.hash).toBe("#/places/shipyard/Anaconda");
+    expect(history.length).toBe(entries);
   });
 
   it("rewrites an old link followed inside the window", async () => {

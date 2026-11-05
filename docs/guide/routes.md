@@ -33,7 +33,7 @@ With no route it says **No route**, and **Find or plot** puts the cursor in the 
 box. A finished route says **Route finished**. When the route you were following has ended and
 another one is paused, the strip shows it with **Resume**.
 
-Click the destination for the **Route** page, also in the command palette:
+Click the destination for the **Route** page, also in [Find or plot](using-the-app.md#find-or-plot):
 
 - its name, where it came from, and how many waypoints are left;
 - the **next waypoint**, with what is there (an engineer, "fuel", "neutron boost"), and whether
@@ -48,7 +48,7 @@ Click the destination for the **Route** page, also in the command palette:
 
 A route comes from:
 
-- **Plot to a system** in the top bar ([Plot a route](#plot-a-route));
+- **Find or plot** in the header: Plot, Add stop or Set destination on a system ([Plot a route](#plot-a-route));
 - the galaxy map, when you plot a route there ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map));
 - **Follow** on the engineer trip ([Engineering](engineering.md));
 - the two buttons at the end of every search result (Services, Outfitting, Shipyard, Trade,
@@ -179,8 +179,9 @@ not followed either. Setting a new route in astromech pauses the one it replaces
 
 ## Plot a route
 
-Type a system into **Plot to a system** in the top bar, on any page. Suggestions come from
-Spansh as you type; pick one with the arrow keys and Enter, or a click. A panel opens under the
+Type a system into **Find or plot** in the header, on any page (**Ctrl+K** puts the cursor
+there). Suggestions come from Spansh as you type, listed with any pages and finders that match;
+pick one with the arrow keys and Enter, a click or its **Plot** button. A panel opens under the
 box: choose the plotter and press **Plot and follow**, or press Enter again. astromech plots a
 route from your current system for the ship you are flying and follows it straight away: the
 first jump is next and on your clipboard. **Show the route** opens the Route page. The panel

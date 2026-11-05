@@ -1,30 +1,34 @@
 /**
- * The Ctrl+K command palette's model (docs/ARCHITECTURE.md §18.2): every page, plus the entries
- * each module's manifest offers from data the window already has (materials, the outfitting
- * catalogue's modules and ships, the fleet's ships, modules and blueprints). Picking one opens
- * its route: a material, a module or a catalogue ship opens its nearby search; one of my ships,
- * a blueprint or an experimental opens that ship's page.
+ * The entries the header's Find or plot box offers besides systems (docs/ARCHITECTURE.md §18.2):
+ * every page, plus the entries each module's manifest offers from data the window already has
+ * (Places' finders and the values they open with, materials, the fleet's ships, modules and
+ * blueprints). Picking one opens its route: a finder's value opens that finder filled in; a
+ * material its Materials page; one of my ships, a blueprint or an experimental that ship's page.
+ * `lib/find.ts` ranks them with the systems.
  */
 import type { ModuleManifest } from "./modules";
+import type { FinderId } from "./places";
 
 export interface PaletteItem {
   label: string;
-  /** What it is, shown dim: "Page · Engineering", "Material · Manufactured G3". */
+  /** What it is, shown dim: "Page · Engineering", "Material · Manufactured G3", "Sell". */
   detail: string;
   /** Route to open, without "#/": "materials/protoheatradiators". */
   route: string;
   /** Words that match but aren't the label, e.g. the module a blueprint is for. */
   keywords?: string;
+  /** The finder this is a value of, so it also matches after the finder's name ("sell painite"). */
+  finder?: FinderId;
 }
 
-const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+export const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 
 /**
- * How well `item` matches the normalised query (lower is better), or null for no match: the
- * whole label, its start, the start of its words ("heat rad"), its initials ("fsd"), anywhere in
- * it, then every word somewhere in the label, detail or keywords.
+ * How well `item` matches the normalised query `q` with words `qw` (lower is better), or null for
+ * no match: the whole label, its start, the start of its words ("heat rad"), its initials ("fsd"),
+ * anywhere in it, then every word somewhere in the label, detail or keywords.
  */
-function score(item: PaletteItem, q: string, qw: string[]): number | null {
+export function score(item: PaletteItem, q: string, qw: string[]): number | null {
   const label = item.label.toLowerCase();
   if (label === q) return 0;
   if (label.startsWith(q)) return 1;
