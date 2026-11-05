@@ -4,6 +4,9 @@ id: "astromech-pey5"
 issue_type: "task"
 labels:
 - "size-m"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-pey5
 priority: "P1"
 relationships:
   blocks: []
@@ -18,9 +21,9 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Shared controls and icons per DESIGN.md: input, dropdown, choice, buttons, badge, icon set"
-updated_at: "2026-11-05T00:44:51.118551804+00:00"
+updated_at: "2026-11-05T06:13:00.869514383+00:00"
 ---
 
 ## Goal
