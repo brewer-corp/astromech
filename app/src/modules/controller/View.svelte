@@ -6,6 +6,8 @@
   // activity is remembered. Button numbers come
   // from VKB's factory profile. If a press lands somewhere the map doesn't expect (a remapped
   // stick), astromech asks about that one control and remembers the answer.
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
   import catalog from "../../../../data/catalog/activities.json";
   import { binds } from "../../lib/store.svelte";
   import { api, type Press, type Row } from "../../lib/binds";
@@ -151,10 +153,7 @@
       </div>
       <PresetPicker compact />
     </div>
-    <div class="acts">
-      <button class:on={!act} onclick={() => choose("all")}>All</button>
-      {#each acts as a (a.id)}<button class:on={a.id === act?.id} onclick={() => choose(a.id)}>{a.title}</button>{/each}
-    </div>
+    <Choice class="acts" label="Activity" value={act?.id ?? "all"} options={[{ value: "all", label: "All" }, ...acts.map((a) => ({ value: a.id, label: a.title }))]} onchange={choose} />
     {#if asking}<p class="ask">Which control did you just press ({keyName(asking.key)})? Click it on the sheet.</p>{/if}
     <Sheet image={m.image} controls={controls} {cells} width={Math.min(1180, w - 80 - 360 - 28)} dimOthers={!!act} onpick={(c) => void pick(c)} />
     <p class="credit">
@@ -177,7 +176,7 @@
           {#each notBound.filter((a) => a.important) as a (a.id)}
             <div class="row" class:sel={selId === a.id}>
               {#if a.row}<button class="n" onclick={() => a.row && showRow(a.row)}>{a.row.name}</button>{:else}<span class="n">{a.id}</span>{/if}
-              {#if a.row}<button class="bind" onclick={() => a.row && (bind = { row: a.row, slot: firstFree(a.row) })}>Bind this</button>{/if}
+              {#if a.row}<Button onclick={() => a.row && (bind = { row: a.row, slot: firstFree(a.row) })}>Bind this</Button>{/if}
             </div>
           {:else}
             <p class="lo">Everything important for {act.title.toLowerCase()} is bound.</p>
@@ -209,14 +208,14 @@
     <About label="You pressed" title="{m.side} · {keyName(unknown.key)}">
       <p>VKB's factory profile has no control that sends {keyName(unknown.key)}. If you changed the stick's profile in VKBDevCfg, tell astromech which control it was and it remembers.</p>
       <p>Bound to: {binds.rowsFor(unknown.device, unknown.key).map((r) => r.name).join(", ") || "nothing"}</p>
-      <button class="act" onclick={() => (asking = unknown)}>Show me which control</button>
+      <Button class="act" onclick={() => (asking = unknown)}>Show me which control</Button>
     </About>
   {:else if sel}
     <About label="Action" title={sel.name}>
       <p class="lo">{sel.context}</p>
       {#each sel.slots as s (s.slot)}<p>{sel.analogue ? "Axis" : s.slot}: {slotText(s) || "nothing"}</p>{/each}
       {#each sel.issues as i (i.text)}<p class="warn">! {i.text}</p>{/each}
-      <button class="act" onclick={() => (bind = { row: sel, slot: firstFree(sel) })}>{isBound(sel) ? "Bind another control" : "Bind this"}</button>
+      <Button class="act" onclick={() => (bind = { row: sel, slot: firstFree(sel) })}>{isBound(sel) ? "Bind another control" : "Bind this"}</Button>
     </About>
   {:else if picked}
     {@const rows = rowsFor(picked.joy)}
@@ -228,7 +227,7 @@
       {#each rows as r (r.id)}<p>{r.name}<span class="lo"> · {r.context}</span></p>{:else}<p class="lo">Nothing in this preset.</p>{/each}
       <div class="k">Wrong box?</div>
       <p class="lo">If pressing this control lights a different box, your stick was remapped. Press it again: astromech asks which control it was.</p>
-      {#if picked.confidence === "yours"}<button class="act" onclick={() => picked && void reset(picked)}>Use VKB's number again</button>{/if}
+      {#if picked.confidence === "yours"}<Button class="act" onclick={() => picked && void reset(picked)}>Use VKB's number again</Button>{/if}
     </About>
   {:else}
     <About label="My controller" title={act?.title ?? m.product}>
@@ -249,10 +248,7 @@
   .devices { display: flex; gap: 32px; text-transform: uppercase; letter-spacing: var(--caps); }
   .devices button { color: var(--text-lo); }
   .devices .on { color: var(--text-hi); }
-  .acts { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 22px; margin-bottom: 8px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .acts button { color: var(--text-lo); }
-  .acts button:hover { color: var(--text); }
-  .acts .on { color: var(--accent); }
+  section > :global(.acts) { margin: 12px 0 8px; }
   .band { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 14px; }
   h3 { margin: 0 0 8px; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   h3.gap { margin-top: 18px; }
@@ -261,8 +257,6 @@
   .row.sel .n { color: var(--accent); }
   .row .n { color: var(--text); }
   .warn { color: var(--accent); }
-  .bind { color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .bind:hover { color: var(--text-hi); }
   .more { margin-top: 10px; font-size: var(--fs-s); line-height: 1.5; }
   .ask { color: var(--text-hi); background: var(--cell); padding: 8px 12px; margin: 0 0 8px; }
   .credit { color: var(--text-lo); font-size: var(--fs-s); }

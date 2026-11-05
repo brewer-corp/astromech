@@ -7,6 +7,10 @@
     DEFAULT_ROLLS, dropShoppingList, evaluatePlan, fittedLine, groupFitted, loadEngineers, planTrip, savePlan, savedPlan, shareShoppingList, shipStats, shipTitle,
     type Engineers, type Fitted, type Fleet, type MatLine, type Plan, type PlanResult, type StatsComparison, type Target, type Trip,
   } from "../../lib/engineering";
+  import Button from "../../lib/ui/Button.svelte";
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
+  import Glyph from "../../lib/ui/Glyph.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import Stats from "./Stats.svelte";
   import { jumps } from "../../lib/galaxy";
   import { openUrl } from "../../lib/core";
@@ -239,8 +243,8 @@
       {#if ship?.links}
         <span class="open">
           Open in
-          <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
-          <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
+          <Button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
+          <Button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
         </span>
       {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
         <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
@@ -280,24 +284,24 @@
                   {#if current(m)}<div class="now lo">{current(m)}</div>{/if}
                 </div>
                 <div class="picks">
-                  <select aria-label="{m.slot_name} blueprint" class:idle={!t} value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
+                  <Dropdown aria-label="{m.slot_name} blueprint" value={t?.blueprint ?? ""} onchange={(e) => setTarget(m, e.currentTarget.value ? { blueprint: e.currentTarget.value } : null)}>
                     <option value="">No change</option>
                     {#each g?.blueprints ?? [] as b (b.id)}
                       <option value={b.id}>{b.name}</option>
                     {/each}
-                  </select>
-                  <select aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
+                  </Dropdown>
+                  <Dropdown aria-label="{m.slot_name} grade" disabled={!t} value={t?.grade ?? ""} onchange={(e) => setTarget(m, { grade: Number(e.currentTarget.value) })}>
                     {#if !t}<option value="">–</option>{/if}
                     {#each Array.from({ length: maxGrade(m, t?.blueprint) }, (_, i) => i + 1) as n (n)}
                       <option value={n}>G{n}</option>
                     {/each}
-                  </select>
-                  <select aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
+                  </Dropdown>
+                  <Dropdown aria-label="{m.slot_name} experimental" disabled={!t || !g?.experimentals.length} value={t?.experimental ?? ""} onchange={(e) => setTarget(m, { experimental: e.currentTarget.value || null })}>
                     <option value="">{g?.experimentals.length ? "None" : "–"}</option>
                     {#each g?.experimentals ?? [] as x (x.id)}
                       <option value={x.id}>{x.name}</option>
                     {/each}
-                  </select>
+                  </Dropdown>
                 </div>
                 {#if t}
                   <div class="cost">{cost(m.slot)}</div>
@@ -364,7 +368,7 @@
       {:else if trip}
         <div class="triphead">
           <h4>Engineer trip</h4>
-          {#if trip.stops.length}<button class="follow" onclick={() => void followTrip()}>Follow</button>{/if}
+          {#if trip.stops.length}<Button onclick={() => void followTrip()}>Follow</Button>{/if}
         </div>
         <Stale error={engineersErr} />
         {#if followNote}<p class="lo small">{followNote}</p>{/if}
@@ -450,11 +454,11 @@
       {#if plan}
         <div class="rolls">
           {#each plan.rolls as n, i (i)}
-            <label>G{i + 1}<input type="number" min="1" max="20" value={n} onchange={(e) => setRolls(i, Number(e.currentTarget.value))} /></label>
+            <label>G{i + 1}<Input type="number" min="1" max="20" value={n} onchange={(e) => setRolls(i, Number(e.currentTarget.value))} /></label>
           {/each}
         </div>
         {#if plan.rolls.join() !== DEFAULT_ROLLS.join()}
-          <button class="link" onclick={() => plan && ((plan = { ...plan, rolls: DEFAULT_ROLLS }), savePlan(plan))}>Reset to 1–5</button>
+          <Button onclick={() => plan && ((plan = { ...plan, rolls: DEFAULT_ROLLS }), savePlan(plan))}>Reset to 1–5</Button>
         {/if}
       {/if}
       <p class="lo">Trades only spend what the plan doesn't need: 6:1 per grade up, 1:3 per grade down, ×6 across categories.</p>
@@ -475,8 +479,6 @@
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .open { color: var(--text-lo); }
-  .open button { color: var(--accent); margin-left: 6px; }
-  .open button:hover { color: var(--text-hi); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
   .note { grid-column: 1 / -1; padding: 24px 8px 0; }
   .main { min-width: 0; padding: 24px 16px 8px 4px; }
@@ -494,13 +496,8 @@
   .r { text-align: right; }
   .slot { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   .cost { color: var(--accent); font-family: var(--mono); font-size: var(--fs-s); }
-  select { all: unset; height: 32px; line-height: 32px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font-size: var(--fs-s); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  select.idle { background: var(--cell-empty); color: var(--text); }
-  select:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
-  option { background: var(--bg); color: var(--text); }
+  .picks > :global(.dropdown) { min-width: 0; }
   .triphead { display: flex; align-items: baseline; gap: 20px; }
-  .follow { all: unset; cursor: pointer; height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  .follow:hover, .follow:focus-visible { color: var(--text-hi); }
   h4 { margin: 32px 8px 12px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-l); letter-spacing: 0.04em; text-transform: uppercase; }
   .mats { display: flex; flex-direction: column; }
   .mhead, .mrow { display: grid; grid-template-columns: minmax(14rem, 1fr) 4.5rem 4.5rem 4.5rem 4.5rem; gap: 10px 18px; align-items: center; width: 100%; text-align: inherit; }
@@ -528,7 +525,6 @@
   .lo { color: var(--text-lo); }
   .rolls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 8px 0 12px; }
   .rolls label { display: flex; flex-direction: column; gap: 4px; color: var(--text-lo); font-size: var(--fs-s); }
-  .rolls input { all: unset; box-sizing: border-box; width: 100%; height: 32px; padding: 0 8px; background: var(--cell); color: var(--accent); font-family: var(--mono); }
   @media (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
     .main { padding: 20px 0 8px; }

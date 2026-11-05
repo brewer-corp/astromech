@@ -42,11 +42,11 @@ describe("What earns merits here", () => {
       rules,
     });
     // One tag per row, and one in the key under the list, which says what it means.
-    expect(screen.getAllByText("ethos")).toHaveLength(2);
-    expect(screen.getAllByText("weak spot")).toHaveLength(2);
+    expect(screen.getAllByText("Ethos")).toHaveLength(2);
+    expect(screen.getAllByText("Weak spot")).toHaveLength(2);
     expect(screen.getByText(/your power favours it: bonus merits/)).toBeTruthy();
     expect(screen.getByText(/the controlling power is weak to it/)).toBeTruthy();
-    expect(screen.getByText("on foot")).toBeTruthy();
+    expect(screen.getByText("On foot")).toBeTruthy();
   });
 
   it("marks unverified rules quietly and explains the mark", () => {

@@ -1,6 +1,7 @@
 <script lang="ts">
   // Settings → Data sharing (astromech-09s3): one section per service, EDDN then EDSM
   // (astromech-ah0i). Inara joins when its upload exists.
+  import Button from "../../lib/ui/Button.svelte";
   import { eddnLog, schemaName, setEddn, when, type EddnLog } from "../../lib/eddn";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -50,7 +51,7 @@
       <dt>Share with EDDN</dt>
       <dd>
         <span>{eddn.enabled ? (eddn.test ? "On (test schemas)" : "On") : "Off"}</span>
-        <button onclick={toggle} disabled={busy}>{eddn.enabled ? "Turn off" : "Turn on"}</button>
+        <Button onclick={toggle} disabled={busy}>{eddn.enabled ? "Turn off" : "Turn on"}</Button>
       </dd>
       <dt>Waiting to send</dt>
       <dd><span>{eddn.pending}</span></dd>
@@ -103,7 +104,4 @@
   .text { color: var(--text); line-height: 1.6; max-width: 46rem; }
   .text p { margin: 0 0 10px; }
   .text ul { margin: 0 0 10px; padding-left: 20px; }
-  button { all: unset; cursor: pointer; flex: none; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
 </style>

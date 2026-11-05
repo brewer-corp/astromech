@@ -1,6 +1,7 @@
 <script lang="ts">
   // Where my power wants work: nearby acquisition, reinforcement and undermining systems
   // (Spansh), on the search kit.
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import { loadTargets, targetDetail, TARGETS, type Target } from "../../lib/powerplay";
   import type { Filters, Origin, Results } from "../../lib/search";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -29,9 +30,9 @@
     <button class:on={target === t.id} onclick={() => (target = t.id)}>{t.title}</button>
   {/each}
   <label>Within
-    <select bind:value={within}>
+    <Dropdown bind:value={within}>
       {#each RANGES as r (r)}<option value={r}>{r} ly</option>{/each}
-    </select>
+    </Dropdown>
   </label>
 </div>
 <!-- The kit re-runs when the lookup changes, and when `within` does: `run` reads it before awaiting. -->
@@ -43,5 +44,5 @@
   button:hover { color: var(--text); }
   .on { color: var(--accent); }
   label { display: flex; align-items: center; gap: 8px; color: var(--text-lo); font-size: var(--fs-s); }
-  select { all: unset; height: 26px; padding: 0 8px; background: var(--cell); color: var(--accent); cursor: pointer; text-transform: none; letter-spacing: normal; }
+  label > :global(.dropdown) { text-transform: none; letter-spacing: normal; }
 </style>

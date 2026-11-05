@@ -6,6 +6,9 @@
   // this PC in seconds when the neutron star file is downloaded (NeutronFile), else by Spansh;
   // an exact route always by Spansh, as a job that can take a minute.
   import { plotRoute, plotSetup, type PlotSetup, type Plotted, type Plotter, type RouteView } from "../../lib/route";
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import NeutronFile from "./NeutronFile.svelte";
 
   let { to, onfollow }: { to: string; onfollow?: (v: RouteView) => void } = $props();
@@ -84,13 +87,10 @@
 
 <div class="plot">
   <h4><span class="lo">{here ?? "Your system"} to</span> {to}</h4>
-  <div class="kinds" role="group" aria-label="Plotter">
-    <button class:on={plotter === "neutron"} aria-pressed={plotter === "neutron"} onclick={() => (plotter = "neutron")}>Neutron</button>
-    <button class:on={plotter === "exact"} aria-pressed={plotter === "exact"} onclick={() => (plotter = "exact")}>Exact</button>
-  </div>
+  <Choice class="kinds" label="Plotter" value={plotter} options={[{ value: "neutron", label: "Neutron" }, { value: "exact", label: "Exact" }]} onchange={(v) => (plotter = v)} />
   <div class="fields">
     {#if plotter === "neutron" && !local}
-      <label><span>Efficiency</span><input aria-label="Efficiency" type="number" min="1" max="100" bind:value={efficiency} /><em>%</em></label>
+      <label><span>Efficiency</span><Input class="grow" aria-label="Efficiency" type="number" min="1" max="100" bind:value={efficiency}>{#snippet end()}%{/snippet}</Input></label>
     {:else if plotter === "exact"}
       <label class="check"><input type="checkbox" bind:checked={refuel} /> Refuel at every scoopable star</label>
     {/if}
@@ -110,7 +110,7 @@
       ? "Stops at the neutron stars to boost from. Plot each leg in the galaxy map."
       : "Every jump is a waypoint. Waypoints marked fuel are where to scoop."}
   </p>
-  <button class="go" disabled={!ready} onclick={() => void go()}>{busy ? "Plotting…" : "Plot and follow"}</button>
+  <Button kind="primary" class="go" disabled={!ready} onclick={() => void go()}>{busy ? "Plotting…" : "Plot and follow"}</Button>
   {#if busy}
     <p class="lo">{onThisPC ? "Plotting on this PC." : "Asking Spansh. A route can take a minute."}</p>
   {:else if err}
@@ -127,20 +127,13 @@
   h4 .lo { display: block; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
   a { color: var(--text-hi); }
   p { margin: 0; font-size: var(--fs-s); }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
-  .kinds { display: flex; gap: 18px; margin: 0 0 8px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .kinds button { color: var(--text-lo); }
-  .kinds button:hover { color: var(--text); }
-  .kinds .on { color: var(--accent); }
+  .plot > :global(.kinds) { margin: 0 0 8px; }
   .fields { display: flex; flex-direction: column; gap: 4px; margin: 0 0 6px; font-size: var(--fs-s); }
   label { display: flex; align-items: center; gap: 8px; }
   label > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
-  label em { font-style: normal; color: var(--text-lo); min-width: 1.5em; }
-  input:not([type="checkbox"]) { all: unset; flex: 1; min-width: 0; height: 28px; padding: 0 8px; background: var(--cell-opt); color: var(--text-hi); font-family: var(--mono); }
-  input::placeholder { color: var(--text-lo); }
+  label > :global(.grow) { flex: 1; }
   .check { color: var(--text); }
-  .go { align-self: flex-start; margin: 6px 0 4px; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); font-weight: 600; }
-  .go:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
+  .plot > :global(.go) { align-self: flex-start; margin: 6px 0 4px; }
   .lo { color: var(--text-lo); }
   .ok { color: var(--accent); }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }

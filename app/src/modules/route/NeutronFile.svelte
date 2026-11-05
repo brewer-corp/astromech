@@ -4,6 +4,7 @@
   // Nothing downloads until the commander presses Download. With the file there, neutron routes
   // are plotted on this PC (`onlocal`); `refresh` changes after a plot, which may have found the
   // file can't be read.
+  import Button from "../../lib/ui/Button.svelte";
   import { DISK_MB, DOWNLOAD_MB, checkNeutron, downloadNeutron, neutronFile, watchDownload, type NeutronFile, type NeutronProgress, type Watch } from "../../lib/neutron";
 
   let { onlocal, refresh = 0 }: { onlocal?: (local: boolean) => void; refresh?: number } = $props();
@@ -86,10 +87,10 @@
     <p>Neutron star file: {file.stars.toLocaleString("en-GB")} neutron stars, built {date(file.built)}.</p>
     {#if newer === true}
       <p class="lo">A newer file is available.</p>
-      <button onclick={download}>Download the newer file</button>
+      <Button class="act" onclick={download}>Download the newer file</Button>
     {:else}
       {#if newer === false}<p class="lo">This is the latest file.</p>{/if}
-      <button onclick={() => void check()} disabled={checking}>{checking ? "Checking…" : "Check for a newer file"}</button>
+      <Button class="act" onclick={() => void check()} disabled={checking}>{checking ? "Checking…" : "Check for a newer file"}</Button>
     {/if}
   {:else if status}
     <p>
@@ -97,7 +98,7 @@
       routes on this PC: about {DOWNLOAD_MB} MB to download, {DISK_MB} MB in astromech's data folder.
     </p>
     {#if status.error}<p class="lo">The file there can't be read: {status.error}</p>{/if}
-    <button onclick={download}>Download</button>
+    <Button class="act" onclick={download}>Download</Button>
   {/if}
   {#if file}
     <p class="lo">Neutron routes are plotted on this PC with it, in seconds.</p>
@@ -111,9 +112,7 @@
   .neutron { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 6px; font-size: var(--fs-s); }
   p { margin: 0; }
   .lo { color: var(--text-lo); }
-  button { all: unset; cursor: pointer; align-self: flex-start; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
+  .neutron > :global(.act) { align-self: flex-start; margin-left: calc(-1 * var(--sp-2)); }
   progress { width: 100%; max-width: 24rem; height: 6px; accent-color: var(--accent); }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
 </style>

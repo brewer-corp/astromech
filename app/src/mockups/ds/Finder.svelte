@@ -3,7 +3,7 @@
   // and lead column (the value it ranks by); the row grammar, actions and states are shared.
   import Chrome from "./Chrome.svelte";
   import Copy from "./Copy.svelte";
-  import Icon from "./Icon.svelte";
+  import Glyph from "../../lib/ui/Glyph.svelte";
 
   type Col = { head: string; w: string; key: string; unit?: string };
   type Row = { lead: string; place: string; system: string; warn?: string; stale?: boolean; [col: string]: string | boolean | undefined };
@@ -100,7 +100,7 @@
         {#if on.length}
           <span class="choices">{#each opts as o, i (o)}<button class="choice" class:on={on.includes(i)}>{o}</button>{/each}</span>
         {:else}
-          <span class="cell dropdown">{opts[0]}<Icon name="chevron" /></span>
+          <span class="cell dropdown">{opts[0]}<Glyph name="chevron" /></span>
         {/if}
       {/each}
     </div>
@@ -123,8 +123,8 @@
             </span>
           {/each}
           <span class="acts">
-            <button class="ibtn" title="Add {r.system} as a stop" aria-label="Add {r.system} as a stop"><Icon name="add-stop" /></button>
-            <button class="ibtn" title="Set {r.system} as the destination (replaces the route)" aria-label="Set {r.system} as the destination"><Icon name="destination" /></button>
+            <button class="ibtn" title="Add {r.system} as a stop" aria-label="Add {r.system} as a stop"><Glyph name="add-stop" /></button>
+            <button class="ibtn" title="Set {r.system} as the destination (replaces the route)" aria-label="Set {r.system} as the destination"><Glyph name="destination" /></button>
           </span>
         </div>
       {/each}

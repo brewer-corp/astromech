@@ -2,6 +2,8 @@
   // The live system view (OD Explorer's system page): the bodies of the system you are in as you
   // scan them, with what each is worth now and mapped, which are worth mapping, and the facts
   // that decide where to fly (terraformable, landable, rings, gravity, signals).
+  import Badge from "../../lib/ui/Badge.svelte";
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { credits, loadSystem, loadUnsold, type Body, type SystemView, type Unsold } from "../../lib/exploration";
@@ -106,8 +108,8 @@
               <td class="num">{credits(b.value)}</td>
               <td class="num">{b.star ? "" : credits(b.value_mapped)}</td>
               <td><div class="note">
-                {#if b.worth_mapping}<span class="tag">Worth mapping</span>{:else if b.mapped}<span class="lo">Mapped{b.mapped_efficiently ? ", efficiently" : ""}</span>{/if}
-                {#if b.first_footfall_likely}<span class="tag">First footfall likely</span>{/if}
+                {#if b.worth_mapping}<Badge>Worth mapping</Badge>{:else if b.mapped}<span class="lo">Mapped{b.mapped_efficiently ? ", efficiently" : ""}</span>{/if}
+                {#if b.first_footfall_likely}<Badge>First footfall likely</Badge>{/if}
                 {#if b.landings}<span class="lo">Landed {b.landings === 1 ? "once" : `${b.landings} times`}</span>{/if}
               </div></td>
             </tr>
@@ -157,10 +159,10 @@
   <div class="sell">
     <label class="pick">
       <span>Sell</span>
-      <select bind:value={sellAt}>
+      <Dropdown class="grow" bind:value={sellAt}>
         <option value="universal_cartographics">Cartographic data: Universal Cartographics</option>
         <option value="vista_genomics">Organic data: Vista Genomics</option>
-      </select>
+      </Dropdown>
     </label>
     <SearchKit lookup="stations.service" offers={["pad", "carriers", "odyssey", "age", "arrival"]} {run} title="Nearest" busyText="Asking Spansh…" />
   </div>
@@ -184,7 +186,6 @@
   .facts { display: flex; flex-wrap: wrap; gap: 4px; }
   .fact { padding: 0 6px; background: var(--cell-opt); font-size: var(--fs-s); }
   .note { display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-s); }
-  .tag { padding: 0 6px; background: var(--accent); color: var(--on-accent); }
   tr.worth .name { color: var(--accent); }
   p.note { margin-top: 18px; font-size: var(--fs-s); max-width: 52rem; }
   h3 { margin: 28px 0 10px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
@@ -193,5 +194,5 @@
   .sell { max-width: 46rem; }
   .pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs-s); margin-bottom: 4px; }
   .pick > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); min-width: 5.5em; }
-  select { all: unset; flex: 1; height: 30px; padding: 0 8px; background: var(--cell); color: var(--accent); cursor: pointer; }
+  .pick > :global(.grow) { flex: 1; }
 </style>

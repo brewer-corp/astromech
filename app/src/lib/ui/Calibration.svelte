@@ -2,6 +2,7 @@
   // Mic calibration (docs/V1-DESIGN.md §6.2 step 3): a moment of silence, then three phrases.
   // The core records each clip from the chosen mic and stores the per-device gate, the same
   // one `astromech-core --calibrate-files` writes. Used by onboarding and Settings → Microphone.
+  import Button from "./Button.svelte";
   import { coreCall, type Level } from "../core";
 
   interface Next { step: number; steps: number; phrase: string | null; ms: number }
@@ -71,7 +72,7 @@
       <dt>Ignore clips quieter than</dt><dd>{dbfs(result.min_level_dbfs)}</dd>
       <dt>Level correction</dt><dd>{result.gain_db > 0 ? `up to ${db(result.gain_db)} per clip` : "not needed"}</dd>
     </dl>
-    <div class="acts"><button onclick={start}>Run again</button></div>
+    <div class="acts"><Button onclick={start}>Run again</Button></div>
   {:else if next}
     <ol class="steps">
       {#each ["Silence", "gear down", "deploy hardpoints", "request docking"] as label, i (label)}
@@ -91,12 +92,12 @@
       {/if}
     </div>
     <div class="acts">
-      <button disabled={busy} onclick={record}>{next.step === 0 ? "Record silence" : "Record"}</button>
+      <Button kind="primary" disabled={busy} onclick={record}>{next.step === 0 ? "Record silence" : "Record"}</Button>
     </div>
   {/if}
   {#if error}
     <p class="warn">{error}</p>
-    <div class="acts"><button onclick={start}>Start over</button></div>
+    <div class="acts"><Button onclick={start}>Start over</Button></div>
   {/if}
 </div>
 
@@ -116,8 +117,5 @@
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .lo { color: var(--text-lo); }
   .warn { color: var(--accent); }
-  .acts { display: flex; gap: 28px; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover, button:focus-visible { color: var(--text-hi); }
+  .acts { display: flex; align-items: center; gap: var(--sp-4); }
 </style>

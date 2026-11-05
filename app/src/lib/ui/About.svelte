@@ -17,5 +17,6 @@
   .txt { color: var(--text); line-height: 1.5; }
   .txt :global(p) { margin: 0 0 12px; }
   .txt :global(.k) { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); margin: 18px 0 4px; }
-  .txt :global(.act) { color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); display: block; margin: 6px 0; }
+  /* Action words (Buttons with class "act") stack under the text, lined up with it. */
+  .txt :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
 </style>

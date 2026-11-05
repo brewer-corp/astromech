@@ -2,6 +2,7 @@
   // The market docked at against nearby prices: what each commodity in the hold fetches here and
   // at the best station nearby, and what the goods for sale here sell for nearby. Asked once per
   // dock (Ardent Insight, a request per commodity, at most a dozen); "Check again" asks anew.
+  import Button from "../../lib/ui/Button.svelte";
   import { ago, jumps } from "../../lib/galaxy";
   import { when } from "../../lib/logbook";
   import { compareMarket, credits, DEFAULT_DISTANCE_LY, DEFAULT_MAX_AGE_DAYS, gainText, type MarketCompare, type MarketLine } from "../../lib/trade";
@@ -49,7 +50,7 @@
     Against the best price a station in another system pays, with the filters of Commodities › Sell ({DEFAULT_DISTANCE_LY} ly and {DEFAULT_MAX_AGE_DAYS} days unless changed there).
     {#if res && res.fetched_at}Ardent Insight, asked {ago(new Date(res.fetched_at * 1000).toISOString())}.{/if}
   </p>
-  <button onclick={check} disabled={busy}>{busy ? "Asking…" : "Check again"}</button>
+  <Button onclick={check} disabled={busy}>{busy ? "Asking…" : "Check again"}</Button>
 </div>
 {#if err}
   <p class="err">{err}</p>
@@ -109,9 +110,6 @@
 {/if}
 
 <style>
-  button { all: unset; cursor: pointer; color: var(--accent); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
-  button:hover { color: var(--text-hi); }
-  button:disabled { cursor: default; color: var(--text-lo); }
   .head { display: flex; align-items: baseline; gap: 18px; max-width: 60rem; }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 8px 0; flex: 1; }
   .err { color: var(--accent); }

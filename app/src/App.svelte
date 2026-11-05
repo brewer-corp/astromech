@@ -6,6 +6,7 @@
   // bar's system search (PlotBar) plots a route from any page.
   import { groups, groupModules, findModule, modules } from "./lib/modules";
   import { collect } from "./lib/palette";
+  import Button from "./lib/ui/Button.svelte";
   import Palette from "./lib/ui/Palette.svelte";
   import { coreStatus, headerState, onRoute, type CoreStatus } from "./lib/core";
   import Toasts from "./lib/ui/Toasts.svelte";
@@ -101,7 +102,7 @@
     </nav>
     <PlotBar />
     {#if showSetup}
-      <button class="setup" title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</button>
+      <Button title={setup.join(", ")} onclick={() => go("setup/health")}>Finish setup</Button>
     {/if}
     <span class="right">
       <span class="state" class:warn={!status || status.game === "not_running"}>{headerState(status)}</span>
@@ -152,9 +153,9 @@
   nav.sub { flex: none; gap: 24px; margin: 0 clamp(16px, 3vw, 40px); padding: 12px 0 0; }
   nav.sub button { font-size: var(--fs-s); font-weight: 600; padding-bottom: 4px; border-bottom: 2px solid transparent; }
   nav.sub button.on { color: var(--text-hi); border-bottom-color: var(--accent); }
-  .setup { color: var(--accent); font-size: var(--fs-s); font-weight: 600; white-space: nowrap; }
-  .setup:hover { color: var(--text-hi); }
-  .help { font-size: var(--fs-s); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+  /* A link to somewhere else (DESIGN.md Buttons → Links): Orange text, a 1 px Orange Mid underline. */
+  .help { color: var(--accent); font-size: var(--fs-s); text-transform: none; letter-spacing: normal; text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .help:hover { color: var(--orange-lit); }
   .right { display: flex; align-items: baseline; gap: 16px; }
   .state { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); white-space: nowrap; }
   .state.warn { color: var(--accent); font-weight: 600; }

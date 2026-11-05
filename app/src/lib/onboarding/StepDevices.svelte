@@ -1,6 +1,7 @@
 <script lang="ts">
   // Step 2: the controllers Elite can see (the window's device scan, as in the key tester), and
   // a live "last press" so the user knows presses arrive.
+  import Button from "../ui/Button.svelte";
   import { api, type Controller } from "../binds";
   import { binds } from "../store.svelte";
   import { mapFor } from "../devices";
@@ -46,6 +47,6 @@
   <div class="press" class:got={!!binds.last}>
     {binds.last ? `Last press: ${control(binds.last.device, binds.last.key)}` : "Press any button or key…"}
   </div>
-  <div class="acts"><button onclick={scan}>Check again</button></div>
+  <div class="acts"><Button onclick={scan}>Check again</Button></div>
   {#if error}<p class="warn-text">{error}</p>{/if}
 </div>

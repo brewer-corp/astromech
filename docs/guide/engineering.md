@@ -39,8 +39,8 @@ Three tabs:
 
 Your ship locker and backpack by the game's own categories: **Goods**, **Assets**, **Data** and
 **Consumables**. Each item shows how many are in the locker, in the backpack and tied to a mission,
-what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** (orange) hides what you do not have; **All items** (grey) shows the rest of the
-catalogue. The line above says how much is held and what a bartender would pay
+what it is worth at the **barter** (assets only) and what a bartender pays you for it (**Sells for**). **Held only** hides what you do not have; **All items** shows the rest of the catalogue. The
+one in use is filled orange. The line above says how much is held and what a bartender would pay
 for it. Mission items go back when the mission ends and do not count for blueprints.
 
 ### Blueprints

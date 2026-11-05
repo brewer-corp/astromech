@@ -2,6 +2,8 @@
   // Press-to-bind (docs/V1-DESIGN.md §3.3 "Bind this"): wait for one press, show what else uses
   // that control, then write it into the slot. Built-in presets are never edited: the first edit
   // makes a named copy in your Bindings folder. Every write makes a backup first.
+  import Button from "./Button.svelte";
+  import Input from "./Input.svelte";
   import { api, isWindowClick, type Press, type Row, type Slot } from "../binds";
   import { binds } from "../store.svelte";
   import { control, slotText } from "../format";
@@ -70,7 +72,7 @@
     {#if done}
       <p>{done}</p>
       <p class="lo">Elite reads bindings when it starts. If it's running, open Options → Controls and pick the preset again, or restart it.</p>
-      <div class="acts"><button onclick={onclose}>Close</button></div>
+      <div class="acts"><Button onclick={onclose}>Close</Button></div>
     {:else}
       <div class="press" class:got>
         {#if got}
@@ -85,7 +87,7 @@
       {#if !editable}
         <label class="copy">
           <span>This preset can't be edited. Save into a copy named</span>
-          <input bind:value={copyName} maxlength="40" />
+          <Input bind:value={copyName} maxlength={40} />
           <span class="lo">The copy goes in your Bindings folder and replaces this preset where it's active.</span>
         </label>
       {:else}
@@ -93,10 +95,10 @@
       {/if}
       {#if error}<p class="warn">{error}</p>{/if}
       <div class="acts">
-        <button class="cell" disabled={!got || busy} onclick={() => save()}>Save</button>
-        {#if got}<button onclick={() => (got = null)}>Press again</button>{/if}
-        {#if current?.device}<button class="quiet" disabled={busy} onclick={() => save(true)}>Clear</button>{/if}
-        <button class="quiet" onclick={onclose}>Cancel</button>
+        <Button kind="primary" disabled={!got || busy} onclick={() => save()}>Save</Button>
+        {#if got}<Button onclick={() => (got = null)}>Press again</Button>{/if}
+        {#if current?.device}<Button disabled={busy} onclick={() => save(true)}>Clear</Button>{/if}
+        <Button onclick={onclose}>Cancel</Button>
       </div>
     {/if}
   </div>
@@ -114,13 +116,5 @@
   .press.got { background: var(--cell); color: var(--text-hi); text-transform: none; letter-spacing: 0; font-weight: 500; }
   .press.got .lo { color: var(--text-lo); }
   .copy { display: grid; gap: 6px; margin: 12px 0; }
-  input { all: unset; height: var(--row); padding: 0 12px; background: var(--cell-opt); color: var(--text-hi); border-bottom: 2px solid var(--accent); }
-  .acts { display: flex; gap: 28px; margin-top: 18px; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button.cell { height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); }
-  button.cell:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
-  button.quiet { color: var(--text-lo); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover, button:focus-visible { color: var(--text-hi); }
-  button.cell:not(:disabled):hover { color: var(--text-hi); }
+  .acts { display: flex; align-items: center; gap: var(--sp-4); margin-top: 18px; }
 </style>

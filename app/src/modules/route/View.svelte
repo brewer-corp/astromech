@@ -6,6 +6,8 @@
   // quietly, and the route it replaced is parked to resume.
   import { GAME_SOURCE, backWaypoint, clearRoute, copyNext, getRoute, importRoute, resumeRoute, skipWaypoint, watchRoute, type RouteView } from "../../lib/route";
   import { pollFailure } from "../../lib/ui/errors";
+  import Button from "../../lib/ui/Button.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import Glyph from "../../lib/ui/Glyph.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
 
@@ -64,7 +66,7 @@
   {#if parked}
     <div class="parked">
       <span><span class="sublabel">Paused</span> {parked.name} · {parked.waypoints.length - parked.next} waypoints left</span>
-      <button class="cell" onclick={() => run(resumeRoute)}>Resume</button>
+      <Button onclick={() => run(resumeRoute)}>Resume</Button>
     </div>
   {/if}
 
@@ -94,12 +96,10 @@
     </div>
 
     <div class="actions">
-      <button class="cell" onclick={() => run(copyNext)} disabled={done} title="Copy the next waypoint again">
-        <Glyph name="copy" /> Copy
-      </button>
-      <button class="quiet" onclick={() => run(skipWaypoint)} disabled={done}>Skip</button>
-      <button class="quiet" onclick={() => run(backWaypoint)} disabled={route.next === 0}>Back</button>
-      <button class="quiet" onclick={() => run(clearRoute)}>Clear route</button>
+      <Button onclick={() => run(copyNext)} disabled={done} title="Copy the next waypoint again"><Glyph name="copy" /> Copy</Button>
+      <Button onclick={() => run(skipWaypoint)} disabled={done}>Skip</Button>
+      <Button onclick={() => run(backWaypoint)} disabled={route.next === 0}>Back</Button>
+      <Button onclick={() => run(clearRoute)}>Clear route</Button>
     </div>
 
     <ol class="stops">
@@ -125,10 +125,10 @@
     <details class="block">
       <summary>Import</summary>
       <div class="import">
-        <input placeholder="Name (optional)" bind:value={name} />
-        <textarea rows="5" placeholder="Paste a Spansh CSV or one system name per line" bind:value={text}></textarea>
+        <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
+        <Input rows={5} aria-label="Route" placeholder="Paste a Spansh CSV or one system name per line" bind:value={text} />
         <div class="actions">
-          <button class="cell" onclick={start} disabled={!text.trim()}>Follow this route</button>
+          <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
         </div>
       </div>
     </details>
@@ -141,10 +141,10 @@
 
     <div class="import">
       <h4>Import</h4>
-      <input placeholder="Name (optional)" bind:value={name} />
-      <textarea rows="6" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text}></textarea>
+      <Input aria-label="Route name" placeholder="Name (optional)" bind:value={name} />
+      <Input rows={6} aria-label="Route" placeholder="Paste a Spansh CSV (neutron, road to riches, carrier…) or one system name per line" bind:value={text} />
       <div class="actions">
-        <button class="cell" onclick={start} disabled={!text.trim()}>Follow this route</button>
+        <Button kind="primary" onclick={start} disabled={!text.trim()}>Follow this route</Button>
       </div>
     </div>
   {/if}
@@ -163,12 +163,6 @@
   .clip { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-size: var(--fs-s); }
   .warn { color: var(--text-hi); }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button.cell { display: inline-flex; align-items: center; gap: 8px; height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); }
-  button.cell:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
-  button.quiet { color: var(--text-lo); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
   .stops { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs); }
   .stops .sys { color: var(--text); }
   .stops .past .sys { color: var(--text-lo); text-decoration: line-through; }
@@ -179,8 +173,6 @@
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .how p { color: var(--text); font-size: var(--fs-s); line-height: 1.45; }
   .import { display: flex; flex-direction: column; gap: 8px; }
-  input, textarea { background: var(--cell-opt); color: var(--text); border: 0; padding: 8px 10px; font: inherit; font-size: var(--fs-s); }
-  textarea { font-family: var(--mono); resize: vertical; }
   .err { color: var(--text-hi); background: var(--accent); padding: 8px 12px; }
   .parked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 0; border-bottom: 1px solid var(--accent-dim); color: var(--text); font-size: var(--fs-s); }
   details.block { border-top: 1px solid var(--accent-dim); padding-top: 12px; }

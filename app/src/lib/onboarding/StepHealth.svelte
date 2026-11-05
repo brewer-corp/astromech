@@ -2,6 +2,7 @@
   // Step 6: everything voice needs, each with a fix: Elite's folders, push-to-talk, speech
   // models, calibration, and the keybinds health (actions voice presses need a keyboard key;
   // "Bind a key" is the same press-to-bind dialog as All keybinds).
+  import Button from "../ui/Button.svelte";
   import { coreCall, type CoreStatus, type Found, type MicList } from "../core";
   import type { Row } from "../binds";
   import { binds } from "../store.svelte";
@@ -96,7 +97,7 @@
       <dt>{c.label}</dt>
       <dd class:warn={!c.ok && c.required}>
         <span>{c.text}</span>
-        {#if !c.ok && c.fix}<button onclick={c.fix.run}>{c.fix.label}</button>{/if}
+        {#if !c.ok && c.fix}<Button onclick={c.fix.run}>{c.fix.label}</Button>{/if}
       </dd>
     {/each}
   </dl>

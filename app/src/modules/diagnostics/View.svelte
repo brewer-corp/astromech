@@ -1,6 +1,7 @@
 <script lang="ts">
   // Diagnostics (docs/V1-DESIGN.md §2.2): what astromech sees right now, and Save diagnostics for
   // a bug report. Settings live in Settings; the key tester is under Controls.
+  import Button from "../../lib/ui/Button.svelte";
   import { coreCall, coreStatus, openUrl, shellInfo, type CoreStatus } from "../../lib/core";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
@@ -74,8 +75,8 @@
     <dt>Process</dt><dd class="mono">{status ? `pid ${status.pid}` : "—"}</dd>
   </dl>
   <div class="actions">
-    <button class="cell" onclick={save} disabled={!status}>Save diagnostics</button>
-    <button class="quiet" onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</button>
+    <Button kind="primary" onclick={save} disabled={!status}>Save diagnostics</Button>
+    <Button onclick={() => status && openUrl(status.log_dir)} disabled={!status}>Open log folder</Button>
   </div>
   {#if note}<p class="note">{note}</p>{/if}
 
@@ -110,12 +111,6 @@
   dd { background: var(--cell-opt); color: var(--text); }
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .actions { display: flex; gap: 16px; align-items: center; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button.cell { height: var(--row); padding: 0 14px; background: var(--cell); color: var(--accent); }
-  button.cell:disabled { background: var(--cell-empty); color: var(--text-lo); cursor: default; }
-  button.quiet { color: var(--text-lo); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
   .crash { background: var(--accent); color: var(--on-accent); padding: 10px 12px; margin: 0 0 20px; font-weight: 600; }
   h2 { margin: 32px 0 12px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-weight: 600; }
   h3 { margin: 20px 0 0; color: var(--text-lo); font-weight: 600; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }

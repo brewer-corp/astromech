@@ -1,6 +1,8 @@
 <script lang="ts">
   // Spansh and Inara buttons for a system, or for a station in it. Opens in the browser through
   // the core; shows its own error so a failed open is not silent.
+  import Button from "./Button.svelte";
+  import Glyph from "./Glyph.svelte";
   import { openUrl } from "../core";
   import { inaraStation, inaraSystem, spanshStation, spanshSystem } from "../links";
 
@@ -23,14 +25,12 @@
 </script>
 
 <span class="ext">
-  <button type="button" title="Open {what} on Spansh" onclick={() => void open(spansh)}>Spansh</button>
-  {#if station || !marketId}<button type="button" title="Open {what} on Inara" onclick={() => void open(inara)}>Inara</button>{/if}
+  <Button title="Open {what} on Spansh" onclick={() => void open(spansh)}>Spansh <Glyph name="external" /></Button>
+  {#if station || !marketId}<Button title="Open {what} on Inara" onclick={() => void open(inara)}>Inara <Glyph name="external" /></Button>{/if}
   {#if err}<span class="err">{err}</span>{/if}
 </span>
 
 <style>
-  .ext { display: inline-flex; gap: 4px; align-items: baseline; }
-  button { all: unset; cursor: pointer; padding: 0 6px; border: 1px solid var(--accent-dim); background: var(--cell); color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  button:hover, button:focus-visible { color: var(--text-hi); outline: 1px solid var(--accent); outline-offset: -1px; }
+  .ext { display: inline-flex; gap: var(--sp-1); align-items: center; }
   .err { color: var(--warn, var(--text-lo)); font-size: var(--fs-s); }
 </style>

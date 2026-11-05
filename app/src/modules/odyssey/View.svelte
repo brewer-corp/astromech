@@ -3,6 +3,9 @@
   // blueprint picker (suit/weapon grade upgrades and modifications) with what each is missing and
   // one shopping list for them all, and the on-foot engineers' unlocks and referral chain.
   import { failure, pollFailure } from "../../lib/ui/errors";
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Dropdown from "../../lib/ui/Dropdown.svelte";
   import Stale from "../../lib/ui/Stale.svelte";
   import {
     fromGrades,
@@ -180,7 +183,13 @@
         {#each CATS as c (c.id)}
           <button class:on={cat === c.id} onclick={() => (cat = c.id)}>{c.title}</button>
         {/each}
-        <button type="button" class="tog" class:on={heldOnly} aria-pressed={heldOnly} aria-label="Held only" onclick={() => (heldOnly = !heldOnly)}>{heldOnly ? "Held only" : "All items"}</button>
+        <Choice
+          class="tog"
+          label="Which items"
+          value={heldOnly ? "held" : "all"}
+          options={[{ value: "all", label: "All items" }, { value: "held", label: "Held only" }]}
+          onchange={(v) => (heldOnly = v === "held")}
+        />
       </div>
       <p class="sub">{held.toLocaleString()} held{cat === "consumables" ? "" : ` · a bartender pays ${worth.toLocaleString()} CR for them`}</p>
     {/if}
@@ -220,23 +229,23 @@
       </p>
     {/if}
     <div class="picker">
-      <select bind:value={what} aria-label="Blueprint type">
+      <Dropdown bind:value={what} aria-label="Blueprint type">
         <option value="upgrade">Grade upgrade</option>
         <option value="mod">Modification</option>
-      </select>
+      </Dropdown>
       {#if what === "upgrade"}
-        <select bind:value={gearId} aria-label="Suit or weapon">
+        <Dropdown bind:value={gearId} aria-label="Suit or weapon">
           <optgroup label="Suits">
             {#each view.gear.filter((g) => g.kind === "suit") as g (g.id)}<option value={g.id}>{g.name}{ownedNote(g.id)}</option>{/each}
           </optgroup>
           <optgroup label="Weapons">
             {#each view.gear.filter((g) => g.kind === "weapon") as g (g.id)}<option value={g.id}>{g.name}{ownedNote(g.id)}</option>{/each}
           </optgroup>
-        </select>
-        <label>from <select bind:value={from} aria-label="From grade">{#each fromOptions as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
-        <label>to <select bind:value={to} aria-label="To grade">{#each toOptions as g (g)}<option value={g}>G{g}</option>{/each}</select></label>
+        </Dropdown>
+        <label>from <Dropdown bind:value={from} aria-label="From grade">{#each fromOptions as g (g)}<option value={g}>G{g}</option>{/each}</Dropdown></label>
+        <label>to <Dropdown bind:value={to} aria-label="To grade">{#each toOptions as g (g)}<option value={g}>G{g}</option>{/each}</Dropdown></label>
       {:else}
-        <select bind:value={modId} aria-label="Modification">
+        <Dropdown bind:value={modId} aria-label="Modification">
           <option value="" disabled>Choose…</option>
           <optgroup label="Suit">
             {#each view.mods.filter((m) => m.kind === "suit" && offered(m)) as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
@@ -244,15 +253,15 @@
           <optgroup label="Weapon">
             {#each view.mods.filter((m) => m.kind === "weapon" && offered(m)) as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
           </optgroup>
-        </select>
+        </Dropdown>
         {#if makers.length}
-          <select bind:value={maker} aria-label="Weapon maker">
+          <Dropdown bind:value={maker} aria-label="Weapon maker">
             <option value="" disabled>Weapon maker…</option>
             {#each makers as mk (mk)}<option value={mk}>{MAKERS[mk] ?? mk}</option>{/each}
-          </select>
+          </Dropdown>
         {/if}
       {/if}
-      <button class="add" disabled={!candidate} onclick={add}>Add</button>
+      <Button kind="primary" disabled={!candidate} onclick={add}>Add</Button>
     </div>
 
     {#if shopError}<p class="sub">{shopError}</p>{/if}
@@ -265,7 +274,7 @@
             <header>
               <h3>{r.title}</h3>
               {#if list && !r.error}<span class="lo">{r.credits.toLocaleString()}{r.credits_partial ? "+" : ""} CR</span>{/if}
-              <button class="x" aria-label={`Remove ${r.title}`} onclick={() => remove(r.pick)}>Remove</button>
+              <Button aria-label={`Remove ${r.title}`} onclick={() => remove(r.pick)}>Remove</Button>
             </header>
             {#if r.error}
               <p class="err">{r.error}. Remove it and pick again.</p>
@@ -370,9 +379,7 @@
   .acts button { color: var(--text-lo); }
   .acts button:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
-  .tog { all: unset; cursor: pointer; box-sizing: border-box; margin-left: auto; height: 30px; padding: 0 12px; background: var(--cell-opt); color: var(--text); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; }
-  .tog:hover { color: var(--text-hi); }
-  .tog.on { background: var(--cell); color: var(--accent); }
+  .acts > :global(.tog) { margin-left: auto; align-self: center; text-transform: none; letter-spacing: normal; }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
   .out { padding: 24px 4px 8px; min-width: 0; }
   .lo { color: var(--text-lo); }
@@ -387,19 +394,12 @@
   .inv tr.done td { color: var(--text-lo); }
   .short { color: var(--accent); }
   .picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 20px; }
-  .picker select { all: unset; min-width: 8rem; height: 32px; padding: 0 10px; background: var(--cell); color: var(--accent); cursor: pointer; font: inherit; }
-  .picker option { background: var(--bg); color: var(--text); }
   .picker label { color: var(--text-lo); display: inline-flex; gap: 6px; align-items: center; }
-  .add { height: 32px; padding: 0 14px; background: var(--cell); color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  .add:hover { color: var(--text-hi); }
-  .add:disabled { opacity: 0.4; cursor: default; }
   .picks { display: flex; flex-direction: column; }
   .pick, .eng { padding: 16px 8px; border-bottom: 1px solid #1a1c1e; }
   .pick header, .eng header { display: flex; gap: 16px; align-items: baseline; }
   .pick h3, .eng h3 { margin: 0; font-size: var(--fs-l); font-weight: 500; color: var(--text-hi); flex: 1; }
   .pick.ready h3 { color: var(--accent); }
-  .x { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .x:hover { color: var(--text-hi); }
   .missing { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-s); }
   .missing li { display: grid; grid-template-columns: 1fr 4.5rem 3.5rem; gap: 12px; }
   .ok { color: var(--accent); font-size: var(--fs-s); }

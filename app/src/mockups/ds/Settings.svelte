@@ -5,7 +5,7 @@
   // PAUSE) is a changeable value in a cell; a status with no action (Speech models) is a fact
   // outside a cell.
   import Chrome from "./Chrome.svelte";
-  import Icon from "./Icon.svelte";
+  import Glyph from "../../lib/ui/Glyph.svelte";
 
   type Row =
     | { label: string; kind: "value"; value: string; action?: string; binding?: boolean; dropdown?: boolean }
@@ -54,7 +54,7 @@
             {:else}
               <span class="cell value" class:binding={r.binding}>
                 <span>{r.value}</span>
-                <span class="end">{#if r.dropdown}<Icon name="chevron" />{/if}{#if r.action}<button class="act">{r.action}</button>{/if}</span>
+                <span class="end">{#if r.dropdown}<Glyph name="chevron" />{/if}{#if r.action}<button class="act">{r.action}</button>{/if}</span>
               </span>
             {/if}
           </div>

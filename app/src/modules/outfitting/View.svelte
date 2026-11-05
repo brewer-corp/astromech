@@ -7,7 +7,7 @@
   import { stations, toResults, type ModuleWant, type Mount } from "../../lib/stations";
   import FindWant from "../../lib/ui/FindWant.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
-  import Seg from "../../lib/ui/Seg.svelte";
+  import Choice, { type ChoiceOpt } from "../../lib/ui/Choice.svelte";
 
   const DEFAULT: ModuleWant = { name: "Frame Shift Drive", class: 5, rating: "A", mount: null };
   let want = $state<ModuleWant>(parseModuleRoute(location.hash) ?? DEFAULT);
@@ -30,9 +30,12 @@
     return async (origin: Origin, filters: Filters) => toResults(await stations(w, origin, filters));
   });
 
-  const classOpts = $derived([{ value: "", label: "Any" }, ...opts.classes.map((c) => ({ value: String(c), label: String(c) }))]);
-  const ratingOpts = $derived([{ value: "", label: "Any" }, ...opts.ratings.map((r) => ({ value: r, label: r }))]);
-  const mountOpts = $derived([{ value: "", label: "Any" }, ...opts.mounts.map((m) => ({ value: m, label: m }))]);
+  /** "Any" and the values, each named with its field ("Class 5") for screen readers. */
+  const withAny = (field: string, values: string[]): ChoiceOpt[] =>
+    ["", ...values].map((v) => ({ value: v, label: v || "Any", ariaLabel: `${field} ${v || "Any"}` }));
+  const classOpts = $derived(withAny("Class", opts.classes.map(String)));
+  const ratingOpts = $derived(withAny("Rating", opts.ratings));
+  const mountOpts = $derived(withAny("Mount", opts.mounts));
 </script>
 
 <section>
@@ -40,10 +43,10 @@
     {#snippet lead()}
       <FindWant current={want.name} />
       <div class="want">
-        <Seg label="Class" value={want.class != null ? String(want.class) : ""} options={classOpts} onchange={(v) => pick({ class: v ? Number(v) : null })} />
-        <Seg label="Rating" value={want.rating ?? ""} options={ratingOpts} onchange={(v) => pick({ rating: v || null })} />
+        <div class="field"><span>Class</span><Choice label="Class" value={want.class != null ? String(want.class) : ""} options={classOpts} onchange={(v) => pick({ class: v ? Number(v) : null })} /></div>
+        <div class="field"><span>Rating</span><Choice label="Rating" value={want.rating ?? ""} options={ratingOpts} onchange={(v) => pick({ rating: v || null })} /></div>
         {#if opts.mounts.length}
-          <Seg label="Mount" value={want.mount ?? ""} options={mountOpts} onchange={(v) => pick({ mount: (v || null) as Mount | null })} />
+          <div class="field"><span>Mount</span><Choice label="Mount" value={want.mount ?? ""} options={mountOpts} onchange={(v) => pick({ mount: (v || null) as Mount | null })} /></div>
         {/if}
       </div>
     {/snippet}
@@ -53,4 +56,6 @@
 <style>
   section { padding: 8px 0 32px; min-width: 0; }
   .want { display: flex; flex-direction: column; gap: 10px; }
+  .field { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .field > span { color: var(--text-lo); text-transform: uppercase; letter-spacing: var(--caps); font-size: var(--fs-s); flex: none; min-width: 5.5em; }
 </style>

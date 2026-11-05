@@ -17,7 +17,9 @@ sleep 2
 SHOTS=(activities:1920x1080 ship:1440x900 keybinds:1440x900 controller:1440x900 settings:1440x900 tray:640x520
   ds-materials:1600x1000:design-system-materials-after ds-sell:1600x1000:design-system-places-sell-after
   ds-mining:1600x1000:design-system-places-mining-after ds-places:1600x1000:design-system-places-home-after
-  ds-settings:1600x1000:design-system-settings-after)
+  ds-settings:1600x1000:design-system-settings-after
+  ds-settings:1100x700:design-system-header-1100)
+# The last is DESIGN.md's one-row header at its 1100 px minimum window width (astromech-pey5).
 for p in "${SHOTS[@]}"; do
   IFS=: read -r id size file <<<"$p"
   if [[ $# -gt 0 && " $* " != *" $id "* ]]; then continue; fi

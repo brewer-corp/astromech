@@ -3,6 +3,7 @@
   // blueprint; arrows and Enter pick, Esc closes. A pick opens the entry's route: a material,
   // module or catalogue ship opens its nearby search; one of my ships or a blueprint its page. Works from any page, but not while another
   // modal (a bind capture) has the keyboard. The entries load each time it opens.
+  import Input from "./Input.svelte";
   import { tick } from "svelte";
   import { rank, type PaletteItem } from "../palette";
 
@@ -12,7 +13,7 @@
   let query = $state("");
   let items = $state<PaletteItem[] | null>(null);
   let active = $state(0);
-  let input: HTMLInputElement | undefined = $state();
+  let input: HTMLInputElement | HTMLTextAreaElement | undefined = $state();
   let before: Element | null = null;
   const shown = $derived(items ? rank(items, query) : []);
 
@@ -63,8 +64,9 @@
 {#if open}
   <div class="shade" role="presentation" onmousedown={(e) => e.target === e.currentTarget && close()}>
     <div class="box" role="dialog" aria-modal="true" aria-label="Command palette">
-      <input
-        bind:this={input}
+      <Input
+        class="q"
+        bind:input
         bind:value={query}
         oninput={() => (active = 0)}
         onkeydown={key}
@@ -95,8 +97,7 @@
 <style>
   .shade { position: fixed; inset: 0; z-index: 50; background: rgb(0 0 0 / 0.7); display: flex; justify-content: center; align-items: flex-start; padding-top: 12vh; }
   .box { width: min(640px, calc(100vw - 80px)); background: var(--bg); border-top: 2px solid var(--accent); box-shadow: 0 12px 40px rgb(0 0 0 / 0.6); }
-  input { box-sizing: border-box; width: 100%; padding: 14px 18px; border: 0; border-bottom: 1px solid var(--accent-dim); background: transparent; color: var(--text-hi); font: inherit; font-size: var(--fs-l); outline: none; }
-  input::placeholder { color: var(--text-lo); }
+  .box :global(.q) { margin: var(--sp-3); }
   ul { list-style: none; margin: 0; padding: 6px 0; max-height: 60vh; overflow: auto; }
   button { all: unset; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; gap: 16px; padding: 8px 18px; cursor: pointer; color: var(--text); }
   button.on { background: var(--row-hover); color: var(--text-hi); box-shadow: inset 2px 0 0 var(--accent); }

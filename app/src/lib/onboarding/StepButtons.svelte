@@ -1,6 +1,7 @@
 <script lang="ts">
   // Step 3: press-to-bind push-to-talk and the kill switch. astromech only listens to the
   // button; nothing is sent to the game. Saved to astromech.toml by the core.
+  import Button from "../ui/Button.svelte";
   import { coreCall, parseButton, type CoreStatus } from "../core";
   import { isWindowClick, type Press } from "../binds";
   import { binds } from "../store.svelte";
@@ -69,9 +70,9 @@
 <div class="setup-step">
   <dl>
     <dt>Push-to-talk</dt>
-    <dd class:warn={status ? !status.ptt : unread === "failed"}><span>{shown(status?.ptt)}</span><button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</button></dd>
+    <dd class:warn={status ? !status.ptt : unread === "failed"}><span>{shown(status?.ptt)}</span><Button onclick={() => capture("ptt")}>{status?.ptt ? "Change" : "Set"}</Button></dd>
     <dt>Kill switch</dt>
-    <dd><span>{shown(status?.kill_switch)}</span><button onclick={() => capture("kill_switch")}>{status?.kill_switch ? "Change" : "Set"}</button></dd>
+    <dd><span>{shown(status?.kill_switch)}</span><Button onclick={() => capture("kill_switch")}>{status?.kill_switch ? "Change" : "Set"}</Button></dd>
   </dl>
   {#if capturing}
     <p>{capturing === "ptt" ? "Press the button you'll hold to speak." : "Press a button Elite doesn't use, for the kill switch."}</p>
@@ -82,9 +83,9 @@
       <p class="warn-text">Elite also uses it for {inGame.join(", ")}.{capturing === "ptt" ? " That's fine if you want both." : " The game would act on it too."}</p>
     {/if}
     <div class="acts">
-      <button disabled={!got || clash} onclick={save}>Save</button>
-      {#if got}<button onclick={() => capture(capturing ?? "ptt")}>Press again</button>{/if}
-      <button onclick={stop}>Cancel</button>
+      <Button disabled={!got || clash} onclick={save}>Save</Button>
+      {#if got}<Button onclick={() => capture(capturing ?? "ptt")}>Press again</Button>{/if}
+      <Button onclick={stop}>Cancel</Button>
     </div>
   {/if}
   {#if saved}<p>{saved}</p>{/if}

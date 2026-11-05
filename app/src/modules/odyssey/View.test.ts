@@ -34,9 +34,10 @@ it("lists the ShipLocker and Backpack by category with bartender values", async 
   expect(row("Suit Schematic")).toEqual(["Suit Schematic", "3", "", "", "", "50,000 CR"]);
   await fireEvent.click(screen.getByRole("button", { name: "Assets" }));
   expect(row("Graphene")).toEqual(["Graphene", "7", "2", "", "23", "1,300 CR"]);
-  // Held only by default; unticking shows the rest of the catalogue.
+  // Held only by default; All items shows the rest of the catalogue.
+  expect(screen.getByRole("button", { name: "Held only" }).getAttribute("aria-pressed")).toBe("true");
   expect(screen.queryByText("Aerogel")).toBeNull();
-  await fireEvent.click(screen.getByLabelText("Held only"));
+  await fireEvent.click(screen.getByRole("button", { name: "All items" }));
   expect(screen.getByText("Aerogel")).toBeTruthy();
   // Mission items have their own column.
   await fireEvent.click(screen.getByRole("button", { name: "Goods" }));

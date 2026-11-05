@@ -1,6 +1,8 @@
 <script lang="ts">
   // Step 1: where Elite keeps its keybindings and journals (core setup.rs `find_elite`). Both
   // appear the first time the game runs on this Windows account; either can be pointed elsewhere.
+  import Button from "../ui/Button.svelte";
+  import Input from "../ui/Input.svelte";
   import { coreCall, type Found } from "../core";
   import { api } from "../binds";
   import { binds } from "../store.svelte";
@@ -48,11 +50,11 @@
       <p class="warn-text">Elite hasn't run on this Windows account yet, or its folders are somewhere else.</p>
       <p class="lo">Start Elite once and come back, or paste your Bindings folder (Options\Bindings, under Frontier Developments).</p>
       <div class="acts">
-        <input bind:value={dir} placeholder="Bindings folder" aria-label="Bindings folder" />
-        <button disabled={!dir.trim()} onclick={save}>Use this folder</button>
+        <Input class="grow" bind:value={dir} placeholder="Bindings folder" aria-label="Bindings folder" />
+        <Button disabled={!dir.trim()} onclick={save}>Use this folder</Button>
       </div>
     {/if}
-    <div class="acts"><button onclick={check}>Check again</button></div>
+    <div class="acts"><Button onclick={check}>Check again</Button></div>
   {/if}
   {#if error}<p class="warn-text">{error}</p>{/if}
 </div>

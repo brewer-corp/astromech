@@ -1,6 +1,8 @@
 <script lang="ts">
   // Settings → Data sharing, EDSM (astromech-ah0i): your journal to your EDSM account, so its
   // flight log and map keep up. The API key goes to the OS keyring; it's never shown again.
+  import Button from "../../lib/ui/Button.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { edsmStatus, flightLog, setEdsm, type EdsmStatus, type Visit } from "../../lib/edsm";
   import { when } from "../../lib/eddn";
   import { pollFailure } from "../../lib/ui/errors";
@@ -74,21 +76,25 @@
     <dt>Upload to EDSM</dt>
     <dd>
       <span>{label(st)}</span>
-      <button onclick={toggle} disabled={busy}>{st.enabled ? "Turn off" : "Turn on"}</button>
+      <Button onclick={toggle} disabled={busy}>{st.enabled ? "Turn off" : "Turn on"}</Button>
     </dd>
     <dt><label for="edsm-cmdr">Commander name</label></dt>
-    <dd>
-      <input id="edsm-cmdr" bind:value={commander} placeholder="as registered on EDSM" autocomplete="off" spellcheck="false" />
-      <button onclick={saveName} disabled={busy || commander.trim() === st.commander} aria-label="Save commander name">Save</button>
+    <dd class="bare">
+      <Input class="grow" id="edsm-cmdr" bind:value={commander} placeholder="As registered on EDSM" autocomplete="off" spellcheck="false">
+        {#snippet end()}<Button onclick={saveName} disabled={busy || commander.trim() === st?.commander} aria-label="Save commander name">Save</Button>{/snippet}
+      </Input>
     </dd>
     <dt><label for="edsm-key">API key</label></dt>
-    <dd>
-      <input id="edsm-key" type="password" bind:value={key} placeholder={st.has_key ? "saved (enter a new one to replace it)" : "from EDSM: Settings > My API Key"} autocomplete="off" />
-      {#if key.trim()}
-        <button onclick={saveKey} disabled={busy} aria-label="Save API key">Save</button>
-      {:else if st.has_key}
-        <button onclick={forgetKey} disabled={busy} aria-label="Remove API key">Remove</button>
-      {/if}
+    <dd class="bare">
+      <Input class="grow" id="edsm-key" type="password" bind:value={key} placeholder={st.has_key ? "Saved (enter a new one to replace it)" : "From EDSM: Settings > My API Key"} autocomplete="off">
+        {#snippet end()}
+          {#if key.trim()}
+            <Button onclick={saveKey} disabled={busy} aria-label="Save API key">Save</Button>
+          {:else if st?.has_key}
+            <Button onclick={forgetKey} disabled={busy} aria-label="Remove API key">Remove</Button>
+          {/if}
+        {/snippet}
+      </Input>
     </dd>
     {#if st.key_error}
       <dt>Keyring</dt>
@@ -105,7 +111,7 @@
     <dt>Flight log</dt>
     <dd>
       <span>{visits ? `${visits.length} systems in the last week` : logError || "On EDSM"}</span>
-      <button onclick={showLog} disabled={busy || !st.has_key || !st.commander} aria-label="Show flight log">Show</button>
+      <Button onclick={showLog} disabled={busy || !st.has_key || !st.commander} aria-label="Show flight log">Show</Button>
     </dd>
   </dl>
   {#if note}<p class="hint">{note}</p>{/if}
@@ -140,15 +146,13 @@
   dd.warn { background: var(--cell); color: var(--text-hi); }
   dd > span { min-width: 0; }
   .err { overflow-wrap: anywhere; }
-  input { all: unset; flex: 1; min-width: 0; color: var(--text-hi); }
-  input::placeholder { color: var(--text-lo); }
+  /* A row whose value is a box of its own has no cell around it. */
+  dd.bare { padding: 0; background: none; }
+  dd.bare > :global(.grow) { flex: 1; }
   .hint { color: var(--text-lo); margin: 8px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); line-height: 1.6; }
   .text { color: var(--text); line-height: 1.6; max-width: 46rem; margin-top: 16px; }
   .text p { margin: 0 0 10px; }
   table { border-collapse: collapse; margin: 12px 0 0 calc(14rem + var(--gap)); font-size: var(--fs-s); }
   th { color: var(--text-lo); font-weight: 400; text-align: left; padding: 4px 16px 4px 0; }
   td { color: var(--text); padding: 4px 16px 4px 0; }
-  button { all: unset; cursor: pointer; flex: none; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
 </style>

@@ -2,6 +2,9 @@
   // All keybinds (docs/V1-DESIGN.md §3.1): the game's Controls list, improved. Search, context
   // and state filters, issue counts per group, inline health markers, empty slots that look
   // empty, and pressing any control jumps to what it does.
+  import Button from "../../lib/ui/Button.svelte";
+  import Choice from "../../lib/ui/Choice.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { binds } from "../../lib/store.svelte";
   import { slotText, bound, control } from "../../lib/format";
   import { controlFor } from "../../lib/devices";
@@ -20,7 +23,7 @@
   let hits = $state<string[]>([]);
   let bind = $state<{ row: Row; slot: string } | null>(null);
   let pressed = $state<string | null>(null);
-  let search: HTMLInputElement | undefined = $state();
+  let search: HTMLInputElement | HTMLTextAreaElement | undefined = $state();
 
   binds.start();
 
@@ -102,17 +105,14 @@
 
 <div class="cols">
   <section class="list">
-    <div class="search">
-      <input bind:this={search} bind:value={q} placeholder="Search actions or keys, or press any control" oninput={() => (hits = [])} />
-      <span class="hint">Ctrl+F</span>
-    </div>
+    <Input bind:input={search} bind:value={q} aria-label="Search actions or keys" placeholder="Search actions or keys, or press any control" oninput={() => (hits = [])}>
+      {#snippet end()}Ctrl+F{/snippet}
+    </Input>
     <PresetPicker />
     <div class="filters">
-      {#each CTX as c (c)}<button class:on={ctx === c} onclick={() => (ctx = c)}>{c}</button>{/each}
+      <Choice label="Where" value={ctx} options={CTX.map((c) => ({ value: c, label: c }))} onchange={(v) => (ctx = v)} />
       <span class="sp"></span>
-      {#each STATE as s (s)}
-        <button class:on={only === s} onclick={() => (only = s)}>{s}{s === "Issues" && totalIssues ? ` ${totalIssues}` : ""}</button>
-      {/each}
+      <Choice label="Show" value={only} options={STATE.map((s) => ({ value: s, label: `${s}${s === "Issues" && totalIssues ? ` ${totalIssues}` : ""}` }))} onchange={(v) => (only = v)} />
     </div>
     {#if pressed}<div class="pressed">Pressed {pressed}</div>{/if}
     <div class="head"><span>Action</span><span>Primary</span><span>Secondary</span><span></span></div>
@@ -167,10 +167,10 @@
       {/each}
       {#if !sel.in_file}<p class="lo">Not in this preset's file, so the game has nothing bound.</p>{/if}
       {#if sel.analogue}
-        <button class="act" onclick={() => (bind = { row: sel, slot: "Binding" })}>Bind an axis…</button>
+        <Button class="act" onclick={() => (bind = { row: sel, slot: "Binding" })}>Bind an axis…</Button>
       {:else}
-        <button class="act" onclick={() => (bind = { row: sel, slot: "Primary" })}>Set primary…</button>
-        <button class="act" onclick={() => (bind = { row: sel, slot: "Secondary" })}>Set secondary…</button>
+        <Button class="act" onclick={() => (bind = { row: sel, slot: "Primary" })}>Set primary…</Button>
+        <Button class="act" onclick={() => (bind = { row: sel, slot: "Secondary" })}>Set secondary…</Button>
       {/if}
       <p class="lo id">Elite name: {sel.id}</p>
     </About>
@@ -188,16 +188,9 @@
 <style>
   .cols { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; height: 100%; padding-top: 18px; min-height: 0; }
   .list { display: flex; flex-direction: column; min-height: 0; }
-  .search { display: flex; justify-content: space-between; align-items: center; height: 40px; padding: 0 14px; background: var(--cell-opt); border-bottom: 2px solid var(--accent); }
-  .search input { all: unset; flex: 1; color: var(--text-hi); font-size: var(--fs-l); }
-  .search input::placeholder { color: var(--text-lo); }
-  .hint { font-size: var(--fs-s); color: var(--text-lo); }
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .row { display: grid; grid-template-columns: 1fr 200px 200px 190px; gap: var(--gap); align-items: center; min-height: var(--row); }
-  .filters { display: flex; gap: 22px; margin: 12px 0 6px; padding-left: 34px; font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
-  .filters button { color: var(--text-lo); }
-  .filters button:hover { color: var(--text); }
-  .filters .on { color: var(--accent); }
+  .filters { display: flex; gap: var(--sp-4); margin: 12px 0 6px; }
   .sp { flex: 1; }
   .pressed { padding: 6px 0 6px 34px; color: var(--text-hi); }
   .head { display: grid; grid-template-columns: 1fr 200px 200px 190px; gap: var(--gap); padding: 6px 0 6px 34px; color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); }
@@ -218,8 +211,6 @@
   .mark { color: var(--accent); font-size: var(--fs-s); padding-left: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .item.sel .name, .item.hit .name { color: var(--accent); }
   .item.sel .cell { outline: 1px solid var(--accent); outline-offset: -1px; }
-  :global(aside .act) { all: unset; cursor: pointer; display: block; margin: 8px 0; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  :global(aside .act:hover) { color: var(--text-hi); }
   .lo { color: var(--text-lo); }
   .warn { color: var(--accent); }
   .pad { padding-left: 34px; }

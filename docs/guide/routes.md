@@ -26,7 +26,7 @@ A route comes from:
 - **Plot to a system** in the top bar ([Plot a route](#plot-a-route));
 - the galaxy map, when you plot a route there ([Routes plotted in the galaxy map](#routes-plotted-in-the-galaxy-map));
 - **Follow** on the engineer trip ([Engineering](engineering.md));
-- **Go** on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
+- the flag (**Go to** the system) on a search result (Services, Outfitting, Shipyard, Trade, Exploration, Colonisation,
   Powerplay targets and the material sites). That is a route with one stop: the result's
   system. If you are already in that system, the route is finished straight away and nothing is
   copied;

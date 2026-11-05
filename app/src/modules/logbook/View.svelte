@@ -1,6 +1,7 @@
 <script lang="ts">
   // The logbook: every system and station visited, how often and when, and the timeline of
   // arrivals and dockings, from the journal history the core keeps. Search narrows both.
+  import Input from "../../lib/ui/Input.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { coreStatus, type HistoryProgress } from "../../lib/core";
@@ -69,7 +70,7 @@
 
   <label class="search">
     <span>Search</span>
-    <input type="search" bind:value={query} placeholder="System or station" spellcheck="false" autocomplete="off" />
+    <Input class="q" type="search" bind:value={query} placeholder="System or station" spellcheck="false" autocomplete="off" />
   </label>
 
   <Stale error={book ? failed : null} />
@@ -130,8 +131,7 @@
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 14px 0 6px; }
   .err { color: var(--accent); }
   .search { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-size: var(--fs-s); }
-  .search input { flex: 0 1 24rem; background: var(--cell); color: var(--text); border: 1px solid var(--accent-dim); padding: 6px 8px; font: inherit; text-transform: none; letter-spacing: normal; font-size: var(--fs); }
-  .search input:focus { outline: 1px solid var(--accent); outline-offset: -1px; }
+  .search > :global(.q) { flex: 0 1 24rem; text-transform: none; letter-spacing: normal; }
   h3 { margin: 22px 0 8px; color: var(--text-hi); font-size: var(--fs-l); font-weight: 500; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; }
   th { text-align: left; color: var(--text-lo); font-size: var(--fs-s); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 0 12px 6px 0; }

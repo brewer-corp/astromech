@@ -14,7 +14,7 @@ if that stays.
 ### Startup
 
 - **Start with Windows.** On by default after install. astromech starts quietly in the tray and
-  waits for Elite, so voice is ready when you launch the game. **Turn off** stops it.
+  waits for Elite, so voice is ready when you launch the game. Choose **Off** to stop it.
 - **Setup.** "Done" or "Not finished". **Run again** reopens the [first-run
   setup](getting-started.md#first-run).
 
@@ -46,9 +46,9 @@ The next reply uses the change. Preview needs the speech models.
 
 ### Callouts
 
-One row for each [callout](callouts.md): a switch (**On** or **Off**) and its cooldown in seconds,
-how long it stays quiet after it speaks. Click the switch to turn a callout off, or the
-Powerplay arrival one on. Type a new number of seconds (0 to 86400) in the box and press Enter or
+One row for each [callout](callouts.md): **On** and **Off** (the one in use is filled)
+and its cooldown in seconds, how long it stays quiet after it speaks. Choose **Off** to turn a
+callout off, or **On** for the Powerplay arrival one. Type a new number of seconds (0 to 86400) in the box and press Enter or
 click away; **Reset** returns to the callout's own cooldown. The change is saved to
 `[callouts.<id>]` in `astromech.toml` and applies from the next time Elite starts, not to a
 session already running. If you also edit `astromech.toml` by hand, a hand-written value shows

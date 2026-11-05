@@ -1,6 +1,7 @@
 <script lang="ts">
   // Step 4: pick the recording device by name (the core records that one, not whatever Windows
   // makes the default, e.g. SteamVR's headset switch) and check its level.
+  import Button from "../ui/Button.svelte";
   import { coreCall, type Level, type MicList } from "../core";
 
   let mics = $state<MicList | null>(null);
@@ -49,13 +50,13 @@
         <dt>Use</dt>
         <dd class:on={!mics.setting}>
           <span>Windows default{mics.default ? ` · ${mics.default}` : ""}</span>
-          {#if mics.setting}<button onclick={() => pick("")}>Use</button>{:else}<span class="lo">Chosen</span>{/if}
+          {#if mics.setting}<Button onclick={() => pick("")}>Use</Button>{:else}<span class="lo">Chosen</span>{/if}
         </dd>
         {#each mics.names as n (n)}
           <dt></dt>
           <dd class:on={mics.chosen === n}>
             <span>{n}</span>
-            {#if mics.chosen === n}<span class="lo">Chosen</span>{:else}<button onclick={() => pick(n)}>Use</button>{/if}
+            {#if mics.chosen === n}<span class="lo">Chosen</span>{:else}<Button onclick={() => pick(n)}>Use</Button>{/if}
           </dd>
         {/each}
       </dl>
@@ -71,11 +72,11 @@
           Check level, then say something for two seconds.
         {/if}
       </div>
-      <div class="acts"><button disabled={checking} onclick={check}>Check level</button></div>
+      <div class="acts"><Button disabled={checking} onclick={check}>Check level</Button></div>
     {:else}
       <p class="warn-text">No microphones found.</p>
       <p class="lo">Plug in your headset or mic and check again.</p>
-      <div class="acts"><button onclick={load}>Check again</button></div>
+      <div class="acts"><Button onclick={load}>Check again</Button></div>
     {/if}
   {/if}
   {#if error}<p class="warn-text">{error}</p>{/if}

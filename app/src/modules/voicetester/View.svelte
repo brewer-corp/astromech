@@ -2,6 +2,8 @@
   // Voice tester: try a voice command safely. Type a phrase, or use push-to-talk while this page
   // is open, and see what was heard, the intent it matched, how sure the match is and the keys it
   // would send. Tests are dry runs; nothing reaches the game unless you click Run live.
+  import Button from "../../lib/ui/Button.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { keyName } from "../../lib/format";
   import {
     SWITCH_SECONDS,
@@ -136,8 +138,9 @@
     {/if}
   </p>
   <form class="ask" onsubmit={test}>
-    <input bind:value={text} placeholder="Type a phrase, e.g. gear down" aria-label="Phrase" />
-    <button type="submit" disabled={!text.trim()}>Test</button>
+    <Input class="grow" bind:value={text} placeholder="Type a phrase, e.g. gear down" aria-label="Phrase">
+      {#snippet end()}<Button type="submit" disabled={!text.trim()}>Test</Button>{/snippet}
+    </Input>
   </form>
   {#if error}<p class="note">{error}</p>{/if}
 
@@ -172,7 +175,7 @@
     <p class="safe">Nothing was sent to the game.</p>
     {#if result.live}
       <div class="actions">
-        <button onclick={runLive} disabled={!listening || running}>{skipsAsk(result) ? "Run live (no confirmation)" : "Run live"}</button>
+        <Button onclick={runLive} disabled={!listening || running}>{skipsAsk(result) ? "Run live (no confirmation)" : "Run live"}</Button>
         <span class="lo">
           {#if running}
             Switch to Elite now: pressing when it's in front ({countdown} s left).
@@ -199,7 +202,7 @@
         <li>
           <span class="said">{p.heard}</span>
           <span class="lo">runs {p.does}</span>
-          <button onclick={() => forget(p)} aria-label={`Remove ${p.heard}`}>Remove</button>
+          <Button onclick={() => forget(p)} aria-label={`Remove ${p.heard}`}>Remove</Button>
         </li>
       {/each}
     </ul>
@@ -211,9 +214,8 @@
   section { padding: 28px 0; max-width: 60rem; }
   p { margin: 0; }
   .lo { color: var(--text-lo); }
-  .ask { display: flex; gap: 28px; align-items: center; margin: 20px 0 24px; background: var(--cell-opt); padding: 0 12px; min-height: var(--row); }
-  .ask input { all: unset; flex: 1; color: var(--text-hi); font-size: var(--fs-l); }
-  .ask input::placeholder { color: var(--text-lo); }
+  .ask { display: flex; margin: 20px 0 24px; }
+  .ask > :global(.grow) { flex: 1; }
   dl { display: grid; grid-template-columns: 14rem 1fr; gap: var(--gap); margin: 0 0 16px; }
   dt, dd { margin: 0; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; }
   dt { color: var(--text-lo); }
@@ -222,9 +224,6 @@
   .mono { font-family: var(--mono); font-size: var(--fs-s); }
   .safe { color: var(--text-lo); margin-bottom: 16px; }
   .actions { display: flex; gap: 28px; align-items: center; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:disabled { color: var(--text-lo); cursor: default; }
-  button:not(:disabled):hover { color: var(--text-hi); }
   h2 { margin: 32px 0 12px; font-size: var(--fs-l); color: var(--text-hi); font-weight: 600; }
   .learned { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: var(--gap); }
   .learned li { display: flex; gap: 24px; align-items: center; background: var(--cell-opt); padding: 0 12px; min-height: var(--row); }

@@ -1,6 +1,8 @@
 <script lang="ts">
   // Ships page: one selected ship as the main pane (info or engineering), the rest of the
   // fleet as a bottom rail. Stored modules live on their own Engineering tab.
+  import Button from "../../lib/ui/Button.svelte";
+  import Glyph from "../../lib/ui/Glyph.svelte";
   import { failure, pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { DEFAULT_ROLLS, loadFleet, loadHeadlines, shipStats, shipTitle, type Compared, type Fleet, type Headline, type Ship } from "../../lib/engineering";
@@ -137,8 +139,8 @@
       {#if ship?.links}
         <span class="open">
           Open in
-          <button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis</button>
-          <button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY</button>
+          <Button title="Open this loadout in Coriolis" onclick={() => ship?.links && open(ship.links.coriolis)}>Coriolis <Glyph name="external" /></Button>
+          <Button title="Open this loadout in EDSY" onclick={() => ship?.links && open(ship.links.edsy)}>EDSY <Glyph name="external" /></Button>
         </span>
       {:else if ship?.loadout_ts && ship.modules.some((m) => m.engineering)}
         <span class="open lo" title="You engineered a module since the game last saved this loadout, so the link would show the old build.">Re-dock or relog to refresh the Coriolis / EDSY link</span>
@@ -222,14 +224,12 @@
 
 <style>
   section { padding: 0; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
-  button { all: unset; cursor: pointer; box-sizing: border-box; }
   .query { display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 20px; background: var(--bg-list); border-bottom: 1px solid var(--accent-dim); flex: none; }
   .acts { display: flex; flex-wrap: wrap; gap: 26px; align-items: baseline; text-transform: uppercase; letter-spacing: var(--caps); }
-  .acts a, .acts button { color: var(--text-lo); text-decoration: none; }
-  .acts a:hover, .acts button:hover { color: var(--text); }
+  .acts a { color: var(--text-lo); text-decoration: none; }
+  .acts a:hover { color: var(--text); }
   .acts .on { color: var(--accent); }
   .open { color: var(--text-lo); text-transform: none; letter-spacing: 0; margin-left: auto; }
-  .open button { color: var(--accent); margin-left: 6px; text-transform: uppercase; letter-spacing: var(--caps); }
   .sub { color: var(--text-lo); font-size: var(--fs-s); margin: 0; }
   .stage { flex: 1 1 auto; min-width: 0; min-height: 0; overflow: auto; }
   .ship { display: grid; grid-template-columns: auto minmax(12rem, 1.4fr) minmax(12rem, 1fr); gap: 18px 28px; align-items: start; padding: 18px 20px 4px; }

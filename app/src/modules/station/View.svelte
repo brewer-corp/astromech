@@ -3,6 +3,7 @@
   // and the hold against nearby prices, and what its outfitting sells that the ship flown would
   // be better for), and a search over every outfitting the core has seen: "where did I see a 5A
   // drive?" works offline.
+  import Input from "../../lib/ui/Input.svelte";
   import { pollFailure } from "../../lib/ui/errors";
   import Stale from "../../lib/ui/Stale.svelte";
   import { when } from "../../lib/logbook";
@@ -138,7 +139,7 @@
   <h3>Where did I see…</h3>
   <label class="search">
     <span>Module</span>
-    <input type="search" bind:value={query} placeholder="5a frame shift, fsd, pulse laser, hyperdrive_size5" spellcheck="false" autocomplete="off" />
+    <Input class="q" type="search" bind:value={query} placeholder="5a frame shift, fsd, pulse laser, hyperdrive_size5" spellcheck="false" autocomplete="off" />
   </label>
   {#if searchFailed}
     <p class="err">{searchFailed}</p>
@@ -186,8 +187,7 @@
   .services { display: flex; flex-wrap: wrap; gap: 4px; }
   .svc { background: var(--cell); padding: 1px 8px; font-size: var(--fs-s); }
   .search { display: flex; align-items: center; gap: 12px; margin: 10px 0 6px; text-transform: uppercase; letter-spacing: var(--caps); color: var(--text-lo); font-size: var(--fs-s); }
-  .search input { flex: 0 1 30rem; background: var(--cell); color: var(--text); border: 1px solid var(--accent-dim); padding: 6px 8px; font: inherit; text-transform: none; letter-spacing: normal; font-size: var(--fs); }
-  .search input:focus { outline: 1px solid var(--accent); outline-offset: -1px; }
+  .search > :global(.q) { flex: 0 1 30rem; text-transform: none; letter-spacing: normal; }
   table { border-collapse: collapse; width: 100%; max-width: 60rem; margin-top: 6px; }
   th { text-align: left; color: var(--text-lo); font-size: var(--fs-s); font-weight: 400; text-transform: uppercase; letter-spacing: var(--caps); padding: 0 12px 6px 0; }
   td { padding: 5px 12px 5px 0; border-top: 1px solid var(--cell); vertical-align: baseline; }

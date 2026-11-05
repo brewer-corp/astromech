@@ -2,6 +2,7 @@
   // Onboarding (docs/V1-DESIGN.md §1.5 #1, §2.2): a full-window flow from install to "gear down"
   // by voice. Shown on first launch until finished or skipped; Settings re-runs it, or one step
   // of it (#/setup/<step>). One line of explanation per step, nothing that isn't needed.
+  import Button from "../ui/Button.svelte";
   import { coreCall, coreStatus, type CoreStatus } from "../core";
   import { STEPS, type StepId } from "./steps";
   import StepElite from "./StepElite.svelte";
@@ -54,8 +55,8 @@
   <header>
     <span class="app">ASTROMECH</span>
     <span class="title">Setup</span>
-    <button class="skip" title="Open the setup guide in your browser" onclick={() => void openHelp(SETUP_HELP)}>Help</button>
-    {#if i < STEPS.length - 1}<button class="skip" onclick={finish}>Skip setup</button>{/if}
+    <Button title="Open the setup guide in your browser" onclick={() => void openHelp(SETUP_HELP)}>Help</Button>
+    {#if i < STEPS.length - 1}<Button onclick={finish}>Skip setup</Button>{/if}
   </header>
   <div class="body">
     <ol class="nav">
@@ -83,11 +84,11 @@
         {/if}
       {/key}
       <footer>
-        {#if i > 0}<button onclick={() => i--}>Back</button>{/if}
+        {#if i > 0}<Button onclick={() => i--}>Back</Button>{/if}
         {#if i < STEPS.length - 1}
-          <button class="primary" onclick={() => i++}>Next</button>
+          <Button kind="primary" onclick={() => i++}>Next</Button>
         {:else}
-          <button class="primary" onclick={finish}>Finish</button>
+          <Button kind="primary" onclick={finish}>Finish</Button>
         {/if}
       </footer>
     </main>
@@ -101,16 +102,11 @@
   .title { flex: 1; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 500; }
   .body { display: grid; grid-template-columns: 15rem 1fr; gap: 40px; padding: 28px 40px; min-height: 0; overflow: auto; }
   .nav { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--gap); align-content: start; }
-  .nav button { width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--text-lo); text-transform: none; letter-spacing: 0; font-weight: 500; font-size: var(--fs); }
+  .nav button { all: unset; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 12px; min-height: var(--row); display: flex; align-items: center; gap: 12px; color: var(--text-lo); text-transform: none; letter-spacing: 0; font-weight: 500; font-size: var(--fs); }
   .nav button.on { background: var(--cell); color: var(--text-hi); }
   .nav .n { font-family: var(--mono); color: var(--accent); }
   main { max-width: 52rem; }
   h1 { margin: 0 0 6px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   .lead { margin: 0 0 22px; color: var(--text-lo); }
   footer { display: flex; gap: 28px; margin-top: 32px; }
-  button { all: unset; cursor: pointer; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  button:hover, button:focus-visible { color: var(--text-hi); }
-  .primary { background: var(--accent); color: var(--on-accent); padding: 6px 18px; }
-  .primary:hover, .primary:focus-visible { color: var(--on-accent); background: var(--text-hi); }
-  .skip { color: var(--text-lo); }
 </style>

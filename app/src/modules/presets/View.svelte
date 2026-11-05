@@ -2,6 +2,8 @@
   // Presets (docs/V1-DESIGN.md §2.3): every preset in the Bindings folder and the game's built-in
   // ones, which is active per context (StartPreset), the health check's problems, copies,
   // switching, and astromech's backups with restore.
+  import Button from "../../lib/ui/Button.svelte";
+  import Input from "../../lib/ui/Input.svelte";
   import { binds } from "../../lib/store.svelte";
   import { api, CONTEXTS, type Preset } from "../../lib/binds";
 
@@ -49,7 +51,7 @@
     {#each binds.state?.backups ?? [] as b (b.path)}
       <div class="row b">
         <span class="name">{b.original}</span><span class="lo">{b.created}</span>
-        <button class="act" onclick={() => void run(() => api.restore(b.path), `Restored ${b.original} (the current file was backed up first).`)}>Restore</button>
+        <Button onclick={() => void run(() => api.restore(b.path), `Restored ${b.original} (the current file was backed up first).`)}>Restore</Button>
       </div>
     {:else}
       <p class="lo">No backups yet. astromech makes one before every change, in {binds.state?.bindings_dir ?? "the Bindings folder"}\astromech-backups.</p>
@@ -66,12 +68,12 @@
       <p>{p.devices.join(", ") || "Keyboard and mouse only"}</p>
       <div class="k">Files</div>
       {#each p.files as f (f.path)}<p class:lo={f.path !== p.path}>{f.file_name}{f.path === p.path ? " (used by the game)" : ""}<span class="lo"> · {f.modified}</span></p>{/each}
-      <button class="act" onclick={() => void binds.show(p.path).then(() => (location.hash = "#/keybinds"))}>Open in all keybinds</button>
-      <button class="act" onclick={() => void useAll(p)}>Use everywhere</button>
+      <Button class="act" onclick={() => void binds.show(p.path).then(() => (location.hash = "#/keybinds"))}>Open in all keybinds</Button>
+      <Button class="act" onclick={() => void useAll(p)}>Use everywhere</Button>
       <div class="k">Make a copy</div>
       <div class="copy">
-        <input bind:value={copyName} placeholder="{p.name} copy" maxlength="40" />
-        <button class="act" onclick={() => void run(() => api.copy(p.path, copyName || `${p.name} copy`), `Copied to ${copyName || `${p.name} copy`}.`)}>Copy</button>
+        <Input class="grow" bind:value={copyName} aria-label="Name of the copy" placeholder="{p.name} copy" maxlength={40} />
+        <Button onclick={() => void run(() => api.copy(p.path, copyName || `${p.name} copy`), `Copied to ${copyName || `${p.name} copy`}.`)}>Copy</Button>
       </div>
       <p class="lo">{fileOf(p.path)}</p>
     </aside>
@@ -102,10 +104,9 @@
   h2 { margin: 6px 0 12px; color: var(--text-hi); font-weight: 500; font-size: var(--fs-xl); }
   aside p { margin: 0 0 8px; }
   .k { color: var(--text-lo); font-size: var(--fs-s); text-transform: uppercase; letter-spacing: var(--caps); margin: 18px 0 4px; }
-  .act { display: block; margin: 8px 0; color: var(--accent); text-transform: uppercase; letter-spacing: var(--caps); font-weight: 600; font-size: var(--fs-s); }
-  .act:hover { color: var(--text-hi); }
+  aside > :global(.act) { display: flex; width: fit-content; margin: var(--sp-1) 0 0 calc(-1 * var(--sp-2)); }
   .copy { display: flex; gap: 16px; align-items: center; }
-  input { all: unset; flex: 1; height: var(--row); padding: 0 12px; background: var(--cell-opt); color: var(--text-hi); border-bottom: 2px solid var(--accent); }
+  .copy > :global(.grow) { flex: 1; }
   @media (max-width: 1200px) {
     .cols { grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
     .head, .row { grid-template-columns: minmax(0, 1fr) repeat(4, 64px) 100px; }
