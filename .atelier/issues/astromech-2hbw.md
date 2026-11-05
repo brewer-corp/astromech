@@ -18,9 +18,9 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Find or plot: one header box for systems, finders and Ctrl+K"
-updated_at: "2026-11-05T15:11:03.459348358+00:00"
+updated_at: "2026-11-05T15:11:19.905085429+00:00"
 ---
 
 ## Goal
