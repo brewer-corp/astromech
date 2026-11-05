@@ -297,16 +297,16 @@ describe("Places in the window", () => {
     expect((screen.getByRole("combobox", { name: "Mineral" }) as HTMLInputElement).value).toBe("Painite");
     expect(screen.getByText("Around")).toBeTruthy();
     await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "painite", ring_type: null, reserve: null }, null, expect.anything()));
-    expect(await screen.findByText("Within 100 ly of Sol")).toBeTruthy();
+    expect(await screen.findByText("Within 100 ly of Sol · top 10 of 1,101 bodies with Painite")).toBeTruthy();
     const heads = screen.getAllByRole("columnheader").map((h) => h.textContent);
     expect(heads).toEqual(["Hotspots", "Ring", "Also", "Type", "Reserve", "Distance", "Jumps", "Arrival", ""]);
     const rows = screen.getAllByRole("row").slice(1);
     expect(rows).toHaveLength(10);
-    expect(within(rows[0]!).getByText("5 A Ring")).toBeTruthy();
-    expect(within(rows[0]!).getByText("Sosolingati")).toBeTruthy();
-    expect(rows[0]!.querySelector(".main .v")?.textContent).toBe("4");
-    expect(within(rows[0]!).getByRole("button", { name: "Add Sosolingati as a stop" })).toBeTruthy();
-    expect(within(rows[0]!).getByRole("button", { name: "Set Sosolingati as the destination" })).toBeTruthy();
+    expect(within(rows[0]!).getByText("3 A Ring")).toBeTruthy();
+    expect(within(rows[0]!).getByText("LHS 3602")).toBeTruthy();
+    expect(rows[0]!.querySelector(".main .v")?.textContent).toBe("10");
+    expect(within(rows[0]!).getByRole("button", { name: "Add LHS 3602 as a stop" })).toBeTruthy();
+    expect(within(rows[0]!).getByRole("button", { name: "Set LHS 3602 as the destination" })).toBeTruthy();
 
     // the tile keeps the answer
     await fireEvent.click(screen.getByRole("link", { name: "Places" }));
@@ -314,13 +314,13 @@ describe("Places in the window", () => {
     expect(tile.getAttribute("href")).toBe("#/places/mining-hotspots/painite");
     expect(within(tile).getByText("Painite")).toBeTruthy();
     expect(within(tile).getByText("hotspots")).toBeTruthy();
-    expect(tile.querySelector(".v")?.textContent).toBe("4");
+    expect(tile.querySelector(".v")?.textContent).toBe("10");
   });
 
   it("keeps the Mining hotspots mineral, ring type and reserve in the address and searches again", async () => {
     location.hash = "#/places/mining-hotspots/painite";
     render(App);
-    await screen.findByText("Within 100 ly of Sol");
+    await screen.findByText(/^Within 100 ly of Sol/);
     await fireEvent.click(screen.getByRole("button", { name: "Metallic" }));
     expect(location.hash).toBe("#/places/mining-hotspots/painite?ring=metallic");
     await waitFor(() => expect(hotspotsSpy).toHaveBeenLastCalledWith({ ore: "painite", ring_type: "Metallic", reserve: null }, null, expect.anything()));
@@ -341,6 +341,33 @@ describe("Places in the window", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Any ring type" }));
     await fireEvent.click(screen.getByRole("button", { name: "Any reserve" }));
     expect(location.hash).toBe("#/places/mining-hotspots/lowtemperaturediamond");
+  });
+
+  it("leaves every finder opened from its tile by the Places crumb without an error", async () => {
+    const { FINDERS } = await import("./lib/places");
+    const errors: string[] = [];
+    let at = "";
+    const onError = (e: ErrorEvent) => {
+      errors.push(`${at}: ${e.message}`);
+      e.preventDefault();
+    };
+    window.addEventListener("error", onError);
+    try {
+      for (const f of FINDERS) {
+        at = f.title;
+        location.hash = "#/places";
+        render(App);
+        await fireEvent.click(await screen.findByRole("link", { name: new RegExp(`^${f.title}`) }));
+        expect(await screen.findByRole("heading", { level: 1, name: f.title })).toBeTruthy();
+        await fireEvent.click(screen.getByRole("link", { name: "Places" }));
+        expect(await screen.findByRole("heading", { level: 2, name: "Ship" }), f.title).toBeTruthy();
+        await new Promise((r) => setTimeout(r, 0));
+        cleanup();
+      }
+    } finally {
+      window.removeEventListener("error", onError);
+    }
+    expect(errors).toEqual([]);
   });
 
   it("leaves a finder for another page without rewriting the address", async () => {

@@ -1,11 +1,12 @@
 <script lang="ts">
   // The Mining hotspots finder (decision astromech-bi94): rings with a hotspot of a mineral,
   // most hotspots first, within the radius of here, the route's next stop or a typed system. The
-  // main input is the mineral; the ring type and the least reserve are choices. Spansh can't
-  // filter ring type, so the shell picks those rings from its nearest 50 bodies.
+  // main input is the mineral; the ring type and the least reserve are choices. The shell asks
+  // Spansh for the highest hotspot counts first and picks the ring type itself; the summary says
+  // when its requests ran out before the whole radius was ranked.
   // #/places/mining-hotspots/<ore>[?ring=&reserve=] keeps all three on back and reload.
   import { ORES, RING_TYPES, hotspotResults, hotspots, oreNamed, wantNotes, type Reserve, type RingType, type Want } from "../../lib/hotspots";
-  import { hotspotRoute, parseHotspotRoute, parsePlaces, rememberAnswer, type Finder } from "../../lib/places";
+  import { hotspotRoute, parseHotspotRoute, rememberAnswer, showing, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import Choice from "../../lib/ui/Choice.svelte";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -28,8 +29,8 @@
     { value: ANY, label: "Any", ariaLabel: "Any reserve" },
   ];
 
-  /** This finder is the page shown (a hash change may be leaving it, when `finder` is already gone). */
-  const here = () => parsePlaces(location.hash)?.finder?.id === "mining-hotspots";
+  /** This finder is the page shown (a hash change may be leaving it). */
+  const here = () => showing("mining-hotspots");
 
   $effect(() => {
     const onHash = () => {

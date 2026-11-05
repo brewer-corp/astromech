@@ -2,7 +2,7 @@
   // The Material traders finder: the Services lookup on the raw, manufactured and encoded trader
   // services (or any of them). The main input is the trader kind;
   // #/places/material-traders/<kind> keeps it on back and reload.
-  import { TRADERS, parsePlaces, parseTraderRoute, rememberAnswer, traderRoute, type Finder, type TraderKind } from "../../lib/places";
+  import { TRADERS, parseTraderRoute, rememberAnswer, showing, traderRoute, type Finder, type TraderKind } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults } from "../../lib/stations";
   import Choice from "../../lib/ui/Choice.svelte";
@@ -17,7 +17,7 @@
   const options = TRADERS.map((t) => ({ value: t.kind, label: t.label, ariaLabel: t.name }));
 
   /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => parsePlaces(location.hash)?.finder?.id === finder.id;
+  const here = () => showing("material-traders");
 
   $effect(() => {
     const onHash = () => {

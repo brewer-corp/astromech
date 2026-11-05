@@ -4,7 +4,7 @@
   // input is the ship; #/places/shipyard/<ship> picks it (the command palette links there), so
   // back and reload keep it.
   import { SHIPS, parseShipRoute, shipRoute } from "../../lib/outfitting";
-  import { parsePlaces, rememberAnswer, type Finder } from "../../lib/places";
+  import { rememberAnswer, showing, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -18,7 +18,7 @@
   const items = SHIPS.map((s) => ({ label: s.name }));
 
   /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => parsePlaces(location.hash)?.finder?.id === finder.id;
+  const here = () => showing("shipyard");
 
   $effect(() => {
     const onHash = () => {

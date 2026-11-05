@@ -887,6 +887,9 @@ fn the_hotspot_answers_keep_to_the_copy_guide() {
             here: here.clone(),
             range: 20.0,
             radius_ly: None,
+            bodies: 0,
+            least: None,
+            reach_ly: None,
             rings,
             fetched_at: 0,
         };

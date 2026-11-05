@@ -32,7 +32,14 @@ impl Transport for Recorded {
             fixture!("ardent-buy-tritium-sol.json")
         } else if url.contains("/api/bodies/search") {
             let asked = format!("{:?}", req.body);
-            if asked.contains("\"Painite\"") {
+            if asked.contains("\"Painite\"") && asked.contains("String(\"100\")") && !asked.contains("reserve_level") {
+                let all: serde_json::Value =
+                    serde_json::from_str(fixture!("spansh-hotspots-painite-sol-100ly.json")).unwrap();
+                let band = painite_band(&asked);
+                assert!(all.get(&band).is_some(), "no recorded Painite page for band {band}: {asked}");
+                return Ok(Response { status: 200, body: all[&band].to_string() });
+            } else if asked.contains("\"Painite\"") {
+                assert!(!asked.contains("\"count\""), "no recorded Painite band without the radius: {asked}");
                 let all: serde_json::Value =
                     serde_json::from_str(fixture!("spansh-hotspots-painite-sol.json")).unwrap();
                 let page = if asked.contains("reserve_level") { "pristine" } else { "any" };
@@ -54,6 +61,25 @@ impl Transport for Recorded {
             panic!("no recorded answer for {url}")
         };
         Ok(Response { status: 200, body: body.to_string() })
+    }
+}
+
+/// The band of hotspot counts a Painite search asked for, as the 100 ly fixture keys its
+/// pages: "1+" (every ring with Painite), "5+" (5 or more), "5" (exactly 5).
+fn painite_band(asked: &str) -> String {
+    let Some(at) = asked.find("\"count\": Array [") else { return "1+".into() };
+    let nums: Vec<u32> = asked[at..]
+        .split(']')
+        .next()
+        .unwrap()
+        .split("Number(")
+        .skip(1)
+        .map(|n| n.split(')').next().unwrap().parse().unwrap())
+        .collect();
+    match nums[..] {
+        [lo, 999] => format!("{lo}+"),
+        [lo, hi] if lo == hi => lo.to_string(),
+        _ => panic!("unexpected band {nums:?}"),
     }
 }
 
@@ -471,7 +497,7 @@ fn hotspot_names(h: &[mining::Hotspot]) -> Vec<(&str, u32)> {
 }
 
 fn hotspots(c: &Client, ore: &str, limit: usize) -> Vec<mining::Hotspot> {
-    let (mut h, _) = mining::hotspots(c, &sol(), &mining::Want::ore(ore), None, 20.0).unwrap();
+    let mut h = mining::hotspots(c, &sol(), &mining::Want::ore(ore), None, 20.0).unwrap().rings;
     h.truncate(limit);
     h
 }
@@ -517,27 +543,99 @@ fn hotspots_pick_the_ring_not_the_body() {
 
 /// Painite rings around Sol (Spansh, 5 Nov 2026, 30 bodies a page): any reserve, and Pristine.
 fn painite(c: &Client, want: mining::Want, radius: Option<u32>, order: mining::Order) -> Vec<mining::Hotspot> {
-    let (mut h, _) = mining::hotspots(c, &sol(), &want, radius, 20.0).unwrap();
-    mining::order(&mut h, order);
-    h
+    match order {
+        mining::Order::Nearest => mining::hotspots(c, &sol(), &want, radius, 20.0).unwrap().rings,
+        mining::Order::Most => mining::most_hotspots(c, &sol(), &want, radius, 20.0, 10).unwrap().rings,
+    }
+}
+
+/// The finder's search within 100 ly of Sol on the pages Spansh gave on 5 Nov 2026
+/// (spansh-hotspots-painite-sol-100ly.json): every ring with Painite (1101 bodies, the nearest
+/// 50 out to 32.5 ly), 5 or more (55), 6 or more (30) and exactly 5 (25).
+fn painite_100ly(ring_type: Option<&str>) -> (mining::Ranked, Vec<String>) {
+    let (c, rec) = client();
+    let want = mining::Want { ring_type: ring_type.map(Into::into), ..mining::Want::ore("painite") };
+    let r = mining::most_hotspots(&c, &sol(), &want, Some(100), 20.0, 10).unwrap();
+    let asked = rec.log.lock().unwrap().iter().map(|(_, q)| painite_band(&format!("{:?}", q.body))).collect();
+    (r, asked)
 }
 
 #[test]
-fn the_finder_lists_most_hotspots_first_with_the_rings_other_hotspots_and_reserve() {
+fn the_finder_ranks_every_ring_within_the_radius_most_hotspots_first() {
+    let (r, asked) = painite_100ly(None);
+    // The nearest 50 bodies reach 32.5 ly and hold at most 4; asked for the highest counts
+    // first, the 10-hotspot ring 69.4 ly out leads. Three requests: every ring (its count
+    // suggests 5 or more), then 6 or more, which came back whole.
+    assert_eq!(asked, ["1+", "5+", "6+"]);
+    assert_eq!((r.requests, r.bodies, r.cut), (3, 1101, mining::Cut::Whole));
+    assert_eq!(
+        hotspot_names(&r.rings),
+        [
+            ("LHS 3602 3 A Ring", 10),
+            ("LB 3303 B 2 B Ring", 9),
+            ("63 chi Leonis BC 2 B Ring", 8),
+            ("Naunin A 4 A Ring", 8),
+            ("Ross 130 AB 3 A Ring", 7),
+            ("Xihe 1 A Ring", 7),
+            ("q1 Eridani 1 A Ring", 7),
+            ("LTT 7421 A 6 A Ring", 7),
+            ("Belarsuk 2 A Ring", 7),
+            ("Greila 4 A Ring", 7),
+        ],
+        "most first, then nearest: Ualame 5's 7 at 94.0 ly is the eleventh"
+    );
+    assert!((r.rings[0].hop.ly - 69.4).abs() < 0.1, "{}", r.rings[0].hop.ly);
+    let also: Vec<(&str, u32)> = r.rings[0].also.iter().map(|s| (s.name.as_str(), s.count)).collect();
+    assert_eq!(
+        also,
+        [("Platinum", 5), ("Monazite", 3), ("Serendibite", 3), ("Rhodplumsite", 2)],
+        "most first, Painite left out"
+    );
+    assert_eq!(r.rings[0].reserve.as_deref(), Some("Common"));
+}
+
+#[test]
+fn a_ring_type_rare_in_the_radius_lists_the_counts_known_in_full() {
+    // Spansh can't filter ring type: 6 or more holds 4 metallic rings, exactly 5 two more, and
+    // the fourth request is the last, so 4s (known only out to 32.5 ly) are left out.
+    let (r, asked) = painite_100ly(Some("Metallic"));
+    assert_eq!(asked, ["1+", "5+", "6+", "5"]);
+    assert_eq!((r.requests, r.cut), (mining::REQUESTS, mining::Cut::Least(5)));
+    assert_eq!(
+        hotspot_names(&r.rings),
+        [
+            ("Naunin A 4 A Ring", 8),
+            ("Greila 4 A Ring", 7),
+            ("Parjanya BC 3 A Ring", 6),
+            ("Domoirene A 9 A Ring", 6),
+            ("Meticuli 2 A Ring", 5),
+            ("HR 3499 5 A Ring", 5),
+        ]
+    );
+    assert!(r.rings.iter().all(|h| h.ring_type == "Metallic"));
+}
+
+#[test]
+fn with_no_count_known_in_full_the_list_says_how_far_it_reaches() {
+    // No icy ring holds Painite: after four requests only the nearest 50 bodies (32.5 ly) are
+    // known for 1 to 4 hotspots, so the answer covers 32.5 ly, not 100.
+    let (r, _) = painite_100ly(Some("Icy"));
+    assert_eq!(r.requests, mining::REQUESTS);
+    assert!(r.rings.is_empty());
+    match r.cut {
+        mining::Cut::Reach(ly) => assert!((ly - 32.5).abs() < 0.01, "{ly}"),
+        other => panic!("{other:?}"),
+    }
+}
+
+#[test]
+fn the_nearest_rings_are_one_request_and_keep_their_order() {
     let (c, rec) = client();
-    let h = painite(&c, mining::Want::ore("painite"), Some(100), mining::Order::Most);
-    assert!(rec.last_body().contains("\"max\": String(\"100\")"), "the radius goes to Spansh: {}", rec.last_body());
-    assert!(h.windows(2).all(|w| w[0].count > w[1].count || (w[0].count == w[1].count && w[0].hop.ly <= w[1].hop.ly)));
-    let top = &h[0];
-    assert_eq!((top.ring.as_str(), top.count), ("Sosolingati 5 A Ring", 4), "4 at 25.5 ly before 3 at 15.8 ly");
-    assert_eq!((h[1].ring.as_str(), h[1].count), ("Kokary 5 B Ring", 3));
-    assert_eq!(h[1].reserve.as_deref(), Some("Common"));
-    let also: Vec<(&str, u32)> = h[1].also.iter().map(|s| (s.name.as_str(), s.count)).collect();
-    assert_eq!(also, [("Monazite", 2), ("Platinum", 2), ("Serendibite", 1)], "most first, Painite left out");
-    // Nearest first, the same rings.
     let near = painite(&c, mining::Want::ore("painite"), Some(100), mining::Order::Nearest);
+    assert!(rec.last_body().contains("\"max\": String(\"100\")"), "the radius goes to Spansh: {}", rec.last_body());
+    assert_eq!(rec.requests(), 1);
     assert_eq!((near[0].ring.as_str(), near[0].count), ("Barnard's Star 5 A Ring", 2));
-    assert_eq!(near.len(), h.len());
+    assert!(near.windows(2).all(|w| w[0].hop.ly <= w[1].hop.ly));
 }
 
 #[test]
@@ -584,9 +682,13 @@ fn a_typed_origin_is_located_and_searched_from() {
     assert!(body.contains("5.1875") && body.contains("13.5625"), "{body}");
     assert_eq!(found.here.system, "Wolf 1481");
     assert_eq!((found.name.as_str(), found.radius_ly, found.rings.len()), ("Painite", Some(100), 10));
-    let wolf = found.rings.iter().find(|r| r.system == "Wolf 1481").expect("Wolf 1481's own ring");
-    assert!(wolf.hop.ly < 0.01 && wolf.hop.jumps == 0, "{:?}", wolf.hop);
+    // Measured from Wolf 1481, not from Sol (where the recorded pages were measured).
+    let top = &found.rings[0];
+    assert!((top.hop.ly - astromech_galaxy::dist(here.pos, top.system_pos)).abs() < 0.01, "{:?}", top.hop);
+    assert!((top.hop.ly - 69.4).abs() > 1.0, "{:?}", top.hop);
     let json = serde_json::to_value(&found).unwrap();
+    assert_eq!(json["bodies"], 1101);
+    assert!(json.get("least").is_some() && json.get("reach_ly").is_some(), "{json}");
     assert_eq!(json["rings"][0]["jumps"], serde_json::json!(found.rings[0].hop.jumps));
     assert_eq!(json["want"]["ore"], "painite");
     assert!(json["rings"][0]["also"].is_array() && json["rings"][0].get("reserve").is_some());

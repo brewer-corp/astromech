@@ -1,7 +1,7 @@
 <script lang="ts">
   // The Services finder: the nearest stations with a service, on the search kit. The main input
   // is the service; #/places/services/<id> keeps it on back and reload.
-  import { parsePlaces, parseServiceRoute, rememberAnswer, serviceRoute, type Finder } from "../../lib/places";
+  import { parseServiceRoute, rememberAnswer, serviceRoute, showing, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { SERVICES, stations, toResults, type ServiceId } from "../../lib/stations";
   import Dropdown from "../../lib/ui/Dropdown.svelte";
@@ -15,7 +15,7 @@
   const label = $derived(SERVICES.find((s) => s.id === service)?.label ?? service);
 
   /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => parsePlaces(location.hash)?.finder?.id === finder.id;
+  const here = () => showing("services");
 
   $effect(() => {
     const onHash = () => {

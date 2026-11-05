@@ -31,7 +31,10 @@
 //!   matches a body with the ore in any of its rings, not a particular ring, so check
 //!   [`Ring::signals`] on the result. Each ring of a hit carries `signals: [{"name", "count"}]`
 //!   (absent for a ring nobody has scanned) and `signals_updated_at` (checked 16 Oct 2026; a
-//!   `rings` filter in any shape tried was ignored);
+//!   `rings` filter in any shape tried was ignored). `"count": [min, max], "comparison": "<=>"`
+//!   in the same object keeps a body only when one ring holds `min` to `max` hotspots of the ore
+//!   (checked 5 Nov 2026, Painite within 100 ly of Sol: 1101 bodies, 116 with `[4, 999]`, 63
+//!   with `[4, 4]`, each of those with a ring of exactly 4 and none matched by a sum of rings);
 //! - `controlling_power`, `power` (any power active there, controller included) and
 //!   `power_state` (systems; `Unoccupied`, `Exploited`, `Fortified`, `Stronghold`):
 //!   `{"value": [..]}`, matching any listed value (checked 16 Oct 2026: an unknown filter name
@@ -258,6 +261,12 @@ impl Search {
     /// Bodies with a ring holding a hotspot of `ore` (the name the rings list, e.g. "Platinum").
     pub fn ring_signal(self, ore: &str) -> Self {
         self.push("ring_signals", json!({ "name": [ore] }))
+    }
+
+    /// Bodies with a ring holding `min` to `max` hotspots of `ore` (`max` `None`: any more).
+    pub fn ring_signal_count(self, ore: &str, min: u32, max: Option<u32>) -> Self {
+        let max = max.unwrap_or(999);
+        self.push("ring_signals", json!({ "name": [ore], "count": [min, max], "comparison": "<=>" }))
     }
 
     /// Bodies whose rings have any of these reserve levels ("Pristine", "Major", "Common",
@@ -1118,6 +1127,13 @@ mod tests {
         let col = Search::near(Reference::System("Sol".into())).population(0, 0).in_systems(&[1, 2]).body();
         assert_eq!(col["filters"]["population"], json!({ "value": ["0", "0"], "comparison": "<=>" }));
         assert_eq!(col["filters"]["system_id64"], json!({ "value": [1, 2] }));
+        let rings = Search::near(Reference::System("Sol".into())).ring_signal_count("Painite", 5, None).body();
+        assert_eq!(
+            rings["filters"]["ring_signals"],
+            json!([{ "name": ["Painite"], "count": [5, 999], "comparison": "<=>" }])
+        );
+        let one = Search::near(Reference::System("Sol".into())).ring_signal_count("Painite", 5, Some(5)).body();
+        assert_eq!(one["filters"]["ring_signals"][0]["count"], json!([5, 5]));
         let c = Search::near(Reference::Coords([1.0, 2.0, 3.0])).body();
         assert_eq!(c["reference_coords"]["z"], 3.0);
         assert!(c.get("reference_system").is_none());

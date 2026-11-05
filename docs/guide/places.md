@@ -76,10 +76,15 @@ and the body's distance from the star. Hotspots never change, so there is no rep
 stop** and **Set destination** put the ring's system on the route. It opens on Painite, any ring,
 any reserve; **Ctrl+K** opens a mineral's hotspots by name ("Painite hotspots").
 
-Limits: the search looks at the nearest 50 bodies with the mineral within the radius and lists
-the ten rings with the most hotspots among them, so a ring type that is rare there can leave few
-or no rows (widen the radius). Spansh files the reserve
-level on the body, so every ring of a body has the same one. Hotspots nobody has scanned and
+The list is the ten rings with the most hotspots in the whole radius, and the line above it says
+how many bodies they were ranked from ("Within 100 ly of Sol · top 10 of 1,101 bodies with
+Painite"). Spansh lists bodies nearest first, so the search asks for the highest hotspot counts
+first, in up to four requests. Spansh can't pick a ring type, so when the one you chose is rare
+there the requests can run out first. The line then says what was ranked: every ring with at
+least so many hotspots ("5 or more hotspots only"), or the rings within a smaller distance
+("Within 32 ly of Sol"). Pick **Any** ring type to see the whole radius.
+
+Limits: Spansh files the reserve level on the body, so every ring of a body has the same one. Hotspots nobody has scanned and
 reported are not known. By voice: "nearest painite hotspot" ([Mining](mining.md#finding-hotspots)).
 
 ## How searches work

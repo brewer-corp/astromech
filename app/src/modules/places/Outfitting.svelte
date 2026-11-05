@@ -4,7 +4,7 @@
   // [?class=&rating=&mount=] picks the module (the command palette links there), so back and
   // reload keep it.
   import { CATEGORIES, MODULES, choices, moduleRoute, parseModuleRoute, settle } from "../../lib/outfitting";
-  import { parsePlaces, rememberAnswer, type Finder } from "../../lib/places";
+  import { rememberAnswer, showing, type Finder } from "../../lib/places";
   import type { Filters, Origin } from "../../lib/search";
   import { stations, toResults, type ModuleWant, type Mount } from "../../lib/stations";
   import SearchKit from "../../lib/ui/SearchKit.svelte";
@@ -20,7 +20,7 @@
   const items = MODULES.map((m) => ({ label: m.name, detail: CATEGORIES.find((c) => c.id === m.category)?.title }));
 
   /** This finder is the page shown (a hash change may be leaving it). */
-  const here = () => parsePlaces(location.hash)?.finder?.id === finder.id;
+  const here = () => showing("outfitting");
 
   $effect(() => {
     const onHash = () => {

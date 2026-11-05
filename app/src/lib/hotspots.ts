@@ -2,15 +2,15 @@
  * The Mining hotspots finder's lookup (astromech_market::mining): rings with a hotspot of a
  * mineral, of a ring type and with a reserve level, within the finder's radius of the commander,
  * the route's next stop or a typed system, most hotspots first. The shell asks Spansh's bodies
- * search (`mining_hotspots`); the browser preview answers from a recorded Painite search from
- * Sol (fixtures/hotspots.json, the shell's own answer). Adapted into the search kit's rows by
- * {@link hotspotResults}.
+ * search (`mining_hotspots`, highest hotspot counts first, at most four requests); the browser
+ * preview answers from a recorded Painite search within 100 ly of Sol (fixtures/hotspots.json,
+ * the shell's own answer, 30 rings). Adapted into the search kit's rows by {@link hotspotResults}.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { inTauri } from "./core";
 import { previewLookup } from "./fakecore";
 import sample from "./fixtures/hotspots.json";
-import type { Filters, Origin, Results } from "./search";
+import { figure, type Filters, type Origin, type Results } from "./search";
 
 /** The ores the hotspot lookups offer, most valuable first (astromech_journal::ore::VALUE_ORDER),
  * by journal symbol with the name the rings list them under. */
@@ -81,6 +81,12 @@ export interface Hotspots {
   here: { system: string };
   range: number;
   radius_ly: number | null;
+  /** Bodies within the radius with the mineral in a ring and the reserve asked for (Spansh's count, which stops at 10000). */
+  bodies: number;
+  /** The requests ran out before every ring could be ranked: `rings` are every ring with at least this many hotspots. */
+  least: number | null;
+  /** The requests ran out before any count was known in full: `rings` are the most hotspots within this many ly only. */
+  reach_ly: number | null;
   rings: Hotspot[];
   /** When Spansh was asked, in unix seconds. */
   fetched_at: number;
@@ -94,10 +100,10 @@ export function oreNamed(symbol: string): (typeof ORES)[number] | undefined {
   return ORES.find((o) => o.symbol === symbol);
 }
 
-/** The browser preview: the recorded Painite answer, with the ring type and reserve applied as
- * the shell does (other minerals get the same rings). */
+/** The browser preview: the recorded Painite answer, with the ring type and reserve applied to
+ * its rings (other minerals get the same rings). */
 function preview(want: Want, origin: Origin): Hotspots {
-  const s = (want.reserve ? sample.pristine : sample.any) as unknown as Hotspots;
+  const s = sample as unknown as Hotspots;
   const levels = want.reserve ? RESERVE_LEVELS[want.reserve] : null;
   const rings = s.rings
     .filter((r) => (!want.ring_type || r.ring_type === want.ring_type) && (!levels || (r.reserve != null && levels.includes(r.reserve))))
@@ -128,6 +134,8 @@ export function alsoLine(also: Signal[]): string {
 export function hotspotResults(h: Hotspots): Results {
   return {
     origin: h.here.system,
+    ...(h.reach_ly != null ? { reach: Math.floor(h.reach_ly) } : {}),
+    notes: cutNotes(h),
     range: h.range,
     source: "Spansh",
     fetched: new Date(h.fetched_at * 1000).toISOString(),
@@ -152,6 +160,20 @@ export function hotspotResults(h: Hotspots): Results {
       facts: { also: alsoLine(r.also), type: r.ring_type, reserve: r.reserve ?? "" },
     })),
   };
+}
+
+/**
+ * The summary line's words for what the answer covers: how many bodies the rings shown were
+ * ranked from ("top 10 of 1,101 bodies with Painite"), or, when Spansh's answer was too big to
+ * rank within the requests, what was ranked instead ("5 or more hotspots only").
+ */
+export function cutNotes(h: Hotspots): string[] {
+  const bodies = `${h.bodies >= 10000 ? "10,000+" : figure(h.bodies)} bod${h.bodies === 1 ? "y" : "ies"}`;
+  const radius = h.radius_ly != null ? ` within ${figure(h.radius_ly)} ly` : "";
+  if (h.reach_ly != null) return [`${bodies}${radius}, too many to rank`];
+  if (h.least != null) return [`${h.least} or more hotspots only: ${bodies}, too many to rank`];
+  if (h.rings.length >= LIMIT && h.bodies > h.rings.length) return [`top ${h.rings.length} of ${bodies} with ${h.name}`];
+  return [];
 }
 
 /** The summary line's words for the finder's own choices: "metal rich rings · pristine reserves". */

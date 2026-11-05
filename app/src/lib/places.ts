@@ -62,6 +62,15 @@ export function parsePlaces(hash: string): PlacesAt | null {
   return { finder, input: finder ? (m[2] ?? "") : "", query: new URLSearchParams(finder ? (m[3] ?? "") : "") };
 }
 
+/**
+ * Whether the address shows finder `id`, for a finder page's own hash listener and address
+ * rewrite. The page passes its own id, never its `finder` prop: on a hash change that leaves the
+ * page, Places has already set that prop to null when the page's listener runs.
+ */
+export function showing(id: FinderId): boolean {
+  return parsePlaces(location.hash)?.finder?.id === id;
+}
+
 /** Decode a URL part, or null when it is mangled. */
 export function decode(part: string): string | null {
   try {

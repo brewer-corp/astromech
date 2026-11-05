@@ -71,6 +71,13 @@ export interface Results {
   label?: string;
   /** The source's data doesn't go stale (ring hotspots never change): no report age column. */
   undated?: boolean;
+  /** The answer's own constraints for the summary line, after the lookup's ("5 or more hotspots only"). */
+  notes?: string[];
+  /**
+   * The answer covers only this many ly, short of the radius asked (too much to rank in the
+   * requests allowed): the summary and the empty line name it, and a wider radius is no help.
+   */
+  reach?: number;
 }
 
 /** One lookup's filters (astromech_galaxy::Filters). */
@@ -258,9 +265,18 @@ const PAD_NAMES: Record<Pad, string> = { S: "", M: "medium or large pad", L: "la
  * `lead` says where it searched when there is no radius ("Nearest to Sol"); `notes` are the
  * lookup's own constraints, after it ("metallic rings").
  */
-export function summary(lead: string, origin: string, filters: Filters, offers: FilterKey[], hints: FilterHints, hidden: number, notes: string[] = []): string {
+export function summary(
+  lead: string,
+  origin: string,
+  filters: Filters,
+  offers: FilterKey[],
+  hints: FilterHints,
+  hidden: number,
+  notes: string[] = [],
+  reach: number | null = null,
+): string {
   const has = (k: FilterKey) => offers.includes(k);
-  const radius = filters.max_distance_ly ?? hints.distance ?? null;
+  const radius = reach ?? filters.max_distance_ly ?? hints.distance ?? null;
   const parts = [has("distance") && radius != null ? `Within ${figure(radius)} ly of ${origin}` : `${lead} ${origin}`, ...notes];
   if (has("volume") && filters.min_volume != null) parts.push(`${(hints.volume ?? "volume").toLowerCase()} at least ${figure(filters.min_volume)} t`);
   if (has("pad") && filters.pad && PAD_NAMES[filters.pad]) parts.push(PAD_NAMES[filters.pad]);

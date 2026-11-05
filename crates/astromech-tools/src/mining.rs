@@ -90,6 +90,9 @@ mod tests {
             here: Here { system: "Sol".into(), id64: None, pos: [0.0; 3] },
             range: 20.0,
             radius_ly: None,
+            bodies: 0,
+            least: None,
+            reach_ly: None,
             rings,
             fetched_at: 0,
         }

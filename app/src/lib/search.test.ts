@@ -65,6 +65,11 @@ describe("constraint summary", () => {
       "Within 100 ly of Sol · metallic rings · pristine reserves",
     );
   });
+
+  it("names the distance an answer reaches when it covers less than the radius", () => {
+    const f = { ...DEFAULT_FILTERS, max_distance_ly: 200 };
+    expect(summary("Nearest to", "Sol", f, ["distance"], { distance: 100 }, 0, ["icy rings"], 32)).toBe("Within 32 ly of Sol · icy rings");
+  });
 });
 
 describe("widening an empty search", () => {

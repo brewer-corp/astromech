@@ -265,7 +265,7 @@
     {:else if busy}
       <p class="line">{busyText}</p>
     {:else if res}
-      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden, notes)}</p>
+      <p class="line">{summary(`${title} ${joiner}`, res.origin, filters, offers, hints, hidden, [...notes, ...(res.notes ?? [])], res.reach)}</p>
     {/if}
     {#if res && !err}
       {#if res.warning}<p class="line warn"><b>!</b> {res.warning}</p>{/if}
@@ -307,7 +307,9 @@
         </div>
       {:else if !busy}
         <p class="empty">
-          {#if widen}
+          {#if res.reach != null}
+            No {noun} within {figure(res.reach)} ly.
+          {:else if widen}
             No {noun} {widen.phrase}.
             <Button onclick={relax}>{widen.label}</Button>
           {:else}
