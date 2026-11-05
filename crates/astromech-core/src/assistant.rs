@@ -201,7 +201,7 @@ impl Assistant {
             || command == "confirm"
             || command == "cancel"
             || astromech_intent::is_ask_only(heard)
-            || astromech_intent::names_origin(heard, command)
+            || self.grammar.lock().unwrap().names_origin(heard, command)
         {
             return;
         }

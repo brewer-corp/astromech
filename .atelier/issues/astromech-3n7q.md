@@ -4,6 +4,9 @@ id: "astromech-3n7q"
 issue_type: "task"
 labels:
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-3n7q
 priority: "P3"
 relationships:
   blocks: []
@@ -15,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Voice origins: real systems beside NOT_A_NAME, and lowercase procedural names"
-updated_at: "2026-11-04T23:51:08.425564470+00:00"
+updated_at: "2026-11-05T00:21:54.718975732+00:00"
 ---
 
 ## Goal
