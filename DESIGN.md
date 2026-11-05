@@ -253,7 +253,7 @@ components:
 then 4 Nov 2026 with the changes the independent panel asked for (decision astromech-5p9c).
 Tokens: app/src/design/tokens.css, mapped in Token map below. The pages moved to the orange
 ramp and the caps rule with astromech-yxtz, to cells-mean-editable with astromech-dfvp, and to
-the one face with astromech-dzwy. Still to be brought in line: astromech-sllo (two tab rows). Mockups:
+the one face with astromech-dzwy, and to two tab rows with astromech-sllo. Mockups:
 docs/design/design-system-*.png. -->
 
 ## Overview

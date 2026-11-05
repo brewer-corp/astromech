@@ -165,7 +165,7 @@
           </ul>
         {/if}
         {#if kindId === "raw"}
-          <p class="find">
+          <p class="sites">
             Raw sites near you, in Places:
             {#each SITE_KINDS as k, i (k.id)}{#if i}<span aria-hidden="true">{SEP}</span>{/if}<a href="#/{siteRoute(k.id)}">{k.label}</a>{/each}
           </p>
@@ -206,7 +206,7 @@
   button { all: unset; cursor: pointer; box-sizing: border-box; }
   .find { min-width: 0; }
   /* The kind is a choice on the page, not a third tab row (DESIGN.md The Two Tab Rows Rule). */
-  .query { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .query { display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-6) 0 0; }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); }
   .sub { color: var(--orange-mid); font-size: var(--fs-s); margin: 0; }
   .here { color: var(--accent); }
@@ -240,10 +240,10 @@
   .about p { margin: 0 0 10px; line-height: 1.45; }
   .qty { color: var(--accent); }
   .lo { color: var(--orange-mid); }
-  .find { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
+  .sites { margin: 24px 0 0; padding: 0 8px; font-size: var(--fs-s); color: var(--orange-mid); }
   /* Links to somewhere else (DESIGN.md Buttons → Links). */
-  .find a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
-  .find a:hover, .link:hover { color: var(--orange-lit); }
+  .sites a, .link { color: var(--accent); text-decoration: underline 1px var(--orange-mid); text-underline-offset: 3px; }
+  .sites a:hover, .link:hover { color: var(--orange-lit); }
   @media (max-width: 1100px) {
     section { display: flex; flex-direction: column; }
     .about { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--accent); padding: 16px 0 20px; }
