@@ -45,9 +45,10 @@ relationships:
     type: "blocked_by"
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+closed_at: "2026-11-05T16:11:06.126608106+00:00"
+status: "done"
 title: "Galaxy rework: route strip, Places finders, one search box"
-updated_at: "2026-11-05T07:09:28.110654817+00:00"
+updated_at: "2026-11-05T16:11:06.126608106+00:00"
 ---
 
 ## Goal
@@ -71,3 +72,7 @@ The play check on Windows next to the game is astromech-cxgq (needs-human), not 
 ## Background
 
 Decision astromech-bi94 sets the direction and decision astromech-g8d5 settles the design choices DESIGN.md left open; DESIGN.md (Route strip, Lookup result row, Find or plot, Places home, States) and the `#/mockup/ds-*` mockups set the look. Shared controls and icons come from astromech-pey5. Children share this issue's branch.
+
+## Close Reason
+
+Galaxy rework delivered on the Linux build. Children: rz0f (Add stop and Set destination replace Go on every lookup result; core route_add; Set destination parks the replaced route, Resume brings it back), 1d92 (36 px route strip on every page but onboarding with next system, n of N, flags, jumps or stops left, warnings; the Galaxy-only rail is gone), jp36 (DESIGN.md Lookup result row and States in the shared search kit, shared Failure line, compact row in narrow panels), nxz9 (Places home and one page and URL per finder; Galaxy tabs Places and Route; old URLs redirect), f7i0 (Mining hotspots finder ranked by hotspots over the whole radius in at most 4 Spansh requests, with its voice query), kwoi (Sell, Buy, Sell my cargo, Raw sites and Faction states moved into Places; Trade, Materials and Exploration link in), 2hbw (one Find or plot header box with Ctrl+K: systems with Plot/Add stop/Set destination, finder phrases from each finder's declared inputs; header takes a second tab row below about 1580 px), and decision records g8d5 and ghyo. Validation kyqw (validator-fable-kyqw): all seven Done when claims pass with receipts; Windows, the game, a real second monitor and DPI are astromech-cxgq (needs-human). Every child was independently reviewed (Fable 5.1 and Sonnet 5.5 reviewers settled open design choices under Sumeet's direction); the final whole-branch review approved (astromech-lus6). History: a deleted append-only review record (astromech-5gtt) was removed from history with Sumeet's approval (main and this branch rewritten; the old branch is archive/feature-51ue-pre-rewrite). The linked-place engine, recipes, Find near this and Find along route continue in astromech-os70. Follow-ups: astromech-orha, nh0g, rfn8, vaz9, 5s9h, z9rd, k8t4, y14z, 4odm, uk11, fci3, 6trg, 0wmn.
