@@ -11,9 +11,6 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
-    id: "astromech-5rm2"
-    type: "blocked_by"
-  - kind: "issue"
     id: "astromech-nxz9"
     type: "blocked_by"
   - kind: "issue"
@@ -23,7 +20,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Recipes and Find near this in Places"
-updated_at: "2026-11-05T06:19:45.685445791+00:00"
+updated_at: "2026-11-05T06:27:50.203444055+00:00"
 ---
 
 ## Goal
@@ -38,4 +35,4 @@ Provisional: both recipes run from Places on the engine with their slots (allegi
 
 - How a linked row fits the one-line result row (two places on one line, or the B place as a fact column).
 - Which existing finders need to run through the engine for "Find near this"; the rest stay on their current lookups until they need it.
-- Live request volume per query: the Spansh maintainer question (astromech-5rm2) gates shipping this.
+- Live request volume per query: ship within the spike's budget (at most 2 live legs, about 4 requests); the Spansh maintainer question (astromech-5rm2) runs in parallel and does not block this (decision astromech-g8d5, item 9).

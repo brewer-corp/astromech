@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "todo"
 title: "Linked-place query engine with the spike's two recipes"
-updated_at: "2026-11-05T06:19:45.521881351+00:00"
+updated_at: "2026-11-05T06:27:50.016102468+00:00"
 ---
 
 ## Goal

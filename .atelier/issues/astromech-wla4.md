@@ -26,7 +26,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Find along route, ranked by detour"
-updated_at: "2026-11-05T06:19:45.850110825+00:00"
+updated_at: "2026-11-05T06:27:50.389323868+00:00"
 ---
 
 ## Goal

@@ -12,7 +12,7 @@ relationships:
   attachments: []
   relates:
   - kind: "issue"
-    id: "astromech-51ue"
+    id: "astromech-os70"
     type: "related"
   - kind: "issue"
     id: "astromech-yn6y"
@@ -26,7 +26,7 @@ updated_at: "2026-11-05T06:19:46.350866500+00:00"
 
 ## Goal
 
-Ask Spansh's maintainer whether astromech may run linked-place queries against Spansh's search API at the volume the engine needs, before the recipes ship (spike astromech-yn6y open item). Each recipe costs 2 to 7 Spansh requests per query at 1 request/s, and recipe 1 moved 14 to 27 MB of station records per query; a local station file built from the public dumps would bring that to about 1 request.
+Ask Spansh's maintainer whether astromech may run linked-place queries against Spansh's search API at the volume the engine needs (spike astromech-yn6y open item). Asked in parallel: the recipes ship within the spike's budget without waiting for the answer (decision astromech-g8d5, item 9). Each recipe costs 2 to 7 Spansh requests per query at 1 request/s, and recipe 1 moved 14 to 27 MB of station records per query; a local station file built from the public dumps would bring that to about 1 request.
 
 ## Done when
 
@@ -34,4 +34,4 @@ Spansh's maintainer has answered (or a stated time has passed with no answer), a
 
 ## Context
 
-Spike close reason in astromech-yn6y (request counts per recipe, User-Agent, rate limit); the engine, astromech-xlbz.
+Spike close reason in astromech-yn6y (request counts per recipe, User-Agent, rate limit); the engine, astromech-xlbz, in astromech-os70.

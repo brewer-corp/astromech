@@ -30,9 +30,9 @@ Replace the header's systems-only plot box (`modules/route/PlotBar.svelte`) and 
 ## Done when
 
 - The header has one 320 px input, placeholder "Find or plot", "Ctrl+K" at its right end; Ctrl+K focuses it from any page (except while a bind capture has the keyboard), and `lib/ui/Palette.svelte` as a separate overlay is gone.
-- Its popover lists, ranked together: systems (Spansh autocomplete) with Plot, Add stop and Set destination; finders, matched by name and by phrases with an input ("sell painite", "interstellar factors", "raw trader"), opening the finder filled in; and today's palette entries (`lib/palette.ts`).
+- Its popover lists, ranked together: systems (Spansh autocomplete) with Plot, Add stop and Set destination; finders, matched by name and by phrases with an input ("interstellar factors", "raw trader", "outfitting fsd", "shipyard python"), opening the finder filled in; the matcher reads the list of finders the Places module declares, so finders added later (astromech-kwoi, astromech-f7i0) are matched without changing this box; and today's palette entries (`lib/palette.ts`).
 - Plot keeps today's behaviour (the panel with `Plot.svelte` and the external links).
-- Tests: the matcher (`palette.test.ts` or a new `find.test.ts`: a system, a phrase with an input, a page, a module), keyboard use, and the three system actions calling the core; `pnpm lint && pnpm check && pnpm build && pnpm test` pass.
+- Tests: the matcher (`palette.test.ts` or a new `find.test.ts`: a system, a phrase with an input for each of astromech-nxz9's finders: Services, Outfitting, Shipyard, Material traders; a page; a module), keyboard use, and the three system actions calling the core; `pnpm lint && pnpm check && pnpm build && pnpm test` pass.
 - `scripts/ui` screenshots of the box at rest, with a system typed, and with a finder phrase typed.
 - docs/guide (routes and the index's Ctrl+K text) updated.
 
@@ -43,4 +43,5 @@ Replace the header's systems-only plot box (`modules/route/PlotBar.svelte`) and 
 ## Context
 
 - DESIGN.md: Find or plot, Frame (header 64 px), Input.
-- Needs the finders' URLs (astromech-nxz9, astromech-kwoi) and the Add stop and Set destination actions (astromech-rz0f).
+- Needs astromech-nxz9's finders and URLs and the Add stop and Set destination actions (astromech-rz0f). Its phrase tests cover only astromech-nxz9's finders so it does not wait for astromech-kwoi; whichever of the two lands second adds phrase tests for the Trade and Materials finders ("sell painite").
+- Search box and voice keep separate matchers that target the same finder IDs and URLs (decision astromech-g8d5, item 7).

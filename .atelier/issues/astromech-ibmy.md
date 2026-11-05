@@ -17,7 +17,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "backlog"
 title: "Local station, ring and hotspot file built in CI from the Spansh galaxy dump"
-updated_at: "2026-11-05T06:19:46.014214722+00:00"
+updated_at: "2026-11-05T06:27:50.576008171+00:00"
 ---
 
 ## Goal
@@ -30,5 +30,6 @@ Provisional: a manual workflow builds and publishes the file on a pre-release wi
 
 ## Unknowns
 
-- Whether it is needed: depends on the live request volume the engine ends up with and on the Spansh maintainer's answer (astromech-5rm2).
+- Whether it is needed: depends on the live request volume the engine ends up with and on the Spansh maintainer's answer (astromech-5rm2). Exit: supersede this item when that answer or the request volume measured on astromech-xlbz and astromech-sgwi says live legs are fine.
+- It blocks nothing today: the recipes ship within the spike's budget without it (decision astromech-g8d5, item 9), and astromech-os70's validation does not wait on it. If astromech-wla4's corridor design turns out to need local stations, link astromech-wla4 blocked_by this item then.
 - Material trader kind is not in the dumps and has to be derived from the station's economy; permit flags are not in station records.
