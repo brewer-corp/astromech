@@ -21,9 +21,10 @@ relationships:
     type: "discovered_from"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+closed_at: "2026-11-05T17:23:12.496835198+00:00"
+status: "done"
 title: "Cells mean editable: ember cells for every editable value, hull for read-only things"
-updated_at: "2026-11-05T16:54:42.843775541+00:00"
+updated_at: "2026-11-05T17:23:12.496835198+00:00"
 ---
 
 ## Goal
@@ -44,3 +45,7 @@ The audit found `--cell` / `--cell-opt` on read-only material tiles, ship specs,
 ## Notes
 
 - 2026-11-04 [note] Deferred from decision astromech-5p9c: (1) fact list, multi-value stat and meter patterns (Opus R9): DESIGN.md has the tile, the result row and the side panel's facts, but no pattern for a read-only list of label/value facts (ship specs, System bodies), a stat with several values, or a meter (fuel, cargo, storage beyond the tile track); define them on hull or Void as this issue moves read-only things off cells. (2) filter-fixed columns (Opus R10): when a filter fixes a column's value (Pad L, Metallic, Pristine in the Sell and Mining mockups) the column repeats one value on every row; decide whether it is dropped and stated in the summary line instead.
+
+## Close Reason
+
+Implementer report. --cell now only on inputs, dropdowns, choices, binding slots (Keybinds, bind dialog, setup press box, Presets grid) and Settings/Data sharing/EDSM/setup values changed by their action word. Read-only tiles, ship specs and module cards, ship rail, engineer cards, tallies, summaries, test and diagnostics rows on --surface (hull); facts outside cells; chips use Badge; table rules and meter tracks --line. Materials per design-system-materials-after.png: hull tiles with a 2 px track, zero tiles Void in a Seam outline in Orange Dim (with focus ring and hover), selected tile solid orange. Engineers lose the side border; state by brightness. --cell-opt and the four "until astromech-dfvp" stopgaps removed. DESIGN.md adds fact list, multi-value stat and meter patterns. Guide pages (Materials, Engineers, Settings, Routes) and the health-step copy updated. Proof: app lint, svelte-check 0/0, build, 465 tests; check-guide clean; token greps; contrast (Orange Mid on hull 4.79:1, red 4.81:1); screenshots docs/design/cells-*. Review: reviewer-fable-dfvp; fix_now hdht (empty tiles lost focus ring and hover) plus defers vnrp (barred engineer card collapsed) and va35 (stat label) fixed by the orchestrator in ea0a8f8b; tuy0, qqws, uprs, ztlk deferred to astromech-0132; approved astromech-4srf. Reviewer decisions (reversible, matching the branch): ship rail as an active page tab; action-less Settings rows are facts; engineers' introducer outline plus Row Hover; setup current step on hull, chosen mic filled.
