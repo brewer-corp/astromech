@@ -13,9 +13,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Check the overlay panels in the headset"
-updated_at: "2026-10-16T18:26:24.426306215+00:00"
+updated_at: "2026-11-07T14:28:00.564587127+00:00"
 ---
 
 ## Goal

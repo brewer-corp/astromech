@@ -16,9 +16,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "Fly a plotted route in the real game"
-updated_at: "2026-10-17T17:33:48.869152273+00:00"
+updated_at: "2026-11-07T14:28:00.913754113+00:00"
 ---
 
 ## Goal

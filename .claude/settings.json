@@ -4,7 +4,7 @@
       {
         "hooks": [
           {
-            "command": "atelier prime --hook claude # atelier-managed:SessionStart",
+            "command": "atelier status --hook claude # atelier-managed:SessionStart",
             "timeout": 30,
             "type": "command"
           }
