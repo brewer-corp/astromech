@@ -35,7 +35,8 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "binaries/astromech-voice-worker"
+      "binaries/astromech-voice-worker",
+      "binaries/astromech-shell"
     ],
     "resources": {
       "../../NOTICE.md": "NOTICE.md",

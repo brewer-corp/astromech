@@ -8,4 +8,9 @@ export type UiState = { window: WindowState,
 /**
  * The tray icon is in the notification area (Tauri's `TrayIcon::rect` has a rectangle).
  */
-tray: boolean, };
+tray: boolean, 
+/**
+ * The page the window shows (its URL's `#/` route, such as `settings`); none when it is
+ * closed or on the start page. The upgrade smoke checks an update's `--route settings`.
+ */
+page: string | null, };

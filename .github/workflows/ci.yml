@@ -134,7 +134,7 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
-      - name: voice worker placeholder (externalBin)
+      - name: voice worker placeholder and the forwarder (externalBin)
         shell: bash
         env:
           PLACEHOLDER: "1"

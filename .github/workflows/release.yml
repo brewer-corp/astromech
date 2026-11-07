@@ -52,6 +52,7 @@ on:
       - scripts/gen-starmap.py
       - scripts/onboarding_smoke.py
       - scripts/one_process_probe.py
+      - scripts/upgrade_smoke.py
       # What the onboarding smoke test drives: the wizard, the voice tester and the window's half
       # of its one command, `call`, which every page it opens calls through (the mock game,
       # crates/astromech-mockgame, is under crates/**)
@@ -99,11 +100,13 @@ jobs:
           cache-dependency-path: app/pnpm-lock.yaml
       # One invocation, so Cargo builds them in parallel and shares their dependencies. The mock
       # game is for the onboarding smoke test and sign-update signs latest.json; neither ships.
-      # The app itself (astromech-core.exe: the core, the tray and the window) is built by tauri
-      # build below. The voice worker stays separate: built together, Cargo would unify
-      # astromech-voice's features and link the GPL sherpa build into the app too.
-      - name: mock game and sign-update (release)
-        run: cargo build --release --locked -p astromech-core --bin sign-update -p astromech-mockgame --bin mockgame
+      # astromech-shell.exe is the forwarder old shortcuts and pins start (decision
+      # astromech-nade); it ships through externalBin. The app itself (astromech-core.exe: the
+      # core, the tray and the window) is built by tauri build below. The voice worker stays
+      # separate: built together, Cargo would unify astromech-voice's features and link the GPL
+      # sherpa build into the app too.
+      - name: mock game, sign-update and the astromech-shell.exe forwarder (release)
+        run: cargo build --release --locked -p astromech-core --bin sign-update -p astromech-mockgame --bin mockgame -p astromech-shell --bin astromech-shell
       - name: drop a sherpa-onnx prebuilt cache that lost its libraries
         # sherpa-onnx-sys skips its download when target/sherpa-onnx-prebuilt/<ver>/lib exists,
         # and rust-cache can restore that folder without the static libraries in it.
@@ -116,7 +119,7 @@ jobs:
           fi
       - name: voice worker (release, sherpa-onnx; GPL-3.0 binary, see NOTICE.md)
         run: cargo build -p astromech-voice --features sherpa --bin astromech-voice-worker --release --locked
-      - name: stage the voice worker (externalBin)
+      - name: stage the voice worker and the forwarder (externalBin)
         shell: bash
         run: scripts/stage-sidecars.sh target/release
       - name: star map preload (published separately by starmap.yml; placeholder on PRs)
@@ -158,10 +161,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # One workspace: the app and the voice worker are both in target/release.
+          # One workspace: the app, the forwarder and the voice worker are all in target/release.
           REL=target/release
           files=()
-          for f in astromech-core.exe astromech-voice-worker.exe \
+          # astromech-shell.exe: the forwarder. The updater never deletes, so an updated two-process
+          # install keeps its old astromech-shell.exe (the old window) unless the zip replaces it.
+          for f in astromech-core.exe astromech-voice-worker.exe astromech-shell.exe; do
+            [ -f "$REL/$f" ] || { echo "missing $REL/$f" >&2; exit 1; }
+          done
+          for f in astromech-core.exe astromech-voice-worker.exe astromech-shell.exe \
                    NOTICE.md COPYING-GPL-3.0.txt THIRD_PARTY.md LICENSE.txt LICENSE; do
             if [ -f "$REL/$f" ]; then files+=("$REL/$f"); fi
           done
@@ -186,7 +194,7 @@ jobs:
           $inst = $dirs | Where-Object { Test-Path "$_\astromech-core.exe" } | Select-Object -First 1
           if (-not $inst) { Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter astromech-core.exe -ErrorAction SilentlyContinue | Select-Object FullName; throw "astromech-core.exe not installed" }
           Write-Host "installed to $inst"
-          foreach ($f in "astromech-core.exe","astromech-voice-worker.exe","NOTICE.md","COPYING-GPL-3.0.txt") {
+          foreach ($f in "astromech-core.exe","astromech-shell.exe","astromech-voice-worker.exe","NOTICE.md","COPYING-GPL-3.0.txt") {
             if (-not (Test-Path "$inst\$f")) { throw "missing $f" }
           }
           $v = (& "$inst\astromech-core.exe" --version | Out-String).Trim()
@@ -204,16 +212,36 @@ jobs:
           if (-not $status.ok) { throw "status not ok: $($status.error)" }
           Write-Host "status: $($status.value.status_line)"
           if (-not $status.value.status_line) { throw "status has no status_line" }
+          # --background (the Run value) is the one app with no window: one astromech-core
+          # process, no astromech-shell, and no WebView2 process of the app's, matched by descent
+          # and by command line (its --webview-exe-name, or its EBWebView folder) as
+          # scripts/one_process_probe.py does.
+          Start-Sleep -Seconds 3
+          $cores = @(Get-Process astromech-core -ErrorAction SilentlyContinue)
+          if ($cores.Count -ne 1) { throw "expected one astromech-core process, found $($cores.Count)" }
+          if (Get-Process astromech-shell -ErrorAction SilentlyContinue) { throw "an astromech-shell process is running" }
+          $all = @(Get-CimInstance Win32_Process)
+          $tree = @{}; $todo = [System.Collections.Generic.Queue[uint32]]::new(); $todo.Enqueue([uint32]$cores[0].Id)
+          while ($todo.Count) {
+            $p = $todo.Dequeue()
+            foreach ($c in $all) { if ($c.ParentProcessId -eq $p -and -not $tree.ContainsKey($c.ProcessId)) { $tree[$c.ProcessId] = $true; $todo.Enqueue($c.ProcessId) } }
+          }
+          $ebw = "$env:LOCALAPPDATA\io.github.spadaval.astromech\EBWebView".ToLower()
+          $wv = @($all | Where-Object { $_.Name -eq "msedgewebview2.exe" -and ($tree.ContainsKey($_.ProcessId) -or "$($_.CommandLine)".ToLower().Contains("--webview-exe-name=astromech-core.exe") -or "$($_.CommandLine)".ToLower().Contains($ebw)) })
+          if ($wv.Count) { $wv | Format-List ProcessId, ParentProcessId, CommandLine | Out-String -Width 400 | Write-Host; throw "$($wv.Count) WebView2 process(es) belong to the app started --background" }
+          Write-Host "--background: one astromech-core ($($cores[0].Id)), no astromech-shell, no WebView2 of the app's ($($all.Count) processes looked at)"
           # A second start must not run a second core.
           Start-Process "$inst\astromech-core.exe" -ArgumentList "--background" -Wait
           if ((Get-Process astromech-core -ErrorAction SilentlyContinue).Count -ne 1) { throw "single instance failed" }
           $run = Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name astromech -ErrorAction SilentlyContinue
           Write-Host "autostart: $($run.astromech)"
           if (-not $run) { throw "start with Windows wasn't turned on by default" }
+          if ($run.astromech -ne "`"$inst\astromech-core.exe`" --background") { throw "the Run value isn't `"$inst\astromech-core.exe`" --background" }
           & "$inst\astromech-core.exe" --quit
           Start-Sleep -Seconds 2
           if (Get-Process astromech-core -ErrorAction SilentlyContinue) { throw "core didn't quit" }
           Get-Content "$env:LOCALAPPDATA\astromech\data\logs\astromech-core.log"
+          if (-not (Select-String -Path "$env:LOCALAPPDATA\astromech\data\logs\astromech-core.log" -SimpleMatch "quitting" -Quiet)) { throw "--quit didn't log 'quitting'" }
           Start-Process "$inst\uninstall.exe" -ArgumentList "/S" -Wait
           Start-Sleep -Seconds 3
           if (Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name astromech -ErrorAction SilentlyContinue) { throw "uninstall left the Run value" }
@@ -275,10 +303,65 @@ jobs:
           path: one-process-report/
           if-no-files-found: warn
 
+  # An existing two-process install (the newest v* release) upgraded to this build by both routes
+  # a player has: the old release's own update helper overlaying this build's zip, and this
+  # build's setup.exe /S over the running install (astromech-9lh3; scripts/upgrade_smoke.py).
+  upgrade:
+    name: Upgrade from the newest release (updater and installer)
+    needs: installer
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/download-artifact@v4
+        with:
+          name: astromech-installer-windows-x64
+          path: dist-release
+      - name: the newest release's installer
+        id: old
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 100 --json tagName,publishedAt \
+            --jq '[.[] | select(.tagName | startswith("v"))] | sort_by(.publishedAt) | last | .tagName')
+          [ -n "$tag" ] && [ "$tag" != null ] || { echo "::error::no v* release to upgrade from"; exit 1; }
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*-setup.exe' --dir old-release
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "setup=$(ls old-release/*-setup.exe | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "version=$(python -c "import json; print(json.load(open('dist-release/latest.json'))['version'])")" >> "$GITHUB_OUTPUT"
+          echo "zip=$(ls dist-release/*-windows-x64.zip | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "setup_new=$(ls dist-release/*-setup.exe | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "upgrading from $tag to $(cat dist-release/latest.json)"
+      - name: upgrade smoke test (updater route, then installer route)
+        shell: pwsh
+        run: |
+          python -m pip install --quiet "psutil>=5.9,<8"
+          python scripts/upgrade_smoke.py --old-setup "${{ steps.old.outputs.setup }}" --old "${{ steps.old.outputs.tag }}" `
+            --setup "${{ steps.old.outputs.setup_new }}" --zip "${{ steps.old.outputs.zip }}" `
+            --version "${{ steps.old.outputs.version }}" --out upgrade-report
+          if ($LASTEXITCODE -ne 0) { throw "upgrade smoke test failed" }
+      - name: upgrade report
+        if: always()
+        shell: bash
+        run: |
+          if [ -f upgrade-report/report.md ]; then cat upgrade-report/report.md >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: upgrade-smoke-report
+          path: upgrade-report/
+          if-no-files-found: warn
+
   publish:
     name: GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: installer
+    # Not before the upgrade test: a release that two-process installs can't upgrade to stays
+    # unpublished.
+    needs: [installer, upgrade]
     runs-on: ubuntu-latest
     permissions:
       contents: write

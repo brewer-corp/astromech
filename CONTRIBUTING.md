@@ -165,6 +165,13 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   After it, `scripts/one_process_probe.py` (spike astromech-wgtr's probe) runs against a fresh
   install: the app windowless with its tray, a second start opening the window, five closes that
   must free every WebView2 process, the window's renderer and browser process killed, and quit.
+  Its `upgrade` job (`scripts/upgrade_smoke.py`) installs the newest `v*` release, starts it as
+  a player has it (the core with `--background`, then its window) and upgrades it to this build
+  twice: with that release's own update helper overlaying this build's zip, and with this
+  build's `setup.exe /S`. After each, one `astromech-core.exe` of this build must run, the old
+  one must have quit cleanly, the Run value must be unchanged and the old `astromech-shell.exe`
+  shortcut must open the window. Any change to the installer hooks, the update helper or the
+  executables' names has to keep it passing: the old release's code runs during the upgrade.
 - The game-free MVP criteria (docs/ARCHITECTURE.md §14 Phase 1) are measured on Windows by
   `scripts/mvp_criteria.py`: the release core against the mock game window
   (`crates/astromech-mockgame`), with a report against each threshold. The
@@ -259,5 +266,5 @@ browser, so never add one.
    no CI runs for it.
 3. Tag `main` (`git tag -a vX.Y.Z[-pre]`) and push the tag. The **Release build** stamps the
    tag's version into the version files (`scripts/set-version.py`), builds and smoke-tests the
-   installer, and publishes the release with the signed update. It fails before publishing if
+   installer, tests the upgrade from the newest release, and publishes the release with the signed update. It fails before publishing if
    the notes file is missing or any step fails.

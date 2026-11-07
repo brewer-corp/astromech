@@ -3,7 +3,7 @@
 //! Rolling log files (docs/V1-DESIGN.md §7.7), one per process in the log folder:
 //! `astromech-core.log` for the app, the core and its window in one process. A file is
 //! rolled over at 10 MB (`<name>.<stamp>.log`) and rolled-over files older than 7 days are
-//! deleted. Each line goes through the redaction the process gives [`init`] (the user's profile
+//! deleted, as are the logs of [`RETIRED`] processes, live file included. Each line goes through the redaction the process gives [`init`] (the user's profile
 //! paths and Windows user name).
 
 use std::fs::{File, OpenOptions};
@@ -16,6 +16,9 @@ pub const MAX_BYTES: u64 = 10 * 1024 * 1024;
 pub const KEEP: Duration = Duration::from_secs(7 * 24 * 3600);
 /// The app's log name (`astromech-core.log`).
 pub const CORE: &str = "astromech-core";
+/// Logs no process writes any more: the two-process releases' window (`astromech-shell.log`, up
+/// to v1.0.0-alpha.4). Pruned after [`KEEP`] like rolled-over files, their live file too.
+pub const RETIRED: &[&str] = &["astromech-shell"];
 
 /// Rewrites a line before it is written, e.g. to hide the user's name.
 pub type Redact = Box<dyn Fn(&str) -> String + Send>;
@@ -49,7 +52,7 @@ pub fn init(dir: &Path, name: &'static str, console: bool, redact: Redact) {
 
 pub fn init_with(dir: &Path, name: &'static str, console: bool, max: u64, redact: Redact) {
     let _ = std::fs::create_dir_all(dir);
-    prune(dir, name, KEEP, SystemTime::now());
+    prune_at_start(dir, name, SystemTime::now());
     let mut s = Sink { dir: dir.to_path_buf(), name, file: None, written: 0, max, console, redact };
     s.open();
     *sink().lock().unwrap_or_else(|e| e.into_inner()) = Some(s);
@@ -103,13 +106,30 @@ impl Sink {
     }
 }
 
+/// What [`init`] prunes: `name`'s old rolled-over logs, and the [`RETIRED`] ones.
+fn prune_at_start(dir: &Path, name: &str, now: SystemTime) {
+    prune(dir, name, KEEP, now);
+    prune_retired(dir, KEEP, now);
+}
+
 /// Delete `name`'s rolled-over logs (`<name>.<stamp>.log`) last modified before `now - keep`.
 pub fn prune(dir: &Path, name: &str, keep: Duration, now: SystemTime) {
+    prune_files(dir, name, false, keep, now);
+}
+
+/// Delete the [`RETIRED`] logs, live and rolled over, last modified before `now - keep`.
+pub fn prune_retired(dir: &Path, keep: Duration, now: SystemTime) {
+    for name in RETIRED {
+        prune_files(dir, name, true, keep, now);
+    }
+}
+
+fn prune_files(dir: &Path, name: &str, live_too: bool, keep: Duration, now: SystemTime) {
     let Ok(rd) = std::fs::read_dir(dir) else { return };
     let (live, prefix) = (format!("{name}.log"), format!("{name}."));
     for e in rd.flatten() {
         let n = e.file_name().to_string_lossy().to_string();
-        if n == live || !n.starts_with(&prefix) || !n.ends_with(".log") {
+        if (n == live && !live_too) || !n.starts_with(&prefix) || !n.ends_with(".log") {
             continue;
         }
         let old = e.metadata().and_then(|m| m.modified()).map(|t| now.duration_since(t).unwrap_or_default() > keep);
@@ -167,6 +187,35 @@ mod tests {
         // Everything rolled over is "old" a year from now; the live file stays.
         prune(d.path(), CORE, KEEP, SystemTime::now() + Duration::from_secs(365 * 24 * 3600));
         assert_eq!(names(d.path()), ["astromech-core.log", "astromech-shell.20260101-000000.000.log"]);
+    }
+
+    /// The retired window's log (`astromech-shell.log`, two-process releases), live file and
+    /// rolled over, goes after 7 days; a newer one stays, and so does the app's live log.
+    #[test]
+    fn the_retired_window_log_is_pruned_after_7_days() {
+        let d = tempfile::tempdir().unwrap();
+        for n in [
+            "astromech-core.log",
+            "astromech-shell.log",
+            "astromech-shell.20260101-000000.000.log",
+            "astromech-shellx.log",
+        ] {
+            std::fs::write(d.path().join(n), "x").unwrap();
+        }
+        let now = SystemTime::now();
+        prune_retired(d.path(), KEEP, now + Duration::from_secs(6 * 24 * 3600));
+        assert_eq!(names(d.path()).len(), 4, "younger than 7 days: kept");
+        prune_retired(d.path(), KEEP, now + Duration::from_secs(8 * 24 * 3600));
+        assert_eq!(names(d.path()), ["astromech-core.log", "astromech-shellx.log"]);
+    }
+
+    /// The app's start prunes them ([`init`]), so an upgraded install's old log goes.
+    #[test]
+    fn the_start_prunes_the_retired_logs() {
+        let d = tempfile::tempdir().unwrap();
+        std::fs::write(d.path().join("astromech-shell.log"), "x").unwrap();
+        prune_at_start(d.path(), CORE, SystemTime::now() + Duration::from_secs(8 * 24 * 3600));
+        assert!(names(d.path()).is_empty());
     }
 
     /// A process's lines (e.g. a remote-data cache that won't open) land in the file it named,

@@ -57,6 +57,17 @@ pub struct UiState {
     pub window: WindowState,
     /// The tray icon is in the notification area (Tauri's `TrayIcon::rect` has a rectangle).
     pub tray: bool,
+    /// The page the window shows (its URL's `#/` route, such as `settings`); none when it is
+    /// closed or on the start page. The upgrade smoke checks an update's `--route settings`.
+    pub page: Option<String>,
+}
+
+/// [`UiState::page`] from the window URL's fragment: `/settings` → `settings`, and nothing for
+/// the start page.
+pub fn page_of(fragment: Option<&str>) -> Option<String> {
+    let page = fragment?.trim_start_matches('/');
+    let page = page.split('?').next().unwrap_or_default();
+    (!page.is_empty()).then(|| page.to_string())
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, TS)]
@@ -96,7 +107,7 @@ impl Ui for Headless {
     }
 
     fn state(&self) -> UiState {
-        UiState { window: WindowState::Closed, tray: false }
+        UiState { window: WindowState::Closed, tray: false, page: None }
     }
 
     fn quit(&self) {
@@ -1908,6 +1919,16 @@ mod every_window_command;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_window_page_is_its_url_route() {
+        assert_eq!(page_of(Some("/settings")).as_deref(), Some("settings"));
+        assert_eq!(page_of(Some("/engineering/7/plan")).as_deref(), Some("engineering/7/plan"));
+        assert_eq!(page_of(Some("/settings?x=1")).as_deref(), Some("settings"));
+        assert_eq!(page_of(Some("/")), None);
+        assert_eq!(page_of(Some("")), None);
+        assert_eq!(page_of(None), None);
+    }
     use astromech_voice::{catalog, download, models};
 
     /// Held by tests that edit the config through a core: every edit sets the process-wide

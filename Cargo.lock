@@ -548,6 +548,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "astromech-shell"
+version = "0.0.0-dev"
+
+[[package]]
 name = "astromech-ship"
 version = "0.0.0-dev"
 dependencies = [

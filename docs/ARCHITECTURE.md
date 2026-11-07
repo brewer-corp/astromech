@@ -377,6 +377,9 @@ astromech/
                          assembly (`app`), what the tray shows (`tray`) and the executable's command line (`cli`)
     astromech-mockgame/  `mockgame.exe`, a Windows-only mock of the game's window, input and Status.json for the
                          smoke and criteria harnesses (not shipped)
+    astromech-shell/     `astromech-shell.exe`, the two-process releases' window name kept as a forwarder for
+                         old shortcuts and pins: starts `astromech-core.exe` beside it with its arguments and
+                         exits (decision astromech-nade; no workspace dependencies)
   app/                   Svelte 5 + TS + Vite app shell, module manifest, modules/keybinds (placeholder)
   app/src-tauri/         astromech-app, the package that builds `astromech-core.exe`, the one app (§18.1): the Tauri v2
                          host around the core, with the tray, the window, its one command `call` (§18.2) and its
@@ -1726,6 +1729,7 @@ On top of the output-path slice (colour + mixer, V1-DESIGN §7.12):
   - **Without the `window` feature** the same binary runs the core headless (no tray, no window): Linux, CI, the scripts and the dev bridge.
 - **Who opens what, and when:**
   - **The Start-menu shortcut starts the app with its window.** That's the app's identity.
+  - **Old shortcuts and taskbar pins** to `astromech-shell.exe`, the two-process releases' window, start a forwarder of that name, which starts `astromech-core.exe` with the same arguments: the window opens, in the running app if there is one (decision astromech-nade; V1-DESIGN §7.2).
   - **Start with Windows** (on by default) starts it with `--background`: the tray only, so it doesn't pop up over a launching game.
   - **Closing the window** leaves the app in the tray, with voice, the kill switch and push-to-talk running.
   - The **tray** has Open, Pause voice, the Kill switch while Elite runs, updates and Quit.

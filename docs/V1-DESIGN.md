@@ -725,25 +725,40 @@ skip the guide. A new rule's lines go in that test.
 ### 7.2 Packaging
 - **Tauri bundler, NSIS installer, `installMode: "currentUser"`** → installs to
   `%LOCALAPPDATA%\astromech` (Tauri's per-user default; M0 note: the template has no install-dir option, so user data moved to its `data\` subfolder), no admin, no UAC prompt. One installer carries
-  `astromech-core.exe` (the app), `astromech-voice-worker.exe` (as Tauri `externalBin`),
-  resources and the OFL fonts. Speech models download on first run (≈ 700 MB,
+  `astromech-core.exe` (the app), `astromech-voice-worker.exe` and `astromech-shell.exe` (both
+  as Tauri `externalBin`), resources and the OFL fonts. `astromech-shell.exe` was the window of
+  the two-process releases (up to v1.0.0-alpha.4) and is now a tiny forwarder: it starts
+  `astromech-core.exe` beside it with its arguments and exits, so old Start-menu shortcuts and
+  taskbar pins still open the window. It is kept, not removed later (decision astromech-nade). Speech models download on first run (≈ 700 MB,
   SHA-256 checked, as now) so the installer stays small.
+- The installer's hooks (`app/src-tauri/installer-hooks.nsh`) run before Tauri's own check for
+  a running app, which force-closes it: first `astromech-core.exe --quit` (it returns once the
+  app has released held keys and removed `core.json`), then an old window
+  (`astromech-shell.exe`) is ended, then whatever didn't answer. Over a two-process install
+  they also keep the forwarder, which Tauri's template would otherwise delete as the old main
+  binary.
 - WebView2: use the bootstrapper (`webviewInstallMode: downloadBootstrapper`); Windows 11 already has it.
 - Uninstall removes the program; user data (`%LOCALAPPDATA%\astromech\data`) stays unless the
   "remove my data" box is ticked.
 
 ### 7.3 Updates
-- The **core** owns check, download and apply. The Tauri updater plugin does not fit: the shell
-  is not the long-lived process.
+- The **core** owns check, download and apply, in its own code rather than the Tauri updater
+  plugin: the apply helper below is the installed release's own, so every release has to fit
+  the one before it.
 - **Channel:** GitHub Releases `v*` tags. Each release ships `latest.json` (version, zip name,
   SHA-256, notes) and `latest.json.sig` (ed25519 over the exact JSON bytes). The verifying key
   is baked into the core (`PUBLIC_KEY_HEX`); CI holds the private seed as `ASTROMECH_UPDATE_KEY`.
 - **Payload:** a zip of `astromech-core.exe`, `astromech-voice-worker.exe`,
-  `starmap.db` and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
-  `data\` (config, logs, models, DB) is never overwritten. `uninstall.exe` stays.
+  `astromech-shell.exe` (the forwarder, §7.2), `starmap.db` and the licence files. Not NSIS: overlaying files avoids SmartScreen on every `setup.exe`.
+  `data\` (config, logs, models, DB) is never overwritten. `uninstall.exe` stays. The copy
+  overlays and never deletes, so a file a release stops shipping stays on updated installs.
 - **When:** check and download any time, including while Elite is running. Apply drops keys and
-  the session, quits, copies from a helper in `%TEMP%` (the running `astromech-core.exe` is
-  locked), then relaunches. The new process attaches to the running game the same way a mid-session
+  the session, quits, copies from a helper in `%TEMP%` (`astromech-apply-<pid>.exe`, a copy of
+  the installed `astromech-core.exe`, which is locked while it runs), then relaunches
+  `astromech-core.exe`, tray only, or with `--route settings` if the window was open. The helper
+  ends the payload's executables by name before copying (`astromech-shell.exe`, the voice
+  worker and `astromech-core.exe`); a two-process release's helper does the same, which ends its
+  old window too. The new process attaches to the running game the same way a mid-session
   start already does.
 - **Policy** (`[update]` in `astromech.toml`): `check = true` (default) polls about daily;
   `apply = "ask"` (default) waits for **Install and restart** (Settings or tray); `on_quit` applies when
@@ -758,8 +773,10 @@ skip the guide. A new rule's lines go in that test.
 
 ### 7.5 Autostart
 - **HKCU `Run` key** (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, value
-  `astromech` → `"…\astromech-core.exe" --background`), set by the installer and toggled in
-  settings. No admin; it's what the Tauri autostart plugin uses. Task Scheduler would only add
+  `astromech` → `"…\astromech-core.exe" --background`), set by the app the first time it runs
+  from an install (on by default) and toggled in settings. The app keeps the path current if
+  the program moves; upgrades by either route leave the value as it was (the uninstaller deletes
+  it, except when an upgrade runs it with `/UPDATE`). No admin; it's what the Tauri autostart plugin uses. Task Scheduler would only add
   a start delay and restart-on-failure, at the cost of complexity (and some options need admin).
 - `--background`: tray only, no window, low priority until the game starts.
 
@@ -778,24 +795,31 @@ skip the guide. A new rule's lines go in that test.
   mic, go idle. Setting: "Keep voice loaded" for fast restarts.
 
 ### 7.7 Single instance, crash restart, logs
-- **Single instance:** a named mutex `Local\astromech-core` (second start → tell the first to
-  open the window, then exit).
+- **Single instance:** a named mutex `Local\astromech-core`, the only guard (decision
+  astromech-nade), the same name in every release, so an old tray core and a new app never run
+  together. A second start tells the first to open the window, then exits; that includes the
+  `astromech-shell.exe` forwarder an old shortcut or pin starts.
 - **Crash restart:** through Windows' restart registration (astromech-dl53; the shell that
   restarted the core is gone with the one app). The app installs a panic hook that writes the panic + backtrace to the log and a crash marker. On the
   next start the tray offers "astromech crashed last time · Save diagnostics". The voice worker is
   already a supervised child (restarted by the core).
 - **Logs:** rolling files in `%LOCALAPPDATA%\astromech\data\logs` (7 days, 10 MB each), the same lines
   as the preview console; usernames redacted. The app writes `astromech-core.log`, the window's
-  lines included (the release build has no console). **Diagnostics bundle** (§1.5 #2), with the
+  lines included (the release build has no console). The two-process releases' window log,
+  `astromech-shell.log`, is no longer written; it and its rolled files are deleted 7 days after
+  they were last written, like any rolled file. **Diagnostics bundle** (§1.5 #2), with the
   logs, from the tray or settings.
 
 ### 7.8 Release CI
 On a `v*` tag:
 1. Windows runner: stamp the tag's version (`scripts/set-version.py`; the repository says `0.0.0-dev`),
-   then build core, worker (`sherpa` feature) and shell (`tauri build`) with `--locked`.
+   then build the worker (`sherpa` feature), the forwarder and the app (`tauri build`) with
+   `--locked`.
 2. Run the test suite and the Windows e2e.
 3. Create the GitHub Release with the installer, SHA-256 checksums and NOTICE files.
 4. Smoke test: download the release on a clean runner, install per-user, start, check the version.
+5. Upgrade test (the `upgrade` job, `scripts/upgrade_smoke.py`): the newest release installed and
+   running as a player has it, upgraded by its own update helper and by `setup.exe /S`.
 
 ### 7.9 GPL caveat
 `astromech-voice-worker.exe` links sherpa-onnx with espeak-ng (GPL-3.0), so that binary is
