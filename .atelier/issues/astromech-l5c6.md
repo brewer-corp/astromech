@@ -18,9 +18,9 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "in_progress"
+status: "review"
 title: "Publish the browser preview as an artifact"
-updated_at: "2026-11-07T03:00:18.082733892+00:00"
+updated_at: "2026-11-07T03:05:30.385455431+00:00"
 ---
 
 ## Goal
