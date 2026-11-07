@@ -1,0 +1,29 @@
+import { describe, expect, it } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/svelte";
+import ProspectorThresholds from "./ProspectorThresholds.svelte";
+import { previewAnswer, startPreview } from "../../test/transport";
+
+describe("Settings → Prospector callouts", () => {
+  it("lists each ore's threshold and saves a change, an off and a reset", async () => {
+    startPreview("/?core=ready");
+    render(ProspectorThresholds);
+    const plat = (await screen.findByLabelText("Platinum threshold, percent")) as HTMLInputElement;
+    expect(plat.value).toBe("20");
+    await fireEvent.change(plat, { target: { value: "35" } });
+    await screen.findByRole("button", { name: "Reset to 20%" });
+    let saved = await previewAnswer("prospector_thresholds");
+    expect(saved.ores.find((o: { ore: string }) => o.ore === "platinum").threshold).toBe(35);
+    // Empty turns it off; a bad value is refused with a message.
+    await fireEvent.change(plat, { target: { value: "" } });
+    saved = await previewAnswer("prospector_thresholds");
+    expect(saved.ores.find((o: { ore: string }) => o.ore === "platinum").threshold).toBeNull();
+    const painite = screen.getByLabelText("Painite threshold, percent") as HTMLInputElement;
+    await fireEvent.change(painite, { target: { value: "150" } });
+    const refused = await screen.findByText(/enter a percentage from 0 to 100/);
+    expect(refused.getAttribute("aria-live"), "the error is announced").toBe("polite");
+    expect(painite.value, "the box shows the saved value, not the refused text").toBe("25");
+    await fireEvent.click(screen.getByRole("button", { name: "Reset to 20%" }));
+    saved = await previewAnswer("prospector_thresholds");
+    expect(saved.ores.find((o: { ore: string }) => o.ore === "platinum").threshold).toBe(20);
+  });
+});

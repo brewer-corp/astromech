@@ -70,6 +70,8 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
 - Run `cargo fmt --all`, `cargo clippy --workspace --all-targets -- -D warnings`,
   `cargo test --workspace`, `python3 scripts/check-deps.py`, `python3 scripts/check-guide.py` (guide links), `cargo deny check`, and in `app/`:
   `pnpm lint && pnpm check && pnpm build && pnpm test`, then `python3 scripts/check-dist.py` (the build carries no browser preview).
+  `pnpm test` runs the UI tests in headless Chromium: install it once with
+  `pnpm exec playwright install --only-shell chromium` (see [Tests](#tests)).
 - Tracker records: the **Atelier** workflow (`.github/workflows/atelier.yml`) runs
   `atelier doctor` on every PR and every push to `main`, record-only commits included. It
   checks every done claim and the whole review history as they will stand on `main`, with
@@ -146,6 +148,80 @@ They use a static CRT (`.cargo/config.toml`), so no DLLs are needed.
   `python3 scripts/test_mvp_criteria.py`.
 - New dependencies must pass `cargo deny` (permissive licences only).
 - Contributions are accepted under the MIT licence.
+
+## Tests
+
+These rules come from decision astromech-1zhg. They apply to new tests and to any test you
+change; [AGENTS.md](AGENTS.md) has the short form.
+
+**What to fake.** Test doubles go only at true boundaries: the game's files, the network, the
+clock, input devices, audio and the clipboard. The core's behaviour always runs for real.
+Fixtures are recorded raw inputs (journals, Spansh and Ardent responses), dumped or recorded
+from the real thing, never invented replies.
+
+**Where a case goes.** Test each case once, at the lowest layer that fails without the fix.
+Algorithms (parsers, jump range and fuel, plotters, engineering maths) are tested in Rust,
+table-driven; add a row to an existing table before writing a new test. Don't repeat a case in a
+wrapper, at each call site or in the page that shows it.
+
+**What not to test.** Copy text, static markup, callback wiring, what the types already
+guarantee, mock-call mirrors (a test that only checks a function called the function it calls)
+and smoke renders. A behaviour test asserts what the commander sees or what reached the
+backend after something happened.
+
+**Bugs and visual changes.** A logic, data, state or protocol bug gets a failing test first: the
+fewest cases that fail on `main` for that reason, in an existing case where one fits, then the
+fix. A purely visual change (spacing, colour, alignment, a layout shift) is proven with
+before-and-after captures (`scripts/ui ... --screenshot`, `scripts/app-shots.sh`), not a test;
+don't add a UI test for it.
+
+**Determinism.** Tests wait on events, never on time. No sleeps (`setTimeout`), no polling
+loops, no wall-clock reads (`Date.now()`, `performance.now()`) and no retries. Wait for what the
+page shows (`findBy…`, `waitFor`, `vi.waitFor`) or for the calls to answer (`idle()`, below).
+Code that runs on a timer is driven with `vi.useFakeTimers` (fake only what it uses, such as
+`toFake: ["setInterval", "clearInterval"]`, so the waits keep working) and `vi.setSystemTime` for
+dates. A flaky test is fixed, not retried. Skipping one (`it.skip`, `describe.skip`) is a
+quarantine: it needs an Atelier issue, named on the line above (`// quarantine: astromech-xxxx
+<why>`). Lint rejects `setTimeout` and wall-clock reads in test files
+(`app/eslint-rules/tests.js`, tested by `tests.test.js` beside it).
+
+**The frontend's two test projects** (`app/vite.config.ts`):
+
+- `node`: pure logic in `app/src/**/*.test.ts`, run in Node.
+- `browser`: UI behaviour in `app/src/**/*.browser.test.ts`, run in real headless Chromium
+  (Vitest browser mode with Playwright) at the app window's size. Name a test file
+  `.browser.test.ts` when it needs a DOM, `window` or `location`.
+
+`pnpm test` runs both. Run one file with `pnpm vitest run src/modules/route/Plot.browser.test.ts`,
+or one project with `--project browser`. The browser project needs Playwright's Chromium:
+`pnpm exec playwright install --only-shell chromium` (CI installs it with `--with-deps`). On a
+Linux release Playwright doesn't know yet, it refuses to install; set
+`PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64` for the install.
+
+**UI tests fake only the transport.** A UI test renders the real page and lets the browser
+preview's fake (`app/src/preview/`) answer its calls, as `pnpm dev` does. To change an answer,
+use `app/src/test/transport.ts`, not `vi.mock` of an app module:
+
+- `answer(cmd, (args) => reply)` answers a command (a rejected promise or a throw is a failed
+  call). At a file's top level it holds for the whole file; in a test or `beforeEach`, for that
+  test.
+- `watch(cmd)` is a mock called with each call's args, for asserting what reached the backend.
+- `previewAnswer(cmd, args)` is the fake's own answer: what the fake core holds now, or a reply
+  to adjust inside an `answer`.
+- `startPreview("/?core=ready&fail=route")` runs the preview under a query from a fresh fake core
+  (the query switches are listed in "Before a PR"); before each test the helper empties the
+  query and starts the fake core and the neutron file over.
+- `idle()` resolves once every call has answered and the page has drawn the answers, for
+  asserting that nothing more happens. `sent` records every call, for a call that never answers.
+
+The fake world's own events come from `app/src/preview/fakecore.ts` (`fakeJump`,
+`fakePlotInGame`, `fakeClipboard`, `fakePreviews`); lint allows only those from it in tests.
+The preview's own tests (`app/src/preview/`) and the two tests of the app's side of Tauri
+(`staleTauri`, `tauriFailure`, which fake `invoke`) are exempt. A few older tests still
+`vi.mock` an app module (the voice tester, colonisation, Powerplay targets, the route plot, the
+stale-data and callout announcement tests, and `lib/mining.test.ts`); move one behind `answer`
+when you change it. `vi.mock` of a module the preview imports deadlocks in the
+browser, so never add one.
 
 ## Releasing
 

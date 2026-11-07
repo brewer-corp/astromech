@@ -49,6 +49,20 @@ under `.atelier/`, committed with the code they describe. There is no separate b
 - Checks to run before a PR, the UI check and the game-data rules:
   [CONTRIBUTING.md](CONTRIBUTING.md)
 
+## Tests
+
+The rules are in [CONTRIBUTING.md](CONTRIBUTING.md#tests) (decision astromech-1zhg); in short:
+
+- Doubles only at true boundaries (game files, network, clock, input, audio, clipboard); the
+  core runs for real. Fixtures are recorded raw inputs, never invented replies.
+- One case, at the lowest layer that fails. Don't test copy text, static markup, callback wiring
+  or what the types guarantee.
+- A logic bug gets a failing test first; a visual change gets before-and-after captures, not a test.
+- No sleeps, polling, wall-clock reads or retries: wait on events, fake timers for timer code.
+  A skipped test is a quarantine and names an Atelier issue. Lint enforces what it can.
+- UI tests are `*.browser.test.ts` in headless Chromium and fake only the transport, through
+  `app/src/test/transport.ts`.
+
 ## Constraints
 
 - Never commit Frontier assets, game files, datamined data, models, or personal logs
