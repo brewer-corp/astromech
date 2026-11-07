@@ -1,0 +1,13 @@
+{
+  "exchanges": [
+    {
+      "url": "https://spansh.co.uk/api/systems/field_values/system_names?q=Shin",
+      "method": "GET",
+      "from": "../../crates/astromech-data/tests/fixtures/spansh-system-names.json"
+    },
+    {"url": "/brewer-corp/astromech/releases/latest/download/latest.json", "status": 503},
+    {"url": "/k2-fsa/sherpa-onnx/releases/download/", "status": 503},
+    {"url": "/brewer-corp/astromech/releases/download/neutron/", "status": 503},
+    {"url": "https://www.edsm.net/api-logs-v1/get-logs", "status": 503, "text": "<html>Service Unavailable</html>"}
+  ]
+}

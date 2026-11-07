@@ -58,10 +58,10 @@ fn the_minimal_world_runs_headless_and_leaves_the_users_folders_alone() {
     }
 }
 
-/// A world that switches EDDN and EDSM on, with a commander and a key, uploads to neither:
-/// world mode turns both off until the recorded network answers them (astromech-xk0n).
+/// A world that switches EDDN and EDSM on, with a commander and a key, has them on: its
+/// uploads go to its recorded network, never the real services (astromech-xk0n).
 #[test]
-fn a_world_never_switches_on_the_uploads() {
+fn a_worlds_sharing_switches_are_its_own() {
     let w = tempfile::tempdir().unwrap();
     std::fs::write(
         w.path().join("astromech.toml"),
@@ -71,9 +71,9 @@ fn a_world_never_switches_on_the_uploads() {
     std::fs::write(w.path().join("secrets.json"), r#"{"edsm-api-key": "k3y"}"#).unwrap();
     let core = WorldCore::start(w.path());
     let eddn = core.call_window("eddn_log", None).unwrap();
-    assert_eq!(eddn["enabled"], false, "{eddn}");
+    assert_eq!(eddn["enabled"], true, "{eddn}");
     let edsm = core.call_window("edsm_status", None).unwrap();
-    assert_eq!((&edsm["enabled"], &edsm["uploading"]), (&json!(false), &json!(false)), "{edsm}");
+    assert_eq!((&edsm["enabled"], &edsm["uploading"]), (&json!(true), &json!(true)), "{edsm}");
     assert_eq!((&edsm["commander"], &edsm["has_key"]), (&json!("Jameson"), &json!(true)), "the rest is the world's");
     assert!(core.quit().success());
 }

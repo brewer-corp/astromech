@@ -15,14 +15,15 @@
 //! looks something up, so the rate limit and the cache hold for the whole process.
 //!
 //! Endpoints live in [`spansh`], [`ardent`] and [`edsm`]. Large published files (the neutron star
-//! file) are streamed to disk by [`download`] instead. Tests swap the [`Transport`] for
-//! recorded bodies.
+//! file) are streamed to disk by [`download`] instead. Tests and world mode swap the
+//! [`Transport`] for a recording ([`replay`]).
 
 pub mod ardent;
 mod cache;
 pub mod download;
 pub mod edsm;
 mod limit;
+pub mod replay;
 pub mod spansh;
 mod transport;
 

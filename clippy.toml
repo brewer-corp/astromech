@@ -1,1 +1,19 @@
 msrv = "1.90"
+
+# Every HTTP request goes through a stack world mode rewrites or replaces (astromech-xk0n):
+# astromech_data's Transport and downloads, EDDN's Transport, EDSM's Api, the updater and the
+# speech-model download. Those modules allow these where they build their agent.
+disallowed-methods = [
+    { path = "ureq::AgentBuilder::new", reason = "HTTP goes through a transport world mode replaces (astromech_data::Transport, astromech_eddn::Transport, edsm::api::Api) or a download URL the composition root rewrites" },
+    { path = "ureq::Agent::new", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::agent", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::builder", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::request", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::request_url", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::get", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::head", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::post", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::put", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::patch", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+    { path = "ureq::delete", reason = "HTTP goes through a transport world mode replaces or a download URL the composition root rewrites" },
+]

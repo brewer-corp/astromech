@@ -2,6 +2,7 @@
 //! see tests/fixtures). No test here touches the network.
 
 use astromech_data::ardent::{MarketFilter, StationService, Trade};
+use astromech_data::replay::{Exchange, Recording, Replay, Seen};
 use astromech_data::spansh::{
     ExactRoute, JobStatus, NeutronRoute, Polling, Reference, RouteStatus, Search, TradeRoute,
 };
@@ -9,6 +10,7 @@ use astromech_data::{
     ttl, Cache, Client, Clock, Error, HttpTransport, Limiter, Method, Request, Response, Service, Transport,
     TransportError,
 };
+use serde_json::json;
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -18,31 +20,40 @@ macro_rules! fixture {
     };
 }
 
-/// Answers by URL substring (last matching rule wins; a sequence answers in turn before the
-/// rules) and logs every request.
-#[derive(Default)]
+/// The library's replay ([`astromech_data::replay`]) with its exchanges added in code, and a log
+/// of every request.
 struct Recorded {
-    rules: Mutex<Vec<(String, Result<Response, TransportError>)>>,
-    sequences: Mutex<Vec<(String, std::collections::VecDeque<Response>)>>,
+    replay: Replay,
     log: Mutex<Vec<(String, Request)>>,
 }
 
 impl Recorded {
+    fn new() -> Self {
+        Recorded { replay: Replay::new(Recording::default()), log: Mutex::default() }
+    }
+
+    fn add(&self, exchange: serde_json::Value) -> &Self {
+        let e = Exchange::parse(&exchange.to_string(), std::path::Path::new(".")).expect("an exchange");
+        self.replay.add(e);
+        self
+    }
+
     /// Answer requests matching `url_part` with `answers`, one each, in order.
     fn in_turn(&self, url_part: &str, answers: &[(u16, &str)]) -> &Self {
-        let q = answers.iter().map(|(status, body)| Response { status: *status, body: body.to_string() }).collect();
-        self.sequences.lock().unwrap().push((url_part.into(), q));
-        self
+        let list: Vec<_> = answers.iter().map(|(status, body)| json!({"status": status, "text": body})).collect();
+        self.add(json!({"url": url_part, "in_turn": list}))
     }
 
     fn on(&self, url_part: &str, status: u16, body: &str) -> &Self {
-        self.rules.lock().unwrap().push((url_part.into(), Ok(Response { status, body: body.into() })));
-        self
+        self.add(json!({"url": url_part, "status": status, "text": body}))
     }
 
     fn fail(&self, url_part: &str, e: TransportError) -> &Self {
-        self.rules.lock().unwrap().push((url_part.into(), Err(e)));
-        self
+        let fault = match e {
+            TransportError::Timeout => "timeout",
+            TransportError::Offline(_) => "offline",
+        };
+        self.add(json!({"url": url_part, "fault": fault}))
     }
 
     fn requests(&self) -> usize {
@@ -57,16 +68,7 @@ impl Recorded {
 impl Transport for Recorded {
     fn send(&self, url: &str, req: &Request) -> Result<Response, TransportError> {
         self.log.lock().unwrap().push((url.into(), req.clone()));
-        for (part, answers) in self.sequences.lock().unwrap().iter_mut() {
-            if url.contains(part.as_str()) {
-                if let Some(r) = answers.pop_front() {
-                    return Ok(r);
-                }
-            }
-        }
-        let rules = self.rules.lock().unwrap();
-        let rule = rules.iter().rev().find(|(part, _)| url.contains(part.as_str()));
-        rule.map(|(_, r)| r.clone()).unwrap_or_else(|| panic!("no recorded answer for {url}"))
+        self.replay.send(url, req)
     }
 }
 
@@ -97,7 +99,7 @@ impl Clock for ManualClock {
 const T0: i64 = 1_800_000_000;
 
 fn client_with(cache: Cache) -> (Client, Arc<Recorded>, Arc<ManualClock>) {
-    let rec = Arc::new(Recorded::default());
+    let rec = Arc::new(Recorded::new());
     let clock = Arc::new(ManualClock(AtomicI64::new(T0)));
     let client = Client::with_transport(cache, rec.clone()).clock(clock.clone()).limiter(Limiter::none());
     (client, rec, clock)
@@ -668,7 +670,7 @@ fn spansh_trade_route_polls_until_the_job_is_done() {
 /// again and the request count read after it is settled.
 #[test]
 fn spansh_polls_on_the_clock() {
-    let rec = Arc::new(Recorded::default());
+    let rec = Arc::new(Recorded::new());
     let manual = Arc::new(astromech_proto::ManualClock::at_unix(T0));
     let clock: Arc<dyn Clock> = manual.clone();
     let c = Arc::new(
@@ -872,4 +874,71 @@ fn spansh_neutron_route_polls_until_done() {
     let e = c.spansh_route_wait(&r, NO_WAIT).unwrap_err();
     assert_eq!(e.to_string(), "Spansh turned the request down: Could not find finishing system.");
     assert_eq!(rec.requests(), 1);
+}
+
+// --- The replay's answers (astromech-xk0n), each through the client as a lookup gets it ---
+
+/// A client answered from the recording `net` (`net.json`'s form; `from` names a file in
+/// tests/), on a manual clock that never moves, with every request the replay reports kept.
+fn replayed(net: &str) -> (Client, Arc<Mutex<Vec<Seen>>>) {
+    let tests = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests");
+    let seen = Arc::new(Mutex::new(Vec::new()));
+    let s = seen.clone();
+    let replay =
+        Replay::new(Recording::parse(net, &tests).unwrap()).observe(move |x| s.lock().unwrap().push(x.clone()));
+    let clock = Arc::new(astromech_proto::ManualClock::at_unix(T0));
+    let c = Client::with_transport(Cache::in_memory().unwrap(), Arc::new(replay)).limiter(Limiter::none()).clock(clock);
+    (c, seen)
+}
+
+#[test]
+fn each_recorded_fault_is_the_lookups_own_error() {
+    // (the recorded answer, the error it must be)
+    let rows: [(&str, fn(&Error) -> bool); 4] = [
+        (r#"{"status": 503, "text": "<html>Service Unavailable</html>"}"#, |e| {
+            matches!(e, Error::Unavailable { service: Service::Edsm, status: 503 })
+        }),
+        (r#"{"fault": "timeout"}"#, |e| matches!(e, Error::Timeout { service: Service::Edsm })),
+        (r#"{"fault": "offline"}"#, |e| matches!(e, Error::Offline { service: Service::Edsm, .. })),
+        (r#"{"fault": "garbage"}"#, |e| matches!(e, Error::Schema { service: Service::Edsm, .. })),
+    ];
+    for (answer, want) in rows {
+        let exchange = format!(r#"{{"url": "/api-v1/system", {}"#, &answer[1..]);
+        let (c, seen) = replayed(&format!(r#"{{"exchanges": [{exchange}]}}"#));
+        let now = c.clock_in_use().now();
+        let e = c.edsm_system("Sol").unwrap_err();
+        assert!(want(&e), "{answer}: {e:?}");
+        // At once: answered on a clock that never moved, with no second request.
+        assert_eq!(c.clock_in_use().now(), now);
+        assert_eq!(seen.lock().unwrap().len(), 1, "{answer}");
+    }
+}
+
+#[test]
+fn answers_in_turn_give_a_503_and_then_the_recorded_result() {
+    let (c, seen) = replayed(
+        r#"{"exchanges": [{"url": "/api-v1/system", "in_turn": [
+            {"status": 503},
+            {"from": "fixtures/edsm-system.json"}
+        ]}]}"#,
+    );
+    assert!(matches!(c.edsm_system("Sol"), Err(Error::Unavailable { status: 503, .. })));
+    assert_eq!(c.edsm_system("Sol").unwrap().value.id64, 10477373803);
+    let urls: Vec<String> = seen.lock().unwrap().iter().map(|s| s.url.clone()).collect();
+    assert_eq!(urls, ["https://www.edsm.net/api-v1/system?systemName=Sol&showCoordinates=1&showId=1"; 2]);
+}
+
+#[test]
+fn a_request_the_recording_doesnt_hold_is_refused_and_reported() {
+    let (c, seen) = replayed(r#"{"exchanges": [{"url": "/api-v1/system", "from": "fixtures/edsm-system.json"}]}"#);
+    let e = c.edsm_traffic("Sol").unwrap_err();
+    match &e {
+        Error::Offline { service: Service::Edsm, detail } => {
+            assert!(detail.contains("has no answer for https://www.edsm.net/api-system-v1/traffic"), "{detail}")
+        }
+        e => panic!("{e:?}"),
+    }
+    assert!(c.edsm_system("Sol").is_ok());
+    let seen: Vec<(String, bool)> = seen.lock().unwrap().iter().map(|s| (s.method.to_string(), s.unrecorded)).collect();
+    assert_eq!(seen, [("GET".to_string(), true), ("GET".to_string(), false)]);
 }

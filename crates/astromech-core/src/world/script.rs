@@ -44,22 +44,23 @@ pub enum Step {
     Game(Game),
     Advance(Duration),
     Mark(String),
+    /// Add an exchange to the world's network recording.
+    Net(astromech_data::replay::Exchange),
 }
 
 /// The step kinds the other children of astromech-vucf add.
-const RESERVED: [(&str, &str); 6] = [
+const RESERVED: [(&str, &str); 5] = [
     ("focus", "astromech-1hh9"),
     ("press", "astromech-1hh9"),
     ("release", "astromech-1hh9"),
     ("audio", "astromech-1hh9"),
     ("say", "astromech-1hh9"),
-    ("net", "astromech-xk0n"),
 ];
 
 /// The header fields the devices child adds.
 const RESERVED_HEADER: [&str; 3] = ["devices", "reactions", "foreground"];
 
-const KINDS: [&str; 5] = ["journal", "file", "game", "advance", "mark"];
+const KINDS: [&str; 6] = ["journal", "file", "game", "advance", "mark", "net"];
 
 type Fields = BTreeMap<String, Box<RawValue>>;
 
@@ -186,6 +187,10 @@ fn step(line: &str, dir: &Path) -> Result<Step> {
             Step::Advance(duration(&d).with_context(|| format!("advance {d:?}"))?)
         }
         "mark" => Step::Mark(parse::<String>(&f, "mark")?.context("`mark` is its name")?),
+        "net" => Step::Net(
+            astromech_data::replay::Exchange::parse(f["net"].get(), dir)
+                .map_err(|e| anyhow!("`net` is one exchange in net.json's form: {e}"))?,
+        ),
         _ => unreachable!("one of KINDS"),
     })
 }
@@ -250,11 +255,13 @@ mod tests {
             r#"{"mark": "jumped"}"#,
             "\n",
             r#"{"game": "exited"}"#,
+            "\n",
+            r#"{"net": {"url": "/api/systems/field_values/system_names", "status": 503}}"#,
         ))
         .unwrap();
         assert_eq!(s.start, rfc3339("2026-11-07T12:00:00Z").unwrap());
         let lines: Vec<usize> = s.steps.iter().map(|(n, _)| *n).collect();
-        assert_eq!(lines, [2, 4, 5, 6, 7, 8, 9, 10, 11], "blank lines are skipped, the numbers kept");
+        assert_eq!(lines, [2, 4, 5, 6, 7, 8, 9, 10, 11, 12], "blank lines are skipped, the numbers kept");
         let steps: Vec<Step> = s.steps.into_iter().map(|(_, s)| s).collect();
         assert_eq!(steps[0], Step::Game(Game::Running));
         assert_eq!(
@@ -276,6 +283,8 @@ mod tests {
         assert_eq!(steps[6], Step::Advance(Duration::from_millis(250)));
         assert_eq!(steps[7], Step::Mark("jumped".into()));
         assert_eq!(steps[8], Step::Game(Game::Exited));
+        let net = r#"{"url": "/api/systems/field_values/system_names", "status": 503}"#;
+        assert_eq!(steps[9], Step::Net(astromech_data::replay::Exchange::parse(net, Path::new("/nowhere")).unwrap()));
     }
 
     #[test]
@@ -302,6 +311,8 @@ mod tests {
         assert!(err(r#"{"journal": {}, "file": "Status.json"}"#).contains("isn't a journal file name"));
         assert!(err(r#"{"journal": 3}"#).contains("`journal` is the line"));
         assert!(err(r#"{"journal": "a\nb"}"#).contains("line break"));
+        assert!(err(r#"{"net": {"status": 503}}"#)
+            .contains("line 2: `net` is one exchange in net.json's form: an exchange needs `url`"));
         assert!(err("{\"mark\": \"x\"}\n{\"mark\": \"x\"}").contains("line 3: the mark \"x\" is already used"));
         let e = format!("{:#}", Script::parse("", Path::new(".")).unwrap_err());
         assert!(e.contains("empty"), "{e}");

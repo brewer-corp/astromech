@@ -13,10 +13,11 @@
 //!   `{"edsm-api-key": "…"}`.
 //!
 //! - `world.jsonl`: optional, the steps (below).
-//! - Payloads that `file` steps name by a path relative to the world.
-//!
-//! `net.json` (the network recording) is the format's too; its loader comes with the
-//! recorded-network child of astromech-vucf (astromech-xk0n).
+//! - `net.json`: optional, the network recording: the answer to every HTTP request the core
+//!   makes, its faults, and what happens to a request it doesn't hold. The format is in
+//!   [`astromech_data::replay`]. Missing: every request is refused.
+//! - Payloads that `file` steps and `net.json`'s `from` name by a path relative to the world
+//!   (a recorded body may be an existing fixture, `../../crates/astromech-data/tests/fixtures/…`).
 //!
 //! # Steps: `world.jsonl`
 //!
@@ -40,11 +41,14 @@
 //!   game, the launcher, neither).
 //! - `{"advance": "1.5s"}`: move the clock on (`ms`, `s`, `m` or `h`).
 //! - `{"mark": "jumped"}`: name this point, for `world_step`. Marks are unique.
+//! - `{"net": {"url": "…", "status": 503}}`: one exchange in `net.json`'s form, added after the
+//!   recording's, so it answers what it matches from the next request on (the last match
+//!   answers). It settles at once.
 //!
 //! Reserved, and refused with "not supported yet" until their child lands: the step kinds
 //! `focus`, `press`, `release`, `audio` and `say` and the header's `devices`, `reactions` and
-//! `foreground` (astromech-1hh9), and `net` (astromech-xk0n). A malformed line, an unknown key or
-//! a step with two kinds fails the load, naming the line.
+//! `foreground` (astromech-1hh9). A malformed line, an unknown key or a step with two kinds fails
+//! the load, naming the line.
 //!
 //! # Settling
 //!
@@ -95,17 +99,27 @@
 //!   `core.json`) is `local/astromech/data` and its logs are under it. There is no user profile,
 //!   so nothing falls back to the user's own folders.
 //!
-//! The config also turns EDDN and EDSM uploading off, whatever the world says, until the
-//! recorded network answers them (astromech-xk0n): their uploaders send over real HTTP.
-//!
 //! The fakes: the process list is the world's (empty until a step starts the game); the opener,
 //! clipboard, notifier, Start with Windows and the app window record what reaches them and touch
-//! nothing; the secrets are in memory, seeded from `secrets.json`; every remote-data lookup is
-//! refused and recorded as unrecorded; the clock is a manual one ([`World::clock`]), started at
-//! the header's time and moved only by the steps, which the remote-data client shares. Then it
-//! calls [`app::assemble`] and [`app::start`], as the installed
-//! app does, but none of what only [`app::run`] adds: no instance lock, no Start with Windows
-//! default, no update thread, no window and no tray.
+//! nothing; the secrets are in memory, seeded from `secrets.json`; the clock is a manual one
+//! ([`World::clock`]), started at the header's time and moved only by the steps. Then it calls
+//! [`app::assemble`] and [`app::start`], as the installed app does, but none of what only
+//! [`app::run`] adds: no instance lock, no Start with Windows default, no update thread, no
+//! window and no tray.
+//!
+//! The network is `net.json` (world/net.rs has the detail): the remote-data client, EDDN's upload and
+//! EDSM's API are answered from it in process, and the downloads (the update feed and zip, the
+//! speech models, the neutron star file) from a replay server on 127.0.0.1, at the URLs the
+//! composition root rewrites ([`app::Http::downloads`]). None reaches the internet, so the
+//! world's EDDN and EDSM switches are its own. A lookup never waits on the world's clock: the
+//! remote-data client has no request spacing and Spansh's jobs are polled with no wait.
+//!
+//! Record mode, `--record-net <file>` with `--world`, sends the remote-data client's requests
+//! and EDSM's reads to the real services instead, and writes their answers to `<file>` in
+//! `net.json`'s form, redacted ([`astromech_data::replay`], "Redaction"). Everything else is
+//! still answered from the world's recording. Never commit a recording made with a real key or
+//! commander, or one holding personal data: a recording for the repository comes from public
+//! endpoints, with no credentials, and is checked for redaction.
 //!
 //! Once the control API is up, the binary prints one line on stdout,
 //! `{"control": {"port": …, "token": …}, "app_dir": "…"}`, its callers' only way to find it
@@ -126,7 +140,8 @@
 //! - `autostart {on, command}`: Start with Windows set, with the command line it would run
 //!   (null when off);
 //! - `window {route}`: the app window opened (`open_window`), at a page or null;
-//! - `http {url, path, unrecorded}`: a remote-data request.
+//! - `http {method, url, unrecorded}`: an HTTP request, its URL with the query (key-like values
+//!   `<redacted>`); `unrecorded` when the recording held no answer and it was refused.
 //!
 //! Two `local` commands read them, registered only in world mode, like every `world_*` command (decision astromech-unh9: the
 //! window's origin is refused):
@@ -137,6 +152,7 @@
 //!   field of `match` (`{"kind": "edit"}`), waiting for it if there is none yet. The observation
 //!   itself wakes the wait; if none arrives within [`WAIT_GUARD`], the call fails.
 
+mod net;
 mod script;
 pub mod settle;
 mod steps;
@@ -269,20 +285,6 @@ impl crate::autostart::Autostart for WorldAutostart {
     }
 }
 
-/// The remote-data transport: refuses every request and records it as unrecorded.
-struct Unrecorded(Arc<Observed>);
-
-impl astromech_data::Transport for Unrecorded {
-    fn send(
-        &self,
-        url: &str,
-        req: &astromech_data::Request,
-    ) -> Result<astromech_data::Response, astromech_data::TransportError> {
-        self.0.record("http", json!({ "url": url, "path": req.path, "unrecorded": true }));
-        Err(astromech_data::TransportError::Offline(format!("this world has no recording for {url}{}", req.path)))
-    }
-}
-
 /// A world, copied into its temp directory, and the state its fakes share.
 pub struct World {
     dir: tempfile::TempDir,
@@ -296,11 +298,14 @@ pub struct World {
     settle: Arc<Settle>,
     /// `world.jsonl`'s steps, run by `world_step`.
     steps: Arc<Mutex<steps::Steps>>,
+    /// `net.json`, answering every HTTP request, and its server.
+    net: net::Net,
 }
 
 impl World {
     /// Copy the world in `src` to a fresh temp directory, and point its config's folders there.
-    pub fn load(src: &Path) -> Result<Self> {
+    /// `record`: record mode's file (`--record-net`).
+    pub fn load(src: &Path, record: Option<&Path>) -> Result<Self> {
         anyhow::ensure!(src.is_dir(), "no world folder at {}", src.display());
         let script = match std::fs::read_to_string(src.join(script::FILE)) {
             Ok(t) => Some(script::Script::parse(&t, src)?),
@@ -315,17 +320,13 @@ impl World {
         let start = script.as_ref().map_or_else(std::time::SystemTime::now, |s| s.start);
         let clock = Arc::new(ManualClock::new(start));
         let (processes, settle) = (Arc::<Mutex<Vec<String>>>::default(), Arc::<Settle>::default());
+        let observed = Arc::<Observed>::default();
+        let net = net::Net::load(src, record, &observed)?;
         let game_dir = dir.path().join("world").join("game");
-        let steps = steps::Steps::new(script, game_dir, clock.clone(), processes.clone(), settle.clone());
-        let w = Self {
-            dir,
-            observed: Default::default(),
-            processes,
-            secrets: vec![],
-            clock,
-            settle,
-            steps: Arc::new(Mutex::new(steps)),
-        };
+        let steps =
+            steps::Steps::new(script, game_dir, clock.clone(), processes.clone(), settle.clone(), net.replay().clone());
+        let w =
+            Self { dir, observed, processes, secrets: vec![], clock, settle, steps: Arc::new(Mutex::new(steps)), net };
         copy_dir(src, &w.world()).with_context(|| format!("copying the world {}", src.display()))?;
         let secrets = match std::fs::read_to_string(w.world().join("secrets.json")) {
             Ok(t) => serde_json::from_str::<std::collections::BTreeMap<String, String>>(&t)
@@ -376,7 +377,7 @@ impl World {
         let mut doc: toml_edit::DocumentMut = text.parse().context("the world's astromech.toml")?;
         let path = |p: PathBuf| toml_edit::value(p.display().to_string());
         doc["data_dir"] = path(self.root().join("data"));
-        for t in ["game", "voice", "eddn", "edsm"] {
+        for t in ["game", "voice"] {
             if !doc.contains_key(t) {
                 doc[t] = toml_edit::table();
             }
@@ -385,8 +386,6 @@ impl World {
         doc["game"]["bindings_dir"] = path(self.world().join("bindings"));
         doc["game"]["game_dir"] = path(self.root().join("elite"));
         doc["voice"]["models_dir"] = path(self.root().join("models"));
-        doc["eddn"]["enabled"] = toml_edit::value(false);
-        doc["edsm"]["enabled"] = toml_edit::value(false);
         std::fs::write(&p, doc.to_string()).context("writing the world's config")
     }
 
@@ -399,14 +398,7 @@ impl World {
             let _ = secrets.set(k, Some(v));
         }
         let o = self.observed.clone();
-        let remote = Arc::new(
-            astromech_data::Client::with_transport(
-                astromech_data::Cache::in_memory().expect("an in-memory cache"),
-                Arc::new(Unrecorded(o.clone())),
-            )
-            .limiter(astromech_data::Limiter::none())
-            .clock(self.clock.clone()),
-        );
+        let remote = self.net.remote(self.clock.clone());
         let processes = self.processes.clone();
         let (clip, commands) = (o.clone(), o.clone());
         let (steps, settle) = (self.steps.clone(), self.settle.clone());
@@ -426,6 +418,7 @@ impl World {
                 Ok(())
             }),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            http: self.net.http(),
             more_commands: Some(Arc::new(move |core, reg| register(&commands, &steps, &settle, core, reg))),
             clock: self.clock.clone(),
             settle: Some(self.settle.clone()),
@@ -507,9 +500,14 @@ fn register(
     reg.add_typed("world_wait", Exposure::Local, move |a: WaitFor, _| o.wait(&a.pattern, a.since, WAIT_GUARD));
 }
 
-/// Run the core in the world at `src` until `quit`. Returns the exit code.
-pub fn run(src: &Path, session: crate::session::Opts) -> i32 {
-    match serve(src, session) {
+/// Spansh's jobs polled with no wait between polls: a lookup never waits for the world's clock.
+const NO_WAIT: astromech_data::spansh::Polling =
+    astromech_data::spansh::Polling { every: Duration::ZERO, timeout: Duration::from_secs(180) };
+
+/// Run the core in the world at `src` until `quit`. Returns the exit code. `record`: record
+/// mode's file (`--record-net`).
+pub fn run(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> i32 {
+    match serve(src, session, record) {
         Ok(()) => 0,
         Err(e) => {
             eprintln!("world mode: {e:#}");
@@ -518,14 +516,18 @@ pub fn run(src: &Path, session: crate::session::Opts) -> i32 {
     }
 }
 
-fn serve(src: &Path, session: crate::session::Opts) -> Result<()> {
-    let world = World::load(src)?;
+fn serve(src: &Path, session: crate::session::Opts, record: Option<&Path>) -> Result<()> {
+    let world = World::load(src, record)?;
     let b = world.boundaries();
     let app_dir = b.paths.app_dir().to_path_buf();
     crate::logging::init(&b.paths.log_dir(), false);
     log(&format!("world mode: {} in {} (pid {})", src.display(), world.root().display(), std::process::id()));
+    if let Some(r) = record {
+        log(&format!("world mode: recording lookups and EDSM's reads from the real services to {}", r.display()));
+    }
     let opts = app::Opts { config: Some(world.config_path()), session, ..Default::default() };
-    let Assembled { core, ui } = app::assemble(&opts, b);
+    let recording = world.net.recording();
+    let Assembled { core, ui } = app::assemble_with(&opts, b, |s| if recording { s } else { s.plot_polling(NO_WAIT) });
     let started = app::start(&core);
     let server = started.server.as_ref().context("the control API didn't start")?;
     let line = json!({ "control": server.endpoint.contact(), "app_dir": app_dir });
@@ -628,7 +630,7 @@ mod tests {
         std::fs::create_dir(src.path().join("game")).unwrap();
         std::fs::write(src.path().join("game").join("Journal.2026-11-07T120000.01.log"), "{}\n").unwrap();
         std::fs::write(src.path().join("secrets.json"), r#"{"edsm-api-key": "k3y"}"#).unwrap();
-        let w = World::load(src.path()).unwrap();
+        let w = World::load(src.path(), None).unwrap();
         let root = w.root().to_path_buf();
         let cfg = crate::config::Config::load(&w.config_path()).unwrap();
         let b = w.boundaries();
@@ -637,7 +639,7 @@ mod tests {
         assert_eq!(cfg.bindings_dir(), Some(root.join("world").join("bindings")));
         assert_eq!(cfg.game_dir(), Some(root.join("elite")));
         assert_eq!(cfg.models_dir(&b.paths), root.join("models"));
-        assert!(!cfg.eddn.enabled && !cfg.edsm.enabled, "uploading is off whatever the world says");
+        assert!(cfg.eddn.enabled && !cfg.edsm.enabled, "the world's own sharing switches: the recording answers them");
         assert!(!cfg.voice.tts, "the world's other settings stay");
         assert!(b.paths.app_dir().starts_with(&root) && b.paths.log_dir().starts_with(&root));
         assert!(b.paths.exe_dir().starts_with(&root) && !b.paths.portable());
@@ -652,27 +654,87 @@ mod tests {
         assert!(!root.exists(), "the temp folder goes with the world");
     }
 
+    /// Each HTTP path of the core, as world mode builds it, is answered from the world's one
+    /// `net.json`, and each request is observed: the remote-data client, EDDN's upload and EDSM's
+    /// API in process, and the downloads through the replay server at the URL the core fetches.
+    #[test]
+    fn every_http_path_is_answered_from_the_one_recording() {
+        use astromech_voice::models;
+        let src = tempfile::tempdir().unwrap();
+        std::fs::write(
+            src.path().join("net.json"),
+            r#"{"exchanges": [
+                {"url": "/api/systems/field_values/system_names", "text": "{}"},
+                {"url": "eddn.edcd.io:4430/upload/", "method": "POST", "text": "OK"},
+                {"url": "/api-logs-v1/get-logs", "status": 503},
+                {"url": "/releases/download/neutron/", "fault": "offline"},
+                {"url": "/latest.json", "status": 404},
+                {"url": "/sherpa-onnx/releases/download/asr-models/", "status": 503}
+            ]}"#,
+        )
+        .unwrap();
+        let w = World::load(src.path(), None).unwrap();
+        let b = w.boundaries();
+        let client = (b.remote)(Path::new("unused"));
+        let names = astromech_data::Request::get("/api/systems/field_values/system_names").query("q", "Sol");
+        assert_eq!(client.send(astromech_data::Service::Spansh, &names).unwrap(), "{}");
+        assert_eq!((b.http.eddn)().post(b"gz").unwrap().body, "OK");
+        let logs =
+            (b.http.edsm)(Duration::from_secs(10)).get(astromech_eddn::edsm::api::LOGS_URL, &[("apiKey", "k3y")]);
+        assert_eq!(logs.unwrap().status, 503);
+        let base = (b.http.downloads)(astromech_galaxy::neutron::RELEASE_URL);
+        assert!(base.starts_with("http://127.0.0.1:"), "{base}");
+        let neutron = astromech_data::download::text(&format!("{base}/x.sha256")).unwrap_err();
+        assert!(matches!(neutron, astromech_data::download::DownloadError::Offline(_)), "{neutron:?}");
+        let feed = (b.http.downloads)(crate::update::DEFAULT_FEED);
+        assert!(format!("{:#}", crate::update::http_get(&feed).unwrap_err()).contains("404"));
+        let dir = w.root().join("models");
+        let e = models::download_from(&dir, &models::STT, &(b.http.downloads)(&models::STT.url()), &mut |_| {});
+        assert!(format!("{:#}", e.unwrap_err()).contains("503"));
+        assert!(client.send(astromech_data::Service::Edsm, &astromech_data::Request::get("/api-v1/system")).is_err());
+        let seen: Vec<(String, String, bool)> = w
+            .observed
+            .since(0)
+            .0
+            .iter()
+            .map(|o| (o["method"].as_str().unwrap().into(), o["url"].as_str().unwrap().into(), o["unrecorded"] == true))
+            .collect();
+        let url = |s: &str| s.to_string();
+        assert_eq!(
+            seen,
+            [
+                (url("GET"), url("https://spansh.co.uk/api/systems/field_values/system_names?q=Sol"), false),
+                (url("POST"), url(astromech_eddn::UPLOAD_URL), false),
+                (url("GET"), url("https://www.edsm.net/api-logs-v1/get-logs?apiKey=<redacted>"), false),
+                (url("GET"), format!("{}/x.sha256", astromech_galaxy::neutron::RELEASE_URL), false),
+                (url("GET"), url(crate::update::DEFAULT_FEED), false),
+                (url("GET"), models::STT.url(), false),
+                (url("GET"), url("https://www.edsm.net/api-v1/system"), true),
+            ]
+        );
+    }
+
     #[test]
     fn the_clock_starts_at_the_headers_time_and_a_bad_step_fails_the_load() {
         use astromech_proto::Clock;
         let src = tempfile::tempdir().unwrap();
         std::fs::write(src.path().join("world.jsonl"), "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"mark\": \"a\"}\n")
             .unwrap();
-        let w = World::load(src.path()).unwrap();
+        let w = World::load(src.path(), None).unwrap();
         assert_eq!(w.clock().now_s(), 1_794_052_800, "2026-11-07T12:00:00Z");
         std::fs::write(
             src.path().join("world.jsonl"),
             "{\"start\": \"2026-11-07T12:00:00Z\"}\n{\"focus\": \"Elite\"}\n",
         )
         .unwrap();
-        let e = format!("{:#}", World::load(src.path()).err().unwrap());
+        let e = format!("{:#}", World::load(src.path(), None).err().unwrap());
         assert_eq!(e, "world.jsonl line 2: the step kind `focus` is not supported yet (astromech-1hh9)");
     }
 
     #[test]
     fn the_fakes_record_what_reaches_them() {
         let src = tempfile::tempdir().unwrap();
-        let w = World::load(src.path()).unwrap();
+        let w = World::load(src.path(), None).unwrap();
         let b = w.boundaries();
         b.opener.open("https://www.edsm.net").unwrap();
         b.opener.reveal(Path::new("diag.zip"));

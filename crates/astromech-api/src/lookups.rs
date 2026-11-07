@@ -400,7 +400,7 @@ pub fn register(state: &Arc<State>, reg: &mut Registry) {
             return Err("A route search is already running. Wait for it to finish.".to_string());
         };
         let (g, here, range, filters) = near(&s, &x)?;
-        let polling = astromech_market::route::Polling::default();
+        let polling = s.plot_polling;
         let route =
             astromech_market::route::plan(g.remote(), &here.system, range, &x.what.ask, &filters, polling, now())
                 .map_err(text)?;

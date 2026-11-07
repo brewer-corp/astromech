@@ -90,9 +90,13 @@ struct Args {
     /// Run headless against the scripted world in this folder (tests and the dev bridge): a temp
     /// copy, fake processes, opener, clipboard and Start with Windows, no window or tray. Prints
     /// the control API's port and token on stdout, then runs until `quit` or its stdin closes.
-    /// It takes no other option but `--dry-run`, `--no-voice` and `--debug-input`
+    /// It takes no other option but `--record-net`, `--dry-run`, `--no-voice` and `--debug-input`
     #[arg(long, value_name = "DIR", conflicts_with_all = WORLD_CONFLICTS)]
     world: Option<PathBuf>,
+    /// With --world: send the lookups and EDSM's reads to the real services, and write their
+    /// answers to this file in the world's net.json form, with keys and commander names redacted
+    #[arg(long, value_name = "FILE", requires = "world")]
+    record_net: Option<PathBuf>,
 }
 
 /// Every option `--world` can't be given with: those that act on the user's real core or files
@@ -194,7 +198,7 @@ fn main() {
         std::process::exit(quit_running());
     }
     if let Some(world) = &args.world {
-        std::process::exit(astromech_core::world::run(world, args.session_opts()));
+        std::process::exit(astromech_core::world::run(world, args.session_opts(), args.record_net.as_deref()));
     }
     if !args.console_mode() {
         let code = astromech_core::app::run(astromech_core::app::Opts {
@@ -379,6 +383,7 @@ fn run_console(args: Args) -> Result<()> {
         astromech_core::callouts::platform_notifier(),
         std::sync::Arc::new(astromech_proto::SystemClock),
         None,
+        &astromech_core::app::Http::real(),
     )?;
     log(&s.voice);
 
@@ -549,9 +554,11 @@ mod tests {
             let e = with(extra).map(|_| ()).unwrap_err();
             assert_eq!(e.kind(), clap::error::ErrorKind::ArgumentConflict, "--world {extra:?}: {e}");
         }
-        for extra in [&[][..], &["--dry-run", "--no-voice", "--debug-input"]] {
+        for extra in [&[][..], &["--dry-run", "--no-voice", "--debug-input"], &["--record-net", "net.json"]] {
             let a = with(extra).unwrap();
             assert_eq!(a.world.as_deref(), Some(Path::new("w")), "{extra:?}");
         }
+        let e = Args::try_parse_from(["astromech-core", "--record-net", "net.json"]).map(|_| ()).unwrap_err();
+        assert_eq!(e.kind(), clap::error::ErrorKind::MissingRequiredArgument, "--record-net needs --world: {e}");
     }
 }

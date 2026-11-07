@@ -129,7 +129,8 @@ impl Session {
     /// window's. `paths` places the folders the config doesn't name, and `notifier` shows the
     /// callouts' notifications (one at a time, behind [`callouts::Background`]). Its timers
     /// read and wait on `clock`, and its threads are registered with it. `files`: a world's file
-    /// generations, which the pipeline publishes (None in the installed app).
+    /// generations, which the pipeline publishes (None in the installed app). EDDN's upload and
+    /// EDSM's API come from `http`.
     #[allow(clippy::too_many_arguments)]
     pub fn start(
         cfg: &Config,
@@ -140,6 +141,7 @@ impl Session {
         notifier: Arc<dyn callouts::Notifier>,
         clock: Arc<dyn astromech_proto::Clock>,
         files: Option<Arc<crate::world::settle::FileGens>>,
+        http: &crate::app::Http,
     ) -> Result<Session> {
         let args = opts;
         let data = cfg.data_dir(paths);
@@ -208,14 +210,18 @@ impl Session {
                     .context("starting the notification thread")?,
             ),
         ));
-        let eddn = crate::pipeline::eddn_feed(cfg, &data, clock.clone());
+        let eddn = crate::pipeline::eddn_feed(cfg, &data, clock.clone(), (http.eddn)());
         let pipe = crate::pipeline::start_with_eddn(
             &jdir,
             hub.clone(),
             Some(&data.join("astromech.sqlite")),
             log,
             eddn,
-            crate::pipeline::edsm_uploader(&data, clock.clone()),
+            crate::pipeline::edsm_uploader(
+                &data,
+                clock.clone(),
+                (http.edsm)(astromech_eddn::edsm::api::REQUEST_TIMEOUT),
+            ),
             Some(Callouts { engine, deliver }),
             files,
         )

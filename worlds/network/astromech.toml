@@ -1,0 +1,6 @@
+# A world whose network is recorded (crates/astromech-data/src/replay.rs has net.json's format):
+# Spansh's system-name search answers from a body recorded from Spansh, and the update feed,
+# the speech models, the neutron star file's checksum and EDSM's flight log are down (HTTP 503).
+# Its world.jsonl takes Spansh down too. The EDSM key in secrets.json is not a real one.
+[edsm]
+commander = "Test"

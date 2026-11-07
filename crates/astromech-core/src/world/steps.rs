@@ -26,6 +26,8 @@ pub struct Steps {
     clock: Arc<ManualClock>,
     processes: Arc<Mutex<Vec<String>>>,
     settle: Arc<Settle>,
+    /// The network recording `net` steps add to.
+    replay: Arc<astromech_data::replay::Replay>,
 }
 
 impl Steps {
@@ -35,9 +37,10 @@ impl Steps {
         clock: Arc<ManualClock>,
         processes: Arc<Mutex<Vec<String>>>,
         settle: Arc<Settle>,
+        replay: Arc<astromech_data::replay::Replay>,
     ) -> Self {
         let steps = script.map(|s| s.steps).unwrap_or_default();
-        Self { steps, next: 0, broken: None, journal: None, game_dir, clock, processes, settle }
+        Self { steps, next: 0, broken: None, journal: None, game_dir, clock, processes, settle, replay }
     }
 
     /// Run the steps up to and including the mark `to` (None: to the end), each once the core
@@ -70,6 +73,11 @@ impl Steps {
     fn one(&mut self, i: usize, core: &Core) -> Result<(), String> {
         match &self.steps[i].1 {
             Step::Mark(_) => Ok(()),
+            // Answers from the next request on: nothing to settle.
+            Step::Net(e) => {
+                self.replay.add(e.clone());
+                Ok(())
+            }
             Step::Advance(d) => self.advance(*d),
             Step::Journal { file, line, stamp } => {
                 let name = match file.clone().or_else(|| self.journal.clone()) {

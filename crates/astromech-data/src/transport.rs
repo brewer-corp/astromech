@@ -82,6 +82,7 @@ pub struct HttpTransport {
 }
 
 impl HttpTransport {
+    #[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
     pub fn new() -> Self {
         HttpTransport {
             agent: ureq::AgentBuilder::new()

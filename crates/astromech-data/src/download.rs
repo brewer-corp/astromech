@@ -33,6 +33,7 @@ impl DownloadError {
     }
 }
 
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
 fn agent() -> ureq::Agent {
     ureq::AgentBuilder::new()
         .try_proxy_from_env(true)

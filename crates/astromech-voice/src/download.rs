@@ -84,12 +84,23 @@ pub fn ensure(base: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Res
 
 /// Make sure `a` is downloaded (into `dl_dir`), verified and extracted into `dest`.
 pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut(Progress)) -> Result<()> {
+    ensure_in_from(dest, dl_dir, a, &a.url(), progress)
+}
+
+/// [`ensure_in`], fetching `a` from `url` instead of [`Asset::url`] (a world's replay server).
+pub fn ensure_in_from(
+    dest: &Path,
+    dl_dir: &Path,
+    a: &Asset,
+    url: &str,
+    progress: &mut dyn FnMut(Progress),
+) -> Result<()> {
     if is_installed_in(dest, a) {
         return Ok(());
     }
     if let Some(m) = a.zip_member {
         fs::create_dir_all(dest)?;
-        fetch_zip_member(&a.url(), m, &dest.join(a.file), a, progress)?;
+        fetch_zip_member(url, m, &dest.join(a.file), a, progress)?;
         fs::write(marker_in(dest, a), a.sha256)?;
         return Ok(());
     }
@@ -110,7 +121,7 @@ pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut
         }
     }
     if !have_verified {
-        fetch(&a.url(), &archive, a, progress)?;
+        fetch(url, &archive, a, progress)?;
     }
     extract(&archive, dest, a, progress)?;
     fs::write(marker_in(dest, a), a.sha256)?;
@@ -118,6 +129,7 @@ pub fn ensure_in(dest: &Path, dl_dir: &Path, a: &Asset, progress: &mut dyn FnMut
     Ok(())
 }
 
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
 fn agent() -> ureq::Agent {
     ureq::AgentBuilder::new()
         .try_proxy_from_env(true)

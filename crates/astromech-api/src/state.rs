@@ -345,7 +345,7 @@ pub struct State {
     pub(crate) route_busy: AtomicBool,
     /// A route is being plotted for the follower (one at a time, the same way).
     pub(crate) plot_busy: AtomicBool,
-    /// How a route plot polls Spansh.
+    /// How a route plot and a trade route poll Spansh's jobs.
     pub(crate) plot_polling: astromech_data::spansh::Polling,
     /// Folders `open_external` may open (with what is under them), besides the data folder.
     openable: Vec<PathBuf>,
@@ -393,8 +393,8 @@ impl State {
         self
     }
 
-    /// Poll Spansh for a route plot this way instead of every few seconds (a test's recorded
-    /// answers need no wait).
+    /// Poll Spansh's jobs (a route plot, a trade route) this way instead of every few seconds
+    /// (a test's or a world's recorded answers need no wait).
     pub fn plot_polling(mut self, polling: astromech_data::spansh::Polling) -> Self {
         self.plot_polling = polling;
         self

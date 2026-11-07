@@ -262,6 +262,7 @@ pub fn verifying_hex_from_secret(secret_hex: &str) -> Result<String> {
 }
 
 /// HTTP GET as bytes. `User-Agent` is required by GitHub.
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
 pub fn http_get(url: &str) -> Result<Vec<u8>> {
     let resp = ureq::AgentBuilder::new()
         .try_proxy_from_env(true)
@@ -277,6 +278,7 @@ pub fn http_get(url: &str) -> Result<Vec<u8>> {
     Ok(v)
 }
 
+#[allow(clippy::disallowed_methods, reason = "HTTP stack; world mode rewrites or replaces it")]
 pub fn http_download(url: &str, dest: &Path, mut progress: impl FnMut(u64, u64)) -> Result<()> {
     let resp = ureq::AgentBuilder::new()
         .try_proxy_from_env(true)
@@ -564,8 +566,9 @@ pub fn fetch_and_verify(settings: &Settings, pk: &VerifyingKey) -> Result<(Manif
     Ok((m, json))
 }
 
-/// Download + extract if `m` is newer. Returns the payload directory.
-pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Result<PathBuf> {
+/// Download `m`'s zip from `zip` (its [`zip_url`], or where the core's downloads send it), and
+/// extract it. Returns the payload directory.
+pub fn stage(m: &Manifest, work: &Path, zip: &str, mut progress: impl FnMut(&str)) -> Result<PathBuf> {
     let dir = work.join(&m.version);
     let payload = dir.join("payload");
     let marker = dir.join("ok");
@@ -575,7 +578,7 @@ pub fn stage(m: &Manifest, work: &Path, mut progress: impl FnMut(&str)) -> Resul
     fs::create_dir_all(&dir)?;
     let zip_path = dir.join(&m.zip);
     progress("downloading");
-    http_download(&zip_url(m), &zip_path, |_, _| {})?;
+    http_download(zip, &zip_path, |_, _| {})?;
     progress("verifying");
     let sum = sha256_file(&zip_path)?;
     if sum != m.sha256.to_ascii_lowercase() {

@@ -250,7 +250,12 @@ browser, so never add one.
 there with fakes for the processes, opener, clipboard, notifications, Start with Windows and
 secrets, and prints its control port and token on stdout. A world's `world.jsonl` moves the
 game step by step (journal lines, companion files, Elite starting and exiting, the clock), and
-`world_step` returns once the core has consumed each step, so a world test needs no sleeps. The
+`world_step` returns once the core has consumed each step, so a world test needs no sleeps. A
+world's `net.json` answers every HTTP request the core makes (recorded bodies, statuses and
+faults); a request it doesn't hold is refused and shows as unrecorded in `world_observed`.
+`--record-net <file>` records real answers into that form with keys and commander names
+redacted. A recording committed here comes from public endpoints, with no credentials, and is
+checked for redaction; never commit one holding a key, a commander name or personal data. The
 format, the settle rules and the `world_*` commands are in the [world module's doc
 comment](crates/astromech-core/src/world.rs); the worlds are in `worlds/`. `crates/astromech-core/tests/support/` starts one (`WorldCore`) and calls it over the
 control API. Each world core is its own process, because the core keeps process-wide state. The

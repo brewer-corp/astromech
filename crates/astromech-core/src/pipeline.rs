@@ -1083,16 +1083,21 @@ pub fn eddn_test(cfg: &crate::config::Config) -> bool {
 
 /// The EDDN feed. It runs even while sharing is off, so the header, commander and location are
 /// right the moment it's switched on; off, it queues nothing and its worker posts nothing. A
-/// feed that can't start is logged and left out.
-pub fn eddn_feed(cfg: &crate::config::Config, data_dir: &Path, clock: Arc<dyn Clock>) -> Option<astromech_eddn::Feed> {
+/// feed that can't start is logged and left out. `transport` is the session's
+/// ([`crate::app::Http::eddn`]).
+pub fn eddn_feed(
+    cfg: &crate::config::Config,
+    data_dir: &Path,
+    clock: Arc<dyn Clock>,
+    transport: Box<dyn astromech_eddn::Transport + Send>,
+) -> Option<astromech_eddn::Feed> {
     let test = eddn_test(cfg);
     let version = env!("CARGO_PKG_VERSION");
     let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
-    let transport = astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &format!("astromech/{version}"));
     let db = data_dir.join(astromech_eddn::DB_FILE);
     let sharing = EDDN_SHARING.clone();
     let on = sharing.load(Ordering::SeqCst);
-    match astromech_eddn::Feed::start(&db, software, test, Box::new(transport), sharing, clock, crate::logging::log) {
+    match astromech_eddn::Feed::start(&db, software, test, transport, sharing, clock, crate::logging::log) {
         Ok(f) => {
             let state = if on { "sharing live data" } else { "off (Settings → Data sharing)" };
             crate::logging::log(&format!("EDDN: {state}{}", if test { ", test schemas" } else { "" }));
@@ -1112,14 +1117,18 @@ pub static EDSM: std::sync::LazyLock<Arc<astromech_eddn::edsm::Switch>> = std::s
 
 /// The EDSM uploader. Like EDDN's feed it runs while sharing is off, so the commander, system
 /// and ship are right the moment it's switched on. One that can't start is logged and left out.
-pub fn edsm_uploader(data_dir: &Path, clock: Arc<dyn Clock>) -> Option<astromech_eddn::edsm::Uploader> {
+/// `api` is the session's ([`crate::app::Http::edsm`]).
+pub fn edsm_uploader(
+    data_dir: &Path,
+    clock: Arc<dyn Clock>,
+    api: Box<dyn astromech_eddn::edsm::api::Api>,
+) -> Option<astromech_eddn::edsm::Uploader> {
     use astromech_eddn::edsm;
     let version = env!("CARGO_PKG_VERSION");
     let software = astromech_eddn::Software { name: "astromech".into(), version: version.into() };
-    let api = edsm::api::HttpApi::new(&format!("astromech/{version}"));
     let db = data_dir.join(edsm::DB_FILE);
     let on = EDSM.get().is_some();
-    match edsm::Uploader::start(&db, software, Box::new(api), EDSM.clone(), clock, crate::logging::log) {
+    match edsm::Uploader::start(&db, software, api, EDSM.clone(), clock, crate::logging::log) {
         Ok(u) => {
             crate::logging::log(if on {
                 "EDSM: uploading live journal"

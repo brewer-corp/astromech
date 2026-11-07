@@ -98,6 +98,37 @@ pub type RemoteClient = Arc<dyn Fn(&Path) -> Arc<astromech_data::Client> + Send 
 pub type AppWindow = Arc<dyn Fn(Option<&str>) -> Result<(), String> + Send + Sync>;
 /// Registers a mode's own commands beside the core's ([`Core::commands`]).
 pub type MoreCommands = Arc<dyn Fn(&Arc<Core>, &mut Registry) + Send + Sync>;
+/// Makes EDDN's upload transport (one per session's feed).
+pub type EddnTransport = Arc<dyn Fn() -> Box<dyn astromech_eddn::Transport + Send> + Send + Sync>;
+/// Makes EDSM's API, giving up on a request after the timeout it is made with.
+pub type EdsmApi = Arc<dyn Fn(Duration) -> Box<dyn astromech_eddn::edsm::api::Api> + Send + Sync>;
+/// The URL a download is fetched from, given its real URL.
+pub type Downloads = Arc<dyn Fn(&str) -> String + Send + Sync>;
+
+/// The HTTP the core makes outside its remote-data client ([`Boundaries::remote`]).
+#[derive(Clone)]
+pub struct Http {
+    /// EDDN's upload.
+    pub eddn: EddnTransport,
+    /// EDSM's API: the journal upload and the flight log.
+    pub edsm: EdsmApi,
+    /// Where each download is fetched from (the update feed and zip, the speech models, the
+    /// neutron star file): its own URL in the installed app, a world's replay server in a world.
+    pub downloads: Downloads,
+}
+
+impl Http {
+    /// The installed app's: real HTTP to the real URLs, with today's agents and timeouts.
+    pub fn real() -> Self {
+        let ua = format!("astromech/{}", env!("CARGO_PKG_VERSION"));
+        let edsm_ua = ua.clone();
+        Self {
+            eddn: Arc::new(move || Box::new(astromech_eddn::HttpTransport::new(astromech_eddn::UPLOAD_URL, &ua))),
+            edsm: Arc::new(move |t| Box::new(astromech_eddn::edsm::api::HttpApi::with_timeout(&edsm_ua, t))),
+            downloads: Arc::new(|url: &str| url.to_string()),
+        }
+    }
+}
 
 /// What the core reaches outside the process through, given to [`assemble`]: the installed app
 /// passes [`Boundaries::real`], and tests and world mode pass their own.
@@ -119,6 +150,8 @@ pub struct Boundaries {
     pub autostart: Arc<dyn crate::autostart::Autostart>,
     /// The remote-data client for the data folder the config names.
     pub remote: RemoteClient,
+    /// EDDN's upload, EDSM's API and the downloads.
+    pub http: Http,
     /// The app window, for the tray, a second start and `open_window`.
     pub window: AppWindow,
     /// Commands only this mode has: world mode's `world_*` ([`crate::world`]). None for the
@@ -147,6 +180,7 @@ impl Boundaries {
             secrets: Arc::new(astromech_store::secrets::OsKeyring::new()),
             autostart: Arc::new(crate::autostart::RunKey),
             remote: Arc::new(remote_client),
+            http: Http::real(),
             window: Arc::new(move |route: Option<&str>| open_shell(&exe_dir, route)),
             more_commands: None,
             clock: Arc::new(SystemClock),
@@ -230,6 +264,8 @@ pub struct Core {
     pub opener: Arc<dyn Opener>,
     pub notifier: Arc<dyn crate::callouts::Notifier>,
     pub autostart: Arc<dyn crate::autostart::Autostart>,
+    /// [`Boundaries::http`].
+    pub http: Http,
     window: AppWindow,
     more_commands: Option<MoreCommands>,
     /// The route being followed (docs/PLOTTING.md). The core owns it, not a session, so the
@@ -247,19 +283,22 @@ pub struct Core {
 /// so a `set_folders` applies at once. `data_dir` is fixed for the process, and with it the
 /// process's one remote-data client (`remote`, its cache in `data_dir`) and the star map, whose
 /// preload is the bundled `starmap.db` next to this exe. `open_external` opens with `opener`,
-/// and may open folders under the app and log folders too.
+/// and may open folders under the app and log folders too. The neutron star file comes from
+/// where `downloads` sends its release folder.
 fn api_state(
     core: std::sync::Weak<Core>,
     paths: &Paths,
     data_dir: PathBuf,
     remote: Arc<astromech_data::Client>,
     opener: Arc<dyn Opener>,
+    downloads: &Downloads,
 ) -> astromech_api::State {
     let preload = std::env::current_exe().ok().and_then(|exe| astromech_api::preload_beside(&exe));
     let folders = move || core.upgrade().map(|c| api_folders(&c.cfg(), &c.paths)).unwrap_or_default();
     astromech_api::State::new(data_dir, remote, preload, folders)
         .openable(vec![paths.app_dir().to_path_buf(), paths.log_dir()])
         .with_opener(move |t| opener.open(t))
+        .with_neutron_url(&downloads(astromech_galaxy::neutron::RELEASE_URL))
 }
 
 /// The process's one remote-data client, its cache in `data_dir`.
@@ -520,6 +559,7 @@ impl Core {
             self.notifier.clone(),
             self.clock.clone(),
             self.settle.as_ref().map(|s| s.files.clone()),
+            &self.http,
         )
         .and_then(|mut s| {
             s.start_buttons(&cfg, &self.paths, &self.opts.session)?;
@@ -600,7 +640,8 @@ impl Core {
             }
         };
         log(if manual { "update: checking (requested)" } else { "update: checking" });
-        let settings = self.cfg().update;
+        let mut settings = self.cfg().update;
+        settings.feed = (self.http.downloads)(&update::feed_url(&settings));
         match update::fetch_and_verify(&settings, &pk) {
             Ok((m, _)) => {
                 let installed = update::installed_version();
@@ -629,7 +670,8 @@ impl Core {
                 }
                 self.set_update(|h| h.snap.status = UpStatus::Downloading);
                 let work = self.paths.app_dir().join("updates");
-                match update::stage(&m, &work, |p| log(&format!("update: {p}"))) {
+                let zip = (self.http.downloads)(&update::zip_url(&m));
+                match update::stage(&m, &work, &zip, |p| log(&format!("update: {p}"))) {
                     Ok(payload) => {
                         self.set_update(|h| {
                             h.payload = Some(payload);
@@ -1054,15 +1096,12 @@ impl Core {
             edsm_status(&cfg, &cfg.data_dir(&c.paths), c.secrets.as_ref())
         });
         add::<crate::setup::args::Edsm, _>(&mut reg, self, &["set_edsm"], Window, |c, r| c.set_edsm(r));
-        add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |c, _| {
-            let creds = edsm_credentials(&c.cfg().edsm, c.secrets.as_ref());
+        add::<(), Answer<FlightLog>>(&mut reg, self, &["edsm_flight_log"], Window, |core, _| {
+            let creds = edsm_credentials(&core.cfg().edsm, core.secrets.as_ref());
             match creds {
                 Ok(Some(c)) => {
-                    let api = astromech_eddn::edsm::api::HttpApi::with_timeout(
-                        &format!("astromech/{}", env!("CARGO_PKG_VERSION")),
-                        astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT,
-                    );
-                    astromech_eddn::edsm::api::flight_log(&api, &c).map(|visits| FlightLog { visits }).into()
+                    let api = (core.http.edsm)(astromech_eddn::edsm::api::FLIGHT_LOG_TIMEOUT);
+                    astromech_eddn::edsm::api::flight_log(api.as_ref(), &c).map(|visits| FlightLog { visits }).into()
                 }
                 Ok(None) => Answer::failed("set your EDSM commander name and API key first"),
                 Err(e) => Answer::failed(e),
@@ -1533,7 +1572,7 @@ pub fn download_models(core: &Arc<Core>) {
         let mut err = None;
         for a in models::missing(&base) {
             let mut last = u64::MAX;
-            let r = models::download(&base, &a, &mut |p| {
+            let r = models::download_from(&base, &a, &(c.http.downloads)(&a.url()), &mut |p| {
                 let pct = (p.done * 100).checked_div(p.total).unwrap_or(0);
                 if pct != last {
                     last = pct;
@@ -1717,7 +1756,7 @@ pub(crate) fn assemble_with(
         .unwrap_or(false);
     let opener = b.opener;
     let core = Arc::new_cyclic(|me| Core {
-        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone()))),
+        api: Arc::new(state(api_state(me.clone(), &paths, data_dir, remote, opener.clone(), &b.http.downloads))),
         paths,
         config_path,
         onboarded: AtomicBool::new(onboarded),
@@ -1741,6 +1780,7 @@ pub(crate) fn assemble_with(
         opener,
         notifier: b.notifier,
         autostart: b.autostart,
+        http: b.http,
         window: b.window,
         more_commands: b.more_commands,
         route,
@@ -1976,6 +2016,7 @@ mod tests {
             secrets: Arc::new(astromech_store::secrets::MemorySecrets::default()),
             autostart: Arc::new(NoAutostart),
             remote: Arc::new(move |_: &Path| remote.clone()),
+            http: Http::real(),
             window: Arc::new(|_: Option<&str>| Err("no app window in this test".into())),
             more_commands: None,
             clock: Arc::new(SystemClock),
