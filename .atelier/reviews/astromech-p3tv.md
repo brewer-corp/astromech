@@ -10,6 +10,13 @@ created_at: 2026-11-07T08:05:02.650852511Z
 event:
   event: finding
   recommendation: fix_now
+  disposition:
+    decision: fix_now
+    identity: claude-orchestrator-kjfs
+    commit: af09b190cc19733c6b3d74a63a09039912020fec
+    recorded_at: 2026-11-07T08:14:20.616623860Z
+    resolution_commit: 37a4ac1af197505f6a617f116d9bb118f8bb8bdd
+    reason: condvar waits recover
 ---
 
 low: crates/astromech-core/src/hub.rs:98, :117, speech.rs:444, callouts.rs:468 (96ci) The lock-recovery rewrite missed Condvar waits: cv.wait(g).unwrap() / cv.wait_timeout(..).unwrap() return Err for a poisoned mutex (poison is permanent), so after any panic under StateHub.state, the speech queue or the callouts queue, StateHub::wait_flag/wait_gui (every verified key press, actions.rs:210,219) panics, the speech thread dies (voice goes silent) and the callouts thread dies, though .lock().recover() on the same mutexes now succeeds. Contradicts the crate doc's 'the core's own state and session state lock this way' and Done when's 'session threads they share state with ... the same poison recovery'. Fix: .recover() on those four results (the generic Recover impl on LockResult<G> covers (Guard, WaitTimeoutResult)); a hub test that poisons state then calls wait_flag.
