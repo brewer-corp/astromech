@@ -5,6 +5,9 @@ issue_type: "task"
 labels:
 - "alpha"
 - "size-s"
+workflow_branch:
+  branch_base: main
+  work_branch: task/astromech-ja5a
 priority: "P1"
 relationships:
   blocks: []
@@ -13,9 +16,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Ship v1.0.0-alpha.4 with the galaxy rework"
-updated_at: "2026-11-07T00:01:47.475936108+00:00"
+updated_at: "2026-11-07T00:02:02.660829776+00:00"
 ---
 
 ## Goal
