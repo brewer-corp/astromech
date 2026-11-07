@@ -14,7 +14,7 @@ schema: "atelier.issue"
 schema_version: 2
 status: "in_progress"
 title: "Journey harness: node --test drives the page with Playwright against a world core, and a lookup fails with TRY AGAIN"
-updated_at: "2026-11-07T22:56:46.866757686+00:00"
+updated_at: "2026-11-07T23:12:54.488725070+00:00"
 ---
 
 ## Goal
@@ -23,7 +23,7 @@ A journey suite runs on every push. Node's test runner drives the page with Play
 
 ## Done when
 
-- [ ] `node --test 'journeys/*.journey.ts'` run in app/ runs every `app/journeys/*.journey.ts`. The glob is quoted, so Node expands it: `node --test journeys/` fails with "Cannot find module" on Node 22.20, and on Node 26 it runs 0 tests and exits 0. The harness fails when it finds no journeys, so a run of zero can't pass; a mutation that empties the glob's match shows it. It uses the `playwright` library, already a devDependency (app/package.json:29), and adds no new test runner. There is no `journeys` script in app/package.json: see Context, Release trigger paths.
+- [x] `node --test 'journeys/*.journey.ts'` run in app/ runs every `app/journeys/*.journey.ts`. The glob is quoted, so Node expands it: `node --test journeys/` fails with "Cannot find module" on Node 22.20, and on Node 26 it runs 0 tests and exits 0. The harness fails when it finds no journeys, so a run of zero can't pass; a mutation that empties the glob's match shows it. It uses the `playwright` library, already a devDependency (app/package.json:29), and adds no new test runner. There is no `journeys` script in app/package.json: see Context, Release trigger paths.
   - For each journey the harness starts:
     - one world core, with `startWorld` (app/dev/core.ts:155);
     - a Vite dev server whose bridge sends the page's calls to that same core, with no second core (today the plugin starts its own, app/dev/bridge.ts:106);
@@ -34,25 +34,25 @@ A journey suite runs on every push. Node's test runner drives the page with Play
   - a 2 s status poll, seen through the bridge as one more `status` call posted to `/__astromech/call` (a Playwright `request` event on the page). World mode records no control calls as observations, and this adds none;
   - a toast's dismissal.
 
-- [ ] Journey: a lookup fails and recovers.
+- [x] Journey: a lookup fails and recovers.
   - The world, committed under worlds/journeys/: a Places search goes through SearchKit (app/src/lib/ui/SearchKit.svelte). It is first answered with a recorded 503, then with the recorded answer (`in_turn`, as in worlds/preview/sol/net.json).
   - The page shows DESIGN.md's hard error, a red "!", the reason and TRY AGAIN (app/src/lib/ui/Failure.svelte). After TRY AGAIN it shows the recorded results.
   - With `observed`, the journey checks the core made two requests to that URL.
   - Mutations, each reverted:
     - the world answering 200 the first time fails the wait for the error;
     - TRY AGAIN that repeats nothing fails the wait for the results.
-- [ ] Lint enforces determinism.
+- [x] Lint enforces determinism.
   - app/eslint.config.js applies `astromech/no-timer-wait` and `astromech/no-wall-clock` (app/eslint-rules/tests.js) to app/journeys/.
   - A new rule there rejects Playwright's `waitForTimeout` and a numeric `polling` interval.
   - Each rule has a case in app/eslint-rules/tests.test.js.
-- [ ] No step or test retries: no harness or journey code retries, and `node --test` runs with no retry option. Waits are on the core's observations (`world_wait`, which has its own 30 s hang guard) or on the page (locator waits, or `waitForFunction` with `polling: "mutation"`). Their timeouts only guard against a hang.
+- [x] No step or test retries: no harness or journey code retries, and `node --test` runs with no retry option. Waits are on the core's observations (`world_wait`, which has its own 30 s hang guard) or on the page (locator waits, or `waitForFunction` with `polling: "mutation"`). Their timeouts only guard against a hang.
 - [ ] CI: a step in ci.yml's Linux job runs the journey suite.
   - It goes after "dev bridge answers with the real core" (ci.yml:96-99), so `cargo test` has built the core and the browser project's step has installed Chromium (ci.yml:86-92).
   - It runs `node --test 'journeys/*.journey.ts'` and has `timeout-minutes: 5`.
   - When a journey fails, its Playwright trace, a screenshot and the core's log are uploaded as an artifact.
   - The Report gives the step's time on the runner, with one cold start of the Vite dev server and its first page load measured separately. The budget is under 90 s for the whole suite.
-- [ ] The journeys typecheck. `app/journeys/tsconfig.json` extends `../tsconfig.json` and includes `journeys/**/*.ts` (with Node's types), and a ci.yml Linux step runs `pnpm exec tsc -p journeys` in app/. A type error planted in a journey fails it.
-- [ ] The Tests section of CONTRIBUTING.md covers:
+- [x] The journeys typecheck. `app/journeys/tsconfig.json` extends `../tsconfig.json` and includes `journeys/**/*.ts` (with Node's types), and a ci.yml Linux step runs `pnpm exec tsc -p journeys` in app/. A type error planted in a journey fails it.
+- [x] The Tests section of CONTRIBUTING.md covers:
   - what a journey is: a user outcome that crosses the page, the core and a boundary, never a case a lower layer already tests;
   - how to run one locally;
   - the rules above.
@@ -101,3 +101,66 @@ Out:
   - If it finds a new dependency mid-run (a module imported only by a later page), it re-optimises and reloads the page, which would break a journey midway.
   - The harness makes sure no page reloads mid-journey: dependencies are pre-bundled or warmed before the first journey, and a reload fails the journey rather than being ignored.
   - Measure one cold start and first page load on the runner, and record it in the Report.
+
+## Notes
+
+- 2026-11-07 [decision] The bridge gets the journey's core as a plugin option: astromechBridge({ core }), added to app/vite.config.ts's plugins by the harness's createServer call. With a core given the plugin applies without ASTROMECH_WORLD, never starts or quits a core, and the harness refuses to run with ASTROMECH_WORLD set, so the config's own plugin starts no second core.
+  Reason: One owner for the core's life (the harness), no contact string to parse from the environment, and vite.config.ts (a Release trigger path) stays untouched because inline plugins merge with the config file's.
+  Rejected: The core's contact in an environment variable read by the config's plugin: a second way to find a core beside the stdout line, and process-wide state
+- 2026-11-07 [decision] The journeys' dev server does no dependency pre-bundling (optimizeDeps noDiscovery with no include), watches no files, and listens on 127.0.0.1 from port 5180 with strictPort off. A second page load fails the journey at once (the page is closed, the waits reject).
+  Reason: Svelte and esm-env are ES modules, so Vite serves them as they are: there is no optimiser to discover a dependency mid-journey and reload, and no node_modules/.vite cache for the side-by-side journey processes to race on. Measured on the dev host it is as fast as pre-bundling into a cold cache (first load 750 ms against 820 ms).
+  Rejected: Pre-bundling with a warm-up before the first journey: needs a step outside the glob, and node --test runs files in parallel processes sharing the cache
+- 2026-11-07 [decision] The page clock is page.clock.install({ time: start }) followed by page.clock.pauseAt(start), before the one page.goto; journeys then move it only with runFor.
+  Reason: Installed alone, Playwright's clock runs on with real time (its controller resumes after install), so the 2 s poll fired on its own: with pauseAt removed the harness test fails with 'a status call before the poll was due'. pauseAt at the same instant moves no time and stops that.
+- 2026-11-07 [decision] The way past onboarding is the window's own onboarding_done (what Skip setup sends), called on the core by open() before the page loads; the page then opens straight at the journey's route.
+  Reason: One page load per journey, and the same effect as the button; clicking SKIP SETUP would land on the controller page and need a second navigation.
+- 2026-11-07 [decision] A run of zero journeys: harness.journey.ts's first test fails when globSync('journeys/*.journey.ts') finds no journey but itself, and the CI step runs 'ls journeys/*.journey.ts' before node --test, which fails a glob that matches nothing at all.
+  Reason: node --test with a glob matching nothing exits 0 on Node 22 and 26 and loads no file, so no check inside the harness can run then; the in-harness test covers the journeys renamed or moved, and the ls covers the whole folder gone in CI.
+- 2026-11-07 [decision] The lookup journey's world, worlds/journeys/lookup-retry, is the Services finder's Black Market search on worlds/preview/sol-nov's game folder, answered in turn by a 503 and by sol-nov's recorded Spansh page (referenced by path, not copied); EDSM's sphere lookup is recorded as the 503 sol-nov holds.
+  Reason: A recorded answer already in the repository (decision astromech-1zhg: fixtures are recorded raw inputs), and the journey can also check every request the core made was in the recording.
+- 2026-11-07 [decision] Failure artifacts go to app/journeys/results/<journey>/ (trace.zip, page.png, the core's astromech-core.log copied before quit, and its stderr), removed when the journey passes; the repository's results/ ignore rule already covers it.
+  Reason: A known path for CI's upload-artifact step, kept out of git with no .gitignore change.
+
+## Report
+
+Six of the eight Done when lines hold and are ticked; two are left for the plan's owner. Commit d7792acd on astromech-yis2.
+- Line 1 (the glob, one core, server and context per journey, the core's end): `node --test 'journeys/*.journey.ts'` in app/ runs harness.journey.ts and lookup.journey.ts, 3 tests pass. Each journey has one world core: sampling `ps -C astromech-core`, the lookup journey alone peaks at 1 and the suite at 2 (its two journeys run side by side). The harness quits the core and fails on an exit other than 0, a written home (core.ts `quit`) or a temp world left behind. After 30 suite runs no world core, `astromech-world-home-*` or temp world of the harness's was left. Mutation: lookup.journey.ts renamed to lookup.ts fails "the suite finds journeys" with "no journey matches journeys/*.journey.ts in app/: a run of none would pass". No new runner and no app/package.json script.
+- Line 3 (the lookup journey, worlds/journeys/lookup-retry): the page shows "! Spansh is having trouble (HTTP 503). Try again later." with TRY AGAIN. After the click it lists the recorded 10 stations. `observed` shows two requests to Spansh's stations search, and none unrecorded. Mutations, each reverted: with the world's first answer 200, the wait for the error times out ("waiting for getByRole('alert').filter({ hasText: 'Spansh is having trouble (HTTP 503)' })"); with SearchKit's TRY AGAIN a no-op, the wait for the "Rescue Ship - Li Qing Jao" row times out.
+- Line 4 (lint): eslint.config.js applies no-timer-wait, no-wall-clock and the new astromech/no-playwright-time to journeys/**/*.ts. no-playwright-time rejects `waitForTimeout` and any `polling` but "mutation". tests.test.js has 4 valid and 4 invalid cases for it, and the config test covers journeys/x.journey.ts and journeys/harness.ts. 24 tests pass. Mutations: a journey with waitForTimeout, `polling: 50`, setTimeout and Date.now gives 4 lint errors, one per rule; the journeys block pointed at another folder fails both config tests.
+- Line 5 (no retries): no harness or journey code retries, and node:test is run with no retry option. The waits are locators, `waitForRequest` and `world_wait`, and the 15 s page and 90 s journey timeouts are hang guards.
+- Line 7 (typecheck): `pnpm exec tsc -p journeys` exits 0, checking journeys/*.ts and the app/dev modules they import. A planted `open(42)` fails it with TS2345. The ci.yml Linux job runs it after "frontend typecheck".
+- Line 8 (CONTRIBUTING): the Tests section has a Journeys paragraph: what a journey is, the API, how to run all or one, the results folder, the rules and the lint. "Before a PR" lists the tsc step and the suite.
+- Proof after the last change: `pnpm -s check` 0 errors, `pnpm -s lint` clean, `pnpm -s test` 553 passed, `pnpm build` plus check-dist ("no browser preview or dev bridge"), check-guide 0 problems, `cargo test -p astromech-core --test committed_worlds` 2 passed (the new worlds). The suite ran 20 times in a row on Node 26, 20/20 in 43 s, each run 2.1-2.3 s by node:test. On Node 22.23 (`npx node@22`) it ran 10/10 at 2.3-2.4 s. No Rust change, so `cargo test --workspace` was not run.
+
+### Deviations
+- Line 2 (the clock) holds, except the word "only". `install` alone lets Playwright's clock run on with real time, so the harness also calls `page.clock.pauseAt(start)` at the same instant before the page loads. The harness test, harness.journey.ts:
+  - the 2 s status poll: `runFor(1999)` adds no `status` request on `/__astromech/call`, and `runFor(1)` adds exactly one, counted after a request barrier (`settled()`);
+  - the toast (worlds/journeys/clock, a DockingDenied that says and toasts "Docking denied. No free pad."): absent until the poll that brings it, still up after `runFor(7999)`, gone after `runFor(1)`.
+
+  Mutations: with pauseAt removed, the test fails with "a status call before the poll was due". With SHOW_MS at 7999 or at 8001 it fails too. Debounces are faked by the same install, but no journey here types. The line wants rewording to "install, pauseAt at the same instant, and runFor", so it is left unticked (decision note).
+- Line 6 (CI): the step is added. It sits after bridge-check, has timeout-minutes 5, runs `ls journeys/*.journey.ts` then the suite, and uploads journeys/results/ on failure. Its time on the runner is unmeasured, since nothing was pushed, so the line is left unticked. On the dev host:
+  - one cold dev server start (an empty cache folder) takes 340-480 ms;
+  - the first page load with the clock installed takes about 750 ms, and the first 503 error shows at about 860 ms after Chromium launched;
+  - the whole suite takes 2.1-2.4 s against the 90 s budget.
+- A run of zero: node --test with a glob matching nothing exits 0 and loads no file, so no harness check can run. The CI step's `ls` catches the whole folder gone. The in-harness test catches the journeys renamed or moved (decision note).
+
+### Decisions
+Seven decision notes on this record:
+- the plugin option `astromechBridge({ core })`, which settles the first Unknown;
+- no dependency pre-bundling, no file watching, and a second load fails the journey, which settles the second;
+- install plus pauseAt;
+- onboarding_done as the way past onboarding;
+- the zero-journey guards;
+- the lookup world reusing sol-nov's recorded page;
+- the results folder.
+
+### Surprises
+- The first loop ran from the wrong folder: a backgrounded `cd`. node --test found nothing and "passed" 20 times. That is exactly the zero-journey case the CI `ls` guards.
+- Pre-bundling into a cold cache was no faster, and loaded the same 157 requests.
+
+### Open items
+- Line 2's wording (above), for the plan's owner.
+- Line 6 needs the PR's CI run: the step's time and one cold start on the runner.
+- core.ts gained `stderr: <fd>`, used by the harness for the core's stderr log.
+- No Release trigger path is touched. app/journeys/tsconfig.json is outside `app/tsconfig*.json`.
+- Review is outstanding.
