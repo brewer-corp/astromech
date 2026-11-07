@@ -63,19 +63,8 @@ pub enum ApiError {
     Failed { message: String },
 }
 
-/// Unix time in seconds; a trait so tests can move time (§5.1).
-pub trait Clock: Send + Sync {
-    fn now_s(&self) -> i64;
-}
-
-/// The system's wall clock.
-pub struct SystemClock;
-
-impl Clock for SystemClock {
-    fn now_s(&self) -> i64 {
-        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0)
-    }
-}
+pub mod clock;
+pub use clock::{Clock, ClockReceiver, ClockSender, Entered, ManualClock, Registration, SystemClock};
 
 #[cfg(test)]
 mod tests {

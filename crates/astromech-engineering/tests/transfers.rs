@@ -12,6 +12,16 @@ impl Clock for Fake {
     fn now_s(&self) -> i64 {
         self.0.load(Ordering::SeqCst)
     }
+    // A wall clock the test sets; the monotonic time and sleeps stay real.
+    fn now(&self) -> std::time::Instant {
+        std::time::Instant::now()
+    }
+    fn utc(&self) -> std::time::SystemTime {
+        std::time::UNIX_EPOCH + std::time::Duration::from_secs(self.now_s() as u64)
+    }
+    fn sleep(&self, d: std::time::Duration) {
+        std::thread::sleep(d)
+    }
 }
 
 /// 2026-10-10T11:01:00Z, when the ship and the module are ordered (300 s and 600 s to arrive).
