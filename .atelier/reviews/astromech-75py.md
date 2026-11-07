@@ -10,6 +10,13 @@ created_at: 2026-11-07T04:54:26.917259188Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: fix_now
+    identity: claude-author
+    commit: 2dc1e59b1ef18b668bef415e41cfe21d826f7442
+    recorded_at: 2026-11-07T04:55:53.975344529Z
+    resolution_commit: 2dc1e59b1ef18b668bef415e41cfe21d826f7442
+    reason: Folded into the plan in 2dc1e59b.
 ---
 
 low: docs/strategies/one-tested-process.md Why, astromech-6i8s Context, astromech-bp23 Done when 'about 42 commands' undercounts: generate_handler in app/src-tauri/src/window.rs:1354-1406 registers 52 (48 besides core_status, core_call, shell_info, open_external). Fix next time these records are touched; bp23's test lists them anyway.

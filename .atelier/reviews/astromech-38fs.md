@@ -10,6 +10,13 @@ created_at: 2026-11-07T04:54:25.944451394Z
 event:
   event: finding
   recommendation: fix_now
+  disposition:
+    decision: fix_now
+    identity: claude-author
+    commit: 2dc1e59b1ef18b668bef415e41cfe21d826f7442
+    recorded_at: 2026-11-07T04:55:53.063369936Z
+    resolution_commit: 2dc1e59b1ef18b668bef415e41cfe21d826f7442
+    reason: Folded into the plan in 2dc1e59b.
 ---
 
 low: astromech-xil2 Context Two Svelte components import previewQuery directly (app/src/modules/keybinds/KeybindsView.svelte:15, app/src/modules/controller/View.svelte:20), and fakecore.contract.test.ts reads app/src/lib/core-reply-shapes.json, which a Rust test in crates/astromech-core/src/app.rs:1995 writes by path; the issue says the Rust side doesn't change. Fix: list the two components in Context and say core-reply-shapes.json stays where it is (or that the Rust test path changes with it).
