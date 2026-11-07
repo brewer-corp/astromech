@@ -12,9 +12,9 @@ relationships:
   relates: []
 schema: "atelier.issue"
 schema_version: 2
-status: "todo"
+status: "in_progress"
 title: "Journeys: plot a route from the page and follow it; a jump into the next stop copies and reads out the one after"
-updated_at: "2026-11-07T22:55:23.422993154+00:00"
+updated_at: "2026-11-07T23:37:43.886806658+00:00"
 ---
 
 ## Goal
