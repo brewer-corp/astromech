@@ -10,6 +10,13 @@ created_at: 2026-11-07T14:05:58.559352959Z
 event:
   event: finding
   recommendation: defer
+  disposition:
+    decision: defer
+    identity: claude-orchestrator-kjfs
+    commit: 579c3a8ebda8dbeb856438298aa50b1fb3b7ac3d
+    recorded_at: 2026-11-07T14:07:22.054130757Z
+    follow_up: astromech-xz7i
+    reason: Noted on xz7i
 ---
 
 low: scripts/one_process_probe.py:519 and :282. Check 6's pass ignores r['close'] (closing the dead window and WebView2 exiting), so a crashed window whose WebView2 lingers after close would still pass check 6. tray_ok's fallback (icon built plus Ok(None)) would pass check 1 with no tray rectangle. Neither weakened these runs: every close passed, and every tray reading was 'rect' (art2 report.json). But xz7i is to move check 6 into webview_cost.py's gates. Fix there: require the close in the crash case to pass, and treat the tray fallback as a reported degradation, not a pass.

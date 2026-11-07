@@ -10,6 +10,13 @@ created_at: 2026-11-07T14:05:56.897933815Z
 event:
   event: finding
   recommendation: fix_now
+  disposition:
+    decision: fix_now
+    identity: claude-orchestrator-kjfs
+    commit: 579c3a8ebda8dbeb856438298aa50b1fb3b7ac3d
+    recorded_at: 2026-11-07T14:07:20.448777069Z
+    resolution_commit: 579c3a8ebda8dbeb856438298aa50b1fb3b7ac3d
+    reason: dl53 defers End task to lkwj
 ---
 
 medium: .atelier/issues/astromech-dl53.md (after-merge line) says 'a TerminateProcess (taskkill /F) stays off for 90 s' as a fixed expectation. The text it replaced said 'per the decision'. What End task does is option 2 of decision astromech-lkwj, which is still Sumeet's and open (2b = it comes back). As written, the check assumes 2a and would test the wrong behaviour if he picks 2b. Fix: 'stays off or comes back as decision astromech-lkwj says', as the CI restored-state bullet already does.
