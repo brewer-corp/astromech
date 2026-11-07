@@ -11,6 +11,9 @@ on:
     paths:
       - .github/workflows/webview-cost.yml
       - scripts/webview_cost.py
+      # The window's dependencies are locked in the root workspace's files.
+      - Cargo.toml
+      - Cargo.lock
       - app/src-tauri/**
       - app/src/**
       - app/index.html
