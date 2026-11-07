@@ -7,7 +7,25 @@ labels:
 priority: "P1"
 relationships:
   blocks: []
-  children: []
+  children:
+  - kind: "issue"
+    id: "astromech-1hh9"
+  - kind: "issue"
+    id: "astromech-7149"
+  - kind: "issue"
+    id: "astromech-d2nq"
+  - kind: "issue"
+    id: "astromech-gllh"
+  - kind: "issue"
+    id: "astromech-i1ev"
+  - kind: "issue"
+    id: "astromech-jkgv"
+  - kind: "issue"
+    id: "astromech-u8ge"
+  - kind: "issue"
+    id: "astromech-xk0n"
+  - kind: "issue"
+    id: "astromech-zgoo"
   attachments: []
   relates:
   - kind: "issue"
@@ -18,25 +36,43 @@ relationships:
     type: "advances"
 schema: "atelier.issue"
 schema_version: 2
-status: "backlog"
+status: "todo"
 title: "A scripted world for the real core: headless mode, clock, game folder, recorded network"
-updated_at: "2026-11-07T04:51:23.220788707+00:00"
+updated_at: "2026-11-07T11:57:02.049342385+00:00"
 ---
 
 ## Goal
 
-The real core runs headless on Linux against a scripted world: a game folder written over time (journal, Status.json, NavRoute.json and the rest), recorded Spansh and Ardent responses, a clock the test controls, and fake input, audio and clipboard, with faults as inputs. The browser preview can use it through a dev bridge, and `tauri dev` is the documented loop at the PC.
+The real core runs headless on Linux against a scripted world, in the format of decision astromech-e1a5. The world is:
+- a game folder written over time (journal, Status.json, NavRoute.json and the rest);
+- recorded Spansh, Ardent and EDSM responses;
+- a clock the test controls;
+- fake input, audio and clipboard, with faults as inputs.
+The browser preview can use it through a dev bridge, and `tauri dev` is the documented loop at the PC.
 
 ## Done when
 
-- [ ] `astromech --headless --world <script>` (name to settle) runs the core with no window on Linux; CI builds and starts it.
-- [ ] The one-command-list test from astromech-ro7a runs against the headless core started with a world script, through its control API. It still calls every `window` command. The commands that test could not yet run for real are the speech-model and neutron downloads, the update check and install, start with Windows, `open_config`, `save_diagnostics`' Explorer reveal, the microphone and voice preview, and EDSM's flight log. They now run against the world's recorded or faulted network and the fake opener and audio. A command that still has no seam is called with args that make it refuse before the effect. The list left at the end names only those commands, each with its reason. The expected entries are the update install (it replaces the running app) and start with Windows (a Windows registry write). This completes success criterion one-command-list.
-- [ ] The core reads time through a clock trait, and a scripted world can advance it.
-- [ ] HTTP lookups go through a record-and-replay layer that can also answer with a 503, a timeout or garbage.
-- [ ] A dev bridge (Vite middleware) passes the browser's `call()` to the headless core, so `pnpm dev` with a world script shows the real core's output; documented in CONTRIBUTING.md with `tauri dev`.
-- [ ] The hand-written fixtures that the real core can now produce are dumped from it, and a test fails when they drift.
+- [ ] The core is built by one assembly that takes its boundaries (`app::assemble` with `Boundaries`). The installed app's `run` and world mode both use it, and astromech-y6d6 builds on it.
+- [ ] `astromech-core --world <dir>` runs the core with no window or tray, on a temp copy of the world, on Linux and Windows. It prints its control endpoint on stdout. A test in `cargo test --workspace` starts the built binary, and the user's folders stay untouched.
+- [ ] The one-command-list test from astromech-ro7a runs against the headless core started with a world, through its control API, and calls every `window` command. These commands, which ro7a couldn't run for real, now run against the world's recorded or faulted network and its fake opener, Start with Windows, recorder and speaker:
+  - `check_update`, `download_models`;
+  - `autostart_on`, `autostart_off`;
+  - `open_config`, `save_diagnostics`;
+  - `mic_check`, `calibrate_record`;
+  - `voice_preview`, `edsm_flight_log`.
+  The list left at the end is `install_update` alone (it replaces the running app), called with no update staged so it refuses before its effect. This completes success criterion one-command-list.
+- [ ] The core reads the time and waits through one clock trait. In world mode the script advances a manual clock, whose `advance` returns only when the core's timer threads are parked again. Clippy rejects a new direct read or sleep in production code.
+- [ ] In world mode every HTTP request is answered from the world's recording, and a request it doesn't hold is refused and reported. Lookups can be answered with a 503, a timeout, a connection failure or garbage. A record mode captures real answers, with keys and commander names redacted.
+- [ ] In world mode, on every OS:
+  - push-to-talk, the kill switch and the paste button run from raw-input samples on the world clock;
+  - the mic from recorded WAVs;
+  - speech-to-text from the script;
+  - key presses go to the world's reactions;
+  - speech out is recorded.
+  A gear-down-by-voice world, a kill-switch world (kill, a denied command, re-arm by holding) and a paste world pass. On Windows CI the in-game push-to-talk path is exercised through the real input bus.
+- [ ] A dev bridge (Vite middleware) passes the browser's `call()` to the headless core, so `ASTROMECH_WORLD=<dir> pnpm dev` shows the real core's output. It is documented in CONTRIBUTING.md with `tauri dev`.
+- [ ] The preview fixtures the real core can produce are dumped from it, and a test fails when they drift.
 
-## Unknowns
+## Background
 
-- Which Windows-only parts (sending keys, the keyboard hook, WASAPI audio) still lack Linux fakes.
-- The world script format: reuse astromech-mockgame and the replay tests' formats, or a new one.
+The Unknowns are resolved in the children. Which Windows-only parts lacked Linux fakes is answered in the assembly, world-mode and devices children; the world script format is decision astromech-e1a5.
